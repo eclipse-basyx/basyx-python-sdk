@@ -40,12 +40,10 @@ class AdministrativeInformation:
     :var version: Version of the element.
     :var revision: Revision of the element.
     """
-    version: str or None
-    revision: str or None
 
     def __init__(self, version: str or None, revision: str or None):
-        self.version = version
-        self.revision = revision
+        self.version: str or None = version
+        self.revision: str or None = revision
 
 
 class Identifier:
@@ -57,12 +55,9 @@ class Identifier:
                    the enumeration "IdentifierType".
     """
 
-    id: str
-    id_type: IdentifierType
-
-    def __init__(self, id_, id_type):
-        self.id = id_
-        self.id_type = id_type
+    def __init__(self, id_: str, id_type: IdentifierType):
+        self.id: str = id_
+        self.id_type: IdentifierType = id_type
 
 
 class HasDataSpecification(ABC):
@@ -185,14 +180,12 @@ class Formula(Constraint):
     """
     A formula is used to describe constraints by a logical expression.
 
-    :param depends_on: A formula may depend on referable or even external global elements - assumed that can be
+    :var depends_on: A formula may depend on referable or even external global elements - assumed that can be
                         referenced and their value may be evaluated - that are used in the logical expression.
     """
 
-    depends_on: [str]
-
-    def __init__(self, depends_on):
-        self.depends_on = depends_on
+    def __init__(self, depends_on: [str]):
+        self.depends_on: [str] = depends_on
 
 
 class Qualifier(Constraint, HasSemantics):
@@ -205,13 +198,9 @@ class Qualifier(Constraint, HasSemantics):
     :var semantic_id: The semantic_id defined in the HasSemantics class.
     """
 
-    qualifier_type: str
-    qualifier_value: str or None
-    qualifier_value_id: str or None
-    semantic_id: str or None
-
-    def __init__(self, qualifier_type, qualifier_value, qualifier_value_id, semantic_id):
-        self.qualifier_type = qualifier_type
-        self.qualifier_value = qualifier_value
-        self.qualifier_value_id = qualifier_value_id
-        self.semantic_id = semantic_id
+    def __init__(self, qualifier_type: str, qualifier_value: str or None, qualifier_value_id: str or None,
+                 semantic_id: str or None):
+        self.qualifier_type: str = qualifier_type
+        self.qualifier_value: str or None = qualifier_value
+        self.qualifier_value_id: str or None = qualifier_value_id
+        self.semantic_id: str or None = semantic_id
