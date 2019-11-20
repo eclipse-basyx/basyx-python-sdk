@@ -1,11 +1,11 @@
 
 from typing import List
-from enum import Enum, auto
+from enum import Enum, unique
 
 from . import util
 # from aas.model.submodel import Property, Submodel  # not imported until existing
 
-# todo: change enum from auto zu unique (start at 0)
+
 
 class Submodel:
     """
@@ -21,6 +21,7 @@ class Property:
     pass
 
 
+@unique
 class PermissionKind(Enum):
     """
     Description of the kind of permission. Possible kind of permission also include the denial of the permission.
@@ -32,10 +33,10 @@ class PermissionKind(Enum):
     NOT_APPLICABLE: The permission is not applicable to the subject
     UNDEFINED: It is undefined whether the permission is allowed, not applicable or denied to the subject
     """
-    ALLOW = auto()
-    DENY = auto()
-    NOT_APPLICABLE = auto()
-    UNDEFINED = auto()
+    ALLOW = 0
+    DENY = 1
+    NOT_APPLICABLE = 2
+    UNDEFINED = 3
 
 
 class Permission:
