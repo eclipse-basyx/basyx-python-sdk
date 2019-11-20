@@ -1,12 +1,13 @@
 
 from typing import List
 
-from .security import Security, Submodel  # todo Remove Submodel here as soon as the real one exists
-from .util import Referable, HasKind
-# from .submodel import Submodel
+from . import util
+from . import security
+# from .import submodel
 
 
 # todo: Add Inheritances
+# todo: Change security.Submodel to submodel.Submodel as soon as exists
 
 
 class View:
@@ -17,8 +18,8 @@ class View:
 
     :param referable_list: List of referables
     """
-    def __init__(self, referable_list: List[Referable]):
-        self.contained_elements: List[Referable] = referable_list
+    def __init__(self, referable_list: List[util.Referable]):
+        self.contained_elements: List[util.Referable] = referable_list
 
 
 class Asset:
@@ -31,10 +32,10 @@ class Asset:
     :param submodel:
     :param kind: Kind (Type, Instance)
     """
-    def __init__(self, submodel: Submodel,
-                 kind: HasKind):
-        self.asset_identification_model: Submodel = submodel
-        self.kind: HasKind = kind
+    def __init__(self, submodel: security.Submodel,
+                 kind: util.HasKind):
+        self.asset_identification_model: security.Submodel = submodel
+        self.kind: util.HasKind = kind
 
 
 class ConceptDictionary:
@@ -45,28 +46,28 @@ class ConceptDictionary:
 
     :param reference:
     """
-    def __init__(self, reference: Referable):
-        self.reference: Referable = reference
+    def __init__(self, reference: util.Referable):
+        self.reference: util.Referable = reference
 
 
 class AssetAdministrationShell:
     """
     An Asset Administration Shell
 
-    :param security: Definition of the security relevant aspects of the AAS (mandatory)
+    :param security_instance: Definition of the security relevant aspects of the AAS (mandatory)
     :param asset_administration_shell_parent: The reference to the AAS this AAS was derived from (can be empty)
     :param asset: asset the AAS is representing (mandatory)
     :param view_list: containing a list of referable items (can be empty)
     """
     def __init__(self, asset_administration_shell_parent: "AssetAdministrationShell",
-                 security: Security,
+                 security_instance: security.Security,
                  asset: Asset,
-                 submodel: Submodel,
+                 submodel: security.Submodel,
                  concept_dictionary: ConceptDictionary,
                  view_list: List[View]):
         self.derived_from: AssetAdministrationShell = asset_administration_shell_parent
-        self.security: Security = security
+        self.security: security.Security = security_instance
         self.asset: Asset = asset
-        self.submodel: Submodel = submodel
+        self.submodel: security.Submodel = submodel
         self.concept_dictionary: ConceptDictionary = concept_dictionary
         self.view_list: List[View] = view_list
