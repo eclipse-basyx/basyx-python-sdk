@@ -2,9 +2,10 @@
 from typing import List
 from enum import Enum, auto
 
-from .util import Referable
+from . import util
 # from aas.model.submodel import Property, Submodel  # not imported until existing
 
+# todo: change enum from auto zu unique (start at 0)
 
 class Submodel:
     """
@@ -74,15 +75,15 @@ class PermissionsPerObject:
     The object is any referable element in the AAS. Additionally object attributes can be defined that further specify
     the kind of object the permissions apply to.
 
-    :param permission_object: Instance of class Referable (mandatory)
+    :param permission_object: Instance of class util.Referable (mandatory)
     :param target_object_attributes: List of instances of ObjectAttribute (can be empty)
     :param permissions: List of instances of the class Permission (optional)
     """
-    def __init__(self, permission_object: Referable,
+    def __init__(self, permission_object: util.Referable,
                  target_object_attributes: List[ObjectAttribute],
                  permissions: List[Permission]):
 
-        self.permission_object: Referable = permission_object
+        self.permission_object: util.Referable = permission_object
         self.target_object_attributes: List[ObjectAttribute] = target_object_attributes
         self.permissions: List[Permission] = permissions
 
