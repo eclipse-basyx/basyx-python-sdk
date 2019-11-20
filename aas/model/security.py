@@ -1,7 +1,8 @@
 
 from typing import List
 from enum import Enum, auto
-from util import Referable
+
+from .util import Referable
 # from aas.model.submodel import Property, Submodel  # not imported until existing
 
 
