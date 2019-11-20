@@ -27,8 +27,8 @@ class Permission:
     """
     Description of a single permission
 
-    @:param permission: Reference to a property that defines the semantics of the permission
-    @:param kind_of_permission: Description of the kind of permission
+    :param permission: Reference to a property that defines the semantics of the permission
+    :param kind_of_permission: Description of the kind of permission
     """
     def __init__(self, permission: isinstance(Property),
                  kind_of_permission: isinstance(PermissionKind)):
@@ -46,7 +46,7 @@ class ObjectAttribute:
     class. I changed it, so that the list is now in the PermissionsPerObject class, as a list of instances of
     this class, as otherwise I'd add an extra class "ObjectAttributes" which seems extra to me.
 
-    @:param object_attribute: Property (mandatory)
+    :param object_attribute: Property (mandatory)
     """
     def __init__(self, object_attribute: isinstance(Property)):
 
@@ -60,9 +60,9 @@ class PermissionsPerObject:
     The object is any referable element in the AAS. Additionally object attributes can be defined that further specify
     the kind of object the permissions apply to.
 
-    @:param permission_object: Instance of class Referable (mandatory)
-    @:param target_object_attributes: List of instances of ObjectAttribute (can be empty)
-    @:param permissions: List of instances of the class Permission (optional)
+    :param permission_object: Instance of class Referable (mandatory)
+    :param target_object_attributes: List of instances of ObjectAttribute (can be empty)
+    :param permissions: List of instances of the class Permission (optional)
     """
     def __init__(self, permission_object: isinstance(Referable),
                  target_object_attributes: List[ObjectAttribute],
@@ -77,7 +77,7 @@ class SubjectAttribute:
     """
     A list of data elements that further classifies a specific subject
 
-    @:param subject_attributes: List of Properties (needs at least one entry)
+    :param subject_attributes: List of Properties (needs at least one entry)
     """
     def __init__(self, subject_attribute: isinstance(Property)):
 
@@ -88,8 +88,8 @@ class AccessPermissionRule:
     """
     Table that defines access permissions per authenticated subject for a set of objects (referable elements)
 
-    @:param target_subject_attributes: List of instances of the class SubjectAttribute (needs at least one entry)
-    @:param permissions_per_object: List of instances of the class PermissionsPerObject (optional)
+    :param target_subject_attributes: List of instances of the class SubjectAttribute (needs at least one entry)
+    :param permissions_per_object: List of instances of the class PermissionsPerObject (optional)
     """
     def __init__(self, target_subject_attributes: List[SubjectAttribute],
                  permissions_per_object: List[PermissionsPerObject]):
