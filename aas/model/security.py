@@ -1,11 +1,23 @@
 
 from typing import List
 from enum import Enum, auto
+from util import Referable
+# from aas.model.submodel import Property, Submodel  # not imported until existing
 
-#Todo: Resolve missing references for:
-"""
-Property, Referable
-"""
+
+class Submodel:
+    """
+    Temp Class for testing purposes
+    """
+    pass
+
+
+class Property:
+    """
+    Temporary Class for Testing purposes
+    """
+    pass
+
 
 class PermissionKind(Enum):
     """
@@ -13,15 +25,16 @@ class PermissionKind(Enum):
 
     Comment for devs: I found the enum members to be typically written in all caps, but couldn't verify this
 
-    :var ALLOW: Allow the permission given to the subject
-    :var DENY: Explicitly deny the permission given to the subject
-    :var NOT_APPLICABLE: The permission is not applicable to the subject
-    :var UNDEFINED: It is undefined whether the permission is allowed, not applicable or denied to the subject
+    ALLOW: Allow the permission given to the subject
+    DENY: Explicitly deny the permission given to the subject
+    NOT_APPLICABLE: The permission is not applicable to the subject
+    UNDEFINED: It is undefined whether the permission is allowed, not applicable or denied to the subject
     """
     ALLOW = auto()
     DENY = auto()
     NOT_APPLICABLE = auto()
     UNDEFINED = auto()
+
 
 class Permission:
     """
@@ -77,7 +90,7 @@ class SubjectAttribute:
     """
     A list of data elements that further classifies a specific subject
 
-    :param subject_attributes: List of Properties (needs at least one entry)
+    :param subject_attribute: List of Properties (needs at least one entry)
     """
     def __init__(self, subject_attribute: Property):
 
