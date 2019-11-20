@@ -1,0 +1,23 @@
+image: python:3.7
+
+# Change pip's package cache directory to be inside the project directory to allow caching via Gitlab CI
+variables:
+    PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
+
+# Let's setup a virtualenv for every build job to allow caching of installed pip packages
+before_script:
+  - python -V               # Print out python version for debugging
+  - pip install virtualenv
+  - virtualenv venv
+  - source venv/bin/activate
+
+cache:
+  paths:
+    - .cache/pip
+    - venv/
+
+test:
+  script:
+  - pip install mypy
+  - python -m unittest
+  - mypy aas
