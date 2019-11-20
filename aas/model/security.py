@@ -30,11 +30,11 @@ class Permission:
     :param permission: Reference to a property that defines the semantics of the permission
     :param kind_of_permission: Description of the kind of permission
     """
-    def __init__(self, permission: isinstance(Property),
-                 kind_of_permission: isinstance(PermissionKind)):
+    def __init__(self, permission: Property,
+                 kind_of_permission: PermissionKind):
 
-        self.permission: isinstance(Property) = permission
-        self.kind_of_permission: isinstance(PermissionKind) = kind_of_permission
+        self.permission: Property = permission
+        self.kind_of_permission: PermissionKind = kind_of_permission
 
 
 class ObjectAttribute:
@@ -48,9 +48,9 @@ class ObjectAttribute:
 
     :param object_attribute: Property (mandatory)
     """
-    def __init__(self, object_attribute: isinstance(Property)):
+    def __init__(self, object_attribute: Property):
 
-        self.object_attribute: isinstance(Property) = object_attribute
+        self.object_attribute: Property = object_attribute
 
 
 class PermissionsPerObject:
@@ -64,11 +64,11 @@ class PermissionsPerObject:
     :param target_object_attributes: List of instances of ObjectAttribute (can be empty)
     :param permissions: List of instances of the class Permission (optional)
     """
-    def __init__(self, permission_object: isinstance(Referable),
+    def __init__(self, permission_object: Referable,
                  target_object_attributes: List[ObjectAttribute],
                  permissions: List[Permission]):
 
-        self.permission_object: isinstance(Referable) = permission_object
+        self.permission_object: Referable = permission_object
         self.target_object_attributes: List[ObjectAttribute] = target_object_attributes
         self.permissions: List[Permission] = permissions
 
@@ -79,9 +79,9 @@ class SubjectAttribute:
 
     :param subject_attributes: List of Properties (needs at least one entry)
     """
-    def __init__(self, subject_attribute: isinstance(Property)):
+    def __init__(self, subject_attribute: Property):
 
-        self.subject_attribute: isinstance(Property) = subject_attribute
+        self.subject_attribute: Property = subject_attribute
 
 
 class AccessPermissionRule:
@@ -111,20 +111,20 @@ class AccessControl:
     :param access_permission_rules: List of instances of the class AccessPermissionRule (can be empty)
     """
 
-    def __init__(self, selectable_subject_attributes: isinstance(Submodel),
-                 default_subject_attributes: isinstance(Submodel),
-                 selectable_permissions: isinstance(Submodel),
-                 default_permissions: isinstance(Submodel),
-                 selectable_environment_attributes: isinstance(Submodel),
-                 default_environment_attributes: isinstance(Submodel),
+    def __init__(self, selectable_subject_attributes: Submodel,
+                 default_subject_attributes: Submodel,
+                 selectable_permissions: Submodel,
+                 default_permissions: Submodel,
+                 selectable_environment_attributes: Submodel,
+                 default_environment_attributes: Submodel,
                  access_permission_rules: List[AccessPermissionRule]):
 
-        self.selectable_subject_attributes: isinstance(Submodel) = selectable_subject_attributes
-        self.default_subject_attributes: isinstance(Submodel) = default_subject_attributes
-        self.selectable_permissions: isinstance(Submodel) = selectable_permissions
-        self.default_permissions: isinstance(Submodel) = default_permissions
-        self.selectable_environment_attributes: isinstance(Submodel) = selectable_environment_attributes
-        self.default_environment_attributes: isinstance(Submodel) = default_environment_attributes
+        self.selectable_subject_attributes: Submodel = selectable_subject_attributes
+        self.default_subject_attributes: Submodel = default_subject_attributes
+        self.selectable_permissions: Submodel = selectable_permissions
+        self.default_permissions: Submodel = default_permissions
+        self.selectable_environment_attributes: Submodel = selectable_environment_attributes
+        self.default_environment_attributes: Submodel = default_environment_attributes
         self.access_permission_rules: List[AccessPermissionRule] = access_permission_rules
 
 
@@ -142,10 +142,10 @@ class PolicyAdministrationPoint:
     :param access_control: local access control
     :param endpoint: external access control
     """
-    def __init__(self, access_control: isinstance(AccessControl),
-                 endpoint: isinstance(Endpoint)):
+    def __init__(self, access_control: AccessControl,
+                 endpoint: Endpoint):
 
-        self.local_access_control: isinstance(AccessControl) = access_control
+        self.local_access_control: AccessControl = access_control
         self.external_access_control = endpoint
 
 
@@ -157,6 +157,6 @@ class Security:
 
     :param policy_administration_point: Instance of the PolicyAdministrationPoint Class
     """
-    def __init__(self, policy_administration_point: isinstance(PolicyAdministrationPoint)):
+    def __init__(self, policy_administration_point: PolicyAdministrationPoint):
 
-        self.policy_administration_point: isinstance(PolicyAdministrationPoint) = policy_administration_point
+        self.policy_administration_point: PolicyAdministrationPoint = policy_administration_point
