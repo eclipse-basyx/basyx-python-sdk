@@ -11,12 +11,12 @@ class IdentifierType(Enum):
     :cvar IRDI: IRDI (International Registration Data Identifier) according to ISO29002-5 as an Identifierscheme for
                 properties and classifications.
     :cvar URI: Uniform Resource Identifier
-    :cvar Custom: Custom identifiers like GUIDs (globally unique Identifiers)
+    :cvar CUSTOM: Custom identifiers like GUIDs (globally unique Identifiers)
     """
 
     IRDI = 0
     URI = 1
-    Custom = 2
+    CUSTOM = 2
 
 
 @unique
@@ -24,12 +24,16 @@ class Kind(Enum):
     """
     Enumeration for denoting whether an element is a type or an instance.
 
-    :cvar Type: hardware or software element which specifies the common attributes shared by all instances of the type
-    :cvar Instance: concrete, clearly identifiable component of a certain type
+    :cvar TYPE: hardware or software element which specifies the common attributes shared by all instances of the type
+    :cvar INSTANCE: concrete, clearly identifiable component of a certain type
     """
 
-    Type = 0
-    Instance = 1
+    TYPE = 0
+    INSTANCE = 1
+
+
+class Reference:
+    pass
 
 
 class AdministrativeInformation:
@@ -70,7 +74,7 @@ class HasDataSpecification(metaclass=abc.ABCMeta):
     """
 
     def __init__(self):
-        self.has_data_specification: List[str] = []
+        self.has_data_specification: List[Reference] = []
 
 
 class Referable(metaclass=abc.ABCMeta):
@@ -122,7 +126,7 @@ class HasSemantics(metaclass=abc.ABCMeta):
     """
 
     def __init__(self):
-        self.semantic_id: Optional[str] = None
+        self.semantic_id: Optional[Reference] = None
 
 
 class HasKind(metaclass=abc.ABCMeta):
@@ -171,9 +175,9 @@ class Formula(Constraint):
                       referenced and their value may be evaluated - that are used in the logical expression.
     """
 
-    def __init__(self, depends_on: List[str]):
+    def __init__(self, depends_on: List[Reference]):
         super().__init__()
-        self.depends_on: List[str] = depends_on
+        self.depends_on: List[Reference] = depends_on
 
 
 class Qualifier(Constraint, HasSemantics):
@@ -186,10 +190,10 @@ class Qualifier(Constraint, HasSemantics):
     :ivar semantic_id: The semantic_id defined in the HasSemantics class.
     """
 
-    def __init__(self, qualifier_type: str, qualifier_value: Optional[str], qualifier_value_id: Optional[str],
-                 semantic_id: Optional[str]):
+    def __init__(self, qualifier_type: str, qualifier_value: Optional[str], qualifier_value_id: Optional[Reference],
+                 semantic_id: Optional[Reference]):
         super().__init__()
         self.qualifier_type: str = qualifier_type
         self.qualifier_value: Optional[str] = qualifier_value
-        self.qualifier_value_id: Optional[str] = qualifier_value_id
-        self.semantic_id: Optional[str] = semantic_id
+        self.qualifier_value_id: Optional[Reference] = qualifier_value_id
+        self.semantic_id: Optional[Reference] = semantic_id
