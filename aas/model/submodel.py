@@ -16,7 +16,7 @@ class SubmodelElement(util.HasDataSpecification, util.Referable, util.Qualifiabl
     property-value pair in certain standards.
     """
 
-    def __init__(self, has_data_specification: List[str], semantic_id: Optional[util.Reference],
+    def __init__(self, has_data_specification: List[util.Reference], semantic_id: Optional[util.Reference],
                  administration: Optional[util.AdministrativeInformation], identification: util.Identifier,
                  qualifier: List[util.Constraint], kind: util.Kind):
         super().__init__()
@@ -74,11 +74,12 @@ class Property(DataElement):
     :ivar value_id: Reference to the global unique id of a coded value.
     """
 
-    def __init__(self, value: Optional[str], value_id: Optional[util.Reference], has_data_specification: List[util.Reference],
-                 semantic_id: Optional[str], administration: Optional[util.AdministrativeInformation],
-                 identification: util.Identifier, qualifier: List[util.Constraint], kind: util.Kind):
+    def __init__(self, value: Optional[str], value_id: Optional[util.Reference],
+                 has_data_specification: List[util.Reference], semantic_id: Optional[util.Reference],
+                 administration: Optional[util.AdministrativeInformation], identification: util.Identifier,
+                 qualifier: List[util.Constraint], kind: util.Kind):
         super().__init__(has_data_specification, semantic_id, administration, identification, qualifier, kind)
-        self.value: Optional[str] = value
+        self.value: Optional[util.Reference] = value
         self.value_id: Optional[util.Reference] = value_id
 
 
