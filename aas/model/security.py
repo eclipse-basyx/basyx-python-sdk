@@ -181,14 +181,22 @@ class PolicyAdministrationPoint:
         self.external_access_control = endpoint
 
 
+class Certificate:
+    """
+    Certificate is not yet further defined
+    """
+    pass
+
+
 class Security:
     """
-    Security Models of the AAS
+    Container for security relevant information of the AAS.
 
-    Security includes the PolicyAdministrationPoint, but is not limited to it, things may be added later.
-
-    :param policy_administration_point: Instance of the PolicyAdministrationPoint Class
+    :param access_control_policy_point: Instance of the PolicyAdministrationPoint Class (mandatory)
+    :param trust_anchor_list: List of used certificates (optional)
     """
-    def __init__(self, policy_administration_point: PolicyAdministrationPoint):
+    def __init__(self, access_control_policy_point: PolicyAdministrationPoint,
+                 trust_anchor_list: List[Certificate]):
 
-        self.policy_administration_point: PolicyAdministrationPoint = policy_administration_point
+        self.access_control_policy_point: PolicyAdministrationPoint = access_control_policy_point
+        self.trust_anchor_list: List[Certificate] = trust_anchor_list
