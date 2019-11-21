@@ -100,7 +100,7 @@ class SubjectAttribute:
         self.subject_attribute: Property = subject_attribute
 
 
-class AccessPermissionRule:
+class AccessPermissionRule(util.Referable, util.Qualifiable):
     """
     Table that defines access permissions per authenticated subject for a set of objects (referable elements)
 
@@ -110,6 +110,7 @@ class AccessPermissionRule:
     def __init__(self, target_subject_attributes: List[SubjectAttribute],
                  permissions_per_object: List[PermissionsPerObject]):
 
+        super().__init__()
         self.target_subject_attributes: List[SubjectAttribute] = target_subject_attributes
         self.permissions_per_object: List[PermissionsPerObject] = permissions_per_object
 
