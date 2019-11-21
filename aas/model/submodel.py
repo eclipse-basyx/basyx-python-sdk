@@ -79,7 +79,7 @@ class Property(DataElement):
                  administration: Optional[util.AdministrativeInformation], identification: util.Identifier,
                  qualifier: List[util.Constraint], kind: util.Kind):
         super().__init__(has_data_specification, semantic_id, administration, identification, qualifier, kind)
-        self.value: Optional[util.Reference] = value
+        self.value: Optional[str] = value
         self.value_id: Optional[util.Reference] = value_id
 
 
