@@ -62,7 +62,7 @@ class ObjectAttribute:
     class. I changed it, so that the list is now in the PermissionsPerObject class, as a list of instances of
     this class, as otherwise I'd add an extra class "ObjectAttributes" which seems extra to me.
 
-    :param object_attribute: Property (mandatory)
+    :param object_attribute: A data elements that further classifies an object.
     """
     def __init__(self, object_attribute: Property):
 
@@ -76,9 +76,11 @@ class PermissionsPerObject:
     The object is any referable element in the AAS. Additionally object attributes can be defined that further specify
     the kind of object the permissions apply to.
 
-    :param permission_object: Instance of class util.Referable (mandatory)
-    :param target_object_attributes: List of instances of ObjectAttribute (can be empty)
-    :param permissions: List of instances of the class Permission (optional)
+    :param permission_object: Element to which permission shall be assigned
+    :param target_object_attributes: Target object attributes that need to be fulfilled so that the access permissions
+                                     apply to the accessing subject.
+    :param permissions: Permissions assigned to the object. The permissions hold for all subjects as specified in the
+                        access permission rule.
     """
     def __init__(self, permission_object: util.Referable,
                  target_object_attributes: List[ObjectAttribute],
@@ -93,7 +95,7 @@ class SubjectAttribute:
     """
     A list of data elements that further classifies a specific subject
 
-    :param subject_attribute: List of Properties (needs at least one entry)
+    :param subject_attribute: A data element that further classifies a specific subject.
     """
     def __init__(self, subject_attribute: Property):
 
@@ -104,8 +106,12 @@ class AccessPermissionRule(util.Referable, util.Qualifiable):
     """
     Table that defines access permissions per authenticated subject for a set of objects (referable elements)
 
-    :param target_subject_attributes: List of instances of the class SubjectAttribute (needs at least one entry)
-    :param permissions_per_object: List of instances of the class PermissionsPerObject (optional)
+    :param target_subject_attributes: List of instances of the class SubjectAttribute
+                                      Target subject attributes that need to be fulfilled by the accessing subject to
+                                      get the permissions defined by this rule.
+    :param permissions_per_object: List of instances of the class PermissionsPerObject
+                                   Set of object-permission pairs that define the permissions per object within the
+                                   access permission rule
     """
     def __init__(self, target_subject_attributes: List[SubjectAttribute],
                  permissions_per_object: List[PermissionsPerObject]):
@@ -117,15 +123,34 @@ class AccessPermissionRule(util.Referable, util.Qualifiable):
 
 class AccessControl:
     """
-    Access Control of the Policy Administration Point
+    Defines the local access control policy administration point, has the major task of defining the access permission
+    rules.
 
-    :param selectable_subject_attributes: Submodel of the selectable subject attributes
-    :param default_subject_attributes: Submodel of the default subject attributes
-    :param selectable_permissions: Submodel of the selectable permissions
-    :param default_permissions: Submodel of the default permissions
-    :param selectable_environment_attributes: Submodel of the selectable environment attributes (optional)
-    :param default_environment_attributes: Submodel of the default environment attributes (optional)
-    :param access_permission_rules: List of instances of the class AccessPermissionRule (can be empty)
+    The policy decision point of access control as realized by the AAS itself
+
+    :param selectable_subject_attributes: Reference to a submodel defining the authenticated subjects to access elements
+                                          that are configured for the AAS. They are selectable by the access permission
+                                          rules to assign permissions to the subjects.
+                                          TODO: Default: refer to submodel of default_subject_attributes
+    :param default_subject_attributes: Reference to a submodel defining the default subjects
+                                       attributes for the AAS that can be used to describe
+                                       access permission rules.
+    :param selectable_permissions: Reference to a submodel defining which permissions
+                                   can be assigned to the subjects
+                                   TODO: Default: refer to submodel of default_permissions
+    :param default_permissions: Reference to a submodel defining the default
+                                permissions for the AAS.
+    :param selectable_environment_attributes: Reference to a submodel defining which environment
+                                              attributes can be accessed via the permission rules
+                                              defined for the AAS, i.e. attributes that are not
+                                              describing the asset itself.
+                                              TODO: Default refer to default_environment_attributes
+    :param default_environment_attributes: Reference to a submodel defining default environment
+                                           attributes, i.e. attributes that are not describing the
+                                           asset itself.
+    :param access_permission_rules: List of instances of the class AccessPermissionRule
+                                    Access permission rules of the AAS describing the rights assigned to (already
+                                    authenticated) subjects to access elements of the AAS
     """
 
     def __init__(self, selectable_subject_attributes: Submodel,
@@ -147,6 +172,8 @@ class AccessControl:
 
 class Endpoint:
     """
+    Endpoint to an external access control defining a policy administration point to be used by the AAS
+
     not yet specified in the current Metamodel
     """
     pass
@@ -154,16 +181,71 @@ class Endpoint:
 
 class PolicyAdministrationPoint:
     """
-    Handles Access Control to the AAS, including local and external access
+    Definition of a security administration point (PDP)
 
-    :param access_control: local access control
-    :param endpoint: external access control
+    :param access_control: Instance of Access Control (optional)
+    :param endpoint: Instance of Endpoint (optional)
     """
     def __init__(self, access_control: AccessControl,
                  endpoint: Endpoint):
 
         self.local_access_control: AccessControl = access_control
         self.external_access_control = endpoint
+
+
+class PolicyDecisionPoint:
+    """
+    Computes access decisions by evaluating the applicable Digital Policies and Meta-Policies. One of the main functions
+    of the PDP is to mediate or de-conflict Digital Policies according to Meta-Policies
+    TODO: Find definition from [22]
+    """
+    pass
+
+
+class PolicyEnforcementPoint:
+    """
+    TODO: Find anything about this class
+
+    """
+    pass
+
+
+class PolicyInformationPoints:
+    """
+    Defines the security policy information points (PIP)
+
+    Serves as the retrieval attributes, or the data required for policy evaluation to provide the information needed
+    by the policy decision point to make the decisions.
+
+    :param external_information_point_list: List of endpoints to external available information points taking into consideration for
+                                       access control for the AAS (optional)
+    :param internal_information_point_list: List of references to submodels defining information used by security
+                                            access permission rules (optional)
+    """
+    def __init__(self, external_information_point_list: List[Endpoint],
+                 internal_information_point_list: List[Submodel]):
+        self.external_information_point_list: List[Endpoint] = external_information_point_list
+        self.internal_information_point_list: List[Submodel] = internal_information_point_list
+
+
+class AccessControlPolicyPoints:
+    """
+    Container for access control policy points
+
+    :param policy_administration_point: Instance of PolicyAdministrationPoint (mandatory)
+    :param policy_decision_point: Instance of PolicyDecisionPoint (mandatory)
+    :param policy_enforcement_point: Instance of PolicyEnforcementPoint (mandatory)
+    :param policy_information_points: Instance of PolicyInformationPoints (optional)
+    """
+    def __init__(self, policy_administration_point: PolicyAdministrationPoint,
+                 policy_decision_point: PolicyDecisionPoint,
+                 policy_enforcement_point: PolicyEnforcementPoint,
+                 policy_information_points: PolicyInformationPoints):
+
+        self.policy_administration_point: PolicyAdministrationPoint = policy_administration_point
+        self.policy_decision_point: PolicyDecisionPoint = policy_decision_point
+        self.policy_enforcement_point: PolicyEnforcementPoint = policy_enforcement_point
+        self.policy_information_points: PolicyInformationPoints = policy_information_points
 
 
 class Certificate:
@@ -180,8 +262,8 @@ class Security:
     :param access_control_policy_point: Instance of the PolicyAdministrationPoint Class (mandatory)
     :param trust_anchor_list: List of used certificates (optional)
     """
-    def __init__(self, access_control_policy_point: PolicyAdministrationPoint,
+    def __init__(self, access_control_policy_point: AccessControlPolicyPoints,
                  trust_anchor_list: List[Certificate]):
 
-        self.access_control_policy_point: PolicyAdministrationPoint = access_control_policy_point
+        self.access_control_policy_point: AccessControlPolicyPoints = access_control_policy_point
         self.trust_anchor_list: List[Certificate] = trust_anchor_list
