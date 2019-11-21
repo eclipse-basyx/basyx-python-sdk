@@ -13,6 +13,6 @@ before_script:
 
 test:
   script:
-  - pip install mypy
+  - pip install --cache-dir="$PIP_CACHE_DIR" mypy
   - python -m unittest
   - mypy aas
