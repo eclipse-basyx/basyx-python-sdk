@@ -100,21 +100,6 @@ class SubjectAttribute:
         self.subject_attribute: Property = subject_attribute
 
 
-class Formula(util.Constraint):
-    """
-    Additional, more generalized access rules to be used in more than one case.
-
-    A formula can be used to specify access rules for roles (for example 'maintenance engineer'), e.g. an authenticated subject with
-    subject attribute 'role'.
-
-    :param reference_list: List of references that build the access rules
-    """
-    def __init__(self, reference_list: List[util.Referable]):
-
-        super().__init__()
-        self.reference_list: List[util.Referable] = reference_list
-
-
 class AccessPermissionRule(util.Referable, util.Qualifiable):
     """
     Table that defines access permissions per authenticated subject for a set of objects (referable elements)
