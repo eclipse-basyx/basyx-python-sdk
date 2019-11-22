@@ -106,22 +106,22 @@ class Key:
     """
     A key is a reference to an element by its id.
 
-    :ivar type: Denote which kind of entity is referenced. In case type = GlobalReference then the element is a
+    :ivar type_: Denote which kind of entity is referenced. In case type = GlobalReference then the element is a
                 global unique id. In all other cases the key references a model element of the same or of another AAS.
                 The name of the model element is explicitly listed.
     :ivar local: Denotes if the key references a model element of the same AAS (=true) or not (=false). In case of
                  local = false the key may reference a model element of another AAS or an entity outside any AAS that
                  has a global unique id.
     :ivar value: The key value, for example an IRDI if the idType=IRDI
-    :ivar idType: Type of the key value. In case of idType = idShort local shall be true. In case type=GlobalReference
+    :ivar id_type: Type of the key value. In case of idType = idShort local shall be true. In case type=GlobalReference
                   idType shall not be IdShort.
     """
 
-    def __init__(self, type_: KeyElements, local: bool, value: str, idType: KeyType):
+    def __init__(self, type_: KeyElements, local: bool, value: str, id_type: KeyType):
         self.type_: KeyElements = type_
         self.local: bool = local
         self.value: str = value
-        self.idType: KeyType = idType
+        self.id_type: KeyType = id_type
 
 
 class Reference:
