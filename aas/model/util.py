@@ -3,6 +3,15 @@ from enum import Enum, unique
 from typing import List, Optional
 
 
+PropertyValueType = str
+QualifierType = str
+Code = str
+anySimpleTypedef = str
+MimeType = str
+PathType = str
+BlobType = bytearray
+AASlangString = str
+
 @unique
 class IdentifierType(Enum):
     """
@@ -134,8 +143,8 @@ class Reference:
     :ivar: key: Unique reference in its name space.
     """
 
-    def __init__(self, keys: Optional[List[Key]]):
-        self.keys: Optional[List[Key]] = keys
+    def __init__(self, keys: List[Key]):
+        self.keys: List[Key] = keys
 
 
 class AdministrativeInformation:
@@ -146,7 +155,7 @@ class AdministrativeInformation:
     :ivar revision: Revision of the element.
     """
 
-    def __init__(self, version: Optional[str], revision: Optional[str]):
+    def __init__(self, version: Optional[str] = None, revision: Optional[str] = None):
         self.version: Optional[str] = version
         self.revision: Optional[str] = revision
 
@@ -190,14 +199,14 @@ class Referable(metaclass=abc.ABCMeta):
     :ivar category: The category is a value that gives further meta information w.r.t. to the class of the element.
                     It affects the expected existence of attributes and the applicability of constraints.
     :ivar description: Description or comments on the element.
-    :ivar parent: Reference to the next referable parent element of the element.
+    :ivar parent: Reference to the next referable parent element of the element. TODO how to check?
     """
 
     def __init__(self):
         self.id_short: Optional[str] = None
         self.category: Optional[str] = None
-        self.description: Optional[str] = None
-        self.parent: Optional["Referable"] = None
+        self.description: Optional[AASlangString] = None
+        self.parent: Optional[Reference] = None
 
 
 class Identifiable(Referable, metaclass=abc.ABCMeta):
@@ -242,7 +251,7 @@ class HasKind(metaclass=abc.ABCMeta):
     """
 
     def __init__(self):
-        self.kind: Kind = Kind.Type
+        self.kind: Kind = Kind.INSTANCE
 
 
 class Constraint(metaclass=abc.ABCMeta):
@@ -277,7 +286,7 @@ class Formula(Constraint):
                       referenced and their value may be evaluated - that are used in the logical expression.
     """
 
-    def __init__(self, depends_on: List[Reference]):
+    def __init__(self, depends_on: List[Reference] = []):
         super().__init__()
         self.depends_on: List[Reference] = depends_on
 
@@ -292,8 +301,8 @@ class Qualifier(Constraint, HasSemantics):
     :ivar semantic_id: The semantic_id defined in the HasSemantics class.
     """
 
-    def __init__(self, qualifier_type: str, qualifier_value: Optional[str], qualifier_value_id: Optional[Reference],
-                 semantic_id: Optional[Reference]):
+    def __init__(self, qualifier_type: str, qualifier_value: Optional[str] = None, qualifier_value_id: Optional[Reference] = None,
+                 semantic_id: Optional[Reference] = None):
         super().__init__()
         self.qualifier_type: str = qualifier_type
         self.qualifier_value: Optional[str] = qualifier_value

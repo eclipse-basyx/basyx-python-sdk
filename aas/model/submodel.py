@@ -16,14 +16,17 @@ class SubmodelElement(util.HasDataSpecification, util.Referable, util.Qualifiabl
     property-value pair in certain standards.
     """
 
-    def __init__(self, has_data_specification: List[util.Reference], semantic_id: Optional[util.Reference],
-                 administration: Optional[util.AdministrativeInformation], identification: util.Identifier,
-                 qualifier: List[util.Constraint], kind: util.Kind):
+    def __init__(self, has_data_specification: List[util.Reference] = [], semantic_id: Optional[util.Reference] = None,
+                 id_short: Optional[str] = None, category: Optional[str] = None,
+                 description: Optional[util.AASlangString] = None, parent: Optional[util.Reference] = None,
+                 qualifier: List[util.Constraint] = [], kind: util.Kind = util.Kind.INSTANCE):
         super().__init__()
         self.has_data_specification: List[util.Reference] = has_data_specification
         self.semantic_id: Optional[util.Reference] = semantic_id
-        self.administration: Optional[util.AdministrativeInformation] = administration
-        self.identification: util.Identifier = identification
+        self.id_short: Optional[str] = id_short
+        self.category: Optional[str] = category
+        self.description: Optional[util.AASlangString] = description
+        self.parent: Optional[util.Reference] = parent
         self.qualifier: List[util.Constraint] = qualifier
         self.kind: util.Kind = kind
 
@@ -38,9 +41,10 @@ class Submodel(util.HasDataSpecification, util.HasSemantics, util.Identifiable, 
     :ivar submodel_element: A submodel consists of zero or more submodel elements.
     """
 
-    def __init__(self, submodel_element: List[SubmodelElement], has_data_specification: List[util.Reference],
-                 semantic_id: Optional[util.Reference], administration: Optional[util.AdministrativeInformation],
-                 identification: util.Identifier, qualifier: List[util.Constraint], kind: util.Kind):
+    def __init__(self, identification: util.Identifier, submodel_element: List[SubmodelElement] = [],
+                 has_data_specification: List[util.Reference] = [], semantic_id: Optional[util.Reference] = None,
+                 administration: Optional[util.AdministrativeInformation] = None,
+                 qualifier: List[util.Constraint] = [], kind: util.Kind = util.Kind.INSTANCE):
         super().__init__()
         self.submodel_element: List[SubmodelElement] = submodel_element
         self.has_data_specification: List[util.Reference] = has_data_specification
@@ -60,10 +64,11 @@ class DataElement(SubmodelElement, metaclass=abc.ABCMeta):
     << abstract >>
     """
 
-    def __init__(self, has_data_specification: List[util.Reference], semantic_id: Optional[util.Reference],
-                 administration: Optional[util.AdministrativeInformation], identification: util.Identifier,
-                 qualifier: List[util.Constraint], kind: util.Kind):
-        super().__init__(has_data_specification, semantic_id, administration, identification, qualifier, kind)
+    def __init__(self, has_data_specification: List[util.Reference] = [], semantic_id: Optional[util.Reference] = None,
+                 id_short: Optional[str] = None, category: Optional[str] = None,
+                 description: Optional[util.AASlangString] = None, parent: Optional[util.Reference] = None,
+                 qualifier: List[util.Constraint] = [], kind: util.Kind = util.Kind.INSTANCE):
+        super().__init__(has_data_specification, semantic_id, id_short, category, description, parent, qualifier, kind)
 
 
 class Property(DataElement):
@@ -74,11 +79,12 @@ class Property(DataElement):
     :ivar value_id: Reference to the global unique id of a coded value.
     """
 
-    def __init__(self, value: Optional[str], value_id: Optional[util.Reference],
-                 has_data_specification: List[util.Reference], semantic_id: Optional[util.Reference],
-                 administration: Optional[util.AdministrativeInformation], identification: util.Identifier,
-                 qualifier: List[util.Constraint], kind: util.Kind):
-        super().__init__(has_data_specification, semantic_id, administration, identification, qualifier, kind)
+    def __init__(self, value: Optional[str] = None, value_id: Optional[util.Reference] = None,
+                 has_data_specification: List[util.Reference] = [], semantic_id: Optional[util.Reference] = None,
+                 id_short: Optional[str] = None, category: Optional[str] = None,
+                 description: Optional[util.AASlangString] = None, parent: Optional[util.Reference] = None,
+                 qualifier: List[util.Constraint] = [], kind: util.Kind = util.Kind.INSTANCE):
+        super().__init__(has_data_specification, semantic_id, id_short, category, description, parent, qualifier, kind)
         self.value: Optional[str] = value
         self.value_id: Optional[util.Reference] = value_id
 
@@ -95,12 +101,14 @@ class Blob(DataElement):
                      are defined as in RFC2046.
     """
 
-    def __init__(self, value: Optional[bytearray], mime_type: str, has_data_specification: List[util.Reference],
-                 semantic_id: Optional[util.Reference], administration: Optional[util.AdministrativeInformation],
-                 identification: util.Identifier, qualifier: List[util.Constraint], kind: util.Kind):
-        super().__init__(has_data_specification, semantic_id, administration, identification, qualifier, kind)
-        self.value: Optional[bytearray] = value
-        self.mime_type: str = mime_type
+    def __init__(self, mime_type: util.MimeType, value: Optional[util.BlobType] = None,
+                 has_data_specification: List[util.Reference] = [], semantic_id: Optional[util.Reference] = None,
+                 id_short: Optional[str] = None, category: Optional[str] = None,
+                 description: Optional[util.AASlangString] = None, parent: Optional[util.Reference] = None,
+                 qualifier: List[util.Constraint] = [], kind: util.Kind = util.Kind.INSTANCE):
+        super().__init__(has_data_specification, semantic_id, id_short, category, description, parent, qualifier, kind)
+        self.value: Optional[util.BlobType] = value
+        self.mime_type: util.MimeType = mime_type
 
 
 class File(DataElement):
@@ -112,12 +120,14 @@ class File(DataElement):
     :ivar mime_type: Mime type of the content of the File.
     """
 
-    def __init__(self, value: Optional[str], mime_type: str, has_data_specification: List[util.Reference],
-                 semantic_id: Optional[util.Reference], administration: Optional[util.AdministrativeInformation],
-                 identification: util.Identifier, qualifier: List[util.Constraint], kind: util.Kind):
-        super().__init__(has_data_specification, semantic_id, administration, identification, qualifier, kind)
-        self.value: Optional[str] = value
-        self.mime_type: str = mime_type
+    def __init__(self, mime_type: util.MimeType, value: Optional[util.PathType],
+                 has_data_specification: List[util.Reference] = [], semantic_id: Optional[util.Reference] = None,
+                 id_short: Optional[str] = None, category: Optional[str] = None,
+                 description: Optional[util.AASlangString] = None, parent: Optional[util.Reference] = None,
+                 qualifier: List[util.Constraint] = [], kind: util.Kind = util.Kind.INSTANCE):
+        super().__init__(has_data_specification, semantic_id, id_short, category, description, parent, qualifier, kind)
+        self.value: Optional[util.PathType] = value
+        self.mime_type: util.MimeType = mime_type
 
 
 class ReferenceElement(DataElement):
@@ -129,11 +139,13 @@ class ReferenceElement(DataElement):
                  or a reference to an external object or entity.
     """
 
-    def __init__(self, value: Optional[str], has_data_specification: List[util.Reference],
-                 semantic_id: Optional[util.Reference], administration: Optional[util.AdministrativeInformation],
-                 identification: util.Identifier, qualifier: List[util.Constraint], kind: util.Kind):
-        super().__init__(has_data_specification, semantic_id, administration, identification, qualifier, kind)
-        self.value: Optional[str] = value
+    def __init__(self, value: Optional[util.Reference], has_data_specification: List[util.Reference] = [],
+                 semantic_id: Optional[util.Reference] = None, id_short: Optional[str] = None,
+                 category: Optional[str] = None, description: Optional[util.AASlangString] = None,
+                 parent: Optional[util.Reference] = None, qualifier: List[util.Constraint] = [],
+                 kind: util.Kind = util.Kind.INSTANCE):
+        super().__init__(has_data_specification, semantic_id, id_short, category, description, parent, qualifier, kind)
+        self.value: Optional[util.Reference] = value
 
 
 class SubmodelElementCollection(SubmodelElement):
@@ -147,11 +159,13 @@ class SubmodelElementCollection(SubmodelElement):
                             several times. Default = false
     """
 
-    def __init__(self, value: List[SubmodelElement], ordered: Optional[bool], allow_duplicates: Optional[bool],
-                 has_data_specification: List[util.Reference], semantic_id: Optional[util.Reference],
-                 administration: Optional[util.AdministrativeInformation], identification: util.Identifier,
-                 qualifier: List[util.Constraint], kind: util.Kind):
-        super().__init__(has_data_specification, semantic_id, administration, identification, qualifier, kind)
+    def __init__(self, value: List[SubmodelElement] = [], ordered: Optional[bool] = False,
+                 allow_duplicates: Optional[bool] = False, has_data_specification: List[util.Reference] = [],
+                 semantic_id: Optional[util.Reference] = None, id_short: Optional[str] = None,
+                 category: Optional[str] = None, description: Optional[util.AASlangString] = None,
+                 parent: Optional[util.Reference] = None, qualifier: List[util.Constraint] = [],
+                 kind: util.Kind = util.Kind.INSTANCE):
+        super().__init__(has_data_specification, semantic_id, id_short, category, description, parent, qualifier, kind)
         self.value: List[SubmodelElement] = value
         self.ordered: Optional[bool] = ordered
         self.allow_duplicates: Optional[bool] = allow_duplicates
@@ -160,14 +174,22 @@ class SubmodelElementCollection(SubmodelElement):
 class RelationshipElement(SubmodelElement):
     """
     A relationship element is used to define a relationship between two referable elements.
+
+    :ivar first: Reference to the first element in the relationship taking the role of the subject which have to be of
+                 class Referable.
+
+    :ivar second: Reference to the second element in the relationship taking the role of the object which have to be of
+                 class Referable.
     """
 
-    def __init__(self, first: util.Referable, second: util.Referable, has_data_specification: List[util.Reference],
-                 semantic_id: Optional[util.Reference], administration: Optional[util.AdministrativeInformation],
-                 identification: util.Identifier, qualifier: List[util.Constraint], kind: util.Kind):
-        super().__init__(has_data_specification, semantic_id, administration, identification, qualifier, kind)
-        self.first: util.Referable = first
-        self.second: util.Referable = second
+    def __init__(self, first: util.Reference, second: util.Reference,
+                 has_data_specification: List[util.Reference] = [], semantic_id: Optional[util.Reference] = None,
+                 id_short: Optional[str] = None, category: Optional[str] = None,
+                 description: Optional[util.AASlangString] = None, parent: Optional[util.Reference] = None,
+                 qualifier: List[util.Constraint] = [], kind: util.Kind = util.Kind.INSTANCE):
+        super().__init__(has_data_specification, semantic_id, id_short, category, description, parent, qualifier, kind)
+        self.first: util.Reference = first
+        self.second: util.Reference = second
 
 
 class OperationVariable(SubmodelElement):
@@ -177,10 +199,12 @@ class OperationVariable(SubmodelElement):
     :ivar value: Describes the needed argument for an operation via a submodel element of kind=Type.
     """
 
-    def __init__(self, value: SubmodelElement, has_data_specification: List[util.Reference],
-                 semantic_id: Optional[util.Reference], administration: Optional[util.AdministrativeInformation],
-                 identification: util.Identifier, qualifier: List[util.Constraint], kind: util.Kind):
-        super().__init__(has_data_specification, semantic_id, administration, identification, qualifier, kind)
+    def __init__(self, value: SubmodelElement, has_data_specification: List[util.Reference] = [],
+                 semantic_id: Optional[util.Reference] = None,
+                 id_short: Optional[str] = None, category: Optional[str] = None,
+                 description: Optional[util.AASlangString] = None, parent: Optional[util.Reference] = None,
+                 qualifier: List[util.Constraint] = [], kind: util.Kind = util.Kind.TYPE):
+        super().__init__(has_data_specification, semantic_id, id_short, category, description, parent, qualifier, kind)
         # Constraint AASd-008: The submodel element shall be of kind=Type.
         if value.kind != util.Kind.TYPE:
             raise ValueError("value must be of kind=Type")
@@ -191,10 +215,11 @@ class Operation(SubmodelElement):
     """
     An operation is a submodel element with input and output variables.
     """
-    def __init__(self, in_: List[OperationVariable], out: List[OperationVariable],
-                 has_data_specification: List[util.Reference], semantic_id: Optional[util.Reference],
-                 administration: Optional[util.AdministrativeInformation], identification: util.Identifier,
-                 qualifier: List[util.Constraint], kind: util.Kind):
-        super().__init__(has_data_specification, semantic_id, administration, identification, qualifier, kind)
+    def __init__(self, in_: List[OperationVariable] = [], out: List[OperationVariable] = [],
+                 has_data_specification: List[util.Reference] = [], semantic_id: Optional[util.Reference] = None,
+                 id_short: Optional[str] = None, category: Optional[str] = None,
+                 description: Optional[util.AASlangString] = None, parent: Optional[util.Reference] = None,
+                 qualifier: List[util.Constraint] = [], kind: util.Kind = util.Kind.INSTANCE):
+        super().__init__(has_data_specification, semantic_id, id_short, category, description, parent, qualifier, kind)
         self.in_: List[OperationVariable] = in_
         self.out: List[OperationVariable] = out

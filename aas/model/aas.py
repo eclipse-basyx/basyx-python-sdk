@@ -1,5 +1,5 @@
 
-from typing import List
+from typing import List, Optional
 
 from . import util, security, submodel
 
@@ -10,10 +10,10 @@ class View:
 
     todo: what does this exactly?
 
-    :param referable_list: List of referables
+    :param contained_elements: List of references to elements of class Referable
     """
-    def __init__(self, referable_list: List[util.Referable]):
-        self.contained_elements: List[util.Referable] = referable_list
+    def __init__(self, contained_elements: List[util.Reference] = []):
+        self.contained_elements: List[util.Reference] = contained_elements
 
 
 class Asset(util.HasDataSpecification, util.Identifiable, util.HasKind):
@@ -24,48 +24,70 @@ class Asset(util.HasDataSpecification, util.Identifiable, util.HasKind):
 
     :param asset_identification_model: A reference to a Submodel that defines the handling of additional domain
                                        specific (proprietary) Identifiers for the asset like e.g. serial number etc
+                                       TODO: Check if referenced element is of class submodel
     """
 
-    def __init__(self, asset_identification_model: submodel.Submodel):
+    def __init__(self, asset_identification_model: util.Reference):
         super().__init__()
-        self.asset_identification_model: submodel.Submodel = asset_identification_model
+        self.asset_identification_model: util.Reference = asset_identification_model
 
 
-class ConceptDictionary:
+class ConceptDescription(util.HasDataSpecification, util. Identifiable):
+    """
+    TODO
+    """
+
+    def __init__(self, identification: util.Identifier, is_case_of: List[util.Reference] = [],  has_data_specification: List[util.Reference] = [],
+                 administration: Optional[util.AdministrativeInformation] = None):
+        self.is_case_of: List[util.Reference] = is_case_of
+        self.identification: util.Identifier = identification
+        self.has_data_specification: List[util.Reference] = has_data_specification
+        self.administration: Optional[util.AdministrativeInformation] = administration
+
+
+
+class ConceptDictionary(util.Referable):
     """
     Contains descriptions for elements that are used within the AAS
 
     todo: see if there is more info about this
 
-    :param reference:
+    :param concept_descriptions: List of references to elements of class ConceptDescription
     """
-    def __init__(self, reference: util.Referable):
-        self.reference: util.Referable = reference
+    def __init__(self, concept_descriptions: List[util.Reference] = [], id_short: Optional[str] = None, category: Optional[str] = None,
+                 description: Optional[util.AASlangString] = None, parent: Optional[util.Reference] = None):
+        super().__init__()
+        self.concept_descriptions: List[util.Reference] = concept_descriptions
+        self.id_short: Optional[str] = id_short
+        self.category: Optional[str] = category
+        self.description: Optional[util.AASlangString] = description
+        self.parent: Optional[util.Reference] = parent
 
 
 class AssetAdministrationShell(util.HasDataSpecification, util.Identifiable):
     """
     An Asset Administration Shell
 
-    :param asset_administration_shell_parent: The reference to the AAS the AAs was derived from
     :param security_instance: Definition of the security relevant aspects of the AAS (mandatory)
-    :param asset: asset the AAS is representing (mandatory)
+    :param asset: reference to the asset the AAS is representing (mandatory)
+                TODO: Check if referenced element is of class Asset
     :param submodel_list: The asset of an AAS is typically described by one or more submodels
+                          TODO: Check if referenced elements are of class Submodel
     :param concept_dictionary: An AAS max have one or more concept dictionaries assigned to it. The concept dictionaries
                                typically contain only descriptions for elements that are also used within the AAS
     :param view_list: If needed stakeholder specific views can be defined on the elements of the AAS
+    :param derived_from: The reference to the AAS the AAs was derived from
+                         TODO: Check if referenced element is of class AssetAdministrationShell
     """
-    def __init__(self, asset_administration_shell_parent: "AssetAdministrationShell",
-                 security_instance: security.Security,
-                 asset: Asset,
-                 submodel_list: List[submodel.Submodel],
-                 concept_dictionary: ConceptDictionary,
-                 view_list: List[View]):
+    def __init__(self, security_instance: security.Security, asset: util.Reference,
+                 submodel_list: Optional[List[util.Reference]] = [],
+                 concept_dictionary: Optional[List[ConceptDictionary]] = [],
+                 view_list: Optional[List[View]] = [], derived_from: Optional[util.Reference] = None):
 
         super().__init__()
-        self.derived_from: AssetAdministrationShell = asset_administration_shell_parent
+        self.derived_from: Optional[util.Reference] = derived_from
         self.security: security.Security = security_instance
-        self.asset: Asset = asset
-        self.submodel_list: List[submodel.Submodel] = submodel_list
-        self.concept_dictionary: ConceptDictionary = concept_dictionary
-        self.view_list: List[View] = view_list
+        self.asset: util.Reference = asset
+        self.submodel_list: Optional[List[util.Reference]] = submodel_list
+        self.concept_dictionary: Optional[List[ConceptDictionary]] = concept_dictionary
+        self.view_list: Optional[List[View]] = view_list
