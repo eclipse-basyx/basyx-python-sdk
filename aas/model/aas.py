@@ -1,11 +1,7 @@
 
 from typing import List
 
-from . import util
-from . import security
-# from .import submodel
-
-# todo: Change security.Submodel to submodel.Submodel as soon as exists
+from . import util, security, submodel
 
 
 class View:
@@ -26,13 +22,13 @@ class Asset(util.HasDataSpecification, util.Identifiable, util.HasKind):
 
     The asset may either represent an asset type or an asset instance.
 
-    :param submodel: A reference to a Submodel that defines the handling of additional domain specific (proprietary)
-                     Identifiers for the asset like e.g. serial number etc
+    :param asset_identification_model: A reference to a Submodel that defines the handling of additional domain
+                                       specific (proprietary) Identifiers for the asset like e.g. serial number etc
     """
-    def __init__(self, submodel: security.Submodel):
 
+    def __init__(self, asset_identification_model: submodel.Submodel):
         super().__init__()
-        self.asset_identification_model: security.Submodel = submodel
+        self.asset_identification_model: submodel.Submodel = asset_identification_model
 
 
 class ConceptDictionary:
@@ -62,7 +58,7 @@ class AssetAdministrationShell(util.HasDataSpecification, util.Identifiable):
     def __init__(self, asset_administration_shell_parent: "AssetAdministrationShell",
                  security_instance: security.Security,
                  asset: Asset,
-                 submodel_list: List[security.Submodel],
+                 submodel_list: List[submodel.Submodel],
                  concept_dictionary: ConceptDictionary,
                  view_list: List[View]):
 
@@ -70,6 +66,6 @@ class AssetAdministrationShell(util.HasDataSpecification, util.Identifiable):
         self.derived_from: AssetAdministrationShell = asset_administration_shell_parent
         self.security: security.Security = security_instance
         self.asset: Asset = asset
-        self.submodel_list: List[security.Submodel] = submodel_list
+        self.submodel_list: List[submodel.Submodel] = submodel_list
         self.concept_dictionary: ConceptDictionary = concept_dictionary
         self.view_list: List[View] = view_list

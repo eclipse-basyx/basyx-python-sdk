@@ -2,23 +2,7 @@
 from typing import List
 from enum import Enum, unique
 
-from . import util
-# from aas.model.submodel import Property, Submodel  # not imported until existing
-
-
-
-class Submodel:
-    """
-    Temp Class for testing purposes
-    """
-    pass
-
-
-class Property:
-    """
-    Temporary Class for Testing purposes
-    """
-    pass
+from . import util, submodel
 
 
 @unique
@@ -46,10 +30,10 @@ class Permission:
     :param permission: Reference to a property that defines the semantics of the permission
     :param kind_of_permission: Description of the kind of permission
     """
-    def __init__(self, permission: Property,
+    def __init__(self, permission: submodel.Property,
                  kind_of_permission: PermissionKind):
 
-        self.permission: Property = permission
+        self.permission: submodel.Property = permission
         self.kind_of_permission: PermissionKind = kind_of_permission
 
 
@@ -64,9 +48,9 @@ class ObjectAttribute:
 
     :param object_attribute: A data elements that further classifies an object.
     """
-    def __init__(self, object_attribute: Property):
+    def __init__(self, object_attribute: submodel.Property):
 
-        self.object_attribute: Property = object_attribute
+        self.object_attribute: submodel.Property = object_attribute
 
 
 class PermissionsPerObject:
@@ -97,9 +81,9 @@ class SubjectAttribute:
 
     :param subject_attribute: A data element that further classifies a specific subject.
     """
-    def __init__(self, subject_attribute: Property):
+    def __init__(self, subject_attribute: submodel.Property):
 
-        self.subject_attribute: Property = subject_attribute
+        self.subject_attribute: submodel.Property = subject_attribute
 
 
 class AccessPermissionRule(util.Referable, util.Qualifiable):
@@ -153,20 +137,20 @@ class AccessControl:
                                     authenticated) subjects to access elements of the AAS
     """
 
-    def __init__(self, selectable_subject_attributes: Submodel,
-                 default_subject_attributes: Submodel,
-                 selectable_permissions: Submodel,
-                 default_permissions: Submodel,
-                 selectable_environment_attributes: Submodel,
-                 default_environment_attributes: Submodel,
+    def __init__(self, selectable_subject_attributes: submodel.Submodel,
+                 default_subject_attributes: submodel.Submodel,
+                 selectable_permissions: submodel.Submodel,
+                 default_permissions: submodel.Submodel,
+                 selectable_environment_attributes: submodel.Submodel,
+                 default_environment_attributes: submodel.Submodel,
                  access_permission_rules: List[AccessPermissionRule]):
 
-        self.selectable_subject_attributes: Submodel = selectable_subject_attributes
-        self.default_subject_attributes: Submodel = default_subject_attributes
-        self.selectable_permissions: Submodel = selectable_permissions
-        self.default_permissions: Submodel = default_permissions
-        self.selectable_environment_attributes: Submodel = selectable_environment_attributes
-        self.default_environment_attributes: Submodel = default_environment_attributes
+        self.selectable_subject_attributes: submodel.Submodel = selectable_subject_attributes
+        self.default_subject_attributes: submodel.Submodel = default_subject_attributes
+        self.selectable_permissions: submodel.Submodel = selectable_permissions
+        self.default_permissions: submodel.Submodel = default_permissions
+        self.selectable_environment_attributes: submodel.Submodel = selectable_environment_attributes
+        self.default_environment_attributes: submodel.Submodel = default_environment_attributes
         self.access_permission_rules: List[AccessPermissionRule] = access_permission_rules
 
 
@@ -223,9 +207,9 @@ class PolicyInformationPoints:
                                             access permission rules (optional)
     """
     def __init__(self, external_information_point_list: List[Endpoint],
-                 internal_information_point_list: List[Submodel]):
+                 internal_information_point_list: List[submodel.Submodel]):
         self.external_information_point_list: List[Endpoint] = external_information_point_list
-        self.internal_information_point_list: List[Submodel] = internal_information_point_list
+        self.internal_information_point_list: List[submodel.Submodel] = internal_information_point_list
 
 
 class AccessControlPolicyPoints:
