@@ -32,8 +32,110 @@ class Kind(Enum):
     INSTANCE = 1
 
 
+@unique
+class KeyElements(Enum):
+    """
+    Enumeration for denoting which kind of entity is referenced. They can be categorized in ReferableElements,
+    IdentifiableElements and other KeyElements
+
+    :cvar ASSET: IdentifiableElements
+    :cvar ASSET_ADMINISTRATION_SHELL: IdentifiableElements
+    :cvar CONCEPT_DESCRIPTION: IdentifiableElements
+    :cvar SUBMODEL: IdentifiableElements
+    :cvar ACCESS_PERMISSION_RULE: ReferableElements
+    :cvar BLOB: ReferableElements
+    :cvar CONCEPT_DICTIONARY: ReferableElements
+    :cvar DATA_ELEMENT: ReferableElements
+    :cvar FILE: ReferableElements
+    :cvar EVENT: ReferableElements
+    :cvar OPERATION: ReferableElements
+    :cvar OPERATION_VARIABLE: ReferableElements
+    :cvar PROPERTY: ReferableElements
+    :cvar REFRENCE_ELEMENT: ReferableElements
+    :cvar RELATIONSHIP_ELEMENT: ReferableElements
+    :cvar SUBMODEL_ELEMENT: ReferableElements
+    :cvar SUBMODEL_ELEMENT_COLLECTION: ReferableElements
+    :cvar VIEW: ReferableElements
+    :cvar GLOBAL_REFERENCE: KeyElement
+    """
+
+    # IdentifableElements starting from 0
+    ASSET = 0
+    ASSET_ADMINISTRATION_SHELL = 1
+    CONCEPT_DESCRIPTION = 2
+    SUBMODEL = 3
+
+    # ReferableElements starting from 1000
+    ACCESS_PERMISSION_RULE = 1000
+    BLOB = 1001
+    CONCEPT_DICTIONARY = 1002
+    DATA_ELEMENT = 1003
+    FILE = 1004
+    EVENT = 1005
+    OPERATION = 1006
+    OPERATION_VARIABLE = 1007
+    PROPERTY = 1008
+    REFRENCE_ELEMENT = 1009
+    RELATIONSHIP_ELEMENT = 1010
+    SUBMODEL_ELEMENT = 1011
+    SUBMODEL_ELEMENT_COLLECTION = 1012
+    VIEW = 1013
+
+    # KeyElements starting from 2000
+    GLOBAL_REFERENCE = 2000
+
+
+class KeyType(Enum):
+    """
+    Enumeration for denoting the type of the key value.
+
+    :cvar IRDI: IRDI (International Registration Data Identifier) according to ISO29002-5 as an Identifierscheme for
+                properties and classifications.
+    :cvar URI: Uniform Resource Identifier
+    :cvar CUSTOM: Custom identifiers like GUIDs (globally unique Identifiers)
+    :cvar IDSHORT: Identifying string of the element within its name space.
+    """
+
+    IRDI = 0
+    URI = 1
+    CUSTOM = 2
+    IDSHORT = 3
+
+
+class Key:
+    """
+    A key is a reference to an element by its id.
+
+    :ivar type: Denote which kind of entity is referenced. In case type = GlobalReference then the element is a
+                global unique id. In all other cases the key references a model element of the same or of another AAS.
+                The name of the model element is explicitly listed.
+    :ivar local: Denotes if the key references a model element of the same AAS (=true) or not (=false). In case of
+                 local = false the key may reference a model element of another AAS or an entity outside any AAS that
+                 has a global unique id.
+    :ivar value: The key value, for example an IRDI if the idType=IRDI
+    :ivar idType: Type of the key value. In case of idType = idShort local shall be true. In case type=GlobalReference
+                  idType shall not be IdShort.
+    """
+
+    def __init__(self, type_: KeyElements, local: bool, value: str, idType: KeyType):
+        self.type_: KeyElements = type_
+        self.local: bool = local
+        self.value: str = value
+        self.idType: KeyType = idType
+
+
 class Reference:
-    pass
+    """
+    Reference to either a model element of the same or another AAs or to an external entity.
+
+    A reference is an ordered list of keys, each key referencing an element. The complete list of keys may for
+    example be concatenated to a path that then gives unique access to an element or entity
+
+    :ivar: key: Unique reference in its name space.
+    """
+
+    def __init__(self, keys: Optional[List[Key]]):
+        self.keys: Optional[List[Key]] = keys
 
 
 class AdministrativeInformation:
