@@ -3,14 +3,14 @@ from enum import Enum, unique
 from typing import List, Optional
 
 
-PropertyValueType = str
-QualifierType = str
-Code = str
-anySimpleTypedef = str
+DataTypeDef = str
+BlobType = bytearray
 MimeType = str
 PathType = str
-BlobType = bytearray
-AASlangString = str
+QualifierType = str
+ValueDataType = str
+langString = str
+
 
 @unique
 class IdentifierType(Enum):
@@ -19,26 +19,13 @@ class IdentifierType(Enum):
 
     :cvar IRDI: IRDI (International Registration Data Identifier) according to ISO29002-5 as an Identifierscheme for
                 properties and classifications.
-    :cvar URI: Uniform Resource Identifier
+    :cvar IRI: IRI according to Rfc 3987. Every URI is an IRI
     :cvar CUSTOM: Custom identifiers like GUIDs (globally unique Identifiers)
     """
 
     IRDI = 0
-    URI = 1
+    IRI = 1
     CUSTOM = 2
-
-
-@unique
-class Kind(Enum):
-    """
-    Enumeration for denoting whether an element is a type or an instance.
-
-    :cvar TYPE: hardware or software element which specifies the common attributes shared by all instances of the type
-    :cvar INSTANCE: concrete, clearly identifiable component of a certain type
-    """
-
-    TYPE = 0
-    INSTANCE = 1
 
 
 @unique
@@ -76,22 +63,28 @@ class KeyElements(Enum):
 
     # ReferableElements starting from 1000
     ACCESS_PERMISSION_RULE = 1000
-    BLOB = 1001
-    CONCEPT_DICTIONARY = 1002
-    DATA_ELEMENT = 1003
-    FILE = 1004
-    EVENT = 1005
-    OPERATION = 1006
-    OPERATION_VARIABLE = 1007
-    PROPERTY = 1008
-    REFRENCE_ELEMENT = 1009
-    RELATIONSHIP_ELEMENT = 1010
-    SUBMODEL_ELEMENT = 1011
-    SUBMODEL_ELEMENT_COLLECTION = 1012
-    VIEW = 1013
+    ANNOTATION_RELATIONSHIP_ELEMENT = 1001
+    BASIC = 1002
+    BLOB = 1003
+    CAPABILITY = 1004
+    CONCEPT_DICTIONARY = 1005
+    DATA_ELEMENT = 1006
+    ENTITY = 1007
+    EVENT = 1008
+    FILE = 1009
+    MULTI_LANGUAGE_PROPERTY = 1010
+    OPERATION = 1011
+    PROPERTY = 1012
+    RANGE = 1013
+    REFRENCE_ELEMENT = 1014
+    RELATIONSHIP_ELEMENT = 1015
+    SUBMODEL_ELEMENT = 1016
+    SUBMODEL_ELEMENT_COLLECTION = 1017
+    VIEW = 1018
 
     # KeyElements starting from 2000
     GLOBAL_REFERENCE = 2000
+    FRAGMENT_REFERNCE = 2001
 
 
 class KeyType(Enum):
@@ -100,15 +93,59 @@ class KeyType(Enum):
 
     :cvar IRDI: IRDI (International Registration Data Identifier) according to ISO29002-5 as an Identifierscheme for
                 properties and classifications.
-    :cvar URI: Uniform Resource Identifier
+    :cvar IRI: IRI according to Rfc 3987. Every URI is an IRI
     :cvar CUSTOM: Custom identifiers like GUIDs (globally unique Identifiers)
     :cvar IDSHORT: Identifying string of the element within its name space.
+    :cvar FRAGMENT_ID: Identifier of a fragment within a file
     """
 
     IRDI = 0
-    URI = 1
+    IRI = 1
     CUSTOM = 2
     IDSHORT = 3
+    FRAGMENT_ID = 4
+
+
+@unique
+class EntityType(Enum):
+    """
+    Enumeration for denoting whether an entity is a self-managed or a co-managed entity
+
+    :cvar CO_MANAGED_ENTITY: For co-managed entities there is no separat AAS. Co-managed entities need to be part of a
+                             self-managed entity
+    :cvar SELF_MANAGED_ENTITY: Self-managed entities have their own AAS but can be part of the bill of material of a
+                               composite self-managed entity. The asset of an I4.0-component is a self-managed entity
+                               per definition.
+    """
+
+    CO_MANAGED_ENTITY = 0
+    SELF_MANAGED_ENTITY = 1
+
+
+@unique
+class ModelingKind(Enum):
+    """
+    Enumeration for denoting whether an element is a type or an instance.
+
+    :cvar TEMPLATE: Software element which specifies the common attributes shared by all instances of the template
+    :cvar INSTANCE: concrete, clearly identifiable component of a certain template
+    """
+
+    TYPE = 0
+    INSTANCE = 1
+
+
+@unique
+class AssetKind(Enum):
+    """
+    Enumeration for denoting whether an element is a type or an instance.
+
+    :cvar TYPE: hardware or software element which specifies the common attributes shared by all instances of the type
+    :cvar INSTANCE: concrete, clearly identifiable component of a certain type
+    """
+
+    TYPE = 0
+    INSTANCE = 1
 
 
 class Key:
@@ -181,11 +218,11 @@ class HasDataSpecification(metaclass=abc.ABCMeta):
 
     << abstract >>
 
-    :ivar has_data_specification: Global reference to the data specification template used by the element.
+    :ivar data_specification: Global reference to the data specification template used by the element.
     """
 
     def __init__(self):
-        self.has_data_specification: List[Reference] = []
+        self.data_specification: List[Reference] = []
 
 
 class Referable(metaclass=abc.ABCMeta):
@@ -203,9 +240,9 @@ class Referable(metaclass=abc.ABCMeta):
     """
 
     def __init__(self):
-        self.id_short: Optional[str] = None
+        self.id_short: str = ""
         self.category: Optional[str] = None
-        self.description: Optional[AASlangString] = None
+        self.description: Optional[LangStringSet] = None
         self.parent: Optional[Reference] = None
 
 
@@ -251,7 +288,7 @@ class HasKind(metaclass=abc.ABCMeta):
     """
 
     def __init__(self):
-        self.kind: Kind = Kind.INSTANCE
+        self.kind: ModelingKind = ModelingKind.INSTANCE
 
 
 class Constraint(metaclass=abc.ABCMeta):
@@ -295,16 +332,54 @@ class Qualifier(Constraint, HasSemantics):
     """
     A qualifier is a type-value pair that makes additional statements w.r.t. the value of the element.
 
-    :ivar qualifier_type: The qualifier_type describes the type of the qualifier that is applied to the element.
-    :ivar qualifier_value: The qualifier_value is the value of the qualifier.
-    :ivar qualifier_value_id: Reference to the global unique id of a coded value.
+    :ivar type_: The type of the qualifier that is applied to the element.
+    :ivar value_type: Data type of the qualifier value
+    :ivar value: The value of the qualifier.
+    :ivar value_id: Reference to the global unique id of a coded value.
     :ivar semantic_id: The semantic_id defined in the HasSemantics class.
     """
 
-    def __init__(self, qualifier_type: str, qualifier_value: Optional[str] = None, qualifier_value_id: Optional[Reference] = None,
+    def __init__(self, type_: QualifierType, value_type: DataTypeDef, value: Optional[ValueDataType] = None, value_id: Optional[Reference] = None,
                  semantic_id: Optional[Reference] = None):
         super().__init__()
-        self.qualifier_type: str = qualifier_type
-        self.qualifier_value: Optional[str] = qualifier_value
-        self.qualifier_value_id: Optional[Reference] = qualifier_value_id
+        self.type_: QualifierType = type_
+        self.value_type: DataTypeDef = value_type
+        self.value: Optional[ValueDataType] = value
+        self.value_id: Optional[Reference] = value_id
         self.semantic_id: Optional[Reference] = semantic_id
+
+
+class LangStringSet:
+    """
+    A set of strings, each annotated by the language of the string. The meaning of the string in each language shall be
+    the same.
+
+    :ivar lang_string: A string in a specified language
+    """
+
+    def __init__(self, lang_string: List[langString]):
+        self.lang_string: List[langString] = lang_string
+
+
+class ValueReferencePair:
+    """
+    A value reference pair within a value list. Each value has a global unique id defining its semantic.
+
+    :ivar value: The value of the referenced concept definition of the value in value_id
+    :ivar value_id: Global unique id of the value.
+    """
+
+    def __init__(self, value: ValueDataType, value_id: Reference):
+        self.value: ValueDataType = value
+        self.value_id: Reference = value_id
+
+
+class ValueList:
+    """
+    A set of value reference pairs.
+
+    :ivar value_reference_pair_type: A pair of a value together with its global unique id.
+    """
+
+    def __init__(self, value_reference_pair_type: List[ValueReferencePair]):
+        self.value_reference_pair_type: List[ValueReferencePair] = value_reference_pair_type

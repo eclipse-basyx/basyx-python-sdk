@@ -16,20 +16,25 @@ class View:
         self.contained_elements: List[util.Reference] = contained_elements
 
 
-class Asset(util.HasDataSpecification, util.Identifiable, util.HasKind):
+class Asset(util.HasDataSpecification, util.Identifiable):
     """
     An Asset describes meta data of an asset that is represented by an AAS
 
     The asset may either represent an asset type or an asset instance.
 
+    :param kind: Denotes whether the Asset is of kind "Type" or "Instance".
     :param asset_identification_model: A reference to a Submodel that defines the handling of additional domain
                                        specific (proprietary) Identifiers for the asset like e.g. serial number etc
-                                       TODO: Check if referenced element is of class submodel
+    :param bill_of_material: Bill of material of the asset represented by a submodel of the same AAS. This submodel
+                             contains a set of entities describing the material used to compose the composite I4.0
+                             Component.
     """
 
-    def __init__(self, asset_identification_model: util.Reference):
+    def __init__(self, kind: util.AssetKind, asset_identification_model: Optional[util.Reference], bill_of_material: Optional[util.Reference]):
         super().__init__()
-        self.asset_identification_model: util.Reference = asset_identification_model
+        self.kind: util.AssetKind = kind
+        self.asset_identification_model: Optional[util.Reference] = asset_identification_model
+        self.bill_of_material: Optional[util.Reference] = bill_of_material
 
 
 class ConceptDescription(util.HasDataSpecification, util. Identifiable):
@@ -54,13 +59,13 @@ class ConceptDictionary(util.Referable):
 
     :param concept_descriptions: List of references to elements of class ConceptDescription
     """
-    def __init__(self, concept_descriptions: List[util.Reference] = [], id_short: Optional[str] = None, category: Optional[str] = None,
-                 description: Optional[util.AASlangString] = None, parent: Optional[util.Reference] = None):
+    def __init__(self, id_short: str, concept_descriptions: List[util.Reference] = [], category: Optional[str] = None,
+                 description: Optional[util.LangStringSet] = None, parent: Optional[util.Reference] = None):
         super().__init__()
         self.concept_descriptions: List[util.Reference] = concept_descriptions
-        self.id_short: Optional[str] = id_short
+        self.id_short: str = id_short
         self.category: Optional[str] = category
-        self.description: Optional[util.AASlangString] = description
+        self.description: Optional[util.LangStringSet] = description
         self.parent: Optional[util.Reference] = parent
 
 
