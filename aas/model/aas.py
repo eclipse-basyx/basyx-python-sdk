@@ -1,7 +1,7 @@
 
 from typing import List, Optional
 
-from . import util, security, submodel
+from . import base, security, submodel
 
 
 class View:
@@ -12,11 +12,12 @@ class View:
 
     :param contained_elements: List of references to elements of class Referable
     """
-    def __init__(self, contained_elements: List[util.Reference] = []):
-        self.contained_elements: List[util.Reference] = contained_elements
+    def __init__(self,
+                 contained_elements: List[base.Reference] = []):
+        self.contained_elements: List[base.Reference] = contained_elements
 
 
-class Asset(util.HasDataSpecification, util.Identifiable):
+class Asset(base.HasDataSpecification, base.Identifiable):
     """
     An Asset describes meta data of an asset that is represented by an AAS
 
@@ -30,28 +31,34 @@ class Asset(util.HasDataSpecification, util.Identifiable):
                              Component.
     """
 
-    def __init__(self, kind: util.AssetKind, asset_identification_model: Optional[util.Reference], bill_of_material: Optional[util.Reference]):
+    def __init__(self,
+                 kind: base.AssetKind,
+                 asset_identification_model: Optional[base.Reference],
+                 bill_of_material: Optional[base.Reference]):
         super().__init__()
-        self.kind: util.AssetKind = kind
-        self.asset_identification_model: Optional[util.Reference] = asset_identification_model
-        self.bill_of_material: Optional[util.Reference] = bill_of_material
+        self.kind: base.AssetKind = kind
+        self.asset_identification_model: Optional[base.Reference] = asset_identification_model
+        self.bill_of_material: Optional[base.Reference] = bill_of_material
 
 
-class ConceptDescription(util.HasDataSpecification, util. Identifiable):
+class ConceptDescription(base.HasDataSpecification, base. Identifiable):
     """
     TODO
     """
 
-    def __init__(self, identification: util.Identifier, is_case_of: List[util.Reference] = [],  has_data_specification: List[util.Reference] = [],
-                 administration: Optional[util.AdministrativeInformation] = None):
-        self.is_case_of: List[util.Reference] = is_case_of
-        self.identification: util.Identifier = identification
-        self.has_data_specification: List[util.Reference] = has_data_specification
-        self.administration: Optional[util.AdministrativeInformation] = administration
+    def __init__(self,
+                 identification: base.Identifier,
+                 is_case_of: List[base.Reference] = [],
+                 has_data_specification: List[base.Reference] = [],
+                 administration: Optional[base.AdministrativeInformation] = None):
+        self.is_case_of: List[base.Reference] = is_case_of
+        self.identification: base.Identifier = identification
+        self.has_data_specification: List[base.Reference] = has_data_specification
+        self.administration: Optional[base.AdministrativeInformation] = administration
 
 
 
-class ConceptDictionary(util.Referable):
+class ConceptDictionary(base.Referable):
     """
     Contains descriptions for elements that are used within the AAS
 
@@ -59,17 +66,21 @@ class ConceptDictionary(util.Referable):
 
     :param concept_descriptions: List of references to elements of class ConceptDescription
     """
-    def __init__(self, id_short: str, concept_descriptions: List[util.Reference] = [], category: Optional[str] = None,
-                 description: Optional[util.LangStringSet] = None, parent: Optional[util.Reference] = None):
+    def __init__(self,
+                 id_short: str,
+                 concept_descriptions: List[base.Reference] = [],
+                 category: Optional[str] = None,
+                 description: Optional[base.LangStringSet] = None,
+                 parent: Optional[base.Reference] = None):
         super().__init__()
-        self.concept_descriptions: List[util.Reference] = concept_descriptions
+        self.concept_descriptions: List[base.Reference] = concept_descriptions
         self.id_short: str = id_short
         self.category: Optional[str] = category
-        self.description: Optional[util.LangStringSet] = description
-        self.parent: Optional[util.Reference] = parent
+        self.description: Optional[base.LangStringSet] = description
+        self.parent: Optional[base.Reference] = parent
 
 
-class AssetAdministrationShell(util.HasDataSpecification, util.Identifiable):
+class AssetAdministrationShell(base.HasDataSpecification, base.Identifiable):
     """
     An Asset Administration Shell
 
@@ -84,15 +95,18 @@ class AssetAdministrationShell(util.HasDataSpecification, util.Identifiable):
     :param derived_from: The reference to the AAS the AAs was derived from
                          TODO: Check if referenced element is of class AssetAdministrationShell
     """
-    def __init__(self, security_instance: security.Security, asset: util.Reference,
-                 submodel_list: Optional[List[util.Reference]] = [],
+    def __init__(self,
+                 security_instance: security.Security,
+                 asset: base.Reference,
+                 submodel_list: Optional[List[base.Reference]] = [],
                  concept_dictionary: Optional[List[ConceptDictionary]] = [],
-                 view_list: Optional[List[View]] = [], derived_from: Optional[util.Reference] = None):
+                 view_list: Optional[List[View]] = [],
+                 derived_from: Optional[base.Reference] = None):
 
         super().__init__()
-        self.derived_from: Optional[util.Reference] = derived_from
+        self.derived_from: Optional[base.Reference] = derived_from
         self.security: security.Security = security_instance
-        self.asset: util.Reference = asset
-        self.submodel_list: Optional[List[util.Reference]] = submodel_list
+        self.asset: base.Reference = asset
+        self.submodel_list: Optional[List[base.Reference]] = submodel_list
         self.concept_dictionary: Optional[List[ConceptDictionary]] = concept_dictionary
         self.view_list: Optional[List[View]] = view_list

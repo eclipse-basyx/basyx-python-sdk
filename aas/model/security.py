@@ -2,7 +2,7 @@
 from typing import List
 from enum import Enum, unique
 
-from . import util, submodel
+from . import base, submodel
 
 
 @unique
@@ -30,7 +30,8 @@ class Permission:
     :param permission: Reference to a property that defines the semantics of the permission
     :param kind_of_permission: Description of the kind of permission
     """
-    def __init__(self, permission: submodel.Property,
+    def __init__(self,
+                 permission: submodel.Property,
                  kind_of_permission: PermissionKind):
 
         self.permission: submodel.Property = permission
@@ -48,7 +49,8 @@ class ObjectAttribute:
 
     :param object_attribute: A data elements that further classifies an object.
     """
-    def __init__(self, object_attribute: submodel.Property):
+    def __init__(self,
+                 object_attribute: submodel.Property):
 
         self.object_attribute: submodel.Property = object_attribute
 
@@ -66,11 +68,12 @@ class PermissionsPerObject:
     :param permissions: Permissions assigned to the object. The permissions hold for all subjects as specified in the
                         access permission rule.
     """
-    def __init__(self, permission_object: util.Referable,
+    def __init__(self,
+                 permission_object: base.Referable,
                  target_object_attributes: List[ObjectAttribute],
                  permissions: List[Permission]):
 
-        self.permission_object: util.Referable = permission_object
+        self.permission_object: base.Referable = permission_object
         self.target_object_attributes: List[ObjectAttribute] = target_object_attributes
         self.permissions: List[Permission] = permissions
 
@@ -81,12 +84,13 @@ class SubjectAttribute:
 
     :param subject_attribute: A data element that further classifies a specific subject.
     """
-    def __init__(self, subject_attribute: submodel.Property):
+    def __init__(self,
+                 subject_attribute: submodel.Property):
 
         self.subject_attribute: submodel.Property = subject_attribute
 
 
-class AccessPermissionRule(util.Referable, util.Qualifiable):
+class AccessPermissionRule(base.Referable, base.Qualifiable):
     """
     Table that defines access permissions per authenticated subject for a set of objects (referable elements)
 
@@ -97,7 +101,8 @@ class AccessPermissionRule(util.Referable, util.Qualifiable):
                                    Set of object-permission pairs that define the permissions per object within the
                                    access permission rule
     """
-    def __init__(self, target_subject_attributes: List[SubjectAttribute],
+    def __init__(self,
+                 target_subject_attributes: List[SubjectAttribute],
                  permissions_per_object: List[PermissionsPerObject]):
 
         super().__init__()
@@ -137,7 +142,8 @@ class AccessControl:
                                     authenticated) subjects to access elements of the AAS
     """
 
-    def __init__(self, selectable_subject_attributes: submodel.Submodel,
+    def __init__(self,
+                 selectable_subject_attributes: submodel.Submodel,
                  default_subject_attributes: submodel.Submodel,
                  selectable_permissions: submodel.Submodel,
                  default_permissions: submodel.Submodel,
@@ -170,7 +176,8 @@ class PolicyAdministrationPoint:
     :param access_control: Instance of Access Control (optional)
     :param endpoint: Instance of Endpoint (optional)
     """
-    def __init__(self, access_control: AccessControl,
+    def __init__(self,
+                 access_control: AccessControl,
                  endpoint: Endpoint):
 
         self.local_access_control: AccessControl = access_control
@@ -206,7 +213,8 @@ class PolicyInformationPoints:
     :param internal_information_point_list: List of references to submodels defining information used by security
                                             access permission rules (optional)
     """
-    def __init__(self, external_information_point_list: List[Endpoint],
+    def __init__(self,
+                 external_information_point_list: List[Endpoint],
                  internal_information_point_list: List[submodel.Submodel]):
         self.external_information_point_list: List[Endpoint] = external_information_point_list
         self.internal_information_point_list: List[submodel.Submodel] = internal_information_point_list
@@ -221,7 +229,8 @@ class AccessControlPolicyPoints:
     :param policy_enforcement_point: Instance of PolicyEnforcementPoint (mandatory)
     :param policy_information_points: Instance of PolicyInformationPoints (optional)
     """
-    def __init__(self, policy_administration_point: PolicyAdministrationPoint,
+    def __init__(self,
+                 policy_administration_point: PolicyAdministrationPoint,
                  policy_decision_point: PolicyDecisionPoint,
                  policy_enforcement_point: PolicyEnforcementPoint,
                  policy_information_points: PolicyInformationPoints):
@@ -246,7 +255,8 @@ class Security:
     :param access_control_policy_point: Instance of the PolicyAdministrationPoint Class (mandatory)
     :param trust_anchor_list: List of used certificates (optional)
     """
-    def __init__(self, access_control_policy_point: AccessControlPolicyPoints,
+    def __init__(self,
+                 access_control_policy_point: AccessControlPolicyPoints,
                  trust_anchor_list: List[Certificate]):
 
         self.access_control_policy_point: AccessControlPolicyPoints = access_control_policy_point

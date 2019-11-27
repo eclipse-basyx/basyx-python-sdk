@@ -1,10 +1,10 @@
 import abc
 from typing import List, Optional
 
-from . import util
+from . import base
 
 
-class SubmodelElement(util.HasDataSpecification, util.Referable, util.Qualifiable, util.HasSemantics, util.HasKind,
+class SubmodelElement(base.HasDataSpecification, base.Referable, base.Qualifiable, base.HasSemantics, base.HasKind,
                       metaclass=abc.ABCMeta):
     """
     A submodel element is an element suitable for the description and differentiation of assets.
@@ -16,22 +16,27 @@ class SubmodelElement(util.HasDataSpecification, util.Referable, util.Qualifiabl
     property-value pair in certain standards.
     """
 
-    def __init__(self, id_short: str, has_data_specification: List[util.Reference] = [], semantic_id: Optional[util.Reference] = None,
+    def __init__(self,
+                 id_short: str,
+                 has_data_specification: List[base.Reference] = [],
+                 semantic_id: Optional[base.Reference] = None,
                  category: Optional[str] = None,
-                 description: Optional[util.LangStringSet] = None, parent: Optional[util.Reference] = None,
-                 qualifier: List[util.Constraint] = [], kind: util.ModelingKind = util.ModelingKind.INSTANCE):
+                 description: Optional[base.LangStringSet] = None,
+                 parent: Optional[base.Reference] = None,
+                 qualifier: List[base.Constraint] = [],
+                 kind: base.ModelingKind = base.ModelingKind.INSTANCE):
         super().__init__()
-        self.has_data_specification: List[util.Reference] = has_data_specification
-        self.semantic_id: Optional[util.Reference] = semantic_id
+        self.has_data_specification: List[base.Reference] = has_data_specification
+        self.semantic_id: Optional[base.Reference] = semantic_id
         self.id_short: str = id_short
         self.category: Optional[str] = category
-        self.description: Optional[util.LangStringSet] = description
-        self.parent: Optional[util.Reference] = parent
-        self.qualifier: List[util.Constraint] = qualifier
-        self.kind: util.ModelingKind = kind
+        self.description: Optional[base.LangStringSet] = description
+        self.parent: Optional[base.Reference] = parent
+        self.qualifier: List[base.Constraint] = qualifier
+        self.kind: base.ModelingKind = kind
 
 
-class Submodel(util.HasDataSpecification, util.HasSemantics, util.Identifiable, util.Qualifiable, util.HasKind):
+class Submodel(base.HasDataSpecification, base.HasSemantics, base.Identifiable, base.Qualifiable, base.HasKind):
     """
     A Submodel defines a specific aspect of the asset represented by the AAS. A submodel is used to structure
     the virtual representation and technical functionality of an Administration Shell into distinguishable parts.
@@ -41,18 +46,22 @@ class Submodel(util.HasDataSpecification, util.HasSemantics, util.Identifiable, 
     :ivar submodel_element: A submodel consists of zero or more submodel elements.
     """
 
-    def __init__(self, identification: util.Identifier, submodel_element: List[SubmodelElement] = [],
-                 has_data_specification: List[util.Reference] = [], semantic_id: Optional[util.Reference] = None,
-                 administration: Optional[util.AdministrativeInformation] = None,
-                 qualifier: List[util.Constraint] = [], kind: util.ModelingKind = util.ModelingKind.INSTANCE):
+    def __init__(self,
+                 identification: base.Identifier,
+                 submodel_element: List[SubmodelElement] = [],
+                 has_data_specification: List[base.Reference] = [],
+                 semantic_id: Optional[base.Reference] = None,
+                 administration: Optional[base.AdministrativeInformation] = None,
+                 qualifier: List[base.Constraint] = [],
+                 kind: base.ModelingKind = base.ModelingKind.INSTANCE):
         super().__init__()
         self.submodel_element: List[SubmodelElement] = submodel_element
-        self.has_data_specification: List[util.Reference] = has_data_specification
-        self.semantic_id: Optional[util.Reference] = semantic_id
-        self.administration: Optional[util.AdministrativeInformation] = administration
-        self.identification: util.Identifier = identification
-        self.qualifier: List[util.Constraint] = qualifier
-        self.kind: util.ModelingKind = kind
+        self.has_data_specification: List[base.Reference] = has_data_specification
+        self.semantic_id: Optional[base.Reference] = semantic_id
+        self.administration: Optional[base.AdministrativeInformation] = administration
+        self.identification: base.Identifier = identification
+        self.qualifier: List[base.Constraint] = qualifier
+        self.kind: base.ModelingKind = kind
 
 
 class DataElement(SubmodelElement, metaclass=abc.ABCMeta):
@@ -64,10 +73,15 @@ class DataElement(SubmodelElement, metaclass=abc.ABCMeta):
     << abstract >>
     """
 
-    def __init__(self, id_short: str, has_data_specification: List[util.Reference] = [], semantic_id: Optional[util.Reference] = None,
+    def __init__(self,
+                 id_short: str,
+                 has_data_specification: List[base.Reference] = [],
+                 semantic_id: Optional[base.Reference] = None,
                  category: Optional[str] = None,
-                 description: Optional[util.LangStringSet] = None, parent: Optional[util.Reference] = None,
-                 qualifier: List[util.Constraint] = [], kind: util.ModelingKind = util.ModelingKind.INSTANCE):
+                 description: Optional[base.LangStringSet] = None,
+                 parent: Optional[base.Reference] = None,
+                 qualifier: List[base.Constraint] = [],
+                 kind: base.ModelingKind = base.ModelingKind.INSTANCE):
         super().__init__(id_short, has_data_specification, semantic_id, category, description, parent, qualifier, kind)
 
 
@@ -80,15 +94,22 @@ class Property(DataElement):
     :ivar value_id: Reference to the global unique id of a coded value.
     """
 
-    def __init__(self, id_short: str, value_type: util.DataTypeDef, value: Optional[util.ValueDataType] = None, value_id: Optional[util.Reference] = None,
-                 has_data_specification: List[util.Reference] = [], semantic_id: Optional[util.Reference] = None,
+    def __init__(self,
+                 id_short: str,
+                 value_type: base.DataTypeDef,
+                 value: Optional[base.ValueDataType] = None,
+                 value_id: Optional[base.Reference] = None,
+                 has_data_specification: List[base.Reference] = [],
+                 semantic_id: Optional[base.Reference] = None,
                  category: Optional[str] = None,
-                 description: Optional[util.LangStringSet] = None, parent: Optional[util.Reference] = None,
-                 qualifier: List[util.Constraint] = [], kind: util.ModelingKind = util.ModelingKind.INSTANCE):
+                 description: Optional[base.LangStringSet] = None,
+                 parent: Optional[base.Reference] = None,
+                 qualifier: List[base.Constraint] = [],
+                 kind: base.ModelingKind = base.ModelingKind.INSTANCE):
         super().__init__(id_short, has_data_specification, semantic_id, category, description, parent, qualifier, kind)
-        self.value_type: util.DataTypeDef = value_type
-        self.value: Optional[util.ValueDataType] = value
-        self.value_id: Optional[util.Reference] = value_id
+        self.value_type: base.DataTypeDef = value_type
+        self.value: Optional[base.ValueDataType] = value
+        self.value_id: Optional[base.Reference] = value_id
 
 
 class MultiLanguageProperty(DataElement):
@@ -99,14 +120,20 @@ class MultiLanguageProperty(DataElement):
     :ivar value_id: Reference to the global unique id of a coded value.
     """
 
-    def __init__(self, id_short: str, value: Optional[util.LangStringSet] = None, value_id: Optional[util.Reference] = None,
-                 has_data_specification: List[util.Reference] = [], semantic_id: Optional[util.Reference] = None,
+    def __init__(self,
+                 id_short: str,
+                 value: Optional[base.LangStringSet] = None,
+                 value_id: Optional[base.Reference] = None,
+                 has_data_specification: List[base.Reference] = [],
+                 semantic_id: Optional[base.Reference] = None,
                  category: Optional[str] = None,
-                 description: Optional[util.LangStringSet] = None, parent: Optional[util.Reference] = None,
-                 qualifier: List[util.Constraint] = [], kind: util.ModelingKind = util.ModelingKind.INSTANCE):
+                 description: Optional[base.LangStringSet] = None,
+                 parent: Optional[base.Reference] = None,
+                 qualifier: List[base.Constraint] = [],
+                 kind: base.ModelingKind = base.ModelingKind.INSTANCE):
         super().__init__(id_short, has_data_specification, semantic_id, category, description, parent, qualifier, kind)
-        self.value: Optional[util.LangStringSet] = value
-        self.value_id: Optional[util.Reference] = value_id
+        self.value: Optional[base.LangStringSet] = value
+        self.value_id: Optional[base.Reference] = value_id
 
 
 class Range(DataElement):
@@ -119,16 +146,22 @@ class Range(DataElement):
     :ivar max_: The maximum of the range. If the max value is missing then the value is assumed to be positive infinite
     """
 
-    def __init__(self, id_short: str, value_type: util.DataTypeDef, min_: Optional[util.ValueDataType] = None,
-                 max_: Optional[util.ValueDataType] = None,
-                 has_data_specification: List[util.Reference] = [], semantic_id: Optional[util.Reference] = None,
+    def __init__(self,
+                 id_short: str,
+                 value_type: base.DataTypeDef,
+                 min_: Optional[base.ValueDataType] = None,
+                 max_: Optional[base.ValueDataType] = None,
+                 has_data_specification: List[base.Reference] = [],
+                 semantic_id: Optional[base.Reference] = None,
                  category: Optional[str] = None,
-                 description: Optional[util.LangStringSet] = None, parent: Optional[util.Reference] = None,
-                 qualifier: List[util.Constraint] = [], kind: util.ModelingKind = util.ModelingKind.INSTANCE):
+                 description: Optional[base.LangStringSet] = None,
+                 parent: Optional[base.Reference] = None,
+                 qualifier: List[base.Constraint] = [],
+                 kind: base.ModelingKind = base.ModelingKind.INSTANCE):
         super().__init__(id_short, has_data_specification, semantic_id, category, description, parent, qualifier, kind)
-        self.value_type: util.DataTypeDef = value_type
-        self.min_: Optional[util.ValueDataType] = min_
-        self.max_: Optional[util.ValueDataType] = max_
+        self.value_type: base.DataTypeDef = value_type
+        self.min_: Optional[base.ValueDataType] = min_
+        self.max_: Optional[base.ValueDataType] = max_
 
 
 class Blob(DataElement):
@@ -143,14 +176,20 @@ class Blob(DataElement):
                      are defined as in RFC2046.
     """
 
-    def __init__(self, id_short: str, mime_type: util.MimeType, value: Optional[util.BlobType] = None,
-                 has_data_specification: List[util.Reference] = [], semantic_id: Optional[util.Reference] = None,
+    def __init__(self,
+                 id_short: str,
+                 mime_type: base.MimeType,
+                 value: Optional[base.BlobType] = None,
+                 has_data_specification: List[base.Reference] = [],
+                 semantic_id: Optional[base.Reference] = None,
                  category: Optional[str] = None,
-                 description: Optional[util.LangStringSet] = None, parent: Optional[util.Reference] = None,
-                 qualifier: List[util.Constraint] = [], kind: util.ModelingKind = util.ModelingKind.INSTANCE):
+                 description: Optional[base.LangStringSet] = None,
+                 parent: Optional[base.Reference] = None,
+                 qualifier: List[base.Constraint] = [],
+                 kind: base.ModelingKind = base.ModelingKind.INSTANCE):
         super().__init__(id_short, has_data_specification, semantic_id, category, description, parent, qualifier, kind)
-        self.value: Optional[util.BlobType] = value
-        self.mime_type: util.MimeType = mime_type
+        self.value: Optional[base.BlobType] = value
+        self.mime_type: base.MimeType = mime_type
 
 
 class File(DataElement):
@@ -162,14 +201,20 @@ class File(DataElement):
     :ivar mime_type: Mime type of the content of the File.
     """
 
-    def __init__(self, id_short: str, mime_type: util.MimeType, value: Optional[util.PathType],
-                 has_data_specification: List[util.Reference] = [], semantic_id: Optional[util.Reference] = None,
+    def __init__(self,
+                 id_short: str,
+                 mime_type: base.MimeType,
+                 value: Optional[base.PathType],
+                 has_data_specification: List[base.Reference] = [],
+                 semantic_id: Optional[base.Reference] = None,
                  category: Optional[str] = None,
-                 description: Optional[util.LangStringSet] = None, parent: Optional[util.Reference] = None,
-                 qualifier: List[util.Constraint] = [], kind: util.ModelingKind = util.ModelingKind.INSTANCE):
+                 description: Optional[base.LangStringSet] = None,
+                 parent: Optional[base.Reference] = None,
+                 qualifier: List[base.Constraint] = [],
+                 kind: base.ModelingKind = base.ModelingKind.INSTANCE):
         super().__init__(id_short, has_data_specification, semantic_id, category, description, parent, qualifier, kind)
-        self.value: Optional[util.PathType] = value
-        self.mime_type: util.MimeType = mime_type
+        self.value: Optional[base.PathType] = value
+        self.mime_type: base.MimeType = mime_type
 
 
 class ReferenceElement(DataElement):
@@ -181,13 +226,18 @@ class ReferenceElement(DataElement):
                  or a reference to an external object or entity.
     """
 
-    def __init__(self, id_short: str, value: Optional[util.Reference], has_data_specification: List[util.Reference] = [],
-                 semantic_id: Optional[util.Reference] = None,
-                 category: Optional[str] = None, description: Optional[util.LangStringSet] = None,
-                 parent: Optional[util.Reference] = None, qualifier: List[util.Constraint] = [],
-                 kind: util.ModelingKind = util.ModelingKind.INSTANCE):
+    def __init__(self,
+                 id_short: str,
+                 value: Optional[base.Reference],
+                 has_data_specification: List[base.Reference] = [],
+                 semantic_id: Optional[base.Reference] = None,
+                 category: Optional[str] = None,
+                 description: Optional[base.LangStringSet] = None,
+                 parent: Optional[base.Reference] = None,
+                 qualifier: List[base.Constraint] = [],
+                 kind: base.ModelingKind = base.ModelingKind.INSTANCE):
         super().__init__(id_short, has_data_specification, semantic_id, category, description, parent, qualifier, kind)
-        self.value: Optional[util.Reference] = value
+        self.value: Optional[base.Reference] = value
 
 
 class SubmodelElementCollection(SubmodelElement):
@@ -201,12 +251,18 @@ class SubmodelElementCollection(SubmodelElement):
                             several times. Default = false
     """
 
-    def __init__(self, id_short: str, value: List[SubmodelElement] = [], ordered: Optional[bool] = False,
-                 allow_duplicates: Optional[bool] = False, has_data_specification: List[util.Reference] = [],
-                 semantic_id: Optional[util.Reference] = None,
-                 category: Optional[str] = None, description: Optional[util.LangStringSet] = None,
-                 parent: Optional[util.Reference] = None, qualifier: List[util.Constraint] = [],
-                 kind: util.ModelingKind = util.ModelingKind.INSTANCE):
+    def __init__(self,
+                 id_short: str,
+                 value: List[SubmodelElement] = [],
+                 ordered: Optional[bool] = False,
+                 allow_duplicates: Optional[bool] = False,
+                 has_data_specification: List[base.Reference] = [],
+                 semantic_id: Optional[base.Reference] = None,
+                 category: Optional[str] = None,
+                 description: Optional[base.LangStringSet] = None,
+                 parent: Optional[base.Reference] = None,
+                 qualifier: List[base.Constraint] = [],
+                 kind: base.ModelingKind = base.ModelingKind.INSTANCE):
         super().__init__(id_short, has_data_specification, semantic_id, category, description, parent, qualifier, kind)
         self.value: List[SubmodelElement] = value
         self.ordered: Optional[bool] = ordered
@@ -224,14 +280,20 @@ class RelationshipElement(SubmodelElement):
                  class Referable.
     """
 
-    def __init__(self, id_short: str, first: util.Reference, second: util.Reference,
-                 has_data_specification: List[util.Reference] = [], semantic_id: Optional[util.Reference] = None,
+    def __init__(self,
+                 id_short: str,
+                 first: base.Reference,
+                 second: base.Reference,
+                 has_data_specification: List[base.Reference] = [],
+                 semantic_id: Optional[base.Reference] = None,
                  category: Optional[str] = None,
-                 description: Optional[util.LangStringSet] = None, parent: Optional[util.Reference] = None,
-                 qualifier: List[util.Constraint] = [], kind: util.ModelingKind = util.ModelingKind.INSTANCE):
+                 description: Optional[base.LangStringSet] = None,
+                 parent: Optional[base.Reference] = None,
+                 qualifier: List[base.Constraint] = [],
+                 kind: base.ModelingKind = base.ModelingKind.INSTANCE):
         super().__init__(id_short, has_data_specification, semantic_id, category, description, parent, qualifier, kind)
-        self.first: util.Reference = first
-        self.second: util.Reference = second
+        self.first: base.Reference = first
+        self.second: base.Reference = second
 
 
 class AnnotatedRelationshipElement(SubmodelElement):
@@ -241,13 +303,18 @@ class AnnotatedRelationshipElement(SubmodelElement):
     :ivar annotation: Annotations that hold for the relationship between to elements
     """
 
-    def __init__(self, id_short: str, annotation: List[util.Reference] = [],
-                 has_data_specification: List[util.Reference] = [], semantic_id: Optional[util.Reference] = None,
+    def __init__(self,
+                 id_short: str,
+                 annotation: List[base.Reference] = [],
+                 has_data_specification: List[base.Reference] = [],
+                 semantic_id: Optional[base.Reference] = None,
                  category: Optional[str] = None,
-                 description: Optional[util.LangStringSet] = None, parent: Optional[util.Reference] = None,
-                 qualifier: List[util.Constraint] = [], kind: util.ModelingKind = util.ModelingKind.INSTANCE):
+                 description: Optional[base.LangStringSet] = None,
+                 parent: Optional[base.Reference] = None,
+                 qualifier: List[base.Constraint] = [],
+                 kind: base.ModelingKind = base.ModelingKind.INSTANCE):
         super().__init__(id_short, has_data_specification, semantic_id, category, description, parent, qualifier, kind)
-        self.annotation: List[util.Reference] = annotation
+        self.annotation: List[base.Reference] = annotation
 
 
 class OperationVariable(SubmodelElement):
@@ -257,15 +324,19 @@ class OperationVariable(SubmodelElement):
     :ivar value: Describes the needed argument for an operation via a submodel element of kind=Type.
     """
 
-    def __init__(self, id_short: str, value: SubmodelElement, has_data_specification: List[util.Reference] = [],
-                 semantic_id: Optional[util.Reference] = None,
+    def __init__(self,
+                 id_short: str,
+                 value: SubmodelElement,
+                 has_data_specification: List[base.Reference] = [],
+                 semantic_id: Optional[base.Reference] = None,
                  category: Optional[str] = None,
-                 description: Optional[util.LangStringSet] = None, parent: Optional[util.Reference] = None,
-                 qualifier: List[util.Constraint] = [], kind: util.ModelingKind = util.ModelingKind.TYPE):
-        super().__init__(id_short, has_data_specification, semantic_id, category, description, parent, qualifier, kind)
+                 description: Optional[base.LangStringSet] = None,
+                 parent: Optional[base.Reference] = None,
+                 qualifier: List[base.Constraint] = []):
+        super().__init__(id_short, has_data_specification, semantic_id, category, description, parent, qualifier,
+                         base.ModelingKind.TEMPLATE)
         # Constraint AASd-008: The submodel element shall be of kind=Type.
-        if value.kind != util.ModelingKind.TYPE:
-            raise ValueError("value must be of kind=Type")
+        self.kind = base.ModelingKind.TEMPLATE
         self.value: SubmodelElement = value
 
 
@@ -277,12 +348,18 @@ class Operation(SubmodelElement):
     :ivar output_variable: Output parameter of the operation
     :ivar inoutput_variable: Parameter that is input and output of the operation
     """
-    def __init__(self, id_short: str, input_variable: List[OperationVariable] = [], output_variable: List[OperationVariable] = [],
+    def __init__(self,
+                 id_short: str,
+                 input_variable: List[OperationVariable] = [],
+                 output_variable: List[OperationVariable] = [],
                  inoutput_variable: List[OperationVariable] = [],
-                 has_data_specification: List[util.Reference] = [], semantic_id: Optional[util.Reference] = None,
+                 has_data_specification: List[base.Reference] = [],
+                 semantic_id: Optional[base.Reference] = None,
                  category: Optional[str] = None,
-                 description: Optional[util.LangStringSet] = None, parent: Optional[util.Reference] = None,
-                 qualifier: List[util.Constraint] = [], kind: util.ModelingKind = util.ModelingKind.INSTANCE):
+                 description: Optional[base.LangStringSet] = None,
+                 parent: Optional[base.Reference] = None,
+                 qualifier: List[base.Constraint] = [],
+                 kind: base.ModelingKind = base.ModelingKind.INSTANCE):
         super().__init__(id_short, has_data_specification, semantic_id, category, description, parent, qualifier, kind)
         self.input_variable: List[OperationVariable] = input_variable
         self.output_variable: List[OperationVariable] = output_variable
@@ -296,10 +373,15 @@ class Capability(SubmodelElement):
 
     """
 
-    def __init__(self, id_short: str, has_data_specification: List[util.Reference] = [], semantic_id: Optional[util.Reference] = None,
+    def __init__(self,
+                 id_short: str,
+                 has_data_specification: List[base.Reference] = [],
+                 semantic_id: Optional[base.Reference] = None,
                  category: Optional[str] = None,
-                 description: Optional[util.LangStringSet] = None, parent: Optional[util.Reference] = None,
-                 qualifier: List[util.Constraint] = [], kind: util.ModelingKind = util.ModelingKind.INSTANCE):
+                 description: Optional[base.LangStringSet] = None,
+                 parent: Optional[base.Reference] = None,
+                 qualifier: List[base.Constraint] = [],
+                 kind: base.ModelingKind = base.ModelingKind.INSTANCE):
         super().__init__(id_short, has_data_specification, semantic_id, category, description, parent, qualifier, kind)
 
 
@@ -313,16 +395,22 @@ class Entity(SubmodelElement):
     :ivar asset: Reference to the asset the entity is representing.
     """
 
-    def __init__(self, id_short: str, entity_type: util.EntityType, statements: List[SubmodelElement] = [],
-                 asset: Optional[util.Reference] = None,
-                 has_data_specification: List[util.Reference] = [], semantic_id: Optional[util.Reference] = None,
+    def __init__(self,
+                 id_short: str,
+                 entity_type: base.EntityType,
+                 statements: List[SubmodelElement] = [],
+                 asset: Optional[base.Reference] = None,
+                 has_data_specification: List[base.Reference] = [],
+                 semantic_id: Optional[base.Reference] = None,
                  category: Optional[str] = None,
-                 description: Optional[util.LangStringSet] = None, parent: Optional[util.Reference] = None,
-                 qualifier: List[util.Constraint] = [], kind: util.ModelingKind = util.ModelingKind.INSTANCE):
+                 description: Optional[base.LangStringSet] = None,
+                 parent: Optional[base.Reference] = None,
+                 qualifier: List[base.Constraint] = [],
+                 kind: base.ModelingKind = base.ModelingKind.INSTANCE):
         super().__init__(id_short, has_data_specification, semantic_id, category, description, parent, qualifier, kind)
-        self.entity_type: util.EntityType = entity_type
+        self.entity_type: base.EntityType = entity_type
         self.statements: List[SubmodelElement] = statements
-        self.asset: Optional[util.Reference] = asset
+        self.asset: Optional[base.Reference] = asset
 
 
 class Event(SubmodelElement, metaclass=abc.ABCMeta):
@@ -330,10 +418,15 @@ class Event(SubmodelElement, metaclass=abc.ABCMeta):
     An event
     """
 
-    def __init__(self, id_short: str, has_data_specification: List[util.Reference] = [], semantic_id: Optional[util.Reference] = None,
+    def __init__(self,
+                 id_short: str,
+                 has_data_specification: List[base.Reference] = [],
+                 semantic_id: Optional[base.Reference] = None,
                  category: Optional[str] = None,
-                 description: Optional[util.LangStringSet] = None, parent: Optional[util.Reference] = None,
-                 qualifier: List[util.Constraint] = [], kind: util.ModelingKind = util.ModelingKind.INSTANCE):
+                 description: Optional[base.LangStringSet] = None,
+                 parent: Optional[base.Reference] = None,
+                 qualifier: List[base.Constraint] = [],
+                 kind: base.ModelingKind = base.ModelingKind.INSTANCE):
         super().__init__(id_short, has_data_specification, semantic_id, category, description, parent, qualifier, kind)
 
 
@@ -344,9 +437,15 @@ class BasicEvent(Event):
     :ivar observed: Reference to the data or other elements that are being observed
     """
 
-    def __init__(self, id_short: str, observed: util.Reference, has_data_specification: List[util.Reference] = [], semantic_id: Optional[util.Reference] = None,
+    def __init__(self,
+                 id_short: str,
+                 observed: base.Reference,
+                 has_data_specification: List[base.Reference] = [],
+                 semantic_id: Optional[base.Reference] = None,
                  category: Optional[str] = None,
-                 description: Optional[util.LangStringSet] = None, parent: Optional[util.Reference] = None,
-                 qualifier: List[util.Constraint] = [], kind: util.ModelingKind = util.ModelingKind.INSTANCE):
+                 description: Optional[base.LangStringSet] = None,
+                 parent: Optional[base.Reference] = None,
+                 qualifier: List[base.Constraint] = [],
+                 kind: base.ModelingKind = base.ModelingKind.INSTANCE):
         super().__init__(id_short, has_data_specification, semantic_id, category, description, parent, qualifier, kind)
-        self.observed: util.Reference = observed
+        self.observed: base.Reference = observed
