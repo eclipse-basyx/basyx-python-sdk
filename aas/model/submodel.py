@@ -43,6 +43,8 @@ class SubmodelElement(base.HasDataSpecification, base.Referable, base.Qualifiabl
         :param qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
                          (from base.Qualifiable)
         :param kind: Kind of the element: either type or instance. Default = Instance. (from base.HasKind)
+
+        TODO: Add instruction what to do after construction
         """
         super().__init__()
         self.data_specification: Set[base.Reference] = data_specification
@@ -181,6 +183,8 @@ class Property(DataElement):
         :param qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
                          (from base.Qualifiable)
         :param kind: Kind of the element: either type or instance. Default = Instance. (from base.HasKind)
+
+        TODO: Add instruction what to do after construction
         """
 
         super().__init__(id_short, data_specification, semantic_id, category, description, parent, qualifier, kind)
@@ -228,6 +232,8 @@ class MultiLanguageProperty(DataElement):
         :param qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
                          (from base.Qualifiable)
         :param kind: Kind of the element: either type or instance. Default = Instance. (from base.HasKind)
+
+        TODO: Add instruction what to do after construction
         """
         super().__init__(id_short, data_specification, semantic_id, category, description, parent, qualifier, kind)
         self.value: Optional[base.LangStringSet] = value
@@ -279,6 +285,8 @@ class Range(DataElement):
         :param qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
                          (from base.Qualifiable)
         :param kind: Kind of the element: either type or instance. Default = Instance. (from base.HasKind)
+
+        TODO: Add instruction what to do after construction
         """
         super().__init__(id_short, data_specification, semantic_id, category, description, parent, qualifier, kind)
         self.value_type: base.DataTypeDef = value_type
@@ -333,6 +341,8 @@ class Blob(DataElement):
         :param qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
                          (from base.Qualifiable)
         :param kind: Kind of the element: either type or instance. Default = Instance. (from base.HasKind)
+
+        TODO: Add instruction what to do after construction
         """
         super().__init__(id_short, data_specification, semantic_id, category, description, parent, qualifier, kind)
         self.value: Optional[base.BlobType] = value
@@ -381,6 +391,8 @@ class File(DataElement):
         :param qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
                          (from base.Qualifiable)
         :param kind: Kind of the element: either type or instance. Default = Instance. (from base.HasKind)
+
+        TODO: Add instruction what to do after construction
         """
         super().__init__(id_short, data_specification, semantic_id, category, description, parent, qualifier, kind)
         self.value: Optional[base.PathType] = value
@@ -426,6 +438,8 @@ class ReferenceElement(DataElement):
         :param qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
                          (from base.Qualifiable)
         :param kind: Kind of the element: either type or instance. Default = Instance. (from base.HasKind)
+
+        TODO: Add instruction what to do after construction
         """
         super().__init__(id_short, data_specification, semantic_id, category, description, parent, qualifier, kind)
         self.value: Optional[base.Reference] = value
@@ -477,6 +491,8 @@ class SubmodelElementCollection(SubmodelElement):
         :param qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
                          (from base.Qualifiable)
         :param kind: Kind of the element: either type or instance. Default = Instance. (from base.HasKind)
+
+        TODO: Add instruction what to do after construction
         """
         super().__init__(id_short, data_specification, semantic_id, category, description, parent, qualifier, kind)
         self.value: List[SubmodelElement] = value
@@ -528,6 +544,8 @@ class RelationshipElement(SubmodelElement):
         :param qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
                          (from base.Qualifiable)
         :param kind: Kind of the element: either type or instance. Default = Instance. (from base.HasKind)
+
+        TODO: Add instruction what to do after construction
         """
         super().__init__(id_short, data_specification, semantic_id, category, description, parent, qualifier, kind)
         self.first: base.Reference = first
@@ -570,6 +588,8 @@ class AnnotatedRelationshipElement(SubmodelElement):
         :param qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
                          (from base.Qualifiable)
         :param kind: Kind of the element: either type or instance. Default = Instance. (from base.HasKind)
+
+        TODO: Add instruction what to do after construction
         """
         super().__init__(id_short, data_specification, semantic_id, category, description, parent, qualifier, kind)
         self.annotation: Set[base.Reference] = annotation
@@ -590,7 +610,8 @@ class OperationVariable(SubmodelElement):
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
                  parent: Optional[base.Reference] = None,
-                 qualifier: Set[base.Constraint] = set()):
+                 qualifier: Set[base.Constraint] = set(),
+                 kind: base.ModelingKind = base.ModelingKind.TEMPLATE):
         """
         Initializer of OperationVariable
 
@@ -609,7 +630,9 @@ class OperationVariable(SubmodelElement):
         :param parent: Reference to the next referable parent element of the element. (from base.Referable)
         :param qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
                          (from base.Qualifiable)
-        :param kind: Kind of the element: either type or instance. Default = Instance. (from base.HasKind):
+        :param kind: Kind of the element: either type or instance. Default = Instance. (from base.HasKind)
+
+        TODO: Add instruction what to do after construction
         """
         super().__init__(id_short, data_specification, semantic_id, category, description, parent, qualifier,
                          base.ModelingKind.TEMPLATE)
@@ -659,6 +682,8 @@ class Operation(SubmodelElement):
         :param qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
                          (from base.Qualifiable)
         :param kind: Kind of the element: either type or instance. Default = Instance. (from base.HasKind)
+
+        TODO: Add instruction what to do after construction
         """
         super().__init__(id_short, data_specification, semantic_id, category, description, parent, qualifier, kind)
         self.input_variable: Set[OperationVariable] = input_variable
@@ -700,6 +725,8 @@ class Capability(SubmodelElement):
         :param qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
                          (from base.Qualifiable)
         :param kind: Kind of the element: either type or instance. Default = Instance. (from base.HasKind)
+
+        TODO: Add instruction what to do after construction
         """
         super().__init__(id_short, data_specification, semantic_id, category, description, parent, qualifier, kind)
 
@@ -746,6 +773,8 @@ class Entity(SubmodelElement):
         :param qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
                          (from base.Qualifiable)
         :param kind: Kind of the element: either type or instance. Default = Instance. (from base.HasKind)
+
+        TODO: Add instruction what to do after construction
         """
         super().__init__(id_short, data_specification, semantic_id, category, description, parent, qualifier, kind)
         self.entity_type: base.EntityType = entity_type
@@ -825,6 +854,8 @@ class BasicEvent(Event):
         :param qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
                          (from base.Qualifiable)
         :param kind: Kind of the element: either type or instance. Default = Instance. (from base.HasKind)
+
+        TODO: Add instruction what to do after construction
         """
         super().__init__(id_short, data_specification, semantic_id, category, description, parent, qualifier, kind)
         self.observed: base.Reference = observed

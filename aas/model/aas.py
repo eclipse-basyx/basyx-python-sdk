@@ -18,6 +18,8 @@ class View:
         Initializer of View
 
         :param contained_element: Unordered list of references to elements of class Referable
+
+        TODO: Add instruction what to do after construction
         """
         self.contained_element: Set[base.Reference] = contained_element
 
@@ -117,6 +119,8 @@ class ConceptDictionary(base.Referable):
                          base.Referable)
         :param description: Description or comments on the element. (from base.Referable)
         :param parent: Reference to the next referable parent element of the element. (from base.Referable)
+
+        TODO: Add instruction what to do after construction
         """
         super().__init__()
         self.concept_description: Set[base.Reference] = concept_description

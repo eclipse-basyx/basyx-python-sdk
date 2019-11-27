@@ -38,6 +38,8 @@ class Permission:
 
         :param permission: Reference to a property that defines the semantics of the permission
         :param kind_of_permission: Description of the kind of permission
+
+        TODO: Add instruction what to do after construction
         """
 
         self.permission: submodel.Property = permission
@@ -61,6 +63,8 @@ class ObjectAttribute:
         Initializer of ObjectAttribute
 
         :param object_attribute: A data elements that further classifies an object.
+
+        TODO: Add instruction what to do after construction
         """
 
         self.object_attribute: submodel.Property = object_attribute
@@ -91,6 +95,8 @@ class PermissionsPerObject:
                                         permissions apply to the accessing subject.
         :param permissions: Permissions assigned to the object. The permissions hold for all subjects as specified in
                             the access permission rule.
+
+        TODO: Add instruction what to do after construction
         """
 
         self.permission_object: base.Referable = permission_object
@@ -110,6 +116,8 @@ class SubjectAttribute:
         Initializer of SubjectAttribute
 
         :param subject_attribute: A data element that further classifies a specific subject.
+
+        TODO: Add instruction what to do after construction
         """
 
         self.subject_attribute: submodel.Property = subject_attribute
@@ -152,6 +160,8 @@ class AccessPermissionRule(base.Referable, base.Qualifiable):
                          (from base.Referable)
         :param description: Description or comments on the element. (from base.Referable)
         :param parent: Reference to the next referable parent element of the element. (from base.Referable)
+
+        TODO: Add instruction what to do after construction
         """
 
         super().__init__()
@@ -189,6 +199,8 @@ class AccessControl:
     :ivar access_permission_rule: Unordered list of instances of the class AccessPermissionRule Access permission rules
                                   of the AAS describing the rights assigned to (already authenticated) subjects to
                                   access elements of the AAS
+
+  TODO: Add instruction what to do after construction
     """
 
     def __init__(self,
@@ -221,6 +233,8 @@ class AccessControl:
         :param access_permission_rule: Unordered list of instances of the class AccessPermissionRule Access permission
                                         rules of the AAS describing the rights assigned to (already authenticated)
                                         subjects to access elements of the AAS
+
+        TODO: Add instruction what to do after construction
         """
 
         self.selectable_subject_attributes: submodel.Submodel = selectable_subject_attributes
@@ -237,6 +251,8 @@ class Endpoint:
     Endpoint to an external access control defining a policy administration point to be used by the AAS
 
     not yet specified in the current Metamodel
+
+    TODO: Add instruction what to do after construction
     """
     pass
 
@@ -256,6 +272,8 @@ class PolicyAdministrationPoint:
 
         :param access_control: Instance of Access Control (optional)
         :param endpoint: Instance of Endpoint (optional)
+
+        TODO: Add instruction what to do after construction
         """
 
         self.local_access_control: Optional[AccessControl] = access_control
@@ -267,6 +285,8 @@ class PolicyDecisionPoint:
     Computes access decisions by evaluating the applicable Digital Policies and Meta-Policies. One of the main functions
     of the PDP is to mediate or de-conflict Digital Policies according to Meta-Policies
     TODO: Find definition from [22]
+
+    TODO: Add instruction what to do after construction
     """
     pass
 
@@ -275,6 +295,7 @@ class PolicyEnforcementPoint:
     """
     TODO: Find anything about this class
 
+    TODO: Add instruction what to do after construction
     """
     pass
 
@@ -301,6 +322,8 @@ class PolicyInformationPoints:
                                            into consideration for access control for the AAS
         :param internal_information_point: Unordered list of references to submodels defining information used by
                                            security access permission rules
+
+        TODO: Add instruction what to do after construction
         """
         self.external_information_point: Set[Endpoint] = external_information_point
         self.internal_information_point: Set[submodel.Submodel] = internal_information_point
@@ -327,6 +350,8 @@ class AccessControlPolicyPoints:
         :param policy_decision_point: Instance of PolicyDecisionPoint
         :param policy_enforcement_point: Instance of PolicyEnforcementPoint
         :param policy_information_points: Instance of PolicyInformationPoints
+
+        TODO: Add instruction what to do after construction
         """
 
         self.policy_administration_point: PolicyAdministrationPoint = policy_administration_point
@@ -338,6 +363,8 @@ class AccessControlPolicyPoints:
 class Certificate:
     """
     Certificate is not yet further defined
+
+    TODO: Add instruction what to do after construction
     """
     pass
 
@@ -357,6 +384,8 @@ class Security:
 
         :param access_control_policy_point: Instance of the PolicyAdministrationPoint Class
         :param trust_anchor: Unordered list of used certificates
+
+        TODO: Add instruction what to do after construction
         """
 
         self.access_control_policy_point: AccessControlPolicyPoints = access_control_policy_point

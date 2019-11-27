@@ -202,6 +202,8 @@ class Key:
         :param value: The key value, for example an IRDI if the idType=IRDI
         :param id_type: Type of the key value. In case of idType = idShort local shall be true. In case
                         type=GlobalReference idType shall not be IdShort.
+
+        TODO: Add instruction what to do after construction
         """
         self.type_: KeyElements = type_
         self.local: bool = local
@@ -229,6 +231,8 @@ class Reference:
         :param key: Ordered list of unique reference in its name space, each key referencing an element. The complete
                     list of keys may for example be concatenated to a path that then gives unique access to an element
                     or entity.
+
+        TODO: Add instruction what to do after construction
         """
         self.key: List[Key] = key
 
@@ -249,6 +253,8 @@ class AdministrativeInformation:
 
         :param version: Version of the element.
         :param revision: Revision of the element.
+
+        TODO: Add instruction what to do after construction
         """
         self.version: Optional[str] = version
         self.revision: Optional[str] = revision
@@ -272,6 +278,8 @@ class Identifier:
         :param id_: Identifier of the element. Its type is defined in id_type.
         :param id_type: Type of the Identifier, e.g. URI, IRDI etc. The supported Identifier types are defined in the
                         enumeration "IdentifierType".
+
+        TODO: Add instruction what to do after construction
         """
         self.id: str = id_
         self.id_type: IdentifierType = id_type
@@ -401,6 +409,8 @@ class Formula(Constraint):
                            logical expression. The value of the referenced elements needs to be accessible so that
                            it can be evaluated in the formula to true or false in the corresponding logical expression
                            it is used in.
+
+        TODO: Add instruction what to do after construction
         """
         super().__init__()
         self.depends_on: Set[Reference] = depends_on
@@ -431,6 +441,8 @@ class Qualifier(Constraint, HasSemantics):
         :param value: The value of the qualifier.
         :param value_id: Reference to the global unique id of a coded value.
         :param semantic_id: The semantic_id defined in the HasSemantics class.
+
+        TODO: Add instruction what to do after construction
         """
         super().__init__()
         self.type_: QualifierType = type_
@@ -454,6 +466,8 @@ class LangStringSet:
         Initializer of LangStringSet
 
         :param lang_string: list of strings in specified languages
+
+        TODO: Add instruction what to do after construction
         """
         self.lang_string: Set[langString] = lang_string
 
@@ -474,6 +488,8 @@ class ValueReferencePair:
 
         :param value: The value of the referenced concept definition of the value in value_id
         :param value_id: Global unique id of the value.
+
+        TODO: Add instruction what to do after construction
         """
         self.value: ValueDataType = value
         self.value_id: Reference = value_id
@@ -492,5 +508,7 @@ class ValueList:
         Initializer of ValueList
 
         :param value_reference_pair_type: Unordered list of pairs of a value together with its global unique id.
+
+        TODO: Add instruction what to do after construction
         """
         self.value_reference_pair_type: Set[ValueReferencePair] = value_reference_pair_type
