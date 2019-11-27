@@ -87,10 +87,10 @@ class PermissionsPerObject:
         Initializer of PermissionsPerObject
 
         :param permission_object: Element to which permission shall be assigned
-        :param target_object_attribute: Target object attributes that need to be fulfilled so that the access permissions
-                                        apply to the accessing subject.
-        :param permissions: Permissions assigned to the object. The permissions hold for all subjects as specified in the
-                            access permission rule.
+        :param target_object_attribute: Target object attributes that need to be fulfilled so that the access
+                                        permissions apply to the accessing subject.
+        :param permissions: Permissions assigned to the object. The permissions hold for all subjects as specified in
+                            the access permission rule.
         """
 
         self.permission_object: base.Referable = permission_object
@@ -142,8 +142,9 @@ class AccessPermissionRule(base.Referable, base.Qualifiable):
         :param target_subject_attribute: Unordered list of instances of the class SubjectAttribute Target subject
                                          attributes that need to be fulfilled by the accessing subject to get the
                                          permissions defined by this rule.
-        :param permissions_per_object: Unordered list of instances of the class PermissionsPerObject Set of object-permission
-                                       pairs that define the permissions per object within the access permission rule
+        :param permissions_per_object: Unordered list of instances of the class PermissionsPerObject Set of
+                                       object-permission pairs that define the permissions per object within the access
+                                       permission rule
         :param qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
                           (from base.Qualifiable)
         :param category: The category is a value that gives further meta information w.r.t. to the class of the element.
@@ -248,7 +249,7 @@ class PolicyAdministrationPoint:
     :ivar endpoint: Instance of Endpoint
     """
     def __init__(self,
-                 access_control: Optional[AccessControl]  = None,
+                 access_control: Optional[AccessControl] = None,
                  endpoint: Optional[Endpoint] = None):
         """
         Initializer of PolicyAdministrationPoint
