@@ -9,7 +9,7 @@ MimeType = str
 PathType = str
 QualifierType = str
 ValueDataType = str
-langString = str
+LangString = str
 
 
 @unique
@@ -103,6 +103,7 @@ class KeyElements(Enum):
     FRAGMENT_REFERENCE = 2001
 
 
+@unique
 class KeyType(Enum):
     """
     Enumeration for denoting the type of the key value.
@@ -473,7 +474,7 @@ class LangStringSet:
     """
 
     def __init__(self,
-                 lang_string: Set[langString]):
+                 lang_string: Set[LangString]):
         """
         Initializer of LangStringSet
 
@@ -481,7 +482,7 @@ class LangStringSet:
 
         TODO: Add instruction what to do after construction
         """
-        self.lang_string: Set[langString] = lang_string
+        self.lang_string: Set[LangString] = lang_string
 
 
 class ValueReferencePair:
