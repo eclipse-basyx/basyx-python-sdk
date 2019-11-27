@@ -1,7 +1,7 @@
 
 from typing import Optional, Set
 
-from . import base, security, submodel
+from . import base, security
 
 
 class View:
@@ -87,6 +87,7 @@ class ConceptDescription(base.HasDataSpecification, base.Identifiable):
                                    element. (from base.HasDataSpecification)
         :param administration: Administrative information of an identifiable element. (from base.Identifiable)
         """
+        super().__init__()
         self.is_case_of: Set[base.Reference] = is_case_of
         self.identification: base.Identifier = identification
         self.data_specification: Set[base.Reference] = data_specification
