@@ -1,6 +1,6 @@
 import abc
 from enum import Enum, unique
-from typing import List, Optional
+from typing import List, Optional, Set
 
 
 DataTypeDef = str
@@ -216,7 +216,7 @@ class Reference:
     A reference is an ordered list of keys, each key referencing an element. The complete list of keys may for
     example be concatenated to a path that then gives unique access to an element or entity
 
-    :ivar: key: ordered list of unique reference in its name space, each key referencing an element. The complete
+    :ivar: key: Ordered list of unique reference in its name space, each key referencing an element. The complete
                 list of keys may for example be concatenated to a path that then gives unique access to an element
                 or entity.
     """
@@ -226,9 +226,9 @@ class Reference:
         """
         Initializer of Reference
 
-        :param key: ordered list of unique reference in its name space, each key referencing an element. The complete
-                     list of keys may for example be concatenated to a path that then gives unique access to an element
-                     or entity.
+        :param key: Ordered list of unique reference in its name space, each key referencing an element. The complete
+                    list of keys may for example be concatenated to a path that then gives unique access to an element
+                    or entity.
         """
         self.key: List[Key] = key
 
@@ -284,11 +284,12 @@ class HasDataSpecification(metaclass=abc.ABCMeta):
 
     << abstract >>
 
-    :ivar data_specification: List of global references to the data specification template used by the element.
+    :ivar data_specification: Unordered list of global references to the data specification template used by the
+                              element.
     """
 
     def __init__(self):
-        self.data_specification: List[Reference] = []
+        self.data_specification: Set[Reference] = set()
 
 
 class Referable(metaclass=abc.ABCMeta):
@@ -374,35 +375,35 @@ class Qualifiable(metaclass=abc.ABCMeta):
 
     << abstract >>
 
-    :ivar qualifier: List of Constraints that gives additional qualification of a qualifiable element.
+    :ivar qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
     """
 
     def __init__(self):
-        self.qualifier: List[Constraint] = []
+        self.qualifier: Set[Constraint] = set()
 
 
 class Formula(Constraint):
     """
     A formula is used to describe constraints by a logical expression.
 
-    :ivar depends_on: List of references to referable or even external global elements that are used in the
+    :ivar depends_on: Unordered list of references to referable or even external global elements that are used in the
                       logical expression. The value of the referenced elements needs to be accessible so that
                       it can be evaluated in the formula to true or false in the corresponding logical expression
                       it is used in.
     """
 
     def __init__(self,
-                 depends_on: List[Reference] = []):
+                 depends_on: Set[Reference] = set()):
         """
         Initializer of Formular
 
-        :param depends_on: List of references to referable or even external global elements that are used in the
+        :param depends_on: Unordered of references to referable or even external global elements that are used in the
                            logical expression. The value of the referenced elements needs to be accessible so that
                            it can be evaluated in the formula to true or false in the corresponding logical expression
                            it is used in.
         """
         super().__init__()
-        self.depends_on: List[Reference] = depends_on
+        self.depends_on: Set[Reference] = depends_on
 
 
 class Qualifier(Constraint, HasSemantics):
@@ -444,17 +445,17 @@ class LangStringSet:
     A set of strings, each annotated by the language of the string. The meaning of the string in each language shall be
     the same.
 
-    :ivar lang_string: list of strings in specified languages
+    :ivar lang_string: Unordered list of strings in specified languages
     """
 
     def __init__(self,
-                 lang_string: List[langString]):
+                 lang_string: Set[langString]):
         """
         Initializer of LangStringSet
 
         :param lang_string: list of strings in specified languages
         """
-        self.lang_string: List[langString] = lang_string
+        self.lang_string: Set[langString] = lang_string
 
 
 class ValueReferencePair:
@@ -482,14 +483,14 @@ class ValueList:
     """
     A set of value reference pairs.
 
-    :ivar value_reference_pair_type: List of pairs of a value together with its global unique id.
+    :ivar value_reference_pair_type: Unordered list of pairs of a value together with its global unique id.
     """
 
     def __init__(self,
-                 value_reference_pair_type: List[ValueReferencePair]):
+                 value_reference_pair_type: Set[ValueReferencePair]):
         """
         Initializer of ValueList
 
-        :param value_reference_pair_type: List of pairs of a value together with its global unique id.
+        :param value_reference_pair_type: Unordered list of pairs of a value together with its global unique id.
         """
-        self.value_reference_pair_type: List[ValueReferencePair] = value_reference_pair_type
+        self.value_reference_pair_type: Set[ValueReferencePair] = value_reference_pair_type

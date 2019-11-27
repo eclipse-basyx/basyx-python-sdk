@@ -1,5 +1,5 @@
 import abc
-from typing import List, Optional
+from typing import List, Optional, Set
 
 from . import base
 
@@ -18,19 +18,19 @@ class SubmodelElement(base.HasDataSpecification, base.Referable, base.Qualifiabl
 
     def __init__(self,
                  id_short: str,
-                 data_specification: List[base.Reference] = [],
+                 data_specification: Set[base.Reference] = set(),
                  semantic_id: Optional[base.Reference] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
                  parent: Optional[base.Reference] = None,
-                 qualifier: List[base.Constraint] = [],
+                 qualifier: Set[base.Constraint] = set(),
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE):
         """
         Initializer of SubmodelElement
 
         :param id_short: Identifying string of the element within its name space. (from base.Referable)
-        :param data_specification: List of global references to the data specification template used by the element.
-                                  (from base.HasDataSpecification)
+        :param data_specification: Unordered list of global references to the data specification template used by the
+                                   element. (from base.HasDataSpecification)
         :param semantic_id: Identifier of the semantic definition of the element. It is called semantic id of the
                            element. The semantic id may either reference an external global id or it may reference a
                            referable model element of kind=Type that defines the semantics of the element.
@@ -40,18 +40,18 @@ class SubmodelElement(base.HasDataSpecification, base.Referable, base.Qualifiabl
                          (from base.Referable)
         :param description: Description or comments on the element. (from base.Referable)
         :param parent: Reference to the next referable parent element of the element. (from base.Referable)
-        :param qualifier: List of Constraints that gives additional qualification of a qualifiable element.
+        :param qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
                          (from base.Qualifiable)
         :param kind: Kind of the element: either type or instance. Default = Instance. (from base.HasKind)
         """
         super().__init__()
-        self.data_specification: List[base.Reference] = data_specification
+        self.data_specification: Set[base.Reference] = data_specification
         self.semantic_id: Optional[base.Reference] = semantic_id
         self.id_short: str = id_short
         self.category: Optional[str] = category
         self.description: Optional[base.LangStringSet] = description
         self.parent: Optional[base.Reference] = parent
-        self.qualifier: List[base.Constraint] = qualifier
+        self.qualifier: Set[base.Constraint] = qualifier
         self.kind: base.ModelingKind = kind
 
 
@@ -62,40 +62,40 @@ class Submodel(base.HasDataSpecification, base.HasSemantics, base.Identifiable, 
     Each submodel refers to a well-defined domain or subject matter. Submodels can become standardized
     and thus become submodels types. Submodels can have different life-cycles.
 
-    :ivar submodel_element: List of submodel elements
+    :ivar submodel_element: Unordered list of submodel elements
     """
 
     def __init__(self,
                  identification: base.Identifier,
-                 submodel_element: List[SubmodelElement] = [],
-                 data_specification: List[base.Reference] = [],
+                 submodel_element: Set[SubmodelElement] = set(),
+                 data_specification: Set[base.Reference] = set(),
                  semantic_id: Optional[base.Reference] = None,
                  administration: Optional[base.AdministrativeInformation] = None,
-                 qualifier: List[base.Constraint] = [],
+                 qualifier: Set[base.Constraint] = set(),
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE):
         """
         Initializer of Submodel
 
         :param identification: The globally unique identification of the element. (from base.Identifiable)
-        :param submodel_element: List of submodel elements
-        :param data_specification: List of global references to the data specification template used by the element.
-                                  (from base.HasDataSpecification)
+        :param submodel_element: Unordered list of submodel elements
+        :param data_specification: Unordered list of global references to the data specification template used by the
+                                   element. (from base.HasDataSpecification)
         :param semantic_id: Identifier of the semantic definition of the element. It is called semantic id of the
                            element. The semantic id may either reference an external global id or it may reference a
                            referable model element of kind=Type that defines the semantics of the element.
                            (from base.HasSemantics)
         :param administration: Administrative information of an identifiable element. (from base.Identifiable)
-        :param qualifier: List of Constraints that gives additional qualification of a qualifiable element.
+        :param qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
                          (from base.Qualifiable)
         :param kind: Kind of the element: either type or instance. Default = Instance. (from base.HasKind)
         """
         super().__init__()
-        self.submodel_element: List[SubmodelElement] = submodel_element
-        self.data_specification: List[base.Reference] = data_specification
+        self.submodel_element: Set[SubmodelElement] = submodel_element
+        self.data_specification: Set[base.Reference] = data_specification
         self.semantic_id: Optional[base.Reference] = semantic_id
         self.administration: Optional[base.AdministrativeInformation] = administration
         self.identification: base.Identifier = identification
-        self.qualifier: List[base.Constraint] = qualifier
+        self.qualifier: Set[base.Constraint] = qualifier
         self.kind: base.ModelingKind = kind
 
 
@@ -110,19 +110,19 @@ class DataElement(SubmodelElement, metaclass=abc.ABCMeta):
 
     def __init__(self,
                  id_short: str,
-                 data_specification: List[base.Reference] = [],
+                 data_specification: Set[base.Reference] = set(),
                  semantic_id: Optional[base.Reference] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
                  parent: Optional[base.Reference] = None,
-                 qualifier: List[base.Constraint] = [],
+                 qualifier: Set[base.Constraint] = set(),
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE):
         """
         Initializer of DataElement
 
         :param id_short: Identifying string of the element within its name space. (from base.Referable)
-        :param data_specification: List of global references to the data specification template used by the element.
-                                  (from base.HasDataSpecification)
+        :param data_specification: Unordered list of global references to the data specification template used by the
+                                   element. (from base.HasDataSpecification)
         :param semantic_id: Identifier of the semantic definition of the element. It is called semantic id of the
                            element. The semantic id may either reference an external global id or it may reference a
                            referable model element of kind=Type that defines the semantics of the element.
@@ -132,7 +132,7 @@ class DataElement(SubmodelElement, metaclass=abc.ABCMeta):
                          (from base.Referable)
         :param description: Description or comments on the element. (from base.Referable)
         :param parent: Reference to the next referable parent element of the element. (from base.Referable)
-        :param qualifier: List of Constraints that gives additional qualification of a qualifiable element.
+        :param qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
                          (from base.Qualifiable)
         :param kind: Kind of the element: either type or instance. Default = Instance. (from base.HasKind)
         """
@@ -153,12 +153,12 @@ class Property(DataElement):
                  value_type: base.DataTypeDef,
                  value: Optional[base.ValueDataType] = None,
                  value_id: Optional[base.Reference] = None,
-                 data_specification: List[base.Reference] = [],
+                 data_specification: Set[base.Reference] = set(),
                  semantic_id: Optional[base.Reference] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
                  parent: Optional[base.Reference] = None,
-                 qualifier: List[base.Constraint] = [],
+                 qualifier: Set[base.Constraint] = set(),
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE):
         """
         Initializer of Property
@@ -167,8 +167,8 @@ class Property(DataElement):
         :param value_type: Data type of the value
         :param value: The value of the property instance.
         :param value_id: Reference to the global unique id of a coded value.
-        :param data_specification: List of global references to the data specification template used by the element.
-                                  (from base.HasDataSpecification)
+        :param data_specification: Unordered list of global references to the data specification template used by the
+                                   element. (from base.HasDataSpecification)
         :param semantic_id: Identifier of the semantic definition of the element. It is called semantic id of the
                            element. The semantic id may either reference an external global id or it may reference a
                            referable model element of kind=Type that defines the semantics of the element.
@@ -178,7 +178,7 @@ class Property(DataElement):
                          (from base.Referable)
         :param description: Description or comments on the element. (from base.Referable)
         :param parent: Reference to the next referable parent element of the element. (from base.Referable)
-        :param qualifier: List of Constraints that gives additional qualification of a qualifiable element.
+        :param qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
                          (from base.Qualifiable)
         :param kind: Kind of the element: either type or instance. Default = Instance. (from base.HasKind)
         """
@@ -201,12 +201,12 @@ class MultiLanguageProperty(DataElement):
                  id_short: str,
                  value: Optional[base.LangStringSet] = None,
                  value_id: Optional[base.Reference] = None,
-                 data_specification: List[base.Reference] = [],
+                 data_specification: Set[base.Reference] = set(),
                  semantic_id: Optional[base.Reference] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
                  parent: Optional[base.Reference] = None,
-                 qualifier: List[base.Constraint] = [],
+                 qualifier: Set[base.Constraint] = set(),
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE):
         """
         Initializer of MultiLanguageProperty
@@ -214,8 +214,8 @@ class MultiLanguageProperty(DataElement):
         :param id_short: Identifying string of the element within its name space. (from base.Referable)
         :param value: The value of the property instance.
         :param value_id: Reference to the global unique id of a coded value.
-        :param data_specification: List of global references to the data specification template used by the element.
-                                  (from base.HasDataSpecification)
+        :param data_specification: Unordered list of global references to the data specification template used by the
+                                   element. (from base.HasDataSpecification)
         :param semantic_id: Identifier of the semantic definition of the element. It is called semantic id of the
                            element. The semantic id may either reference an external global id or it may reference a
                            referable model element of kind=Type that defines the semantics of the element.
@@ -225,7 +225,7 @@ class MultiLanguageProperty(DataElement):
                          (from base.Referable)
         :param description: Description or comments on the element. (from base.Referable)
         :param parent: Reference to the next referable parent element of the element. (from base.Referable)
-        :param qualifier: List of Constraints that gives additional qualification of a qualifiable element.
+        :param qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
                          (from base.Qualifiable)
         :param kind: Kind of the element: either type or instance. Default = Instance. (from base.HasKind)
         """
@@ -249,12 +249,12 @@ class Range(DataElement):
                  value_type: base.DataTypeDef,
                  min_: Optional[base.ValueDataType] = None,
                  max_: Optional[base.ValueDataType] = None,
-                 data_specification: List[base.Reference] = [],
+                 data_specification: Set[base.Reference] = set(),
                  semantic_id: Optional[base.Reference] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
                  parent: Optional[base.Reference] = None,
-                 qualifier: List[base.Constraint] = [],
+                 qualifier: Set[base.Constraint] = set(),
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE):
         """
         Initializer of Range
@@ -265,8 +265,8 @@ class Range(DataElement):
                      negative infinite.
         :param max_: The maximum of the range. If the max value is missing then the value is assumed to be positive
                      infinite
-        :param data_specification: List of global references to the data specification template used by the element.
-                                  (from base.HasDataSpecification)
+        :param data_specification: Unordered list of global references to the data specification template used by the
+                                   element. (from base.HasDataSpecification)
         :param semantic_id: Identifier of the semantic definition of the element. It is called semantic id of the
                            element. The semantic id may either reference an external global id or it may reference a
                            referable model element of kind=Type that defines the semantics of the element.
@@ -276,7 +276,7 @@ class Range(DataElement):
                          (from base.Referable)
         :param description: Description or comments on the element. (from base.Referable)
         :param parent: Reference to the next referable parent element of the element. (from base.Referable)
-        :param qualifier: List of Constraints that gives additional qualification of a qualifiable element.
+        :param qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
                          (from base.Qualifiable)
         :param kind: Kind of the element: either type or instance. Default = Instance. (from base.HasKind)
         """
@@ -302,12 +302,12 @@ class Blob(DataElement):
                  id_short: str,
                  mime_type: base.MimeType,
                  value: Optional[base.BlobType] = None,
-                 has_data_specification: List[base.Reference] = [],
+                 data_specification: Set[base.Reference] = set(),
                  semantic_id: Optional[base.Reference] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
                  parent: Optional[base.Reference] = None,
-                 qualifier: List[base.Constraint] = [],
+                 qualifier: Set[base.Constraint] = set(),
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE):
         """
         Initializer of Blob
@@ -319,8 +319,8 @@ class Blob(DataElement):
         :param value: The value of the BLOB instance of a blob data element.
                       Note: In contrast to the file property the file content is stored directly as value in the Blob
                             data element.
-        :param data_specification: List of global references to the data specification template used by the element.
-                                  (from base.HasDataSpecification)
+        :param data_specification: Unordered list of global references to the data specification template used by the
+                                   element. (from base.HasDataSpecification)
         :param semantic_id: Identifier of the semantic definition of the element. It is called semantic id of the
                            element. The semantic id may either reference an external global id or it may reference a
                            referable model element of kind=Type that defines the semantics of the element.
@@ -330,11 +330,11 @@ class Blob(DataElement):
                          (from base.Referable)
         :param description: Description or comments on the element. (from base.Referable)
         :param parent: Reference to the next referable parent element of the element. (from base.Referable)
-        :param qualifier: List of Constraints that gives additional qualification of a qualifiable element.
+        :param qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
                          (from base.Qualifiable)
         :param kind: Kind of the element: either type or instance. Default = Instance. (from base.HasKind)
         """
-        super().__init__(id_short, has_data_specification, semantic_id, category, description, parent, qualifier, kind)
+        super().__init__(id_short, data_specification, semantic_id, category, description, parent, qualifier, kind)
         self.value: Optional[base.BlobType] = value
         self.mime_type: base.MimeType = mime_type
 
@@ -352,12 +352,12 @@ class File(DataElement):
                  id_short: str,
                  mime_type: base.MimeType,
                  value: Optional[base.PathType],
-                 data_specification: List[base.Reference] = [],
+                 data_specification: Set[base.Reference] = set(),
                  semantic_id: Optional[base.Reference] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
                  parent: Optional[base.Reference] = None,
-                 qualifier: List[base.Constraint] = [],
+                 qualifier: Set[base.Constraint] = set(),
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE):
         """
         Initializer of File
@@ -367,8 +367,8 @@ class File(DataElement):
         :param value: Path and name of the referenced file (without file extension). The path can be absolute or
                       relative.
                       Note: The file extension is defined by using a qualifier of type “MimeType”.
-        :param data_specification: List of global references to the data specification template used by the element.
-                                  (from base.HasDataSpecification)
+        :param data_specification: Unordered list of global references to the data specification template used by the
+                                   element. (from base.HasDataSpecification)
         :param semantic_id: Identifier of the semantic definition of the element. It is called semantic id of the
                            element. The semantic id may either reference an external global id or it may reference a
                            referable model element of kind=Type that defines the semantics of the element.
@@ -378,7 +378,7 @@ class File(DataElement):
                          (from base.Referable)
         :param description: Description or comments on the element. (from base.Referable)
         :param parent: Reference to the next referable parent element of the element. (from base.Referable)
-        :param qualifier: List of Constraints that gives additional qualification of a qualifiable element.
+        :param qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
                          (from base.Qualifiable)
         :param kind: Kind of the element: either type or instance. Default = Instance. (from base.HasKind)
         """
@@ -399,12 +399,12 @@ class ReferenceElement(DataElement):
     def __init__(self,
                  id_short: str,
                  value: Optional[base.Reference],
-                 data_specification: List[base.Reference] = [],
+                 data_specification: Set[base.Reference] = set(),
                  semantic_id: Optional[base.Reference] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
                  parent: Optional[base.Reference] = None,
-                 qualifier: List[base.Constraint] = [],
+                 qualifier: Set[base.Constraint] = set(),
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE):
         """
         Initializer of ReferenceElement
@@ -412,8 +412,8 @@ class ReferenceElement(DataElement):
         :param id_short: Identifying string of the element within its name space. (from base.Referable)
         :param value: Reference to any other referable element of the same of any other AAS or a reference to an
                       external object or entity.
-        :param data_specification: List of global references to the data specification template used by the element.
-                                  (from base.HasDataSpecification)
+        :param data_specification: Unordered list of global references to the data specification template used by the
+                                   element. (from base.HasDataSpecification)
         :param semantic_id: Identifier of the semantic definition of the element. It is called semantic id of the
                            element. The semantic id may either reference an external global id or it may reference a
                            referable model element of kind=Type that defines the semantics of the element.
@@ -423,7 +423,7 @@ class ReferenceElement(DataElement):
                          (from base.Referable)
         :param description: Description or comments on the element. (from base.Referable)
         :param parent: Reference to the next referable parent element of the element. (from base.Referable)
-        :param qualifier: List of Constraints that gives additional qualification of a qualifiable element.
+        :param qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
                          (from base.Qualifiable)
         :param kind: Kind of the element: either type or instance. Default = Instance. (from base.HasKind)
         """
@@ -447,12 +447,12 @@ class SubmodelElementCollection(SubmodelElement):
                  value: List[SubmodelElement] = [],
                  ordered: Optional[bool] = False,
                  allow_duplicates: Optional[bool] = False,
-                 data_specification: List[base.Reference] = [],
+                 data_specification: Set[base.Reference] = set(),
                  semantic_id: Optional[base.Reference] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
                  parent: Optional[base.Reference] = None,
-                 qualifier: List[base.Constraint] = [],
+                 qualifier: Set[base.Constraint] = set(),
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE):
         """
         Initializer of SubmodelElementCollection
@@ -463,8 +463,8 @@ class SubmodelElementCollection(SubmodelElement):
                         then the elements in the collection are ordered. Default = false
         :param allow_duplicates: If allow_duplicates=true then it is allowed that the collection contains the same
                                  element several times. Default = false
-        :param data_specification: List of global references to the data specification template used by the element.
-                                  (from base.HasDataSpecification)
+        :param data_specification: Unordered list of global references to the data specification template used by the
+                                   element. (from base.HasDataSpecification)
         :param semantic_id: Identifier of the semantic definition of the element. It is called semantic id of the
                            element. The semantic id may either reference an external global id or it may reference a
                            referable model element of kind=Type that defines the semantics of the element.
@@ -474,7 +474,7 @@ class SubmodelElementCollection(SubmodelElement):
                          (from base.Referable)
         :param description: Description or comments on the element. (from base.Referable)
         :param parent: Reference to the next referable parent element of the element. (from base.Referable)
-        :param qualifier: List of Constraints that gives additional qualification of a qualifiable element.
+        :param qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
                          (from base.Qualifiable)
         :param kind: Kind of the element: either type or instance. Default = Instance. (from base.HasKind)
         """
@@ -499,12 +499,12 @@ class RelationshipElement(SubmodelElement):
                  id_short: str,
                  first: base.Reference,
                  second: base.Reference,
-                 data_specification: List[base.Reference] = [],
+                 data_specification: Set[base.Reference] = set(),
                  semantic_id: Optional[base.Reference] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
                  parent: Optional[base.Reference] = None,
-                 qualifier: List[base.Constraint] = [],
+                 qualifier: Set[base.Constraint] = set(),
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE):
         """
         Initializer of RelationshipElement
@@ -514,8 +514,8 @@ class RelationshipElement(SubmodelElement):
                       be of class Referable.
         :param second: Reference to the second element in the relationship taking the role of the object which have to
                        be of class Referable.
-        :param data_specification: List of global references to the data specification template used by the element.
-                                  (from base.HasDataSpecification)
+        :param data_specification: Unordered list of global references to the data specification template used by the
+                                   element. (from base.HasDataSpecification)
         :param semantic_id: Identifier of the semantic definition of the element. It is called semantic id of the
                            element. The semantic id may either reference an external global id or it may reference a
                            referable model element of kind=Type that defines the semantics of the element.
@@ -525,7 +525,7 @@ class RelationshipElement(SubmodelElement):
                          (from base.Referable)
         :param description: Description or comments on the element. (from base.Referable)
         :param parent: Reference to the next referable parent element of the element. (from base.Referable)
-        :param qualifier: List of Constraints that gives additional qualification of a qualifiable element.
+        :param qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
                          (from base.Qualifiable)
         :param kind: Kind of the element: either type or instance. Default = Instance. (from base.HasKind)
         """
@@ -538,26 +538,26 @@ class AnnotatedRelationshipElement(SubmodelElement):
     """
     An annotated relationship element is a relationship element that can be annotated with additional data elements.
 
-    :ivar annotation: Annotations that hold for the relationship between to elements
+    :ivar annotation: Unordered list of annotations that hold for the relationship between to elements
     """
 
     def __init__(self,
                  id_short: str,
-                 annotation: List[base.Reference] = [],
-                 data_specification: List[base.Reference] = [],
+                 annotation: Set[base.Reference] = set(),
+                 data_specification: Set[base.Reference] = set(),
                  semantic_id: Optional[base.Reference] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
                  parent: Optional[base.Reference] = None,
-                 qualifier: List[base.Constraint] = [],
+                 qualifier: Set[base.Constraint] = set(),
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE):
         """
         Initializer of AnnotatedRelationshipElement
 
         :param id_short: Identifying string of the element within its name space. (from base.Referable)
-        :param annotation: Annotations that hold for the relationship between to elements
-        :param data_specification: List of global references to the data specification template used by the element.
-                                  (from base.HasDataSpecification)
+        :param annotation: Unordered list of annotations that hold for the relationship between to elements
+        :param data_specification: Unordered list of global references to the data specification template used by the
+                                   element. (from base.HasDataSpecification)
         :param semantic_id: Identifier of the semantic definition of the element. It is called semantic id of the
                            element. The semantic id may either reference an external global id or it may reference a
                            referable model element of kind=Type that defines the semantics of the element.
@@ -567,12 +567,12 @@ class AnnotatedRelationshipElement(SubmodelElement):
                          (from base.Referable)
         :param description: Description or comments on the element. (from base.Referable)
         :param parent: Reference to the next referable parent element of the element. (from base.Referable)
-        :param qualifier: List of Constraints that gives additional qualification of a qualifiable element.
+        :param qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
                          (from base.Qualifiable)
         :param kind: Kind of the element: either type or instance. Default = Instance. (from base.HasKind)
         """
         super().__init__(id_short, data_specification, semantic_id, category, description, parent, qualifier, kind)
-        self.annotation: List[base.Reference] = annotation
+        self.annotation: Set[base.Reference] = annotation
 
 
 class OperationVariable(SubmodelElement):
@@ -585,19 +585,19 @@ class OperationVariable(SubmodelElement):
     def __init__(self,
                  id_short: str,
                  value: SubmodelElement,
-                 data_specification: List[base.Reference] = [],
+                 data_specification: Set[base.Reference] = set(),
                  semantic_id: Optional[base.Reference] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
                  parent: Optional[base.Reference] = None,
-                 qualifier: List[base.Constraint] = []):
+                 qualifier: Set[base.Constraint] = set()):
         """
         Initializer of OperationVariable
 
         :param id_short: Identifying string of the element within its name space. (from base.Referable)
         :param value: Describes the needed argument for an operation via a submodel element of kind=Type.
-        :param data_specification: List of global references to the data specification template used by the element.
-                                  (from base.HasDataSpecification)
+        :param data_specification: Unordered list of global references to the data specification template used by the
+                                   element. (from base.HasDataSpecification)
         :param semantic_id: Identifier of the semantic definition of the element. It is called semantic id of the
                            element. The semantic id may either reference an external global id or it may reference a
                            referable model element of kind=Type that defines the semantics of the element.
@@ -607,7 +607,7 @@ class OperationVariable(SubmodelElement):
                          (from base.Referable)
         :param description: Description or comments on the element. (from base.Referable)
         :param parent: Reference to the next referable parent element of the element. (from base.Referable)
-        :param qualifier: List of Constraints that gives additional qualification of a qualifiable element.
+        :param qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
                          (from base.Qualifiable)
         :param kind: Kind of the element: either type or instance. Default = Instance. (from base.HasKind):
         """
@@ -622,31 +622,31 @@ class Operation(SubmodelElement):
     """
     An operation is a submodel element with input and output variables.
 
-    :ivar input_variable: Input parameter of the operation
-    :ivar output_variable: Output parameter of the operation
-    :ivar in_output_variable: Parameter that is input and output of the operation
+    :ivar input_variable: Unordered list of input parameters of the operation
+    :ivar output_variable: Unordered list of output parameters of the operation
+    :ivar in_output_variable: Unordered list of parameters that are input and output of the operation
     """
     def __init__(self,
                  id_short: str,
-                 input_variable: List[OperationVariable] = [],
-                 output_variable: List[OperationVariable] = [],
-                 in_output_variable: List[OperationVariable] = [],
-                 data_specification: List[base.Reference] = [],
+                 input_variable: Set[OperationVariable] = set(),
+                 output_variable: Set[OperationVariable] = set(),
+                 in_output_variable: Set[OperationVariable] = set(),
+                 data_specification: Set[base.Reference] = set(),
                  semantic_id: Optional[base.Reference] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
                  parent: Optional[base.Reference] = None,
-                 qualifier: List[base.Constraint] = [],
+                 qualifier: Set[base.Constraint] = set(),
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE):
         """
         Initializer of Operation
 
         :param id_short: Identifying string of the element within its name space. (from base.Referable)
-        :param input_variable: Input parameter of the operation
-        :param output_variable: Output parameter of the operation
-        :param in_output_variable: Parameter that is input and output of the operation
-        :param data_specification: List of global references to the data specification template used by the element.
-                                  (from base.HasDataSpecification)
+        :param input_variable: Unordered list of input parameters of the operation
+        :param output_variable: Unordered list output parameters of the operation
+        :param in_output_variable: Unordered list of parameters that is input and output of the operation
+        :param data_specification: Unordered list of global references to the data specification template used by the
+                                   element. (from base.HasDataSpecification)
         :param semantic_id: Identifier of the semantic definition of the element. It is called semantic id of the
                            element. The semantic id may either reference an external global id or it may reference a
                            referable model element of kind=Type that defines the semantics of the element.
@@ -656,14 +656,14 @@ class Operation(SubmodelElement):
                          (from base.Referable)
         :param description: Description or comments on the element. (from base.Referable)
         :param parent: Reference to the next referable parent element of the element. (from base.Referable)
-        :param qualifier: List of Constraints that gives additional qualification of a qualifiable element.
+        :param qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
                          (from base.Qualifiable)
         :param kind: Kind of the element: either type or instance. Default = Instance. (from base.HasKind)
         """
         super().__init__(id_short, data_specification, semantic_id, category, description, parent, qualifier, kind)
-        self.input_variable: List[OperationVariable] = input_variable
-        self.output_variable: List[OperationVariable] = output_variable
-        self.in_output_variable: List[OperationVariable] = in_output_variable
+        self.input_variable: Set[OperationVariable] = input_variable
+        self.output_variable: Set[OperationVariable] = output_variable
+        self.in_output_variable: Set[OperationVariable] = in_output_variable
 
 
 class Capability(SubmodelElement):
@@ -675,19 +675,19 @@ class Capability(SubmodelElement):
 
     def __init__(self,
                  id_short: str,
-                 data_specification: List[base.Reference] = [],
+                 data_specification: Set[base.Reference] = set(),
                  semantic_id: Optional[base.Reference] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
                  parent: Optional[base.Reference] = None,
-                 qualifier: List[base.Constraint] = [],
+                 qualifier: Set[base.Constraint] = set(),
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE):
         """
         Initializer of Capability
 
         :param id_short: Identifying string of the element within its name space. (from base.Referable)
-        :param data_specification: List of global references to the data specification template used by the element.
-                                  (from base.HasDataSpecification)
+        :param data_specification: Unordered list of global references to the data specification template used by the
+                                   element. (from base.HasDataSpecification)
         :param semantic_id: Identifier of the semantic definition of the element. It is called semantic id of the
                            element. The semantic id may either reference an external global id or it may reference a
                            referable model element of kind=Type that defines the semantics of the element.
@@ -697,7 +697,7 @@ class Capability(SubmodelElement):
                          (from base.Referable)
         :param description: Description or comments on the element. (from base.Referable)
         :param parent: Reference to the next referable parent element of the element. (from base.Referable)
-        :param qualifier: List of Constraints that gives additional qualification of a qualifiable element.
+        :param qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
                          (from base.Qualifiable)
         :param kind: Kind of the element: either type or instance. Default = Instance. (from base.HasKind)
         """
@@ -709,33 +709,31 @@ class Entity(SubmodelElement):
     An entity is a submodel element that is used to model entities
 
     :ivar entity_type: Describes whether the entity is a co-managed or a self-managed entity.
-    :ivar statement: Describes statements applicable to the entity by a set of submodel elements, typically with a
-                     qualified value.
+    :ivar statement: Unordered list of statements applicable to the entity, typically with a qualified value.
     :ivar asset: Reference to the asset the entity is representing.
     """
 
     def __init__(self,
                  id_short: str,
                  entity_type: base.EntityType,
-                 statement: List[SubmodelElement] = [],
+                 statement: Set[SubmodelElement] = set(),
                  asset: Optional[base.Reference] = None,
-                 data_specification: List[base.Reference] = [],
+                 data_specification: Set[base.Reference] = set(),
                  semantic_id: Optional[base.Reference] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
                  parent: Optional[base.Reference] = None,
-                 qualifier: List[base.Constraint] = [],
+                 qualifier: Set[base.Constraint] = set(),
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE):
         """
         Initializer of Entity
 
         :param id_short: Identifying string of the element within its name space. (from base.Referable)
         :param entity_type: Describes whether the entity is a co-managed or a self-managed entity.
-        :param statement: Describes statements applicable to the entity by a set of submodel elements, typically with a
-                          qualified value.
+        :param statement: Unordered list of statements applicable to the entity, typically with a qualified value.
         :param asset: Reference to the asset the entity is representing.
-        :param data_specification: List of global references to the data specification template used by the element.
-                                  (from base.HasDataSpecification)
+        :param data_specification: Unordered list of global references to the data specification template used by the
+                                   element. (from base.HasDataSpecification)
         :param semantic_id: Identifier of the semantic definition of the element. It is called semantic id of the
                            element. The semantic id may either reference an external global id or it may reference a
                            referable model element of kind=Type that defines the semantics of the element.
@@ -745,13 +743,13 @@ class Entity(SubmodelElement):
                          (from base.Referable)
         :param description: Description or comments on the element. (from base.Referable)
         :param parent: Reference to the next referable parent element of the element. (from base.Referable)
-        :param qualifier: List of Constraints that gives additional qualification of a qualifiable element.
+        :param qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
                          (from base.Qualifiable)
         :param kind: Kind of the element: either type or instance. Default = Instance. (from base.HasKind)
         """
         super().__init__(id_short, data_specification, semantic_id, category, description, parent, qualifier, kind)
         self.entity_type: base.EntityType = entity_type
-        self.statement: List[SubmodelElement] = statement
+        self.statement: Set[SubmodelElement] = statement
         self.asset: Optional[base.Reference] = asset
 
 
@@ -762,19 +760,19 @@ class Event(SubmodelElement, metaclass=abc.ABCMeta):
 
     def __init__(self,
                  id_short: str,
-                 data_specification: List[base.Reference] = [],
+                 data_specification: Set[base.Reference] = set(),
                  semantic_id: Optional[base.Reference] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
                  parent: Optional[base.Reference] = None,
-                 qualifier: List[base.Constraint] = [],
+                 qualifier: Set[base.Constraint] = set(),
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE):
         """
         Initializer of Event
 
         :param id_short: Identifying string of the element within its name space. (from base.Referable)
-        :param data_specification: List of global references to the data specification template used by the element.
-                                  (from base.HasDataSpecification)
+        :param data_specification: Unordered list of global references to the data specification template used by the
+                                   element. (from base.HasDataSpecification)
         :param semantic_id: Identifier of the semantic definition of the element. It is called semantic id of the
                            element. The semantic id may either reference an external global id or it may reference a
                            referable model element of kind=Type that defines the semantics of the element.
@@ -784,7 +782,7 @@ class Event(SubmodelElement, metaclass=abc.ABCMeta):
                          (from base.Referable)
         :param description: Description or comments on the element. (from base.Referable)
         :param parent: Reference to the next referable parent element of the element. (from base.Referable)
-        :param qualifier: List of Constraints that gives additional qualification of a qualifiable element.
+        :param qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
                          (from base.Qualifiable)
         :param kind: Kind of the element: either type or instance. Default = Instance. (from base.HasKind)
         """
@@ -801,20 +799,20 @@ class BasicEvent(Event):
     def __init__(self,
                  id_short: str,
                  observed: base.Reference,
-                 data_specification: List[base.Reference] = [],
+                 data_specification: Set[base.Reference] = set(),
                  semantic_id: Optional[base.Reference] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
                  parent: Optional[base.Reference] = None,
-                 qualifier: List[base.Constraint] = [],
+                 qualifier: Set[base.Constraint] = set(),
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE):
         """
         Initializer of BasicEvent
 
         :param id_short: Identifying string of the element within its name space. (from base.Referable)
         :param observed: Reference to the data or other elements that are being observed
-        :param data_specification: List of global references to the data specification template used by the element.
-                                  (from base.HasDataSpecification)
+        :param data_specification: Unordered list of global references to the data specification template used by the
+                                   element. (from base.HasDataSpecification)
         :param semantic_id: Identifier of the semantic definition of the element. It is called semantic id of the
                            element. The semantic id may either reference an external global id or it may reference a
                            referable model element of kind=Type that defines the semantics of the element.
@@ -824,7 +822,7 @@ class BasicEvent(Event):
                          (from base.Referable)
         :param description: Description or comments on the element. (from base.Referable)
         :param parent: Reference to the next referable parent element of the element. (from base.Referable)
-        :param qualifier: List of Constraints that gives additional qualification of a qualifiable element.
+        :param qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
                          (from base.Qualifiable)
         :param kind: Kind of the element: either type or instance. Default = Instance. (from base.HasKind)
         """
