@@ -1,5 +1,5 @@
 import abc
-from typing import List, Optional, Set
+from typing import List, Optional, Set, Union
 
 from . import base
 
@@ -445,22 +445,17 @@ class ReferenceElement(DataElement):
         self.value: Optional[base.Reference] = value
 
 
-class SubmodelElementCollection(SubmodelElement):
+class SubmodelElementCollection(SubmodelElement, metaclass=abc.ABCMeta):
     """
     A submodel element collection is a set or list of submodel elements.
 
-    :ivar value: Submodel element contained in the collection.
-    :ivar ordered: If ordered=false then the elements in the property collection are not ordered.
-                   If ordered=true then the elements in the collection are ordered. Default = false
-    :ivar allow_duplicates: If allow_duplicates=true then it is allowed that the collection contains the same element
-                            several times. Default = false
+    << abstract >>
+
+    :ivar value: Ordered or unordered list of submodel elements
     """
 
     def __init__(self,
                  id_short: str,
-                 value: List[SubmodelElement] = [],
-                 ordered: Optional[bool] = False,
-                 allow_duplicates: Optional[bool] = False,
                  data_specification: Set[base.Reference] = set(),
                  semantic_id: Optional[base.Reference] = None,
                  category: Optional[str] = None,
@@ -472,11 +467,49 @@ class SubmodelElementCollection(SubmodelElement):
         Initializer of SubmodelElementCollection
 
         :param id_short: Identifying string of the element within its name space. (from base.Referable)
-        :param value: Submodel element contained in the collection.
-        :param ordered: If ordered=false then the elements in the property collection are not ordered. If ordered=true
-                        then the elements in the collection are ordered. Default = false
-        :param allow_duplicates: If allow_duplicates=true then it is allowed that the collection contains the same
-                                 element several times. Default = false
+        :param data_specification: Unordered list of global references to the data specification template used by the
+                                   element. (from base.HasDataSpecification)
+        :param semantic_id: Identifier of the semantic definition of the element. It is called semantic id of the
+                           element. The semantic id may either reference an external global id or it may reference a
+                           referable model element of kind=Type that defines the semantics of the element.
+                           (from base.HasSemantics)
+        :param category: The category is a value that gives further meta information w.r.t. to the class of the element.
+                         It affects the expected existence of attributes and the applicability of constraints.
+                         (from base.Referable)
+        :param description: Description or comments on the element. (from base.Referable)
+        :param parent: Reference to the next referable parent element of the element. (from base.Referable)
+        :param qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
+                         (from base.Qualifiable)
+        :param kind: Kind of the element: either type or instance. Default = Instance. (from base.HasKind)
+
+        TODO: Add instruction what to do after construction
+        """
+        super().__init__(id_short, data_specification, semantic_id, category, description, parent, qualifier, kind)
+        self.value: Union[List[SubmodelElement], Set[SubmodelElement]] = []
+
+
+class SubmodelElementCollectionOrdered(SubmodelElementCollection):
+    """
+    A SubmodelElementCollectionOrdered is an ordered list of submodel elements.
+
+    :ivar value: Ordered list of submodel elements
+    """
+
+    def __init__(self,
+                 id_short: str,
+                 value: List[SubmodelElement] = [],
+                 data_specification: Set[base.Reference] = set(),
+                 semantic_id: Optional[base.Reference] = None,
+                 category: Optional[str] = None,
+                 description: Optional[base.LangStringSet] = None,
+                 parent: Optional[base.Reference] = None,
+                 qualifier: Set[base.Constraint] = set(),
+                 kind: base.ModelingKind = base.ModelingKind.INSTANCE):
+        """
+        Initializer of SubmodelElementCollection
+
+        :param id_short: Identifying string of the element within its name space. (from base.Referable)
+        :param value: Ordered list of submodel elements.
         :param data_specification: Unordered list of global references to the data specification template used by the
                                    element. (from base.HasDataSpecification)
         :param semantic_id: Identifier of the semantic definition of the element. It is called semantic id of the
@@ -496,8 +529,49 @@ class SubmodelElementCollection(SubmodelElement):
         """
         super().__init__(id_short, data_specification, semantic_id, category, description, parent, qualifier, kind)
         self.value: List[SubmodelElement] = value
-        self.ordered: Optional[bool] = ordered
-        self.allow_duplicates: Optional[bool] = allow_duplicates
+
+
+class SubmodelElementCollectionUnordered(SubmodelElementCollection):
+    """
+    A SubmodelElementCollectionOrdered is an unordered list of submodel elements.
+
+    :ivar value: Unordered list of submodel elements
+    """
+
+    def __init__(self,
+                 id_short: str,
+                 value: Set[SubmodelElement] = set(),
+                 data_specification: Set[base.Reference] = set(),
+                 semantic_id: Optional[base.Reference] = None,
+                 category: Optional[str] = None,
+                 description: Optional[base.LangStringSet] = None,
+                 parent: Optional[base.Reference] = None,
+                 qualifier: Set[base.Constraint] = set(),
+                 kind: base.ModelingKind = base.ModelingKind.INSTANCE):
+        """
+        Initializer of SubmodelElementCollection
+
+        :param id_short: Identifying string of the element within its name space. (from base.Referable)
+        :param value: Unordered list of submodel elements.
+        :param data_specification: Unordered list of global references to the data specification template used by the
+                                   element. (from base.HasDataSpecification)
+        :param semantic_id: Identifier of the semantic definition of the element. It is called semantic id of the
+                           element. The semantic id may either reference an external global id or it may reference a
+                           referable model element of kind=Type that defines the semantics of the element.
+                           (from base.HasSemantics)
+        :param category: The category is a value that gives further meta information w.r.t. to the class of the element.
+                         It affects the expected existence of attributes and the applicability of constraints.
+                         (from base.Referable)
+        :param description: Description or comments on the element. (from base.Referable)
+        :param parent: Reference to the next referable parent element of the element. (from base.Referable)
+        :param qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
+                         (from base.Qualifiable)
+        :param kind: Kind of the element: either type or instance. Default = Instance. (from base.HasKind)
+
+        TODO: Add instruction what to do after construction
+        """
+        super().__init__(id_short, data_specification, semantic_id, category, description, parent, qualifier, kind)
+        self.value: Set[SubmodelElement] = value
 
 
 class RelationshipElement(SubmodelElement):
