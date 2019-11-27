@@ -17,7 +17,7 @@ class IdentifierType(Enum):
     """
     Enumeration of different types of Identifiers for global identification
 
-    :cvar IRDI: IRDI (International Registration Data Identifier) according to ISO29002-5 as an Identifierscheme for
+    :cvar IRDI: IRDI (International Registration Data Identifier) according to ISO29002-5 as an Identifier scheme for
                 properties and classifications.
     :cvar IRI: IRI according to Rfc 3987. Every URI is an IRI
     :cvar CUSTOM: Custom identifiers like GUIDs (globally unique Identifiers)
@@ -34,25 +34,41 @@ class KeyElements(Enum):
     Enumeration for denoting which kind of entity is referenced. They can be categorized in ReferableElements,
     IdentifiableElements and other KeyElements
 
-    :cvar ASSET: IdentifiableElements
-    :cvar ASSET_ADMINISTRATION_SHELL: IdentifiableElements
-    :cvar CONCEPT_DESCRIPTION: IdentifiableElements
-    :cvar SUBMODEL: IdentifiableElements
-    :cvar ACCESS_PERMISSION_RULE: ReferableElements
-    :cvar BLOB: ReferableElements
-    :cvar CONCEPT_DICTIONARY: ReferableElements
-    :cvar DATA_ELEMENT: ReferableElements
-    :cvar FILE: ReferableElements
-    :cvar EVENT: ReferableElements
-    :cvar OPERATION: ReferableElements
-    :cvar OPERATION_VARIABLE: ReferableElements
-    :cvar PROPERTY: ReferableElements
-    :cvar REFRENCE_ELEMENT: ReferableElements
-    :cvar RELATIONSHIP_ELEMENT: ReferableElements
-    :cvar SUBMODEL_ELEMENT: ReferableElements
-    :cvar SUBMODEL_ELEMENT_COLLECTION: ReferableElements
-    :cvar VIEW: ReferableElements
-    :cvar GLOBAL_REFERENCE: KeyElement
+    # IdentifableElements starting from 0
+    :cvar ASSET: asset
+    :cvar ASSET_ADMINISTRATION_SHELL: asset administration shell
+    :cvar CONCEPT_DESCRIPTION: concept description
+    :cvar SUBMODEL: submodel
+
+    # ReferableElements starting from 1000
+    :cvar ACCESS_PERMISSION_RULE: access permission rule
+    :cvar ANNOTATION_RELATIONSHIP_ELEMENT: annotated relationship element
+    :cvar BASIC_EVENT: basic event
+    :cvar BLOB: blob
+    :cvar CAPABILITY: capability
+    :cvar CONCEPT_DICTIONARY: concept dictionary
+    :cvar DATA_ELEMENT: data element,
+                        Note: Date Element is abstract, i. e. if a key uses "DATA_ELEMENT" the reference may be
+                              Property, File etc.
+    :cvar ENTITY: entity
+    :cvar EVENT: event, Note: Event is abstract
+    :cvar FILE: file
+    :cvar MULTI_LANGUAGE_PROPERTY: property with a value that can be provided in multiple languages
+    :cvar OPERATION: operation
+    :cvar PROPERTY: property
+    :cvar RANGE: range with min and max
+    :cvar REFRENCE_ELEMENT: reference
+    :cvar RELATIONSHIP_ELEMENT: relationship
+    :cvar SUBMODEL_ELEMENT: submodel element,
+                            Note: Submodel Element is abstract, i.e. if a key uses “SUBMODEL_ELEMENT” the reference may
+                                  be a Property, a SubmodelElementCollection, an Operation etc.
+    :cvar SUBMODEL_ELEMENT_COLLECTION: collection of submodel elements
+    :cvar VIEW: view
+
+    # KeyElements starting from 2000
+    :cvar GLOBAL_REFERENCE: reference to an element not belonging to an asset administration shel
+    :cvar FRAGMENT_REFERNCE: unique reference to an element within a file. The file itself is assumed to be part of an
+                             asset administration shell.
     """
 
     # IdentifableElements starting from 0
@@ -64,7 +80,7 @@ class KeyElements(Enum):
     # ReferableElements starting from 1000
     ACCESS_PERMISSION_RULE = 1000
     ANNOTATION_RELATIONSHIP_ELEMENT = 1001
-    BASIC = 1002
+    BASIC_EVENT = 1002
     BLOB = 1003
     CAPABILITY = 1004
     CONCEPT_DICTIONARY = 1005
@@ -95,8 +111,8 @@ class KeyType(Enum):
                 properties and classifications.
     :cvar IRI: IRI according to Rfc 3987. Every URI is an IRI
     :cvar CUSTOM: Custom identifiers like GUIDs (globally unique Identifiers)
-    :cvar IDSHORT: Identifying string of the element within its name space.
-    :cvar FRAGMENT_ID: Identifier of a fragment within a file
+    :cvar IDSHORT: id_short of a referable element
+    :cvar FRAGMENT_ID: identifier of a fragment within a file
     """
 
     IRDI = 0
@@ -128,7 +144,10 @@ class ModelingKind(Enum):
     Enumeration for denoting whether an element is a type or an instance.
 
     :cvar TEMPLATE: Software element which specifies the common attributes shared by all instances of the template
-    :cvar INSTANCE: concrete, clearly identifiable component of a certain template
+    :cvar INSTANCE: concrete, clearly identifiable component of a certain template,
+                    Note: It becomes an individual entity of a template, for example a device model, by defining
+                          specific property values.
+                    Note: In an object oriented view, an instance denotes an object of a template (class).
     """
 
     TEMPLATE = 0
@@ -141,7 +160,10 @@ class AssetKind(Enum):
     Enumeration for denoting whether an element is a type or an instance.
 
     :cvar TYPE: hardware or software element which specifies the common attributes shared by all instances of the type
-    :cvar INSTANCE: concrete, clearly identifiable component of a certain type
+    :cvar INSTANCE: concrete, clearly identifiable component of a certain type,
+                    Note: It becomes an individual entity of a type, for example a device, by defining specific
+                          property values.
+                    Note: In an object oriented view, an instance denotes an object of a class (of a type)
     """
 
     TYPE = 0
@@ -160,7 +182,7 @@ class Key:
                  has a global unique id.
     :ivar value: The key value, for example an IRDI if the idType=IRDI
     :ivar id_type: Type of the key value. In case of idType = idShort local shall be true. In case type=GlobalReference
-                  idType shall not be IdShort.
+                   idType shall not be IdShort.
     """
 
     def __init__(self,
@@ -168,6 +190,19 @@ class Key:
                  local: bool,
                  value: str,
                  id_type: KeyType):
+        """
+        Initializer of Key
+
+        :param type_: Denote which kind of entity is referenced. In case type = GlobalReference then the element is a
+                      global unique id. In all other cases the key references a model element of the same or of another
+                      AAS. The name of the model element is explicitly listed.
+        :param local: Denotes if the key references a model element of the same AAS (=true) or not (=false). In case of
+                      local = false the key may reference a model element of another AAS or an entity outside any AAS
+                      that has a global unique id.
+        :param value: The key value, for example an IRDI if the idType=IRDI
+        :param id_type: Type of the key value. In case of idType = idShort local shall be true. In case
+                        type=GlobalReference idType shall not be IdShort.
+        """
         self.type_: KeyElements = type_
         self.local: bool = local
         self.value: str = value
@@ -181,12 +216,21 @@ class Reference:
     A reference is an ordered list of keys, each key referencing an element. The complete list of keys may for
     example be concatenated to a path that then gives unique access to an element or entity
 
-    :ivar: key: Unique reference in its name space.
+    :ivar: key: ordered list of unique reference in its name space, each key referencing an element. The complete
+                list of keys may for example be concatenated to a path that then gives unique access to an element
+                or entity.
     """
 
     def __init__(self,
-                 keys: List[Key]):
-        self.keys: List[Key] = keys
+                 key: List[Key]):
+        """
+        Initializer of Reference
+
+        :param key: ordered list of unique reference in its name space, each key referencing an element. The complete
+                     list of keys may for example be concatenated to a path that then gives unique access to an element
+                     or entity.
+        """
+        self.key: List[Key] = key
 
 
 class AdministrativeInformation:
@@ -200,6 +244,12 @@ class AdministrativeInformation:
     def __init__(self,
                  version: Optional[str] = None,
                  revision: Optional[str] = None):
+        """
+        Initializer of AdministrativeInformation
+
+        :param version: Version of the element.
+        :param revision: Revision of the element.
+        """
         self.version: Optional[str] = version
         self.revision: Optional[str] = revision
 
@@ -216,6 +266,13 @@ class Identifier:
     def __init__(self,
                  id_: str,
                  id_type: IdentifierType):
+        """
+        Initializer of Identifier
+
+        :param id_: Identifier of the element. Its type is defined in id_type.
+        :param id_type: Type of the Identifier, e.g. URI, IRDI etc. The supported Identifier types are defined in the
+                        enumeration "IdentifierType".
+        """
         self.id: str = id_
         self.id_type: IdentifierType = id_type
 
@@ -227,7 +284,7 @@ class HasDataSpecification(metaclass=abc.ABCMeta):
 
     << abstract >>
 
-    :ivar data_specification: Global reference to the data specification template used by the element.
+    :ivar data_specification: List of global references to the data specification template used by the element.
     """
 
     def __init__(self):
@@ -245,7 +302,7 @@ class Referable(metaclass=abc.ABCMeta):
     :ivar category: The category is a value that gives further meta information w.r.t. to the class of the element.
                     It affects the expected existence of attributes and the applicability of constraints.
     :ivar description: Description or comments on the element.
-    :ivar parent: Reference to the next referable parent element of the element. TODO how to check?
+    :ivar parent: Reference to the next referable parent element of the element.
     """
 
     def __init__(self):
@@ -317,7 +374,7 @@ class Qualifiable(metaclass=abc.ABCMeta):
 
     << abstract >>
 
-    :ivar qualifier: Additional qualification of a qualifiable element.
+    :ivar qualifier: List of Constraints that gives additional qualification of a qualifiable element.
     """
 
     def __init__(self):
@@ -328,12 +385,22 @@ class Formula(Constraint):
     """
     A formula is used to describe constraints by a logical expression.
 
-    :ivar depends_on: A formula may depend on referable or even external global elements - assumed that can be
-                      referenced and their value may be evaluated - that are used in the logical expression.
+    :ivar depends_on: List of references to referable or even external global elements that are used in the
+                      logical expression. The value of the referenced elements needs to be accessible so that
+                      it can be evaluated in the formula to true or false in the corresponding logical expression
+                      it is used in.
     """
 
     def __init__(self,
                  depends_on: List[Reference] = []):
+        """
+        Initializer of Formular
+
+        :param depends_on: List of references to referable or even external global elements that are used in the
+                           logical expression. The value of the referenced elements needs to be accessible so that
+                           it can be evaluated in the formula to true or false in the corresponding logical expression
+                           it is used in.
+        """
         super().__init__()
         self.depends_on: List[Reference] = depends_on
 
@@ -355,6 +422,15 @@ class Qualifier(Constraint, HasSemantics):
                  value: Optional[ValueDataType] = None,
                  value_id: Optional[Reference] = None,
                  semantic_id: Optional[Reference] = None):
+        """
+        Initializer of Qualifier
+
+        :param type_: The type of the qualifier that is applied to the element.
+        :param value_type: Data type of the qualifier value
+        :param value: The value of the qualifier.
+        :param value_id: Reference to the global unique id of a coded value.
+        :param semantic_id: The semantic_id defined in the HasSemantics class.
+        """
         super().__init__()
         self.type_: QualifierType = type_
         self.value_type: DataTypeDef = value_type
@@ -368,11 +444,16 @@ class LangStringSet:
     A set of strings, each annotated by the language of the string. The meaning of the string in each language shall be
     the same.
 
-    :ivar lang_string: A string in a specified language
+    :ivar lang_string: list of strings in specified languages
     """
 
     def __init__(self,
                  lang_string: List[langString]):
+        """
+        Initializer of LangStringSet
+
+        :param lang_string: list of strings in specified languages
+        """
         self.lang_string: List[langString] = lang_string
 
 
@@ -387,6 +468,12 @@ class ValueReferencePair:
     def __init__(self,
                  value: ValueDataType,
                  value_id: Reference):
+        """
+        Initializer of ValueReferencePair
+
+        :param value: The value of the referenced concept definition of the value in value_id
+        :param value_id: Global unique id of the value.
+        """
         self.value: ValueDataType = value
         self.value_id: Reference = value_id
 
@@ -395,9 +482,14 @@ class ValueList:
     """
     A set of value reference pairs.
 
-    :ivar value_reference_pair_type: A pair of a value together with its global unique id.
+    :ivar value_reference_pair_type: List of pairs of a value together with its global unique id.
     """
 
     def __init__(self,
                  value_reference_pair_type: List[ValueReferencePair]):
+        """
+        Initializer of ValueList
+
+        :param value_reference_pair_type: List of pairs of a value together with its global unique id.
+        """
         self.value_reference_pair_type: List[ValueReferencePair] = value_reference_pair_type
