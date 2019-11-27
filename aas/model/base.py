@@ -243,6 +243,8 @@ class AdministrativeInformation:
 
     :ivar version: Version of the element.
     :ivar revision: Revision of the element.
+                    Constraint AASd-005: A revision requires a version. This means, if there is no version there is no
+                                         revision neither.
     """
 
     def __init__(self,
@@ -308,10 +310,18 @@ class Referable(metaclass=abc.ABCMeta):
     << abstract >>
 
     :ivar id_short: Identifying string of the element within its name space.
+                    Constraint AASd-001: In case of a referable element not being an identifiable element this id is
+                                         mandatory and used for referring to the element in its name space.
+                    Constraint AASd-002: idShort shall only feature letters, digits, underscore ("_"); starting
+                                         mandatory with a letter.
+                    Constraint AASd-003: idShort shall be matched case insensitive.
     :ivar category: The category is a value that gives further meta information w.r.t. to the class of the element.
                     It affects the expected existence of attributes and the applicability of constraints.
     :ivar description: Description or comments on the element.
     :ivar parent: Reference to the next referable parent element of the element.
+                  Constraint AASd-004: Add parent in case of non identifiable elements.
+
+
     """
 
     def __init__(self):
@@ -423,6 +433,8 @@ class Qualifier(Constraint, HasSemantics):
     :ivar type_: The type of the qualifier that is applied to the element.
     :ivar value_type: Data type of the qualifier value
     :ivar value: The value of the qualifier.
+                 Constraint AASd-006: if both, the value and the valueId are present then the value needs to be
+                                      identical to the value of the referenced coded value in Qualifier/valueId.
     :ivar value_id: Reference to the global unique id of a coded value.
     :ivar semantic_id: The semantic_id defined in the HasSemantics class.
     """

@@ -28,6 +28,9 @@ class Permission:
     Description of a single permission
 
     :ivar permission: Reference to a property that defines the semantics of the permission
+                      Constraint AASd-010: The property has the category “CONSTANT”.
+                      Constraint AASd-011: The permission property shall be part of the submodel that is referenced
+                                           within the “selectablePermissions” attribute of “AccessControl”.
     :ivar kind_of_permission: Description of the kind of permission
     """
     def __init__(self,
@@ -109,6 +112,8 @@ class SubjectAttribute:
     A list of data elements that further classifies a specific subject
 
     :ivar subject_attribute: A data element that further classifies a specific subject.
+                             Constraint AASd-015: The data element shall be part of the submodel that is referenced
+                                                  within the “selectableSubjectAttributes” attribute of “AccessControl”
     """
     def __init__(self,
                  subject_attribute: submodel.Property):
@@ -261,22 +266,24 @@ class PolicyAdministrationPoint:
     """
     Definition of a security administration point (PDP)
 
-    :ivar access_control: Instance of Access Control
+    :ivar local_access_control: Instance of Access Control
+                          Constraint AASd-009: Either there is an external policy administration point endpoint defined
+                                               or the AAS has its own access control.
     :ivar endpoint: Instance of Endpoint
     """
     def __init__(self,
-                 access_control: Optional[AccessControl] = None,
+                 local_access_control: Optional[AccessControl] = None,
                  endpoint: Optional[Endpoint] = None):
         """
         Initializer of PolicyAdministrationPoint
 
-        :param access_control: Instance of Access Control (optional)
+        :param local_access_control: Instance of Access Control (optional)
         :param endpoint: Instance of Endpoint (optional)
 
         TODO: Add instruction what to do after construction
         """
 
-        self.local_access_control: Optional[AccessControl] = access_control
+        self.local_access_control: Optional[AccessControl] = local_access_control
         self.external_access_control: Optional[Endpoint] = endpoint
 
 

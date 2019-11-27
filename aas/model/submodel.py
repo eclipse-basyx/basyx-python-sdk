@@ -148,6 +148,8 @@ class Property(DataElement):
     :ivar value_type: Data type of the value
     :ivar value: The value of the property instance.
     :ivar value_id: Reference to the global unique id of a coded value.
+                    Constraint AASd-007: if both, the value and the valueId are present then the value needs to be
+                                         identical to the value of the referenced coded value in valueId
     """
 
     def __init__(self,
@@ -199,6 +201,8 @@ class MultiLanguageProperty(DataElement):
 
     :ivar value: The value of the property instance.
     :ivar value_id: Reference to the global unique id of a coded value.
+                    Constraint AASd-012: if both, the value and the valueId are present then for each string in a
+                                         specific language the meaning must be the same as specified in valueId.
     """
 
     def __init__(self,
@@ -247,6 +251,8 @@ class Range(DataElement):
     :ivar value_type: Data type of the min and max
     :ivar min_: The minimum value of the range. If the min value is missing then the value is assumed to be negative
                 infinite.
+                Constraint AASd-013: In case of a range with kind=Instance either the min or the max value or both need
+                                     to be defined
     :ivar max_: The maximum of the range. If the max value is missing then the value is assumed to be positive infinite
     """
 
@@ -674,6 +680,7 @@ class OperationVariable(SubmodelElement):
     An operation variable is a submodel element that is used as input or output variable of an operation.
 
     :ivar value: Describes the needed argument for an operation via a submodel element of kind=Type.
+                 Constraint AASd-008: The submodel element value of an operation variable shall be of kind=Template.
     """
 
     def __init__(self,
@@ -812,6 +819,8 @@ class Entity(SubmodelElement):
     :ivar entity_type: Describes whether the entity is a co-managed or a self-managed entity.
     :ivar statement: Unordered list of statements applicable to the entity, typically with a qualified value.
     :ivar asset: Reference to the asset the entity is representing.
+                 Constraint AASd-014: The asset attribute must be set if entityType is set to “SelfManagedEntity”. It
+                 is empty otherwise.
     """
 
     def __init__(self,
