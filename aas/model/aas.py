@@ -57,7 +57,6 @@ class ConceptDescription(base.HasDataSpecification, base. Identifiable):
         self.administration: Optional[base.AdministrativeInformation] = administration
 
 
-
 class ConceptDictionary(base.Referable):
     """
     Contains descriptions for elements that are used within the AAS

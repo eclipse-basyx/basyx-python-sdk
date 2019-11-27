@@ -208,8 +208,8 @@ class PolicyInformationPoints:
     Serves as the retrieval attributes, or the data required for policy evaluation to provide the information needed
     by the policy decision point to make the decisions.
 
-    :param external_information_point_list: List of endpoints to external available information points taking into consideration for
-                                       access control for the AAS (optional)
+    :param external_information_point_list: List of endpoints to external available information points taking into
+                                            consideration for access control for the AAS (optional)
     :param internal_information_point_list: List of references to submodels defining information used by security
                                             access permission rules (optional)
     """
