@@ -34,7 +34,7 @@ class KeyElements(Enum):
     Enumeration for denoting which kind of entity is referenced. They can be categorized in ReferableElements,
     IdentifiableElements and other KeyElements
 
-    # IdentifableElements starting from 0
+    # IdentifiableElements starting from 0
     :cvar ASSET: asset
     :cvar ASSET_ADMINISTRATION_SHELL: asset administration shell
     :cvar CONCEPT_DESCRIPTION: concept description
@@ -57,7 +57,7 @@ class KeyElements(Enum):
     :cvar OPERATION: operation
     :cvar PROPERTY: property
     :cvar RANGE: range with min and max
-    :cvar REFRENCE_ELEMENT: reference
+    :cvar REFERENCE_ELEMENT: reference
     :cvar RELATIONSHIP_ELEMENT: relationship
     :cvar SUBMODEL_ELEMENT: submodel element,
                             Note: Submodel Element is abstract, i.e. if a key uses “SUBMODEL_ELEMENT” the reference may
@@ -67,11 +67,11 @@ class KeyElements(Enum):
 
     # KeyElements starting from 2000
     :cvar GLOBAL_REFERENCE: reference to an element not belonging to an asset administration shel
-    :cvar FRAGMENT_REFERNCE: unique reference to an element within a file. The file itself is assumed to be part of an
+    :cvar FRAGMENT_REFERENCE: unique reference to an element within a file. The file itself is assumed to be part of an
                              asset administration shell.
     """
 
-    # IdentifableElements starting from 0
+    # IdentifiableElements starting from 0
     ASSET = 0
     ASSET_ADMINISTRATION_SHELL = 1
     CONCEPT_DESCRIPTION = 2
@@ -92,7 +92,7 @@ class KeyElements(Enum):
     OPERATION = 1011
     PROPERTY = 1012
     RANGE = 1013
-    REFRENCE_ELEMENT = 1014
+    REFERENCE_ELEMENT = 1014
     RELATIONSHIP_ELEMENT = 1015
     SUBMODEL_ELEMENT = 1016
     SUBMODEL_ELEMENT_COLLECTION = 1017
@@ -100,7 +100,7 @@ class KeyElements(Enum):
 
     # KeyElements starting from 2000
     GLOBAL_REFERENCE = 2000
-    FRAGMENT_REFERNCE = 2001
+    FRAGMENT_REFERENCE = 2001
 
 
 class KeyType(Enum):
@@ -127,7 +127,7 @@ class EntityType(Enum):
     """
     Enumeration for denoting whether an entity is a self-managed or a co-managed entity
 
-    :cvar CO_MANAGED_ENTITY: For co-managed entities there is no separat AAS. Co-managed entities need to be part of a
+    :cvar CO_MANAGED_ENTITY: For co-managed entities there is no separate AAS. Co-managed entities need to be part of a
                              self-managed entity
     :cvar SELF_MANAGED_ENTITY: Self-managed entities have their own AAS but can be part of the bill of material of a
                                composite self-managed entity. The asset of an I4.0-component is a self-managed entity
@@ -413,7 +413,7 @@ class Formula(Constraint):
     def __init__(self,
                  depends_on: Set[Reference] = set()):
         """
-        Initializer of Formular
+        Initializer of Formula
 
         :param depends_on: Unordered of references to referable or even external global elements that are used in the
                            logical expression. The value of the referenced elements needs to be accessible so that
