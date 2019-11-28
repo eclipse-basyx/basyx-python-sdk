@@ -328,6 +328,8 @@ class Referable(metaclass=abc.ABCMeta):
         self.id_short: str = ""
         self.category: Optional[str] = None
         self.description: Optional[LangStringSet] = None
+        # We use a Python reference to the parent Namespace instead of a Reference Object, as specified. This allows
+        # simpler and faster navigation/checks and it has no effect in the serialized data formats anyway.
         self.parent: Optional[Namespace] = None
 
 

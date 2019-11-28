@@ -119,7 +119,7 @@ class DataElement(SubmodelElement, metaclass=abc.ABCMeta):
                  semantic_id: Optional[base.Reference] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
-                 parent: Optional[base.Reference] = None,
+                 parent: Optional[base.Namespace] = None,
                  qualifier: Optional[Set[base.Constraint]] = None,
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE):
         """
@@ -164,7 +164,7 @@ class Property(DataElement):
                  semantic_id: Optional[base.Reference] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
-                 parent: Optional[base.Reference] = None,
+                 parent: Optional[base.Namespace] = None,
                  qualifier: Optional[Set[base.Constraint]] = None,
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE):
         """
@@ -216,7 +216,7 @@ class MultiLanguageProperty(DataElement):
                  semantic_id: Optional[base.Reference] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
-                 parent: Optional[base.Reference] = None,
+                 parent: Optional[base.Namespace] = None,
                  qualifier: Optional[Set[base.Constraint]] = None,
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE):
         """
@@ -268,7 +268,7 @@ class Range(DataElement):
                  semantic_id: Optional[base.Reference] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
-                 parent: Optional[base.Reference] = None,
+                 parent: Optional[base.Namespace] = None,
                  qualifier: Optional[Set[base.Constraint]] = None,
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE):
         """
@@ -323,7 +323,7 @@ class Blob(DataElement):
                  semantic_id: Optional[base.Reference] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
-                 parent: Optional[base.Reference] = None,
+                 parent: Optional[base.Namespace] = None,
                  qualifier: Optional[Set[base.Constraint]] = None,
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE):
         """
@@ -375,7 +375,7 @@ class File(DataElement):
                  semantic_id: Optional[base.Reference] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
-                 parent: Optional[base.Reference] = None,
+                 parent: Optional[base.Namespace] = None,
                  qualifier: Optional[Set[base.Constraint]] = None,
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE):
         """
@@ -424,7 +424,7 @@ class ReferenceElement(DataElement):
                  semantic_id: Optional[base.Reference] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
-                 parent: Optional[base.Reference] = None,
+                 parent: Optional[base.Namespace] = None,
                  qualifier: Optional[Set[base.Constraint]] = None,
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE):
         """
@@ -469,7 +469,7 @@ class SubmodelElementCollection(SubmodelElement, metaclass=abc.ABCMeta):
                  semantic_id: Optional[base.Reference] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
-                 parent: Optional[base.Reference] = None,
+                 parent: Optional[base.Namespace] = None,
                  qualifier: Optional[Set[base.Constraint]] = None,
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE):
         """
@@ -511,7 +511,7 @@ class SubmodelElementCollectionOrdered(SubmodelElementCollection):
                  semantic_id: Optional[base.Reference] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
-                 parent: Optional[base.Reference] = None,
+                 parent: Optional[base.Namespace] = None,
                  qualifier: Optional[Set[base.Constraint]] = None,
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE):
         """
@@ -554,7 +554,7 @@ class SubmodelElementCollectionUnordered(SubmodelElementCollection):
                  semantic_id: Optional[base.Reference] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
-                 parent: Optional[base.Reference] = None,
+                 parent: Optional[base.Namespace] = None,
                  qualifier: Optional[Set[base.Constraint]] = None,
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE):
         """
@@ -602,7 +602,7 @@ class RelationshipElement(SubmodelElement):
                  semantic_id: Optional[base.Reference] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
-                 parent: Optional[base.Reference] = None,
+                 parent: Optional[base.Namespace] = None,
                  qualifier: Optional[Set[base.Constraint]] = None,
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE):
         """
@@ -649,7 +649,7 @@ class AnnotatedRelationshipElement(SubmodelElement):
                  semantic_id: Optional[base.Reference] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
-                 parent: Optional[base.Reference] = None,
+                 parent: Optional[base.Namespace] = None,
                  qualifier: Optional[Set[base.Constraint]] = None,
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE):
         """
@@ -693,7 +693,7 @@ class OperationVariable(SubmodelElement):
                  semantic_id: Optional[base.Reference] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
-                 parent: Optional[base.Reference] = None,
+                 parent: Optional[base.Namespace] = None,
                  qualifier: Optional[Set[base.Constraint]] = None,
                  kind: base.ModelingKind = base.ModelingKind.TEMPLATE):
         """
@@ -742,7 +742,7 @@ class Operation(SubmodelElement):
                  semantic_id: Optional[base.Reference] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
-                 parent: Optional[base.Reference] = None,
+                 parent: Optional[base.Namespace] = None,
                  qualifier: Optional[Set[base.Constraint]] = None,
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE):
         """
@@ -789,7 +789,7 @@ class Capability(SubmodelElement):
                  semantic_id: Optional[base.Reference] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
-                 parent: Optional[base.Reference] = None,
+                 parent: Optional[base.Namespace] = None,
                  qualifier: Optional[Set[base.Constraint]] = None,
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE):
         """
@@ -836,7 +836,7 @@ class Entity(SubmodelElement):
                  semantic_id: Optional[base.Reference] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
-                 parent: Optional[base.Reference] = None,
+                 parent: Optional[base.Namespace] = None,
                  qualifier: Optional[Set[base.Constraint]] = None,
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE):
         """
@@ -880,7 +880,7 @@ class Event(SubmodelElement, metaclass=abc.ABCMeta):
                  semantic_id: Optional[base.Reference] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
-                 parent: Optional[base.Reference] = None,
+                 parent: Optional[base.Namespace] = None,
                  qualifier: Optional[Set[base.Constraint]] = None,
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE):
         """
@@ -919,7 +919,7 @@ class BasicEvent(Event):
                  semantic_id: Optional[base.Reference] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
-                 parent: Optional[base.Reference] = None,
+                 parent: Optional[base.Namespace] = None,
                  qualifier: Optional[Set[base.Constraint]] = None,
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE):
         """
