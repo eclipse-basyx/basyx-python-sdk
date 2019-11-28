@@ -18,12 +18,12 @@ class SubmodelElement(base.HasDataSpecification, base.Referable, base.Qualifiabl
 
     def __init__(self,
                  id_short: str,
-                 data_specification: Set[base.Reference] = set(),
+                 data_specification: Optional[Set[base.Reference]] = None,
                  semantic_id: Optional[base.Reference] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
                  parent: Optional[base.Reference] = None,
-                 qualifier: Set[base.Constraint] = set(),
+                 qualifier: Optional[Set[base.Constraint]] = None,
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE):
         """
         Initializer of SubmodelElement
@@ -47,13 +47,14 @@ class SubmodelElement(base.HasDataSpecification, base.Referable, base.Qualifiabl
         TODO: Add instruction what to do after construction
         """
         super().__init__()
-        self.data_specification: Set[base.Reference] = data_specification
+        self.data_specification: Set[base.Reference] = set() \
+            if data_specification is None else data_specification
         self.semantic_id: Optional[base.Reference] = semantic_id
         self.id_short: str = id_short
         self.category: Optional[str] = category
         self.description: Optional[base.LangStringSet] = description
         self.parent: Optional[base.Reference] = parent
-        self.qualifier: Set[base.Constraint] = qualifier
+        self.qualifier: Set[base.Constraint] = set() if qualifier is None else qualifier
         self.kind: base.ModelingKind = kind
 
 
@@ -69,11 +70,11 @@ class Submodel(base.HasDataSpecification, base.HasSemantics, base.Identifiable, 
 
     def __init__(self,
                  identification: base.Identifier,
-                 submodel_element: Set[SubmodelElement] = set(),
-                 data_specification: Set[base.Reference] = set(),
+                 submodel_element: Optional[Set[SubmodelElement]] = None,
+                 data_specification: Optional[Set[base.Reference]] = None,
                  semantic_id: Optional[base.Reference] = None,
                  administration: Optional[base.AdministrativeInformation] = None,
-                 qualifier: Set[base.Constraint] = set(),
+                 qualifier: Optional[Set[base.Constraint]] = None,
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE):
         """
         Initializer of Submodel
@@ -92,12 +93,14 @@ class Submodel(base.HasDataSpecification, base.HasSemantics, base.Identifiable, 
         :param kind: Kind of the element: either type or instance. Default = Instance. (from base.HasKind)
         """
         super().__init__()
-        self.submodel_element: Set[SubmodelElement] = submodel_element
-        self.data_specification: Set[base.Reference] = data_specification
+        self.submodel_element: Optional[Set[SubmodelElement]] = set() \
+            if submodel_element is None else submodel_element
+        self.data_specification: Set[base.Reference] = set() \
+            if data_specification is None else data_specification
         self.semantic_id: Optional[base.Reference] = semantic_id
         self.administration: Optional[base.AdministrativeInformation] = administration
         self.identification: base.Identifier = identification
-        self.qualifier: Set[base.Constraint] = qualifier
+        self.qualifier: Set[base.Constraint] = set() if qualifier is None else qualifier
         self.kind: base.ModelingKind = kind
 
 
@@ -112,12 +115,12 @@ class DataElement(SubmodelElement, metaclass=abc.ABCMeta):
 
     def __init__(self,
                  id_short: str,
-                 data_specification: Set[base.Reference] = set(),
+                 data_specification: Optional[Set[base.Reference]] = None,
                  semantic_id: Optional[base.Reference] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
                  parent: Optional[base.Reference] = None,
-                 qualifier: Set[base.Constraint] = set(),
+                 qualifier: Optional[Set[base.Constraint]] = None,
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE):
         """
         Initializer of DataElement
@@ -157,12 +160,12 @@ class Property(DataElement):
                  value_type: base.DataTypeDef,
                  value: Optional[base.ValueDataType] = None,
                  value_id: Optional[base.Reference] = None,
-                 data_specification: Set[base.Reference] = set(),
+                 data_specification: Optional[Set[base.Reference]] = None,
                  semantic_id: Optional[base.Reference] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
                  parent: Optional[base.Reference] = None,
-                 qualifier: Set[base.Constraint] = set(),
+                 qualifier: Optional[Set[base.Constraint]] = None,
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE):
         """
         Initializer of Property
@@ -209,12 +212,12 @@ class MultiLanguageProperty(DataElement):
                  id_short: str,
                  value: Optional[base.LangStringSet] = None,
                  value_id: Optional[base.Reference] = None,
-                 data_specification: Set[base.Reference] = set(),
+                 data_specification: Optional[Set[base.Reference]] = None,
                  semantic_id: Optional[base.Reference] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
                  parent: Optional[base.Reference] = None,
-                 qualifier: Set[base.Constraint] = set(),
+                 qualifier: Optional[Set[base.Constraint]] = None,
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE):
         """
         Initializer of MultiLanguageProperty
@@ -261,12 +264,12 @@ class Range(DataElement):
                  value_type: base.DataTypeDef,
                  min_: Optional[base.ValueDataType] = None,
                  max_: Optional[base.ValueDataType] = None,
-                 data_specification: Set[base.Reference] = set(),
+                 data_specification: Optional[Set[base.Reference]] = None,
                  semantic_id: Optional[base.Reference] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
                  parent: Optional[base.Reference] = None,
-                 qualifier: Set[base.Constraint] = set(),
+                 qualifier: Optional[Set[base.Constraint]] = None,
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE):
         """
         Initializer of Range
@@ -316,12 +319,12 @@ class Blob(DataElement):
                  id_short: str,
                  mime_type: base.MimeType,
                  value: Optional[base.BlobType] = None,
-                 data_specification: Set[base.Reference] = set(),
+                 data_specification: Optional[Set[base.Reference]] = None,
                  semantic_id: Optional[base.Reference] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
                  parent: Optional[base.Reference] = None,
-                 qualifier: Set[base.Constraint] = set(),
+                 qualifier: Optional[Set[base.Constraint]] = None,
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE):
         """
         Initializer of Blob
@@ -368,12 +371,12 @@ class File(DataElement):
                  id_short: str,
                  mime_type: base.MimeType,
                  value: Optional[base.PathType],
-                 data_specification: Set[base.Reference] = set(),
+                 data_specification: Optional[Set[base.Reference]] = None,
                  semantic_id: Optional[base.Reference] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
                  parent: Optional[base.Reference] = None,
-                 qualifier: Set[base.Constraint] = set(),
+                 qualifier: Optional[Set[base.Constraint]] = None,
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE):
         """
         Initializer of File
@@ -417,12 +420,12 @@ class ReferenceElement(DataElement):
     def __init__(self,
                  id_short: str,
                  value: Optional[base.Reference],
-                 data_specification: Set[base.Reference] = set(),
+                 data_specification: Optional[Set[base.Reference]] = None,
                  semantic_id: Optional[base.Reference] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
                  parent: Optional[base.Reference] = None,
-                 qualifier: Set[base.Constraint] = set(),
+                 qualifier: Optional[Set[base.Constraint]] = None,
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE):
         """
         Initializer of ReferenceElement
@@ -462,12 +465,12 @@ class SubmodelElementCollection(SubmodelElement, metaclass=abc.ABCMeta):
 
     def __init__(self,
                  id_short: str,
-                 data_specification: Set[base.Reference] = set(),
+                 data_specification: Optional[Set[base.Reference]] = None,
                  semantic_id: Optional[base.Reference] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
                  parent: Optional[base.Reference] = None,
-                 qualifier: Set[base.Constraint] = set(),
+                 qualifier: Optional[Set[base.Constraint]] = None,
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE):
         """
         Initializer of SubmodelElementCollection
@@ -503,13 +506,13 @@ class SubmodelElementCollectionOrdered(SubmodelElementCollection):
 
     def __init__(self,
                  id_short: str,
-                 value: List[SubmodelElement] = [],
-                 data_specification: Set[base.Reference] = set(),
+                 value: Optional[List[SubmodelElement]] = None,
+                 data_specification: Optional[Set[base.Reference]] = None,
                  semantic_id: Optional[base.Reference] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
                  parent: Optional[base.Reference] = None,
-                 qualifier: Set[base.Constraint] = set(),
+                 qualifier: Optional[Set[base.Constraint]] = None,
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE):
         """
         Initializer of SubmodelElementCollection
@@ -534,7 +537,7 @@ class SubmodelElementCollectionOrdered(SubmodelElementCollection):
         TODO: Add instruction what to do after construction
         """
         super().__init__(id_short, data_specification, semantic_id, category, description, parent, qualifier, kind)
-        self.value: List[SubmodelElement] = value
+        self.value: List[SubmodelElement] = [] if value is None else value
 
 
 class SubmodelElementCollectionUnordered(SubmodelElementCollection):
@@ -546,13 +549,13 @@ class SubmodelElementCollectionUnordered(SubmodelElementCollection):
 
     def __init__(self,
                  id_short: str,
-                 value: Set[SubmodelElement] = set(),
-                 data_specification: Set[base.Reference] = set(),
+                 value: Optional[Set[SubmodelElement]] = None,
+                 data_specification: Optional[Set[base.Reference]] = None,
                  semantic_id: Optional[base.Reference] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
                  parent: Optional[base.Reference] = None,
-                 qualifier: Set[base.Constraint] = set(),
+                 qualifier: Optional[Set[base.Constraint]] = None,
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE):
         """
         Initializer of SubmodelElementCollection
@@ -577,7 +580,7 @@ class SubmodelElementCollectionUnordered(SubmodelElementCollection):
         TODO: Add instruction what to do after construction
         """
         super().__init__(id_short, data_specification, semantic_id, category, description, parent, qualifier, kind)
-        self.value: Set[SubmodelElement] = value
+        self.value: Set[SubmodelElement] = set() if value is None else value
 
 
 class RelationshipElement(SubmodelElement):
@@ -595,12 +598,12 @@ class RelationshipElement(SubmodelElement):
                  id_short: str,
                  first: base.Reference,
                  second: base.Reference,
-                 data_specification: Set[base.Reference] = set(),
+                 data_specification: Optional[Set[base.Reference]] = None,
                  semantic_id: Optional[base.Reference] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
                  parent: Optional[base.Reference] = None,
-                 qualifier: Set[base.Constraint] = set(),
+                 qualifier: Optional[Set[base.Constraint]] = None,
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE):
         """
         Initializer of RelationshipElement
@@ -641,13 +644,13 @@ class AnnotatedRelationshipElement(SubmodelElement):
 
     def __init__(self,
                  id_short: str,
-                 annotation: Set[base.Reference] = set(),
-                 data_specification: Set[base.Reference] = set(),
+                 annotation: Optional[Set[base.Reference]] = None,
+                 data_specification: Optional[Set[base.Reference]] = None,
                  semantic_id: Optional[base.Reference] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
                  parent: Optional[base.Reference] = None,
-                 qualifier: Set[base.Constraint] = set(),
+                 qualifier: Optional[Set[base.Constraint]] = None,
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE):
         """
         Initializer of AnnotatedRelationshipElement
@@ -672,7 +675,7 @@ class AnnotatedRelationshipElement(SubmodelElement):
         TODO: Add instruction what to do after construction
         """
         super().__init__(id_short, data_specification, semantic_id, category, description, parent, qualifier, kind)
-        self.annotation: Set[base.Reference] = annotation
+        self.annotation: Optional[Set[base.Reference]] = set() if annotation is None else annotation
 
 
 class OperationVariable(SubmodelElement):
@@ -686,12 +689,12 @@ class OperationVariable(SubmodelElement):
     def __init__(self,
                  id_short: str,
                  value: SubmodelElement,
-                 data_specification: Set[base.Reference] = set(),
+                 data_specification: Optional[Set[base.Reference]] = None,
                  semantic_id: Optional[base.Reference] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
                  parent: Optional[base.Reference] = None,
-                 qualifier: Set[base.Constraint] = set(),
+                 qualifier: Optional[Set[base.Constraint]] = None,
                  kind: base.ModelingKind = base.ModelingKind.TEMPLATE):
         """
         Initializer of OperationVariable
@@ -732,15 +735,15 @@ class Operation(SubmodelElement):
     """
     def __init__(self,
                  id_short: str,
-                 input_variable: Set[OperationVariable] = set(),
-                 output_variable: Set[OperationVariable] = set(),
-                 in_output_variable: Set[OperationVariable] = set(),
-                 data_specification: Set[base.Reference] = set(),
+                 input_variable: Optional[Set[OperationVariable]] = None,
+                 output_variable: Optional[Set[OperationVariable]] = None,
+                 in_output_variable: Optional[Set[OperationVariable]] = None,
+                 data_specification: Optional[Set[base.Reference]] = None,
                  semantic_id: Optional[base.Reference] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
                  parent: Optional[base.Reference] = None,
-                 qualifier: Set[base.Constraint] = set(),
+                 qualifier: Optional[Set[base.Constraint]] = None,
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE):
         """
         Initializer of Operation
@@ -767,9 +770,10 @@ class Operation(SubmodelElement):
         TODO: Add instruction what to do after construction
         """
         super().__init__(id_short, data_specification, semantic_id, category, description, parent, qualifier, kind)
-        self.input_variable: Set[OperationVariable] = input_variable
-        self.output_variable: Set[OperationVariable] = output_variable
-        self.in_output_variable: Set[OperationVariable] = in_output_variable
+        self.input_variable: Optional[Set[OperationVariable]] = set() if input_variable is None else input_variable
+        self.output_variable: Optional[Set[OperationVariable]] = set() if output_variable is None else output_variable
+        self.in_output_variable: Optional[Set[OperationVariable]] = set() \
+            if in_output_variable is None else in_output_variable
 
 
 class Capability(SubmodelElement):
@@ -781,12 +785,12 @@ class Capability(SubmodelElement):
 
     def __init__(self,
                  id_short: str,
-                 data_specification: Set[base.Reference] = set(),
+                 data_specification: Optional[Set[base.Reference]] = None,
                  semantic_id: Optional[base.Reference] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
                  parent: Optional[base.Reference] = None,
-                 qualifier: Set[base.Constraint] = set(),
+                 qualifier: Optional[Set[base.Constraint]] = None,
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE):
         """
         Initializer of Capability
@@ -826,14 +830,14 @@ class Entity(SubmodelElement):
     def __init__(self,
                  id_short: str,
                  entity_type: base.EntityType,
-                 statement: Set[SubmodelElement] = set(),
+                 statement: Optional[Set[SubmodelElement]] = None,
                  asset: Optional[base.Reference] = None,
-                 data_specification: Set[base.Reference] = set(),
+                 data_specification: Optional[Set[base.Reference]] = None,
                  semantic_id: Optional[base.Reference] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
                  parent: Optional[base.Reference] = None,
-                 qualifier: Set[base.Constraint] = set(),
+                 qualifier: Optional[Set[base.Constraint]] = None,
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE):
         """
         Initializer of Entity
@@ -861,7 +865,7 @@ class Entity(SubmodelElement):
         """
         super().__init__(id_short, data_specification, semantic_id, category, description, parent, qualifier, kind)
         self.entity_type: base.EntityType = entity_type
-        self.statement: Set[SubmodelElement] = statement
+        self.statement: Optional[Set[SubmodelElement]] = set() if statement is None else statement
         self.asset: Optional[base.Reference] = asset
 
 
@@ -872,12 +876,12 @@ class Event(SubmodelElement, metaclass=abc.ABCMeta):
 
     def __init__(self,
                  id_short: str,
-                 data_specification: Set[base.Reference] = set(),
+                 data_specification: Optional[Set[base.Reference]] = None,
                  semantic_id: Optional[base.Reference] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
                  parent: Optional[base.Reference] = None,
-                 qualifier: Set[base.Constraint] = set(),
+                 qualifier: Optional[Set[base.Constraint]] = None,
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE):
         """
         Initializer of Event
@@ -911,12 +915,12 @@ class BasicEvent(Event):
     def __init__(self,
                  id_short: str,
                  observed: base.Reference,
-                 data_specification: Set[base.Reference] = set(),
+                 data_specification: Optional[Set[base.Reference]] = None,
                  semantic_id: Optional[base.Reference] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
                  parent: Optional[base.Reference] = None,
-                 qualifier: Set[base.Constraint] = set(),
+                 qualifier: Optional[Set[base.Constraint]] = None,
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE):
         """
         Initializer of BasicEvent

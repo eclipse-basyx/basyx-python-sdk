@@ -412,7 +412,7 @@ class Formula(Constraint):
     """
 
     def __init__(self,
-                 depends_on: Set[Reference] = set()):
+                 depends_on: Optional[Set[Reference]] = None):
         """
         Initializer of Formula
 
@@ -424,7 +424,7 @@ class Formula(Constraint):
         TODO: Add instruction what to do after construction
         """
         super().__init__()
-        self.depends_on: Set[Reference] = depends_on
+        self.depends_on: Optional[Set[Reference]] = set() if depends_on is None else depends_on
 
 
 class Qualifier(Constraint, HasSemantics):
@@ -470,6 +470,8 @@ class LangStringSet:
     A set of strings, each annotated by the language of the string. The meaning of the string in each language shall be
     the same.
 
+    << Data Type >>
+
     :ivar lang_string: Unordered list of strings in specified languages
     """
 
@@ -488,6 +490,8 @@ class LangStringSet:
 class ValueReferencePair:
     """
     A value reference pair within a value list. Each value has a global unique id defining its semantic.
+
+    << Data Type >>
 
     :ivar value: The value of the referenced concept definition of the value in value_id
     :ivar value_id: Global unique id of the value.
@@ -511,6 +515,8 @@ class ValueReferencePair:
 class ValueList:
     """
     A set of value reference pairs.
+
+    << Data Type >>
 
     :ivar value_reference_pair_type: Unordered list of pairs of a value together with its global unique id.
     """

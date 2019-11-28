@@ -88,8 +88,8 @@ class PermissionsPerObject:
     """
     def __init__(self,
                  permission_object: base.Referable,
-                 target_object_attribute: Set[ObjectAttribute],
-                 permissions: Set[Permission]):
+                 target_object_attribute: Optional[Set[ObjectAttribute]] = None,
+                 permissions: Optional[Set[Permission]] = None):
         """
         Initializer of PermissionsPerObject
 
@@ -103,8 +103,9 @@ class PermissionsPerObject:
         """
 
         self.permission_object: base.Referable = permission_object
-        self.target_object_attribute: Set[ObjectAttribute] = target_object_attribute
-        self.permissions: Set[Permission] = permissions
+        self.target_object_attribute: Optional[Set[ObjectAttribute]] = set() \
+            if target_object_attribute is None else target_object_attribute
+        self.permissions: Optional[Set[Permission]] = set() if permissions is None else permissions
 
 
 class SubjectAttribute:
@@ -142,12 +143,12 @@ class AccessPermissionRule(base.Referable, base.Qualifiable):
     """
     def __init__(self,
                  id_short: str,
-                 target_subject_attribute: Set[SubjectAttribute] = set(),
-                 permissions_per_object: Set[PermissionsPerObject] = set(),
+                 target_subject_attribute: Optional[Set[SubjectAttribute]] = None,
+                 permissions_per_object: Optional[Set[PermissionsPerObject]] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
                  parent: Optional[base.Reference] = None,
-                 qualifier: Set[base.Constraint] = set()):
+                 qualifier: Optional[Set[base.Constraint]] = None):
         """
         Initializer of AccessPermissionRule
 
@@ -174,9 +175,11 @@ class AccessPermissionRule(base.Referable, base.Qualifiable):
         self.category: Optional[str] = category
         self.description: Optional[base.LangStringSet] = description
         self.parent: Optional[base.Reference] = parent
-        self.qualifier: Set[base.Constraint] = qualifier
-        self.target_subject_attribute: Set[SubjectAttribute] = target_subject_attribute
-        self.permissions_per_object: Set[PermissionsPerObject] = permissions_per_object
+        self.qualifier: Set[base.Constraint] = set() if qualifier is None else qualifier
+        self.target_subject_attribute: Optional[Set[SubjectAttribute]] = set() \
+            if target_subject_attribute is None else target_subject_attribute
+        self.permissions_per_object: Optional[Set[PermissionsPerObject]] = set() \
+            if permissions_per_object is None else permissions_per_object
 
 
 class AccessControl:
@@ -209,13 +212,13 @@ class AccessControl:
     """
 
     def __init__(self,
-                 selectable_subject_attributes: submodel.Submodel,
                  default_subject_attributes: submodel.Submodel,
-                 selectable_permissions: submodel.Submodel,
                  default_permissions: submodel.Submodel,
-                 selectable_environment_attributes: submodel.Submodel,
-                 default_environment_attributes: submodel.Submodel,
-                 access_permission_rule: Set[AccessPermissionRule]):
+                 selectable_subject_attributes: Optional[submodel.Submodel] = None,
+                 selectable_permissions: Optional[submodel.Submodel] = None,
+                 selectable_environment_attributes: Optional[submodel.Submodel] = None,
+                 default_environment_attributes: Optional[submodel.Submodel] = None,
+                 access_permission_rule: Optional[Set[AccessPermissionRule]] = None):
         """
         Initializer of AccessControl
 
@@ -241,14 +244,15 @@ class AccessControl:
 
         TODO: Add instruction what to do after construction
         """
-
-        self.selectable_subject_attributes: submodel.Submodel = selectable_subject_attributes
+        self.access_permission_rule: Optional[Set[AccessPermissionRule]] = set() \
+            if access_permission_rule is None else access_permission_rule
+        self.selectable_subject_attributes: Optional[submodel.Submodel] = selectable_subject_attributes
         self.default_subject_attributes: submodel.Submodel = default_subject_attributes
-        self.selectable_permissions: submodel.Submodel = selectable_permissions
+        self.selectable_permissions: Optional[submodel.Submodel] = selectable_permissions
         self.default_permissions: submodel.Submodel = default_permissions
-        self.selectable_environment_attributes: submodel.Submodel = selectable_environment_attributes
-        self.default_environment_attributes: submodel.Submodel = default_environment_attributes
-        self.access_permission_rule: Set[AccessPermissionRule] = access_permission_rule
+        self.selectable_environment_attributes: Optional[submodel.Submodel] = selectable_environment_attributes
+        self.default_environment_attributes: Optional[submodel.Submodel] = default_environment_attributes
+
 
 
 class Endpoint:
@@ -320,8 +324,8 @@ class PolicyInformationPoints:
                                        access permission rules
     """
     def __init__(self,
-                 external_information_point: Set[Endpoint] = set(),
-                 internal_information_point: Set[submodel.Submodel] = set()):
+                 external_information_point: Optional[Set[Endpoint]] = None,
+                 internal_information_point: Optional[Set[submodel.Submodel]] = None):
         """
         Initializer of PolicyInformationPoints
 
@@ -332,8 +336,10 @@ class PolicyInformationPoints:
 
         TODO: Add instruction what to do after construction
         """
-        self.external_information_point: Set[Endpoint] = external_information_point
-        self.internal_information_point: Set[submodel.Submodel] = internal_information_point
+        self.external_information_point: Optional[Set[Endpoint]] = set() \
+            if external_information_point is None else external_information_point
+        self.internal_information_point: Optional[Set[submodel.Submodel]] = set() \
+            if internal_information_point is None else internal_information_point
 
 
 class AccessControlPolicyPoints:
@@ -385,7 +391,7 @@ class Security:
     """
     def __init__(self,
                  access_control_policy_point: AccessControlPolicyPoints,
-                 trust_anchor: Set[Certificate] = set()):
+                 trust_anchor: Optional[Set[Certificate]] = None):
         """
         Initializer of Security
 
@@ -396,4 +402,4 @@ class Security:
         """
 
         self.access_control_policy_point: AccessControlPolicyPoints = access_control_policy_point
-        self.trust_anchor: Set[Certificate] = trust_anchor
+        self.trust_anchor: Optional[Set[Certificate]] = set() if trust_anchor is None else trust_anchor

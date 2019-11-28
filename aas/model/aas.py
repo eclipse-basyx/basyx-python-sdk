@@ -13,7 +13,7 @@ class View:
     :ivar contained_element: Unordered list of references to elements of class Referable
     """
     def __init__(self,
-                 contained_element: Set[base.Reference] = set()):
+                 contained_element: Optional[Set[base.Reference]] = None):
         """
         Initializer of View
 
@@ -21,7 +21,8 @@ class View:
 
         TODO: Add instruction what to do after construction
         """
-        self.contained_element: Set[base.Reference] = contained_element
+        self.contained_element: Optional[Set[base.Reference]] = set() \
+            if contained_element is None else contained_element
 
 
 class Asset(base.HasDataSpecification, base.Identifiable):
@@ -73,8 +74,8 @@ class ConceptDescription(base.HasDataSpecification, base.Identifiable):
 
     def __init__(self,
                  identification: base.Identifier,
-                 is_case_of: Set[base.Reference] = set(),
-                 data_specification: Set[base.Reference] = set(),
+                 is_case_of: Optional[Set[base.Reference]] = None,
+                 data_specification: Optional[Set[base.Reference]] = None,
                  administration: Optional[base.AdministrativeInformation] = None):
         """
         Initializer of ConceptDescription
@@ -88,9 +89,11 @@ class ConceptDescription(base.HasDataSpecification, base.Identifiable):
         :param administration: Administrative information of an identifiable element. (from base.Identifiable)
         """
         super().__init__()
-        self.is_case_of: Set[base.Reference] = is_case_of
         self.identification: base.Identifier = identification
-        self.data_specification: Set[base.Reference] = data_specification
+        self.is_case_of: Optional[Set[base.Reference]] = set() \
+            if is_case_of is None else is_case_of
+        self.data_specification: Set[base.Reference] = set() \
+            if data_specification is None else data_specification
         self.administration: Optional[base.AdministrativeInformation] = administration
 
 
@@ -106,7 +109,7 @@ class ConceptDictionary(base.Referable):
     """
     def __init__(self,
                  id_short: str,
-                 concept_description: Set[base.Reference] = set(),
+                 concept_description: Optional[Set[base.Reference]] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
                  parent: Optional[base.Reference] = None):
@@ -124,7 +127,8 @@ class ConceptDictionary(base.Referable):
         TODO: Add instruction what to do after construction
         """
         super().__init__()
-        self.concept_description: Set[base.Reference] = concept_description
+        self.concept_description: Optional[Set[base.Reference]] = set() \
+            if concept_description is None else concept_description
         self.id_short: str = id_short
         self.category: Optional[str] = category
         self.description: Optional[base.LangStringSet] = description
@@ -146,9 +150,9 @@ class AssetAdministrationShell(base.HasDataSpecification, base.Identifiable):
     def __init__(self,
                  asset: base.Reference,
                  security_: Optional[security.Security] = None,
-                 submodel_: Set[base.Reference] = set(),
-                 concept_dictionary: Set[ConceptDictionary] = set(),
-                 view: Set[View] = set(),
+                 submodel_: Optional[Set[base.Reference]] = None,
+                 concept_dictionary: Optional[Set[ConceptDictionary]] = None,
+                 view: Optional[Set[View]] = None,
                  derived_from: Optional[base.Reference] = None):
         """
         Initializer of AssetAdministrationShell
@@ -166,6 +170,8 @@ class AssetAdministrationShell(base.HasDataSpecification, base.Identifiable):
         self.derived_from: Optional[base.Reference] = derived_from
         self.security_: Optional[security.Security] = security_
         self.asset: base.Reference = asset
-        self.submodel_: Set[base.Reference] = submodel_
-        self.concept_dictionary: Set[ConceptDictionary] = concept_dictionary
-        self.view: Set[View] = view
+        self.submodel_: Optional[Set[base.Reference]] = set() \
+            if submodel_ is None else submodel_
+        self.concept_dictionary: Optional[Set[ConceptDictionary]] = set() \
+            if concept_dictionary is None else concept_dictionary
+        self.view: Optional[Set[View]] = set() if view is None else view
