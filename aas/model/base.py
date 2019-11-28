@@ -1,6 +1,9 @@
 import abc
+import itertools
+from abc import abstractmethod
 from enum import Enum, unique
-from typing import List, Optional, Set, TypeVar, MutableSet, Generic, Iterable, Dict, Iterator, Union
+from typing import List, Optional, Set, TypeVar, MutableSet, Generic, Iterable, Dict, Iterator, Union, overload,\
+    MutableSequence
 
 DataTypeDef = str
 BlobType = bytearray
@@ -667,3 +670,111 @@ class NamespaceSet(MutableSet[T], Generic[T]):
                  none is given.
         """
         return self._backend.get(key, default)
+
+
+class OrderedNamespaceSet(NamespaceSet[T], MutableSequence[T], Generic[T]):
+    """
+    A specialized version of NamespaceSet, that keeps track of the order of the stored Referable objects.
+
+    Additionally to the MutableSet interface of NamespaceSet, this class provides a set-like interface (actually it
+    is derived from MutableSequence). However, we don't permit duplicate entries in the ordered list of objects.
+    """
+    def __init__(self, parent: Namespace, items: Iterable[T] = ()) -> None:
+        """
+        Initialize a new OrderedNamespaceSet.
+
+        This initializer automatically takes care of adding this set to the `namespace_element_sets` list of the
+        Namespace.
+
+        :param parent: The Namespace this set belongs to
+        :param items: A given list of Referable items to be added to the set
+        :raises KeyError: When `items` contains multiple objects with same id_short
+        """
+        self._order: List[T] = []
+        super().__init__(parent, items)
+
+    def __iter__(self) -> Iterator[T]:
+        return iter(self._order)
+
+    def add(self, value: T):
+        super().add(value)
+        self._order.append(value)
+
+    def remove(self, item: Union[str, T]):
+        if isinstance(item, str):
+            item = self.get_referable(item)
+        super().remove(item)
+        self._order.remove(item)
+
+    def pop(self, i: Optional[int] = None):
+        if i is None:
+            value = super().pop()
+            self._order.remove(value)
+        else:
+            value = self._order.pop(i)
+            super().remove(value)
+        return value
+
+    def clear(self) -> None:
+        super().clear()
+        self._order.clear()
+
+    def insert(self, index: int, object_: T) -> None:
+        super().add(object_)
+        self._order.insert(index, object_)
+
+    @overload
+    @abstractmethod
+    def __getitem__(self, i: int) -> T: ...
+
+    @overload
+    @abstractmethod
+    def __getitem__(self, s: slice) -> MutableSequence[T]: ...
+
+    def __getitem__(self, s: Union[int, slice]) -> Union[T, MutableSequence[T]]:
+        return self._order[s]
+
+    @overload
+    @abstractmethod
+    def __setitem__(self, i: int, o: T) -> None: ...
+
+    @overload
+    @abstractmethod
+    def __setitem__(self, s: slice, o: Iterable[T]) -> None: ...
+
+    def __setitem__(self, s, o) -> None:
+        if isinstance(s, int):
+            deleted_items = [self._order[s]]
+            super().add(o)
+            self._order[s] = o
+        else:
+            deleted_items = self._order[s]
+            new_items = itertools.islice(o, len(deleted_items))
+            successful_new_items = []
+            try:
+                for i in new_items:
+                    super().add(i)
+                    successful_new_items.append(i)
+            except Exception:
+                # Do a rollback, when an exception occurs while adding items
+                for i in successful_new_items:
+                    super().remove(i)
+                raise
+            self._order[s] = new_items
+        for i in deleted_items:
+            super().remove(i)
+
+    @overload
+    @abstractmethod
+    def __delitem__(self, i: int) -> None: ...
+
+    @overload
+    @abstractmethod
+    def __delitem__(self, i: slice) -> None: ...
+
+    def __delitem__(self, i: Union[int, slice]) -> None:
+        if isinstance(i, int):
+            i = slice(i, i+1)
+        for o in self._order[i]:
+            super().remove(o)
+        del self._order[i]
