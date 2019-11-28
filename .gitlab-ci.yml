@@ -15,5 +15,5 @@ test:
   script:
   - pip install --cache-dir="$PIP_CACHE_DIR" mypy pycodestyle
   - python -m unittest
-  - mypy aas
-  - python3 -m pycodestyle --count --max-line-length 120 aas
+  - mypy aas test
+  - python -m pycodestyle --count --max-line-length 120 aas test

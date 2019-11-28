@@ -20,7 +20,7 @@ class ModelNamespaceTest(unittest.TestCase):
         self.prop1alt = model.Property("Prop1", "int")
         self.namespace = self._namespace_class()
 
-    def test_NamespaceSet(self):
+    def test_NamespaceSet(self) -> None:
         self.namespace.set1.add(self.prop1)
         self.namespace.set1.add(self.prop2)
         self.assertEqual(2, len(self.namespace.set1))
@@ -56,7 +56,7 @@ class ModelNamespaceTest(unittest.TestCase):
         self.assertIsNone(self.prop1.parent)
         self.namespace.set1.discard(self.prop1)
 
-    def test_Namespace(self):
+    def test_Namespace(self) -> None:
         with self.assertRaises(KeyError):
             namespace_test = ExampleNamespace([self.prop1, self.prop2, self.prop1alt])
         self.assertIsNone(self.prop1.parent)
@@ -77,7 +77,7 @@ class ExampleOrderedNamespace(model.Namespace):
 class ModelOrderedNamespaceTest(ModelNamespaceTest):
     _namespace_class = ExampleOrderedNamespace  # type: ignore
 
-    def test_OrderedNamespace(self):
+    def test_OrderedNamespace(self) -> None:
         # Tests from ModelNamespaceTest are inherited, but with ExampleOrderedNamespace instead of ExampleNamespace
         # So, we only need to test order-related things here
         self.namespace.set1.add(self.prop1)
