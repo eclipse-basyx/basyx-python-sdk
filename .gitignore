@@ -1,6 +1,8 @@
 **/__pycache__/
+*.pyc
 /.idea/
 /.mypy_cache/
 /build/
 /dist/
 /aas.egg-info/
+/venv/
