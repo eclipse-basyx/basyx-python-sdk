@@ -99,3 +99,14 @@ class ModelOrderedNamespaceTest(ModelNamespaceTest):
         del self.namespace.set1[0]
         self.assertIsNone(self.prop2.parent)
         self.assertEqual(1, len(self.namespace.set1))
+
+
+class ReferenceTest(unittest.TestCase):
+
+    def test_reference_typing(self):
+        class DefaultProperty(model.Property):
+            def __init__(self):
+                super().__init__("an_id", "int")
+
+        x = model.Reference([], DefaultProperty)
+        p: model.Property = x.resolve()

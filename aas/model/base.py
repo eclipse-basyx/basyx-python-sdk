@@ -2,8 +2,8 @@ import abc
 import itertools
 from abc import abstractmethod
 from enum import Enum, unique
-from typing import List, Optional, Set, TypeVar, MutableSet, Generic, Iterable, Dict, Iterator, Union, overload,\
-    MutableSequence
+from typing import List, Optional, Set, TypeVar, MutableSet, Generic, Iterable, Dict, Iterator, Union, overload, \
+    MutableSequence, Type
 
 DataTypeDef = str
 BlobType = bytearray
@@ -214,32 +214,6 @@ class Key:
         self.id_type: KeyType = id_type
 
 
-class Reference:
-    """
-    Reference to either a model element of the same or another AAs or to an external entity.
-
-    A reference is an ordered list of keys, each key referencing an element. The complete list of keys may for
-    example be concatenated to a path that then gives unique access to an element or entity
-
-    :ivar: key: Ordered list of unique reference in its name space, each key referencing an element. The complete
-                list of keys may for example be concatenated to a path that then gives unique access to an element
-                or entity.
-    """
-
-    def __init__(self,
-                 key: List[Key]):
-        """
-        Initializer of Reference
-
-        :param key: Ordered list of unique reference in its name space, each key referencing an element. The complete
-                    list of keys may for example be concatenated to a path that then gives unique access to an element
-                    or entity.
-
-        TODO: Add instruction what to do after construction
-        """
-        self.key: List[Key] = key
-
-
 class AdministrativeInformation:
     """
     Administrative meta-information for an element like version information.
@@ -334,6 +308,50 @@ class Referable(metaclass=abc.ABCMeta):
         # We use a Python reference to the parent Namespace instead of a Reference Object, as specified. This allows
         # simpler and faster navigation/checks and it has no effect in the serialized data formats anyway.
         self.parent: Optional[Namespace] = None
+
+
+T = TypeVar('T', bound=Referable)
+
+
+class Reference(Generic[T]):
+    """
+    Reference to either a model element of the same or another AAs or to an external entity.
+
+    A reference is an ordered list of keys, each key referencing an element. The complete list of keys may for
+    example be concatenated to a path that then gives unique access to an element or entity
+
+    :ivar: key: Ordered list of unique reference in its name space, each key referencing an element. The complete
+                list of keys may for example be concatenated to a path that then gives unique access to an element
+                or entity.
+    :ivar: type_: The type of the referenced object (additional attribute, not from the AAS Metamodel)
+    """
+
+    def __init__(self,
+                 key: List[Key],
+                 type_: Type[T]):
+        """
+        Initializer of Reference
+
+        :param key: Ordered list of unique reference in its name space, each key referencing an element. The complete
+                    list of keys may for example be concatenated to a path that then gives unique access to an element
+                    or entity.
+        :param: type_: The type of the referenced object (additional parameter, not from the AAS Metamodel)
+
+        TODO: Add instruction what to do after construction
+        """
+        self.key: List[Key] = key
+        self.type: Type[T] = type_
+
+    def resolve(self) -> T:
+        """
+        Follow the reference and retrieve the Referable object it points to
+
+        :return: The referenced object (or a proxy object for it)
+        :raises TypeError: If the retrieved object is not of the expected type
+        :raises KeyError: If the reference could not be resolved
+        """
+        # TODO
+        return self.type()
 
 
 class Identifiable(Referable, metaclass=abc.ABCMeta):
@@ -535,9 +553,6 @@ class ValueList:
         TODO: Add instruction what to do after construction
         """
         self.value_reference_pair_type: Set[ValueReferencePair] = value_reference_pair_type
-
-
-T = TypeVar('T', bound=Referable)
 
 
 class Namespace(metaclass=abc.ABCMeta):
