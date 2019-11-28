@@ -147,7 +147,7 @@ class AccessPermissionRule(base.Referable, base.Qualifiable):
                  permissions_per_object: Optional[Set[PermissionsPerObject]] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
-                 parent: Optional[base.Reference] = None,
+                 parent: Optional[base.Namespace] = None,
                  qualifier: Optional[Set[base.Constraint]] = None):
         """
         Initializer of AccessPermissionRule
@@ -174,7 +174,7 @@ class AccessPermissionRule(base.Referable, base.Qualifiable):
         self.id_short: str = id_short
         self.category: Optional[str] = category
         self.description: Optional[base.LangStringSet] = description
-        self.parent: Optional[base.Reference] = parent
+        self.parent = parent
         self.qualifier: Set[base.Constraint] = set() if qualifier is None else qualifier
         self.target_subject_attribute: Optional[Set[SubjectAttribute]] = set() \
             if target_subject_attribute is None else target_subject_attribute
@@ -252,7 +252,6 @@ class AccessControl:
         self.default_permissions: submodel.Submodel = default_permissions
         self.selectable_environment_attributes: Optional[submodel.Submodel] = selectable_environment_attributes
         self.default_environment_attributes: Optional[submodel.Submodel] = default_environment_attributes
-
 
 
 class Endpoint:

@@ -112,7 +112,7 @@ class ConceptDictionary(base.Referable):
                  concept_description: Optional[Set[base.Reference]] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
-                 parent: Optional[base.Reference] = None):
+                 parent: Optional[base.Namespace] = None):
         """
         Initializer of ConceptDictionary
 
@@ -132,7 +132,7 @@ class ConceptDictionary(base.Referable):
         self.id_short: str = id_short
         self.category: Optional[str] = category
         self.description: Optional[base.LangStringSet] = description
-        self.parent: Optional[base.Reference] = parent
+        self.parent: Optional[base.Namespace] = parent
 
 
 class AssetAdministrationShell(base.HasDataSpecification, base.Identifiable):

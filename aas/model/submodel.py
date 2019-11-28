@@ -22,7 +22,7 @@ class SubmodelElement(base.HasDataSpecification, base.Referable, base.Qualifiabl
                  semantic_id: Optional[base.Reference] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
-                 parent: Optional[base.Reference] = None,
+                 parent: Optional[base.Namespace] = None,
                  qualifier: Optional[Set[base.Constraint]] = None,
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE):
         """
@@ -53,7 +53,7 @@ class SubmodelElement(base.HasDataSpecification, base.Referable, base.Qualifiabl
         self.id_short: str = id_short
         self.category: Optional[str] = category
         self.description: Optional[base.LangStringSet] = description
-        self.parent: Optional[base.Reference] = parent
+        self.parent = parent
         self.qualifier: Set[base.Constraint] = set() if qualifier is None else qualifier
         self.kind: base.ModelingKind = kind
 

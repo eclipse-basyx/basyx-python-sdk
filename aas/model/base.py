@@ -1,7 +1,6 @@
 import abc
 from enum import Enum, unique
-from typing import List, Optional, Set
-
+from typing import List, Optional, Set, TypeVar, MutableSet, Generic, Iterable, Dict, Iterator, Union
 
 DataTypeDef = str
 BlobType = bytearray
@@ -329,7 +328,7 @@ class Referable(metaclass=abc.ABCMeta):
         self.id_short: str = ""
         self.category: Optional[str] = None
         self.description: Optional[LangStringSet] = None
-        self.parent: Optional[Reference] = None
+        self.parent: Optional[Namespace] = None
 
 
 class Identifiable(Referable, metaclass=abc.ABCMeta):
@@ -531,3 +530,138 @@ class ValueList:
         TODO: Add instruction what to do after construction
         """
         self.value_reference_pair_type: Set[ValueReferencePair] = value_reference_pair_type
+
+
+T = TypeVar('T', bound=Referable)
+
+
+class Namespace(metaclass=abc.ABCMeta):
+    """
+    Abstract baseclass for all objects which form a Namespace to hold Referable objects and resolve them by their
+    id_short.
+
+    A Namespace can contain multiple NamespaceSets, which contain Referable objects of different types. However, the
+    id_short of each object must be unique across all NamespaceSets of one Namespace.
+
+    :ivar namespace_element_sets: A list of all NamespaceSets of this Namespace
+    """
+    def __init__(self) -> None:
+        super().__init__()
+        self.namespace_element_sets: List[NamespaceSet] = []
+
+    def get_referable(self, id_short: str) -> Referable:
+        """
+        Find a Referable in this Namespaces by its id_short
+
+        :raises KeyError: If no such Referable can be found
+        """
+        for dict_ in self.namespace_element_sets:
+            if id_short in dict_:
+                return dict_.get_referable(id_short)
+        raise KeyError("Referable with id_short {} not found in this namespace".format(id_short))
+
+
+class NamespaceSet(MutableSet[T], Generic[T]):
+    """
+    Helper class for storing Referable objects of a given type in a Namespace and find them by their id_short.
+
+    This class behaves much like a set of Referable objects of a defined type, but uses a dict internally to rapidly
+    find those objects by their id_short. Additionally, it manages the `parent` attribute of the stored Referables and
+    ensures the uniqueness of their id_short within the Namespace.
+
+    Use `add()`, `remove()`, `pop()`, `discard()`, `clear()`, `len()`, `x in` checks and iteration  just like on a
+    normal set of Referables. To get a referable by its id_short, use `get_referable()` or `get()` (the latter one
+    allows a default argument and returns None instead of raising a KeyError). As a bonus, the `x in` check supports
+    checking for existence of id_short *or* a concrete Referable object.
+    """
+    def __init__(self, parent: Namespace, items: Iterable[T] = ()) -> None:
+        """
+        Initialize a new NamespaceSet.
+
+        This initializer automatically takes care of adding this set to the `namespace_element_sets` list of the
+        Namespace.
+
+        :param parent: The Namespace this set belongs to
+        :param items: A given list of Referable items to be added to the set
+        :raises KeyError: When `items` contains multiple objects with same id_short
+        """
+        self.parent = parent
+        parent.namespace_element_sets.append(self)
+        self._backend: Dict[str, T] = {}
+        try:
+            for i in items:
+                self.add(i)
+        except Exception:
+            self.clear()
+            raise
+
+    def __contains__(self, x: object) -> bool:
+        if isinstance(x, str):
+            return x in self._backend
+        elif isinstance(x, Referable):
+            return self._backend.get(x.id_short) is x
+        else:
+            return False
+
+    def __len__(self) -> int:
+        return len(self._backend)
+
+    def __iter__(self) -> Iterator[T]:
+        return iter(self._backend.values())
+
+    def add(self, value: T):
+        for set_ in self.parent.namespace_element_sets:
+            if value.id_short in set_:
+                raise KeyError("Referable with id_short '{}' is already present in {}"
+                               .format(value.id_short,
+                                       "this set of objects"
+                                       if set_ is self else "another set in the same namespace"))
+        if value.parent is not None and value.parent is not self.parent:
+            raise ValueError("Object has already a parent, but it must not be part of two namespaces.")
+            # TODO remove from current parent instead (allow moving)?
+        value.parent = self.parent
+        self._backend[value.id_short] = value
+
+    def remove(self, item: Union[str, T]):
+        if isinstance(item, str):
+            del self._backend[item]
+        else:
+            item_in_dict = self._backend[item.id_short]
+            if item_in_dict is not item:
+                raise KeyError("Item not found in NamespaceDict (other item with same id_short exists)")
+            item.parent = None
+            del self._backend[item.id_short]
+
+    def discard(self, x: T) -> None:
+        if x not in self:
+            return
+        x.parent = None
+        del self._backend[x.id_short]
+
+    def pop(self):
+        _, value = self._backend.popitem()
+        value.parent = None
+        return value
+
+    def clear(self) -> None:
+        for value in self._backend.values():
+            value.parent = None
+        super().clear()
+
+    def get_referable(self, key) -> T:
+        """
+        Find an object in this set by its id_short
+
+        :raises KeyError: If no such object can be found
+        """
+        return self._backend[key]
+
+    def get(self, key, default: Optional[T] = None) -> Optional[T]:
+        """
+        Find an object in this set by its id_short, with fallback parameter
+
+        :param default: An object to be returned, if no object with the given id_short is found
+        :return: The Referable object with the given id_short in the set. Otherwise the `default` object or None, if
+                 none is given.
+        """
+        return self._backend.get(key, default)
