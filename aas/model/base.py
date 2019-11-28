@@ -594,6 +594,7 @@ class NamespaceSet(MutableSet[T], Generic[T]):
             for i in items:
                 self.add(i)
         except Exception:
+            # Do a rollback, when an exception occurs while adding items
             self.clear()
             raise
 
@@ -637,10 +638,9 @@ class NamespaceSet(MutableSet[T], Generic[T]):
     def discard(self, x: T) -> None:
         if x not in self:
             return
-        x.parent = None
-        del self._backend[x.id_short]
+        self.remove(x)
 
-    def pop(self):
+    def pop(self) -> T:
         _, value = self._backend.popitem()
         value.parent = None
         return value
@@ -648,7 +648,7 @@ class NamespaceSet(MutableSet[T], Generic[T]):
     def clear(self) -> None:
         for value in self._backend.values():
             value.parent = None
-        super().clear()
+        self._backend.clear()
 
     def get_referable(self, key) -> T:
         """

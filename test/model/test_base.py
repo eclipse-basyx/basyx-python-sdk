@@ -22,6 +22,8 @@ class ModelBaseTest(unittest.TestCase):
         namespace.set1.add(prop2)
         self.assertEqual(2, len(namespace.set1))
         self.assertIs(prop1, namespace.set1.get("Prop1"))
+        self.assertIn(prop1, namespace.set1)
+        self.assertNotIn(prop1alt, namespace.set1)
         self.assertIs(namespace, prop1.parent)
 
         with self.assertRaises(KeyError):
@@ -37,6 +39,19 @@ class ModelBaseTest(unittest.TestCase):
         self.assertEqual(1, len(namespace.set1))
         self.assertIsNone(prop1.parent)
         namespace.set2.add(prop1alt)
+
+        self.assertIs(prop2, namespace.set1.pop())
+        self.assertEqual(0, len(namespace.set1))
+
+        namespace.set2.clear()
+        self.assertIsNone(prop1alt.parent)
+        self.assertEqual(0, len(namespace.set2))
+
+        namespace.set1.add(prop1)
+        namespace.set1.discard(prop1)
+        self.assertEqual(0, len(namespace.set1))
+        self.assertIsNone(prop1.parent)
+        namespace.set1.discard(prop1)
 
     def test_Namespace(self):
         prop1 = model.Property("Prop1", "int")
