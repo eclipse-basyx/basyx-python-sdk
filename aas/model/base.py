@@ -263,6 +263,8 @@ class Identifier:
         self.id: str = id_
         self.id_type: IdentifierType = id_type
 
+    # TODO implement __hash__ and __eq__ function
+
 
 class HasDataSpecification(metaclass=abc.ABCMeta):
     """
