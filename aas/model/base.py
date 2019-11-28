@@ -312,10 +312,10 @@ class Referable(metaclass=abc.ABCMeta):
         self.parent: Optional[Namespace] = None
 
 
-T = TypeVar('T', bound=Referable)
+_RT = TypeVar('_RT', bound=Referable)
 
 
-class Reference(Generic[T]):
+class Reference(Generic[_RT]):
     """
     Reference to either a model element of the same or another AAs or to an external entity.
 
@@ -330,7 +330,7 @@ class Reference(Generic[T]):
 
     def __init__(self,
                  key: List[Key],
-                 type_: Type[T]):
+                 type_: Type[_RT]):
         """
         Initializer of Reference
 
@@ -342,9 +342,9 @@ class Reference(Generic[T]):
         TODO: Add instruction what to do after construction
         """
         self.key: List[Key] = key
-        self.type: Type[T] = type_
+        self.type: Type[_RT] = type_
 
-    def resolve(self) -> T:
+    def resolve(self) -> _RT:
         """
         Follow the reference and retrieve the Referable object it points to
 
@@ -583,7 +583,7 @@ class Namespace(metaclass=abc.ABCMeta):
         raise KeyError("Referable with id_short {} not found in this namespace".format(id_short))
 
 
-class NamespaceSet(MutableSet[T], Generic[T]):
+class NamespaceSet(MutableSet[_RT], Generic[_RT]):
     """
     Helper class for storing Referable objects of a given type in a Namespace and find them by their id_short.
 
@@ -596,7 +596,7 @@ class NamespaceSet(MutableSet[T], Generic[T]):
     allows a default argument and returns None instead of raising a KeyError). As a bonus, the `x in` check supports
     checking for existence of id_short *or* a concrete Referable object.
     """
-    def __init__(self, parent: Namespace, items: Iterable[T] = ()) -> None:
+    def __init__(self, parent: Namespace, items: Iterable[_RT] = ()) -> None:
         """
         Initialize a new NamespaceSet.
 
@@ -609,7 +609,7 @@ class NamespaceSet(MutableSet[T], Generic[T]):
         """
         self.parent = parent
         parent.namespace_element_sets.append(self)
-        self._backend: Dict[str, T] = {}
+        self._backend: Dict[str, _RT] = {}
         try:
             for i in items:
                 self.add(i)
@@ -629,10 +629,10 @@ class NamespaceSet(MutableSet[T], Generic[T]):
     def __len__(self) -> int:
         return len(self._backend)
 
-    def __iter__(self) -> Iterator[T]:
+    def __iter__(self) -> Iterator[_RT]:
         return iter(self._backend.values())
 
-    def add(self, value: T):
+    def add(self, value: _RT):
         for set_ in self.parent.namespace_element_sets:
             if value.id_short in set_:
                 raise KeyError("Referable with id_short '{}' is already present in {}"
@@ -645,7 +645,7 @@ class NamespaceSet(MutableSet[T], Generic[T]):
         value.parent = self.parent
         self._backend[value.id_short] = value
 
-    def remove(self, item: Union[str, T]):
+    def remove(self, item: Union[str, _RT]):
         if isinstance(item, str):
             del self._backend[item]
         else:
@@ -655,12 +655,12 @@ class NamespaceSet(MutableSet[T], Generic[T]):
             item.parent = None
             del self._backend[item.id_short]
 
-    def discard(self, x: T) -> None:
+    def discard(self, x: _RT) -> None:
         if x not in self:
             return
         self.remove(x)
 
-    def pop(self) -> T:
+    def pop(self) -> _RT:
         _, value = self._backend.popitem()
         value.parent = None
         return value
@@ -670,7 +670,7 @@ class NamespaceSet(MutableSet[T], Generic[T]):
             value.parent = None
         self._backend.clear()
 
-    def get_referable(self, key) -> T:
+    def get_referable(self, key) -> _RT:
         """
         Find an object in this set by its id_short
 
@@ -678,7 +678,7 @@ class NamespaceSet(MutableSet[T], Generic[T]):
         """
         return self._backend[key]
 
-    def get(self, key, default: Optional[T] = None) -> Optional[T]:
+    def get(self, key, default: Optional[_RT] = None) -> Optional[_RT]:
         """
         Find an object in this set by its id_short, with fallback parameter
 
@@ -689,14 +689,14 @@ class NamespaceSet(MutableSet[T], Generic[T]):
         return self._backend.get(key, default)
 
 
-class OrderedNamespaceSet(NamespaceSet[T], MutableSequence[T], Generic[T]):
+class OrderedNamespaceSet(NamespaceSet[_RT], MutableSequence[_RT], Generic[_RT]):
     """
     A specialized version of NamespaceSet, that keeps track of the order of the stored Referable objects.
 
     Additionally to the MutableSet interface of NamespaceSet, this class provides a set-like interface (actually it
     is derived from MutableSequence). However, we don't permit duplicate entries in the ordered list of objects.
     """
-    def __init__(self, parent: Namespace, items: Iterable[T] = ()) -> None:
+    def __init__(self, parent: Namespace, items: Iterable[_RT] = ()) -> None:
         """
         Initialize a new OrderedNamespaceSet.
 
@@ -707,17 +707,17 @@ class OrderedNamespaceSet(NamespaceSet[T], MutableSequence[T], Generic[T]):
         :param items: A given list of Referable items to be added to the set
         :raises KeyError: When `items` contains multiple objects with same id_short
         """
-        self._order: List[T] = []
+        self._order: List[_RT] = []
         super().__init__(parent, items)
 
-    def __iter__(self) -> Iterator[T]:
+    def __iter__(self) -> Iterator[_RT]:
         return iter(self._order)
 
-    def add(self, value: T):
+    def add(self, value: _RT):
         super().add(value)
         self._order.append(value)
 
-    def remove(self, item: Union[str, T]):
+    def remove(self, item: Union[str, _RT]):
         if isinstance(item, str):
             item = self.get_referable(item)
         super().remove(item)
@@ -736,28 +736,28 @@ class OrderedNamespaceSet(NamespaceSet[T], MutableSequence[T], Generic[T]):
         super().clear()
         self._order.clear()
 
-    def insert(self, index: int, object_: T) -> None:
+    def insert(self, index: int, object_: _RT) -> None:
         super().add(object_)
         self._order.insert(index, object_)
 
     @overload
     @abstractmethod
-    def __getitem__(self, i: int) -> T: ...
+    def __getitem__(self, i: int) -> _RT: ...
 
     @overload
     @abstractmethod
-    def __getitem__(self, s: slice) -> MutableSequence[T]: ...
+    def __getitem__(self, s: slice) -> MutableSequence[_RT]: ...
 
-    def __getitem__(self, s: Union[int, slice]) -> Union[T, MutableSequence[T]]:
+    def __getitem__(self, s: Union[int, slice]) -> Union[_RT, MutableSequence[_RT]]:
         return self._order[s]
 
     @overload
     @abstractmethod
-    def __setitem__(self, i: int, o: T) -> None: ...
+    def __setitem__(self, i: int, o: _RT) -> None: ...
 
     @overload
     @abstractmethod
-    def __setitem__(self, s: slice, o: Iterable[T]) -> None: ...
+    def __setitem__(self, s: slice, o: Iterable[_RT]) -> None: ...
 
     def __setitem__(self, s, o) -> None:
         if isinstance(s, int):

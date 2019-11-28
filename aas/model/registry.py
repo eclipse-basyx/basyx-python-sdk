@@ -21,10 +21,10 @@ class AbstractRegistry(metaclass=abc.ABCMeta):
         pass
 
 
-T = TypeVar('T', bound=Identifiable)
+_IT = TypeVar('_IT', bound=Identifiable)
 
 
-class AbstractObjectStore(AbstractRegistry, MutableSet[T], Generic[T], metaclass=abc.ABCMeta):
+class AbstractObjectStore(AbstractRegistry, MutableSet[_IT], Generic[_IT], metaclass=abc.ABCMeta):
     """
     Abstract baseclass of for local containers for storage of Identifiable objects, that can be used as Registry to
     retrieve the stored objects by Identifier.
@@ -32,23 +32,23 @@ class AbstractObjectStore(AbstractRegistry, MutableSet[T], Generic[T], metaclass
     pass
 
 
-class DictObjectStore(AbstractObjectStore[T], Generic[T]):
+class DictObjectStore(AbstractObjectStore[_IT], Generic[_IT]):
     """
     A local in-memory object store for Identifiable Objects, backed by a dict, mapping Identifier → Identifiable
     """
     def __init__(self):
-        self._backend: Dict[Identifier, T] = {}
+        self._backend: Dict[Identifier, _IT] = {}
 
     def get_identifiable(self, identifier: Identifier) -> Identifiable:
         return self._backend[identifier]
 
-    def add(self, x: T) -> None:
+    def add(self, x: _IT) -> None:
         if x.identification in self._backend and self._backend.get(x.identification) is not x:
             raise KeyError("Identifiable object with same identification {} is already stored in this store"
                            .format(x.identification))
         self._backend[x.identification] = x
 
-    def discard(self, x: T) -> None:
+    def discard(self, x: _IT) -> None:
         if self._backend.get(x.identification) is x:
             del self._backend[x.identification]
 
@@ -62,7 +62,7 @@ class DictObjectStore(AbstractObjectStore[T], Generic[T]):
     def __len__(self) -> int:
         return len(self._backend)
 
-    def __iter__(self) -> Iterator[T]:
+    def __iter__(self) -> Iterator[_IT]:
         return iter(self._backend.values())
 
 
