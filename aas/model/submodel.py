@@ -661,7 +661,7 @@ class RelationshipElement(SubmodelElement):
         self.second: base.Reference = second
 
 
-class AnnotatedRelationshipElement(SubmodelElement):
+class AnnotatedRelationshipElement(RelationshipElement):
     """
     An annotated relationship element is a relationship element that can be annotated with additional data elements.
 
