@@ -3,7 +3,10 @@ import itertools
 from abc import abstractmethod
 from enum import Enum, unique
 from typing import List, Optional, Set, TypeVar, MutableSet, Generic, Iterable, Dict, Iterator, Union, overload, \
-    MutableSequence, Type, Any
+    MutableSequence, Type, Any, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from . import registry
 
 DataTypeDef = str
 BlobType = bytearray
@@ -350,10 +353,21 @@ class Referable(metaclass=abc.ABCMeta):
                 item = item.parent
             else:
                 break
-        return "{}[{}]".format(self.__class__.__name__, "/".join(reversed(reversed_path)))
+        return "{}[{}]".format(self.__class__.__name__, " / ".join(reversed(reversed_path)))
 
 
 _RT = TypeVar('_RT', bound=Referable)
+
+
+class UnexpectedTypeError(TypeError):
+    """
+    Exception to be raised by Reference.resolve() if the retrieved object has not the expected type.
+
+    :ivar value: The object of unexpected type
+    """
+    def __init__(self, value: Referable, *args):
+        super().__init__(*args)
+        self.value = value
 
 
 class Reference(Generic[_RT]):
@@ -385,16 +399,57 @@ class Reference(Generic[_RT]):
         self.key: List[Key] = key
         self.type: Type[_RT] = type_
 
-    def resolve(self) -> _RT:
+    def resolve(self, registry_: "registry.AbstractRegistry") -> _RT:
         """
         Follow the reference and retrieve the Referable object it points to
 
         :return: The referenced object (or a proxy object for it)
-        :raises TypeError: If the retrieved object is not of the expected type
+        :raises IndexError: If the list of keys is empty
+        :raises TypeError: If one of the intermediate objects on the path is not a Namespace
+        :raises UnexpectedTypeError: If the retrieved object is not of the expected type (or one of its subclasses). The
+                                     object is stored in the `value` attribute of the exception
         :raises KeyError: If the reference could not be resolved
         """
-        # TODO
-        return self.type()
+        if len(self.key) == 0:
+            raise IndexError("List of keys is empty")
+        # Find key index last (global) identifier-key in key list (from https://stackoverflow.com/a/6890255/10315508)
+        try:
+            last_identifier_index = next(i
+                                         for i in reversed(range(len(self.key)))
+                                         if self.key[i].get_identifier())
+        except StopIteration:
+            # If no identifier-key is contained in the list, we could try to resolve the path locally.
+            # TODO implement local resolution
+            raise NotImplementedError("We currently don't support local-only references without global identifier keys")
+
+        resolved_keys: List[str] = []  # for more helpful error messages
+
+        # First, resolve the identifier-key via the registry
+        identifier: Identifier = self.key[last_identifier_index].get_identifier()  # type: ignore
+        try:
+            item = registry_.get_identifiable(identifier)
+        except KeyError as e:
+            raise KeyError("Could not resolve global reference key {}".format(identifier)) from e
+        resolved_keys.append(str(identifier))
+
+        # Now, follow path, given by remaining keys, recursively
+        for key in self.key[last_identifier_index+1:]:
+            if not isinstance(item, Namespace):
+                raise TypeError("Object retrieved at {} is not a Namespace".format(" / ".join(resolved_keys)))
+            try:
+                item = item.get_referable(key.value)
+            except KeyError as e:
+                raise KeyError("Could not resolve id_short {} at {}".format(key.value, " / ".join(resolved_keys)))\
+                    from e
+
+        # Check type
+        if not isinstance(item, self.type):
+            raise UnexpectedTypeError(item, "Retrieved object {} is not an instance of referenced type {}"
+                                            .format(item, self.type.__name__))
+        return item
+
+    def __repr__(self) -> str:
+        return "Reference(type={}, key={})".format(self.type.__name__, self.key)
 
 
 class Identifiable(Referable, metaclass=abc.ABCMeta):
