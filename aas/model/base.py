@@ -243,6 +243,11 @@ class Reference:
 class AdministrativeInformation:
     """
     Administrative meta-information for an element like version information.
+
+    :ivar version: Version of the element.
+    :ivar revision: Revision of the element.
+    Constraint AASd-005: A revision requires a version. This means, if there is no version there is no revision
+                         neither.
     """
 
     def __init__(self,
@@ -263,26 +268,19 @@ class AdministrativeInformation:
         if version is None and revision is not None:
             raise ValueError("A revision requires a version. This means, if there is no version there is no revision "
                              "neither.")
-        self._version: Optional[str] = version
+        self.version: Optional[str] = version
         self._revision: Optional[str] = revision
-
-    def _get_version(self):
-        return self._version
-
-    def _set_version(self, version: str):
-        self._version = version
 
     def _get_revision(self):
         return self._revision
 
     def _set_revision(self, revision: str):
-        if self._version is None:
+        if self.version is None:
             raise ValueError("A revision requires a version. This means, if there is no version there is no revision "
                              "neither. Please set version first.")
         else:
             self._revision = revision
 
-    version = property(_get_version, _set_version)
     revision = property(_get_revision, _set_revision)
 
 
