@@ -2,6 +2,16 @@
 import unittest
 
 from aas import model
+from aas.model import Identifier, Identifiable
+
+
+class KeyTest(unittest.TestCase):
+    def test_get_identifier(self):
+        key1 = model.Key(model.KeyElements.SUBMODEL, False, "urn:x-test:submodel1", model.KeyType.IRI)
+        key2 = model.Key(model.KeyElements.PROPERTY, True, "prop1", model.KeyType.IDSHORT)
+        self.assertEqual("urn:x-test:submodel1", key1.get_identifier().id)
+        self.assertEqual(model.IdentifierType.IRI, key1.get_identifier().id_type)
+        self.assertIsNone(key2.get_identifier())
 
 
 class IdentifierTest(unittest.TestCase):

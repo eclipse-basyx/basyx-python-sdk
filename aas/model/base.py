@@ -124,6 +124,10 @@ class KeyType(Enum):
     IDSHORT = 3
     FRAGMENT_ID = 4
 
+    @property
+    def is_local_key_type(self) -> bool:
+        return self in (KeyType.IDSHORT, KeyType.FRAGMENT_ID)
+
 
 @unique
 class EntityType(Enum):
@@ -212,6 +216,22 @@ class Key:
         self.local: bool = local
         self.value: str = value
         self.id_type: KeyType = id_type
+
+    def __repr__(self) -> str:
+        return "Key(local={}, id_type={}, value={})".format(self.local, self.id_type.name, self.value)
+
+    def __str__(self) -> str:
+        return "{}={}".format(self.id_type.name, self.value)
+
+    def get_identifier(self) -> Optional["Identifier"]:
+        """
+        Get an identifier object corresponding to this key, if it is a global key.
+
+        :return: None if this is no global key, otherwise a corresponding identifier object
+        """
+        if self.id_type.is_local_key_type:
+            return None
+        return Identifier(self.value, IdentifierType(self.id_type.value))
 
 
 class AdministrativeInformation:
