@@ -13,7 +13,11 @@ before_script:
 
 test:
   script:
-  - pip install --cache-dir="$PIP_CACHE_DIR" mypy pycodestyle
-  - python -m unittest
+  - pip install --cache-dir="$PIP_CACHE_DIR" mypy pycodestyle unittest-xml-reporting
+  - python -m xmlrunner -o testreports
   - mypy aas test
   - python -m pycodestyle --count --max-line-length 120 aas test
+
+  artifacts:
+    reports:
+      junit: testreports/*.xml
