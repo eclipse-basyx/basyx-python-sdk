@@ -266,24 +266,24 @@ class AdministrativeInformation:
         self._version: Optional[str] = version
         self._revision: Optional[str] = revision
 
-    def get_version(self):
+    def _get_version(self):
         return self._version
 
-    def set_version(self, version: str):
+    def _set_version(self, version: str):
         self._version = version
 
-    def get_revision(self):
+    def _get_revision(self):
         return self._revision
 
-    def set_revision(self, revision: str):
+    def _set_revision(self, revision: str):
         if self._version is None:
             raise ValueError("A revision requires a version. This means, if there is no version there is no revision "
                              "neither. Please set version first.")
         else:
             self._revision = revision
 
-    version = property(get_version, set_version)
-    revision = property(get_revision, set_revision)
+    version = property(_get_version, _set_version)
+    revision = property(_get_revision, _set_revision)
 
 
 class Identifier:
