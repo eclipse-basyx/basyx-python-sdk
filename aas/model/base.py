@@ -3,7 +3,7 @@ import itertools
 from abc import abstractmethod
 from enum import Enum, unique
 from typing import List, Optional, Set, TypeVar, MutableSet, Generic, Iterable, Dict, Iterator, Union, overload, \
-    MutableSequence, Type
+    MutableSequence, Type, Any
 
 DataTypeDef = str
 BlobType = bytearray
@@ -263,7 +263,14 @@ class Identifier:
         self.id: str = id_
         self.id_type: IdentifierType = id_type
 
-    # TODO implement __hash__ and __eq__ function
+    def __hash__(self):
+        return hash((self.id_type, self.id))
+
+    def __eq__(self, other) -> bool:
+        return self.id_type == other.id_type and self.id == other.id
+
+    def __repr__(self) -> str:
+        return "{}={}".format(self.id_type.name, self.id)
 
 
 class HasDataSpecification(metaclass=abc.ABCMeta):
@@ -310,6 +317,20 @@ class Referable(metaclass=abc.ABCMeta):
         # We use a Python reference to the parent Namespace instead of a Reference Object, as specified. This allows
         # simpler and faster navigation/checks and it has no effect in the serialized data formats anyway.
         self.parent: Optional[Namespace] = None
+
+    def __repr__(self) -> str:
+        reversed_path = []
+        item = self  # type: Any
+        while item is not None:
+            if isinstance(item, Identifiable):
+                reversed_path.append(str(item.identification))
+                break
+            elif isinstance(item, Referable):
+                reversed_path.append(item.id_short)
+                item = item.parent
+            else:
+                break
+        return "{}[{}]".format(self.__class__.__name__, "/".join(reversed(reversed_path)))
 
 
 _RT = TypeVar('_RT', bound=Referable)
@@ -370,6 +391,9 @@ class Identifiable(Referable, metaclass=abc.ABCMeta):
         super().__init__()
         self.administration: Optional[AdministrativeInformation] = None
         self.identification: Identifier = Identifier("", IdentifierType.IRDI)
+
+    def __repr__(self) -> str:
+        return "{}[{}]".format(self.__class__.__name__, self.identification)
 
 
 class HasSemantics(metaclass=abc.ABCMeta):

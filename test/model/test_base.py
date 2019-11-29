@@ -4,6 +4,20 @@ import unittest
 from aas import model
 
 
+class IdentifierTest(unittest.TestCase):
+    def test_equality(self):
+        id1 = model.Identifier("urn:x-test:aas1", model.IdentifierType.IRI)
+        id2 = model.Identifier("urn:x-test:aas1", model.IdentifierType.IRI)
+        id3 = model.Identifier("urn:x-test:aas1", model.IdentifierType.CUSTOM)
+        self.assertEqual(id1, id2)
+        self.assertNotEqual(id1, id3)
+
+    def test_string_repr(self):
+        id1 = model.Identifier("urn:x-test:aas1", model.IdentifierType.IRI)
+        self.assertIn("urn:x-test:aas1", repr(id1))
+        self.assertIn("IRI", repr(id1))
+
+
 class ExampleNamespace(model.Namespace):
     def __init__(self, values=()):
         super().__init__()
