@@ -1,5 +1,5 @@
 import abc
-from typing import MutableSet, Iterator, Generic, TypeVar, Dict, List
+from typing import MutableSet, Iterator, Generic, TypeVar, Dict, List, Optional
 
 from .base import Identifier, Identifiable
 
@@ -39,7 +39,7 @@ class DictObjectStore(AbstractObjectStore[_IT], Generic[_IT]):
     def __init__(self):
         self._backend: Dict[Identifier, _IT] = {}
 
-    def get_identifiable(self, identifier: Identifier) -> Identifiable:
+    def get_identifiable(self, identifier: Identifier) -> _IT:
         return self._backend[identifier]
 
     def add(self, x: _IT) -> None:
@@ -75,8 +75,8 @@ class RegistryMultiplexer(AbstractRegistry):
 
     :ivar registries: A list of registries to query when looking up an object
     """
-    def __init__(self):
-        self.registries: List[AbstractRegistry] = []
+    def __init__(self, registries: Optional[List[AbstractRegistry]] = None):
+        self.registries: List[AbstractRegistry] = registries if registries is not None else []
 
     def get_identifiable(self, identifier: Identifier) -> Identifiable:
         for registry in self.registries:
