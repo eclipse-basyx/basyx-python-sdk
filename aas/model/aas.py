@@ -99,7 +99,7 @@ class ConceptDescription(base.HasDataSpecification, base.Identifiable):
 
 class ConceptDictionary(base.Referable):
     """
-    A dictionary contains concept descriptions.
+    A dictionary containing concept descriptions.
 
     Typically a concept description dictionary of an AAS contains only concept descriptions of elements used within
     submodels of the AAS.
