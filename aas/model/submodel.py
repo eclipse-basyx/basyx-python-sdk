@@ -670,6 +670,8 @@ class AnnotatedRelationshipElement(RelationshipElement):
 
     def __init__(self,
                  id_short: str,
+                 first: base.Reference,
+                 second: base.Reference,
                  annotation: Optional[Set[base.Reference]] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
@@ -701,7 +703,8 @@ class AnnotatedRelationshipElement(RelationshipElement):
         TODO: Add instruction what to do after construction
         """
 
-        super().__init__(id_short, category, description, parent, data_specification, semantic_id, qualifier, kind)
+        super().__init__(id_short, first, second, category, description, parent, data_specification, semantic_id,
+                         qualifier, kind)
         self.annotation: Optional[Set[base.Reference]] = set() if annotation is None else annotation
 
 
