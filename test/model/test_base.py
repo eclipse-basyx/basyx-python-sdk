@@ -3,6 +3,7 @@ import unittest
 
 from aas import model
 
+
 class ExampleReferable(model.Referable):
     def __init__(self):
         super().__init__()
