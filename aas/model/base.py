@@ -352,7 +352,7 @@ class Referable(metaclass=abc.ABCMeta):
     """
 
     def __init__(self):
-        self.id_short: str = ""
+        self.id_short: Optional[str] = ""
         self.category: Optional[str] = None
         self.description: Optional[LangStringSet] = None
         # We use a Python reference to the parent Namespace instead of a Reference Object, as specified. This allows
@@ -362,19 +362,25 @@ class Referable(metaclass=abc.ABCMeta):
     def _get_id_short(self):
         return self._id_short
 
-    def _set_id_short(self, id_short: str):
+    def _set_id_short(self, id_short: Optional[str]):
         """
         Check the input string
 
+        Constraint AASd-001: In case of a referable element not being an identifiable element this id is mandatory and
+        used for referring to the element in its name space.
         Constraint AASd-002: idShort shall only feature letters, digits, underscore ('_'); starting mandatory with a
         letter
 
         :param id_short: Identifying string of the element within its name space
         :raises: Exception if the constraint is not fulfilled
         """
-        if not re.match("^[a-zA-Z0-9_]*$", id_short):
+
+        if id_short is None and not hasattr(self, 'identification'):
+            raise ValueError("The id_short for not identifiable elements is mandatory")
+        test_id_short: str = str(id_short)
+        if not re.match("^[a-zA-Z0-9_]*$", test_id_short):
             raise ValueError("The id_short must contain only letters, digits and underscore")
-        if not re.match("^([a-zA-Z].*|)$", id_short):
+        if not re.match("^([a-zA-Z].*|)$", test_id_short):
             raise ValueError("The id_short must start with a letter")
         self._id_short = id_short
 

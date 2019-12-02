@@ -9,8 +9,13 @@ class ExampleReferable(model.Referable):
         super().__init__()
 
 
+class ExampleIdentifiable(model.Identifiable):
+    def __init__(self):
+        super().__init__()
+
+
 class ReferableTest(unittest.TestCase):
-    def test_is_short_Constraint(self):
+    def test_id_short_constraint_aasd_002(self):
         test_object = ExampleReferable()
         test_object.id_short = ""
         self.assertEqual("", test_object.id_short)
@@ -24,6 +29,13 @@ class ReferableTest(unittest.TestCase):
             test_object.id_short = "_sdsfdAS"
         with self.assertRaises(ValueError):
             test_object.id_short = "asdlujSAD8348@S"
+        with self.assertRaises(ValueError):
+            test_object.id_short = None
+
+    def test_id_short_constraint_aasd_001(self):
+        test_object = ExampleIdentifiable()
+        test_object.id_short = None
+        self.assertEqual(None, test_object.id_short)
 
 
 class ExampleNamespace(model.Namespace):
