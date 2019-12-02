@@ -5,13 +5,17 @@ from enum import Enum, unique
 from typing import List, Optional, Set, TypeVar, MutableSet, Generic, Iterable, Dict, Iterator, Union, overload,\
     MutableSequence
 
-DataTypeDef = str
+DataTypeDef = str  # any xsd simple type as string
 BlobType = bytearray
-MimeType = str
+MimeType = str  # any mimetype as in RFC2046
 PathType = str
 QualifierType = str
-ValueDataType = str
-LangString = str
+ValueDataType = str  # any xsd atomic type
+LangString = str  # a string in a specified language
+# A dict of language-Identifier (according to ISO 639-1 and ISO 3166-1) and string in this language.
+# The meaning of the string in each language is the same.
+# << Data Type >> Example ["en-US", "germany"]
+LangStringSet = Dict[str, LangString]
 
 
 @unique
@@ -490,28 +494,6 @@ class Qualifier(Constraint, HasSemantics):
         self.value: Optional[ValueDataType] = value
         self.value_id: Optional[Reference] = value_id
         self.semantic_id: Optional[Reference] = semantic_id
-
-
-class LangStringSet:
-    """
-    A set of strings, each annotated by the language of the string. The meaning of the string in each language shall be
-    the same.
-
-    << Data Type >>
-
-    :ivar lang_string: Unordered list of strings in specified languages
-    """
-
-    def __init__(self,
-                 lang_string: Set[LangString]):
-        """
-        Initializer of LangStringSet
-
-        :param lang_string: list of strings in specified languages
-
-        TODO: Add instruction what to do after construction
-        """
-        self.lang_string: Set[LangString] = lang_string
 
 
 class ValueReferencePair:
