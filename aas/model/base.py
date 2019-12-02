@@ -4,6 +4,7 @@ from abc import abstractmethod
 from enum import Enum, unique
 from typing import List, Optional, Set, TypeVar, MutableSet, Generic, Iterable, Dict, Iterator, Union, overload,\
     MutableSequence
+import re
 
 DataTypeDef = str  # any xsd simple type as string
 BlobType = bytearray
@@ -357,6 +358,27 @@ class Referable(metaclass=abc.ABCMeta):
         # We use a Python reference to the parent Namespace instead of a Reference Object, as specified. This allows
         # simpler and faster navigation/checks and it has no effect in the serialized data formats anyway.
         self.parent: Optional[Namespace] = None
+
+    def _get_id_short(self):
+        return self._id_short
+
+    def _set_id_short(self, id_short: str):
+        """
+        Check the input string
+
+        Constraint AASd-002: idShort shall only feature letters, digits, underscore ('_'); starting mandatory with a
+        letter
+
+        :param id_short: Identifying string of the element within its name space
+        :raises: Exception if the constraint is not fulfilled
+        """
+        if not re.match("^[a-zA-Z0-9_]*$", id_short):
+            raise ValueError("The id_short must contain only letters, digits and underscore")
+        if not re.match("^([a-zA-Z].*|)$", id_short):
+            raise ValueError("The id_short must start with a letter")
+        self._id_short = id_short
+
+    id_short = property(_get_id_short, _set_id_short)
 
 
 class Identifiable(Referable, metaclass=abc.ABCMeta):

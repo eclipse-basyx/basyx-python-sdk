@@ -48,7 +48,7 @@ class SubmodelElement(base.Referable, base.HasDataSpecification, base.Qualifiabl
         """
 
         super().__init__()
-        self.id_short: str = id_short
+        self.id_short = id_short
         self.category: Optional[str] = category
         self.description: Optional[base.LangStringSet] = description
         self.parent: Optional[base.Namespace] = parent
@@ -108,7 +108,7 @@ class Submodel(base.Identifiable, base.HasDataSpecification, base.HasSemantics, 
         self.identification: base.Identifier = identification
         self.submodel_element: Optional[Set[SubmodelElement]] = set() \
             if submodel_element is None else submodel_element
-        self.id_short: str = id_short
+        self.id_short = id_short
         self.category: Optional[str] = category
         self.description: Optional[base.LangStringSet] = description
         self.parent: Optional[base.Namespace] = parent

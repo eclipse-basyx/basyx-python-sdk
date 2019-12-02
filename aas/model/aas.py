@@ -72,7 +72,7 @@ class Asset(base.HasDataSpecification, base.Identifiable):
         super().__init__()
         self.kind: base.AssetKind = kind
         self.identification: base.Identifier = identification
-        self.id_short: str = id_short
+        self.id_short = id_short
         self.category: Optional[str] = category
         self.description: Optional[base.LangStringSet] = description
         self.parent: Optional[base.Namespace] = parent
@@ -124,7 +124,7 @@ class ConceptDescription(base.HasDataSpecification, base.Identifiable):
         """
         super().__init__()
         self.identification: base.Identifier = identification
-        self.id_short: str = id_short
+        self.id_short = id_short
         self.category: Optional[str] = category
         self.description: Optional[base.LangStringSet] = description
         self.parent: Optional[base.Namespace] = parent
@@ -165,7 +165,7 @@ class ConceptDictionary(base.Referable):
         TODO: Add instruction what to do after construction
         """
         super().__init__()
-        self.id_short: str = id_short
+        self.id_short = id_short
         self.category: Optional[str] = category
         self.description: Optional[base.LangStringSet] = description
         self.parent: Optional[base.Namespace] = parent
@@ -220,7 +220,7 @@ class AssetAdministrationShell(base.HasDataSpecification, base.Identifiable):
 
         super().__init__()
         self.identification: base.Identifier = identification
-        self.id_short: str = id_short
+        self.id_short = id_short
         self.category: Optional[str] = category
         self.description: Optional[base.LangStringSet] = description
         self.parent: Optional[base.Namespace] = parent

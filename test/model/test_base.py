@@ -3,6 +3,27 @@ import unittest
 
 from aas import model
 
+class ExampleReferable(model.Referable):
+    def __init__(self):
+        super().__init__()
+
+
+class ReferableTest(unittest.TestCase):
+    def test_is_short_Constraint(self):
+        test_object = ExampleReferable()
+        test_object.id_short = ""
+        self.assertEqual("", test_object.id_short)
+        test_object.id_short = "asdASd123_"
+        self.assertEqual("asdASd123_", test_object.id_short)
+        test_object.id_short = "AAs12_"
+        self.assertEqual("AAs12_", test_object.id_short)
+        with self.assertRaises(ValueError):
+            test_object.id_short = "98sdsfdAS"
+        with self.assertRaises(ValueError):
+            test_object.id_short = "_sdsfdAS"
+        with self.assertRaises(ValueError):
+            test_object.id_short = "asdlujSAD8348@S"
+
 
 class ExampleNamespace(model.Namespace):
     def __init__(self, values=()):
