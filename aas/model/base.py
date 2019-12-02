@@ -397,7 +397,11 @@ class HasKind(metaclass=abc.ABCMeta):
     """
 
     def __init__(self):
-        self.kind: ModelingKind = ModelingKind.INSTANCE
+        self._kind: ModelingKind = ModelingKind.INSTANCE
+
+    @property
+    def kind(self):
+        return self._kind
 
 
 class Constraint(metaclass=abc.ABCMeta):

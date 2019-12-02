@@ -56,7 +56,7 @@ class SubmodelElement(base.Referable, base.HasDataSpecification, base.Qualifiabl
             if data_specification is None else data_specification
         self.semantic_id: Optional[base.Reference] = semantic_id
         self.qualifier: Set[base.Constraint] = set() if qualifier is None else qualifier
-        self.kind: base.ModelingKind = kind
+        self._kind: base.ModelingKind = kind
 
 
 class Submodel(base.Identifiable, base.HasDataSpecification, base.HasSemantics, base.HasKind, base.Qualifiable):
@@ -117,7 +117,7 @@ class Submodel(base.Identifiable, base.HasDataSpecification, base.HasSemantics, 
             if data_specification is None else data_specification
         self.semantic_id: Optional[base.Reference] = semantic_id
         self.qualifier: Set[base.Constraint] = set() if qualifier is None else qualifier
-        self.kind: base.ModelingKind = kind
+        self._kind: base.ModelingKind = kind
 
 
 class DataElement(SubmodelElement, metaclass=abc.ABCMeta):
@@ -750,7 +750,7 @@ class OperationVariable(SubmodelElement):
         super().__init__(id_short, category, description, parent, data_specification, semantic_id, qualifier,
                          base.ModelingKind.TEMPLATE)
         # Constraint AASd-008: The submodel element shall be of kind=Type.
-        self.kind = base.ModelingKind.TEMPLATE
+        self._kind = base.ModelingKind.TEMPLATE
         self.value: SubmodelElement = value
 
 
