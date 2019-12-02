@@ -132,8 +132,6 @@ class ConceptDescription(base.HasDataSpecification, base.Identifiable):
             if data_specification is None else data_specification
         self.is_case_of: Optional[Set[base.Reference]] = set() \
             if is_case_of is None else is_case_of
-        self.data_specification: Set[base.Reference] = set() \
-            if data_specification is None else data_specification
         self.administration: Optional[base.AdministrativeInformation] = administration
 
 
