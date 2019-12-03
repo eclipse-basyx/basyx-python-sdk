@@ -38,3 +38,26 @@ class UUIDGenerator(AbstractIdentifierGenerator):
         uuid_ = uuid.uuid1(clock_seq=self._sequence)
         self._sequence += 1
         return model.Identifier("urn:uuid:{}".format(uuid_), model.IdentifierType.IRI)
+
+
+class IRIGeneratorInGivenNamespace(AbstractIdentifierGenerator):
+    """
+    An IdentifierGenerator, that generates unique IRIs in a given namespace according to RFC 3987.
+
+    The namespace could only be used by one instance
+    """
+    def __init__(self, namespace: str):
+        super().__init__()
+        if namespace == "":
+            raise ValueError("Namespace must not be an empty string")
+        self._namespace = namespace
+        self._count = 1
+
+    @property
+    def get_namespace(self):
+        return self._namespace
+
+    def generate_id(self, proposal: Optional[str] = None) -> model.Identifier:
+        iri = self._namespace + "/" + str(self._count)
+        self._count += 1
+        return model.Identifier(iri, model.IdentifierType.IRI)

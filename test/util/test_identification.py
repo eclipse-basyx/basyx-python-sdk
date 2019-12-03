@@ -15,3 +15,13 @@ class IdentifierGeneratorTest(unittest.TestCase):
             identification = generator.generate_id()
             self.assertNotIn(identification, ids)
             ids.add(identification)
+
+    def test_generate_iri_identifier(self):
+        with self.assertRaises(ValueError):
+            generator = IRIGeneratorInGivenNamespace("")
+        generator = IRIGeneratorInGivenNamespace("http://acplt.org/AAS")
+        identification = generator.generate_id()
+        self.assertEqual(identification.id, "http://acplt.org/AAS/1")
+        for i in range(99):
+            identification = generator.generate_id()
+        self.assertEqual(identification.id, "http://acplt.org/AAS/100")
