@@ -15,12 +15,18 @@ class KeyTest(unittest.TestCase):
 
 
 class IdentifierTest(unittest.TestCase):
-    def test_equality(self):
+    def test_equality_hashing(self):
         id1 = model.Identifier("urn:x-test:aas1", model.IdentifierType.IRI)
         id2 = model.Identifier("urn:x-test:aas1", model.IdentifierType.IRI)
         id3 = model.Identifier("urn:x-test:aas1", model.IdentifierType.CUSTOM)
         self.assertEqual(id1, id2)
         self.assertNotEqual(id1, id3)
+
+        ids = set()
+        ids.add(id1)
+        self.assertIn(id1, ids)
+        self.assertIn(id2, ids)
+        self.assertNotIn(id3, ids)
 
     def test_string_repr(self):
         id1 = model.Identifier("urn:x-test:aas1", model.IdentifierType.IRI)
