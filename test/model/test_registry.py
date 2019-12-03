@@ -6,10 +6,10 @@ from aas import model
 
 class RegistriesTest(unittest.TestCase):
     def setUp(self) -> None:
-        self.aas1 = model.AssetAdministrationShell(model.Reference([], model.Asset))
-        self.aas1.identification = model.Identifier("urn:x-test:aas1", model.IdentifierType.IRI)
-        self.aas2 = model.AssetAdministrationShell(model.Reference([], model.Asset))
-        self.aas2.identification = model.Identifier("urn:x-test:aas2", model.IdentifierType.IRI)
+        self.aas1 = model.AssetAdministrationShell(model.Reference([], model.Asset),
+                                                   model.Identifier("urn:x-test:aas1", model.IdentifierType.IRI))
+        self.aas2 = model.AssetAdministrationShell(model.Reference([], model.Asset),
+                                                   model.Identifier("urn:x-test:aas2", model.IdentifierType.IRI))
         self.submodel1 = model.Submodel(model.Identifier("urn:x-test:submodel1", model.IdentifierType.IRI))
         self.submodel2 = model.Submodel(model.Identifier("urn:x-test:submodel2", model.IdentifierType.IRI))
 
