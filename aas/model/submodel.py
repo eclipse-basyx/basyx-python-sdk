@@ -703,7 +703,7 @@ class AnnotatedRelationshipElement(RelationshipElement):
 
         super().__init__(id_short, first, second, category, description, parent, data_specification, semantic_id,
                          qualifier, kind)
-        self.annotation: Optional[Set[base.Reference]] = set() if annotation is None else annotation
+        self.annotation: Set[base.Reference] = set() if annotation is None else annotation
 
 
 class OperationVariable(SubmodelElement):
@@ -797,9 +797,9 @@ class Operation(SubmodelElement):
         """
 
         super().__init__(id_short, category, description, parent, data_specification, semantic_id, qualifier, kind)
-        self.input_variable: Optional[Set[OperationVariable]] = set() if input_variable is None else input_variable
-        self.output_variable: Optional[Set[OperationVariable]] = set() if output_variable is None else output_variable
-        self.in_output_variable: Optional[Set[OperationVariable]] = set() \
+        self.input_variable: Set[OperationVariable] = set() if input_variable is None else input_variable
+        self.output_variable: Set[OperationVariable] = set() if output_variable is None else output_variable
+        self.in_output_variable: Set[OperationVariable] = set() \
             if in_output_variable is None else in_output_variable
 
 

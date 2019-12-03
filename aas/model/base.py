@@ -607,7 +607,7 @@ class Formula(Constraint):
         TODO: Add instruction what to do after construction
         """
         super().__init__()
-        self.depends_on: Optional[Set[Reference]] = set() if depends_on is None else depends_on
+        self.depends_on: Set[Reference] = set() if depends_on is None else depends_on
 
 
 class Qualifier(Constraint, HasSemantics):

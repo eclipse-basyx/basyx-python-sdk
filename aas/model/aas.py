@@ -21,8 +21,7 @@ class View:
 
         TODO: Add instruction what to do after construction
         """
-        self.contained_element: Optional[Set[base.Reference]] = set() \
-            if contained_element is None else contained_element
+        self.contained_element: Set[base.Reference] = set() if contained_element is None else contained_element
 
 
 class Asset(base.HasDataSpecification, base.Identifiable):
@@ -130,8 +129,7 @@ class ConceptDescription(base.HasDataSpecification, base.Identifiable):
         self.parent: Optional[base.Namespace] = parent
         self.data_specification: Set[base.Reference] = set() \
             if data_specification is None else data_specification
-        self.is_case_of: Optional[Set[base.Reference]] = set() \
-            if is_case_of is None else is_case_of
+        self.is_case_of: Set[base.Reference] = set() if is_case_of is None else is_case_of
         self.administration: Optional[base.AdministrativeInformation] = administration
 
 
@@ -169,8 +167,7 @@ class ConceptDictionary(base.Referable):
         self.category: Optional[str] = category
         self.description: Optional[base.LangStringSet] = description
         self.parent: Optional[base.Namespace] = parent
-        self.concept_description: Optional[Set[base.Reference]] = set() \
-            if concept_description is None else concept_description
+        self.concept_description: Set[base.Reference] = set() if concept_description is None else concept_description
 
 
 class AssetAdministrationShell(base.HasDataSpecification, base.Identifiable, base.Namespace):
@@ -229,7 +226,6 @@ class AssetAdministrationShell(base.HasDataSpecification, base.Identifiable, bas
         self.derived_from: Optional[base.Reference] = derived_from
         self.security_: Optional[security.Security] = security_
         self.asset: base.Reference = asset
-        self.submodel_: Optional[Set[base.Reference]] = set() \
-            if submodel_ is None else submodel_
+        self.submodel_: Set[base.Reference] = set() if submodel_ is None else submodel_
         self.concept_dictionary: base.NamespaceSet[ConceptDictionary] = base.NamespaceSet(self, concept_dictionary)
-        self.view: Optional[Set[View]] = set() if view is None else view
+        self.view: Set[View] = set() if view is None else view
