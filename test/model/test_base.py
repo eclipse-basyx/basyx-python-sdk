@@ -2,6 +2,30 @@
 import unittest
 
 from aas import model
+from aas.model import Identifier, Identifiable
+
+
+class KeyTest(unittest.TestCase):
+    def test_get_identifier(self):
+        key1 = model.Key(model.KeyElements.SUBMODEL, False, "urn:x-test:submodel1", model.KeyType.IRI)
+        key2 = model.Key(model.KeyElements.PROPERTY, True, "prop1", model.KeyType.IDSHORT)
+        self.assertEqual("urn:x-test:submodel1", key1.get_identifier().id)
+        self.assertEqual(model.IdentifierType.IRI, key1.get_identifier().id_type)
+        self.assertIsNone(key2.get_identifier())
+
+
+class IdentifierTest(unittest.TestCase):
+    def test_equality(self):
+        id1 = model.Identifier("urn:x-test:aas1", model.IdentifierType.IRI)
+        id2 = model.Identifier("urn:x-test:aas1", model.IdentifierType.IRI)
+        id3 = model.Identifier("urn:x-test:aas1", model.IdentifierType.CUSTOM)
+        self.assertEqual(id1, id2)
+        self.assertNotEqual(id1, id3)
+
+    def test_string_repr(self):
+        id1 = model.Identifier("urn:x-test:aas1", model.IdentifierType.IRI)
+        self.assertIn("urn:x-test:aas1", repr(id1))
+        self.assertIn("IRI", repr(id1))
 
 
 class ExampleReferable(model.Referable):
@@ -133,3 +157,61 @@ class ModelOrderedNamespaceTest(ModelNamespaceTest):
         del self.namespace.set1[0]
         self.assertIsNone(self.prop2.parent)
         self.assertEqual(1, len(self.namespace.set1))
+
+
+class ReferenceTest(unittest.TestCase):
+
+    def test_reference_typing(self) -> None:
+        dummy_submodel = model.Submodel(model.Identifier("urn:x-test:x", model.IdentifierType.IRI))
+
+        class DummyRegistry(model.AbstractRegistry):
+            def get_identifiable(self, identifier: Identifier) -> Identifiable:
+                return dummy_submodel
+
+        x = model.Reference([model.Key(model.KeyElements.SUBMODEL, False, "urn:x-test:x", model.KeyType.IRI)],
+                            model.Submodel)
+        submodel: model.Submodel = x.resolve(DummyRegistry())
+        self.assertIs(submodel, submodel)
+
+    def test_resolve(self) -> None:
+        prop = model.Property("prop", "int")
+        collection = model.SubmodelElementCollectionUnordered("collection", {prop})
+        prop.parent = collection
+        submodel = model.Submodel(model.Identifier("urn:x-test:submodel", model.IdentifierType.IRI), {collection})
+        collection.parent = submodel
+
+        class DummyRegistry(model.AbstractRegistry):
+            def get_identifiable(self, identifier: Identifier) -> Identifiable:
+                if identifier == submodel.identification:
+                    return submodel
+                else:
+                    raise KeyError()
+
+        ref1 = model.Reference([model.Key(model.KeyElements.SUBMODEL, False, "urn:x-test:submodel", model.KeyType.IRI),
+                                model.Key(model.KeyElements.SUBMODEL_ELEMENT_COLLECTION, False, "collection",
+                                          model.KeyType.IDSHORT),
+                                model.Key(model.KeyElements.PROPERTY, False, "prop", model.KeyType.IDSHORT)],
+                               model.Property)
+        self.assertIs(prop, ref1.resolve(DummyRegistry()))
+
+        ref1.key.append(model.Key(model.KeyElements.PROPERTY, False, "prop", model.KeyType.IDSHORT))
+        # ref1.resolve should raise a type error now, b/c the Property (resolved by the 3rd key) is not a Namespace
+        with self.assertRaises(TypeError):
+            ref1.resolve(DummyRegistry())
+
+        ref1.key[2].value = "prop1"
+        # Oh no, a typo! We should get a KeyError when trying to find urn:x-test:submodel / collection / prop1
+        with self.assertRaises(KeyError):
+            ref1.resolve(DummyRegistry())
+
+        ref2 = model.Reference([model.Key(model.KeyElements.SUBMODEL, False, "urn:x-test:sub", model.KeyType.IRI)],
+                               model.Property)
+        # Oh no, yet another typo!
+        with self.assertRaises(KeyError):
+            ref2.resolve(DummyRegistry())
+        ref2.key[0].value = "urn:x-test:submodel"
+        # Okay, typo is fixed, but the type is not what we expect. However, we should get the the submodel via the
+        # exception's value attribute
+        with self.assertRaises(model.UnexpectedTypeError) as cm:
+            ref2.resolve(DummyRegistry())
+        self.assertIs(submodel, cm.exception.value)

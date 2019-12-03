@@ -2,9 +2,12 @@ import abc
 import itertools
 from abc import abstractmethod
 from enum import Enum, unique
-from typing import List, Optional, Set, TypeVar, MutableSet, Generic, Iterable, Dict, Iterator, Union, overload,\
-    MutableSequence
+from typing import List, Optional, Set, TypeVar, MutableSet, Generic, Iterable, Dict, Iterator, Union, overload, \
+    MutableSequence, Type, Any, TYPE_CHECKING
 import re
+
+if TYPE_CHECKING:
+    from . import registry
 
 DataTypeDef = str  # any xsd simple type as string
 BlobType = bytearray
@@ -129,6 +132,10 @@ class KeyType(Enum):
     IDSHORT = 3
     FRAGMENT_ID = 4
 
+    @property
+    def is_local_key_type(self) -> bool:
+        return self in (KeyType.IDSHORT, KeyType.FRAGMENT_ID)
+
 
 @unique
 class EntityType(Enum):
@@ -218,31 +225,21 @@ class Key:
         self.value: str = value
         self.id_type: KeyType = id_type
 
+    def __repr__(self) -> str:
+        return "Key(local={}, id_type={}, value={})".format(self.local, self.id_type.name, self.value)
 
-class Reference:
-    """
-    Reference to either a model element of the same or another AAS or to an external entity.
+    def __str__(self) -> str:
+        return "{}={}".format(self.id_type.name, self.value)
 
-    A reference is an ordered list of keys, each key referencing an element. The complete list of keys may for
-    example be concatenated to a path that then gives unique access to an element or entity
-
-    :ivar: key: Ordered list of unique reference in its name space, each key referencing an element. The complete
-                list of keys may for example be concatenated to a path that then gives unique access to an element
-                or entity.
-    """
-
-    def __init__(self,
-                 key: List[Key]):
+    def get_identifier(self) -> Optional["Identifier"]:
         """
-        Initializer of Reference
+        Get an identifier object corresponding to this key, if it is a global key.
 
-        :param key: Ordered list of unique reference in its name space, each key referencing an element. The complete
-                    list of keys may for example be concatenated to a path that then gives unique access to an element
-                    or entity.
-
-        TODO: Add instruction what to do after construction
+        :return: None if this is no global key, otherwise a corresponding identifier object
         """
-        self.key: List[Key] = key
+        if self.id_type.is_local_key_type:
+            return None
+        return Identifier(self.value, IdentifierType(self.id_type.value))
 
 
 class AdministrativeInformation:
@@ -313,6 +310,15 @@ class Identifier:
         self.id: str = id_
         self.id_type: IdentifierType = id_type
 
+    def __hash__(self):
+        return hash((self.id_type, self.id))
+
+    def __eq__(self, other) -> bool:
+        return self.id_type == other.id_type and self.id == other.id
+
+    def __repr__(self) -> str:
+        return "{}={}".format(self.id_type.name, self.id)
+
 
 class HasDataSpecification(metaclass=abc.ABCMeta):
     """
@@ -326,6 +332,7 @@ class HasDataSpecification(metaclass=abc.ABCMeta):
     """
 
     def __init__(self):
+        super().__init__()
         self.data_specification: Set[Reference] = set()
 
 
@@ -352,12 +359,27 @@ class Referable(metaclass=abc.ABCMeta):
     """
 
     def __init__(self):
+        super().__init__()
         self.id_short: Optional[str] = ""
         self.category: Optional[str] = None
         self.description: Optional[LangStringSet] = None
         # We use a Python reference to the parent Namespace instead of a Reference Object, as specified. This allows
         # simpler and faster navigation/checks and it has no effect in the serialized data formats anyway.
         self.parent: Optional[Namespace] = None
+
+    def __repr__(self) -> str:
+        reversed_path = []
+        item = self  # type: Any
+        while item is not None:
+            if isinstance(item, Identifiable):
+                reversed_path.append(str(item.identification))
+                break
+            elif isinstance(item, Referable):
+                reversed_path.append(item.id_short)
+                item = item.parent
+            else:
+                break
+        return "{}[{}]".format(self.__class__.__name__, " / ".join(reversed(reversed_path)))
 
     def _get_id_short(self):
         return self._id_short
@@ -387,6 +409,102 @@ class Referable(metaclass=abc.ABCMeta):
     id_short = property(_get_id_short, _set_id_short)
 
 
+_RT = TypeVar('_RT', bound=Referable)
+
+
+class UnexpectedTypeError(TypeError):
+    """
+    Exception to be raised by Reference.resolve() if the retrieved object has not the expected type.
+
+    :ivar value: The object of unexpected type
+    """
+    def __init__(self, value: Referable, *args):
+        super().__init__(*args)
+        self.value = value
+
+
+class Reference(Generic[_RT]):
+    """
+    Reference to either a model element of the same or another AAs or to an external entity.
+
+    A reference is an ordered list of keys, each key referencing an element. The complete list of keys may for
+    example be concatenated to a path that then gives unique access to an element or entity
+
+    :ivar: key: Ordered list of unique reference in its name space, each key referencing an element. The complete
+                list of keys may for example be concatenated to a path that then gives unique access to an element
+                or entity.
+    :ivar: type_: The type of the referenced object (additional attribute, not from the AAS Metamodel)
+    """
+
+    def __init__(self,
+                 key: List[Key],
+                 type_: Type[_RT]):
+        """
+        Initializer of Reference
+
+        :param key: Ordered list of unique reference in its name space, each key referencing an element. The complete
+                    list of keys may for example be concatenated to a path that then gives unique access to an element
+                    or entity.
+        :param: type_: The type of the referenced object (additional parameter, not from the AAS Metamodel)
+
+        TODO: Add instruction what to do after construction
+        """
+        self.key: List[Key] = key
+        self.type: Type[_RT] = type_
+
+    def resolve(self, registry_: "registry.AbstractRegistry") -> _RT:
+        """
+        Follow the reference and retrieve the Referable object it points to
+
+        :return: The referenced object (or a proxy object for it)
+        :raises IndexError: If the list of keys is empty
+        :raises TypeError: If one of the intermediate objects on the path is not a Namespace
+        :raises UnexpectedTypeError: If the retrieved object is not of the expected type (or one of its subclasses). The
+                                     object is stored in the `value` attribute of the exception
+        :raises KeyError: If the reference could not be resolved
+        """
+        if len(self.key) == 0:
+            raise IndexError("List of keys is empty")
+        # Find key index last (global) identifier-key in key list (from https://stackoverflow.com/a/6890255/10315508)
+        try:
+            last_identifier_index = next(i
+                                         for i in reversed(range(len(self.key)))
+                                         if self.key[i].get_identifier())
+        except StopIteration:
+            # If no identifier-key is contained in the list, we could try to resolve the path locally.
+            # TODO implement local resolution
+            raise NotImplementedError("We currently don't support local-only references without global identifier keys")
+
+        resolved_keys: List[str] = []  # for more helpful error messages
+
+        # First, resolve the identifier-key via the registry
+        identifier: Identifier = self.key[last_identifier_index].get_identifier()  # type: ignore
+        try:
+            item = registry_.get_identifiable(identifier)
+        except KeyError as e:
+            raise KeyError("Could not resolve global reference key {}".format(identifier)) from e
+        resolved_keys.append(str(identifier))
+
+        # Now, follow path, given by remaining keys, recursively
+        for key in self.key[last_identifier_index+1:]:
+            if not isinstance(item, Namespace):
+                raise TypeError("Object retrieved at {} is not a Namespace".format(" / ".join(resolved_keys)))
+            try:
+                item = item.get_referable(key.value)
+            except KeyError as e:
+                raise KeyError("Could not resolve id_short {} at {}".format(key.value, " / ".join(resolved_keys)))\
+                    from e
+
+        # Check type
+        if not isinstance(item, self.type):
+            raise UnexpectedTypeError(item, "Retrieved object {} is not an instance of referenced type {}"
+                                            .format(item, self.type.__name__))
+        return item
+
+    def __repr__(self) -> str:
+        return "Reference(type={}, key={})".format(self.type.__name__, self.key)
+
+
 class Identifiable(Referable, metaclass=abc.ABCMeta):
     """
     An element that has a globally unique identifier.
@@ -402,6 +520,9 @@ class Identifiable(Referable, metaclass=abc.ABCMeta):
         self.administration: Optional[AdministrativeInformation] = None
         self.identification: Identifier = Identifier("", IdentifierType.IRDI)
 
+    def __repr__(self) -> str:
+        return "{}[{}]".format(self.__class__.__name__, self.identification)
+
 
 class HasSemantics(metaclass=abc.ABCMeta):
     """
@@ -415,6 +536,7 @@ class HasSemantics(metaclass=abc.ABCMeta):
     """
 
     def __init__(self):
+        super().__init__()
         self.semantic_id: Optional[Reference] = None
 
 
@@ -429,6 +551,7 @@ class HasKind(metaclass=abc.ABCMeta):
     """
 
     def __init__(self):
+        super().__init__()
         self._kind: ModelingKind = ModelingKind.INSTANCE
 
     @property
@@ -457,6 +580,7 @@ class Qualifiable(metaclass=abc.ABCMeta):
     """
 
     def __init__(self):
+        super().__init__()
         self.qualifier: Set[Constraint] = set()
 
 
@@ -570,9 +694,6 @@ class ValueList:
         self.value_reference_pair_type: Set[ValueReferencePair] = value_reference_pair_type
 
 
-T = TypeVar('T', bound=Referable)
-
-
 class Namespace(metaclass=abc.ABCMeta):
     """
     Abstract baseclass for all objects which form a Namespace to hold Referable objects and resolve them by their
@@ -599,7 +720,7 @@ class Namespace(metaclass=abc.ABCMeta):
         raise KeyError("Referable with id_short {} not found in this namespace".format(id_short))
 
 
-class NamespaceSet(MutableSet[T], Generic[T]):
+class NamespaceSet(MutableSet[_RT], Generic[_RT]):
     """
     Helper class for storing Referable objects of a given type in a Namespace and find them by their id_short.
 
@@ -612,7 +733,7 @@ class NamespaceSet(MutableSet[T], Generic[T]):
     allows a default argument and returns None instead of raising a KeyError). As a bonus, the `x in` check supports
     checking for existence of id_short *or* a concrete Referable object.
     """
-    def __init__(self, parent: Namespace, items: Iterable[T] = ()) -> None:
+    def __init__(self, parent: Namespace, items: Iterable[_RT] = ()) -> None:
         """
         Initialize a new NamespaceSet.
 
@@ -625,7 +746,7 @@ class NamespaceSet(MutableSet[T], Generic[T]):
         """
         self.parent = parent
         parent.namespace_element_sets.append(self)
-        self._backend: Dict[str, T] = {}
+        self._backend: Dict[str, _RT] = {}
         try:
             for i in items:
                 self.add(i)
@@ -645,10 +766,10 @@ class NamespaceSet(MutableSet[T], Generic[T]):
     def __len__(self) -> int:
         return len(self._backend)
 
-    def __iter__(self) -> Iterator[T]:
+    def __iter__(self) -> Iterator[_RT]:
         return iter(self._backend.values())
 
-    def add(self, value: T):
+    def add(self, value: _RT):
         for set_ in self.parent.namespace_element_sets:
             if value.id_short in set_:
                 raise KeyError("Referable with id_short '{}' is already present in {}"
@@ -661,7 +782,7 @@ class NamespaceSet(MutableSet[T], Generic[T]):
         value.parent = self.parent
         self._backend[value.id_short] = value
 
-    def remove(self, item: Union[str, T]):
+    def remove(self, item: Union[str, _RT]):
         if isinstance(item, str):
             del self._backend[item]
         else:
@@ -671,12 +792,12 @@ class NamespaceSet(MutableSet[T], Generic[T]):
             item.parent = None
             del self._backend[item.id_short]
 
-    def discard(self, x: T) -> None:
+    def discard(self, x: _RT) -> None:
         if x not in self:
             return
         self.remove(x)
 
-    def pop(self) -> T:
+    def pop(self) -> _RT:
         _, value = self._backend.popitem()
         value.parent = None
         return value
@@ -686,7 +807,7 @@ class NamespaceSet(MutableSet[T], Generic[T]):
             value.parent = None
         self._backend.clear()
 
-    def get_referable(self, key) -> T:
+    def get_referable(self, key) -> _RT:
         """
         Find an object in this set by its id_short
 
@@ -694,7 +815,7 @@ class NamespaceSet(MutableSet[T], Generic[T]):
         """
         return self._backend[key]
 
-    def get(self, key, default: Optional[T] = None) -> Optional[T]:
+    def get(self, key, default: Optional[_RT] = None) -> Optional[_RT]:
         """
         Find an object in this set by its id_short, with fallback parameter
 
@@ -705,14 +826,14 @@ class NamespaceSet(MutableSet[T], Generic[T]):
         return self._backend.get(key, default)
 
 
-class OrderedNamespaceSet(NamespaceSet[T], MutableSequence[T], Generic[T]):
+class OrderedNamespaceSet(NamespaceSet[_RT], MutableSequence[_RT], Generic[_RT]):
     """
     A specialized version of NamespaceSet, that keeps track of the order of the stored Referable objects.
 
     Additionally to the MutableSet interface of NamespaceSet, this class provides a set-like interface (actually it
     is derived from MutableSequence). However, we don't permit duplicate entries in the ordered list of objects.
     """
-    def __init__(self, parent: Namespace, items: Iterable[T] = ()) -> None:
+    def __init__(self, parent: Namespace, items: Iterable[_RT] = ()) -> None:
         """
         Initialize a new OrderedNamespaceSet.
 
@@ -723,17 +844,17 @@ class OrderedNamespaceSet(NamespaceSet[T], MutableSequence[T], Generic[T]):
         :param items: A given list of Referable items to be added to the set
         :raises KeyError: When `items` contains multiple objects with same id_short
         """
-        self._order: List[T] = []
+        self._order: List[_RT] = []
         super().__init__(parent, items)
 
-    def __iter__(self) -> Iterator[T]:
+    def __iter__(self) -> Iterator[_RT]:
         return iter(self._order)
 
-    def add(self, value: T):
+    def add(self, value: _RT):
         super().add(value)
         self._order.append(value)
 
-    def remove(self, item: Union[str, T]):
+    def remove(self, item: Union[str, _RT]):
         if isinstance(item, str):
             item = self.get_referable(item)
         super().remove(item)
@@ -752,24 +873,24 @@ class OrderedNamespaceSet(NamespaceSet[T], MutableSequence[T], Generic[T]):
         super().clear()
         self._order.clear()
 
-    def insert(self, index: int, object_: T) -> None:
+    def insert(self, index: int, object_: _RT) -> None:
         super().add(object_)
         self._order.insert(index, object_)
 
     @overload
-    def __getitem__(self, i: int) -> T: ...
+    def __getitem__(self, i: int) -> _RT: ...
 
     @overload
-    def __getitem__(self, s: slice) -> MutableSequence[T]: ...
+    def __getitem__(self, s: slice) -> MutableSequence[_RT]: ...
 
-    def __getitem__(self, s: Union[int, slice]) -> Union[T, MutableSequence[T]]:
+    def __getitem__(self, s: Union[int, slice]) -> Union[_RT, MutableSequence[_RT]]:
         return self._order[s]
 
     @overload
-    def __setitem__(self, i: int, o: T) -> None: ...
+    def __setitem__(self, i: int, o: _RT) -> None: ...
 
     @overload
-    def __setitem__(self, s: slice, o: Iterable[T]) -> None: ...
+    def __setitem__(self, s: slice, o: Iterable[_RT]) -> None: ...
 
     def __setitem__(self, s, o) -> None:
         if isinstance(s, int):
