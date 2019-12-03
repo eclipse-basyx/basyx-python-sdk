@@ -332,6 +332,7 @@ class HasDataSpecification(metaclass=abc.ABCMeta):
     """
 
     def __init__(self):
+        super().__init__()
         self.data_specification: Set[Reference] = set()
 
 
@@ -358,6 +359,7 @@ class Referable(metaclass=abc.ABCMeta):
     """
 
     def __init__(self):
+        super().__init__()
         self.id_short: Optional[str] = ""
         self.category: Optional[str] = None
         self.description: Optional[LangStringSet] = None
@@ -534,6 +536,7 @@ class HasSemantics(metaclass=abc.ABCMeta):
     """
 
     def __init__(self):
+        super().__init__()
         self.semantic_id: Optional[Reference] = None
 
 
@@ -548,6 +551,7 @@ class HasKind(metaclass=abc.ABCMeta):
     """
 
     def __init__(self):
+        super().__init__()
         self._kind: ModelingKind = ModelingKind.INSTANCE
 
     @property
@@ -576,6 +580,7 @@ class Qualifiable(metaclass=abc.ABCMeta):
     """
 
     def __init__(self):
+        super().__init__()
         self.qualifier: Set[Constraint] = set()
 
 
