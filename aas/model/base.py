@@ -757,22 +757,18 @@ class OrderedNamespaceSet(NamespaceSet[T], MutableSequence[T], Generic[T]):
         self._order.insert(index, object_)
 
     @overload
-    @abstractmethod
     def __getitem__(self, i: int) -> T: ...
 
     @overload
-    @abstractmethod
     def __getitem__(self, s: slice) -> MutableSequence[T]: ...
 
     def __getitem__(self, s: Union[int, slice]) -> Union[T, MutableSequence[T]]:
         return self._order[s]
 
     @overload
-    @abstractmethod
     def __setitem__(self, i: int, o: T) -> None: ...
 
     @overload
-    @abstractmethod
     def __setitem__(self, s: slice, o: Iterable[T]) -> None: ...
 
     def __setitem__(self, s, o) -> None:
@@ -798,11 +794,9 @@ class OrderedNamespaceSet(NamespaceSet[T], MutableSequence[T], Generic[T]):
             super().remove(i)
 
     @overload
-    @abstractmethod
     def __delitem__(self, i: int) -> None: ...
 
     @overload
-    @abstractmethod
     def __delitem__(self, i: slice) -> None: ...
 
     def __delitem__(self, i: Union[int, slice]) -> None:
