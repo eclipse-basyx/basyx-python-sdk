@@ -4,17 +4,22 @@ from abc import abstractmethod
 from enum import Enum, unique
 from typing import List, Optional, Set, TypeVar, MutableSet, Generic, Iterable, Dict, Iterator, Union, overload, \
     MutableSequence, Type, Any, TYPE_CHECKING
+import re
 
 if TYPE_CHECKING:
     from . import registry
 
-DataTypeDef = str
+DataTypeDef = str  # any xsd simple type as string
 BlobType = bytearray
-MimeType = str
+MimeType = str  # any mimetype as in RFC2046
 PathType = str
 QualifierType = str
-ValueDataType = str
-LangString = str
+ValueDataType = str  # any xsd atomic type
+LangString = str  # a string in a specified language
+# A dict of language-Identifier (according to ISO 639-1 and ISO 3166-1) and string in this language.
+# The meaning of the string in each language is the same.
+# << Data Type >> Example ["en-US", "germany"]
+LangStringSet = Dict[str, LangString]
 
 
 @unique
@@ -243,8 +248,8 @@ class AdministrativeInformation:
 
     :ivar version: Version of the element.
     :ivar revision: Revision of the element.
-                    Constraint AASd-005: A revision requires a version. This means, if there is no version there is no
-                                         revision neither.
+    Constraint AASd-005: A revision requires a version. This means, if there is no version there is no revision
+                         neither.
     """
 
     def __init__(self,
@@ -256,10 +261,29 @@ class AdministrativeInformation:
         :param version: Version of the element.
         :param revision: Revision of the element.
 
+        Constraint AASd-005: A revision requires a version. This means, if there is no version there is no revision
+                             neither.
+        :raises ValueError: If version is None and revision is not None
+
         TODO: Add instruction what to do after construction
         """
+        if version is None and revision is not None:
+            raise ValueError("A revision requires a version. This means, if there is no version there is no revision "
+                             "neither.")
         self.version: Optional[str] = version
-        self.revision: Optional[str] = revision
+        self._revision: Optional[str] = revision
+
+    def _get_revision(self):
+        return self._revision
+
+    def _set_revision(self, revision: str):
+        if self.version is None:
+            raise ValueError("A revision requires a version. This means, if there is no version there is no revision "
+                             "neither. Please set version first.")
+        else:
+            self._revision = revision
+
+    revision = property(_get_revision, _set_revision)
 
 
 class Identifier:
@@ -334,7 +358,7 @@ class Referable(metaclass=abc.ABCMeta):
     """
 
     def __init__(self):
-        self.id_short: str = ""
+        self.id_short: Optional[str] = ""
         self.category: Optional[str] = None
         self.description: Optional[LangStringSet] = None
         # We use a Python reference to the parent Namespace instead of a Reference Object, as specified. This allows
@@ -354,6 +378,33 @@ class Referable(metaclass=abc.ABCMeta):
             else:
                 break
         return "{}[{}]".format(self.__class__.__name__, " / ".join(reversed(reversed_path)))
+
+    def _get_id_short(self):
+        return self._id_short
+
+    def _set_id_short(self, id_short: Optional[str]):
+        """
+        Check the input string
+
+        Constraint AASd-001: In case of a referable element not being an identifiable element this id is mandatory and
+        used for referring to the element in its name space.
+        Constraint AASd-002: idShort shall only feature letters, digits, underscore ('_'); starting mandatory with a
+        letter
+
+        :param id_short: Identifying string of the element within its name space
+        :raises: Exception if the constraint is not fulfilled
+        """
+
+        if id_short is None and not hasattr(self, 'identification'):
+            raise ValueError("The id_short for not identifiable elements is mandatory")
+        test_id_short: str = str(id_short)
+        if not re.match("^[a-zA-Z0-9_]*$", test_id_short):
+            raise ValueError("The id_short must contain only letters, digits and underscore")
+        if not re.match("^([a-zA-Z].*|)$", test_id_short):
+            raise ValueError("The id_short must start with a letter")
+        self._id_short = id_short
+
+    id_short = property(_get_id_short, _set_id_short)
 
 
 _RT = TypeVar('_RT', bound=Referable)
@@ -497,7 +548,11 @@ class HasKind(metaclass=abc.ABCMeta):
     """
 
     def __init__(self):
-        self.kind: ModelingKind = ModelingKind.INSTANCE
+        self._kind: ModelingKind = ModelingKind.INSTANCE
+
+    @property
+    def kind(self):
+        return self._kind
 
 
 class Constraint(metaclass=abc.ABCMeta):
@@ -586,28 +641,6 @@ class Qualifier(Constraint, HasSemantics):
         self.value: Optional[ValueDataType] = value
         self.value_id: Optional[Reference] = value_id
         self.semantic_id: Optional[Reference] = semantic_id
-
-
-class LangStringSet:
-    """
-    A set of strings, each annotated by the language of the string. The meaning of the string in each language shall be
-    the same.
-
-    << Data Type >>
-
-    :ivar lang_string: Unordered list of strings in specified languages
-    """
-
-    def __init__(self,
-                 lang_string: Set[LangString]):
-        """
-        Initializer of LangStringSet
-
-        :param lang_string: list of strings in specified languages
-
-        TODO: Add instruction what to do after construction
-        """
-        self.lang_string: Set[LangString] = lang_string
 
 
 class ValueReferencePair:
@@ -840,22 +873,18 @@ class OrderedNamespaceSet(NamespaceSet[_RT], MutableSequence[_RT], Generic[_RT])
         self._order.insert(index, object_)
 
     @overload
-    @abstractmethod
     def __getitem__(self, i: int) -> _RT: ...
 
     @overload
-    @abstractmethod
     def __getitem__(self, s: slice) -> MutableSequence[_RT]: ...
 
     def __getitem__(self, s: Union[int, slice]) -> Union[_RT, MutableSequence[_RT]]:
         return self._order[s]
 
     @overload
-    @abstractmethod
     def __setitem__(self, i: int, o: _RT) -> None: ...
 
     @overload
-    @abstractmethod
     def __setitem__(self, s: slice, o: Iterable[_RT]) -> None: ...
 
     def __setitem__(self, s, o) -> None:
@@ -881,11 +910,9 @@ class OrderedNamespaceSet(NamespaceSet[_RT], MutableSequence[_RT], Generic[_RT])
             super().remove(i)
 
     @overload
-    @abstractmethod
     def __delitem__(self, i: int) -> None: ...
 
     @overload
-    @abstractmethod
     def __delitem__(self, i: slice) -> None: ...
 
     def __delitem__(self, i: Union[int, slice]) -> None:
