@@ -6,3 +6,4 @@
 /dist/
 /aas.egg-info/
 /venv/
+/.coverage
