@@ -749,8 +749,7 @@ class OperationVariable(SubmodelElement):
 
         super().__init__(id_short, category, description, parent, data_specification, semantic_id, qualifier,
                          base.ModelingKind.TEMPLATE)
-        # Constraint AASd-008: The submodel element shall be of kind=Type.
-        self._kind = base.ModelingKind.TEMPLATE
+        # Constraint AASd-008: The submodel element shall be of kind=Template.
         self.value: SubmodelElement = value
 
 
@@ -897,7 +896,12 @@ class Entity(SubmodelElement):
         super().__init__(id_short, category, description, parent, data_specification, semantic_id, qualifier, kind)
         self.entity_type: base.EntityType = entity_type
         self.statement: Optional[Set[SubmodelElement]] = set() if statement is None else statement
-        self.asset: Optional[base.Reference] = asset
+        if self.entity_type == base.EntityType.SELF_MANAGED_ENTITY and asset is None:
+            raise ValueError("A self-managed entity has to have an asset-reference")
+        if self.entity_type == base.EntityType.SELF_MANAGED_ENTITY:
+            self.asset: Optional[base.Reference] = asset
+        else:
+            self.asset = None
 
 
 class Event(SubmodelElement, metaclass=abc.ABCMeta):
