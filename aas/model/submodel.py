@@ -1,5 +1,5 @@
 import abc
-from typing import List, Optional, Set, Union
+from typing import List, Optional, Set, Union, Iterable
 
 from . import base
 
@@ -59,7 +59,8 @@ class SubmodelElement(base.Referable, base.HasDataSpecification, base.Qualifiabl
         self._kind: base.ModelingKind = kind
 
 
-class Submodel(base.Identifiable, base.HasDataSpecification, base.HasSemantics, base.HasKind, base.Qualifiable):
+class Submodel(base.Identifiable, base.HasDataSpecification, base.HasSemantics, base.HasKind, base.Qualifiable,
+               base.Namespace):
     """
     A Submodel defines a specific aspect of the asset represented by the AAS. A submodel is used to structure
     the virtual representation and technical functionality of an Administration Shell into distinguishable parts.
@@ -71,7 +72,7 @@ class Submodel(base.Identifiable, base.HasDataSpecification, base.HasSemantics, 
 
     def __init__(self,
                  identification: base.Identifier,
-                 submodel_element: Optional[Set[SubmodelElement]] = None,
+                 submodel_element: Iterable[SubmodelElement] = (),
                  id_short: str = "",
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
@@ -106,8 +107,7 @@ class Submodel(base.Identifiable, base.HasDataSpecification, base.HasSemantics, 
 
         super().__init__()
         self.identification: base.Identifier = identification
-        self.submodel_element: Optional[Set[SubmodelElement]] = set() \
-            if submodel_element is None else submodel_element
+        self.submodel_element = base.NamespaceSet(self, submodel_element)
         self.id_short = id_short
         self.category: Optional[str] = category
         self.description: Optional[base.LangStringSet] = description
@@ -476,7 +476,7 @@ class ReferenceElement(DataElement):
         self.value: Optional[base.Reference] = value
 
 
-class SubmodelElementCollection(SubmodelElement, metaclass=abc.ABCMeta):
+class SubmodelElementCollection(SubmodelElement, base.Namespace, metaclass=abc.ABCMeta):
     """
     A submodel element collection is a set or list of submodel elements.
 
@@ -515,9 +515,8 @@ class SubmodelElementCollection(SubmodelElement, metaclass=abc.ABCMeta):
 
         TODO: Add instruction what to do after construction
         """
-
         super().__init__(id_short, category, description, parent, data_specification, semantic_id, qualifier, kind)
-        self.value: Union[List[SubmodelElement], Set[SubmodelElement]] = []
+        self.value: base.NamespaceSet[SubmodelElement] = None  # type: ignore
 
 
 class SubmodelElementCollectionOrdered(SubmodelElementCollection):
@@ -529,7 +528,7 @@ class SubmodelElementCollectionOrdered(SubmodelElementCollection):
 
     def __init__(self,
                  id_short: str,
-                 value: Optional[List[SubmodelElement]] = None,
+                 value: Iterable[SubmodelElement] = (),
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
                  parent: Optional[base.Namespace] = None,
@@ -561,7 +560,7 @@ class SubmodelElementCollectionOrdered(SubmodelElementCollection):
         """
 
         super().__init__(id_short, category, description, parent, data_specification, semantic_id, qualifier, kind)
-        self.value: List[SubmodelElement] = [] if value is None else value
+        self.value = base.OrderedNamespaceSet(self, value)
 
 
 class SubmodelElementCollectionUnordered(SubmodelElementCollection):
@@ -573,7 +572,7 @@ class SubmodelElementCollectionUnordered(SubmodelElementCollection):
 
     def __init__(self,
                  id_short: str,
-                 value: Optional[Set[SubmodelElement]] = None,
+                 value: Iterable[SubmodelElement] = (),
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
                  parent: Optional[base.Namespace] = None,
@@ -603,9 +602,8 @@ class SubmodelElementCollectionUnordered(SubmodelElementCollection):
 
         TODO: Add instruction what to do after construction
         """
-
         super().__init__(id_short, category, description, parent, data_specification, semantic_id, qualifier, kind)
-        self.value: Set[SubmodelElement] = set() if value is None else value
+        self.value = base.NamespaceSet(self, value)
 
 
 class RelationshipElement(SubmodelElement):
@@ -845,7 +843,7 @@ class Capability(SubmodelElement):
         super().__init__(id_short, category, description, parent, data_specification, semantic_id, qualifier, kind)
 
 
-class Entity(SubmodelElement):
+class Entity(SubmodelElement, base.Namespace):
     """
     An entity is a submodel element that is used to model entities
 
@@ -859,7 +857,7 @@ class Entity(SubmodelElement):
     def __init__(self,
                  id_short: str,
                  entity_type: base.EntityType,
-                 statement: Optional[Set[SubmodelElement]] = None,
+                 statement: Iterable[SubmodelElement] = (),
                  asset: Optional[base.Reference] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
@@ -895,7 +893,7 @@ class Entity(SubmodelElement):
 
         super().__init__(id_short, category, description, parent, data_specification, semantic_id, qualifier, kind)
         self.entity_type: base.EntityType = entity_type
-        self.statement: Optional[Set[SubmodelElement]] = set() if statement is None else statement
+        self.statement = base.NamespaceSet(self, statement)
         if self.entity_type == base.EntityType.SELF_MANAGED_ENTITY and asset is None:
             raise ValueError("A self-managed entity has to have an asset-reference")
         if self.entity_type == base.EntityType.SELF_MANAGED_ENTITY:

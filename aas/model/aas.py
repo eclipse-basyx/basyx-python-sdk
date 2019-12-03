@@ -1,5 +1,5 @@
 
-from typing import Optional, Set
+from typing import Optional, Set, Iterable
 
 from . import base, security
 
@@ -173,7 +173,7 @@ class ConceptDictionary(base.Referable):
             if concept_description is None else concept_description
 
 
-class AssetAdministrationShell(base.HasDataSpecification, base.Identifiable):
+class AssetAdministrationShell(base.HasDataSpecification, base.Identifiable, base.Namespace):
     """
     An Asset Administration Shell
 
@@ -195,7 +195,7 @@ class AssetAdministrationShell(base.HasDataSpecification, base.Identifiable):
                  data_specification: Optional[Set[base.Reference]] = None,
                  security_: Optional[security.Security] = None,
                  submodel_: Optional[Set[base.Reference]] = None,
-                 concept_dictionary: Optional[Set[ConceptDictionary]] = None,
+                 concept_dictionary: Iterable[ConceptDictionary] = (),
                  view: Optional[Set[View]] = None,
                  derived_from: Optional[base.Reference] = None):
         """
@@ -231,6 +231,5 @@ class AssetAdministrationShell(base.HasDataSpecification, base.Identifiable):
         self.asset: base.Reference = asset
         self.submodel_: Optional[Set[base.Reference]] = set() \
             if submodel_ is None else submodel_
-        self.concept_dictionary: Optional[Set[ConceptDictionary]] = set() \
-            if concept_dictionary is None else concept_dictionary
+        self.concept_dictionary: base.NamespaceSet[ConceptDictionary] = base.NamespaceSet(self, concept_dictionary)
         self.view: Optional[Set[View]] = set() if view is None else view
