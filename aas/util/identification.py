@@ -54,7 +54,7 @@ class IRIGeneratorInGivenNamespace(AbstractIdentifierGenerator):
         self._count = 1
 
     @property
-    def get_namespace(self):
+    def namespace(self):
         return self._namespace
 
     def generate_id(self, proposal: Optional[str] = None) -> model.Identifier:
