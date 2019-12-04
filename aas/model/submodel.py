@@ -483,6 +483,10 @@ class SubmodelElementCollection(SubmodelElement, base.Namespace, metaclass=abc.A
     << abstract >>
 
     :ivar value: Ordered or unordered list of submodel elements
+    :ivar ordered: If ordered=false then the elements in the property collection are not ordered. If ordered=true then
+                   the elements in the collection are ordered.
+                   `ordered` shall not be set directly, instead one of the subclasses
+                   `SubmodelElementCollectionOrdered` or `SubmodelElementCollectionUnordered` shall be used.
     """
 
     def __init__(self,
@@ -496,6 +500,9 @@ class SubmodelElementCollection(SubmodelElement, base.Namespace, metaclass=abc.A
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE):
         """
         Initializer of SubmodelElementCollection
+
+        This class is abstract and should not used for instances; instead one of the subclasses
+        `SubmodelElementCollectionOrdered` or `SubmodelElementCollectionUnordered` shall be used.
 
         :param id_short: Identifying string of the element within its name space. (from base.Referable)
         :param category: The category is a value that gives further meta information w.r.t. to the class of the element.
@@ -518,12 +525,15 @@ class SubmodelElementCollection(SubmodelElement, base.Namespace, metaclass=abc.A
         super().__init__(id_short, category, description, parent, data_specification, semantic_id, qualifier, kind)
         self.value: base.NamespaceSet[SubmodelElement] = None  # type: ignore
 
+    @property
+    @abc.abstractmethod
+    def ordered(self):
+        pass
+
 
 class SubmodelElementCollectionOrdered(SubmodelElementCollection):
     """
     A SubmodelElementCollectionOrdered is an ordered list of submodel elements.
-
-    :ivar value: Ordered list of submodel elements
     """
 
     def __init__(self,
@@ -562,12 +572,14 @@ class SubmodelElementCollectionOrdered(SubmodelElementCollection):
         super().__init__(id_short, category, description, parent, data_specification, semantic_id, qualifier, kind)
         self.value = base.OrderedNamespaceSet(self, value)
 
+    @property
+    def ordered(self):
+        return True
+
 
 class SubmodelElementCollectionUnordered(SubmodelElementCollection):
     """
     A SubmodelElementCollectionOrdered is an unordered list of submodel elements.
-
-    :ivar value: Unordered list of submodel elements
     """
 
     def __init__(self,
@@ -604,6 +616,10 @@ class SubmodelElementCollectionUnordered(SubmodelElementCollection):
         """
         super().__init__(id_short, category, description, parent, data_specification, semantic_id, qualifier, kind)
         self.value = base.NamespaceSet(self, value)
+
+    @property
+    def ordered(self):
+        return False
 
 
 class RelationshipElement(SubmodelElement):
