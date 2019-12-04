@@ -32,7 +32,6 @@ class IdentifierTest(unittest.TestCase):
         id1 = model.Identifier("urn:x-test:aas1", model.IdentifierType.IRI)
         self.assertIn("urn:x-test:aas1", repr(id1))
         self.assertIn("IRI", repr(id1))
-        self.assertIn("IRI", repr(id1))
 
 
 class ExampleReferable(model.Referable):
