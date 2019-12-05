@@ -15,11 +15,10 @@ MimeType = str  # any mimetype as in RFC2046
 PathType = str
 QualifierType = str
 ValueDataType = str  # any xsd atomic type
-LangString = str  # a string in a specified language
 # A dict of language-Identifier (according to ISO 639-1 and ISO 3166-1) and string in this language.
 # The meaning of the string in each language is the same.
 # << Data Type >> Example ["en-US", "germany"]
-LangStringSet = Dict[str, LangString]
+LangStringSet = Dict[str, str]
 
 
 @unique
@@ -660,7 +659,8 @@ class ValueReferencePair:
 
     def __init__(self,
                  value: ValueDataType,
-                 value_id: Reference):
+                 value_id: Reference,
+                 value_type: str):
         """
         Initializer of ValueReferencePair
 
@@ -671,6 +671,7 @@ class ValueReferencePair:
         """
         self.value: ValueDataType = value
         self.value_id: Reference = value_id
+        self.value_type: str = value_type
 
 
 class ValueList:
