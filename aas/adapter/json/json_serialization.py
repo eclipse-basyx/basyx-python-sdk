@@ -1,6 +1,6 @@
 from typing import Dict
 
-from .. import model
+from aas import model
 from json import JSONEncoder
 
 
