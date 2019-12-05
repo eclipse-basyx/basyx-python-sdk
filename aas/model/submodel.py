@@ -64,10 +64,11 @@ class SubmodelElement(base.Referable, base.HasDataSpecification, base.Qualifiabl
 class Submodel(base.Identifiable, base.HasDataSpecification, base.HasSemantics, base.HasKind, base.Qualifiable,
                base.Namespace):
     """
-    A Submodel defines a specific aspect of the asset represented by the AAS. A submodel is used to structure
-    the virtual representation and technical functionality of an Administration Shell into distinguishable parts.
-    Each submodel refers to a well-defined domain or subject matter. Submodels can become standardized
-    and thus become submodels types. Submodels can have different life-cycles.
+    A Submodel defines a specific aspect of the asset represented by the AAS.
+
+    A submodel is used to structure the virtual representation and technical functionality of an Administration Shell
+    into distinguishable parts. Each submodel refers to a well-defined domain or subject matter. Submodels can become
+    standardized and thus become submodels types. Submodels can have different life-cycles.
 
     :ivar submodel_element: Unordered list of submodel elements
     """

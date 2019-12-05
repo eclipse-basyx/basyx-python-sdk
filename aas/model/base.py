@@ -322,7 +322,7 @@ class Identifier:
 class HasDataSpecification(metaclass=abc.ABCMeta):
     """
     Element that can have data specification templates. A template defines the additional attributes an element may or
-    shall have.
+    shall have. The data specifications used are explicitly specified with their global id.
 
     << abstract >>
 
