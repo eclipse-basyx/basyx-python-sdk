@@ -51,7 +51,7 @@ class KeyElements(Enum):
 
     # ReferableElements starting from 1000
     :cvar ACCESS_PERMISSION_RULE: access permission rule
-    :cvar ANNOTATION_RELATIONSHIP_ELEMENT: annotated relationship element
+    :cvar ANNOTATED_RELATIONSHIP_ELEMENT: annotated relationship element
     :cvar BASIC_EVENT: basic event
     :cvar BLOB: blob
     :cvar CAPABILITY: capability
@@ -88,7 +88,7 @@ class KeyElements(Enum):
 
     # ReferableElements starting from 1000
     ACCESS_PERMISSION_RULE = 1000
-    ANNOTATION_RELATIONSHIP_ELEMENT = 1001
+    ANNOTATED_RELATIONSHIP_ELEMENT = 1001
     BASIC_EVENT = 1002
     BLOB = 1003
     CAPABILITY = 1004
@@ -117,7 +117,7 @@ class KeyType(Enum):
     """
     Enumeration for denoting the type of the key value.
 
-    :cvar IRDI: IRDI (International Registration Data Identifier) according to ISO29002-5 as an Identifierscheme for
+    :cvar IRDI: IRDI (International Registration Data Identifier) according to ISO29002-5 as an Identifier scheme for
                 properties and classifications.
     :cvar IRI: IRI according to Rfc 3987. Every URI is an IRI
     :cvar CUSTOM: Custom identifiers like GUIDs (globally unique Identifiers)

@@ -6,7 +6,7 @@ from .base import Identifier, Identifiable
 
 class AbstractRegistry(metaclass=abc.ABCMeta):
     """
-    Abstract baseclass for registries and registry proxy objects, that allow to resolve global identifieres to
+    Abstract baseclass for registries and registry proxy objects, that allow to resolve global identifiers to
     Identifiable objects (resp. proxy objects for remote Identifiable objects).
     """
     @abc.abstractmethod
