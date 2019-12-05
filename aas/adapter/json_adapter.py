@@ -59,7 +59,7 @@ def abstract_classes_to_json(obj):
         if obj.data_specification:
             data['embeddedDataSpecification'] = list(obj.data_specification)
     if isinstance(obj, model.HasSemantics):
-        data['semanticID'] =  obj.semantic_id
+        data['semanticID'] = obj.semantic_id
     if isinstance(obj, model.HasKind):
         data['kind'] = MODELING_KIND[obj.kind]
     if isinstance(obj, model.Qualifiable):
@@ -69,10 +69,6 @@ def abstract_classes_to_json(obj):
 
 
 #  function to serialize classes from model.base
-#def lang_string_set_to_json(obj):  # TODO check if correct
-#    return {dict(obj)}
-
-
 def key_to_json(obj):
     data = abstract_classes_to_json(obj)
     data.update({'type': KEY_ELEMENTS[obj.type_],
