@@ -738,7 +738,8 @@ class OperationVariable(SubmodelElement):
                  parent: Optional[base.Namespace] = None,
                  data_specification: Optional[Set[base.Reference]] = None,
                  semantic_id: Optional[base.Reference] = None,
-                 qualifier: Optional[Set[base.Constraint]] = None):
+                 qualifier: Optional[Set[base.Constraint]] = None,
+                 kind: Optional[ModelingKind] = None):
         """
         Initializer of OperationVariable
 
@@ -761,10 +762,9 @@ class OperationVariable(SubmodelElement):
         TODO: Add instruction what to do after construction
         """
 
-        super().__init__(id_short, category, description, parent, data_specification, semantic_id, qualifier,
-                         base.ModelingKind.TEMPLATE)
+        super().__init__(id_short, category, description, parent, data_specification, semantic_id, qualifier, kind)
         # Constraint AASd-008: The submodel element shall be of kind=Template.
-        self.value: SubmodelElement = value
+        self.value: SubmodelElement = value  # TODO check the kind of the object in value
 
 
 class Operation(SubmodelElement):

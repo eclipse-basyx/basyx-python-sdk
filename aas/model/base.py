@@ -551,11 +551,14 @@ class HasKind(metaclass=abc.ABCMeta):
 
     def __init__(self):
         super().__init__()
-        self._kind: ModelingKind = ModelingKind.INSTANCE
+        self._kind: ModelingKind = None
 
     @property
     def kind(self):
-        return self._kind
+        if self._kind is None:
+            return ModelingKind.INSTANCE
+        else:
+            return self._kind
 
 
 class Constraint(metaclass=abc.ABCMeta):
