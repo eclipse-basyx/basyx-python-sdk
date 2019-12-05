@@ -1,5 +1,5 @@
 import abc
-from typing import List, Optional, Set, Union, Iterable, TYPE_CHECKING
+from typing import Optional, Set, Iterable, TYPE_CHECKING
 
 from . import base
 if TYPE_CHECKING:
