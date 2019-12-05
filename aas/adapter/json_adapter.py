@@ -1,3 +1,5 @@
+from typing import Dict
+
 from .. import model
 from json import JSONEncoder
 
@@ -6,46 +8,58 @@ from json import JSONEncoder
 # dicts to serialize enum values to json
 # ##########################################
 
-MODELING_KIND = {model.ModelingKind.TEMPLATE: 'Template', model.ModelingKind.INSTANCE: 'Instance'}
+MODELING_KIND: Dict[model.ModelingKind, str] = {
+    model.ModelingKind.TEMPLATE: 'Template',
+    model.ModelingKind.INSTANCE: 'Instance'}
 
-ASSET_KIND = {model.AssetKind.TYPE: 'Type', model.AssetKind.INSTANCE: 'Instance'}
+ASSET_KIND: Dict[model.AssetKind, str] = {
+    model.AssetKind.TYPE: 'Type',
+    model.AssetKind.INSTANCE: 'Instance'}
 
-KEY_ELEMENTS = {model.KeyElements.ASSET: 'Asset',
-                model.KeyElements.ASSET_ADMINISTRATION_SHELL: 'AssetAdministrationShell',
-                model.KeyElements.CONCEPT_DESCRIPTION: 'ConceptDescription',
-                model.KeyElements.SUBMODEL: 'Submodel',
-                model.KeyElements.ANNOTATION_RELATIONSHIP_ELEMENT: 'AnnotatedRelationshipElement',
-                model.KeyElements.BASIC_EVENT: 'BasicEvent',
-                model.KeyElements.BLOB: 'Blob',
-                model.KeyElements.CAPABILITY: 'Capability',
-                model.KeyElements.CONCEPT_DICTIONARY: 'ConceptDictionary',
-                model.KeyElements.DATA_ELEMENT: 'DataElement',
-                model.KeyElements.ENTITY: 'Entity',
-                model.KeyElements.EVENT: 'Event',
-                model.KeyElements.FILE: 'File',
-                model.KeyElements.MULTI_LANGUAGE_PROPERTY: 'MultiLanguageProperty',
-                model.KeyElements.OPERATION: 'Operation',
-                model.KeyElements.PROPERTY: 'Property',
-                model.KeyElements.RANGE: 'Range',
-                model.KeyElements.REFERENCE_ELEMENT: 'ReferenceElement',
-                model.KeyElements.RELATIONSHIP_ELEMENT: 'RelationshipElement',
-                model.KeyElements.SUBMODEL_ELEMENT: 'SubmodelElement',
-                model.KeyElements.SUBMODEL_ELEMENT_COLLECTION: 'SubmodelElementCollection',
-                model.KeyElements.VIEW: 'View',
-                model.KeyElements.GLOBAL_REFERENCE: 'GlobalReference',
-                model.KeyElements.FRAGMENT_REFERENCE: 'FragmentReference'}
+KEY_ELEMENTS: Dict[model.KeyElements, str] = {
+    model.KeyElements.ASSET: 'Asset',
+    model.KeyElements.ASSET_ADMINISTRATION_SHELL: 'AssetAdministrationShell',
+    model.KeyElements.CONCEPT_DESCRIPTION: 'ConceptDescription',
+    model.KeyElements.SUBMODEL: 'Submodel',
+    model.KeyElements.ANNOTATION_RELATIONSHIP_ELEMENT: 'AnnotatedRelationshipElement',
+    model.KeyElements.BASIC_EVENT: 'BasicEvent',
+    model.KeyElements.BLOB: 'Blob',
+    model.KeyElements.CAPABILITY: 'Capability',
+    model.KeyElements.CONCEPT_DICTIONARY: 'ConceptDictionary',
+    model.KeyElements.DATA_ELEMENT: 'DataElement',
+    model.KeyElements.ENTITY: 'Entity',
+    model.KeyElements.EVENT: 'Event',
+    model.KeyElements.FILE: 'File',
+    model.KeyElements.MULTI_LANGUAGE_PROPERTY: 'MultiLanguageProperty',
+    model.KeyElements.OPERATION: 'Operation',
+    model.KeyElements.PROPERTY: 'Property',
+    model.KeyElements.RANGE: 'Range',
+    model.KeyElements.REFERENCE_ELEMENT: 'ReferenceElement',
+    model.KeyElements.RELATIONSHIP_ELEMENT: 'RelationshipElement',
+    model.KeyElements.SUBMODEL_ELEMENT: 'SubmodelElement',
+    model.KeyElements.SUBMODEL_ELEMENT_COLLECTION: 'SubmodelElementCollection',
+    model.KeyElements.VIEW: 'View',
+    model.KeyElements.GLOBAL_REFERENCE: 'GlobalReference',
+    model.KeyElements.FRAGMENT_REFERENCE: 'FragmentReference'}
 
-KEY_TYPES = {model.KeyType.CUSTOM: 'Custom',
-             model.KeyType.IRDI: 'IRDI',
-             model.KeyType.IRI: 'IRI',
-             model.KeyType.IDSHORT: 'IdShort',
-             model.KeyType.FRAGMENT_ID: 'FragmentId'}
+KEY_TYPES: Dict[model.KeyType, str] = {
+    model.KeyType.CUSTOM: 'Custom',
+    model.KeyType.IRDI: 'IRDI',
+    model.KeyType.IRI: 'IRI',
+    model.KeyType.IDSHORT: 'IdShort',
+    model.KeyType.FRAGMENT_ID: 'FragmentId'}
 
-ENTITY_TYPES = {model.EntityType.CO_MANAGED_ENTITY: 'CoManagedEntity',
-                model.EntityType.SELF_MANAGED_ENTITY: 'SelfManagedEntity'}
+IDENTIFIER_TYPES: Dict[model.IdentifierType, str] = {
+    model.IdentifierType.CUSTOM: 'Custom',
+    model.IdentifierType.IRDI: 'IRDI',
+    model.IdentifierType.IRI: 'IRI'}
+
+ENTITY_TYPES: Dict[model.EntityType, str] = {
+    model.EntityType.CO_MANAGED_ENTITY: 'CoManagedEntity',
+    model.EntityType.SELF_MANAGED_ENTITY: 'SelfManagedEntity'}
 
 
-def abstract_classes_to_json(obj):
+def abstract_classes_to_json(obj: object) -> Dict[str, object]:
     """
     transformation function to serialize abstract classes from model.base which are inherited by many classes
 
@@ -83,7 +97,7 @@ def abstract_classes_to_json(obj):
 # #############################################################
 
 
-def key_to_json(obj):
+def key_to_json(obj: model.Key) -> Dict[str, object]:
     """
     serialization of an object from class Key to json
 
@@ -98,7 +112,7 @@ def key_to_json(obj):
     return data
 
 
-def administrative_information_to_json(obj):
+def administrative_information_to_json(obj: model.AdministrativeInformation) -> Dict[str, object]:
     """
     serialization of an object from class AdministrativeInformation to json
 
@@ -113,7 +127,7 @@ def administrative_information_to_json(obj):
     return data
 
 
-def identifier_to_json(obj):
+def identifier_to_json(obj: model.Identifier) -> Dict[str, object]:
     """
     serialization of an object from class Identifier to json
 
@@ -126,7 +140,7 @@ def identifier_to_json(obj):
     return data
 
 
-def reference_to_json(obj):
+def reference_to_json(obj: model.Reference) -> Dict[str, object]:
     """
     serialization of an object from class Reference to json
 
@@ -138,16 +152,14 @@ def reference_to_json(obj):
     return data
 
 
-def constraint_to_json(obj):  # TODO check if correct for each class
+def constraint_to_json(obj: model.Constraint) -> Dict[str, object]:  # TODO check if correct for each class
     """
     serialization of an object from class Constraint to json
 
     :param obj: object of class Constraint
     :return: dict with the serialized attributes of this object
     """
-    if isinstance(obj, model.Constraint):
-        return {'modelType': obj.__class__.__name__}
-    return {}
+    return {'modelType': obj.__class__.__name__}
 
 
 def namespace_to_json(obj):  # not in specification yet
@@ -161,7 +173,7 @@ def namespace_to_json(obj):  # not in specification yet
     return data
 
 
-def formula_to_json(obj):
+def formula_to_json(obj: model.Formula) -> Dict[str, object]:
     """
     serialization of an object from class Formula to json
 
@@ -175,7 +187,7 @@ def formula_to_json(obj):
     return data
 
 
-def qualifier_to_json(obj):
+def qualifier_to_json(obj: model.Qualifier) -> Dict[str, object]:
     """
     serialization of an object from class Qualifier to json
 
@@ -219,34 +231,11 @@ def value_list_to_json(obj):
     return data
 
 
-def namespace_set_to_json(obj):
-    """
-    serialization of an object from class NamespaceSet to json
-
-    :param obj: object of class NamespaceSet
-    :return: dict with the serialized attributes of this object
-    """
-    data = abstract_classes_to_json(obj)
-    return data
-
-
-def ordered_namespace_set_to_json(obj):
-    """
-    serialization of an object from class OrderedNamespaceSet to json
-
-    :param obj: object of class OrderedNamespaceSet
-    :return: dict with the serialized attributes of this object
-    """
-    data = abstract_classes_to_json(obj)
-    data.update(namespace_to_json(obj))
-    return data
-
-
 # ############################################################
 # transformation functions to serialize classes from model.aas
 # ############################################################
 
-def view_to_json(obj):
+def view_to_json(obj: model.View) -> Dict[str, object]:
     """
     serialization of an object from class View to json
 
@@ -259,7 +248,7 @@ def view_to_json(obj):
     return data
 
 
-def asset_to_json(obj):
+def asset_to_json(obj: model.Asset) -> Dict[str, object]:
     """
     serialization of an object from class Asset to json
 
@@ -275,7 +264,7 @@ def asset_to_json(obj):
     return data
 
 
-def concept_description_to_json(obj):
+def concept_description_to_json(obj: model.ConceptDescription) -> Dict[str, object]:
     """
     serialization of an object from class ConceptDescription to json
 
@@ -288,7 +277,7 @@ def concept_description_to_json(obj):
     return data
 
 
-def concept_dictionary_to_json(obj):
+def concept_dictionary_to_json(obj: model.ConceptDictionary) -> Dict[str, object]:
     """
     serialization of an object from class ConceptDictionary to json
 
@@ -301,7 +290,7 @@ def concept_dictionary_to_json(obj):
     return data
 
 
-def asset_administration_shell_to_json(obj):
+def asset_administration_shell_to_json(obj: model.AssetAdministrationShell) -> Dict[str, object]:
     """
     serialization of an object from class AssetAdministrationShell to json
 
@@ -329,7 +318,7 @@ def asset_administration_shell_to_json(obj):
 # #################################################################
 
 
-def security_to_json(obj):  # has no attributes in our implementation
+def security_to_json(obj: model.Security) -> Dict[str, object]:  # has no attributes in our implementation
     """
     serialization of an object from class Security to json
 
@@ -355,7 +344,7 @@ def submodel_element_to_json(obj):  # TODO make kind optional
     return data
 
 
-def submodel_to_json(obj):  # TODO make kind optional
+def submodel_to_json(obj: model.Submodel) -> Dict[str, object]:  # TODO make kind optional
     """
     serialization of an object from class Submodel to json
 
@@ -367,7 +356,7 @@ def submodel_to_json(obj):  # TODO make kind optional
     return data
 
 
-def data_element_to_json(obj):  # no attributes in specification yet
+def data_element_to_json(obj: model.DataElement) -> Dict[str, object]:  # no attributes in specification yet
     """
     serialization of an object from class DataElement to json
 
@@ -377,7 +366,7 @@ def data_element_to_json(obj):  # no attributes in specification yet
     return {}
 
 
-def property_to_json(obj):
+def property_to_json(obj: model.Property) -> Dict[str, object]:
     """
     serialization of an object from class Property to json
 
@@ -393,7 +382,7 @@ def property_to_json(obj):
     return data
 
 
-def multi_language_property_to_json(obj):
+def multi_language_property_to_json(obj: model.MultiLanguageProperty) -> Dict[str, object]:
     """
     serialization of an object from class MultiLanguageProperty to json
 
@@ -408,7 +397,7 @@ def multi_language_property_to_json(obj):
     return data
 
 
-def range_to_json(obj):
+def range_to_json(obj: model.Range) -> Dict[str, object]:
     """
     serialization of an object from class Range to json
 
@@ -420,7 +409,7 @@ def range_to_json(obj):
     return data
 
 
-def blob_to_json(obj):
+def blob_to_json(obj: model.Blob) -> Dict[str, object]:
     """
     serialization of an object from class Blob to json
 
@@ -432,7 +421,7 @@ def blob_to_json(obj):
     return data
 
 
-def file_to_json(obj):
+def file_to_json(obj: model.File) -> Dict[str, object]:
     """
     serialization of an object from class File to json
 
@@ -444,7 +433,7 @@ def file_to_json(obj):
     return data
 
 
-def reference_element_to_json(obj):
+def reference_element_to_json(obj: model.ReferenceElement) -> Dict[str, object]:
     """
     serialization of an object from class Reference to json
 
@@ -457,7 +446,7 @@ def reference_element_to_json(obj):
     return data
 
 
-def submodel_element_collection_to_json(obj):
+def submodel_element_collection_to_json(obj: model.SubmodelElementCollection) -> Dict[str, object]:
     """
     serialization of an object from class SubmodelElementCollectionOrdered and SubmodelElementCollectionUnordered to
     json
@@ -473,7 +462,7 @@ def submodel_element_collection_to_json(obj):
     return data
 
 
-def relationship_element_to_json(obj):
+def relationship_element_to_json(obj: model.RelationshipElement) -> Dict[str, object]:
     """
     serialization of an object from class RelationshipElement to json
 
@@ -485,7 +474,7 @@ def relationship_element_to_json(obj):
     return data
 
 
-def annotated_relationship_element_to_json(obj):
+def annotated_relationship_element_to_json(obj: model.AnnotatedRelationshipElement) -> Dict[str, object]:
     """
     serialization of an object from class AnnotatedRelationshipElement to json
 
@@ -499,7 +488,7 @@ def annotated_relationship_element_to_json(obj):
     return data
 
 
-def operation_variable_to_json(obj):
+def operation_variable_to_json(obj: model.OperationVariable) -> Dict[str, object]:
     """
     serialization of an object from class OperationVariable to json
 
@@ -511,7 +500,7 @@ def operation_variable_to_json(obj):
     return data
 
 
-def operation_to_json(obj):
+def operation_to_json(obj: model.Operation) -> Dict[str, object]:
     """
     serialization of an object from class Operation to json
 
@@ -528,7 +517,7 @@ def operation_to_json(obj):
     return data
 
 
-def capability_to_json(obj):  # no attributes in specification yet
+def capability_to_json(obj: model.Capability) -> Dict[str, object]:  # no attributes in specification yet
     """
     serialization of an object from class Capability to json
 
@@ -539,7 +528,7 @@ def capability_to_json(obj):  # no attributes in specification yet
     return data
 
 
-def entity_to_json(obj):
+def entity_to_json(obj: model.Entity) -> Dict[str, object]:
     """
     serialization of an object from class Entity to json
 
@@ -555,7 +544,7 @@ def entity_to_json(obj):
     return data
 
 
-def event_to_json(obj):  # no attributes in specification yet
+def event_to_json(obj: model.Event) -> Dict[str, object]:  # no attributes in specification yet
     """
     serialization of an object from class Event to json
 
@@ -565,7 +554,7 @@ def event_to_json(obj):  # no attributes in specification yet
     return {}
 
 
-def basic_event_to_json(obj):
+def basic_event_to_json(obj: model.BasicEvent) -> Dict[str, object]:
     """
     serialization of an object from class BasicEvent to json
 
@@ -583,7 +572,7 @@ class AASToJsonEncoder(JSONEncoder):
     Version 2.0'
     """
 
-    def default(self, obj):
+    def default(self, obj: object) -> object:
         if isinstance(obj, model.AssetAdministrationShell):
             return asset_administration_shell_to_json(obj)
         if isinstance(obj, model.Identifier):
