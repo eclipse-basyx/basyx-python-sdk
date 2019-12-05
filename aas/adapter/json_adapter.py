@@ -333,17 +333,6 @@ def security_to_json(obj: model.Security) -> Dict[str, object]:  # has no attrib
 # transformation functions to serialize classes from model.submodel
 # #################################################################
 
-def submodel_element_to_json(obj):  # TODO make kind optional
-    """
-    serialization of an object from class SubmodelElement to json
-
-    :param obj: object of class SubmodelElement
-    :return: dict with the serialized attributes of this object
-    """
-    data = abstract_classes_to_json(obj)
-    return data
-
-
 def submodel_to_json(obj: model.Submodel) -> Dict[str, object]:  # TODO make kind optional
     """
     serialization of an object from class Submodel to json
