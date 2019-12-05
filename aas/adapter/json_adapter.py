@@ -1,44 +1,44 @@
 from .. import model
 from json import JSONEncoder
 
-MODELING_KIND = {'TEMPLATE': 'Template', 'INSTANCE': 'Instance'}
 
-ASSET_KIND = {'TYPE': 'Type', 'INSTANCE': 'Instance'}
+MODELING_KIND = {model.ModelingKind.TEMPLATE: 'Template', model.ModelingKind.INSTANCE: 'Instance'}
 
-KEY_ELEMENTS = {'ASSET': 'Asset',
-                'ASSET_ADMINISTRATION_SHELL': 'AssetAdministrationShell',
-                'CONCEPT_DESCRIPTION': 'ConceptDescription',
-                'SUBMODEL': 'Submodel',
-                'ACCESS_PERMISSION_RULE': 'AccessPermissionRule',
-                'ANNOTATION_RELATIONSHIP_ELEMENT': 'AnnotatedRelationshipElement',
-                'BASIC_EVENT': 'BasicEvent',
-                'BLOB': 'Blob',
-                'CAPABILITY': 'Capability',
-                'CONCEPT_DICTIONARY': 'ConceptDictionary',
-                'DATA_ELEMENT': 'DataElement',
-                'ENTITY': 'Entity',
-                'EVENT': 'Event',
-                'FILE': 'File',
-                'MULTI_LANGUAGE_PROPERTY': 'MultiLanguageProperty',
-                'OPERATION': 'Operation',
-                'PROPERTY': 'Property',
-                'RANGE': 'Range',
-                'REFERENCE_ELEMENT': 'ReferenceElement',
-                'RELATIONSHIP_ELEMENT': 'RelationshipElement',
-                'SUBMODEL_ELEMENT': 'SubmodelElement',
-                'SUBMODEL_ELEMENT_COLLECTION': 'SubmodelElementCollection',
-                'VIEW': 'View',
-                'GLOBAL_REFERENCE': 'GlobalReference',
-                'FRAGMENT_REFERENCE': 'FragmentReference'}
+ASSET_KIND = {model.AssetKind.TYPE: 'Type', model.AssetKind.INSTANCE: 'Instance'}
 
-KEY_TYPES = {'CUSTOM': 'Custom',
-             'IRDI': 'IRDI',
-             'IRI': 'IRI',
-             'IDSHORT': 'IdShort',
-             'FRAGMENT_ID': 'FragmentId'}
+KEY_ELEMENTS = {model.KeyElements.ASSET: 'Asset',
+                model.KeyElements.ASSET_ADMINISTRATION_SHELL: 'AssetAdministrationShell',
+                model.KeyElements.CONCEPT_DESCRIPTION: 'ConceptDescription',
+                model.KeyElements.SUBMODEL: 'Submodel',
+                model.KeyElements.ANNOTATION_RELATIONSHIP_ELEMENT: 'AnnotatedRelationshipElement',
+                model.KeyElements.BASIC_EVENT: 'BasicEvent',
+                model.KeyElements.BLOB: 'Blob',
+                model.KeyElements.CAPABILITY: 'Capability',
+                model.KeyElements.CONCEPT_DICTIONARY: 'ConceptDictionary',
+                model.KeyElements.DATA_ELEMENT: 'DataElement',
+                model.KeyElements.ENTITY: 'Entity',
+                model.KeyElements.EVENT: 'Event',
+                model.KeyElements.FILE: 'File',
+                model.KeyElements.MULTI_LANGUAGE_PROPERTY: 'MultiLanguageProperty',
+                model.KeyElements.OPERATION: 'Operation',
+                model.KeyElements.PROPERTY: 'Property',
+                model.KeyElements.RANGE: 'Range',
+                model.KeyElements.REFERENCE_ELEMENT: 'ReferenceElement',
+                model.KeyElements.RELATIONSHIP_ELEMENT: 'RelationshipElement',
+                model.KeyElements.SUBMODEL_ELEMENT: 'SubmodelElement',
+                model.KeyElements.SUBMODEL_ELEMENT_COLLECTION: 'SubmodelElementCollection',
+                model.KeyElements.VIEW: 'View',
+                model.KeyElements.GLOBAL_REFERENCE: 'GlobalReference',
+                model.KeyElements.FRAGMENT_REFERENCE: 'FragmentReference'}
 
-ENTITY_TYPES = {'CO_MANAGED_ENTITY': 'CoManagedEntity',
-                'SELF_MANAGED_ENTITY': 'SelfManagedEntity'}
+KEY_TYPES = {model.KeyType.CUSTOM: 'Custom',
+             model.KeyType.IRDI: 'IRDI',
+             model.KeyType.IRI: 'IRI',
+             model.KeyType.IDSHORT: 'IdShort',
+             model.KeyType.FRAGMENT_ID: 'FragmentId'}
+
+ENTITY_TYPES = {model.EntityType.CO_MANAGED_ENTITY: 'CoManagedEntity',
+                model.EntityType.SELF_MANAGED_ENTITY: 'SelfManagedEntity'}
 
 
 #  function to serialize abstract base classes
@@ -78,7 +78,7 @@ def has_semantics_to_json(obj):
 
 def has_kind_to_json(obj):
     if isinstance(obj, model.HasKind):
-        return {"kind": MODELING_KIND[obj.kind._name_]}
+        return {"kind": MODELING_KIND[obj.kind]}
     return {}
 
 
@@ -126,7 +126,7 @@ def administrative_information_to_json(obj):
 def identifier_to_json(obj):
     data = abstract_classes_to_json(obj)
     data['id'] = obj.id
-    data['idType'] = KEY_TYPES[obj.id_type._name_]
+    data['idType'] = KEY_TYPES[obj.id_type]
     return data
 
 
@@ -202,7 +202,7 @@ def view_to_json(obj):
 
 def asset_to_json(obj):
     data = abstract_classes_to_json(obj)
-    data['kind'] = ASSET_KIND[obj.kind._name_]
+    data['kind'] = ASSET_KIND[obj.kind]
     if obj.asset_identification_model:
         data['assetIdentificationModel'] = obj.asset_identification_model
     if obj.bill_of_material:
@@ -359,7 +359,7 @@ def entity_to_json(obj):
     data = abstract_classes_to_json(obj)
     if obj.statement:
         data['statements'] = list(obj.statement)
-    data['entityType'] = ENTITY_TYPES[obj.entity_type._name_]
+    data['entityType'] = ENTITY_TYPES[obj.entity_type]
     if obj.asset:
         data['asset'] = obj.asset
     return data
