@@ -42,7 +42,7 @@ ENTITY_TYPES = {model.EntityType.CO_MANAGED_ENTITY: 'CoManagedEntity',
 
 
 #  function to serialize abstract base classes
-def referable_to_json(obj):
+def abstract_classes_to_json(obj):
     data = {}
     if isinstance(obj, model.Referable):
         data['idShort'] = obj.id_short
@@ -51,58 +51,26 @@ def referable_to_json(obj):
         if obj.description:
             data['description'] = obj.description
         data['modelType'] = obj.__class__.__name__
-    return data
-
-
-def identifiable_to_json(obj):
-    data = {}
     if isinstance(obj, model.Identifiable):
         data['identification'] = obj.identification
         if obj.administration:
             data['AdministrativeInformation'] = obj.administration
-    return data
-
-
-def has_data_specification_to_json(obj):  # TODO add DataSpecificationContent
     if isinstance(obj, model.HasDataSpecification):
         if obj.data_specification:
-            return {"embeddedDataSpecification": list(obj.data_specification)}
-    return {}
-
-
-def has_semantics_to_json(obj):
+            data['embeddedDataSpecification'] = list(obj.data_specification)
     if isinstance(obj, model.HasSemantics):
-        return {"semanticID": obj.semantic_id}
-    return {}
-
-
-def has_kind_to_json(obj):
+        data['semanticID'] =  obj.semantic_id
     if isinstance(obj, model.HasKind):
-        return {"kind": MODELING_KIND[obj.kind]}
-    return {}
-
-
-def qualifiable_to_json(obj):
+        data['kind'] = MODELING_KIND[obj.kind]
     if isinstance(obj, model.Qualifiable):
         if obj.qualifier:
-            return {'qualifiers': list(obj.qualifier)}
-    return {}
-
-
-def abstract_classes_to_json(obj):
-    data = {}
-    data.update(referable_to_json(obj))
-    data.update(identifiable_to_json(obj))
-    data.update(has_data_specification_to_json(obj))
-    data.update(has_semantics_to_json(obj))
-    data.update(has_kind_to_json(obj))
-    data.update(qualifiable_to_json(obj))
+            data['qualifiers'] = list(obj.qualifier)
     return data
 
 
 #  function to serialize classes from model.base
-def lang_string_set_to_json(obj):  # TODO check if correct
-    return {dict(obj)}
+#def lang_string_set_to_json(obj):  # TODO check if correct
+#    return {dict(obj)}
 
 
 def key_to_json(obj):
