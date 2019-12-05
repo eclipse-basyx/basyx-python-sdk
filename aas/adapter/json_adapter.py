@@ -463,7 +463,7 @@ def submodel_element_collection_to_json(obj):
     data = abstract_classes_to_json(obj)
     if obj.value:
         data['value'] = list(obj.value)
-    if obj.ordered:
+    if obj.ordered is not None:
         data['odered'] = obj.ordered
     return data
 
