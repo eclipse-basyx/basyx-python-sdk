@@ -2,6 +2,10 @@ from .. import model
 from json import JSONEncoder
 
 
+# ##########################################
+# dicts to serialize enum values to json
+# ##########################################
+
 MODELING_KIND = {model.ModelingKind.TEMPLATE: 'Template', model.ModelingKind.INSTANCE: 'Instance'}
 
 ASSET_KIND = {model.AssetKind.TYPE: 'Type', model.AssetKind.INSTANCE: 'Instance'}
