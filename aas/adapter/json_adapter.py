@@ -41,8 +41,13 @@ ENTITY_TYPES = {model.EntityType.CO_MANAGED_ENTITY: 'CoManagedEntity',
                 model.EntityType.SELF_MANAGED_ENTITY: 'SelfManagedEntity'}
 
 
-#  function to serialize abstract base classes
 def abstract_classes_to_json(obj):
+    """
+    transformation function to serialize abstract classes from model.base which are inherited by many classes
+
+    :param obj: object which must be serialized
+    :return: dict with the serialized attributes of the abstract classes this object inherits from
+    """
     data = {}
     if isinstance(obj, model.Referable):
         data['idShort'] = obj.id_short
@@ -68,8 +73,18 @@ def abstract_classes_to_json(obj):
     return data
 
 
-#  function to serialize classes from model.base
+# #############################################################
+# transformation functions to serialize classes from model.base
+# #############################################################
+
+
 def key_to_json(obj):
+    """
+    serialization of an object from class Key to json
+
+    :param obj: object of class Key
+    :return: dict with the serialized attributes of this object
+    """
     data = abstract_classes_to_json(obj)
     data.update({'type': KEY_ELEMENTS[obj.type_],
                  'idType': KEY_TYPES[obj.id_type],
@@ -79,6 +94,12 @@ def key_to_json(obj):
 
 
 def administrative_information_to_json(obj):
+    """
+    serialization of an object from class AdministrativeInformation to json
+
+    :param obj: object of class AdministrativeInformation
+    :return: dict with the serialized attributes of this object
+    """
     data = abstract_classes_to_json(obj)
     if obj.version:
         data['version'] = obj.version
@@ -88,6 +109,12 @@ def administrative_information_to_json(obj):
 
 
 def identifier_to_json(obj):
+    """
+    serialization of an object from class Identifier to json
+
+    :param obj: object of class Identifier
+    :return: dict with the serialized attributes of this object
+    """
     data = abstract_classes_to_json(obj)
     data['id'] = obj.id
     data['idType'] = KEY_TYPES[obj.id_type]
@@ -95,22 +122,47 @@ def identifier_to_json(obj):
 
 
 def reference_to_json(obj):
+    """
+    serialization of an object from class Reference to json
+
+    :param obj: object of class Reference
+    :return: dict with the serialized attributes of this object
+    """
     data = abstract_classes_to_json(obj)
     data['keys'] = list(obj.key)
     return data
 
 
 def constraint_to_json(obj):  # TODO check if correct for each class
+    """
+    serialization of an object from class Constraint to json
+
+    :param obj: object of class Constraint
+    :return: dict with the serialized attributes of this object
+    """
     if isinstance(obj, model.Constraint):
         return {'modelType': obj.__class__.__name__}
     return {}
 
 
 def namespace_to_json(obj):  # not in specification yet
-    return {}
+    """
+    serialization of an object from class Namespace to json
+
+    :param obj: object of class Namespace
+    :return: dict with the serialized attributes of this object
+    """
+    data = abstract_classes_to_json(obj)
+    return data
 
 
 def formula_to_json(obj):
+    """
+    serialization of an object from class Formula to json
+
+    :param obj: object of class Formula
+    :return: dict with the serialized attributes of this object
+    """
     data = abstract_classes_to_json(obj)
     data.update(constraint_to_json(obj))
     if obj.depends_on:
@@ -119,6 +171,12 @@ def formula_to_json(obj):
 
 
 def qualifier_to_json(obj):
+    """
+    serialization of an object from class Qualifier to json
+
+    :param obj: object of class Qualifier
+    :return: dict with the serialized attributes of this object
+    """
     data = abstract_classes_to_json(obj)
     data.update(constraint_to_json(obj))
     if obj.value:
@@ -131,6 +189,12 @@ def qualifier_to_json(obj):
 
 
 def value_reference_pair_to_json(obj):
+    """
+    serialization of an object from class ValueReferencePair to json
+
+    :param obj: object of class ValueReferencePair
+    :return: dict with the serialized attributes of this object
+    """
     data = abstract_classes_to_json(obj)
     data.update({'value': obj.value,
                  'valueId': obj.valueId,
@@ -139,25 +203,51 @@ def value_reference_pair_to_json(obj):
 
 
 def value_list_to_json(obj):
+    """
+    serialization of an object from class ValueList to json
+
+    :param obj: object of class ValueList
+    :return: dict with the serialized attributes of this object
+    """
     data = abstract_classes_to_json(obj)
     data['valueReferencePairTypes'] = obj.value_reference_pair_type
     return data
 
 
 def namespace_set_to_json(obj):
+    """
+    serialization of an object from class NamespaceSet to json
+
+    :param obj: object of class NamespaceSet
+    :return: dict with the serialized attributes of this object
+    """
     data = abstract_classes_to_json(obj)
     return data
 
 
 def ordered_namespace_set_to_json(obj):
+    """
+    serialization of an object from class OrderedNamespaceSet to json
+
+    :param obj: object of class OrderedNamespaceSet
+    :return: dict with the serialized attributes of this object
+    """
     data = abstract_classes_to_json(obj)
     data.update(namespace_to_json(obj))
     return data
 
 
-#  function to serialize classes from model.aas
+# ############################################################
+# transformation functions to serialize classes from model.aas
+# ############################################################
 
 def view_to_json(obj):
+    """
+    serialization of an object from class View to json
+
+    :param obj: object of class View
+    :return: dict with the serialized attributes of this object
+    """
     data = abstract_classes_to_json(obj)
     if obj.contained_element:
         data['containedElements'] = obj.contained_element
@@ -165,6 +255,12 @@ def view_to_json(obj):
 
 
 def asset_to_json(obj):
+    """
+    serialization of an object from class Asset to json
+
+    :param obj: object of class Asset
+    :return: dict with the serialized attributes of this object
+    """
     data = abstract_classes_to_json(obj)
     data['kind'] = ASSET_KIND[obj.kind]
     if obj.asset_identification_model:
@@ -175,6 +271,12 @@ def asset_to_json(obj):
 
 
 def concept_description_to_json(obj):
+    """
+    serialization of an object from class ConceptDescription to json
+
+    :param obj: object of class ConceptDescription
+    :return: dict with the serialized attributes of this object
+    """
     data = abstract_classes_to_json(obj)
     if obj.is_case_of:
         data['isCaseOf'] = list(obj.is_case_of)
@@ -182,6 +284,12 @@ def concept_description_to_json(obj):
 
 
 def concept_dictionary_to_json(obj):
+    """
+    serialization of an object from class ConceptDictionary to json
+
+    :param obj: object of class ConceptDictionary
+    :return: dict with the serialized attributes of this object
+    """
     data = abstract_classes_to_json(obj)
     if obj.concept_description:
         data['conceptDescriptions'] = list(obj.concept_description)
@@ -189,6 +297,12 @@ def concept_dictionary_to_json(obj):
 
 
 def asset_administration_shell_to_json(obj):
+    """
+    serialization of an object from class AssetAdministrationShell to json
+
+    :param obj: object of class AssetAdministrationShell
+    :return: dict with the serialized attributes of this object
+    """
     data = abstract_classes_to_json(obj)
     data.update(namespace_to_json(obj))
     if obj.derived_from:
@@ -205,31 +319,66 @@ def asset_administration_shell_to_json(obj):
     return data
 
 
-#  function to serialize classes from model.security
+# #################################################################
+# transformation functions to serialize classes from model.security
+# #################################################################
 
 
 def security_to_json(obj):  # has no attributes in our implementation
-    return {}
+    """
+    serialization of an object from class Security to json
+
+    :param obj: object of class Security
+    :return: dict with the serialized attributes of this object
+    """
+    data = abstract_classes_to_json(obj)
+    return data
 
 
-#  function to serialize classes from model.submodel
+# #################################################################
+# transformation functions to serialize classes from model.submodel
+# #################################################################
 
 def submodel_element_to_json(obj):  # TODO make kind optional
+    """
+    serialization of an object from class SubmodelElement to json
+
+    :param obj: object of class SubmodelElement
+    :return: dict with the serialized attributes of this object
+    """
     data = abstract_classes_to_json(obj)
     return data
 
 
 def submodel_to_json(obj):  # TODO make kind optional
+    """
+    serialization of an object from class Submodel to json
+
+    :param obj: object of class Submodel
+    :return: dict with the serialized attributes of this object
+    """
     data = abstract_classes_to_json(obj)
     data['submodelElements'] = list(obj.submodel_element)
     return data
 
 
 def data_element_to_json(obj):  # no attributes in specification yet
+    """
+    serialization of an object from class DataElement to json
+
+    :param obj: object of class DataElement
+    :return: dict with the serialized attributes of this object
+    """
     return {}
 
 
 def property_to_json(obj):
+    """
+    serialization of an object from class Property to json
+
+    :param obj: object of class Property
+    :return: dict with the serialized attributes of this object
+    """
     data = abstract_classes_to_json(obj)
     if obj.value:
         data['value'] = obj.value
@@ -240,6 +389,12 @@ def property_to_json(obj):
 
 
 def multi_language_property_to_json(obj):
+    """
+    serialization of an object from class MultiLanguageProperty to json
+
+    :param obj: object of class MultiLanguageProperty
+    :return: dict with the serialized attributes of this object
+    """
     data = abstract_classes_to_json(obj)
     if obj.value:
         data['value'] = obj.value
@@ -249,24 +404,48 @@ def multi_language_property_to_json(obj):
 
 
 def range_to_json(obj):
+    """
+    serialization of an object from class Range to json
+
+    :param obj: object of class Range
+    :return: dict with the serialized attributes of this object
+    """
     data = abstract_classes_to_json(obj)
     data.update({'valueType': obj.value_type, 'min': obj.min_, 'max': obj.max_})
     return data
 
 
 def blob_to_json(obj):
+    """
+    serialization of an object from class Blob to json
+
+    :param obj: object of class Blob
+    :return: dict with the serialized attributes of this object
+    """
     data = abstract_classes_to_json(obj)
     data.update({'value': obj.value, 'mimeType': obj.mime_type})
     return data
 
 
 def file_to_json(obj):
+    """
+    serialization of an object from class File to json
+
+    :param obj: object of class File
+    :return: dict with the serialized attributes of this object
+    """
     data = abstract_classes_to_json(obj)
     data.update({'value': obj.value, 'mimeType': obj.mime_type})
     return data
 
 
 def reference_element_to_json(obj):
+    """
+    serialization of an object from class Reference to json
+
+    :param obj: object of class Reference
+    :return: dict with the serialized attributes of this object
+    """
     data = abstract_classes_to_json(obj)
     if obj.value:
         data['value'] = obj.value
@@ -274,7 +453,13 @@ def reference_element_to_json(obj):
 
 
 def submodel_element_collection_to_json(obj):
-    # serialization for SubmodelELementCollectionOrdered and SubmodelELementCollectionUnOrdered
+    """
+    serialization of an object from class SubmodelElementCollectionOrdered and SubmodelElementCollectionUnordered to
+    json
+
+    :param obj: object of class SubmodelElementCollectionOrdered and SubmodelElementCollectionUnordered
+    :return: dict with the serialized attributes of this object
+    """
     data = abstract_classes_to_json(obj)
     if obj.value:
         data['value'] = list(obj.value)
@@ -284,12 +469,24 @@ def submodel_element_collection_to_json(obj):
 
 
 def relationship_element_to_json(obj):
+    """
+    serialization of an object from class RelationshipElement to json
+
+    :param obj: object of class RelationshipElement
+    :return: dict with the serialized attributes of this object
+    """
     data = abstract_classes_to_json(obj)
     data.update({'first': obj.first, 'second': obj.second})
     return data
 
 
 def annotated_relationship_element_to_json(obj):
+    """
+    serialization of an object from class AnnotatedRelationshipElement to json
+
+    :param obj: object of class AnnotatedRelationshipElement
+    :return: dict with the serialized attributes of this object
+    """
     data = abstract_classes_to_json(obj)
     data.update({'first': obj.first, 'second': obj.second})
     if obj.annotation:
@@ -298,12 +495,24 @@ def annotated_relationship_element_to_json(obj):
 
 
 def operation_variable_to_json(obj):
+    """
+    serialization of an object from class OperationVariable to json
+
+    :param obj: object of class OperationVariable
+    :return: dict with the serialized attributes of this object
+    """
     data = abstract_classes_to_json(obj)
     data['value'] = obj.value
     return data
 
 
 def operation_to_json(obj):
+    """
+    serialization of an object from class Operation to json
+
+    :param obj: object of class Operation
+    :return: dict with the serialized attributes of this object
+    """
     data = abstract_classes_to_json(obj)
     if obj.input_variable:
         data['inputVariable'] = list(obj.input_variable)
@@ -315,11 +524,23 @@ def operation_to_json(obj):
 
 
 def capability_to_json(obj):  # no attributes in specification yet
+    """
+    serialization of an object from class Capability to json
+
+    :param obj: object of class Capability
+    :return: dict with the serialized attributes of this object
+    """
     data = abstract_classes_to_json(obj)
     return data
 
 
 def entity_to_json(obj):
+    """
+    serialization of an object from class Entity to json
+
+    :param obj: object of class Entity
+    :return: dict with the serialized attributes of this object
+    """
     data = abstract_classes_to_json(obj)
     if obj.statement:
         data['statements'] = list(obj.statement)
@@ -330,10 +551,22 @@ def entity_to_json(obj):
 
 
 def event_to_json(obj):  # no attributes in specification yet
+    """
+    serialization of an object from class Event to json
+
+    :param obj: object of class Event
+    :return: dict with the serialized attributes of this object
+    """
     return {}
 
 
 def basic_event_to_json(obj):
+    """
+    serialization of an object from class BasicEvent to json
+
+    :param obj: object of class BasicEvent
+    :return: dict with the serialized attributes of this object
+    """
     data = abstract_classes_to_json(obj)
     data['observed'] = obj.observed
     return data
@@ -341,7 +574,8 @@ def basic_event_to_json(obj):
 
 class AASToJsonEncoder(JSONEncoder):
     """
-
+    extended JSONEncoder for objects from the meta model of 'Details of the Asset Administration Shell - Part 1
+    Version 2.0'
     """
 
     def default(self, obj):
@@ -395,4 +629,4 @@ class AASToJsonEncoder(JSONEncoder):
             return qualifier_to_json(obj)
         if isinstance(obj, model.Formula):
             return formula_to_json(obj)
-        return super().default()
+        return super().default(obj)
