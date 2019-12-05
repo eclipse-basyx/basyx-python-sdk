@@ -24,7 +24,7 @@ class SubmodelElement(base.Referable, base.HasDataSpecification, base.Qualifiabl
                  data_specification: Optional[Set[base.Reference]] = None,
                  semantic_id: Optional[base.Reference] = None,
                  qualifier: Optional[Set[base.Constraint]] = None,
-                 kind: base.ModelingKind = base.ModelingKind.INSTANCE):
+                 kind: Optional[base.ModelingKind] = None):
         """
         Initializer of SubmodelElement
 
@@ -56,7 +56,7 @@ class SubmodelElement(base.Referable, base.HasDataSpecification, base.Qualifiabl
             if data_specification is None else data_specification
         self.semantic_id: Optional[base.Reference] = semantic_id
         self.qualifier: Set[base.Constraint] = set() if qualifier is None else qualifier
-        self._kind: base.ModelingKind = kind
+        self._kind: Optional[base.ModelingKind] = kind
 
 
 class Submodel(base.Identifiable, base.HasDataSpecification, base.HasSemantics, base.HasKind, base.Qualifiable,
@@ -81,7 +81,7 @@ class Submodel(base.Identifiable, base.HasDataSpecification, base.HasSemantics, 
                  data_specification: Optional[Set[base.Reference]] = None,
                  semantic_id: Optional[base.Reference] = None,
                  qualifier: Optional[Set[base.Constraint]] = None,
-                 kind: base.ModelingKind = base.ModelingKind.INSTANCE):
+                 kind: Optional[base.ModelingKind] = None):
         """
         Initializer of Submodel
 
@@ -117,7 +117,7 @@ class Submodel(base.Identifiable, base.HasDataSpecification, base.HasSemantics, 
             if data_specification is None else data_specification
         self.semantic_id: Optional[base.Reference] = semantic_id
         self.qualifier: Set[base.Constraint] = set() if qualifier is None else qualifier
-        self._kind: base.ModelingKind = kind
+        self._kind: Optional[base.ModelingKind] = kind
 
 
 class DataElement(SubmodelElement, metaclass=abc.ABCMeta):
@@ -137,7 +137,7 @@ class DataElement(SubmodelElement, metaclass=abc.ABCMeta):
                  data_specification: Optional[Set[base.Reference]] = None,
                  semantic_id: Optional[base.Reference] = None,
                  qualifier: Optional[Set[base.Constraint]] = None,
-                 kind: base.ModelingKind = base.ModelingKind.INSTANCE):
+                 kind: Optional[base.ModelingKind] = None):
         """
         Initializer of DataElement
 
@@ -183,7 +183,7 @@ class Property(DataElement):
                  data_specification: Optional[Set[base.Reference]] = None,
                  semantic_id: Optional[base.Reference] = None,
                  qualifier: Optional[Set[base.Constraint]] = None,
-                 kind: base.ModelingKind = base.ModelingKind.INSTANCE):
+                 kind: Optional[base.ModelingKind] = None):
         """
         Initializer of Property
 
@@ -235,7 +235,7 @@ class MultiLanguageProperty(DataElement):
                  data_specification: Optional[Set[base.Reference]] = None,
                  semantic_id: Optional[base.Reference] = None,
                  qualifier: Optional[Set[base.Constraint]] = None,
-                 kind: base.ModelingKind = base.ModelingKind.INSTANCE):
+                 kind: Optional[base.ModelingKind] = None):
         """
         Initializer of MultiLanguageProperty
 
@@ -288,7 +288,7 @@ class Range(DataElement):
                  data_specification: Optional[Set[base.Reference]] = None,
                  semantic_id: Optional[base.Reference] = None,
                  qualifier: Optional[Set[base.Constraint]] = None,
-                 kind: base.ModelingKind = base.ModelingKind.INSTANCE):
+                 kind: Optional[base.ModelingKind] = None):
         """
         Initializer of Range
 
@@ -344,7 +344,7 @@ class Blob(DataElement):
                  data_specification: Optional[Set[base.Reference]] = None,
                  semantic_id: Optional[base.Reference] = None,
                  qualifier: Optional[Set[base.Constraint]] = None,
-                 kind: base.ModelingKind = base.ModelingKind.INSTANCE):
+                 kind: Optional[base.ModelingKind] = None):
         """
         Initializer of Blob
 
@@ -397,7 +397,7 @@ class File(DataElement):
                  data_specification: Optional[Set[base.Reference]] = None,
                  semantic_id: Optional[base.Reference] = None,
                  qualifier: Optional[Set[base.Constraint]] = None,
-                 kind: base.ModelingKind = base.ModelingKind.INSTANCE):
+                 kind: Optional[base.ModelingKind] = None):
         """
         Initializer of File
 
@@ -447,7 +447,7 @@ class ReferenceElement(DataElement):
                  data_specification: Optional[Set[base.Reference]] = None,
                  semantic_id: Optional[base.Reference] = None,
                  qualifier: Optional[Set[base.Constraint]] = None,
-                 kind: base.ModelingKind = base.ModelingKind.INSTANCE):
+                 kind: Optional[base.ModelingKind] = None):
         """
         Initializer of ReferenceElement
 
@@ -497,7 +497,7 @@ class SubmodelElementCollection(SubmodelElement, base.Namespace, metaclass=abc.A
                  data_specification: Optional[Set[base.Reference]] = None,
                  semantic_id: Optional[base.Reference] = None,
                  qualifier: Optional[Set[base.Constraint]] = None,
-                 kind: base.ModelingKind = base.ModelingKind.INSTANCE):
+                 kind: Optional[base.ModelingKind] = None):
         """
         Initializer of SubmodelElementCollection
 
@@ -545,7 +545,7 @@ class SubmodelElementCollectionOrdered(SubmodelElementCollection):
                  data_specification: Optional[Set[base.Reference]] = None,
                  semantic_id: Optional[base.Reference] = None,
                  qualifier: Optional[Set[base.Constraint]] = None,
-                 kind: base.ModelingKind = base.ModelingKind.INSTANCE):
+                 kind: Optional[base.ModelingKind] = None):
         """
         Initializer of SubmodelElementCollection
 
@@ -591,7 +591,7 @@ class SubmodelElementCollectionUnordered(SubmodelElementCollection):
                  data_specification: Optional[Set[base.Reference]] = None,
                  semantic_id: Optional[base.Reference] = None,
                  qualifier: Optional[Set[base.Constraint]] = None,
-                 kind: base.ModelingKind = base.ModelingKind.INSTANCE):
+                 kind: Optional[base.ModelingKind] = None):
         """
         Initializer of SubmodelElementCollection
 
@@ -643,7 +643,7 @@ class RelationshipElement(SubmodelElement):
                  data_specification: Optional[Set[base.Reference]] = None,
                  semantic_id: Optional[base.Reference] = None,
                  qualifier: Optional[Set[base.Constraint]] = None,
-                 kind: base.ModelingKind = base.ModelingKind.INSTANCE):
+                 kind: Optional[base.ModelingKind] = None):
         """
         Initializer of RelationshipElement
 
@@ -693,7 +693,7 @@ class AnnotatedRelationshipElement(RelationshipElement):
                  data_specification: Optional[Set[base.Reference]] = None,
                  semantic_id: Optional[base.Reference] = None,
                  qualifier: Optional[Set[base.Constraint]] = None,
-                 kind: base.ModelingKind = base.ModelingKind.INSTANCE):
+                 kind: Optional[base.ModelingKind] = None):
         """
         Initializer of AnnotatedRelationshipElement
 
@@ -739,7 +739,7 @@ class OperationVariable(SubmodelElement):
                  data_specification: Optional[Set[base.Reference]] = None,
                  semantic_id: Optional[base.Reference] = None,
                  qualifier: Optional[Set[base.Constraint]] = None,
-                 kind: Optional[ModelingKind] = None):
+                 kind: Optional[base.ModelingKind] = None):
         """
         Initializer of OperationVariable
 
@@ -786,7 +786,7 @@ class Operation(SubmodelElement):
                  data_specification: Optional[Set[base.Reference]] = None,
                  semantic_id: Optional[base.Reference] = None,
                  qualifier: Optional[Set[base.Constraint]] = None,
-                 kind: base.ModelingKind = base.ModelingKind.INSTANCE):
+                 kind: Optional[base.ModelingKind] = None):
         """
         Initializer of Operation
 
@@ -833,7 +833,7 @@ class Capability(SubmodelElement):
                  data_specification: Optional[Set[base.Reference]] = None,
                  semantic_id: Optional[base.Reference] = None,
                  qualifier: Optional[Set[base.Constraint]] = None,
-                 kind: base.ModelingKind = base.ModelingKind.INSTANCE):
+                 kind: Optional[base.ModelingKind] = None):
         """
         Initializer of Capability
 
@@ -881,7 +881,7 @@ class Entity(SubmodelElement, base.Namespace):
                  data_specification: Optional[Set[base.Reference]] = None,
                  semantic_id: Optional[base.Reference] = None,
                  qualifier: Optional[Set[base.Constraint]] = None,
-                 kind: base.ModelingKind = base.ModelingKind.INSTANCE):
+                 kind: Optional[base.ModelingKind] = None):
         """
         Initializer of Entity
 
@@ -931,7 +931,7 @@ class Event(SubmodelElement, metaclass=abc.ABCMeta):
                  data_specification: Optional[Set[base.Reference]] = None,
                  semantic_id: Optional[base.Reference] = None,
                  qualifier: Optional[Set[base.Constraint]] = None,
-                 kind: base.ModelingKind = base.ModelingKind.INSTANCE):
+                 kind: Optional[base.ModelingKind] = None):
         """
         Initializer of Event
 
@@ -971,7 +971,7 @@ class BasicEvent(Event):
                  data_specification: Optional[Set[base.Reference]] = None,
                  semantic_id: Optional[base.Reference] = None,
                  qualifier: Optional[Set[base.Constraint]] = None,
-                 kind: base.ModelingKind = base.ModelingKind.INSTANCE):
+                 kind: Optional[base.ModelingKind] = None):
         """
         Initializer of BasicEvent
 

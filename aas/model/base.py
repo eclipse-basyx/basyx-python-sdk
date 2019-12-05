@@ -551,7 +551,7 @@ class HasKind(metaclass=abc.ABCMeta):
 
     def __init__(self):
         super().__init__()
-        self._kind: ModelingKind = None
+        self._kind: Optional[ModelingKind] = None
 
     @property
     def kind(self):
