@@ -136,7 +136,7 @@ def identifier_to_json(obj: model.Identifier) -> Dict[str, object]:
     """
     data = abstract_classes_to_json(obj)
     data['id'] = obj.id
-    data['idType'] = KEY_TYPES[obj.id_type]
+    data['idType'] = IDENTIFIER_TYPES[obj.id_type]
     return data
 
 
@@ -198,11 +198,11 @@ def qualifier_to_json(obj: model.Qualifier) -> Dict[str, object]:
     data.update(constraint_to_json(obj))
     if obj.value:
         data['value'] = obj.value
-    if obj.valueId:
-        data['valueId'] = obj.valueId
+    if obj.value_id:
+        data['valueId'] = obj.value_id
     data['valueType'] = obj.value_type
     data['type'] = obj.type_
-    return
+    return data
 
 
 def value_reference_pair_to_json(obj):
@@ -512,8 +512,8 @@ def operation_to_json(obj: model.Operation) -> Dict[str, object]:
         data['inputVariable'] = list(obj.input_variable)
     if obj.output_variable:
         data['outputVariable'] = list(obj.output_variable)
-    if obj.inoutput_variable:
-        data['inoutputVariable'] = list(obj.inoutput_variable)
+    if obj.in_output_variable:
+        data['inoutputVariable'] = list(obj.in_output_variable)
     return data
 
 
@@ -576,9 +576,9 @@ class AASToJsonEncoder(JSONEncoder):
         if isinstance(obj, model.AssetAdministrationShell):
             return asset_administration_shell_to_json(obj)
         if isinstance(obj, model.Identifier):
-            return identifier_to_json()
+            return identifier_to_json(obj)
         if isinstance(obj, model.AdministrativeInformation):
-            return administrative_information_to_json()
+            return administrative_information_to_json(obj)
         if isinstance(obj, model.Reference):
             return reference_to_json(obj)
         if isinstance(obj, model.Key):
