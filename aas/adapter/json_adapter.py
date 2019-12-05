@@ -84,7 +84,7 @@ def abstract_classes_to_json(obj: object) -> Dict[str, object]:
     if isinstance(obj, model.HasSemantics):
         data['semanticID'] = obj.semantic_id
     if isinstance(obj, model.HasKind):
-        if obj.kind is not None:
+        if obj.kind == MODELING_KIND[model.ModelingKind.TEMPLATE]:
             data['kind'] = MODELING_KIND[obj.kind]
     if isinstance(obj, model.Qualifiable):
         if obj.qualifier:
