@@ -423,7 +423,7 @@ class UnexpectedTypeError(TypeError):
         self.value = value
 
 
-class Reference(Generic[_RT]):
+class Reference:
     """
     Reference to either a model element of the same or another AAs or to an external entity.
 
@@ -437,10 +437,33 @@ class Reference(Generic[_RT]):
     """
 
     def __init__(self,
+                 key: List[Key]):
+        """
+        Initializer of Reference
+
+        :param key: Ordered list of unique reference in its name space, each key referencing an element. The complete
+                    list of keys may for example be concatenated to a path that then gives unique access to an element
+                    or entity.
+
+        TODO: Add instruction what to do after construction
+        """
+        self.key: List[Key] = key
+
+    def __repr__(self) -> str:
+        return "Reference(key={})".format(self.key)
+
+
+class AASReference(Reference, Generic[_RT]):
+    """
+    Typed Reference to any referable Asset Administration Shell object.
+
+    This is a special construct of the implementation to allow typed references and dereferencing.
+    """
+    def __init__(self,
                  key: List[Key],
                  type_: Type[_RT]):
         """
-        Initializer of Reference
+        Initializer of AASReference
 
         :param key: Ordered list of unique reference in its name space, each key referencing an element. The complete
                     list of keys may for example be concatenated to a path that then gives unique access to an element
@@ -449,7 +472,8 @@ class Reference(Generic[_RT]):
 
         TODO: Add instruction what to do after construction
         """
-        self.key: List[Key] = key
+        # TODO check keys for validity. GlobalReference and Fragment-Type keys are not allowed here
+        super().__init__(key)
         self.type: Type[_RT] = type_
 
     def resolve(self, registry_: "registry.AbstractRegistry") -> _RT:
@@ -502,7 +526,7 @@ class Reference(Generic[_RT]):
         return item
 
     def __repr__(self) -> str:
-        return "Reference(type={}, key={})".format(self.type.__name__, self.key)
+        return "AASReference(type={}, key={})".format(self.type.__name__, self.key)
 
 
 class Identifiable(Referable, metaclass=abc.ABCMeta):

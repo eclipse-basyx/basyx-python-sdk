@@ -165,7 +165,7 @@ class ModelOrderedNamespaceTest(ModelNamespaceTest):
         self.assertEqual(1, len(self.namespace.set1))
 
 
-class ReferenceTest(unittest.TestCase):
+class AASReferenceTest(unittest.TestCase):
 
     def test_reference_typing(self) -> None:
         dummy_submodel = model.Submodel(model.Identifier("urn:x-test:x", model.IdentifierType.IRI))
@@ -174,8 +174,8 @@ class ReferenceTest(unittest.TestCase):
             def get_identifiable(self, identifier: Identifier) -> Identifiable:
                 return dummy_submodel
 
-        x = model.Reference([model.Key(model.KeyElements.SUBMODEL, False, "urn:x-test:x", model.KeyType.IRI)],
-                            model.Submodel)
+        x = model.AASReference([model.Key(model.KeyElements.SUBMODEL, False, "urn:x-test:x", model.KeyType.IRI)],
+                               model.Submodel)
         submodel: model.Submodel = x.resolve(DummyRegistry())
         self.assertIs(submodel, submodel)
 
@@ -193,11 +193,11 @@ class ReferenceTest(unittest.TestCase):
                 else:
                     raise KeyError()
 
-        ref1 = model.Reference([model.Key(model.KeyElements.SUBMODEL, False, "urn:x-test:submodel", model.KeyType.IRI),
-                                model.Key(model.KeyElements.SUBMODEL_ELEMENT_COLLECTION, False, "collection",
-                                          model.KeyType.IDSHORT),
-                                model.Key(model.KeyElements.PROPERTY, False, "prop", model.KeyType.IDSHORT)],
-                               model.Property)
+        ref1 = model.AASReference([model.Key(model.KeyElements.SUBMODEL, False, "urn:x-test:submodel", model.KeyType.IRI),
+                                   model.Key(model.KeyElements.SUBMODEL_ELEMENT_COLLECTION, False, "collection",
+                                             model.KeyType.IDSHORT),
+                                   model.Key(model.KeyElements.PROPERTY, False, "prop", model.KeyType.IDSHORT)],
+                                  model.Property)
         self.assertIs(prop, ref1.resolve(DummyRegistry()))
 
         ref1.key.append(model.Key(model.KeyElements.PROPERTY, False, "prop", model.KeyType.IDSHORT))
@@ -210,8 +210,8 @@ class ReferenceTest(unittest.TestCase):
         with self.assertRaises(KeyError):
             ref1.resolve(DummyRegistry())
 
-        ref2 = model.Reference([model.Key(model.KeyElements.SUBMODEL, False, "urn:x-test:sub", model.KeyType.IRI)],
-                               model.Property)
+        ref2 = model.AASReference([model.Key(model.KeyElements.SUBMODEL, False, "urn:x-test:sub", model.KeyType.IRI)],
+                                  model.Property)
         # Oh no, yet another typo!
         with self.assertRaises(KeyError):
             ref2.resolve(DummyRegistry())
