@@ -6,7 +6,7 @@ if TYPE_CHECKING:
     from . import submodel
 
 
-class View:
+class View(base.Referable, base.HasDataSpecification, base.HasSemantics):
     """
     A view is a collection of referable elements w.r.t. to a specific viewpoint of one or more stakeholders.
 
@@ -15,15 +15,41 @@ class View:
     :ivar contained_element: Unordered list of references to elements of class Referable
     """
     def __init__(self,
-                 contained_element: Optional[Set[base.AASReference]] = None):
+                 id_short: str,
+                 contained_element: Optional[Set[base.AASReference]] = None,
+                 category: Optional[str] = None,
+                 description: Optional[base.LangStringSet] = None,
+                 parent: Optional[base.Namespace] = None,
+                 data_specification: Optional[Set[base.Reference]] = None,
+                 semantic_id: Optional[base.Reference] = None):
         """
         Initializer of View
 
+        :param id_short: Identifying string of the element within its name space. (from base.Referable)
         :param contained_element: Unordered list of references to elements of class Referable
-
+        :param category: The category is a value that gives further meta information w.r.t. to the class of the element.
+                         It affects the expected existence of attributes and the applicability of constraints.
+                         (from base.Referable)
+        :param description: Description or comments on the element. (from base.Referable)
+        :param parent: Reference to the next referable parent element of the element. (from base.Referable)
+        :param data_specification: Unordered list of global references to the data specification template used by the
+                                   element. (from base.HasDataSpecification)
+        :param semantic_id: Identifier of the semantic definition of the element. It is called semantic id of the
+                            element. The semantic id may either reference an external global id or it may reference a
+                            referable model element of kind=Type that defines the semantics of the element.
+                            (from base.HasSemantics)
         TODO: Add instruction what to do after construction
         """
+
+        super().__init__()
+        self.id_short = id_short
         self.contained_element: Set[base.AASReference] = set() if contained_element is None else contained_element
+        self.category: Optional[str] = category
+        self.description: Optional[base.LangStringSet] = description
+        self.parent: Optional[base.Namespace] = parent
+        self.data_specification: Set[base.Reference] = set() \
+            if data_specification is None else data_specification
+        self.semantic_id: Optional[base.Reference] = semantic_id
 
 
 class Asset(base.HasDataSpecification, base.Identifiable):
@@ -48,6 +74,7 @@ class Asset(base.HasDataSpecification, base.Identifiable):
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
                  parent: Optional[base.Namespace] = None,
+                 administration: Optional[base.AdministrativeInformation] = None,
                  data_specification: Optional[Set[base.Reference]] = None,
                  asset_identification_model: Optional[base.AASReference["submodel.Submodel"]] = None,
                  bill_of_material: Optional[base.AASReference["submodel.Submodel"]] = None):
@@ -62,6 +89,7 @@ class Asset(base.HasDataSpecification, base.Identifiable):
                          (from base.Referable)
         :param description: Description or comments on the element. (from base.Referable)
         :param parent: Reference to the next referable parent element of the element. (from base.Referable)
+        :param administration: Administrative information of an identifiable element. (from base.Identifiable)
         :param data_specification: Unordered list of global references to the data specification template used by the
                                    element. (from base.HasDataSpecification)
         :param asset_identification_model: A reference to a Submodel that defines the handling of additional domain
@@ -77,6 +105,7 @@ class Asset(base.HasDataSpecification, base.Identifiable):
         self.category: Optional[str] = category
         self.description: Optional[base.LangStringSet] = description
         self.parent: Optional[base.Namespace] = parent
+        self.administration: Optional[base.AdministrativeInformation] = administration
         self.data_specification: Set[base.Reference] = set() \
             if data_specification is None else data_specification
         self.asset_identification_model: Optional[base.AASReference["submodel.Submodel"]] = asset_identification_model
@@ -97,42 +126,40 @@ class ConceptDescription(base.HasDataSpecification, base.Identifiable):
 
     def __init__(self,
                  identification: base.Identifier,
+                 is_case_of: Optional[Set[base.Reference]] = None,
                  id_short: str = "",
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
                  parent: Optional[base.Namespace] = None,
-                 data_specification: Optional[Set[base.Reference]] = None,
-                 is_case_of: Optional[Set[base.Reference]] = None,
-                 administration: Optional[base.AdministrativeInformation] = None):
+                 administration: Optional[base.AdministrativeInformation] = None,
+                 data_specification: Optional[Set[base.Reference]] = None):
         """
         Initializer of ConceptDescription
 
         :param identification: The globally unique identification of the element. (from base.Identifiable)
+        :param is_case_of: Unordered list of global references to external definitions the concept is compatible to or
+                           was derived from.
+                           Note: Compare to is-case-of relationship in ISO 13584-32 & IEC EN 61360
         :param id_short: Identifying string of the element within its name space. (from base.Referable)
         :param category: The category is a value that gives further meta information w.r.t. to the class of the element.
                          It affects the expected existence of attributes and the applicability of constraints.
                          (from base.Referable)
         :param description: Description or comments on the element. (from base.Referable)
         :param parent: Reference to the next referable parent element of the element. (from base.Referable)
-        :param data_specification: Unordered list of global references to the data specification template used by the
-                                   element. (from base.HasDataSpecification)
-        :param is_case_of: Unordered list of global references to external definitions the concept is compatible to or
-                           was derived from.
-                           Note: Compare to is-case-of relationship in ISO 13584-32 & IEC EN 61360
-        :param data_specification: Unordered list of global references to the data specification template used by the
-                                   element. (from base.HasDataSpecification)
         :param administration: Administrative information of an identifiable element. (from base.Identifiable)
+        :param data_specification: Unordered list of global references to the data specification template used by the
+                                   element. (from base.HasDataSpecification)
         """
         super().__init__()
         self.identification: base.Identifier = identification
+        self.is_case_of: Set[base.Reference] = set() if is_case_of is None else is_case_of
         self.id_short = id_short
         self.category: Optional[str] = category
         self.description: Optional[base.LangStringSet] = description
         self.parent: Optional[base.Namespace] = parent
+        self.administration: Optional[base.AdministrativeInformation] = administration
         self.data_specification: Set[base.Reference] = set() \
             if data_specification is None else data_specification
-        self.is_case_of: Set[base.Reference] = set() if is_case_of is None else is_case_of
-        self.administration: Optional[base.AdministrativeInformation] = administration
 
 
 class ConceptDictionary(base.Referable):
@@ -192,6 +219,7 @@ class AssetAdministrationShell(base.HasDataSpecification, base.Identifiable, bas
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
                  parent: Optional[base.Namespace] = None,
+                 administration: Optional[base.AdministrativeInformation] = None,
                  data_specification: Optional[Set[base.Reference]] = None,
                  security_: Optional[security.Security] = None,
                  submodel_: Optional[Set[base.AASReference["submodel.Submodel"]]] = None,
@@ -208,6 +236,7 @@ class AssetAdministrationShell(base.HasDataSpecification, base.Identifiable, bas
                          (from base.Referable)
         :param description: Description or comments on the element. (from base.Referable)
         :param parent: Reference to the next referable parent element of the element. (from base.Referable)
+        :param administration: Administrative information of an identifiable element. (from base.Identifiable)
         :param data_specification: Unordered list of global references to the data specification template used by the
                                    element. (from base.HasDataSpecification)
         :param security_: Definition of the security relevant aspects of the AAS.
@@ -224,6 +253,7 @@ class AssetAdministrationShell(base.HasDataSpecification, base.Identifiable, bas
         self.category: Optional[str] = category
         self.description: Optional[base.LangStringSet] = description
         self.parent: Optional[base.Namespace] = parent
+        self.administration: Optional[base.AdministrativeInformation] = administration
         self.data_specification: Set[base.Reference] = set() \
             if data_specification is None else data_specification
         self.derived_from: Optional[base.AASReference["AssetAdministrationShell"]] = derived_from
