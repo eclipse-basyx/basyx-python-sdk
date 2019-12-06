@@ -193,7 +193,8 @@ class AASReferenceTest(unittest.TestCase):
                 else:
                     raise KeyError()
 
-        ref1 = model.AASReference([model.Key(model.KeyElements.SUBMODEL, False, "urn:x-test:submodel", model.KeyType.IRI),
+        ref1 = model.AASReference([model.Key(model.KeyElements.SUBMODEL, False, "urn:x-test:submodel",
+                                             model.KeyType.IRI),
                                    model.Key(model.KeyElements.SUBMODEL_ELEMENT_COLLECTION, False, "collection",
                                              model.KeyType.IDSHORT),
                                    model.Key(model.KeyElements.PROPERTY, False, "prop", model.KeyType.IDSHORT)],
