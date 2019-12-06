@@ -9,37 +9,36 @@ from jsonschema import validate  # type: ignore
 
 class JsonSerializationTest(unittest.TestCase):
 
-    def test_serialize_Object(self):
+    def test_serialize_Object(self) -> None:
         test_object = model.Property("test_id_short", "string", category="PARAMETER",
                                      description={"en-us": "Germany", "de": "Deutschland"})
         json_data = json.dumps(test_object, cls=json_serialization.AASToJsonEncoder)
-        print(json_data)
 
-    def test_validate_serialization(self):
+    def test_validate_serialization(self) -> None:
         asset_key = [model.Key(model.KeyElements.ASSET, True, "asset", model.KeyType.CUSTOM)]
         asset_reference = model.Reference(asset_key, model.Asset)
         aas_identifier = model.Identifier("AAS1", model.IdentifierType.CUSTOM)
-        submodel_key = [model.Key(model.KeyElements.SUBMODEL, True, "submodel", model.KeyType.CUSTOM)]
-        submodel_reference = model.Reference(submodel_key, model.Submodel)
-        # submodel_identifier = model.Identifier("SM1", model.IdentifierType.CUSTOM)
-        # submodel = model.Submodel(submodel_identifier)
-        test_aas = model.AssetAdministrationShell(asset_reference, aas_identifier, submodel_=[submodel_reference])
+        submodel_key = model.Key(model.KeyElements.SUBMODEL, True, "SM1", model.KeyType.CUSTOM)
+        submodel_identifier = submodel_key.get_identifier()
+        assert(submodel_identifier is not None)
+        submodel_reference = model.Reference([submodel_key], model.Submodel)
+        # The JSONSchema expects every object with HasSemnatics (like Submodels) to have a `semanticId` Reference, which
+        # must be a Reference. (This seems to be a bug in the JSONSchema.)
+        submodel = model.Submodel(submodel_identifier, semantic_id=model.Reference([], model.Referable))
+        test_aas = model.AssetAdministrationShell(asset_reference, aas_identifier, submodel_={submodel_reference})
 
         # serialize object to json
-        test_aas_json_data = json.dumps(test_aas, cls=json_serialization.AASToJsonEncoder)
-        test_submodel_data = ""
-        test_asset_data = ""
-        test_concept_description_data = ""
-        json_data_new = '{"assetAdministrationShells": [' + test_aas_json_data + '], ' \
-                        '"submodels": [' + test_submodel_data + '], ' \
-                        '"assets": [' + test_asset_data + '], ' \
-                        '"conceptDescriptions": [' + test_concept_description_data + ']}'
-        json_data_new2 = json.loads(json_data_new)
+        json_data = json.dumps({
+                'assetAdministrationShells': [test_aas],
+                'submodels': [submodel],
+                'assets': [],
+                'conceptDescriptions': [],
+            }, cls=json_serialization.AASToJsonEncoder)
+        json_data_new = json.loads(json_data)
 
         # load schema
         with open(os.path.join(os.path.dirname(__file__), 'aasJSONSchemaV2.0.json'), 'r') as json_file:
-            schema_data = json_file.read()
-        aas_schema = json.loads(schema_data)
+            aas_schema = json.load(json_file)
 
         # validate serialization against schema
-        validate(instance=json_data_new2, schema=aas_schema)
+        validate(instance=json_data_new, schema=aas_schema)
