@@ -1,7 +1,9 @@
 
-from typing import Optional, Set, Iterable
+from typing import Optional, Set, Iterable, TYPE_CHECKING
 
 from . import base, security
+if TYPE_CHECKING:
+    from . import submodel
 
 
 class View:
@@ -13,7 +15,7 @@ class View:
     :ivar contained_element: Unordered list of references to elements of class Referable
     """
     def __init__(self,
-                 contained_element: Optional[Set[base.Reference]] = None):
+                 contained_element: Optional[Set[base.AASReference]] = None):
         """
         Initializer of View
 
@@ -21,7 +23,7 @@ class View:
 
         TODO: Add instruction what to do after construction
         """
-        self.contained_element: Set[base.Reference] = set() if contained_element is None else contained_element
+        self.contained_element: Set[base.AASReference] = set() if contained_element is None else contained_element
 
 
 class Asset(base.HasDataSpecification, base.Identifiable):
@@ -47,8 +49,8 @@ class Asset(base.HasDataSpecification, base.Identifiable):
                  description: Optional[base.LangStringSet] = None,
                  parent: Optional[base.Namespace] = None,
                  data_specification: Optional[Set[base.Reference]] = None,
-                 asset_identification_model: Optional[base.Reference] = None,
-                 bill_of_material: Optional[base.Reference] = None):
+                 asset_identification_model: Optional[base.AASReference["submodel.Submodel"]] = None,
+                 bill_of_material: Optional[base.AASReference["submodel.Submodel"]] = None):
         """
         Initializer of Asset
 
@@ -77,8 +79,8 @@ class Asset(base.HasDataSpecification, base.Identifiable):
         self.parent: Optional[base.Namespace] = parent
         self.data_specification: Set[base.Reference] = set() \
             if data_specification is None else data_specification
-        self.asset_identification_model: Optional[base.Reference] = asset_identification_model
-        self.bill_of_material: Optional[base.Reference] = bill_of_material
+        self.asset_identification_model: Optional[base.AASReference["submodel.Submodel"]] = asset_identification_model
+        self.bill_of_material: Optional[base.AASReference["submodel.Submodel"]] = bill_of_material
 
 
 class ConceptDescription(base.HasDataSpecification, base.Identifiable):
@@ -148,7 +150,7 @@ class ConceptDictionary(base.Referable):
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
                  parent: Optional[base.Namespace] = None,
-                 concept_description: Optional[Set[base.Reference]] = None):
+                 concept_description: Optional[Set[base.AASReference[ConceptDescription]]] = None):
         """
         Initializer of ConceptDictionary
 
@@ -167,7 +169,8 @@ class ConceptDictionary(base.Referable):
         self.category: Optional[str] = category
         self.description: Optional[base.LangStringSet] = description
         self.parent: Optional[base.Namespace] = parent
-        self.concept_description: Set[base.Reference] = set() if concept_description is None else concept_description
+        self.concept_description: Set[base.AASReference[ConceptDescription]] = \
+            set() if concept_description is None else concept_description
 
 
 class AssetAdministrationShell(base.HasDataSpecification, base.Identifiable, base.Namespace):
@@ -183,7 +186,7 @@ class AssetAdministrationShell(base.HasDataSpecification, base.Identifiable, bas
     :ivar derived_from: The reference to the AAS the AAs was derived from
     """
     def __init__(self,
-                 asset: base.Reference,
+                 asset: base.AASReference[Asset],
                  identification: base.Identifier,
                  id_short: str = "",
                  category: Optional[str] = None,
@@ -191,10 +194,10 @@ class AssetAdministrationShell(base.HasDataSpecification, base.Identifiable, bas
                  parent: Optional[base.Namespace] = None,
                  data_specification: Optional[Set[base.Reference]] = None,
                  security_: Optional[security.Security] = None,
-                 submodel_: Optional[Set[base.Reference]] = None,
+                 submodel_: Optional[Set[base.AASReference["submodel.Submodel"]]] = None,
                  concept_dictionary: Iterable[ConceptDictionary] = (),
                  view: Optional[Set[View]] = None,
-                 derived_from: Optional[base.Reference] = None):
+                 derived_from: Optional[base.AASReference["AssetAdministrationShell"]] = None):
         """
         Initializer of AssetAdministrationShell
         :param asset: reference to the asset the AAS is representing.
@@ -212,7 +215,7 @@ class AssetAdministrationShell(base.HasDataSpecification, base.Identifiable, bas
         :param concept_dictionary: Unordered list of concept dictionaries. The concept dictionaries typically contain
                                    only descriptions for elements that are also used within the AAS
         :param view: Unordered list of stakeholder specific views that can group the elements of the AAS.
-        :param derived_from: The reference to the AAS the AAs was derived from
+        :param derived_from: The reference to the AAS the AAS was derived from
         """
 
         super().__init__()
@@ -223,9 +226,9 @@ class AssetAdministrationShell(base.HasDataSpecification, base.Identifiable, bas
         self.parent: Optional[base.Namespace] = parent
         self.data_specification: Set[base.Reference] = set() \
             if data_specification is None else data_specification
-        self.derived_from: Optional[base.Reference] = derived_from
+        self.derived_from: Optional[base.AASReference["AssetAdministrationShell"]] = derived_from
         self.security_: Optional[security.Security] = security_
-        self.asset: base.Reference = asset
-        self.submodel_: Set[base.Reference] = set() if submodel_ is None else submodel_
+        self.asset: base.AASReference[Asset] = asset
+        self.submodel_: Set[base.AASReference["submodel.Submodel"]] = set() if submodel_ is None else submodel_
         self.concept_dictionary: base.NamespaceSet[ConceptDictionary] = base.NamespaceSet(self, concept_dictionary)
         self.view: Set[View] = set() if view is None else view

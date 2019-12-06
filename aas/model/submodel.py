@@ -1,7 +1,9 @@
 import abc
-from typing import List, Optional, Set, Union, Iterable
+from typing import List, Optional, Set, Union, Iterable, TYPE_CHECKING
 
 from . import base
+if TYPE_CHECKING:
+    from . import aas
 
 
 class SubmodelElement(base.Referable, base.HasDataSpecification, base.Qualifiable, base.HasSemantics, base.HasKind,
@@ -440,7 +442,7 @@ class ReferenceElement(DataElement):
 
     def __init__(self,
                  id_short: str,
-                 value: Optional[base.Reference],
+                 value: Optional[base.AASReference],
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
                  parent: Optional[base.Namespace] = None,
@@ -473,7 +475,7 @@ class ReferenceElement(DataElement):
         """
 
         super().__init__(id_short, category, description, parent, data_specification, semantic_id, qualifier, kind)
-        self.value: Optional[base.Reference] = value
+        self.value: Optional[base.AASReference] = value
 
 
 class SubmodelElementCollection(SubmodelElement, base.Namespace, metaclass=abc.ABCMeta):
@@ -635,8 +637,8 @@ class RelationshipElement(SubmodelElement):
 
     def __init__(self,
                  id_short: str,
-                 first: base.Reference,
-                 second: base.Reference,
+                 first: base.AASReference,
+                 second: base.AASReference,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
                  parent: Optional[base.Namespace] = None,
@@ -671,8 +673,8 @@ class RelationshipElement(SubmodelElement):
         """
 
         super().__init__(id_short, category, description, parent, data_specification, semantic_id, qualifier, kind)
-        self.first: base.Reference = first
-        self.second: base.Reference = second
+        self.first: base.AASReference = first
+        self.second: base.AASReference = second
 
 
 class AnnotatedRelationshipElement(RelationshipElement):
@@ -684,9 +686,9 @@ class AnnotatedRelationshipElement(RelationshipElement):
 
     def __init__(self,
                  id_short: str,
-                 first: base.Reference,
-                 second: base.Reference,
-                 annotation: Optional[Set[base.Reference]] = None,
+                 first: base.AASReference,
+                 second: base.AASReference,
+                 annotation: Optional[Set[base.AASReference[DataElement]]] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
                  parent: Optional[base.Namespace] = None,
@@ -719,7 +721,7 @@ class AnnotatedRelationshipElement(RelationshipElement):
 
         super().__init__(id_short, first, second, category, description, parent, data_specification, semantic_id,
                          qualifier, kind)
-        self.annotation: Set[base.Reference] = set() if annotation is None else annotation
+        self.annotation: Set[base.AASReference[DataElement]] = set() if annotation is None else annotation
 
 
 class OperationVariable(SubmodelElement):
@@ -874,7 +876,7 @@ class Entity(SubmodelElement, base.Namespace):
                  id_short: str,
                  entity_type: base.EntityType,
                  statement: Iterable[SubmodelElement] = (),
-                 asset: Optional[base.Reference] = None,
+                 asset: Optional[base.AASReference["aas.Asset"]] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
                  parent: Optional[base.Namespace] = None,
@@ -913,7 +915,7 @@ class Entity(SubmodelElement, base.Namespace):
         if self.entity_type == base.EntityType.SELF_MANAGED_ENTITY and asset is None:
             raise ValueError("A self-managed entity has to have an asset-reference")
         if self.entity_type == base.EntityType.SELF_MANAGED_ENTITY:
-            self.asset: Optional[base.Reference] = asset
+            self.asset: Optional[base.AASReference["aas.Asset"]] = asset
         else:
             self.asset = None
 
@@ -964,7 +966,7 @@ class BasicEvent(Event):
 
     def __init__(self,
                  id_short: str,
-                 observed: base.Reference,
+                 observed: base.AASReference,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
                  parent: Optional[base.Namespace] = None,
@@ -996,4 +998,4 @@ class BasicEvent(Event):
         """
 
         super().__init__(id_short, category, description, parent, data_specification, semantic_id, qualifier, kind)
-        self.observed: base.Reference = observed
+        self.observed: base.AASReference = observed
