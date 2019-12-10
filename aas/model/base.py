@@ -10,7 +10,7 @@ if TYPE_CHECKING:
     from . import registry
 
 DataTypeDef = str  # any xsd simple type as string
-BlobType = bytearray
+BlobType = bytes
 MimeType = str  # any mimetype as in RFC2046
 PathType = str
 QualifierType = str
