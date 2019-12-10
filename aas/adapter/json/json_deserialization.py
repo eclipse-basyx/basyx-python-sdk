@@ -135,11 +135,13 @@ def _amend_abstract_attributes(obj: object, dct: Dict[str, object], failsafe: bo
                 try:
                     obj.data_specification.add(_construct_reference(data_spec_data))
                 except (KeyError, TypeError) as e:
+                    error_message = \
+                        "Error while trying to convert JSON object into DataSpecification for {}: {}".format(
+                            obj, pprint.pformat(dct, depth=2, width=2**14, compact=True))
                     if failsafe:
-                        logger.error("Error while trying to convert JSON object into DataSpecification for %s: %s",
-                                     obj, pprint.pformat(dct, depth=2, width=2**14, compact=True), exc_info=e)
+                        logger.error(error_message, exc_info=e)
                     else:
-                        raise
+                        raise type(e)(error_message) from e
     if isinstance(obj, model.HasSemantics):
         if 'semantic_id' in dct:
             obj.semantic_id = _construct_reference(_get_ts(dct, 'semanticId', dict))
@@ -151,11 +153,12 @@ def _amend_abstract_attributes(obj: object, dct: Dict[str, object], failsafe: bo
                 try:
                     obj.qualifier.add(_construct_qualifier(qualifier_data, failsafe))
                 except (KeyError, TypeError) as e:
+                    error_message = "Error while trying to convert JSON object into Qualifier for {}: {}".format(
+                        obj, pprint.pformat(dct, depth=2, width=2**14, compact=True))
                     if failsafe:
-                        logger.error("Error while trying to convert JSON object into Qualifier for %s: %s",
-                                     obj, pprint.pformat(dct, depth=2, width=2**14, compact=True), exc_info=e)
+                        logger.error(error_message, exc_info=e)
                     else:
-                        raise
+                        raise type(e)(error_message) from e
 
 
 def _get_kind(dct: Dict[str, object]) -> model.ModelingKind:
@@ -239,11 +242,12 @@ def _construct_lang_string_set(lst: List[Dict[str, object]], failsafe: bool) -> 
         try:
             ret[_get_ts(desc, 'language', str)] = _get_ts(desc, 'text', str)
         except (KeyError, TypeError) as e:
+            error_message = "Error while trying to convert JSON object into LangString: {}".format(
+                pprint.pformat(lst, depth=2, width=2**14, compact=True))
             if failsafe:
-                logger.error("Error while trying to convert JSON object into LangString: %s",
-                             pprint.pformat(lst, depth=2, width=2**14, compact=True), exc_info=e)
+                logger.error(error_message, exc_info=e)
             else:
-                raise
+                raise type(e)(error_message) from e
     return ret
 
 
@@ -514,12 +518,13 @@ class AASFromJsonDecoder(json.JSONDecoder):
         try:
             return AAS_CLASS_PARSERS[model_type](dct, cls.failsafe)
         except (KeyError, TypeError) as e:
+            error_message = "Error while trying to convert JSON object into {}: {}".format(
+                model_type, pprint.pformat(dct, depth=2, width=2**14, compact=True))
             if cls.failsafe:
-                logger.error("Error while trying to convert JSON object into %s: %s",
-                             model_type, pprint.pformat(dct, depth=2, width=2**14, compact=True), exc_info=e)
+                logger.error(error_message, exc_info=e)
                 return dct
             else:
-                raise
+                raise type(e)(error_message) from e
 
 
 class StrictAASFromJsonDecoder(AASFromJsonDecoder):
