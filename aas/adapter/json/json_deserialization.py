@@ -230,8 +230,10 @@ def _construct_lang_string_set(lst: List[Dict[str, object]]) -> model.LangString
 # #############################################################################
 
 def construct_asset(dct: Dict[str, object]) -> model.Asset:
-    return model.Asset(kind=ASSET_KIND_INVERSE[_get_ts(dct, 'kind', str)],
-                       identification=_construct_identifier(_get_ts(dct, "identification", dict)))
+    ret = model.Asset(kind=ASSET_KIND_INVERSE[_get_ts(dct, 'kind', str)],
+                      identification=_construct_identifier(_get_ts(dct, "identification", dict)))
+    _amend_abstract_attributes(ret, dct)
+    return ret
 
 
 def construct_asset_administration_shell(dct: Dict[str, object]) -> model.AssetAdministrationShell:
