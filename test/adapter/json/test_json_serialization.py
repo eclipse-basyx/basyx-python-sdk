@@ -3,7 +3,7 @@ import json
 import os
 
 from aas import model
-from aas.adapter.json import json_serialization
+from aas.adapter.json import json_serialization, json_deserialization
 from jsonschema import validate  # type: ignore
 
 
@@ -35,6 +35,10 @@ class JsonSerializationTest(unittest.TestCase):
                 'conceptDescriptions': [],
             }, cls=json_serialization.AASToJsonEncoder)
         json_data_new = json.loads(json_data)
+
+        # try deserializing the json string with help of the json_deserialization module
+        # TODO move to own test
+        json_data_new2 = json.loads(json_data, cls=json_deserialization.AASFromJsonDecoder)
 
         # load schema
         with open(os.path.join(os.path.dirname(__file__), 'aasJSONSchemaV2.0.json'), 'r') as json_file:
