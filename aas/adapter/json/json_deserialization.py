@@ -15,7 +15,7 @@ import base64
 import json
 import logging
 import pprint
-from typing import Dict, Callable, TypeVar, Type, List
+from typing import Dict, Callable, TypeVar, Type, List, IO
 
 from ... import model
 from .json_serialization import MODELING_KIND, ASSET_KIND, KEY_ELEMENTS, KEY_TYPES, IDENTIFIER_TYPES, ENTITY_TYPES
@@ -536,3 +536,49 @@ class StrictAASFromJsonDecoder(AASFromJsonDecoder):
     object type.
     """
     failsafe = False
+
+
+def read_json_aas_file(file: IO, failsafe: bool = True) -> model.DictObjectStore:
+    """
+    Read an Asset Adminstration Shell JSON file according to
+
+    :param file: A file-like object to read the JSON-serialized data from
+    :param failsafe: If True, the file is parsed in a failsafe way: Instead of raising an Exception for missing
+                     attributes and wrong types, errors are logged and defective objects are skipped
+    :return: A DictObjectStore containing all AAS objects from the JSON file
+    """
+    # read, parse and convert JSON file
+    data = json.load(file, cls=AASFromJsonDecoder if failsafe else StrictAASFromJsonDecoder)
+
+    # Add AAS objects to ObjectStore
+    ret: model.DictObjectStore[model.Identifiable] = model.DictObjectStore()
+    for name, expected_type in (('assetAdministrationShells', model.AssetAdministrationShell),
+                                ('assets', model.Asset),
+                                ('submodels', model.Submodel),
+                                ('conceptDescriptions', model.ConceptDescription)):
+        try:
+            lst = _get_ts(data, name, list)
+        except (KeyError, TypeError) as e:
+            error_message = "Could not find list '{}' in AAS JSON file".format(name)
+            if failsafe:
+                logger.warning(error_message)
+                continue
+            else:
+                raise type(e)(error_message) from e
+
+        for item in lst:
+            error_message = "Expected a {} in list '{}', but found a {}".format(
+                expected_type.__name__, name, item)
+            if isinstance(item, model.Identifiable):
+                if not isinstance(item, expected_type):
+                    if failsafe:
+                        logger.warning("{} was in wrong list '{}'; nevertheless, we'll use it".format(item, name))
+                    else:
+                        raise TypeError(error_message)
+                ret.add(item)
+            elif failsafe:
+                logger.error(error_message)
+            else:
+                raise TypeError(error_message)
+
+    return ret
