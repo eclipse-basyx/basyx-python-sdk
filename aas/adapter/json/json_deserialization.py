@@ -81,7 +81,7 @@ def _get_ts(dct: Dict[str, object], key: str, type_: Type[T]) -> T:
     return val
 
 
-def _expect_type(object: object, type: Type, context: str, failsafe: bool) -> bool:
+def _expect_type(object_: object, type_: Type, context: str, failsafe: bool) -> bool:
     """
     Helper function to check type of an embedded object.
 
@@ -93,20 +93,20 @@ def _expect_type(object: object, type: Type, context: str, failsafe: bool) -> bo
       if _expect_type(element, model.SubmodelElement, str(submodel), failsafe):
           submodel.submodel_element.add(element)
 
-    :param object: The object to by type-checked
-    :param type: The expected type
+    :param object_: The object to by type-checked
+    :param type_: The expected type
     :param context: A string to add to the exception message / log message, that describes the context in that the
                     object has been found
     :param failsafe: Log error and return false instead of rasing a TypeError
     :return: True if the
     :raises TypeError: If the object is not of the expected type and the failsafe mode is not active
     """
-    if isinstance(object, type):
+    if isinstance(object_, type_):
         return True
     if failsafe:
-        logger.error("Expected a %s in %s.inputVariable, but found %s", type.__name__, context, object)
+        logger.error("Expected a %s in %s.inputVariable, but found %s", type_.__name__, context, object_)
     else:
-        raise TypeError("Expected a %s in %s.inputVariable, but found %s" % (type.__name__, context, object))
+        raise TypeError("Expected a %s in %s.inputVariable, but found %s" % (type_.__name__, context, object_))
     return False
 
 
@@ -143,7 +143,8 @@ def _amend_abstract_attributes(obj: object, dct: Dict[str, object], failsafe: bo
     if isinstance(obj, model.HasSemantics):
         if 'semantic_id' in dct:
             obj.semantic_id = _construct_reference(_get_ts(dct, 'semanticId', dict))
-    # HasKind provides only mandatory, immutable attributes
+    # `HasKind` provides only mandatory, immutable attributes; so we cannot do anything here, after object creation.
+    # However, the `_get_kind()` function may assist by retreiving them from the JSON object
     if isinstance(obj, model.Qualifiable):
         if 'qualifiers' in dct:
             for qualifier_data in _get_ts(dct, 'qualifiers', list):
@@ -228,7 +229,7 @@ def _construct_view(dct: Dict[str, object], failsafe: bool) -> model.View:
     return ret
 
 
-def _construct_security(dct: Dict[str, object]) -> model.Security:
+def _construct_security(_dct: Dict[str, object]) -> model.Security:
     return model.Security()
 
 
