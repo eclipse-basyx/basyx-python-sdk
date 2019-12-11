@@ -781,7 +781,7 @@ class OperationVariable(SubmodelElement):
         self.value: SubmodelElement = value
 
 
-class Operation(SubmodelElement):
+class Operation(SubmodelElement, base.Namespace):
     """
     An operation is a submodel element with input and output variables.
 
@@ -791,9 +791,9 @@ class Operation(SubmodelElement):
     """
     def __init__(self,
                  id_short: str,
-                 input_variable: Optional[Set[OperationVariable]] = None,
-                 output_variable: Optional[Set[OperationVariable]] = None,
-                 in_output_variable: Optional[Set[OperationVariable]] = None,
+                 input_variable: Iterable[OperationVariable] = (),
+                 output_variable: Iterable[OperationVariable] = (),
+                 in_output_variable: Iterable[OperationVariable] = (),
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
                  parent: Optional[base.Namespace] = None,
@@ -827,10 +827,9 @@ class Operation(SubmodelElement):
         """
 
         super().__init__(id_short, category, description, parent, data_specification, semantic_id, qualifier, kind)
-        self.input_variable: Set[OperationVariable] = set() if input_variable is None else input_variable
-        self.output_variable: Set[OperationVariable] = set() if output_variable is None else output_variable
-        self.in_output_variable: Set[OperationVariable] = set() \
-            if in_output_variable is None else in_output_variable
+        self.input_variable: base.NamespaceSet[OperationVariable] = base.NamespaceSet(self, input_variable)
+        self.output_variable: base.NamespaceSet[OperationVariable] = base.NamespaceSet(self, output_variable)
+        self.in_output_variable: base.NamespaceSet[OperationVariable] = base.NamespaceSet(self, in_output_variable)
 
 
 class Capability(SubmodelElement):
