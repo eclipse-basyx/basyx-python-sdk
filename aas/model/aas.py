@@ -234,7 +234,7 @@ class AssetAdministrationShell(base.HasDataSpecification, base.Identifiable, bas
                  security_: Optional[security.Security] = None,
                  submodel_: Optional[Set[base.AASReference["submodel.Submodel"]]] = None,
                  concept_dictionary: Iterable[ConceptDictionary] = (),
-                 view: Optional[Set[View]] = None,
+                 view: Iterable[View] = (),
                  derived_from: Optional[base.AASReference["AssetAdministrationShell"]] = None):
         """
         Initializer of AssetAdministrationShell
@@ -271,4 +271,4 @@ class AssetAdministrationShell(base.HasDataSpecification, base.Identifiable, bas
         self.asset: base.AASReference[Asset] = asset
         self.submodel_: Set[base.AASReference["submodel.Submodel"]] = set() if submodel_ is None else submodel_
         self.concept_dictionary: base.NamespaceSet[ConceptDictionary] = base.NamespaceSet(self, concept_dictionary)
-        self.view: Set[View] = set() if view is None else view
+        self.view: base.NamespaceSet[View] = base.NamespaceSet(self, view)
