@@ -1,6 +1,6 @@
 from typing import Optional, List
 
-from . import base
+from ..model import base
 
 
 class DataSpecificationIEC61360(base.DataSpecification):
@@ -49,6 +49,7 @@ class DataSpecificationIEC61360(base.DataSpecification):
         :param value_format: format of the values (optional)
         :param value_list: list of values (optional)
         """
+        super().__init__()
         self.preferred_name:  str = preferred_name
         self.short_name: str = short_name
         self.data_type: str = data_type
