@@ -49,18 +49,12 @@ class DataSpecificationIEC61360(base.DataSpecification):
         :param value_format: format of the values (optional)
         :param value_list: list of values (optional)
         """
-        super().__init__()
+        super().__init__(administration, identification, id_short, category, description, parent)
         self.preferred_name:  str = preferred_name
         self.short_name: str = short_name
         self.data_type: str = data_type
         self.definition: str = definition
         self.code: str = code
-        self.administration: base.AdministrativeInformation = administration
-        self.identification: base.Identifier = identification
-        self.id_short: str = id_short
-        self.category: Optional[str] = category
-        self.description: Optional[base.LangStringSet] = description
-        self.parent: Optional[base.Namespace] = parent
         self.unit: Optional[str] = unit
         self.unit_id: Optional[base.Reference] = unit_id
         self.source_of_definition: Optional[str] = source_of_definition
