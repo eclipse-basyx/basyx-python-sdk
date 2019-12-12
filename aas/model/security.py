@@ -13,6 +13,7 @@ This module contains the security aspects of the AAS metamodel. Currently, the s
 module doesn't do anything.
 """
 
+
 class Security:
     """
     Security model is not ready yet. This is just a placeholder class.
