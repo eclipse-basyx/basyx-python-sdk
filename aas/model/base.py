@@ -1015,3 +1015,45 @@ class OrderedNamespaceSet(NamespaceSet[_RT], MutableSequence[_RT], Generic[_RT])
         for o in self._order[i]:
             super().remove(o)
         del self._order[i]
+
+
+class DataSpecificationContent(metaclass=abc.ABCMeta):
+    """
+    Content of a DataSpecification.
+
+    <<abstract>>
+    """
+    pass
+
+
+class DataSpecification(Identifiable, DataSpecificationContent, metaclass=abc.ABCMeta):
+    """
+    A DataSpecification to be referenced by model.aas.ConceptDescription
+
+    <<abstract>>
+    """
+    def __init__(self,
+                 administration: AdministrativeInformation,
+                 identification: Identifier,
+                 id_short: str = "",
+                 category: Optional[str] = None,
+                 description: Optional[LangStringSet] = None,
+                 parent: Optional[Namespace] = None):
+        """
+        Initializer of DataSpecification
+
+        :param administration: Administrative information of an identifiable element. (from base.Identifiable)
+        :param identification: The globally unique identification of the element. (from base.Identifiable)
+        :param id_short: Identifying string of the element within its name space. (from base.Referable)
+        :param category: The category is a value that gives further meta information w.r.t. to the class of the element.
+                         It affects the expected existence of attributes and the applicability of constraints.
+                         (from base.Referable)
+        :param description: Description or comments on the element. (from base.Referable)
+        :param parent: Reference to the next referable parent element of the element. (from base.Referable)
+        """
+        self.administration: AdministrativeInformation = administration
+        self.identification: Identifier = identification
+        self.id_short = id_short
+        self.category: Optional[str] = category
+        self.description: Optional[LangStringSet] = description
+        self.parent: Optional[Namespace] = parent
