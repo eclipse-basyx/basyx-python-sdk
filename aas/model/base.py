@@ -1051,6 +1051,7 @@ class DataSpecification(Identifiable, DataSpecificationContent, metaclass=abc.AB
         :param description: Description or comments on the element. (from base.Referable)
         :param parent: Reference to the next referable parent element of the element. (from base.Referable)
         """
+        super().__init__()
         self.administration: AdministrativeInformation = administration
         self.identification: Identifier = identification
         self.id_short = id_short
