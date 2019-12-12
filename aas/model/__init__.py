@@ -30,6 +30,8 @@ submodel.py
     Meta-model of the submodels and events.
 """
 
+from typing import Dict
+
 from .aas import *
 from .security import *
 from .base import *
@@ -38,7 +40,7 @@ from .registry import *
 
 # A mapping of PyI40AAS implementation classes to the corresponding `KeyElements` enum members for all classes that are
 # covered by this enum.
-KEY_ELEMENTS_CLASSES = {
+KEY_ELEMENTS_CLASSES: Dict[type, KeyElements] = {
     Asset: KeyElements.ASSET,
     AssetAdministrationShell: KeyElements.ASSET_ADMINISTRATION_SHELL,
     ConceptDescription: KeyElements.CONCEPT_DESCRIPTION,
