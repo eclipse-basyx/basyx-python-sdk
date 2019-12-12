@@ -8,6 +8,17 @@
 # Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an
 # "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
 # specific language governing permissions and limitations under the License.
+"""
+The main module of the AAS meta-model. It is used to define the class structures of high level elements such as
+AssetAdministrationShell, ConceptDictionary and Asset.
+
+This module contains the following classes from an up-to-down-level:
+ - AssetAdministrationShell
+ - ConceptDictionary
+ - ConceptDescription
+ - Asset
+ - View
+"""
 
 from typing import Optional, Set, Iterable, TYPE_CHECKING
 
