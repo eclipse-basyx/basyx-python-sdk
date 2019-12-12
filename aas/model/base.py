@@ -14,6 +14,7 @@ the higher level classes to inherit from.
 """
 
 import abc
+import inspect
 import itertools
 from enum import Enum, unique
 from typing import List, Optional, Set, TypeVar, MutableSet, Generic, Iterable, Dict, Iterator, Union, overload, \
@@ -254,6 +255,28 @@ class Key:
         if self.id_type.is_local_key_type:
             return None
         return Identifier(self.value, IdentifierType(self.id_type.value))
+
+    @staticmethod
+    def from_referable(referable: "Referable") -> "Key":
+        """
+        Construct a key for a given Referable (or Identifiable) object
+        """
+        # Get the `type` by finding the first class from the base classes list (via inspect.getmro), that is contained
+        # in KEY_ELEMENTS_CLASSES
+        from . import KEY_ELEMENTS_CLASSES
+        try:
+            key_type = next(iter(KEY_ELEMENTS_CLASSES[t]
+                                 for t in inspect.getmro(type(referable))
+                                 if t in KEY_ELEMENTS_CLASSES))
+        except StopIteration:
+            key_type = KeyElements.PROPERTY
+
+        local = True  # TODO
+        if isinstance(referable, Identifiable):
+            return Key(key_type, local, referable.identification.id,
+                       KeyType(referable.identification.id_type.value))
+        else:
+            return Key(key_type, local, referable.id_short, KeyType.IDSHORT)
 
 
 class AdministrativeInformation:
@@ -541,6 +564,34 @@ class AASReference(Reference, Generic[_RT]):
 
     def __repr__(self) -> str:
         return "AASReference(type={}, key={})".format(self.type.__name__, self.key)
+
+    @staticmethod
+    def from_referable(referable: Referable) -> "AASReference":
+        """
+        Construct a Reference to a given Referable AAS object
+
+        This requires that the Referable object is Identifiable itself or is a child-, grand-child-, etc. object of an
+        Identifiable object. Additionally, the object must be an instance of a known Referable type.
+
+        :raises ValueError: If no Identifiable object is found while traversing the object's ancestors
+        """
+        # Get the first class from the base classes list (via inspect.getmro), that is contained in KEY_ELEMENTS_CLASSES
+        from . import KEY_ELEMENTS_CLASSES
+        try:
+            ref_type = next(iter(t for t in inspect.getmro(type(referable)) if t in KEY_ELEMENTS_CLASSES))
+        except StopIteration:
+            ref_type = Referable
+
+        ref: Referable = referable
+        keys: List[Key] = []
+        while True:
+            keys.append(Key.from_referable(ref))
+            if isinstance(ref, Identifiable):
+                keys.reverse()
+                return AASReference(keys, ref_type)
+            if ref.parent is None or not isinstance(ref.parent, Referable):
+                raise ValueError("The given Referable object is not embedded within an Identifiable object")
+            ref = ref.parent
 
 
 class Identifiable(Referable, metaclass=abc.ABCMeta):

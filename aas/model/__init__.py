@@ -35,3 +35,30 @@ from .security import *
 from .base import *
 from .submodel import *
 from .registry import *
+
+# A mapping of PyI40AAS implementation classes to the corresponding `KeyElements` enum members for all classes that are
+# covered by this enum.
+KEY_ELEMENTS_CLASSES = {
+    Asset: KeyElements.ASSET,
+    AssetAdministrationShell: KeyElements.ASSET_ADMINISTRATION_SHELL,
+    ConceptDescription: KeyElements.CONCEPT_DESCRIPTION,
+    Submodel: KeyElements.SUBMODEL,
+    View: KeyElements.VIEW,
+    ConceptDictionary: KeyElements.CONCEPT_DICTIONARY,
+    Entity: KeyElements.ENTITY,
+    BasicEvent: KeyElements.BASIC_EVENT,
+    Event: KeyElements.EVENT,
+    Blob: KeyElements.BLOB,
+    File: KeyElements.FILE,
+    Operation: KeyElements.OPERATION,
+    Capability: KeyElements.CAPABILITY,
+    Property: KeyElements.PROPERTY,
+    MultiLanguageProperty: KeyElements.MULTI_LANGUAGE_PROPERTY,
+    Range: KeyElements.RANGE,
+    ReferenceElement: KeyElements.REFERENCE_ELEMENT,
+    DataElement: KeyElements.DATA_ELEMENT,
+    SubmodelElementCollection: KeyElements.SUBMODEL_ELEMENT_COLLECTION,
+    AnnotatedRelationshipElement: KeyElements.ANNOTATED_RELATIONSHIP_ELEMENT,
+    RelationshipElement: KeyElements.RELATIONSHIP_ELEMENT,
+    SubmodelElement: KeyElements.SUBMODEL_ELEMENT,
+}

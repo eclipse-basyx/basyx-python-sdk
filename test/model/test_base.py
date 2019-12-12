@@ -232,3 +232,50 @@ class AASReferenceTest(unittest.TestCase):
         with self.assertRaises(model.UnexpectedTypeError) as cm:
             ref2.resolve(DummyRegistry())
         self.assertIs(submodel, cm.exception.value)
+
+    def test_from_referable(self) -> None:
+        prop = model.Property("prop", "int")
+        collection = model.SubmodelElementCollectionUnordered("collection", {prop})
+        prop.parent = collection
+        submodel = model.Submodel(model.Identifier("urn:x-test:submodel", model.IdentifierType.IRI), {collection})
+        collection.parent = submodel
+
+        # Test normal usage for Identifiable and Referable objects
+        ref1 = model.AASReference.from_referable(submodel)
+        self.assertEqual(1, len(ref1.key))
+        self.assertIs(ref1.type, model.Submodel)
+        self.assertEqual("urn:x-test:submodel", ref1.key[0].value)
+        self.assertEqual(model.KeyType.IRI, ref1.key[0].id_type)
+        self.assertEqual(model.KeyElements.SUBMODEL, ref1.key[0].type_)
+
+        ref2 = model.AASReference.from_referable(prop)
+        self.assertEqual(3, len(ref2.key))
+        self.assertIs(ref2.type, model.Property)
+        self.assertEqual("urn:x-test:submodel", ref2.key[0].value)
+        self.assertEqual(model.KeyType.IRI, ref2.key[0].id_type)
+        self.assertEqual("prop", ref2.key[2].value)
+        self.assertEqual(model.KeyType.IDSHORT, ref2.key[2].id_type)
+        self.assertEqual(model.KeyElements.PROPERTY, ref2.key[2].type_)
+
+        # Test exception for element without identifiable ancestor
+        submodel.submodel_element.remove(collection)
+        with self.assertRaises(ValueError):
+            ref3 = model.AASReference.from_referable(prop)
+
+        # Test creating a reference to a custom Referable class
+        class DummyThing(model.Referable):
+            def __init__(self, id_short: str):
+                super().__init__()
+                self.id_short = id_short
+
+        class DummyIdentifyableNamespace(model.Identifiable, model.Namespace):
+            def __init__(self, identification: model.Identifier):
+                super().__init__()
+                self.identification = identification
+                self.things: model.NamespaceSet = model.NamespaceSet(self)
+
+        thing = DummyThing("thing")
+        identifable_thing = DummyIdentifyableNamespace(model.Identifier("urn:x-test:thing", model.IdentifierType.IRI))
+        identifable_thing.things.add(thing)
+        ref4 = model.AASReference.from_referable(thing)
+        self.assertIs(ref4.type, model.Referable)
