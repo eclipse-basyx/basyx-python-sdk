@@ -29,31 +29,6 @@ KEY_TYPES_INVERSE: Dict[str, model.KeyType] = {v: k for k, v in KEY_TYPES.items(
 IDENTIFIER_TYPES_INVERSE: Dict[str, model.IdentifierType] = {v: k for k, v in IDENTIFIER_TYPES.items()}
 ENTITY_TYPES_INVERSE: Dict[str, model.EntityType] = {v: k for k, v in ENTITY_TYPES.items()}
 
-KEY_ELEMENTS_CLASSES = {
-    model.KeyElements.ASSET: model.Asset,
-    model.KeyElements.ASSET_ADMINISTRATION_SHELL: model.AssetAdministrationShell,
-    model.KeyElements.CONCEPT_DESCRIPTION: model.ConceptDescription,
-    model.KeyElements.SUBMODEL: model. Submodel,
-    model.KeyElements.ANNOTATED_RELATIONSHIP_ELEMENT: model.AnnotatedRelationshipElement,
-    model.KeyElements.BASIC_EVENT: model.BasicEvent,
-    model.KeyElements.BLOB: model.Blob,
-    model.KeyElements.CAPABILITY: model.Capability,
-    model.KeyElements.CONCEPT_DICTIONARY: model.ConceptDictionary,
-    model.KeyElements.DATA_ELEMENT: model.DataElement,
-    model.KeyElements.ENTITY: model.Entity,
-    model.KeyElements.EVENT: model.Event,
-    model.KeyElements.FILE: model.File,
-    model.KeyElements.MULTI_LANGUAGE_PROPERTY: model.MultiLanguageProperty,
-    model.KeyElements.OPERATION: model.Operation,
-    model.KeyElements.PROPERTY: model.Property,
-    model.KeyElements.RANGE: model.Range,
-    model.KeyElements.REFERENCE_ELEMENT: model.ReferenceElement,
-    model.KeyElements.RELATIONSHIP_ELEMENT: model.RelationshipElement,
-    model.KeyElements.SUBMODEL_ELEMENT: model.SubmodelElement,
-    model.KeyElements.SUBMODEL_ELEMENT_COLLECTION: model.SubmodelElementCollection,
-    model.KeyElements.VIEW: model.View,
-}
-
 
 # #############################################################################
 # Helper functions (for simplifying implementation of constructor functions)
@@ -189,7 +164,7 @@ def _construct_reference(dct: Dict[str, object]) -> model.Reference:
 
 def _construct_aas_reference(dct: Dict[str, object], type_: Type[T]) -> model.AASReference:
     keys = [_construct_key(key_data) for key_data in _get_ts(dct, "keys", list)]
-    if keys and KEY_ELEMENTS_CLASSES.get(keys[-1].type_, None) != type_:
+    if keys and model.KEY_ELEMENTS_CLASSES.get(type_, None) != keys[-1].type_:
         logger.warning("type %s of last key of reference to %s does not match reference type %s",
                        keys[-1].type_.name, " / ".join(str(k) for k in keys), type_.__name__)
     return model.AASReference(keys, type_)
