@@ -1,5 +1,5 @@
-from typing import Dict
 import base64
+from typing import Dict, List
 
 from aas import model
 from json import JSONEncoder
@@ -73,7 +73,7 @@ def abstract_classes_to_json(obj: object) -> Dict[str, object]:
         if obj.category:
             data['category'] = obj.category
         if obj.description:
-            data['description'] = obj.description
+            data['description'] = lang_string_set_to_json(obj.description)
         data['modelType'] = {'name': obj.__class__.__name__}
     if isinstance(obj, model.Identifiable):
         data['identification'] = obj.identification
@@ -96,6 +96,10 @@ def abstract_classes_to_json(obj: object) -> Dict[str, object]:
 # #############################################################
 # transformation functions to serialize classes from model.base
 # #############################################################
+
+def lang_string_set_to_json(obj: model.LangStringSet) -> List[Dict[str, object]]:
+    return [{'language': k, 'text': v}
+            for k, v in obj.items()]
 
 
 def key_to_json(obj: model.Key) -> Dict[str, object]:
@@ -380,7 +384,7 @@ def multi_language_property_to_json(obj: model.MultiLanguageProperty) -> Dict[st
     """
     data = abstract_classes_to_json(obj)
     if obj.value:
-        data['value'] = obj.value
+        data['value'] = lang_string_set_to_json(obj.value)
     if obj.value_id:
         data['valueId'] = obj.value_id
     return data
