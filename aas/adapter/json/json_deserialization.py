@@ -409,7 +409,7 @@ def construct_file(dct: Dict[str, object], failsafe: bool) -> model.File:
                      mime_type=_get_ts(dct, "mimeType", str),
                      kind=_get_kind(dct))
     _amend_abstract_attributes(ret, dct, failsafe)
-    if 'value' in dct:
+    if 'value' in dct and dct['value'] is not None:
         ret.value = _get_ts(dct, 'value', str)
     return ret
 
@@ -417,7 +417,7 @@ def construct_file(dct: Dict[str, object], failsafe: bool) -> model.File:
 def construct_multi_language_property(dct: Dict[str, object], failsafe: bool) -> model.MultiLanguageProperty:
     ret = model.MultiLanguageProperty(id_short=_get_ts(dct, "idShort", str), kind=_get_kind(dct))
     _amend_abstract_attributes(ret, dct, failsafe)
-    if 'value' in dct:
+    if 'value' in dct and dct['value'] is not None:
         ret.value = _construct_lang_string_set(_get_ts(dct, 'value', list), failsafe)
     if 'valueId' in dct:
         ret.value_id = _construct_reference(_get_ts(dct, 'valueId', dict))
@@ -429,7 +429,7 @@ def construct_property(dct: Dict[str, object], failsafe: bool) -> model.Property
                          value_type=_get_ts(dct, 'valueType', str),
                          kind=_get_kind(dct))
     _amend_abstract_attributes(ret, dct, failsafe)
-    if 'value' in dct:
+    if 'value' in dct and dct['value'] is not None:
         ret.value = _get_ts(dct, 'value', str)
     if 'valueId' in dct:
         ret.value_id = _construct_reference(_get_ts(dct, 'valueId', dict))
@@ -441,9 +441,9 @@ def construct_range(dct: Dict[str, object], failsafe: bool) -> model.Range:
                       value_type=_get_ts(dct, 'valueType', str),
                       kind=_get_kind(dct))
     _amend_abstract_attributes(ret, dct, failsafe)
-    if 'min' in dct:
+    if 'min' in dct and dct['min'] is not None:
         ret.min_ = _get_ts(dct, 'min', str)
-    if 'max' in dct:
+    if 'max' in dct and dct['max'] is not None:
         ret.max_ = _get_ts(dct, 'max', str)
     return ret
 
@@ -453,7 +453,7 @@ def construct_reference_element(dct: Dict[str, object], failsafe: bool) -> model
                                  value=None,
                                  kind=_get_kind(dct))
     _amend_abstract_attributes(ret, dct, failsafe)
-    if 'value' in dct:
+    if 'value' in dct and dct['value'] is not None:
         ret.value = _construct_aas_reference(_get_ts(dct, 'value', dict), model.Referable)
     return ret
 
