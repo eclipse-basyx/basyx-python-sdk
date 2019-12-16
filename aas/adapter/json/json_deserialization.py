@@ -130,7 +130,7 @@ def _amend_abstract_attributes(obj: object, dct: Dict[str, object], failsafe: bo
                     else:
                         raise type(e)(error_message) from e
     if isinstance(obj, model.HasSemantics):
-        if 'semantic_id' in dct:
+        if 'semanticId' in dct:
             obj.semantic_id = _construct_reference(_get_ts(dct, 'semanticId', dict))
     # `HasKind` provides only mandatory, immutable attributes; so we cannot do anything here, after object creation.
     # However, the `_get_kind()` function may assist by retreiving them from the JSON object
@@ -229,7 +229,7 @@ def construct_asset_administration_shell(dct: Dict[str, object], failsafe: bool)
     if 'submodels' in dct:
         for sm_data in _get_ts(dct, 'submodels', list):
             ret.submodel_.add(_construct_aas_reference(sm_data, model.Submodel))
-    if 'view' in dct:
+    if 'views' in dct:
         for view in _get_ts(dct, 'views', list):
             if _expect_type(view, model.View, str(ret), failsafe):
                 ret.view.add(view)
@@ -252,7 +252,7 @@ def construct_concept_description(dct: Dict[str, object], failsafe: bool) -> mod
     ret = model.ConceptDescription(identification=_construct_identifier(_get_ts(dct, 'identification', dict)))
     _amend_abstract_attributes(ret, dct, failsafe)
     if 'isCaseOf' in dct:
-        for case_data in _get_ts(dct, "inCaseOf", list):
+        for case_data in _get_ts(dct, "isCaseOf", list):
             ret.is_case_of.add(_construct_reference(case_data))
     return ret
 
@@ -269,6 +269,8 @@ def construct_concept_dictionary(dct: Dict[str, object], failsafe: bool) -> mode
 def construct_entity(dct: Dict[str, object], failsafe: bool) -> model.Entity:
     ret = model.Entity(id_short=_get_ts(dct, "idShort", str),
                        entity_type=ENTITY_TYPES_INVERSE[_get_ts(dct, "entityType", str)],
+                       asset=(_construct_aas_reference(_get_ts(dct, 'asset', dict), model.Asset)
+                              if 'asset' in dct else None),
                        kind=_get_kind(dct))
     _amend_abstract_attributes(ret, dct, failsafe)
     if 'statements' in dct:
