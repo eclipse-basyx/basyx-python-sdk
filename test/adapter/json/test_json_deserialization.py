@@ -24,11 +24,11 @@ from aas.adapter.json import json_deserialization
 class JsonDeserializationTest(unittest.TestCase):
     def test_file_format_missing_list(self) -> None:
         data = """
-{
-    "assetAdministrationShells": [],
-    "assets": [],
-    "conceptDescriptions": []
-}"""
+            {
+                "assetAdministrationShells": [],
+                "assets": [],
+                "conceptDescriptions": []
+            }"""
         with self.assertRaisesRegex(KeyError, r"submodels"):
             json_deserialization.read_json_aas_file(io.StringIO(data), False)
         with self.assertLogs(logging.getLogger(), level=logging.WARNING) as cm:
@@ -37,23 +37,23 @@ class JsonDeserializationTest(unittest.TestCase):
 
     def test_file_format_wrong_list(self) -> None:
         data = """
-{
-    "assetAdministrationShells": [],
-    "assets": [],
-    "conceptDescriptions": [],
-    "submodels": [
-        {
-            "modelType": {
-                "name": "Asset"
-            },
-            "identification": {
-                "id": "https://acplt.org/Test_Asset",
-                "idType": "IRI"
-            },
-            "kind": "Instance"
-        }
-    ]
-}"""
+            {
+                "assetAdministrationShells": [],
+                "assets": [],
+                "conceptDescriptions": [],
+                "submodels": [
+                    {
+                        "modelType": {
+                            "name": "Asset"
+                        },
+                        "identification": {
+                            "id": "https://acplt.org/Test_Asset",
+                            "idType": "IRI"
+                        },
+                        "kind": "Instance"
+                    }
+                ]
+            }"""
         with self.assertRaisesRegex(TypeError, r"submodels.*Asset"):
             json_deserialization.read_json_aas_file(io.StringIO(data), False)
         with self.assertLogs(logging.getLogger(), level=logging.WARNING) as cm:
@@ -63,18 +63,17 @@ class JsonDeserializationTest(unittest.TestCase):
 
     def test_file_format_unknown_object(self) -> None:
         data = """
-{
-    "assetAdministrationShells": [],
-    "assets": [],
-    "conceptDescriptions": [],
-    "submodels": [
-        "foo"
-    ]
-}"""
+            {
+                "assetAdministrationShells": [],
+                "assets": [],
+                "conceptDescriptions": [],
+                "submodels": [
+                    "foo"
+                ]
+            }"""
         with self.assertRaisesRegex(TypeError, r"submodels.*'foo'"):
             json_deserialization.read_json_aas_file(io.StringIO(data), False)
         with self.assertLogs(logging.getLogger(), level=logging.WARNING) as cm:
             json_deserialization.read_json_aas_file(io.StringIO(data), True)
         self.assertIn("submodels", cm.output[0])
         self.assertIn("'foo'", cm.output[0])
-
