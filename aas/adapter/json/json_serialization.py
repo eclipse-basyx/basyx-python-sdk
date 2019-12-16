@@ -1,4 +1,5 @@
 from typing import Dict
+import base64
 
 from aas import model
 from json import JSONEncoder
@@ -405,7 +406,9 @@ def blob_to_json(obj: model.Blob) -> Dict[str, object]:
     :return: dict with the serialized attributes of this object
     """
     data = abstract_classes_to_json(obj)
-    data.update({'value': obj.value, 'mimeType': obj.mime_type})
+    data['mimeType'] = obj.mime_type
+    if obj.value is not None:
+        data['value'] = base64.b64encode(obj.value).decode()
     return data
 
 
