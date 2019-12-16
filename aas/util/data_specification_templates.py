@@ -1,6 +1,37 @@
-from typing import Optional, List
+from typing import Optional, Set
+from enum import Enum, unique
 
 from ..model import base
+
+
+@unique
+class DataTypeIEC61360(Enum):
+    """
+    Data types for data_type in DataSpecificationIEC61360
+    """
+    DATE = 0
+    STRING = 1
+    STRING_TRANSLATABLE = 2
+    REAL_MEASURE = 3
+    REAL_COUNT = 4
+    REAL_CURRENCY = 5
+    BOOLEAN = 6
+    URL = 7
+    RATIONAL = 8
+    RATIONAL_MEASURE = 9
+    TIME = 10
+    TIMESTAMP = 11
+
+
+@unique
+class LevelType(Enum):
+    """
+    Level types for the level_type in DataSpecificationIEC61360
+    """
+    MIN = 0
+    MAX = 1
+    NOM = 2
+    TYP = 3
 
 
 class DataSpecificationIEC61360(base.DataSpecification):
@@ -10,7 +41,7 @@ class DataSpecificationIEC61360(base.DataSpecification):
     def __init__(self,
                  preferred_name: str,
                  short_name: str,
-                 data_type: str,
+                 data_type: DataTypeIEC61360,
                  definition: str,
                  code: str,
                  administration: base.AdministrativeInformation,
@@ -24,7 +55,10 @@ class DataSpecificationIEC61360(base.DataSpecification):
                  source_of_definition: Optional[str] = None,
                  symbol: Optional[str] = None,
                  value_format: Optional[str] = None,
-                 value_list: Optional[List[str]] = None,
+                 value_list: Optional[base.ValueList] = None,
+                 value: Optional[base.ValueDataType] = None,
+                 value_id: Optional[base.Reference] = None,
+                 level_types: Optional[Set[LevelType]] = None,
                  ):
         """
         Initializer of DataSpecificationIEC61360
@@ -48,11 +82,14 @@ class DataSpecificationIEC61360(base.DataSpecification):
         :param symbol: unit symbol (optional)
         :param value_format: format of the values (optional)
         :param value_list: list of values (optional)
+        :param value: value data type object (optional)
+        :param value_id: Reference to the value (optional)
+        :param level_types: Set of level types of the DataSpecificationContent (optional)
         """
         super().__init__(administration, identification, id_short, category, description, parent)
         self.preferred_name:  str = preferred_name
         self.short_name: str = short_name
-        self.data_type: str = data_type
+        self.data_type: DataTypeIEC61360 = data_type
         self.definition: str = definition
         self.code: str = code
         self.unit: Optional[str] = unit
@@ -60,4 +97,7 @@ class DataSpecificationIEC61360(base.DataSpecification):
         self.source_of_definition: Optional[str] = source_of_definition
         self.symbol: Optional[str] = symbol
         self.value_format: Optional[str] = value_format
-        self.value_list: Optional[List[str]] = value_list
+        self.value_list: Optional[base.ValueList] = value_list
+        self.value: Optional[base.ValueDataType] = value
+        self.value_id: Optional[base.Reference] = value_id
+        self.level_types: Optional[Set[LevelType]] = level_types
