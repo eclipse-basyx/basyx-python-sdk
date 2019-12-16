@@ -539,6 +539,6 @@ def create_example_asset_administration_shell(concept_dictionary: model.ConceptD
                                                  id_type=model.KeyType.IRDI)],
                                       model.Submodel)},
         concept_dictionary=[concept_dictionary],
-        view=None,
+        view=[],
         derived_from=None)
     return asset_administration_shell
