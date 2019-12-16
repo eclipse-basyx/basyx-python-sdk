@@ -135,16 +135,9 @@ def _amend_abstract_attributes(obj: object, dct: Dict[str, object], failsafe: bo
     # However, the `_get_kind()` function may assist by retreiving them from the JSON object
     if isinstance(obj, model.Qualifiable):
         if 'qualifiers' in dct:
-            for qualifier_data in _get_ts(dct, 'qualifiers', list):
-                try:
-                    obj.qualifier.add(_construct_qualifier(qualifier_data, failsafe))
-                except (KeyError, TypeError) as e:
-                    error_message = "Error while trying to convert JSON object into Qualifier for {}: {}".format(
-                        obj, pprint.pformat(dct, depth=2, width=2**14, compact=True))
-                    if failsafe:
-                        logger.error(error_message, exc_info=e)
-                    else:
-                        raise type(e)(error_message) from e
+            for constraint in _get_ts(dct, 'qualifiers', list):
+                if _expect_type(constraint, model.Constraint, str(obj), failsafe):
+                    obj.qualifier.add(constraint)
 
 
 def _get_kind(dct: Dict[str, object]) -> model.ModelingKind:
@@ -194,17 +187,6 @@ def _construct_administrative_information(dct: Dict[str, object]) -> model.Admin
             ret.revision = _get_ts(dct, 'revision', str)
     elif 'revision' in dct:
         logger.warning("Ignoring 'revision' attribute of AdministrativeInformation object due to missing 'version'")
-    return ret
-
-
-def _construct_qualifier(dct: Dict[str, object], failsafe: bool) -> model.Qualifier:
-    ret = model.Qualifier(type_=_get_ts(dct, 'type', str),
-                          value_type=_get_ts(dct, 'valueType', str))
-    _amend_abstract_attributes(ret, dct, failsafe)
-    if 'value' in dct:
-        ret.value = _get_ts(dct, 'value', str)
-    if 'valueId' in dct:
-        ret.value_id = _construct_reference(_get_ts(dct, 'value', dict))
     return ret
 
 
@@ -291,6 +273,35 @@ def construct_entity(dct: Dict[str, object], failsafe: bool) -> model.Entity:
         for element in _get_ts(dct, "statements", list):
             if _expect_type(element, model.SubmodelElement, str(ret), failsafe):
                 ret.statement.add(element)
+    return ret
+
+
+def construct_qualifier(dct: Dict[str, object], failsafe: bool) -> model.Qualifier:
+    ret = model.Qualifier(type_=_get_ts(dct, 'type', str),
+                          value_type=_get_ts(dct, 'valueType', str))
+    _amend_abstract_attributes(ret, dct, failsafe)
+    if 'value' in dct:
+        ret.value = _get_ts(dct, 'value', str)
+    if 'valueId' in dct:
+        ret.value_id = _construct_reference(_get_ts(dct, 'value', dict))
+    return ret
+
+
+def construct_formula(dct: Dict[str, object], failsafe: bool) -> model.Formula:
+    ret = model.Formula()
+    _amend_abstract_attributes(ret, dct, failsafe)
+    if 'dependsOn' in dct:
+        for dependency_data in _get_ts(dct, 'dependsOn', list):
+            try:
+                ret.depends_on.add(_construct_reference(dependency_data))
+            except (KeyError, TypeError) as e:
+                error_message = \
+                    "Error while trying to convert JSON object into dependency Reference for {}: {}".format(
+                        ret, pprint.pformat(dct, depth=2, width=2 ** 14, compact=True))
+                if failsafe:
+                    logger.error(error_message, exc_info=e)
+                else:
+                    raise type(e)(error_message) from e
     return ret
 
 
@@ -467,6 +478,8 @@ AAS_CLASS_PARSERS: Dict[str, Callable[[Dict[str, object], bool], object]] = {
     'Asset': construct_asset,
     'AssetAdministrationShell': construct_asset_administration_shell,
     'ConceptDescription': construct_concept_description,
+    'Qualifier': construct_qualifier,
+    'Formula': construct_formula,
     'Submodel': construct_submodel,
     'ConceptDictionary': construct_concept_dictionary,
     'Capability': construct_capability,
