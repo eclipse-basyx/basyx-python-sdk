@@ -21,7 +21,7 @@ KEY_ELEMENTS: Dict[model.KeyElements, str] = {
     model.KeyElements.ASSET_ADMINISTRATION_SHELL: 'AssetAdministrationShell',
     model.KeyElements.CONCEPT_DESCRIPTION: 'ConceptDescription',
     model.KeyElements.SUBMODEL: 'Submodel',
-    model.KeyElements.ANNOTATION_RELATIONSHIP_ELEMENT: 'AnnotatedRelationshipElement',
+    model.KeyElements.ANNOTATED_RELATIONSHIP_ELEMENT: 'AnnotatedRelationshipElement',
     model.KeyElements.BASIC_EVENT: 'BasicEvent',
     model.KeyElements.BLOB: 'Blob',
     model.KeyElements.CAPABILITY: 'Capability',

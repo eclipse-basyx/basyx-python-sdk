@@ -34,7 +34,7 @@ KEY_ELEMENTS_CLASSES = {
     model.KeyElements.ASSET_ADMINISTRATION_SHELL: model.AssetAdministrationShell,
     model.KeyElements.CONCEPT_DESCRIPTION: model.ConceptDescription,
     model.KeyElements.SUBMODEL: model. Submodel,
-    model.KeyElements.ANNOTATION_RELATIONSHIP_ELEMENT: model.AnnotatedRelationshipElement,
+    model.KeyElements.ANNOTATED_RELATIONSHIP_ELEMENT: model.AnnotatedRelationshipElement,
     model.KeyElements.BASIC_EVENT: model.BasicEvent,
     model.KeyElements.BLOB: model.Blob,
     model.KeyElements.CAPABILITY: model.Capability,
