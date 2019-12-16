@@ -8,7 +8,19 @@
 # Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an
 # "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
 # specific language governing permissions and limitations under the License.
+"""
+Module for serializing Asset Administration Shell objects to the official JSON format
 
+The module provides an custom JSONEncoder class `AASToJsonEncoder` to be used with the Python standard `json` module.
+It contains a custom `default` function which converts PyAAS objects to simple python types for an automatical
+python serialization.
+
+This job is performed in a bottom-up approach: The `default()` function gets called for every object. The function
+checks if an object is an PyAAS object. If not it calls the upper default function. Otherwise it calls the special
+function for the PyAAS object which converts the attributes of the given object to simple python types.
+A special function is abstract_classes_to_json which is called by all converting function. This function does the
+convertation for all base attributes which are abstract defined.
+"""
 import base64
 import inspect
 from typing import Dict, List
@@ -646,7 +658,7 @@ class AASToJsonEncoder(json.JSONEncoder):
         return super().default(obj)
 
 
-def write_aas_to_json_file(file: IO, data: model.AbstractObjectStore, append: bool) -> None:
+def write_aas_to_json_file(file: IO, data: model.AbstractObjectStore) -> None:
     """
     Write an Asset Adminstration Shell JSON file according to
 
@@ -659,22 +671,20 @@ def write_aas_to_json_file(file: IO, data: model.AbstractObjectStore, append: bo
     asset_administation_shells = []
     submodels = []
     concept_descriptions = []
-    for object in data:
-        if isinstance(object, model.Asset):
-            assets.append(object)
-        if isinstance(object, model.AssetAdministrationShell):
-            asset_administation_shells.append(object)
-        if isinstance(object, model.Submodel):
-            submodels.append(object)
-        if isinstance(object, model.ConceptDescription):
-            concept_descriptions.append(object)
+    for obj in data:
+        if isinstance(obj, model.Asset):
+            assets.append(obj)
+        if isinstance(obj, model.AssetAdministrationShell):
+            asset_administation_shells.append(obj)
+        if isinstance(obj, model.Submodel):
+            submodels.append(obj)
+        if isinstance(obj, model.ConceptDescription):
+            concept_descriptions.append(obj)
 
     # serialize object to json
-    json_data = json.loads(json.dumps({
-        'assetAdministrationShells': [asset_administation_shells],
-        'submodels': [submodels],
-        'assets': [assets],
-        'conceptDescriptions': [concept_descriptions],
-    }, cls=AASToJsonEncoder))
-
-    json.dump(json_data, file)
+    json.dump({
+        'assetAdministrationShells': asset_administation_shells,
+        'submodels': submodels,
+        'assets': assets,
+        'conceptDescriptions': concept_descriptions,
+    }, file, cls=AASToJsonEncoder)

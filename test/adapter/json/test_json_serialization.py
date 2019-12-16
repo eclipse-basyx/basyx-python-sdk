@@ -64,14 +64,14 @@ class JsonSerializationTest(unittest.TestCase):
 
     def test_full_example_serialization(self) -> None:
         data = example_create_aas.create_full_example()
-        with open(os.path.join(os.path.dirname(__file__), 'test_full_example.json'), 'w') as json_file:
-            json_serialization.write_aas_to_json_file(file=json_file, data=data, append=False)
+        file = io.StringIO()
+        json_serialization.write_aas_to_json_file(file=file, data=data)
 
         with open(os.path.join(os.path.dirname(__file__), 'aasJSONSchemaV2.0.json'), 'r') as json_file:
             aas_json_schema = json.load(json_file)
 
-        with open(os.path.join(os.path.dirname(__file__), 'test_full_example.json'), 'r') as json_file:
-            json_data = json.load(json_file)
+        file.seek(0)
+        json_data = json.load(file)
 
         # validate serialization against schema
         validate(instance=json_data, schema=aas_json_schema)
@@ -79,4 +79,5 @@ class JsonSerializationTest(unittest.TestCase):
         # try deserializing the json string into a DictObjectStore of AAS objects with help of the json_deserialization
         # module
         # TODO move to own test
-        json_object_store = json_deserialization.read_json_aas_file(io.StringIO(json_data), failsafe=False)
+        file.seek(0)
+        json_object_store = json_deserialization.read_json_aas_file(file, failsafe=False)
