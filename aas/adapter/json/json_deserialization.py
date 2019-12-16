@@ -184,17 +184,15 @@ def _construct_key(dct: Dict[str, object]) -> model.Key:
 
 def _construct_reference(dct: Dict[str, object]) -> model.Reference:
     keys = [_construct_key(key_data) for key_data in _get_ts(dct, "keys", list)]
-    # TODO remove type here
-    return model.Reference(keys, model.Referable)
+    return model.Reference(keys)
 
 
-def _construct_aas_reference(dct: Dict[str, object], type_: Type[T]) -> model.Reference:
+def _construct_aas_reference(dct: Dict[str, object], type_: Type[T]) -> model.AASReference:
     keys = [_construct_key(key_data) for key_data in _get_ts(dct, "keys", list)]
     if keys and KEY_ELEMENTS_CLASSES.get(keys[-1].type_, None) != type_:
         logger.warning("type %s of last key of reference to %s does not match reference type %s",
                        keys[-1].type_.name, " / ".join(str(k) for k in keys), type_.__name__)
-    # TODO use AASReference here
-    return model.Reference(keys, type_)
+    return model.AASReference(keys, type_)
 
 
 def _construct_identifier(dct: Dict[str, object]) -> model.Identifier:
@@ -331,7 +329,7 @@ def construct_capability(dct: Dict[str, object], failsafe: bool) -> model.Capabi
 
 def construct_basic_event(dct: Dict[str, object], failsafe: bool) -> model.BasicEvent:
     ret = model.BasicEvent(id_short=_get_ts(dct, "idShort", str),
-                           observed=_construct_reference(_get_ts(dct, 'observed', dict)),
+                           observed=_construct_aas_reference(_get_ts(dct, 'observed', dict), model.Referable),
                            kind=_get_kind(dct))
     _amend_abstract_attributes(ret, dct, failsafe)
     return ret
@@ -365,8 +363,8 @@ def construct_operation_variable(dct: Dict[str, object], failsafe: bool) -> mode
 
 def construct_relationship_element(dct: Dict[str, object], failsafe: bool) -> model.RelationshipElement:
     ret = model.RelationshipElement(id_short=_get_ts(dct, "idShort", str),
-                                    first=_construct_reference(_get_ts(dct, 'first', dict)),
-                                    second=_construct_reference(_get_ts(dct, 'second', dict)),
+                                    first=_construct_aas_reference(_get_ts(dct, 'first', dict), model.Referable),
+                                    second=_construct_aas_reference(_get_ts(dct, 'second', dict), model.Referable),
                                     kind=_get_kind(dct))
     _amend_abstract_attributes(ret, dct, failsafe)
     return ret
@@ -449,7 +447,7 @@ def construct_reference_element(dct: Dict[str, object], failsafe: bool) -> model
                                  kind=_get_kind(dct))
     _amend_abstract_attributes(ret, dct, failsafe)
     if 'value' in dct:
-        ret.value = _construct_reference(_get_ts(dct, 'value', dict))
+        ret.value = _construct_aas_reference(_get_ts(dct, 'value', dict), model.Referable)
     return ret
 
 
