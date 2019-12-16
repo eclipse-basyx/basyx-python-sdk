@@ -223,10 +223,8 @@ def _construct_qualifier(dct: Dict[str, object], failsafe: bool) -> model.Qualif
 
 
 def _construct_view(dct: Dict[str, object], failsafe: bool) -> model.View:
-    # TODO idShort needs to be added
-    ret = model.View()
+    ret = model.View(_get_ts(dct, 'idShort', str))
     _amend_abstract_attributes(ret, dct, failsafe)
-    # TODO semanticId needs to be added
     return ret
 
 
