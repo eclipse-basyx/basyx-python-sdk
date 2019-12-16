@@ -12,9 +12,9 @@
 import base64
 import inspect
 from typing import Dict, List
-
+import json
+from typing import Dict, IO
 from aas import model
-from json import JSONEncoder
 
 
 # ##########################################
@@ -584,7 +584,7 @@ def basic_event_to_json(obj: model.BasicEvent) -> Dict[str, object]:
     return data
 
 
-class AASToJsonEncoder(JSONEncoder):
+class AASToJsonEncoder(json.JSONEncoder):
     """
     extended JSONEncoder for objects from the meta model of 'Details of the Asset Administration Shell - Part 1
     Version 2.0'
@@ -644,3 +644,37 @@ class AASToJsonEncoder(JSONEncoder):
         if isinstance(obj, model.Formula):
             return formula_to_json(obj)
         return super().default(obj)
+
+
+def write_aas_to_json_file(file: IO, data: model.AbstractObjectStore, append: bool) -> None:
+    """
+    Write an Asset Adminstration Shell JSON file according to
+
+    :param file: A file-like object to write the JSON-serialized data to
+    :param data: Object Store which contains different objects of the AAS meta model which should be serialized to a
+                 JSON file
+    """
+    # separate different kind of objects
+    assets = []
+    asset_administation_shells = []
+    submodels = []
+    concept_descriptions = []
+    for object in data:
+        if isinstance(object, model.Asset):
+            assets.append(object)
+        if isinstance(object, model.AssetAdministrationShell):
+            asset_administation_shells.append(object)
+        if isinstance(object, model.Submodel):
+            submodels.append(object)
+        if isinstance(object, model.ConceptDescription):
+            concept_descriptions.append(object)
+
+    # serialize object to json
+    json_data = json.loads(json.dumps({
+        'assetAdministrationShells': [asset_administation_shells],
+        'submodels': [submodels],
+        'assets': [assets],
+        'conceptDescriptions': [concept_descriptions],
+    }, cls=AASToJsonEncoder))
+
+    json.dump(json_data, file)
