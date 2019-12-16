@@ -52,16 +52,6 @@ def create_example_asset_identification_submodel() -> model.Submodel:
 
     :return: example asset identification submodel
     """
-    qualifier = model.Qualifier(
-        type_='http://acplt.org/Qualifier/ExampleQualifier',
-        value_type='string',
-        value='100')
-
-    formula = model.Formula(depends_on={model.Reference([model.Key(type_=model.KeyElements.ASSET,
-                                                                   local=False,
-                                                                   value='http://acplt.org/Formula/ExampleFormula',
-                                                                   id_type=model.KeyType.IRDI)])})
-
     # Property-Element conform to 'Verwaltungssschale in der Praxis' page 41 ManufacturerName:
     # https://www.plattform-i40.de/PI40/Redaktion/DE/Downloads/Publikation/2019-verwaltungsschale-in-der-praxis.html
     identification_submodel_element_manufacturer_name = model.Property(
@@ -82,7 +72,7 @@ def create_example_asset_identification_submodel() -> model.Submodel:
                                                local=False,
                                                value='0173-1#02-AAO677#002',
                                                id_type=model.KeyType.IRDI)]),
-        qualifier={qualifier},
+        qualifier=None,
         kind=model.ModelingKind.INSTANCE)
 
     # Property-Element conform to 'Verwaltungssschale in der Praxis' page 44 InstanceId:
@@ -105,7 +95,7 @@ def create_example_asset_identification_submodel() -> model.Submodel:
                                                local=False,
                                                value='http://opcfoundation.org/UA/DI/1.1/DeviceType/Serialnumber',
                                                id_type=model.KeyType.IRI)]),
-        qualifier={formula},
+        qualifier=None,
         kind=model.ModelingKind.INSTANCE)
 
     # asset identification submodel which will be included in the asset object
@@ -119,8 +109,7 @@ def create_example_asset_identification_submodel() -> model.Submodel:
         description={'en-us': 'An example asset identification submodel for the test application',
                      'de': 'Ein Beispiel-Identifikations-Submodel für eine Test-Anwendung'},
         parent=None,
-        administration=model.AdministrativeInformation(version='0.9',
-                                                       revision='0'),
+        administration=model.AdministrativeInformation(version='0.9'),
         data_specification={model.Reference([model.Key(type_=model.KeyElements.ASSET,
                                                        local=False,
                                                        value='http://acplt.org/DataSpecifications/Submodels/'
@@ -150,8 +139,7 @@ def create_example_asset() -> model.Asset:
         description={'en-us': 'An example asset for the test application',
                      'de': 'Ein Beispiel-Asset für eine Test-Anwendung'},
         parent=None,
-        administration=model.AdministrativeInformation(version='0.9',
-                                                       revision='0'),
+        administration=model.AdministrativeInformation(revision='0'),
         data_specification={model.Reference([model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
                                                        local=False,
                                                        value='http://acplt.org/DataSpecifications/AssetTypes/'

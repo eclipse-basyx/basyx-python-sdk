@@ -200,7 +200,7 @@ def constraint_to_json(obj: model.Constraint) -> Dict[str, object]:  # TODO chec
     except StopIteration as e:
         raise TypeError("Object of type {} is a Constraint but does not inherit from a known AAS Constraint type"
                         .format(obj.__class__.__name__)) from e
-    return {'modelType': const_type}
+    return {'modelType': {'name': const_type.__name__}}
 
 
 def namespace_to_json(obj):  # not in specification yet
