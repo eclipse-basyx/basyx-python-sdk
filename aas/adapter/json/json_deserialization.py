@@ -13,7 +13,8 @@ Module for deserializing Asset Administration Shell data from the official JSON 
 
 The module provides an custom JSONDecoder classes `AASFromJsonDecoder` and `StrictAASFromJsonDecoder` to be used with
 the Python standard `json` module. They contain a custom `object_hook` function to detect encoded AAS objects within the
-JSON data and convert them to PyAAS objects while parsing.
+JSON data and convert them to PyAAS objects while parsing. Additionally, there's the `read_json_aas_file()` function,
+that takes a complete AAS JSON file, reads its contents and returns the contained AAS objects as DictObjectStore.
 
 This job is performed in a bottom-up approach: The `object_hook()` function gets called for every parsed JSON object
 (as dict) and checks for existence of the `modelType` attribute. If it is present, the `AAS_CLASS_PARSERS` dict defines,
@@ -559,7 +560,7 @@ class StrictAASFromJsonDecoder(AASFromJsonDecoder):
 
 def read_json_aas_file(file: IO, failsafe: bool = True) -> model.DictObjectStore:
     """
-    Read an Asset Adminstration Shell JSON file according to
+    Read an Asset Adminstration Shell JSON file according to 'Details of the Asset Administration Shell', chapter 5.5
 
     :param file: A file-like object to read the JSON-serialized data from
     :param failsafe: If True, the file is parsed in a failsafe way: Instead of raising an Exception for missing

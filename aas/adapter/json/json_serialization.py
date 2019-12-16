@@ -13,13 +13,13 @@ Module for serializing Asset Administration Shell objects to the official JSON f
 
 The module provides an custom JSONEncoder class `AASToJsonEncoder` to be used with the Python standard `json` module.
 It contains a custom `default` function which converts PyAAS objects to simple python types for an automatical
-python serialization.
+JSON serialization. Additionally, there's the `write_aas_json_file()` function, that takes a complete ObjectStore and
+writes all contained AAS objects into a JSON file.
 
-This job is performed in a bottom-up approach: The `default()` function gets called for every object. The function
-checks if an object is an PyAAS object. If not it calls the upper default function. Otherwise it calls the special
-function for the PyAAS object which converts the attributes of the given object to simple python types.
-A special function is abstract_classes_to_json which is called by all converting function. This function does the
-convertation for all base attributes which are abstract defined.
+This job is performed in a bottom-up approach: The `default()` function gets called for every object and checks if an
+object is an PyAAS object. In this case, it calls the special function for the PyAAS object which converts the
+it to a simple python type, which is serializable. The special helper function `abstract_classes_to_json()` is called by
+most of the conversion functions to handle all the attributes of abstract base classes.
 """
 import base64
 import inspect
@@ -658,13 +658,15 @@ class AASToJsonEncoder(json.JSONEncoder):
         return super().default(obj)
 
 
-def write_aas_to_json_file(file: IO, data: model.AbstractObjectStore) -> None:
+def write_aas_json_file(file: IO, data: model.AbstractObjectStore, **kwargs) -> None:
     """
-    Write an Asset Adminstration Shell JSON file according to
+    Write a set of AAS objects to an Asset Adminstration Shell JSON file according to 'Details of the Asset
+    Administration Shell', chapter 5.5
 
     :param file: A file-like object to write the JSON-serialized data to
-    :param data: Object Store which contains different objects of the AAS meta model which should be serialized to a
+    :param data: ObjectStore which contains different objects of the AAS meta model which should be serialized to a
                  JSON file
+    :param kwargs: Additional keyword arguments to be passed to json.dump()
     """
     # separate different kind of objects
     assets = []
@@ -687,4 +689,4 @@ def write_aas_to_json_file(file: IO, data: model.AbstractObjectStore) -> None:
         'submodels': submodels,
         'assets': assets,
         'conceptDescriptions': concept_descriptions,
-    }, file, cls=AASToJsonEncoder)
+    }, file, cls=AASToJsonEncoder, **kwargs)

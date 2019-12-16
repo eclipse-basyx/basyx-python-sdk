@@ -66,7 +66,7 @@ class JsonSerializationTest(unittest.TestCase):
     def test_full_example_serialization(self) -> None:
         data = example_create_aas.create_full_example()
         file = io.StringIO()
-        json_serialization.write_aas_to_json_file(file=file, data=data)
+        json_serialization.write_aas_json_file(file=file, data=data)
 
         with open(os.path.join(os.path.dirname(__file__), 'aasJSONSchemaV2.0.json'), 'r') as json_file:
             aas_json_schema = json.load(json_file)
@@ -87,7 +87,7 @@ class JsonSerializationTest(unittest.TestCase):
         data: model.DictObjectStore[model.Identifiable] = model.DictObjectStore()
         data.add(example_create_submodel_template.create_example_submodel_template())
         file = io.StringIO()
-        json_serialization.write_aas_to_json_file(file=file, data=data)
+        json_serialization.write_aas_json_file(file=file, data=data)
 
         with open(os.path.join(os.path.dirname(__file__), 'aasJSONSchemaV2.0.json'), 'r') as json_file:
             aas_json_schema = json.load(json_file)
@@ -100,14 +100,13 @@ class JsonSerializationTest(unittest.TestCase):
 
         # try deserializing the json string into a DictObjectStore of AAS objects with help of the json_deserialization
         # module
-        # TODO move to own test
         file.seek(0)
         json_object_store = json_deserialization.read_json_aas_file(file, failsafe=False)
 
     def test_full_empty_example_serialization(self) -> None:
         data = example_create_aas_mandatory_attributes.create_full_example()
         file = io.StringIO()
-        json_serialization.write_aas_to_json_file(file=file, data=data)
+        json_serialization.write_aas_json_file(file=file, data=data)
 
         with open(os.path.join(os.path.dirname(__file__), 'aasJSONSchemaV2.0.json'), 'r') as json_file:
             aas_json_schema = json.load(json_file)
@@ -127,7 +126,7 @@ class JsonSerializationTest(unittest.TestCase):
     def test_missing_serialization(self) -> None:
         data = example_test_serialization.create_full_example()
         file = io.StringIO()
-        json_serialization.write_aas_to_json_file(file=file, data=data)
+        json_serialization.write_aas_json_file(file=file, data=data)
 
         with open(os.path.join(os.path.dirname(__file__), 'aasJSONSchemaV2.0.json'), 'r') as json_file:
             aas_json_schema = json.load(json_file)
