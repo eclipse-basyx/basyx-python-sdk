@@ -394,7 +394,7 @@ def property_to_json(obj: model.Property) -> Dict[str, object]:
     data['value'] = obj.value
     if obj.value_id:
         data['valueId'] = obj.value_id
-    data['valueType'] = {'dataObjectType': {'name': obj.value_type}}
+    data['valueType'] = obj.value_type
     return data
 
 
