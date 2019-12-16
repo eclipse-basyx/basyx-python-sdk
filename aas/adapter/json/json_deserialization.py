@@ -38,6 +38,7 @@ KEY_ELEMENTS_INVERSE: Dict[str, model.KeyElements] = {v: k for k, v in KEY_ELEME
 KEY_TYPES_INVERSE: Dict[str, model.KeyType] = {v: k for k, v in KEY_TYPES.items()}
 IDENTIFIER_TYPES_INVERSE: Dict[str, model.IdentifierType] = {v: k for k, v in IDENTIFIER_TYPES.items()}
 ENTITY_TYPES_INVERSE: Dict[str, model.EntityType] = {v: k for k, v in ENTITY_TYPES.items()}
+KEY_ELEMENTS_CLASSES_INVERSE: Dict[model.KeyElements, type] = {v: k for k, v in model.KEY_ELEMENTS_CLASSES.items()}
 
 
 # #############################################################################
@@ -174,7 +175,7 @@ def _construct_reference(dct: Dict[str, object]) -> model.Reference:
 
 def _construct_aas_reference(dct: Dict[str, object], type_: Type[T]) -> model.AASReference:
     keys = [_construct_key(key_data) for key_data in _get_ts(dct, "keys", list)]
-    if keys and model.KEY_ELEMENTS_CLASSES.get(type_, None) != keys[-1].type_:
+    if keys and not issubclass(KEY_ELEMENTS_CLASSES_INVERSE.get(keys[-1].type_, None), type_):
         logger.warning("type %s of last key of reference to %s does not match reference type %s",
                        keys[-1].type_.name, " / ".join(str(k) for k in keys), type_.__name__)
     return model.AASReference(keys, type_)
