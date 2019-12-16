@@ -379,7 +379,7 @@ def construct_annotated_relationship_element(dct: Dict[str, object], failsafe: b
 
 def construct_submodel_element_collection(dct: Dict[str, object], failsafe: bool) -> model.SubmodelElementCollection:
     ret: model.SubmodelElementCollection
-    if _get_ts(dct, 'ordered', bool):
+    if 'ordered' in dct and _get_ts(dct, 'ordered', bool):
         ret = model.SubmodelElementCollectionOrdered(
             id_short=_get_ts(dct, "idShort", str), kind=_get_kind(dct))
     else:
