@@ -354,6 +354,29 @@ def construct_relationship_element(dct: Dict[str, object], failsafe: bool) -> mo
     return ret
 
 
+def construct_annotated_relationship_element(dct: Dict[str, object], failsafe: bool)\
+        -> model.AnnotatedRelationshipElement:
+    ret = model.AnnotatedRelationshipElement(
+        id_short=_get_ts(dct, "idShort", str),
+        first=_construct_aas_reference(_get_ts(dct, 'first', dict), model.Referable),
+        second=_construct_aas_reference(_get_ts(dct, 'second', dict), model.Referable),
+        kind=_get_kind(dct))
+    _amend_abstract_attributes(ret, dct, failsafe)
+    if 'annotation' in dct:
+        for annotation_data in _get_ts(dct, 'annotation', list):
+            try:
+                ret.annotation.add(_construct_aas_reference(annotation_data, model.DataElement))
+            except (KeyError, TypeError) as e:
+                error_message = \
+                    "Error while trying to convert JSON object into annotation Reference for {}: {}".format(
+                        ret, pprint.pformat(dct, depth=2, width=2**14, compact=True))
+                if failsafe:
+                    logger.error(error_message, exc_info=e)
+                else:
+                    raise type(e)(error_message) from e
+    return ret
+
+
 def construct_submodel_element_collection(dct: Dict[str, object], failsafe: bool) -> model.SubmodelElementCollection:
     ret: model.SubmodelElementCollection
     if _get_ts(dct, 'ordered', bool):
@@ -452,6 +475,7 @@ AAS_CLASS_PARSERS: Dict[str, Callable[[Dict[str, object], bool], object]] = {
     'Operation': construct_operation,
     'OperationVariable': construct_operation_variable,
     'RelationshipElement': construct_relationship_element,
+    'AnnotatedRelationshipElement': construct_annotated_relationship_element,
     'SubmodelElementCollection': construct_submodel_element_collection,
     'Blob': construct_blob,
     'File': construct_file,
