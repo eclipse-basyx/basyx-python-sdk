@@ -91,9 +91,9 @@ def _expect_type(object_: object, type_: Type, context: str, failsafe: bool) -> 
     if isinstance(object_, type_):
         return True
     if failsafe:
-        logger.error("Expected a %s in %s.inputVariable, but found %s", type_.__name__, context, object_)
+        logger.error("Expected a %s in %s, but found %s", type_.__name__, context, repr(object_))
     else:
-        raise TypeError("Expected a %s in %s.inputVariable, but found %s" % (type_.__name__, context, object_))
+        raise TypeError("Expected a %s in %s, but found %s" % (type_.__name__, context, repr(object_)))
     return False
 
 
@@ -587,8 +587,8 @@ def read_json_aas_file(file: IO, failsafe: bool = True) -> model.DictObjectStore
                 raise type(e)(error_message) from e
 
         for item in lst:
-            error_message = "Expected a {} in list '{}', but found a {}".format(
-                expected_type.__name__, name, item)
+            error_message = "Expected a {} in list '{}', but found {}".format(
+                expected_type.__name__, name, repr(item))
             if isinstance(item, model.Identifiable):
                 if not isinstance(item, expected_type):
                     if failsafe:
