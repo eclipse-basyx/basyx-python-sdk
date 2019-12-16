@@ -191,12 +191,6 @@ def _construct_administrative_information(dct: Dict[str, object]) -> model.Admin
     return ret
 
 
-def _construct_view(dct: Dict[str, object], failsafe: bool) -> model.View:
-    ret = model.View(_get_ts(dct, 'idShort', str))
-    _amend_abstract_attributes(ret, dct, failsafe)
-    return ret
-
-
 def _construct_security(_dct: Dict[str, object]) -> model.Security:
     return model.Security()
 
@@ -236,14 +230,21 @@ def construct_asset_administration_shell(dct: Dict[str, object], failsafe: bool)
         for sm_data in _get_ts(dct, 'submodels', list):
             ret.submodel_.add(_construct_aas_reference(sm_data, model.Submodel))
     if 'view' in dct:
-        for view_data in _get_ts(dct, 'views', list):
-            ret.view.add(_construct_view(view_data, failsafe))
+        for view in _get_ts(dct, 'views', list):
+            if _expect_type(view, model.View, str(ret), failsafe):
+                ret.view.add(view)
     if 'conceptDictionaries' in dct:
         for concept_dictionary in _get_ts(dct, 'conceptDictionaries', list):
             if _expect_type(concept_dictionary, model.ConceptDictionary, str(ret), failsafe):
                 ret.concept_dictionary.add(concept_dictionary)
     if 'security' in dct:
         ret.security_ = _construct_security(_get_ts(dct, 'security', dict))
+    return ret
+
+
+def construct_view(dct: Dict[str, object], failsafe: bool) -> model.View:
+    ret = model.View(_get_ts(dct, 'idShort', str))
+    _amend_abstract_attributes(ret, dct, failsafe)
     return ret
 
 
@@ -478,6 +479,7 @@ def construct_reference_element(dct: Dict[str, object], failsafe: bool) -> model
 AAS_CLASS_PARSERS: Dict[str, Callable[[Dict[str, object], bool], object]] = {
     'Asset': construct_asset,
     'AssetAdministrationShell': construct_asset_administration_shell,
+    'View': construct_view,
     'ConceptDescription': construct_concept_description,
     'Qualifier': construct_qualifier,
     'Formula': construct_formula,
