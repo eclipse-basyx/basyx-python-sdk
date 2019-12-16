@@ -598,6 +598,8 @@ class AASToJsonEncoder(JSONEncoder):
             return operation_to_json(obj)
         if isinstance(obj, model.OperationVariable):
             return operation_variable_to_json(obj)
+        if isinstance(obj, model.Capability):
+            return capability_to_json(obj)
         if isinstance(obj, model.BasicEvent):
             return basic_event_to_json(obj)
         if isinstance(obj, model.Entity):
