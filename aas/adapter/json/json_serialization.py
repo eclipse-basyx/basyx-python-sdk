@@ -115,7 +115,7 @@ def abstract_classes_to_json(obj: object) -> Dict[str, object]:
         if obj.semantic_id:
             data['semanticId'] = obj.semantic_id
     if isinstance(obj, model.HasKind):
-        if obj.kind == MODELING_KIND[model.ModelingKind.TEMPLATE]:
+        if obj.kind is model.ModelingKind.TEMPLATE:
             data['kind'] = MODELING_KIND[obj.kind]
     if isinstance(obj, model.Qualifiable):
         if obj.qualifier:
@@ -157,8 +157,8 @@ def administrative_information_to_json(obj: model.AdministrativeInformation) -> 
     data = abstract_classes_to_json(obj)
     if obj.version:
         data['version'] = obj.version
-    if obj.revision:
-        data['revision'] = obj.revision
+        if obj.revision:
+            data['revision'] = obj.revision
     return data
 
 
@@ -285,7 +285,7 @@ def view_to_json(obj: model.View) -> Dict[str, object]:
     """
     data = abstract_classes_to_json(obj)
     if obj.contained_element:
-        data['containedElements'] = obj.contained_element
+        data['containedElements'] = list(obj.contained_element)
     return data
 
 
@@ -488,8 +488,7 @@ def submodel_element_collection_to_json(obj: model.SubmodelElementCollection) ->
     data = abstract_classes_to_json(obj)
     if obj.value:
         data['value'] = list(obj.value)
-    if obj.ordered is not None:
-        data['odered'] = obj.ordered
+    data['odered'] = obj.ordered
     return data
 
 
@@ -648,10 +647,10 @@ class AASToJsonEncoder(json.JSONEncoder):
             return reference_element_to_json(obj)
         if isinstance(obj, model.SubmodelElementCollection):
             return submodel_element_collection_to_json(obj)
-        if isinstance(obj, model.RelationshipElement):
-            return relationship_element_to_json(obj)
         if isinstance(obj, model.AnnotatedRelationshipElement):
             return annotated_relationship_element_to_json(obj)
+        if isinstance(obj, model.RelationshipElement):
+            return relationship_element_to_json(obj)
         if isinstance(obj, model.Qualifier):
             return qualifier_to_json(obj)
         if isinstance(obj, model.Formula):

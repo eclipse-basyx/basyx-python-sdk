@@ -115,8 +115,7 @@ def create_example_submodel() -> model.Submodel:
         value=submodel_element_property)
 
     submodel_element_operation = model.Operation(
-        id_short='ExampleOperation',
-        input_variable={submodel_element_operation_variable_input})
+        id_short='ExampleOperation')
 
     submodel_element_capability = model.Capability(
         id_short='ExampleCapability')

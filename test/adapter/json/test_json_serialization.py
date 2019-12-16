@@ -18,7 +18,8 @@ from aas import model
 from aas.adapter.json import json_serialization, json_deserialization
 from jsonschema import validate  # type: ignore
 
-from aas.examples import example_create_aas, example_create_submodel_template, example_create_aas_mandatory_attributes
+from aas.examples import example_create_aas, example_create_submodel_template, \
+    example_create_aas_mandatory_attributes, example_test_serialization
 
 
 class JsonSerializationTest(unittest.TestCase):
@@ -105,6 +106,26 @@ class JsonSerializationTest(unittest.TestCase):
 
     def test_full_empty_example_serialization(self) -> None:
         data = example_create_aas_mandatory_attributes.create_full_example()
+        file = io.StringIO()
+        json_serialization.write_aas_to_json_file(file=file, data=data)
+
+        with open(os.path.join(os.path.dirname(__file__), 'aasJSONSchemaV2.0.json'), 'r') as json_file:
+            aas_json_schema = json.load(json_file)
+
+        file.seek(0)
+        json_data = json.load(file)
+
+        # validate serialization against schema
+        validate(instance=json_data, schema=aas_json_schema)
+
+        # try deserializing the json string into a DictObjectStore of AAS objects with help of the json_deserialization
+        # module
+        # TODO move to own test
+        file.seek(0)
+        json_object_store = json_deserialization.read_json_aas_file(file, failsafe=False)
+
+    def test_missing_serialization(self) -> None:
+        data = example_test_serialization.create_full_example()
         file = io.StringIO()
         json_serialization.write_aas_to_json_file(file=file, data=data)
 

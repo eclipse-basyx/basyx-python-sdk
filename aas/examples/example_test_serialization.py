@@ -36,92 +36,11 @@ def create_full_example() -> model.DictObjectStore:
     :return: object store
     """
     obj_store: model.DictObjectStore[model.Identifiable] = model.DictObjectStore()
-    obj_store.add(create_example_asset_identification_submodel())
     obj_store.add(create_example_asset())
     obj_store.add(create_example_submodel())
     obj_store.add(create_example_concept_description())
     obj_store.add(create_example_asset_administration_shell(create_example_concept_dictionary()))
     return obj_store
-
-
-def create_example_asset_identification_submodel() -> model.Submodel:
-    """
-    creates an example asset identification submodel which contains properties according to 'Verwaltungssschale in der
-    Praxis'
-    https://www.plattform-i40.de/PI40/Redaktion/DE/Downloads/Publikation/2019-verwaltungsschale-in-der-praxis.html
-
-    :return: example asset identification submodel
-    """
-    # Property-Element conform to 'Verwaltungssschale in der Praxis' page 41 ManufacturerName:
-    # https://www.plattform-i40.de/PI40/Redaktion/DE/Downloads/Publikation/2019-verwaltungsschale-in-der-praxis.html
-    identification_submodel_element_manufacturer_name = model.Property(
-        id_short='ManufacturerName',
-        value_type='string',
-        value='ACPLT',
-        value_id=None,  # TODO
-        category=None,
-        description={'en-us': 'Legally valid designation of the natural or judicial person which is directly '
-                              'responsible for the design, production, packaging and labeling of a product in '
-                              'respect to its being brought into circulation.',
-                     'de': 'Bezeichnung für eine natürliche oder juristische Person, die für die Auslegung, '
-                           'Herstellung und Verpackung sowie die Etikettierung eines Produkts im Hinblick auf das '
-                           '\'Inverkehrbringen\' im eigenen Namen verantwortlich ist'},
-        parent=None,
-        data_specification=None,
-        semantic_id=model.Reference([model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
-                                               local=False,
-                                               value='0173-1#02-AAO677#002',
-                                               id_type=model.KeyType.IRDI)]),
-        qualifier=None,
-        kind=model.ModelingKind.INSTANCE)
-
-    # Property-Element conform to 'Verwaltungssschale in der Praxis' page 44 InstanceId:
-    # https://www.plattform-i40.de/PI40/Redaktion/DE/Downloads/Publikation/2019-verwaltungsschale-in-der-praxis.html
-    identification_submodel_element_instance_id = model.Property(
-        id_short='InstanceId',
-        value_type='string',
-        value='978-8234-234-342',
-        value_id=None,  # TODO
-        category=None,
-        description={'en-us': 'Legally valid designation of the natural or judicial person which is directly '
-                              'responsible for the design, production, packaging and labeling of a product in '
-                              'respect to its being brought into circulation.',
-                     'de': 'Bezeichnung für eine natürliche oder juristische Person, die für die Auslegung, '
-                           'Herstellung und Verpackung sowie die Etikettierung eines Produkts im Hinblick auf das '
-                           '\'Inverkehrbringen\' im eigenen Namen verantwortlich ist'},
-        parent=None,
-        data_specification=None,
-        semantic_id=model.Reference([model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
-                                               local=False,
-                                               value='http://opcfoundation.org/UA/DI/1.1/DeviceType/Serialnumber',
-                                               id_type=model.KeyType.IRI)]),
-        qualifier=None,
-        kind=model.ModelingKind.INSTANCE)
-
-    # asset identification submodel which will be included in the asset object
-    identification_submodel = model.Submodel(
-        identification=model.Identifier(id_='http://acplt.org/Submodels/Assets/TestAsset/Identification',
-                                        id_type=model.IdentifierType.IRI),
-        submodel_element=(identification_submodel_element_manufacturer_name,
-                          identification_submodel_element_instance_id),
-        id_short='Identification',
-        category=None,
-        description={'en-us': 'An example asset identification submodel for the test application',
-                     'de': 'Ein Beispiel-Identifikations-Submodel für eine Test-Anwendung'},
-        parent=None,
-        administration=model.AdministrativeInformation(version='0.9'),
-        data_specification={model.Reference([model.Key(type_=model.KeyElements.ASSET,
-                                                       local=False,
-                                                       value='http://acplt.org/DataSpecifications/Submodels/'
-                                                             'AssetIdentification',
-                                                       id_type=model.KeyType.IRDI)])},
-        semantic_id=model.Reference([model.Key(type_=model.KeyElements.SUBMODEL,
-                                               local=False,
-                                               value='http://acplt.org/SubmodelTemplates/AssetIdentification',
-                                               id_type=model.KeyType.IRDI)]),
-        qualifier=None,
-        kind=model.ModelingKind.INSTANCE)
-    return identification_submodel
 
 
 def create_example_asset() -> model.Asset:
@@ -139,20 +58,14 @@ def create_example_asset() -> model.Asset:
         description={'en-us': 'An example asset for the test application',
                      'de': 'Ein Beispiel-Asset für eine Test-Anwendung'},
         parent=None,
-        administration=model.AdministrativeInformation(revision='0'),
+        administration=model.AdministrativeInformation(),
         data_specification={model.Reference([model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
                                                        local=False,
                                                        value='http://acplt.org/DataSpecifications/AssetTypes/'
                                                              'TestAsset',
                                                        id_type=model.KeyType.IRDI)])},
-        asset_identification_model=model.AASReference([model.Key(type_=model.KeyElements.SUBMODEL,
-                                                                 local=False,
-                                                                 value='http://acplt.org/Submodels/Assets/'
-                                                                       'TestAsset/Identification',
-                                                                 id_type=model.KeyType.IRDI)],
-                                                      model.Submodel),
+        asset_identification_model=None,
         bill_of_material=None)
-    # TODO add billofMaterial-Submodel for the use of SubmodelElement: Entity
     return asset
 
 
@@ -162,6 +75,12 @@ def create_example_submodel() -> model.Submodel:
 
     :return: example submodel
     """
+    formula = model.Formula()
+
+    qualifier = model.Qualifier(
+        type_='http://acplt.org/Qualifier/ExampleQualifier',
+        value_type='string')
+
     submodel_element_property = model.Property(
         id_short='ExampleProperty',
         value_type='string',
@@ -176,7 +95,7 @@ def create_example_submodel() -> model.Submodel:
                                                local=False,
                                                value='http://acplt.org/Properties/ExampleProperty',
                                                id_type=model.KeyType.IRDI)]),
-        qualifier=None,
+        qualifier={formula, qualifier},
         kind=model.ModelingKind.INSTANCE)
 
     submodel_element_multi_language_property = model.MultiLanguageProperty(
@@ -541,6 +460,16 @@ def create_example_asset_administration_shell(concept_dictionary: model.ConceptD
 
     :return: example asset administration shell
     """
+    view = model.View(
+        id_short='ExampleView',
+        contained_element={model.AASReference([model.Key(type_=model.KeyElements.SUBMODEL,
+                                                         local=False,
+                                                         value='https://acplt.org/Test_Submodel',
+                                                         id_type=model.KeyType.IRDI)],
+                                              model.Submodel)})
+    view_2 = model.View(
+        id_short='ExampleView2')
+
     asset_administration_shell = model.AssetAdministrationShell(
         asset=model.AASReference([model.Key(type_=model.KeyElements.ASSET,
                                             local=False,
@@ -564,6 +493,6 @@ def create_example_asset_administration_shell(concept_dictionary: model.ConceptD
                                                  id_type=model.KeyType.IRDI)],
                                       model.Submodel)},
         concept_dictionary=[concept_dictionary],
-        view=[],
+        view=[view, view_2],
         derived_from=None)
     return asset_administration_shell
