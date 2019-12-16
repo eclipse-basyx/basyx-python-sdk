@@ -51,17 +51,16 @@ class JsonSerializationTest(unittest.TestCase):
             }, cls=json_serialization.AASToJsonEncoder)
         json_data_new = json.loads(json_data)
 
-        # try deserializing the json string into a DictObjectStore of AAS objects with help of the json_deserialization
-        # module
-        # TODO move to own test
-        json_object_store = json_deserialization.read_json_aas_file(io.StringIO(json_data), failsafe=False)
-
         # load schema
         with open(os.path.join(os.path.dirname(__file__), 'aasJSONSchemaV2.0.json'), 'r') as json_file:
             aas_schema = json.load(json_file)
 
         # validate serialization against schema
         validate(instance=json_data_new, schema=aas_schema)
+
+        # try deserializing the json string into a DictObjectStore of AAS objects with help of the json_deserialization
+        # module
+        json_object_store = json_deserialization.read_json_aas_file(io.StringIO(json_data), failsafe=False)
 
     def test_full_example_serialization(self) -> None:
         data = example_create_aas.create_full_example()
@@ -79,7 +78,6 @@ class JsonSerializationTest(unittest.TestCase):
 
         # try deserializing the json string into a DictObjectStore of AAS objects with help of the json_deserialization
         # module
-        # TODO move to own test
         file.seek(0)
         json_object_store = json_deserialization.read_json_aas_file(file, failsafe=False)
 
@@ -119,7 +117,6 @@ class JsonSerializationTest(unittest.TestCase):
 
         # try deserializing the json string into a DictObjectStore of AAS objects with help of the json_deserialization
         # module
-        # TODO move to own test
         file.seek(0)
         json_object_store = json_deserialization.read_json_aas_file(file, failsafe=False)
 
@@ -139,6 +136,5 @@ class JsonSerializationTest(unittest.TestCase):
 
         # try deserializing the json string into a DictObjectStore of AAS objects with help of the json_deserialization
         # module
-        # TODO move to own test
         file.seek(0)
         json_object_store = json_deserialization.read_json_aas_file(file, failsafe=False)
