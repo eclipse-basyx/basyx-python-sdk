@@ -13,7 +13,7 @@ This module contains everything needed to model Submodels and define Events acco
 """
 
 import abc
-from typing import Optional, Set, Iterable, TYPE_CHECKING
+from typing import Optional, Set, Iterable, TYPE_CHECKING, List
 
 from . import base
 if TYPE_CHECKING:
@@ -739,7 +739,7 @@ class AnnotatedRelationshipElement(RelationshipElement):
         self.annotation: Set[base.AASReference[DataElement]] = set() if annotation is None else annotation
 
 
-class OperationVariable(SubmodelElement):
+class OperationVariable:
     """
     An operation variable is a submodel element that is used as input or output variable of an operation.
 
@@ -748,55 +748,31 @@ class OperationVariable(SubmodelElement):
     """
 
     def __init__(self,
-                 id_short: str,
-                 value: SubmodelElement,
-                 category: Optional[str] = None,
-                 description: Optional[base.LangStringSet] = None,
-                 parent: Optional[base.Namespace] = None,
-                 data_specification: Optional[Set[base.Reference]] = None,
-                 semantic_id: Optional[base.Reference] = None,
-                 qualifier: Optional[Set[base.Constraint]] = None,
-                 kind: base.ModelingKind = base.ModelingKind.INSTANCE):
+                 value: SubmodelElement):
         """
         Initializer of OperationVariable
 
-        :param id_short: Identifying string of the element within its name space. (from base.Referable)
         :param value: Describes the needed argument for an operation via a submodel element of kind=Type.
-        :param category: The category is a value that gives further meta information w.r.t. to the class of the element.
-                         It affects the expected existence of attributes and the applicability of constraints.
-                         (from base.Referable)
-        :param description: Description or comments on the element. (from base.Referable)
-        :param parent: Reference to the next referable parent element of the element. (from base.Referable)
-        :param data_specification: Unordered list of global references to the data specification template used by the
-                                   element. (from base.HasDataSpecification)
-        :param semantic_id: Identifier of the semantic definition of the element. It is called semantic id of the
-                            element. The semantic id may either reference an external global id or it may reference a
-                            referable model element of kind=Type that defines the semantics of the element.
-                            (from base.HasSemantics)
-        :param qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
-                         (from base.Qualifiable)
 
         TODO: Add instruction what to do after construction
         """
-
-        super().__init__(id_short, category, description, parent, data_specification, semantic_id, qualifier, kind)
         # Constraint AASd-008: The submodel element shall be of kind=Template.
         self.value: SubmodelElement = value  # TODO check the kind of the object in value
 
 
-class Operation(SubmodelElement, base.Namespace):
+class Operation(SubmodelElement):
     """
     An operation is a submodel element with input and output variables.
 
-    :ivar input_variable: Unordered list of input parameters of the operation
-    :ivar output_variable: Unordered list of output parameters of the operation
-    :ivar in_output_variable: Unordered list of parameters that are input and output of the operation
+    :ivar input_variable: list of input parameters of the operation
+    :ivar output_variable: of output parameters of the operation
+    :ivar in_output_variable: of parameters that are input and output of the operation
     """
     def __init__(self,
                  id_short: str,
-                 input_variable: Iterable[OperationVariable] = (),
-                 output_variable: Iterable[OperationVariable] = (),
-                 in_output_variable: Iterable[OperationVariable] = (),
+                 input_variable: Optional[List[OperationVariable]] = None,
+                 output_variable:  Optional[List[OperationVariable]] = None,
+                 in_output_variable:  Optional[List[OperationVariable]] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
                  parent: Optional[base.Namespace] = None,
@@ -808,9 +784,9 @@ class Operation(SubmodelElement, base.Namespace):
         Initializer of Operation
 
         :param id_short: Identifying string of the element within its name space. (from base.Referable)
-        :param input_variable: Unordered list of input parameters of the operation
-        :param output_variable: Unordered list output parameters of the operation
-        :param in_output_variable: Unordered list of parameters that is input and output of the operation
+        :param input_variable: list of input parameters of the operation
+        :param output_variable: list output parameters of the operation
+        :param in_output_variable: list of parameters that is input and output of the operation
         :param category: The category is a value that gives further meta information w.r.t. to the class of the element.
                          It affects the expected existence of attributes and the applicability of constraints.
                          (from base.Referable)
@@ -830,9 +806,9 @@ class Operation(SubmodelElement, base.Namespace):
         """
 
         super().__init__(id_short, category, description, parent, data_specification, semantic_id, qualifier, kind)
-        self.input_variable: base.NamespaceSet[OperationVariable] = base.NamespaceSet(self, input_variable)
-        self.output_variable: base.NamespaceSet[OperationVariable] = base.NamespaceSet(self, output_variable)
-        self.in_output_variable: base.NamespaceSet[OperationVariable] = base.NamespaceSet(self, in_output_variable)
+        self.input_variable = input_variable if input_variable is not None else []
+        self.output_variable = output_variable if output_variable is not None else []
+        self.in_output_variable = in_output_variable if in_output_variable is not None else []
 
 
 class Capability(SubmodelElement):

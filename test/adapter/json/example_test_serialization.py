@@ -228,58 +228,19 @@ def create_example_submodel() -> model.Submodel:
         kind=model.ModelingKind.INSTANCE)
 
     submodel_element_operation_variable_input = model.OperationVariable(
-        id_short='ExampleInputOperationVariable',
-        value=submodel_element_property,
-        category='PARAMETER',
-        description={'en-us': 'Example ExampleInputOperationVariable object',
-                     'de': 'Beispiel ExampleInputOperationVariable Element'},
-        parent=None,
-        data_specification=None,
-        semantic_id=model.Reference((model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
-                                               local=False,
-                                               value='http://acplt.org/Operations/'
-                                                     'ExampleInputOperationVariable',
-                                               id_type=model.KeyType.IRDI),)),
-        qualifier=None,
-        kind=model.ModelingKind.INSTANCE)
+        value=submodel_element_property)
 
     submodel_element_operation_variable_output = model.OperationVariable(
-        id_short='ExampleOutputOperationVariable',
-        value=submodel_element_property,
-        category='PARAMETER',
-        description={'en-us': 'Example OutputOperationVariable object',
-                     'de': 'Beispiel OutputOperationVariable Element'},
-        parent=None,
-        data_specification=None,
-        semantic_id=model.Reference((model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
-                                               local=False,
-                                               value='http://acplt.org/Operations/'
-                                                     'ExampleOutputOperationVariable',
-                                               id_type=model.KeyType.IRDI),)),
-        qualifier=None,
-        kind=model.ModelingKind.INSTANCE)
+        value=submodel_element_property)
 
     submodel_element_operation_variable_in_output = model.OperationVariable(
-        id_short='ExampleInOutputOperationVariable',
-        value=submodel_element_property,
-        category='PARAMETER',
-        description={'en-us': 'Example InOutputOperationVariable object',
-                     'de': 'Beispiel InOutputOperationVariable Element'},
-        parent=None,
-        data_specification=None,
-        semantic_id=model.Reference((model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
-                                               local=False,
-                                               value='http://acplt.org/Operations/'
-                                                     'ExampleInOutputOperationVariable',
-                                               id_type=model.KeyType.IRDI),)),
-        qualifier=None,
-        kind=model.ModelingKind.INSTANCE)
+        value=submodel_element_property)
 
     submodel_element_operation = model.Operation(
         id_short='ExampleOperation',
-        input_variable={submodel_element_operation_variable_input},
-        output_variable={submodel_element_operation_variable_output},
-        in_output_variable={submodel_element_operation_variable_in_output},
+        input_variable=[submodel_element_operation_variable_input],
+        output_variable=[submodel_element_operation_variable_output],
+        in_output_variable=[submodel_element_operation_variable_in_output],
         category='PARAMETER',
         description={'en-us': 'Example Operation object',
                      'de': 'Beispiel Operation Element'},
