@@ -1,4 +1,5 @@
 import base64
+import inspect
 from typing import Dict, List
 
 from aas import model
@@ -74,7 +75,12 @@ def abstract_classes_to_json(obj: object) -> Dict[str, object]:
             data['category'] = obj.category
         if obj.description:
             data['description'] = lang_string_set_to_json(obj.description)
-        data['modelType'] = {'name': obj.__class__.__name__}
+        try:
+            ref_type = next(iter(t for t in inspect.getmro(type(obj)) if t in model.KEY_ELEMENTS_CLASSES))
+        except StopIteration as e:
+            raise TypeError("Object of type {} is Referable but does not inherit from a known AAS type"
+                            .format(obj.__class__.__name__)) from e
+        data['modelType'] = {'name': ref_type.__name__}
     if isinstance(obj, model.Identifiable):
         data['identification'] = obj.identification
         if obj.administration:
@@ -164,7 +170,13 @@ def constraint_to_json(obj: model.Constraint) -> Dict[str, object]:  # TODO chec
     :param obj: object of class Constraint
     :return: dict with the serialized attributes of this object
     """
-    return {'modelType': obj.__class__.__name__}
+    CONSTRAINT_CLASSES = [model.Qualifier, model.Formula]
+    try:
+        const_type = next(iter(t for t in inspect.getmro(type(obj)) if t in CONSTRAINT_CLASSES))
+    except StopIteration as e:
+        raise TypeError("Object of type {} is a Constraint but does not inherit from a known AAS Constraint type"
+                        .format(obj.__class__.__name__)) from e
+    return {'modelType': const_type}
 
 
 def namespace_to_json(obj):  # not in specification yet
