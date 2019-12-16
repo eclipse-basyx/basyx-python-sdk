@@ -285,7 +285,7 @@ def construct_qualifier(dct: Dict[str, object], failsafe: bool) -> model.Qualifi
     if 'value' in dct:
         ret.value = _get_ts(dct, 'value', str)
     if 'valueId' in dct:
-        ret.value_id = _construct_reference(_get_ts(dct, 'value', dict))
+        ret.value_id = _construct_reference(_get_ts(dct, 'valueId', dict))
     return ret
 
 
