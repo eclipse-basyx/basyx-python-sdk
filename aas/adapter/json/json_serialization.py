@@ -107,7 +107,7 @@ def abstract_classes_to_json(obj: object) -> Dict[str, object]:
     if isinstance(obj, model.Identifiable):
         data['identification'] = obj.identification
         if obj.administration:
-            data['AdministrativeInformation'] = obj.administration
+            data['administration'] = obj.administration
     if isinstance(obj, model.HasDataSpecification):
         if obj.data_specification:
             data['embeddedDataSpecification'] = list(obj.data_specification)
@@ -488,7 +488,7 @@ def submodel_element_collection_to_json(obj: model.SubmodelElementCollection) ->
     data = abstract_classes_to_json(obj)
     if obj.value:
         data['value'] = list(obj.value)
-    data['odered'] = obj.ordered
+    data['ordered'] = obj.ordered
     return data
 
 
