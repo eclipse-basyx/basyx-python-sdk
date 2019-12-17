@@ -64,7 +64,7 @@ def _get_ts(dct: Dict[str, object], key: str, type_: Type[T]) -> T:
     """
     val = dct[key]
     if not isinstance(val, type_):
-        raise TypeError("Dict entry {} has unexpected type {}".format(key, type(val).__name__))
+        raise TypeError("Dict entry '{}' has unexpected type {}".format(key, type(val).__name__))
     return val
 
 
@@ -123,8 +123,8 @@ def _amend_abstract_attributes(obj: object, dct: Dict[str, object], failsafe: bo
                     obj.data_specification.add(_construct_reference(data_spec_data))
                 except (KeyError, TypeError) as e:
                     error_message = \
-                        "Error while trying to convert JSON object into DataSpecification for {}: {}".format(
-                            obj, pprint.pformat(dct, depth=2, width=2**14, compact=True))
+                        "Error while trying to convert JSON object into DataSpecification for {}: {} >>> {}".format(
+                            obj, e, pprint.pformat(dct, depth=2, width=2**14, compact=True))
                     if failsafe:
                         logger.error(error_message, exc_info=e)
                     else:
@@ -201,8 +201,8 @@ def _construct_lang_string_set(lst: List[Dict[str, object]], failsafe: bool) -> 
         try:
             ret[_get_ts(desc, 'language', str)] = _get_ts(desc, 'text', str)
         except (KeyError, TypeError) as e:
-            error_message = "Error while trying to convert JSON object into LangString: {}".format(
-                pprint.pformat(lst, depth=2, width=2**14, compact=True))
+            error_message = "Error while trying to convert JSON object into LangString: {} >>> {}".format(
+                e, pprint.pformat(lst, depth=2, width=2**14, compact=True))
             if failsafe:
                 logger.error(error_message, exc_info=e)
             else:
@@ -300,8 +300,8 @@ def construct_formula(dct: Dict[str, object], failsafe: bool) -> model.Formula:
                 ret.depends_on.add(_construct_reference(dependency_data))
             except (KeyError, TypeError) as e:
                 error_message = \
-                    "Error while trying to convert JSON object into dependency Reference for {}: {}".format(
-                        ret, pprint.pformat(dct, depth=2, width=2 ** 14, compact=True))
+                    "Error while trying to convert JSON object into dependency Reference for {}: {} >>> {}".format(
+                        ret, e, pprint.pformat(dct, depth=2, width=2 ** 14, compact=True))
                 if failsafe:
                     logger.error(error_message, exc_info=e)
                 else:
@@ -383,8 +383,8 @@ def construct_annotated_relationship_element(dct: Dict[str, object], failsafe: b
                 ret.annotation.add(_construct_aas_reference(annotation_data, model.DataElement))
             except (KeyError, TypeError) as e:
                 error_message = \
-                    "Error while trying to convert JSON object into annotation Reference for {}: {}".format(
-                        ret, pprint.pformat(dct, depth=2, width=2**14, compact=True))
+                    "Error while trying to convert JSON object into annotation Reference for {}: {} >>> {}".format(
+                        ret, e, pprint.pformat(dct, depth=2, width=2**14, compact=True))
                 if failsafe:
                     logger.error(error_message, exc_info=e)
                 else:
@@ -523,13 +523,17 @@ class AASFromJsonDecoder(json.JSONDecoder):
 
     @classmethod
     def object_hook(cls, dct: Dict[str, object]) -> object:
-        # Check if JSON object seems to be a deserializable AAS object (i.e. it has a modelType)
+        # Check if JSON object seems to be a deserializable AAS object (i.e. it has a modelType). Otherwise, the JSON
+        #   object is returned as is, so it's possible to mix AAS objects with other data within a JSON structure.
         if 'modelType' not in dct:
             return dct
 
         # Get modelType and constructor function
         if not isinstance(dct['modelType'], dict) or 'name' not in dct['modelType']:
             logger.warning("JSON object has unexpected format of modelType: %s", dct['modelType'])
+            # Even in strict mode, we consider 'modelType' attributes of wrong type as non-AAS objects instead of
+            #   raising an exception. However, the object's type will probably checked later by read_json_aas_file() or
+            #   _expect_type()
             return dct
         model_type = dct['modelType']['name']
         if model_type not in AAS_CLASS_PARSERS:
@@ -542,10 +546,13 @@ class AASFromJsonDecoder(json.JSONDecoder):
         try:
             return AAS_CLASS_PARSERS[model_type](dct, cls.failsafe)
         except (KeyError, TypeError) as e:
-            error_message = "Error while trying to convert JSON object into {}: {}".format(
-                model_type, pprint.pformat(dct, depth=2, width=2**14, compact=True))
+            error_message = "Error while trying to convert JSON object into {}: {} >>> {}".format(
+                model_type, e, pprint.pformat(dct, depth=2, width=2**14, compact=True))
             if cls.failsafe:
                 logger.error(error_message, exc_info=e)
+                # In failsafe mode, we return the raw JSON object dict, if there were errors while parsing an object, so
+                #   a client application is able to handle this data. The read_json_aas_file() function and all
+                #   constructors for complex objects will skip those items by using _expect_type().
                 return dct
             else:
                 raise type(e)(error_message) from e
