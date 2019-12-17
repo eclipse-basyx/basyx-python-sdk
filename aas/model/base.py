@@ -344,8 +344,14 @@ class Identifier:
 
         TODO: Add instruction what to do after construction
         """
-        self.id: str = id_
-        self.id_type: IdentifierType = id_type
+        self.id: str
+        self.id_type: IdentifierType
+        super().__setattr__('id', id_)
+        super().__setattr__('id_type', id_type)
+
+    def __setattr__(self, key, value):
+        """Prevent modification of attributes."""
+        raise AttributeError('Identifier are immutable')
 
     def __hash__(self):
         return hash((self.id_type, self.id))
