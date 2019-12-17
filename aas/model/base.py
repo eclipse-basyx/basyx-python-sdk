@@ -489,6 +489,19 @@ class Reference:
     def __repr__(self) -> str:
         return "Reference(key={})".format(self.key)
 
+    def __eq__(self, other) -> bool:
+        if isinstance(other, Reference) is False:
+            return False
+        if len(self.key) != len(other.key):
+            return False
+        for i in range(len(self.key)):
+            if (self.key[i].value != other.key[i].value) or \
+               (self.key[i].type_ != other.key[i].type_) or \
+               (self.key[i].local != other.key[i].local) or \
+               (self.key[i].id_type != other.key[i].id_type):
+                return False
+        return True
+
 
 class AASReference(Reference, Generic[_RT]):
     """
