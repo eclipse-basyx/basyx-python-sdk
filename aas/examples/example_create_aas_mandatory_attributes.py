@@ -79,28 +79,28 @@ def create_example_submodel() -> model.Submodel:
 
     submodel_element_relationship_element = model.RelationshipElement(
         id_short='ExampleRelationshipElement',
-        first=model.AASReference([model.Key(type_=model.KeyElements.PROPERTY,
+        first=model.AASReference((model.Key(type_=model.KeyElements.PROPERTY,
                                             local=True,
                                             value='ExampleProperty',
-                                            id_type=model.KeyType.IDSHORT)],
+                                            id_type=model.KeyType.IDSHORT),),
                                  model.Property),
-        second=model.AASReference([model.Key(type_=model.KeyElements.PROPERTY,
+        second=model.AASReference((model.Key(type_=model.KeyElements.PROPERTY,
                                              local=True,
                                              value='ExampleProperty',
-                                             id_type=model.KeyType.IDSHORT)],
+                                             id_type=model.KeyType.IDSHORT),),
                                   model.Property))
 
     submodel_element_annotated_relationship_element = model.AnnotatedRelationshipElement(
         id_short='ExampleAnnotatedRelationshipElement',
-        first=model.AASReference([model.Key(type_=model.KeyElements.PROPERTY,
+        first=model.AASReference((model.Key(type_=model.KeyElements.PROPERTY,
                                             local=True,
                                             value='ExampleProperty',
-                                            id_type=model.KeyType.IDSHORT)],
+                                            id_type=model.KeyType.IDSHORT),),
                                  model.Property),
-        second=model.AASReference([model.Key(type_=model.KeyElements.PROPERTY,
+        second=model.AASReference((model.Key(type_=model.KeyElements.PROPERTY,
                                              local=True,
                                              value='ExampleProperty',
-                                             id_type=model.KeyType.IDSHORT)],
+                                             id_type=model.KeyType.IDSHORT),),
                                   model.Property))
 
     submodel_element_operation = model.Operation(
@@ -111,10 +111,10 @@ def create_example_submodel() -> model.Submodel:
 
     submodel_element_basic_event = model.BasicEvent(
         id_short='ExampleBasicEvent',
-        observed=model.AASReference([model.Key(type_=model.KeyElements.PROPERTY,
+        observed=model.AASReference((model.Key(type_=model.KeyElements.PROPERTY,
                                                local=True,
                                                value='ExampleProperty',
-                                               id_type=model.KeyType.IDSHORT)],
+                                               id_type=model.KeyType.IDSHORT),),
                                     model.Property))
 
     submodel_element_submodel_element_collection_ordered = model.SubmodelElementCollectionOrdered(
@@ -190,22 +190,22 @@ def create_example_asset_administration_shell(concept_dictionary: model.ConceptD
     :return: example asset administration shell
     """
     asset_administration_shell = model.AssetAdministrationShell(
-        asset=model.AASReference([model.Key(type_=model.KeyElements.ASSET,
+        asset=model.AASReference((model.Key(type_=model.KeyElements.ASSET,
                                             local=False,
                                             value='https://acplt.org/Test_Asset',
-                                            id_type=model.KeyType.IRDI)],
+                                            id_type=model.KeyType.IRDI),),
                                  model.Asset),
         identification=model.Identifier(id_='https://acplt.org/Test_AssetAdministrationShell',
                                         id_type=model.IdentifierType.IRI),
-        submodel_={model.AASReference([model.Key(type_=model.KeyElements.SUBMODEL,
+        submodel_={model.AASReference((model.Key(type_=model.KeyElements.SUBMODEL,
                                                  local=False,
                                                  value='https://acplt.org/Test_Submodel',
-                                                 id_type=model.KeyType.IRDI)],
+                                                 id_type=model.KeyType.IRDI),),
                                       model.Submodel),
-                   model.AASReference([model.Key(type_=model.KeyElements.SUBMODEL,
+                   model.AASReference((model.Key(type_=model.KeyElements.SUBMODEL,
                                                  local=False,
                                                  value='https://acplt.org/Test_Submodel2',
-                                                 id_type=model.KeyType.IRDI)],
+                                                 id_type=model.KeyType.IRDI),),
                                       model.Submodel)},
         concept_dictionary=[concept_dictionary])
     return asset_administration_shell
@@ -219,10 +219,10 @@ def create_example_empty_asset_administration_shell() -> model.AssetAdministrati
     :return: example asset administration shell
     """
     asset_administration_shell = model.AssetAdministrationShell(
-        asset=model.AASReference([model.Key(type_=model.KeyElements.ASSET,
+        asset=model.AASReference((model.Key(type_=model.KeyElements.ASSET,
                                             local=False,
                                             value='https://acplt.org/Test_Asset',
-                                            id_type=model.KeyType.IRDI)],
+                                            id_type=model.KeyType.IRDI),),
                                  model.Asset),
         identification=model.Identifier(id_='https://acplt.org/Test_AssetAdministrationShell2',
                                         id_type=model.IdentifierType.IRI))

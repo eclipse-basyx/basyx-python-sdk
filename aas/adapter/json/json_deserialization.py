@@ -164,7 +164,7 @@ def _construct_key(dct: Dict[str, object]) -> model.Key:
 
 def _construct_reference(dct: Dict[str, object]) -> model.Reference:
     keys = [_construct_key(key_data) for key_data in _get_ts(dct, "keys", list)]
-    return model.Reference(keys)
+    return model.Reference(tuple(keys))
 
 
 def _construct_aas_reference(dct: Dict[str, object], type_: Type[T]) -> model.AASReference:
@@ -172,7 +172,7 @@ def _construct_aas_reference(dct: Dict[str, object], type_: Type[T]) -> model.AA
     if keys and not issubclass(KEY_ELEMENTS_CLASSES_INVERSE.get(keys[-1].type_, type(None)), type_):
         logger.warning("type %s of last key of reference to %s does not match reference type %s",
                        keys[-1].type_.name, " / ".join(str(k) for k in keys), type_.__name__)
-    return model.AASReference(keys, type_)
+    return model.AASReference(tuple(keys), type_)
 
 
 def _construct_identifier(dct: Dict[str, object]) -> model.Identifier:

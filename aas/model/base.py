@@ -18,7 +18,7 @@ import inspect
 import itertools
 from enum import Enum, unique
 from typing import List, Optional, Set, TypeVar, MutableSet, Generic, Iterable, Dict, Iterator, Union, overload, \
-    MutableSequence, Type, Any, TYPE_CHECKING
+    MutableSequence, Type, Any, TYPE_CHECKING, Tuple
 import re
 
 if TYPE_CHECKING:
@@ -474,7 +474,7 @@ class Reference:
     """
 
     def __init__(self,
-                 key: List[Key]):
+                 key: Tuple[Key, ...]):
         """
         Initializer of Reference
 
@@ -484,10 +484,18 @@ class Reference:
 
         TODO: Add instruction what to do after construction
         """
-        self.key: List[Key] = key
+        self.key: Tuple[Key, ...]
+        super().__setattr__('key', key)
+
+    def __setattr__(self, key, value):
+        """Prevent modification of attributes."""
+        raise AttributeError('Reference is immutable')
 
     def __repr__(self) -> str:
         return "Reference(key={})".format(self.key)
+
+    def __hash__(self):
+        return hash(self.key)
 
     def __eq__(self, other) -> bool:
         if isinstance(other, Reference) is False:
@@ -510,7 +518,7 @@ class AASReference(Reference, Generic[_RT]):
     This is a special construct of the implementation to allow typed references and dereferencing.
     """
     def __init__(self,
-                 key: List[Key],
+                 key: Tuple[Key, ...],
                  type_: Type[_RT]):
         """
         Initializer of AASReference
@@ -524,7 +532,8 @@ class AASReference(Reference, Generic[_RT]):
         """
         # TODO check keys for validity. GlobalReference and Fragment-Type keys are not allowed here
         super().__init__(key)
-        self.type: Type[_RT] = type_
+        self.type: Type[_RT]
+        object.__setattr__(self, 'type', type_)
 
     def resolve(self, registry_: "registry.AbstractRegistry") -> _RT:
         """
@@ -601,7 +610,7 @@ class AASReference(Reference, Generic[_RT]):
             keys.append(Key.from_referable(ref))
             if isinstance(ref, Identifiable):
                 keys.reverse()
-                return AASReference(keys, ref_type)
+                return AASReference(tuple(keys), ref_type)
             if ref.parent is None or not isinstance(ref.parent, Referable):
                 raise ValueError("The given Referable object is not embedded within an Identifiable object")
             ref = ref.parent
