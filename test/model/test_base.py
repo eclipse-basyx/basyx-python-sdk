@@ -279,3 +279,15 @@ class AASReferenceTest(unittest.TestCase):
         identifable_thing.things.add(thing)
         ref4 = model.AASReference.from_referable(thing)
         self.assertIs(ref4.type, model.Referable)
+
+
+class AdministrativeInformationTest(unittest.TestCase):
+
+    def test_setting_version_revision(self) -> None:
+        with self.assertRaises(ValueError):
+            obj = model.AdministrativeInformation(revision='0.9')
+
+    def test_setting_revision(self) -> None:
+        obj = model.AdministrativeInformation()
+        with self.assertRaises(ValueError):
+            obj.revision = '0.3'
