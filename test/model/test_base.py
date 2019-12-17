@@ -211,21 +211,32 @@ class AASReferenceTest(unittest.TestCase):
                                   model.Property)
         self.assertIs(prop, ref1.resolve(DummyRegistry()))
 
-        ref1.key[2].value = "prop1"
-        # Oh no, a typo! We should get a KeyError when trying to find urn:x-test:submodel / collection / prop1
-        with self.assertRaises(KeyError):
-            ref1.resolve(DummyRegistry())
+        ref2 = model.AASReference((model.Key(model.KeyElements.SUBMODEL, False, "urn:x-test:submodel",
+                                             model.KeyType.IRI),
+                                   model.Key(model.KeyElements.SUBMODEL_ELEMENT_COLLECTION, False, "collection",
+                                             model.KeyType.IDSHORT),
+                                   model.Key(model.KeyElements.PROPERTY, False, "prop", model.KeyType.IDSHORT),
+                                   model.Key(model.KeyElements.PROPERTY, False, "prop", model.KeyType.IDSHORT)),
+                                  model.Property)
+        with self.assertRaises(TypeError):
+            ref2.resolve(DummyRegistry())
 
-        ref2 = model.AASReference((model.Key(model.KeyElements.SUBMODEL, False, "urn:x-test:sub", model.KeyType.IRI),),
+        with self.assertRaises(AttributeError):
+            ref1.key[2].value = "prop1"
+
+        ref3 = model.AASReference((model.Key(model.KeyElements.SUBMODEL, False, "urn:x-test:sub", model.KeyType.IRI),),
                                   model.Property)
         # Oh no, yet another typo!
         with self.assertRaises(KeyError):
-            ref2.resolve(DummyRegistry())
-        ref2.key[0].value = "urn:x-test:submodel"
+            ref3.resolve(DummyRegistry())
+
+        ref4 = model.AASReference((model.Key(model.KeyElements.SUBMODEL, False, "urn:x-test:submodel",
+                                             model.KeyType.IRI),),
+                                  model.Property)
         # Okay, typo is fixed, but the type is not what we expect. However, we should get the the submodel via the
         # exception's value attribute
         with self.assertRaises(model.UnexpectedTypeError) as cm:
-            ref2.resolve(DummyRegistry())
+            ref4.resolve(DummyRegistry())
         self.assertIs(submodel, cm.exception.value)
 
     def test_from_referable(self) -> None:

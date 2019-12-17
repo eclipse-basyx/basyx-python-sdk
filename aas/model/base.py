@@ -235,10 +235,18 @@ class Key:
 
         TODO: Add instruction what to do after construction
         """
-        self.type_: KeyElements = type_
-        self.local: bool = local
-        self.value: str = value
-        self.id_type: KeyType = id_type
+        self.type_: KeyElements
+        self.local: bool
+        self.value: str
+        self.id_type: KeyType
+        super().__setattr__('type_', type_)
+        super().__setattr__('local', local)
+        super().__setattr__('value', value)
+        super().__setattr__('id_type', id_type)
+
+    def __setattr__(self, key, value):
+        """Prevent modification of attributes."""
+        raise AttributeError('Reference is immutable')
 
     def __repr__(self) -> str:
         return "Key(local={}, id_type={}, value={})".format(self.local, self.id_type.name, self.value)
