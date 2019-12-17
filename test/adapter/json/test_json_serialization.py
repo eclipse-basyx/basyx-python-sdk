@@ -19,7 +19,8 @@ from aas.adapter.json import json_serialization, json_deserialization
 from jsonschema import validate  # type: ignore
 
 from aas.examples import example_create_aas, example_create_submodel_template, \
-    example_create_aas_mandatory_attributes, example_test_serialization
+    example_create_aas_mandatory_attributes
+from test.adapter.json import example_test_serialization
 
 
 class JsonSerializationTest(unittest.TestCase):

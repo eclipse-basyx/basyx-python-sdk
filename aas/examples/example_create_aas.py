@@ -9,31 +9,19 @@
 # "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
 # specific language governing permissions and limitations under the License.
 """
-Module for the creation of an example asset administration shell and related asset
+Module for the creation of an object store with an example asset administration shell, related asset and example
+submodels and a concept dictionary containing an example concept description
 
-The module has eight functions:
-create_example_asset_identification_submodel: This function creates a submodel for the identification of the example
-                                              asset containing two property elements according to 'Verwaltungssschale
-                                              in der Praxis'
-create_example_bill_of_material_submodel: This function creates a submodel for the bill of material of the example
-                                          asset containing two entities one co-managed and one self-managed
-create_example_asset: This function creates an example asset with an reference to the above created submodel
-create_example_submodel: This function creates an example submodel containing all kind of submodel element objects
-create_example_concept_description: This function creates one example concept description
-create_example_concept_dictionary: This function creates a concept dictionary with an reference with an reference to
-                                   the above created concept description
-create_example_asset_administration_shell: This function creates an asset administration shell with references to
-                                           the above created asset and submodel and includes a concept description
-create_full_example: This function creates an object store which is filled with an example asset, submodel, concept
-                     description and asset administration shell using the function above
+To get this object store use the function 'create_full_example'. If you want to get single example objects or want to
+get more information use the other functions.
 """
 from aas import model
 
 
 def create_full_example() -> model.DictObjectStore:
     """
-    creates an object store containing an example asset identification submodel, an example asset, an example submodel,
-    an example concept description and an example asset administration shell
+    creates an object store which is filled with an example asset, submodel, concept description and asset
+    administration shell using the function of this module
 
     :return: object store
     """
@@ -49,8 +37,8 @@ def create_full_example() -> model.DictObjectStore:
 
 def create_example_asset_identification_submodel() -> model.Submodel:
     """
-    creates an example asset identification submodel which contains properties according to 'Verwaltungssschale in der
-    Praxis'
+    creates a submodel for the identification of the example asset containing two property elements according to
+    'Verwaltungssschale in der Praxis'
     https://www.plattform-i40.de/PI40/Redaktion/DE/Downloads/Publikation/2019-verwaltungsschale-in-der-praxis.html
 
     :return: example asset identification submodel
@@ -150,7 +138,8 @@ def create_example_asset_identification_submodel() -> model.Submodel:
 
 def create_example_bill_of_material_submodel() -> model.Submodel:
     """
-    creates an example bill of material submodel
+    creates a submodel for the bill of material of the example asset containing two entities one co-managed and one
+    self-managed
 
     :return: example bill of material submodel
     """
@@ -250,7 +239,8 @@ def create_example_bill_of_material_submodel() -> model.Submodel:
 
 def create_example_asset() -> model.Asset:
     """
-    creates an example asset which holds references to the example asset identification submodel
+    creates an example asset which holds references to the example asset identification submodel and bill of material
+    submodel
 
     :return: example asset
     """
@@ -676,7 +666,8 @@ def create_example_concept_dictionary() -> model.ConceptDictionary:
 def create_example_asset_administration_shell(concept_dictionary: model.ConceptDictionary) -> \
         model.AssetAdministrationShell:
     """
-    creates an example asset administration shell containing references to the example asset and example submodel
+    creates an asset administration shell with references to the example asset and submodel and includes a given
+    concept dictionary
 
     :return: example asset administration shell
     """

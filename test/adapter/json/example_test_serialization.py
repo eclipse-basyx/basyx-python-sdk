@@ -9,21 +9,8 @@
 # "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
 # specific language governing permissions and limitations under the License.
 """
-Module for the creation of an example asset administration shell and related asset
+Module for the creation of a object store with missing object attribute combination for testing the serialization
 
-The module has seven functions:
-create_example_asset_identification_submodel: This function creates a submodel for the identification of the example
-                                              asset containing two property elements according to 'Verwaltungssschale
-                                              in der Praxis'
-create_example_asset: This function creates an example asset with an reference to the above created submodel
-create_example_submodel: This function creates an example submodel containing all kind of submodel element objects
-create_example_concept_description: This function creates one example concept description
-create_example_concept_dictionary: This function creates a concept dictionary with an reference with an reference to
-                                   the above created concept description
-create_example_asset_administration_shell: This function creates an asset administration shell with references to
-                                           the above created asset and submodel and includes a concept description
-create_full_example: This function creates an object store which is filled with an example asset, submodel, concept
-                     description and asset administration shell using the function above
 """
 from aas import model
 

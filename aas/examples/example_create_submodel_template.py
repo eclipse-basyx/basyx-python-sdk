@@ -9,7 +9,8 @@
 # "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
 # specific language governing permissions and limitations under the License.
 """
-Module for the creation of an example submodel template
+Module for the creation of an example submodel template containing all kind of submodel elements where the kind is
+always TEMPLATE.
 
 """
 from aas import model
@@ -17,7 +18,8 @@ from aas import model
 
 def create_example_submodel_template() -> model.Submodel:
     """
-    creates an example submodel template containing all kind of SubmodelElement objects
+    creates an example submodel template containing all kind of SubmodelElement objects where the kind is always
+    TEMPLATE
 
     :return: example submodel
     """
