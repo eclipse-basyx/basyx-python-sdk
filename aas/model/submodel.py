@@ -1,7 +1,23 @@
+# Copyright 2019 PyI40AAS Contributors
+#
+# Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+# the License. You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+# specific language governing permissions and limitations under the License.
+"""
+This module contains everything needed to model Submodels and define Events according to the AAS metamodel.
+"""
+
 import abc
-from typing import List, Optional, Set, Union, Iterable
+from typing import Optional, Set, Iterable, TYPE_CHECKING
 
 from . import base
+if TYPE_CHECKING:
+    from . import aas
 
 
 class SubmodelElement(base.Referable, base.HasDataSpecification, base.Qualifiable, base.HasSemantics, base.HasKind,
@@ -62,10 +78,11 @@ class SubmodelElement(base.Referable, base.HasDataSpecification, base.Qualifiabl
 class Submodel(base.Identifiable, base.HasDataSpecification, base.HasSemantics, base.HasKind, base.Qualifiable,
                base.Namespace):
     """
-    A Submodel defines a specific aspect of the asset represented by the AAS. A submodel is used to structure
-    the virtual representation and technical functionality of an Administration Shell into distinguishable parts.
-    Each submodel refers to a well-defined domain or subject matter. Submodels can become standardized
-    and thus become submodels types. Submodels can have different life-cycles.
+    A Submodel defines a specific aspect of the asset represented by the AAS.
+
+    A submodel is used to structure the virtual representation and technical functionality of an Administration Shell
+    into distinguishable parts. Each submodel refers to a well-defined domain or subject matter. Submodels can become
+    standardized and thus become submodels types. Submodels can have different life-cycles.
 
     :ivar submodel_element: Unordered list of submodel elements
     """
@@ -440,7 +457,7 @@ class ReferenceElement(DataElement):
 
     def __init__(self,
                  id_short: str,
-                 value: Optional[base.Reference],
+                 value: Optional[base.AASReference],
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
                  parent: Optional[base.Namespace] = None,
@@ -473,7 +490,7 @@ class ReferenceElement(DataElement):
         """
 
         super().__init__(id_short, category, description, parent, data_specification, semantic_id, qualifier, kind)
-        self.value: Optional[base.Reference] = value
+        self.value: Optional[base.AASReference] = value
 
 
 class SubmodelElementCollection(SubmodelElement, base.Namespace, metaclass=abc.ABCMeta):
@@ -635,8 +652,8 @@ class RelationshipElement(SubmodelElement):
 
     def __init__(self,
                  id_short: str,
-                 first: base.Reference,
-                 second: base.Reference,
+                 first: base.AASReference,
+                 second: base.AASReference,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
                  parent: Optional[base.Namespace] = None,
@@ -671,8 +688,8 @@ class RelationshipElement(SubmodelElement):
         """
 
         super().__init__(id_short, category, description, parent, data_specification, semantic_id, qualifier, kind)
-        self.first: base.Reference = first
-        self.second: base.Reference = second
+        self.first: base.AASReference = first
+        self.second: base.AASReference = second
 
 
 class AnnotatedRelationshipElement(RelationshipElement):
@@ -684,9 +701,9 @@ class AnnotatedRelationshipElement(RelationshipElement):
 
     def __init__(self,
                  id_short: str,
-                 first: base.Reference,
-                 second: base.Reference,
-                 annotation: Optional[Set[base.Reference]] = None,
+                 first: base.AASReference,
+                 second: base.AASReference,
+                 annotation: Optional[Set[base.AASReference[DataElement]]] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
                  parent: Optional[base.Namespace] = None,
@@ -719,7 +736,7 @@ class AnnotatedRelationshipElement(RelationshipElement):
 
         super().__init__(id_short, first, second, category, description, parent, data_specification, semantic_id,
                          qualifier, kind)
-        self.annotation: Set[base.Reference] = set() if annotation is None else annotation
+        self.annotation: Set[base.AASReference[DataElement]] = set() if annotation is None else annotation
 
 
 class OperationVariable(SubmodelElement):
@@ -767,7 +784,7 @@ class OperationVariable(SubmodelElement):
         self.value: SubmodelElement = value  # TODO check the kind of the object in value
 
 
-class Operation(SubmodelElement):
+class Operation(SubmodelElement, base.Namespace):
     """
     An operation is a submodel element with input and output variables.
 
@@ -777,9 +794,9 @@ class Operation(SubmodelElement):
     """
     def __init__(self,
                  id_short: str,
-                 input_variable: Optional[Set[OperationVariable]] = None,
-                 output_variable: Optional[Set[OperationVariable]] = None,
-                 in_output_variable: Optional[Set[OperationVariable]] = None,
+                 input_variable: Iterable[OperationVariable] = (),
+                 output_variable: Iterable[OperationVariable] = (),
+                 in_output_variable: Iterable[OperationVariable] = (),
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
                  parent: Optional[base.Namespace] = None,
@@ -813,10 +830,9 @@ class Operation(SubmodelElement):
         """
 
         super().__init__(id_short, category, description, parent, data_specification, semantic_id, qualifier, kind)
-        self.input_variable: Set[OperationVariable] = set() if input_variable is None else input_variable
-        self.output_variable: Set[OperationVariable] = set() if output_variable is None else output_variable
-        self.in_output_variable: Set[OperationVariable] = set() \
-            if in_output_variable is None else in_output_variable
+        self.input_variable: base.NamespaceSet[OperationVariable] = base.NamespaceSet(self, input_variable)
+        self.output_variable: base.NamespaceSet[OperationVariable] = base.NamespaceSet(self, output_variable)
+        self.in_output_variable: base.NamespaceSet[OperationVariable] = base.NamespaceSet(self, in_output_variable)
 
 
 class Capability(SubmodelElement):
@@ -874,7 +890,7 @@ class Entity(SubmodelElement, base.Namespace):
                  id_short: str,
                  entity_type: base.EntityType,
                  statement: Iterable[SubmodelElement] = (),
-                 asset: Optional[base.Reference] = None,
+                 asset: Optional[base.AASReference["aas.Asset"]] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
                  parent: Optional[base.Namespace] = None,
@@ -913,7 +929,7 @@ class Entity(SubmodelElement, base.Namespace):
         if self.entity_type == base.EntityType.SELF_MANAGED_ENTITY and asset is None:
             raise ValueError("A self-managed entity has to have an asset-reference")
         if self.entity_type == base.EntityType.SELF_MANAGED_ENTITY:
-            self.asset: Optional[base.Reference] = asset
+            self.asset: Optional[base.AASReference["aas.Asset"]] = asset
         else:
             self.asset = None
 
@@ -964,7 +980,7 @@ class BasicEvent(Event):
 
     def __init__(self,
                  id_short: str,
-                 observed: base.Reference,
+                 observed: base.AASReference,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
                  parent: Optional[base.Namespace] = None,
@@ -996,4 +1012,4 @@ class BasicEvent(Event):
         """
 
         super().__init__(id_short, category, description, parent, data_specification, semantic_id, qualifier, kind)
-        self.observed: base.Reference = observed
+        self.observed: base.AASReference = observed

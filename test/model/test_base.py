@@ -1,3 +1,13 @@
+# Copyright 2019 PyI40AAS Contributors
+#
+# Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+# the License. You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+# specific language governing permissions and limitations under the License.
 
 import unittest
 
@@ -165,7 +175,7 @@ class ModelOrderedNamespaceTest(ModelNamespaceTest):
         self.assertEqual(1, len(self.namespace.set1))
 
 
-class ReferenceTest(unittest.TestCase):
+class AASReferenceTest(unittest.TestCase):
 
     def test_reference_typing(self) -> None:
         dummy_submodel = model.Submodel(model.Identifier("urn:x-test:x", model.IdentifierType.IRI))
@@ -174,8 +184,8 @@ class ReferenceTest(unittest.TestCase):
             def get_identifiable(self, identifier: Identifier) -> Identifiable:
                 return dummy_submodel
 
-        x = model.Reference([model.Key(model.KeyElements.SUBMODEL, False, "urn:x-test:x", model.KeyType.IRI)],
-                            model.Submodel)
+        x = model.AASReference([model.Key(model.KeyElements.SUBMODEL, False, "urn:x-test:x", model.KeyType.IRI)],
+                               model.Submodel)
         submodel: model.Submodel = x.resolve(DummyRegistry())
         self.assertIs(submodel, submodel)
 
@@ -193,11 +203,12 @@ class ReferenceTest(unittest.TestCase):
                 else:
                     raise KeyError()
 
-        ref1 = model.Reference([model.Key(model.KeyElements.SUBMODEL, False, "urn:x-test:submodel", model.KeyType.IRI),
-                                model.Key(model.KeyElements.SUBMODEL_ELEMENT_COLLECTION, False, "collection",
-                                          model.KeyType.IDSHORT),
-                                model.Key(model.KeyElements.PROPERTY, False, "prop", model.KeyType.IDSHORT)],
-                               model.Property)
+        ref1 = model.AASReference([model.Key(model.KeyElements.SUBMODEL, False, "urn:x-test:submodel",
+                                             model.KeyType.IRI),
+                                   model.Key(model.KeyElements.SUBMODEL_ELEMENT_COLLECTION, False, "collection",
+                                             model.KeyType.IDSHORT),
+                                   model.Key(model.KeyElements.PROPERTY, False, "prop", model.KeyType.IDSHORT)],
+                                  model.Property)
         self.assertIs(prop, ref1.resolve(DummyRegistry()))
 
         ref1.key.append(model.Key(model.KeyElements.PROPERTY, False, "prop", model.KeyType.IDSHORT))
@@ -210,8 +221,8 @@ class ReferenceTest(unittest.TestCase):
         with self.assertRaises(KeyError):
             ref1.resolve(DummyRegistry())
 
-        ref2 = model.Reference([model.Key(model.KeyElements.SUBMODEL, False, "urn:x-test:sub", model.KeyType.IRI)],
-                               model.Property)
+        ref2 = model.AASReference([model.Key(model.KeyElements.SUBMODEL, False, "urn:x-test:sub", model.KeyType.IRI)],
+                                  model.Property)
         # Oh no, yet another typo!
         with self.assertRaises(KeyError):
             ref2.resolve(DummyRegistry())
@@ -221,3 +232,50 @@ class ReferenceTest(unittest.TestCase):
         with self.assertRaises(model.UnexpectedTypeError) as cm:
             ref2.resolve(DummyRegistry())
         self.assertIs(submodel, cm.exception.value)
+
+    def test_from_referable(self) -> None:
+        prop = model.Property("prop", "int")
+        collection = model.SubmodelElementCollectionUnordered("collection", {prop})
+        prop.parent = collection
+        submodel = model.Submodel(model.Identifier("urn:x-test:submodel", model.IdentifierType.IRI), {collection})
+        collection.parent = submodel
+
+        # Test normal usage for Identifiable and Referable objects
+        ref1 = model.AASReference.from_referable(submodel)
+        self.assertEqual(1, len(ref1.key))
+        self.assertIs(ref1.type, model.Submodel)
+        self.assertEqual("urn:x-test:submodel", ref1.key[0].value)
+        self.assertEqual(model.KeyType.IRI, ref1.key[0].id_type)
+        self.assertEqual(model.KeyElements.SUBMODEL, ref1.key[0].type_)
+
+        ref2 = model.AASReference.from_referable(prop)
+        self.assertEqual(3, len(ref2.key))
+        self.assertIs(ref2.type, model.Property)
+        self.assertEqual("urn:x-test:submodel", ref2.key[0].value)
+        self.assertEqual(model.KeyType.IRI, ref2.key[0].id_type)
+        self.assertEqual("prop", ref2.key[2].value)
+        self.assertEqual(model.KeyType.IDSHORT, ref2.key[2].id_type)
+        self.assertEqual(model.KeyElements.PROPERTY, ref2.key[2].type_)
+
+        # Test exception for element without identifiable ancestor
+        submodel.submodel_element.remove(collection)
+        with self.assertRaises(ValueError):
+            ref3 = model.AASReference.from_referable(prop)
+
+        # Test creating a reference to a custom Referable class
+        class DummyThing(model.Referable):
+            def __init__(self, id_short: str):
+                super().__init__()
+                self.id_short = id_short
+
+        class DummyIdentifyableNamespace(model.Identifiable, model.Namespace):
+            def __init__(self, identification: model.Identifier):
+                super().__init__()
+                self.identification = identification
+                self.things: model.NamespaceSet = model.NamespaceSet(self)
+
+        thing = DummyThing("thing")
+        identifable_thing = DummyIdentifyableNamespace(model.Identifier("urn:x-test:thing", model.IdentifierType.IRI))
+        identifable_thing.things.add(thing)
+        ref4 = model.AASReference.from_referable(thing)
+        self.assertIs(ref4.type, model.Referable)

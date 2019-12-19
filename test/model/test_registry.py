@@ -1,3 +1,13 @@
+# Copyright 2019 PyI40AAS Contributors
+#
+# Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+# the License. You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+# specific language governing permissions and limitations under the License.
 
 import unittest
 
@@ -6,9 +16,9 @@ from aas import model
 
 class RegistriesTest(unittest.TestCase):
     def setUp(self) -> None:
-        self.aas1 = model.AssetAdministrationShell(model.Reference([], model.Asset),
+        self.aas1 = model.AssetAdministrationShell(model.AASReference([], model.Asset),
                                                    model.Identifier("urn:x-test:aas1", model.IdentifierType.IRI))
-        self.aas2 = model.AssetAdministrationShell(model.Reference([], model.Asset),
+        self.aas2 = model.AssetAdministrationShell(model.AASReference([], model.Asset),
                                                    model.Identifier("urn:x-test:aas2", model.IdentifierType.IRI))
         self.submodel1 = model.Submodel(model.Identifier("urn:x-test:submodel1", model.IdentifierType.IRI))
         self.submodel2 = model.Submodel(model.Identifier("urn:x-test:submodel2", model.IdentifierType.IRI))

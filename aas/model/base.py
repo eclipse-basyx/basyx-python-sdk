@@ -1,6 +1,21 @@
+# Copyright 2019 PyI40AAS Contributors
+#
+# Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+# the License. You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+# specific language governing permissions and limitations under the License.
+"""
+This module implements the basic structures of the AAS metamodel, including the abstract classes and enums needed for
+the higher level classes to inherit from.
+"""
+
 import abc
+import inspect
 import itertools
-from abc import abstractmethod
 from enum import Enum, unique
 from typing import List, Optional, Set, TypeVar, MutableSet, Generic, Iterable, Dict, Iterator, Union, overload, \
     MutableSequence, Type, Any, TYPE_CHECKING
@@ -51,7 +66,7 @@ class KeyElements(Enum):
 
     # ReferableElements starting from 1000
     :cvar ACCESS_PERMISSION_RULE: access permission rule
-    :cvar ANNOTATION_RELATIONSHIP_ELEMENT: annotated relationship element
+    :cvar ANNOTATED_RELATIONSHIP_ELEMENT: annotated relationship element
     :cvar BASIC_EVENT: basic event
     :cvar BLOB: blob
     :cvar CAPABILITY: capability
@@ -88,7 +103,7 @@ class KeyElements(Enum):
 
     # ReferableElements starting from 1000
     ACCESS_PERMISSION_RULE = 1000
-    ANNOTATION_RELATIONSHIP_ELEMENT = 1001
+    ANNOTATED_RELATIONSHIP_ELEMENT = 1001
     BASIC_EVENT = 1002
     BLOB = 1003
     CAPABILITY = 1004
@@ -117,7 +132,7 @@ class KeyType(Enum):
     """
     Enumeration for denoting the type of the key value.
 
-    :cvar IRDI: IRDI (International Registration Data Identifier) according to ISO29002-5 as an Identifierscheme for
+    :cvar IRDI: IRDI (International Registration Data Identifier) according to ISO29002-5 as an Identifier scheme for
                 properties and classifications.
     :cvar IRI: IRI according to Rfc 3987. Every URI is an IRI
     :cvar CUSTOM: Custom identifiers like GUIDs (globally unique Identifiers)
@@ -240,6 +255,28 @@ class Key:
             return None
         return Identifier(self.value, IdentifierType(self.id_type.value))
 
+    @staticmethod
+    def from_referable(referable: "Referable") -> "Key":
+        """
+        Construct a key for a given Referable (or Identifiable) object
+        """
+        # Get the `type` by finding the first class from the base classes list (via inspect.getmro), that is contained
+        # in KEY_ELEMENTS_CLASSES
+        from . import KEY_ELEMENTS_CLASSES
+        try:
+            key_type = next(iter(KEY_ELEMENTS_CLASSES[t]
+                                 for t in inspect.getmro(type(referable))
+                                 if t in KEY_ELEMENTS_CLASSES))
+        except StopIteration:
+            key_type = KeyElements.PROPERTY
+
+        local = True  # TODO
+        if isinstance(referable, Identifiable):
+            return Key(key_type, local, referable.identification.id,
+                       KeyType(referable.identification.id_type.value))
+        else:
+            return Key(key_type, local, referable.id_short, KeyType.IDSHORT)
+
 
 class AdministrativeInformation:
     """
@@ -322,7 +359,7 @@ class Identifier:
 class HasDataSpecification(metaclass=abc.ABCMeta):
     """
     Element that can have data specification templates. A template defines the additional attributes an element may or
-    shall have.
+    shall have. The data specifications used are explicitly specified with their global id.
 
     << abstract >>
 
@@ -422,7 +459,7 @@ class UnexpectedTypeError(TypeError):
         self.value = value
 
 
-class Reference(Generic[_RT]):
+class Reference:
     """
     Reference to either a model element of the same or another AAs or to an external entity.
 
@@ -436,10 +473,33 @@ class Reference(Generic[_RT]):
     """
 
     def __init__(self,
+                 key: List[Key]):
+        """
+        Initializer of Reference
+
+        :param key: Ordered list of unique reference in its name space, each key referencing an element. The complete
+                    list of keys may for example be concatenated to a path that then gives unique access to an element
+                    or entity.
+
+        TODO: Add instruction what to do after construction
+        """
+        self.key: List[Key] = key
+
+    def __repr__(self) -> str:
+        return "Reference(key={})".format(self.key)
+
+
+class AASReference(Reference, Generic[_RT]):
+    """
+    Typed Reference to any referable Asset Administration Shell object.
+
+    This is a special construct of the implementation to allow typed references and dereferencing.
+    """
+    def __init__(self,
                  key: List[Key],
                  type_: Type[_RT]):
         """
-        Initializer of Reference
+        Initializer of AASReference
 
         :param key: Ordered list of unique reference in its name space, each key referencing an element. The complete
                     list of keys may for example be concatenated to a path that then gives unique access to an element
@@ -448,7 +508,8 @@ class Reference(Generic[_RT]):
 
         TODO: Add instruction what to do after construction
         """
-        self.key: List[Key] = key
+        # TODO check keys for validity. GlobalReference and Fragment-Type keys are not allowed here
+        super().__init__(key)
         self.type: Type[_RT] = type_
 
     def resolve(self, registry_: "registry.AbstractRegistry") -> _RT:
@@ -501,7 +562,35 @@ class Reference(Generic[_RT]):
         return item
 
     def __repr__(self) -> str:
-        return "Reference(type={}, key={})".format(self.type.__name__, self.key)
+        return "AASReference(type={}, key={})".format(self.type.__name__, self.key)
+
+    @staticmethod
+    def from_referable(referable: Referable) -> "AASReference":
+        """
+        Construct a Reference to a given Referable AAS object
+
+        This requires that the Referable object is Identifiable itself or is a child-, grand-child-, etc. object of an
+        Identifiable object. Additionally, the object must be an instance of a known Referable type.
+
+        :raises ValueError: If no Identifiable object is found while traversing the object's ancestors
+        """
+        # Get the first class from the base classes list (via inspect.getmro), that is contained in KEY_ELEMENTS_CLASSES
+        from . import KEY_ELEMENTS_CLASSES
+        try:
+            ref_type = next(iter(t for t in inspect.getmro(type(referable)) if t in KEY_ELEMENTS_CLASSES))
+        except StopIteration:
+            ref_type = Referable
+
+        ref: Referable = referable
+        keys: List[Key] = []
+        while True:
+            keys.append(Key.from_referable(ref))
+            if isinstance(ref, Identifiable):
+                keys.reverse()
+                return AASReference(keys, ref_type)
+            if ref.parent is None or not isinstance(ref.parent, Referable):
+                raise ValueError("The given Referable object is not embedded within an Identifiable object")
+            ref = ref.parent
 
 
 class Identifiable(Referable, metaclass=abc.ABCMeta):
@@ -927,3 +1016,46 @@ class OrderedNamespaceSet(NamespaceSet[_RT], MutableSequence[_RT], Generic[_RT])
         for o in self._order[i]:
             super().remove(o)
         del self._order[i]
+
+
+class DataSpecificationContent(metaclass=abc.ABCMeta):
+    """
+    Content of a DataSpecification.
+
+    <<abstract>>
+    """
+    pass
+
+
+class DataSpecification(Identifiable, DataSpecificationContent, metaclass=abc.ABCMeta):
+    """
+    A DataSpecification to be referenced by model.aas.ConceptDescription
+
+    <<abstract>>
+    """
+    def __init__(self,
+                 administration: AdministrativeInformation,
+                 identification: Identifier,
+                 id_short: str = "",
+                 category: Optional[str] = None,
+                 description: Optional[LangStringSet] = None,
+                 parent: Optional[Namespace] = None):
+        """
+        Initializer of DataSpecification
+
+        :param administration: Administrative information of an identifiable element. (from base.Identifiable)
+        :param identification: The globally unique identification of the element. (from base.Identifiable)
+        :param id_short: Identifying string of the element within its name space. (from base.Referable)
+        :param category: The category is a value that gives further meta information w.r.t. to the class of the element.
+                         It affects the expected existence of attributes and the applicability of constraints.
+                         (from base.Referable)
+        :param description: Description or comments on the element. (from base.Referable)
+        :param parent: Reference to the next referable parent element of the element. (from base.Referable)
+        """
+        super().__init__()
+        self.administration: AdministrativeInformation = administration
+        self.identification: Identifier = identification
+        self.id_short = id_short
+        self.category: Optional[str] = category
+        self.description: Optional[LangStringSet] = description
+        self.parent: Optional[Namespace] = parent
