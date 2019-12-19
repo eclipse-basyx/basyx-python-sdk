@@ -406,8 +406,8 @@ class File(DataElement):
 
     def __init__(self,
                  id_short: str,
-                 value: Optional[base.PathType],
                  mime_type: base.MimeType,
+                 value: Optional[base.PathType] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
                  parent: Optional[base.Namespace] = None,
@@ -419,10 +419,10 @@ class File(DataElement):
         Initializer of File
 
         :param id_short: Identifying string of the element within its name space. (from base.Referable)
+        :param mime_type: Mime type of the content of the File.
         :param value: Path and name of the referenced file (without file extension). The path can be absolute or
                       relative.
                       Note: The file extension is defined by using a qualifier of type “MimeType”.
-        :param mime_type: Mime type of the content of the File.
         :param category: The category is a value that gives further meta information w.r.t. to the class of the element.
                          It affects the expected existence of attributes and the applicability of constraints.
                          (from base.Referable)
@@ -457,7 +457,7 @@ class ReferenceElement(DataElement):
 
     def __init__(self,
                  id_short: str,
-                 value: Optional[base.AASReference],
+                 value: Optional[base.AASReference] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
                  parent: Optional[base.Namespace] = None,
@@ -755,7 +755,8 @@ class OperationVariable(SubmodelElement):
                  parent: Optional[base.Namespace] = None,
                  data_specification: Optional[Set[base.Reference]] = None,
                  semantic_id: Optional[base.Reference] = None,
-                 qualifier: Optional[Set[base.Constraint]] = None):
+                 qualifier: Optional[Set[base.Constraint]] = None,
+                 kind: base.ModelingKind = base.ModelingKind.INSTANCE):
         """
         Initializer of OperationVariable
 
@@ -778,10 +779,9 @@ class OperationVariable(SubmodelElement):
         TODO: Add instruction what to do after construction
         """
 
-        super().__init__(id_short, category, description, parent, data_specification, semantic_id, qualifier,
-                         base.ModelingKind.TEMPLATE)
+        super().__init__(id_short, category, description, parent, data_specification, semantic_id, qualifier, kind)
         # Constraint AASd-008: The submodel element shall be of kind=Template.
-        self.value: SubmodelElement = value
+        self.value: SubmodelElement = value  # TODO check the kind of the object in value
 
 
 class Operation(SubmodelElement, base.Namespace):

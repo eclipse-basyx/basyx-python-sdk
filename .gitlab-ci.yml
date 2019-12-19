@@ -14,6 +14,7 @@ before_script:
 test:
   script:
   - pip install --cache-dir="$PIP_CACHE_DIR" mypy pycodestyle unittest-xml-reporting coverage
+  - pip install --cache-dir="$PIP_CACHE_DIR" -r requirements.txt
   - coverage run --source aas --branch -m xmlrunner -o testreports
   - coverage report -m
   - mypy aas test

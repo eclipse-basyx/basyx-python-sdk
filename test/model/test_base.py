@@ -184,7 +184,7 @@ class AASReferenceTest(unittest.TestCase):
             def get_identifiable(self, identifier: Identifier) -> Identifiable:
                 return dummy_submodel
 
-        x = model.AASReference([model.Key(model.KeyElements.SUBMODEL, False, "urn:x-test:x", model.KeyType.IRI)],
+        x = model.AASReference((model.Key(model.KeyElements.SUBMODEL, False, "urn:x-test:x", model.KeyType.IRI),),
                                model.Submodel)
         submodel: model.Submodel = x.resolve(DummyRegistry())
         self.assertIs(submodel, submodel)
@@ -203,34 +203,40 @@ class AASReferenceTest(unittest.TestCase):
                 else:
                     raise KeyError()
 
-        ref1 = model.AASReference([model.Key(model.KeyElements.SUBMODEL, False, "urn:x-test:submodel",
+        ref1 = model.AASReference((model.Key(model.KeyElements.SUBMODEL, False, "urn:x-test:submodel",
                                              model.KeyType.IRI),
                                    model.Key(model.KeyElements.SUBMODEL_ELEMENT_COLLECTION, False, "collection",
                                              model.KeyType.IDSHORT),
-                                   model.Key(model.KeyElements.PROPERTY, False, "prop", model.KeyType.IDSHORT)],
+                                   model.Key(model.KeyElements.PROPERTY, False, "prop", model.KeyType.IDSHORT)),
                                   model.Property)
         self.assertIs(prop, ref1.resolve(DummyRegistry()))
 
-        ref1.key.append(model.Key(model.KeyElements.PROPERTY, False, "prop", model.KeyType.IDSHORT))
-        # ref1.resolve should raise a type error now, b/c the Property (resolved by the 3rd key) is not a Namespace
+        ref2 = model.AASReference((model.Key(model.KeyElements.SUBMODEL, False, "urn:x-test:submodel",
+                                             model.KeyType.IRI),
+                                   model.Key(model.KeyElements.SUBMODEL_ELEMENT_COLLECTION, False, "collection",
+                                             model.KeyType.IDSHORT),
+                                   model.Key(model.KeyElements.PROPERTY, False, "prop", model.KeyType.IDSHORT),
+                                   model.Key(model.KeyElements.PROPERTY, False, "prop", model.KeyType.IDSHORT)),
+                                  model.Property)
         with self.assertRaises(TypeError):
-            ref1.resolve(DummyRegistry())
+            ref2.resolve(DummyRegistry())
 
-        ref1.key[2].value = "prop1"
-        # Oh no, a typo! We should get a KeyError when trying to find urn:x-test:submodel / collection / prop1
-        with self.assertRaises(KeyError):
-            ref1.resolve(DummyRegistry())
+        with self.assertRaises(AttributeError):
+            ref1.key[2].value = "prop1"
 
-        ref2 = model.AASReference([model.Key(model.KeyElements.SUBMODEL, False, "urn:x-test:sub", model.KeyType.IRI)],
+        ref3 = model.AASReference((model.Key(model.KeyElements.SUBMODEL, False, "urn:x-test:sub", model.KeyType.IRI),),
                                   model.Property)
         # Oh no, yet another typo!
         with self.assertRaises(KeyError):
-            ref2.resolve(DummyRegistry())
-        ref2.key[0].value = "urn:x-test:submodel"
+            ref3.resolve(DummyRegistry())
+
+        ref4 = model.AASReference((model.Key(model.KeyElements.SUBMODEL, False, "urn:x-test:submodel",
+                                             model.KeyType.IRI),),
+                                  model.Property)
         # Okay, typo is fixed, but the type is not what we expect. However, we should get the the submodel via the
         # exception's value attribute
         with self.assertRaises(model.UnexpectedTypeError) as cm:
-            ref2.resolve(DummyRegistry())
+            ref4.resolve(DummyRegistry())
         self.assertIs(submodel, cm.exception.value)
 
     def test_from_referable(self) -> None:
@@ -279,3 +285,15 @@ class AASReferenceTest(unittest.TestCase):
         identifable_thing.things.add(thing)
         ref4 = model.AASReference.from_referable(thing)
         self.assertIs(ref4.type, model.Referable)
+
+
+class AdministrativeInformationTest(unittest.TestCase):
+
+    def test_setting_version_revision(self) -> None:
+        with self.assertRaises(ValueError):
+            obj = model.AdministrativeInformation(revision='0.9')
+
+    def test_setting_revision(self) -> None:
+        obj = model.AdministrativeInformation()
+        with self.assertRaises(ValueError):
+            obj.revision = '0.3'

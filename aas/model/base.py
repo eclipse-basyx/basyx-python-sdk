@@ -18,23 +18,22 @@ import inspect
 import itertools
 from enum import Enum, unique
 from typing import List, Optional, Set, TypeVar, MutableSet, Generic, Iterable, Dict, Iterator, Union, overload, \
-    MutableSequence, Type, Any, TYPE_CHECKING
+    MutableSequence, Type, Any, TYPE_CHECKING, Tuple
 import re
 
 if TYPE_CHECKING:
     from . import registry
 
 DataTypeDef = str  # any xsd simple type as string
-BlobType = bytearray
+BlobType = bytes
 MimeType = str  # any mimetype as in RFC2046
 PathType = str
 QualifierType = str
 ValueDataType = str  # any xsd atomic type
-LangString = str  # a string in a specified language
 # A dict of language-Identifier (according to ISO 639-1 and ISO 3166-1) and string in this language.
 # The meaning of the string in each language is the same.
 # << Data Type >> Example ["en-US", "germany"]
-LangStringSet = Dict[str, LangString]
+LangStringSet = Dict[str, str]
 
 
 @unique
@@ -115,6 +114,7 @@ class KeyElements(Enum):
     FILE = 1009
     MULTI_LANGUAGE_PROPERTY = 1010
     OPERATION = 1011
+    OPERATION_VARIABLE = 1119
     PROPERTY = 1012
     RANGE = 1013
     REFERENCE_ELEMENT = 1014
@@ -235,10 +235,18 @@ class Key:
 
         TODO: Add instruction what to do after construction
         """
-        self.type_: KeyElements = type_
-        self.local: bool = local
-        self.value: str = value
-        self.id_type: KeyType = id_type
+        self.type_: KeyElements
+        self.local: bool
+        self.value: str
+        self.id_type: KeyType
+        super().__setattr__('type_', type_)
+        super().__setattr__('local', local)
+        super().__setattr__('value', value)
+        super().__setattr__('id_type', id_type)
+
+    def __setattr__(self, key, value):
+        """Prevent modification of attributes."""
+        raise AttributeError('Reference is immutable')
 
     def __repr__(self) -> str:
         return "Key(local={}, id_type={}, value={})".format(self.local, self.id_type.name, self.value)
@@ -480,7 +488,7 @@ class Reference:
     """
 
     def __init__(self,
-                 key: List[Key]):
+                 key: Tuple[Key, ...]):
         """
         Initializer of Reference
 
@@ -490,10 +498,31 @@ class Reference:
 
         TODO: Add instruction what to do after construction
         """
-        self.key: List[Key] = key
+        self.key: Tuple[Key, ...]
+        super().__setattr__('key', key)
+
+    def __setattr__(self, key, value):
+        """Prevent modification of attributes."""
+        raise AttributeError('Reference is immutable')
 
     def __repr__(self) -> str:
         return "Reference(key={})".format(self.key)
+
+    def __hash__(self):
+        return hash(self.key)
+
+    def __eq__(self, other) -> bool:
+        if isinstance(other, Reference) is False:
+            return False
+        if len(self.key) != len(other.key):
+            return False
+        for i in range(len(self.key)):
+            if (self.key[i].value != other.key[i].value) or \
+               (self.key[i].type_ != other.key[i].type_) or \
+               (self.key[i].local != other.key[i].local) or \
+               (self.key[i].id_type != other.key[i].id_type):
+                return False
+        return True
 
 
 class AASReference(Reference, Generic[_RT]):
@@ -503,7 +532,7 @@ class AASReference(Reference, Generic[_RT]):
     This is a special construct of the implementation to allow typed references and dereferencing.
     """
     def __init__(self,
-                 key: List[Key],
+                 key: Tuple[Key, ...],
                  type_: Type[_RT]):
         """
         Initializer of AASReference
@@ -517,7 +546,8 @@ class AASReference(Reference, Generic[_RT]):
         """
         # TODO check keys for validity. GlobalReference and Fragment-Type keys are not allowed here
         super().__init__(key)
-        self.type: Type[_RT] = type_
+        self.type: Type[_RT]
+        object.__setattr__(self, 'type', type_)
 
     def resolve(self, registry_: "registry.AbstractRegistry") -> _RT:
         """
@@ -594,7 +624,7 @@ class AASReference(Reference, Generic[_RT]):
             keys.append(Key.from_referable(ref))
             if isinstance(ref, Identifiable):
                 keys.reverse()
-                return AASReference(keys, ref_type)
+                return AASReference(tuple(keys), ref_type)
             if ref.parent is None or not isinstance(ref.parent, Referable):
                 raise ValueError("The given Referable object is not embedded within an Identifiable object")
             ref = ref.parent
@@ -755,7 +785,8 @@ class ValueReferencePair:
 
     def __init__(self,
                  value: ValueDataType,
-                 value_id: Reference):
+                 value_id: Reference,
+                 value_type: str):
         """
         Initializer of ValueReferencePair
 
@@ -766,6 +797,7 @@ class ValueReferencePair:
         """
         self.value: ValueDataType = value
         self.value_id: Reference = value_id
+        self.value_type: str = value_type
 
 
 class ValueList:
