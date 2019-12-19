@@ -16,7 +16,7 @@ Module for serializing Asset Administration Shell data to the official XML forma
 
 import xml.etree.ElementTree as ElTree
 from typing import List, Dict
-import inspect
+# import inspect
 
 from aas import model
 
@@ -84,19 +84,22 @@ def abstract_classes_to_xml(obj: object) -> List[ElTree.Element]:
     :param obj: an object of the AAS
     :return: a list of et.Elements to be inserted into the parent Element of the object
     """
-    elements = []
+    elements: List[ElTree.Element] = []
     if isinstance(obj, model.Referable):
         et_id_short = ElTree.Element("aas:idShort")
-        et_id_short.text(obj.id_short)
+        et_id_short.text = obj.id_short
         elements += [et_id_short]
         if obj.category:
             et_category = ElTree.Element("aas:category")
-            et_category.text(obj.category)
+            et_category.text = obj.category
             elements += [et_category]
         if obj.description:
             et_description = ElTree.Element("description")
-            et_description.text(obj.description)
+            et_description.text = obj.description
             elements += [et_description]
+
+        # todo: What does this do?
+        """
         try:
             ref_type = next(iter(t for t in inspect.getmro(type(obj)) if t in model.KEY_ELEMENTS_CLASSES))
         except StopIteration as e:
@@ -105,18 +108,19 @@ def abstract_classes_to_xml(obj: object) -> List[ElTree.Element]:
         et_model_type = ElTree.Element("aas:modelType")
         et_model_type.text = {'name': ref_type.__name__}
         elements += [et_model_type]
+        """
 
     if isinstance(obj, model.Identifiable):
         et_identifiable = ElTree.Element("aas:identification")
         et_identifiable.set("idType", obj.identification.id_type)
-        et_identifiable.text(obj.identification.id)
+        et_identifiable.text = obj.identification.id
         elements += [et_identifiable]
         if obj.administration:
             et_administration = ElTree.Element("aas:administration")
             et_administration_version = ElTree.Element("aas:version")
-            et_administration_version.text(obj.administration.version)
+            et_administration_version.text = obj.administration.version
             et_administration_revision = ElTree.Element("aas:revision")
-            et_administration_revision.text(obj.administration.revision)
+            et_administration_revision.text = obj.administration.revision
             et_administration.insert(0, et_administration_version)
             et_administration.insert(1, et_administration_revision)
             elements += [et_administration]
@@ -124,25 +128,25 @@ def abstract_classes_to_xml(obj: object) -> List[ElTree.Element]:
     if isinstance(obj, model.HasDataSpecification):
         if obj.data_specification:
             et_has_data_specification = ElTree.Element("aas:embeddedDataSpecification")
-            et_has_data_specification.text(obj.data_specification)
+            et_has_data_specification.text = obj.data_specification
             elements += [et_has_data_specification]
 
     if isinstance(obj, model.HasSemantics):
         if obj.semantic_id:
             et_semantics = ElTree.Element("aas:semanticId")
-            et_semantics.text(obj.semantic_id)
+            et_semantics.text = obj.semantic_id
             elements += [et_semantics]
 
     if isinstance(obj, model.HasKind):
         if obj.kind is model.ModelingKind.TEMPLATE:
             et_modeling_kind = ElTree.Element("aas:modelingKind")
-            et_modeling_kind.text(obj.kind)
+            et_modeling_kind.text = obj.kind
             elements += [et_modeling_kind]
 
     if isinstance(obj, model.Qualifiable):
         if obj.qualifier:
             et_qualifiers = ElTree.Element("aas:qualifier")
-            et_qualifiers.text(obj.qualifier)
+            et_qualifiers.text = obj.qualifier
             elements += [et_qualifiers]
 
     return elements
