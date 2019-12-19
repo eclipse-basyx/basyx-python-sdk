@@ -14,8 +14,9 @@ Module for serializing Asset Administration Shell data to the official XML forma
 
 """
 
-import xml.etree.ElementTree as ET
-from typing import List
+import xml.etree.ElementTree as ElTree
+from typing import List, Dict
+import inspect
 
 from aas import model
 
@@ -76,8 +77,7 @@ ENTITY_TYPES: Dict[model.EntityType, str] = {
     model.EntityType.SELF_MANAGED_ENTITY: 'SelfManagedEntity'}
 
 
-
-def abstract_classes_to_xml(obj: object) -> List[ET.Element]:
+def abstract_classes_to_xml(obj: object) -> List[ElTree.Element]:
     """
     transformation function to serialize abstract classes from model.base which are inherited by many classes.
 
@@ -86,16 +86,15 @@ def abstract_classes_to_xml(obj: object) -> List[ET.Element]:
     """
     elements = []
     if isinstance(obj, model.Referable):
-        #todo NOT CORRECT
-        et_id_short = ET.Element("aas:idShort")
+        et_id_short = ElTree.Element("aas:idShort")
         et_id_short.text(obj.id_short)
         elements += [et_id_short]
         if obj.category:
-            et_category = ET.Element("aas:category")
+            et_category = ElTree.Element("aas:category")
             et_category.text(obj.category)
             elements += [et_category]
         if obj.description:
-            et_description = ET.Element("description")
+            et_description = ElTree.Element("description")
             et_description.text(obj.description)
             elements += [et_description]
         try:
@@ -103,20 +102,20 @@ def abstract_classes_to_xml(obj: object) -> List[ET.Element]:
         except StopIteration as e:
             raise TypeError("Object of type {} is Referable but does not inherit from a known AAS type"
                             .format(obj.__class__.__name__)) from e
-        et_model_type = ET.Element("aas:modelType")
+        et_model_type = ElTree.Element("aas:modelType")
         et_model_type.text = {'name': ref_type.__name__}
         elements += [et_model_type]
 
     if isinstance(obj, model.Identifiable):
-        et_identifiable = ET.Element("aas:identification")
+        et_identifiable = ElTree.Element("aas:identification")
         et_identifiable.set("idType", obj.identification.id_type)
         et_identifiable.text(obj.identification.id)
         elements += [et_identifiable]
         if obj.administration:
-            et_administration = ET.Element("aas:administration")
-            et_administration_version = ET.Element("aas:version")
+            et_administration = ElTree.Element("aas:administration")
+            et_administration_version = ElTree.Element("aas:version")
             et_administration_version.text(obj.administration.version)
-            et_administration_revision = ET.Element("aas:revision")
+            et_administration_revision = ElTree.Element("aas:revision")
             et_administration_revision.text(obj.administration.revision)
             et_administration.insert(0, et_administration_version)
             et_administration.insert(1, et_administration_revision)
@@ -124,42 +123,26 @@ def abstract_classes_to_xml(obj: object) -> List[ET.Element]:
 
     if isinstance(obj, model.HasDataSpecification):
         if obj.data_specification:
-            et_has_data_specification = ET.Element("aas:embeddedDataSpecification")
+            et_has_data_specification = ElTree.Element("aas:embeddedDataSpecification")
             et_has_data_specification.text(obj.data_specification)
             elements += [et_has_data_specification]
 
     if isinstance(obj, model.HasSemantics):
         if obj.semantic_id:
-            et_semantics = ET.Element("aas:semanticId")
+            et_semantics = ElTree.Element("aas:semanticId")
             et_semantics.text(obj.semantic_id)
             elements += [et_semantics]
 
     if isinstance(obj, model.HasKind):
         if obj.kind is model.ModelingKind.TEMPLATE:
-            et_modeling_kind = ET.Element("aas:modelingKind")
+            et_modeling_kind = ElTree.Element("aas:modelingKind")
             et_modeling_kind.text(obj.kind)
             elements += [et_modeling_kind]
 
     if isinstance(obj, model.Qualifiable):
         if obj.qualifier:
-            et_qualifiers = ET.Element("aas:qualifier")
+            et_qualifiers = ElTree.Element("aas:qualifier")
             et_qualifiers.text(obj.qualifier)
             elements += [et_qualifiers]
 
     return elements
-
-
-# ###############################################################
-# transformation functions to serialize classes from model.submodel
-# ###############################################################
-
-
-def submodel_to_xml(obj: submodel.Submodel):
-    """
-    serialization of an object from class Submodel to XML
-
-    :param obj: object of class Submodel
-    :return:  et.Element object with serialized attributes of this object
-    """
-
-    return
