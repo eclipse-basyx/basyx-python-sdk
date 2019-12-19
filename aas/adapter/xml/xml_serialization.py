@@ -95,7 +95,7 @@ def abstract_classes_to_xml(obj: object) -> List[ElTree.Element]:
             elements += [et_category]
         if obj.description:
             et_description = ElTree.Element("description")
-            et_description.text = obj.description
+            et_description.text = str(obj.description)  # todo: think about how to implement the LangStringSet
             elements += [et_description]
 
         # todo: What does this do?
@@ -112,7 +112,7 @@ def abstract_classes_to_xml(obj: object) -> List[ElTree.Element]:
 
     if isinstance(obj, model.Identifiable):
         et_identifiable = ElTree.Element("aas:identification")
-        et_identifiable.set("idType", obj.identification.id_type)
+        # et_identifiable.set("idType", obj.identification.id_type) todo: use dict for id_type
         et_identifiable.text = obj.identification.id
         elements += [et_identifiable]
         if obj.administration:
@@ -128,25 +128,25 @@ def abstract_classes_to_xml(obj: object) -> List[ElTree.Element]:
     if isinstance(obj, model.HasDataSpecification):
         if obj.data_specification:
             et_has_data_specification = ElTree.Element("aas:embeddedDataSpecification")
-            et_has_data_specification.text = obj.data_specification
+            # et_has_data_specification.text = obj.data_specification todo: data_specification is a set of references
             elements += [et_has_data_specification]
 
     if isinstance(obj, model.HasSemantics):
         if obj.semantic_id:
             et_semantics = ElTree.Element("aas:semanticId")
-            et_semantics.text = obj.semantic_id
+            # et_semantics.text = obj.semantic_id todo: semantic_id is a reference
             elements += [et_semantics]
 
     if isinstance(obj, model.HasKind):
         if obj.kind is model.ModelingKind.TEMPLATE:
             et_modeling_kind = ElTree.Element("aas:modelingKind")
-            et_modeling_kind.text = obj.kind
+            # et_modeling_kind.text = obj.kind todo: do the stuff with the dict
             elements += [et_modeling_kind]
 
     if isinstance(obj, model.Qualifiable):
         if obj.qualifier:
             et_qualifiers = ElTree.Element("aas:qualifier")
-            et_qualifiers.text = obj.qualifier
+            # et_qualifiers.text = obj.qualifier todo: find out about constraints
             elements += [et_qualifiers]
 
     return elements
