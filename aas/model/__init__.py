@@ -43,7 +43,6 @@ KEY_ELEMENTS_CLASSES: Dict[type, KeyElements] = {
     Blob: KeyElements.BLOB,
     File: KeyElements.FILE,
     Operation: KeyElements.OPERATION,
-    OperationVariable: KeyElements.OPERATION_VARIABLE,
     Capability: KeyElements.CAPABILITY,
     Property: KeyElements.PROPERTY,
     MultiLanguageProperty: KeyElements.MULTI_LANGUAGE_PROPERTY,

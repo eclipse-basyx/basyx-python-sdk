@@ -195,6 +195,11 @@ def _construct_security(_dct: Dict[str, object]) -> model.Security:
     return model.Security()
 
 
+def _construct_operation_variable(dct: Dict[str, object], failsafe: bool) -> model.OperationVariable:
+    ret = model.OperationVariable(value=_get_ts(dct, 'value', model.SubmodelElement))
+    return ret
+
+
 def _construct_lang_string_set(lst: List[Dict[str, object]], failsafe: bool) -> model.LangStringSet:
     ret = {}
     for desc in lst:
@@ -337,26 +342,22 @@ def construct_basic_event(dct: Dict[str, object], failsafe: bool) -> model.Basic
 def construct_operation(dct: Dict[str, object], failsafe: bool) -> model.Operation:
     ret = model.Operation(_get_ts(dct, "idShort", str), kind=_get_kind(dct))
     _amend_abstract_attributes(ret, dct, failsafe)
-    if 'inputVariable' in dct:
-        for variable in _get_ts(dct, "inputVariable", list):
-            if _expect_type(variable, model.OperationVariable, "{}.inputVariable".format(ret), failsafe):
-                ret.input_variable.add(variable)
-    if 'outputVariable' in dct:
-        for variable in _get_ts(dct, "outputVariable", list):
-            if _expect_type(variable, model.OperationVariable, "{}.outputVariable".format(ret), failsafe):
-                ret.output_variable.add(variable)
-    if 'inoutputVariable' in dct:
-        for variable in _get_ts(dct, "inoutputVariable", list):
-            if _expect_type(variable, model.OperationVariable, "{}.inoutputVariable".format(ret), failsafe):
-                ret.in_output_variable.add(variable)
-    return ret
 
-
-def construct_operation_variable(dct: Dict[str, object], failsafe: bool) -> model.OperationVariable:
-    ret = model.OperationVariable(id_short=_get_ts(dct, "idShort", str),
-                                  value=_get_ts(dct, 'value', model.SubmodelElement),
-                                  kind=_get_kind(dct))
-    _amend_abstract_attributes(ret, dct, failsafe)
+    # Deserialize variables (they are not Referable, thus we don't
+    for json_name, target in (('inputVariable', ret.input_variable),
+                              ('outputVariable', ret.output_variable),
+                              ('inoutputVariable', ret.in_output_variable)):
+        if json_name in dct:
+            for variable_data in _get_ts(dct, json_name, list):
+                try:
+                    target.append(_construct_operation_variable(variable_data, failsafe))
+                except (KeyError, TypeError) as e:
+                    error_message = "Error while trying to convert JSON object into {} of {}: {}".format(
+                        json_name, ret, pprint.pformat(variable_data, depth=2, width=2 ** 14, compact=True))
+                    if failsafe:
+                        logger.error(error_message, exc_info=e)
+                    else:
+                        raise type(e)(error_message) from e
     return ret
 
 
@@ -491,7 +492,6 @@ AAS_CLASS_PARSERS: Dict[str, Callable[[Dict[str, object], bool], object]] = {
     'Entity': construct_entity,
     'BasicEvent': construct_basic_event,
     'Operation': construct_operation,
-    'OperationVariable': construct_operation_variable,
     'RelationshipElement': construct_relationship_element,
     'AnnotatedRelationshipElement': construct_annotated_relationship_element,
     'SubmodelElementCollection': construct_submodel_element_collection,
