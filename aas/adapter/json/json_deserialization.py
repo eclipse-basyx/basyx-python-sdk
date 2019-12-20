@@ -111,7 +111,17 @@ class AASFromJsonDecoder(json.JSONDecoder):
     attribute, the latter are called directly from the `object_hook()` function based on the `modelType` attribute.
 
     This class may be subclassed to override some of the constructor functions, e.g. to construct objects of specialized
-    subclasses of the PyAAS object classes instead of these normal classes from the `model` package.
+    subclasses of the PyAAS object classes instead of these normal classes from the `model` package. To simplify this
+    tasks, (nearly) all the constructor methods take a parameter `object_type` defaulting to the normal PyAAS object
+    class, that can be overridden in a derived function:
+
+        class EnhancedAsset(model.Asset):
+            pass
+
+        class EnhancedAASDecoder(AASFromJsonDecoder):
+            @classmethod
+            def _construct_asset(cls, dct):
+                return super()._construct_asset(dct, object_class=EnhancedAsset)
 
     :cvar failsafe: If True (the default), don't raise Exceptions for missing attributes and wrong types, but instead
                     skip defective objects and use logger to output warnings. Use StrictAASFromJsonDecoder for a
@@ -255,33 +265,36 @@ class AASFromJsonDecoder(json.JSONDecoder):
     # embedded JSON data into the expected type at their location in the outer JSON object.
 
     @classmethod
-    def _construct_key(cls, dct: Dict[str, object]) -> model.Key:
-        return model.Key(type_=KEY_ELEMENTS_INVERSE[_get_ts(dct, 'type', str)],
-                         id_type=KEY_TYPES_INVERSE[_get_ts(dct, 'idType', str)],
-                         value=_get_ts(dct, 'value', str),
-                         local=_get_ts(dct, 'local', bool))
+    def _construct_key(cls, dct: Dict[str, object], object_class=model.Key) -> model.Key:
+        return object_class(type_=KEY_ELEMENTS_INVERSE[_get_ts(dct, 'type', str)],
+                            id_type=KEY_TYPES_INVERSE[_get_ts(dct, 'idType', str)],
+                            value=_get_ts(dct, 'value', str),
+                            local=_get_ts(dct, 'local', bool))
 
     @classmethod
-    def _construct_reference(cls, dct: Dict[str, object]) -> model.Reference:
+    def _construct_reference(cls, dct: Dict[str, object], object_class=model.Reference) -> model.Reference:
         keys = [cls._construct_key(key_data) for key_data in _get_ts(dct, "keys", list)]
         return model.Reference(tuple(keys))
 
     @classmethod
-    def _construct_aas_reference(cls, dct: Dict[str, object], type_: Type[T]) -> model.AASReference:
+    def _construct_aas_reference(cls, dct: Dict[str, object], type_: Type[T], object_class=model.AASReference)\
+            -> model.AASReference:
         keys = [cls._construct_key(key_data) for key_data in _get_ts(dct, "keys", list)]
         if keys and not issubclass(KEY_ELEMENTS_CLASSES_INVERSE.get(keys[-1].type_, type(None)), type_):
             logger.warning("type %s of last key of reference to %s does not match reference type %s",
                            keys[-1].type_.name, " / ".join(str(k) for k in keys), type_.__name__)
-        return model.AASReference(tuple(keys), type_)
+        return object_class(tuple(keys), type_)
 
     @classmethod
-    def _construct_identifier(cls, dct: Dict[str, object]) -> model.Identifier:
-        return model.Identifier(_get_ts(dct, 'id', str),
-                                IDENTIFIER_TYPES_INVERSE[_get_ts(dct, 'idType', str)])
+    def _construct_identifier(cls, dct: Dict[str, object], object_class=model.Identifier) -> model.Identifier:
+        return object_class(_get_ts(dct, 'id', str),
+                            IDENTIFIER_TYPES_INVERSE[_get_ts(dct, 'idType', str)])
 
     @classmethod
-    def _construct_administrative_information(cls, dct: Dict[str, object]) -> model.AdministrativeInformation:
-        ret = model.AdministrativeInformation()
+    def _construct_administrative_information(
+            cls, dct: Dict[str, object], object_class=model.AdministrativeInformation)\
+            -> model.AdministrativeInformation:
+        ret = object_class()
         if 'version' in dct:
             ret.version = _get_ts(dct, 'version', str)
             if 'revision' in dct:
@@ -291,12 +304,13 @@ class AASFromJsonDecoder(json.JSONDecoder):
         return ret
 
     @classmethod
-    def _construct_security(cls, _dct: Dict[str, object]) -> model.Security:
-        return model.Security()
+    def _construct_security(cls, _dct: Dict[str, object], object_class=model.Security) -> model.Security:
+        return object_class()
 
     @classmethod
-    def _construct_operation_variable(cls, dct: Dict[str, object]) -> model.OperationVariable:
-        ret = model.OperationVariable(value=_get_ts(dct, 'value', model.SubmodelElement))
+    def _construct_operation_variable(
+            cls, dct: Dict[str, object], object_class=model.OperationVariable) -> model.OperationVariable:
+        ret = object_class(value=_get_ts(dct, 'value', model.SubmodelElement))
         return ret
 
     @classmethod
@@ -322,9 +336,9 @@ class AASFromJsonDecoder(json.JSONDecoder):
     # be called from the object_hook() method directly.
 
     @classmethod
-    def _construct_asset(cls, dct: Dict[str, object]) -> model.Asset:
-        ret = model.Asset(kind=ASSET_KIND_INVERSE[_get_ts(dct, 'kind', str)],
-                          identification=cls._construct_identifier(_get_ts(dct, "identification", dict)))
+    def _construct_asset(cls, dct: Dict[str, object], object_class=model.Asset) -> model.Asset:
+        ret = object_class(kind=ASSET_KIND_INVERSE[_get_ts(dct, 'kind', str)],
+                           identification=cls._construct_identifier(_get_ts(dct, "identification", dict)))
         cls._amend_abstract_attributes(ret, dct)
         if 'assetIdentificationModel' in dct:
             ret.asset_identification_model = cls._construct_aas_reference(
@@ -335,8 +349,8 @@ class AASFromJsonDecoder(json.JSONDecoder):
 
     @classmethod
     def _construct_asset_administration_shell(
-            cls, dct: Dict[str, object]) -> model.AssetAdministrationShell:
-        ret = model.AssetAdministrationShell(
+            cls, dct: Dict[str, object], object_class=model.AssetAdministrationShell) -> model.AssetAdministrationShell:
+        ret = object_class(
             asset=cls._construct_aas_reference(_get_ts(dct, 'asset', dict), model.Asset),
             identification=cls._construct_identifier(_get_ts(dct, 'identification', dict)))
         cls._amend_abstract_attributes(ret, dct)
@@ -359,14 +373,15 @@ class AASFromJsonDecoder(json.JSONDecoder):
         return ret
 
     @classmethod
-    def _construct_view(cls, dct: Dict[str, object]) -> model.View:
-        ret = model.View(_get_ts(dct, 'idShort', str))
+    def _construct_view(cls, dct: Dict[str, object], object_class=model.View) -> model.View:
+        ret = object_class(_get_ts(dct, 'idShort', str))
         cls._amend_abstract_attributes(ret, dct)
         return ret
 
     @classmethod
-    def _construct_concept_description(cls, dct: Dict[str, object]) -> model.ConceptDescription:
-        ret = model.ConceptDescription(identification=cls._construct_identifier(_get_ts(dct, 'identification', dict)))
+    def _construct_concept_description(cls, dct: Dict[str, object], object_class=model.ConceptDescription)\
+            -> model.ConceptDescription:
+        ret = object_class(identification=cls._construct_identifier(_get_ts(dct, 'identification', dict)))
         cls._amend_abstract_attributes(ret, dct)
         if 'isCaseOf' in dct:
             for case_data in _get_ts(dct, "isCaseOf", list):
@@ -374,8 +389,9 @@ class AASFromJsonDecoder(json.JSONDecoder):
         return ret
 
     @classmethod
-    def _construct_concept_dictionary(cls, dct: Dict[str, object]) -> model.ConceptDictionary:
-        ret = model.ConceptDictionary(_get_ts(dct, "idShort", str))
+    def _construct_concept_dictionary(cls, dct: Dict[str, object], object_class=model.ConceptDictionary)\
+            -> model.ConceptDictionary:
+        ret = object_class(_get_ts(dct, "idShort", str))
         cls._amend_abstract_attributes(ret, dct)
         if 'conceptDescriptions' in dct:
             for desc_data in _get_ts(dct, "conceptDescriptions", list):
@@ -383,8 +399,8 @@ class AASFromJsonDecoder(json.JSONDecoder):
         return ret
 
     @classmethod
-    def _construct_entity(cls, dct: Dict[str, object]) -> model.Entity:
-        ret = model.Entity(id_short=_get_ts(dct, "idShort", str),
+    def _construct_entity(cls, dct: Dict[str, object], object_class=model.Entity) -> model.Entity:
+        ret = object_class(id_short=_get_ts(dct, "idShort", str),
                            entity_type=ENTITY_TYPES_INVERSE[_get_ts(dct, "entityType", str)],
                            asset=(cls._construct_aas_reference(_get_ts(dct, 'asset', dict), model.Asset)
                                   if 'asset' in dct else None),
@@ -397,9 +413,9 @@ class AASFromJsonDecoder(json.JSONDecoder):
         return ret
 
     @classmethod
-    def _construct_qualifier(cls, dct: Dict[str, object]) -> model.Qualifier:
-        ret = model.Qualifier(type_=_get_ts(dct, 'type', str),
-                              value_type=_get_ts(dct, 'valueType', str))
+    def _construct_qualifier(cls, dct: Dict[str, object], object_class=model.Qualifier) -> model.Qualifier:
+        ret = object_class(type_=_get_ts(dct, 'type', str),
+                           value_type=_get_ts(dct, 'valueType', str))
         cls._amend_abstract_attributes(ret, dct)
         if 'value' in dct:
             ret.value = _get_ts(dct, 'value', str)
@@ -408,8 +424,8 @@ class AASFromJsonDecoder(json.JSONDecoder):
         return ret
 
     @classmethod
-    def _construct_formula(cls, dct: Dict[str, object]) -> model.Formula:
-        ret = model.Formula()
+    def _construct_formula(cls, dct: Dict[str, object], object_class=model.Formula) -> model.Formula:
+        ret = object_class()
         cls._amend_abstract_attributes(ret, dct)
         if 'dependsOn' in dct:
             for dependency_data in _get_ts(dct, 'dependsOn', list):
@@ -426,9 +442,9 @@ class AASFromJsonDecoder(json.JSONDecoder):
         return ret
 
     @classmethod
-    def _construct_submodel(cls, dct: Dict[str, object]) -> model.Submodel:
-        ret = model.Submodel(identification=cls._construct_identifier(_get_ts(dct, 'identification', dict)),
-                             kind=cls._get_kind(dct))
+    def _construct_submodel(cls, dct: Dict[str, object], object_class=model.Submodel) -> model.Submodel:
+        ret = object_class(identification=cls._construct_identifier(_get_ts(dct, 'identification', dict)),
+                           kind=cls._get_kind(dct))
         cls._amend_abstract_attributes(ret, dct)
         if 'submodelElements' in dct:
             for element in _get_ts(dct, "submodelElements", list):
@@ -437,22 +453,22 @@ class AASFromJsonDecoder(json.JSONDecoder):
         return ret
 
     @classmethod
-    def _construct_capability(cls, dct: Dict[str, object]) -> model.Capability:
-        ret = model.Capability(id_short=_get_ts(dct, "idShort", str), kind=cls._get_kind(dct))
+    def _construct_capability(cls, dct: Dict[str, object], object_class=model.Capability) -> model.Capability:
+        ret = object_class(id_short=_get_ts(dct, "idShort", str), kind=cls._get_kind(dct))
         cls._amend_abstract_attributes(ret, dct)
         return ret
 
     @classmethod
-    def _construct_basic_event(cls, dct: Dict[str, object]) -> model.BasicEvent:
-        ret = model.BasicEvent(id_short=_get_ts(dct, "idShort", str),
-                               observed=cls._construct_aas_reference(_get_ts(dct, 'observed', dict), model.Referable),
-                               kind=cls._get_kind(dct))
+    def _construct_basic_event(cls, dct: Dict[str, object], object_class=model.BasicEvent) -> model.BasicEvent:
+        ret = object_class(id_short=_get_ts(dct, "idShort", str),
+                           observed=cls._construct_aas_reference(_get_ts(dct, 'observed', dict), model.Referable),
+                           kind=cls._get_kind(dct))
         cls._amend_abstract_attributes(ret, dct)
         return ret
 
     @classmethod
-    def _construct_operation(cls, dct: Dict[str, object]) -> model.Operation:
-        ret = model.Operation(_get_ts(dct, "idShort", str), kind=cls._get_kind(dct))
+    def _construct_operation(cls, dct: Dict[str, object], object_class=model.Operation) -> model.Operation:
+        ret = object_class(_get_ts(dct, "idShort", str), kind=cls._get_kind(dct))
         cls._amend_abstract_attributes(ret, dct)
 
         # Deserialize variables (they are not Referable, thus we don't
@@ -473,20 +489,20 @@ class AASFromJsonDecoder(json.JSONDecoder):
         return ret
 
     @classmethod
-    def _construct_relationship_element(cls, dct: Dict[str, object]) -> model.RelationshipElement:
-        ret = model.RelationshipElement(id_short=_get_ts(dct, "idShort", str),
-                                        first=cls._construct_aas_reference(_get_ts(dct, 'first', dict),
-                                                                           model.Referable),
-                                        second=cls._construct_aas_reference(_get_ts(dct, 'second', dict),
-                                                                            model.Referable),
-                                        kind=cls._get_kind(dct))
+    def _construct_relationship_element(
+            cls, dct: Dict[str, object], object_class=model.RelationshipElement) -> model.RelationshipElement:
+        ret = object_class(id_short=_get_ts(dct, "idShort", str),
+                           first=cls._construct_aas_reference(_get_ts(dct, 'first', dict), model.Referable),
+                           second=cls._construct_aas_reference(_get_ts(dct, 'second', dict), model.Referable),
+                           kind=cls._get_kind(dct))
         cls._amend_abstract_attributes(ret, dct)
         return ret
 
     @classmethod
-    def _construct_annotated_relationship_element(cls, dct: Dict[str, object]) \
+    def _construct_annotated_relationship_element(
+            cls, dct: Dict[str, object], object_class=model.AnnotatedRelationshipElement)\
             -> model.AnnotatedRelationshipElement:
-        ret = model.AnnotatedRelationshipElement(
+        ret = object_class(
             id_short=_get_ts(dct, "idShort", str),
             first=cls._construct_aas_reference(_get_ts(dct, 'first', dict), model.Referable),
             second=cls._construct_aas_reference(_get_ts(dct, 'second', dict), model.Referable),
@@ -508,13 +524,17 @@ class AASFromJsonDecoder(json.JSONDecoder):
 
     @classmethod
     def _construct_submodel_element_collection(
-            cls, dct: Dict[str, object]) -> model.SubmodelElementCollection:
+            cls,
+            dct: Dict[str, object],
+            object_class_ordered=model.SubmodelElementCollectionOrdered,
+            object_class_unordered=model.SubmodelElementCollectionUnordered)\
+            -> model.SubmodelElementCollection:
         ret: model.SubmodelElementCollection
         if 'ordered' in dct and _get_ts(dct, 'ordered', bool):
-            ret = model.SubmodelElementCollectionOrdered(
+            ret = object_class_ordered(
                 id_short=_get_ts(dct, "idShort", str), kind=cls._get_kind(dct))
         else:
-            ret = model.SubmodelElementCollectionUnordered(
+            ret = object_class_unordered(
                 id_short=_get_ts(dct, "idShort", str), kind=cls._get_kind(dct))
         cls._amend_abstract_attributes(ret, dct)
         if 'value' in dct:
@@ -524,29 +544,30 @@ class AASFromJsonDecoder(json.JSONDecoder):
         return ret
 
     @classmethod
-    def _construct_blob(cls, dct: Dict[str, object]) -> model.Blob:
-        ret = model.Blob(id_short=_get_ts(dct, "idShort", str),
-                         mime_type=_get_ts(dct, "mimeType", str),
-                         kind=cls._get_kind(dct))
+    def _construct_blob(cls, dct: Dict[str, object], object_class=model.Blob) -> model.Blob:
+        ret = object_class(id_short=_get_ts(dct, "idShort", str),
+                           mime_type=_get_ts(dct, "mimeType", str),
+                           kind=cls._get_kind(dct))
         cls._amend_abstract_attributes(ret, dct)
         if 'value' in dct:
             ret.value = base64.b64decode(_get_ts(dct, 'value', str))
         return ret
 
     @classmethod
-    def _construct_file(cls, dct: Dict[str, object]) -> model.File:
-        ret = model.File(id_short=_get_ts(dct, "idShort", str),
-                         value=None,
-                         mime_type=_get_ts(dct, "mimeType", str),
-                         kind=cls._get_kind(dct))
+    def _construct_file(cls, dct: Dict[str, object], object_class=model.File) -> model.File:
+        ret = object_class(id_short=_get_ts(dct, "idShort", str),
+                           value=None,
+                           mime_type=_get_ts(dct, "mimeType", str),
+                           kind=cls._get_kind(dct))
         cls._amend_abstract_attributes(ret, dct)
         if 'value' in dct and dct['value'] is not None:
             ret.value = _get_ts(dct, 'value', str)
         return ret
 
     @classmethod
-    def _construct_multi_language_property(cls, dct: Dict[str, object]) -> model.MultiLanguageProperty:
-        ret = model.MultiLanguageProperty(id_short=_get_ts(dct, "idShort", str), kind=cls._get_kind(dct))
+    def _construct_multi_language_property(
+            cls, dct: Dict[str, object], object_class=model.MultiLanguageProperty) -> model.MultiLanguageProperty:
+        ret = object_class(id_short=_get_ts(dct, "idShort", str), kind=cls._get_kind(dct))
         cls._amend_abstract_attributes(ret, dct)
         if 'value' in dct and dct['value'] is not None:
             ret.value = cls._construct_lang_string_set(_get_ts(dct, 'value', list))
@@ -555,10 +576,10 @@ class AASFromJsonDecoder(json.JSONDecoder):
         return ret
 
     @classmethod
-    def _construct_property(cls, dct: Dict[str, object]) -> model.Property:
-        ret = model.Property(id_short=_get_ts(dct, "idShort", str),
-                             value_type=_get_ts(dct, 'valueType', str),
-                             kind=cls._get_kind(dct))
+    def _construct_property(cls, dct: Dict[str, object], object_class=model.Property) -> model.Property:
+        ret = object_class(id_short=_get_ts(dct, "idShort", str),
+                           value_type=_get_ts(dct, 'valueType', str),
+                           kind=cls._get_kind(dct))
         cls._amend_abstract_attributes(ret, dct)
         if 'value' in dct and dct['value'] is not None:
             ret.value = _get_ts(dct, 'value', str)
@@ -567,10 +588,10 @@ class AASFromJsonDecoder(json.JSONDecoder):
         return ret
 
     @classmethod
-    def _construct_range(cls, dct: Dict[str, object]) -> model.Range:
-        ret = model.Range(id_short=_get_ts(dct, "idShort", str),
-                          value_type=_get_ts(dct, 'valueType', str),
-                          kind=cls._get_kind(dct))
+    def _construct_range(cls, dct: Dict[str, object], object_class=model.Range) -> model.Range:
+        ret = object_class(id_short=_get_ts(dct, "idShort", str),
+                           value_type=_get_ts(dct, 'valueType', str),
+                           kind=cls._get_kind(dct))
         cls._amend_abstract_attributes(ret, dct)
         if 'min' in dct and dct['min'] is not None:
             ret.min_ = _get_ts(dct, 'min', str)
@@ -579,10 +600,11 @@ class AASFromJsonDecoder(json.JSONDecoder):
         return ret
 
     @classmethod
-    def _construct_reference_element(cls, dct: Dict[str, object]) -> model.ReferenceElement:
-        ret = model.ReferenceElement(id_short=_get_ts(dct, "idShort", str),
-                                     value=None,
-                                     kind=cls._get_kind(dct))
+    def _construct_reference_element(
+            cls, dct: Dict[str, object], object_class=model.ReferenceElement) -> model.ReferenceElement:
+        ret = object_class(id_short=_get_ts(dct, "idShort", str),
+                           value=None,
+                           kind=cls._get_kind(dct))
         cls._amend_abstract_attributes(ret, dct)
         if 'value' in dct and dct['value'] is not None:
             ret.value = cls._construct_aas_reference(_get_ts(dct, 'value', dict), model.Referable)

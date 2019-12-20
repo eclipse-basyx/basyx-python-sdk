@@ -159,3 +159,29 @@ class JsonDeserializationTest(unittest.TestCase):
         cap = parsed_data[0].submodel_element.pop()
         self.assertIsInstance(cap, model.Capability)
         self.assertEqual("TestCapability", cap.id_short)
+
+
+class JsonDeserializationDerivingTest(unittest.TestCase):
+    def test_asset_constructor_overriding(self) -> None:
+        class EnhancedAsset(model.Asset):
+            def __init__(self, **kwargs):
+                super().__init__(**kwargs)
+                self.enhanced_attribute = "fancy!"
+
+        class EnhancedAASDecoder(json_deserialization.AASFromJsonDecoder):
+            @classmethod
+            def _construct_asset(cls, dct):
+                return super()._construct_asset(dct, object_class=EnhancedAsset)
+
+        data = """
+            [
+                {
+                    "modelType": {"name": "Asset"},
+                    "identification": {"id": "https://acplt.org/Test_Asset", "idType": "IRI"},
+                    "kind": "Instance"
+                }
+            ]"""
+        parsed_data = json.loads(data, cls=EnhancedAASDecoder)
+        self.assertEqual(1, len(parsed_data))
+        self.assertIsInstance(parsed_data[0], EnhancedAsset)
+        self.assertEqual(parsed_data[0].enhanced_attribute, "fancy!")
