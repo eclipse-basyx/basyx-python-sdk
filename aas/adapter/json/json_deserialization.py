@@ -135,7 +135,7 @@ class AASFromJsonDecoder(json.JSONDecoder):
         # modelType themselves are expected to be converted to the correct PythonType already. Additionally, each
         # function takes a bool parameter `failsafe`, which indicates weather to log errors and skip defective objects
         # instead of raising an Exception.
-        AAS_CLASS_PARSERS: Dict[str, Callable[[Dict[str, object], bool], object]] = {
+        AAS_CLASS_PARSERS: Dict[str, Callable[[Dict[str, object]], object]] = {
             'Asset': cls._construct_asset,
             'AssetAdministrationShell': cls._construct_asset_administration_shell,
             'View': cls._construct_view,
@@ -175,7 +175,7 @@ class AASFromJsonDecoder(json.JSONDecoder):
 
         # Use constructor function to transform JSON representation into PyAAS model object
         try:
-            return AAS_CLASS_PARSERS[model_type](dct, cls.failsafe)
+            return AAS_CLASS_PARSERS[model_type](dct)
         except (KeyError, TypeError) as e:
             error_message = "Error while trying to convert JSON object into {}: {} >>> {}".format(
                 model_type, e, pprint.pformat(dct, depth=2, width=2**14, compact=True))
@@ -193,7 +193,7 @@ class AASFromJsonDecoder(json.JSONDecoder):
     # ##################################################################################################
 
     @classmethod
-    def _amend_abstract_attributes(cls, obj: object, dct: Dict[str, object], failsafe: bool) -> None:
+    def _amend_abstract_attributes(cls, obj: object, dct: Dict[str, object]) -> None:
         """
         Utility method to add the optional attributes of the abstract meta classes Referable, Identifiable,
         HasDataSpecification, HasSemantics, HasKind and Qualifiable to an object inheriting from any of these classes,
@@ -206,7 +206,7 @@ class AASFromJsonDecoder(json.JSONDecoder):
             if 'category' in dct:
                 obj.category = _get_ts(dct, 'category', str)
             if 'description' in dct:
-                obj.description = cls._construct_lang_string_set(_get_ts(dct, 'description', list), failsafe)
+                obj.description = cls._construct_lang_string_set(_get_ts(dct, 'description', list))
         if isinstance(obj, model.Identifiable):
             if 'idShort' in dct:
                 obj.id_short = _get_ts(dct, 'idShort', str)
@@ -221,7 +221,7 @@ class AASFromJsonDecoder(json.JSONDecoder):
                         error_message = \
                             "Error while trying to convert JSON object into DataSpecification for {}: {} >>> {}".format(
                                 obj, e, pprint.pformat(dct, depth=2, width=2 ** 14, compact=True))
-                        if failsafe:
+                        if cls.failsafe:
                             logger.error(error_message, exc_info=e)
                         else:
                             raise type(e)(error_message) from e
@@ -233,7 +233,7 @@ class AASFromJsonDecoder(json.JSONDecoder):
         if isinstance(obj, model.Qualifiable):
             if 'qualifiers' in dct:
                 for constraint in _get_ts(dct, 'qualifiers', list):
-                    if _expect_type(constraint, model.Constraint, str(obj), failsafe):
+                    if _expect_type(constraint, model.Constraint, str(obj), cls.failsafe):
                         obj.qualifier.add(constraint)
 
     @classmethod
@@ -295,12 +295,12 @@ class AASFromJsonDecoder(json.JSONDecoder):
         return model.Security()
 
     @classmethod
-    def _construct_operation_variable(cls, dct: Dict[str, object], _failsafe: bool) -> model.OperationVariable:
+    def _construct_operation_variable(cls, dct: Dict[str, object]) -> model.OperationVariable:
         ret = model.OperationVariable(value=_get_ts(dct, 'value', model.SubmodelElement))
         return ret
 
     @classmethod
-    def _construct_lang_string_set(cls, lst: List[Dict[str, object]], failsafe: bool) -> model.LangStringSet:
+    def _construct_lang_string_set(cls, lst: List[Dict[str, object]]) -> model.LangStringSet:
         ret = {}
         for desc in lst:
             try:
@@ -308,7 +308,7 @@ class AASFromJsonDecoder(json.JSONDecoder):
             except (KeyError, TypeError) as e:
                 error_message = "Error while trying to convert JSON object into LangString: {} >>> {}".format(
                     e, pprint.pformat(lst, depth=2, width=2 ** 14, compact=True))
-                if failsafe:
+                if cls.failsafe:
                     logger.error(error_message, exc_info=e)
                 else:
                     raise type(e)(error_message) from e
@@ -322,10 +322,10 @@ class AASFromJsonDecoder(json.JSONDecoder):
     # be called from the object_hook() method directly.
 
     @classmethod
-    def _construct_asset(cls, dct: Dict[str, object], failsafe: bool) -> model.Asset:
+    def _construct_asset(cls, dct: Dict[str, object]) -> model.Asset:
         ret = model.Asset(kind=ASSET_KIND_INVERSE[_get_ts(dct, 'kind', str)],
                           identification=cls._construct_identifier(_get_ts(dct, "identification", dict)))
-        cls._amend_abstract_attributes(ret, dct, failsafe)
+        cls._amend_abstract_attributes(ret, dct)
         if 'assetIdentificationModel' in dct:
             ret.asset_identification_model = cls._construct_aas_reference(
                 _get_ts(dct, 'assetIdentificationModel', dict), model.Submodel)
@@ -335,21 +335,21 @@ class AASFromJsonDecoder(json.JSONDecoder):
 
     @classmethod
     def _construct_asset_administration_shell(
-            cls, dct: Dict[str, object], failsafe: bool) -> model.AssetAdministrationShell:
+            cls, dct: Dict[str, object]) -> model.AssetAdministrationShell:
         ret = model.AssetAdministrationShell(
             asset=cls._construct_aas_reference(_get_ts(dct, 'asset', dict), model.Asset),
             identification=cls._construct_identifier(_get_ts(dct, 'identification', dict)))
-        cls._amend_abstract_attributes(ret, dct, failsafe)
+        cls._amend_abstract_attributes(ret, dct)
         if 'submodels' in dct:
             for sm_data in _get_ts(dct, 'submodels', list):
                 ret.submodel_.add(cls._construct_aas_reference(sm_data, model.Submodel))
         if 'views' in dct:
             for view in _get_ts(dct, 'views', list):
-                if _expect_type(view, model.View, str(ret), failsafe):
+                if _expect_type(view, model.View, str(ret), cls.failsafe):
                     ret.view.add(view)
         if 'conceptDictionaries' in dct:
             for concept_dictionary in _get_ts(dct, 'conceptDictionaries', list):
-                if _expect_type(concept_dictionary, model.ConceptDictionary, str(ret), failsafe):
+                if _expect_type(concept_dictionary, model.ConceptDictionary, str(ret), cls.failsafe):
                     ret.concept_dictionary.add(concept_dictionary)
         if 'security' in dct:
             ret.security_ = cls._construct_security(_get_ts(dct, 'security', dict))
@@ -359,48 +359,48 @@ class AASFromJsonDecoder(json.JSONDecoder):
         return ret
 
     @classmethod
-    def _construct_view(cls, dct: Dict[str, object], failsafe: bool) -> model.View:
+    def _construct_view(cls, dct: Dict[str, object]) -> model.View:
         ret = model.View(_get_ts(dct, 'idShort', str))
-        cls._amend_abstract_attributes(ret, dct, failsafe)
+        cls._amend_abstract_attributes(ret, dct)
         return ret
 
     @classmethod
-    def _construct_concept_description(cls, dct: Dict[str, object], failsafe: bool) -> model.ConceptDescription:
+    def _construct_concept_description(cls, dct: Dict[str, object]) -> model.ConceptDescription:
         ret = model.ConceptDescription(identification=cls._construct_identifier(_get_ts(dct, 'identification', dict)))
-        cls._amend_abstract_attributes(ret, dct, failsafe)
+        cls._amend_abstract_attributes(ret, dct)
         if 'isCaseOf' in dct:
             for case_data in _get_ts(dct, "isCaseOf", list):
                 ret.is_case_of.add(cls._construct_reference(case_data))
         return ret
 
     @classmethod
-    def _construct_concept_dictionary(cls, dct: Dict[str, object], failsafe: bool) -> model.ConceptDictionary:
+    def _construct_concept_dictionary(cls, dct: Dict[str, object]) -> model.ConceptDictionary:
         ret = model.ConceptDictionary(_get_ts(dct, "idShort", str))
-        cls._amend_abstract_attributes(ret, dct, failsafe)
+        cls._amend_abstract_attributes(ret, dct)
         if 'conceptDescriptions' in dct:
             for desc_data in _get_ts(dct, "conceptDescriptions", list):
                 ret.concept_description.add(cls._construct_aas_reference(desc_data, model.ConceptDescription))
         return ret
 
     @classmethod
-    def _construct_entity(cls, dct: Dict[str, object], failsafe: bool) -> model.Entity:
+    def _construct_entity(cls, dct: Dict[str, object]) -> model.Entity:
         ret = model.Entity(id_short=_get_ts(dct, "idShort", str),
                            entity_type=ENTITY_TYPES_INVERSE[_get_ts(dct, "entityType", str)],
                            asset=(cls._construct_aas_reference(_get_ts(dct, 'asset', dict), model.Asset)
                                   if 'asset' in dct else None),
                            kind=cls._get_kind(dct))
-        cls._amend_abstract_attributes(ret, dct, failsafe)
+        cls._amend_abstract_attributes(ret, dct)
         if 'statements' in dct:
             for element in _get_ts(dct, "statements", list):
-                if _expect_type(element, model.SubmodelElement, str(ret), failsafe):
+                if _expect_type(element, model.SubmodelElement, str(ret), cls.failsafe):
                     ret.statement.add(element)
         return ret
 
     @classmethod
-    def _construct_qualifier(cls, dct: Dict[str, object], failsafe: bool) -> model.Qualifier:
+    def _construct_qualifier(cls, dct: Dict[str, object]) -> model.Qualifier:
         ret = model.Qualifier(type_=_get_ts(dct, 'type', str),
                               value_type=_get_ts(dct, 'valueType', str))
-        cls._amend_abstract_attributes(ret, dct, failsafe)
+        cls._amend_abstract_attributes(ret, dct)
         if 'value' in dct:
             ret.value = _get_ts(dct, 'value', str)
         if 'valueId' in dct:
@@ -408,9 +408,9 @@ class AASFromJsonDecoder(json.JSONDecoder):
         return ret
 
     @classmethod
-    def _construct_formula(cls, dct: Dict[str, object], failsafe: bool) -> model.Formula:
+    def _construct_formula(cls, dct: Dict[str, object]) -> model.Formula:
         ret = model.Formula()
-        cls._amend_abstract_attributes(ret, dct, failsafe)
+        cls._amend_abstract_attributes(ret, dct)
         if 'dependsOn' in dct:
             for dependency_data in _get_ts(dct, 'dependsOn', list):
                 try:
@@ -419,41 +419,41 @@ class AASFromJsonDecoder(json.JSONDecoder):
                     error_message = \
                         "Error while trying to convert JSON object into dependency Reference for {}: {} >>> {}".format(
                             ret, e, pprint.pformat(dct, depth=2, width=2 ** 14, compact=True))
-                    if failsafe:
+                    if cls.failsafe:
                         logger.error(error_message, exc_info=e)
                     else:
                         raise type(e)(error_message) from e
         return ret
 
     @classmethod
-    def _construct_submodel(cls, dct: Dict[str, object], failsafe: bool) -> model.Submodel:
+    def _construct_submodel(cls, dct: Dict[str, object]) -> model.Submodel:
         ret = model.Submodel(identification=cls._construct_identifier(_get_ts(dct, 'identification', dict)),
                              kind=cls._get_kind(dct))
-        cls._amend_abstract_attributes(ret, dct, failsafe)
+        cls._amend_abstract_attributes(ret, dct)
         if 'submodelElements' in dct:
             for element in _get_ts(dct, "submodelElements", list):
-                if _expect_type(element, model.SubmodelElement, str(ret), failsafe):
+                if _expect_type(element, model.SubmodelElement, str(ret), cls.failsafe):
                     ret.submodel_element.add(element)
         return ret
 
     @classmethod
-    def _construct_capability(cls, dct: Dict[str, object], failsafe: bool) -> model.Capability:
+    def _construct_capability(cls, dct: Dict[str, object]) -> model.Capability:
         ret = model.Capability(id_short=_get_ts(dct, "idShort", str), kind=cls._get_kind(dct))
-        cls._amend_abstract_attributes(ret, dct, failsafe)
+        cls._amend_abstract_attributes(ret, dct)
         return ret
 
     @classmethod
-    def _construct_basic_event(cls, dct: Dict[str, object], failsafe: bool) -> model.BasicEvent:
+    def _construct_basic_event(cls, dct: Dict[str, object]) -> model.BasicEvent:
         ret = model.BasicEvent(id_short=_get_ts(dct, "idShort", str),
                                observed=cls._construct_aas_reference(_get_ts(dct, 'observed', dict), model.Referable),
                                kind=cls._get_kind(dct))
-        cls._amend_abstract_attributes(ret, dct, failsafe)
+        cls._amend_abstract_attributes(ret, dct)
         return ret
 
     @classmethod
-    def _construct_operation(cls, dct: Dict[str, object], failsafe: bool) -> model.Operation:
+    def _construct_operation(cls, dct: Dict[str, object]) -> model.Operation:
         ret = model.Operation(_get_ts(dct, "idShort", str), kind=cls._get_kind(dct))
-        cls._amend_abstract_attributes(ret, dct, failsafe)
+        cls._amend_abstract_attributes(ret, dct)
 
         # Deserialize variables (they are not Referable, thus we don't
         for json_name, target in (('inputVariable', ret.input_variable),
@@ -462,36 +462,36 @@ class AASFromJsonDecoder(json.JSONDecoder):
             if json_name in dct:
                 for variable_data in _get_ts(dct, json_name, list):
                     try:
-                        target.append(cls._construct_operation_variable(variable_data, failsafe))
+                        target.append(cls._construct_operation_variable(variable_data))
                     except (KeyError, TypeError) as e:
                         error_message = "Error while trying to convert JSON object into {} of {}: {}".format(
                             json_name, ret, pprint.pformat(variable_data, depth=2, width=2 ** 14, compact=True))
-                        if failsafe:
+                        if cls.failsafe:
                             logger.error(error_message, exc_info=e)
                         else:
                             raise type(e)(error_message) from e
         return ret
 
     @classmethod
-    def _construct_relationship_element(cls, dct: Dict[str, object], failsafe: bool) -> model.RelationshipElement:
+    def _construct_relationship_element(cls, dct: Dict[str, object]) -> model.RelationshipElement:
         ret = model.RelationshipElement(id_short=_get_ts(dct, "idShort", str),
                                         first=cls._construct_aas_reference(_get_ts(dct, 'first', dict),
                                                                            model.Referable),
                                         second=cls._construct_aas_reference(_get_ts(dct, 'second', dict),
                                                                             model.Referable),
                                         kind=cls._get_kind(dct))
-        cls._amend_abstract_attributes(ret, dct, failsafe)
+        cls._amend_abstract_attributes(ret, dct)
         return ret
 
     @classmethod
-    def _construct_annotated_relationship_element(cls, dct: Dict[str, object], failsafe: bool) \
+    def _construct_annotated_relationship_element(cls, dct: Dict[str, object]) \
             -> model.AnnotatedRelationshipElement:
         ret = model.AnnotatedRelationshipElement(
             id_short=_get_ts(dct, "idShort", str),
             first=cls._construct_aas_reference(_get_ts(dct, 'first', dict), model.Referable),
             second=cls._construct_aas_reference(_get_ts(dct, 'second', dict), model.Referable),
             kind=cls._get_kind(dct))
-        cls._amend_abstract_attributes(ret, dct, failsafe)
+        cls._amend_abstract_attributes(ret, dct)
         if 'annotation' in dct:
             for annotation_data in _get_ts(dct, 'annotation', list):
                 try:
@@ -500,7 +500,7 @@ class AASFromJsonDecoder(json.JSONDecoder):
                     error_message = \
                         "Error while trying to convert JSON object into annotation Reference for {}: {} >>> {}".format(
                             ret, e, pprint.pformat(dct, depth=2, width=2 ** 14, compact=True))
-                    if failsafe:
+                    if cls.failsafe:
                         logger.error(error_message, exc_info=e)
                     else:
                         raise type(e)(error_message) from e
@@ -508,7 +508,7 @@ class AASFromJsonDecoder(json.JSONDecoder):
 
     @classmethod
     def _construct_submodel_element_collection(
-            cls, dct: Dict[str, object], failsafe: bool) -> model.SubmodelElementCollection:
+            cls, dct: Dict[str, object]) -> model.SubmodelElementCollection:
         ret: model.SubmodelElementCollection
         if 'ordered' in dct and _get_ts(dct, 'ordered', bool):
             ret = model.SubmodelElementCollectionOrdered(
@@ -516,50 +516,50 @@ class AASFromJsonDecoder(json.JSONDecoder):
         else:
             ret = model.SubmodelElementCollectionUnordered(
                 id_short=_get_ts(dct, "idShort", str), kind=cls._get_kind(dct))
-        cls._amend_abstract_attributes(ret, dct, failsafe)
+        cls._amend_abstract_attributes(ret, dct)
         if 'value' in dct:
             for element in _get_ts(dct, "value", list):
-                if _expect_type(element, model.SubmodelElement, str(ret), failsafe):
+                if _expect_type(element, model.SubmodelElement, str(ret), cls.failsafe):
                     ret.value.add(element)
         return ret
 
     @classmethod
-    def _construct_blob(cls, dct: Dict[str, object], failsafe: bool) -> model.Blob:
+    def _construct_blob(cls, dct: Dict[str, object]) -> model.Blob:
         ret = model.Blob(id_short=_get_ts(dct, "idShort", str),
                          mime_type=_get_ts(dct, "mimeType", str),
                          kind=cls._get_kind(dct))
-        cls._amend_abstract_attributes(ret, dct, failsafe)
+        cls._amend_abstract_attributes(ret, dct)
         if 'value' in dct:
             ret.value = base64.b64decode(_get_ts(dct, 'value', str))
         return ret
 
     @classmethod
-    def _construct_file(cls, dct: Dict[str, object], failsafe: bool) -> model.File:
+    def _construct_file(cls, dct: Dict[str, object]) -> model.File:
         ret = model.File(id_short=_get_ts(dct, "idShort", str),
                          value=None,
                          mime_type=_get_ts(dct, "mimeType", str),
                          kind=cls._get_kind(dct))
-        cls._amend_abstract_attributes(ret, dct, failsafe)
+        cls._amend_abstract_attributes(ret, dct)
         if 'value' in dct and dct['value'] is not None:
             ret.value = _get_ts(dct, 'value', str)
         return ret
 
     @classmethod
-    def _construct_multi_language_property(cls, dct: Dict[str, object], failsafe: bool) -> model.MultiLanguageProperty:
+    def _construct_multi_language_property(cls, dct: Dict[str, object]) -> model.MultiLanguageProperty:
         ret = model.MultiLanguageProperty(id_short=_get_ts(dct, "idShort", str), kind=cls._get_kind(dct))
-        cls._amend_abstract_attributes(ret, dct, failsafe)
+        cls._amend_abstract_attributes(ret, dct)
         if 'value' in dct and dct['value'] is not None:
-            ret.value = cls._construct_lang_string_set(_get_ts(dct, 'value', list), failsafe)
+            ret.value = cls._construct_lang_string_set(_get_ts(dct, 'value', list))
         if 'valueId' in dct:
             ret.value_id = cls._construct_reference(_get_ts(dct, 'valueId', dict))
         return ret
 
     @classmethod
-    def _construct_property(cls, dct: Dict[str, object], failsafe: bool) -> model.Property:
+    def _construct_property(cls, dct: Dict[str, object]) -> model.Property:
         ret = model.Property(id_short=_get_ts(dct, "idShort", str),
                              value_type=_get_ts(dct, 'valueType', str),
                              kind=cls._get_kind(dct))
-        cls._amend_abstract_attributes(ret, dct, failsafe)
+        cls._amend_abstract_attributes(ret, dct)
         if 'value' in dct and dct['value'] is not None:
             ret.value = _get_ts(dct, 'value', str)
         if 'valueId' in dct:
@@ -567,11 +567,11 @@ class AASFromJsonDecoder(json.JSONDecoder):
         return ret
 
     @classmethod
-    def _construct_range(cls, dct: Dict[str, object], failsafe: bool) -> model.Range:
+    def _construct_range(cls, dct: Dict[str, object]) -> model.Range:
         ret = model.Range(id_short=_get_ts(dct, "idShort", str),
                           value_type=_get_ts(dct, 'valueType', str),
                           kind=cls._get_kind(dct))
-        cls._amend_abstract_attributes(ret, dct, failsafe)
+        cls._amend_abstract_attributes(ret, dct)
         if 'min' in dct and dct['min'] is not None:
             ret.min_ = _get_ts(dct, 'min', str)
         if 'max' in dct and dct['max'] is not None:
@@ -579,11 +579,11 @@ class AASFromJsonDecoder(json.JSONDecoder):
         return ret
 
     @classmethod
-    def _construct_reference_element(cls, dct: Dict[str, object], failsafe: bool) -> model.ReferenceElement:
+    def _construct_reference_element(cls, dct: Dict[str, object]) -> model.ReferenceElement:
         ret = model.ReferenceElement(id_short=_get_ts(dct, "idShort", str),
                                      value=None,
                                      kind=cls._get_kind(dct))
-        cls._amend_abstract_attributes(ret, dct, failsafe)
+        cls._amend_abstract_attributes(ret, dct)
         if 'value' in dct and dct['value'] is not None:
             ret.value = cls._construct_aas_reference(_get_ts(dct, 'value', dict), model.Referable)
         return ret
