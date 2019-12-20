@@ -20,13 +20,14 @@ from jsonschema import validate  # type: ignore
 
 from aas.examples import example_create_aas, example_create_submodel_template, \
     example_create_aas_mandatory_attributes
+from test._helper.helpers import ExampleHelper
 from test.adapter.json import example_test_serialization
 
 
 JSON_SCHEMA_FILE = os.path.join(os.path.dirname(__file__), 'aasJSONSchemaV2.0.json')
 
 
-class JsonSerializationDeserializationTest(unittest.TestCase):
+class JsonSerializationDeserializationTest(ExampleHelper):
     def test_serialize_Object(self) -> None:
         test_object = model.Property("test_id_short", "string", category="PARAMETER",
                                      description={"en-us": "Germany", "de": "Deutschland"})

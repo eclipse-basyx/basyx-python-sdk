@@ -122,7 +122,7 @@ def create_example_asset_identification_submodel() -> model.Submodel:
         parent=None,
         administration=model.AdministrativeInformation(version='0.9',
                                                        revision='0'),
-        data_specification={model.Reference((model.Key(type_=model.KeyElements.ASSET,
+        data_specification={model.Reference((model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
                                                        local=False,
                                                        value='http://acplt.org/DataSpecifications/Submodels/'
                                                              'AssetIdentification',
@@ -307,7 +307,7 @@ def create_example_submodel() -> model.Submodel:
                'de': 'Beispielswert für ein MulitLanguageProperty-Element'},
         value_id=model.Reference((model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
                                             local=False,
-                                            value='http://acplt.org/ValueId/ExampleValueId',
+                                            value='http://acplt.org/ValueId/ExampleMultiLanguageValueId',
                                             id_type=model.KeyType.IRDI),)),
         category='CONSTANT',
         description={'en-us': 'Example MultiLanguageProperty object',
@@ -562,8 +562,8 @@ def create_example_submodel() -> model.Submodel:
                                                        revision='0'),
         data_specification={model.Reference((model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
                                                        local=False,
-                                                       value='http://acplt.org/DataSpecifications/AssetTypes/'
-                                                             'TestAsset',
+                                                       value='http://acplt.org/DataSpecifications/Submodels/'
+                                                             'TestSubmodel',
                                                        id_type=model.KeyType.IRDI),))},
         semantic_id=model.Reference((model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
                                                local=False,
