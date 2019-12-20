@@ -382,7 +382,8 @@ def submodel_to_json(obj: model.Submodel) -> Dict[str, object]:  # TODO make kin
     :return: dict with the serialized attributes of this object
     """
     data = abstract_classes_to_json(obj)
-    data['submodelElements'] = list(obj.submodel_element)
+    if obj.submodel_element != set():
+        data['submodelElements'] = list(obj.submodel_element)
     return data
 
 

@@ -79,21 +79,34 @@ class ExampleHelper(unittest.TestCase):
                       local=False,
                       value='0173-1#02-AAO677#002',
                       id_type=model.KeyType.IRDI),)))
-        self.assertEqual(1, len(manufacturer_name.qualifier))
+        self.assertEqual(2, len(manufacturer_name.qualifier))
         self.assertEqual(model.ModelingKind.INSTANCE, manufacturer_name.kind)
 
         # Test attributes of property qualifier
         qualifier: model.Qualifier
         for qualifier in manufacturer_name.qualifier:  # type: ignore
-            self.assertIsInstance(qualifier, model.Qualifier)
-            self.assertEqual('http://acplt.org/Qualifier/ExampleQualifier', qualifier.type_)
-            self.assertEqual('string', qualifier.value_type)
-            self.assertEqual('100', qualifier.value)
-            self.assertEqual(qualifier.value_id, model.Reference((
-                model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
-                          local=False,
-                          value='http://acplt.org/ValueId/ExampleValueId',
-                          id_type=model.KeyType.IRDI),)))
+            if qualifier.type_ == 'http://acplt.org/Qualifier/ExampleQualifier':
+                self.assertIsInstance(qualifier, model.Qualifier)
+                self.assertEqual('http://acplt.org/Qualifier/ExampleQualifier', qualifier.type_)
+                self.assertEqual('string', qualifier.value_type)
+                self.assertEqual('100', qualifier.value)
+                self.assertEqual(qualifier.value_id, model.Reference((
+                    model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
+                              local=False,
+                              value='http://acplt.org/ValueId/ExampleValueId',
+                              id_type=model.KeyType.IRDI),)))
+            elif qualifier.type_ == 'http://acplt.org/Qualifier/ExampleQualifier2':
+                self.assertIsInstance(qualifier, model.Qualifier)
+                self.assertEqual('http://acplt.org/Qualifier/ExampleQualifier2', qualifier.type_)
+                self.assertEqual('string', qualifier.value_type)
+                self.assertEqual('50', qualifier.value)
+                self.assertEqual(qualifier.value_id, model.Reference((
+                    model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
+                              local=False,
+                              value='http://acplt.org/ValueId/ExampleValueId',
+                              id_type=model.KeyType.IRDI),)))
+            else:
+                raise KeyError()
 
         instance_id: model.Property = submodel.get_referable('InstanceId')  # type: ignore
         self.assertIsInstance(instance_id, model.Property)
@@ -141,7 +154,7 @@ class ExampleHelper(unittest.TestCase):
         self.assertIsInstance(example_entity, model.Entity)
         self.assertEqual('ExampleEntity', example_entity.id_short)
         self.assertEqual(model.EntityType.CO_MANAGED_ENTITY, example_entity.entity_type)
-        self.assertEqual(1, len(example_entity.statement))
+        self.assertEqual(2, len(example_entity.statement))
         self.assertIsNone(example_entity.category)
         self.assertEqual({'en-us': 'Legally valid designation of the natural or judicial person which is directly '
                                    'responsible for the design, production, packaging and labeling of a product in '
@@ -160,7 +173,7 @@ class ExampleHelper(unittest.TestCase):
         self.assertEqual(0, len(example_entity.qualifier))
         self.assertEqual(model.ModelingKind.INSTANCE, example_entity.kind)
 
-        # Test attributes of property ExampleProperty
+        # Test attributes of property ExampleProperty in statements
         example_property: model.Property = example_entity.statement.get_referable('ExampleProperty')  # type: ignore
         self.assertIsInstance(example_property, model.Property)
         self.assertEqual('ExampleProperty', example_property.id_short)
@@ -183,6 +196,30 @@ class ExampleHelper(unittest.TestCase):
                       id_type=model.KeyType.IRDI),)))
         self.assertEqual(0, len(example_property.qualifier))
         self.assertEqual(model.ModelingKind.INSTANCE, example_property.kind)
+
+        # Test attributes of property ExampleProperty2 in statements
+        example_property2: model.Property = example_entity.statement.get_referable('ExampleProperty2')  # type: ignore
+        self.assertIsInstance(example_property2, model.Property)
+        self.assertEqual('ExampleProperty2', example_property2.id_short)
+        self.assertEqual('string', example_property2.value_type)
+        self.assertEqual('exampleValue2', example_property2.value)
+        self.assertEqual(example_property2.value_id, model.Reference((
+            model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
+                      local=False,
+                      value='http://acplt.org/ValueId/ExampleValueId',
+                      id_type=model.KeyType.IRDI),)))
+        self.assertEqual('CONSTANT', example_property2.category)
+        self.assertEqual({'en-us': 'Example Property object', 'de': 'Beispiel Property Element'},
+                         example_property2.description)
+        self.assertIs(example_property2.parent, example_entity)
+        self.assertEqual(0, len(example_property2.data_specification))
+        self.assertEqual(example_property2.semantic_id, model.Reference((
+            model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
+                      local=False,
+                      value='http://acplt.org/Properties/ExampleProperty',
+                      id_type=model.KeyType.IRDI),)))
+        self.assertEqual(0, len(example_property2.qualifier))
+        self.assertEqual(model.ModelingKind.INSTANCE, example_property2.kind)
 
         # test attributes of entity ExampleEntity2
         example_entity2: model.Entity = submodel.get_referable('ExampleEntity2')  # type: ignore

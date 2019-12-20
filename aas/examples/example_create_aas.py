@@ -52,6 +52,15 @@ def create_example_asset_identification_submodel() -> model.Submodel:
                                             value='http://acplt.org/ValueId/ExampleValueId',
                                             id_type=model.KeyType.IRDI),)))
 
+    qualifier2 = model.Qualifier(
+        type_='http://acplt.org/Qualifier/ExampleQualifier2',
+        value_type='string',
+        value='50',
+        value_id=model.Reference((model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
+                                            local=False,
+                                            value='http://acplt.org/ValueId/ExampleValueId',
+                                            id_type=model.KeyType.IRDI),)))
+
     formula = model.Formula(depends_on={model.Reference((model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
                                                                    local=False,
                                                                    value='http://acplt.org/Formula/ExampleFormula',
@@ -80,7 +89,7 @@ def create_example_asset_identification_submodel() -> model.Submodel:
                                                local=False,
                                                value='0173-1#02-AAO677#002',
                                                id_type=model.KeyType.IRDI),)),
-        qualifier={qualifier},
+        qualifier={qualifier, qualifier2},
         kind=model.ModelingKind.INSTANCE)
 
     # Property-Element conform to 'Verwaltungssschale in der Praxis' page 44 InstanceId:
@@ -163,10 +172,30 @@ def create_example_bill_of_material_submodel() -> model.Submodel:
         qualifier=None,
         kind=model.ModelingKind.INSTANCE)
 
+    submodel_element_property2 = model.Property(
+        id_short='ExampleProperty2',
+        value_type='string',
+        value='exampleValue2',
+        value_id=model.Reference((model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
+                                            local=False,
+                                            value='http://acplt.org/ValueId/ExampleValueId',
+                                            id_type=model.KeyType.IRDI),)),
+        category='CONSTANT',
+        description={'en-us': 'Example Property object',
+                     'de': 'Beispiel Property Element'},
+        parent=None,
+        data_specification=None,
+        semantic_id=model.Reference((model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
+                                               local=False,
+                                               value='http://acplt.org/Properties/ExampleProperty',
+                                               id_type=model.KeyType.IRDI),)),
+        qualifier=None,
+        kind=model.ModelingKind.INSTANCE)
+
     entity = model.Entity(
         id_short='ExampleEntity',
         entity_type=model.EntityType.CO_MANAGED_ENTITY,
-        statement={submodel_element_property},
+        statement={submodel_element_property, submodel_element_property2},
         asset=None,
         category=None,
         description={'en-us': 'Legally valid designation of the natural or judicial person which is directly '
