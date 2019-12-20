@@ -66,6 +66,7 @@ class JsonSerializationDeserializationTest(ExampleHelper):
         # module
         file.seek(0)
         json_object_store = json_deserialization.read_json_aas_file(file, failsafe=False)
+        self.assert_full_example(json_object_store)
 
     def test_submodel_template_serialization(self) -> None:
         data: model.DictObjectStore[model.Identifiable] = model.DictObjectStore()

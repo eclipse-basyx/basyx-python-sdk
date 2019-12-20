@@ -223,6 +223,11 @@ def construct_asset(dct: Dict[str, object], failsafe: bool) -> model.Asset:
     ret = model.Asset(kind=ASSET_KIND_INVERSE[_get_ts(dct, 'kind', str)],
                       identification=_construct_identifier(_get_ts(dct, "identification", dict)))
     _amend_abstract_attributes(ret, dct, failsafe)
+    if 'assetIdentificationModel' in dct:
+        ret.asset_identification_model = _construct_aas_reference(_get_ts(dct, 'assetIdentificationModel', dict),
+                                                                  model.Submodel)
+    if 'billOfMaterial' in dct:
+        ret.bill_of_material = _construct_aas_reference(_get_ts(dct, 'billOfMaterial', dict), model.Submodel)
     return ret
 
 
@@ -244,6 +249,9 @@ def construct_asset_administration_shell(dct: Dict[str, object], failsafe: bool)
                 ret.concept_dictionary.add(concept_dictionary)
     if 'security' in dct:
         ret.security_ = _construct_security(_get_ts(dct, 'security', dict))
+    if 'derivedFrom' in dct:
+        ret.derived_from = _construct_aas_reference(_get_ts(dct, 'derivedFrom', dict),
+                                                    model.AssetAdministrationShell)
     return ret
 
 
