@@ -16,10 +16,12 @@ It contains a custom `default` function which converts PyAAS objects to simple p
 JSON serialization. Additionally, there's the `write_aas_json_file()` function, that takes a complete ObjectStore and
 writes all contained AAS objects into a JSON file.
 
-This job is performed in a bottom-up approach: The `default()` function gets called for every object and checks if an
-object is an PyAAS object. In this case, it calls the special function for the PyAAS object which converts the
-it to a simple python type, which is serializable. The special helper function `abstract_classes_to_json()` is called by
-most of the conversion functions to handle all the attributes of abstract base classes.
+This job is performed in an iterative approach: The `default()` function gets called for every object and checks if an
+object is an PyAAS object. In this case, it calls a special function for the respective PyAAS class which converts the
+object (but not the contained objects) into a simple Python dict, which is serializable. Any contained PyAAS objects
+are included into the dict as they are to be converted later on. The special helper function
+`abstract_classes_to_json()` is called by most of the conversion functions to handle all the attributes of abstract base
+classes.
 """
 import base64
 import inspect
@@ -599,8 +601,13 @@ def basic_event_to_json(obj: model.BasicEvent) -> Dict[str, object]:
 
 class AASToJsonEncoder(json.JSONEncoder):
     """
-    extended JSONEncoder for objects from the meta model of 'Details of the Asset Administration Shell - Part 1
-    Version 2.0'
+    Custom JSONDecoder class to use the `json` module for serializing Asset Administration Shell data into the
+    official JSON format
+
+    The class overrides the `default()` method to transform PyAAS objects into dicts that may be serialized by the
+    standard encode method. Typical usage:
+
+        json_string = json.dumps(data, cls=AASToJsonEncoder)
     """
 
     def default(self, obj: object) -> object:

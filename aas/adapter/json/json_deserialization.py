@@ -102,8 +102,12 @@ class AASFromJsonDecoder(json.JSONDecoder):
     Custom JSONDecoder class to use the `json` module for deserializing Asset Administration Shell data from the
     official JSON format
 
-    It contains a custom `object_hook` function to detect encoded AAS objects within the JSON data and convert them to
-    PyAAS objects while parsing. The `object_hook` function uses a set of `_construct_*()` methods, one for each
+    The class contains a custom `object_hook` function to detect encoded AAS objects within the JSON data and convert
+    them to PyAAS objects while parsing. Typical usage:
+
+        data = json.loads(json_string, cls=AASFromJsonDecoder)
+
+    The `object_hook` function uses a set of `_construct_*()` methods, one for each
     AAS object type to transform the JSON objects in to PyAAS objects. These constructor methods are divided into two
     parts: "Helper Constructor Methods", that are used to construct PyAAS types without a `modelType` attribute as
     embedded objects within other PyAAS objects, and "Direct Constructor Methods" for PyAAS types *with* `modelType`
