@@ -16,13 +16,13 @@ Module for serializing Asset Administration Shell data to the official XML forma
 
 import xml.etree.ElementTree as ElTree
 from typing import List, Dict
-# import inspect
+import inspect
 
 from aas import model
 
 
 # ##############################################################
-# transformation functions to serialize abstract classes from model.base
+# dicts to serialize enum classes to xml
 # ##############################################################
 
 
@@ -77,6 +77,69 @@ ENTITY_TYPES: Dict[model.EntityType, str] = {
     model.EntityType.SELF_MANAGED_ENTITY: 'SelfManagedEntity'}
 
 
+# ##############################################################
+# transformation functions to serialize non-abstract, later needed classes from model.base
+# ##############################################################
+
+
+def key_to_xml(obj: model.Key) -> ElTree.Element:
+    """
+    serialization of keys
+
+    :param obj: key
+    :return: ElementTree object of the reference
+    """
+    et_key = ElTree.Element("aas:Key")
+    et_key_type = ElTree.Element("aas:KeyType")
+    et_key_type.text = KEY_ELEMENTS[obj.type_]
+    et_key.insert(0, et_key_type)
+    et_local = ElTree.Element("aas:KeyLocal")
+    et_local.text = str(obj.local)
+    et_key.insert(0, et_local)
+    et_id_type = ElTree.Element("aas:KeyIdType")
+    et_id_type.text = KEY_TYPES[obj.id_type]
+    et_key.insert(0, et_id_type)
+    et_value = ElTree.Element("aas:KeyValue")
+    et_value.text = obj.value
+    et_key.insert(0, et_value)
+    return et_key
+
+
+def reference_to_xml(obj: model.Reference) -> ElTree.Element:
+    """
+    serialization of Reference
+
+    :param obj: Reference
+    :return: ElementTree Object
+    """
+    et_reference = ElTree.Element("aas:Reference")
+    for i in obj.key:
+        et_key = key_to_xml(i)
+        et_reference.insert(0, et_key)
+    return et_reference
+
+
+def lang_string_set_to_xml(obj: model.LangStringSet) -> ElTree.Element:
+    """
+    serialization of LangStringSet
+
+    :param obj: LangStringSet
+    :return: ElementTree Object of the LangStringSet
+    """
+    et_lss = ElTree.Element("aas:LangStringSet")
+    for i in obj:
+        et_lang_string = ElTree.Element("aas:LangString")
+        et_lang_string.set("Language", i)
+        et_lang_string.text = obj[i]
+        et_lss.insert(0, et_lang_string)
+    return et_lss
+
+
+# ##############################################################
+# transformation functions to serialize abstract classes from model.base
+# ##############################################################
+
+
 def abstract_classes_to_xml(obj: object) -> List[ElTree.Element]:
     """
     transformation function to serialize abstract classes from model.base which are inherited by many classes.
@@ -95,24 +158,21 @@ def abstract_classes_to_xml(obj: object) -> List[ElTree.Element]:
             elements += [et_category]
         if obj.description:
             et_description = ElTree.Element("description")
-            et_description.text = str(obj.description)  # todo: think about how to implement the LangStringSet
+            et_description.insert(0, lang_string_set_to_xml(obj.description))
             elements += [et_description]
 
-        # todo: What does this do?
-        """
         try:
             ref_type = next(iter(t for t in inspect.getmro(type(obj)) if t in model.KEY_ELEMENTS_CLASSES))
         except StopIteration as e:
             raise TypeError("Object of type {} is Referable but does not inherit from a known AAS type"
                             .format(obj.__class__.__name__)) from e
         et_model_type = ElTree.Element("aas:modelType")
-        et_model_type.text = {'name': ref_type.__name__}
+        et_model_type.text = ref_type.__name__
         elements += [et_model_type]
-        """
 
     if isinstance(obj, model.Identifiable):
         et_identifiable = ElTree.Element("aas:identification")
-        # et_identifiable.set("idType", obj.identification.id_type) todo: use dict for id_type
+        et_identifiable.set("idType", IDENTIFIER_TYPES[obj.identification.id_type])
         et_identifiable.text = obj.identification.id
         elements += [et_identifiable]
         if obj.administration:
@@ -128,25 +188,30 @@ def abstract_classes_to_xml(obj: object) -> List[ElTree.Element]:
     if isinstance(obj, model.HasDataSpecification):
         if obj.data_specification:
             et_has_data_specification = ElTree.Element("aas:embeddedDataSpecification")
-            # et_has_data_specification.text = obj.data_specification todo: data_specification is a set of references
+            # et_has_data_specification.text = obj.data_specification  # todo: data_specification is not a string
             elements += [et_has_data_specification]
 
     if isinstance(obj, model.HasSemantics):
         if obj.semantic_id:
             et_semantics = ElTree.Element("aas:semanticId")
-            # et_semantics.text = obj.semantic_id todo: semantic_id is a reference
+            et_semantics.insert(0, reference_to_xml(obj.semantic_id))
             elements += [et_semantics]
 
     if isinstance(obj, model.HasKind):
         if obj.kind is model.ModelingKind.TEMPLATE:
             et_modeling_kind = ElTree.Element("aas:modelingKind")
-            # et_modeling_kind.text = obj.kind todo: do the stuff with the dict
+            et_modeling_kind.text = MODELING_KIND[obj.kind]
             elements += [et_modeling_kind]
 
     if isinstance(obj, model.Qualifiable):
         if obj.qualifier:
             et_qualifiers = ElTree.Element("aas:qualifier")
-            # et_qualifiers.text = obj.qualifier todo: find out about constraints
+            # et_qualifiers.text = obj.qualifier  # todo: find out about constraints, this seems not yet implemented
             elements += [et_qualifiers]
 
     return elements
+
+
+# ##############################################################
+# transformation functions to serialize classes from model.base
+# ##############################################################
