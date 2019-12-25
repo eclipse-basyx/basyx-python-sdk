@@ -15,7 +15,7 @@ Module for serializing Asset Administration Shell data to the official XML forma
 """
 
 import xml.etree.ElementTree as ElTree
-from typing import List, Dict
+from typing import List, Dict, Iterator
 import inspect
 
 from aas import model
@@ -33,7 +33,7 @@ class PyaasXMLSerializationError(Exception):
     pass
 
 
-def find_rec(parent: ElTree.Element, tag: str) -> List[ElTree.Element]:
+def find_rec(parent: ElTree.Element, tag: str) -> Iterator[List[ElTree.Element]]:
     """
     Finds all elements recursively that have the given tag
 
@@ -296,8 +296,8 @@ def reference_to_xml(obj: model.Reference) -> ElTree.Element:
     et_reference = ElTree.Element("aas:Reference")
     for i in abstract_classes_to_xml(obj):
         et_reference.insert(0, i)
-    for i in obj.key:
-        et_key = key_to_xml(i)
+    for aas_key in obj.key:
+        et_key = key_to_xml(aas_key)
         et_reference.insert(0, et_key)
     return et_reference
 
@@ -331,7 +331,7 @@ def namespace_to_xml(obj: model.Namespace) -> ElTree.Element:
     """
     et_namespace = ElTree.Element("aas:namespace")
     for i in abstract_classes_to_xml(obj):
-        et_namespace.insert(i)
+        et_namespace.insert(0, i)
     return et_namespace
 
 
@@ -349,8 +349,8 @@ def formula_to_xml(obj: model.Formula) -> ElTree.Element:
     et_formula = update_element(et_formula, et_constraint)  # todo check if this works the way its intended
     if obj.depends_on:
         et_depends_on = ElTree.Element("dependsOnRefs")
-        for i in obj.depends_on:
-            et_ref = reference_to_xml(i)
+        for aas_reference in obj.depends_on:
+            et_ref = reference_to_xml(aas_reference)
             et_depends_on.insert(0, et_ref)
         et_formula.insert(0, et_depends_on)
     return et_formula
@@ -374,7 +374,7 @@ def qualifier_to_xml(obj: model.Qualifier) -> ElTree.Element:
         et_qualifier.insert(0, et_value)
     if obj.value_id:
         et_value_id = ElTree.Element("valueId")
-        et_value_id.insert(reference_to_xml(obj.value_id))
+        et_value_id.insert(0, reference_to_xml(obj.value_id))
         et_qualifier.insert(0, et_value_id)
     et_value_type = ElTree.Element("valueType")
     et_value_type.text = obj.value_type  # should be a string, so no problems
@@ -420,8 +420,8 @@ def value_list_to_xml(obj: model.ValueList) -> ElTree.Element:
     et_vl = ElTree.Element("aas:valueList")
     for i in abstract_classes_to_xml(obj):
         et_vl.insert(0, i)
-    for i in obj.value_reference_pair_type:
-        et_value_reference_pair = value_reference_pair_to_xml(i)
+    for aas_reference_pair in obj.value_reference_pair_type:
+        et_value_reference_pair = value_reference_pair_to_xml(aas_reference_pair)
         et_vl.insert(0, et_value_reference_pair)
     return et_vl
 
