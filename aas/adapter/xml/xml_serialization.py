@@ -33,7 +33,7 @@ class PyaasXMLSerializationError(Exception):
     pass
 
 
-def find_rec(parent: ElTree.Element, tag: str) -> Iterator[List[ElTree.Element]]:
+def find_rec(parent: ElTree.Element, tag: str) -> Iterator[ElTree.Element]:
     """
     Finds all elements recursively that have the given tag
 
