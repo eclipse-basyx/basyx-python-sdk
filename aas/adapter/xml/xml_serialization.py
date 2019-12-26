@@ -943,7 +943,7 @@ def entity_to_xml(obj: model.Entity) -> ElTree.Element:
         et_asset.insert(0, et_ref)
         et_entity.insert(0, et_asset)
 
-    return et_asset
+    return et_entity
 
 
 def event_to_xml(obj: model.Event) -> ElTree.Element:
