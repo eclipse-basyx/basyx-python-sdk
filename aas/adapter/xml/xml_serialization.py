@@ -429,3 +429,138 @@ def value_list_to_xml(obj: model.ValueList) -> ElTree.Element:
 # ##############################################################
 # transformation functions to serialize classes from model.aas
 # ##############################################################
+
+
+def view_to_xml(obj: model.View) -> ElTree.Element:
+    """
+    serialization of objects of class View to XML
+
+    :param obj: object of class View
+    :return: serialized ElementTree object
+    """
+    et_view = ElTree.Element("View")
+    for i in abstract_classes_to_xml(obj):
+        et_view.insert(0, i)
+    if obj.contained_element:
+        et_contained_elements = ElTree.Element("containedElements")
+        for contained_element in obj.contained_element:
+            et_reference = reference_to_xml(contained_element)
+            et_contained_elements.insert(0, et_reference)
+    return et_view
+
+
+def asset_to_xml(obj: model.Asset) -> ElTree.Element:
+    """
+    serialization of objects of class Asset to XML
+
+    todo: references like bill of material: did i implement it correctly?
+
+    :param obj: object of class Asset
+    :return: serialized ElementTree object
+    """
+    et_asset = ElTree.Element("Asset")
+    for i in abstract_classes_to_xml(obj):
+        et_asset.insert(0, i)
+    et_kind = ElTree.Element("kind")
+    et_kind.text = ASSET_KIND[obj.kind]
+    et_asset.insert(0, et_kind)
+    if obj.asset_identification_model:
+        et_asset_identification_model = ElTree.Element("assetIdentificationModelRef")
+        et_reference = reference_to_xml(obj.asset_identification_model)
+        et_asset_identification_model.insert(0, et_reference)
+        et_asset.insert(0, et_asset_identification_model)
+    if obj.bill_of_material:
+        et_bill_of_material = ElTree.Element("billOfMaterialRef")
+        et_reference_bom = reference_to_xml(obj.bill_of_material)
+        et_bill_of_material.insert(0, et_reference_bom)
+        et_asset.insert(0, et_bill_of_material)
+    return et_asset
+
+
+def concept_description_to_xml(obj: model.ConceptDescription) -> ElTree.Element:
+    """
+    serialization of objects of class ConceptDescription to XML
+
+    :param obj: object of class ConceptDescription
+    :return: serialized ElementTree object
+    """
+    et_concept_description = ElTree.Element("ConceptDescription")
+    for i in abstract_classes_to_xml(obj):
+        et_concept_description.insert(0, i)
+    if obj.is_case_of:
+        et_is_case_of = ElTree.Element("isCaseOf")  # todo: didn't find this in the schema, guessed implementation
+        for reference in obj.is_case_of:
+            et_reference = reference_to_xml(reference)
+            et_is_case_of.insert(0, et_reference)
+        et_concept_description.insert(0, et_is_case_of)
+    return et_concept_description
+
+
+def concept_dictionary_to_xml(obj: model.ConceptDictionary) -> ElTree.Element:
+    """
+    serialization of objects of class ConceptDictionary to XML
+
+    :param obj: object of class ConceptDictionary
+    :return: serialized ElementTree object
+    """
+    et_concept_dictionary = ElTree.Element("conceptDictionary")
+    for i in abstract_classes_to_xml(obj):
+        et_concept_dictionary.insert(0, i)
+    if obj.concept_description:
+        et_concept_descriptions = ElTree.Element("conceptDescriptionRefs")
+        for reference in obj.concept_description:
+            et_reference = reference_to_xml(reference)
+            et_concept_descriptions.insert(0, et_reference)
+        et_concept_dictionary.insert(0, et_concept_descriptions)
+    return et_concept_dictionary
+
+
+def asset_administration_shell_to_xml(obj: model.AssetAdministrationShell) -> ElTree.Element:
+    """
+    serialization of objects of class AssetAdministrationShell to XML
+
+    :param obj: object of class AssetAdministrationShell
+    :return: serialized ElementTree object
+    """
+    et_aas = ElTree.Element("assetAdministrationShell")
+    for i in abstract_classes_to_xml(obj):
+        et_aas.insert(0, i)
+    et_namespace = namespace_to_xml(obj)
+    et_aas = update_element(et_aas, et_namespace)
+    if obj.derived_from:
+        et_derived_from = ElTree.Element("derivedFrom")
+        et_reference = reference_to_xml(obj.derived_from)
+        et_derived_from.insert(0, et_reference)
+        et_aas.insert(0, et_derived_from)
+    et_asset = ElTree.Element("assetRef")
+    et_ref_asset = reference_to_xml(obj.asset)
+    et_asset.insert(0, et_ref_asset)
+    et_aas.insert(0, et_asset)
+    if obj.submodel_:
+        et_submodels = ElTree.Element("submodelRefs")
+        for reference in obj.submodel_:
+            et_ref_sub = reference_to_xml(reference)
+            et_submodels.insert(0, et_ref_sub)
+        et_aas.insert(0, et_submodels)
+    if obj.view:
+        et_views = ElTree.Element("views")
+        for view in obj.view:
+            et_view = view_to_xml(view)
+            et_views.insert(0, et_view)
+        et_aas.insert(0, et_views)
+    if obj.concept_dictionary:
+        et_concept_dictionaries = ElTree.Element("conceptDictionaries")
+        for concept_dictionary in obj.concept_dictionary:
+            et_concept_dictionary = concept_dictionary_to_xml(concept_dictionary)
+            et_concept_dictionaries.insert(0, et_concept_dictionary)
+        et_aas.insert(0, et_concept_dictionaries)
+    if obj.security_:
+        et_security = ElTree.Element("security")
+        # todo: Since Security is not implemented, add serialization here
+        et_aas.insert(0, et_security)
+    return et_aas
+
+
+# ##############################################################
+# transformation functions to serialize classes from model.aas
+# ##############################################################
