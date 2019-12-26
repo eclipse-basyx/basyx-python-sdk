@@ -17,6 +17,7 @@ Module for serializing Asset Administration Shell data to the official XML forma
 import xml.etree.ElementTree as ElTree
 from typing import List, Dict, Iterator
 import inspect
+import base64
 
 from aas import model
 
@@ -582,3 +583,396 @@ def security_to_xml(obj: model.Security) -> ElTree.Element:
 # ##############################################################
 # transformation functions to serialize classes from model.submodel
 # ##############################################################
+
+
+def submodel_element_to_xml(obj: model.SubmodelElement) -> ElTree.Element:
+    """
+    serialization of objects of class SubmodelElement to XML
+
+    todo: this seems to miss in the json implementation? Because it consists only of inherited parameters?
+
+    :param obj: object of class SubmodelElement
+    :return: serialized ElementTree object
+    """
+    et_submodel_element = ElTree.Element("submodelElement")
+    for i in abstract_classes_to_xml(obj):
+        et_submodel_element.insert(0, i)
+    return et_submodel_element
+
+
+def submodel_to_xml(obj: model.Submodel) -> ElTree.Element:
+    """
+    serialization of objects of class Submodel to XML
+
+    :param obj: object of class Submodel
+    :return: serialized ElementTree object
+    """
+    et_submodel = ElTree.Element("submodel")
+    for i in abstract_classes_to_xml(obj):
+        et_submodel.insert(0, i)
+    if obj.submodel_element:
+        et_submodel_elements = ElTree.Element("submodelElements")
+        for submodel_element in obj.submodel_element:
+            et_submodel_element = submodel_element_to_xml(submodel_element)
+            et_submodel_elements.insert(0, et_submodel_element)
+        et_submodel.insert(0, et_submodel_elements)
+    return et_submodel
+
+
+def data_element_to_xml(obj: model.DataElement) -> ElTree.Element:
+    """
+    serialization of objects of class DataElement to XML
+
+    todo: this seems incomplete
+
+    :param obj: object of class DataElement
+    :return: serialized ElementTree object
+    """
+    et_data_element = ElTree.Element("dataElement")
+    for i in abstract_classes_to_xml(obj):
+        et_data_element.insert(0, i)
+    return et_data_element
+
+
+def property_to_xml(obj: model.Property) -> ElTree.Element:
+    """
+    serialization of objects of class Property to XML
+
+    :param obj: object of class Property
+    :return: serialized ElementTree object
+    """
+    et_property = ElTree.Element("property")
+    for i in abstract_classes_to_xml(obj):
+        et_property.insert(0, i)
+    et_value = ElTree.Element("value")
+    et_value.text = obj.value
+    et_property.insert(0, et_value)
+    if obj.value_id:
+        et_value_id = ElTree.Element("valueId")
+        et_reference = reference_to_xml(obj.value_id)
+        et_value_id.insert(0, et_reference)
+        et_value.insert(0, et_value_id)
+    et_value_type = ElTree.Element("valueType")
+    et_value_type.text = obj.value_type
+    et_value.insert(0, et_value_type)
+    return et_value
+
+
+def multi_language_property_to_xml(obj: model.MultiLanguageProperty) -> ElTree.Element:
+    """
+    serialization of objects of class MultiLanguageProperty to XML
+
+    :param obj: object of class MultiLanguageProperty
+    :return: serialized ElementTree object
+    """
+    et_multi_language_property = ElTree.Element("multiLanguageProperty")
+    for i in abstract_classes_to_xml(obj):
+        et_multi_language_property.insert(0, i)
+    if obj.value:
+        et_value = ElTree.Element("value")
+        et_lang_string_set = lang_string_set_to_xml(obj.value)
+        et_value.insert(0, et_lang_string_set)
+        et_multi_language_property.insert(0, et_value)
+    if obj.value_id:
+        et_value_id = ElTree.Element("valueId")
+        et_reference = reference_to_xml(obj.value_id)
+        et_value_id.insert(0, et_reference)
+        et_multi_language_property.insert(0, et_value_id)
+    return et_multi_language_property
+
+
+def range_to_xml(obj: model.Range) -> ElTree.Element:
+    """
+    serialization of objects of class Range to XML
+
+    :param obj: object of class Range
+    :return: serialized ElementTree object
+    """
+    et_range = ElTree.Element("range")
+    for i in abstract_classes_to_xml(obj):
+        et_range.insert(0, i)
+    et_value_type = ElTree.Element("valueType")
+    et_value_type.text = obj.value_type
+    et_range = update_element(et_range, et_value_type)
+
+    et_min = ElTree.Element("min")
+    et_min.text = obj.min_
+    et_range = update_element(et_range, et_min)
+
+    et_max = ElTree.Element("max")
+    et_max.text = obj.max_
+    et_range = update_element(et_range, et_max)
+
+    return et_range
+
+
+def blob_to_xml(obj: model.Blob) -> ElTree.Element:
+    """
+    serialization of objects of class Blob to XML
+
+    :param obj: object of class Blob
+    :return: serialized ElementTree object
+    """
+    et_blob = ElTree.Element("blob")
+    for i in abstract_classes_to_xml(obj):
+        et_blob.insert(0, i)
+    et_mime_type = ElTree.Element("mimeType")
+    et_mime_type.text = obj.mime_type  # base.MimeType = str
+    et_blob.insert(0, et_mime_type)
+
+    et_value = ElTree.Element("value")
+    # et_value.text = base64.b64encode(obj.value).decode()  # todo: b64encode needs "bytes", got "bytearray"?
+    et_blob.insert(0, et_value)
+
+    return et_blob
+
+
+def file_to_xml(obj: model.File) -> ElTree.Element:
+    """
+    serialization of objects of class File to XML
+
+    :param obj: object of class File
+    :return: serialized ElementTree object
+    """
+    et_file = ElTree.Element("file")
+    for i in abstract_classes_to_xml(obj):
+        et_file.insert(0, i)
+    et_value = ElTree.Element("value")
+    et_value.text = obj.value  # base.PathType = str
+    et_file = update_element(et_file, et_value)
+
+    et_mime_type = ElTree.Element("mimeType")
+    et_mime_type.text = obj.mime_type
+    et_file = update_element(et_file, et_mime_type)
+
+    return et_file
+
+
+def reference_element_to_xml(obj: model.ReferenceElement) -> ElTree.Element:
+    """
+    serialization of objects of class ReferenceElement to XMl
+
+    :param obj: object of class ReferenceElement
+    :return: serialized ElementTree object
+    """
+    et_reference_element = ElTree.Element("referenceElement")
+    for i in abstract_classes_to_xml(obj):
+        et_reference_element.insert(0, i)
+    if obj.value:
+        et_value = ElTree.Element("value")
+        et_ref = reference_to_xml(obj.value)
+        et_value.insert(0, et_ref)
+        et_reference_element.insert(0, et_value)
+    return et_reference_element
+
+
+def submodel_element_collection_to_xml(obj: model.SubmodelElementCollection) -> ElTree.Element:
+    """
+    serialization of objects of class SubmodelElementCollection to XML
+
+    todo: finish implementation (missing "allowDuplicated" and "ordered")
+
+    :param obj: object of class SubmodelElementCollection
+    :return: serialized ElementTree object
+    """
+    et_submodel_element_collection = ElTree.Element("submodelElementCollection")
+    for i in abstract_classes_to_xml(obj):
+        et_submodel_element_collection.insert(0, i)
+    if obj.value:
+        et_value = ElTree.Element("value")
+        for submodel_element in obj.value:
+            et_submodel_element = submodel_element_to_xml(submodel_element)
+            et_value.insert(0, et_submodel_element)
+        et_submodel_element_collection.insert(0, et_value)
+    et_ordered = ElTree.Element("ordered")
+    if obj.ordered is True:
+        et_ordered.text = str(1)  # valid xml boolean: (true/false), (1/0)
+    else:
+        et_ordered.text = str(0)
+    return et_submodel_element_collection
+
+
+def relationship_element_to_xml(obj: model.RelationshipElement) -> ElTree.Element:
+    """
+    serialization of objects of class RelationshipElement to XML
+
+    :param obj: object of class RelationshipElement
+    :return: serialized ELementTree object
+    """
+    et_relationship_element = ElTree.Element("relationshipElement")
+    for i in abstract_classes_to_xml(obj):
+        et_relationship_element.insert(0, i)
+    et_first = ElTree.Element("first")
+    et_ref1 = reference_to_xml(obj.first)
+    et_first.insert(0, et_ref1)
+    et_relationship_element.insert(0, et_first)
+
+    et_second = ElTree.Element("second")
+    et_ref2 = reference_to_xml(obj.second)
+    et_second.insert(0, et_ref2)
+    et_relationship_element.insert(0, et_second)
+
+    return et_relationship_element
+
+
+def annotated_relationship_element_to_xml(obj: model.AnnotatedRelationshipElement) -> ElTree.Element:
+    """
+    serialization of objects of class AnnotatedRelationshipElement to XML
+
+    todo couldn't find it in the schema, so guessing the implementation
+
+    :param obj: object of class AnnotatedRelationshipElement
+    :return: serialized ElementTree object
+    """
+    et_annotated_relationship_element = ElTree.Element("annotatedRelationshipElement")
+    for i in abstract_classes_to_xml(obj):
+        et_annotated_relationship_element.insert(0, i)
+    et_first = ElTree.Element("first")
+    et_ref1 = reference_to_xml(obj.first)
+    et_first.insert(0, et_ref1)
+    et_annotated_relationship_element = update_element(et_annotated_relationship_element, et_first)
+
+    et_second = ElTree.Element("second")
+    et_ref2 = reference_to_xml(obj.second)
+    et_second.insert(0, et_ref2)
+    et_annotated_relationship_element = update_element(et_annotated_relationship_element, et_second)
+
+    if obj.annotation:
+        et_annotations = ElTree.Element("annotations")
+        for ref in obj.annotation:
+            et_reference = reference_to_xml(ref)
+            et_annotations.insert(0, et_reference)
+        et_annotated_relationship_element.insert(0, et_annotations)
+
+    return et_annotated_relationship_element
+
+
+def operation_variable_to_xml(obj: model.OperationVariable) -> ElTree.Element:
+    """
+    serialization of objects of class OperationVariable to XML
+
+    :param obj: object of class OperationVariable
+    :return: serialized ElementTree object
+    """
+    et_operation_variable = ElTree.Element("operationVariable")
+    for i in abstract_classes_to_xml(obj):
+        et_operation_variable.insert(0, i)
+    et_value = ElTree.Element("value")
+    et_submodel_element = submodel_element_to_xml(obj.value)
+    et_value.insert(0, et_submodel_element)
+    et_operation_variable.insert(0, et_value)
+    return et_operation_variable
+
+
+def operation_to_xml(obj: model.Operation) -> ElTree.Element:
+    """
+    serialization of objects of class Operation to XML
+
+    :param obj: object of class Operation
+    :return: serialized ElementTree object
+    """
+    et_operation = ElTree.Element("operation")
+    for i in abstract_classes_to_xml(obj):
+        et_operation.insert(0, i)
+
+    et_input_variable = ElTree.Element("inputVariable")
+    for input_var in obj.input_variable:
+        et_input_var = ElTree.Element("operationVariable")
+        et_operation_var = operation_variable_to_xml(input_var)
+        et_input_var.insert(0, et_operation_var)
+    et_operation.insert(0, et_input_variable)
+
+    et_output_variable = ElTree.Element("outputVariable")
+    for output_var in obj.output_variable:
+        et_output_var = ElTree.Element("operationVariable")
+        et_op_var = operation_variable_to_xml(output_var)
+        et_output_var.insert(0, et_op_var)
+        et_output_variable.insert(0, et_output_var)
+    et_operation.insert(0, et_output_variable)
+
+    et_inout_variable = ElTree.Element("inoutputVariable")
+    for inout in obj.in_output_variable:
+        et_inout_var = ElTree.Element("operationVariable")
+        et_ovar = operation_variable_to_xml(inout)
+        et_inout_var.insert(0, et_ovar)
+        et_inout_variable.insert(0, et_inout_var)
+    et_operation.insert(0, et_inout_variable)
+
+    return et_operation
+
+
+def capability_to_xml(obj: model.Capability) -> ElTree.Element:
+    """
+    serialization of objects of class Capability to XML
+
+    todo: doesn't exist this way in the schema, so guessing implementation
+
+    :param obj: object of class Capability
+    :return: serialized ElementTree object
+    """
+    et_capability = ElTree.Element("capability")
+    for i in abstract_classes_to_xml(obj):
+        et_capability.insert(0, i)
+    return et_capability
+
+
+def entity_to_xml(obj: model.Entity) -> ElTree.Element:
+    """
+    serialization of objects of class Entity to XML
+
+    :param obj: object of class Entity
+    :return: serialized ElementTree object
+    """
+    et_entity = ElTree.Element("entity")
+    for i in abstract_classes_to_xml(obj):
+        et_entity.insert(0, i)
+
+    et_statements = ElTree.Element("statements")
+    for submodel_element in obj.statement:
+        et_submodel_element = submodel_element_to_xml(submodel_element)
+        et_statements.insert(0, et_submodel_element)
+    et_entity.insert(0, et_statements)
+
+    et_entity_type = ElTree.Element("entityType")
+    et_entity_type.text = ENTITY_TYPES[obj.entity_type]
+    et_entity.insert(0, et_entity_type)
+
+    if obj.asset:
+        et_asset = ElTree.Element("assetRef")
+        et_ref = reference_to_xml(obj.asset)
+        et_asset.insert(0, et_ref)
+        et_entity.insert(0, et_asset)
+
+    return et_asset
+
+
+def event_to_xml(obj: model.Event) -> ElTree.Element:
+    """
+    serialization of objects of class Event to XML
+
+    todo didn't find it in the schema, so guessing implementation
+
+    :param obj: object of class Event
+    :return: serialized ElementTree object
+    """
+    et_event = ElTree.Element("event")
+    for i in abstract_classes_to_xml(obj):
+        et_event.insert(0, i)
+    return et_event
+
+
+def basic_event_to_xml(obj: model.BasicEvent) -> ElTree.Element:
+    """
+    serialization of objects of class BasicEvent to XML
+
+    :param obj: object of class BasicEvent
+    :return: serialized ElementTree object
+    """
+    et_basic_event = ElTree.Element("basicEvent")
+    for i in abstract_classes_to_xml(obj):
+        et_basic_event.insert(0, i)
+    et_observed = ElTree.Element("observed")
+    et_ref = reference_to_xml(obj.observed)
+    et_observed.insert(0, et_ref)
+    et_basic_event.insert(0, et_observed)
+    return et_basic_event
