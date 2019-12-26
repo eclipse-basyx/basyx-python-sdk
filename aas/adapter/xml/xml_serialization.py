@@ -562,5 +562,23 @@ def asset_administration_shell_to_xml(obj: model.AssetAdministrationShell) -> El
 
 
 # ##############################################################
-# transformation functions to serialize classes from model.aas
+# transformation functions to serialize classes from model.security
+# ##############################################################
+
+
+def security_to_xml(obj: model.Security) -> ElTree.Element:
+    """
+    serialization of objects of class Security to XML
+
+    :param obj: object of class Security
+    :return: serialized ElementTree object
+    """
+    et_security = ElTree.Element("security")
+    for i in abstract_classes_to_xml(obj):
+        et_security.insert(0, i)
+    return et_security
+
+
+# ##############################################################
+# transformation functions to serialize classes from model.submodel
 # ##############################################################
