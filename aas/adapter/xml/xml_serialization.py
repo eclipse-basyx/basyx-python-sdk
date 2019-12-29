@@ -11,7 +11,8 @@
 """
 Module for serializing Asset Administration Shell data to the official XML format
 
-
+Note for devs [29.12.2019]: This is currently very badly under construction and will probably be subject to a lot of
+                            change. Please overlook everything that doesn't work and is wrong for the moment
 """
 
 import xml.etree.ElementTree as ElTree
@@ -143,11 +144,11 @@ def abstract_classes_to_xml(obj: object) -> List[ElTree.Element]:
     """
     elements: List[ElTree.Element] = []
     if isinstance(obj, model.Referable):
-        et_id_short = ElTree.Element("aas:idShort")
+        et_id_short = ElTree.Element("idShort")
         et_id_short.text = obj.id_short
         elements += [et_id_short]
         if obj.category:
-            et_category = ElTree.Element("aas:category")
+            et_category = ElTree.Element("category")
             et_category.text = obj.category
             elements += [et_category]
         if obj.description:
@@ -165,15 +166,15 @@ def abstract_classes_to_xml(obj: object) -> List[ElTree.Element]:
         elements += [et_model_type]
 
     if isinstance(obj, model.Identifiable):
-        et_identifiable = ElTree.Element("aas:identification")
+        et_identifiable = ElTree.Element("identification")
         et_identifiable.set("idType", IDENTIFIER_TYPES[obj.identification.id_type])
         et_identifiable.text = obj.identification.id
         elements += [et_identifiable]
         if obj.administration:
-            et_administration = ElTree.Element("aas:administration")
-            et_administration_version = ElTree.Element("aas:version")
+            et_administration = ElTree.Element("administration")
+            et_administration_version = ElTree.Element("version")
             et_administration_version.text = obj.administration.version
-            et_administration_revision = ElTree.Element("aas:revision")
+            et_administration_revision = ElTree.Element("revision")
             et_administration_revision.text = obj.administration.revision
             et_administration.insert(0, et_administration_version)
             et_administration.insert(1, et_administration_revision)
@@ -181,25 +182,25 @@ def abstract_classes_to_xml(obj: object) -> List[ElTree.Element]:
 
     if isinstance(obj, model.HasDataSpecification):
         if obj.data_specification:
-            et_has_data_specification = ElTree.Element("aas:embeddedDataSpecification")
+            et_has_data_specification = ElTree.Element("embeddedDataSpecification")
             # et_has_data_specification.text = obj.data_specification  # todo: data_specification is not a string
             elements += [et_has_data_specification]
 
     if isinstance(obj, model.HasSemantics):
         if obj.semantic_id:
-            et_semantics = ElTree.Element("aas:semanticId")
+            et_semantics = ElTree.Element("semanticId")
             et_semantics.insert(0, reference_to_xml(obj.semantic_id))
             elements += [et_semantics]
 
     if isinstance(obj, model.HasKind):
         if obj.kind is model.ModelingKind.TEMPLATE:
-            et_modeling_kind = ElTree.Element("aas:modelingKind")
+            et_modeling_kind = ElTree.Element("modelingKind")
             et_modeling_kind.text = MODELING_KIND[obj.kind]
             elements += [et_modeling_kind]
 
     if isinstance(obj, model.Qualifiable):
         if obj.qualifier:
-            et_qualifiers = ElTree.Element("aas:qualifier")
+            et_qualifiers = ElTree.Element("qualifier")
             # et_qualifiers.text = obj.qualifier  # todo: find out about constraints, this seems not yet implemented
             elements += [et_qualifiers]
 
@@ -218,10 +219,10 @@ def lang_string_set_to_xml(obj: model.LangStringSet) -> ElTree.Element:
     :param obj: object of class LangStringSet
     :return: serialized ElementTree object
     """
-    et_lss = ElTree.Element("aas:LangStringSet")
+    et_lss = ElTree.Element("langStringSet")
     for i in obj:
-        et_lang_string = ElTree.Element("aas:LangString")
-        et_lang_string.set("Language", i)
+        et_lang_string = ElTree.Element("langString")
+        et_lang_string.set("lang", i)
         et_lang_string.text = obj[i]
         et_lss.insert(0, et_lang_string)
     return et_lss
@@ -234,17 +235,17 @@ def key_to_xml(obj: model.Key) -> ElTree.Element:
     :param obj: object of class Key
     :return: serialized ElementTree object
     """
-    et_key = ElTree.Element("aas:key")
+    et_key = ElTree.Element("key")
     for i in abstract_classes_to_xml(obj):
         et_key.insert(0, i)
     et_key.set("identifierType", KEY_ELEMENTS[obj.type_])
     et_key.set("localKeyType", str(obj.local))
 
-    et_id_type = ElTree.Element("aas:KeyIdType")
+    et_id_type = ElTree.Element("keyIdType")  # todo: check this
     et_id_type.text = KEY_TYPES[obj.id_type]
     et_key = update_element(et_key, et_id_type)
 
-    et_value = ElTree.Element("aas:KeyValue")  # todo: is this correct? couldn't find it in the schema
+    et_value = ElTree.Element("keyValue")  # todo: is this correct? couldn't find it in the schema
     et_value.text = obj.value
     et_key = update_element(et_key, et_value)
     return et_key
@@ -257,15 +258,15 @@ def administrative_information_to_xml(obj: model.AdministrativeInformation) -> E
     :param obj: object of class AdministrativeInformation
     :return: serialized ElementTree object
     """
-    et_administration = ElTree.Element("aas:administration")
+    et_administration = ElTree.Element("administration")
     for i in abstract_classes_to_xml(obj):
         et_administration.insert(0, i)
     if obj.version:
-        et_administration_version = ElTree.Element("aas:version")
+        et_administration_version = ElTree.Element("version")
         et_administration_version.text = obj.version
         et_administration = update_element(et_administration, et_administration_version)
         if obj.revision:
-            et_administration_revision = ElTree.Element("aas:revision")
+            et_administration_revision = ElTree.Element("revision")
             et_administration_revision.text = obj.revision
             et_administration = update_element(et_administration, et_administration_revision)
     return et_administration
@@ -278,7 +279,7 @@ def identifier_to_xml(obj: model.Identifier) -> ElTree.Element:
     :param obj: object of class Identifier
     :return: serialized ElementTree object
     """
-    et_identifier = ElTree.Element("aas:identification")
+    et_identifier = ElTree.Element("identification")
     for i in abstract_classes_to_xml(obj):
         et_identifier.insert(0, i)
     et_identifier.set("idType", IDENTIFIER_TYPES[obj.id_type])
@@ -294,7 +295,7 @@ def reference_to_xml(obj: model.Reference) -> ElTree.Element:
     :param obj: object of class Reference
     :return: serialized ElementTree object
     """
-    et_reference = ElTree.Element("aas:Reference")
+    et_reference = ElTree.Element("Reference")
     for i in abstract_classes_to_xml(obj):
         et_reference.insert(0, i)
     for aas_key in obj.key:
@@ -311,7 +312,7 @@ def constraint_to_xml(obj: model.Constraint) -> ElTree.Element:
     :return: serialized ElementTree object
     """
     constraint_classes = [model.Qualifier, model.Formula]
-    et_constraint = ElTree.Element("aas:constraint")
+    et_constraint = ElTree.Element("constraint")
     try:
         const_type = next(iter(t for t in inspect.getmro(type(obj)) if t in constraint_classes))
     except StopIteration as e:
@@ -330,7 +331,7 @@ def namespace_to_xml(obj: model.Namespace) -> ElTree.Element:
     :param obj: object of class Namespace
     :return: serialized ElementTree Object
     """
-    et_namespace = ElTree.Element("aas:namespace")
+    et_namespace = ElTree.Element("namespace")
     for i in abstract_classes_to_xml(obj):
         et_namespace.insert(0, i)
     return et_namespace
@@ -343,7 +344,7 @@ def formula_to_xml(obj: model.Formula) -> ElTree.Element:
     :param obj: object of class Formula
     :return: serialized ElementTree object
     """
-    et_formula = ElTree.Element("aas:formula")
+    et_formula = ElTree.Element("formula")
     for i in abstract_classes_to_xml(obj):
         et_formula.insert(0, i)
     et_constraint = constraint_to_xml(obj)
@@ -364,7 +365,7 @@ def qualifier_to_xml(obj: model.Qualifier) -> ElTree.Element:
     :param obj: object of class Qualifier
     :return: serialized ElementTreeObject
     """
-    et_qualifier = ElTree.Element("aas:qualifier")
+    et_qualifier = ElTree.Element("qualifier")
     for i in abstract_classes_to_xml(obj):
         et_qualifier.insert(0, i)
     et_constraint = constraint_to_xml(obj)
@@ -397,7 +398,7 @@ def value_reference_pair_to_xml(obj: model.ValueReferencePair) -> ElTree.Element
     :param obj: object of class ValueReferencePair
     :return: serialized ElementTree object
     """
-    et_vrp = ElTree.Element("aas:valueReferencePair")
+    et_vrp = ElTree.Element("valueReferencePair")
     for i in abstract_classes_to_xml(obj):
         et_vrp.insert(0, i)
     et_value = ElTree.Element("value")
@@ -418,7 +419,7 @@ def value_list_to_xml(obj: model.ValueList) -> ElTree.Element:
     :param obj: object of class ValueList
     :return: serialized ElementTree object
     """
-    et_vl = ElTree.Element("aas:valueList")
+    et_vl = ElTree.Element("valueList")
     for i in abstract_classes_to_xml(obj):
         et_vl.insert(0, i)
     for aas_reference_pair in obj.value_reference_pair_type:
@@ -459,7 +460,7 @@ def asset_to_xml(obj: model.Asset) -> ElTree.Element:
     :param obj: object of class Asset
     :return: serialized ElementTree object
     """
-    et_asset = ElTree.Element("Asset")
+    et_asset = ElTree.Element("asset")
     for i in abstract_classes_to_xml(obj):
         et_asset.insert(0, i)
     et_kind = ElTree.Element("kind")
