@@ -28,7 +28,7 @@ from aas import model
 # ##############################################################
 
 
-class PyaasXMLSerializationError(Exception):
+class PyAASXMLSerializationError(Exception):
     """
     Raised when something went wrong during serialization
     """
