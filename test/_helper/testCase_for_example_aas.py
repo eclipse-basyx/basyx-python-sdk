@@ -11,7 +11,7 @@
 """
 Tests for the example aas
 
-Functions to test if an object is the same to the example aas from example_create_aas.py
+Functions to test if an object is the same to the example aas from example_aas.py
 """
 import unittest
 from typing import Set, Optional

@@ -11,44 +11,44 @@
 """
 Tests for the example aas
 
-Functions to test if an object is the same to the example aas from example_create_aas.py
+Functions to test if an object is the same to the example aas from example_aas.py
 """
 import unittest
-from aas.examples import example_create_aas
-from test._helper.helpers import ExampleHelper
+from aas.helpers import example_aas
+from test._helper.testCase_for_example_aas import ExampleHelper
 
 
 class ExampleAASTest(ExampleHelper):
 
     def test_example_asset_identification_submodel(self):
-        submodel = example_create_aas.create_example_asset_identification_submodel()
+        submodel = example_aas.create_example_asset_identification_submodel()
         self.assert_example_asset_identification_submodel(submodel)
 
     def test_example_bill_of_material_submodel(self):
-        submodel = example_create_aas.create_example_bill_of_material_submodel()
+        submodel = example_aas.create_example_bill_of_material_submodel()
         self.assert_example_bill_of_material_submodel(submodel)
 
     def test_example_asset(self):
-        asset = example_create_aas.create_example_asset()
+        asset = example_aas.create_example_asset()
         self.assert_example_asset(asset)
 
     def test_example_concept_description(self):
-        concept_description = example_create_aas.create_example_concept_description()
+        concept_description = example_aas.create_example_concept_description()
         self.assert_example_concept_description(concept_description)
 
     def test_example_concept_dictionary(self):
-        concept_dictionary = example_create_aas.create_example_concept_dictionary()
+        concept_dictionary = example_aas.create_example_concept_dictionary()
         self.assert_example_concept_dictionary(concept_dictionary)
 
     def test_example_asset_administration_shell(self):
-        concept_dictionary = example_create_aas.create_example_concept_dictionary()
-        shell = example_create_aas.create_example_asset_administration_shell(concept_dictionary)
+        concept_dictionary = example_aas.create_example_concept_dictionary()
+        shell = example_aas.create_example_asset_administration_shell(concept_dictionary)
         self.assert_example_asset_administration_shell(shell)
 
     def test_example_submodel(self):
-        submodel = example_create_aas.create_example_submodel()
+        submodel = example_aas.create_example_submodel()
         self.assert_example_submodel(submodel)
 
     def test_full_example(self):
-        obj_store = example_create_aas.create_full_example()
+        obj_store = example_aas.create_full_example()
         self.assert_full_example(obj_store)
