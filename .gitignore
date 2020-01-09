@@ -7,3 +7,5 @@
 /aas.egg-info/
 /venv/
 /.coverage
+
+/test/test_config.ini
