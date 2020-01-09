@@ -16,7 +16,7 @@ Note for devs [29.12.2019]: This is currently very badly under construction and 
 """
 
 import xml.etree.ElementTree as ElTree
-from typing import List, Dict, Iterator
+from typing import List, Dict, Iterator, IO
 import inspect
 import base64
 
@@ -60,7 +60,7 @@ def update_element(old_element: ElTree.Element,
     elements_to_update = list(find_rec(old_element, new_element.tag))  # search for elements that match new_element
     if len(elements_to_update) > 1:  # more than one element found that matches with new_element, sth went wrong.
         raise ValueError("Found " + str(len(elements_to_update)) + " elements [" + new_element.tag +
-                                         "] in " + old_element.tag + ". Expected 1")
+                                                                   "] in " + old_element.tag + ". Expected 1")
     if elements_to_update is not []:  # if the element already exists, remove the outdated element
         old_element.remove(elements_to_update[0])
     old_element.insert(0, new_element)  # insert the new_element
@@ -987,3 +987,132 @@ def basic_event_to_xml(obj: model.BasicEvent) -> ElTree.Element:
     et_observed.insert(0, et_ref)
     et_basic_event.insert(0, et_observed)
     return et_basic_event
+
+
+# ##############################################################
+# general functions
+# ##############################################################
+
+
+def aas_object_to_xml(obj: object) -> ElTree.Element:
+    """
+    Takes any object from aas.model and returns its serialized xml.ElementTree.Element object
+
+    :param obj: object from aas.model
+    :return: serialized xml.ElementTree.Element object
+    """
+    if isinstance(obj, model.AssetAdministrationShell):
+        return asset_administration_shell_to_xml(obj)
+    if isinstance(obj, model.Identifier):
+        return identifier_to_xml(obj)
+    if isinstance(obj, model.AdministrativeInformation):
+        return administrative_information_to_xml(obj)
+    if isinstance(obj, model.Reference):
+        return reference_to_xml(obj)
+    if isinstance(obj, model.Key):
+        return key_to_xml(obj)
+    if isinstance(obj, model.Asset):
+        return asset_to_xml(obj)
+    if isinstance(obj, model.Submodel):
+        return submodel_to_xml(obj)
+    if isinstance(obj, model.Operation):
+        return operation_to_xml(obj)
+    if isinstance(obj, model.OperationVariable):
+        return operation_variable_to_xml(obj)
+    if isinstance(obj, model.Capability):
+        return capability_to_xml(obj)
+    if isinstance(obj, model.BasicEvent):
+        return basic_event_to_xml(obj)
+    if isinstance(obj, model.Entity):
+        return entity_to_xml(obj)
+    if isinstance(obj, model.View):
+        return view_to_xml(obj)
+    if isinstance(obj, model.ConceptDictionary):
+        return concept_dictionary_to_xml(obj)
+    if isinstance(obj, model.ConceptDescription):
+        return concept_description_to_xml(obj)
+    if isinstance(obj, model.Property):
+        return property_to_xml(obj)
+    if isinstance(obj, model.Range):
+        return range_to_xml(obj)
+    if isinstance(obj, model.MultiLanguageProperty):
+        return multi_language_property_to_xml(obj)
+    if isinstance(obj, model.File):
+        return file_to_xml(obj)
+    if isinstance(obj, model.Blob):
+        return blob_to_xml(obj)
+    if isinstance(obj, model.ReferenceElement):
+        return reference_element_to_xml(obj)
+    if isinstance(obj, model.SubmodelElementCollection):
+        return submodel_element_collection_to_xml(obj)
+    if isinstance(obj, model.AnnotatedRelationshipElement):
+        return annotated_relationship_element_to_xml(obj)
+    if isinstance(obj, model.RelationshipElement):
+        return relationship_element_to_xml(obj)
+    if isinstance(obj, model.Qualifier):
+        return qualifier_to_xml(obj)
+    if isinstance(obj, model.Formula):
+        return formula_to_xml(obj)
+    raise TypeError("Got object of class "+obj.__class__.__name__+" Expected objects from classes of aas.model. "
+                                                                  "If object is part of aas.model, then check, if it "
+                                                                  "has a serialization function.")
+
+
+def write_aas_xml_file(file: IO,
+                       data: model.AbstractObjectStore) -> None:
+    """
+    Write a set of AAS objects to an Asset Administration Shell XML file according to 'Details of the Asset
+    Administration Shell', chapter 5.4
+
+    todo: check the header for the file, i copied it from the example
+
+    :param file: A file-like object to write the XML-serialized data to
+    :param data: ObjectStore which contains different objects of the AAS meta model which should be serialized to an
+                 XML file
+    """
+    # seperate different kind of objects
+    assets = []
+    asset_administration_shells = []
+    submodels = []
+    concept_descriptions = []
+    for obj in data:
+        if isinstance(obj, model.Asset):
+            assets.append(obj)
+        if isinstance(obj, model.AssetAdministrationShell):
+            asset_administration_shells.append(obj)
+        if isinstance(obj, model.Submodel):
+            submodels.append(obj)
+        if isinstance(obj, model.ConceptDescription):
+            concept_descriptions.append(obj)
+
+    # serialize objects to XML
+    file.write('<?xml version="1.0" encoding="UTF-8"?>')
+    et_aas_environment = ElTree.Element("aasenv")
+    et_aas_environment.set("xmlns:aas", "http://www.admin-shell.io/aas/2/0")
+    et_aas_environment.set("xmlns:abac", "http://www.admin-shell.io/aas/abac/2/0")
+    et_aas_environment.set("xmlns:aas_common", "http://www.admin-shell.io/aas_common/2/0")
+    et_aas_environment.set("xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance")
+    et_aas_environment.set("xmlns:IEC", "http://www.admin-shell.io/IEC61360/2/0")
+    # todo: is this last one correct?
+    et_aas_environment.set("xsi:schemaLocation", "http://www.admin-shell.io/aas/2/0 AAS.xsd "
+                                                 "http://www.admin-shell.io/IEC61360/2/0"
+                                                 "IEC61360.xsd http://www.admin-shell.io/aas/abac/2/0 AAS_ABAC.xsd")
+
+    # todo: I'm not sure this works the intended way
+    et_asset_administration_shells = ElTree.Element("assetAdministrationShells")
+    for aas_obj in asset_administration_shells:
+        et_asset_administration_shells.insert(0, asset_administration_shell_to_xml(aas_obj))
+    et_assets = ElTree.Element("assets")
+    for ass_obj in assets:
+        et_assets.insert(0, asset_to_xml(ass_obj))
+    et_submodels = ElTree.Element("submodels")
+    for sub_obj in submodels:
+        et_submodels.insert(0, submodel_to_xml(sub_obj))
+    et_concept_descriptions = ElTree.Element("conceptDescriptions")
+    for con_obj in concept_descriptions:
+        et_concept_descriptions.insert(0, concept_description_to_xml(con_obj))
+    et_aas_environment.insert(0, et_concept_descriptions)
+    et_aas_environment.insert(0, et_submodels)
+    et_aas_environment.insert(0, et_assets)
+    et_aas_environment.insert(0, et_asset_administration_shells)
+    file.write(ElTree.tostring(et_aas_environment, encoding="UTF-8", method="xml"))
