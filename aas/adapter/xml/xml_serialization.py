@@ -28,13 +28,6 @@ from aas import model
 # ##############################################################
 
 
-class PyAASXMLSerializationError(Exception):
-    """
-    Raised when something went wrong during serialization
-    """
-    pass
-
-
 def find_rec(parent: ElTree.Element, tag: str) -> Iterator[ElTree.Element]:
     """
     Finds all elements recursively that have the given tag
@@ -58,6 +51,7 @@ def update_element(old_element: ElTree.Element,
 
     The new_element can be a child, or sub..-child of the old_element.
     ToDo: Check if this works as expected
+    todo: Is this the correct type of error raised?
 
     :param old_element: Element to update
     :param new_element: ElTree.Element with the data for update
@@ -65,7 +59,7 @@ def update_element(old_element: ElTree.Element,
     """
     elements_to_update = list(find_rec(old_element, new_element.tag))  # search for elements that match new_element
     if len(elements_to_update) > 1:  # more than one element found that matches with new_element, sth went wrong.
-        raise PyAASXMLSerializationError("Found " + str(len(elements_to_update)) + " elements [" + new_element.tag +
+        raise ValueError("Found " + str(len(elements_to_update)) + " elements [" + new_element.tag +
                                          "] in " + old_element.tag + ". Expected 1")
     if elements_to_update is not []:  # if the element already exists, remove the outdated element
         old_element.remove(elements_to_update[0])
