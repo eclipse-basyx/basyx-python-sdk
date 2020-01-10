@@ -11,6 +11,7 @@
 import base64
 import concurrent.futures
 import configparser
+import copy
 import os
 import unittest
 import urllib.request
@@ -54,7 +55,6 @@ class CouchDBTest(ExampleHelper):
         # Create CouchDB store, login and check database
         self.db = couchdb.CouchDBObjectStore(TEST_CONFIG['couchdb']['url'], TEST_CONFIG['couchdb']['database'])
         self.db.login(TEST_CONFIG['couchdb']['user'], TEST_CONFIG['couchdb']['password'])
-        # TODO create clean database before test
         self.db.check_database()
 
     def tearDown(self) -> None:
@@ -130,10 +130,43 @@ class CouchDBTest(ExampleHelper):
             self.db.add(example_submodel)
 
         # Querying a deleted object should raise a KeyError
-        self.db.get_identifiable(model.Identifier('https://acplt.org/Test_Submodel', model.IdentifierType.IRI))
+        retrieved_submodel = self.db.get_identifiable(
+            model.Identifier('https://acplt.org/Test_Submodel', model.IdentifierType.IRI))
         self.db.discard(example_submodel)
         with self.assertRaises(KeyError):
             self.db.get_identifiable(model.Identifier('https://acplt.org/Test_Submodel', model.IdentifierType.IRI))
+
+        # Double deleting should also raise a KeyError
+        with self.assertRaises(KeyError):
+            self.db.discard(retrieved_submodel)
+
+    def test_conflict_errors(self) -> None:
+        # Preperation: add object and retrieve it from the database
+        example_submodel = example_create_aas.create_example_submodel()
+        self.db.add(example_submodel)
+        retrieved_submodel = self.db.get_identifiable(
+            model.Identifier('https://acplt.org/Test_Submodel', model.IdentifierType.IRI))
+
+        # Simulate a concurrent modification
+        remote_modified_submodel = copy.copy(retrieved_submodel)
+        remote_modified_submodel.id_short = "newIdShort"
+        remote_modified_submodel.commit_changes()
+
+        # Committing changes to the retrieved object should now raise a conflict error
+        retrieved_submodel.id_short = "myOtherNewIdShort"
+        with self.assertRaises(couchdb.CouchDBConflictError):
+            retrieved_submodel.commit_changes()
+
+        # Deleting the submodel with safe_delete should also raise a conflict error. Deletion without safe_delete should
+        # work
+        with self.assertRaises(couchdb.CouchDBConflictError):
+            self.db.discard(retrieved_submodel, True)
+        self.db.discard(retrieved_submodel, False)
+        self.assertEqual(0, len(self.db))
+
+        # Committing after delition should also raise a conflict error
+        with self.assertRaises(couchdb.CouchDBConflictError):
+            retrieved_submodel.commit_changes()
 
     def test_editing(self) -> None:
         example_submodel = example_create_aas.create_example_submodel()

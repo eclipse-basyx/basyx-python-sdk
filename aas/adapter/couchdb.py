@@ -8,8 +8,35 @@
 # Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an
 # "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
 # specific language governing permissions and limitations under the License.
+"""
+CouchDB backend for persistently storing AAS objects
 
-# TODO docstring
+This module provides the `CouchDBObjectStore` class, that implements the AbstractObjectStore interface for storing and
+retrieving Identifiable PyI40AAS objects in/from a CouchDB server. The objects are serialized to JSON using the
+aas.adapter.json package and transferred to the configured CouchDB database.
+
+Typical usage:
+
+    database = CouchDBObjectStore('localhost:5984', 'aas_test')
+    database.login('user', 'password')
+
+    submodel = aas.model.Submodel(...)
+    database.add(submodel)
+
+    aas = database.get_identifiable(aas.model.Identifier('https://acplt.org/MyAAS', aas.model.IdentifierType.IRI))
+    aas.description['de'] = "Eine neue Beschreibung"
+    aas.commit_changes()
+
+    database.logout()
+
+To allow committing changes, the objects retrieved from the CouchDBObjectStore are instances of special classes
+(`CouchDBAssetAdministrationShell`, etc.), inheriting from the special base class `CouchDBIdentifiable`. However, these
+classes also inherit from the appropriate class in `aas.model` to be used as any other PyI40AAS object.
+
+Additionally, this module defines a custom Exception class `CouchDBError` and some subclasses. These Exceptions are used
+to unambiguously report errors (connection errors, parser errors or HTTP errors from the server) when interacting with
+the CouchDB server.
+"""
 
 import abc
 import http.client
@@ -31,10 +58,10 @@ class CouchDBObjectStore(model.AbstractObjectStore):
 
     This ObjectStore stores each Identifiable object as a single JSON document in the configured CouchDB database. Each
     document's id is build from the object's identifier using the pattern {idtype}-{idvalue}; the document's contents
-    comprise a single property "data", containing the JSON serialization of the PyI4.0AAS object. The aas.adapter.json
+    comprise a single property "data", containing the JSON serialization of the PyI40AAS object. The aas.adapter.json
     package is used for serialization and deserialization of objects.
 
-    Objects retrieved from the CouchDBObjectStore are instances of the appropriate PyI4.0AAS model class. Additionally,
+    Objects retrieved from the CouchDBObjectStore are instances of the appropriate PyI40AAS model class. Additionally,
     they inherit from the special base class `CouchDBIdentifiable`. It provides a `commit()` method to write back
     changes, which have been made to the object, to the database.
 
@@ -142,6 +169,11 @@ class CouchDBObjectStore(model.AbstractObjectStore):
         return obj
 
     def add(self, x: model.Identifiable) -> None:
+        """
+        Add an object to the store
+
+        :raises KeyError: If an object with the same id exists already in the database
+        """
         # Serialize data
         data = json.dumps({'data': x}, cls=json_serialization.AASToJsonEncoder)
 
@@ -160,6 +192,13 @@ class CouchDBObjectStore(model.AbstractObjectStore):
             raise
 
     def commit(self, x: "CouchDBIdentifiable") -> None:
+        """
+        Commit in-memory changes in a CouchDBIdentifiable PyI40AAS object to the database
+
+        :param x: The changed object
+        :raises KeyError: If the object does not exist in the database
+        :raises CouchDBConflictError: If a concurrent modification in the database was detected
+        """
         # Serialize data
         data = json.dumps({'data': x, '_rev': x.couchdb_revision}, cls=json_serialization.AASToJsonEncoder)
 
@@ -169,25 +208,53 @@ class CouchDBObjectStore(model.AbstractObjectStore):
             headers={'Content-type': 'application/json'},
             method='PUT',
             data=data.encode())
-        response_data = self._do_request(request)
+        try:
+            response_data = self._do_request(request)
+        except CouchDBServerError as e:
+            if e.code == 409:
+                raise CouchDBConflictError("Could not commit changes to id {} due to a concurrent modification in the "
+                                           "database.".format(x.identification)) from e
+            elif e.code == 404:
+                raise KeyError("Object with id {} was not found in the database {}"
+                               .format(x.identification, self.database_name)) from e
+            raise
         x.couchdb_revision = response_data['rev']
-        # TODO handle ConflictErrors (HTTP 409)
 
-    def discard(self, x: model.Identifiable) -> None:
+    def discard(self, x: model.Identifiable, safe_delete=False) -> None:
+        """
+        Delete an Identifiable AAS object from the CouchDB database
+
+        :param x: The object to be deleted
+        :param safe_delete: If True, only delete the object if it has not been modified in the database in comparison to
+                            the provided revision. This uses the CouchDB revision token and thus only works with
+                            CouchDBIdentifiable objects retrieved from this database.
+        :raises KeyError: If the object does not exist in the database
+        :raises CouchDBConflictError: If safe_delete is true and the object has been modified in the database
+        """
         # If x is not a CouchDBIdentifiable, retrieve x from the database to get the current couchdb_revision
-        if hasattr(x, 'couchdb_revision'):
+        if hasattr(x, 'couchdb_revision') and safe_delete:
             rev = x.couchdb_revision  # type: ignore
         else:
-            current = self.get_identifiable(x.identification)
-            # TODO handle KeyErrors (HTTP 404)
+            try:
+                current = self.get_identifiable(x.identification)
+            except KeyError as e:
+                raise KeyError("No AAS object with id {} exists in CouchDB database".format(x.identification)) from e
             rev = current.couchdb_revision
 
         request = urllib.request.Request(
             "{}/{}/{}?rev={}".format(self.url, self.database_name, self._transform_id(x.identification), rev),
             headers={'Content-type': 'application/json'},
             method='DELETE')
-        self._do_request(request)
-        # TODO handle KeyErrors (HTTP 404)
+        try:
+            self._do_request(request)
+        except CouchDBServerError as e:
+            if e.code == 404:
+                raise KeyError("No AAS object with id {} exists in CouchDB database".format(x.identification)) from e
+            elif e.code == 409:
+                raise CouchDBConflictError(
+                    "Object with id {} has been modified in the database since the version requested to be deleted."
+                    .format(x.identification)) from e
+            raise
 
     def __contains__(self, x: object) -> bool:
         if isinstance(x, model.Identifier):
@@ -241,10 +308,14 @@ class CouchDBObjectStore(model.AbstractObjectStore):
 
     def _do_request(self, request: urllib.request.Request) -> Dict[str, Any]:
         """
-        Perform an HTTP request to the CouchDB server
+        Perform an HTTP request to the CouchDB server, parse the result and handle errors
 
         This function performs the request described by the given Request object, checks the response status code and
         either raises a CouchDBError or returns the parsed JSON response data.
+
+        :raises CouchDBServerError: When receiving an HTTP status code != 200
+        :raises CouchDBResponseError: When the HTTP response could not be parsed
+        :raises CouchDBConnectionError: On errors while connecting to the CouchDB server
         """
         # Create thread-local OpenerDirector with shared cookie jar if not existing in this thread
         if hasattr(self._thread_local, 'opener'):
@@ -257,9 +328,9 @@ class CouchDBObjectStore(model.AbstractObjectStore):
         try:
             response = opener.open(request)
         except urllib.error.HTTPError as e:
-            if e.headers['Content-type'] != 'application/json':
-                raise CouchDBResponseError("Unexpected Content-type header of response from {}"
-                                           .format(request.full_url))
+            if e.headers.get('Content-type', None) != 'application/json':
+                raise CouchDBResponseError("Unexpected Content-type header {} of response from CouchDB server"
+                                           .format(e.headers.get('Content-type', None)))
 
             if request.get_method() == 'HEAD':
                 raise CouchDBServerError(e.code, "", "", "HTTP {}") from e
@@ -267,10 +338,12 @@ class CouchDBObjectStore(model.AbstractObjectStore):
             try:
                 data = json.load(e)
             except json.JSONDecodeError:
-                raise CouchDBResponseError("Could not parse error message of HTTP {} response from {}"
-                                           .format(e.code, request.full_url))
+                raise CouchDBResponseError("Could not parse error message of HTTP {}"
+                                           .format(e.code))
             raise CouchDBServerError(e.code, data['error'], data['reason'],
                                      "HTTP {}: {} (reason: {})".format(e.code, data['error'], data['reason'])) from e
+        except urllib.error.URLError as e:
+            raise CouchDBConnectionError("Error while connecting to the CouchDB server: {}".format(e)) from e
 
         # Check response & parse data
         assert (isinstance(response, http.client.HTTPResponse))
@@ -293,11 +366,22 @@ class CouchDBObjectStore(model.AbstractObjectStore):
         return result
 
 
-# TODO heading
-
+# #################################################################################################
+# Special object classes for Identifiable PyI40AAS objects retrieved from the CouchDBObjectStore
 
 class CouchDBIdentifiable(model.Identifiable, metaclass=abc.ABCMeta):
-    # TODO docstring
+    """
+    Special base class for Identifiable PyI40AAS retrieved from the CouchDBObjectStore, allowing to write back (commit)
+    changes to the database.
+
+    This is an abstract base class. For each Identifiable AAS object type, there is one subclass, inheriting from this
+    abstract base class and the appropriate aas.model class.
+
+    This base class provides the `commit_changes()` method and the `_store` and `couchdb_revision` attributes required
+    to perform the commit action. `_store` holds a reference to the CouchDBObjectStore instance; `couchdb_revision`
+    contains the CouchDB document revision token of the latest object revision in the database. It is transferred to
+    CouchDB when committing changes to check for editing conflicts.
+    """
 
     def __init__(self) -> None:
         super().__init__()
@@ -305,8 +389,8 @@ class CouchDBIdentifiable(model.Identifiable, metaclass=abc.ABCMeta):
         self.couchdb_revision: Optional[str] = None
 
     def commit_changes(self) -> None:
-        if not self._store:
-            raise RuntimeError("CouchDBIdentifiable is not associated with a store")
+        if self._store is None:
+            raise ValueError("CouchDBIdentifiable is not associated with a store")
         self._store.commit(self)
 
 
@@ -327,7 +411,13 @@ class CouchDBSubmodel(model.Submodel, CouchDBIdentifiable):
 
 
 class CouchDBJSONDecoder(json_deserialization.StrictAASFromJsonDecoder):
-    # TODO docstring
+    """
+    Special json.JSONDecoder class for deserializing AAS objects received from the CouchDB server
+
+    This class inherits from StrictAASFromJsonDecoder to deserialize AAS JSON structures into the corresponding PyI40AAS
+    object classes. However, it overrides the constructor methods of all Identifiable AAS objects to create instances of
+    the `CouchDBIdentifiable` classes, defined above, instead of the usual aas.model classes.
+    """
     @classmethod
     def _construct_asset_administration_shell(
             cls, dct: Dict[str, object], object_class=model.AssetAdministrationShell) -> model.AssetAdministrationShell:
@@ -347,8 +437,8 @@ class CouchDBJSONDecoder(json_deserialization.StrictAASFromJsonDecoder):
         return super()._construct_submodel(dct, object_class=CouchDBSubmodel)
 
 
-# TODO heading
-
+# #################################################################################################
+# Custom Exception classes for reporting errors during interaction with the CouchDB server
 
 class CouchDBError(Exception):
     """Base class of all exceptions raised by the CouchDBObjectStore"""
@@ -373,3 +463,9 @@ class CouchDBServerError(CouchDBError):
         self.code = code
         self.error = error
         self.reason = reason
+
+
+class CouchDBConflictError(CouchDBError):
+    """Exception raised by the CouchDBObjectStore when an object could not be committed due to an concurrent
+    modification in the database"""
+    pass
