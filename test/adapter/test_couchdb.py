@@ -18,8 +18,8 @@ import urllib.error
 
 from aas import model
 from aas.adapter import couchdb
-
 from aas.examples import example_create_aas
+
 from .._helper.helpers import ExampleHelper
 
 
