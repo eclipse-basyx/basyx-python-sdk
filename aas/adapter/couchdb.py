@@ -47,9 +47,12 @@ import urllib.parse
 import urllib.request
 import urllib.error
 import threading
+import logging
 
 from aas import model
 from aas.adapter.json import json_serialization, json_deserialization
+
+logger = logging.getLogger(__name__)
 
 
 class CouchDBObjectStore(model.AbstractObjectStore):
@@ -87,7 +90,6 @@ class CouchDBObjectStore(model.AbstractObjectStore):
         self._thread_local = threading.local()
 
     # TODO method to delete database
-    # TODO add logging
 
     def login(self, user: str, password: str):
         """
@@ -96,6 +98,7 @@ class CouchDBObjectStore(model.AbstractObjectStore):
         This method uses the /_session endpoint of the CouchDB server to obtain a session cookie, which is used for
         further HTTP requests. This is required
         """
+        logger.info("Logging in to CouchDB server %s with user %s ...", self.url, user)
         request = urllib.request.Request(
             "{}/_session".format(self.url),
             headers={'Content-type': 'application/json'},
@@ -110,6 +113,7 @@ class CouchDBObjectStore(model.AbstractObjectStore):
         This method uses the /_session endpoint of the CouchDB server to obtain a session cookie, which is used for
         further HTTP requests. This is required
         """
+        logger.info("Logging out from CouchDB server %s ...", self.url)
         request = urllib.request.Request(
             "{}/_session".format(self.url),
             headers={'Content-type': 'application/json'},
@@ -138,6 +142,7 @@ class CouchDBObjectStore(model.AbstractObjectStore):
             return
 
         # Create database
+        logger.info("Creating CouchDB database %s/%s ...", self.url, self.database_name)
         request = urllib.request.Request(
             "{}/{}".format(self.url, self.database_name),
             headers={'Accept': 'application/json'},
@@ -174,6 +179,7 @@ class CouchDBObjectStore(model.AbstractObjectStore):
 
         :raises KeyError: If an object with the same id exists already in the database
         """
+        logger.debug("Adding object %s to CouchDB database ...", repr(x))
         # Serialize data
         data = json.dumps({'data': x}, cls=json_serialization.AASToJsonEncoder)
 
@@ -199,6 +205,8 @@ class CouchDBObjectStore(model.AbstractObjectStore):
         :raises KeyError: If the object does not exist in the database
         :raises CouchDBConflictError: If a concurrent modification in the database was detected
         """
+        logger.debug("Committing changes of object %s based on revision %s to CouchDB database ...",
+                     repr(x), x.couchdb_revision)
         # Serialize data
         data = json.dumps({'data': x, '_rev': x.couchdb_revision}, cls=json_serialization.AASToJsonEncoder)
 
@@ -231,15 +239,20 @@ class CouchDBObjectStore(model.AbstractObjectStore):
         :raises KeyError: If the object does not exist in the database
         :raises CouchDBConflictError: If safe_delete is true and the object has been modified in the database
         """
+        logger.debug("Deleting object %s from CouchDB database ...", repr(x))
         # If x is not a CouchDBIdentifiable, retrieve x from the database to get the current couchdb_revision
         if hasattr(x, 'couchdb_revision') and safe_delete:
             rev = x.couchdb_revision  # type: ignore
+            logger.debug("using the object's stored revision token %s for deletion.",
+                         x.couchdb_revision)  # type: ignore
         else:
             try:
+                logger.debug("fetching the current object revision for deletion ...")
                 current = self.get_identifiable(x.identification)
             except KeyError as e:
                 raise KeyError("No AAS object with id {} exists in CouchDB database".format(x.identification)) from e
             rev = current.couchdb_revision
+            logger.debug("using the current object revision %s for deletion.")
 
         request = urllib.request.Request(
             "{}/{}/{}?rev={}".format(self.url, self.database_name, self._transform_id(x.identification), rev),
@@ -263,6 +276,7 @@ class CouchDBObjectStore(model.AbstractObjectStore):
             identifier = x.identification
         else:
             return False
+        logger.debug("Checking existance of object with id %s in database ...", repr(x))
         request = urllib.request.Request(
             "{}/{}/{}".format(self.url, self.database_name, self._transform_id(identifier)),
             headers={'Accept': 'application/json'},
@@ -276,6 +290,7 @@ class CouchDBObjectStore(model.AbstractObjectStore):
         return True
 
     def __len__(self) -> int:
+        logger.debug("Fetching number of documents from database ...")
         request = urllib.request.Request(
             "{}/{}".format(self.url, self.database_name),
             headers={'Accept': 'application/json'})
@@ -300,6 +315,7 @@ class CouchDBObjectStore(model.AbstractObjectStore):
                 return self._store.get_identifiable(next_id)
 
         # Fetch a list of all ids and construct Iterator object
+        logger.debug("Creating iterator over objects in database ...")
         request = urllib.request.Request(
             "{}/{}/_all_docs".format(self.url, self.database_name),
             headers={'Accept': 'application/json'})
@@ -321,14 +337,19 @@ class CouchDBObjectStore(model.AbstractObjectStore):
         if hasattr(self._thread_local, 'opener'):
             opener = self._thread_local.opener
         else:
+            logger.debug("Creating new urllib OpenerDirector for current thread.")
             opener = urllib.request.build_opener(urllib.request.HTTPCookieProcessor(self._cookie_jar))
             self._thread_local.opener = opener
 
         # Do request and handle HTTP Errors
+        logger.debug("Sending HTTP request to CouchDB server: %s %s ...", request.get_method(), request.full_url)
         try:
             response = opener.open(request)
         except urllib.error.HTTPError as e:
+            logger.info("Request %s %s finished with HTTP status code %s.",
+                        request.get_method(), request.full_url, e.code)
             if e.headers.get('Content-type', None) != 'application/json':
+                # TODO log warning
                 raise CouchDBResponseError("Unexpected Content-type header {} of response from CouchDB server"
                                            .format(e.headers.get('Content-type', None)))
 
@@ -338,6 +359,7 @@ class CouchDBObjectStore(model.AbstractObjectStore):
             try:
                 data = json.load(e)
             except json.JSONDecodeError:
+                # TODO log warning
                 raise CouchDBResponseError("Could not parse error message of HTTP {}"
                                            .format(e.code))
             raise CouchDBServerError(e.code, data['error'], data['reason'],
@@ -347,14 +369,17 @@ class CouchDBObjectStore(model.AbstractObjectStore):
 
         # Check response & parse data
         assert (isinstance(response, http.client.HTTPResponse))
+        logger.debug("Request %s %s finished successfully.", request.get_method(), request.full_url)
         if request.get_method() == 'HEAD':
             return {}
 
         if response.getheader('Content-type') != 'application/json':
+            # TODO log warning
             raise CouchDBResponseError("Unexpected Content-type header")
         try:
             data = json.load(response, cls=CouchDBJSONDecoder)
         except json.JSONDecodeError as e:
+            # TODO log warning
             raise CouchDBResponseError("Could not parse CouchDB server response as JSON data.") from e
         return data
 
