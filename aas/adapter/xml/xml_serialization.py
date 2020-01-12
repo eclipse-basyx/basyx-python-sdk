@@ -996,7 +996,7 @@ def basic_event_to_xml(obj: model.BasicEvent) -> ElTree.Element:
 # ##############################################################
 
 
-def single_aas_object_to_xml(obj: object) -> ElTree.Element:
+def aas_object_to_xml(obj: object) -> ElTree.Element:
     """
     Takes an object from aas.model and returns its serialized xml.ElementTree.Element object.
 
@@ -1061,25 +1061,6 @@ def single_aas_object_to_xml(obj: object) -> ElTree.Element:
     raise TypeError("Got object of class "+obj.__class__.__name__+" Expected objects from classes of aas.model. "
                                                                   "If object is part of aas.model, then check, if it "
                                                                   "has a serialization function.")
-
-
-def aas_object_to_xml(obj: object) -> ElTree.Element:
-    """
-    Serialize any aas object to XML.
-
-    :param obj: object from a class from aas.model
-    :return: serialized ElementTree.Element object
-    """
-    et_object = single_aas_object_to_xml(obj)
-    for variable in vars(obj):
-        # recursively serialize all variables of the object
-        try:
-            et_variable = aas_object_to_xml(variable)
-            et_object.insert(0, et_variable)
-        except TypeError:
-            # if the single_aas_to_xml function raises a type error, it was not an object from aas.model
-            pass
-    return et_object
 
 
 def write_aas_xml_file(file: IO,
