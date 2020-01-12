@@ -11,8 +11,14 @@
 """
 Module for serializing Asset Administration Shell data to the official XML format
 
-Note for devs [29.12.2019]: This is currently very badly under construction and will probably be subject to a lot of
-                            change. Please overlook everything that doesn't work and is wrong for the moment
+How to use:
+- For generating an XML-File from a model.registry.AbstractObjectStore, check out the function "write_aas_xml_file".
+- For serializing any object to an xml.etree.ElementTree.Element, that fits the XML specification from 'Details of the
+  Asset Administration Shell', chapter 5.4, check out "aas_object_to_xml"
+
+Note [12.01.2020]: Since the recursive iteration over the attributes of pyaas objects in "aas_object_to_xml" changes
+                   how some of the [insert aas object here]_to_xml functions are supposed to work,
+                   they might not be correct until I went through all of them again.
 """
 
 import xml.etree.ElementTree as ElTree
