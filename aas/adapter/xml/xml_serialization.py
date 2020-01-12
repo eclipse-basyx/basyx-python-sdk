@@ -1005,7 +1005,7 @@ def single_aas_object_to_xml(obj: object) -> ElTree.Element:
     Takes an object from aas.model and returns its serialized xml.ElementTree.Element object.
 
     Warning: this function does this non recursive, only for the non-aas-object type of attributes.
-             Use aas_object_to_xml with parameter recursive = True for recursive serialization
+             Use aas_object_to_xml for recursive serialization
 
     :param obj: object from aas.model
     :return: serialized xml.ElementTree.Element object
@@ -1067,6 +1067,25 @@ def single_aas_object_to_xml(obj: object) -> ElTree.Element:
                                                                   "has a serialization function.")
 
 
+def aas_object_to_xml(obj: object) -> ElTree.Element:
+    """
+    Serialize any aas object to XML.
+
+    :param obj: object from a class from aas.model
+    :return: serialized ElementTree.Element object
+    """
+    et_object = single_aas_object_to_xml(obj)
+    for variable in vars(obj):
+        # recursively serialize all variables of the object
+        try:
+            et_variable = aas_object_to_xml(variable)
+            et_object.insert(0, et_variable)
+        except TypeError:
+            # if the single_aas_to_xml function raises a type error, it was not an object from aas.model
+            pass
+    return et_object
+
+
 def write_aas_xml_file(file: IO,
                        data: model.AbstractObjectStore) -> None:
     """
@@ -1079,7 +1098,7 @@ def write_aas_xml_file(file: IO,
     :param data: ObjectStore which contains different objects of the AAS meta model which should be serialized to an
                  XML file
     """
-    # seperate different kind of objects
+    # separate different kind of objects
     assets = []
     asset_administration_shells = []
     submodels = []
@@ -1110,16 +1129,16 @@ def write_aas_xml_file(file: IO,
     # todo: I'm not sure this works the intended way
     et_asset_administration_shells = ElTree.Element("assetAdministrationShells")
     for aas_obj in asset_administration_shells:
-        et_asset_administration_shells.insert(0, asset_administration_shell_to_xml(aas_obj))
+        et_asset_administration_shells.insert(0, aas_object_to_xml(aas_obj))
     et_assets = ElTree.Element("assets")
     for ass_obj in assets:
-        et_assets.insert(0, asset_to_xml(ass_obj))
+        et_assets.insert(0, aas_object_to_xml(ass_obj))
     et_submodels = ElTree.Element("submodels")
     for sub_obj in submodels:
-        et_submodels.insert(0, submodel_to_xml(sub_obj))
+        et_submodels.insert(0, aas_object_to_xml(sub_obj))
     et_concept_descriptions = ElTree.Element("conceptDescriptions")
     for con_obj in concept_descriptions:
-        et_concept_descriptions.insert(0, concept_description_to_xml(con_obj))
+        et_concept_descriptions.insert(0, aas_object_to_xml(con_obj))
     et_aas_environment.insert(0, et_concept_descriptions)
     et_aas_environment.insert(0, et_submodels)
     et_aas_environment.insert(0, et_assets)
