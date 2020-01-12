@@ -1000,9 +1000,12 @@ def basic_event_to_xml(obj: model.BasicEvent) -> ElTree.Element:
 # ##############################################################
 
 
-def aas_object_to_xml(obj: object) -> ElTree.Element:
+def single_aas_object_to_xml(obj: object) -> ElTree.Element:
     """
-    Takes any object from aas.model and returns its serialized xml.ElementTree.Element object
+    Takes an object from aas.model and returns its serialized xml.ElementTree.Element object.
+
+    Warning: this function does this non recursive, only for the non-aas-object type of attributes.
+             Use aas_object_to_xml with parameter recursive = True for recursive serialization
 
     :param obj: object from aas.model
     :return: serialized xml.ElementTree.Element object
