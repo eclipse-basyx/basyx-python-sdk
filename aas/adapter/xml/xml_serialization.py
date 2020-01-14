@@ -1091,19 +1091,16 @@ def write_aas_xml_file(file: IO,
             concept_descriptions.append(obj)
 
     # serialize objects to XML
-    file.write('<?xml version="1.0" encoding="UTF-8"?>')
-    et_aas_environment = ElTree.Element("aasenv")
-    et_aas_environment.set("xmlns:aas", "http://www.admin-shell.io/aas/2/0")
-    et_aas_environment.set("xmlns:abac", "http://www.admin-shell.io/aas/abac/2/0")
-    et_aas_environment.set("xmlns:aas_common", "http://www.admin-shell.io/aas_common/2/0")
-    et_aas_environment.set("xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance")
-    et_aas_environment.set("xmlns:IEC", "http://www.admin-shell.io/IEC61360/2/0")
-    # todo: is this last one correct?
-    et_aas_environment.set("xsi:schemaLocation", "http://www.admin-shell.io/aas/2/0 AAS.xsd "
-                                                 "http://www.admin-shell.io/IEC61360/2/0"
-                                                 "IEC61360.xsd http://www.admin-shell.io/aas/abac/2/0 AAS_ABAC.xsd")
+    ElTree.register_namespace("aas", "http://www.admin-shell.io/aas/2/0")
+    ElTree.register_namespace("abac", "http://www.admin-shell.io/aas/abac/2/0")
+    ElTree.register_namespace("aas_common", "http://www.admin-shell.io/aas_common/2/0")
+    ElTree.register_namespace("xsi", "http://www.w3.org/2001/XMLSchema-instance")
+    ElTree.register_namespace("IEC", "http://www.admin-shell.io/IEC61360/2/0")
+    root = ElTree.Element("aasenv")
+    # since it seems impossible to specifiy the xsi:schemaLocation, I am adding it per hand
+    root.set("xsi:schemaLocation", "http://www.admin-shell.io/aas/1/0 AAS.xsd "
+                                   "http://www.admin-shell.io/IEC61360/1/0IEC61360.xsd ")
 
-    # todo: I'm not sure this works the intended way
     et_asset_administration_shells = ElTree.Element("assetAdministrationShells")
     for aas_obj in asset_administration_shells:
         et_asset_administration_shells.insert(0, aas_object_to_xml(aas_obj))
@@ -1116,8 +1113,10 @@ def write_aas_xml_file(file: IO,
     et_concept_descriptions = ElTree.Element("conceptDescriptions")
     for con_obj in concept_descriptions:
         et_concept_descriptions.insert(0, aas_object_to_xml(con_obj))
-    et_aas_environment.insert(0, et_concept_descriptions)
-    et_aas_environment.insert(0, et_submodels)
-    et_aas_environment.insert(0, et_assets)
-    et_aas_environment.insert(0, et_asset_administration_shells)
-    file.write(ElTree.tostring(et_aas_environment, encoding="UTF-8", method="xml"))
+    root.insert(0, et_concept_descriptions)
+    root.insert(0, et_submodels)
+    root.insert(0, et_assets)
+    root.insert(0, et_asset_administration_shells)
+
+    tree = ElTree.ElementTree(root)
+    tree.write(file, encoding="UTF-8", xml_declaration=True, method="xml")
