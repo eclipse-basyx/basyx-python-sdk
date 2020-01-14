@@ -18,7 +18,7 @@ How to use:
 """
 
 import xml.etree.ElementTree as ElTree
-from typing import List, Dict, Iterator, IO
+from typing import List, Dict, Iterator, IO, Optional
 import inspect
 import base64
 
@@ -26,8 +26,38 @@ from aas import model
 
 
 # ##############################################################
-# functions and classes to manipulate ElTree.Elements more effectively
+# functions to manipulate ElTree.Elements more effectively
 # ##############################################################
+
+# Namespace definition
+ns_aas = "{http://www.admin-shell.io/aas/2/0}"
+ns_abac = "{http://www.admin-shell.io/aas/abac/2/0}"
+ns_aas_common = "{http://www.admin-shell.io/aas_common/2/0}"
+ns_xsi = "{http://www.w3.org/2001/XMLSchema-instance}"
+ns_iec = "{http://www.admin-shell.io/IEC61360/2/0}"
+
+
+def generate_element(name: str,
+                     text: Optional[str] = None,
+                     attributes: Optional[Dict] = None,
+                     namespace: Optional[str] = ns_aas) -> ElTree.Element:
+    """
+    generate an ElementTree.Element object
+
+    :param name: Name of the element
+    :param text: Text of the element. Default is None
+    :param attributes: Attributes of the elements in form of a dict {"attribute_name": "attribute_content"}
+    :param namespace: Namespace of the element as. Default is the AAS namespace
+    :return: ElementTree.Element object
+    """
+    # todo: is there the option to not specify a namespace?
+    et_element = ElTree.Element(namespace+name)
+    if text:
+        et_element.text = text
+    if attributes:
+        for attribute in attributes:
+            et_element.set(attribute, attributes[attribute])
+    return et_element
 
 
 def find_rec(parent: ElTree.Element, tag: str) -> Iterator[ElTree.Element]:
@@ -1097,7 +1127,7 @@ def write_aas_xml_file(file: IO,
     ElTree.register_namespace("xsi", "http://www.w3.org/2001/XMLSchema-instance")
     ElTree.register_namespace("IEC", "http://www.admin-shell.io/IEC61360/2/0")
     root = ElTree.Element("aasenv")
-    # since it seems impossible to specifiy the xsi:schemaLocation, I am adding it per hand
+    # since it seems impossible to specify the xsi:schemaLocation, I am adding it per hand
     root.set("xsi:schemaLocation", "http://www.admin-shell.io/aas/1/0 AAS.xsd "
                                    "http://www.admin-shell.io/IEC61360/1/0IEC61360.xsd ")
 
