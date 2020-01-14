@@ -40,7 +40,7 @@ ns_iec = "{http://www.admin-shell.io/IEC61360/2/0}"
 def generate_element(name: str,
                      text: Optional[str] = None,
                      attributes: Optional[Dict] = None,
-                     namespace: Optional[str] = ns_aas) -> ElTree.Element:
+                     namespace: str = ns_aas) -> ElTree.Element:
     """
     generate an ElementTree.Element object
 
