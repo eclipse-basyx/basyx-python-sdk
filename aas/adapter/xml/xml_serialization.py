@@ -189,11 +189,6 @@ def referable_to_xml(obj: model.Referable) -> List[ElTree.Element]:
     if obj.description:
         et_description = lang_string_set_to_xml(obj.description, name="description")
         ser_list += [et_description]
-    if obj.parent:
-        et_parent = generate_element(name="parent", text=None, namespace=ns_aas)
-        # et_keys = reference_to_xml(obj.parent)
-        # et_parent.insert(0, et_keys)
-        ser_list += [et_parent]
     return ser_list
 
 
