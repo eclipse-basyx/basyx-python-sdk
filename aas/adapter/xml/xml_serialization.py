@@ -69,7 +69,7 @@ def boolean_to_xml(obj: bool) -> str:
     """
     if obj is True:
         return "true"
-    elif obj is False:
+    else:
         return "false"
 
 
