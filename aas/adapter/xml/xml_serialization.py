@@ -445,7 +445,7 @@ def namespace_to_xml(obj: model.Namespace) -> ElTree.Element:
     return et_namespace
 
 
-def formula_to_xml(obj: model.Formula, name: Optional[str] = "formula") -> ElTree.Element:
+def formula_to_xml(obj: model.Formula, name: str = "formula") -> ElTree.Element:
     """
     serialization of objects of class Formula to XML
 
@@ -467,7 +467,7 @@ def formula_to_xml(obj: model.Formula, name: Optional[str] = "formula") -> ElTre
     return et_formula
 
 
-def qualifier_to_xml(obj: model.Qualifier, name: Optional[str] = "qualifier") -> ElTree.Element:
+def qualifier_to_xml(obj: model.Qualifier, name: str = "qualifier") -> ElTree.Element:
     """
     serialization of objects of class Qualifier to XML
 
@@ -541,7 +541,7 @@ def value_list_to_xml(obj: model.ValueList) -> ElTree.Element:
 # ##############################################################
 
 
-def view_to_xml(obj: model.View, name: Optional[str] = "view") -> ElTree.Element:
+def view_to_xml(obj: model.View, name: str = "view") -> ElTree.Element:
     """
     serialization of objects of class View to XML
 
@@ -562,7 +562,7 @@ def view_to_xml(obj: model.View, name: Optional[str] = "view") -> ElTree.Element
     return et_view
 
 
-def asset_to_xml(obj: model.Asset, name: Optional[str] = "asset") -> ElTree.Element:
+def asset_to_xml(obj: model.Asset, name: str = "asset") -> ElTree.Element:
     """
     serialization of objects of class Asset to XML
 
@@ -587,7 +587,7 @@ def asset_to_xml(obj: model.Asset, name: Optional[str] = "asset") -> ElTree.Elem
 
 
 def concept_description_to_xml(obj: model.ConceptDescription,
-                               name: Optional[str] = "conceptDescription") -> ElTree.Element:
+                               name: str = "conceptDescription") -> ElTree.Element:
     """
     serialization of objects of class ConceptDescription to XML
 
@@ -607,7 +607,7 @@ def concept_description_to_xml(obj: model.ConceptDescription,
 
 
 def concept_dictionary_to_xml(obj: model.ConceptDictionary,
-                              name: Optional[str] = "conceptDictionary") -> ElTree.Element:
+                              name: str = "conceptDictionary") -> ElTree.Element:
     """
     serialization of objects of class ConceptDictionary to XML
 
@@ -784,7 +784,7 @@ def multi_language_property_to_xml(obj: model.MultiLanguageProperty) -> ElTree.E
         et_multi_language_property.insert(0, i)
     if obj.value:
         et_value = ElTree.Element("value")
-        et_lang_string_set = lang_string_set_to_xml(obj.value)
+        et_lang_string_set = lang_string_set_to_xml(obj.value, "value")
         et_value.insert(0, et_lang_string_set)
         et_multi_language_property.insert(0, et_value)
     if obj.value_id:
