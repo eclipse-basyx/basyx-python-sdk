@@ -164,7 +164,7 @@ class CouchDBTest(ExampleHelper):
         self.db.discard(retrieved_submodel, False)
         self.assertEqual(0, len(self.db))
 
-        # Committing after delition should also raise a conflict error
+        # Committing after deletion should also raise a conflict error
         with self.assertRaises(couchdb.CouchDBConflictError):
             retrieved_submodel.commit_changes()
 
