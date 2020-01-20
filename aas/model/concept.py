@@ -129,11 +129,10 @@ class IEC61360ConceptDescription(ConceptDescription):
     """
     def __init__(self,
                  identification: base.Identifier,
-                 preferred_name: str,
-                 short_name: str,
+                 preferred_name: base.LangStringSet,
                  data_type: IEC61360DataType,
-                 definition: str,
-                 code: str,
+                 definition: Optional[base.LangStringSet] = None,
+                 short_name: Optional[base.LangStringSet] = None,
                  is_case_of: Optional[Set[base.Reference]] = None,
                  id_short: str = "",
                  category: Optional[str] = None,
@@ -148,7 +147,7 @@ class IEC61360ConceptDescription(ConceptDescription):
                  value_list: Optional[base.ValueList] = None,
                  value: Optional[base.ValueDataType] = None,
                  value_id: Optional[base.Reference] = None,
-                 level_types: Optional[Set[IEC61360LevelType]] = None,
+                 level_types: Set[IEC61360LevelType] = None,
                  ):
         """
         Initializer of IEC61360ConceptDescription
@@ -158,7 +157,6 @@ class IEC61360ConceptDescription(ConceptDescription):
         :param short_name: short name of the data object
         :param data_type: data type of the data object
         :param definition: definition of the data object
-        :param code: code
         :param is_case_of: Unordered list of global references to external definitions the concept is compatible to or
                            was derived from.
                            Note: Compare to is-case-of relationship in ISO 13584-32 & IEC EN 61360
@@ -180,11 +178,10 @@ class IEC61360ConceptDescription(ConceptDescription):
         :param level_types: Set of level types of the DataSpecificationContent (optional)
         """
         super().__init__(identification, is_case_of, id_short, category, description, parent, administration)
-        self.preferred_name:  str = preferred_name
-        self.short_name: str = short_name
+        self.preferred_name: base.LangStringSet = preferred_name
+        self.short_name: Optional[base.LangStringSet] = short_name
         self.data_type: IEC61360DataType = data_type
-        self.definition: str = definition
-        self.code: str = code
+        self.definition: Optional[base.LangStringSet] = definition
         self.unit: Optional[str] = unit
         self.unit_id: Optional[base.Reference] = unit_id
         self.source_of_definition: Optional[str] = source_of_definition
@@ -193,4 +190,4 @@ class IEC61360ConceptDescription(ConceptDescription):
         self.value_list: Optional[base.ValueList] = value_list
         self.value: Optional[base.ValueDataType] = value
         self.value_id: Optional[base.Reference] = value_id
-        self.level_types: Optional[Set[IEC61360LevelType]] = level_types
+        self.level_types: Set[IEC61360LevelType] = level_types if level_types else set()

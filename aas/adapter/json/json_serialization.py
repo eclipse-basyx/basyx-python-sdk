@@ -85,6 +85,28 @@ ENTITY_TYPES: Dict[model.EntityType, str] = {
     model.EntityType.CO_MANAGED_ENTITY: 'CoManagedEntity',
     model.EntityType.SELF_MANAGED_ENTITY: 'SelfManagedEntity'}
 
+IEC61360_DATA_TYPES: Dict[model.concept.IEC61360DataType, str] = {
+    model.concept.IEC61360DataType.DATE: 'DATE',
+    model.concept.IEC61360DataType.STRING: 'STRING',
+    model.concept.IEC61360DataType.STRING_TRANSLATABLE: 'STRING_TRANSLATABLE',
+    model.concept.IEC61360DataType.REAL_MEASURE: 'REAL_MEASURE',
+    model.concept.IEC61360DataType.REAL_COUNT: 'REAL_COUNT',
+    model.concept.IEC61360DataType.REAL_CURRENCY: 'REAL_CURRENCY',
+    model.concept.IEC61360DataType.BOOLEAN: 'BOOLEAN',
+    model.concept.IEC61360DataType.URL: 'URL',
+    model.concept.IEC61360DataType.RATIONAL: 'RATIONAL',
+    model.concept.IEC61360DataType.RATIONAL_MEASURE: 'RATIONAL_MEASURE',
+    model.concept.IEC61360DataType.TIME: 'TIME',
+    model.concept.IEC61360DataType.TIMESTAMP: 'TIMESTAMP',
+}
+
+IEC61360_LEVEL_TYPES: Dict[model.concept.IEC61360LevelType, str] = {
+    model.concept.IEC61360LevelType.MIN: 'Min',
+    model.concept.IEC61360LevelType.MAX: 'Max',
+    model.concept.IEC61360LevelType.NOM: 'Nom',
+    model.concept.IEC61360LevelType.TYP: 'Typ',
+}
+
 
 def abstract_classes_to_json(obj: object) -> Dict[str, object]:
     """
@@ -245,7 +267,7 @@ def qualifier_to_json(obj: model.Qualifier) -> Dict[str, object]:
     return data
 
 
-def value_reference_pair_to_json(obj):
+def value_reference_pair_to_json(obj: model.ValueReferencePair) -> Dict[str, object]:
     """
     serialization of an object from class ValueReferencePair to json
 
@@ -254,21 +276,19 @@ def value_reference_pair_to_json(obj):
     """
     data = abstract_classes_to_json(obj)
     data.update({'value': obj.value,
-                 'valueId': obj.valueId,
+                 'valueId': obj.value_id,
                  'valueType': obj.value_type})
     return data
 
 
-def value_list_to_json(obj):
+def value_list_to_json(obj: model.ValueList) -> Dict[str, object]:
     """
     serialization of an object from class ValueList to json
 
     :param obj: object of class ValueList
     :return: dict with the serialized attributes of this object
     """
-    data = abstract_classes_to_json(obj)
-    data['valueReferencePairTypes'] = obj.value_reference_pair_type
-    return data
+    return {'valueReferencePairTypes': list(obj)}
 
 
 # ############################################################
@@ -314,7 +334,55 @@ def concept_description_to_json(obj: model.ConceptDescription) -> Dict[str, obje
     data = abstract_classes_to_json(obj)
     if obj.is_case_of:
         data['isCaseOf'] = list(obj.is_case_of)
+
+    if isinstance(obj, model.concept.IEC61360ConceptDescription):
+        append_iec61360_concept_description_attrs(obj, data)
+
     return data
+
+
+def append_iec61360_concept_description_attrs(obj: model.concept.IEC61360ConceptDescription, data: Dict[str, object]) \
+        -> None:
+    """
+    Add the 'embeddedDataSpecifications' attribute to IEC61360ConceptDescription's JSON representation.
+
+    `IEC61360ConceptDescription` is not a distinct class according DotAAS, but instead is built by referencing
+    "DataSpecificationIEC61360" as dataSpecification. However, we implemented it as an explicit class, inheriting from
+    ConceptDescription, but we want to generate compliant JSON documents. So, we fake the JSON structure of an object
+    with dataSpecifications.
+    """
+    data_spec = {
+        'preferredName': lang_string_set_to_json(obj.preferred_name),
+        'dataType': IEC61360_DATA_TYPES[obj.data_type],
+        'definition': obj.definition,
+    }
+    if obj.short_name is not None:
+        data_spec['shortName'] = obj.short_name
+    if obj.unit is not None:
+        data_spec['unit'] = obj.unit
+    if obj.unit_id is not None:
+        data_spec['unitId'] = obj.unit_id
+    if obj.source_of_definition is not None:
+        data_spec['sourceOfDefinition'] = obj.source_of_definition
+    if obj.symbol is not None:
+        data_spec['symbol'] = obj.symbol
+    if obj.value_format is not None:
+        data_spec['valueFormat'] = obj.value_format
+    if obj.value_list is not None:
+        data_spec['valueList'] = value_list_to_json(obj.value_list)
+    if obj.value is not None:
+        data_spec['data_spec'] = obj.value
+    if obj.value_id is not None:
+        data_spec['valueId'] = obj.value_id
+    if obj.level_types:
+        data_spec['levelType'] = [IEC61360_LEVEL_TYPES[lt] for lt in obj.level_types]
+    data['embeddedDataSpecifications'] = [
+        {'dataSpecification': model.Reference((
+            model.Key(model.KeyElements.GLOBAL_REFERENCE, False,
+                      "http://admin-shell.io/DataSpecificationTemplates/DataSpecificationIEC61360/2/0",
+                      model.KeyType.IRI),)),
+         'dataSpecificationContent': data_spec}
+    ]
 
 
 def concept_dictionary_to_json(obj: model.ConceptDictionary) -> Dict[str, object]:
@@ -618,6 +686,8 @@ class AASToJsonEncoder(json.JSONEncoder):
             return reference_to_json(obj)
         if isinstance(obj, model.Key):
             return key_to_json(obj)
+        if isinstance(obj, model.ValueReferencePair):
+            return value_reference_pair_to_json(obj)
         if isinstance(obj, model.Asset):
             return asset_to_json(obj)
         if isinstance(obj, model.Submodel):

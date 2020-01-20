@@ -775,6 +775,7 @@ class ValueReferencePair:
 
         :param value: The value of the referenced concept definition of the value in value_id
         :param value_id: Global unique id of the value.
+        :param value_type: XSD datatype of the value (this is not compliant to the DotAAS meta model)
 
         TODO: Add instruction what to do after construction
         """
@@ -783,25 +784,7 @@ class ValueReferencePair:
         self.value_type: str = value_type
 
 
-class ValueList:
-    """
-    A set of value reference pairs.
-
-    << Data Type >>
-
-    :ivar value_reference_pair_type: Unordered list of pairs of a value together with its global unique id.
-    """
-
-    def __init__(self,
-                 value_reference_pair_type: Set[ValueReferencePair]):
-        """
-        Initializer of ValueList
-
-        :param value_reference_pair_type: Unordered list of pairs of a value together with its global unique id.
-
-        TODO: Add instruction what to do after construction
-        """
-        self.value_reference_pair_type: Set[ValueReferencePair] = value_reference_pair_type
+ValueList = Set[ValueReferencePair]
 
 
 class Namespace(metaclass=abc.ABCMeta):

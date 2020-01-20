@@ -29,7 +29,8 @@ import pprint
 from typing import Dict, Callable, TypeVar, Type, List, IO
 
 from ... import model
-from .json_serialization import MODELING_KIND, ASSET_KIND, KEY_ELEMENTS, KEY_TYPES, IDENTIFIER_TYPES, ENTITY_TYPES
+from .json_serialization import MODELING_KIND, ASSET_KIND, KEY_ELEMENTS, KEY_TYPES, IDENTIFIER_TYPES, ENTITY_TYPES,\
+    IEC61360_DATA_TYPES, IEC61360_LEVEL_TYPES
 
 logger = logging.getLogger(__name__)
 
@@ -40,6 +41,9 @@ KEY_TYPES_INVERSE: Dict[str, model.KeyType] = {v: k for k, v in KEY_TYPES.items(
 IDENTIFIER_TYPES_INVERSE: Dict[str, model.IdentifierType] = {v: k for k, v in IDENTIFIER_TYPES.items()}
 ENTITY_TYPES_INVERSE: Dict[str, model.EntityType] = {v: k for k, v in ENTITY_TYPES.items()}
 KEY_ELEMENTS_CLASSES_INVERSE: Dict[model.KeyElements, type] = {v: k for k, v in model.KEY_ELEMENTS_CLASSES.items()}
+IEC61360_DATA_TYPES_INVERSE: Dict[str, model.concept.IEC61360DataType] = {v: k for k, v in IEC61360_DATA_TYPES.items()}
+IEC61360_LEVEL_TYPES_INVERSE: Dict[str, model.concept.IEC61360LevelType] = \
+    {v: k for k, v in IEC61360_LEVEL_TYPES.items()}
 
 
 # #############################################################################
@@ -311,12 +315,33 @@ class AASFromJsonDecoder(json.JSONDecoder):
                 ret[_get_ts(desc, 'language', str)] = _get_ts(desc, 'text', str)
             except (KeyError, TypeError) as e:
                 error_message = "Error while trying to convert JSON object into LangString: {} >>> {}".format(
-                    e, pprint.pformat(lst, depth=2, width=2 ** 14, compact=True))
+                    e, pprint.pformat(desc, depth=2, width=2 ** 14, compact=True))
                 if cls.failsafe:
                     logger.error(error_message, exc_info=e)
                 else:
                     raise type(e)(error_message) from e
         return ret
+
+    @classmethod
+    def _construct_value_list(cls, dct: Dict[str, object]) -> model.ValueList:
+        ret: model.ValueList = set()
+        for element in _get_ts(dct, 'valueReferencePairTypes', list):
+            try:
+                cls._construct_value_reference_pair(element)
+            except (KeyError, TypeError) as e:
+                error_message = "Error while trying to convert JSON object into ValueReferencePair: {} >>> {}".format(
+                    e, pprint.pformat(element, depth=2, width=2 ** 14, compact=True))
+                if cls.failsafe:
+                    logger.error(error_message, exc_info=e)
+                else:
+                    raise type(e)(error_message) from e
+        return ret
+
+    @classmethod
+    def _construct_value_reference_pair(cls, dct: Dict[str, object], object_class=model.ValueReferencePair):
+        ret = object_class(value=_get_ts(dct, 'value', str),
+                           value_id=cls._construct_reference(_get_ts(dct, 'valueId', dict)),
+                           value_type=_get_ts(dct, 'valueType', str))
 
     # #############################################################################
     # Direct Constructor Methods (for classes with `modelType`) starting from here
@@ -374,11 +399,53 @@ class AASFromJsonDecoder(json.JSONDecoder):
     @classmethod
     def _construct_concept_description(cls, dct: Dict[str, object], object_class=model.ConceptDescription)\
             -> model.ConceptDescription:
-        ret = object_class(identification=cls._construct_identifier(_get_ts(dct, 'identification', dict)))
+        # Hack to detect IEC61360ConceptDescriptions, which are represented using dataSpecification according to DotAAS
+        ret = None
+        if 'embeddedDataSpecifications' in dct:
+            for dspec in _get_ts(dct, 'embeddedDataSpecifications', list):
+                dspec_ref = cls._construct_reference(_get_ts(dspec, 'dataSpecification', dict))
+                if dspec_ref.key and (dspec_ref.key[0].value ==
+                                      "http://admin-shell.io/DataSpecificationTemplates/DataSpecificationIEC61360/2/0"):
+                    ret = cls._construct_iec61360_concept_description(
+                        dct, _get_ts(dspec, 'dataSpecificationContent', dict))
+        # If this is not a special ConceptDescription, just construct one of the default object_class
+        if ret is None:
+            ret = object_class(identification=cls._construct_identifier(_get_ts(dct, 'identification', dict)))
         cls._amend_abstract_attributes(ret, dct)
         if 'isCaseOf' in dct:
             for case_data in _get_ts(dct, "isCaseOf", list):
                 ret.is_case_of.add(cls._construct_reference(case_data))
+        return ret
+
+    @classmethod
+    def _construct_iec61360_concept_description(cls, dct: Dict[str, object], data_spec: Dict[str, object],
+                                                object_class=model.concept.IEC61360ConceptDescription)\
+            -> model.concept.IEC61360ConceptDescription:
+        ret = object_class(identification=cls._construct_identifier(_get_ts(dct, 'identification', dict)),
+                           preferred_name=cls._construct_lang_string_set(_get_ts(data_spec, 'preferredName', list)),
+                           data_type=IEC61360_DATA_TYPES_INVERSE[_get_ts(data_spec, 'dataType', str)])
+        if 'definition' in data_spec:
+            ret.definition = cls._construct_lang_string_set(_get_ts(data_spec, 'definition', list))
+        if 'shortName' in data_spec:
+            ret.short_name = cls._construct_lang_string_set(_get_ts(data_spec, 'shortName', list))
+        if 'unit' in data_spec:
+            ret.unit = _get_ts(data_spec, 'unit', str)
+        if 'unitId' in data_spec:
+            ret.unit_id = cls._construct_reference(_get_ts(data_spec, 'unitId', dict))
+        if 'sourceOfDefinition' in data_spec:
+            ret.source_of_definition = _get_ts(data_spec, 'sourceOfDefinition', str)
+        if 'symbol' in data_spec:
+            ret.symbol = _get_ts(data_spec, 'symbol', str)
+        if 'valueFormat' in dct:
+            ret.value_format = _get_ts(data_spec, 'valueFormat', str)
+        if 'valueList' in data_spec:
+            ret.value_list = cls._construct_value_list(_get_ts(data_spec, 'valueList', dict))
+        if 'value' in data_spec:
+            ret.value = _get_ts(data_spec, 'value', str)
+        if 'valueId' in data_spec:
+            ret.value_id = cls._construct_reference(_get_ts(data_spec, 'valueId', dict))
+        if 'levelType' in data_spec:
+            set(IEC61360_LEVEL_TYPES[level_type] for level_type in _get_ts(data_spec, 'levelType', list))
         return ret
 
     @classmethod
