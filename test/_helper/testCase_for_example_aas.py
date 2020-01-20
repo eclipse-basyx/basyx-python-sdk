@@ -19,7 +19,6 @@ from aas import model
 from aas.util import identification
 
 
-
 class ExampleHelper(unittest.TestCase):
     def assert_example_asset_identification_submodel(self, submodel: model.Submodel) -> None:
         # Test attributes of Submodel
