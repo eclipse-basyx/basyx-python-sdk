@@ -20,7 +20,7 @@ from jsonschema import validate  # type: ignore
 
 from aas.helpers import example_aas, example_submodel_template, \
     example_aas_mandatory_attributes, example_aas_missing_attributes
-from test._helper.testCase_for_example_aas import ExampleHelper
+from ..._helper.testCase_for_example_aas import ExampleHelper
 
 JSON_SCHEMA_FILE = os.path.join(os.path.dirname(__file__), 'aasJSONSchemaV2.0.json')
 

@@ -15,7 +15,7 @@ Use create_data_specification_IEC61360
 """
 
 from aas.util import data_specification_templates as dst
-from aas import model
+from .. import model
 
 
 def create_data_specification_iec61360():

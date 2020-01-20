@@ -12,7 +12,6 @@
 import unittest
 
 from aas import model
-from aas.model import Identifier, Identifiable
 
 
 class EntityTest(unittest.TestCase):

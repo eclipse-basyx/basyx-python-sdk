@@ -13,9 +13,8 @@ Tests for the example aas
 
 Functions to test if an object is the same to the example aas from example_aas.py
 """
-import unittest
 from aas.helpers import example_aas
-from test._helper.testCase_for_example_aas import ExampleHelper
+from .._helper.testCase_for_example_aas import ExampleHelper
 
 
 class ExampleAASTest(ExampleHelper):

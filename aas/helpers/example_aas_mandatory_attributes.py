@@ -16,7 +16,7 @@ attributes.
 To get this object store use the function 'create_full_example'. If you want to get single example objects or want to
 get more information use the other functions.
 """
-from aas import model
+from .. import model
 
 
 def create_full_example() -> model.DictObjectStore:

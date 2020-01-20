@@ -13,7 +13,7 @@ Module for the creation of an example submodel template containing all kind of s
 always TEMPLATE.
 
 """
-from aas import model
+from .. import model
 
 
 def create_example_submodel_template() -> model.Submodel:

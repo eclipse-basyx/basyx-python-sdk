@@ -25,10 +25,10 @@ classes.
 """
 import base64
 import inspect
-from typing import Dict, List
+from typing import List
 import json
 from typing import Dict, IO
-from aas import model
+from ... import model
 
 
 # ##########################################

@@ -12,8 +12,7 @@
 Module for the creation of a object store with missing object attribute combination for testing the serialization
 
 """
-from aas import model
-from typing import Any, Set
+from .. import model
 
 
 def create_full_example() -> model.DictObjectStore:
