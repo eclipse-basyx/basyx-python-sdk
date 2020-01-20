@@ -17,7 +17,7 @@ Current Data specification templates:
 from typing import Optional, Set
 from enum import Enum, unique
 
-from ..model import base
+from aas.model import base
 
 
 @unique

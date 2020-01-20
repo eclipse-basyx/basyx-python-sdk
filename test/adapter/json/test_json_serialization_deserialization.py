@@ -18,7 +18,8 @@ from aas.adapter.json import json_serialization, json_deserialization
 
 from aas.helpers import example_aas, example_submodel_template, \
     example_aas_mandatory_attributes, example_aas_missing_attributes
-from ..._helper.testCase_for_example_aas import ExampleHelper
+from test._helper.testCase_for_example_aas import ExampleHelper
+from test._helper.testCase_for_example_aas_mandatory_attributes import ExampleHelper as ExampleHelperMandatory
 
 JSON_SCHEMA_FILE = os.path.join(os.path.dirname(__file__), 'aasJSONSchemaV2.0.json')
 
@@ -89,3 +90,16 @@ class JsonSerializationDeserializationTest(ExampleHelper):
         # module
         file.seek(0)
         json_object_store = json_deserialization.read_json_aas_file(file, failsafe=False)
+
+
+class JsonSerializationDeserializationTest2(ExampleHelperMandatory):
+    def test_example_mandatory_attributes_serialization_deserialization(self) -> None:
+        data = example_aas_mandatory_attributes.create_full_example()
+        file = io.StringIO()
+        json_serialization.write_aas_json_file(file=file, data=data)
+
+        # try deserializing the json string into a DictObjectStore of AAS objects with help of the json_deserialization
+        # module
+        file.seek(0)
+        json_object_store = json_deserialization.read_json_aas_file(file, failsafe=False)
+        self.assert_full_example(json_object_store)

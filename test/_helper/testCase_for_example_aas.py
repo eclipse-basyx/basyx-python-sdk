@@ -14,16 +14,10 @@ Tests for the example aas
 Functions to test if an object is the same to the example aas from example_aas.py
 """
 import unittest
-from typing import Set, Optional
+from typing import Optional
 from aas import model
+from aas.util import identification
 
-
-def find_Reference_in_set(reference: model.Reference, set_to_search: Set) -> bool:
-    for reference_to_find in set_to_search:
-        if reference_to_find == reference:
-            return True
-    else:
-        return False
 
 
 class ExampleHelper(unittest.TestCase):
@@ -40,7 +34,7 @@ class ExampleHelper(unittest.TestCase):
         self.assertEqual('0.9', submodel.administration.version)  # type: ignore
         self.assertEqual('0', submodel.administration.revision)  # type: ignore
         self.assertEqual(1, len(submodel.data_specification))
-        self.assertEqual(True, find_Reference_in_set(model.Reference((
+        self.assertEqual(True, identification.find_reference_in_set(model.Reference((
                     model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
                               local=False,
                               value='http://acplt.org/DataSpecifications/Submodels/AssetIdentification',
@@ -136,7 +130,7 @@ class ExampleHelper(unittest.TestCase):
         self.assertEqual('0.9', submodel.administration.version)  # type: ignore
         self.assertIsNone(submodel.administration.revision)  # type: ignore
         self.assertEqual(1, len(submodel.data_specification))
-        self.assertEqual(True, find_Reference_in_set(model.Reference((
+        self.assertEqual(True, identification.find_reference_in_set(model.Reference((
                     model.Key(type_=model.KeyElements.ASSET,
                               local=False,
                               value='http://acplt.org/DataSpecifications/Submodels/BillOfMaterial',
@@ -263,7 +257,7 @@ class ExampleHelper(unittest.TestCase):
         self.assertEqual('0.9', asset.administration.version)  # type: ignore
         self.assertEqual('0', asset.administration.revision)  # type: ignore
         self.assertEqual(1, len(asset.data_specification))
-        self.assertEqual(True, find_Reference_in_set(model.Reference((
+        self.assertEqual(True, identification.find_reference_in_set(model.Reference((
                     model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
                               local=False,
                               value='http://acplt.org/DataSpecifications/AssetTypes/TestAsset',
@@ -284,7 +278,7 @@ class ExampleHelper(unittest.TestCase):
         self.assertEqual('https://acplt.org/Test_ConceptDescription', concept_description.identification.id)
         self.assertEqual(model.IdentifierType.IRI, concept_description.identification.id_type)
         self.assertEqual(1, len(concept_description.is_case_of))
-        self.assertEqual(True, find_Reference_in_set(model.Reference((
+        self.assertEqual(True, identification.find_reference_in_set(model.Reference((
                     model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
                               local=False,
                               value='http://acplt.org/DataSpecifications/ConceptDescriptions/TestConceptDescription',
@@ -298,7 +292,7 @@ class ExampleHelper(unittest.TestCase):
         self.assertEqual('0.9', concept_description.administration.version)  # type: ignore
         self.assertEqual('0', concept_description.administration.revision)  # type: ignore
         self.assertEqual(1, len(concept_description.data_specification))
-        self.assertEqual(True, find_Reference_in_set(model.Reference((
+        self.assertEqual(True, identification.find_reference_in_set(model.Reference((
                     model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
                               local=False,
                               value='http://acplt.org/DataSpecifications/ConceptDescriptions/TestConceptDescription',
@@ -316,7 +310,7 @@ class ExampleHelper(unittest.TestCase):
             self.assertEqual(concept_dictionary.parent, shell)
         else:
             self.assertIsNone(concept_dictionary.parent)
-        self.assertEqual(True, find_Reference_in_set(model.AASReference((
+        self.assertEqual(True, identification.find_reference_in_set(model.AASReference((
             model.Key(type_=model.KeyElements.CONCEPT_DESCRIPTION,
                       local=False,
                       value='https://acplt.org/Test_ConceptDescription',
@@ -343,7 +337,7 @@ class ExampleHelper(unittest.TestCase):
         self.assertEqual(0, len(shell.data_specification))
         self.assertIsNone(shell.security_)
         self.assertEqual(1, len(shell.submodel_))
-        self.assertEqual(True, find_Reference_in_set(model.AASReference((
+        self.assertEqual(True, identification.find_reference_in_set(model.AASReference((
             model.Key(type_=model.KeyElements.SUBMODEL,
                       local=False,
                       value='https://acplt.org/Test_Submodel',
@@ -374,7 +368,7 @@ class ExampleHelper(unittest.TestCase):
         self.assertEqual('0.9', submodel.administration.version)  # type: ignore
         self.assertEqual('0', submodel.administration.revision)  # type: ignore
         self.assertEqual(1, len(submodel.data_specification))
-        self.assertEqual(True, find_Reference_in_set(model.Reference((
+        self.assertEqual(True, identification.find_reference_in_set(model.Reference((
                     model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
                               local=False,
                               value='http://acplt.org/DataSpecifications/Submodels/TestSubmodel',
@@ -433,7 +427,7 @@ class ExampleHelper(unittest.TestCase):
                       value='ExampleProperty',
                       id_type=model.KeyType.IDSHORT),),
             model.Property))
-        self.assertEqual(True, find_Reference_in_set(model.AASReference((
+        self.assertEqual(True, identification.find_reference_in_set(model.AASReference((
             model.Key(type_=model.KeyElements.PROPERTY,
                       local=True,
                       value='ExampleProperty',
