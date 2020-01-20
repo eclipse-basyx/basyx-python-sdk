@@ -13,7 +13,7 @@ Tests for the example aas
 
 Functions to test if an object is the same to the example aas from example_aas.py
 """
-from aas.helpers import example_aas
+from aas.examples.data import example_aas
 from .._helper.testCase_for_example_aas import ExampleHelper
 
 

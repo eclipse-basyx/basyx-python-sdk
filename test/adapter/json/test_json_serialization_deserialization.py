@@ -16,8 +16,8 @@ import os
 from aas import model
 from aas.adapter.json import json_serialization, json_deserialization
 
-from aas.helpers import example_aas, example_submodel_template, \
-    example_aas_mandatory_attributes, example_aas_missing_attributes
+from aas.examples.data import example_aas_missing_attributes, example_submodel_template, \
+    example_aas_mandatory_attributes, example_aas
 from test._helper.testCase_for_example_aas import ExampleHelper
 from test._helper.testCase_for_example_aas_mandatory_attributes import ExampleHelper as ExampleHelperMandatory
 from test._helper.testCase_for_example_aas_missing_attributes import ExampleHelper as ExampleHelperMissing

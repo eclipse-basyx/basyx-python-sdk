@@ -12,8 +12,8 @@
 Module for creation of an example concept description
 """
 
-from .. import model
-from ..model.concept import *
+from aas import model
+from aas.model.concept import *
 
 
 def create_iec61360_concept_description() -> IEC61360ConceptDescription:

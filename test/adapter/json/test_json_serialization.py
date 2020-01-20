@@ -15,11 +15,11 @@ import json
 import os
 
 from aas import model
-from aas.adapter.json import json_serialization, json_deserialization
+from aas.adapter.json import json_serialization
 from jsonschema import validate  # type: ignore
 
-from aas.helpers import example_aas, example_submodel_template, \
-    example_aas_mandatory_attributes, example_aas_missing_attributes
+from aas.examples.data import example_aas_missing_attributes, example_submodel_template, \
+    example_aas_mandatory_attributes, example_aas
 from ..._helper.testCase_for_example_aas import ExampleHelper
 
 JSON_SCHEMA_FILE = os.path.join(os.path.dirname(__file__), 'aasJSONSchemaV2.0.json')

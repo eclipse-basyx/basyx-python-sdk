@@ -9,62 +9,24 @@
 # "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
 # specific language governing permissions and limitations under the License.
 """
-Module for the creation of a object store with missing object attribute combination for testing the serialization
+Module for the creation of an example submodel template containing all kind of submodel elements where the kind is
+always TEMPLATE.
 
 """
-from .. import model
+from aas import model
 
 
-def create_full_example() -> model.DictObjectStore:
+def create_example_submodel_template() -> model.Submodel:
     """
-    creates an object store containing an example asset identification submodel, an example asset, an example submodel,
-    an example concept description and an example asset administration shell
-
-    :return: object store
-    """
-    obj_store: model.DictObjectStore[model.Identifiable] = model.DictObjectStore()
-    obj_store.add(create_example_asset())
-    obj_store.add(create_example_submodel())
-    obj_store.add(create_example_concept_description())
-    obj_store.add(create_example_asset_administration_shell(create_example_concept_dictionary()))
-    return obj_store
-
-
-def create_example_asset() -> model.Asset:
-    """
-    creates an example asset which holds references to the example asset identification submodel
-
-    :return: example asset
-    """
-    asset = model.Asset(
-        kind=model.AssetKind.INSTANCE,
-        identification=model.Identifier(id_='https://acplt.org/Test_Asset',
-                                        id_type=model.IdentifierType.IRI),
-        id_short='Test_Asset',
-        category=None,
-        description={'en-us': 'An example asset for the test application',
-                     'de': 'Ein Beispiel-Asset für eine Test-Anwendung'},
-        parent=None,
-        administration=model.AdministrativeInformation(),
-        asset_identification_model=None,
-        bill_of_material=None)
-    return asset
-
-
-def create_example_submodel() -> model.Submodel:
-    """
-    creates an example submodel containing all kind of SubmodelElement objects
+    creates an example submodel template containing all kind of SubmodelElement objects where the kind is always
+    TEMPLATE
 
     :return: example submodel
     """
-    qualifier = model.Qualifier(
-        type_='http://acplt.org/Qualifier/ExampleQualifier',
-        value_type='string')
-
     submodel_element_property = model.Property(
         id_short='ExampleProperty',
         value_type='string',
-        value='exampleValue',
+        value=None,
         value_id=None,  # TODO
         category='CONSTANT',
         description={'en-us': 'Example Property object',
@@ -74,13 +36,12 @@ def create_example_submodel() -> model.Submodel:
                                                local=False,
                                                value='http://acplt.org/Properties/ExampleProperty',
                                                id_type=model.KeyType.IRDI),)),
-        qualifier={qualifier},
-        kind=model.ModelingKind.INSTANCE)
+        qualifier=None,
+        kind=model.ModelingKind.TEMPLATE)
 
     submodel_element_multi_language_property = model.MultiLanguageProperty(
         id_short='ExampleMultiLanguageProperty',
-        value={'en-us': 'Example value of a MultiLanguageProperty element',
-               'de': 'Beispielswert für ein MulitLanguageProperty-Element'},
+        value=None,
         value_id=None,  # TODO
         category='CONSTANT',
         description={'en-us': 'Example MultiLanguageProperty object',
@@ -92,12 +53,12 @@ def create_example_submodel() -> model.Submodel:
                                                      'ExampleMultiLanguageProperty',
                                                id_type=model.KeyType.IRDI),)),
         qualifier=None,
-        kind=model.ModelingKind.INSTANCE)
+        kind=model.ModelingKind.TEMPLATE)
 
     submodel_element_range = model.Range(
         id_short='ExampleRange',
         value_type='int',
-        min_='0',
+        min_=None,
         max_='100',
         category='PARAMETER',
         description={'en-us': 'Example Range object',
@@ -108,12 +69,28 @@ def create_example_submodel() -> model.Submodel:
                                                value='http://acplt.org/Ranges/ExampleRange',
                                                id_type=model.KeyType.IRDI),)),
         qualifier=None,
-        kind=model.ModelingKind.INSTANCE)
+        kind=model.ModelingKind.TEMPLATE)
+
+    submodel_element_range_2 = model.Range(
+        id_short='ExampleRange2',
+        value_type='int',
+        min_='0',
+        max_=None,
+        category='PARAMETER',
+        description={'en-us': 'Example Range object',
+                     'de': 'Beispiel Range Element'},
+        parent=None,
+        semantic_id=model.Reference((model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
+                                               local=False,
+                                               value='http://acplt.org/Ranges/ExampleRange',
+                                               id_type=model.KeyType.IRDI),)),
+        qualifier=None,
+        kind=model.ModelingKind.TEMPLATE)
 
     submodel_element_blob = model.Blob(
         id_short='ExampleBlob',
         mime_type='application/pdf',
-        value=bytearray(b'\x01\x02\x03\x04\x05'),
+        value=None,
         category='PARAMETER',
         description={'en-us': 'Example Blob object',
                      'de': 'Beispiel Blob Element'},
@@ -123,12 +100,12 @@ def create_example_submodel() -> model.Submodel:
                                                value='http://acplt.org/Blobs/ExampleBlob',
                                                id_type=model.KeyType.IRDI),)),
         qualifier=None,
-        kind=model.ModelingKind.INSTANCE)
+        kind=model.ModelingKind.TEMPLATE)
 
     submodel_element_file = model.File(
         id_short='ExampleFile',
         mime_type='application/pdf',
-        value='/TestFile.pdf',
+        value=None,
         category='PARAMETER',
         description={'en-us': 'Example File object',
                      'de': 'Beispiel File Element'},
@@ -138,15 +115,11 @@ def create_example_submodel() -> model.Submodel:
                                                value='http://acplt.org/Files/ExampleFile',
                                                id_type=model.KeyType.IRDI),)),
         qualifier=None,
-        kind=model.ModelingKind.INSTANCE)
+        kind=model.ModelingKind.TEMPLATE)
 
     submodel_element_reference_element = model.ReferenceElement(
         id_short='ExampleReferenceElement',
-        value=model.AASReference((model.Key(type_=model.KeyElements.PROPERTY,
-                                            local=True,
-                                            value='ExampleProperty',
-                                            id_type=model.KeyType.IDSHORT),),
-                                 model.Property),
+        value=None,
         category='PARAMETER',
         description={'en-us': 'Example Reference Element object',
                      'de': 'Beispiel Reference Element Element'},
@@ -156,7 +129,7 @@ def create_example_submodel() -> model.Submodel:
                                                value='http://acplt.org/ReferenceElements/ExampleReferenceElement',
                                                id_type=model.KeyType.IRDI),)),
         qualifier=None,
-        kind=model.ModelingKind.INSTANCE)
+        kind=model.ModelingKind.TEMPLATE)
 
     submodel_element_relationship_element = model.RelationshipElement(
         id_short='ExampleRelationshipElement',
@@ -180,7 +153,7 @@ def create_example_submodel() -> model.Submodel:
                                                      'ExampleRelationshipElement',
                                                id_type=model.KeyType.IRDI),)),
         qualifier=None,
-        kind=model.ModelingKind.INSTANCE)
+        kind=model.ModelingKind.TEMPLATE)
 
     submodel_element_annotated_relationship_element = model.AnnotatedRelationshipElement(
         id_short='ExampleAnnotatedRelationshipElement',
@@ -194,11 +167,7 @@ def create_example_submodel() -> model.Submodel:
                                              value='ExampleProperty',
                                              id_type=model.KeyType.IDSHORT),),
                                   model.Property),
-        annotation={model.AASReference((model.Key(type_=model.KeyElements.PROPERTY,
-                                                  local=True,
-                                                  value='ExampleProperty',
-                                                  id_type=model.KeyType.IDSHORT),),
-                                       model.Property)},
+        annotation=None,
         category='PARAMETER',
         description={'en-us': 'Example AnnotatedRelationshipElement object',
                      'de': 'Beispiel AnnotatedRelationshipElement Element'},
@@ -209,7 +178,7 @@ def create_example_submodel() -> model.Submodel:
                                                      'ExampleAnnotatedRelationshipElement',
                                                id_type=model.KeyType.IRDI),)),
         qualifier=None,
-        kind=model.ModelingKind.INSTANCE)
+        kind=model.ModelingKind.TEMPLATE)
 
     submodel_element_operation_variable_input = model.OperationVariable(
         value=submodel_element_property)
@@ -235,7 +204,7 @@ def create_example_submodel() -> model.Submodel:
                                                      'ExampleOperation',
                                                id_type=model.KeyType.IRDI),)),
         qualifier=None,
-        kind=model.ModelingKind.INSTANCE)
+        kind=model.ModelingKind.TEMPLATE)
 
     submodel_element_capability = model.Capability(
         id_short='ExampleCapability',
@@ -249,7 +218,7 @@ def create_example_submodel() -> model.Submodel:
                                                      'ExampleCapability',
                                                id_type=model.KeyType.IRDI),)),
         qualifier=None,
-        kind=model.ModelingKind.INSTANCE)
+        kind=model.ModelingKind.TEMPLATE)
 
     submodel_element_basic_event = model.BasicEvent(
         id_short='ExampleBasicEvent',
@@ -268,13 +237,14 @@ def create_example_submodel() -> model.Submodel:
                                                      'ExampleBasicEvent',
                                                id_type=model.KeyType.IRDI),)),
         qualifier=None,
-        kind=model.ModelingKind.INSTANCE)
+        kind=model.ModelingKind.TEMPLATE)
 
     submodel_element_submodel_element_collection_ordered = model.SubmodelElementCollectionOrdered(
         id_short='ExampleSubmodelCollectionOrdered',
         value=(submodel_element_property,
                submodel_element_multi_language_property,
-               submodel_element_range),
+               submodel_element_range,
+               submodel_element_range_2),
         category='PARAMETER',
         description={'en-us': 'Example SubmodelElementCollectionOrdered object',
                      'de': 'Beispiel SubmodelElementCollectionOrdered Element'},
@@ -285,7 +255,7 @@ def create_example_submodel() -> model.Submodel:
                                                      'ExampleSubmodelElementCollectionOrdered',
                                                id_type=model.KeyType.IRDI),)),
         qualifier=None,
-        kind=model.ModelingKind.INSTANCE)
+        kind=model.ModelingKind.TEMPLATE)
 
     submodel_element_submodel_element_collection_unordered = model.SubmodelElementCollectionUnordered(
         id_short='ExampleSubmodelCollectionUnordered',
@@ -302,7 +272,22 @@ def create_example_submodel() -> model.Submodel:
                                                      'ExampleSubmodelElementCollectionUnordered',
                                                id_type=model.KeyType.IRDI),)),
         qualifier=None,
-        kind=model.ModelingKind.INSTANCE)
+        kind=model.ModelingKind.TEMPLATE)
+
+    submodel_element_submodel_element_collection_unordered_2 = model.SubmodelElementCollectionUnordered(
+        id_short='ExampleSubmodelCollectionUnordered2',
+        value=(),
+        category='PARAMETER',
+        description={'en-us': 'Example SubmodelElementCollectionUnordered object',
+                     'de': 'Beispiel SubmodelElementCollectionUnordered Element'},
+        parent=None,
+        semantic_id=model.Reference((model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
+                                               local=False,
+                                               value='http://acplt.org/SubmodelElementCollections/'
+                                                     'ExampleSubmodelElementCollectionUnordered',
+                                               id_type=model.KeyType.IRDI),)),
+        qualifier=None,
+        kind=model.ModelingKind.TEMPLATE)
 
     submodel = model.Submodel(
         identification=model.Identifier(id_='https://acplt.org/Test_Submodel',
@@ -313,7 +298,8 @@ def create_example_submodel() -> model.Submodel:
                           submodel_element_capability,
                           submodel_element_basic_event,
                           submodel_element_submodel_element_collection_ordered,
-                          submodel_element_submodel_element_collection_unordered),
+                          submodel_element_submodel_element_collection_unordered,
+                          submodel_element_submodel_element_collection_unordered_2),
         id_short='TestSubmodel',
         category=None,
         description={'en-us': 'An example submodel for the test application',
@@ -327,89 +313,5 @@ def create_example_submodel() -> model.Submodel:
                                                      'ExampleSubmodel',
                                                id_type=model.KeyType.IRDI),)),
         qualifier=None,
-        kind=model.ModelingKind.INSTANCE)
+        kind=model.ModelingKind.TEMPLATE)
     return submodel
-
-
-def create_example_concept_description() -> model.ConceptDescription:
-    """
-    creates an example concept description
-
-    :return: example concept description
-    """
-    concept_description = model.ConceptDescription(
-        identification=model.Identifier(id_='https://acplt.org/Test_ConceptDescription',
-                                        id_type=model.IdentifierType.IRI),
-        is_case_of=None,
-        id_short='TestConceptDescription',
-        category=None,
-        description={'en-us': 'An example concept description  for the test application',
-                     'de': 'Ein Beispiel-ConceptDescription für eine Test-Anwendung'},
-        parent=None,
-        administration=model.AdministrativeInformation(version='0.9',
-                                                       revision='0'))
-    return concept_description
-
-
-def create_example_concept_dictionary() -> model.ConceptDictionary:
-    """
-    creates an example concept dictionary containing an reference to the example concept description
-
-    :return: example concept dictionary
-    """
-    concept_dictionary = model.ConceptDictionary(
-        id_short='TestConceptDictionary',
-        category=None,
-        description={'en-us': 'An example concept dictionary for the test application',
-                     'de': 'Ein Beispiel-ConceptDictionary für eine Test-Anwendung'},
-        parent=None,
-        concept_description={model.AASReference((model.Key(type_=model.KeyElements.CONCEPT_DESCRIPTION,
-                                                           local=False,
-                                                           value='https://acplt.org/Test_ConceptDescription',
-                                                           id_type=model.KeyType.IRDI),),
-                                                model.ConceptDescription)})
-    return concept_dictionary
-
-
-def create_example_asset_administration_shell(concept_dictionary: model.ConceptDictionary) -> \
-        model.AssetAdministrationShell:
-    """
-    creates an example asset administration shell containing references to the example asset and example submodel
-
-    :return: example asset administration shell
-    """
-    view = model.View(
-        id_short='ExampleView',
-        contained_element={model.AASReference((model.Key(type_=model.KeyElements.SUBMODEL,
-                                                         local=False,
-                                                         value='https://acplt.org/Test_Submodel',
-                                                         id_type=model.KeyType.IRDI),),
-                                              model.Submodel)})
-    view_2 = model.View(
-        id_short='ExampleView2')
-
-    asset_administration_shell = model.AssetAdministrationShell(
-        asset=model.AASReference((model.Key(type_=model.KeyElements.ASSET,
-                                            local=False,
-                                            value='https://acplt.org/Test_Asset',
-                                            id_type=model.KeyType.IRDI),),
-                                 model.Asset),
-        identification=model.Identifier(id_='https://acplt.org/Test_AssetAdministrationShell',
-                                        id_type=model.IdentifierType.IRI),
-        id_short='TestAssetAdministrationShell',
-        category=None,
-        description={'en-us': 'An Example Asset Administration Shell for the test application',
-                     'de': 'Ein Beispiel-Verwaltungsschale für eine Test-Anwendung'},
-        parent=None,
-        administration=model.AdministrativeInformation(version='0.9',
-                                                       revision='0'),
-        security_=None,
-        submodel_={model.AASReference((model.Key(type_=model.KeyElements.SUBMODEL,
-                                                 local=False,
-                                                 value='https://acplt.org/Test_Submodel',
-                                                 id_type=model.KeyType.IRDI),),
-                                      model.Submodel)},
-        concept_dictionary=[concept_dictionary],
-        view=[view, view_2],
-        derived_from=None)
-    return asset_administration_shell

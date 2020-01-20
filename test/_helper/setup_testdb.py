@@ -34,7 +34,7 @@ parser.add_argument('--failsafe', '-f', action='store_true',
 args = parser.parse_args()
 
 
-# Some basic helpers for couchdb setup
+# Some basic data for couchdb setup
 default_headers = {
     'Accept': 'application/json',
 }

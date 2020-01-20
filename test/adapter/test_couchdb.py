@@ -19,9 +19,9 @@ import urllib.error
 
 from aas import model
 from aas.adapter import couchdb
-from aas.examples import example_create_aas
+from aas.examples.data import example_aas
 
-from .._helper.helpers import ExampleHelper
+from .._helper.testCase_for_example_aas import ExampleHelper
 
 
 TEST_CONFIG = configparser.ConfigParser()
@@ -62,7 +62,7 @@ class CouchDBTest(ExampleHelper):
         self.db.logout()
 
     def test_example_submodel_storing(self) -> None:
-        example_submodel = example_create_aas.create_example_submodel()
+        example_submodel = example_aas.create_example_submodel()
 
         # Add exmaple submodel
         self.db.add(example_submodel)
@@ -80,7 +80,7 @@ class CouchDBTest(ExampleHelper):
         self.assertNotIn(example_submodel, self.db)
 
     def test_iterating(self) -> None:
-        example_data = example_create_aas.create_full_example()
+        example_data = example_aas.create_full_example()
 
         # Add all objects
         for item in example_data:
@@ -89,13 +89,13 @@ class CouchDBTest(ExampleHelper):
         self.assertEqual(6, len(self.db))
 
         # Iterate objects, add them to a DictObjectStore and check them
-        retrieved_data_store: model.registry.DictObjectStore[model.Identifiable] = model.registry.DictObjectStore()
+        retrieved_data_store: model.provider.DictObjectStore[model.Identifiable] = model.provider.DictObjectStore()
         for item in self.db:
             retrieved_data_store.add(item)
         self.assert_full_example(retrieved_data_store)
 
     def test_parallel_iterating(self) -> None:
-        example_data = example_create_aas.create_full_example()
+        example_data = example_aas.create_full_example()
         ids = [item.identification for item in example_data]
 
         # Add objects via thread pool executor
@@ -109,7 +109,7 @@ class CouchDBTest(ExampleHelper):
         with concurrent.futures.ThreadPoolExecutor() as pool:
             retrieved_objects = pool.map(self.db.get_identifiable, ids)
 
-        retrieved_data_store: model.registry.DictObjectStore[model.Identifiable] = model.registry.DictObjectStore()
+        retrieved_data_store: model.provider.DictObjectStore[model.Identifiable] = model.provider.DictObjectStore()
         for item in retrieved_objects:
             retrieved_data_store.add(item)
         self.assertEqual(6, len(retrieved_data_store))
@@ -124,7 +124,7 @@ class CouchDBTest(ExampleHelper):
 
     def test_key_errors(self) -> None:
         # Double adding an object should raise a KeyError
-        example_submodel = example_create_aas.create_example_submodel()
+        example_submodel = example_aas.create_example_submodel()
         self.db.add(example_submodel)
         with self.assertRaises(KeyError):
             self.db.add(example_submodel)
@@ -142,7 +142,7 @@ class CouchDBTest(ExampleHelper):
 
     def test_conflict_errors(self) -> None:
         # Preperation: add object and retrieve it from the database
-        example_submodel = example_create_aas.create_example_submodel()
+        example_submodel = example_aas.create_example_submodel()
         self.db.add(example_submodel)
         retrieved_submodel = self.db.get_identifiable(
             model.Identifier('https://acplt.org/Test_Submodel', model.IdentifierType.IRI))
@@ -169,7 +169,7 @@ class CouchDBTest(ExampleHelper):
             retrieved_submodel.commit_changes()
 
     def test_editing(self) -> None:
-        example_submodel = example_create_aas.create_example_submodel()
+        example_submodel = example_aas.create_example_submodel()
         self.db.add(example_submodel)
 
         # Retrieve submodel from database and change ExampleCapability's semanticId
