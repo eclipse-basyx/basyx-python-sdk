@@ -15,6 +15,7 @@ Functions to test if an object is the same to the example aas from example_aas.p
 """
 import unittest
 from typing import Optional
+
 from aas import model
 from aas.util import identification
 

@@ -25,9 +25,9 @@ classes.
 """
 import base64
 import inspect
-from typing import List
+from typing import List, Dict, IO
 import json
-from typing import Dict, IO
+
 from ... import model
 
 

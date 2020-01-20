@@ -1,6 +1,11 @@
 """
 This package contains a python implementation of the meta-model of the AssetAdministrationShell.
-The model is divided into 5 modules, splitting it where it in sensible parts.
+The model is divided into 5 modules, splitting it where it in sensible parts. However, all classes (except for the
+specialized Concept Descriptions) are imported into this top-level package, for simple imports like
+
+    from aas.model import AssetAdministrationShell, Asset, Submodel, Property
+
+The different modules are:
 
 aas.py
     The main module, implementing high-level structures, such as AssetAdministrationShell, Asset and ConceptDictionary.
@@ -26,6 +31,7 @@ from .security import *
 from .base import *
 from .submodel import *
 from .provider import *
+from .concept import ConceptDescription, ConceptDictionary
 
 # A mapping of PyI40AAS implementation classes to the corresponding `KeyElements` enum members for all classes that are
 # covered by this enum.
