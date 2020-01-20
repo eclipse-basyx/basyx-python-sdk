@@ -9,9 +9,10 @@
 # "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
 # specific language governing permissions and limitations under the License.
 """
-Tests for the example aas
+Tests for the example aas mandatory attributes
 
-Functions to test if an object is the same to the example aas from example_aas.py
+Functions to test if an object is the same to the example aas mandatory attributes from
+example_aas_mandatory_attributes.py
 """
 import unittest
 from typing import Optional
