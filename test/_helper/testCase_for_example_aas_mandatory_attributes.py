@@ -196,11 +196,11 @@ class ExampleHelper(unittest.TestCase):
         self.assertEqual('ExampleReferenceElement', ref_element.id_short)
 
         # test attributes of empty collection element ExampleSubmodelCollectionUnordered2
-        ordered_collection: model.SubmodelElementCollectionOrdered = \
+        ordered_collection2: model.SubmodelElementCollectionOrdered = \
             submodel.get_referable('ExampleSubmodelCollectionUnordered2')  # type: ignore
-        self.assertIsInstance(ordered_collection, model.SubmodelElementCollectionUnordered)
-        self.assertEqual('ExampleSubmodelCollectionUnordered2', ordered_collection.id_short)
-        self.assertEqual(0, len(ordered_collection.value))
+        self.assertIsInstance(ordered_collection2, model.SubmodelElementCollectionUnordered)
+        self.assertEqual('ExampleSubmodelCollectionUnordered2', ordered_collection2.id_short)
+        self.assertEqual(0, len(ordered_collection2.value))
 
     def assert_example_empty_submodel(self, submodel: model.Submodel) -> None:
         # Test attributes of Submodel
