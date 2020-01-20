@@ -210,8 +210,7 @@ class AASFromJsonDecoder(json.JSONDecoder):
     def _amend_abstract_attributes(cls, obj: object, dct: Dict[str, object]) -> None:
         """
         Utility method to add the optional attributes of the abstract meta classes Referable, Identifiable,
-        HasDataSpecification, HasSemantics, HasKind and Qualifiable to an object inheriting from any of these classes,
-        if present
+        HasSemantics, HasKind and Qualifiable to an object inheriting from any of these classes, if present
 
         :param obj: The object to amend its attributes
         :param dct: The object's dict representation from JSON
@@ -226,19 +225,6 @@ class AASFromJsonDecoder(json.JSONDecoder):
                 obj.id_short = _get_ts(dct, 'idShort', str)
             if 'administration' in dct:
                 obj.administration = cls._construct_administrative_information(_get_ts(dct, 'administration', dict))
-        if isinstance(obj, model.HasDataSpecification):
-            if 'embeddedDataSpecification' in dct:
-                for data_spec_data in _get_ts(dct, 'embeddedDataSpecification', list):
-                    try:
-                        obj.data_specification.add(cls._construct_reference(data_spec_data))
-                    except (KeyError, TypeError) as e:
-                        error_message = \
-                            "Error while trying to convert JSON object into DataSpecification for {}: {} >>> {}".format(
-                                obj, e, pprint.pformat(dct, depth=2, width=2 ** 14, compact=True))
-                        if cls.failsafe:
-                            logger.error(error_message, exc_info=e)
-                        else:
-                            raise type(e)(error_message) from e
         if isinstance(obj, model.HasSemantics):
             if 'semanticId' in dct:
                 obj.semantic_id = cls._construct_reference(_get_ts(dct, 'semanticId', dict))

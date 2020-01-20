@@ -27,7 +27,7 @@ if TYPE_CHECKING:
     from . import submodel
 
 
-class View(base.Referable, base.HasDataSpecification, base.HasSemantics):
+class View(base.Referable, base.HasSemantics):
     """
     A view is a collection of referable elements w.r.t. to a specific viewpoint of one or more stakeholders.
 
@@ -41,7 +41,6 @@ class View(base.Referable, base.HasDataSpecification, base.HasSemantics):
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
                  parent: Optional[base.Namespace] = None,
-                 data_specification: Optional[Set[base.Reference]] = None,
                  semantic_id: Optional[base.Reference] = None):
         """
         Initializer of View
@@ -53,8 +52,6 @@ class View(base.Referable, base.HasDataSpecification, base.HasSemantics):
                          (from base.Referable)
         :param description: Description or comments on the element. (from base.Referable)
         :param parent: Reference to the next referable parent element of the element. (from base.Referable)
-        :param data_specification: Unordered list of global references to the data specification template used by the
-                                   element. (from base.HasDataSpecification)
         :param semantic_id: Identifier of the semantic definition of the element. It is called semantic id of the
                             element. The semantic id may either reference an external global id or it may reference a
                             referable model element of kind=Type that defines the semantics of the element.
@@ -68,12 +65,10 @@ class View(base.Referable, base.HasDataSpecification, base.HasSemantics):
         self.category: Optional[str] = category
         self.description: Optional[base.LangStringSet] = description
         self.parent: Optional[base.Namespace] = parent
-        self.data_specification: Set[base.Reference] = set() \
-            if data_specification is None else data_specification
         self.semantic_id: Optional[base.Reference] = semantic_id
 
 
-class Asset(base.HasDataSpecification, base.Identifiable):
+class Asset(base.Identifiable):
     """
     An Asset describes meta data of an asset that is represented by an AAS
 
@@ -96,7 +91,6 @@ class Asset(base.HasDataSpecification, base.Identifiable):
                  description: Optional[base.LangStringSet] = None,
                  parent: Optional[base.Namespace] = None,
                  administration: Optional[base.AdministrativeInformation] = None,
-                 data_specification: Optional[Set[base.Reference]] = None,
                  asset_identification_model: Optional[base.AASReference["submodel.Submodel"]] = None,
                  bill_of_material: Optional[base.AASReference["submodel.Submodel"]] = None):
         """
@@ -111,8 +105,6 @@ class Asset(base.HasDataSpecification, base.Identifiable):
         :param description: Description or comments on the element. (from base.Referable)
         :param parent: Reference to the next referable parent element of the element. (from base.Referable)
         :param administration: Administrative information of an identifiable element. (from base.Identifiable)
-        :param data_specification: Unordered list of global references to the data specification template used by the
-                                   element. (from base.HasDataSpecification)
         :param asset_identification_model: A reference to a Submodel that defines the handling of additional domain
                                            specific (proprietary) Identifiers for the asset like e.g. serial number etc
         :param bill_of_material: Bill of material of the asset represented by a submodel of the same AAS. This submodel
@@ -127,13 +119,11 @@ class Asset(base.HasDataSpecification, base.Identifiable):
         self.description: Optional[base.LangStringSet] = description
         self.parent: Optional[base.Namespace] = parent
         self.administration: Optional[base.AdministrativeInformation] = administration
-        self.data_specification: Set[base.Reference] = set() \
-            if data_specification is None else data_specification
         self.asset_identification_model: Optional[base.AASReference["submodel.Submodel"]] = asset_identification_model
         self.bill_of_material: Optional[base.AASReference["submodel.Submodel"]] = bill_of_material
 
 
-class ConceptDescription(base.HasDataSpecification, base.Identifiable):
+class ConceptDescription(base.Identifiable):
     """
     The semantics of a property or other elements that may have a semantic description is defined by a concept
     description.
@@ -152,8 +142,7 @@ class ConceptDescription(base.HasDataSpecification, base.Identifiable):
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
                  parent: Optional[base.Namespace] = None,
-                 administration: Optional[base.AdministrativeInformation] = None,
-                 data_specification: Optional[Set[base.Reference]] = None):
+                 administration: Optional[base.AdministrativeInformation] = None):
         """
         Initializer of ConceptDescription
 
@@ -168,8 +157,6 @@ class ConceptDescription(base.HasDataSpecification, base.Identifiable):
         :param description: Description or comments on the element. (from base.Referable)
         :param parent: Reference to the next referable parent element of the element. (from base.Referable)
         :param administration: Administrative information of an identifiable element. (from base.Identifiable)
-        :param data_specification: Unordered list of global references to the data specification template used by the
-                                   element. (from base.HasDataSpecification)
         """
         super().__init__()
         self.identification: base.Identifier = identification
@@ -179,8 +166,6 @@ class ConceptDescription(base.HasDataSpecification, base.Identifiable):
         self.description: Optional[base.LangStringSet] = description
         self.parent: Optional[base.Namespace] = parent
         self.administration: Optional[base.AdministrativeInformation] = administration
-        self.data_specification: Set[base.Reference] = set() \
-            if data_specification is None else data_specification
 
 
 class ConceptDictionary(base.Referable):
@@ -221,7 +206,7 @@ class ConceptDictionary(base.Referable):
             set() if concept_description is None else concept_description
 
 
-class AssetAdministrationShell(base.HasDataSpecification, base.Identifiable, base.Namespace):
+class AssetAdministrationShell(base.Identifiable, base.Namespace):
     """
     An Asset Administration Shell
 
@@ -241,7 +226,6 @@ class AssetAdministrationShell(base.HasDataSpecification, base.Identifiable, bas
                  description: Optional[base.LangStringSet] = None,
                  parent: Optional[base.Namespace] = None,
                  administration: Optional[base.AdministrativeInformation] = None,
-                 data_specification: Optional[Set[base.Reference]] = None,
                  security_: Optional[security.Security] = None,
                  submodel_: Optional[Set[base.AASReference["submodel.Submodel"]]] = None,
                  concept_dictionary: Iterable[ConceptDictionary] = (),
@@ -258,8 +242,6 @@ class AssetAdministrationShell(base.HasDataSpecification, base.Identifiable, bas
         :param description: Description or comments on the element. (from base.Referable)
         :param parent: Reference to the next referable parent element of the element. (from base.Referable)
         :param administration: Administrative information of an identifiable element. (from base.Identifiable)
-        :param data_specification: Unordered list of global references to the data specification template used by the
-                                   element. (from base.HasDataSpecification)
         :param security_: Definition of the security relevant aspects of the AAS.
         :param submodel_: Unordered list of submodels to describe typically the asset of an AAS.
         :param concept_dictionary: Unordered list of concept dictionaries. The concept dictionaries typically contain
@@ -275,8 +257,6 @@ class AssetAdministrationShell(base.HasDataSpecification, base.Identifiable, bas
         self.description: Optional[base.LangStringSet] = description
         self.parent: Optional[base.Namespace] = parent
         self.administration: Optional[base.AdministrativeInformation] = administration
-        self.data_specification: Set[base.Reference] = set() \
-            if data_specification is None else data_specification
         self.derived_from: Optional[base.AASReference["AssetAdministrationShell"]] = derived_from
         self.security_: Optional[security.Security] = security_
         self.asset: base.AASReference[Asset] = asset

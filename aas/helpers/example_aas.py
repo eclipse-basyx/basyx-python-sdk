@@ -84,7 +84,6 @@ def create_example_asset_identification_submodel() -> model.Submodel:
                            'Herstellung und Verpackung sowie die Etikettierung eines Produkts im Hinblick auf das '
                            '\'Inverkehrbringen\' im eigenen Namen verantwortlich ist'},
         parent=None,
-        data_specification=None,
         semantic_id=model.Reference((model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
                                                local=False,
                                                value='0173-1#02-AAO677#002',
@@ -110,7 +109,6 @@ def create_example_asset_identification_submodel() -> model.Submodel:
                            'Herstellung und Verpackung sowie die Etikettierung eines Produkts im Hinblick auf das '
                            '\'Inverkehrbringen\' im eigenen Namen verantwortlich ist'},
         parent=None,
-        data_specification=None,
         semantic_id=model.Reference((model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
                                                local=False,
                                                value='http://opcfoundation.org/UA/DI/1.1/DeviceType/Serialnumber',
@@ -131,11 +129,6 @@ def create_example_asset_identification_submodel() -> model.Submodel:
         parent=None,
         administration=model.AdministrativeInformation(version='0.9',
                                                        revision='0'),
-        data_specification={model.Reference((model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
-                                                       local=False,
-                                                       value='http://acplt.org/DataSpecifications/Submodels/'
-                                                             'AssetIdentification',
-                                                       id_type=model.KeyType.IRDI),))},
         semantic_id=model.Reference((model.Key(type_=model.KeyElements.SUBMODEL,
                                                local=False,
                                                value='http://acplt.org/SubmodelTemplates/AssetIdentification',
@@ -164,7 +157,6 @@ def create_example_bill_of_material_submodel() -> model.Submodel:
         description={'en-us': 'Example Property object',
                      'de': 'Beispiel Property Element'},
         parent=None,
-        data_specification=None,
         semantic_id=model.Reference((model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
                                                local=False,
                                                value='http://acplt.org/Properties/ExampleProperty',
@@ -184,7 +176,6 @@ def create_example_bill_of_material_submodel() -> model.Submodel:
         description={'en-us': 'Example Property object',
                      'de': 'Beispiel Property Element'},
         parent=None,
-        data_specification=None,
         semantic_id=model.Reference((model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
                                                local=False,
                                                value='http://acplt.org/Properties/ExampleProperty',
@@ -205,7 +196,6 @@ def create_example_bill_of_material_submodel() -> model.Submodel:
                            'Herstellung und Verpackung sowie die Etikettierung eines Produkts im Hinblick auf das '
                            '\'Inverkehrbringen\' im eigenen Namen verantwortlich ist'},
         parent=None,
-        data_specification=None,
         semantic_id=model.Reference((model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
                                                local=False,
                                                value='http://opcfoundation.org/UA/DI/1.1/DeviceType/Serialnumber',
@@ -231,7 +221,6 @@ def create_example_bill_of_material_submodel() -> model.Submodel:
                            'Herstellung und Verpackung sowie die Etikettierung eines Produkts im Hinblick auf das '
                            '\'Inverkehrbringen\' im eigenen Namen verantwortlich ist'},
         parent=None,
-        data_specification=None,
         semantic_id=model.Reference((model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
                                                local=False,
                                                value='http://opcfoundation.org/UA/DI/1.1/DeviceType/Serialnumber',
@@ -252,11 +241,6 @@ def create_example_bill_of_material_submodel() -> model.Submodel:
                      'de': 'Ein Beispiel-BillofMaterial-Submodel für eine Test-Anwendung'},
         parent=None,
         administration=model.AdministrativeInformation(version='0.9'),
-        data_specification={model.Reference((model.Key(type_=model.KeyElements.ASSET,
-                                                       local=False,
-                                                       value='http://acplt.org/DataSpecifications/Submodels/'
-                                                             'BillOfMaterial',
-                                                       id_type=model.KeyType.IRDI),))},
         semantic_id=model.Reference((model.Key(type_=model.KeyElements.SUBMODEL,
                                                local=False,
                                                value='http://acplt.org/SubmodelTemplates/BillOfMaterial',
@@ -284,11 +268,6 @@ def create_example_asset() -> model.Asset:
         parent=None,
         administration=model.AdministrativeInformation(version='0.9',
                                                        revision='0'),
-        data_specification={model.Reference((model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
-                                                       local=False,
-                                                       value='http://acplt.org/DataSpecifications/AssetTypes/'
-                                                             'TestAsset',
-                                                       id_type=model.KeyType.IRDI),))},
         asset_identification_model=model.AASReference((model.Key(type_=model.KeyElements.SUBMODEL,
                                                                  local=False,
                                                                  value='http://acplt.org/Submodels/Assets/'
@@ -322,7 +301,6 @@ def create_example_submodel() -> model.Submodel:
         description={'en-us': 'Example Property object',
                      'de': 'Beispiel Property Element'},
         parent=None,
-        data_specification=None,
         semantic_id=model.Reference((model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
                                                local=False,
                                                value='http://acplt.org/Properties/ExampleProperty',
@@ -342,7 +320,6 @@ def create_example_submodel() -> model.Submodel:
         description={'en-us': 'Example MultiLanguageProperty object',
                      'de': 'Beispiel MulitLanguageProperty Element'},
         parent=None,
-        data_specification=None,
         semantic_id=model.Reference((model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
                                                local=False,
                                                value='http://acplt.org/MultiLanguageProperties/'
@@ -360,7 +337,6 @@ def create_example_submodel() -> model.Submodel:
         description={'en-us': 'Example Range object',
                      'de': 'Beispiel Range Element'},
         parent=None,
-        data_specification=None,
         semantic_id=model.Reference((model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
                                                local=False,
                                                value='http://acplt.org/Ranges/ExampleRange',
@@ -376,7 +352,6 @@ def create_example_submodel() -> model.Submodel:
         description={'en-us': 'Example Blob object',
                      'de': 'Beispiel Blob Element'},
         parent=None,
-        data_specification=None,
         semantic_id=model.Reference((model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
                                                local=False,
                                                value='http://acplt.org/Blobs/ExampleBlob',
@@ -392,7 +367,6 @@ def create_example_submodel() -> model.Submodel:
         description={'en-us': 'Example File object',
                      'de': 'Beispiel File Element'},
         parent=None,
-        data_specification=None,
         semantic_id=model.Reference((model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
                                                local=False,
                                                value='http://acplt.org/Files/ExampleFile',
@@ -411,7 +385,6 @@ def create_example_submodel() -> model.Submodel:
         description={'en-us': 'Example Reference Element object',
                      'de': 'Beispiel Reference Element Element'},
         parent=None,
-        data_specification=None,
         semantic_id=model.Reference((model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
                                                local=False,
                                                value='http://acplt.org/ReferenceElements/ExampleReferenceElement',
@@ -435,7 +408,6 @@ def create_example_submodel() -> model.Submodel:
         description={'en-us': 'Example RelationshipElement object',
                      'de': 'Beispiel RelationshipElement Element'},
         parent=None,
-        data_specification=None,
         semantic_id=model.Reference((model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
                                                local=False,
                                                value='http://acplt.org/RelationshipElements/'
@@ -465,7 +437,6 @@ def create_example_submodel() -> model.Submodel:
         description={'en-us': 'Example AnnotatedRelationshipElement object',
                      'de': 'Beispiel AnnotatedRelationshipElement Element'},
         parent=None,
-        data_specification=None,
         semantic_id=model.Reference((model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
                                                local=False,
                                                value='http://acplt.org/RelationshipElements/'
@@ -492,7 +463,6 @@ def create_example_submodel() -> model.Submodel:
         description={'en-us': 'Example Operation object',
                      'de': 'Beispiel Operation Element'},
         parent=None,
-        data_specification=None,
         semantic_id=model.Reference((model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
                                                local=False,
                                                value='http://acplt.org/Operations/'
@@ -507,7 +477,6 @@ def create_example_submodel() -> model.Submodel:
         description={'en-us': 'Example Capability object',
                      'de': 'Beispiel Capability Element'},
         parent=None,
-        data_specification=None,
         semantic_id=model.Reference((model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
                                                local=False,
                                                value='http://acplt.org/Capabilities/'
@@ -527,7 +496,6 @@ def create_example_submodel() -> model.Submodel:
         description={'en-us': 'Example BasicEvent object',
                      'de': 'Beispiel BasicEvent Element'},
         parent=None,
-        data_specification=None,
         semantic_id=model.Reference((model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
                                                local=False,
                                                value='http://acplt.org/Events/'
@@ -545,7 +513,6 @@ def create_example_submodel() -> model.Submodel:
         description={'en-us': 'Example SubmodelElementCollectionOrdered object',
                      'de': 'Beispiel SubmodelElementCollectionOrdered Element'},
         parent=None,
-        data_specification=None,
         semantic_id=model.Reference((model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
                                                local=False,
                                                value='http://acplt.org/SubmodelElementCollections/'
@@ -563,7 +530,6 @@ def create_example_submodel() -> model.Submodel:
         description={'en-us': 'Example SubmodelElementCollectionUnordered object',
                      'de': 'Beispiel SubmodelElementCollectionUnordered Element'},
         parent=None,
-        data_specification=None,
         semantic_id=model.Reference((model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
                                                local=False,
                                                value='http://acplt.org/SubmodelElementCollections/'
@@ -589,11 +555,6 @@ def create_example_submodel() -> model.Submodel:
         parent=None,
         administration=model.AdministrativeInformation(version='0.9',
                                                        revision='0'),
-        data_specification={model.Reference((model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
-                                                       local=False,
-                                                       value='http://acplt.org/DataSpecifications/Submodels/'
-                                                             'TestSubmodel',
-                                                       id_type=model.KeyType.IRDI),))},
         semantic_id=model.Reference((model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
                                                local=False,
                                                value='http://acplt.org/SubmodelTemplates/'
@@ -624,12 +585,7 @@ def create_example_concept_description() -> model.ConceptDescription:
                      'de': 'Ein Beispiel-ConceptDescription für eine Test-Anwendung'},
         parent=None,
         administration=model.AdministrativeInformation(version='0.9',
-                                                       revision='0'),
-        data_specification={model.Reference((model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
-                                                       local=False,
-                                                       value='http://acplt.org/DataSpecifications/'
-                                                             'ConceptDescriptions/TestConceptDescription',
-                                                       id_type=model.KeyType.IRDI),))})
+                                                       revision='0'))
     return concept_description
 
 
@@ -676,7 +632,6 @@ def create_example_asset_administration_shell(concept_dictionary: model.ConceptD
         parent=None,
         administration=model.AdministrativeInformation(version='0.9',
                                                        revision='0'),
-        data_specification=None,
         security_=None,
         submodel_={model.AASReference((model.Key(type_=model.KeyElements.SUBMODEL,
                                                  local=False,

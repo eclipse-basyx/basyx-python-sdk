@@ -32,12 +32,6 @@ class ExampleHelper(unittest.TestCase):
         self.assertIsNone(submodel.parent)
         self.assertEqual('0.9', submodel.administration.version)  # type: ignore
         self.assertEqual('0', submodel.administration.revision)  # type: ignore
-        self.assertEqual(1, len(submodel.data_specification))
-        self.assertEqual(True, identification.find_reference_in_set(model.Reference((
-                    model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
-                              local=False,
-                              value='http://acplt.org/DataSpecifications/Submodels/AssetIdentification',
-                              id_type=model.KeyType.IRDI),)), submodel.data_specification))
         self.assertEqual(submodel.semantic_id, model.Reference((
             model.Key(type_=model.KeyElements.SUBMODEL,
                       local=False,
@@ -66,7 +60,6 @@ class ExampleHelper(unittest.TestCase):
                                 'das \'Inverkehrbringen\' im eigenen Namen verantwortlich ist'},
                          manufacturer_name.description)
         self.assertIs(manufacturer_name.parent, submodel)
-        self.assertEqual(0, len(manufacturer_name.data_specification))
         self.assertEqual(manufacturer_name.semantic_id, model.Reference((
             model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
                       local=False,
@@ -128,12 +121,6 @@ class ExampleHelper(unittest.TestCase):
         self.assertIsNone(submodel.parent)
         self.assertEqual('0.9', submodel.administration.version)  # type: ignore
         self.assertIsNone(submodel.administration.revision)  # type: ignore
-        self.assertEqual(1, len(submodel.data_specification))
-        self.assertEqual(True, identification.find_reference_in_set(model.Reference((
-                    model.Key(type_=model.KeyElements.ASSET,
-                              local=False,
-                              value='http://acplt.org/DataSpecifications/Submodels/BillOfMaterial',
-                              id_type=model.KeyType.IRDI),)), submodel.data_specification))
         self.assertEqual(submodel.semantic_id, model.Reference((
             model.Key(type_=model.KeyElements.SUBMODEL,
                       local=False,
@@ -157,7 +144,6 @@ class ExampleHelper(unittest.TestCase):
                                 '\'Inverkehrbringen\' im eigenen Namen verantwortlich ist'},
                          example_entity.description)
         self.assertIs(example_entity.parent, submodel)
-        self.assertEqual(0, len(example_entity.data_specification))
         self.assertEqual(example_entity.semantic_id, model.Reference((
             model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
                       local=False,
@@ -181,7 +167,6 @@ class ExampleHelper(unittest.TestCase):
         self.assertEqual({'en-us': 'Example Property object', 'de': 'Beispiel Property Element'},
                          example_property.description)
         self.assertIs(example_property.parent, example_entity)
-        self.assertEqual(0, len(example_property.data_specification))
         self.assertEqual(example_property.semantic_id, model.Reference((
             model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
                       local=False,
@@ -205,7 +190,6 @@ class ExampleHelper(unittest.TestCase):
         self.assertEqual({'en-us': 'Example Property object', 'de': 'Beispiel Property Element'},
                          example_property2.description)
         self.assertIs(example_property2.parent, example_entity)
-        self.assertEqual(0, len(example_property2.data_specification))
         self.assertEqual(example_property2.semantic_id, model.Reference((
             model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
                       local=False,
@@ -234,7 +218,6 @@ class ExampleHelper(unittest.TestCase):
                                 '\'Inverkehrbringen\' im eigenen Namen verantwortlich ist'},
                          example_entity2.description)
         self.assertIs(example_entity2.parent, submodel)
-        self.assertEqual(0, len(example_entity2.data_specification))
         self.assertEqual(example_entity2.semantic_id, model.Reference((
             model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
                       local=False,
@@ -255,12 +238,6 @@ class ExampleHelper(unittest.TestCase):
         self.assertIsNone(asset.parent)
         self.assertEqual('0.9', asset.administration.version)  # type: ignore
         self.assertEqual('0', asset.administration.revision)  # type: ignore
-        self.assertEqual(1, len(asset.data_specification))
-        self.assertEqual(True, identification.find_reference_in_set(model.Reference((
-                    model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
-                              local=False,
-                              value='http://acplt.org/DataSpecifications/AssetTypes/TestAsset',
-                              id_type=model.KeyType.IRDI),)), asset.data_specification))
         self.assertEqual(asset.asset_identification_model, model.Reference((
             model.Key(type_=model.KeyElements.SUBMODEL,
                       local=False,
@@ -290,12 +267,6 @@ class ExampleHelper(unittest.TestCase):
         self.assertIsNone(concept_description.parent)
         self.assertEqual('0.9', concept_description.administration.version)  # type: ignore
         self.assertEqual('0', concept_description.administration.revision)  # type: ignore
-        self.assertEqual(1, len(concept_description.data_specification))
-        self.assertEqual(True, identification.find_reference_in_set(model.Reference((
-                    model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
-                              local=False,
-                              value='http://acplt.org/DataSpecifications/ConceptDescriptions/TestConceptDescription',
-                              id_type=model.KeyType.IRDI),)), concept_description.data_specification))
 
     def assert_example_concept_dictionary(self, concept_dictionary: model.ConceptDictionary,
                                           shell: Optional[model.AssetAdministrationShell] = None) -> None:
@@ -333,7 +304,6 @@ class ExampleHelper(unittest.TestCase):
         self.assertIsNone(shell.parent)
         self.assertEqual('0.9', shell.administration.version)  # type: ignore
         self.assertEqual('0', shell.administration.revision)  # type: ignore
-        self.assertEqual(0, len(shell.data_specification))
         self.assertIsNone(shell.security_)
         self.assertEqual(1, len(shell.submodel_))
         self.assertEqual(True, identification.find_reference_in_set(model.AASReference((
@@ -366,12 +336,6 @@ class ExampleHelper(unittest.TestCase):
         self.assertIsNone(submodel.parent)
         self.assertEqual('0.9', submodel.administration.version)  # type: ignore
         self.assertEqual('0', submodel.administration.revision)  # type: ignore
-        self.assertEqual(1, len(submodel.data_specification))
-        self.assertEqual(True, identification.find_reference_in_set(model.Reference((
-                    model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
-                              local=False,
-                              value='http://acplt.org/DataSpecifications/Submodels/TestSubmodel',
-                              id_type=model.KeyType.IRDI),)), submodel.data_specification))
         self.assertEqual(submodel.semantic_id, model.Reference((
             model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
                       local=False,
@@ -400,7 +364,6 @@ class ExampleHelper(unittest.TestCase):
         self.assertEqual({'en-us': 'Example RelationshipElement object', 'de': 'Beispiel RelationshipElement Element'},
                          rel_element.description)
         self.assertIs(rel_element.parent, submodel)
-        self.assertEqual(0, len(rel_element.data_specification))
         self.assertEqual(rel_element.semantic_id, model.Reference((
             model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
                       local=False,
@@ -437,7 +400,6 @@ class ExampleHelper(unittest.TestCase):
         self.assertEqual({'en-us': 'Example AnnotatedRelationshipElement object',
                           'de': 'Beispiel AnnotatedRelationshipElement Element'}, rel_element_annotated.description)
         self.assertIs(rel_element_annotated.parent, submodel)
-        self.assertEqual(0, len(rel_element_annotated.data_specification))
         self.assertEqual(rel_element_annotated.semantic_id, model.Reference((
             model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
                       local=False,
@@ -457,7 +419,6 @@ class ExampleHelper(unittest.TestCase):
         self.assertEqual({'en-us': 'Example Operation object',
                           'de': 'Beispiel Operation Element'}, operation_element.description)
         self.assertIs(operation_element.parent, submodel)
-        self.assertEqual(0, len(operation_element.data_specification))
         self.assertEqual(operation_element.semantic_id, model.Reference((
             model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
                       local=False,
@@ -474,7 +435,6 @@ class ExampleHelper(unittest.TestCase):
         self.assertEqual({'en-us': 'Example Capability object',
                           'de': 'Beispiel Capability Element'}, capability_element.description)
         self.assertIs(capability_element.parent, submodel)
-        self.assertEqual(0, len(capability_element.data_specification))
         self.assertEqual(capability_element.semantic_id, model.Reference((
             model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
                       local=False,
@@ -497,7 +457,6 @@ class ExampleHelper(unittest.TestCase):
         self.assertEqual({'en-us': 'Example BasicEvent object',
                           'de': 'Beispiel BasicEvent Element'}, basic_event_element.description)
         self.assertIs(basic_event_element.parent, submodel)
-        self.assertEqual(0, len(basic_event_element.data_specification))
         self.assertEqual(basic_event_element.semantic_id, model.Reference((
             model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
                       local=False,
@@ -516,7 +475,6 @@ class ExampleHelper(unittest.TestCase):
         self.assertEqual({'en-us': 'Example SubmodelElementCollectionOrdered object',
                           'de': 'Beispiel SubmodelElementCollectionOrdered Element'}, ordered_collection.description)
         self.assertIs(ordered_collection.parent, submodel)
-        self.assertEqual(0, len(ordered_collection.data_specification))
         self.assertEqual(ordered_collection.semantic_id, model.Reference((
             model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
                       local=False,
@@ -541,7 +499,6 @@ class ExampleHelper(unittest.TestCase):
         self.assertEqual({'en-us': 'Example Property object', 'de': 'Beispiel Property Element'},
                          example_property.description)
         self.assertIs(example_property.parent, ordered_collection)
-        self.assertEqual(0, len(example_property.data_specification))
         self.assertEqual(example_property.semantic_id, model.Reference((
             model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
                       local=False,
@@ -567,7 +524,6 @@ class ExampleHelper(unittest.TestCase):
                           'de': 'Beispiel MulitLanguageProperty Element'},
                          example_ml_property.description)
         self.assertIs(example_ml_property.parent, ordered_collection)
-        self.assertEqual(0, len(example_ml_property.data_specification))
         self.assertEqual(example_ml_property.semantic_id, model.Reference((
             model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
                       local=False,
@@ -587,7 +543,6 @@ class ExampleHelper(unittest.TestCase):
         self.assertEqual({'en-us': 'Example Range object', 'de': 'Beispiel Range Element'},
                          range_element.description)
         self.assertIs(range_element.parent, ordered_collection)
-        self.assertEqual(0, len(range_element.data_specification))
         self.assertEqual(range_element.semantic_id, model.Reference((
             model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
                       local=False,
@@ -607,7 +562,6 @@ class ExampleHelper(unittest.TestCase):
                           'de': 'Beispiel SubmodelElementCollectionUnordered Element'},
                          unordered_collection.description)
         self.assertIs(unordered_collection.parent, submodel)
-        self.assertEqual(0, len(unordered_collection.data_specification))
         self.assertEqual(unordered_collection.semantic_id, model.Reference((
             model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
                       local=False,
@@ -626,7 +580,6 @@ class ExampleHelper(unittest.TestCase):
         self.assertEqual({'en-us': 'Example Blob object', 'de': 'Beispiel Blob Element'},
                          blob_element.description)
         self.assertIs(blob_element.parent, unordered_collection)
-        self.assertEqual(0, len(blob_element.data_specification))
         self.assertEqual(blob_element.semantic_id, model.Reference((
             model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
                       local=False,
@@ -645,7 +598,6 @@ class ExampleHelper(unittest.TestCase):
         self.assertEqual({'en-us': 'Example File object', 'de': 'Beispiel File Element'},
                          file_element.description)
         self.assertIs(file_element.parent, unordered_collection)
-        self.assertEqual(0, len(file_element.data_specification))
         self.assertEqual(file_element.semantic_id, model.Reference((
             model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
                       local=False,
@@ -669,7 +621,6 @@ class ExampleHelper(unittest.TestCase):
         self.assertEqual({'en-us': 'Example Reference Element object', 'de': 'Beispiel Reference Element Element'},
                          ref_element.description)
         self.assertIs(ref_element.parent, unordered_collection)
-        self.assertEqual(0, len(ref_element.data_specification))
         self.assertEqual(ref_element.semantic_id, model.Reference((
             model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
                       local=False,

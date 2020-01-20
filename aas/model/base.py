@@ -370,22 +370,6 @@ class Identifier:
         return "{}={}".format(self.id_type.name, self.id)
 
 
-class HasDataSpecification(metaclass=abc.ABCMeta):
-    """
-    Element that can have data specification templates. A template defines the additional attributes an element may or
-    shall have. The data specifications used are explicitly specified with their global id.
-
-    << abstract >>
-
-    :ivar data_specification: Unordered list of global references to the data specification template used by the
-                              element.
-    """
-
-    def __init__(self):
-        super().__init__()
-        self.data_specification: Set[Reference] = set()
-
-
 class Referable(metaclass=abc.ABCMeta):
     """
     An element that is referable by its id_short. This id is not globally unique. This id is unique within

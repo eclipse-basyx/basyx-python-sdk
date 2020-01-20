@@ -110,9 +110,6 @@ def abstract_classes_to_json(obj: object) -> Dict[str, object]:
         data['identification'] = obj.identification
         if obj.administration:
             data['administration'] = obj.administration
-    if isinstance(obj, model.HasDataSpecification):
-        if obj.data_specification:
-            data['embeddedDataSpecification'] = list(obj.data_specification)
     if isinstance(obj, model.HasSemantics):
         if obj.semantic_id:
             data['semanticId'] = obj.semantic_id
