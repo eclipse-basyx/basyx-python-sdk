@@ -57,8 +57,6 @@ def create_example_submodel() -> model.Submodel:
 
     :return: example submodel
     """
-    formula = model.Formula()
-
     qualifier = model.Qualifier(
         type_='http://acplt.org/Qualifier/ExampleQualifier',
         value_type='string')
@@ -76,7 +74,7 @@ def create_example_submodel() -> model.Submodel:
                                                local=False,
                                                value='http://acplt.org/Properties/ExampleProperty',
                                                id_type=model.KeyType.IRDI),)),
-        qualifier={formula, qualifier},
+        qualifier={qualifier},
         kind=model.ModelingKind.INSTANCE)
 
     submodel_element_multi_language_property = model.MultiLanguageProperty(

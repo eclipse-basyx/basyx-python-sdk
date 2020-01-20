@@ -21,212 +21,6 @@ from aas.util import identification
 
 
 class ExampleHelper(unittest.TestCase):
-    def assert_example_asset_identification_submodel(self, submodel: model.Submodel) -> None:
-        # Test attributes of Submodel
-        self.assertEqual('http://acplt.org/Submodels/Assets/TestAsset/Identification', submodel.identification.id)
-        self.assertEqual(model.IdentifierType.IRI, submodel.identification.id_type)
-        self.assertEqual(2, len(submodel.submodel_element))
-        self.assertEqual('Identification', submodel.id_short)
-        self.assertIsNone(submodel.category)
-        self.assertEqual({'en-us': 'An example asset identification submodel for the test application',
-                          'de': 'Ein Beispiel-Identifikations-Submodel für eine Test-Anwendung'}, submodel.description)
-        self.assertIsNone(submodel.parent)
-        self.assertEqual('0.9', submodel.administration.version)  # type: ignore
-        self.assertEqual('0', submodel.administration.revision)  # type: ignore
-        self.assertEqual(submodel.semantic_id, model.Reference((
-            model.Key(type_=model.KeyElements.SUBMODEL,
-                      local=False,
-                      value='http://acplt.org/SubmodelTemplates/AssetIdentification',
-                      id_type=model.KeyType.IRDI),)))
-        self.assertEqual(0, len(submodel.qualifier))
-        self.assertEqual(model.ModelingKind.INSTANCE, submodel.kind)
-
-        # test attributes of property ManufacturerName
-        manufacturer_name: model.Property = submodel.get_referable('ManufacturerName')  # type: ignore
-        self.assertIsInstance(manufacturer_name, model.Property)
-        self.assertEqual('ManufacturerName', manufacturer_name.id_short)
-        self.assertEqual('string', manufacturer_name.value_type)
-        self.assertEqual('ACPLT', manufacturer_name.value)
-        self.assertEqual(manufacturer_name.value_id, model.Reference((
-            model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
-                      local=False,
-                      value='http://acplt.org/ValueId/ExampleValueId',
-                      id_type=model.KeyType.IRDI),)))
-        self.assertIsNone(manufacturer_name.category)
-        self.assertEqual({'en-us': 'Legally valid designation of the natural or judicial person which is directly '
-                                   'responsible for the design, production, packaging and labeling of a product in '
-                                   'respect to its being brought into circulation.',
-                          'de': 'Bezeichnung für eine natürliche oder juristische Person, die für die Auslegung, '
-                                'Herstellung und Verpackung sowie die Etikettierung eines Produkts im Hinblick auf '
-                                'das \'Inverkehrbringen\' im eigenen Namen verantwortlich ist'},
-                         manufacturer_name.description)
-        self.assertIs(manufacturer_name.parent, submodel)
-        self.assertEqual(manufacturer_name.semantic_id, model.Reference((
-            model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
-                      local=False,
-                      value='0173-1#02-AAO677#002',
-                      id_type=model.KeyType.IRDI),)))
-        self.assertEqual(2, len(manufacturer_name.qualifier))
-        self.assertEqual(model.ModelingKind.INSTANCE, manufacturer_name.kind)
-
-        # Test attributes of property qualifier
-        qualifier: model.Qualifier
-        for qualifier in manufacturer_name.qualifier:  # type: ignore
-            if qualifier.type_ == 'http://acplt.org/Qualifier/ExampleQualifier':
-                self.assertIsInstance(qualifier, model.Qualifier)
-                self.assertEqual('http://acplt.org/Qualifier/ExampleQualifier', qualifier.type_)
-                self.assertEqual('string', qualifier.value_type)
-                self.assertEqual('100', qualifier.value)
-                self.assertEqual(qualifier.value_id, model.Reference((
-                    model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
-                              local=False,
-                              value='http://acplt.org/ValueId/ExampleValueId',
-                              id_type=model.KeyType.IRDI),)))
-            elif qualifier.type_ == 'http://acplt.org/Qualifier/ExampleQualifier2':
-                self.assertIsInstance(qualifier, model.Qualifier)
-                self.assertEqual('http://acplt.org/Qualifier/ExampleQualifier2', qualifier.type_)
-                self.assertEqual('string', qualifier.value_type)
-                self.assertEqual('50', qualifier.value)
-                self.assertEqual(qualifier.value_id, model.Reference((
-                    model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
-                              local=False,
-                              value='http://acplt.org/ValueId/ExampleValueId',
-                              id_type=model.KeyType.IRDI),)))
-            else:
-                raise KeyError()
-
-        instance_id: model.Property = submodel.get_referable('InstanceId')  # type: ignore
-        self.assertIsInstance(instance_id, model.Property)
-        self.assertEqual(1, len(instance_id.qualifier))
-        # Test attributes of property qualifier
-        formula: model.Formula
-        for formula in instance_id.qualifier:  # type: ignore
-            self.assertIsInstance(formula, model.Formula)
-            self.assertEqual(1, len(formula.depends_on))
-            for reference in formula.depends_on:
-                self.assertEqual(reference, model.Reference((
-                    model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
-                              local=False,
-                              value='http://acplt.org/Formula/ExampleFormula',
-                              id_type=model.KeyType.IRDI),)))
-
-    def assert_example_bill_of_material_submodel(self, submodel: model.Submodel) -> None:
-        # Test attributes of Submodel
-        self.assertEqual('http://acplt.org/Submodels/Assets/TestAsset/BillOfMaterial', submodel.identification.id)
-        self.assertEqual(model.IdentifierType.IRI, submodel.identification.id_type)
-        self.assertEqual(2, len(submodel.submodel_element))
-        self.assertEqual('BillOfMaterial', submodel.id_short)
-        self.assertIsNone(submodel.category)
-        self.assertEqual({'en-us': 'An example bill of material submodel for the test application',
-                          'de': 'Ein Beispiel-BillofMaterial-Submodel für eine Test-Anwendung'}, submodel.description)
-        self.assertIsNone(submodel.parent)
-        self.assertEqual('0.9', submodel.administration.version)  # type: ignore
-        self.assertIsNone(submodel.administration.revision)  # type: ignore
-        self.assertEqual(submodel.semantic_id, model.Reference((
-            model.Key(type_=model.KeyElements.SUBMODEL,
-                      local=False,
-                      value='http://acplt.org/SubmodelTemplates/BillOfMaterial',
-                      id_type=model.KeyType.IRDI),)))
-        self.assertEqual(0, len(submodel.qualifier))
-        self.assertEqual(model.ModelingKind.INSTANCE, submodel.kind)
-
-        # test attributes of entity ExampleEntity
-        example_entity: model.Entity = submodel.get_referable('ExampleEntity')  # type: ignore
-        self.assertIsInstance(example_entity, model.Entity)
-        self.assertEqual('ExampleEntity', example_entity.id_short)
-        self.assertEqual(model.EntityType.CO_MANAGED_ENTITY, example_entity.entity_type)
-        self.assertEqual(2, len(example_entity.statement))
-        self.assertIsNone(example_entity.category)
-        self.assertEqual({'en-us': 'Legally valid designation of the natural or judicial person which is directly '
-                                   'responsible for the design, production, packaging and labeling of a product in '
-                                   'respect to its being brought into circulation.',
-                          'de': 'Bezeichnung für eine natürliche oder juristische Person, die für die Auslegung, '
-                                'Herstellung und Verpackung sowie die Etikettierung eines Produkts im Hinblick auf das '
-                                '\'Inverkehrbringen\' im eigenen Namen verantwortlich ist'},
-                         example_entity.description)
-        self.assertIs(example_entity.parent, submodel)
-        self.assertEqual(example_entity.semantic_id, model.Reference((
-            model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
-                      local=False,
-                      value='http://opcfoundation.org/UA/DI/1.1/DeviceType/Serialnumber',
-                      id_type=model.KeyType.IRI),)))
-        self.assertEqual(0, len(example_entity.qualifier))
-        self.assertEqual(model.ModelingKind.INSTANCE, example_entity.kind)
-
-        # Test attributes of property ExampleProperty in statements
-        example_property: model.Property = example_entity.statement.get_referable('ExampleProperty')  # type: ignore
-        self.assertIsInstance(example_property, model.Property)
-        self.assertEqual('ExampleProperty', example_property.id_short)
-        self.assertEqual('string', example_property.value_type)
-        self.assertEqual('exampleValue', example_property.value)
-        self.assertEqual(example_property.value_id, model.Reference((
-            model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
-                      local=False,
-                      value='http://acplt.org/ValueId/ExampleValueId',
-                      id_type=model.KeyType.IRDI),)))
-        self.assertEqual('CONSTANT', example_property.category)
-        self.assertEqual({'en-us': 'Example Property object', 'de': 'Beispiel Property Element'},
-                         example_property.description)
-        self.assertIs(example_property.parent, example_entity)
-        self.assertEqual(example_property.semantic_id, model.Reference((
-            model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
-                      local=False,
-                      value='http://acplt.org/Properties/ExampleProperty',
-                      id_type=model.KeyType.IRDI),)))
-        self.assertEqual(0, len(example_property.qualifier))
-        self.assertEqual(model.ModelingKind.INSTANCE, example_property.kind)
-
-        # Test attributes of property ExampleProperty2 in statements
-        example_property2: model.Property = example_entity.statement.get_referable('ExampleProperty2')  # type: ignore
-        self.assertIsInstance(example_property2, model.Property)
-        self.assertEqual('ExampleProperty2', example_property2.id_short)
-        self.assertEqual('string', example_property2.value_type)
-        self.assertEqual('exampleValue2', example_property2.value)
-        self.assertEqual(example_property2.value_id, model.Reference((
-            model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
-                      local=False,
-                      value='http://acplt.org/ValueId/ExampleValueId',
-                      id_type=model.KeyType.IRDI),)))
-        self.assertEqual('CONSTANT', example_property2.category)
-        self.assertEqual({'en-us': 'Example Property object', 'de': 'Beispiel Property Element'},
-                         example_property2.description)
-        self.assertIs(example_property2.parent, example_entity)
-        self.assertEqual(example_property2.semantic_id, model.Reference((
-            model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
-                      local=False,
-                      value='http://acplt.org/Properties/ExampleProperty',
-                      id_type=model.KeyType.IRDI),)))
-        self.assertEqual(0, len(example_property2.qualifier))
-        self.assertEqual(model.ModelingKind.INSTANCE, example_property2.kind)
-
-        # test attributes of entity ExampleEntity2
-        example_entity2: model.Entity = submodel.get_referable('ExampleEntity2')  # type: ignore
-        self.assertIsInstance(example_entity2, model.Entity)
-        self.assertEqual('ExampleEntity2', example_entity2.id_short)
-        self.assertEqual(model.EntityType.SELF_MANAGED_ENTITY, example_entity2.entity_type)
-        self.assertEqual(0, len(example_entity2.statement))
-        self.assertEqual(example_entity2.asset, model.Reference((
-            model.Key(type_=model.KeyElements.ASSET,
-                      local=False,
-                      value='https://acplt.org/Test_Asset2',
-                      id_type=model.KeyType.IRDI),)))
-        self.assertIsNone(example_entity2.category)
-        self.assertEqual({'en-us': 'Legally valid designation of the natural or judicial person which is directly '
-                                   'responsible for the design, production, packaging and labeling of a product in '
-                                   'respect to its being brought into circulation.',
-                          'de': 'Bezeichnung für eine natürliche oder juristische Person, die für die Auslegung, '
-                                'Herstellung und Verpackung sowie die Etikettierung eines Produkts im Hinblick auf das '
-                                '\'Inverkehrbringen\' im eigenen Namen verantwortlich ist'},
-                         example_entity2.description)
-        self.assertIs(example_entity2.parent, submodel)
-        self.assertEqual(example_entity2.semantic_id, model.Reference((
-            model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
-                      local=False,
-                      value='http://opcfoundation.org/UA/DI/1.1/DeviceType/Serialnumber',
-                      id_type=model.KeyType.IRI),)))
-        self.assertEqual(0, len(example_entity2.qualifier))
-        self.assertEqual(model.ModelingKind.INSTANCE, example_entity2.kind)
-
     def assert_example_asset(self, asset: model.Asset) -> None:
         # Test attributes of Asset
         self.assertEqual(model.AssetKind.INSTANCE, asset.kind)
@@ -237,29 +31,16 @@ class ExampleHelper(unittest.TestCase):
         self.assertEqual({'en-us': 'An example asset for the test application',
                           'de': 'Ein Beispiel-Asset für eine Test-Anwendung'}, asset.description)
         self.assertIsNone(asset.parent)
-        self.assertEqual('0.9', asset.administration.version)  # type: ignore
-        self.assertEqual('0', asset.administration.revision)  # type: ignore
-        self.assertEqual(asset.asset_identification_model, model.Reference((
-            model.Key(type_=model.KeyElements.SUBMODEL,
-                      local=False,
-                      value='http://acplt.org/Submodels/Assets/TestAsset/Identification',
-                      id_type=model.KeyType.IRDI),)))
-        self.assertEqual(asset.bill_of_material, model.Reference((
-            model.Key(type_=model.KeyElements.SUBMODEL,
-                      local=False,
-                      value='http://acplt.org/Submodels/Assets/TestAsset/BillOfMaterial',
-                      id_type=model.KeyType.IRDI),)))
+        self.assertIsNone(asset.administration.version)  # type: ignore
+        self.assertIsNone(asset.administration.revision)  # type: ignore
+        self.assertIsNone(asset.asset_identification_model)
+        self.assertIsNone(asset.bill_of_material)
 
     def assert_example_concept_description(self, concept_description: model.ConceptDescription) -> None:
         # Test attributes of ConceptDescription
         self.assertEqual('https://acplt.org/Test_ConceptDescription', concept_description.identification.id)
         self.assertEqual(model.IdentifierType.IRI, concept_description.identification.id_type)
-        self.assertEqual(1, len(concept_description.is_case_of))
-        self.assertEqual(True, identification.find_reference_in_set(model.Reference((
-                    model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
-                              local=False,
-                              value='http://acplt.org/DataSpecifications/ConceptDescriptions/TestConceptDescription',
-                              id_type=model.KeyType.IRDI),)), concept_description.is_case_of))
+        self.assertEqual(0, len(concept_description.is_case_of))
         self.assertEqual('TestConceptDescription', concept_description.id_short)
         self.assertIsNone(concept_description.category)
         self.assertEqual({'en-us': 'An example concept description  for the test application',
@@ -317,13 +98,21 @@ class ExampleHelper(unittest.TestCase):
         self.assertEqual(1, len(shell.concept_dictionary))
         cd: model.ConceptDictionary = shell.concept_dictionary.get_referable('TestConceptDictionary')  # type: ignore
         self.assert_example_concept_dictionary(cd, shell)
-        self.assertEqual(0, len(shell.view))
-        self.assertEqual(shell.derived_from, model.AASReference((
-             model.Key(type_=model.KeyElements.ASSET_ADMINISTRATION_SHELL,
-                       local=False,
-                       value='https://acplt.org/TestAssetAdministrationShell2',
-                       id_type=model.KeyType.IRDI),),
-             model.AssetAdministrationShell))
+        self.assertEqual(2, len(shell.view))
+        view1: model.View = shell.view.get_referable('ExampleView')  # type: ignore
+        self.assertEqual('ExampleView', view1.id_short)
+        self.assertEqual(1, len(view1.contained_element))
+        self.assertEqual(True, identification.find_reference_in_set(model.AASReference((
+            model.Key(type_=model.KeyElements.SUBMODEL,
+                      local=False,
+                      value='https://acplt.org/Test_Submodel',
+                      id_type=model.KeyType.IRDI),),
+            model.Submodel),
+            view1.contained_element))
+        self.assertIsNone(shell.derived_from)
+        view2: model.View = shell.view.get_referable('ExampleView2')  # type: ignore
+        self.assertEqual('ExampleView2', view2.id_short)
+        self.assertEqual(0, len(view2.contained_element))
 
     def assert_example_submodel(self, submodel: model.Submodel) -> None:
         # Test attributes of Submodel
@@ -491,11 +280,7 @@ class ExampleHelper(unittest.TestCase):
         self.assertEqual('ExampleProperty', example_property.id_short)
         self.assertEqual('string', example_property.value_type)
         self.assertEqual('exampleValue', example_property.value)
-        self.assertEqual(example_property.value_id, model.Reference((
-            model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
-                      local=False,
-                      value='http://acplt.org/ValueId/ExampleValueId',
-                      id_type=model.KeyType.IRDI),)))
+        self.assertIsNone(example_property.value_id)
         self.assertEqual('CONSTANT', example_property.category)
         self.assertEqual({'en-us': 'Example Property object', 'de': 'Beispiel Property Element'},
                          example_property.description)
@@ -505,7 +290,11 @@ class ExampleHelper(unittest.TestCase):
                       local=False,
                       value='http://acplt.org/Properties/ExampleProperty',
                       id_type=model.KeyType.IRDI),)))
-        self.assertEqual(0, len(example_property.qualifier))
+        self.assertEqual(1, len(example_property.qualifier))
+        for qualifier in example_property.qualifier:
+            if isinstance(qualifier, model.Qualifier):
+                self.assertEqual('http://acplt.org/Qualifier/ExampleQualifier', qualifier.type_)
+                self.assertEqual('string', qualifier.value_type)
         self.assertEqual(model.ModelingKind.INSTANCE, example_property.kind)
 
         # test attributes of multi language property ExampleMultiLanguageProperty
@@ -515,11 +304,7 @@ class ExampleHelper(unittest.TestCase):
         self.assertEqual('ExampleMultiLanguageProperty', example_ml_property.id_short)
         self.assertEqual({'en-us': 'Example value of a MultiLanguageProperty element',
                           'de': 'Beispielswert für ein MulitLanguageProperty-Element'}, example_ml_property.value)
-        self.assertEqual(example_ml_property.value_id, model.Reference((
-            model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
-                      local=False,
-                      value='http://acplt.org/ValueId/ExampleMultiLanguageValueId',
-                      id_type=model.KeyType.IRDI),)))
+        self.assertIsNone(example_ml_property.value_id)
         self.assertEqual('CONSTANT', example_ml_property.category)
         self.assertEqual({'en-us': 'Example MultiLanguageProperty object',
                           'de': 'Beispiel MulitLanguageProperty Element'},
@@ -632,25 +417,14 @@ class ExampleHelper(unittest.TestCase):
 
     def assert_full_example(self, obj_store: model.DictObjectStore) -> None:
         # separate different kind of objects
-        submodels = []
         for obj in obj_store:
             if isinstance(obj, model.Asset):
                 self.assert_example_asset(obj)
             elif isinstance(obj, model.AssetAdministrationShell):
                 self.assert_example_asset_administration_shell(obj)
             elif isinstance(obj, model.Submodel):
-                submodels.append(obj)
+                self.assert_example_submodel(obj)
             elif isinstance(obj, model.ConceptDescription):
                 self.assert_example_concept_description(obj)
-            else:
-                raise KeyError()
-
-        for submodel in submodels:
-            if submodel.id_short == 'Identification':
-                self.assert_example_asset_identification_submodel(submodel)
-            elif submodel.id_short == 'BillOfMaterial':
-                self.assert_example_bill_of_material_submodel(submodel)
-            elif submodel.id_short == 'TestSubmodel':
-                self.assert_example_submodel(submodel)
             else:
                 raise KeyError()

@@ -216,12 +216,14 @@ class ExampleHelper(unittest.TestCase):
         for obj in obj_store:
             if isinstance(obj, model.Asset):
                 self.assert_example_asset(obj)
-            if isinstance(obj, model.AssetAdministrationShell):
+            elif isinstance(obj, model.AssetAdministrationShell):
                 shells.append(obj)
-            if isinstance(obj, model.Submodel):
+            elif isinstance(obj, model.Submodel):
                 submodels.append(obj)
-            if isinstance(obj, model.ConceptDescription):
+            elif isinstance(obj, model.ConceptDescription):
                 self.assert_example_concept_description(obj)
+            else:
+                raise KeyError()
 
         for submodel in submodels:
             if submodel.identification.id == 'https://acplt.org/Test_Submodel':

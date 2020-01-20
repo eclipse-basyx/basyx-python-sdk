@@ -366,6 +366,9 @@ class AASFromJsonDecoder(json.JSONDecoder):
     def _construct_view(cls, dct: Dict[str, object], object_class=model.View) -> model.View:
         ret = object_class(_get_ts(dct, 'idShort', str))
         cls._amend_abstract_attributes(ret, dct)
+        if 'containedElements' in dct:
+            for element_data in _get_ts(dct, 'containedElements', list):
+                ret.contained_element.add(cls._construct_aas_reference(element_data, model.Referable))
         return ret
 
     @classmethod
