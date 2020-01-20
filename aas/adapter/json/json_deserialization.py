@@ -327,7 +327,7 @@ class AASFromJsonDecoder(json.JSONDecoder):
         ret: model.ValueList = set()
         for element in _get_ts(dct, 'valueReferencePairTypes', list):
             try:
-                cls._construct_value_reference_pair(element)
+                ret.add(cls._construct_value_reference_pair(element))
             except (KeyError, TypeError) as e:
                 error_message = "Error while trying to convert JSON object into ValueReferencePair: {} >>> {}".format(
                     e, pprint.pformat(element, depth=2, width=2 ** 14, compact=True))
@@ -339,9 +339,9 @@ class AASFromJsonDecoder(json.JSONDecoder):
 
     @classmethod
     def _construct_value_reference_pair(cls, dct: Dict[str, object], object_class=model.ValueReferencePair):
-        ret = object_class(value=_get_ts(dct, 'value', str),
-                           value_id=cls._construct_reference(_get_ts(dct, 'valueId', dict)),
-                           value_type=_get_ts(dct, 'valueType', str))
+        return object_class(value=_get_ts(dct, 'value', str),
+                            value_id=cls._construct_reference(_get_ts(dct, 'valueId', dict)),
+                            value_type=_get_ts(dct, 'valueType', str))
 
     # #############################################################################
     # Direct Constructor Methods (for classes with `modelType`) starting from here
@@ -436,7 +436,7 @@ class AASFromJsonDecoder(json.JSONDecoder):
             ret.source_of_definition = _get_ts(data_spec, 'sourceOfDefinition', str)
         if 'symbol' in data_spec:
             ret.symbol = _get_ts(data_spec, 'symbol', str)
-        if 'valueFormat' in dct:
+        if 'valueFormat' in data_spec:
             ret.value_format = _get_ts(data_spec, 'valueFormat', str)
         if 'valueList' in data_spec:
             ret.value_list = cls._construct_value_list(_get_ts(data_spec, 'valueList', dict))
@@ -445,7 +445,8 @@ class AASFromJsonDecoder(json.JSONDecoder):
         if 'valueId' in data_spec:
             ret.value_id = cls._construct_reference(_get_ts(data_spec, 'valueId', dict))
         if 'levelType' in data_spec:
-            set(IEC61360_LEVEL_TYPES[level_type] for level_type in _get_ts(data_spec, 'levelType', list))
+            ret.level_types = set(IEC61360_LEVEL_TYPES_INVERSE[level_type]
+                                  for level_type in _get_ts(data_spec, 'levelType', list))
         return ret
 
     @classmethod

@@ -17,11 +17,12 @@ from aas import model
 from aas.adapter.json import json_serialization, json_deserialization
 
 from aas.examples.data import example_aas_missing_attributes, example_submodel_template, \
-    example_aas_mandatory_attributes, example_aas
+    example_aas_mandatory_attributes, example_aas, example_concept_description
 from test._helper.testCase_for_example_aas import ExampleHelper
 from test._helper.testCase_for_example_aas_mandatory_attributes import ExampleHelper as ExampleHelperMandatory
 from test._helper.testCase_for_example_aas_missing_attributes import ExampleHelper as ExampleHelperMissing
 from test._helper.testCase_for_example_submodel_template import ExampleHelper as ExampleHelperSubmodelTemplate
+from test._helper.testCase_for_example_concept_description import ExampleHelper as ExampleHelperConceptDescription
 
 JSON_SCHEMA_FILE = os.path.join(os.path.dirname(__file__), 'aasJSONSchemaV2.0.json')
 
@@ -123,6 +124,19 @@ class JsonSerializationDeserializationTest4(ExampleHelperSubmodelTemplate):
     def test_example_submodel_template_serialization_deserialization(self) -> None:
         data: model.DictObjectStore[model.Identifiable] = model.DictObjectStore()
         data.add(example_submodel_template.create_example_submodel_template())
+        file = io.StringIO()
+        json_serialization.write_aas_json_file(file=file, data=data)
+        # try deserializing the json string into a DictObjectStore of AAS objects with help of the json_deserialization
+        # module
+        file.seek(0)
+        json_object_store = json_deserialization.read_json_aas_file(file, failsafe=False)
+        self.assert_full_example(json_object_store)
+
+
+class JsonSerializationDeserializationTest5(ExampleHelperConceptDescription):
+    def test_example_iec61360_concept_description_serialization_deserialization(self) -> None:
+        data: model.DictObjectStore[model.Identifiable] = model.DictObjectStore()
+        data.add(example_concept_description.create_iec61360_concept_description())
         file = io.StringIO()
         json_serialization.write_aas_json_file(file=file, data=data)
         # try deserializing the json string into a DictObjectStore of AAS objects with help of the json_deserialization

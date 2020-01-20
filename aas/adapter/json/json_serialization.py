@@ -354,10 +354,11 @@ def append_iec61360_concept_description_attrs(obj: model.concept.IEC61360Concept
     data_spec = {
         'preferredName': lang_string_set_to_json(obj.preferred_name),
         'dataType': IEC61360_DATA_TYPES[obj.data_type],
-        'definition': obj.definition,
     }
+    if obj.definition is not None:
+        data_spec['definition'] = lang_string_set_to_json(obj.definition)
     if obj.short_name is not None:
-        data_spec['shortName'] = obj.short_name
+        data_spec['shortName'] = lang_string_set_to_json(obj.short_name)
     if obj.unit is not None:
         data_spec['unit'] = obj.unit
     if obj.unit_id is not None:
@@ -371,7 +372,7 @@ def append_iec61360_concept_description_attrs(obj: model.concept.IEC61360Concept
     if obj.value_list is not None:
         data_spec['valueList'] = value_list_to_json(obj.value_list)
     if obj.value is not None:
-        data_spec['data_spec'] = obj.value
+        data_spec['value'] = obj.value
     if obj.value_id is not None:
         data_spec['valueId'] = obj.value_id
     if obj.level_types:
