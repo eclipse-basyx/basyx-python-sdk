@@ -22,7 +22,7 @@ from typing import List, Optional, Set, TypeVar, MutableSet, Generic, Iterable, 
 import re
 
 if TYPE_CHECKING:
-    from . import registry
+    from . import provider
 
 DataTypeDef = str  # any xsd simple type as string
 BlobType = bytes
@@ -548,7 +548,7 @@ class AASReference(Reference, Generic[_RT]):
         self.type: Type[_RT]
         object.__setattr__(self, 'type', type_)
 
-    def resolve(self, registry_: "registry.AbstractRegistry") -> _RT:
+    def resolve(self, provider_: "provider.AbstractObjectProvider") -> _RT:
         """
         Follow the reference and retrieve the Referable object it points to
 
@@ -573,10 +573,10 @@ class AASReference(Reference, Generic[_RT]):
 
         resolved_keys: List[str] = []  # for more helpful error messages
 
-        # First, resolve the identifier-key via the registry
+        # First, resolve the identifier-key via the provider
         identifier: Identifier = self.key[last_identifier_index].get_identifier()  # type: ignore
         try:
-            item = registry_.get_identifiable(identifier)
+            item = provider_.get_identifiable(identifier)
         except KeyError as e:
             raise KeyError("Could not resolve global reference key {}".format(identifier)) from e
         resolved_keys.append(str(identifier))

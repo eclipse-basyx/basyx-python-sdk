@@ -19,15 +19,20 @@ from typing import MutableSet, Iterator, Generic, TypeVar, Dict, List, Optional
 from .base import Identifier, Identifiable
 
 
-class AbstractRegistry(metaclass=abc.ABCMeta):
+class AbstractObjectProvider(metaclass=abc.ABCMeta):
     """
-    Abstract baseclass for registries and registry proxy objects, that allow to resolve global identifiers to
-    Identifiable objects (resp. proxy objects for remote Identifiable objects).
+    Abstract baseclass for all objects, that allow to retrieve Identifiable objects (resp. proxy objects for remote
+    Identifiable objects) by their Identifier.
+
+    This includes local object stores, database clients and AAS API clients.
     """
     @abc.abstractmethod
     def get_identifiable(self, identifier: Identifier) -> Identifiable:
         """
-        Find a Referable in this Namespaces by its id_short
+        Find an Identifiable by its id_short
+
+        This may include looking up the object's endpoint in a registry and fetching it from an HTTP server or a
+        database.
 
         :param identifier:
         :return: The Identifiable object (or a proxy object for a remote Identifiable object)
@@ -39,10 +44,13 @@ class AbstractRegistry(metaclass=abc.ABCMeta):
 _IT = TypeVar('_IT', bound=Identifiable)
 
 
-class AbstractObjectStore(AbstractRegistry, MutableSet[_IT], Generic[_IT], metaclass=abc.ABCMeta):
+class AbstractObjectStore(AbstractObjectProvider, MutableSet[_IT], Generic[_IT], metaclass=abc.ABCMeta):
     """
-    Abstract baseclass of for local containers for storage of Identifiable objects, that can be used as Registry to
-    retrieve the stored objects by Identifier.
+    Abstract baseclass of for container-like objects for storage of Identifiable objects.
+
+    ObjectStores are special ObjectProvides that – in addition to retrieving objects by Identifier – allow to add and
+    delete objects (i.e. behave like a Python set). This includes local object stores (like `DictObjectStore`) and
+    database clients.
     """
     pass
 
@@ -81,23 +89,23 @@ class DictObjectStore(AbstractObjectStore[_IT], Generic[_IT]):
         return iter(self._backend.values())
 
 
-class RegistryMultiplexer(AbstractRegistry):
+class ObjectProviderMultiplexer(AbstractObjectProvider):
     """
     A multiplexer for Registries of Identifiable objects.
 
     This class combines multiple Registries of Identifiable objects into a single one to allow retrieving Identifiable
-    objects from different sources. It implements the AbstractRegistry interface to be used as Registry itself.
+    objects from different sources. It implements the AbstractObjectProvider interface to be used as Registry itself.
 
     :ivar registries: A list of registries to query when looking up an object
     """
-    def __init__(self, registries: Optional[List[AbstractRegistry]] = None):
-        self.registries: List[AbstractRegistry] = registries if registries is not None else []
+    def __init__(self, registries: Optional[List[AbstractObjectProvider]] = None):
+        self.providers: List[AbstractObjectProvider] = registries if registries is not None else []
 
     def get_identifiable(self, identifier: Identifier) -> Identifiable:
-        for registry in self.registries:
+        for provider in self.providers:
             try:
-                return registry.get_identifiable(identifier)
+                return provider.get_identifiable(identifier)
             except KeyError:
                 pass
         raise KeyError("Identifier could not be found in any of the {} consulted registries."
-                       .format(len(self.registries)))
+                       .format(len(self.providers)))

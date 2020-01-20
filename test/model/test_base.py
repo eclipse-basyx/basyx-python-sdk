@@ -180,13 +180,13 @@ class AASReferenceTest(unittest.TestCase):
     def test_reference_typing(self) -> None:
         dummy_submodel = model.Submodel(model.Identifier("urn:x-test:x", model.IdentifierType.IRI))
 
-        class DummyRegistry(model.AbstractRegistry):
+        class DummyObjectProvider(model.AbstractObjectProvider):
             def get_identifiable(self, identifier: Identifier) -> Identifiable:
                 return dummy_submodel
 
         x = model.AASReference((model.Key(model.KeyElements.SUBMODEL, False, "urn:x-test:x", model.KeyType.IRI),),
                                model.Submodel)
-        submodel: model.Submodel = x.resolve(DummyRegistry())
+        submodel: model.Submodel = x.resolve(DummyObjectProvider())
         self.assertIs(submodel, submodel)
 
     def test_resolve(self) -> None:
@@ -196,7 +196,7 @@ class AASReferenceTest(unittest.TestCase):
         submodel = model.Submodel(model.Identifier("urn:x-test:submodel", model.IdentifierType.IRI), {collection})
         collection.parent = submodel
 
-        class DummyRegistry(model.AbstractRegistry):
+        class DummyObjectProvider(model.AbstractObjectProvider):
             def get_identifiable(self, identifier: Identifier) -> Identifiable:
                 if identifier == submodel.identification:
                     return submodel
@@ -209,7 +209,7 @@ class AASReferenceTest(unittest.TestCase):
                                              model.KeyType.IDSHORT),
                                    model.Key(model.KeyElements.PROPERTY, False, "prop", model.KeyType.IDSHORT)),
                                   model.Property)
-        self.assertIs(prop, ref1.resolve(DummyRegistry()))
+        self.assertIs(prop, ref1.resolve(DummyObjectProvider()))
 
         ref2 = model.AASReference((model.Key(model.KeyElements.SUBMODEL, False, "urn:x-test:submodel",
                                              model.KeyType.IRI),
@@ -219,7 +219,7 @@ class AASReferenceTest(unittest.TestCase):
                                    model.Key(model.KeyElements.PROPERTY, False, "prop", model.KeyType.IDSHORT)),
                                   model.Property)
         with self.assertRaises(TypeError):
-            ref2.resolve(DummyRegistry())
+            ref2.resolve(DummyObjectProvider())
 
         with self.assertRaises(AttributeError):
             ref1.key[2].value = "prop1"
@@ -228,7 +228,7 @@ class AASReferenceTest(unittest.TestCase):
                                   model.Property)
         # Oh no, yet another typo!
         with self.assertRaises(KeyError):
-            ref3.resolve(DummyRegistry())
+            ref3.resolve(DummyObjectProvider())
 
         ref4 = model.AASReference((model.Key(model.KeyElements.SUBMODEL, False, "urn:x-test:submodel",
                                              model.KeyType.IRI),),
@@ -236,7 +236,7 @@ class AASReferenceTest(unittest.TestCase):
         # Okay, typo is fixed, but the type is not what we expect. However, we should get the the submodel via the
         # exception's value attribute
         with self.assertRaises(model.UnexpectedTypeError) as cm:
-            ref4.resolve(DummyRegistry())
+            ref4.resolve(DummyObjectProvider())
         self.assertIs(submodel, cm.exception.value)
 
     def test_from_referable(self) -> None:

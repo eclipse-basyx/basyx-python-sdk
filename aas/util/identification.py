@@ -68,17 +68,17 @@ class NamespaceIRIGenerator(AbstractIdentifierGenerator):
     existence of the identification is checked by querying the given Registry. If a collision is detected, a number
     is prepended
     """
-    def __init__(self, namespace: str, registry: model.AbstractRegistry):
+    def __init__(self, namespace: str, provider: model.AbstractObjectProvider):
         """
         Create a new NamespaceIRIGenerator
         :param namespace: The IRI Namespace to generate Identifications in. It must be a valid IRI (starting with a
                           scheme) and end on either #, /, or = to form a reasonable namespace.
-        :param registry: An AbstractRegistry to check existence of Identifiers
+        :param provider: An AbstractObjectProvider to check existence of Identifiers
         """
         super().__init__()
         if not re.match(r'^[a-zA-Z][a-zA-Z0-9+\-\.]*:.*[#/=]$', namespace):
             raise ValueError("Namespace must be a valid IRI, ending with #, / or =")
-        self.registry = registry
+        self.provider = provider
         self._namespace = namespace
         self._counter_cache: Dict[str, int] = {}
 
@@ -96,9 +96,9 @@ class NamespaceIRIGenerator(AbstractIdentifierGenerator):
                 iri = "{}{}{}{:04d}".format(self._namespace, proposal, "_" if proposal else "", counter)
             else:
                 iri = "{}{}".format(self._namespace, proposal)
-            # Try to find iri in registry. If it does not exist (KeyError), we found a unique one to return
+            # Try to find iri in provider. If it does not exist (KeyError), we found a unique one to return
             try:
-                self.registry.get_identifiable(model.Identifier(iri, model.IdentifierType.IRI))
+                self.provider.get_identifiable(model.Identifier(iri, model.IdentifierType.IRI))
             except KeyError:
                 self._counter_cache[proposal] = counter
                 return model.Identifier(iri, model.IdentifierType.IRI)

@@ -36,7 +36,7 @@ class RegistriesTest(unittest.TestCase):
         self.assertIs(self.aas2, object_store.pop())
         self.assertEqual(0, len(object_store))
 
-    def test_registry_multiplexer(self) -> None:
+    def test_provider_multiplexer(self) -> None:
         aas_object_store: model.DictObjectStore[model.AssetAdministrationShell] = model.DictObjectStore()
         aas_object_store.add(self.aas1)
         aas_object_store.add(self.aas2)
@@ -44,7 +44,7 @@ class RegistriesTest(unittest.TestCase):
         submodel_object_store.add(self.submodel1)
         submodel_object_store.add(self.submodel2)
 
-        multiplexer = model.RegistryMultiplexer([aas_object_store, submodel_object_store])
+        multiplexer = model.ObjectProviderMultiplexer([aas_object_store, submodel_object_store])
         self.assertIs(self.aas1,
                       multiplexer.get_identifiable(model.Identifier("urn:x-test:aas1", model.IdentifierType.IRI)))
         self.assertIs(self.submodel1,

@@ -9,9 +9,8 @@ base.py
     Basic structures of the model, including all abstract classes and enumerations. This provides inheritance for the
     higher level structures.
 
-registry.py
-    Registries for the AAS, in order to enable resolving global identifiers; and mapping identifiers to identifiable
-    objects.
+provider.py
+    Providers for AAS objects, in order to store and retrieve identifiable objects by their Identifier.
 
 security.py
     Security model of the AAS. Currently not existing.
@@ -26,7 +25,7 @@ from .aas import *
 from .security import *
 from .base import *
 from .submodel import *
-from .registry import *
+from .provider import *
 
 # A mapping of PyI40AAS implementation classes to the corresponding `KeyElements` enum members for all classes that are
 # covered by this enum.
