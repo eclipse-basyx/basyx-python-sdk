@@ -292,7 +292,7 @@ def abstract_classes_to_xml(obj: object) -> List[ElTree.Element]:
         if obj.qualifier:
             et_qualifier = generate_element(name="qualifier", text=None, namespace=ns_aas)
             for qual in obj.qualifier:
-                et_qualifiers = generate_element(name="qualifiers", text=None, namespace=ns_aas)
+                et_qualifiers = constraint_to_xml(qual, name="qualifiers")
                 et_qualifier.insert(0, et_qualifiers)
                 # todo: seems like the XSD-schema messed up the plural "s"?
                 # todo: formula and qualifier seem not to be implemented yet
