@@ -20,12 +20,11 @@ from jsonschema import validate  # type: ignore
 
 from aas.examples.data import example_aas_missing_attributes, example_submodel_template, \
     example_aas_mandatory_attributes, example_aas
-from ..._helper.testCase_for_example_aas import ExampleHelper
 
 JSON_SCHEMA_FILE = os.path.join(os.path.dirname(__file__), 'aasJSONSchemaV2.0.json')
 
 
-class JsonSerializationTest(ExampleHelper):
+class JsonSerializationTest(unittest.TestCase):
     def test_serialize_object(self) -> None:
         test_object = model.Property("test_id_short", "string", category="PARAMETER",
                                      description={"en-us": "Germany", "de": "Deutschland"})

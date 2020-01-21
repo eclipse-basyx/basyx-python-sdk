@@ -20,8 +20,7 @@ import urllib.error
 from aas import model
 from aas.adapter import couchdb
 from aas.examples.data import example_aas
-
-from .._helper.testCase_for_example_aas import ExampleHelper
+from test._helper.testCase_for_example_aas import *
 
 
 TEST_CONFIG = configparser.ConfigParser()
@@ -50,7 +49,7 @@ except urllib.error.URLError as e:
 @unittest.skipUnless(COUCHDB_OKAY, "No CouchDB is reachable at {}/{}: {}".format(TEST_CONFIG['couchdb']['url'],
                                                                                  TEST_CONFIG['couchdb']['database'],
                                                                                  COUCHDB_ERROR))
-class CouchDBTest(ExampleHelper):
+class CouchDBTest(unittest.TestCase):
     def setUp(self) -> None:
         # Create CouchDB store, login and check database
         self.db = couchdb.CouchDBObjectStore(TEST_CONFIG['couchdb']['url'], TEST_CONFIG['couchdb']['database'])
@@ -73,7 +72,7 @@ class CouchDBTest(ExampleHelper):
         submodel_restored = self.db.get_identifiable(
             model.Identifier(id_='https://acplt.org/Test_Submodel', id_type=model.IdentifierType.IRI))
         assert(isinstance(submodel_restored, model.Submodel))
-        self.assert_example_submodel(submodel_restored)
+        assert_example_submodel(self, submodel_restored)
 
         # Delete example submodel
         self.db.discard(submodel_restored)
@@ -92,7 +91,7 @@ class CouchDBTest(ExampleHelper):
         retrieved_data_store: model.provider.DictObjectStore[model.Identifiable] = model.provider.DictObjectStore()
         for item in self.db:
             retrieved_data_store.add(item)
-        self.assert_full_example(retrieved_data_store)
+        assert_full_example(self, retrieved_data_store)
 
     def test_parallel_iterating(self) -> None:
         example_data = example_aas.create_full_example()
@@ -113,7 +112,7 @@ class CouchDBTest(ExampleHelper):
         for item in retrieved_objects:
             retrieved_data_store.add(item)
         self.assertEqual(6, len(retrieved_data_store))
-        self.assert_full_example(retrieved_data_store)
+        assert_full_example(self, retrieved_data_store)
 
         # Delete objects via thread pool executor
         with concurrent.futures.ThreadPoolExecutor() as pool:

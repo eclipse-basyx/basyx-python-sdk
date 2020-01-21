@@ -44,7 +44,7 @@ def create_example_asset() -> model.Asset:
     """
     asset = model.Asset(
         kind=model.AssetKind.INSTANCE,
-        identification=model.Identifier(id_='https://acplt.org/Test_Asset',
+        identification=model.Identifier(id_='https://acplt.org/Test_Asset_Mandatory',
                                         id_type=model.IdentifierType.IRI))
     return asset
 
@@ -134,7 +134,7 @@ def create_example_submodel() -> model.Submodel:
         value=())
 
     submodel = model.Submodel(
-        identification=model.Identifier(id_='https://acplt.org/Test_Submodel',
+        identification=model.Identifier(id_='https://acplt.org/Test_Submodel_Mandatory',
                                         id_type=model.IdentifierType.IRI),
         submodel_element=(submodel_element_relationship_element,
                           submodel_element_annotated_relationship_element,
@@ -154,7 +154,7 @@ def create_example_empty_submodel() -> model.Submodel:
     :return: example submodel
     """
     return model.Submodel(
-        identification=model.Identifier(id_='https://acplt.org/Test_Submodel2',
+        identification=model.Identifier(id_='https://acplt.org/Test_Submodel2_Mandatory',
                                         id_type=model.IdentifierType.IRI))
 
 
@@ -165,7 +165,7 @@ def create_example_concept_description() -> model.ConceptDescription:
     :return: example concept description
     """
     concept_description = model.ConceptDescription(
-        identification=model.Identifier(id_='https://acplt.org/Test_ConceptDescription',
+        identification=model.Identifier(id_='https://acplt.org/Test_ConceptDescription_Mandatory',
                                         id_type=model.IdentifierType.IRI))
     return concept_description
 
@@ -192,19 +192,19 @@ def create_example_asset_administration_shell(concept_dictionary: model.ConceptD
     asset_administration_shell = model.AssetAdministrationShell(
         asset=model.AASReference((model.Key(type_=model.KeyElements.ASSET,
                                             local=False,
-                                            value='https://acplt.org/Test_Asset',
+                                            value='https://acplt.org/Test_Asset_Mandatory',
                                             id_type=model.KeyType.IRDI),),
                                  model.Asset),
-        identification=model.Identifier(id_='https://acplt.org/Test_AssetAdministrationShell',
+        identification=model.Identifier(id_='https://acplt.org/Test_AssetAdministrationShell_Mandatory',
                                         id_type=model.IdentifierType.IRI),
         submodel_={model.AASReference((model.Key(type_=model.KeyElements.SUBMODEL,
                                                  local=False,
-                                                 value='https://acplt.org/Test_Submodel',
+                                                 value='https://acplt.org/Test_Submodel_Mandatory',
                                                  id_type=model.KeyType.IRDI),),
                                       model.Submodel),
                    model.AASReference((model.Key(type_=model.KeyElements.SUBMODEL,
                                                  local=False,
-                                                 value='https://acplt.org/Test_Submodel2',
+                                                 value='https://acplt.org/Test_Submodel2_Mandatory',
                                                  id_type=model.KeyType.IRDI),),
                                       model.Submodel)},
         concept_dictionary=[concept_dictionary])
@@ -221,9 +221,9 @@ def create_example_empty_asset_administration_shell() -> model.AssetAdministrati
     asset_administration_shell = model.AssetAdministrationShell(
         asset=model.AASReference((model.Key(type_=model.KeyElements.ASSET,
                                             local=False,
-                                            value='https://acplt.org/Test_Asset',
+                                            value='https://acplt.org/Test_Asset_Mandatory',
                                             id_type=model.KeyType.IRDI),),
                                  model.Asset),
-        identification=model.Identifier(id_='https://acplt.org/Test_AssetAdministrationShell2',
+        identification=model.Identifier(id_='https://acplt.org/Test_AssetAdministrationShell2_Mandatory',
                                         id_type=model.IdentifierType.IRI))
     return asset_administration_shell

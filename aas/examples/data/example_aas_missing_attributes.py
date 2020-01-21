@@ -38,7 +38,7 @@ def create_example_asset() -> model.Asset:
     """
     asset = model.Asset(
         kind=model.AssetKind.INSTANCE,
-        identification=model.Identifier(id_='https://acplt.org/Test_Asset',
+        identification=model.Identifier(id_='https://acplt.org/Test_Asset_Missing',
                                         id_type=model.IdentifierType.IRI),
         id_short='Test_Asset',
         category=None,
@@ -305,7 +305,7 @@ def create_example_submodel() -> model.Submodel:
         kind=model.ModelingKind.INSTANCE)
 
     submodel = model.Submodel(
-        identification=model.Identifier(id_='https://acplt.org/Test_Submodel',
+        identification=model.Identifier(id_='https://acplt.org/Test_Submodel_Missing',
                                         id_type=model.IdentifierType.IRI),
         submodel_element=(submodel_element_relationship_element,
                           submodel_element_annotated_relationship_element,
@@ -338,7 +338,7 @@ def create_example_concept_description() -> model.ConceptDescription:
     :return: example concept description
     """
     concept_description = model.ConceptDescription(
-        identification=model.Identifier(id_='https://acplt.org/Test_ConceptDescription',
+        identification=model.Identifier(id_='https://acplt.org/Test_ConceptDescription_Missing',
                                         id_type=model.IdentifierType.IRI),
         is_case_of=None,
         id_short='TestConceptDescription',
@@ -365,7 +365,7 @@ def create_example_concept_dictionary() -> model.ConceptDictionary:
         parent=None,
         concept_description={model.AASReference((model.Key(type_=model.KeyElements.CONCEPT_DESCRIPTION,
                                                            local=False,
-                                                           value='https://acplt.org/Test_ConceptDescription',
+                                                           value='https://acplt.org/Test_ConceptDescription_Missing',
                                                            id_type=model.KeyType.IRDI),),
                                                 model.ConceptDescription)})
     return concept_dictionary
@@ -382,7 +382,7 @@ def create_example_asset_administration_shell(concept_dictionary: model.ConceptD
         id_short='ExampleView',
         contained_element={model.AASReference((model.Key(type_=model.KeyElements.SUBMODEL,
                                                          local=False,
-                                                         value='https://acplt.org/Test_Submodel',
+                                                         value='https://acplt.org/Test_Submodel_Missing',
                                                          id_type=model.KeyType.IRDI),),
                                               model.Submodel)})
     view_2 = model.View(
@@ -391,10 +391,10 @@ def create_example_asset_administration_shell(concept_dictionary: model.ConceptD
     asset_administration_shell = model.AssetAdministrationShell(
         asset=model.AASReference((model.Key(type_=model.KeyElements.ASSET,
                                             local=False,
-                                            value='https://acplt.org/Test_Asset',
+                                            value='https://acplt.org/Test_Asset_Missing',
                                             id_type=model.KeyType.IRDI),),
                                  model.Asset),
-        identification=model.Identifier(id_='https://acplt.org/Test_AssetAdministrationShell',
+        identification=model.Identifier(id_='https://acplt.org/Test_AssetAdministrationShell_Missing',
                                         id_type=model.IdentifierType.IRI),
         id_short='TestAssetAdministrationShell',
         category=None,
@@ -406,7 +406,7 @@ def create_example_asset_administration_shell(concept_dictionary: model.ConceptD
         security_=None,
         submodel_={model.AASReference((model.Key(type_=model.KeyElements.SUBMODEL,
                                                  local=False,
-                                                 value='https://acplt.org/Test_Submodel',
+                                                 value='https://acplt.org/Test_Submodel_Missing',
                                                  id_type=model.KeyType.IRDI),),
                                       model.Submodel)},
         concept_dictionary=[concept_dictionary],
