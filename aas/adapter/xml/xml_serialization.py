@@ -771,11 +771,11 @@ def property_to_xml(obj: model.Property,
         et_value_id = ElTree.Element(ns_aas+"valueId")
         et_reference = reference_to_xml(obj.value_id)
         et_value_id.insert(0, et_reference)
-        et_value.insert(0, et_value_id)
+        et_property.insert(0, et_value_id)
     et_value_type = ElTree.Element(ns_aas+"valueType")
     et_value_type.text = obj.value_type
-    et_value.insert(0, et_value_type)
-    return et_value
+    et_property.insert(0, et_value_type)
+    return et_property
 
 
 def multi_language_property_to_xml(obj: model.MultiLanguageProperty,
