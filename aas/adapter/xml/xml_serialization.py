@@ -990,6 +990,8 @@ def operation_to_xml(obj: model.Operation,
     """
     serialization of objects of class Operation to XML
 
+    todo: operation_variables are of type NamespaceSet[OperationVariable], not sure how to deal with this
+
     :param obj: object of class Operation
     :param name: tag of the serialized element (optional), default is "operation"
     :return: serialized ElementTree object
@@ -997,12 +999,14 @@ def operation_to_xml(obj: model.Operation,
     et_operation = generate_element(name)
     for i in abstract_classes_to_xml(obj):
         et_operation.insert(0, i)
+    """
     et_input_var = operation_variable_to_xml(obj.input_variable, name="inputVariable")
     et_output_var = operation_variable_to_xml(obj.output_variable, name="outputVariable")
     et_inout_var = operation_variable_to_xml(obj.in_output_variable, name="inoutputVariable")
     et_operation.insert(0, et_inout_var)
     et_operation.insert(0, et_output_var)
     et_operation.insert(0, et_input_var)
+    """
     return et_operation
 
 
