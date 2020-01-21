@@ -624,7 +624,7 @@ def concept_dictionary_to_xml(obj: model.ConceptDictionary,
 
 
 def asset_administration_shell_to_xml(obj: model.AssetAdministrationShell,
-                                      name: Optional[str] = "assetAdministrationShell") -> ElTree.Element:
+                                      name: str = "assetAdministrationShell") -> ElTree.Element:
     """
     serialization of objects of class AssetAdministrationShell to XML
 
