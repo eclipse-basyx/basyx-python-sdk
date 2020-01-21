@@ -632,7 +632,7 @@ def asset_administration_shell_to_xml(obj: model.AssetAdministrationShell,
     :param name: name of the ElementTree object. default is "assetAdministrationShell"
     :return: serialized ElementTree object
     """
-    et_aas = ElTree.Element(ns_aas+"assetAdministrationShell")
+    et_aas = generate_element(name)
     for i in abstract_classes_to_xml(obj):
         et_aas.insert(0, i)
     et_namespace = namespace_to_xml(obj)
