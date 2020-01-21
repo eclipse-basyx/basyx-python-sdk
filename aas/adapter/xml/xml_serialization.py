@@ -1037,9 +1037,9 @@ def entity_to_xml(obj: model.Entity,
     et_entity = generate_element(name)
     for i in abstract_classes_to_xml(obj):
         et_entity.insert(0, i)
-
-    et_statements = submodel_element_to_xml(obj.statement, name="statements")
-    et_entity.insert(0, et_statements)
+    # todo: not sure how to deal with NamespaceSet[SubmodelElement]
+    # et_statements = submodel_element_to_xml(obj.statement, name="statements")
+    # et_entity.insert(0, et_statements)
 
     et_entity_type = ElTree.Element(ns_aas+"entityType")
     et_entity_type.text = ENTITY_TYPES[obj.entity_type]
