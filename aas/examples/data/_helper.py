@@ -81,7 +81,7 @@ class DataChecker:
         """
         kwargs['object_'] = repr(object_)
         return self.check(object_ == expected_value,
-                          "Object {} must be == '{}'".format(repr(object_), repr(expected_value)),
+                          "{} must be == '{}'".format(repr(object_), repr(expected_value)),
                           **kwargs)
 
     def check_attribute_equal(self, object_: object, attribute_name: str, expected_value: object, **kwargs) -> bool:
@@ -96,28 +96,7 @@ class DataChecker:
         """
         kwargs['value'] = getattr(object_, attribute_name)
         return self.check(getattr(object_, attribute_name) == expected_value,
-                          "Attribute '{}' of {} must be == '{}'".format(attribute_name, repr(object_), expected_value),
-                          **kwargs)
-
-    def check_attribute_equal_deep(self, object_: object, attribute_name: str, expected_value: object,
-                                   attribute: object, attribute_path: str, **kwargs) -> bool:
-        """
-        Checks if the value of the attribute in object_ is the same as expected_value and adds / stores the
-        check result for later analysis.
-
-        For use: check_attribute_equal_deep(submodel, id, "http://...",
-                                            submodel.identification.id, "identification.id")
-
-        :param object_: The object of which the attribute shall be checked
-        :param attribute_name: The name of the attribute in the given object which shall be checked
-        :param expected_value: The expected value of the attribute
-        :param attribute: The attribute object
-        :param attribute_path: The path inside the object to the attribute
-        :return: The value of expression to be used in control statements
-        """
-        kwargs['value'] = getattr(attribute, attribute_name)
-        return self.check(getattr(attribute, attribute_name) == expected_value,
-                          "Attribute '{}' of {} must be == {}".format(attribute_path, repr(object_), expected_value),
+                          "Attribute {} of {} must be == {}".format(attribute_name, repr(object_), expected_value),
                           **kwargs)
 
     def check_element_in(self, object_: model.Referable, parent: object, **kwargs) -> bool:
@@ -166,7 +145,7 @@ class DataChecker:
         """
         kwargs['class'] = object_.__class__.__name__
         return self.check(isinstance(object_, class_name),
-                          "Object {} must be of class {}".format(repr(object_), class_name.__name__),
+                          "{} must be of class {}".format(repr(object_), class_name.__name__),
                           **kwargs)
 
     def check_attribute_is_none(self, object_: object, attribute_name: str, **kwargs) -> bool:
@@ -179,7 +158,7 @@ class DataChecker:
         """
         kwargs['value'] = getattr(object_, attribute_name)
         return self.check(getattr(object_, attribute_name) is None,
-                          "Attribute '{}' of {} must be 'None'".format(attribute_name, repr(object_)),
+                          "Attribute {} of {} must be None".format(attribute_name, repr(object_)),
                           **kwargs)
 
     def extend(self, other: "DataChecker") -> None:

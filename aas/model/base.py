@@ -327,6 +327,12 @@ class AdministrativeInformation:
         else:
             self._revision = revision
 
+    def __eq__(self, other) -> bool:
+        return self.version == other.version and self._revision == other._revision
+
+    def __repr__(self) -> str:
+        return "AdminstrativeInformation(version={}, revision={})".format(self.version, self.revision)
+
     revision = property(_get_revision, _set_revision)
 
 
@@ -367,7 +373,7 @@ class Identifier:
         return self.id_type == other.id_type and self.id == other.id
 
     def __repr__(self) -> str:
-        return "{}={}".format(self.id_type.name, self.id)
+        return "Identifier({}={})".format(self.id_type.name, self.id)
 
 
 class Referable(metaclass=abc.ABCMeta):
@@ -755,6 +761,9 @@ class Qualifier(Constraint, HasSemantics):
         self.value_id: Optional[Reference] = value_id
         self.semantic_id: Optional[Reference] = semantic_id
 
+    def __repr__(self) -> str:
+        return "Qualifier(type={}, value_type={}, value={}, value_id={})".format(self.type_, self.value_type,
+                                                                                 self.value, self.value_id)
 
 class ValueReferencePair:
     """

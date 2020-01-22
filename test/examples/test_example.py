@@ -21,8 +21,9 @@ import unittest
 class ExampleAASTest(unittest.TestCase):
 
     def test_example_asset_identification_submodel(self):
+        checker = DataChecker(raise_immediately=True)
         submodel = example_aas.create_example_asset_identification_submodel()
-        check_example_asset_identification_submodel(self, submodel)
+        check_example_asset_identification_submodel(checker, submodel)
 
     def test_example_bill_of_material_submodel(self):
         submodel = example_aas.create_example_bill_of_material_submodel()
