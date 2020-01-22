@@ -16,76 +16,81 @@ Functions to test if an object is the same to the example aas from example_aas.p
 from typing import Optional
 
 from aas import model
+from aas.examples.data._helper import DataChecker
 from aas.util import identification
 
 
-def assert_example_asset_identification_submodel(self, submodel: model.Submodel) -> None:
+def check_example_asset_identification_submodel(self, submodel: model.Submodel, raise_immediately: bool = True) \
+        -> None:
     # Test attributes of Submodel
-    self.assertEqual('http://acplt.org/Submodels/Assets/TestAsset/Identification', submodel.identification.id)
-    self.assertEqual(model.IdentifierType.IRI, submodel.identification.id_type)
-    self.assertEqual(2, len(submodel.submodel_element))
-    self.assertEqual('Identification', submodel.id_short)
-    self.assertIsNone(submodel.category)
-    self.assertEqual({'en-us': 'An example asset identification submodel for the test application',
-                      'de': 'Ein Beispiel-Identifikations-Submodel für eine Test-Anwendung'}, submodel.description)
-    self.assertIsNone(submodel.parent)
-    self.assertEqual('0.9', submodel.administration.version)  # type: ignore
-    self.assertEqual('0', submodel.administration.revision)  # type: ignore
-    self.assertEqual(submodel.semantic_id, model.Reference((
+    checker = DataChecker(raise_immediately)
+    checker.check_attribute_equal_deep(submodel, 'id', 'http://acplt.org/Submodels/Assets/TestAsset/Identification',
+                                       submodel.identification, 'identification.id')
+    checker.check_attribute_equal_deep(submodel, 'id_type', model.IdentifierType.IRI,
+                                       submodel.identification, 'identification.id')
+    checker.check_contained_element_length(submodel, 'submodel_element', model.submodel.SubmodelElement, 2)
+    checker.check_attribute_equal(submodel, 'id_short', 'Identification')
+    checker.check_attribute_equal(submodel, 'id_short', 'Identification')
+    checker.check_attribute_is_none(submodel, 'category')
+    checker.check_attribute_equal(submodel, 'description',
+                                  {'en-us': 'An example asset identification submodel for the test application',
+                                   'de': 'Ein Beispiel-Identifikations-Submodel für eine Test-Anwendung'})
+    checker.check_attribute_is_none(submodel, 'parent')
+    checker.check_attribute_equal(submodel.administration, 'version', '0.9')
+    checker.check_attribute_equal(submodel.administration, 'revision', '0')
+    checker.check_attribute_equal(submodel, 'semantic_id', model.Reference((
         model.Key(type_=model.KeyElements.SUBMODEL,
                   local=False,
                   value='http://acplt.org/SubmodelTemplates/AssetIdentification',
                   id_type=model.KeyType.IRDI),)))
-    self.assertEqual(0, len(submodel.qualifier))
-    self.assertEqual(model.ModelingKind.INSTANCE, submodel.kind)
+    checker.check_contained_element_length(submodel, 'qualifier', model.Constraint, 0)
+    checker.check_attribute_equal(submodel, 'kind', model.ModelingKind.INSTANCE)
 
     # test attributes of property ManufacturerName
     manufacturer_name: model.Property = submodel.get_referable('ManufacturerName')  # type: ignore
-    self.assertIsInstance(manufacturer_name, model.Property)
-    self.assertEqual('ManufacturerName', manufacturer_name.id_short)
-    self.assertEqual('string', manufacturer_name.value_type)
-    self.assertEqual('ACPLT', manufacturer_name.value)
-    self.assertEqual(manufacturer_name.value_id, model.Reference((
+    checker.check_is_instance(manufacturer_name, model.Property)
+    checker.check_attribute_equal(manufacturer_name, 'id_short', 'ManufacturerName')
+    checker.check_attribute_equal(manufacturer_name, 'value_type', 'string')
+    checker.check_attribute_equal(manufacturer_name, 'value', 'ACPLT')
+    checker.check_attribute_equal(manufacturer_name, 'value_id', model.Reference((
         model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
                   local=False,
                   value='http://acplt.org/ValueId/ExampleValueId',
                   id_type=model.KeyType.IRDI),)))
-    self.assertIsNone(manufacturer_name.category)
-    self.assertEqual({'en-us': 'Legally valid designation of the natural or judicial person which is directly '
-                               'responsible for the design, production, packaging and labeling of a product in '
-                               'respect to its being brought into circulation.',
-                      'de': 'Bezeichnung für eine natürliche oder juristische Person, die für die Auslegung, '
-                            'Herstellung und Verpackung sowie die Etikettierung eines Produkts im Hinblick auf '
-                            'das \'Inverkehrbringen\' im eigenen Namen verantwortlich ist'},
-                     manufacturer_name.description)
-    self.assertIs(manufacturer_name.parent, submodel)
-    self.assertEqual(manufacturer_name.semantic_id, model.Reference((
+    checker.check_attribute_is_none(manufacturer_name, 'category')
+    checker.check_attribute_equal(manufacturer_name, 'description', {
+        'en-us': 'Legally valid designation of the natural or judicial person which is directly responsible for the '
+                 'design, production, packaging and labeling of a product in respect to its being brought into '
+                 'circulation.',
+        'de': 'Bezeichnung für eine natürliche oder juristische Person, die für die Auslegung, Herstellung und '
+              'Verpackung sowie die Etikettierung eines Produkts im Hinblick auf das \'Inverkehrbringen\' im eigenen '
+              'Namen verantwortlich ist'})
+    checker.check_attribute_equal(manufacturer_name, 'parent', submodel)
+    checker.check_attribute_equal(manufacturer_name, 'semantic_id', model.Reference((
         model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
                   local=False,
                   value='0173-1#02-AAO677#002',
                   id_type=model.KeyType.IRDI),)))
-    self.assertEqual(2, len(manufacturer_name.qualifier))
-    self.assertEqual(model.ModelingKind.INSTANCE, manufacturer_name.kind)
+    checker.check_contained_element_length(manufacturer_name, 'qualifier', model.Constraint, 2)
+    checker.check_attribute_equal(manufacturer_name, 'kind', model.ModelingKind.INSTANCE)
 
     # Test attributes of property qualifier
     qualifier: model.Qualifier
     for qualifier in manufacturer_name.qualifier:  # type: ignore
         if qualifier.type_ == 'http://acplt.org/Qualifier/ExampleQualifier':
-            self.assertIsInstance(qualifier, model.Qualifier)
-            self.assertEqual('http://acplt.org/Qualifier/ExampleQualifier', qualifier.type_)
-            self.assertEqual('string', qualifier.value_type)
-            self.assertEqual('100', qualifier.value)
-            self.assertEqual(qualifier.value_id, model.Reference((
+            checker.check_is_instance(qualifier, model.Qualifier)
+            checker.check_attribute_equal(qualifier, 'value_type', 'string')
+            checker.check_attribute_equal(qualifier, 'value', '100')
+            checker.check_attribute_equal(qualifier, 'value_id', model.Reference((
                 model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
                           local=False,
                           value='http://acplt.org/ValueId/ExampleValueId',
                           id_type=model.KeyType.IRDI),)))
         elif qualifier.type_ == 'http://acplt.org/Qualifier/ExampleQualifier2':
-            self.assertIsInstance(qualifier, model.Qualifier)
-            self.assertEqual('http://acplt.org/Qualifier/ExampleQualifier2', qualifier.type_)
-            self.assertEqual('string', qualifier.value_type)
-            self.assertEqual('50', qualifier.value)
-            self.assertEqual(qualifier.value_id, model.Reference((
+            checker.check_is_instance(qualifier, model.Qualifier)
+            checker.check_attribute_equal(qualifier, 'value_type', 'string')
+            checker.check_attribute_equal(qualifier, 'value', '50')
+            checker.check_attribute_equal(qualifier, 'value_id', model.Reference((
                 model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
                           local=False,
                           value='http://acplt.org/ValueId/ExampleValueId',
@@ -94,19 +99,26 @@ def assert_example_asset_identification_submodel(self, submodel: model.Submodel)
             raise KeyError()
 
     instance_id: model.Property = submodel.get_referable('InstanceId')  # type: ignore
-    self.assertIsInstance(instance_id, model.Property)
-    self.assertEqual(1, len(instance_id.qualifier))
+    checker.check_is_instance(instance_id, model.Property)
+    checker.check_contained_element_length(instance_id, 'qualifier', model.Constraint, 1)
+
     # Test attributes of property qualifier
     formula: model.Formula
     for formula in instance_id.qualifier:  # type: ignore
-        self.assertIsInstance(formula, model.Formula)
-        self.assertEqual(1, len(formula.depends_on))
+        checker.check_is_instance(formula, model.Formula)
+        checker.check_contained_element_length(formula, 'depends_on', model.Reference, 1)
         for reference in formula.depends_on:
-            self.assertEqual(reference, model.Reference((
+            checker.check_object_equal(reference, model.Reference((
                 model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
                           local=False,
                           value='http://acplt.org/Formula/ExampleFormula',
                           id_type=model.KeyType.IRDI),)))
+
+    for result in checker.failed_checks:
+        print(result)
+
+    for result in checker.successful_checks:
+        print(result)
 
 
 def assert_example_bill_of_material_submodel(self, submodel: model.Submodel) -> None:
@@ -670,7 +682,7 @@ def assert_full_example(self, obj_store: model.DictObjectStore, failsafe: bool =
 
     for submodel in submodels:
         if submodel.identification.id == 'http://acplt.org/Submodels/Assets/TestAsset/Identification':
-            assert_example_asset_identification_submodel(self, submodel)
+            check_example_asset_identification_submodel(self, submodel)
         elif submodel.identification.id == 'http://acplt.org/Submodels/Assets/TestAsset/BillOfMaterial':
             assert_example_bill_of_material_submodel(self, submodel)
         elif submodel.identification.id == 'https://acplt.org/Test_Submodel':

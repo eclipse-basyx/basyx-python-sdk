@@ -13,7 +13,9 @@ Helper classes for checking example data structures for completeness and correct
 """
 
 import pprint
-from typing import List, NamedTuple, Iterator, Dict, Any
+from typing import List, NamedTuple, Iterator, Dict, Any, Type
+
+from aas import model
 
 
 class CheckResult(NamedTuple):
@@ -44,6 +46,7 @@ class DataChecker:
         for result in dc.failed_checks:
             print(result)
     """
+
     def __init__(self, raise_immediately: bool = False):
         """
         :param raise_immediately: If True, a failed check will raise an AssertionError instead of gathering the
@@ -52,9 +55,9 @@ class DataChecker:
         self.checks: List[CheckResult] = []
         self.raise_immediately = raise_immediately
 
-    def check(self, expression: bool, expectation: str, **kwargs: Dict[str, Any]) -> bool:
+    def check(self, expression: bool, expectation: str, **kwargs) -> bool:
         """
-        Checks if `expression` is True and adds stores the check result for later analysis.
+        Checks if `expression` is True and adds / stores the check result for later analysis.
 
         :param expression: The boolean to be checked for
         :param expectation: A string describing, what the data was expected to look like (for later listing of
@@ -66,6 +69,118 @@ class DataChecker:
             raise AssertionError("Check failed: {}".format(expectation), kwargs)
         self.checks.append(CheckResult(expectation, expression, kwargs))
         return expression
+
+    def check_object_equal(self, object_: object, expected_value: object, **kwargs) -> bool:
+        """
+        Checks if the value of the attribute in object_ is the same as expected_value and adds / stores the
+        check result for later analysis.
+
+        :param object_: The object which shall be checked
+        :param expected_value: The expected object
+        :return: The value of expression to be used in control statements
+        """
+        kwargs['object_'] = repr(object_)
+        return self.check(object_ == expected_value,
+                          "Object {} must be == '{}'".format(repr(object_), repr(expected_value)),
+                          **kwargs)
+
+    def check_attribute_equal(self, object_: object, attribute_name: str, expected_value: object, **kwargs) -> bool:
+        """
+        Checks if the value of the attribute in object_ is the same as expected_value and adds / stores the
+        check result for later analysis.
+
+        :param object_: The object of which the attribute shall be checked
+        :param attribute_name: The name of the attribute in the given object which shall be checked
+        :param expected_value: The expected value of the attribute
+        :return: The value of expression to be used in control statements
+        """
+        kwargs['value'] = getattr(object_, attribute_name)
+        return self.check(getattr(object_, attribute_name) == expected_value,
+                          "Attribute '{}' of {} must be == '{}'".format(attribute_name, repr(object_), expected_value),
+                          **kwargs)
+
+    def check_attribute_equal_deep(self, object_: object, attribute_name: str, expected_value: object,
+                                   attribute: object, attribute_path: str, **kwargs) -> bool:
+        """
+        Checks if the value of the attribute in object_ is the same as expected_value and adds / stores the
+        check result for later analysis.
+
+        For use: check_attribute_equal_deep(submodel, id, "http://...",
+                                            submodel.identification.id, "identification.id")
+
+        :param object_: The object of which the attribute shall be checked
+        :param attribute_name: The name of the attribute in the given object which shall be checked
+        :param expected_value: The expected value of the attribute
+        :param attribute: The attribute object
+        :param attribute_path: The path inside the object to the attribute
+        :return: The value of expression to be used in control statements
+        """
+        kwargs['value'] = getattr(attribute, attribute_name)
+        return self.check(getattr(attribute, attribute_name) == expected_value,
+                          "Attribute '{}' of {} must be == {}".format(attribute_path, repr(object_), expected_value),
+                          **kwargs)
+
+    def check_element_in(self, object_: model.Referable, parent: object, **kwargs) -> bool:
+        """
+        Checks if object_ exist in parent and adds / stores the check result for later analysis.
+
+        :param object_: The object which shall be in parent
+        :param parent: The parent in which object_ shall be exist
+        :param kwargs: Relevant values to add to the check result for further analysis (e.g. the compared values)
+        :return: The value of expression to be used in control statements
+        Existence check: <path to object> must exist in <object class> (<path to object>)
+        """
+        return self.check(object_.parent == parent,
+                          "{} must exist in {}s".format(repr(object_), repr(parent)),
+                          **kwargs)
+
+    def check_contained_element_length(self, object_: object, attribute_name: str, class_name: Type,
+                                       length: int, **kwargs) -> bool:
+        """
+        Checks if the object_ has <lenght> elements of class <class_name> in attribute <attribute_name> and
+        adds / stores the check result for later analysis.
+
+        :param object_: The object of which the attribute shall be checked
+        :param attribute_name: The name of the attribute in the given object which shall be checked
+        :param class_name: The class name to decide which objects in the attribute shall be count
+        :param length: The expected length of the attribute
+        :param kwargs: Relevant values to add to the check result for further analysis (e.g. the compared values)
+        :return: The value of expression to be used in control statements
+        """
+        count = 0
+        for element in getattr(object_, attribute_name):
+            if isinstance(element, class_name):
+                count = count + 1
+        kwargs['count'] = count
+        return self.check(count == length,
+                          "{} must contain {} {}s".format(repr(object_), length, class_name.__name__),
+                          **kwargs)
+
+    def check_is_instance(self, object_: object, class_name: Type, **kwargs) -> bool:
+        """
+        Checks if the value of the attribute in object_ is None and adds / stores the check result for later analysis.
+
+        :param object_: The object of which the attribute shall be checked
+        :param class_name: The class name which the object_ shall be
+        :return: The value of expression to be used in control statements
+        """
+        kwargs['class'] = object_.__class__.__name__
+        return self.check(isinstance(object_, class_name),
+                          "Object {} must be of class {}".format(repr(object_), class_name.__name__),
+                          **kwargs)
+
+    def check_attribute_is_none(self, object_: object, attribute_name: str, **kwargs) -> bool:
+        """
+        Checks if the value of the attribute in object_ is None and adds / stores the check result for later analysis.
+
+        :param object_: The object of which the attribute shall be checked
+        :param attribute_name: The name of the attribute in the given object which shall be checked
+        :return: The value of expression to be used in control statements
+        """
+        kwargs['value'] = getattr(object_, attribute_name)
+        return self.check(getattr(object_, attribute_name) is None,
+                          "Attribute '{}' of {} must be 'None'".format(attribute_name, repr(object_)),
+                          **kwargs)
 
     def extend(self, other: "DataChecker") -> None:
         """
