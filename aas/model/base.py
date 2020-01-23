@@ -765,6 +765,7 @@ class Qualifier(Constraint, HasSemantics):
         return "Qualifier(type={}, value_type={}, value={}, value_id={})".format(self.type_, self.value_type,
                                                                                  self.value, self.value_id)
 
+
 class ValueReferencePair:
     """
     A value reference pair within a value list. Each value has a global unique id defining its semantic.

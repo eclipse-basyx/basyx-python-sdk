@@ -91,7 +91,8 @@ class CouchDBTest(unittest.TestCase):
         retrieved_data_store: model.provider.DictObjectStore[model.Identifiable] = model.provider.DictObjectStore()
         for item in self.db:
             retrieved_data_store.add(item)
-        assert_full_example(self, retrieved_data_store)
+        checker = AASDataChecker(raise_immediately=False)  # TODO set to True
+        assert_full_example(checker, retrieved_data_store)
 
     def test_parallel_iterating(self) -> None:
         example_data = example_aas.create_full_example()
@@ -112,7 +113,8 @@ class CouchDBTest(unittest.TestCase):
         for item in retrieved_objects:
             retrieved_data_store.add(item)
         self.assertEqual(6, len(retrieved_data_store))
-        assert_full_example(self, retrieved_data_store)
+        checker = AASDataChecker(raise_immediately=False)  # TODO set to True
+        assert_full_example(checker, retrieved_data_store)
 
         # Delete objects via thread pool executor
         with concurrent.futures.ThreadPoolExecutor() as pool:

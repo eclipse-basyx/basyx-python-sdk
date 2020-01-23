@@ -31,7 +31,7 @@ from .security import *
 from .base import *
 from .submodel import *
 from .provider import *
-from .concept import ConceptDescription, ConceptDictionary
+from .concept import ConceptDescription, ConceptDictionary, IEC61360ConceptDescription
 
 # A mapping of PyI40AAS implementation classes to the corresponding `KeyElements` enum members for all classes that are
 # covered by this enum.
