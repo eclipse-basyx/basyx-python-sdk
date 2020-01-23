@@ -21,15 +21,17 @@ from typing import List, Optional, Set, TypeVar, MutableSet, Generic, Iterable, 
     MutableSequence, Type, Any, TYPE_CHECKING, Tuple
 import re
 
+from . import datatypes
+
 if TYPE_CHECKING:
     from . import provider
 
-DataTypeDef = str  # any xsd simple type as string
+DataTypeDef = Type[datatypes.AnyXSDType]
+ValueDataType = datatypes.AnyXSDType  # any xsd atomic type (from .datatypes)
 BlobType = bytes
 MimeType = str  # any mimetype as in RFC2046
 PathType = str
 QualifierType = str
-ValueDataType = str  # any xsd atomic type
 # A dict of language-Identifier (according to ISO 639-1 and ISO 3166-1) and string in this language.
 # The meaning of the string in each language is the same.
 # << Data Type >> Example ["en-US", "germany"]

@@ -472,10 +472,10 @@ def property_to_json(obj: model.Property) -> Dict[str, object]:
     :return: dict with the serialized attributes of this object
     """
     data = abstract_classes_to_json(obj)
-    data['value'] = obj.value
+    data['value'] = model.datatypes.xsd_repr(obj.value)
     if obj.value_id:
         data['valueId'] = obj.value_id
-    data['valueType'] = obj.value_type
+    data['valueType'] = model.datatypes.XSD_TYPE_NAMES[obj.value_type]
     return data
 
 

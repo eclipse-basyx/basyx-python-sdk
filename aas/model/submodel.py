@@ -13,9 +13,9 @@ This module contains everything needed to model Submodels and define Events acco
 """
 
 import abc
-from typing import Optional, Set, Iterable, TYPE_CHECKING, List
+from typing import Optional, Set, Iterable, TYPE_CHECKING, List, Type
 
-from . import base
+from . import base, datatypes
 if TYPE_CHECKING:
     from . import aas
 
@@ -209,9 +209,19 @@ class Property(DataElement):
         """
 
         super().__init__(id_short, category, description, parent, semantic_id, qualifier, kind)
-        self.value_type: base.DataTypeDef = value_type
-        self.value: Optional[base.ValueDataType] = value
+        self.value_type: Type[datatypes.AnyXSDType] = value_type
+        self._value: Optional[base.ValueDataType] = value
         self.value_id: Optional[base.Reference] = value_id
+
+    @property
+    def value(self):
+        return self._value
+
+    @value.setter
+    def value(self, value) -> None:
+        type_: Type[datatypes.AnyXSDType] = self.value_type
+        val: datatypes.AnyXSDType = datatypes.trivial_cast(value, type_)
+        self._value = val
 
 
 class MultiLanguageProperty(DataElement):

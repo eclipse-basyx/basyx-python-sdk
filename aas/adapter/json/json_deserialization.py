@@ -638,11 +638,11 @@ class AASFromJsonDecoder(json.JSONDecoder):
     @classmethod
     def _construct_property(cls, dct: Dict[str, object], object_class=model.Property) -> model.Property:
         ret = object_class(id_short=_get_ts(dct, "idShort", str),
-                           value_type=_get_ts(dct, 'valueType', str),
+                           value_type=model.datatypes.XSD_TYPE_CLASSES[_get_ts(dct, 'valueType', str)],
                            kind=cls._get_kind(dct))
         cls._amend_abstract_attributes(ret, dct)
         if 'value' in dct and dct['value'] is not None:
-            ret.value = _get_ts(dct, 'value', str)
+            ret.value = model.datatypes.from_xsd(_get_ts(dct, 'value', str), ret.value_type)
         if 'valueId' in dct:
             ret.value_id = cls._construct_reference(_get_ts(dct, 'valueId', dict))
         return ret
