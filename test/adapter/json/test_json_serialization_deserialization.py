@@ -161,8 +161,3 @@ class JsonSerializationDeserializationTest6(unittest.TestCase):
         testCase_for_example_aas_missing_attributes.assert_full_example(checker, json_object_store, False)
         testCase_for_example_concept_description.assert_full_example(checker, json_object_store, False)
         testCase_for_example_submodel_template.assert_full_example(checker, json_object_store, False)
-        for result in checker.failed_checks:
-            print(result)
-
-        for result in checker.successful_checks:
-            print(result)

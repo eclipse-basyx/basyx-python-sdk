@@ -713,19 +713,69 @@ class AASDataChecker(DataChecker):
         :param kwargs: Relevant values to add to the check result for further analysis (e.g. the compared values)
         :return:
         """
-        return (self.check_attribute_equal(object_, 'preferred_name', expected_value.preferred_name) and
-                self.check_attribute_equal(object_, 'short_name', expected_value.short_name) and
-                self.check_attribute_equal(object_, 'data_type', expected_value.data_type) and
-                self.check_attribute_equal(object_, 'definition', expected_value.definition) and
-                self.check_attribute_equal(object_, 'unit', expected_value.unit) and
-                self.check_attribute_equal(object_, 'unit_id', expected_value.unit_id) and
-                self.check_attribute_equal(object_, 'source_of_definition', expected_value.source_of_definition) and
-                self.check_attribute_equal(object_, 'symbol', expected_value.symbol) and
-                self.check_attribute_equal(object_, 'value_format', expected_value.value_format) and
-                self.check_attribute_equal(object_, 'value_list', expected_value.value_list) and
-                self.check_attribute_equal(object_, 'value', expected_value.value) and
-                self.check_attribute_equal(object_, 'value_id', expected_value.value_id) and
-                self.check_attribute_equal(object_, 'level_types', expected_value.level_types))
+        result = (self.check_attribute_equal(object_, 'preferred_name', expected_value.preferred_name) and
+                  self.check_attribute_equal(object_, 'short_name', expected_value.short_name) and
+                  self.check_attribute_equal(object_, 'data_type', expected_value.data_type) and
+                  self.check_attribute_equal(object_, 'definition', expected_value.definition) and
+                  self.check_attribute_equal(object_, 'unit', expected_value.unit) and
+                  self.check_attribute_equal(object_, 'unit_id', expected_value.unit_id) and
+                  self.check_attribute_equal(object_, 'source_of_definition',
+                                             expected_value.source_of_definition) and
+                  self.check_attribute_equal(object_, 'symbol', expected_value.symbol) and
+                  self.check_attribute_equal(object_, 'value_format', expected_value.value_format) and
+                  self.check_attribute_equal(object_, 'value', expected_value.value) and
+                  self.check_attribute_equal(object_, 'value_id', expected_value.value_id) and
+                  self.check_attribute_equal(object_, 'level_types', expected_value.level_types))
+
+        if expected_value.value_list:
+            if object_.value_list:
+                result = result and self.check_contained_element_length(object_, 'value_list',
+                                                                        model.ValueReferencePair,
+                                                                        len(expected_value.value_list))
+                result = result and self._check_value_list_equal(object_.value_list, expected_value.value_list)
+            else:
+                self.check(False, "ValueList must contain {} ValueReferencePairs".format(
+                    len(expected_value.value_list)))
+        return result
+
+    def _check_value_list_equal(self, object_: model.ValueList, expected_value: model.ValueList):
+        """
+        Checks if the given ValueList objects are equal
+
+        :param object_: Given ValueList object to check
+        :param expected_value: expected ValueList object
+        :param kwargs: Relevant values to add to the check result for further analysis (e.g. the compared values)
+        :return:
+        """
+        result = True
+        for expected_pair in expected_value:
+            find = False
+            for pair in object_:
+                if (pair.value == expected_pair.value and
+                        pair.value_id == expected_pair.value_id and
+                        pair.value_type == expected_pair.value_type):
+                    find = True
+                    break
+            if not find:
+                result = result and self.check(False, 'ValueReferencePair[value={}, value_id={}, value_type={}] '
+                                                      'must be found'.format(expected_pair.value,
+                                                                             expected_pair.value_id,
+                                                                             expected_pair.value_type))
+
+        for pair in object_:
+            find = False
+            for expected_pair in expected_value:
+                if (pair.value == expected_pair.value and
+                    pair.value_id == expected_pair.value_id and
+                    pair.value_type == expected_pair.value_type):
+                    find = True
+                    break
+            if not find:
+                result = result and self.check(False, 'ValueReferencePair[value={}, value_id={}, value_type={}] '
+                                                      'must not exist'.format(pair.value,
+                                                                              pair.value_id,
+                                                                              pair.value_type))
+        return result
 
     def check_attribute_equal(self, object_: object, attribute_name: str, expected_value: object, **kwargs) -> bool:
         """
