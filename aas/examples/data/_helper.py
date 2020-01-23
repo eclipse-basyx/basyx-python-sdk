@@ -358,7 +358,8 @@ class AASDataChecker(DataChecker):
                     find = True
                     break
             if not find:
-                result = result and self.check(False, 'Annotated Reference[{}] must be found'.format(repr(expected_ref)))
+                result = result and self.check(False, 'Annotated Reference[{}] must be '
+                                                      'found'.format(repr(expected_ref)))
 
         for ref in object_.annotation:
             find = False
