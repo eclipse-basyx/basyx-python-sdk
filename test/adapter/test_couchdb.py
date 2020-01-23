@@ -72,7 +72,7 @@ class CouchDBTest(unittest.TestCase):
         submodel_restored = self.db.get_identifiable(
             model.Identifier(id_='https://acplt.org/Test_Submodel', id_type=model.IdentifierType.IRI))
         assert(isinstance(submodel_restored, model.Submodel))
-        checker = AASDataChecker(raise_immediately=False)  # TODO set to True
+        checker = AASDataChecker(raise_immediately=True)
         assert_example_submodel(checker, submodel_restored)
 
         # Delete example submodel
@@ -92,7 +92,7 @@ class CouchDBTest(unittest.TestCase):
         retrieved_data_store: model.provider.DictObjectStore[model.Identifiable] = model.provider.DictObjectStore()
         for item in self.db:
             retrieved_data_store.add(item)
-        checker = AASDataChecker(raise_immediately=False)  # TODO set to True
+        checker = AASDataChecker(raise_immediately=True)
         assert_full_example(checker, retrieved_data_store)
 
     def test_parallel_iterating(self) -> None:
@@ -114,7 +114,7 @@ class CouchDBTest(unittest.TestCase):
         for item in retrieved_objects:
             retrieved_data_store.add(item)
         self.assertEqual(6, len(retrieved_data_store))
-        checker = AASDataChecker(raise_immediately=False)  # TODO set to True
+        checker = AASDataChecker(raise_immediately=True)
         assert_full_example(checker, retrieved_data_store)
 
         # Delete objects via thread pool executor

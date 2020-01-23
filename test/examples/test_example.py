@@ -22,37 +22,37 @@ from aas.examples.data._helper import AASDataChecker
 class ExampleAASTest(unittest.TestCase):
 
     def test_example_asset_identification_submodel(self):
-        checker = AASDataChecker(raise_immediately=False)  # TODO set to True
+        checker = AASDataChecker(raise_immediately=True)
         submodel = example_aas.create_example_asset_identification_submodel()
         assert_example_asset_identification_submodel(checker, submodel)
 
     def test_example_bill_of_material_submodel(self):
-        checker = AASDataChecker(raise_immediately=False)  # TODO set to True
+        checker = AASDataChecker(raise_immediately=True)
         submodel = example_aas.create_example_bill_of_material_submodel()
         assert_example_bill_of_material_submodel(checker, submodel)
 
     def test_example_asset(self):
-        checker = AASDataChecker(raise_immediately=False)  # TODO set to True
+        checker = AASDataChecker(raise_immediately=True)
         asset = example_aas.create_example_asset()
         assert_example_asset(checker, asset)
 
     def test_example_concept_description(self):
-        checker = AASDataChecker(raise_immediately=False)  # TODO set to True
+        checker = AASDataChecker(raise_immediately=True)
         concept_description = example_aas.create_example_concept_description()
         assert_example_concept_description(checker, concept_description)
 
     def test_example_asset_administration_shell(self):
-        checker = AASDataChecker(raise_immediately=False)  # TODO set to True
+        checker = AASDataChecker(raise_immediately=True)
         concept_dictionary = example_aas.create_example_concept_dictionary()
         shell = example_aas.create_example_asset_administration_shell(concept_dictionary)
         assert_example_asset_administration_shell(checker, shell)
 
     def test_example_submodel(self):
-        checker = AASDataChecker(raise_immediately=False)  # TODO set to True
+        checker = AASDataChecker(raise_immediately=True)
         submodel = example_aas.create_example_submodel()
         assert_example_submodel(checker, submodel)
 
     def test_full_example(self):
-        checker = AASDataChecker(raise_immediately=False)  # TODO set to True
+        checker = AASDataChecker(raise_immediately=True)
         obj_store = example_aas.create_full_example()
         assert_full_example(checker, obj_store)

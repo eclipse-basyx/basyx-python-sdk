@@ -350,9 +350,25 @@ class AASDataChecker(DataChecker):
         :param kwargs: Relevant values to add to the check result for further analysis (e.g. the compared values)
         :return:
         """
-        return (self._check_abstract_attributes_submodel_element_equal(object_, expected_value) and
-                self._check_relationship_element_equal(object_, expected_value) and
-                self.check_attribute_equal(object_, 'annotation', expected_value.annotation))
+        result = self._check_relationship_element_equal(object_, expected_value)
+        for expected_ref in expected_value.annotation:
+            find = False
+            for ref in object_.annotation:
+                if ref == expected_ref:
+                    find = True
+                    break
+            if not find:
+                result = result and self.check(False, 'Annotated Reference[{}] must be found'.format(repr(expected_ref)))
+
+        for ref in object_.annotation:
+            find = False
+            for expected_ref in expected_value.annotation:
+                if ref == expected_ref:
+                    find = True
+                    break
+            if not find:
+                result = result and self.check(False, 'Annotated Reference[{}] must not exist'.format(repr(ref)))
+        return result
 
     def _check_operation_variable_equal(self, object_: model.OperationVariable,
                                         expected_value: model.OperationVariable):

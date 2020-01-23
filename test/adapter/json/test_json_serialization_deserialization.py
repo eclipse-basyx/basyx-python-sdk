@@ -60,7 +60,7 @@ class JsonSerializationDeserializationTest(unittest.TestCase):
         # module
         file.seek(0)
         json_object_store = json_deserialization.read_json_aas_file(file, failsafe=False)
-        checker = AASDataChecker(raise_immediately=False)  # TODO set to True
+        checker = AASDataChecker(raise_immediately=True)
         testCase_for_example_aas.assert_full_example(checker, json_object_store)
 
 
@@ -74,7 +74,7 @@ class JsonSerializationDeserializationTest2(unittest.TestCase):
         # module
         file.seek(0)
         json_object_store = json_deserialization.read_json_aas_file(file, failsafe=False)
-        checker = AASDataChecker(raise_immediately=False)  # TODO set to True
+        checker = AASDataChecker(raise_immediately=True)
         testCase_for_example_aas_mandatory_attributes.assert_full_example(checker, json_object_store)
 
 
@@ -87,7 +87,7 @@ class JsonSerializationDeserializationTest3(unittest.TestCase):
         # module
         file.seek(0)
         json_object_store = json_deserialization.read_json_aas_file(file, failsafe=False)
-        checker = AASDataChecker(raise_immediately=False)  # TODO set to True
+        checker = AASDataChecker(raise_immediately=True)
         testCase_for_example_aas_missing_attributes.assert_full_example(checker, json_object_store)
 
 
@@ -101,7 +101,7 @@ class JsonSerializationDeserializationTest4(unittest.TestCase):
         # module
         file.seek(0)
         json_object_store = json_deserialization.read_json_aas_file(file, failsafe=False)
-        checker = AASDataChecker(raise_immediately=False)  # TODO set to True
+        checker = AASDataChecker(raise_immediately=True)
         testCase_for_example_submodel_template.assert_full_example(checker, json_object_store)
 
 
@@ -115,7 +115,7 @@ class JsonSerializationDeserializationTest5(unittest.TestCase):
         # module
         file.seek(0)
         json_object_store = json_deserialization.read_json_aas_file(file, failsafe=False)
-        checker = AASDataChecker(raise_immediately=False)  # TODO set to True
+        checker = AASDataChecker(raise_immediately=True)
         testCase_for_example_concept_description.assert_full_example(checker, json_object_store)
 
 
@@ -155,7 +155,7 @@ class JsonSerializationDeserializationTest6(unittest.TestCase):
         # module
         file.seek(0)
         json_object_store = json_deserialization.read_json_aas_file(file, failsafe=False)
-        checker = AASDataChecker(raise_immediately=False)  # TODO set to True
+        checker = AASDataChecker(raise_immediately=True)
         testCase_for_example_aas.assert_full_example(checker, json_object_store, False)
         testCase_for_example_aas_mandatory_attributes.assert_full_example(checker, json_object_store, False)
         testCase_for_example_aas_missing_attributes.assert_full_example(checker, json_object_store, False)
