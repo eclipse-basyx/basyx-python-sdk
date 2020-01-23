@@ -72,7 +72,8 @@ class CouchDBTest(unittest.TestCase):
         submodel_restored = self.db.get_identifiable(
             model.Identifier(id_='https://acplt.org/Test_Submodel', id_type=model.IdentifierType.IRI))
         assert(isinstance(submodel_restored, model.Submodel))
-        assert_example_submodel(self, submodel_restored)
+        checker = AASDataChecker(raise_immediately=False)  # TODO set to True
+        assert_example_submodel(checker, submodel_restored)
 
         # Delete example submodel
         self.db.discard(submodel_restored)
