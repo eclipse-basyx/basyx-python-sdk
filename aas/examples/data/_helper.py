@@ -766,8 +766,8 @@ class AASDataChecker(DataChecker):
             find = False
             for expected_pair in expected_value:
                 if (pair.value == expected_pair.value and
-                    pair.value_id == expected_pair.value_id and
-                    pair.value_type == expected_pair.value_type):
+                        pair.value_id == expected_pair.value_id and
+                        pair.value_type == expected_pair.value_type):
                     find = True
                     break
             if not find:
