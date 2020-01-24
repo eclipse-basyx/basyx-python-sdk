@@ -73,43 +73,6 @@ def boolean_to_xml(obj: bool) -> str:
         return "false"
 
 
-def _find_rec(parent: ElTree.Element, tag: str) -> Iterator[ElTree.Element]:
-    """
-    Finds all elements recursively that have the given tag
-
-    todo: Check if this really works as intended
-
-    :param parent: ElTree.Element object to search through
-    :param tag: tag of the ElTree.Element to find
-    :return: List of ElTree.Elements that have the tag
-    """
-    for item in parent.findall(tag):
-        yield item
-    for item in parent:
-        _find_rec(item, tag)
-
-
-def update_element(old_element: ElTree.Element,
-                   new_element: ElTree.Element) -> ElTree.Element:
-    """
-    update an existing ElTree.Element with a new ElTree.Elements
-
-    # TODO remove
-
-    :param old_element: Element to update
-    :param new_element: ElTree.Element with the data for update
-    :return: ElTree.Element with the updated information
-    """
-    elements_to_update = list(_find_rec(old_element, new_element.tag))  # search for elements that match new_element
-    if len(elements_to_update) > 1:  # more than one element found that matches with new_element, sth went wrong.
-        raise ValueError("Found " + str(len(elements_to_update)) + " elements [" + new_element.tag +
-                                                                   "] in " + old_element.tag + ". Expected 1")
-    if elements_to_update is not []:  # if the element already exists, remove the outdated element
-        old_element.remove(elements_to_update[0])
-    old_element.insert(0, new_element)  # insert the new_element
-    return old_element
-
-
 # ##############################################################
 # dicts to serialize enum classes to xml
 # ##############################################################
@@ -343,15 +306,9 @@ def administrative_information_to_xml(obj: model.AdministrativeInformation) -> E
     for i in abstract_classes_to_xml(obj):
         et_administration.insert(0, i)
     if obj.version:
-        et_administration_version = generate_element(name="version",
-                                                     text=obj.version,
-                                                     namespace=ns_aas)
-        et_administration = update_element(et_administration, et_administration_version)
+        et_administration.append(generate_element(name=ns_aas+"version", text=obj.version))
         if obj.revision:
-            et_administration_revision = generate_element(name="revision",
-                                                          text=obj.revision,
-                                                          namespace=ns_aas)
-            et_administration = update_element(et_administration, et_administration_revision)
+            et_administration.append(generate_element(name=ns_aas+"revision", text=obj.revision))
     return et_administration
 
 
@@ -786,17 +743,11 @@ def range_to_xml(obj: model.Range,
     et_range = generate_element(name, namespace=ns_aas)
     for i in abstract_classes_to_xml(obj):
         et_range.insert(0, i)
-    et_value_type = ElTree.Element(ns_aas+"valueType")
-    et_value_type.text = obj.value_type
-    et_range = update_element(et_range, et_value_type)
+    et_range.append(generate_element(name=ns_aas+"valueType", text=obj.value_type))
     if obj.min_:
-        et_min = ElTree.Element(ns_aas+"min")
-        et_min.text = obj.min_
-        et_range = update_element(et_range, et_min)
+        et_range.append(generate_element(name=ns_aas+"min", text=obj.min_))
     if obj.max_:
-        et_max = ElTree.Element(ns_aas+"max")
-        et_max.text = obj.max_
-        et_range = update_element(et_range, et_max)
+        et_range.append(generate_element(name=ns_aas+"max", text=obj.max_))
     return et_range
 
 
