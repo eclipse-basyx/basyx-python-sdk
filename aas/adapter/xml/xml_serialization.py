@@ -894,18 +894,18 @@ def write_aas_xml_file(file: IO,
     root.set("xsi:schemaLocation", "http://www.admin-shell.io/aas/1/0 AAS.xsd "
                                    "http://www.admin-shell.io/IEC61360/1/0IEC61360.xsd ")
 
-    et_asset_administration_shells = ElTree.Element("assetAdministrationShells")
+    et_asset_administration_shells = ElTree.Element(ns_aas+"assetAdministrationShells")
     for aas_obj in asset_administration_shells:
-        et_asset_administration_shells.insert(0, aas_object_to_xml(aas_obj))
-    et_assets = ElTree.Element("assets")
+        et_asset_administration_shells.append(asset_administration_shell_to_xml(aas_obj, namespace=ns_aas))
+    et_assets = generate_element(ns_aas+"assets")
     for ass_obj in assets:
-        et_assets.insert(0, aas_object_to_xml(ass_obj))
-    et_submodels = ElTree.Element("submodels")
+        et_assets.append(asset_to_xml(ass_obj, namespace=ns_aas))
+    et_submodels = ElTree.Element(ns_aas+"submodels")
     for sub_obj in submodels:
-        et_submodels.insert(0, aas_object_to_xml(sub_obj))
-    et_concept_descriptions = ElTree.Element("conceptDescriptions")
+        et_submodels.append(submodel_to_xml(sub_obj, namespace=ns_aas))
+    et_concept_descriptions = ElTree.Element(ns_aas+"conceptDescriptions")
     for con_obj in concept_descriptions:
-        et_concept_descriptions.insert(0, aas_object_to_xml(con_obj))
+        et_concept_descriptions.append(concept_description_to_xml(con_obj, namespace=ns_aas))
     root.insert(0, et_concept_descriptions)
     root.insert(0, et_submodels)
     root.insert(0, et_assets)
