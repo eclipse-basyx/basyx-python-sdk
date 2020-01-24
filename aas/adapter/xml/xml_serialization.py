@@ -70,15 +70,16 @@ def boolean_to_xml(obj: bool) -> str:
         return "false"
 
 
-def generate_parent(name: str, obj: object) -> ElTree.Element:
+def generate_parent(namespace: str, tag: str, obj: object) -> ElTree.Element:
     """
     generates a parent element from its tag-name and object. Inserts abstract classes
 
-    :param name: namespace+tag of the resulting element
+    :param namespace: namespace of the resulting element
+    :param tag: tag of the resulting element
     :param obj: model object
     :return: ElementTree that includes the serialized abstract classes
     """
-    return abstract_classes_to_xml(generate_element(name=name), obj)
+    return abstract_classes_to_xml(generate_element(name=namespace+tag), namespace, obj)
 
 
 # ##############################################################
@@ -142,7 +143,7 @@ ENTITY_TYPES: Dict[model.EntityType, str] = {
 # ##############################################################
 
 
-def abstract_classes_to_xml(elm: ElTree.Element, obj: object) -> ElTree.Element:
+def abstract_classes_to_xml(elm: ElTree.Element, namespace: str, obj: object) -> ElTree.Element:
     """
     transformation function to serialize abstract classes from model.base which are inherited by many classes.
 
@@ -150,51 +151,53 @@ def abstract_classes_to_xml(elm: ElTree.Element, obj: object) -> ElTree.Element:
     abstract classes to the given parent element
 
     :param elm: parent element that the abstract classes should be serialized for
+    :param namespace: namespace of the children elements
     :param obj: an object of the AAS
     :return: parent element with the serialized information from the abstract classes
     """
     if isinstance(obj, model.Referable):
-        elm.append(generate_element(name=ns_aas+"idShort", text=obj.id_short))
+        elm.append(generate_element(name=namespace+"idShort", text=obj.id_short))
         if obj.category:
-            elm.append(generate_element(name=ns_aas + "category", text=obj.category))
+            elm.append(generate_element(name=namespace+"category", text=obj.category))
         if obj.description:
             elm.append(lang_string_set_to_xml(obj.description, name="description"))
     if isinstance(obj, model.Identifiable):
-        elm.append(generate_element(name=ns_aas + "identification",
+        elm.append(generate_element(name=namespace+"identification",
                                     text=obj.identification.id,
                                     attributes={"idType": IDENTIFIER_TYPES[obj.identification.id_type]}))
         if obj.administration:
-            et_administration = generate_element(name=ns_aas+"administration", text=None)
+            et_administration = generate_element(name=namespace+"administration")
             if obj.administration.version:
-                et_administration.append(generate_element(name=ns_aas+"version", text=obj.administration.version))
+                et_administration.append(generate_element(name=namespace+"version", text=obj.administration.version))
                 if obj.administration.revision:
-                    et_administration.append(generate_element(name=ns_aas+"revision", text=obj.administration.revision))
+                    et_administration.append(generate_element(name=namespace+"revision",
+                                                              text=obj.administration.revision))
             elm.append(et_administration)
     if isinstance(obj, model.HasDataSpecification):
         if obj.data_specification:
             for embedded_data_specification in obj.data_specification:
-                et_embedded_data_specification = generate_element(name=ns_aas+"embeddedDataSpecification")
-                et_data_spec_content = generate_element(name=ns_aas + "dataSpecificationContent")  # todo: not done yet
-                et_data_spec = generate_element(name=ns_aas + "dataSpecification")
+                et_embedded_data_specification = generate_element(name=namespace+"embeddedDataSpecification")
+                et_data_spec_content = generate_element(name=namespace+"dataSpecificationContent")  # todo: not done yet
+                et_data_spec = generate_element(name=namespace+"dataSpecification")
                 for et_key in reference_to_xml(embedded_data_specification):  # todo change reference_to_xml
                     et_data_spec.insert(0, et_key)
                 et_embedded_data_specification.append(et_data_spec_content)
                 et_embedded_data_specification.append(et_data_spec)
     if isinstance(obj, model.HasSemantics):
         if obj.semantic_id:
-            et_semantics = generate_element(name=ns_aas+"semanticId", text=None)
+            et_semantics = generate_element(name=namespace+"semanticId")
             for et_key in reference_to_xml(obj.semantic_id):
                 et_semantics.insert(0, et_key)
             elm.append(et_semantics)
     if isinstance(obj, model.HasKind):
         if obj.kind is model.ModelingKind.TEMPLATE:
-            elm.append(generate_element(name=ns_aas+"kind", text="Template"))
+            elm.append(generate_element(name=namespace+"kind", text="Template"))
         else:
             # then modeling-kind is Instance
-            elm.append(generate_element(name=ns_aas+"kind", text="Instance"))
+            elm.append(generate_element(name=namespace+"kind", text="Instance"))
     if isinstance(obj, model.Qualifiable):
         if obj.qualifier:
-            et_qualifiers = generate_element(name=ns_aas+"qualifier", text=None)
+            et_qualifiers = generate_element(name=namespace+"qualifier", text=None)
             for qual in obj.qualifier:
                 et_qualifiers.append(constraint_to_xml(qual, name="qualifiers"))
                 # todo: seems like the XSD-schema messed up the plural "s"?
@@ -215,7 +218,7 @@ def lang_string_set_to_xml(obj: model.LangStringSet, name: str) -> ElTree.Elemen
     :param name: Name of the returned element
     :return: serialized ElementTree object
     """
-    et_lss = generate_element(name=ns_aas+name, text=None)
+    et_lss = generate_element(name=ns_aas+name)
     for language in obj:
         et_lang_string = generate_element(name=ns_aas+"langString",
                                           text=obj[language],
