@@ -730,7 +730,7 @@ def annotated_relationship_element_to_xml(obj: model.AnnotatedRelationshipElemen
     :param tag: tag of the serialized element (optional), default is "annotatedRelationshipElement
     :return: serialized ElementTree object
     """
-    et_annotated_relationship_element = relationship_element_to_xml(obj, tag)
+    et_annotated_relationship_element = relationship_element_to_xml(obj, namespace, tag)
     if obj.annotation:
         et_annotations = generate_element(name=""+"annotations")
         for ref in obj.annotation:
