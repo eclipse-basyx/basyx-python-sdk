@@ -13,7 +13,7 @@ Helper classes for checking example data structures for completeness and correct
 """
 
 import pprint
-from typing import List, NamedTuple, Iterator, Dict, Any, Type, Optional
+from typing import List, NamedTuple, Iterator, Dict, Any, Type, Optional, Union, Set, Iterable
 
 from aas import model
 from aas.model import LangStringSet, Namespace
@@ -96,113 +96,99 @@ class DataChecker:
 
 
 class AASDataChecker(DataChecker):
-    def _check_submodel_element(self, object_: model.SubmodelElement, expected_object: model.SubmodelElement) -> bool:
-        self.check_is_instance(object_, expected_object.__class__)
-        if isinstance(object_, model.Property):
-            return self._check_property_equal(object_, expected_object)  # type: ignore
-        if isinstance(object_, model.MultiLanguageProperty):
-            return self._check_multi_language_property_equal(object_, expected_object)  # type: ignore
-        if isinstance(object_, model.Range):
-            return self._check_range_equal(object_, expected_object)  # type: ignore
-        if isinstance(object_, model.Blob):
-            return self._check_blob_equal(object_, expected_object)  # type: ignore
-        if isinstance(object_, model.File):
-            return self._check_file_equal(object_, expected_object)  # type: ignore
-        if isinstance(object_, model.ReferenceElement):
-            return self._check_reference_element_equal(object_, expected_object)  # type: ignore
-        if isinstance(object_, model.SubmodelElementCollection):
-            return self._check_submodel_collection_equal(object_, expected_object)  # type: ignore
-        if isinstance(object_, model.AnnotatedRelationshipElement):
-            return self._check_annotated_relationship_element_equal(object_, expected_object)  # type: ignore
-        if isinstance(object_, model.RelationshipElement):
-            return self._check_relationship_element_equal(object_, expected_object)  # type: ignore
-        if isinstance(object_, model.Operation):
-            return self._check_operation_equal(object_, expected_object)  # type: ignore
-        if isinstance(object_, model.Capability):
-            return self._check_capability_equal(object_, expected_object)  # type: ignore
-        if isinstance(object_, model.Entity):
-            return self._check_entity_equal(object_, expected_object)  # type: ignore
-        if isinstance(object_, model.BasicEvent):
-            return self._check_basic_event_equal(object_, expected_object)  # type: ignore
-        return False
+    def _check_submodel_element(self, object_: model.SubmodelElement, expected_object: model.SubmodelElement):
+        if self.check_is_instance(object_, expected_object.__class__):
+            if isinstance(object_, model.Property):
+                return self.check_property_equal(object_, expected_object)  # type: ignore
+            if isinstance(object_, model.MultiLanguageProperty):
+                return self.check_multi_language_property_equal(object_, expected_object)  # type: ignore
+            if isinstance(object_, model.Range):
+                return self.check_range_equal(object_, expected_object)  # type: ignore
+            if isinstance(object_, model.Blob):
+                return self.check_blob_equal(object_, expected_object)  # type: ignore
+            if isinstance(object_, model.File):
+                return self.check_file_equal(object_, expected_object)  # type: ignore
+            if isinstance(object_, model.ReferenceElement):
+                return self.check_reference_element_equal(object_, expected_object)  # type: ignore
+            if isinstance(object_, model.SubmodelElementCollection):
+                return self.check_submodel_collection_equal(object_, expected_object)  # type: ignore
+            if isinstance(object_, model.AnnotatedRelationshipElement):
+                return self.check_annotated_relationship_element_equal(object_, expected_object)  # type: ignore
+            if isinstance(object_, model.RelationshipElement):
+                return self.check_relationship_element_equal(object_, expected_object)  # type: ignore
+            if isinstance(object_, model.Operation):
+                return self.check_operation_equal(object_, expected_object)  # type: ignore
+            if isinstance(object_, model.Capability):
+                return self.check_capability_equal(object_, expected_object)  # type: ignore
+            if isinstance(object_, model.Entity):
+                return self.check_entity_equal(object_, expected_object)  # type: ignore
+            if isinstance(object_, model.BasicEvent):
+                return self.check_basic_event_equal(object_, expected_object)  # type: ignore
 
-    def _check_referable_equal(self, object_: model.Referable, expected_object: model.Referable) -> bool:
+    def _check_referable_equal(self, object_: model.Referable, expected_object: model.Referable):
         """
         Checks if the referable object_ has the same referable attributes as the expected_value object and
         adds / stores the check result for later analysis.
 
         :param object_: The referable object which shall be checked
         :param expected_object: The expected referable object
-        :param kwargs: Relevant values to add to the check result for further analysis (e.g. the compared values)
         :return: The value of expression to be used in control statements
         """
-        return (self.check_attribute_equal(object_, "id_short", expected_object.id_short) and
-                self.check_attribute_equal(object_, "category", expected_object.category) and
-                self.check_attribute_equal(object_, "description", expected_object.description))
+        self.check_attribute_equal(object_, "id_short", expected_object.id_short)
+        self.check_attribute_equal(object_, "category", expected_object.category)
+        self.check_attribute_equal(object_, "description", expected_object.description)
 
-    def _check_identifiable_equal(self, object_: model.Identifiable, expected_object: model.Identifiable) -> bool:
+    def _check_identifiable_equal(self, object_: model.Identifiable, expected_object: model.Identifiable):
         """
         Checks if the identifiable object_ has the same identifiable attributes as the expected_value object and
         adds / stores the check result for later analysis.
 
         :param object_: The identifiable object which shall be checked
         :param expected_object: The expected identifiable object
-        :param kwargs: Relevant values to add to the check result for further analysis (e.g. the compared values)
         :return: The value of expression to be used in control statements
         """
-        return (self._check_referable_equal(object_, expected_object) and
-                self.check_attribute_equal(object_, "administration", expected_object.administration) and
-                self.check_attribute_equal(object_, "identification", expected_object.identification))
+        self._check_referable_equal(object_, expected_object)
+        self.check_attribute_equal(object_, "administration", expected_object.administration)
+        self.check_attribute_equal(object_, "identification", expected_object.identification)
 
-    def _check_has_semantics_equal(self, object_: model.HasSemantics, expected_object: model.HasSemantics) -> bool:
+    def _check_has_semantics_equal(self, object_: model.HasSemantics, expected_object: model.HasSemantics):
         """
         Checks if the HasSemantic object_ has the same HasSemantics attributes as the expected_value object and
         adds / stores the check result for later analysis.
 
         :param object_: The HasSemantic object which shall be checked
         :param expected_object: The expected HasSemantic object
-        :param kwargs: Relevant values to add to the check result for further analysis (e.g. the compared values)
         :return: The value of expression to be used in control statements
         """
-        return self.check_attribute_equal(object_, "semantic_id", expected_object.semantic_id)
+        self.check_attribute_equal(object_, "semantic_id", expected_object.semantic_id)
 
-    def _check_has_kind_equal(self, object_: model.HasKind, expected_object: model.HasKind) -> bool:
+    def _check_has_kind_equal(self, object_: model.HasKind, expected_object: model.HasKind):
         """
         Checks if the HasKind object_ has the same HasKind attributes as the expected_value object and
         adds / stores the check result for later analysis.
 
         :param object_: The HasKind object which shall be checked
         :param expected_object: The expected HasKind object
-        :param kwargs: Relevant values to add to the check result for further analysis (e.g. the compared values)
         :return: The value of expression to be used in control statements
         """
-        return self.check_attribute_equal(object_, "kind", expected_object.kind)
+        self.check_attribute_equal(object_, "kind", expected_object.kind)
 
-    def _check_qualifiable_equal(self, object_: model.Qualifiable, expected_object: model.Qualifiable) -> bool:
+    def _check_qualifiable_equal(self, object_: model.Qualifiable, expected_object: model.Qualifiable):
         """
         Checks if the qualifiable object_ has the same qualifiables attributes as the expected_value object and
         adds / stores the check result for later analysis.
 
         :param object_: The qualifiable object which shall be checked
         :param expected_object: The expected qualifiable object
-        :param kwargs: Relevant values to add to the check result for further analysis (e.g. the compared values)
         :return: The value of expression to be used in control statements
         """
         # TODO add check of formula => not clear how to identify a formula
-        result = self.check_contained_element_length(object_, 'qualifier', model.Constraint,
-                                                     len(expected_object.qualifier))
+        self.check_contained_element_length(object_, 'qualifier', model.Constraint, len(expected_object.qualifier))
         for constraint in object_.qualifier:
             if isinstance(constraint, model.Qualifier):
-                find = False
-                for expected_constraint in expected_object.qualifier:
-                    if isinstance(expected_constraint, model.Qualifier):
-                        if constraint.type_ == expected_constraint.type_:
-                            result = result and self._check_qualifier_equal(constraint, expected_constraint)
-                            find = True
-                            break
-                if not find:
-                    result = result and self.check(False, 'Qualifier[{}] not found'.format(constraint.type_))
-        return result
+                expected_constraint = self._find_element_by_attribute(constraint, expected_object.qualifier, 'type_')
+                if self.check(expected_constraint is not None, 'Qualifier{} must be found'.format(constraint.type_)):
+                    self._check_qualifier_equal(constraint, expected_constraint)  # type: ignore
 
     def _check_abstract_attributes_submodel_element_equal(self, object_: model.SubmodelElement,
                                                           expected_value: model.SubmodelElement):
@@ -211,165 +197,271 @@ class AASDataChecker(DataChecker):
 
         :param object_: Given submodel element object to check
         :param expected_value: expected submodel element object
-        :param kwargs: Relevant values to add to the check result for further analysis (e.g. the compared values)
         :return:
         """
-        return (self._check_referable_equal(object_, expected_value) and
-                self._check_has_semantics_equal(object_, expected_value) and
-                self._check_has_kind_equal(object_, expected_value) and
-                self._check_qualifiable_equal(object_, expected_value))
+        self._check_referable_equal(object_, expected_value)
+        self._check_has_semantics_equal(object_, expected_value)
+        self._check_has_kind_equal(object_, expected_value)
+        self._check_qualifiable_equal(object_, expected_value)
 
-    def _check_property_equal(self, object_: model.Property, expected_value: model.Property):
+    def check_property_equal(self, object_: model.Property, expected_value: model.Property):
         """
         Checks if the given Property objects are equal
 
         :param object_: Given property object to check
         :param expected_value: expected property object
-        :param kwargs: Relevant values to add to the check result for further analysis (e.g. the compared values)
         :return:
         """
-        return (self._check_abstract_attributes_submodel_element_equal(object_, expected_value) and
-                self.check_attribute_equal(object_, 'value_type', expected_value.value_type) and
-                self.check_attribute_equal(object_, 'value', expected_value.value) and
-                self.check_attribute_equal(object_, 'value_id', expected_value.value_id))
+        self._check_abstract_attributes_submodel_element_equal(object_, expected_value)
+        self.check_attribute_equal(object_, 'value_type', expected_value.value_type)
+        self.check_attribute_equal(object_, 'value', expected_value.value)
+        self.check_attribute_equal(object_, 'value_id', expected_value.value_id)
 
-    def _check_multi_language_property_equal(self, object_: model.MultiLanguageProperty,
-                                             expected_value: model.MultiLanguageProperty):
+    def check_multi_language_property_equal(self, object_: model.MultiLanguageProperty,
+                                            expected_value: model.MultiLanguageProperty):
         """
         Checks if the given MultiLanguageProperty objects are equal
 
         :param object_: Given MultiLanguageProperty object to check
         :param expected_value: expected MultiLanguageProperty object
-        :param kwargs: Relevant values to add to the check result for further analysis (e.g. the compared values)
         :return:
         """
-        return (self._check_abstract_attributes_submodel_element_equal(object_, expected_value) and
-                self.check_attribute_equal(object_, 'value', expected_value.value) and
-                self.check_attribute_equal(object_, 'value_id', expected_value.value_id))
+        self._check_abstract_attributes_submodel_element_equal(object_, expected_value)
+        self.check_attribute_equal(object_, 'value', expected_value.value)
+        self.check_attribute_equal(object_, 'value_id', expected_value.value_id)
 
-    def _check_range_equal(self, object_: model.Range, expected_value: model.Range):
+    def check_range_equal(self, object_: model.Range, expected_value: model.Range):
         """
         Checks if the given Range objects are equal
 
         :param object_: Given Range object to check
         :param expected_value: expected Range object
-        :param kwargs: Relevant values to add to the check result for further analysis (e.g. the compared values)
         :return:
         """
-        return (self._check_abstract_attributes_submodel_element_equal(object_, expected_value) and
-                self.check_attribute_equal(object_, 'value_type', expected_value.value_type) and
-                self.check_attribute_equal(object_, 'min_', expected_value.min_) and
-                self.check_attribute_equal(object_, 'max_', expected_value.max_))
+        self._check_abstract_attributes_submodel_element_equal(object_, expected_value)
+        self.check_attribute_equal(object_, 'value_type', expected_value.value_type)
+        self.check_attribute_equal(object_, 'min_', expected_value.min_)
+        self.check_attribute_equal(object_, 'max_', expected_value.max_)
 
-    def _check_blob_equal(self, object_: model.Blob, expected_value: model.Blob):
+    def check_blob_equal(self, object_: model.Blob, expected_value: model.Blob):
         """
         Checks if the given Blob objects are equal
 
         :param object_: Given Blob object to check
         :param expected_value: expected Blob object
-        :param kwargs: Relevant values to add to the check result for further analysis (e.g. the compared values)
         :return:
         """
-        return (self._check_abstract_attributes_submodel_element_equal(object_, expected_value) and
-                self.check_attribute_equal(object_, 'value', expected_value.value) and
-                self.check_attribute_equal(object_, 'mime_type', expected_value.mime_type))
+        self._check_abstract_attributes_submodel_element_equal(object_, expected_value)
+        self.check_attribute_equal(object_, 'value', expected_value.value)
+        self.check_attribute_equal(object_, 'mime_type', expected_value.mime_type)
 
-    def _check_file_equal(self, object_: model.File, expected_value: model.File):
+    def check_file_equal(self, object_: model.File, expected_value: model.File):
         """
         Checks if the given File objects are equal
 
         :param object_: Given File object to check
         :param expected_value: expected File object
-        :param kwargs: Relevant values to add to the check result for further analysis (e.g. the compared values)
         :return:
         """
-        return (self._check_abstract_attributes_submodel_element_equal(object_, expected_value) and
-                self.check_attribute_equal(object_, 'value', expected_value.value) and
-                self.check_attribute_equal(object_, 'mime_type', expected_value.mime_type))
+        self._check_abstract_attributes_submodel_element_equal(object_, expected_value)
+        self.check_attribute_equal(object_, 'value', expected_value.value)
+        self.check_attribute_equal(object_, 'mime_type', expected_value.mime_type)
 
-    def _check_reference_element_equal(self, object_: model.ReferenceElement, expected_value: model.ReferenceElement):
+    def check_reference_element_equal(self, object_: model.ReferenceElement, expected_value: model.ReferenceElement):
         """
         Checks if the given ReferenceElement objects are equal
 
         :param object_: Given ReferenceElement object to check
         :param expected_value: expected ReferenceElement object
-        :param kwargs: Relevant values to add to the check result for further analysis (e.g. the compared values)
         :return:
         """
-        return (self._check_abstract_attributes_submodel_element_equal(object_, expected_value) and
-                self.check_attribute_equal(object_, 'value', expected_value.value))
+        self._check_abstract_attributes_submodel_element_equal(object_, expected_value)
+        self.check_attribute_equal(object_, 'value', expected_value.value)
 
-    def _check_submodel_collection_equal(self, object_: model.SubmodelElementCollection,
-                                         expected_value: model.SubmodelElementCollection):
+    def check_submodel_collection_equal(self, object_: model.SubmodelElementCollection,
+                                        expected_value: model.SubmodelElementCollection):
         """
         Checks if the given SubmodelElementCollection objects are equal
 
         :param object_: Given SubmodelElementCollection object to check
         :param expected_value: expected SubmodelElementCollection object
-        :param kwargs: Relevant values to add to the check result for further analysis (e.g. the compared values)
         :return:
         """
-        # TODO differ between ordered and unordered
-        result = (self._check_abstract_attributes_submodel_element_equal(object_, expected_value) and
-                  self.check_contained_element_length(object_, 'value', model.SubmodelElement,
-                                                      len(expected_value.value)))
+        self._check_abstract_attributes_submodel_element_equal(object_, expected_value)
+        self.check_contained_element_length(object_, 'value', model.SubmodelElement, len(expected_value.value))
+        if isinstance(object_, model.SubmodelElementCollectionUnordered):
+            self._check_submodel_collection_unordered_equal(object_, expected_value)  # type: ignore
+        elif isinstance(object_, model.SubmodelElementCollectionOrdered):
+            self._check_submodel_collection_ordered_equal(object_, expected_value)  # type: ignore
+
+    def _check_submodel_collection_unordered_equal(self, object_: model.SubmodelElementCollectionUnordered,
+                                                   expected_value: model.SubmodelElementCollectionUnordered):
+        """
+        Checks if the given SubmodelElementCollectionUnordered objects are equal
+
+        :param object_: Given SubmodelElementCollectionUnordered object to check
+        :param expected_value: expected SubmodelElementCollectionUnordered object
+        :return:
+        """
+        self.check_contained_element_length(object_, 'value', model.SubmodelElement, len(expected_value.value))
         for expected_element in expected_value.value:
-            element = object_.value.get_referable(expected_element.id_short)
-            result = result and self.check(element is not None, 'Submodel Element{} must '
-                                                                'exist'.format(repr(expected_element)))
+            element = object_.value.get(expected_element.id_short)
+            self.check(element is not None, 'Submodel Element{} must exist'.format(repr(expected_element)))
 
-        for element in object_.value:
-            expected_element = expected_value.value.get_referable(element.id_short)
-            if expected_element:
-                result = result and self._check_submodel_element(element, expected_element)
-            else:
-                self.check(expected_element is not None, 'Submodel Element{} must not exist'.format(repr(element)))
-        return result
+        found_elements = self._find_extra_elements_by_id_short(object_.value, expected_value.value)
+        self.check(found_elements == set(), 'Submodel Collection {} must not have extra elements'.format(repr(object_)),
+                   value=found_elements)
 
-    def _check_relationship_element_equal(self, object_: model.RelationshipElement,
-                                          expected_value: model.RelationshipElement):
+    def _check_submodel_collection_ordered_equal(self, object_: model.SubmodelElementCollectionUnordered,
+                                                 expected_value: model.SubmodelElementCollectionUnordered):
+        """
+        Checks if the given SubmodelElementCollectionUnordered objects are equal
+
+        :param object_: Given SubmodelElementCollectionUnordered object to check
+        :param expected_value: expected SubmodelElementCollectionUnordered object
+        :return:
+        """
+        self.check_contained_element_length(object_, 'value', model.SubmodelElement, len(expected_value.value))
+        list_values = list(object_.value)
+        list_expected_values = list(expected_value.value)
+
+        for i in range(len(list_expected_values)):
+            self._check_submodel_element(list_values[i], list_expected_values[i])
+
+    def check_relationship_element_equal(self, object_: model.RelationshipElement,
+                                         expected_value: model.RelationshipElement):
         """
         Checks if the given RelationshipElement objects are equal
 
         :param object_: Given RelationshipElement object to check
         :param expected_value: expected RelationshipElement object
-        :param kwargs: Relevant values to add to the check result for further analysis (e.g. the compared values)
         :return:
         """
-        return (self._check_abstract_attributes_submodel_element_equal(object_, expected_value) and
-                self.check_attribute_equal(object_, 'first', expected_value.first) and
-                self.check_attribute_equal(object_, 'second', expected_value.second))
+        self._check_abstract_attributes_submodel_element_equal(object_, expected_value)
+        self.check_attribute_equal(object_, 'first', expected_value.first)
+        self.check_attribute_equal(object_, 'second', expected_value.second)
 
-    def _check_annotated_relationship_element_equal(self, object_: model.AnnotatedRelationshipElement,
-                                                    expected_value: model.AnnotatedRelationshipElement):
+    def check_annotated_relationship_element_equal(self, object_: model.AnnotatedRelationshipElement,
+                                                   expected_value: model.AnnotatedRelationshipElement):
         """
         Checks if the given AnnotatedRelationshipElement objects are equal
 
         :param object_: Given AnnotatedRelationshipElement object to check
         :param expected_value: expected AnnotatedRelationshipElement object
-        :param kwargs: Relevant values to add to the check result for further analysis (e.g. the compared values)
         :return:
         """
-        result = self._check_relationship_element_equal(object_, expected_value)
+        self.check_relationship_element_equal(object_, expected_value)
         for expected_ref in expected_value.annotation:
-            find = False
-            for ref in object_.annotation:
-                if ref == expected_ref:
-                    find = True
-                    break
-            if not find:
-                result = result and self.check(False, 'Annotated Reference[{}] must be '
-                                                      'found'.format(repr(expected_ref)))
+            ref = self._find_reference(expected_ref, object_.annotation)
+            if self.check(ref is not None, 'Annotated Reference{} must exist'.format(repr(expected_ref))):
+                self._check_reference_equal(ref, expected_ref)  # type: ignore
 
-        for ref in object_.annotation:
-            find = False
-            for expected_ref in expected_value.annotation:
-                if ref == expected_ref:
-                    find = True
+        found_elements = self._find_extra_reference(object_.annotation, expected_value.annotation)
+        self.check(found_elements == set(), 'Annotated Reference {} must not have extra '
+                                            'references'.format(repr(object_)),
+                   value=found_elements)
+
+    def _check_reference_equal(self, object_: model.Reference, expected_value: model.Reference):
+        """
+        Checks if the given Reference objects are equal
+
+        :param object_: Given Reference object to check
+        :param expected_value: expected Reference object
+        :return:
+        """
+        self.check(object_ == expected_value, "Reference{} must be == {}".format(repr(object_), repr(expected_value)))
+
+    def _find_reference(self, object_: model.Reference, search_list: Union[Set, List]) -> Union[model.Reference, None]:
+        """
+        Find a reference in an list
+
+        :param object_: Given reference which should be find in list
+        :param search_list: List in which the given reference should be find
+        :return: the searched reference if found else none
+        """
+        for element in search_list:
+            if object_ == element:
+                return element
+        return None
+
+    def _find_element_by_attribute(self, object_: object, search_list: Union[Set, List], *attribute: str) -> object:
+        """
+        Find an element in an list
+
+        :param object_: Given object which should be find in list
+        :param search_list: List in which the given object should be find
+        :param attribute: List of attributes on which the comparison should be done
+        :return:
+        """
+        find = False
+        for element in search_list:
+            if isinstance(element, object_.__class__):
+                found = True
+                for attr in attribute:
+                    if getattr(object_, attr) != getattr(element, attr):
+                        found = False
+                if found:
+                    return element
+        return None
+
+    def _find_extra_reference(self, object_list: Iterable[model.Reference],
+                              search_list: Iterable[model.Reference]) -> Set[model.Reference]:
+        """
+        Find extra reference that are in object_list but noch in search_list
+
+        :param object_list: List which could contain more references than the search_list has
+        :param search_list: List which should be searched
+        :return: Set of references that are in object_list but not in search_list
+        """
+        found_elements = set()
+        for object_list_element in object_list:
+            found = False
+            for search_list_element in search_list:
+                if object_list_element == search_list_element:
+                    found = True
                     break
-            if not find:
-                result = result and self.check(False, 'Annotated Reference[{}] must not exist'.format(repr(ref)))
-        return result
+            if found is False:
+                found_elements.add(object_list_element)
+        return found_elements
+
+    def _find_extra_elements_by_attribute(self, object_list: Union[Set, List], search_list: Union[Set, List],
+                                          *attribute: str) -> Set:
+        """
+        Find extra elements that are in object_list but not in search_list
+
+        :param object_list: List which could contain more objects than the search_list has
+        :param search_list: List which should be searched
+        :param attribute: List of attributes on which the comparison should be done
+        :return: Set of elements that are in object_list but not in search_list
+        """
+        found_elements = set()
+        for object_list_element in object_list:
+            found = True
+            for search_list_element in search_list:
+                for attr in attribute:
+                    if getattr(object_list_element, attr) != getattr(search_list_element, attr):
+                        found = False
+                if found:
+                    break
+                found = True
+            if found is False:
+                found_elements.add(object_list_element)
+        return found_elements
+
+    def _find_extra_elements_by_id_short(self, object_list: model.NamespaceSet, search_list: model.NamespaceSet) -> Set:
+        """
+        Find extra elements that are in object_list but not in search_list
+
+        :param object_list: List which could contain more objects than the search_list has
+        :param search_list: List which should be searched
+        :return: Set of elements that are in object_list but not in search_list
+        """
+        found_elements = set()
+        for object_list_element in object_list:
+            element = search_list.get(object_list_element.id_short)
+            if element is None:
+                found_elements.add(object_list_element)
+        return found_elements
 
     def _check_operation_variable_equal(self, object_: model.OperationVariable,
                                         expected_value: model.OperationVariable):
@@ -378,75 +470,61 @@ class AASDataChecker(DataChecker):
 
         :param object_: Given OperationVariable object to check
         :param expected_value: expected OperationVariable object
-        :param kwargs: Relevant values to add to the check result for further analysis (e.g. the compared values)
         :return:
         """
-        return self._check_submodel_element(object_.value, expected_value.value)
+        self._check_submodel_element(object_.value, expected_value.value)
 
-    def _check_operation_equal(self, object_: model.Operation, expected_value: model.Operation):
+    def check_operation_equal(self, object_: model.Operation, expected_value: model.Operation):
         """
         Checks if the given Operation objects are equal
 
         :param object_: Given Operation object to check
         :param expected_value: expected Operation object
-        :param kwargs: Relevant values to add to the check result for further analysis (e.g. the compared values)
         :return:
         """
-        result = (self._check_abstract_attributes_submodel_element_equal(object_, expected_value) and
-                  self.check_contained_element_length(object_, 'input_variable', model.OperationVariable,
-                                                      len(expected_value.input_variable)) and
-                  self.check_contained_element_length(object_, 'output_variable', model.OperationVariable,
-                                                      len(expected_value.output_variable)) and
-                  self.check_contained_element_length(object_, 'in_output_variable', model.OperationVariable,
-                                                      len(expected_value.in_output_variable)))
+        self._check_abstract_attributes_submodel_element_equal(object_, expected_value)
+        self.check_contained_element_length(object_, 'input_variable', model.OperationVariable,
+                                            len(expected_value.input_variable))
+        self.check_contained_element_length(object_, 'output_variable', model.OperationVariable,
+                                            len(expected_value.output_variable))
+        self.check_contained_element_length(object_, 'in_output_variable', model.OperationVariable,
+                                            len(expected_value.in_output_variable))
         for i in range(len(object_.input_variable)):
-            result = result and self._check_operation_variable_equal(object_.input_variable[i],
-                                                                     expected_value.input_variable[i])
+            self._check_operation_variable_equal(object_.input_variable[i], expected_value.input_variable[i])
         for i in range(len(object_.output_variable)):
-            result = result and self._check_operation_variable_equal(object_.output_variable[i],
-                                                                     expected_value.output_variable[i])
+            self._check_operation_variable_equal(object_.output_variable[i], expected_value.output_variable[i])
         for i in range(len(object_.in_output_variable)):
-            result = result and self._check_operation_variable_equal(object_.in_output_variable[i],
-                                                                     expected_value.in_output_variable[i])
-        return result
+            self._check_operation_variable_equal(object_.in_output_variable[i], expected_value.in_output_variable[i])
 
-    def _check_capability_equal(self, object_: model.Capability, expected_value: model.Capability):
+    def check_capability_equal(self, object_: model.Capability, expected_value: model.Capability):
         """
         Checks if the given Capability objects are equal
 
         :param object_: Given Capability object to check
         :param expected_value: expected Capability object
-        :param kwargs: Relevant values to add to the check result for further analysis (e.g. the compared values)
         :return:
         """
-        return self._check_abstract_attributes_submodel_element_equal(object_, expected_value)
+        self._check_abstract_attributes_submodel_element_equal(object_, expected_value)
 
-    def _check_entity_equal(self, object_: model.Entity, expected_value: model.Entity):
+    def check_entity_equal(self, object_: model.Entity, expected_value: model.Entity):
         """
         Checks if the given Entity objects are equal
 
         :param object_: Given Entity object to check
         :param expected_value: expected Entity object
-        :param kwargs: Relevant values to add to the check result for further analysis (e.g. the compared values)
         :return:
         """
-        result = (self._check_abstract_attributes_submodel_element_equal(object_, expected_value) and
-                  self.check_attribute_equal(object_, 'entity_type', expected_value.entity_type) and
-                  self.check_attribute_equal(object_, 'asset', expected_value.asset) and
-                  self.check_contained_element_length(object_, 'statement', model.SubmodelElement,
-                                                      len(expected_value.statement)))
+        self._check_abstract_attributes_submodel_element_equal(object_, expected_value)
+        self.check_attribute_equal(object_, 'entity_type', expected_value.entity_type)
+        self.check_attribute_equal(object_, 'asset', expected_value.asset)
+        self.check_contained_element_length(object_, 'statement', model.SubmodelElement, len(expected_value.statement))
         for expected_element in expected_value.statement:
-            element = object_.statement.get_referable(expected_element.id_short)
-            result = result and self.check(element is not None, 'Entity{} must exist'.format(repr(expected_element)))
+            element = object_.statement.get(expected_element.id_short)
+            self.check(element is not None, 'Entity{} must exist'.format(repr(expected_element)))
 
-        for element in object_.statement:
-            expected_element = expected_value.statement.get_referable(element.id_short)
-            if expected_element:
-                result = result and self._check_submodel_element(element, expected_element)
-            else:
-                self.check(expected_element is not None, 'Entity{} must not exist'.format(repr(element)))
-
-        return result
+        found_elements = self._find_extra_elements_by_id_short(object_.statement, expected_value.statement)
+        self.check(found_elements == set(), 'Enity {} must not have extra statements'.format(repr(object_)),
+                   value=found_elements)
 
     def _check_event_equal(self, object_: model.Event, expected_value: model.Event):
         """
@@ -454,23 +532,21 @@ class AASDataChecker(DataChecker):
 
         :param object_: Given Event object to check
         :param expected_value: expected Event object
-        :param kwargs: Relevant values to add to the check result for further analysis (e.g. the compared values)
         :return:
         """
-        return self._check_abstract_attributes_submodel_element_equal(object_, expected_value)
+        self._check_abstract_attributes_submodel_element_equal(object_, expected_value)
 
-    def _check_basic_event_equal(self, object_: model.BasicEvent, expected_value: model.BasicEvent):
+    def check_basic_event_equal(self, object_: model.BasicEvent, expected_value: model.BasicEvent):
         """
         Checks if the given BasicEvent objects are equal
 
         :param object_: Given BasicEvent object to check
         :param expected_value: expected BasicEvent object
-        :param kwargs: Relevant values to add to the check result for further analysis (e.g. the compared values)
         :return:
         """
-        return (self._check_abstract_attributes_submodel_element_equal(object_, expected_value) and
-                self._check_event_equal(object_, expected_value) and
-                self.check_attribute_equal(object_, 'observed', expected_value.observed))
+        self._check_abstract_attributes_submodel_element_equal(object_, expected_value)
+        self._check_event_equal(object_, expected_value)
+        self.check_attribute_equal(object_, 'observed', expected_value.observed)
 
     def check_submodel_equal(self, object_: model.Submodel, expected_value: model.Submodel):
         """
@@ -478,26 +554,22 @@ class AASDataChecker(DataChecker):
 
         :param object_: Given Submodel object to check
         :param expected_value: expected Submodel object
-        :param kwargs: Relevant values to add to the check result for further analysis (e.g. the compared values)
         :return:
         """
-        result = (self._check_identifiable_equal(object_, expected_value) and
-                  self._check_has_semantics_equal(object_, expected_value) and
-                  self._check_has_kind_equal(object_, expected_value) and
-                  self._check_qualifiable_equal(object_, expected_value) and
-                  self.check_contained_element_length(object_, 'submodel_element', model.SubmodelElement,
-                                                      len(expected_value.submodel_element)))
+        self._check_identifiable_equal(object_, expected_value)
+        self._check_has_semantics_equal(object_, expected_value)
+        self._check_has_kind_equal(object_, expected_value)
+        self._check_qualifiable_equal(object_, expected_value)
+        self.check_contained_element_length(object_, 'submodel_element', model.SubmodelElement,
+                                            len(expected_value.submodel_element))
         for expected_element in expected_value.submodel_element:
             element = object_.submodel_element.get_referable(expected_element.id_short)
-            result = result and self.check(element is not None, 'Submodel Element{} must '
-                                                                'exist'.format(repr(expected_element)))
-        for element in object_.submodel_element:
-            expected_element = expected_value.submodel_element.get_referable(element.id_short)
-            if expected_element:
-                result = result and self._check_submodel_element(element, expected_element)
-            else:
-                self.check(False, 'Submodel Element{} must not exist'.format(repr(element)))
-        return result
+            self.check(element is not None, 'Submodel Element{} must exist'.format(repr(expected_element)))
+
+        found_elements = self._find_extra_elements_by_id_short(object_.submodel_element,
+                                                               expected_value.submodel_element)
+        self.check(found_elements == set(), 'Submodel {} must not have extra submodel elements'.format(repr(object_)),
+                   value=found_elements)
 
     def _check_qualifier_equal(self, object_: model.Qualifier, expected_value: model.Qualifier):
         """
@@ -505,13 +577,12 @@ class AASDataChecker(DataChecker):
 
         :param object_: Given Qualifier object to check
         :param expected_value: expected Qualifier object
-        :param kwargs: Relevant values to add to the check result for further analysis (e.g. the compared values)
         :return:
         """
-        return (self.check_attribute_equal(object_, 'type_', expected_value.type_) and
-                self.check_attribute_equal(object_, 'value_type', expected_value.value_type) and
-                self.check_attribute_equal(object_, 'value', expected_value.value) and
-                self.check_attribute_equal(object_, 'value_id', expected_value.value_id))
+        self.check_attribute_equal(object_, 'type_', expected_value.type_)
+        self.check_attribute_equal(object_, 'value_type', expected_value.value_type)
+        self.check_attribute_equal(object_, 'value', expected_value.value)
+        self.check_attribute_equal(object_, 'value_id', expected_value.value_id)
 
     def _check_formula_equal(self, object_: model.Formula, expected_value: model.Formula):
         """
@@ -519,11 +590,9 @@ class AASDataChecker(DataChecker):
 
         :param object_: Given Formula object to check
         :param expected_value: expected Formula object
-        :param kwargs: Relevant values to add to the check result for further analysis (e.g. the compared values)
         :return:
         """
-        return self.check_contained_element_length(object_, 'depends_on', model.Reference,
-                                                   len(expected_value.depends_on))
+        self.check_contained_element_length(object_, 'depends_on', model.Reference, len(expected_value.depends_on))
 
     def check_asset_equal(self, object_: model.Asset, expected_value: model.Asset):
         """
@@ -531,15 +600,12 @@ class AASDataChecker(DataChecker):
 
         :param object_: Given Asset object to check
         :param expected_value: expected Asset object
-        :param kwargs: Relevant values to add to the check result for further analysis (e.g. the compared values)
         :return:
         """
-        return (self._check_identifiable_equal(object_, expected_value) and
-                self.check_attribute_equal(object_, 'kind', expected_value.kind) and
-                self.check_attribute_equal(object_, 'asset_identification_model',
-                                           expected_value.asset_identification_model) and
-                self.check_attribute_equal(object_, 'bill_of_material',
-                                           expected_value.bill_of_material))
+        self._check_identifiable_equal(object_, expected_value)
+        self.check_attribute_equal(object_, 'kind', expected_value.kind)
+        self.check_attribute_equal(object_, 'asset_identification_model', expected_value.asset_identification_model)
+        self.check_attribute_equal(object_, 'bill_of_material', expected_value.bill_of_material)
 
     def check_asset_administration_shell_equal(self, object_: model.AssetAdministrationShell,
                                                expected_value: model.AssetAdministrationShell):
@@ -548,142 +614,104 @@ class AASDataChecker(DataChecker):
 
         :param object_: Given AssetAdministrationShell object to check
         :param expected_value: expected AssetAdministrationShell object
-        :param kwargs: Relevant values to add to the check result for further analysis (e.g. the compared values)
         :return:
         """
-        result = (self._check_identifiable_equal(object_, expected_value) and
-                  self.check_attribute_equal(object_, 'asset', expected_value.asset) and
-                  self._check_security_equal(object_.security_, expected_value.security_) and
-                  self.check_attribute_equal(object_, 'derived_from', expected_value.derived_from) and
-                  self.check_contained_element_length(object_, 'submodel_', model.AASReference,
-                                                      len(expected_value.submodel_)) and
-                  self.check_contained_element_length(object_, 'concept_dictionary', model.ConceptDictionary,
-                                                      len(expected_value.concept_dictionary)) and
-                  self.check_contained_element_length(object_, 'view', model.View,
-                                                      len(expected_value.view)))
+        self._check_identifiable_equal(object_, expected_value)
+        self.check_attribute_equal(object_, 'asset', expected_value.asset)
+        self.check_security_equal(object_.security_, expected_value.security_)
+        self.check_attribute_equal(object_, 'derived_from', expected_value.derived_from)
+        self.check_contained_element_length(object_, 'submodel_', model.AASReference, len(expected_value.submodel_))
+        self.check_contained_element_length(object_, 'concept_dictionary', model.ConceptDictionary,
+                                            len(expected_value.concept_dictionary))
+        self.check_contained_element_length(object_, 'view', model.View, len(expected_value.view))
         for expected_ref in expected_value.submodel_:
-            find = False
-            for ref in object_.submodel_:
-                if ref == expected_ref:
-                    find = True
-                    break
-            if not find:
-                result = result and self.check(False, 'Submodel Reference[{}] must be found'.format(repr(expected_ref)))
+            ref = self._find_reference(expected_ref, object_.submodel_)
+            if self.check(ref is not None, 'Submodel Reference{} must be found'.format(repr(expected_ref))):
+                self._check_reference_equal(ref, expected_ref)  # type: ignore
 
-        for ref in object_.submodel_:
-            find = False
-            for expected_ref in expected_value.submodel_:
-                if ref == expected_ref:
-                    find = True
-                    break
-            if not find:
-                result = result and self.check(False, 'Submodel Reference[{}] must not exist'.format(repr(ref)))
+        found_elements = self._find_extra_reference(object_.submodel_, expected_value.submodel_)
+        self.check(found_elements == set(), 'Asset Administration Shell {} must not have extra submodel '
+                                            'references'.format(repr(object_)),
+                   value=found_elements)
 
         for expected_element in expected_value.concept_dictionary:
             element = object_.concept_dictionary.get_referable(expected_element.id_short)
-            result = result and self.check(element is not None, 'Concept Dictionary{} must '
-                                                                'exist'.format(repr(expected_element)))
+            self.check(element is not None, 'Concept Dictionary{} must exist'.format(repr(expected_element)))
 
         for element in object_.concept_dictionary:
             expected_element = expected_value.concept_dictionary.get_referable(element.id_short)
             if expected_element:
-                result = result and self._check_concept_dictionary_equal(element, expected_element)
-            else:
-                self.check(expected_element is not None, 'Concept Dictionary{} must not exist'.format(repr(element)))
+                self.check_concept_dictionary_equal(element, expected_element)
+
+        found_elements = self._find_extra_elements_by_id_short(object_.concept_dictionary,
+                                                               expected_value.concept_dictionary)
+        self.check(found_elements == set(), 'Asset Administration Shell {} must not have extra '
+                                            'concept dictionaries'.format(repr(object_)), value=found_elements)
 
         for expected_view in expected_value.view:
             view = object_.view.get_referable(expected_view.id_short)
-            result = result and self.check(view is not None, 'View{} must exist'.format(repr(expected_view)))
+            self.check(view is not None, 'View{} must exist'.format(repr(expected_view)))
 
-        for view in object_.view:
-            expected_view = expected_value.view.get_referable(view.id_short)
-            if expected_view:
-                result = result and self._check_view_equal(view, expected_view)
-            else:
-                self.check(expected_view is not None, 'View{} must not exist'.format(repr(view)))
-        return result
+        found_elements = self._find_extra_elements_by_id_short(object_.view, expected_value.view)
+        self.check(found_elements == set(), 'Asset Administration Shell {} must not have extra '
+                                            'views'.format(repr(object_)), value=found_elements)
 
-    def _check_concept_dictionary_equal(self, object_: model.ConceptDictionary,
-                                        expected_value: model.ConceptDictionary):
+    def check_concept_dictionary_equal(self, object_: model.ConceptDictionary,
+                                       expected_value: model.ConceptDictionary):
         """
         Checks if the given ConceptDictionary objects are equal
 
         :param object_: Given ConceptDictionary object to check
         :param expected_value: expected ConceptDictionary object
-        :param kwargs: Relevant values to add to the check result for further analysis (e.g. the compared values)
         :return:
         """
-        result = (self._check_referable_equal(object_, expected_value) and
-                  self.check_contained_element_length(object_, 'concept_description', model.AASReference,
-                                                      len(expected_value.concept_description)))
+        self._check_referable_equal(object_, expected_value)
+        self.check_contained_element_length(object_, 'concept_description', model.AASReference,
+                                            len(expected_value.concept_description))
         for expected_ref in expected_value.concept_description:
-            find = False
-            for ref in object_.concept_description:
-                if ref == expected_ref:
-                    find = True
-                    break
-            if not find:
-                result = result and self.check(False, 'Concept Description Reference[{}] must be '
-                                                      'found'.format(repr(expected_ref)))
+            ref = self._find_reference(expected_ref, object_.concept_description)
+            if self.check(ref is not None, 'Concept Description Reference{} must be found'.format(repr(expected_ref))):
+                self._check_reference_equal(ref, expected_ref)  # type: ignore
 
-        for ref in object_.concept_description:
-            find = False
-            for expected_ref in expected_value.concept_description:
-                if ref == expected_ref:
-                    find = True
-                    break
-            if not find:
-                result = result and self.check(False, 'Concept Description Reference[{}] must not '
-                                                      'exist'.format(repr(ref)))
-        return result
+        found_elements = self._find_extra_reference(object_.concept_description, expected_value.concept_description)
+        self.check(found_elements == set(), 'Concept Dictionary {} must not have extra '
+                                            'concept description references'.format(repr(object_)),
+                   value=found_elements)
 
-    def _check_security_equal(self, object_: Optional[model.Security],
-                              expected_value: Optional[model.Security]):
+    def check_security_equal(self, object_: Optional[model.Security],
+                             expected_value: Optional[model.Security]):
         """
         Checks if the given Security objects are equal
 
         :param object_: Given Security object to check
         :param expected_value: expected Security object
-        :param kwargs: Relevant values to add to the check result for further analysis (e.g. the compared values)
         :return:
         """
         # TODO: if security is specified
-        return True
+        pass
 
-    def _check_view_equal(self, object_: model.View, expected_value: model.View):
+    def check_view_equal(self, object_: model.View, expected_value: model.View):
         """
         Checks if the given View objects are equal
 
         :param object_: Given View object to check
         :param expected_value: expected View object
-        :param kwargs: Relevant values to add to the check result for further analysis (e.g. the compared values)
         :return:
         """
-        result = (self._check_referable_equal(object_, expected_value) and
-                  self._check_has_semantics_equal(object_, expected_value) and
-                  self.check_contained_element_length(object_, 'contained_element', model.AASReference,
-                                                      len(expected_value.contained_element)))
+        self._check_referable_equal(object_, expected_value)
+        self._check_has_semantics_equal(object_, expected_value)
+        self.check_contained_element_length(object_, 'contained_element', model.AASReference,
+                                            len(expected_value.contained_element))
 
         for expected_ref in expected_value.contained_element:
-            find = False
-            for ref in object_.contained_element:
-                if ref == expected_ref:
-                    find = True
-                    break
-            if not find:
-                result = result and self.check(False, 'Referable Element Reference[{}] must be '
-                                                      'found'.format(repr(expected_ref)))
+            ref = self._find_reference(expected_ref, object_.contained_element)
+            if self.check(ref is not None, 'View {} must be found'.format(repr(expected_ref))):
+                self._check_reference_equal(ref, expected_ref)  # type: ignore
 
-        for ref in object_.contained_element:
-            find = False
-            for expected_ref in expected_value.contained_element:
-                if ref == expected_ref:
-                    find = True
-                    break
-            if not find:
-                result = result and self.check(False, 'Referable ELement Reference[{}] must not '
-                                                      'exist'.format(repr(ref)))
-        return result
+        found_elements = self._find_extra_reference(object_.contained_element, expected_value.contained_element)
+        self.check(found_elements == set(), 'View {} must not have extra '
+                                            'submodel element references'.format(repr(object_)),
+                   value=found_elements)
 
     def check_concept_description_equal(self, object_: model.ConceptDescription,
                                         expected_value: model.ConceptDescription):
@@ -692,33 +720,22 @@ class AASDataChecker(DataChecker):
 
         :param object_: Given ConceptDescription object to check
         :param expected_value: expected ConceptDescription object
-        :param kwargs: Relevant values to add to the check result for further analysis (e.g. the compared values)
         :return:
         """
-        result = self._check_identifiable_equal(object_, expected_value)
+        self._check_identifiable_equal(object_, expected_value)
         for expected_ref in expected_value.is_case_of:
-            find = False
-            for ref in object_.is_case_of:
-                if ref == expected_ref:
-                    find = True
-                    break
-            if not find:
-                result = result and self.check(False, 'Referable Element Reference[{}] must be '
-                                                      'found'.format(repr(expected_ref)))
+            ref = self._find_reference(expected_ref, object_.is_case_of)
+            if self.check(ref is not None, 'Concept Description {} must be found'.format(repr(expected_ref))):
+                self._check_reference_equal(ref, expected_ref)  # type: ignore
 
-        for ref in object_.is_case_of:
-            find = False
-            for expected_ref in expected_value.is_case_of:
-                if ref == expected_ref:
-                    find = True
-                    break
-            if not find:
-                result = result and self.check(False, 'Referable ELement Reference[{}] must not '
-                                                      'exist'.format(repr(ref)))
+        found_elements = self._find_extra_reference(object_.is_case_of, expected_value.is_case_of)
+        self.check(found_elements == set(), 'Concept Description {} must not have extra '
+                                            'is case of references'.format(repr(object_)),
+                   value=found_elements)
+
         if isinstance(expected_value, model.IEC61360ConceptDescription):
-            if (self.check_is_instance(object_, model.IEC61360ConceptDescription)):
+            if self.check_is_instance(object_, model.IEC61360ConceptDescription):
                 self._check_iec61360_concept_description_equal(object_, expected_value)  # type: ignore
-        return result
 
     def _check_iec61360_concept_description_equal(self, object_: model.IEC61360ConceptDescription,
                                                   expected_value: model.IEC61360ConceptDescription):
@@ -727,33 +744,25 @@ class AASDataChecker(DataChecker):
 
         :param object_: Given IEC61360ConceptDescription object to check
         :param expected_value: expected IEC61360ConceptDescription object
-        :param kwargs: Relevant values to add to the check result for further analysis (e.g. the compared values)
         :return:
         """
-        result = (self.check_attribute_equal(object_, 'preferred_name', expected_value.preferred_name) and
-                  self.check_attribute_equal(object_, 'short_name', expected_value.short_name) and
-                  self.check_attribute_equal(object_, 'data_type', expected_value.data_type) and
-                  self.check_attribute_equal(object_, 'definition', expected_value.definition) and
-                  self.check_attribute_equal(object_, 'unit', expected_value.unit) and
-                  self.check_attribute_equal(object_, 'unit_id', expected_value.unit_id) and
-                  self.check_attribute_equal(object_, 'source_of_definition',
-                                             expected_value.source_of_definition) and
-                  self.check_attribute_equal(object_, 'symbol', expected_value.symbol) and
-                  self.check_attribute_equal(object_, 'value_format', expected_value.value_format) and
-                  self.check_attribute_equal(object_, 'value', expected_value.value) and
-                  self.check_attribute_equal(object_, 'value_id', expected_value.value_id) and
-                  self.check_attribute_equal(object_, 'level_types', expected_value.level_types))
+        self.check_attribute_equal(object_, 'preferred_name', expected_value.preferred_name)
+        self.check_attribute_equal(object_, 'short_name', expected_value.short_name)
+        self.check_attribute_equal(object_, 'data_type', expected_value.data_type)
+        self.check_attribute_equal(object_, 'definition', expected_value.definition)
+        self.check_attribute_equal(object_, 'unit', expected_value.unit)
+        self.check_attribute_equal(object_, 'unit_id', expected_value.unit_id)
+        self.check_attribute_equal(object_, 'source_of_definition', expected_value.source_of_definition)
+        self.check_attribute_equal(object_, 'symbol', expected_value.symbol)
+        self.check_attribute_equal(object_, 'value_format', expected_value.value_format)
+        self.check_attribute_equal(object_, 'value', expected_value.value)
+        self.check_attribute_equal(object_, 'value_id', expected_value.value_id)
+        self.check_attribute_equal(object_, 'level_types', expected_value.level_types)
 
         if expected_value.value_list:
-            if object_.value_list:
-                result = result and self.check_contained_element_length(object_, 'value_list',
-                                                                        model.ValueReferencePair,
-                                                                        len(expected_value.value_list))
-                result = result and self._check_value_list_equal(object_.value_list, expected_value.value_list)
-            else:
-                self.check(False, "ValueList must contain {} ValueReferencePairs".format(
-                    len(expected_value.value_list)))
-        return result
+            if self.check(object_.value_list is not None,
+                          "ValueList must contain {} ValueReferencePairs".format(len(expected_value.value_list))):
+                self._check_value_list_equal(object_.value_list, expected_value.value_list)  # type: ignore
 
     def _check_value_list_equal(self, object_: model.ValueList, expected_value: model.ValueList):
         """
@@ -761,38 +770,19 @@ class AASDataChecker(DataChecker):
 
         :param object_: Given ValueList object to check
         :param expected_value: expected ValueList object
-        :param kwargs: Relevant values to add to the check result for further analysis (e.g. the compared values)
         :return:
         """
         result = True
         for expected_pair in expected_value:
-            find = False
-            for pair in object_:
-                if (pair.value == expected_pair.value and
-                        pair.value_id == expected_pair.value_id and
-                        pair.value_type == expected_pair.value_type):
-                    find = True
-                    break
-            if not find:
-                result = result and self.check(False, 'ValueReferencePair[value={}, value_id={}, value_type={}] '
-                                                      'must be found'.format(expected_pair.value,
-                                                                             expected_pair.value_id,
-                                                                             expected_pair.value_type))
+            pair = self._find_element_by_attribute(expected_pair, object_, 'value', 'value_id', 'value_type')
+            self.check(pair is not None, 'ValueReferencePair[value={}, value_id={}, value_type={}] '
+                                         'must be found'.format(expected_pair.value, expected_pair.value_id,
+                                                                expected_pair.value_type))
 
-        for pair in object_:
-            find = False
-            for expected_pair in expected_value:
-                if (pair.value == expected_pair.value and
-                        pair.value_id == expected_pair.value_id and
-                        pair.value_type == expected_pair.value_type):
-                    find = True
-                    break
-            if not find:
-                result = result and self.check(False, 'ValueReferencePair[value={}, value_id={}, value_type={}] '
-                                                      'must not exist'.format(pair.value,
-                                                                              pair.value_id,
-                                                                              pair.value_type))
-        return result
+        found_elements = self._find_extra_elements_by_attribute(object_, expected_value,
+                                                                'value', 'value_id', 'value_type')
+        self.check(found_elements == set(), 'ValueReferenceList must not have extra ValueReferencePairs',
+                   value=found_elements)
 
     def check_attribute_equal(self, object_: object, attribute_name: str, expected_value: object, **kwargs) -> bool:
         """
