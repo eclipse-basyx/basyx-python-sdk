@@ -231,19 +231,48 @@ class NormalizedString(str):
 
 AllXSDTypes = (Duration, DateTime, Date, Time, GYearMonth, GYear, GMonthDay, GMonth, GDay, Boolean, Base64Binary,
                HexBinary, Float, Double, Decimal, Integer, Long, Int, Short, Byte, NonPositiveInteger,
-               NegativeInteger, NonNegativeInteger, PositiveInteger, UnsignedLong, UnsignedInt, UnsignedLong,
-               UnsignedInt, UnsignedShort, AnyURI, String, NormalizedString)
+               NegativeInteger, NonNegativeInteger, PositiveInteger, UnsignedLong, UnsignedInt, UnsignedShort,
+               UnsignedByte, AnyURI, String, NormalizedString)
 
 # Unfortunately, Union does not accept a tuple of Types.
 AnyXSDType = Union[
     Duration, DateTime, Date, Time, GYearMonth, GYear, GMonthDay, GMonth, GDay, Boolean, Base64Binary,
     HexBinary, Float, Double, Decimal, Integer, Long, Int, Short, Byte, NonPositiveInteger, NegativeInteger,
-    NonNegativeInteger, PositiveInteger, UnsignedLong, UnsignedInt, UnsignedLong, UnsignedInt, UnsignedShort,
-    AnyURI, String, NormalizedString]
+    NonNegativeInteger, PositiveInteger, UnsignedLong, UnsignedInt, UnsignedShort, UnsignedByte, AnyURI, String,
+    NormalizedString]
 
 
 XSD_TYPE_NAMES: Dict[Type[AnyXSDType], str] = {
-    # TODO
+    Duration: "duration",
+    DateTime: "dateTime",
+    Date: "date",
+    Time: "time",
+    GYearMonth: "gYearMonth",
+    GYear: "gYear",
+    GMonthDay: "gMonthDay",
+    GMonth: "gMonth",
+    GDay: "gDay",
+    Boolean: "boolean",
+    Base64Binary: "base64Binary",
+    HexBinary: "heyBinary",
+    Float: "float",
+    Double: "double",
+    Decimal: "decimal",
+    Integer: "integer",
+    Long: "long",
+    Int: "int",
+    Short: "short",
+    Byte: "byte",
+    NonPositiveInteger: "nonPositiveInteger",
+    NegativeInteger: "negativeInteger",
+    NonNegativeInteger: "nonNegativeInteger",
+    PositiveInteger: "positiveInteger",
+    UnsignedLong: "unsignedLong",
+    UnsignedShort: "unsignedShort",
+    UnsignedInt: "unsignedByte",
+    AnyURI: "anyURI",
+    String: "string",
+    NormalizedString: "normalizedString",
 }
 XSD_TYPE_CLASSES: Dict[str, Type[AnyXSDType]] = {v: k for k, v in XSD_TYPE_NAMES.items()}
 
