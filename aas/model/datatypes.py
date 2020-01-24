@@ -116,87 +116,99 @@ class Float(float):
 
 
 class Long(int):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        if abs(self) > 2**63-1:
-            raise ValueError("{} is out of the allowed range for type {}".format(self, self.__class__.__name__))
+    def __new__(cls, *args, **kwargs):
+        res = int.__new__(cls, *args, **kwargs)
+        if abs(res) > 2**63-1:
+            raise ValueError("{} is out of the allowed range for type {}".format(res, cls.__name__))
+        return res
 
 
 class Int(int):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        if abs(self) > 2**31-1:
-            raise ValueError("{} is out of the allowed range for type {}".format(self, self.__class__.__name__))
+    def __new__(cls, *args, **kwargs):
+        res = int.__new__(cls, *args, **kwargs)
+        if abs(res) > 2**31-1:
+            raise ValueError("{} is out of the allowed range for type {}".format(res, cls.__name__))
+        return res
 
 
 class Short(int):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        if abs(self) > 2**15-1:
-            raise ValueError("{} is out of the allowed range for type {}".format(self, self.__class__.__name__))
+    def __new__(cls, *args, **kwargs):
+        res = int.__new__(cls, *args, **kwargs)
+        if abs(res) > 2**15-1:
+            raise ValueError("{} is out of the allowed range for type {}".format(res, cls.__name__))
+        return res
 
 
 class Byte(int):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        if abs(self) > 2**7-1:
-            raise ValueError("{} is out of the allowed range for type {}".format(self, self.__class__.__name__))
+    def __new__(cls, *args, **kwargs):
+        res = int.__new__(cls, *args, **kwargs)
+        if abs(res) > 2**7-1:
+            raise ValueError("{} is out of the allowed range for type {}".format(res, cls.__name__))
+        return res
 
 
 class NonPositiveInteger(int):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        if self > 0:
-            raise ValueError("{} is out of the allowed range for type {}".format(self, self.__class__.__name__))
+    def __new__(cls, *args, **kwargs):
+        res = int.__new__(cls, *args, **kwargs)
+        if res > 0:
+            raise ValueError("{} is out of the allowed range for type {}".format(res, cls.__name__))
+        return res
 
 
 class NegativeInteger(int):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        if self >= 0:
-            raise ValueError("{} is out of the allowed range for type {}".format(self, self.__class__.__name__))
+    def __new__(cls, *args, **kwargs):
+        res = int.__new__(cls, *args, **kwargs)
+        if res >= 0:
+            raise ValueError("{} is out of the allowed range for type {}".format(res, cls.__name__))
+        return res
 
 
 class NonNegativeInteger(int):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        if self < 0:
-            raise ValueError("{} is out of the allowed range for type {}".format(self, self.__class__.__name__))
+    def __new__(cls, *args, **kwargs):
+        res = int.__new__(cls, *args, **kwargs)
+        if res < 0:
+            raise ValueError("{} is out of the allowed range for type {}".format(res, cls.__name__))
+        return res
 
 
 class PositiveInteger(int):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        if self <= 0:
-            raise ValueError("{} is out of the allowed range for type {}".format(self, self.__class__.__name__))
+    def __new__(cls, *args, **kwargs):
+        res = int.__new__(cls, *args, **kwargs)
+        if res <= 0:
+            raise ValueError("{} is out of the allowed range for type {}".format(res, cls.__name__))
+        return res
 
 
 class UnsignedLong(int):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        if self < 0 or self > 2**64-1:
-            raise ValueError("{} is out of the allowed range for type {}".format(self, self.__class__.__name__))
+    def __new__(cls, *args, **kwargs):
+        res = int.__new__(cls, *args, **kwargs)
+        if not 0 <= res <= 2**64-1:
+            raise ValueError("{} is out of the allowed range for type {}".format(res, cls.__name__))
+        return res
 
 
 class UnsignedInt(int):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        if self < 0 or self > 2**32-1:
-            raise ValueError("{} is out of the allowed range for type {}".format(self, self.__class__.__name__))
+    def __new__(cls, *args, **kwargs):
+        res = int.__new__(cls, *args, **kwargs)
+        if not 0 <= res <= 2**32-1:
+            raise ValueError("{} is out of the allowed range for type {}".format(res, cls.__name__))
+        return res
 
 
 class UnsignedShort(int):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        if self < 0 or self > 2**16-1:
-            raise ValueError("{} is out of the allowed range for type {}".format(self, self.__class__.__name__))
+    def __new__(cls, *args, **kwargs):
+        res = int.__new__(cls, *args, **kwargs)
+        if not 0 <= res <= 2**16-1:
+            raise ValueError("{} is out of the allowed range for type {}".format(res, cls.__name__))
+        return res
 
 
 class UnsignedByte(int):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        if self < 0 or self > 2**8-1:
-            raise ValueError("{} is out of the allowed range for type {}".format(self, self.__class__.__name__))
+    def __new__(cls, *args, **kwargs):
+        res = int.__new__(cls, *args, **kwargs)
+        if not 0 <= res <= 2**8-1:
+            raise ValueError("{} is out of the allowed range for type {}".format(res, cls.__name__))
+        return res
 
 
 class AnyURI(str):
