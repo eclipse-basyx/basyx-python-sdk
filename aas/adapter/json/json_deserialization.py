@@ -26,7 +26,7 @@ import base64
 import json
 import logging
 import pprint
-from typing import Dict, Callable, TypeVar, Type, List, IO
+from typing import Dict, Callable, TypeVar, Type, List, IO, Optional
 
 from ... import model
 from .json_serialization import MODELING_KIND, ASSET_KIND, KEY_ELEMENTS, KEY_TYPES, IDENTIFIER_TYPES, ENTITY_TYPES,\
@@ -308,7 +308,7 @@ class AASFromJsonDecoder(json.JSONDecoder):
         return ret
 
     @classmethod
-    def _construct_lang_string_set(cls, lst: List[Dict[str, object]]) -> model.LangStringSet:
+    def _construct_lang_string_set(cls, lst: List[Dict[str, object]]) -> Optional[model.LangStringSet]:
         ret = {}
         for desc in lst:
             try:
@@ -320,6 +320,8 @@ class AASFromJsonDecoder(json.JSONDecoder):
                     logger.error(error_message, exc_info=e)
                 else:
                     raise type(e)(error_message) from e
+        if ret == {}:
+            ret = None
         return ret
 
     @classmethod
