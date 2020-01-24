@@ -73,7 +73,7 @@ def boolean_to_xml(obj: bool) -> str:
         return "false"
 
 
-def find_rec(parent: ElTree.Element, tag: str) -> Iterator[ElTree.Element]:
+def _find_rec(parent: ElTree.Element, tag: str) -> Iterator[ElTree.Element]:
     """
     Finds all elements recursively that have the given tag
 
@@ -86,7 +86,7 @@ def find_rec(parent: ElTree.Element, tag: str) -> Iterator[ElTree.Element]:
     for item in parent.findall(tag):
         yield item
     for item in parent:
-        find_rec(item, tag)
+        _find_rec(item, tag)
 
 
 def update_element(old_element: ElTree.Element,
@@ -94,15 +94,13 @@ def update_element(old_element: ElTree.Element,
     """
     update an existing ElTree.Element with a new ElTree.Elements
 
-    The new_element can be a child, or sub..-child of the old_element.
-    ToDo: Check if this works as expected
-    todo: Is this the correct type of error raised?
+    # TODO remove
 
     :param old_element: Element to update
     :param new_element: ElTree.Element with the data for update
     :return: ElTree.Element with the updated information
     """
-    elements_to_update = list(find_rec(old_element, new_element.tag))  # search for elements that match new_element
+    elements_to_update = list(_find_rec(old_element, new_element.tag))  # search for elements that match new_element
     if len(elements_to_update) > 1:  # more than one element found that matches with new_element, sth went wrong.
         raise ValueError("Found " + str(len(elements_to_update)) + " elements [" + new_element.tag +
                                                                    "] in " + old_element.tag + ". Expected 1")
@@ -180,12 +178,12 @@ def referable_to_xml(obj: model.Referable) -> List[ElTree.Element]:
     :param obj: object of class Referable
     :return: List of ElementTree object to insert into the parent element
     """
-    ser_list: List[ElTree.Element] = []
-    et_id_short = generate_element(name="idShort", text=obj.id_short, namespace=ns_aas)
-    ser_list += [et_id_short]
+    # TODO überall so platzsparend umsetzen
+    ser_list: List[ElTree.Element] = [
+        generate_element(name="idShort", text=obj.id_short, namespace=ns_aas)
+    ]
     if obj.category:
-        et_category = generate_element(name="category", text=obj.category, namespace=ns_aas)
-        ser_list += [et_category]
+        ser_list.append(generate_element(name="category", text=obj.category, namespace=ns_aas))
     if obj.description:
         et_description = lang_string_set_to_xml(obj.description, name="description")
         ser_list += [et_description]
@@ -211,8 +209,8 @@ def identifiable_to_xml(obj: model.Identifiable) -> List[ElTree.Element]:
             et_version = generate_element(name="version", text=obj.administration.version, namespace=ns_aas)
             et_administration.insert(0, et_version)
             if obj.administration.revision:
-                et_revision = generate_element(name="revision", text=obj.administration.revision, namespace=ns_aas)
-                et_administration.insert(1, et_revision)
+                et_administration.append(
+                    generate_element(name="revision", text=obj.administration.revision, namespace=ns_aas))
         ser_list += [et_administration]
     return ser_list
 
@@ -253,16 +251,14 @@ def abstract_classes_to_xml(obj: object) -> List[ElTree.Element]:
     if isinstance(obj, model.Referable):
         for referable_element in referable_to_xml(obj):
             elements += [referable_element]
-        """
-        try:  # todo: What does this do? What do we need it for?
-            ref_type = next(iter(t for t in inspect.getmro(type(obj)) if t in model.KEY_ELEMENTS_CLASSES))
-        except StopIteration as e:
-            raise TypeError("Object of type {} is Referable but does not inherit from a known AAS type"
-                            .format(obj.__class__.__name__)) from e
-        et_model_type = ElTree.Element("modelType")
-        et_model_type.text = ref_type.__name__
-        elements += [et_model_type]
-        """
+        # try:  # todo: What does this do? What do we need it for?
+        #     ref_type = next(iter(t for t in inspect.getmro(type(obj)) if t in model.KEY_ELEMENTS_CLASSES))
+        # except StopIteration as e:
+        #     raise TypeError("Object of type {} is Referable but does not inherit from a known AAS type"
+        #                     .format(obj.__class__.__name__)) from e
+        # et_model_type = ElTree.Element("modelType")
+        # et_model_type.text = ref_type.__name__
+        # elements += [et_model_type]
     if isinstance(obj, model.Identifiable):
         for identifiable_elements in identifiable_to_xml(obj):
             elements += [identifiable_elements]
@@ -280,13 +276,9 @@ def abstract_classes_to_xml(obj: object) -> List[ElTree.Element]:
             elements += [et_semantics]
 
     if isinstance(obj, model.HasKind):
-        # todo: it's not possible to HaveKind and not have a kind
-        if obj.kind is model.ModelingKind.TEMPLATE:
-            et_modeling_kind = generate_element(name="kind", text="Template", namespace=ns_aas)
-            elements += [et_modeling_kind]
-        elif obj.kind is model.ModelingKind.INSTANCE:
-            et_modeling_kind = generate_element(name="kind", text="Instance", namespace=ns_aas)
-            elements += [et_modeling_kind]
+        elements.append(generate_element(name="kind",
+                                         text="Template" if obj.kind == model.ModelingKind.TEMPLATE else "Instance",
+                                         namespace=ns_aas))
 
     if isinstance(obj, model.Qualifiable):
         if obj.qualifier:
@@ -327,8 +319,6 @@ def lang_string_set_to_xml(obj: model.LangStringSet, name: str) -> ElTree.Elemen
 def key_to_xml(obj: model.Key) -> ElTree.Element:
     """
     serialization of objects of class Key to XML
-
-    todo: the value of the key is in its text, the XSD-schema was not clear about where to put it
 
     :param obj: object of class Key
     :return: serialized ElementTree object
@@ -413,7 +403,7 @@ def constraint_to_xml(obj: model.Constraint, name: str) -> ElTree.Element:
     :return: serialized ElementTree object
     """
     constraint_classes = [model.Qualifier, model.Formula]
-    et_constraint = generate_element(name=name, text=None, namespace=ns_aas)
+    et_constraint = generate_element(name=name, text=None, )
     try:
         const_type = next(iter(t for t in inspect.getmro(type(obj)) if t in constraint_classes))
     except StopIteration as e:
@@ -423,21 +413,6 @@ def constraint_to_xml(obj: model.Constraint, name: str) -> ElTree.Element:
         # et_qualifier = qualifier_to_xml(obj.)
     et_constraint.set("modelType", const_type.__name__)
     return et_constraint
-
-
-def namespace_to_xml(obj: model.Namespace) -> ElTree.Element:
-    """
-    serialization of objects of class Namespace to XML
-
-    todo: Since this is not yet part of the Details of the AAS model, it's not entirely clear how to serialize this
-
-    :param obj: object of class Namespace
-    :return: serialized ElementTree Object
-    """
-    et_namespace = generate_element(name="namespace", text=None, namespace="local")
-    for i in abstract_classes_to_xml(obj):
-        et_namespace.insert(0, i)
-    return et_namespace
 
 
 def formula_to_xml(obj: model.Formula, name: str = "formula") -> ElTree.Element:
@@ -635,8 +610,6 @@ def asset_administration_shell_to_xml(obj: model.AssetAdministrationShell,
     et_aas = generate_element(name)
     for i in abstract_classes_to_xml(obj):
         et_aas.insert(0, i)
-    et_namespace = namespace_to_xml(obj)
-    et_aas = update_element(et_aas, et_namespace)  # todo: do i need this line?
     if obj.derived_from:
         et_derived_from = generate_element("derivedFrom", namespace=ns_aas)
         et_reference = reference_to_xml(obj.derived_from)
@@ -912,7 +885,6 @@ def submodel_element_collection_to_xml(obj: model.SubmodelElementCollection,
         et_submodel_element_collection.insert(0, et_value)
     et_ordered = ElTree.Element(ns_aas+"ordered")
     et_ordered.text = boolean_to_xml(obj.ordered)
-    # todo: ordered does not seem to be a boolean in our model?
     et_submodel_element_collection.insert(0, et_ordered)
     return et_submodel_element_collection
 
@@ -948,8 +920,8 @@ def annotated_relationship_element_to_xml(obj: model.AnnotatedRelationshipElemen
     serialization of objects of class AnnotatedRelationshipElement to XML
 
     todo: in the schema, annotatedRelationshipElement is of type relationshipElement_t, so there is no way to store
-    todo: the annotations in the schema
-    todo: I guessed the implementation, but of course, the namespace is wrong
+        the annotations in the schema
+        I guessed the implementation, but of course, the namespace is wrong
 
     :param obj: object of class AnnotatedRelationshipElement
     :param name: tag of the serialized element (optional), default is "annotatedRelationshipElement
