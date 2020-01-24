@@ -210,7 +210,8 @@ class Property(DataElement):
 
         super().__init__(id_short, category, description, parent, semantic_id, qualifier, kind)
         self.value_type: Type[datatypes.AnyXSDType] = value_type
-        self._value: Optional[base.ValueDataType] = value
+        self._value: Optional[base.ValueDataType] = (datatypes.trivial_cast(value, value_type)
+                                                     if value is not None else None)
         self.value_id: Optional[base.Reference] = value_id
 
     @property
@@ -219,9 +220,10 @@ class Property(DataElement):
 
     @value.setter
     def value(self, value) -> None:
-        type_: Type[datatypes.AnyXSDType] = self.value_type
-        val: datatypes.AnyXSDType = datatypes.trivial_cast(value, type_)
-        self._value = val
+        if value is None:
+            self._value = None
+        else:
+            self._value = datatypes.trivial_cast(value, self.value_type)
 
 
 class MultiLanguageProperty(DataElement):
@@ -321,8 +323,30 @@ class Range(DataElement):
 
         super().__init__(id_short, category, description, parent, semantic_id, qualifier, kind)
         self.value_type: base.DataTypeDef = value_type
-        self.min_: Optional[base.ValueDataType] = min_
-        self.max_: Optional[base.ValueDataType] = max_
+        self._min: Optional[base.ValueDataType] = datatypes.trivial_cast(min_, value_type) if min_ is not None else None
+        self._max: Optional[base.ValueDataType] = datatypes.trivial_cast(max_, value_type) if max_ is not None else None
+
+    @property
+    def min_(self):
+        return self._min
+
+    @min_.setter
+    def min_(self, value) -> None:
+        if value is None:
+            self._min = None
+        else:
+            self._min = datatypes.trivial_cast(value, self.value_type)
+
+    @property
+    def max_(self):
+        return self._max
+
+    @max_.setter
+    def max_(self, value) -> None:
+        if value is None:
+            self._max = None
+        else:
+            self._max = datatypes.trivial_cast(value, self.value_type)
 
 
 class Blob(DataElement):

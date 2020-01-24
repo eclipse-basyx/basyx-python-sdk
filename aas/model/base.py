@@ -753,9 +753,20 @@ class Qualifier(Constraint, HasSemantics):
         super().__init__()
         self.type_: QualifierType = type_
         self.value_type: DataTypeDef = value_type
-        self.value: Optional[ValueDataType] = value
+        self._value: Optional[ValueDataType] = datatypes.trivial_cast(value, value_type) if value is not None else None
         self.value_id: Optional[Reference] = value_id
         self.semantic_id: Optional[Reference] = semantic_id
+
+    @property
+    def value(self):
+        return self._value
+
+    @value.setter
+    def value(self, value) -> None:
+        if value is None:
+            self._value = None
+        else:
+            self._value = datatypes.trivial_cast(value, self.value_type)
 
 
 class ValueReferencePair:

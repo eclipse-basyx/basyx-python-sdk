@@ -259,10 +259,10 @@ def qualifier_to_json(obj: model.Qualifier) -> Dict[str, object]:
     data = abstract_classes_to_json(obj)
     data.update(constraint_to_json(obj))
     if obj.value:
-        data['value'] = obj.value
+        data['value'] = model.datatypes.xsd_repr(obj.value) if obj.value is not None else None
     if obj.value_id:
         data['valueId'] = obj.value_id
-    data['valueType'] = obj.value_type
+    data['valueType'] = model.datatypes.XSD_TYPE_NAMES[obj.value_type]
     data['type'] = obj.type_
     return data
 
@@ -472,7 +472,7 @@ def property_to_json(obj: model.Property) -> Dict[str, object]:
     :return: dict with the serialized attributes of this object
     """
     data = abstract_classes_to_json(obj)
-    data['value'] = model.datatypes.xsd_repr(obj.value)
+    data['value'] = model.datatypes.xsd_repr(obj.value) if obj.value is not None else None
     if obj.value_id:
         data['valueId'] = obj.value_id
     data['valueType'] = model.datatypes.XSD_TYPE_NAMES[obj.value_type]
@@ -502,7 +502,9 @@ def range_to_json(obj: model.Range) -> Dict[str, object]:
     :return: dict with the serialized attributes of this object
     """
     data = abstract_classes_to_json(obj)
-    data.update({'valueType': obj.value_type, 'min': obj.min_, 'max': obj.max_})
+    data.update({'valueType': model.datatypes.XSD_TYPE_NAMES[obj.value_type],
+                 'min': model.datatypes.xsd_repr(obj.min_) if obj.min_ is not None else None,
+                 'max': model.datatypes.xsd_repr(obj.max_) if obj.max_ is not None else None})
     return data
 
 
