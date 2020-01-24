@@ -260,7 +260,7 @@ def reference_to_xml(obj: model.Reference, namespace: str, tag: str) -> ElTree.E
     :return: serialized ElementTree
     """
     et_reference = generate_element(name=namespace+tag)
-    et_keys = ElTree.Element(name=namespace+"keys")
+    et_keys = generate_element(name=namespace+"keys")
     for aas_key in obj.key:
         et_keys.append(generate_element(name=ns_aas+"key",
                                         text=aas_key.value,
