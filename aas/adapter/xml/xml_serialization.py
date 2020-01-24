@@ -74,11 +74,11 @@ def generate_parent(name: str, obj: object) -> ElTree.Element:
     """
     generates a parent element from its tag-name and object. Inserts abstract classes
 
-    :param name: namespace+name string
+    :param name: namespace+tag of the resulting element
     :param obj: model object
     :return: ElementTree that includes the serialized abstract classes
     """
-    et_object = generate_element(name=name)
+    return abstract_classes_to_xml(generate_element(name=name), obj)
 
 
 # ##############################################################
@@ -142,128 +142,64 @@ ENTITY_TYPES: Dict[model.EntityType, str] = {
 # ##############################################################
 
 
-def referable_to_xml(obj: model.Referable) -> List[ElTree.Element]:
-    """
-    serialization of objects of class Referable to XML
-
-    :param obj: object of class Referable
-    :return: List of ElementTree object to insert into the parent element
-    """
-    ser_list: List[ElTree.Element] = []
-    et_id_short = generate_element(name=ns_aas+"idShort", text=obj.id_short)
-    ser_list += [et_id_short]
-    if obj.category:
-        et_category = generate_element(name=ns_aas+"category", text=obj.category)
-        ser_list += [et_category]
-    if obj.description:
-        et_description = lang_string_set_to_xml(obj.description, name="description")
-        ser_list += [et_description]
-    return ser_list
-
-
-def identifiable_to_xml(obj: model.Identifiable) -> List[ElTree.Element]:
-    """
-    serialization of objects of class Identifiable to XML
-
-    :param obj: object of class Identifiable
-    :return: List of serialized ElementTree objects to insert into the parent
-    """
-    ser_list: List[ElTree.Element] = []
-    et_identification = generate_element(name=ns_aas+"identification",
-                                         text=obj.identification.id,
-                                         attributes={"idType": IDENTIFIER_TYPES[obj.identification.id_type]})
-    ser_list += [et_identification]
-    if obj.administration:
-        et_administration = generate_element(name=ns_aas+"administration", text=None)
-        if obj.administration.version:
-            et_version = generate_element(name=ns_aas+"version", text=obj.administration.version)
-            et_administration.insert(0, et_version)
-            if obj.administration.revision:
-                et_revision = generate_element(name=ns_aas+"revision", text=obj.administration.revision)
-                et_administration.insert(1, et_revision)
-        ser_list += [et_administration]
-    return ser_list
-
-
-def has_data_specification_to_xml(obj: model.HasDataSpecification) -> List[ElTree.Element]:
-    """
-    serialization of objects of class HasDataSpecification to XML
-
-    :param obj: object of class HasDataSpecification
-    :return: list of serialized ElemenTree objects to insert into parent
-    """
-    ser_list: List[ElTree.Element] = []
-    for embedded_data_specification in obj.data_specification:
-        et_embedded_data_specification = generate_element(name=ns_aas+"embeddedDataSpecification",
-                                                          text=None)
-        et_data_spec_content = generate_element(name=ns_aas+"dataSpecificationContent")  # todo: not done yet
-        et_data_spec = generate_element(name=ns_aas+"dataSpecification")
-        for et_key in reference_to_xml(embedded_data_specification):
-            et_data_spec.insert(0, et_key)
-        et_embedded_data_specification.insert(0, et_data_spec_content)
-        et_embedded_data_specification.insert(0, et_data_spec)
-        ser_list += [et_embedded_data_specification]
-    return ser_list
-
-
-def abstract_classes_to_xml(obj: object) -> List[ElTree.Element]:
+def abstract_classes_to_xml(elm: ElTree.Element, obj: object) -> ElTree.Element:
     """
     transformation function to serialize abstract classes from model.base which are inherited by many classes.
 
-    If the object obj is inheriting from an abstract class, this function returns the serialized information from that
-    abstract class in form of ElementTree objects in a list.
+    If the object obj is inheriting from an abstract class, this function adds the serialized information of those
+    abstract classes to the given parent element
 
+    :param elm: parent element that the abstract classes should be serialized for
     :param obj: an object of the AAS
-    :return: a list of ElementTree.Elements to be inserted into the parent Element of the object
+    :return: parent element with the serialized information from the abstract classes
     """
-    elements: List[ElTree.Element] = []
     if isinstance(obj, model.Referable):
-        for referable_element in referable_to_xml(obj):
-            elements += [referable_element]
-        # try:  # todo: What does this do? What do we need it for?
-        #     ref_type = next(iter(t for t in inspect.getmro(type(obj)) if t in model.KEY_ELEMENTS_CLASSES))
-        # except StopIteration as e:
-        #     raise TypeError("Object of type {} is Referable but does not inherit from a known AAS type"
-        #                     .format(obj.__class__.__name__)) from e
-        # et_model_type = ElTree.Element("modelType")
-        # et_model_type.text = ref_type.__name__
-        # elements += [et_model_type]
+        elm.append(generate_element(name=ns_aas+"idShort", text=obj.id_short))
+        if obj.category:
+            elm.append(generate_element(name=ns_aas + "category", text=obj.category))
+        if obj.description:
+            elm.append(lang_string_set_to_xml(obj.description, name="description"))
     if isinstance(obj, model.Identifiable):
-        for identifiable_elements in identifiable_to_xml(obj):
-            elements += [identifiable_elements]
-
+        elm.append(generate_element(name=ns_aas + "identification",
+                                    text=obj.identification.id,
+                                    attributes={"idType": IDENTIFIER_TYPES[obj.identification.id_type]}))
+        if obj.administration:
+            et_administration = generate_element(name=ns_aas+"administration", text=None)
+            if obj.administration.version:
+                et_administration.append(generate_element(name=ns_aas+"version", text=obj.administration.version))
+                if obj.administration.revision:
+                    et_administration.append(generate_element(name=ns_aas+"revision", text=obj.administration.revision))
+            elm.append(et_administration)
     if isinstance(obj, model.HasDataSpecification):
         if obj.data_specification:
-            for data_spec_element in has_data_specification_to_xml(obj):
-                elements += [data_spec_element]
-
+            for embedded_data_specification in obj.data_specification:
+                et_embedded_data_specification = generate_element(name=ns_aas+"embeddedDataSpecification")
+                et_data_spec_content = generate_element(name=ns_aas + "dataSpecificationContent")  # todo: not done yet
+                et_data_spec = generate_element(name=ns_aas + "dataSpecification")
+                for et_key in reference_to_xml(embedded_data_specification):  # todo change reference_to_xml
+                    et_data_spec.insert(0, et_key)
+                et_embedded_data_specification.append(et_data_spec_content)
+                et_embedded_data_specification.append(et_data_spec)
     if isinstance(obj, model.HasSemantics):
         if obj.semantic_id:
             et_semantics = generate_element(name=ns_aas+"semanticId", text=None)
             for et_key in reference_to_xml(obj.semantic_id):
                 et_semantics.insert(0, et_key)
-            elements += [et_semantics]
-
+            elm.append(et_semantics)
     if isinstance(obj, model.HasKind):
-        # todo: it's not possible to HaveKind and not have a kind
         if obj.kind is model.ModelingKind.TEMPLATE:
-            et_modeling_kind = generate_element(name=ns_aas+"kind", text="Template")
-            elements += [et_modeling_kind]
-        elif obj.kind is model.ModelingKind.INSTANCE:
-            et_modeling_kind = generate_element(name=ns_aas+"kind", text="Instance")
-            elements += [et_modeling_kind]
-
+            elm.append(generate_element(name=ns_aas+"kind", text="Template"))
+        else:
+            # then modeling-kind is Instance
+            elm.append(generate_element(name=ns_aas+"kind", text="Instance"))
     if isinstance(obj, model.Qualifiable):
         if obj.qualifier:
-            et_qualifier = generate_element(name=ns_aas+"qualifier", text=None)
+            et_qualifiers = generate_element(name=ns_aas+"qualifier", text=None)
             for qual in obj.qualifier:
-                et_qualifiers = constraint_to_xml(qual, name="qualifiers")
-                et_qualifier.insert(0, et_qualifiers)
+                et_qualifiers.append(constraint_to_xml(qual, name="qualifiers"))
                 # todo: seems like the XSD-schema messed up the plural "s"?
                 # todo: formula and qualifier seem not to be implemented yet
-            elements += [et_qualifier]
-
-    return elements
+    return elm
 
 
 # ##############################################################
