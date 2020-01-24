@@ -18,7 +18,7 @@ How to use:
 """
 
 import xml.etree.ElementTree as ElTree
-from typing import List, Dict, IO, Optional
+from typing import Dict, IO, Optional
 import inspect
 import base64
 
@@ -374,7 +374,7 @@ def value_list_to_xml(obj: model.ValueList,
     :return: serialized ElementTree object
     """
     et_vl = generate_parent(namespace, tag, obj)
-    for aas_reference_pair in obj.value_reference_pair_type:
+    for aas_reference_pair in obj:
         et_vl.append(value_reference_pair_to_xml(aas_reference_pair, namespace))
     return et_vl
 
@@ -486,7 +486,9 @@ def asset_administration_shell_to_xml(obj: model.AssetAdministrationShell,
     if obj.concept_dictionary:
         et_concept_dictionaries = generate_element(namespace+"conceptDictionaries")
         for concept_dictionary in obj.concept_dictionary:
-            et_concept_dictionaries.append(concept_dictionary_to_xml(concept_dictionary, namespace, "conceptDictionary"))
+            et_concept_dictionaries.append(concept_dictionary_to_xml(concept_dictionary,
+                                                                     namespace,
+                                                                     "conceptDictionary"))
         et_aas.append(et_concept_dictionaries)
     if obj.security_:
         et_aas.append(security_to_xml(obj.security_, namespace, "security"))
@@ -551,7 +553,7 @@ def submodel_to_xml(obj: model.Submodel,
     if obj.submodel_element:
         et_submodel_elements = generate_element(namespace+"submodelElements")
         for submodel_element in obj.submodel_element:
-            et_submodel_elements.append(submodel_element_to_xml(submodel_element))
+            et_submodel_elements.append(submodel_element_to_xml(submodel_element, namespace))
         et_submodel.append(et_submodel_elements)
     return et_submodel
 
@@ -677,37 +679,32 @@ def reference_element_to_xml(obj: model.ReferenceElement,
     :param tag: namespace+tag of the serialized element (optional), default is "referenceElement"
     :return: serialized ElementTree object
     """
-    et_reference_element = generate_element(tag)
-    for i in abstract_classes_to_xml(obj):
-        et_reference_element.insert(0, i)
+    et_reference_element = generate_parent(namespace, tag, obj)
     if obj.value:
         et_reference_element.append(reference_to_xml(obj.value, namespace, "value"))
     return et_reference_element
 
 
 def submodel_element_collection_to_xml(obj: model.SubmodelElementCollection,
-                                       name: str = "submodelElementCollection") -> ElTree.Element:
+                                       namespace: str,
+                                       tag: str = "submodelElementCollection") -> ElTree.Element:
     """
     serialization of objects of class SubmodelElementCollection to XML
 
     Note that we do not have parameter "allowDuplicates" in out implementation
 
     :param obj: object of class SubmodelElementCollection
-    :param name: namespace+tag of the serialized element (optional), default is "submodelElementCollection"
+    :param namespace: namespace of the serialized element
+    :param tag: namespace+tag of the serialized element (optional), default is "submodelElementCollection"
     :return: serialized ElementTree object
     """
-    et_submodel_element_collection = generate_element(name)
-    for i in abstract_classes_to_xml(obj):
-        et_submodel_element_collection.insert(0, i)
+    et_submodel_element_collection = generate_parent(namespace, tag, obj)
     if obj.value:
-        et_value = ElTree.Element(ns_aas+"value")
+        et_value = generate_element(namespace+"value")
         for submodel_element in obj.value:
-            et_submodel_element = submodel_element_to_xml(submodel_element)
-            et_value.insert(0, et_submodel_element)
-        et_submodel_element_collection.insert(0, et_value)
-    et_ordered = ElTree.Element(ns_aas+"ordered")
-    et_ordered.text = boolean_to_xml(obj.ordered)
-    et_submodel_element_collection.insert(0, et_ordered)
+            et_value.append(submodel_element_to_xml(submodel_element, namespace))
+        et_submodel_element_collection.append(et_value)
+    et_submodel_element_collection.append(generate_element(namespace+"ordered", text=boolean_to_xml(obj.ordered)))
     return et_submodel_element_collection
 
 
@@ -722,9 +719,7 @@ def relationship_element_to_xml(obj: model.RelationshipElement,
     :param tag: tag of the serialized element (optional), default is "relationshipElement"
     :return: serialized ELementTree object
     """
-    et_relationship_element = generate_element(tag)
-    for i in abstract_classes_to_xml(obj):
-        et_relationship_element.insert(0, i)
+    et_relationship_element = generate_parent(namespace, tag, obj)
     et_relationship_element.append(reference_to_xml(obj.first, namespace, "first"))
     et_relationship_element.append(reference_to_xml(obj.second, namespace, "second"))
     return et_relationship_element
@@ -738,7 +733,6 @@ def annotated_relationship_element_to_xml(obj: model.AnnotatedRelationshipElemen
 
     todo: in the schema, annotatedRelationshipElement is of type relationshipElement_t, so there is no way to store
         the annotations in the schema
-        I guessed the implementation, but of course, the namespace is wrong
 
     :param obj: object of class AnnotatedRelationshipElement
     :param namespace: namespace of the serialized element
@@ -747,45 +741,43 @@ def annotated_relationship_element_to_xml(obj: model.AnnotatedRelationshipElemen
     """
     et_annotated_relationship_element = relationship_element_to_xml(obj, tag)
     if obj.annotation:
-        et_annotations = generate_element(name=namespace+"annotations")
+        et_annotations = generate_element(name=""+"annotations")
         for ref in obj.annotation:
-            et_annotations.append(reference_to_xml(ref, namespace=namespace, tag="annotation"))
+            et_annotations.append(reference_to_xml(ref, namespace="", tag="annotation"))
         et_annotated_relationship_element.append(et_annotations)
-
     return et_annotated_relationship_element
 
 
 def operation_variable_to_xml(obj: model.OperationVariable,
-                              name: str = "operationVariable") -> ElTree.Element:
+                              namespace: str,
+                              tag: str = "operationVariable") -> ElTree.Element:
     """
     serialization of objects of class OperationVariable to XML
 
     :param obj: object of class OperationVariable
-    :param name: namespace+tag of the serialized element (optional), default is "operationVariable"
+    :param namespace: namespace of the serialized element
+    :param tag: tag of the serialized element (optional), default is "operationVariable"
     :return: serialized ElementTree object
     """
-    et_operation_variable = generate_element(name)
-    for i in abstract_classes_to_xml(obj):
-        et_operation_variable.insert(0, i)
-    et_value = submodel_element_to_xml(obj.value, tag="value")
-    et_operation_variable.insert(0, et_value)
+    et_operation_variable = generate_parent(namespace, tag, obj)
+    et_operation_variable.append(submodel_element_to_xml(obj.value, namespace, "value"))
     return et_operation_variable
 
 
 def operation_to_xml(obj: model.Operation,
-                     name: str = "operation") -> ElTree.Element:
+                     namespace: str,
+                     tag: str = "operation") -> ElTree.Element:
     """
     serialization of objects of class Operation to XML
 
     todo: operation_variables are of type NamespaceSet[OperationVariable], not sure how to deal with this
 
     :param obj: object of class Operation
-    :param name: namespace+tag of the serialized element (optional), default is "operation"
+    :param namespace: namespace of the serialized element
+    :param tag: namespace+tag of the serialized element (optional), default is "operation"
     :return: serialized ElementTree object
     """
-    et_operation = generate_element(name)
-    for i in abstract_classes_to_xml(obj):
-        et_operation.insert(0, i)
+    et_operation = generate_parent(namespace, tag, obj)
     """
     et_input_var = operation_variable_to_xml(obj.input_variable, name="inputVariable")
     et_output_var = operation_variable_to_xml(obj.output_variable, name="outputVariable")
@@ -797,18 +789,20 @@ def operation_to_xml(obj: model.Operation,
     return et_operation
 
 
-def capability_to_xml(obj: model.Capability) -> ElTree.Element:
+def capability_to_xml(obj: model.Capability,
+                      namespace: str,
+                      tag: str = "capability") -> ElTree.Element:
     """
     serialization of objects of class Capability to XML
 
     todo: in the schema, a capability is a string, this implementation therefore has the wrong namespace
 
     :param obj: object of class Capability
+    :param namespace: namespace of the serialized element
+    :param tag: tag of the serialized element, default is "capability"
     :return: serialized ElementTree object
     """
-    et_capability = ElTree.Element("capability")
-    for i in abstract_classes_to_xml(obj):
-        et_capability.insert(0, i)
+    et_capability = generate_parent(namespace, tag, obj)
     return et_capability
 
 
@@ -823,35 +817,30 @@ def entity_to_xml(obj: model.Entity,
     :param tag: tag of the serialized element (optional), default is "entity"
     :return: serialized ElementTree object
     """
-    et_entity = generate_element(tag)
-    for i in abstract_classes_to_xml(obj):
-        et_entity.insert(0, i)
+    et_entity = generate_parent(namespace, tag, obj)
     # todo: not sure how to deal with NamespaceSet[SubmodelElement]
     # et_statements = submodel_element_to_xml(obj.statement, name="statements")
     # et_entity.insert(0, et_statements)
-
-    et_entity_type = ElTree.Element(ns_aas+"entityType")
-    et_entity_type.text = ENTITY_TYPES[obj.entity_type]
-    et_entity.insert(0, et_entity_type)
-
+    et_entity.append(generate_element(namespace+"entityType", text=ENTITY_TYPES[obj.entity_type]))
     if obj.asset:
         et_entity.append(reference_to_xml(obj.asset, namespace, "assetRef"))
-
     return et_entity
 
 
-def event_to_xml(obj: model.Event) -> ElTree.Element:
+def event_to_xml(obj: model.Event,
+                 namespace: str,
+                 tag: str = "event") -> ElTree.Element:
     """
     serialization of objects of class Event to XML
 
     todo didn't find it in the schema, so guessing implementation, therefore wrong namespace
 
     :param obj: object of class Event
+    :param namespace: namespace of the serialized element
+    :param tag: tag of the serialized element, default is "event"
     :return: serialized ElementTree object
     """
-    et_event = ElTree.Element("event")
-    for i in abstract_classes_to_xml(obj):
-        et_event.insert(0, i)
+    et_event = generate_parent(namespace, tag, obj)
     return et_event
 
 
@@ -866,9 +855,7 @@ def basic_event_to_xml(obj: model.BasicEvent,
     :param tag: tag of the serialized element (optional), default is "basicEvent"
     :return: serialized ElementTree object
     """
-    et_basic_event = generate_element(tag)
-    for i in abstract_classes_to_xml(obj):
-        et_basic_event.insert(0, i)
+    et_basic_event = generate_parent(namespace, tag, obj)
     et_basic_event.append(reference_to_xml(obj.observed, namespace, "observed"))
     return et_basic_event
 
