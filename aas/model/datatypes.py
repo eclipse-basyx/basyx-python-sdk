@@ -36,9 +36,13 @@ String = str
 
 
 class Date(datetime.date):
-    def __init__(self, year: int, month: int, day: int, tzinfo: Optional[datetime.tzinfo]) -> None:
-        super().__init__(year, month, day)
-        self._tzinfo = tzinfo
+    __slots__ = '_tzinfo'
+
+    def __new__(cls, year: int, month: Optional[int] = None, day: Optional[int] = None,
+                tzinfo: Optional[datetime.tzinfo] = None) -> "Date":
+        res = datetime.date.__new__(cls, year, month, day)  # type: ignore
+        res._tzinfo = tzinfo
+        return res
 
     def begin(self) -> datetime.datetime:
         return datetime.datetime(self.year, self.month, self.day, 0, 0, 0, 0, self._tzinfo)
@@ -54,6 +58,14 @@ class Date(datetime.date):
         if self._tzinfo is None:
             return None
         return self._tzinfo.utcoffset(self)
+
+    def __repr__(self):
+        if self.tzinfo is not None:
+            return super().__repr__()[:-1] + ", tzinfo={})".format(self.tzinfo)
+        else:
+            return super().__repr__()
+
+    # TODO override comparsion operators
 
 
 class GYearMonth(NamedTuple):
@@ -234,14 +246,16 @@ class UnsignedByte(int):
 
 
 class AnyURI(str):
+    # TODO validate values
     pass
 
 
 class NormalizedString(str):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        if ('\r' in self) or ('\n' in self) or ('\t' in self):
+    def __new__(cls, *args, **kwargs):
+        res = str.__new__(cls, *args, **kwargs)
+        if ('\r' in res) or ('\n' in res) or ('\t' in res):
             raise ValueError("\\r, \\n and \\t are not allowed in NormalizedStrings")
+        return res
 
     @classmethod
     def from_string(cls, value: str) -> "NormalizedString":
@@ -390,7 +404,7 @@ def _parse_xsd_date(value: str) -> Date:
     tzinfo = datetime.timezone.utc if match[5] == 'Z' else (
         datetime.timezone(datetime.timedelta(hours=int(match[6]), minutes=int(match[7]))
                           * (-1 if match[5][0] == '-' else 1))
-        if match[8] else None)
+        if match[5] else None)
     return Date(int(match[2]), int(match[3]), int(match[4]), tzinfo)
 
 
@@ -404,7 +418,7 @@ def _parse_xsd_datetime(value: str) -> DateTime:
     tzinfo = datetime.timezone.utc if match[9] == 'Z' else (
         datetime.timezone(datetime.timedelta(hours=int(match[10]), minutes=int(match[11]))
                           * (-1 if match[9][0] == '-' else 1))
-        if match[8] else None)
+        if match[9] else None)
     return DateTime(int(match[2]), int(match[3]), int(match[4]), int(match[5]), int(match[6]), int(match[7]),
                     microseconds, tzinfo)
 
@@ -417,7 +431,7 @@ def _parse_xsd_time(value: str) -> Time:
     tzinfo = datetime.timezone.utc if match[5] == 'Z' else (
         datetime.timezone(datetime.timedelta(hours=int(match[6]), minutes=int(match[7]))
                           * (-1 if match[5][0] == '-' else 1))
-        if match[8] else None)
+        if match[5] else None)
     return Time(int(match[1]), int(match[2]), int(match[3]), microseconds, tzinfo)
 
 
