@@ -173,15 +173,6 @@ def abstract_classes_to_xml(elm: ElTree.Element, namespace: str, obj: object) ->
                     et_administration.append(generate_element(name=namespace+"revision",
                                                               text=obj.administration.revision))
             elm.append(et_administration)
-    if isinstance(obj, model.HasDataSpecification):
-        if obj.data_specification:
-            for embedded_data_specification in obj.data_specification:
-                et_embedded_data_specification = generate_element(name=namespace+"embeddedDataSpecification")
-                et_embedded_data_specification.append(generate_element(name=namespace+"dataSpecificationContent"))
-                # todo: dataSpecificationContent not implemented yet
-                et_embedded_data_specification.append(reference_to_xml(embedded_data_specification,
-                                                      namespace=namespace,
-                                                      tag="dataSpecification"))
     if isinstance(obj, model.HasSemantics):
         if obj.semantic_id:
             elm.append(reference_to_xml(obj.semantic_id, namespace=namespace, tag="semanticId"))
