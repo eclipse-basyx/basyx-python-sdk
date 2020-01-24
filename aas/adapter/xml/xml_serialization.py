@@ -160,7 +160,7 @@ def abstract_classes_to_xml(elm: ElTree.Element, namespace: str, obj: object) ->
         if obj.category:
             elm.append(generate_element(name=namespace+"category", text=obj.category))
         if obj.description:
-            elm.append(lang_string_set_to_xml(obj.description, name="description"))
+            elm.append(lang_string_set_to_xml(obj.description, namespace=namespace, tag="description"))
     if isinstance(obj, model.Identifiable):
         elm.append(generate_element(name=namespace+"identification",
                                     text=obj.identification.id,
@@ -210,20 +210,20 @@ def abstract_classes_to_xml(elm: ElTree.Element, namespace: str, obj: object) ->
 # ##############################################################
 
 
-def lang_string_set_to_xml(obj: model.LangStringSet, name: str) -> ElTree.Element:
+def lang_string_set_to_xml(obj: model.LangStringSet, namespace: str, tag: str) -> ElTree.Element:
     """
     serialization of objects of class LangStringSet to XML
 
     :param obj: object of class LangStringSet
-    :param name: Name of the returned element
+    :param namespace: namespace of the element
+    :param tag: tag of the returned element
     :return: serialized ElementTree object
     """
-    et_lss = generate_element(name=ns_aas+name)
+    et_lss = generate_element(name=namespace+tag)
     for language in obj:
-        et_lang_string = generate_element(name=ns_aas+"langString",
-                                          text=obj[language],
-                                          attributes={"lang": language})
-        et_lss.insert(0, et_lang_string)
+        et_lss.append(generate_element(name=namespace+"langString",
+                                       text=obj[language],
+                                       attributes={"lang": language}))
     return et_lss
 
 
@@ -658,19 +658,21 @@ def property_to_xml(obj: model.Property,
 
 
 def multi_language_property_to_xml(obj: model.MultiLanguageProperty,
-                                   name: str = "multiLanguageProperty") -> ElTree.Element:
+                                   namespace: str,
+                                   tag: str = "multiLanguageProperty") -> ElTree.Element:
     """
     serialization of objects of class MultiLanguageProperty to XML
 
     :param obj: object of class MultiLanguageProperty
-    :param name: namespace+tag of the serialized element (optional), default is "multiLanguageProperty"
+    :param namespace: namespace of the element
+    :param tag: tag of the serialized element (optional), default is "multiLanguageProperty"
     :return: serialized ElementTree object
     """
-    et_multi_language_property = generate_element(name)
+    et_multi_language_property = generate_element(tag)
     for i in abstract_classes_to_xml(obj):
         et_multi_language_property.insert(0, i)
     if obj.value:
-        et_value = lang_string_set_to_xml(obj.value, name="value")
+        et_value = lang_string_set_to_xml(obj.value, namespace=namespace, tag="value")
         et_multi_language_property.insert(0, et_value)
     if obj.value_id:
         et_value_id = ElTree.Element(ns_aas+"valueId")
