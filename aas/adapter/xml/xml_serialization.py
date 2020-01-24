@@ -223,21 +223,6 @@ def lang_string_set_to_xml(obj: model.LangStringSet, namespace: str, tag: str) -
     return et_lss
 
 
-def key_to_xml(obj: model.Key) -> ElTree.Element:
-    """
-    serialization of objects of class Key to XML
-
-    :param obj: object of class Key
-    :return: serialized ElementTree object
-    """
-    et_key = generate_element(name=ns_aas+"key",
-                              text=obj.value,
-                              attributes={"idType": KEY_TYPES[obj.id_type],
-                                          "local": boolean_to_xml(obj.local),
-                                          "type": KEY_ELEMENTS[obj.type_]})
-    return et_key
-
-
 def administrative_information_to_xml(obj: model.AdministrativeInformation) -> ElTree.Element:
     """
     serialization of objects of class AdministrativeInformation to XML
