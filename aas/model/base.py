@@ -513,6 +513,19 @@ class Reference:
                 return False
         return True
 
+    def __ne__(self, other) -> bool:
+        if isinstance(other, Reference) is False:
+            return True
+        if len(self.key) != len(other.key):
+            return True
+        for i in range(len(self.key)):
+            if (self.key[i].value != other.key[i].value) or \
+               (self.key[i].type_ != other.key[i].type_) or \
+               (self.key[i].local != other.key[i].local) or \
+               (self.key[i].id_type != other.key[i].id_type):
+                return True
+        return False
+
 
 class AASReference(Reference, Generic[_RT]):
     """
