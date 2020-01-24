@@ -278,10 +278,12 @@ XSD_TYPE_CLASSES: Dict[str, Type[AnyXSDType]] = {v: k for k, v in XSD_TYPE_NAMES
 
 
 def trivial_cast(value, type_: Type[AnyXSDType]) -> AnyXSDType:  # workaround. We should be able to use a TypeVar here
+    if isinstance(value, type_):
+        return value
     for baseclass in (int, float, str, bytes):
         if isinstance(value, baseclass) and issubclass(type_, baseclass):
             return type_(value)  # type: ignore
-    raise TypeError("{} cannot be trivially casted into {}".format(value, type_.__name__))
+    raise TypeError("{} cannot be trivially casted into {}".format(repr(value), type_.__name__))
 
 
 def xsd_repr(value: AnyXSDType) -> str:
