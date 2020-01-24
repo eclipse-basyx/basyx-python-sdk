@@ -21,17 +21,39 @@ import base64
 import datetime
 import decimal
 import re
-from typing import NamedTuple, Type, Union, Dict
+from typing import NamedTuple, Type, Union, Dict, Optional
 
-Duration = datetime.timedelta
+import dateutil.relativedelta
+
+Duration = dateutil.relativedelta.relativedelta
 DateTime = datetime.datetime
-Date = datetime.date  # TODO derived type with tzinfo
 Time = datetime.time
 Boolean = bool
 Double = float
 Decimal = decimal.Decimal
 Integer = int
 String = str
+
+
+class Date(datetime.date):
+    def __init__(self, year: int, month: int, day: int, tzinfo: Optional[datetime.tzinfo]) -> None:
+        super().__init__(year, month, day)
+        self._tzinfo = tzinfo
+
+    def begin(self) -> datetime.datetime:
+        return datetime.datetime(self.year, self.month, self.day, 0, 0, 0, 0, self._tzinfo)
+
+    @property
+    def tzinfo(self):
+        """timezone info object"""
+        return self._tzinfo
+
+    def utcoffset(self):
+        """Return the timezone offset as timedelta positive east of UTC (negative west of
+        UTC)."""
+        if self._tzinfo is None:
+            return None
+        return self._tzinfo.utcoffset(self)
 
 
 class GYearMonth(NamedTuple):
@@ -290,6 +312,7 @@ def xsd_repr(value: AnyXSDType) -> str:
     if isinstance(value, (DateTime, Date, Time)):
         # TODO fix trailing zeros of seconds fraction (XSD:
         #  "The fractional second string, if present, must not end in '0'")
+        # TODO append tzinfo of dates
         return value.isoformat()
     elif isinstance(value, GYearMonth):
         return "{:02d}-{:02d}".format(*value)
@@ -336,31 +359,53 @@ def from_xsd(value: str, type_: Type[AnyXSDType]) -> AnyXSDType:  # workaround. 
     raise ValueError("{} is not a valid simple built-in XSD type".format(type_.__name__))
 
 
-DATETIME_RE = re.compile(r'^-?(\d\d\d\d)-(\d\d)-(\d\d)T(\d\d):(\d\d):(\d\d)(\.\d+)?([+\-](\d\d):(\d\d)|Z)?$')
+DURATION_RE = re.compile(r'^(-?)P(\d+Y)?(\d+M)?(\d+D)?(T(\d+H)?(\d+M)?((\d+)(\.\d+)?S)?)?$')
+DATETIME_RE = re.compile(r'^(-?)(\d\d\d\d)-(\d\d)-(\d\d)T(\d\d):(\d\d):(\d\d)(\.\d+)?([+\-](\d\d):(\d\d)|Z)?$')
 TIME_RE = re.compile(r'^(\d\d):(\d\d):(\d\d)(\.\d+)?([+\-](\d\d):(\d\d)|Z)?$')
-DATE_RE = re.compile(r'^-?(\d\d\d\d)-(\d\d)-(\d\d)([+\-](\d\d):(\d\d)|Z)?$')
+DATE_RE = re.compile(r'^(-?)(\d\d\d\d)-(\d\d)-(\d\d)([+\-](\d\d):(\d\d)|Z)?$')
 
 
 def _parse_xsd_duration(value: str) -> Duration:
-    # TODO
-    raise NotImplementedError()
+    match = DURATION_RE.match(value)
+    if not match:
+        raise ValueError("Value is not a valid XSD duration string")
+    res = Duration(years=int(match[2][:-1]) if match[2] else 0,
+                   months=int(match[3][:-1]) if match[3] else 0,
+                   days=int(match[4][:-1]) if match[4] else 0,
+                   hours=int(match[6][:-1]) if match[6] else 0,
+                   minutes=int(match[7][:-1]) if match[7] else 0,
+                   seconds=int(match[9]) if match[8] else 0,
+                   microseconds=int(float(match[10])*1e6) if match[10] else 0)
+    if match[0]:
+        res = -res
+    return res
 
 
 def _parse_xsd_date(value: str) -> Date:
-    # TODO
-    raise NotImplementedError()
+    match = DATE_RE.match(value)
+    if not match:
+        raise ValueError("Value is not a valid XSD date string")
+    if match[1]:
+        raise ValueError("Negative Dates are not supported by Python")
+    tzinfo = datetime.timezone.utc if match[5] == 'Z' else (
+        datetime.timezone(datetime.timedelta(hours=int(match[6]), minutes=int(match[7]))
+                          * (-1 if match[5][0] == '-' else 1))
+        if match[8] else None)
+    return Date(int(match[2]), int(match[3]), int(match[4]), tzinfo)
 
 
 def _parse_xsd_datetime(value: str) -> DateTime:
     match = DATETIME_RE.match(value)
     if not match:
         raise ValueError("Value is not a valid XSD datetime string")
-    microseconds = int(float(match[7]) * 1e6) if match[7] else 0
-    tzinfo = datetime.timezone.utc if match[8] == 'Z' else (
-        datetime.timezone(datetime.timedelta(hours=int(match[9]), minutes=int(match[10]))
-                          * (-1 if match[8][0] == '-' else 1))
+    if match[1]:
+        raise ValueError("Negative Dates are not supported by Python")
+    microseconds = int(float(match[8]) * 1e6) if match[8] else 0
+    tzinfo = datetime.timezone.utc if match[9] == 'Z' else (
+        datetime.timezone(datetime.timedelta(hours=int(match[10]), minutes=int(match[11]))
+                          * (-1 if match[9][0] == '-' else 1))
         if match[8] else None)
-    return DateTime(int(match[1]), int(match[2]), int(match[3]), int(match[4]), int(match[5]), int(match[6]),
+    return DateTime(int(match[2]), int(match[3]), int(match[4]), int(match[5]), int(match[6]), int(match[7]),
                     microseconds, tzinfo)
 
 
