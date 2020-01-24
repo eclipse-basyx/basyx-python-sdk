@@ -45,7 +45,7 @@ class ExampleHelper(unittest.TestCase):
         manufacturer_name: model.Property = submodel.get_referable('ManufacturerName')  # type: ignore
         self.assertIsInstance(manufacturer_name, model.Property)
         self.assertEqual('ManufacturerName', manufacturer_name.id_short)
-        self.assertEqual('string', manufacturer_name.value_type)
+        self.assertIs(model.datatypes.String, manufacturer_name.value_type)
         self.assertEqual('ACPLT', manufacturer_name.value)
         self.assertEqual(manufacturer_name.value_id, model.Reference((
             model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
@@ -75,7 +75,7 @@ class ExampleHelper(unittest.TestCase):
             if qualifier.type_ == 'http://acplt.org/Qualifier/ExampleQualifier':
                 self.assertIsInstance(qualifier, model.Qualifier)
                 self.assertEqual('http://acplt.org/Qualifier/ExampleQualifier', qualifier.type_)
-                self.assertEqual('string', qualifier.value_type)
+                self.assertIs(model.datatypes.String, qualifier.value_type)
                 self.assertEqual('100', qualifier.value)
                 self.assertEqual(qualifier.value_id, model.Reference((
                     model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
@@ -85,7 +85,7 @@ class ExampleHelper(unittest.TestCase):
             elif qualifier.type_ == 'http://acplt.org/Qualifier/ExampleQualifier2':
                 self.assertIsInstance(qualifier, model.Qualifier)
                 self.assertEqual('http://acplt.org/Qualifier/ExampleQualifier2', qualifier.type_)
-                self.assertEqual('string', qualifier.value_type)
+                self.assertIs(model.datatypes.String, qualifier.value_type)
                 self.assertEqual('50', qualifier.value)
                 self.assertEqual(qualifier.value_id, model.Reference((
                     model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
@@ -157,7 +157,7 @@ class ExampleHelper(unittest.TestCase):
         example_property: model.Property = example_entity.statement.get_referable('ExampleProperty')  # type: ignore
         self.assertIsInstance(example_property, model.Property)
         self.assertEqual('ExampleProperty', example_property.id_short)
-        self.assertEqual('string', example_property.value_type)
+        self.assertIs(model.datatypes.String, example_property.value_type)
         self.assertEqual('exampleValue', example_property.value)
         self.assertEqual(example_property.value_id, model.Reference((
             model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
@@ -180,7 +180,7 @@ class ExampleHelper(unittest.TestCase):
         example_property2: model.Property = example_entity.statement.get_referable('ExampleProperty2')  # type: ignore
         self.assertIsInstance(example_property2, model.Property)
         self.assertEqual('ExampleProperty2', example_property2.id_short)
-        self.assertEqual('string', example_property2.value_type)
+        self.assertIs(model.datatypes.String, example_property2.value_type)
         self.assertEqual('exampleValue2', example_property2.value)
         self.assertEqual(example_property2.value_id, model.Reference((
             model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
@@ -489,7 +489,7 @@ class ExampleHelper(unittest.TestCase):
         example_property: model.Property = ordered_collection.get_referable('ExampleProperty')  # type: ignore
         self.assertIsInstance(example_property, model.Property)
         self.assertEqual('ExampleProperty', example_property.id_short)
-        self.assertEqual('string', example_property.value_type)
+        self.assertIs(model.datatypes.String, example_property.value_type)
         self.assertEqual('exampleValue', example_property.value)
         self.assertEqual(example_property.value_id, model.Reference((
             model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
@@ -537,9 +537,9 @@ class ExampleHelper(unittest.TestCase):
         range_element: model.Range = ordered_collection.get_referable('ExampleRange')  # type: ignore
         self.assertIsInstance(range_element, model.Range)
         self.assertEqual('ExampleRange', range_element.id_short)
-        self.assertEqual('int', range_element.value_type)
-        self.assertEqual('0', range_element.min_)
-        self.assertEqual('100', range_element.max_)
+        self.assertIs(model.datatypes.Int, range_element.value_type)
+        self.assertEqual(0, range_element.min_)
+        self.assertEqual(100, range_element.max_)
         self.assertEqual('PARAMETER', range_element.category)
         self.assertEqual({'en-us': 'Example Range object', 'de': 'Beispiel Range Element'},
                          range_element.description)

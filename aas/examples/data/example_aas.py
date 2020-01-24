@@ -45,7 +45,7 @@ def create_example_asset_identification_submodel() -> model.Submodel:
     """
     qualifier = model.Qualifier(
         type_='http://acplt.org/Qualifier/ExampleQualifier',
-        value_type='string',
+        value_type=model.datatypes.String,
         value='100',
         value_id=model.Reference((model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
                                             local=False,
@@ -54,7 +54,7 @@ def create_example_asset_identification_submodel() -> model.Submodel:
 
     qualifier2 = model.Qualifier(
         type_='http://acplt.org/Qualifier/ExampleQualifier2',
-        value_type='string',
+        value_type=model.datatypes.String,
         value='50',
         value_id=model.Reference((model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
                                             local=False,
@@ -70,7 +70,7 @@ def create_example_asset_identification_submodel() -> model.Submodel:
     # https://www.plattform-i40.de/PI40/Redaktion/DE/Downloads/Publikation/2019-verwaltungsschale-in-der-praxis.html
     identification_submodel_element_manufacturer_name = model.Property(
         id_short='ManufacturerName',
-        value_type='string',
+        value_type=model.datatypes.String,
         value='ACPLT',
         value_id=model.Reference((model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
                                             local=False,
@@ -95,7 +95,7 @@ def create_example_asset_identification_submodel() -> model.Submodel:
     # https://www.plattform-i40.de/PI40/Redaktion/DE/Downloads/Publikation/2019-verwaltungsschale-in-der-praxis.html
     identification_submodel_element_instance_id = model.Property(
         id_short='InstanceId',
-        value_type='string',
+        value_type=model.datatypes.String,
         value='978-8234-234-342',
         value_id=model.Reference((model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
                                             local=False,
@@ -147,7 +147,7 @@ def create_example_bill_of_material_submodel() -> model.Submodel:
     """
     submodel_element_property = model.Property(
         id_short='ExampleProperty',
-        value_type='string',
+        value_type=model.datatypes.String,
         value='exampleValue',
         value_id=model.Reference((model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
                                             local=False,
@@ -166,7 +166,7 @@ def create_example_bill_of_material_submodel() -> model.Submodel:
 
     submodel_element_property2 = model.Property(
         id_short='ExampleProperty2',
-        value_type='string',
+        value_type=model.datatypes.String,
         value='exampleValue2',
         value_id=model.Reference((model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
                                             local=False,
@@ -291,7 +291,7 @@ def create_example_submodel() -> model.Submodel:
     """
     submodel_element_property = model.Property(
         id_short='ExampleProperty',
-        value_type='string',
+        value_type=model.datatypes.String,
         value='exampleValue',
         value_id=model.Reference((model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
                                             local=False,
@@ -330,9 +330,9 @@ def create_example_submodel() -> model.Submodel:
 
     submodel_element_range = model.Range(
         id_short='ExampleRange',
-        value_type='int',
-        min_='0',
-        max_='100',
+        value_type=model.datatypes.Int,
+        min_=0,
+        max_=100,
         category='PARAMETER',
         description={'en-us': 'Example Range object',
                      'de': 'Beispiel Range Element'},

@@ -278,7 +278,7 @@ class ExampleHelper(unittest.TestCase):
         example_property: model.Property = ordered_collection.get_referable('ExampleProperty')  # type: ignore
         self.assertIsInstance(example_property, model.Property)
         self.assertEqual('ExampleProperty', example_property.id_short)
-        self.assertEqual('string', example_property.value_type)
+        self.assertIs(model.datatypes.String, example_property.value_type)
         self.assertEqual('exampleValue', example_property.value)
         self.assertIsNone(example_property.value_id)
         self.assertEqual('CONSTANT', example_property.category)
@@ -294,7 +294,7 @@ class ExampleHelper(unittest.TestCase):
         for qualifier in example_property.qualifier:
             if isinstance(qualifier, model.Qualifier):
                 self.assertEqual('http://acplt.org/Qualifier/ExampleQualifier', qualifier.type_)
-                self.assertEqual('string', qualifier.value_type)
+                self.assertIs(model.datatypes.String, qualifier.value_type)
         self.assertEqual(model.ModelingKind.INSTANCE, example_property.kind)
 
         # test attributes of multi language property ExampleMultiLanguageProperty
@@ -322,9 +322,9 @@ class ExampleHelper(unittest.TestCase):
         range_element: model.Range = ordered_collection.get_referable('ExampleRange')  # type: ignore
         self.assertIsInstance(range_element, model.Range)
         self.assertEqual('ExampleRange', range_element.id_short)
-        self.assertEqual('int', range_element.value_type)
-        self.assertEqual('0', range_element.min_)
-        self.assertEqual('100', range_element.max_)
+        self.assertEqual(model.datatypes.Int, range_element.value_type)
+        self.assertEqual(0, range_element.min_)
+        self.assertEqual(100, range_element.max_)
         self.assertEqual('PARAMETER', range_element.category)
         self.assertEqual({'en-us': 'Example Range object', 'de': 'Beispiel Range Element'},
                          range_element.description)

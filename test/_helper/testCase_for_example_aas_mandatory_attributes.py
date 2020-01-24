@@ -157,7 +157,7 @@ class ExampleHelper(unittest.TestCase):
         example_property: model.Property = ordered_collection.get_referable('ExampleProperty')  # type: ignore
         self.assertIsInstance(example_property, model.Property)
         self.assertEqual('ExampleProperty', example_property.id_short)
-        self.assertEqual('string', example_property.value_type)
+        self.assertIs(model.datatypes.String, example_property.value_type)
 
         # test attributes of multi language property ExampleMultiLanguageProperty
         example_ml_property: model.MultiLanguageProperty = \
@@ -169,7 +169,7 @@ class ExampleHelper(unittest.TestCase):
         range_element: model.Range = ordered_collection.get_referable('ExampleRange')  # type: ignore
         self.assertIsInstance(range_element, model.Range)
         self.assertEqual('ExampleRange', range_element.id_short)
-        self.assertEqual('int', range_element.value_type)
+        self.assertIs(model.datatypes.Int, range_element.value_type)
 
         # test attributes of unordered collection element ExampleSubmodelCollectionUnordered
         unordered_collection: model.SubmodelElementCollectionUnordered = \

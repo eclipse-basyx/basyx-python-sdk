@@ -57,14 +57,14 @@ def create_example_submodel() -> model.Submodel:
     """
     submodel_element_property = model.Property(
         id_short='ExampleProperty',
-        value_type='string')
+        value_type=model.datatypes.String)
 
     submodel_element_multi_language_property = model.MultiLanguageProperty(
         id_short='ExampleMultiLanguageProperty')
 
     submodel_element_range = model.Range(
         id_short='ExampleRange',
-        value_type='int')
+        value_type=model.datatypes.Int)
 
     submodel_element_blob = model.Blob(
         id_short='ExampleBlob',

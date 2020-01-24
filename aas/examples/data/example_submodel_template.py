@@ -25,7 +25,7 @@ def create_example_submodel_template() -> model.Submodel:
     """
     submodel_element_property = model.Property(
         id_short='ExampleProperty',
-        value_type='string',
+        value_type=model.datatypes.String,
         value=None,
         value_id=None,  # TODO
         category='CONSTANT',
@@ -57,7 +57,7 @@ def create_example_submodel_template() -> model.Submodel:
 
     submodel_element_range = model.Range(
         id_short='ExampleRange',
-        value_type='int',
+        value_type=model.datatypes.String,
         min_=None,
         max_='100',
         category='PARAMETER',
@@ -73,7 +73,7 @@ def create_example_submodel_template() -> model.Submodel:
 
     submodel_element_range_2 = model.Range(
         id_short='ExampleRange2',
-        value_type='int',
+        value_type=model.datatypes.String,
         min_='0',
         max_=None,
         category='PARAMETER',
