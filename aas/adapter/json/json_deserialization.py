@@ -320,8 +320,6 @@ class AASFromJsonDecoder(json.JSONDecoder):
                     logger.error(error_message, exc_info=e)
                 else:
                     raise type(e)(error_message) from e
-        if ret == {}:
-            ret = None
         return ret
 
     @classmethod

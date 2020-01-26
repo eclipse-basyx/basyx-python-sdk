@@ -48,7 +48,7 @@ class ConceptDescription(base.Identifiable):
         self.is_case_of: Set[base.Reference] = set() if is_case_of is None else is_case_of
         self.id_short = id_short
         self.category: Optional[str] = category
-        self.description: Optional[base.LangStringSet] = description
+        self.description: Optional[base.LangStringSet] = dict() if description is None else description
         self.parent: Optional[base.Namespace] = parent
         self.administration: Optional[base.AdministrativeInformation] = administration
 
@@ -85,7 +85,7 @@ class ConceptDictionary(base.Referable):
         super().__init__()
         self.id_short = id_short
         self.category: Optional[str] = category
-        self.description: Optional[base.LangStringSet] = description
+        self.description: Optional[base.LangStringSet] = dict() if description is None else description
         self.parent: Optional[base.Namespace] = parent
         self.concept_description: Set[base.AASReference[ConceptDescription]] = \
             set() if concept_description is None else concept_description

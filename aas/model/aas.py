@@ -63,7 +63,7 @@ class View(base.Referable, base.HasSemantics):
         self.id_short = id_short
         self.contained_element: Set[base.AASReference] = set() if contained_element is None else contained_element
         self.category: Optional[str] = category
-        self.description: Optional[base.LangStringSet] = description
+        self.description: Optional[base.LangStringSet] = dict() if description is None else description
         self.parent: Optional[base.Namespace] = parent
         self.semantic_id: Optional[base.Reference] = semantic_id
 
@@ -116,7 +116,7 @@ class Asset(base.Identifiable):
         self.identification: base.Identifier = identification
         self.id_short = id_short
         self.category: Optional[str] = category
-        self.description: Optional[base.LangStringSet] = description
+        self.description: Optional[base.LangStringSet] = dict() if description is None else description
         self.parent: Optional[base.Namespace] = parent
         self.administration: Optional[base.AdministrativeInformation] = administration
         self.asset_identification_model: Optional[base.AASReference["submodel.Submodel"]] = asset_identification_model
@@ -171,7 +171,7 @@ class AssetAdministrationShell(base.Identifiable, base.Namespace):
         self.identification: base.Identifier = identification
         self.id_short = id_short
         self.category: Optional[str] = category
-        self.description: Optional[base.LangStringSet] = description
+        self.description: Optional[base.LangStringSet] = dict() if description is None else description
         self.parent: Optional[base.Namespace] = parent
         self.administration: Optional[base.AdministrativeInformation] = administration
         self.derived_from: Optional[base.AASReference["AssetAdministrationShell"]] = derived_from
