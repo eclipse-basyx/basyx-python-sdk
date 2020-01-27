@@ -508,7 +508,7 @@ class Reference:
         return hash(self.key)
 
     def __eq__(self, other: object) -> bool:
-        if isinstance(other, Reference) is False:
+        if not isinstance(other, Reference):
             return NotImplemented
         if len(self.key) != len(other.key):
             return False
