@@ -261,6 +261,9 @@ class Key:
                 and self.local == other.local
                 and self.type_ == other.type_)
 
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
     def __hash__(self):
         return hash((self.id_type, self.value, self.local, self.type_))
 
@@ -341,6 +344,9 @@ class AdministrativeInformation:
     def __eq__(self, other) -> bool:
         return self.version == other.version and self._revision == other._revision
 
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
     def __repr__(self) -> str:
         return "AdminstrativeInformation(version={}, revision={})".format(self.version, self.revision)
 
@@ -384,6 +390,9 @@ class Identifier:
         if not isinstance(other, Identifier):
             return NotImplemented
         return self.id_type == other.id_type and self.id == other.id
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
 
     def __repr__(self) -> str:
         return "Identifier({}={})".format(self.id_type.name, self.id)
@@ -521,17 +530,7 @@ class Reference:
         return all(k1 == k2 for k1, k2 in zip(self.key, other.key))
 
     def __ne__(self, other) -> bool:
-        if isinstance(other, Reference) is False:
-            return True
-        if len(self.key) != len(other.key):
-            return True
-        for i in range(len(self.key)):
-            if (self.key[i].value != other.key[i].value) or \
-               (self.key[i].type_ != other.key[i].type_) or \
-               (self.key[i].local != other.key[i].local) or \
-               (self.key[i].id_type != other.key[i].id_type):
-                return True
-        return False
+        return not self.__eq__(other)
 
 
 class AASReference(Reference, Generic[_RT]):
