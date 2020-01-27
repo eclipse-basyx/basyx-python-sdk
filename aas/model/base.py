@@ -253,6 +253,17 @@ class Key:
     def __str__(self) -> str:
         return "{}={}".format(self.id_type.name, self.value)
 
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, Key):
+            return NotImplemented
+        return (self.id_type is other.id_type
+                and self.value == other.value
+                and self.local == other.local
+                and self.type_ == other.type_)
+
+    def __hash__(self):
+        return hash((self.id_type, self.value, self.local, self.type_))
+
     def get_identifier(self) -> Optional["Identifier"]:
         """
         Get an identifier object corresponding to this key, if it is a global key.
@@ -363,7 +374,9 @@ class Identifier:
     def __hash__(self):
         return hash((self.id_type, self.id))
 
-    def __eq__(self, other) -> bool:
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, Identifier):
+            return NotImplemented
         return self.id_type == other.id_type and self.id == other.id
 
     def __repr__(self) -> str:
@@ -494,18 +507,12 @@ class Reference:
     def __hash__(self):
         return hash(self.key)
 
-    def __eq__(self, other) -> bool:
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, Reference) is False:
-            return False
+            return NotImplemented
         if len(self.key) != len(other.key):
             return False
-        for i in range(len(self.key)):
-            if (self.key[i].value != other.key[i].value) or \
-               (self.key[i].type_ != other.key[i].type_) or \
-               (self.key[i].local != other.key[i].local) or \
-               (self.key[i].id_type != other.key[i].id_type):
-                return False
-        return True
+        return all(k1 == k2 for k1, k2 in zip(self.key, other.key))
 
 
 class AASReference(Reference, Generic[_RT]):
