@@ -431,8 +431,9 @@ def xsd_repr(value: AnyXSDType) -> str:
     """
     Serialize an XSD type value into it's lexical representation
     """
-    # TODO serialize duration value
-    if isinstance(value, (DateTime, Time)):
+    if isinstance(value, Duration):
+        return _serialize_duration(value)
+    elif isinstance(value, (DateTime, Time)):
         # TODO fix trailing zeros of seconds fraction (XSD:
         #  "The fractional second string, if present, must not end in '0'")
         return value.isoformat()
@@ -474,6 +475,39 @@ def _serialize_date_tzinfo(date: Union[Date, GYear, GMonth, GDay, GYearMonth, GM
                                             abs(offset_seconds) // 3600,
                                             (abs(offset_seconds) // 60) % 60)
     return ""
+
+
+def _serialize_duration(value: Duration) -> str:
+    value = value.normalized()
+    signs = set(val < 0
+                for val in (value.years, value.months, value.days, value.hours, value.minutes, value.seconds,
+                            value.microseconds)
+                if val != 0)
+    if len(signs) > 1:
+        raise ValueError("Relative Durations with mixed signs are not allowed according to XSD.")
+    elif len(signs) == 0:
+        return "P0D"
+
+    result = "-" if signs.pop() else ""
+    result += "P"
+    if value.years:
+        result += "{:.0f}Y".format(abs(value.years))
+    if value.months:
+        result += "{:.0f}M".format(abs(value.months))
+    if value.days:
+        result += "{:.0f}D".format(abs(value.days))
+
+    time = ""
+    if value.hours:
+        time += "{:.0f}H".format(abs(value.hours))
+    if value.minutes:
+        time += "{:.0f}M".format(abs(value.minutes))
+    if value.seconds or value.microseconds:
+        time += "{:.8g}S".format(decimal.Decimal(abs(value.seconds))
+                                 + decimal.Decimal(abs(value.microseconds)) / 1000000)
+    if time:
+        result += "T" + time
+    return result
 
 
 def from_xsd(value: str, type_: Type[AnyXSDType]) -> AnyXSDType:  # workaround. We should be able to use a TypeVar here

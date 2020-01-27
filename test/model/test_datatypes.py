@@ -88,6 +88,22 @@ class TestDateTimeTypes(unittest.TestCase):
         with self.assertRaises(ValueError):
             model.datatypes.from_xsd("P-1347M", model.datatypes.Duration)
 
+    def test_serialize_duration(self) -> None:
+        self.assertEqual("P1Y2MT2H",
+                         model.datatypes.xsd_repr(dateutil.relativedelta.relativedelta(years=1, months=2, hours=2)))
+        self.assertEqual("P112Y3M",
+                         model.datatypes.xsd_repr(dateutil.relativedelta.relativedelta(months=1347)))
+        self.assertEqual("-P112Y3M",
+                         model.datatypes.xsd_repr(dateutil.relativedelta.relativedelta(months=-1347)))
+        self.assertEqual("P1Y2M3DT10H30M",
+                         model.datatypes.xsd_repr(dateutil.relativedelta.relativedelta(years=1, months=2, days=3,
+                                                                                       hours=10, minutes=30)))
+        zero_val = model.datatypes.xsd_repr(dateutil.relativedelta.relativedelta())
+        self.assertGreaterEqual(len(zero_val), 3)
+        self.assertEqual("P", zero_val[0])
+        with self.assertRaises(ValueError):
+            model.datatypes.xsd_repr(dateutil.relativedelta.relativedelta(months=-5, days=3))
+
     def test_parse_date(self) -> None:
         self.assertEqual(datetime.date(2020, 1, 24), model.datatypes.from_xsd("2020-01-24", model.datatypes.Date))
         self.assertEqual(model.datatypes.Date(2020, 1, 24, datetime.timezone.utc),
