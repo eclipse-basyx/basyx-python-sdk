@@ -103,6 +103,12 @@ class GYearMonth:
         tzinfo = date.tzinfo if hasattr(date, 'tzinfo') else None  # type: ignore
         return cls(date.year, date.month, tzinfo)
 
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, GYearMonth):
+            return NotImplemented
+        return self.year == other.year and self.month == other.month and self.tzinfo == other.tzinfo
+
+    # TODO override comparsion operators
     # TODO add includes(:Union[DateTime, Date]) -> bool function
 
 
@@ -122,6 +128,12 @@ class GYear:
         tzinfo = date.tzinfo if hasattr(date, 'tzinfo') else None  # type: ignore
         return cls(date.year, tzinfo)
 
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, GYear):
+            return NotImplemented
+        return self.year == other.year and self.tzinfo == other.tzinfo
+
+    # TODO override comparsion operators
     # TODO add includes(:Union[DateTime, Date]) -> bool function
 
 
@@ -146,6 +158,12 @@ class GMonthDay:
         tzinfo = date.tzinfo if hasattr(date, 'tzinfo') else None  # type: ignore
         return cls(date.month, date.year, tzinfo)
 
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, GMonthDay):
+            return NotImplemented
+        return self.month == other.month and self.day == other.day and self.tzinfo == other.tzinfo
+
+    # TODO override comparsion operators
     # TODO add includes(:Union[DateTime, Date]) -> bool function
 
 
@@ -167,6 +185,12 @@ class GDay:
         tzinfo = date.tzinfo if hasattr(date, 'tzinfo') else None  # type: ignore
         return cls(date.day, tzinfo)
 
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, GDay):
+            return NotImplemented
+        return self.day == other.day and self.tzinfo == other.tzinfo
+
+    # TODO override comparsion operators
     # TODO add includes(:Union[DateTime, Date]) -> bool function
 
 
@@ -188,6 +212,12 @@ class GMonth:
         tzinfo = date.tzinfo if hasattr(date, 'tzinfo') else None  # type: ignore
         return cls(date.month, tzinfo)
 
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, GMonth):
+            return NotImplemented
+        return self.month == other.month and self.tzinfo == other.tzinfo
+
+    # TODO override comparsion operators
     # TODO add includes(:Union[DateTime, Date]) -> bool function
 
 
@@ -387,9 +417,11 @@ def trivial_cast(value, type_: Type[AnyXSDType]) -> AnyXSDType:  # workaround. W
     """
     if isinstance(value, type_):
         return value
-    for baseclass in (int, float, str, bytes):
+    for baseclass in (int, float, str):
         if isinstance(value, baseclass) and issubclass(type_, baseclass):
             return type_(value)  # type: ignore
+    if isinstance(value, (bytes, bytearray)) and issubclass(type_, bytearray):
+        return type_(value)  # type: ignore
     if isinstance(value, datetime.date) and issubclass(type_, Date):
         return Date(value.year, value.month, value.day)
     raise TypeError("{} cannot be trivially casted into {}".format(repr(value), type_.__name__))
@@ -399,6 +431,7 @@ def xsd_repr(value: AnyXSDType) -> str:
     """
     Serialize an XSD type value into it's lexical representation
     """
+    # TODO serialize duration value
     if isinstance(value, (DateTime, Time)):
         # TODO fix trailing zeros of seconds fraction (XSD:
         #  "The fractional second string, if present, must not end in '0'")
@@ -414,7 +447,7 @@ def xsd_repr(value: AnyXSDType) -> str:
     elif isinstance(value, GDay):
         return "---{:02d}".format(value.day) + _serialize_date_tzinfo(value)
     elif isinstance(value, GMonth):
-        return "--{:04d}".format(value.month) + _serialize_date_tzinfo(value)
+        return "--{:02d}".format(value.month) + _serialize_date_tzinfo(value)
     elif isinstance(value, Boolean):
         return "true" if value else "false"
     elif isinstance(value, Base64Binary):
@@ -435,7 +468,9 @@ def _serialize_date_tzinfo(date: Union[Date, GYear, GMonth, GDay, GYearMonth, GM
             date = date.into_date()
         offset: datetime.timedelta = date.tzinfo.utcoffset(datetime.datetime(date.year, date.month, date.day, 0, 0, 0))
         offset_seconds = (offset.total_seconds() + 3600*12) % (3600*24) - 3600*12
-        return "{}{:02.0f}:{:02.0f}".format("+" if offset_seconds > 0 else "-",
+        if offset_seconds // 60 == 0:
+            return "Z"
+        return "{}{:02.0f}:{:02.0f}".format("+" if offset_seconds >= 0 else "-",
                                             abs(offset_seconds) // 3600,
                                             (abs(offset_seconds) // 60) % 60)
     return ""
@@ -447,7 +482,9 @@ def from_xsd(value: str, type_: Type[AnyXSDType]) -> AnyXSDType:  # workaround. 
 
     :param type_: The expected XSD type (from this module). It is required to chose the correct conversion.
     """
-    if issubclass(type_, (int, float, str)):
+    if type_ is Boolean:
+        return _parse_xsd_bool(value)
+    elif issubclass(type_, (int, float, str)):
         return type_(value)
     elif type_ is Duration:
         return _parse_xsd_duration(value)
@@ -457,10 +494,10 @@ def from_xsd(value: str, type_: Type[AnyXSDType]) -> AnyXSDType:  # workaround. 
         return _parse_xsd_date(value)
     elif type_ is Time:
         return _parse_xsd_time(value)
-    elif type_ in {Base64Binary, HexBinary}:
-        return type_(base64.b64decode(value.encode()))  # type: ignore
-    elif type_ is Boolean:
-        return _parse_xsd_bool(value)
+    elif type_ is Base64Binary:
+        return Base64Binary(base64.b64decode(value.encode()))
+    elif type_ is HexBinary:
+        return HexBinary(bytes.fromhex(value))
     elif type_ is GYear:
         return _parse_xsd_gyear(value)
     elif type_ is GMonth:
@@ -491,7 +528,7 @@ def _parse_xsd_duration(value: str) -> Duration:
                    minutes=int(match[7][:-1]) if match[7] else 0,
                    seconds=int(match[9]) if match[8] else 0,
                    microseconds=int(float(match[10])*1e6) if match[10] else 0)
-    if match[0]:
+    if match[1]:
         res = -res
     return res
 
@@ -545,7 +582,7 @@ def _parse_xsd_bool(value: str) -> Boolean:
 GYEAR_RE = re.compile(r'^(\d\d\d\d)([+\-]\d\d:\d\d|Z)?$')
 GMONTH_RE = re.compile(r'^--(\d\d)([+\-]\d\d:\d\d|Z)?$')
 GDAY_RE = re.compile(r'^---(\d\d)([+\-]\d\d:\d\d|Z)?$')
-GYEARMONTH_RE = re.compile(r'^(\d\d\d\d)-(\d\d)-(\d\d)([+\-]\d\d:\d\d|Z)?$')
+GYEARMONTH_RE = re.compile(r'^(\d\d\d\d)-(\d\d)([+\-]\d\d:\d\d|Z)?$')
 GMONTHDAY_RE = re.compile(r'^--(\d\d)-(\d\d)([+\-]\d\d:\d\d|Z)?$')
 
 
