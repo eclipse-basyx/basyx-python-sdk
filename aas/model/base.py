@@ -338,6 +338,12 @@ class AdministrativeInformation:
         else:
             self._revision = revision
 
+    def __eq__(self, other) -> bool:
+        return self.version == other.version and self._revision == other._revision
+
+    def __repr__(self) -> str:
+        return "AdminstrativeInformation(version={}, revision={})".format(self.version, self.revision)
+
     revision = property(_get_revision, _set_revision)
 
 
@@ -380,7 +386,7 @@ class Identifier:
         return self.id_type == other.id_type and self.id == other.id
 
     def __repr__(self) -> str:
-        return "{}={}".format(self.id_type.name, self.id)
+        return "Identifier({}={})".format(self.id_type.name, self.id)
 
 
 class Referable(metaclass=abc.ABCMeta):
@@ -408,8 +414,8 @@ class Referable(metaclass=abc.ABCMeta):
     def __init__(self):
         super().__init__()
         self.id_short: Optional[str] = ""
-        self.category: Optional[str] = None
-        self.description: Optional[LangStringSet] = None
+        self.category: Optional[str] = ""
+        self.description: Optional[LangStringSet] = set()
         # We use a Python reference to the parent Namespace instead of a Reference Object, as specified. This allows
         # simpler and faster navigation/checks and it has no effect in the serialized data formats anyway.
         self.parent: Optional[Namespace] = None
@@ -513,6 +519,19 @@ class Reference:
         if len(self.key) != len(other.key):
             return False
         return all(k1 == k2 for k1, k2 in zip(self.key, other.key))
+
+    def __ne__(self, other) -> bool:
+        if isinstance(other, Reference) is False:
+            return True
+        if len(self.key) != len(other.key):
+            return True
+        for i in range(len(self.key)):
+            if (self.key[i].value != other.key[i].value) or \
+               (self.key[i].type_ != other.key[i].type_) or \
+               (self.key[i].local != other.key[i].local) or \
+               (self.key[i].id_type != other.key[i].id_type):
+                return True
+        return False
 
 
 class AASReference(Reference, Generic[_RT]):
@@ -761,6 +780,10 @@ class Qualifier(Constraint, HasSemantics):
         self.value: Optional[ValueDataType] = value
         self.value_id: Optional[Reference] = value_id
         self.semantic_id: Optional[Reference] = semantic_id
+
+    def __repr__(self) -> str:
+        return "Qualifier(type={}, value_type={}, value={}, value_id={})".format(self.type_, self.value_type,
+                                                                                 self.value, self.value_id)
 
 
 class ValueReferencePair:
@@ -1035,37 +1058,3 @@ class DataSpecificationContent(metaclass=abc.ABCMeta):
     <<abstract>>
     """
     pass
-
-
-class DataSpecification(Identifiable, DataSpecificationContent, metaclass=abc.ABCMeta):
-    """
-    A DataSpecification to be referenced by model.aas.ConceptDescription
-
-    <<abstract>>
-    """
-    def __init__(self,
-                 administration: AdministrativeInformation,
-                 identification: Identifier,
-                 id_short: str = "",
-                 category: Optional[str] = None,
-                 description: Optional[LangStringSet] = None,
-                 parent: Optional[Namespace] = None):
-        """
-        Initializer of DataSpecification
-
-        :param administration: Administrative information of an identifiable element. (from base.Identifiable)
-        :param identification: The globally unique identification of the element. (from base.Identifiable)
-        :param id_short: Identifying string of the element within its name space. (from base.Referable)
-        :param category: The category is a value that gives further meta information w.r.t. to the class of the element.
-                         It affects the expected existence of attributes and the applicability of constraints.
-                         (from base.Referable)
-        :param description: Description or comments on the element. (from base.Referable)
-        :param parent: Reference to the next referable parent element of the element. (from base.Referable)
-        """
-        super().__init__()
-        self.administration: AdministrativeInformation = administration
-        self.identification: Identifier = identification
-        self.id_short = id_short
-        self.category: Optional[str] = category
-        self.description: Optional[LangStringSet] = description
-        self.parent: Optional[Namespace] = parent

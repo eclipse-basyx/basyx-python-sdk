@@ -22,7 +22,7 @@ from aas.examples.data import example_aas_missing_attributes, example_submodel_t
 from test._helper import testCase_for_example_aas, testCase_for_example_aas_mandatory_attributes, \
     testCase_for_example_aas_missing_attributes, testCase_for_example_concept_description, \
     testCase_for_example_submodel_template
-
+from aas.examples.data._helper import AASDataChecker
 JSON_SCHEMA_FILE = os.path.join(os.path.dirname(__file__), 'aasJSONSchemaV2.0.json')
 
 
@@ -60,7 +60,8 @@ class JsonSerializationDeserializationTest(unittest.TestCase):
         # module
         file.seek(0)
         json_object_store = json_deserialization.read_json_aas_file(file, failsafe=False)
-        testCase_for_example_aas.assert_full_example(self, json_object_store)
+        checker = AASDataChecker(raise_immediately=True)
+        testCase_for_example_aas.assert_full_example(checker, json_object_store)
 
 
 class JsonSerializationDeserializationTest2(unittest.TestCase):
@@ -73,7 +74,8 @@ class JsonSerializationDeserializationTest2(unittest.TestCase):
         # module
         file.seek(0)
         json_object_store = json_deserialization.read_json_aas_file(file, failsafe=False)
-        testCase_for_example_aas_mandatory_attributes.assert_full_example(self, json_object_store)
+        checker = AASDataChecker(raise_immediately=True)
+        testCase_for_example_aas_mandatory_attributes.assert_full_example(checker, json_object_store)
 
 
 class JsonSerializationDeserializationTest3(unittest.TestCase):
@@ -85,7 +87,8 @@ class JsonSerializationDeserializationTest3(unittest.TestCase):
         # module
         file.seek(0)
         json_object_store = json_deserialization.read_json_aas_file(file, failsafe=False)
-        testCase_for_example_aas_missing_attributes.assert_full_example(self, json_object_store)
+        checker = AASDataChecker(raise_immediately=True)
+        testCase_for_example_aas_missing_attributes.assert_full_example(checker, json_object_store)
 
 
 class JsonSerializationDeserializationTest4(unittest.TestCase):
@@ -98,7 +101,8 @@ class JsonSerializationDeserializationTest4(unittest.TestCase):
         # module
         file.seek(0)
         json_object_store = json_deserialization.read_json_aas_file(file, failsafe=False)
-        testCase_for_example_submodel_template.assert_full_example(self, json_object_store)
+        checker = AASDataChecker(raise_immediately=True)
+        testCase_for_example_submodel_template.assert_full_example(checker, json_object_store)
 
 
 class JsonSerializationDeserializationTest5(unittest.TestCase):
@@ -111,7 +115,8 @@ class JsonSerializationDeserializationTest5(unittest.TestCase):
         # module
         file.seek(0)
         json_object_store = json_deserialization.read_json_aas_file(file, failsafe=False)
-        testCase_for_example_concept_description.assert_full_example(self, json_object_store)
+        checker = AASDataChecker(raise_immediately=True)
+        testCase_for_example_concept_description.assert_full_example(checker, json_object_store)
 
 
 class JsonSerializationDeserializationTest6(unittest.TestCase):
@@ -150,8 +155,9 @@ class JsonSerializationDeserializationTest6(unittest.TestCase):
         # module
         file.seek(0)
         json_object_store = json_deserialization.read_json_aas_file(file, failsafe=False)
-        testCase_for_example_aas.assert_full_example(self, json_object_store, False)
-        testCase_for_example_aas_mandatory_attributes.assert_full_example(self, json_object_store, False)
-        testCase_for_example_aas_missing_attributes.assert_full_example(self, json_object_store, False)
-        testCase_for_example_concept_description.assert_full_example(self, json_object_store, False)
-        testCase_for_example_submodel_template.assert_full_example(self, json_object_store, False)
+        checker = AASDataChecker(raise_immediately=True)
+        testCase_for_example_aas.assert_full_example(checker, json_object_store, False)
+        testCase_for_example_aas_mandatory_attributes.assert_full_example(checker, json_object_store, False)
+        testCase_for_example_aas_missing_attributes.assert_full_example(checker, json_object_store, False)
+        testCase_for_example_concept_description.assert_full_example(checker, json_object_store, False)
+        testCase_for_example_submodel_template.assert_full_example(checker, json_object_store, False)

@@ -53,7 +53,6 @@ KEY_ELEMENTS: Dict[model.KeyElements, str] = {
     model.KeyElements.BLOB: 'Blob',
     model.KeyElements.CAPABILITY: 'Capability',
     model.KeyElements.CONCEPT_DICTIONARY: 'ConceptDictionary',
-    model.KeyElements.DATA_ELEMENT: 'DataElement',
     model.KeyElements.ENTITY: 'Entity',
     model.KeyElements.EVENT: 'Event',
     model.KeyElements.FILE: 'File',
@@ -67,7 +66,8 @@ KEY_ELEMENTS: Dict[model.KeyElements, str] = {
     model.KeyElements.SUBMODEL_ELEMENT_COLLECTION: 'SubmodelElementCollection',
     model.KeyElements.VIEW: 'View',
     model.KeyElements.GLOBAL_REFERENCE: 'GlobalReference',
-    model.KeyElements.FRAGMENT_REFERENCE: 'FragmentReference'}
+    model.KeyElements.FRAGMENT_REFERENCE: 'FragmentReference',
+    model.KeyElements.DATA_ELEMENT: 'DataElement'}
 
 KEY_TYPES: Dict[model.KeyType, str] = {
     model.KeyType.CUSTOM: 'Custom',
