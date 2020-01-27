@@ -9,6 +9,7 @@
 # "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
 # specific language governing permissions and limitations under the License.
 import datetime
+import math
 import unittest
 
 import dateutil
@@ -238,3 +239,20 @@ class TestBinaryTypes(unittest.TestCase):
         val = model.datatypes.trivial_cast(b"abc\0def", model.datatypes.HexBinary)
         self.assertEqual(model.datatypes.HexBinary(b"abc\0def"), val)
         self.assertIsInstance(val, model.datatypes.HexBinary)
+
+
+class TestFloatType(unittest.TestCase):
+    def test_float(self) -> None:
+        self.assertEqual(5.1, model.datatypes.from_xsd("5.1", model.datatypes.Double))
+        self.assertEqual(-7.0, model.datatypes.from_xsd("-7", model.datatypes.Double))
+        self.assertEqual(5300, model.datatypes.from_xsd("5.3E3", model.datatypes.Double))
+        self.assertTrue(math.isnan(model.datatypes.from_xsd("NaN", model.datatypes.Double)))  # type: ignore
+        self.assertEqual(float("inf"), model.datatypes.from_xsd("INF", model.datatypes.Double))
+        self.assertEqual(float("-inf"), model.datatypes.from_xsd("-INF", model.datatypes.Double))
+
+        self.assertEqual("5.1", model.datatypes.xsd_repr(5.1))
+        self.assertEqual("-7.0", model.datatypes.xsd_repr(-7.0))
+        self.assertEqual("5.3E+18", model.datatypes.xsd_repr(5300000000000000000.0))
+        self.assertEqual("NaN", model.datatypes.xsd_repr(float("nan")))
+        self.assertEqual("INF", model.datatypes.xsd_repr(float("inf")))
+        self.assertEqual("-INF", model.datatypes.xsd_repr(float("-inf")))
