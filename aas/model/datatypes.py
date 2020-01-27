@@ -13,9 +13,16 @@ This module defines native Python types for all simple built-in XSD datatypes, a
 them from/into their lexical XML representation.
 
 See https://www.w3.org/TR/xmlschema-2/#built-in-datatypes for the XSD simple type hierarchy and more information on the
-datatypes.
+datatypes. All types from this type hierarchy (except for `token` and its descendants) are implemented or aliased in
+this module using their pythonized: Duration, DateTime, GMonthDay, String, Integer, Decimal, Short …. These types are
+meant to be used directly for data values in the context of Asset Administration Shells.
 
-# TODO usage of functions
+There are three conversion functions for useage in PyI40AAS' model and adapters:
+* `xsd_repr()` serializes any XSD type from this module into it's lexical representation
+* `from_xsd()` parses an XSD type from its lexical representation (its required to name the type for unambiguous
+  conversion)
+* `trivial_cast()` type-cast a python value into an XSD type, if this is trivially possible. Meant for fixing the type
+  of Properties' values automatically, esp. for literal values.
 """
 import base64
 import datetime
@@ -41,11 +48,12 @@ class Date(datetime.date):
     def __new__(cls, year: int, month: Optional[int] = None, day: Optional[int] = None,
                 tzinfo: Optional[datetime.tzinfo] = None) -> "Date":
         res = datetime.date.__new__(cls, year, month, day)  # type: ignore
+        # TODO normalize tzinfo to '+12:00' through '-11:59'
         res._tzinfo = tzinfo
         return res
 
     def begin(self) -> datetime.datetime:
-        return datetime.datetime(self.year, self.month, self.day, 0, 0, 0, 0, self._tzinfo)
+        return datetime.datetime(self.year, self.month, self.day, 0, 0, 0, 0, self.tzinfo)
 
     @property
     def tzinfo(self):
@@ -65,75 +73,122 @@ class Date(datetime.date):
         else:
             return super().__repr__()
 
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, datetime.date):
+            return NotImplemented
+        other_tzinfo = other.tzinfo if hasattr(other, 'tzinfo') else None  # type: ignore
+        return datetime.date.__eq__(self, other) and self.tzinfo == other_tzinfo
+
     # TODO override comparsion operators
+    # TODO add into_datetime function
+    # TODO add includes(:DateTime) -> bool function
 
 
-class GYearMonth(NamedTuple):
-    # TODO add tzdata
-    year: int
-    month: int
+class GYearMonth:
+    __slots__ = ('year', 'month', 'tzinfo')
 
-    def into_date(self, day: int) -> datetime.date:
-        return datetime.date(self.year, self.month, day)
+    def __init__(self, year: int, month: int, tzinfo: Optional[datetime.tzinfo] = None):
+        # TODO normalize tzinfo to '+12:00' through '-11:59'
+        if not 1 <= month <= 12:
+            raise ValueError("{} is out of the allowed range for month".format(month))
+        self.year: int = year
+        self.month: int = month
+        self.tzinfo: Optional[datetime.tzinfo] = tzinfo
+
+    def into_date(self, day: int = 1) -> Date:
+        return Date(self.year, self.month, day, self.tzinfo)
 
     @classmethod
     def from_date(cls, date: datetime.date) -> "GYearMonth":
-        return cls(date.year, date.month)
+        tzinfo = date.tzinfo if hasattr(date, 'tzinfo') else None  # type: ignore
+        return cls(date.year, date.month, tzinfo)
+
+    # TODO add includes(:Union[DateTime, Date]) -> bool function
 
 
-class GYear(int):
-    # TODO add tzdata
-    def into_date(self, month: int, day: int) -> datetime.date:
-        return datetime.date(self, month, day)
+class GYear:
+    __slots__ = ('year', 'tzinfo')
+
+    def __init__(self, year: int, tzinfo: Optional[datetime.tzinfo] = None):
+        # TODO normalize tzinfo to '+12:00' through '-11:59'
+        self.year: int = year
+        self.tzinfo: Optional[datetime.tzinfo] = tzinfo
+
+    def into_date(self, month: int = 1, day: int = 1) -> Date:
+        return Date(self.year, month, day, self.tzinfo)
 
     @classmethod
     def from_date(cls, date: datetime.date) -> "GYear":
-        return cls(date.year)
+        tzinfo = date.tzinfo if hasattr(date, 'tzinfo') else None  # type: ignore
+        return cls(date.year, tzinfo)
+
+    # TODO add includes(:Union[DateTime, Date]) -> bool function
 
 
-class GMonthDay(NamedTuple):
-    # TODO add tzdata
-    month: int
-    day: int
+class GMonthDay:
+    __slots__ = ('month', 'day', 'tzinfo')
 
-    def into_date(self, year: int) -> datetime.date:
-        return datetime.date(year, self.month, self.day)
+    def __init__(self, month: int, day: int, tzinfo: Optional[datetime.tzinfo] = None):
+        # TODO normalize tzinfo to '+12:00' through '-11:59'
+        if not 1 <= day <= 31:
+            raise ValueError("{} is out of the allowed range for day of month".format(day))
+        if not 1 <= month <= 12:
+            raise ValueError("{} is out of the allowed range for month".format(month))
+        self.month: int = month
+        self.day: int = day
+        self.tzinfo: Optional[datetime.tzinfo] = tzinfo
+
+    def into_date(self, year: int = 1970) -> Date:
+        return Date(year, self.month, self.day, self.tzinfo)
 
     @classmethod
     def from_date(cls, date: datetime.date) -> "GMonthDay":
-        return cls(date.month, date.year)
+        tzinfo = date.tzinfo if hasattr(date, 'tzinfo') else None  # type: ignore
+        return cls(date.month, date.year, tzinfo)
+
+    # TODO add includes(:Union[DateTime, Date]) -> bool function
 
 
-class GDay(int):
-    # TODO add tzdata
+class GDay:
+    __slots__ = ('day', 'tzinfo')
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        if not 1 <= self <= 31:
-            raise ValueError("{} is out of the allowed range for type {}".format(self, self.__class__.__name__))
+    def __init__(self, day: int, tzinfo: Optional[datetime.tzinfo] = None):
+        # TODO normalize tzinfo to '+12:00' through '-11:59'
+        if not 1 <= day <= 31:
+            raise ValueError("{} is out of the allowed range for day of month".format(day))
+        self.day: int = day
+        self.tzinfo: Optional[datetime.tzinfo] = tzinfo
 
-    def into_date(self, year: int, month: int) -> datetime.date:
-        return datetime.date(year, month, self)
+    def into_date(self, year: int = 1970, month: int = 1) -> Date:
+        return Date(year, month, self.day, self.tzinfo)
 
     @classmethod
     def from_date(cls, date: datetime.date) -> "GDay":
-        return cls(date.day)
+        tzinfo = date.tzinfo if hasattr(date, 'tzinfo') else None  # type: ignore
+        return cls(date.day, tzinfo)
+
+    # TODO add includes(:Union[DateTime, Date]) -> bool function
 
 
-class GMonth(int):
-    # TODO add tzdata
+class GMonth:
+    __slots__ = ('month', 'tzinfo')
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        if not 1 <= self <= 12:
-            raise ValueError("{} is out of the allowed range for type {}".format(self, self.__class__.__name__))
+    def __init__(self, month: int, tzinfo: Optional[datetime.tzinfo] = None):
+        # TODO normalize tzinfo to '+12:00' through '-11:59'
+        if not 1 <= month <= 12:
+            raise ValueError("{} is out of the allowed range for month".format(month))
+        self.month: int = month
+        self.tzinfo: Optional[datetime.tzinfo] = tzinfo
 
-    def into_date(self, year: int, day: int) -> datetime.date:
-        return datetime.date(year, self, day)
+    def into_date(self, year: int = 1970, day: int = 1) -> Date:
+        return Date(year, self.month, day, self.tzinfo)
 
     @classmethod
     def from_date(cls, date: datetime.date) -> "GMonth":
-        return cls(date.month)
+        tzinfo = date.tzinfo if hasattr(date, 'tzinfo') else None  # type: ignore
+        return cls(date.month, tzinfo)
+
+    # TODO add includes(:Union[DateTime, Date]) -> bool function
 
 
 class Base64Binary(bytearray):
@@ -314,30 +369,52 @@ XSD_TYPE_CLASSES: Dict[str, Type[AnyXSDType]] = {v: k for k, v in XSD_TYPE_NAMES
 
 
 def trivial_cast(value, type_: Type[AnyXSDType]) -> AnyXSDType:  # workaround. We should be able to use a TypeVar here
+    """
+    Type-cast a python value into an XSD type, if this is a trivial conversion
+
+    The main purpose of this function is to allow AAS Properties (and similar objects with XSD-type values) to take
+    Python literal values and convert them to their XSD type. However, we want to stay strongly typed, so we only allow
+    this type-cast if it is trivial to do, i.e. does not change the value's semantics. Examples, where this holds true:
+
+    * int → datatypes.Int (if the value is in the expected range)
+    * bytes → datatypes.Base64Binary
+    * datetime.date → datatypes.Date
+
+    Yet, it is not allowed to cast float → datatypes.Integer.
+
+    :param value: The value to cast
+    :param type_: Target type to cast into. Must be an XSD type from this module
+    """
     if isinstance(value, type_):
         return value
     for baseclass in (int, float, str, bytes):
         if isinstance(value, baseclass) and issubclass(type_, baseclass):
             return type_(value)  # type: ignore
+    if isinstance(value, datetime.date) and issubclass(type_, Date):
+        return Date(value.year, value.month, value.day)
     raise TypeError("{} cannot be trivially casted into {}".format(repr(value), type_.__name__))
 
 
 def xsd_repr(value: AnyXSDType) -> str:
-    if isinstance(value, (DateTime, Date, Time)):
+    """
+    Serialize an XSD type value into it's lexical representation
+    """
+    if isinstance(value, (DateTime, Time)):
         # TODO fix trailing zeros of seconds fraction (XSD:
         #  "The fractional second string, if present, must not end in '0'")
-        # TODO append tzinfo of dates
         return value.isoformat()
+    elif isinstance(value, Date):
+        return value.isoformat() + _serialize_date_tzinfo(value)
     elif isinstance(value, GYearMonth):
-        return "{:02d}-{:02d}".format(*value)
+        return "{:02d}-{:02d}".format(value.year, value.month) + _serialize_date_tzinfo(value)
     elif isinstance(value, GYear):
-        return "{:04d}".format(value)
+        return "{:04d}".format(value.year) + _serialize_date_tzinfo(value)
     elif isinstance(value, GMonthDay):
-        return "--{:02d}-{:02d}".format(*value)
+        return "--{:02d}-{:02d}".format(value.month, value.day) + _serialize_date_tzinfo(value)
     elif isinstance(value, GDay):
-        return "---{:02d}".format(value)
+        return "---{:02d}".format(value.day) + _serialize_date_tzinfo(value)
     elif isinstance(value, GMonth):
-        return "--{:04d}".format(value)
+        return "--{:04d}".format(value.month) + _serialize_date_tzinfo(value)
     elif isinstance(value, Boolean):
         return "true" if value else "false"
     elif isinstance(value, Base64Binary):
@@ -352,7 +429,24 @@ def xsd_repr(value: AnyXSDType) -> str:
         return str(value)
 
 
+def _serialize_date_tzinfo(date: Union[Date, GYear, GMonth, GDay, GYearMonth, GMonthDay]) -> str:
+    if date.tzinfo is not None:
+        if not isinstance(date, Date):
+            date = date.into_date()
+        offset: datetime.timedelta = date.tzinfo.utcoffset(datetime.datetime(date.year, date.month, date.day, 0, 0, 0))
+        offset_seconds = (offset.total_seconds() + 3600*12) % (3600*24) - 3600*12
+        return "{}{:02.0f}:{:02.0f}".format("+" if offset_seconds > 0 else "-",
+                                            abs(offset_seconds) // 3600,
+                                            (abs(offset_seconds) // 60) % 60)
+    return ""
+
+
 def from_xsd(value: str, type_: Type[AnyXSDType]) -> AnyXSDType:  # workaround. We should be able to use a TypeVar here
+    """
+    Parse an XSD type value from its lexical representation
+
+    :param type_: The expected XSD type (from this module). It is required to chose the correct conversion.
+    """
     if issubclass(type_, (int, float, str)):
         return type_(value)
     elif type_ is Duration:
@@ -367,9 +461,16 @@ def from_xsd(value: str, type_: Type[AnyXSDType]) -> AnyXSDType:  # workaround. 
         return type_(base64.b64decode(value.encode()))  # type: ignore
     elif type_ is Boolean:
         return _parse_xsd_bool(value)
-    elif type_ in {GYearMonth, GYear, GMonth, GMonthDay, GDay}:
-        # TODO
-        raise NotImplementedError()
+    elif type_ is GYear:
+        return _parse_xsd_gyear(value)
+    elif type_ is GMonth:
+        return _parse_xsd_gmonth(value)
+    elif type_ is GDay:
+        return _parse_xsd_gday(value)
+    elif type_ is GYearMonth:
+        return _parse_xsd_gyearmonth(value)
+    elif type_ is GMonthDay:
+        return _parse_xsd_gmonthday(value)
     raise ValueError("{} is not a valid simple built-in XSD type".format(type_.__name__))
 
 
@@ -395,17 +496,22 @@ def _parse_xsd_duration(value: str) -> Duration:
     return res
 
 
+def _parse_xsd_date_tzinfo(value: str) -> Optional[datetime.tzinfo]:
+    if not value:
+        return None
+    if value == "Z":
+        return datetime.timezone.utc
+    return datetime.timezone(datetime.timedelta(hours=int(value[1:3]), minutes=int(value[4:6]))
+                             * (-1 if value[0] == '-' else 1))
+
+
 def _parse_xsd_date(value: str) -> Date:
     match = DATE_RE.match(value)
     if not match:
         raise ValueError("Value is not a valid XSD date string")
     if match[1]:
         raise ValueError("Negative Dates are not supported by Python")
-    tzinfo = datetime.timezone.utc if match[5] == 'Z' else (
-        datetime.timezone(datetime.timedelta(hours=int(match[6]), minutes=int(match[7]))
-                          * (-1 if match[5][0] == '-' else 1))
-        if match[5] else None)
-    return Date(int(match[2]), int(match[3]), int(match[4]), tzinfo)
+    return Date(int(match[2]), int(match[3]), int(match[4]), _parse_xsd_date_tzinfo(match[5]))
 
 
 def _parse_xsd_datetime(value: str) -> DateTime:
@@ -415,12 +521,8 @@ def _parse_xsd_datetime(value: str) -> DateTime:
     if match[1]:
         raise ValueError("Negative Dates are not supported by Python")
     microseconds = int(float(match[8]) * 1e6) if match[8] else 0
-    tzinfo = datetime.timezone.utc if match[9] == 'Z' else (
-        datetime.timezone(datetime.timedelta(hours=int(match[10]), minutes=int(match[11]))
-                          * (-1 if match[9][0] == '-' else 1))
-        if match[9] else None)
     return DateTime(int(match[2]), int(match[3]), int(match[4]), int(match[5]), int(match[6]), int(match[7]),
-                    microseconds, tzinfo)
+                    microseconds, _parse_xsd_date_tzinfo(match[9]))
 
 
 def _parse_xsd_time(value: str) -> Time:
@@ -428,11 +530,7 @@ def _parse_xsd_time(value: str) -> Time:
     if not match:
         raise ValueError("Value is not a valid XSD datetime string")
     microseconds = int(float(match[4]) * 1e6) if match[4] else 0
-    tzinfo = datetime.timezone.utc if match[5] == 'Z' else (
-        datetime.timezone(datetime.timedelta(hours=int(match[6]), minutes=int(match[7]))
-                          * (-1 if match[5][0] == '-' else 1))
-        if match[5] else None)
-    return Time(int(match[1]), int(match[2]), int(match[3]), microseconds, tzinfo)
+    return Time(int(match[1]), int(match[2]), int(match[3]), microseconds, _parse_xsd_date_tzinfo(match[5]))
 
 
 def _parse_xsd_bool(value: str) -> Boolean:
@@ -442,3 +540,45 @@ def _parse_xsd_bool(value: str) -> Boolean:
         return False
     else:
         raise ValueError("Invalid literal for XSD bool type")
+
+
+GYEAR_RE = re.compile(r'^(\d\d\d\d)([+\-]\d\d:\d\d|Z)?$')
+GMONTH_RE = re.compile(r'^--(\d\d)([+\-]\d\d:\d\d|Z)?$')
+GDAY_RE = re.compile(r'^---(\d\d)([+\-]\d\d:\d\d|Z)?$')
+GYEARMONTH_RE = re.compile(r'^(\d\d\d\d)-(\d\d)-(\d\d)([+\-]\d\d:\d\d|Z)?$')
+GMONTHDAY_RE = re.compile(r'^--(\d\d)-(\d\d)([+\-]\d\d:\d\d|Z)?$')
+
+
+def _parse_xsd_gyear(value: str) -> GYear:
+    match = GYEAR_RE.match(value)
+    if not match:
+        raise ValueError("Value is not a valid XSD GYear string")
+    return GYear(int(match[1]), _parse_xsd_date_tzinfo(match[2]))
+
+
+def _parse_xsd_gmonth(value: str) -> GMonth:
+    match = GMONTH_RE.match(value)
+    if not match:
+        raise ValueError("Value is not a valid XSD GMonth string")
+    return GMonth(int(match[1]), _parse_xsd_date_tzinfo(match[2]))
+
+
+def _parse_xsd_gday(value: str) -> GDay:
+    match = GDAY_RE.match(value)
+    if not match:
+        raise ValueError("Value is not a valid XSD GDay string")
+    return GDay(int(match[1]), _parse_xsd_date_tzinfo(match[2]))
+
+
+def _parse_xsd_gyearmonth(value: str) -> GYearMonth:
+    match = GYEARMONTH_RE.match(value)
+    if not match:
+        raise ValueError("Value is not a valid XSD GYearMonth string")
+    return GYearMonth(int(match[1]), int(match[2]), _parse_xsd_date_tzinfo(match[3]))
+
+
+def _parse_xsd_gmonthday(value: str) -> GMonthDay:
+    match = GMONTHDAY_RE.match(value)
+    if not match:
+        raise ValueError("Value is not a valid XSD GMonthDay string")
+    return GMonthDay(int(match[1]), int(match[2]), _parse_xsd_date_tzinfo(match[3]))

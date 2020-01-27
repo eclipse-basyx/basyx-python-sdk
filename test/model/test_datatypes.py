@@ -37,6 +37,22 @@ class TestIntTypes(unittest.TestCase):
         with self.assertRaises(ValueError):
             model.datatypes.PositiveInteger(0)
 
+    def test_trivial_cast(self):
+        val = model.datatypes.trivial_cast(5, model.datatypes.UnsignedByte)
+        self.assertEqual(5, val)
+        self.assertIsInstance(val, model.datatypes.UnsignedByte)
+
+        val = model.datatypes.trivial_cast(-7, model.datatypes.Integer)
+        self.assertEqual(-7, val)
+        self.assertIsInstance(val, model.datatypes.Integer)
+
+        with self.assertRaises(ValueError):
+            model.datatypes.trivial_cast(-7, model.datatypes.PositiveInteger)
+        with self.assertRaises(TypeError):
+            model.datatypes.trivial_cast(6.7, model.datatypes.Integer)
+        with self.assertRaises(TypeError):
+            model.datatypes.trivial_cast("17", model.datatypes.Int)
+
 
 class TestStringTypes(unittest.TestCase):
     def test_normalized_string(self):
@@ -51,8 +67,14 @@ class TestStringTypes(unittest.TestCase):
 class TestDateTimeTypes(unittest.TestCase):
     def test_parse_date(self):
         self.assertEqual(datetime.date(2020, 1, 24), model.datatypes.from_xsd("2020-01-24", model.datatypes.Date))
+        self.assertEqual(model.datatypes.Date(2020, 1, 24, datetime.timezone.utc),
+                         model.datatypes.from_xsd("2020-01-24Z", model.datatypes.Date))
+        self.assertEqual(model.datatypes.Date(2020, 1, 24, datetime.timezone(datetime.timedelta(hours=11, minutes=20))),
+                         model.datatypes.from_xsd("2020-01-24+11:20", model.datatypes.Date))
+        self.assertEqual(model.datatypes.Date(2020, 1, 24, datetime.timezone(datetime.timedelta(hours=-8))),
+                         model.datatypes.from_xsd("2020-01-24-08:00", model.datatypes.Date))
 
-        # TODO test parsing of tzinfo
+    # TODO test parsing and serializing of partial dates
 
     def test_parse_datetime(self):
         self.assertEqual(datetime.datetime(2020, 1, 24, 15, 25, 17),
@@ -66,6 +88,21 @@ class TestDateTimeTypes(unittest.TestCase):
                                            tzinfo=datetime.timezone(datetime.timedelta(minutes=-20))),
                          model.datatypes.from_xsd("2020-01-24T15:25:17-00:20", model.datatypes.DateTime))
 
+    def test_serialize_datetime(self):
+        self.assertEqual("2020-01-24T15:25:17",
+                         model.datatypes.xsd_repr(model.datatypes.DateTime(2020, 1, 24, 15, 25, 17)))
+        self.assertEqual("2020-01-24T15:25:17+00:00",
+                         model.datatypes.xsd_repr(
+                             model.datatypes.DateTime(2020, 1, 24, 15, 25, 17, tzinfo=datetime.timezone.utc)))
+        self.assertEqual("2020-01-24T15:25:17+01:00",
+                         model.datatypes.xsd_repr(
+                             model.datatypes.DateTime(2020, 1, 24, 15, 25, 17,
+                                                      tzinfo=datetime.timezone(datetime.timedelta(hours=1)))))
+        self.assertEqual("2020-01-24T15:25:17-00:20",
+                         model.datatypes.xsd_repr(
+                             model.datatypes.DateTime(2020, 1, 24, 15, 25, 17,
+                                                      tzinfo=datetime.timezone(datetime.timedelta(minutes=-20)))))
+
     def test_parse_time(self):
         self.assertEqual(datetime.time(15, 25, 17),
                          model.datatypes.from_xsd("15:25:17", model.datatypes.Time))
@@ -75,6 +112,13 @@ class TestDateTimeTypes(unittest.TestCase):
                          model.datatypes.from_xsd("15:25:17+01:00", model.datatypes.Time))
         self.assertEqual(datetime.time(15, 25, 17, tzinfo=datetime.timezone(datetime.timedelta(minutes=-20))),
                          model.datatypes.from_xsd("15:25:17-00:20", model.datatypes.Time))
+
+    def test_trivial_cast(self):
+        val = model.datatypes.trivial_cast(datetime.date(2017, 11, 13), model.datatypes.Date)
+        self.assertEqual(model.datatypes.Date(2017, 11, 13), val)
+        self.assertIsInstance(val, model.datatypes.Date)
+        with self.assertRaises(TypeError):
+            model.datatypes.trivial_cast("2017-25-13", model.datatypes.Date)
 
 
 class TestBinaryTypes(unittest.TestCase):
