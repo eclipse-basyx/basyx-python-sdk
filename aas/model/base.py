@@ -205,7 +205,7 @@ class Key:
     """
     A key is a reference to an element by its id.
 
-    :ivar type_: Denote which kind of entity is referenced. In case type = GlobalReference then the element is a
+    :ivar type: Denote which kind of entity is referenced. In case type = GlobalReference then the element is a
                 global unique id. In all other cases the key references a model element of the same or of another AAS.
                 The name of the model element is explicitly listed.
     :ivar local: Denotes if the key references a model element of the same AAS (=true) or not (=false). In case of
@@ -236,11 +236,11 @@ class Key:
 
         TODO: Add instruction what to do after construction
         """
-        self.type_: KeyElements
+        self.type: KeyElements
         self.local: bool
         self.value: str
         self.id_type: KeyType
-        super().__setattr__('type_', type_)
+        super().__setattr__('type', type_)
         super().__setattr__('local', local)
         super().__setattr__('value', value)
         super().__setattr__('id_type', id_type)
@@ -261,10 +261,10 @@ class Key:
         return (self.id_type is other.id_type
                 and self.value == other.value
                 and self.local == other.local
-                and self.type_ == other.type_)
+                and self.type == other.type)
 
     def __hash__(self):
-        return hash((self.id_type, self.value, self.local, self.type_))
+        return hash((self.id_type, self.value, self.local, self.type))
 
     def get_identifier(self) -> Optional["Identifier"]:
         """
@@ -488,7 +488,7 @@ class Reference:
     :ivar: key: Ordered list of unique reference in its name space, each key referencing an element. The complete
                 list of keys may for example be concatenated to a path that then gives unique access to an element
                 or entity.
-    :ivar: type_: The type of the referenced object (additional attribute, not from the AAS Metamodel)
+    :ivar: type: The type of the referenced object (additional attribute, not from the AAS Metamodel)
     """
 
     def __init__(self,
@@ -737,7 +737,7 @@ class Qualifier(Constraint, HasSemantics):
     """
     A qualifier is a type-value pair that makes additional statements w.r.t. the value of the element.
 
-    :ivar type_: The type of the qualifier that is applied to the element.
+    :ivar type: The type of the qualifier that is applied to the element.
     :ivar value_type: Data type of the qualifier value
     :ivar value: The value of the qualifier.
                  Constraint AASd-006: if both, the value and the valueId are present then the value needs to be
@@ -764,14 +764,14 @@ class Qualifier(Constraint, HasSemantics):
         TODO: Add instruction what to do after construction
         """
         super().__init__()
-        self.type_: QualifierType = type_
+        self.type: QualifierType = type_
         self.value_type: DataTypeDef = value_type
         self._value: Optional[ValueDataType] = datatypes.trivial_cast(value, value_type) if value is not None else None
         self.value_id: Optional[Reference] = value_id
         self.semantic_id: Optional[Reference] = semantic_id
 
     def __repr__(self) -> str:
-        return "Qualifier(type={}, value_type={}, value={}, value_id={})".format(self.type_, self.value_type,
+        return "Qualifier(type={}, value_type={}, value={}, value_id={})".format(self.type, self.value_type,
                                                                                  self.value, self.value_id)
 
     @property

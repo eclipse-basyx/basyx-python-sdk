@@ -252,7 +252,7 @@ class AASReferenceTest(unittest.TestCase):
         self.assertIs(ref1.type, model.Submodel)
         self.assertEqual("urn:x-test:submodel", ref1.key[0].value)
         self.assertEqual(model.KeyType.IRI, ref1.key[0].id_type)
-        self.assertEqual(model.KeyElements.SUBMODEL, ref1.key[0].type_)
+        self.assertEqual(model.KeyElements.SUBMODEL, ref1.key[0].type)
 
         ref2 = model.AASReference.from_referable(prop)
         self.assertEqual(3, len(ref2.key))
@@ -261,7 +261,7 @@ class AASReferenceTest(unittest.TestCase):
         self.assertEqual(model.KeyType.IRI, ref2.key[0].id_type)
         self.assertEqual("prop", ref2.key[2].value)
         self.assertEqual(model.KeyType.IDSHORT, ref2.key[2].id_type)
-        self.assertEqual(model.KeyElements.PROPERTY, ref2.key[2].type_)
+        self.assertEqual(model.KeyElements.PROPERTY, ref2.key[2].type)
 
         # Test exception for element without identifiable ancestor
         submodel.submodel_element.remove(collection)

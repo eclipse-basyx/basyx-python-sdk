@@ -161,7 +161,7 @@ def key_to_json(obj: model.Key) -> Dict[str, object]:
     :return: dict with the serialized attributes of this object
     """
     data = abstract_classes_to_json(obj)
-    data.update({'type': KEY_ELEMENTS[obj.type_],
+    data.update({'type': KEY_ELEMENTS[obj.type],
                  'idType': KEY_TYPES[obj.id_type],
                  'value': obj.value,
                  'local': obj.local})
@@ -263,7 +263,7 @@ def qualifier_to_json(obj: model.Qualifier) -> Dict[str, object]:
     if obj.value_id:
         data['valueId'] = obj.value_id
     data['valueType'] = model.datatypes.XSD_TYPE_NAMES[obj.value_type]
-    data['type'] = obj.type_
+    data['type'] = obj.type
     return data
 
 
@@ -411,14 +411,14 @@ def asset_administration_shell_to_json(obj: model.AssetAdministrationShell) -> D
     if obj.derived_from:
         data["derivedFrom"] = obj.derived_from
     data["asset"] = obj.asset
-    if obj.submodel_:
-        data["submodels"] = list(obj.submodel_)
+    if obj.submodel:
+        data["submodels"] = list(obj.submodel)
     if obj.view:
         data["views"] = list(obj.view)
     if obj.concept_dictionary:
         data["conceptDictionaries"] = list(obj.concept_dictionary)
-    if obj.security_:
-        data["security"] = obj.security_
+    if obj.security:
+        data["security"] = obj.security
     return data
 
 
@@ -504,8 +504,8 @@ def range_to_json(obj: model.Range) -> Dict[str, object]:
     """
     data = abstract_classes_to_json(obj)
     data.update({'valueType': model.datatypes.XSD_TYPE_NAMES[obj.value_type],
-                 'min': model.datatypes.xsd_repr(obj.min_) if obj.min_ is not None else None,
-                 'max': model.datatypes.xsd_repr(obj.max_) if obj.max_ is not None else None})
+                 'min': model.datatypes.xsd_repr(obj.min) if obj.min is not None else None,
+                 'max': model.datatypes.xsd_repr(obj.max) if obj.max is not None else None})
     return data
 
 

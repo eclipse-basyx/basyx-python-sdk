@@ -274,9 +274,9 @@ class AASFromJsonDecoder(json.JSONDecoder):
     def _construct_aas_reference(cls, dct: Dict[str, object], type_: Type[T], object_class=model.AASReference)\
             -> model.AASReference:
         keys = [cls._construct_key(key_data) for key_data in _get_ts(dct, "keys", list)]
-        if keys and not issubclass(KEY_ELEMENTS_CLASSES_INVERSE.get(keys[-1].type_, type(None)), type_):
+        if keys and not issubclass(KEY_ELEMENTS_CLASSES_INVERSE.get(keys[-1].type, type(None)), type_):
             logger.warning("type %s of last key of reference to %s does not match reference type %s",
-                           keys[-1].type_.name, " / ".join(str(k) for k in keys), type_.__name__)
+                           keys[-1].type.name, " / ".join(str(k) for k in keys), type_.__name__)
         return object_class(tuple(keys), type_)
 
     @classmethod
@@ -371,7 +371,7 @@ class AASFromJsonDecoder(json.JSONDecoder):
         cls._amend_abstract_attributes(ret, dct)
         if 'submodels' in dct:
             for sm_data in _get_ts(dct, 'submodels', list):
-                ret.submodel_.add(cls._construct_aas_reference(sm_data, model.Submodel))
+                ret.submodel.add(cls._construct_aas_reference(sm_data, model.Submodel))
         if 'views' in dct:
             for view in _get_ts(dct, 'views', list):
                 if _expect_type(view, model.View, str(ret), cls.failsafe):
@@ -381,7 +381,7 @@ class AASFromJsonDecoder(json.JSONDecoder):
                 if _expect_type(concept_dictionary, model.ConceptDictionary, str(ret), cls.failsafe):
                     ret.concept_dictionary.add(concept_dictionary)
         if 'security' in dct:
-            ret.security_ = cls._construct_security(_get_ts(dct, 'security', dict))
+            ret.security = cls._construct_security(_get_ts(dct, 'security', dict))
         if 'derivedFrom' in dct:
             ret.derived_from = cls._construct_aas_reference(_get_ts(dct, 'derivedFrom', dict),
                                                             model.AssetAdministrationShell)
@@ -655,9 +655,9 @@ class AASFromJsonDecoder(json.JSONDecoder):
                            kind=cls._get_kind(dct))
         cls._amend_abstract_attributes(ret, dct)
         if 'min' in dct and dct['min'] is not None:
-            ret.min_ = model.datatypes.from_xsd(_get_ts(dct, 'min', str), ret.value_type)
+            ret.min = model.datatypes.from_xsd(_get_ts(dct, 'min', str), ret.value_type)
         if 'max' in dct and dct['max'] is not None:
-            ret.max_ = model.datatypes.from_xsd(_get_ts(dct, 'max', str), ret.value_type)
+            ret.max = model.datatypes.from_xsd(_get_ts(dct, 'max', str), ret.value_type)
         return ret
 
     @classmethod

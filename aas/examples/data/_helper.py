@@ -187,7 +187,7 @@ class AASDataChecker(DataChecker):
         for constraint in object_.qualifier:
             if isinstance(constraint, model.Qualifier):
                 expected_constraint = self._find_element_by_attribute(constraint, expected_object.qualifier, 'type_')
-                if self.check(expected_constraint is not None, 'Qualifier{} must be found'.format(constraint.type_)):
+                if self.check(expected_constraint is not None, 'Qualifier{} must be found'.format(constraint.type)):
                     self._check_qualifier_equal(constraint, expected_constraint)  # type: ignore
 
     def _check_abstract_attributes_submodel_element_equal(self, object_: model.SubmodelElement,
@@ -240,8 +240,8 @@ class AASDataChecker(DataChecker):
         """
         self._check_abstract_attributes_submodel_element_equal(object_, expected_value)
         self.check_attribute_equal(object_, 'value_type', expected_value.value_type)
-        self.check_attribute_equal(object_, 'min_', expected_value.min_)
-        self.check_attribute_equal(object_, 'max_', expected_value.max_)
+        self.check_attribute_equal(object_, 'min_', expected_value.min)
+        self.check_attribute_equal(object_, 'max_', expected_value.max)
 
     def check_blob_equal(self, object_: model.Blob, expected_value: model.Blob):
         """
@@ -579,7 +579,7 @@ class AASDataChecker(DataChecker):
         :param expected_value: expected Qualifier object
         :return:
         """
-        self.check_attribute_equal(object_, 'type_', expected_value.type_)
+        self.check_attribute_equal(object_, 'type_', expected_value.type)
         self.check_attribute_equal(object_, 'value_type', expected_value.value_type)
         self.check_attribute_equal(object_, 'value', expected_value.value)
         self.check_attribute_equal(object_, 'value_id', expected_value.value_id)
@@ -618,18 +618,18 @@ class AASDataChecker(DataChecker):
         """
         self._check_identifiable_equal(object_, expected_value)
         self.check_attribute_equal(object_, 'asset', expected_value.asset)
-        self.check_security_equal(object_.security_, expected_value.security_)
+        self.check_security_equal(object_.security, expected_value.security)
         self.check_attribute_equal(object_, 'derived_from', expected_value.derived_from)
-        self.check_contained_element_length(object_, 'submodel_', model.AASReference, len(expected_value.submodel_))
+        self.check_contained_element_length(object_, 'submodel', model.AASReference, len(expected_value.submodel))
         self.check_contained_element_length(object_, 'concept_dictionary', model.ConceptDictionary,
                                             len(expected_value.concept_dictionary))
         self.check_contained_element_length(object_, 'view', model.View, len(expected_value.view))
-        for expected_ref in expected_value.submodel_:
-            ref = self._find_reference(expected_ref, object_.submodel_)
+        for expected_ref in expected_value.submodel:
+            ref = self._find_reference(expected_ref, object_.submodel)
             if self.check(ref is not None, 'Submodel Reference{} must be found'.format(repr(expected_ref))):
                 self._check_reference_equal(ref, expected_ref)  # type: ignore
 
-        found_elements = self._find_extra_reference(object_.submodel_, expected_value.submodel_)
+        found_elements = self._find_extra_reference(object_.submodel, expected_value.submodel)
         self.check(found_elements == set(), 'Asset Administration Shell {} must not have extra submodel '
                                             'references'.format(repr(object_)),
                    value=found_elements)

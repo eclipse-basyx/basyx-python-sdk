@@ -278,11 +278,11 @@ class Range(DataElement):
     A property is a data element that has a multi language value.
 
     :ivar value_type: Data type of the min and max
-    :ivar min_: The minimum value of the range. If the min value is missing then the value is assumed to be negative
+    :ivar min: The minimum value of the range. If the min value is missing then the value is assumed to be negative
                 infinite.
                 Constraint AASd-013: In case of a range with kind=Instance either the min or the max value or both need
                                      to be defined
-    :ivar max_: The maximum of the range. If the max value is missing then the value is assumed to be positive infinite
+    :ivar max: The maximum of the range. If the max value is missing then the value is assumed to be positive infinite
     """
 
     def __init__(self,
