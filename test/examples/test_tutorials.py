@@ -19,3 +19,6 @@ import unittest
 class TutorialTest(unittest.TestCase):
     def test_tutorial_create_simple_aas(self):
         from aas.examples import tutorial_create_simple_aas
+
+    def test_tutorial_storage(self):
+        from aas.examples import tutorial_storage
