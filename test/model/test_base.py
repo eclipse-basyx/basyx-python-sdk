@@ -247,14 +247,14 @@ class AASReferenceTest(unittest.TestCase):
         collection.parent = submodel
 
         # Test normal usage for Identifiable and Referable objects
-        ref1 = model.AASReference.from_referable(submodel)
+        ref1 = submodel.get_aas_reference()
         self.assertEqual(1, len(ref1.key))
         self.assertIs(ref1.type, model.Submodel)
         self.assertEqual("urn:x-test:submodel", ref1.key[0].value)
         self.assertEqual(model.KeyType.IRI, ref1.key[0].id_type)
         self.assertEqual(model.KeyElements.SUBMODEL, ref1.key[0].type_)
 
-        ref2 = model.AASReference.from_referable(prop)
+        ref2 = prop.get_aas_reference()
         self.assertEqual(3, len(ref2.key))
         self.assertIs(ref2.type, model.Property)
         self.assertEqual("urn:x-test:submodel", ref2.key[0].value)
@@ -266,7 +266,7 @@ class AASReferenceTest(unittest.TestCase):
         # Test exception for element without identifiable ancestor
         submodel.submodel_element.remove(collection)
         with self.assertRaises(ValueError):
-            ref3 = model.AASReference.from_referable(prop)
+            ref3 = prop.get_aas_reference()
 
         # Test creating a reference to a custom Referable class
         class DummyThing(model.Referable):
@@ -283,7 +283,7 @@ class AASReferenceTest(unittest.TestCase):
         thing = DummyThing("thing")
         identifable_thing = DummyIdentifyableNamespace(model.Identifier("urn:x-test:thing", model.IdentifierType.IRI))
         identifable_thing.things.add(thing)
-        ref4 = model.AASReference.from_referable(thing)
+        ref4 = thing.get_aas_reference()
         self.assertIs(ref4.type, model.Referable)
 
 
