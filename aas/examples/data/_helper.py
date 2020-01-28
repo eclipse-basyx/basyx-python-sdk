@@ -240,8 +240,8 @@ class AASDataChecker(DataChecker):
         """
         self._check_abstract_attributes_submodel_element_equal(object_, expected_value)
         self.check_attribute_equal(object_, 'value_type', expected_value.value_type)
-        self.check_attribute_equal(object_, 'min_', expected_value.min)
-        self.check_attribute_equal(object_, 'max_', expected_value.max)
+        self.check_attribute_equal(object_, 'min', expected_value.min)
+        self.check_attribute_equal(object_, 'max', expected_value.max)
 
     def check_blob_equal(self, object_: model.Blob, expected_value: model.Blob):
         """

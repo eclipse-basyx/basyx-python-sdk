@@ -327,22 +327,22 @@ class Range(DataElement):
         self._max: Optional[base.ValueDataType] = datatypes.trivial_cast(max_, value_type) if max_ is not None else None
 
     @property
-    def min_(self):
+    def min(self):
         return self._min
 
-    @min_.setter
-    def min_(self, value) -> None:
+    @min.setter
+    def min(self, value) -> None:
         if value is None:
             self._min = None
         else:
             self._min = datatypes.trivial_cast(value, self.value_type)
 
     @property
-    def max_(self):
+    def max(self):
         return self._max
 
-    @max_.setter
-    def max_(self, value) -> None:
+    @max.setter
+    def max(self, value) -> None:
         if value is None:
             self._max = None
         else:
