@@ -31,4 +31,7 @@ setuptools.setup(
         "Development Status :: 3 - Alpha",
     ],
     python_requires='>=3.6',
+    install_requirements=[
+        'python-dateutil>=2.8,<3'
+    ]
 )

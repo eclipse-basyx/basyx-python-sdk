@@ -26,7 +26,7 @@ JSON_SCHEMA_FILE = os.path.join(os.path.dirname(__file__), 'aasJSONSchemaV2.0.js
 
 class JsonSerializationTest(unittest.TestCase):
     def test_serialize_object(self) -> None:
-        test_object = model.Property("test_id_short", "string", category="PARAMETER",
+        test_object = model.Property("test_id_short", model.datatypes.String, category="PARAMETER",
                                      description={"en-us": "Germany", "de": "Deutschland"})
         json_data = json.dumps(test_object, cls=json_serialization.AASToJsonEncoder)
 

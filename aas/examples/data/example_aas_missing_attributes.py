@@ -59,11 +59,11 @@ def create_example_submodel() -> model.Submodel:
     """
     qualifier = model.Qualifier(
         type_='http://acplt.org/Qualifier/ExampleQualifier',
-        value_type='string')
+        value_type=model.datatypes.String)
 
     submodel_element_property = model.Property(
         id_short='ExampleProperty',
-        value_type='string',
+        value_type=model.datatypes.String,
         value='exampleValue',
         value_id=None,  # TODO
         category='CONSTANT',
@@ -96,9 +96,9 @@ def create_example_submodel() -> model.Submodel:
 
     submodel_element_range = model.Range(
         id_short='ExampleRange',
-        value_type='int',
-        min_='0',
-        max_='100',
+        value_type=model.datatypes.Int,
+        min_=0,
+        max_=100,
         category='PARAMETER',
         description={'en-us': 'Example Range object',
                      'de': 'Beispiel Range Element'},

@@ -163,7 +163,7 @@ class ModelOrderedNamespaceTest(ModelNamespaceTest):
 
         with self.assertRaises(KeyError):
             self.namespace.set1[1] = self.prop2
-        prop3 = model.Property("Prop3", "int")
+        prop3 = model.Property("Prop3", model.datatypes.Int)
         self.namespace.set1[1] = prop3
         self.assertEqual(2, len(self.namespace.set1))
         self.assertIsNone(self.prop1.parent)
@@ -190,7 +190,7 @@ class AASReferenceTest(unittest.TestCase):
         self.assertIs(submodel, submodel)
 
     def test_resolve(self) -> None:
-        prop = model.Property("prop", "int")
+        prop = model.Property("prop", model.datatypes.Int)
         collection = model.SubmodelElementCollectionUnordered("collection", {prop})
         prop.parent = collection
         submodel = model.Submodel(model.Identifier("urn:x-test:submodel", model.IdentifierType.IRI), {collection})
@@ -240,7 +240,7 @@ class AASReferenceTest(unittest.TestCase):
         self.assertIs(submodel, cm.exception.value)
 
     def test_from_referable(self) -> None:
-        prop = model.Property("prop", "int")
+        prop = model.Property("prop", model.datatypes.Int)
         collection = model.SubmodelElementCollectionUnordered("collection", {prop})
         prop.parent = collection
         submodel = model.Submodel(model.Identifier("urn:x-test:submodel", model.IdentifierType.IRI), {collection})

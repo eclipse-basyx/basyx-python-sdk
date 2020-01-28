@@ -21,15 +21,17 @@ from typing import List, Optional, Set, TypeVar, MutableSet, Generic, Iterable, 
     MutableSequence, Type, Any, TYPE_CHECKING, Tuple
 import re
 
+from . import datatypes
+
 if TYPE_CHECKING:
     from . import provider
 
-DataTypeDef = str  # any xsd simple type as string
+DataTypeDef = Type[datatypes.AnyXSDType]
+ValueDataType = datatypes.AnyXSDType  # any xsd atomic type (from .datatypes)
 BlobType = bytes
 MimeType = str  # any mimetype as in RFC2046
 PathType = str
 QualifierType = str
-ValueDataType = str  # any xsd atomic type
 # A dict of language-Identifier (according to ISO 639-1 and ISO 3166-1) and string in this language.
 # The meaning of the string in each language is the same.
 # << Data Type >> Example ["en-US", "germany"]
@@ -764,13 +766,24 @@ class Qualifier(Constraint, HasSemantics):
         super().__init__()
         self.type_: QualifierType = type_
         self.value_type: DataTypeDef = value_type
-        self.value: Optional[ValueDataType] = value
+        self._value: Optional[ValueDataType] = datatypes.trivial_cast(value, value_type) if value is not None else None
         self.value_id: Optional[Reference] = value_id
         self.semantic_id: Optional[Reference] = semantic_id
 
     def __repr__(self) -> str:
         return "Qualifier(type={}, value_type={}, value={}, value_id={})".format(self.type_, self.value_type,
                                                                                  self.value, self.value_id)
+
+    @property
+    def value(self):
+        return self._value
+
+    @value.setter
+    def value(self, value) -> None:
+        if value is None:
+            self._value = None
+        else:
+            self._value = datatypes.trivial_cast(value, self.value_type)
 
 
 class ValueReferencePair:
