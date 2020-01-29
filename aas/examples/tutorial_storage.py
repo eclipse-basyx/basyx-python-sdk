@@ -9,8 +9,6 @@ from aas import model
 from aas.model import Asset, AssetAdministrationShell, Submodel
 
 # create asset, submodel and asset administration shell, for more details look at 'tutorial_create_simple_aas'
-
-
 asset = Asset(
     kind=model.AssetKind.INSTANCE,
     identification=model.Identifier('https://acplt.org/Simple_Asset', model.IdentifierType.IRI)
@@ -49,8 +47,8 @@ obj_store.add(submodel)
 obj_store.add(aas)
 
 # now it is possible to get the data out of the store by their identifier
-tmp_submodel: Submodel = obj_store.get_identifiable(
-    model.Identifier('https://acplt.org/Simple_Submodel', model.IdentifierType.IRI))  # type: ignore
+tmp_submodel: Submodel = obj_store.get_identifiable(  # type: ignore
+    model.Identifier('https://acplt.org/Simple_Submodel', model.IdentifierType.IRI))
 
 # add an property to the submodel
 tmp_submodel.submodel_element.add(

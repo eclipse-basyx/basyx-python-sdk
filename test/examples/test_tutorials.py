@@ -22,3 +22,6 @@ class TutorialTest(unittest.TestCase):
 
     def test_tutorial_storage(self):
         from aas.examples import tutorial_storage
+
+    def test_tutorial_serialization_deserialization_json(self):
+        from aas.examples import tutorial_serialization_deserialization_json

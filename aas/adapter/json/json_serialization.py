@@ -736,12 +736,11 @@ class AASToJsonEncoder(json.JSONEncoder):
         return super().default(obj)
 
 
-def write_aas_json_file(file: IO, data: model.AbstractObjectStore, **kwargs) -> None:
+def object_store_to_json(data: model.AbstractObjectStore, **kwargs) -> str:
     """
-    Write a set of AAS objects to an Asset Adminstration Shell JSON file according to 'Details of the Asset
-    Administration Shell', chapter 5.5
+    Create a json serialization of a set of AAS objects according to 'Details of the Asset Administration Shell',
+    chapter 5.5
 
-    :param file: A file-like object to write the JSON-serialized data to
     :param data: ObjectStore which contains different objects of the AAS meta model which should be serialized to a
                  JSON file
     :param kwargs: Additional keyword arguments to be passed to json.dump()
@@ -762,9 +761,23 @@ def write_aas_json_file(file: IO, data: model.AbstractObjectStore, **kwargs) -> 
             concept_descriptions.append(obj)
 
     # serialize object to json
-    json.dump({
+    json_data = json.dumps({
         'assetAdministrationShells': asset_administation_shells,
         'submodels': submodels,
         'assets': assets,
         'conceptDescriptions': concept_descriptions,
-    }, file, cls=AASToJsonEncoder, **kwargs)
+    }, cls=AASToJsonEncoder, **kwargs)
+    return json_data
+
+
+def write_aas_json_file(file: IO, data: model.AbstractObjectStore, **kwargs) -> None:
+    """
+    Write a set of AAS objects to an Asset Adminstration Shell JSON file according to 'Details of the Asset
+    Administration Shell', chapter 5.5
+
+    :param file: A file-like object to write the JSON-serialized data to
+    :param data: ObjectStore which contains different objects of the AAS meta model which should be serialized to a
+                 JSON file
+    :param kwargs: Additional keyword arguments to be passed to json.dumps()
+    """
+    file.write(object_store_to_json(data, **kwargs))
