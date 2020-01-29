@@ -99,6 +99,5 @@ class AASDataCheckerTest(unittest.TestCase):
         checker_iterator = iter(checker.failed_checks)
         self.assertEqual("FAIL: Property[Prop1] must contain 1 Constraints (count=0)",
                          repr(next(checker_iterator)))
-        self.assertEqual("FAIL: ConstraintQualifier(type=test, value_type=string, value=test value, value_id=None) "
-                         "must exist ()",
-                         repr(next(checker_iterator)))
+        self.assertEqual("FAIL: ConstraintQualifier(type=test, value_type=<class 'str'>, value=test value, "
+                         "value_id=None) must exist ()", repr(next(checker_iterator)))

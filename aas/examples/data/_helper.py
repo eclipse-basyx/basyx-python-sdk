@@ -793,11 +793,10 @@ class AASDataChecker(DataChecker):
         :return: The value of expression to be used in control statements
         """
         if attribute_name == 'value_type':
-            kwargs['value'] = model.datatypes.XSD_TYPE_NAMES[getattr(object_, attribute_name)]
-            return self.check(model.datatypes.XSD_TYPE_NAMES[getattr(object_, attribute_name)] ==
-                              model.datatypes.XSD_TYPE_NAMES[expected_value],  # type:ignore
+            kwargs['value'] = getattr(object_, attribute_name).__name__
+            return self.check(getattr(object_, attribute_name) is expected_value,  # type:ignore
                               "Attribute value_type of {} must be == {}".format(
-                                  repr(object_), model.datatypes.XSD_TYPE_NAMES[expected_value]),  # type:ignore
+                                  repr(object_), expected_value.__name__),  # type:ignore
                               **kwargs)
         else:
             kwargs['value'] = getattr(object_, attribute_name)

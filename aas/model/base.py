@@ -772,7 +772,7 @@ class Qualifier(Constraint, HasSemantics):
 
     def __repr__(self) -> str:
         return "Qualifier(type={}, value_type={}, value={}, value_id={})".format(
-            self.type, datatypes.XSD_TYPE_NAMES[self.value_type], self.value, self.value_id)
+            self.type, self.value_type, self.value, self.value_id)
 
     @property
     def value(self):

@@ -269,7 +269,7 @@ class MultiLanguageProperty(DataElement):
         """
 
         super().__init__(id_short, category, description, parent, semantic_id, qualifier, kind)
-        self.value: Optional[base.LangStringSet] = dict() if value is None else value
+        self.value: base.LangStringSet = dict() if value is None else value
         self.value_id: Optional[base.Reference] = value_id
 
 
