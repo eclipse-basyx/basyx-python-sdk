@@ -479,7 +479,7 @@ class AASFromJsonDecoder(json.JSONDecoder):
                            value_type=model.datatypes.XSD_TYPE_CLASSES[_get_ts(dct, 'valueType', str)])
         cls._amend_abstract_attributes(ret, dct)
         if 'value' in dct:
-            ret.value = _get_ts(dct, 'value', str)
+            ret.value = model.datatypes.from_xsd(_get_ts(dct, 'value', str), ret.value_type)
         if 'valueId' in dct:
             ret.value_id = cls._construct_reference(_get_ts(dct, 'valueId', dict))
         return ret

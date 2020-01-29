@@ -186,7 +186,7 @@ class AASDataChecker(DataChecker):
         self.check_contained_element_length(object_, 'qualifier', model.Constraint, len(expected_object.qualifier))
         for constraint in object_.qualifier:
             if isinstance(constraint, model.Qualifier):
-                expected_constraint = self._find_element_by_attribute(constraint, expected_object.qualifier, 'type_')
+                expected_constraint = self._find_element_by_attribute(constraint, expected_object.qualifier, 'type')
                 if self.check(expected_constraint is not None, 'Qualifier{} must be found'.format(constraint.type)):
                     self._check_qualifier_equal(constraint, expected_constraint)  # type: ignore
 
@@ -239,7 +239,9 @@ class AASDataChecker(DataChecker):
         :return:
         """
         self._check_abstract_attributes_submodel_element_equal(object_, expected_value)
-        self.check_attribute_equal(object_, 'value_type', expected_value.value_type)
+        self.check(object_.value_type.__class__ == expected_value.value_type.__class__,
+                   "Attribute value_type of {} must be == {}".format(repr(object_),
+                                                                     expected_value.value_type.__class__))
         self.check_attribute_equal(object_, 'min', expected_value.min)
         self.check_attribute_equal(object_, 'max', expected_value.max)
 
@@ -306,7 +308,8 @@ class AASDataChecker(DataChecker):
         self.check_contained_element_length(object_, 'value', model.SubmodelElement, len(expected_value.value))
         for expected_element in expected_value.value:
             element = object_.value.get(expected_element.id_short)
-            self.check(element is not None, 'Submodel Element{} must exist'.format(repr(expected_element)))
+            if self.check(element is not None, 'Submodel Element{} must exist'.format(repr(expected_element))):
+                self._check_submodel_element(element, expected_element)  # type: ignore
 
         found_elements = self._find_extra_elements_by_id_short(object_.value, expected_value.value)
         self.check(found_elements == set(), 'Submodel Collection {} must not have extra elements'.format(repr(object_)),
@@ -564,7 +567,8 @@ class AASDataChecker(DataChecker):
                                             len(expected_value.submodel_element))
         for expected_element in expected_value.submodel_element:
             element = object_.submodel_element.get_referable(expected_element.id_short)
-            self.check(element is not None, 'Submodel Element{} must exist'.format(repr(expected_element)))
+            if self.check(element is not None, 'Submodel Element{} must exist'.format(repr(expected_element))):
+                self._check_submodel_element(element, expected_element)
 
         found_elements = self._find_extra_elements_by_id_short(object_.submodel_element,
                                                                expected_value.submodel_element)
@@ -579,7 +583,7 @@ class AASDataChecker(DataChecker):
         :param expected_value: expected Qualifier object
         :return:
         """
-        self.check_attribute_equal(object_, 'type_', expected_value.type)
+        self.check_attribute_equal(object_, 'type', expected_value.type)
         self.check_attribute_equal(object_, 'value_type', expected_value.value_type)
         self.check_attribute_equal(object_, 'value', expected_value.value)
         self.check_attribute_equal(object_, 'value_id', expected_value.value_id)

@@ -45,8 +45,8 @@ def create_example_asset_identification_submodel() -> model.Submodel:
     """
     qualifier = model.Qualifier(
         type_='http://acplt.org/Qualifier/ExampleQualifier',
-        value_type=model.datatypes.String,
-        value='100',
+        value_type=model.datatypes.Int,
+        value=100,
         value_id=model.Reference((model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
                                             local=False,
                                             value='http://acplt.org/ValueId/ExampleValueId',
@@ -54,8 +54,8 @@ def create_example_asset_identification_submodel() -> model.Submodel:
 
     qualifier2 = model.Qualifier(
         type_='http://acplt.org/Qualifier/ExampleQualifier2',
-        value_type=model.datatypes.String,
-        value='50',
+        value_type=model.datatypes.Int,
+        value=50,
         value_id=model.Reference((model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
                                             local=False,
                                             value='http://acplt.org/ValueId/ExampleValueId',
