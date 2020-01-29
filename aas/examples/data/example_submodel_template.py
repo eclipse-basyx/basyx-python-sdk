@@ -14,6 +14,7 @@ always TEMPLATE.
 
 """
 from aas import model
+from aas.examples.data._helper import AASDataChecker
 
 
 def create_example_submodel_template() -> model.Submodel:
@@ -315,3 +316,47 @@ def create_example_submodel_template() -> model.Submodel:
         qualifier=None,
         kind=model.ModelingKind.TEMPLATE)
     return submodel
+
+
+def check_example_submodel(checker: AASDataChecker, submodel: model.Submodel) -> None:
+    expected_submodel = create_example_submodel_template()
+    checker.check_submodel_equal(submodel, expected_submodel)
+
+
+def check_full_example(checker: AASDataChecker, obj_store: model.DictObjectStore, failsafe: bool = True) -> None:
+    # separate different kind of objects
+    assets = []
+    submodels = []
+    concept_descriptions = []
+    shells = []
+    for obj in obj_store:
+        if isinstance(obj, model.Asset):
+            assets.append(obj)
+        elif isinstance(obj, model.AssetAdministrationShell):
+            shells.append(obj)
+        elif isinstance(obj, model.Submodel):
+            submodels.append(obj)
+        elif isinstance(obj, model.ConceptDescription):
+            concept_descriptions.append(obj)
+        else:
+            if failsafe:
+                raise KeyError()
+
+    for asset in assets:
+        if failsafe:
+            raise KeyError()
+
+    for shell in shells:
+        if failsafe:
+            raise KeyError()
+
+    for submodel in submodels:
+        if submodel.identification.id == 'https://acplt.org/Test_Submodel_Template':
+            check_example_submodel(checker, submodel)
+        else:
+            if failsafe:
+                raise KeyError()
+
+    for cd in concept_descriptions:
+        if failsafe:
+            raise KeyError()

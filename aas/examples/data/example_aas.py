@@ -16,6 +16,7 @@ To get this object store use the function 'create_full_example'. If you want to 
 get more information use the other functions.
 """
 from aas import model
+from aas.examples.data._helper import AASDataChecker
 
 
 def create_full_example() -> model.DictObjectStore:
@@ -646,3 +647,86 @@ def create_example_asset_administration_shell(concept_dictionary: model.ConceptD
                                                    id_type=model.KeyType.IRDI),),
                                         model.AssetAdministrationShell))
     return asset_administration_shell
+
+
+def check_example_asset_identification_submodel(checker: AASDataChecker, submodel: model.Submodel) -> None:
+    expected_submodel = create_example_asset_identification_submodel()
+    checker.check_submodel_equal(submodel, expected_submodel)
+
+
+def check_example_bill_of_material_submodel(checker: AASDataChecker, submodel: model.Submodel) -> None:
+    expected_submodel = create_example_bill_of_material_submodel()
+    checker.check_submodel_equal(submodel, expected_submodel)
+
+
+def check_example_asset(checker: AASDataChecker, asset: model.Asset) -> None:
+    expected_asset = create_example_asset()
+    checker.check_asset_equal(asset, expected_asset)
+
+
+def check_example_concept_description(checker: AASDataChecker, concept_description: model.ConceptDescription) -> None:
+    expected_concept_description = create_example_concept_description()
+    checker.check_concept_description_equal(concept_description, expected_concept_description)
+
+
+def check_example_asset_administration_shell(checker: AASDataChecker, shell: model.AssetAdministrationShell) -> None:
+    example_cd = create_example_concept_dictionary()
+    expected_shell = create_example_asset_administration_shell(example_cd)
+    checker.check_asset_administration_shell_equal(shell, expected_shell)
+
+
+def check_example_submodel(checker: AASDataChecker, submodel: model.Submodel) -> None:
+    expected_submodel = create_example_submodel()
+    checker.check_submodel_equal(submodel, expected_submodel)
+
+
+def check_full_example(checker: AASDataChecker, obj_store: model.DictObjectStore, failsafe: bool = True) -> None:
+    # separate different kind of objects
+    assets = []
+    submodels = []
+    concept_descriptions = []
+    shells = []
+    for obj in obj_store:
+        if isinstance(obj, model.Asset):
+            assets.append(obj)
+        elif isinstance(obj, model.AssetAdministrationShell):
+            shells.append(obj)
+        elif isinstance(obj, model.Submodel):
+            submodels.append(obj)
+        elif isinstance(obj, model.ConceptDescription):
+            concept_descriptions.append(obj)
+        else:
+            if failsafe:
+                raise KeyError()
+
+    for asset in assets:
+        if asset.identification.id == 'https://acplt.org/Test_Asset':
+            check_example_asset(checker, asset)
+        else:
+            if failsafe:
+                raise KeyError()
+
+    for shell in shells:
+        if shell.identification.id == 'https://acplt.org/Test_AssetAdministrationShell':
+            check_example_asset_administration_shell(checker, shell)
+        else:
+            if failsafe:
+                raise KeyError()
+
+    for submodel in submodels:
+        if submodel.identification.id == 'http://acplt.org/Submodels/Assets/TestAsset/Identification':
+            check_example_asset_identification_submodel(checker, submodel)
+        elif submodel.identification.id == 'http://acplt.org/Submodels/Assets/TestAsset/BillOfMaterial':
+            check_example_bill_of_material_submodel(checker, submodel)
+        elif submodel.identification.id == 'https://acplt.org/Test_Submodel':
+            check_example_submodel(checker, submodel)
+        else:
+            if failsafe:
+                raise KeyError()
+
+    for cd in concept_descriptions:
+        if cd.identification.id == 'https://acplt.org/Test_ConceptDescription':
+            check_example_concept_description(checker, cd)
+        else:
+            if failsafe:
+                raise KeyError()

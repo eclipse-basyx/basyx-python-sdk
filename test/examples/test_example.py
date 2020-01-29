@@ -13,46 +13,44 @@ Tests for the example aas
 
 Functions to test if an object is the same to the example aas from example_aas.py
 """
-from aas.examples.data import example_aas
-from test._helper.testCase_for_example_aas import *
 import unittest
+from aas.examples.data.example_aas import *
 from aas.examples.data._helper import AASDataChecker
 
 
 class ExampleAASTest(unittest.TestCase):
-
     def test_example_asset_identification_submodel(self):
         checker = AASDataChecker(raise_immediately=True)
-        submodel = example_aas.create_example_asset_identification_submodel()
-        assert_example_asset_identification_submodel(checker, submodel)
+        submodel = create_example_asset_identification_submodel()
+        check_example_asset_identification_submodel(checker, submodel)
 
     def test_example_bill_of_material_submodel(self):
         checker = AASDataChecker(raise_immediately=True)
-        submodel = example_aas.create_example_bill_of_material_submodel()
-        assert_example_bill_of_material_submodel(checker, submodel)
+        submodel = create_example_bill_of_material_submodel()
+        check_example_bill_of_material_submodel(checker, submodel)
 
     def test_example_asset(self):
         checker = AASDataChecker(raise_immediately=True)
-        asset = example_aas.create_example_asset()
-        assert_example_asset(checker, asset)
+        asset = create_example_asset()
+        check_example_asset(checker, asset)
 
     def test_example_concept_description(self):
         checker = AASDataChecker(raise_immediately=True)
-        concept_description = example_aas.create_example_concept_description()
-        assert_example_concept_description(checker, concept_description)
+        concept_description = create_example_concept_description()
+        check_example_concept_description(checker, concept_description)
 
     def test_example_asset_administration_shell(self):
         checker = AASDataChecker(raise_immediately=True)
-        concept_dictionary = example_aas.create_example_concept_dictionary()
-        shell = example_aas.create_example_asset_administration_shell(concept_dictionary)
-        assert_example_asset_administration_shell(checker, shell)
+        concept_dictionary = create_example_concept_dictionary()
+        shell = create_example_asset_administration_shell(concept_dictionary)
+        check_example_asset_administration_shell(checker, shell)
 
     def test_example_submodel(self):
         checker = AASDataChecker(raise_immediately=True)
-        submodel = example_aas.create_example_submodel()
-        assert_example_submodel(checker, submodel)
+        submodel = create_example_submodel()
+        check_example_submodel(checker, submodel)
 
     def test_full_example(self):
         checker = AASDataChecker(raise_immediately=True)
-        obj_store = example_aas.create_full_example()
-        assert_full_example(checker, obj_store)
+        obj_store = create_full_example()
+        check_full_example(checker, obj_store)
