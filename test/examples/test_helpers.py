@@ -48,27 +48,57 @@ class AASDataCheckerTest(unittest.TestCase):
             value=(property, range)
         )
 
-        property_2 = model.Property(
+        property_expected = model.Property(
             id_short='Prop1',
             value_type=model.datatypes.String,
             value='test'
         )
-        range_2 = model.Range(
+        range_expected = model.Range(
             id_short='Range1',
             value_type=model.datatypes.Int,
             min_=100,
             max_=200
         )
-        collection_2 = model.SubmodelElementCollectionOrdered(
+        collection_expected = model.SubmodelElementCollectionOrdered(
             id_short='Collection',
-            value=(range_2, property_2)
+            value=(range_expected, property_expected)
         )
 
         checker = AASDataChecker(raise_immediately=False)
-        checker.check_submodel_collection_equal(collection, collection_2)
+        checker.check_submodel_collection_equal(collection, collection_expected)
         self.assertEqual(2, sum(1 for _ in checker.failed_checks))
         checker_iterator = iter(checker.failed_checks)
         self.assertEqual("FAIL: Property[Collection / Prop1] must be of class Range (class='Property')",
                          repr(next(checker_iterator)))
         self.assertEqual("FAIL: Range[Collection / Range1] must be of class Property (class='Range')",
+                         repr(next(checker_iterator)))
+
+    def test_qualifiable_checker(self):
+        qualifier_expected = model.Qualifier(
+            type_='test',
+            value_type=model.datatypes.String,
+            value='test value'
+        )
+        property_expected = model.Property(
+            id_short='Prop1',
+            value_type=model.datatypes.String,
+            value='test',
+            qualifier={qualifier_expected}
+        )
+
+        property = model.Property(
+            id_short='Prop1',
+            value_type=model.datatypes.String,
+            value='test'
+        )
+
+        checker = AASDataChecker(raise_immediately=False)
+        checker.check_property_equal(property, property_expected)
+        self.assertEqual(2, sum(1 for _ in checker.failed_checks))
+        self.assertEqual(9, sum(1 for _ in checker.successful_checks))
+        checker_iterator = iter(checker.failed_checks)
+        self.assertEqual("FAIL: Property[Prop1] must contain 1 Constraints (count=0)",
+                         repr(next(checker_iterator)))
+        self.assertEqual("FAIL: ConstraintQualifier(type=test, value_type=string, value=test value, value_id=None) "
+                         "must exist ()",
                          repr(next(checker_iterator)))

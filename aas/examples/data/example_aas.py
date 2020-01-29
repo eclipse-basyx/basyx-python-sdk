@@ -61,11 +61,6 @@ def create_example_asset_identification_submodel() -> model.Submodel:
                                             value='http://acplt.org/ValueId/ExampleValueId',
                                             id_type=model.KeyType.IRDI),)))
 
-    formula = model.Formula(depends_on={model.Reference((model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
-                                                                   local=False,
-                                                                   value='http://acplt.org/Formula/ExampleFormula',
-                                                                   id_type=model.KeyType.IRDI),))})
-
     # Property-Element conform to 'Verwaltungssschale in der Praxis' page 41 ManufacturerName:
     # https://www.plattform-i40.de/PI40/Redaktion/DE/Downloads/Publikation/2019-verwaltungsschale-in-der-praxis.html
     identification_submodel_element_manufacturer_name = model.Property(
@@ -113,7 +108,7 @@ def create_example_asset_identification_submodel() -> model.Submodel:
                                                local=False,
                                                value='http://opcfoundation.org/UA/DI/1.1/DeviceType/Serialnumber',
                                                id_type=model.KeyType.IRI),)),
-        qualifier={formula},
+        qualifier=None,
         kind=model.ModelingKind.INSTANCE)
 
     # asset identification submodel which will be included in the asset object

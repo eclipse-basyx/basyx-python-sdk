@@ -161,4 +161,4 @@ class JsonSerializationDeserializationTest6(unittest.TestCase):
         testCase_for_example_aas_missing_attributes.assert_full_example(checker, json_object_store, False)
         testCase_for_example_concept_description.assert_full_example(checker, json_object_store, False)
         testCase_for_example_submodel_template.assert_full_example(checker, json_object_store, False)
-        self.assertEqual(963, sum(1 for _ in checker.successful_checks))
+        self.assertEqual(1042, sum(1 for _ in checker.successful_checks))
