@@ -765,14 +765,13 @@ class Qualifier(Constraint, HasSemantics):
         """
         super().__init__()
         self.type: QualifierType = type_
-        self.value_type: DataTypeDef = value_type
+        self.value_type: Type[datatypes.AnyXSDType] = value_type
         self._value: Optional[ValueDataType] = datatypes.trivial_cast(value, value_type) if value is not None else None
         self.value_id: Optional[Reference] = value_id
         self.semantic_id: Optional[Reference] = semantic_id
 
     def __repr__(self) -> str:
-        return "Qualifier(type={}, value_type={}, value={}, value_id={})".format(self.type, self.value_type,
-                                                                                 self.value, self.value_id)
+        return "Qualifier(type={})".format(self.type)
 
     @property
     def value(self):

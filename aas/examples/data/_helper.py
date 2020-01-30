@@ -124,6 +124,8 @@ class AASDataChecker(DataChecker):
                 return self.check_entity_equal(object_, expected_object)  # type: ignore
             if isinstance(object_, model.BasicEvent):
                 return self.check_basic_event_equal(object_, expected_object)  # type: ignore
+            else:
+                raise AttributeError('Submodel Element class not implemented')
 
     def _check_referable_equal(self, object_: model.Referable, expected_object: model.Referable):
         """
@@ -184,11 +186,14 @@ class AASDataChecker(DataChecker):
         """
         # TODO add check of formula => not clear how to identify a formula
         self.check_contained_element_length(object_, 'qualifier', model.Constraint, len(expected_object.qualifier))
-        for constraint in object_.qualifier:
-            if isinstance(constraint, model.Qualifier):
-                expected_constraint = self._find_element_by_attribute(constraint, expected_object.qualifier, 'type_')
-                if self.check(expected_constraint is not None, 'Qualifier{} must be found'.format(constraint.type)):
-                    self._check_qualifier_equal(constraint, expected_constraint)  # type: ignore
+        for expected_element in expected_object.qualifier:
+            element = self._find_element_by_attribute(expected_element, object_.qualifier, 'type')
+            if self.check(element is not None, 'Constraint{} must exist'.format(repr(expected_element))):
+                self._check_qualifier_equal(element, expected_element)  # type: ignore
+
+        found_elements = self._find_extra_elements_by_attribute(object_.qualifier, expected_object.qualifier, 'type')
+        self.check(found_elements == set(), 'Qualifiable Element {} must not have extra elements'.format(repr(object_)),
+                   value=found_elements)
 
     def _check_abstract_attributes_submodel_element_equal(self, object_: model.SubmodelElement,
                                                           expected_value: model.SubmodelElement):
@@ -306,7 +311,8 @@ class AASDataChecker(DataChecker):
         self.check_contained_element_length(object_, 'value', model.SubmodelElement, len(expected_value.value))
         for expected_element in expected_value.value:
             element = object_.value.get(expected_element.id_short)
-            self.check(element is not None, 'Submodel Element{} must exist'.format(repr(expected_element)))
+            if self.check(element is not None, 'Submodel Element{} must exist'.format(repr(expected_element))):
+                self._check_submodel_element(element, expected_element)  # type: ignore
 
         found_elements = self._find_extra_elements_by_id_short(object_.value, expected_value.value)
         self.check(found_elements == set(), 'Submodel Collection {} must not have extra elements'.format(repr(object_)),
@@ -564,7 +570,8 @@ class AASDataChecker(DataChecker):
                                             len(expected_value.submodel_element))
         for expected_element in expected_value.submodel_element:
             element = object_.submodel_element.get_referable(expected_element.id_short)
-            self.check(element is not None, 'Submodel Element{} must exist'.format(repr(expected_element)))
+            if self.check(element is not None, 'Submodel Element{} must exist'.format(repr(expected_element))):
+                self._check_submodel_element(element, expected_element)
 
         found_elements = self._find_extra_elements_by_id_short(object_.submodel_element,
                                                                expected_value.submodel_element)
@@ -579,20 +586,10 @@ class AASDataChecker(DataChecker):
         :param expected_value: expected Qualifier object
         :return:
         """
-        self.check_attribute_equal(object_, 'type_', expected_value.type)
+        self.check_attribute_equal(object_, 'type', expected_value.type)
         self.check_attribute_equal(object_, 'value_type', expected_value.value_type)
         self.check_attribute_equal(object_, 'value', expected_value.value)
         self.check_attribute_equal(object_, 'value_id', expected_value.value_id)
-
-    def _check_formula_equal(self, object_: model.Formula, expected_value: model.Formula):
-        """
-        Checks if the given Formula objects are equal
-
-        :param object_: Given Formula object to check
-        :param expected_value: expected Formula object
-        :return:
-        """
-        self.check_contained_element_length(object_, 'depends_on', model.Reference, len(expected_value.depends_on))
 
     def check_asset_equal(self, object_: model.Asset, expected_value: model.Asset):
         """
@@ -795,10 +792,17 @@ class AASDataChecker(DataChecker):
         :param kwargs: Relevant values to add to the check result for further analysis (e.g. the compared values)
         :return: The value of expression to be used in control statements
         """
-        kwargs['value'] = getattr(object_, attribute_name)
-        return self.check(getattr(object_, attribute_name) == expected_value,
-                          "Attribute {} of {} must be == {}".format(attribute_name, repr(object_), expected_value),
-                          **kwargs)
+        if attribute_name == 'value_type':
+            kwargs['value'] = getattr(object_, attribute_name).__name__
+            return self.check(getattr(object_, attribute_name) is expected_value,  # type:ignore
+                              "Attribute value_type of {} must be == {}".format(
+                                  repr(object_), expected_value.__name__),  # type:ignore
+                              **kwargs)
+        else:
+            kwargs['value'] = getattr(object_, attribute_name)
+            return self.check(getattr(object_, attribute_name) == expected_value,
+                              "Attribute {} of {} must be == {}".format(attribute_name, repr(object_), expected_value),
+                              **kwargs)
 
     def check_element_in(self, object_: model.Referable, parent: object, **kwargs) -> bool:
         """

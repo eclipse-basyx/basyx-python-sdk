@@ -46,8 +46,8 @@ def create_example_asset_identification_submodel() -> model.Submodel:
     """
     qualifier = model.Qualifier(
         type_='http://acplt.org/Qualifier/ExampleQualifier',
-        value_type=model.datatypes.String,
-        value='100',
+        value_type=model.datatypes.Int,
+        value=100,
         value_id=model.Reference((model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
                                             local=False,
                                             value='http://acplt.org/ValueId/ExampleValueId',
@@ -55,17 +55,12 @@ def create_example_asset_identification_submodel() -> model.Submodel:
 
     qualifier2 = model.Qualifier(
         type_='http://acplt.org/Qualifier/ExampleQualifier2',
-        value_type=model.datatypes.String,
-        value='50',
+        value_type=model.datatypes.Int,
+        value=50,
         value_id=model.Reference((model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
                                             local=False,
                                             value='http://acplt.org/ValueId/ExampleValueId',
                                             id_type=model.KeyType.IRI),)))
-
-    formula = model.Formula(depends_on={model.Reference((model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
-                                                                   local=False,
-                                                                   value='http://acplt.org/Formula/ExampleFormula',
-                                                                   id_type=model.KeyType.IRI),))})
 
     # Property-Element conform to 'Verwaltungssschale in der Praxis' page 41 ManufacturerName:
     # https://www.plattform-i40.de/PI40/Redaktion/DE/Downloads/Publikation/2019-verwaltungsschale-in-der-praxis.html
@@ -114,7 +109,7 @@ def create_example_asset_identification_submodel() -> model.Submodel:
                                                local=False,
                                                value='http://opcfoundation.org/UA/DI/1.1/DeviceType/Serialnumber',
                                                id_type=model.KeyType.IRI),)),
-        qualifier={formula},
+        qualifier=None,
         kind=model.ModelingKind.INSTANCE)
 
     # asset identification submodel which will be included in the asset object
