@@ -19,8 +19,7 @@ import urllib.error
 
 from aas import model
 from aas.adapter import couchdb
-from aas.examples.data import example_aas
-from test._helper.testCase_for_example_aas import *
+from aas.examples.data.example_aas import *
 
 
 TEST_CONFIG = configparser.ConfigParser()
@@ -61,7 +60,7 @@ class CouchDBTest(unittest.TestCase):
         self.db.logout()
 
     def test_example_submodel_storing(self) -> None:
-        example_submodel = example_aas.create_example_submodel()
+        example_submodel = create_example_submodel()
 
         # Add exmaple submodel
         self.db.add(example_submodel)
@@ -73,14 +72,14 @@ class CouchDBTest(unittest.TestCase):
             model.Identifier(id_='https://acplt.org/Test_Submodel', id_type=model.IdentifierType.IRI))
         assert(isinstance(submodel_restored, model.Submodel))
         checker = AASDataChecker(raise_immediately=True)
-        assert_example_submodel(checker, submodel_restored)
+        check_example_submodel(checker, submodel_restored)
 
         # Delete example submodel
         self.db.discard(submodel_restored)
         self.assertNotIn(example_submodel, self.db)
 
     def test_iterating(self) -> None:
-        example_data = example_aas.create_full_example()
+        example_data = create_full_example()
 
         # Add all objects
         for item in example_data:
@@ -93,10 +92,10 @@ class CouchDBTest(unittest.TestCase):
         for item in self.db:
             retrieved_data_store.add(item)
         checker = AASDataChecker(raise_immediately=True)
-        assert_full_example(checker, retrieved_data_store)
+        check_full_example(checker, retrieved_data_store)
 
     def test_parallel_iterating(self) -> None:
-        example_data = example_aas.create_full_example()
+        example_data = create_full_example()
         ids = [item.identification for item in example_data]
 
         # Add objects via thread pool executor
@@ -115,7 +114,7 @@ class CouchDBTest(unittest.TestCase):
             retrieved_data_store.add(item)
         self.assertEqual(6, len(retrieved_data_store))
         checker = AASDataChecker(raise_immediately=True)
-        assert_full_example(checker, retrieved_data_store)
+        check_full_example(checker, retrieved_data_store)
 
         # Delete objects via thread pool executor
         with concurrent.futures.ThreadPoolExecutor() as pool:
@@ -126,7 +125,7 @@ class CouchDBTest(unittest.TestCase):
 
     def test_key_errors(self) -> None:
         # Double adding an object should raise a KeyError
-        example_submodel = example_aas.create_example_submodel()
+        example_submodel = create_example_submodel()
         self.db.add(example_submodel)
         with self.assertRaises(KeyError):
             self.db.add(example_submodel)
@@ -144,7 +143,7 @@ class CouchDBTest(unittest.TestCase):
 
     def test_conflict_errors(self) -> None:
         # Preperation: add object and retrieve it from the database
-        example_submodel = example_aas.create_example_submodel()
+        example_submodel = create_example_submodel()
         self.db.add(example_submodel)
         retrieved_submodel = self.db.get_identifiable(
             model.Identifier('https://acplt.org/Test_Submodel', model.IdentifierType.IRI))
@@ -171,7 +170,7 @@ class CouchDBTest(unittest.TestCase):
             retrieved_submodel.commit_changes()
 
     def test_editing(self) -> None:
-        example_submodel = example_aas.create_example_submodel()
+        example_submodel = create_example_submodel()
         self.db.add(example_submodel)
 
         # Retrieve submodel from database and change ExampleCapability's semanticId
