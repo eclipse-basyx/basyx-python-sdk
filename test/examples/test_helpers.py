@@ -102,3 +102,128 @@ class AASDataCheckerTest(unittest.TestCase):
         self.assertEqual("FAIL: Property[Prop1] must contain 1 Constraints (count=0)",
                          repr(next(checker_iterator)))
         self.assertEqual("FAIL: ConstraintQualifier(type=test) must exist ()", repr(next(checker_iterator)))
+
+
+class ExampleAASTest(unittest.TestCase):
+    def test_example_asset_identification_submodel(self):
+        checker = AASDataChecker(raise_immediately=True)
+        submodel = example_aas.create_example_asset_identification_submodel()
+        example_aas.check_example_asset_identification_submodel(checker, submodel)
+
+    def test_example_bill_of_material_submodel(self):
+        checker = AASDataChecker(raise_immediately=True)
+        submodel = example_aas.create_example_bill_of_material_submodel()
+        example_aas.check_example_bill_of_material_submodel(checker, submodel)
+
+    def test_example_asset(self):
+        checker = AASDataChecker(raise_immediately=True)
+        asset = example_aas.create_example_asset()
+        example_aas.check_example_asset(checker, asset)
+
+    def test_example_concept_description(self):
+        checker = AASDataChecker(raise_immediately=True)
+        concept_description = example_aas.create_example_concept_description()
+        example_aas.check_example_concept_description(checker, concept_description)
+
+    def test_example_asset_administration_shell(self):
+        checker = AASDataChecker(raise_immediately=True)
+        concept_dictionary = example_aas.create_example_concept_dictionary()
+        shell = example_aas.create_example_asset_administration_shell(concept_dictionary)
+        example_aas.check_example_asset_administration_shell(checker, shell)
+
+    def test_example_submodel(self):
+        checker = AASDataChecker(raise_immediately=True)
+        submodel = example_aas.create_example_submodel()
+        example_aas.check_example_submodel(checker, submodel)
+
+    def test_full_example(self):
+        checker = AASDataChecker(raise_immediately=True)
+        obj_store = example_aas.create_full_example()
+        example_aas.check_full_example(checker, obj_store)
+
+
+class ExampleAASMandatoryTest(unittest.TestCase):
+    def test_example_asset(self):
+        checker = AASDataChecker(raise_immediately=True)
+        asset = example_aas_mandatory_attributes.create_example_asset()
+        example_aas_mandatory_attributes.check_example_asset(checker, asset)
+
+    def test_example_submodel(self):
+        checker = AASDataChecker(raise_immediately=True)
+        submodel = example_aas_mandatory_attributes.create_example_submodel()
+        example_aas_mandatory_attributes.check_example_submodel(checker, submodel)
+
+    def test_example_empty_submodel(self):
+        checker = AASDataChecker(raise_immediately=True)
+        submodel = example_aas_mandatory_attributes.create_example_empty_submodel()
+        example_aas_mandatory_attributes.check_example_empty_submodel(checker, submodel)
+
+    def test_example_concept_description(self):
+        checker = AASDataChecker(raise_immediately=True)
+        concept_description = example_aas_mandatory_attributes.create_example_concept_description()
+        example_aas_mandatory_attributes.check_example_concept_description(checker, concept_description)
+
+    def test_example_asset_administration_shell(self):
+        checker = AASDataChecker(raise_immediately=True)
+        concept_dictionary = example_aas_mandatory_attributes.create_example_concept_dictionary()
+        shell = example_aas_mandatory_attributes.create_example_asset_administration_shell(concept_dictionary)
+        example_aas_mandatory_attributes.check_example_asset_administration_shell(checker, shell)
+
+    def test_full_example(self):
+        checker = AASDataChecker(raise_immediately=True)
+        obj_store = example_aas_mandatory_attributes.create_full_example()
+        example_aas_mandatory_attributes.check_full_example(checker, obj_store)
+
+
+class ExampleAASMissingTest(unittest.TestCase):
+    def test_example_asset(self):
+        checker = AASDataChecker(raise_immediately=True)
+        asset = example_aas_missing_attributes.create_example_asset()
+        example_aas_missing_attributes.check_example_asset(checker, asset)
+
+    def test_example_submodel(self):
+        checker = AASDataChecker(raise_immediately=True)
+        submodel = example_aas_missing_attributes.create_example_submodel()
+        example_aas_missing_attributes.check_example_submodel(checker, submodel)
+
+    def test_example_concept_description(self):
+        checker = AASDataChecker(raise_immediately=True)
+        concept_description = example_aas_missing_attributes.create_example_concept_description()
+        example_aas_missing_attributes.check_example_concept_description(checker, concept_description)
+
+    def test_example_asset_administration_shell(self):
+        checker = AASDataChecker(raise_immediately=True)
+        concept_dictionary = example_aas_missing_attributes.create_example_concept_dictionary()
+        shell = example_aas_missing_attributes.create_example_asset_administration_shell(concept_dictionary)
+        example_aas_missing_attributes.check_example_asset_administration_shell(checker, shell)
+
+    def test_full_example(self):
+        checker = AASDataChecker(raise_immediately=True)
+        obj_store = example_aas_missing_attributes.create_full_example()
+        example_aas_missing_attributes.check_full_example(checker, obj_store)
+
+
+class ExampleConceptDescriptionTest(unittest.TestCase):
+    def test_iec61360_concept_description(self):
+        checker = AASDataChecker(raise_immediately=True)
+        concept_description = example_concept_description.create_iec61360_concept_description()
+        example_concept_description.check_example_iec61360_concept_description(checker, concept_description)
+
+    def test_full_example(self):
+        checker = AASDataChecker(raise_immediately=True)
+        obj_store: model.DictObjectStore[model.Identifiable] = model.DictObjectStore()
+        obj_store.add(example_concept_description.create_iec61360_concept_description())
+        example_concept_description.check_full_example(checker, obj_store)
+
+
+class ExampleSubmodelTemplate(unittest.TestCase):
+    def test_example_submodel_template(self):
+        checker = AASDataChecker(raise_immediately=True)
+        submodel = example_submodel_template.create_example_submodel_template()
+        example_submodel_template.check_example_submodel(checker, submodel)
+
+    def test_full_example(self):
+        checker = AASDataChecker(raise_immediately=True)
+        obj_store: model.DictObjectStore[model.Identifiable] = model.DictObjectStore()
+        obj_store.add(example_submodel_template.create_example_submodel_template())
+        example_submodel_template.check_full_example(checker, obj_store)
