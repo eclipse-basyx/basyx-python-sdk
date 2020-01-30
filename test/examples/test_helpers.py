@@ -9,8 +9,10 @@
 # "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
 # specific language governing permissions and limitations under the License.
 import unittest
-from aas.examples.data._helper import *
-from aas.examples.data.example_aas import *
+
+from aas.examples.data import example_aas, example_aas_mandatory_attributes, example_aas_missing_attributes, \
+    example_concept_description, example_submodel_template
+from aas.examples.data._helper import DataChecker, AASDataChecker
 from aas import model
 
 
@@ -99,5 +101,4 @@ class AASDataCheckerTest(unittest.TestCase):
         checker_iterator = iter(checker.failed_checks)
         self.assertEqual("FAIL: Property[Prop1] must contain 1 Constraints (count=0)",
                          repr(next(checker_iterator)))
-        self.assertEqual("FAIL: ConstraintQualifier(type=test, value_type=<class 'str'>, value=test value, "
-                         "value_id=None) must exist ()", repr(next(checker_iterator)))
+        self.assertEqual("FAIL: ConstraintQualifier(type=test) must exist ()", repr(next(checker_iterator)))
