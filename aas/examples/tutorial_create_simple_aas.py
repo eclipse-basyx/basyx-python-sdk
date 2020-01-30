@@ -5,15 +5,15 @@ Tutorial for the creation of an simple asset administration shell containing a a
 reference
 """
 
-# to get all functions import model
+# Import all PyI40AAS classes from model package
 from aas import model
 
-# In this tutorial you get a step by step guide how to create an asset administration shell and its needed objects.
-# First you need an asset for which you want to create an asset administration shell. So first you will learn how to
-# create an asset. After that you learn how to create an asset administration shell containing a reference to the
-# asset. Now it is possible, to add submodels to the asset administration shell. Therefore, you learn how to create a
-# submodel and how to add the reference to it to the asset administration shell. The submodel can contain submodel
-# elements. Therefore, you will also learn how to create a submodel element and how to add it to the submodel.
+# In this tutorial, you get a step by step guide on how to create an asset administration shell and its required
+# objects. First, you need an asset for which you want to create an asset administration shell. So, first, you will
+# learn how to create an Asset object. After that, you learn how to create an Asset Administration Shell (AAS)
+# containing a reference to the Asset. Now, it is possible to add Submodels to the AAS. Therefore, you learn how to
+# create a Submodel and how to add the reference to it to the AAS. The Submodel can contain Submodel Elements.
+# Therefore, you will also learn how to create a Submodel Element and how to add it to the Submodel.
 # Step by step guide:
 # step 1: create a simple asset
 # step 2: create a simple asset administration shell containing a reference to the asset
@@ -43,24 +43,23 @@ asset = model.Asset(
 identifier = model.Identifier('https://acplt.org/Simple_AAS', model.IdentifierType.IRI)
 aas = model.AssetAdministrationShell(
     identification=identifier,  # set identifier
-    asset=model.AASReference.from_referable(asset)  # set the reference to the asset
+    asset=model.AASReference.from_referable(asset)  # generate a Reference object to the asset (from its identifier)
 )
 
 ###############################################################
 # step 3: create a simple submodel with zero submodel element #
 ###############################################################
-# step 3.1 create the identifier of the submodel
+# step 3.1: create the identifier of the submodel
 identifier = model.Identifier('https://acplt.org/Simple_Submodel', model.IdentifierType.IRI)
 submodel = model.Submodel(
-    identification=identifier  # set identifier
+    identification=identifier
 )
-# step 3.2: add the submodel reference to the asset administration shell
+# step 3.2: add a reference to the submodel to the asset administration shell
 aas.submodel.add(model.AASReference.from_referable(submodel))
 
 # step 2 and 3 can also be done in one step
-# identifier = model.Identifier('https://acplt.org/Simple_AAS', model.IdentifierType.IRI)
 # aas = model.AssetAdministrationShell(
-#     identification=identifier,
+#     identification= model.Identifier('https://acplt.org/Simple_AAS', model.IdentifierType.IRI),
 #     asset=model.AASReference.from_referable(asset),
 #     submodel_={model.AASReference.from_referable(submodel)}
 # )

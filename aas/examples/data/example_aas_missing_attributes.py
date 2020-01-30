@@ -416,6 +416,9 @@ def create_example_asset_administration_shell(concept_dictionary: model.ConceptD
     return asset_administration_shell
 
 
+##############################################################################
+# check functions for checking if an given object is the same as the example #
+##############################################################################
 def check_example_asset(checker: AASDataChecker, asset: model.Asset) -> None:
     expected_asset = create_example_asset()
     checker.check_asset_equal(asset, expected_asset)

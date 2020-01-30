@@ -69,6 +69,9 @@ def create_iec61360_concept_description() -> IEC61360ConceptDescription:
         level_types={IEC61360LevelType.MIN, IEC61360LevelType.MAX})
 
 
+##############################################################################
+# check functions for checking if an given object is the same as the example #
+##############################################################################
 def check_example_iec61360_concept_description(checker: AASDataChecker,
                                                concept_description: model.concept.IEC61360ConceptDescription) -> None:
     expected_concept_description = create_iec61360_concept_description()

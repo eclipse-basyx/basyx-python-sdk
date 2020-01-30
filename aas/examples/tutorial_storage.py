@@ -4,7 +4,7 @@
 Tutorial for storing asset administration shells, submodels and assets
 """
 
-# to get all functions import model
+# Import all PyI40AAS classes from model package
 from aas import model
 from aas.model import Asset, AssetAdministrationShell, Submodel
 
@@ -14,7 +14,8 @@ from aas.model import Asset, AssetAdministrationShell, Submodel
 # First you will learn how to create an object store and how to add objects to it. After that you will learn how to get
 # the objects out of the store using their identifier.
 # Step by step guide:
-# step 1: create asset, submodel and asset administration shell, for more details look at 'tutorial_create_simple_aas'
+# step 1: create asset, submodel and asset administration shell, for more details look at
+#         'tutorial_create_simple_aas.py'
 # step 2: store the data in an object store for easier handling
 # step 3: get data of objects out of the store using their identifier
 
@@ -58,8 +59,8 @@ obj_store.add(asset)
 obj_store.add(submodel)
 obj_store.add(aas)
 
-####################################################################
+#######################################################################
 # step 3: get data of objects out of the store using their identifier #
-####################################################################
+#######################################################################
 tmp_submodel: Submodel = obj_store.get_identifiable(  # type: ignore
     model.Identifier('https://acplt.org/Simple_Submodel', model.IdentifierType.IRI))

@@ -318,6 +318,9 @@ def create_example_submodel_template() -> model.Submodel:
     return submodel
 
 
+##############################################################################
+# check functions for checking if an given object is the same as the example #
+##############################################################################
 def check_example_submodel(checker: AASDataChecker, submodel: model.Submodel) -> None:
     expected_submodel = create_example_submodel_template()
     checker.check_submodel_equal(submodel, expected_submodel)

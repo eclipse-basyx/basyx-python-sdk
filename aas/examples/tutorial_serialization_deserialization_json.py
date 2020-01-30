@@ -4,10 +4,10 @@
 Tutorial for the serialization and deserialization of asset administration shells, submodels and assets
 """
 
-# to get all functions import model
 import io
 import json
 
+# Import all PyI40AAS classes from model package
 from aas import model
 from aas.adapter.json import json_serialization, json_deserialization
 from aas.model import Asset, AssetAdministrationShell, Submodel
@@ -17,7 +17,8 @@ from aas.model import Asset, AssetAdministrationShell, Submodel
 # store to json data. You also will learn how to write this json data to a json file. This tutorial close with a
 # demonstration of how to deserialize json data from a json file.
 # Step by step guide:
-# step 1: create asset, submodel and asset administration shell, for more details look at 'tutorial_create_simple_aas'
+# step 1: create asset, submodel and asset administration shell, for more details look at
+#         'tutorial_create_simple_aas.py'
 # step 2: serialize an object to json and write it to file
 # step 3: serialize an object store to json and write it to file
 # step 4: # read a json string from file and deserialize it into an object store of AAS objects
@@ -74,7 +75,8 @@ json.dump(json_data_object, file_object)
 # step 3: serialize an object store to json and write it to file #
 ##################################################################
 # step 2.1: serialize an object store to json
-# create a store, for more detail look at 'tutorial_storage.py'
+# create an object store containing the asset administration shell, the asset and submodel, defined above, for more
+# detail look at 'tutorial_storage.py'
 obj_store: model.DictObjectStore[model.Identifiable] = model.DictObjectStore()
 obj_store.add(asset)
 obj_store.add(submodel)
@@ -96,6 +98,8 @@ json_serialization.write_aas_json_file(file=file_store_2, data=obj_store)
 # step 4: # read a json string from file and deserialize it into an object store of AAS objects #
 #################################################################################################
 # define a file stream, here the internal file stream from above is used. For an external file stream use
-# 'open('tutorial.json', 'r', encoding='utf-8')' for opening a json-File to read json data inside
+# 'open('tutorial.json', 'r', encoding='utf-8-sig')' for opening a json-File to read json data inside
+# we have to set the file pointer to the beginning cause we are using the same file stream. Normally, you do not need
+# to do this.
 file_store_2.seek(0)
 json_object_store = json_deserialization.read_json_aas_file(file_store_2, failsafe=False)

@@ -649,6 +649,9 @@ def create_example_asset_administration_shell(concept_dictionary: model.ConceptD
     return asset_administration_shell
 
 
+##############################################################################
+# check functions for checking if an given object is the same as the example #
+##############################################################################
 def check_example_asset_identification_submodel(checker: AASDataChecker, submodel: model.Submodel) -> None:
     expected_submodel = create_example_asset_identification_submodel()
     checker.check_submodel_equal(submodel, expected_submodel)

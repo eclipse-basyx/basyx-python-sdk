@@ -230,6 +230,9 @@ def create_example_empty_asset_administration_shell() -> model.AssetAdministrati
     return asset_administration_shell
 
 
+##############################################################################
+# check functions for checking if an given object is the same as the example #
+##############################################################################
 def check_example_asset(checker: AASDataChecker, asset: model.Asset) -> None:
     expected_asset = create_example_asset()
     checker.check_asset_equal(asset, expected_asset)

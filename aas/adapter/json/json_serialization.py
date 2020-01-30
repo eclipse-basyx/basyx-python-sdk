@@ -736,15 +736,7 @@ class AASToJsonEncoder(json.JSONEncoder):
         return super().default(obj)
 
 
-def object_store_to_json(data: model.AbstractObjectStore, **kwargs) -> str:
-    """
-    Create a json serialization of a set of AAS objects according to 'Details of the Asset Administration Shell',
-    chapter 5.5
-
-    :param data: ObjectStore which contains different objects of the AAS meta model which should be serialized to a
-                 JSON file
-    :param kwargs: Additional keyword arguments to be passed to json.dump()
-    """
+def _create_dict(data: model.AbstractObjectStore) -> dict:
     # separate different kind of objects
     assets = []
     asset_administation_shells = []
@@ -759,15 +751,26 @@ def object_store_to_json(data: model.AbstractObjectStore, **kwargs) -> str:
             submodels.append(obj)
         if isinstance(obj, model.ConceptDescription):
             concept_descriptions.append(obj)
-
-    # serialize object to json
-    json_data = json.dumps({
+    dict_ = {
         'assetAdministrationShells': asset_administation_shells,
         'submodels': submodels,
         'assets': assets,
         'conceptDescriptions': concept_descriptions,
-    }, cls=AASToJsonEncoder, **kwargs)
-    return json_data
+    }
+    return dict_
+
+
+def object_store_to_json(data: model.AbstractObjectStore, **kwargs) -> str:
+    """
+    Create a json serialization of a set of AAS objects according to 'Details of the Asset Administration Shell',
+    chapter 5.5
+
+    :param data: ObjectStore which contains different objects of the AAS meta model which should be serialized to a
+                 JSON file
+    :param kwargs: Additional keyword arguments to be passed to json.dump()
+    """
+    # serialize object to json
+    return json.dumps(_create_dict(data), cls=AASToJsonEncoder, **kwargs)
 
 
 def write_aas_json_file(file: IO, data: model.AbstractObjectStore, **kwargs) -> None:
@@ -780,4 +783,5 @@ def write_aas_json_file(file: IO, data: model.AbstractObjectStore, **kwargs) -> 
                  JSON file
     :param kwargs: Additional keyword arguments to be passed to json.dumps()
     """
-    file.write(object_store_to_json(data, **kwargs))
+    # serialize object to json
+    json.dump(_create_dict(data), file, cls=AASToJsonEncoder, **kwargs)
