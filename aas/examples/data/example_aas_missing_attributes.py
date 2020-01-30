@@ -12,8 +12,8 @@
 Module for the creation of a object store with missing object attribute combination for testing the serialization
 
 """
-from aas import model
-from aas.examples.data._helper import AASDataChecker
+from ... import model
+from ._helper import AASDataChecker
 
 
 def create_full_example() -> model.DictObjectStore:

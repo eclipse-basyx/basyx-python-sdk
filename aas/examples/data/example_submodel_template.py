@@ -13,8 +13,8 @@ Module for the creation of an example submodel template containing all kind of s
 always TEMPLATE.
 
 """
-from aas import model
-from aas.examples.data._helper import AASDataChecker
+from ... import model
+from ._helper import AASDataChecker
 
 
 def create_example_submodel_template() -> model.Submodel:

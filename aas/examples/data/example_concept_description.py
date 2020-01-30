@@ -12,9 +12,9 @@
 Module for creation of an example concept description
 """
 
-from aas import model
-from aas.examples.data._helper import AASDataChecker
-from aas.model.concept import *
+from ... import model
+from ._helper import AASDataChecker
+from ...model.concept import *
 
 
 def create_iec61360_concept_description() -> IEC61360ConceptDescription:

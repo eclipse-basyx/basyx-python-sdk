@@ -15,8 +15,7 @@ Helper classes for checking example data structures for completeness and correct
 import pprint
 from typing import List, NamedTuple, Iterator, Dict, Any, Type, Optional, Union, Set, Iterable
 
-from aas import model
-from aas.model import LangStringSet, Namespace
+from ... import model
 
 
 class CheckResult(NamedTuple):

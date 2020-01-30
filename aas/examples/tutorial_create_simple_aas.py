@@ -6,7 +6,7 @@ reference
 """
 
 # Import all PyI40AAS classes from model package
-from aas import model
+from .. import model
 
 # In this tutorial, you get a step by step guide on how to create an asset administration shell and its required
 # objects. First, you need an asset for which you want to create an asset administration shell. So, first, you will

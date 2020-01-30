@@ -17,7 +17,6 @@ import unittest
 import urllib.request
 import urllib.error
 
-from aas import model
 from aas.adapter import couchdb
 from aas.examples.data.example_aas import *
 

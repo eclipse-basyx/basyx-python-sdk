@@ -5,8 +5,8 @@ Tutorial for storing asset administration shells, submodels and assets
 """
 
 # Import all PyI40AAS classes from model package
-from aas import model
-from aas.model import Asset, AssetAdministrationShell, Submodel
+from .. import model
+from ..model import Asset, AssetAdministrationShell, Submodel
 
 # In this tutorial you get a step by step guide how to store an asset administration shell and its needed objects. For
 # storing an asset administration shell including the asset and submodels you need an object store. In an object

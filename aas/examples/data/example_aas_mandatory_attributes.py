@@ -16,8 +16,8 @@ attributes.
 To get this object store use the function 'create_full_example'. If you want to get single example objects or want to
 get more information use the other functions.
 """
-from aas import model
-from aas.examples.data._helper import AASDataChecker
+from ... import model
+from ._helper import AASDataChecker
 
 
 def create_full_example() -> model.DictObjectStore:

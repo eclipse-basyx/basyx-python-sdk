@@ -8,9 +8,9 @@ import io
 import json
 
 # Import all PyI40AAS classes from model package
-from aas import model
-from aas.adapter.json import json_serialization, json_deserialization
-from aas.model import Asset, AssetAdministrationShell, Submodel
+from .. import model
+from ..adapter.json import json_serialization, json_deserialization
+from ..model import Asset, AssetAdministrationShell, Submodel
 
 # In this tutorial you get a step by step guide how to serialize objects of the meta model according to
 # 'Details of the Asset Administration Shell'. Therefore, you will learn how to serialize one object and an object
