@@ -141,6 +141,49 @@ class ExampleAASTest(unittest.TestCase):
         obj_store = example_aas.create_full_example()
         example_aas.check_full_example(checker, obj_store)
 
+        failed_asset = model.Asset(kind=model.AssetKind.INSTANCE,
+                                   identification=model.Identifier('test', model.IdentifierType.CUSTOM))
+        obj_store.add(failed_asset)
+        with self.assertRaises(KeyError):
+            example_aas.check_full_example(checker, obj_store)
+        obj_store.discard(failed_asset)
+
+        failed_shell = model.AssetAdministrationShell(
+            asset=model.AASReference((model.Key(type_=model.KeyElements.ASSET,
+                                                local=False,
+                                                value='test',
+                                                id_type=model.KeyType.IRI),),
+                                     model.Asset),
+            identification=model.Identifier('test', model.IdentifierType.CUSTOM)
+        )
+        obj_store.add(failed_shell)
+        with self.assertRaises(KeyError):
+            example_aas.check_full_example(checker, obj_store)
+        obj_store.discard(failed_shell)
+
+        failed_submodel = model.Submodel(identification=model.Identifier('test', model.IdentifierType.CUSTOM))
+        obj_store.add(failed_submodel)
+        with self.assertRaises(KeyError):
+            example_aas.check_full_example(checker, obj_store)
+        obj_store.discard(failed_submodel)
+
+        failed_cd = model.ConceptDescription(identification=model.Identifier('test', model.IdentifierType.CUSTOM))
+        obj_store.add(failed_cd)
+        with self.assertRaises(KeyError):
+            example_aas.check_full_example(checker, obj_store)
+        obj_store.discard(failed_cd)
+
+        class DummyIdentifiable(model.Identifiable):
+            def __init__(self, identification: model.Identifier):
+                super().__init__()
+                self.identification = identification
+        failed_identifiable = DummyIdentifiable(identification=model.Identifier('test', model.IdentifierType.CUSTOM))
+        obj_store.add(failed_identifiable)
+        with self.assertRaises(KeyError):
+            example_aas.check_full_example(checker, obj_store)
+        example_aas.check_full_example(checker, obj_store, False)
+        obj_store.discard(failed_identifiable)
+
 
 class ExampleAASMandatoryTest(unittest.TestCase):
     def test_example_asset(self):
@@ -174,6 +217,49 @@ class ExampleAASMandatoryTest(unittest.TestCase):
         obj_store = example_aas_mandatory_attributes.create_full_example()
         example_aas_mandatory_attributes.check_full_example(checker, obj_store)
 
+        failed_asset = model.Asset(kind=model.AssetKind.INSTANCE,
+                                   identification=model.Identifier('test', model.IdentifierType.CUSTOM))
+        obj_store.add(failed_asset)
+        with self.assertRaises(KeyError):
+            example_aas_mandatory_attributes.check_full_example(checker, obj_store)
+        obj_store.discard(failed_asset)
+
+        failed_shell = model.AssetAdministrationShell(
+            asset=model.AASReference((model.Key(type_=model.KeyElements.ASSET,
+                                                local=False,
+                                                value='test',
+                                                id_type=model.KeyType.IRI),),
+                                     model.Asset),
+            identification=model.Identifier('test', model.IdentifierType.CUSTOM)
+        )
+        obj_store.add(failed_shell)
+        with self.assertRaises(KeyError):
+            example_aas_mandatory_attributes.check_full_example(checker, obj_store)
+        obj_store.discard(failed_shell)
+
+        failed_submodel = model.Submodel(identification=model.Identifier('test', model.IdentifierType.CUSTOM))
+        obj_store.add(failed_submodel)
+        with self.assertRaises(KeyError):
+            example_aas_mandatory_attributes.check_full_example(checker, obj_store)
+        obj_store.discard(failed_submodel)
+
+        failed_cd = model.ConceptDescription(identification=model.Identifier('test', model.IdentifierType.CUSTOM))
+        obj_store.add(failed_cd)
+        with self.assertRaises(KeyError):
+            example_aas_mandatory_attributes.check_full_example(checker, obj_store)
+        obj_store.discard(failed_cd)
+
+        class DummyIdentifiable(model.Identifiable):
+            def __init__(self, identification: model.Identifier):
+                super().__init__()
+                self.identification = identification
+        failed_identifiable = DummyIdentifiable(identification=model.Identifier('test', model.IdentifierType.CUSTOM))
+        obj_store.add(failed_identifiable)
+        with self.assertRaises(KeyError):
+            example_aas_mandatory_attributes.check_full_example(checker, obj_store)
+        example_aas_mandatory_attributes.check_full_example(checker, obj_store, False)
+        obj_store.discard(failed_identifiable)
+
 
 class ExampleAASMissingTest(unittest.TestCase):
     def test_example_asset(self):
@@ -202,6 +288,49 @@ class ExampleAASMissingTest(unittest.TestCase):
         obj_store = example_aas_missing_attributes.create_full_example()
         example_aas_missing_attributes.check_full_example(checker, obj_store)
 
+        failed_asset = model.Asset(kind=model.AssetKind.INSTANCE,
+                                   identification=model.Identifier('test', model.IdentifierType.CUSTOM))
+        obj_store.add(failed_asset)
+        with self.assertRaises(KeyError):
+            example_aas_missing_attributes.check_full_example(checker, obj_store)
+        obj_store.discard(failed_asset)
+
+        failed_shell = model.AssetAdministrationShell(
+            asset=model.AASReference((model.Key(type_=model.KeyElements.ASSET,
+                                                local=False,
+                                                value='test',
+                                                id_type=model.KeyType.IRI),),
+                                     model.Asset),
+            identification=model.Identifier('test', model.IdentifierType.CUSTOM)
+        )
+        obj_store.add(failed_shell)
+        with self.assertRaises(KeyError):
+            example_aas_missing_attributes.check_full_example(checker, obj_store)
+        obj_store.discard(failed_shell)
+
+        failed_submodel = model.Submodel(identification=model.Identifier('test', model.IdentifierType.CUSTOM))
+        obj_store.add(failed_submodel)
+        with self.assertRaises(KeyError):
+            example_aas_missing_attributes.check_full_example(checker, obj_store)
+        obj_store.discard(failed_submodel)
+
+        failed_cd = model.ConceptDescription(identification=model.Identifier('test', model.IdentifierType.CUSTOM))
+        obj_store.add(failed_cd)
+        with self.assertRaises(KeyError):
+            example_aas_missing_attributes.check_full_example(checker, obj_store)
+        obj_store.discard(failed_cd)
+
+        class DummyIdentifiable(model.Identifiable):
+            def __init__(self, identification: model.Identifier):
+                super().__init__()
+                self.identification = identification
+        failed_identifiable = DummyIdentifiable(identification=model.Identifier('test', model.IdentifierType.CUSTOM))
+        obj_store.add(failed_identifiable)
+        with self.assertRaises(KeyError):
+            example_aas_missing_attributes.check_full_example(checker, obj_store)
+        example_aas_missing_attributes.check_full_example(checker, obj_store, False)
+        obj_store.discard(failed_identifiable)
+
 
 class ExampleConceptDescriptionTest(unittest.TestCase):
     def test_iec61360_concept_description(self):
@@ -215,6 +344,49 @@ class ExampleConceptDescriptionTest(unittest.TestCase):
         obj_store.add(example_concept_description.create_iec61360_concept_description())
         example_concept_description.check_full_example(checker, obj_store)
 
+        failed_asset = model.Asset(kind=model.AssetKind.INSTANCE,
+                                   identification=model.Identifier('test', model.IdentifierType.CUSTOM))
+        obj_store.add(failed_asset)
+        with self.assertRaises(KeyError):
+            example_concept_description.check_full_example(checker, obj_store)
+        obj_store.discard(failed_asset)
+
+        failed_shell = model.AssetAdministrationShell(
+            asset=model.AASReference((model.Key(type_=model.KeyElements.ASSET,
+                                                local=False,
+                                                value='test',
+                                                id_type=model.KeyType.IRI),),
+                                     model.Asset),
+            identification=model.Identifier('test', model.IdentifierType.CUSTOM)
+        )
+        obj_store.add(failed_shell)
+        with self.assertRaises(KeyError):
+            example_concept_description.check_full_example(checker, obj_store)
+        obj_store.discard(failed_shell)
+
+        failed_submodel = model.Submodel(identification=model.Identifier('test', model.IdentifierType.CUSTOM))
+        obj_store.add(failed_submodel)
+        with self.assertRaises(KeyError):
+            example_concept_description.check_full_example(checker, obj_store)
+        obj_store.discard(failed_submodel)
+
+        failed_cd = model.ConceptDescription(identification=model.Identifier('test', model.IdentifierType.CUSTOM))
+        obj_store.add(failed_cd)
+        with self.assertRaises(KeyError):
+            example_concept_description.check_full_example(checker, obj_store)
+        obj_store.discard(failed_cd)
+
+        class DummyIdentifiable(model.Identifiable):
+            def __init__(self, identification: model.Identifier):
+                super().__init__()
+                self.identification = identification
+        failed_identifiable = DummyIdentifiable(identification=model.Identifier('test', model.IdentifierType.CUSTOM))
+        obj_store.add(failed_identifiable)
+        with self.assertRaises(KeyError):
+            example_concept_description.check_full_example(checker, obj_store)
+        example_concept_description.check_full_example(checker, obj_store, False)
+        obj_store.discard(failed_identifiable)
+
 
 class ExampleSubmodelTemplate(unittest.TestCase):
     def test_example_submodel_template(self):
@@ -227,3 +399,46 @@ class ExampleSubmodelTemplate(unittest.TestCase):
         obj_store: model.DictObjectStore[model.Identifiable] = model.DictObjectStore()
         obj_store.add(example_submodel_template.create_example_submodel_template())
         example_submodel_template.check_full_example(checker, obj_store)
+
+        failed_asset = model.Asset(kind=model.AssetKind.INSTANCE,
+                                   identification=model.Identifier('test', model.IdentifierType.CUSTOM))
+        obj_store.add(failed_asset)
+        with self.assertRaises(KeyError):
+            example_submodel_template.check_full_example(checker, obj_store)
+        obj_store.discard(failed_asset)
+
+        failed_shell = model.AssetAdministrationShell(
+            asset=model.AASReference((model.Key(type_=model.KeyElements.ASSET,
+                                                local=False,
+                                                value='test',
+                                                id_type=model.KeyType.IRI),),
+                                     model.Asset),
+            identification=model.Identifier('test', model.IdentifierType.CUSTOM)
+        )
+        obj_store.add(failed_shell)
+        with self.assertRaises(KeyError):
+            example_submodel_template.check_full_example(checker, obj_store)
+        obj_store.discard(failed_shell)
+
+        failed_submodel = model.Submodel(identification=model.Identifier('test', model.IdentifierType.CUSTOM))
+        obj_store.add(failed_submodel)
+        with self.assertRaises(KeyError):
+            example_submodel_template.check_full_example(checker, obj_store)
+        obj_store.discard(failed_submodel)
+
+        failed_cd = model.ConceptDescription(identification=model.Identifier('test', model.IdentifierType.CUSTOM))
+        obj_store.add(failed_cd)
+        with self.assertRaises(KeyError):
+            example_submodel_template.check_full_example(checker, obj_store)
+        obj_store.discard(failed_cd)
+
+        class DummyIdentifiable(model.Identifiable):
+            def __init__(self, identification: model.Identifier):
+                super().__init__()
+                self.identification = identification
+        failed_identifiable = DummyIdentifiable(identification=model.Identifier('test', model.IdentifierType.CUSTOM))
+        obj_store.add(failed_identifiable)
+        with self.assertRaises(KeyError):
+            example_submodel_template.check_full_example(checker, obj_store)
+        example_submodel_template.check_full_example(checker, obj_store, False)
+        obj_store.discard(failed_identifiable)
