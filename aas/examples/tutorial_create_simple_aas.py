@@ -58,6 +58,9 @@ submodel = model.Submodel(
 aas.submodel.add(model.AASReference.from_referable(submodel))
 
 # step 2 and 3 can also be done in one step
+# submodel = model.Submodel(
+#     identification=model.Identifier('https://acplt.org/Simple_Submodel', model.IdentifierType.IRI)
+# )
 # aas = model.AssetAdministrationShell(
 #     identification= model.Identifier('https://acplt.org/Simple_AAS', model.IdentifierType.IRI),
 #     asset=model.AASReference.from_referable(asset),

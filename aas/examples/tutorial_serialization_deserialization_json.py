@@ -103,3 +103,7 @@ json_serialization.write_aas_json_file(file=file_store_2, data=obj_store)
 # to do this.
 file_store_2.seek(0)
 json_object_store = json_deserialization.read_json_aas_file(file_store_2, failsafe=False)
+
+# take a submodel out of the object store, for more details look at 'tutorial_storage.py'
+tmp_submodel: Submodel = json_object_store.get_identifiable(  # type: ignore
+    model.Identifier('https://acplt.org/Simple_Submodel', model.IdentifierType.IRI))

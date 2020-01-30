@@ -36,7 +36,7 @@ def create_example_submodel_template() -> model.Submodel:
         semantic_id=model.Reference((model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
                                                local=False,
                                                value='http://acplt.org/Properties/ExampleProperty',
-                                               id_type=model.KeyType.IRDI),)),
+                                               id_type=model.KeyType.IRI),)),
         qualifier=None,
         kind=model.ModelingKind.TEMPLATE)
 
@@ -52,7 +52,7 @@ def create_example_submodel_template() -> model.Submodel:
                                                local=False,
                                                value='http://acplt.org/MultiLanguageProperties/'
                                                      'ExampleMultiLanguageProperty',
-                                               id_type=model.KeyType.IRDI),)),
+                                               id_type=model.KeyType.IRI),)),
         qualifier=None,
         kind=model.ModelingKind.TEMPLATE)
 
@@ -68,7 +68,7 @@ def create_example_submodel_template() -> model.Submodel:
         semantic_id=model.Reference((model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
                                                local=False,
                                                value='http://acplt.org/Ranges/ExampleRange',
-                                               id_type=model.KeyType.IRDI),)),
+                                               id_type=model.KeyType.IRI),)),
         qualifier=None,
         kind=model.ModelingKind.TEMPLATE)
 
@@ -84,7 +84,7 @@ def create_example_submodel_template() -> model.Submodel:
         semantic_id=model.Reference((model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
                                                local=False,
                                                value='http://acplt.org/Ranges/ExampleRange',
-                                               id_type=model.KeyType.IRDI),)),
+                                               id_type=model.KeyType.IRI),)),
         qualifier=None,
         kind=model.ModelingKind.TEMPLATE)
 
@@ -99,7 +99,7 @@ def create_example_submodel_template() -> model.Submodel:
         semantic_id=model.Reference((model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
                                                local=False,
                                                value='http://acplt.org/Blobs/ExampleBlob',
-                                               id_type=model.KeyType.IRDI),)),
+                                               id_type=model.KeyType.IRI),)),
         qualifier=None,
         kind=model.ModelingKind.TEMPLATE)
 
@@ -114,7 +114,7 @@ def create_example_submodel_template() -> model.Submodel:
         semantic_id=model.Reference((model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
                                                local=False,
                                                value='http://acplt.org/Files/ExampleFile',
-                                               id_type=model.KeyType.IRDI),)),
+                                               id_type=model.KeyType.IRI),)),
         qualifier=None,
         kind=model.ModelingKind.TEMPLATE)
 
@@ -128,7 +128,7 @@ def create_example_submodel_template() -> model.Submodel:
         semantic_id=model.Reference((model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
                                                local=False,
                                                value='http://acplt.org/ReferenceElements/ExampleReferenceElement',
-                                               id_type=model.KeyType.IRDI),)),
+                                               id_type=model.KeyType.IRI),)),
         qualifier=None,
         kind=model.ModelingKind.TEMPLATE)
 
@@ -152,7 +152,7 @@ def create_example_submodel_template() -> model.Submodel:
                                                local=False,
                                                value='http://acplt.org/RelationshipElements/'
                                                      'ExampleRelationshipElement',
-                                               id_type=model.KeyType.IRDI),)),
+                                               id_type=model.KeyType.IRI),)),
         qualifier=None,
         kind=model.ModelingKind.TEMPLATE)
 
@@ -177,7 +177,7 @@ def create_example_submodel_template() -> model.Submodel:
                                                local=False,
                                                value='http://acplt.org/RelationshipElements/'
                                                      'ExampleAnnotatedRelationshipElement',
-                                               id_type=model.KeyType.IRDI),)),
+                                               id_type=model.KeyType.IRI),)),
         qualifier=None,
         kind=model.ModelingKind.TEMPLATE)
 
@@ -203,7 +203,7 @@ def create_example_submodel_template() -> model.Submodel:
                                                local=False,
                                                value='http://acplt.org/Operations/'
                                                      'ExampleOperation',
-                                               id_type=model.KeyType.IRDI),)),
+                                               id_type=model.KeyType.IRI),)),
         qualifier=None,
         kind=model.ModelingKind.TEMPLATE)
 
@@ -217,7 +217,7 @@ def create_example_submodel_template() -> model.Submodel:
                                                local=False,
                                                value='http://acplt.org/Capabilities/'
                                                      'ExampleCapability',
-                                               id_type=model.KeyType.IRDI),)),
+                                               id_type=model.KeyType.IRI),)),
         qualifier=None,
         kind=model.ModelingKind.TEMPLATE)
 
@@ -236,7 +236,7 @@ def create_example_submodel_template() -> model.Submodel:
                                                local=False,
                                                value='http://acplt.org/Events/'
                                                      'ExampleBasicEvent',
-                                               id_type=model.KeyType.IRDI),)),
+                                               id_type=model.KeyType.IRI),)),
         qualifier=None,
         kind=model.ModelingKind.TEMPLATE)
 
@@ -254,7 +254,7 @@ def create_example_submodel_template() -> model.Submodel:
                                                local=False,
                                                value='http://acplt.org/SubmodelElementCollections/'
                                                      'ExampleSubmodelElementCollectionOrdered',
-                                               id_type=model.KeyType.IRDI),)),
+                                               id_type=model.KeyType.IRI),)),
         qualifier=None,
         kind=model.ModelingKind.TEMPLATE)
 
@@ -271,7 +271,7 @@ def create_example_submodel_template() -> model.Submodel:
                                                local=False,
                                                value='http://acplt.org/SubmodelElementCollections/'
                                                      'ExampleSubmodelElementCollectionUnordered',
-                                               id_type=model.KeyType.IRDI),)),
+                                               id_type=model.KeyType.IRI),)),
         qualifier=None,
         kind=model.ModelingKind.TEMPLATE)
 
@@ -286,7 +286,7 @@ def create_example_submodel_template() -> model.Submodel:
                                                local=False,
                                                value='http://acplt.org/SubmodelElementCollections/'
                                                      'ExampleSubmodelElementCollectionUnordered',
-                                               id_type=model.KeyType.IRDI),)),
+                                               id_type=model.KeyType.IRI),)),
         qualifier=None,
         kind=model.ModelingKind.TEMPLATE)
 
@@ -312,7 +312,7 @@ def create_example_submodel_template() -> model.Submodel:
                                                local=False,
                                                value='http://acplt.org/SubmodelTemplates/'
                                                      'ExampleSubmodel',
-                                               id_type=model.KeyType.IRDI),)),
+                                               id_type=model.KeyType.IRI),)),
         qualifier=None,
         kind=model.ModelingKind.TEMPLATE)
     return submodel

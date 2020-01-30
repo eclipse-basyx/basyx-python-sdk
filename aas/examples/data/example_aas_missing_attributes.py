@@ -74,7 +74,7 @@ def create_example_submodel() -> model.Submodel:
         semantic_id=model.Reference((model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
                                                local=False,
                                                value='http://acplt.org/Properties/ExampleProperty',
-                                               id_type=model.KeyType.IRDI),)),
+                                               id_type=model.KeyType.IRI),)),
         qualifier={qualifier},
         kind=model.ModelingKind.INSTANCE)
 
@@ -91,7 +91,7 @@ def create_example_submodel() -> model.Submodel:
                                                local=False,
                                                value='http://acplt.org/MultiLanguageProperties/'
                                                      'ExampleMultiLanguageProperty',
-                                               id_type=model.KeyType.IRDI),)),
+                                               id_type=model.KeyType.IRI),)),
         qualifier=None,
         kind=model.ModelingKind.INSTANCE)
 
@@ -107,7 +107,7 @@ def create_example_submodel() -> model.Submodel:
         semantic_id=model.Reference((model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
                                                local=False,
                                                value='http://acplt.org/Ranges/ExampleRange',
-                                               id_type=model.KeyType.IRDI),)),
+                                               id_type=model.KeyType.IRI),)),
         qualifier=None,
         kind=model.ModelingKind.INSTANCE)
 
@@ -122,7 +122,7 @@ def create_example_submodel() -> model.Submodel:
         semantic_id=model.Reference((model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
                                                local=False,
                                                value='http://acplt.org/Blobs/ExampleBlob',
-                                               id_type=model.KeyType.IRDI),)),
+                                               id_type=model.KeyType.IRI),)),
         qualifier=None,
         kind=model.ModelingKind.INSTANCE)
 
@@ -137,7 +137,7 @@ def create_example_submodel() -> model.Submodel:
         semantic_id=model.Reference((model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
                                                local=False,
                                                value='http://acplt.org/Files/ExampleFile',
-                                               id_type=model.KeyType.IRDI),)),
+                                               id_type=model.KeyType.IRI),)),
         qualifier=None,
         kind=model.ModelingKind.INSTANCE)
 
@@ -155,7 +155,7 @@ def create_example_submodel() -> model.Submodel:
         semantic_id=model.Reference((model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
                                                local=False,
                                                value='http://acplt.org/ReferenceElements/ExampleReferenceElement',
-                                               id_type=model.KeyType.IRDI),)),
+                                               id_type=model.KeyType.IRI),)),
         qualifier=None,
         kind=model.ModelingKind.INSTANCE)
 
@@ -179,7 +179,7 @@ def create_example_submodel() -> model.Submodel:
                                                local=False,
                                                value='http://acplt.org/RelationshipElements/'
                                                      'ExampleRelationshipElement',
-                                               id_type=model.KeyType.IRDI),)),
+                                               id_type=model.KeyType.IRI),)),
         qualifier=None,
         kind=model.ModelingKind.INSTANCE)
 
@@ -208,7 +208,7 @@ def create_example_submodel() -> model.Submodel:
                                                local=False,
                                                value='http://acplt.org/RelationshipElements/'
                                                      'ExampleAnnotatedRelationshipElement',
-                                               id_type=model.KeyType.IRDI),)),
+                                               id_type=model.KeyType.IRI),)),
         qualifier=None,
         kind=model.ModelingKind.INSTANCE)
 
@@ -234,7 +234,7 @@ def create_example_submodel() -> model.Submodel:
                                                local=False,
                                                value='http://acplt.org/Operations/'
                                                      'ExampleOperation',
-                                               id_type=model.KeyType.IRDI),)),
+                                               id_type=model.KeyType.IRI),)),
         qualifier=None,
         kind=model.ModelingKind.INSTANCE)
 
@@ -248,7 +248,7 @@ def create_example_submodel() -> model.Submodel:
                                                local=False,
                                                value='http://acplt.org/Capabilities/'
                                                      'ExampleCapability',
-                                               id_type=model.KeyType.IRDI),)),
+                                               id_type=model.KeyType.IRI),)),
         qualifier=None,
         kind=model.ModelingKind.INSTANCE)
 
@@ -267,7 +267,7 @@ def create_example_submodel() -> model.Submodel:
                                                local=False,
                                                value='http://acplt.org/Events/'
                                                      'ExampleBasicEvent',
-                                               id_type=model.KeyType.IRDI),)),
+                                               id_type=model.KeyType.IRI),)),
         qualifier=None,
         kind=model.ModelingKind.INSTANCE)
 
@@ -284,7 +284,7 @@ def create_example_submodel() -> model.Submodel:
                                                local=False,
                                                value='http://acplt.org/SubmodelElementCollections/'
                                                      'ExampleSubmodelElementCollectionOrdered',
-                                               id_type=model.KeyType.IRDI),)),
+                                               id_type=model.KeyType.IRI),)),
         qualifier=None,
         kind=model.ModelingKind.INSTANCE)
 
@@ -301,7 +301,7 @@ def create_example_submodel() -> model.Submodel:
                                                local=False,
                                                value='http://acplt.org/SubmodelElementCollections/'
                                                      'ExampleSubmodelElementCollectionUnordered',
-                                               id_type=model.KeyType.IRDI),)),
+                                               id_type=model.KeyType.IRI),)),
         qualifier=None,
         kind=model.ModelingKind.INSTANCE)
 
@@ -326,7 +326,7 @@ def create_example_submodel() -> model.Submodel:
                                                local=False,
                                                value='http://acplt.org/SubmodelTemplates/'
                                                      'ExampleSubmodel',
-                                               id_type=model.KeyType.IRDI),)),
+                                               id_type=model.KeyType.IRI),)),
         qualifier=None,
         kind=model.ModelingKind.INSTANCE)
     return submodel
@@ -367,7 +367,7 @@ def create_example_concept_dictionary() -> model.ConceptDictionary:
         concept_description={model.AASReference((model.Key(type_=model.KeyElements.CONCEPT_DESCRIPTION,
                                                            local=False,
                                                            value='https://acplt.org/Test_ConceptDescription_Missing',
-                                                           id_type=model.KeyType.IRDI),),
+                                                           id_type=model.KeyType.IRI),),
                                                 model.ConceptDescription)})
     return concept_dictionary
 
@@ -384,7 +384,7 @@ def create_example_asset_administration_shell(concept_dictionary: model.ConceptD
         contained_element={model.AASReference((model.Key(type_=model.KeyElements.SUBMODEL,
                                                          local=False,
                                                          value='https://acplt.org/Test_Submodel_Missing',
-                                                         id_type=model.KeyType.IRDI),),
+                                                         id_type=model.KeyType.IRI),),
                                               model.Submodel)})
     view_2 = model.View(
         id_short='ExampleView2')
@@ -393,7 +393,7 @@ def create_example_asset_administration_shell(concept_dictionary: model.ConceptD
         asset=model.AASReference((model.Key(type_=model.KeyElements.ASSET,
                                             local=False,
                                             value='https://acplt.org/Test_Asset_Missing',
-                                            id_type=model.KeyType.IRDI),),
+                                            id_type=model.KeyType.IRI),),
                                  model.Asset),
         identification=model.Identifier(id_='https://acplt.org/Test_AssetAdministrationShell_Missing',
                                         id_type=model.IdentifierType.IRI),
@@ -408,7 +408,7 @@ def create_example_asset_administration_shell(concept_dictionary: model.ConceptD
         submodel_={model.AASReference((model.Key(type_=model.KeyElements.SUBMODEL,
                                                  local=False,
                                                  value='https://acplt.org/Test_Submodel_Missing',
-                                                 id_type=model.KeyType.IRDI),),
+                                                 id_type=model.KeyType.IRI),),
                                       model.Submodel)},
         concept_dictionary=[concept_dictionary],
         view=[view, view_2],
