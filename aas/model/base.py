@@ -771,8 +771,7 @@ class Qualifier(Constraint, HasSemantics):
         self.semantic_id: Optional[Reference] = semantic_id
 
     def __repr__(self) -> str:
-        return "Qualifier(type={}, value_type={}, value={}, value_id={})".format(
-            self.type, self.value_type, self.value, self.value_id)
+        return "Qualifier(type={})".format(self.type)
 
     @property
     def value(self):
