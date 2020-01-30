@@ -796,9 +796,9 @@ class ValueReferencePair:
     """
 
     def __init__(self,
+                 value_type: DataTypeDef,
                  value: ValueDataType,
-                 value_id: Reference,
-                 value_type: str):
+                 value_id: Reference):
         """
         Initializer of ValueReferencePair
 
@@ -808,9 +808,20 @@ class ValueReferencePair:
 
         TODO: Add instruction what to do after construction
         """
-        self.value: ValueDataType = value
+        self.value_type: Type[datatypes.AnyXSDType] = value_type
         self.value_id: Reference = value_id
-        self.value_type: str = value_type
+        self._value: ValueDataType = datatypes.trivial_cast(value, value_type)
+
+    @property
+    def value(self):
+        return self._value
+
+    @value.setter
+    def value(self, value) -> None:
+        if value is None:
+            raise AttributeError('Value can not be None')
+        else:
+            self._value = datatypes.trivial_cast(value, self.value_type)
 
 
 ValueList = Set[ValueReferencePair]

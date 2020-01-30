@@ -48,17 +48,17 @@ def create_iec61360_concept_description() -> IEC61360ConceptDescription:
                                            id_type=model.KeyType.IRI),)),
         source_of_definition="http://acplt.org/DataSpec/ExampleDef",
         symbol="SU",
-        value_format="string",
+        value_format=model.datatypes.String,
         value_list={
             model.ValueReferencePair(
-                value_type='string',
+                value_type=model.datatypes.String,
                 value='exampleValue',
                 value_id=model.Reference((model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
                                                     local=False,
                                                     value='http://acplt.org/ValueId/ExampleValueId',
                                                     id_type=model.KeyType.IRI),)),),
             model.ValueReferencePair(
-                value_type='string',
+                value_type=model.datatypes.String,
                 value='exampleValue2',
                 value_id=model.Reference((model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
                                                     local=False,

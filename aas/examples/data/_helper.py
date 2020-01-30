@@ -292,11 +292,12 @@ class AASDataChecker(DataChecker):
         :return:
         """
         self._check_abstract_attributes_submodel_element_equal(object_, expected_value)
-        self.check_contained_element_length(object_, 'value', model.SubmodelElement, len(expected_value.value))
         if isinstance(object_, model.SubmodelElementCollectionUnordered):
             self._check_submodel_collection_unordered_equal(object_, expected_value)  # type: ignore
         elif isinstance(object_, model.SubmodelElementCollectionOrdered):
             self._check_submodel_collection_ordered_equal(object_, expected_value)  # type: ignore
+        else:
+            raise AttributeError('Submodel Element collection class not implemented')
 
     def _check_submodel_collection_unordered_equal(self, object_: model.SubmodelElementCollectionUnordered,
                                                    expected_value: model.SubmodelElementCollectionUnordered):
@@ -356,9 +357,11 @@ class AASDataChecker(DataChecker):
         :return:
         """
         self.check_relationship_element_equal(object_, expected_value)
+        self.check_contained_element_length(object_, 'annotation', model.AASReference,
+                                            len(expected_value.annotation))
         for expected_ref in expected_value.annotation:
             ref = self._find_reference(expected_ref, object_.annotation)
-            if self.check(ref is not None, 'Annotated Reference{} must exist'.format(repr(expected_ref))):
+            if self.check(ref is not None, 'Annotated Reference {} must exist'.format(repr(expected_ref))):
                 self._check_reference_equal(ref, expected_ref)  # type: ignore
 
         found_elements = self._find_extra_reference(object_.annotation, expected_value.annotation)
@@ -568,9 +571,9 @@ class AASDataChecker(DataChecker):
         self.check_contained_element_length(object_, 'submodel_element', model.SubmodelElement,
                                             len(expected_value.submodel_element))
         for expected_element in expected_value.submodel_element:
-            element = object_.submodel_element.get_referable(expected_element.id_short)
+            element = object_.submodel_element.get(expected_element.id_short)
             if self.check(element is not None, 'Submodel Element{} must exist'.format(repr(expected_element))):
-                self._check_submodel_element(element, expected_element)
+                self._check_submodel_element(element, expected_element)  # type: ignore
 
         found_elements = self._find_extra_elements_by_id_short(object_.submodel_element,
                                                                expected_value.submodel_element)
@@ -622,7 +625,7 @@ class AASDataChecker(DataChecker):
         self.check_contained_element_length(object_, 'view', model.View, len(expected_value.view))
         for expected_ref in expected_value.submodel:
             ref = self._find_reference(expected_ref, object_.submodel)
-            if self.check(ref is not None, 'Submodel Reference{} must be found'.format(repr(expected_ref))):
+            if self.check(ref is not None, 'Submodel Reference {} must exist'.format(repr(expected_ref))):
                 self._check_reference_equal(ref, expected_ref)  # type: ignore
 
         found_elements = self._find_extra_reference(object_.submodel, expected_value.submodel)
@@ -631,13 +634,9 @@ class AASDataChecker(DataChecker):
                    value=found_elements)
 
         for expected_element in expected_value.concept_dictionary:
-            element = object_.concept_dictionary.get_referable(expected_element.id_short)
-            self.check(element is not None, 'Concept Dictionary{} must exist'.format(repr(expected_element)))
-
-        for element in object_.concept_dictionary:
-            expected_element = expected_value.concept_dictionary.get_referable(element.id_short)
-            if expected_element:
-                self.check_concept_dictionary_equal(element, expected_element)
+            element = object_.concept_dictionary.get(expected_element.id_short)
+            if self.check(element is not None, 'Concept Dictionary {} must exist'.format(repr(expected_element))):
+                self.check_concept_dictionary_equal(element, expected_element)  # type: ignore
 
         found_elements = self._find_extra_elements_by_id_short(object_.concept_dictionary,
                                                                expected_value.concept_dictionary)
@@ -645,8 +644,9 @@ class AASDataChecker(DataChecker):
                                             'concept dictionaries'.format(repr(object_)), value=found_elements)
 
         for expected_view in expected_value.view:
-            view = object_.view.get_referable(expected_view.id_short)
-            self.check(view is not None, 'View{} must exist'.format(repr(expected_view)))
+            view = object_.view.get(expected_view.id_short)
+            if self.check(view is not None, 'View {} must exist'.format(repr(expected_view))):
+                self.check_view_equal(view, expected_view)  # type: ignore
 
         found_elements = self._find_extra_elements_by_id_short(object_.view, expected_value.view)
         self.check(found_elements == set(), 'Asset Administration Shell {} must not have extra '
@@ -666,7 +666,7 @@ class AASDataChecker(DataChecker):
                                             len(expected_value.concept_description))
         for expected_ref in expected_value.concept_description:
             ref = self._find_reference(expected_ref, object_.concept_description)
-            if self.check(ref is not None, 'Concept Description Reference{} must be found'.format(repr(expected_ref))):
+            if self.check(ref is not None, 'Concept Description Reference {} must exist'.format(repr(expected_ref))):
                 self._check_reference_equal(ref, expected_ref)  # type: ignore
 
         found_elements = self._find_extra_reference(object_.concept_description, expected_value.concept_description)
@@ -701,11 +701,11 @@ class AASDataChecker(DataChecker):
 
         for expected_ref in expected_value.contained_element:
             ref = self._find_reference(expected_ref, object_.contained_element)
-            if self.check(ref is not None, 'View {} must be found'.format(repr(expected_ref))):
+            if self.check(ref is not None, 'View Reference {} must exist'.format(repr(expected_ref))):
                 self._check_reference_equal(ref, expected_ref)  # type: ignore
 
         found_elements = self._find_extra_reference(object_.contained_element, expected_value.contained_element)
-        self.check(found_elements == set(), 'View {} must not have extra '
+        self.check(found_elements == set(), 'View Reference {} must not have extra '
                                             'submodel element references'.format(repr(object_)),
                    value=found_elements)
 
@@ -719,13 +719,15 @@ class AASDataChecker(DataChecker):
         :return:
         """
         self._check_identifiable_equal(object_, expected_value)
+        self.check_contained_element_length(object_, 'is_case_of', model.Reference,
+                                            len(expected_value.is_case_of))
         for expected_ref in expected_value.is_case_of:
             ref = self._find_reference(expected_ref, object_.is_case_of)
-            if self.check(ref is not None, 'Concept Description {} must be found'.format(repr(expected_ref))):
+            if self.check(ref is not None, 'Concept Description Reference {} must exist'.format(repr(expected_ref))):
                 self._check_reference_equal(ref, expected_ref)  # type: ignore
 
         found_elements = self._find_extra_reference(object_.is_case_of, expected_value.is_case_of)
-        self.check(found_elements == set(), 'Concept Description {} must not have extra '
+        self.check(found_elements == set(), 'Concept Description Reference {} must not have extra '
                                             'is case of references'.format(repr(object_)),
                    value=found_elements)
 
@@ -755,9 +757,14 @@ class AASDataChecker(DataChecker):
         self.check_attribute_equal(object_, 'value_id', expected_value.value_id)
         self.check_attribute_equal(object_, 'level_types', expected_value.level_types)
 
-        if expected_value.value_list:
+        if expected_value.value_list is not None:
             if self.check(object_.value_list is not None,
                           "ValueList must contain {} ValueReferencePairs".format(len(expected_value.value_list))):
+                self._check_value_list_equal(object_.value_list, expected_value.value_list)  # type: ignore
+
+        if object_.value_list is not None:
+            if self.check(expected_value.value_list is not None,
+                          "ValueList must contain 0 ValueReferencePairs", value=len(object_.value_list)):
                 self._check_value_list_equal(object_.value_list, expected_value.value_list)  # type: ignore
 
     def _check_value_list_equal(self, object_: model.ValueList, expected_value: model.ValueList):
@@ -768,12 +775,11 @@ class AASDataChecker(DataChecker):
         :param expected_value: expected ValueList object
         :return:
         """
-        result = True
         for expected_pair in expected_value:
             pair = self._find_element_by_attribute(expected_pair, object_, 'value', 'value_id', 'value_type')
             self.check(pair is not None, 'ValueReferencePair[value={}, value_id={}, value_type={}] '
-                                         'must be found'.format(expected_pair.value, expected_pair.value_id,
-                                                                expected_pair.value_type))
+                                         'must exist'.format(expected_pair.value, expected_pair.value_id,
+                                                             expected_pair.value_type))
 
         found_elements = self._find_extra_elements_by_attribute(object_, expected_value,
                                                                 'value', 'value_id', 'value_type')
@@ -794,8 +800,8 @@ class AASDataChecker(DataChecker):
         if attribute_name == 'value_type':
             kwargs['value'] = getattr(object_, attribute_name).__name__
             return self.check(getattr(object_, attribute_name) is expected_value,  # type:ignore
-                              "Attribute value_type of {} must be == {}".format(
-                                  repr(object_), expected_value.__name__),  # type:ignore
+                              "Attribute {} of {} must be == {}".format(
+                                  attribute_name, repr(object_), expected_value.__name__),  # type:ignore
                               **kwargs)
         else:
             kwargs['value'] = getattr(object_, attribute_name)

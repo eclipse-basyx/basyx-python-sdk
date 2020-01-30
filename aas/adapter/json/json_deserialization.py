@@ -338,10 +338,12 @@ class AASFromJsonDecoder(json.JSONDecoder):
         return ret
 
     @classmethod
-    def _construct_value_reference_pair(cls, dct: Dict[str, object], object_class=model.ValueReferencePair):
-        return object_class(value=_get_ts(dct, 'value', str),
-                            value_id=cls._construct_reference(_get_ts(dct, 'valueId', dict)),
-                            value_type=_get_ts(dct, 'valueType', str))
+    def _construct_value_reference_pair(cls, dct: Dict[str, object], object_class=model.ValueReferencePair) -> \
+            model.ValueReferencePair:
+        value_type = model.datatypes.XSD_TYPE_CLASSES[_get_ts(dct, 'valueType', str)]
+        return object_class(value_type=value_type,
+                            value=model.datatypes.from_xsd(_get_ts(dct, 'value', str), value_type),
+                            value_id=cls._construct_reference(_get_ts(dct, 'valueId', dict)))
 
     # #############################################################################
     # Direct Constructor Methods (for classes with `modelType`) starting from here
@@ -437,11 +439,11 @@ class AASFromJsonDecoder(json.JSONDecoder):
         if 'symbol' in data_spec:
             ret.symbol = _get_ts(data_spec, 'symbol', str)
         if 'valueFormat' in data_spec:
-            ret.value_format = _get_ts(data_spec, 'valueFormat', str)
+            ret.value_format = model.datatypes.XSD_TYPE_CLASSES[_get_ts(data_spec, 'valueFormat', str)]
         if 'valueList' in data_spec:
             ret.value_list = cls._construct_value_list(_get_ts(data_spec, 'valueList', dict))
         if 'value' in data_spec:
-            ret.value = _get_ts(data_spec, 'value', str)
+            ret.value = model.datatypes.from_xsd(_get_ts(data_spec, 'value', str), ret.value_format)
         if 'valueId' in data_spec:
             ret.value_id = cls._construct_reference(_get_ts(data_spec, 'valueId', dict))
         if 'levelType' in data_spec:

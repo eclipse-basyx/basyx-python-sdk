@@ -275,9 +275,9 @@ def value_reference_pair_to_json(obj: model.ValueReferencePair) -> Dict[str, obj
     :return: dict with the serialized attributes of this object
     """
     data = abstract_classes_to_json(obj)
-    data.update({'value': obj.value,
+    data.update({'value': model.datatypes.xsd_repr(obj.value),
                  'valueId': obj.value_id,
-                 'valueType': obj.value_type})
+                 'valueType': model.datatypes.XSD_TYPE_NAMES[obj.value_type]})
     return data
 
 
@@ -368,11 +368,11 @@ def append_iec61360_concept_description_attrs(obj: model.concept.IEC61360Concept
     if obj.symbol is not None:
         data_spec['symbol'] = obj.symbol
     if obj.value_format is not None:
-        data_spec['valueFormat'] = obj.value_format
+        data_spec['valueFormat'] = model.datatypes.XSD_TYPE_NAMES[obj.value_format]
     if obj.value_list is not None:
         data_spec['valueList'] = value_list_to_json(obj.value_list)
     if obj.value is not None:
-        data_spec['value'] = obj.value
+        data_spec['value'] = model.datatypes.xsd_repr(obj.value) if obj.value is not None else None
     if obj.value_id is not None:
         data_spec['valueId'] = obj.value_id
     if obj.level_types:
