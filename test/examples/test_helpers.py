@@ -18,8 +18,18 @@ from aas.model.concept import IEC61360DataType
 class DataCheckerTest(unittest.TestCase):
     def test_check(self):
         checker = DataChecker(raise_immediately=True)
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(AssertionError) as cm:
             checker.check(2 == 3, 'Assertion test')
+        self.assertEqual("('Check failed: Assertion test', {})", str(cm.exception))
+
+    def test_kwargs(self):
+        checker = DataChecker(raise_immediately=True)
+        with self.assertRaises(AssertionError) as cm:
+            checker.check(2 == 3, 'Assertion test 1', value='kwargs1')
+        with self.assertRaises(AssertionError) as cm_2:
+            checker.check(2 == 3, 'Assertion test 2', value='kwargs2')
+        self.assertEqual("('Check failed: Assertion test 1', {'value': 'kwargs1'})", str(cm.exception))
+        self.assertEqual("('Check failed: Assertion test 2', {'value': 'kwargs2'})", str(cm_2.exception))
 
     def test_raise_failed(self):
         checker = DataChecker(raise_immediately=False)
@@ -27,8 +37,9 @@ class DataCheckerTest(unittest.TestCase):
         checker.raise_failed()  # no assertion should be occur
         self.assertEqual(1, sum(1 for _ in checker.successful_checks))
         checker.check(2 == 3, 'Assertion test')
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(AssertionError) as cm:
             checker.raise_failed()
+        self.assertEqual("('1 of 2 checks failed', ['Assertion test'])", str(cm.exception))
 
 
 class AASDataCheckerTest(unittest.TestCase):
@@ -135,8 +146,12 @@ class AASDataCheckerTest(unittest.TestCase):
         submodel_collection = model.SubmodelElementCollectionUnordered('test')
         submodel_collection.value.add(dummy_submodel_element)
         checker = AASDataChecker(raise_immediately=True)
-        with self.assertRaises(AttributeError):
+        with self.assertRaises(AttributeError) as cm:
             checker.check_submodel_collection_equal(submodel_collection, submodel_collection)
+        self.assertEqual(
+            'Submodel Element class not implemented',
+            str(cm.exception)
+        )
 
         class DummySubmodelElementCollection(model.SubmodelElementCollection):
             def __init__(self, id_short: str):
@@ -150,8 +165,12 @@ class AASDataCheckerTest(unittest.TestCase):
         submodel = model.Submodel(identification=model.Identifier('test', model.IdentifierType.CUSTOM))
         submodel.submodel_element.add(dummy_submodel_element_collection)
         checker = AASDataChecker(raise_immediately=True)
-        with self.assertRaises(AttributeError):
+        with self.assertRaises(AttributeError) as cm:
             checker.check_submodel_equal(submodel, submodel)
+        self.assertEqual(
+            'Submodel Element collection class not implemented',
+            str(cm.exception)
+        )
 
     def test_annotated_relationship_element(self):
         rel1 = model.AnnotatedRelationshipElement(id_short='test',
@@ -333,14 +352,15 @@ class AASDataCheckerTest(unittest.TestCase):
             preferred_name={'de': 'Test Specification', 'en-us': "TestSpecification"},
             data_type=IEC61360DataType.REAL_MEASURE
         )
-        iec_expected_2 = model.IEC61360ConceptDescription(
-            identification=model.Identifier('test', model.IdentifierType.CUSTOM),
-            preferred_name={'de': 'Test Specification', 'en-us': "TestSpecification"},
-            data_type=IEC61360DataType.REAL_MEASURE
-        )
-        checker.raise_immediately = True
-        with self.assertRaises(AssertionError):
-            checker.check_concept_description_equal(iec, iec_expected)
 
-        with self.assertRaises(AssertionError):
+        checker.raise_immediately = True
+        with self.assertRaises(AssertionError) as cm:
+            checker.check_concept_description_equal(iec, iec_expected)
+        self.assertEqual("('Check failed: ValueList must contain 0 ValueReferencePairs', {'value': 1})",
+                         str(cm.exception))
+
+        with self.assertRaises(AssertionError) as cm:
             checker.check_concept_description_equal(iec_expected, iec)
+        self.assertEqual("('Check failed: ValueList must contain 1 ValueReferencePairs', {'value': "
+                         "{ValueReferencePair(value_type=<class 'str'>, value=test, "
+                         "value_id=Reference(key=(Key(local=False, id_type=IRI, value=test),)))}})", str(cm.exception))

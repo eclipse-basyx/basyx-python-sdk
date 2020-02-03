@@ -17,5 +17,6 @@ from aas import model
 class EntityTest(unittest.TestCase):
 
     def test_set_entity(self):
-        with self.assertRaises(ValueError):
+        with self.assertRaises(ValueError) as cm:
             obj = model.Entity(id_short='Test', entity_type=model.EntityType.SELF_MANAGED_ENTITY, statement=())
+        self.assertEqual('A self-managed entity has to have an asset-reference', str(cm.exception))

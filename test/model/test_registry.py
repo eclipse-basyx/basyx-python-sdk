@@ -31,8 +31,9 @@ class RegistriesTest(unittest.TestCase):
         self.assertIs(self.aas1,
                       object_store.get_identifiable(model.Identifier("urn:x-test:aas1", model.IdentifierType.IRI)))
         object_store.remove(self.aas1)
-        with self.assertRaises(KeyError):
+        with self.assertRaises(KeyError) as cm:
             object_store.get_identifiable(model.Identifier("urn:x-test:aas1", model.IdentifierType.IRI))
+        self.assertEqual("Identifier(IRI=urn:x-test:aas1)", str(cm.exception))
         self.assertIs(self.aas2, object_store.pop())
         self.assertEqual(0, len(object_store))
 
@@ -49,5 +50,6 @@ class RegistriesTest(unittest.TestCase):
                       multiplexer.get_identifiable(model.Identifier("urn:x-test:aas1", model.IdentifierType.IRI)))
         self.assertIs(self.submodel1,
                       multiplexer.get_identifiable(model.Identifier("urn:x-test:submodel1", model.IdentifierType.IRI)))
-        with self.assertRaises(KeyError):
+        with self.assertRaises(KeyError) as cm:
             multiplexer.get_identifiable(model.Identifier("urn:x-test:submodel3", model.IdentifierType.IRI))
+        self.assertEqual("'Identifier could not be found in any of the 2 consulted registries.'", str(cm.exception))

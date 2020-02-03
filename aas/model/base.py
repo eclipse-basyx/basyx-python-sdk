@@ -823,6 +823,11 @@ class ValueReferencePair:
         else:
             self._value = datatypes.trivial_cast(value, self.value_type)
 
+    def __repr__(self) -> str:
+        return "ValueReferencePair(value_type={}, value={}, value_id={})".format(self.value_type,
+                                                                                 self.value,
+                                                                                 self.value_id)
+
 
 ValueList = Set[ValueReferencePair]
 

@@ -759,7 +759,8 @@ class AASDataChecker(DataChecker):
 
         if expected_value.value_list is not None:
             if self.check(object_.value_list is not None,
-                          "ValueList must contain {} ValueReferencePairs".format(len(expected_value.value_list))):
+                          "ValueList must contain {} ValueReferencePairs".format(len(expected_value.value_list)),
+                          value=expected_value.value_list):
                 self._check_value_list_equal(object_.value_list, expected_value.value_list)  # type: ignore
 
         if object_.value_list is not None:

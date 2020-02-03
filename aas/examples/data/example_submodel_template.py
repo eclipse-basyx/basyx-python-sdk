@@ -343,23 +343,23 @@ def check_full_example(checker: AASDataChecker, obj_store: model.DictObjectStore
             concept_descriptions.append(obj)
         else:
             if failsafe:
-                raise KeyError()
+                raise KeyError('Check for {} not implemented'.format(obj))
 
     for asset in assets:
         if failsafe:
-            raise KeyError()
+            raise KeyError('{} is not in example'.format(asset))
 
     for shell in shells:
         if failsafe:
-            raise KeyError()
+            raise KeyError('{} is not in example'.format(shell))
 
     for submodel in submodels:
         if submodel.identification.id == 'https://acplt.org/Test_Submodel_Template':
             check_example_submodel(checker, submodel)
         else:
             if failsafe:
-                raise KeyError()
+                raise KeyError('{} is not in example'.format(submodel))
 
     for cd in concept_descriptions:
         if failsafe:
-            raise KeyError()
+            raise KeyError('{} is not in example'.format(cd))

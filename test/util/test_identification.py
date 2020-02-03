@@ -31,10 +31,12 @@ class IdentifierGeneratorTest(unittest.TestCase):
         provider = model.DictObjectStore()
 
         # Check expected Errors when Namespaces are not valid
-        with self.assertRaises(ValueError):
+        with self.assertRaises(ValueError) as cm:
             generator = NamespaceIRIGenerator("", provider)
-        with self.assertRaises(ValueError):
+        self.assertEqual('Namespace must be a valid IRI, ending with #, / or =', str(cm.exception))
+        with self.assertRaises(ValueError) as cm:
             generator = NamespaceIRIGenerator("http", provider)
+        self.assertEqual('Namespace must be a valid IRI, ending with #, / or =', str(cm.exception))
 
         generator = NamespaceIRIGenerator("http://acplt.org/AAS/", provider)
         self.assertEqual("http://acplt.org/AAS/", generator.namespace)

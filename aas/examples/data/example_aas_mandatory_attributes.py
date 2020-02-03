@@ -282,14 +282,14 @@ def check_full_example(checker: AASDataChecker, obj_store: model.DictObjectStore
             concept_descriptions.append(obj)
         else:
             if failsafe:
-                raise KeyError()
+                raise KeyError('Check for {} not implemented'.format(obj))
 
     for asset in assets:
         if asset.identification.id == 'https://acplt.org/Test_Asset_Mandatory':
             check_example_asset(checker, asset)
         else:
             if failsafe:
-                raise KeyError()
+                raise KeyError('{} is not in example'.format(asset))
 
     for shell in shells:
         if shell.identification.id == 'https://acplt.org/Test_AssetAdministrationShell_Mandatory':
@@ -298,7 +298,7 @@ def check_full_example(checker: AASDataChecker, obj_store: model.DictObjectStore
             check_example_empty_asset_administration_shell(checker, shell)
         else:
             if failsafe:
-                raise KeyError()
+                raise KeyError('{} is not in example'.format(shell))
 
     for submodel in submodels:
         if submodel.identification.id == 'https://acplt.org/Test_Submodel_Mandatory':
@@ -307,11 +307,11 @@ def check_full_example(checker: AASDataChecker, obj_store: model.DictObjectStore
             check_example_empty_submodel(checker, submodel)
         else:
             if failsafe:
-                raise KeyError()
+                raise KeyError('{} is not in example'.format(submodel))
 
     for cd in concept_descriptions:
         if cd.identification.id == 'https://acplt.org/Test_ConceptDescription_Mandatory':
             check_example_concept_description(checker, cd)
         else:
             if failsafe:
-                raise KeyError()
+                raise KeyError('{} is not in example'.format(cd))

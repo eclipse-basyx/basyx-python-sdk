@@ -95,23 +95,23 @@ def check_full_example(checker: AASDataChecker, obj_store: model.DictObjectStore
             concept_descriptions.append(obj)
         else:
             if failsafe:
-                raise KeyError()
+                raise KeyError('Check for {} not implemented'.format(obj))
 
     for asset in assets:
         if failsafe:
-            raise KeyError()
+            raise KeyError('{} is not in example'.format(asset))
 
     for shell in shells:
         if failsafe:
-            raise KeyError()
+            raise KeyError('{} is not in example'.format(shell))
 
     for submodel in submodels:
         if failsafe:
-            raise KeyError()
+            raise KeyError('{} is not in example'.format(submodel))
 
     for cd in concept_descriptions:
         if cd.identification.id == 'http://acplt.org/DataSpecifciations/Example/Identification':
             check_example_iec61360_concept_description(checker, cd)  # type: ignore
         else:
             if failsafe:
-                raise KeyError()
+                raise KeyError('{} is not in example'.format(cd))
