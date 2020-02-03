@@ -63,14 +63,18 @@ class ReferableTest(unittest.TestCase):
         self.assertEqual("asdASd123_", test_object.id_short)
         test_object.id_short = "AAs12_"
         self.assertEqual("AAs12_", test_object.id_short)
-        with self.assertRaises(ValueError):
+        with self.assertRaises(ValueError) as cm:
             test_object.id_short = "98sdsfdAS"
-        with self.assertRaises(ValueError):
+        self.assertEqual("The id_short must start with a letter", str(cm.exception))
+        with self.assertRaises(ValueError) as cm:
             test_object.id_short = "_sdsfdAS"
-        with self.assertRaises(ValueError):
+        self.assertEqual("The id_short must start with a letter", str(cm.exception))
+        with self.assertRaises(ValueError) as cm:
             test_object.id_short = "asdlujSAD8348@S"
-        with self.assertRaises(ValueError):
+        self.assertEqual("The id_short must contain only letters, digits and underscore", str(cm.exception))
+        with self.assertRaises(ValueError) as cm:
             test_object.id_short = None
+        self.assertEqual("The id_short for not identifiable elements is mandatory", str(cm.exception))
 
     def test_id_short_constraint_aasd_001(self):
         test_object = ExampleIdentifiable()
@@ -103,14 +107,15 @@ class ModelNamespaceTest(unittest.TestCase):
         self.assertNotIn(self.prop1alt, self.namespace.set1)
         self.assertIs(self.namespace, self.prop1.parent)
 
-        with self.assertRaises(KeyError):
+        with self.assertRaises(KeyError) as cm:
             self.namespace.set1.add(self.prop1alt)
+        self.assertEqual('"Referable with id_short \'Prop1\' is already present in this set of objects"',
+                         str(cm.exception))
 
-        with self.assertRaises(KeyError):
-            self.namespace.set1.add(self.prop1alt)
-
-        with self.assertRaises(KeyError):
+        with self.assertRaises(KeyError) as cm:
             self.namespace.set2.add(self.prop2)
+        self.assertEqual('"Referable with id_short \'Prop2\' is already present in another set in the same namespace"',
+                         str(cm.exception))
 
         self.namespace.set1.remove(self.prop1)
         self.assertEqual(1, len(self.namespace.set1))
@@ -131,14 +136,17 @@ class ModelNamespaceTest(unittest.TestCase):
         self.namespace.set1.discard(self.prop1)
 
     def test_Namespace(self) -> None:
-        with self.assertRaises(KeyError):
+        with self.assertRaises(KeyError) as cm:
             namespace_test = ExampleNamespace([self.prop1, self.prop2, self.prop1alt])
+        self.assertEqual('"Referable with id_short \'Prop1\' is already present in this set of objects"',
+                         str(cm.exception))
         self.assertIsNone(self.prop1.parent)
 
         namespace = self._namespace_class([self.prop1, self.prop2])
         self.assertIs(self.prop2, namespace.get_referable("Prop2"))
-        with self.assertRaises(KeyError):
+        with self.assertRaises(KeyError) as cm:
             namespace.get_referable("Prop3")
+        self.assertEqual("'Referable with id_short Prop3 not found in this namespace'", str(cm.exception))
 
 
 class ExampleOrderedNamespace(model.Namespace):
@@ -156,13 +164,17 @@ class ModelOrderedNamespaceTest(ModelNamespaceTest):
         # So, we only need to test order-related things here
         self.namespace.set1.add(self.prop1)
         self.namespace.set1.insert(0, self.prop2)
-        with self.assertRaises(KeyError):
+        with self.assertRaises(KeyError) as cm:
             self.namespace.set2.insert(0, self.prop1alt)
+        self.assertEqual('"Referable with id_short \'Prop1\' is already present in another set in the same namespace"',
+                         str(cm.exception))
         self.assertEqual((self.prop2, self.prop1), tuple(self.namespace.set1))
         self.assertEqual(self.prop1, self.namespace.set1[1])
 
-        with self.assertRaises(KeyError):
+        with self.assertRaises(KeyError) as cm:
             self.namespace.set1[1] = self.prop2
+        self.assertEqual('"Referable with id_short \'Prop2\' is already present in this set of objects"',
+                         str(cm.exception))
         prop3 = model.Property("Prop3", model.datatypes.Int)
         self.namespace.set1[1] = prop3
         self.assertEqual(2, len(self.namespace.set1))
@@ -218,26 +230,30 @@ class AASReferenceTest(unittest.TestCase):
                                    model.Key(model.KeyElements.PROPERTY, False, "prop", model.KeyType.IDSHORT),
                                    model.Key(model.KeyElements.PROPERTY, False, "prop", model.KeyType.IDSHORT)),
                                   model.Property)
-        with self.assertRaises(TypeError):
+        with self.assertRaises(TypeError) as cm:
             ref2.resolve(DummyObjectProvider())
+        self.assertEqual("Object retrieved at Identifier(IRI=urn:x-test:submodel) is not a Namespace",
+                         str(cm.exception))
 
-        with self.assertRaises(AttributeError):
+        with self.assertRaises(AttributeError) as cm_2:
             ref1.key[2].value = "prop1"
+        self.assertEqual("Reference is immutable", str(cm_2.exception))
 
         ref3 = model.AASReference((model.Key(model.KeyElements.SUBMODEL, False, "urn:x-test:sub", model.KeyType.IRI),),
                                   model.Property)
         # Oh no, yet another typo!
-        with self.assertRaises(KeyError):
+        with self.assertRaises(KeyError) as cm_3:
             ref3.resolve(DummyObjectProvider())
+        self.assertEqual("'Could not resolve global reference key Identifier(IRI=urn:x-test:sub)'", str(cm_3.exception))
 
         ref4 = model.AASReference((model.Key(model.KeyElements.SUBMODEL, False, "urn:x-test:submodel",
                                              model.KeyType.IRI),),
                                   model.Property)
         # Okay, typo is fixed, but the type is not what we expect. However, we should get the the submodel via the
         # exception's value attribute
-        with self.assertRaises(model.UnexpectedTypeError) as cm:
+        with self.assertRaises(model.UnexpectedTypeError) as cm_4:
             ref4.resolve(DummyObjectProvider())
-        self.assertIs(submodel, cm.exception.value)
+        self.assertIs(submodel, cm_4.exception.value)
 
     def test_from_referable(self) -> None:
         prop = model.Property("prop", model.datatypes.Int)
@@ -265,8 +281,9 @@ class AASReferenceTest(unittest.TestCase):
 
         # Test exception for element without identifiable ancestor
         submodel.submodel_element.remove(collection)
-        with self.assertRaises(ValueError):
+        with self.assertRaises(ValueError) as cm:
             ref3 = model.AASReference.from_referable(prop)
+        self.assertEqual("The given Referable object is not embedded within an Identifiable object", str(cm.exception))
 
         # Test creating a reference to a custom Referable class
         class DummyThing(model.Referable):
@@ -290,10 +307,14 @@ class AASReferenceTest(unittest.TestCase):
 class AdministrativeInformationTest(unittest.TestCase):
 
     def test_setting_version_revision(self) -> None:
-        with self.assertRaises(ValueError):
+        with self.assertRaises(ValueError) as cm:
             obj = model.AdministrativeInformation(revision='0.9')
+        self.assertEqual("A revision requires a version. This means, if there is no version there is no "
+                         "revision neither.", str(cm.exception))
 
     def test_setting_revision(self) -> None:
         obj = model.AdministrativeInformation()
-        with self.assertRaises(ValueError):
+        with self.assertRaises(ValueError) as cm:
             obj.revision = '0.3'
+        self.assertEqual("A revision requires a version. This means, if there is no version there is no revision "
+                         "neither. Please set version first.", str(cm.exception))

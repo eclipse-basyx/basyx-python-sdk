@@ -38,7 +38,7 @@ args = parser.parse_args()
 default_headers = {
     'Accept': 'application/json',
 }
-if hasattr(args, 'admin_user'):
+if args.admin_user is not None:
     default_headers['Authorization'] = 'Basic %s' % base64.b64encode(
         ('%s:%s' % (args.admin_user, args.admin_password)).encode('ascii')).decode("ascii")
 
