@@ -433,7 +433,9 @@ class Referable(metaclass=abc.ABCMeta):
                 reversed_path.append(item.id_short)
                 item = item.parent
             else:
-                break
+                raise AttributeError('Referable must have an identifiable as root object and only parents that are '
+                                     'referable')
+
         return "{}[{}]".format(self.__class__.__name__, " / ".join(reversed(reversed_path)))
 
     def _get_id_short(self):

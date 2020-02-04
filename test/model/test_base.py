@@ -23,6 +23,15 @@ class KeyTest(unittest.TestCase):
         self.assertEqual(model.IdentifierType.IRI, key1.get_identifier().id_type)
         self.assertIsNone(key2.get_identifier())
 
+    def test_string_representation(self):
+        key1 = model.Key(model.KeyElements.SUBMODEL, False, "urn:x-test:submodel1", model.KeyType.IRI)
+        self.assertEqual("IRI=urn:x-test:submodel1", key1.__str__())
+
+    def test_equality(self):
+        key1 = model.Key(model.KeyElements.SUBMODEL, False, "urn:x-test:submodel1", model.KeyType.IRI)
+        ident = model.Identifier('test', model.IdentifierType.CUSTOM)
+        self.assertEqual(key1.__eq__(ident), NotImplemented)
+
 
 class IdentifierTest(unittest.TestCase):
     def test_equality_hashing(self):
@@ -38,10 +47,19 @@ class IdentifierTest(unittest.TestCase):
         self.assertIn(id2, ids)
         self.assertNotIn(id3, ids)
 
+        key1 = model.Key(model.KeyElements.SUBMODEL, False, "urn:x-test:submodel1", model.KeyType.IRI)
+        self.assertEqual(id1.__eq__(key1), NotImplemented)
+
     def test_string_repr(self):
         id1 = model.Identifier("urn:x-test:aas1", model.IdentifierType.IRI)
         self.assertIn("urn:x-test:aas1", repr(id1))
         self.assertIn("IRI", repr(id1))
+
+    def test_set_identifier(self):
+        id1 = model.Identifier("urn:x-test:aas1", model.IdentifierType.IRI)
+        with self.assertRaises(AttributeError) as cm:
+            id1.id = 'test'
+        self.assertEqual('Identifier are immutable', str(cm.exception))
 
 
 class ExampleReferable(model.Referable):
@@ -80,6 +98,19 @@ class ReferableTest(unittest.TestCase):
         test_object = ExampleIdentifiable()
         test_object.id_short = None
         self.assertEqual(None, test_object.id_short)
+
+    def test_representation(self):
+        class DummyClass:
+            def __init__(self, value: model.Referable):
+                self.value: model.Referable = value
+
+        ref = ExampleReferable()
+        test_object = DummyClass(ref)
+        ref.parent = test_object
+        with self.assertRaises(AttributeError) as cm:
+            ref.__repr__()
+        self.assertEqual('Referable must have an identifiable as root object and only parents that are referable',
+                         str(cm.exception))
 
 
 class ExampleNamespace(model.Namespace):
@@ -148,6 +179,18 @@ class ModelNamespaceTest(unittest.TestCase):
             namespace.get_referable("Prop3")
         self.assertEqual("'Referable with id_short Prop3 not found in this namespace'", str(cm.exception))
 
+    def test_add_and_remove(self):
+        namespace2 = ExampleNamespace()
+        namespace2.set1.add(self.prop1)
+        with self.assertRaises(ValueError) as cm:
+            self.namespace.set1.add(self.prop1)
+        self.assertEqual('Object has already a parent, but it must not be part of two namespaces.', str(cm.exception))
+        namespace2.set1.get_referable('Prop1')
+        namespace2.set1.remove('Prop1')
+        with self.assertRaises(KeyError) as cm:
+            namespace2.set1.get_referable('Prop1')
+        self.assertEqual("'Prop1'", str(cm.exception))
+
 
 class ExampleOrderedNamespace(model.Namespace):
     def __init__(self, values=()):
@@ -186,8 +229,38 @@ class ModelOrderedNamespaceTest(ModelNamespaceTest):
         self.assertIsNone(self.prop2.parent)
         self.assertEqual(1, len(self.namespace.set1))
 
+        namespace2 = ExampleOrderedNamespace()
+        namespace2.set1.add(self.prop1)
+        namespace2.set1.get_referable('Prop1')
+        namespace2.set1.remove('Prop1')
+        with self.assertRaises(KeyError) as cm:
+            namespace2.set1.get_referable('Prop1')
+        self.assertEqual("'Prop1'", str(cm.exception))
+
 
 class AASReferenceTest(unittest.TestCase):
+    def test_set_reference(self):
+        ref = model.AASReference((model.Key(model.KeyElements.SUBMODEL, False, "urn:x-test:x", model.KeyType.IRI),),
+                                 model.Submodel)
+        with self.assertRaises(AttributeError) as cm:
+            ref.type = model.Property
+        self.assertEqual('Reference is immutable', str(cm.exception))
+        with self.assertRaises(AttributeError) as cm:
+            ref.key = model.Key(model.KeyElements.PROPERTY, False, "urn:x-test:x", model.KeyType.IRI)
+        self.assertEqual('Reference is immutable', str(cm.exception))
+        with self.assertRaises(AttributeError) as cm:
+            ref.key = ()
+        self.assertEqual('Reference is immutable', str(cm.exception))
+
+    def test_equality(self):
+        ref = model.AASReference((model.Key(model.KeyElements.SUBMODEL, False, "urn:x-test:x", model.KeyType.IRI),),
+                                 model.Submodel)
+        ident = model.Identifier('test', model.IdentifierType.CUSTOM)
+        self.assertEqual(ref.__eq__(ident), NotImplemented)
+        ref_2 = model.AASReference((model.Key(model.KeyElements.SUBMODEL, False, "urn:x-test:x", model.KeyType.IRI),
+                                    model.Key(model.KeyElements.PROPERTY, False, "test", model.KeyType.IRI)),
+                                   model.Submodel)
+        self.assertFalse(ref == ref_2)
 
     def test_reference_typing(self) -> None:
         dummy_submodel = model.Submodel(model.Identifier("urn:x-test:x", model.IdentifierType.IRI))
@@ -255,6 +328,11 @@ class AASReferenceTest(unittest.TestCase):
             ref4.resolve(DummyObjectProvider())
         self.assertIs(submodel, cm_4.exception.value)
 
+        ref5 = model.AASReference((), model.Submodel)
+        with self.assertRaises(IndexError) as cm_5:
+            ref5.resolve(DummyObjectProvider())
+        self.assertEqual('List of keys is empty', str(cm_5.exception))
+
     def test_from_referable(self) -> None:
         prop = model.Property("prop", model.datatypes.Int)
         collection = model.SubmodelElementCollectionUnordered("collection", {prop})
@@ -318,3 +396,23 @@ class AdministrativeInformationTest(unittest.TestCase):
             obj.revision = '0.3'
         self.assertEqual("A revision requires a version. This means, if there is no version there is no revision "
                          "neither. Please set version first.", str(cm.exception))
+
+
+class QualifierTest(unittest.TestCase):
+    def test_set_value(self):
+        qualifier = model.Qualifier('test', model.datatypes.Int, 2)
+        self.assertEqual(qualifier.value, 2)
+        qualifier.value = None
+        self.assertIsNone(qualifier.value)
+
+
+class ValueReferencePairTest(unittest.TestCase):
+    def test_set_value(self):
+        pair = model.ValueReferencePair(model.datatypes.Int, 2, model.Reference((model.Key(
+            model.KeyElements.GLOBAL_REFERENCE, False, 'test', model.KeyType.CUSTOM),)))
+        self.assertEqual(pair.value, 2)
+        with self.assertRaises(AttributeError) as cm:
+            pair.value = None
+        self.assertEqual('Value can not be None', str(cm.exception))
+        pair.value = 3
+        self.assertEqual(pair.value, 3)

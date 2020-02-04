@@ -23,7 +23,7 @@ class EntityTest(unittest.TestCase):
 
 
 class PropertyTest(unittest.TestCase):
-    def test_set_property(self):
+    def test_set_value(self):
         property = model.Property('test', model.datatypes.Int, 2)
         self.assertEqual(property.value, 2)
         property.value = None
@@ -31,7 +31,7 @@ class PropertyTest(unittest.TestCase):
 
 
 class RangeTest(unittest.TestCase):
-    def test_set_range(self):
+    def test_set_min_max(self):
         range = model.Range('test', model.datatypes.Int, 2, 5)
         self.assertEqual(range.min, 2)
         self.assertEqual(range.max, 5)
