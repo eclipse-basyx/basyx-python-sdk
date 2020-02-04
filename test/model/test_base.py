@@ -93,9 +93,9 @@ class ModelNamespaceTest(unittest.TestCase):
     _namespace_class = ExampleNamespace
 
     def setUp(self):
-        self.prop1 = model.Property("Prop1", "int")
-        self.prop2 = model.Property("Prop2", "int")
-        self.prop1alt = model.Property("Prop1", "int")
+        self.prop1 = model.Property("Prop1", model.datatypes.Int)
+        self.prop2 = model.Property("Prop2", model.datatypes.Int)
+        self.prop1alt = model.Property("Prop1", model.datatypes.Int)
         self.namespace = self._namespace_class()
 
     def test_NamespaceSet(self) -> None:
