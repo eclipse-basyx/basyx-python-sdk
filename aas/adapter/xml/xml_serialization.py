@@ -30,11 +30,11 @@ from aas import model
 # ##############################################################
 
 # Namespace definition
-ns_aas = "{http://www.admin-shell.io/aas/2/0}"
-ns_abac = "{http://www.admin-shell.io/aas/abac/2/0}"
-ns_aas_common = "{http://www.admin-shell.io/aas_common/2/0}"
-ns_xsi = "{http://www.w3.org/2001/XMLSchema-instance}"
-ns_iec = "{http://www.admin-shell.io/IEC61360/2/0}"
+NS_AAS = "{http://www.admin-shell.io/aas/2/0}"
+NS_ABAC = "{http://www.admin-shell.io/aas/abac/2/0}"
+NS_AAS_COMMON = "{http://www.admin-shell.io/aas_common/2/0}"
+NS_XSI = "{http://www.w3.org/2001/XMLSchema-instance}"
+NS_IEC = "{http://www.admin-shell.io/IEC61360/2/0}"
 
 
 def generate_element(name: str,
@@ -262,7 +262,7 @@ def reference_to_xml(obj: model.Reference, namespace: str, tag: str) -> ElTree.E
     et_reference = generate_element(name=namespace+tag)
     et_keys = generate_element(name=namespace+"keys")
     for aas_key in obj.key:
-        et_keys.append(generate_element(name=ns_aas+"key",
+        et_keys.append(generate_element(name=NS_AAS + "key",
                                         text=aas_key.value,
                                         attributes={"idType": KEY_TYPES[aas_key.id_type],
                                                     "local": boolean_to_xml(aas_key.local),
@@ -877,18 +877,18 @@ def write_aas_xml_file(file: IO,
     root.set("xsi:schemaLocation", "http://www.admin-shell.io/aas/1/0 AAS.xsd "
                                    "http://www.admin-shell.io/IEC61360/1/0IEC61360.xsd ")
 
-    et_asset_administration_shells = ElTree.Element(ns_aas+"assetAdministrationShells")
+    et_asset_administration_shells = ElTree.Element(NS_AAS + "assetAdministrationShells")
     for aas_obj in asset_administration_shells:
-        et_asset_administration_shells.append(asset_administration_shell_to_xml(aas_obj, namespace=ns_aas))
-    et_assets = generate_element(ns_aas+"assets")
+        et_asset_administration_shells.append(asset_administration_shell_to_xml(aas_obj, namespace=NS_AAS))
+    et_assets = generate_element(NS_AAS + "assets")
     for ass_obj in assets:
-        et_assets.append(asset_to_xml(ass_obj, namespace=ns_aas))
-    et_submodels = ElTree.Element(ns_aas+"submodels")
+        et_assets.append(asset_to_xml(ass_obj, namespace=NS_AAS))
+    et_submodels = ElTree.Element(NS_AAS + "submodels")
     for sub_obj in submodels:
-        et_submodels.append(submodel_to_xml(sub_obj, namespace=ns_aas))
-    et_concept_descriptions = ElTree.Element(ns_aas+"conceptDescriptions")
+        et_submodels.append(submodel_to_xml(sub_obj, namespace=NS_AAS))
+    et_concept_descriptions = ElTree.Element(NS_AAS + "conceptDescriptions")
     for con_obj in concept_descriptions:
-        et_concept_descriptions.append(concept_description_to_xml(con_obj, namespace=ns_aas))
+        et_concept_descriptions.append(concept_description_to_xml(con_obj, namespace=NS_AAS))
     root.insert(0, et_concept_descriptions)
     root.insert(0, et_submodels)
     root.insert(0, et_assets)
