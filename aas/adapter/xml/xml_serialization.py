@@ -19,7 +19,6 @@ How to use:
 
 import xml.etree.ElementTree as ElTree
 from typing import Dict, IO, Optional
-import inspect
 import base64
 
 from aas import model
@@ -185,8 +184,10 @@ def abstract_classes_to_xml(elm: ElTree.Element, namespace: str, obj: object) ->
     if isinstance(obj, model.Qualifiable):
         if obj.qualifier:
             et_qualifiers = generate_element(name=namespace+"qualifier", text=None)
-            for qual in obj.qualifier:
-                et_qualifiers.append(qualifier_to_xml(qual, name="qualifiers"))
+            for qualifier in obj.qualifier:
+                pass
+                # et_qualifiers.append(qualifier_to_xml(qualifier, namespace, tag="qualifiers"))
+                # TODO: obj.qualifier is Set[Constraint] not qualifier
                 # todo: seems like the XSD-schema messed up the plural "s"?
                 # todo: formula and qualifier seem not to be implemented yet
     return elm
@@ -341,10 +342,10 @@ def value_list_to_xml(obj: model.ValueList,
     :param tag: tag of the serialized element, default is "valueList"
     :return: serialized ElementTree object
     """
-    et_vl = generate_parent(namespace, tag, obj)
+    et_value_list = generate_parent(namespace, tag, obj)
     for aas_reference_pair in obj:
-        et_vl.append(value_reference_pair_to_xml(aas_reference_pair, namespace))
-    return et_vl
+        et_value_list.append(value_reference_pair_to_xml(aas_reference_pair, namespace))
+    return et_value_list
 
 
 # ##############################################################
