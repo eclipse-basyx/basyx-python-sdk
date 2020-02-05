@@ -818,23 +818,6 @@ def entity_to_xml(obj: model.Entity,
     return et_entity
 
 
-def event_to_xml(obj: model.Event,
-                 namespace: str,
-                 tag: str = "event") -> ElTree.Element:
-    """
-    serialization of objects of class Event to XML
-
-    todo didn't find it in the schema, so guessing implementation, therefore wrong namespace
-
-    :param obj: object of class Event
-    :param namespace: namespace of the serialized element
-    :param tag: tag of the serialized element, default is "event"
-    :return: serialized ElementTree object
-    """
-    et_event = generate_parent(namespace, tag, obj)
-    return et_event
-
-
 def basic_event_to_xml(obj: model.BasicEvent,
                        namespace: str,
                        tag: str = "basicEvent") -> ElTree.Element:
