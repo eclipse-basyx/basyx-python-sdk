@@ -186,7 +186,7 @@ def abstract_classes_to_xml(elm: ElTree.Element, namespace: str, obj: object) ->
         if obj.qualifier:
             et_qualifiers = generate_element(name=namespace+"qualifier", text=None)
             for qual in obj.qualifier:
-                et_qualifiers.append(constraint_to_xml(qual, name="qualifiers"))
+                et_qualifiers.append(qualifier_to_xml(qual, name="qualifiers"))
                 # todo: seems like the XSD-schema messed up the plural "s"?
                 # todo: formula and qualifier seem not to be implemented yet
     return elm
@@ -269,29 +269,6 @@ def reference_to_xml(obj: model.Reference, namespace: str, tag: str) -> ElTree.E
                                                     "type": KEY_ELEMENTS[aas_key.type_]}))
     et_reference.append(et_keys)
     return et_reference
-
-
-def constraint_to_xml(obj: model.Constraint, name: str) -> ElTree.Element:
-    """
-    serialization of objects of class Constraint to XML
-
-    todo: implement correctly == remove
-
-    :param obj: object of class Constraint
-    :param name: namespace+tag of the ElementTree object that is of type constraint_t
-    :return: serialized ElementTree object
-    """
-    constraint_classes = [model.Qualifier, model.Formula]
-    et_constraint = generate_element(name=name, text=None)
-    try:
-        const_type = next(iter(t for t in inspect.getmro(type(obj)) if t in constraint_classes))
-    except StopIteration as e:
-        raise TypeError("Object of type {} is a Constraint but does not inherit from a known AAS Constraint type"
-                        .format(obj.__class__.__name__)) from e
-    # if const_type is model.Qualifier:
-        # et_qualifier = qualifier_to_xml(obj.)
-    et_constraint.set("modelType", const_type.__name__)
-    return et_constraint
 
 
 def formula_to_xml(obj: model.Formula, namespace: str, tag: str = "formula") -> ElTree.Element:
