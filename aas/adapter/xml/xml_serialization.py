@@ -262,7 +262,7 @@ def reference_to_xml(obj: model.Reference, namespace: str, tag: str) -> ElTree.E
     et_reference = generate_element(name=namespace+tag)
     et_keys = generate_element(name=namespace+"keys")
     for aas_key in obj.key:
-        et_keys.append(generate_element(name=NS_AAS + "key",
+        et_keys.append(generate_element(name=namespace + "key",
                                         text=aas_key.value,
                                         attributes={"idType": KEY_TYPES[aas_key.id_type],
                                                     "local": boolean_to_xml(aas_key.local),
