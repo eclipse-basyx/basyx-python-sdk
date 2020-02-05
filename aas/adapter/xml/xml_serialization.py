@@ -767,7 +767,7 @@ def capability_to_xml(obj: model.Capability,
     """
     serialization of objects of class Capability to XML
 
-    todo: in the schema, a capability is a string, this implementation therefore has the wrong namespace
+    todo: in the schema, a capability is a string
 
     :param obj: object of class Capability
     :param namespace: namespace of the serialized element
@@ -790,9 +790,7 @@ def entity_to_xml(obj: model.Entity,
     :return: serialized ElementTree object
     """
     et_entity = generate_parent(namespace, tag, obj)
-    # todo: not sure how to deal with NamespaceSet[SubmodelElement]
-    # et_statements = submodel_element_to_xml(obj.statement, name="statements")
-    # et_entity.insert(0, et_statements)
+    et_entity.append(submodel_element_to_xml(obj.statement, namespace, tag="statements"))
     et_entity.append(generate_element(namespace+"entityType", text=ENTITY_TYPES[obj.entity_type]))
     if obj.asset:
         et_entity.append(reference_to_xml(obj.asset, namespace, "assetRef"))
@@ -825,8 +823,6 @@ def write_aas_xml_file(file: IO,
     """
     Write a set of AAS objects to an Asset Administration Shell XML file according to 'Details of the Asset
     Administration Shell', chapter 5.4
-
-    todo: check the header for the file, i copied it from the example
 
     :param file: A file-like object to write the XML-serialized data to
     :param data: ObjectStore which contains different objects of the AAS meta model which should be serialized to an
