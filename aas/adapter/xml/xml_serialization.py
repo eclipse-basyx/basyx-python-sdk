@@ -737,22 +737,27 @@ def operation_to_xml(obj: model.Operation,
     """
     serialization of objects of class Operation to XML
 
-    todo: operation_variables are of type NamespaceSet[OperationVariable], not sure how to deal with this
-
     :param obj: object of class Operation
     :param namespace: namespace of the serialized element
     :param tag: namespace+tag of the serialized element (optional), default is "operation"
     :return: serialized ElementTree object
     """
     et_operation = generate_parent(namespace, tag, obj)
-    """
-    et_input_var = operation_variable_to_xml(obj.input_variable, name="inputVariable")
-    et_output_var = operation_variable_to_xml(obj.output_variable, name="outputVariable")
-    et_inout_var = operation_variable_to_xml(obj.in_output_variable, name="inoutputVariable")
-    et_operation.insert(0, et_inout_var)
-    et_operation.insert(0, et_output_var)
-    et_operation.insert(0, et_input_var)
-    """
+    if obj.input_variable:
+        et_input_variable = generate_element(namespace+"inputVariable")
+        for input_ov in obj.input_variable:
+            et_input_variable.append(operation_variable_to_xml(input_ov, namespace, "operationVariable"))
+        et_operation.append(et_input_variable)
+    if obj.output_variable:
+        et_output_variable = generate_element(namespace+"outputVariable")
+        for output_ov in obj.output_variable:
+            et_output_variable.append(operation_variable_to_xml(output_ov, namespace, "operationVariable"))
+        et_operation.append(et_output_variable)
+    if obj.in_output_variable:
+        et_in_output_variable = generate_element(namespace+"inoutputVariable")
+        for in_out_ov in obj.in_output_variable:
+            et_in_output_variable.append(operation_variable_to_xml(in_out_ov, namespace, "operationVariable"))
+        et_operation.append(et_in_output_variable)
     return et_operation
 
 
