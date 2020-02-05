@@ -27,10 +27,20 @@ class RegistriesTest(unittest.TestCase):
         object_store: model.DictObjectStore[model.AssetAdministrationShell] = model.DictObjectStore()
         object_store.add(self.aas1)
         object_store.add(self.aas2)
+        self.assertIn(self.aas1, object_store)
+        property = model.Property('test', model.datatypes.String)
+        self.assertFalse(property in object_store)
+        aas3 = model.AssetAdministrationShell(model.AASReference((), model.Asset),
+                                              model.Identifier("urn:x-test:aas1", model.IdentifierType.IRI))
+        with self.assertRaises(KeyError) as cm:
+            object_store.add(aas3)
+        self.assertEqual("'Identifiable object with same identification Identifier(IRI=urn:x-test:aas1) is already "
+                         "stored in this store'", str(cm.exception))
         self.assertEqual(2, len(object_store))
         self.assertIs(self.aas1,
                       object_store.get_identifiable(model.Identifier("urn:x-test:aas1", model.IdentifierType.IRI)))
-        object_store.remove(self.aas1)
+        object_store.discard(self.aas1)
+        object_store.discard(self.aas1)
         with self.assertRaises(KeyError) as cm:
             object_store.get_identifiable(model.Identifier("urn:x-test:aas1", model.IdentifierType.IRI))
         self.assertEqual("Identifier(IRI=urn:x-test:aas1)", str(cm.exception))
