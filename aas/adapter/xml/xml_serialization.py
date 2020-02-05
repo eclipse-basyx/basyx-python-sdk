@@ -238,8 +238,6 @@ def identifier_to_xml(obj: model.Identifier, namespace: str, tag: str = "identif
     """
     serialization of objects of class Identifier to XML
 
-    todo: XSD Schema type identifier_t is never used, so unclear how to name parent element
-
     :param obj: object of class Identifier
     :param namespace: namespace of the serialized element
     :param tag: tag of the serialized element. default is "identifier"
@@ -359,7 +357,7 @@ def view_to_xml(obj: model.View, namespace: str, tag: str = "view") -> ElTree.El
 
     :param obj: object of class View
     :param namespace: namespace of the serialized element
-    :param tag: namespace+tag of the ELementTree object. default is "view"
+    :param tag: namespace+tag of the ElementTree object. default is "view"
     :return: serialized ElementTree object
     """
     et_view = generate_parent(namespace, tag, obj)
@@ -376,7 +374,7 @@ def asset_to_xml(obj: model.Asset, namespace: str, tag: str = "asset") -> ElTree
     serialization of objects of class Asset to XML
 
     :param obj: object of class Asset
-    :param namespace: namespace of the serlialzed element
+    :param namespace: namespace of the serialized element
     :param tag: namespace+tag of the ElementTree object. default is "asset"
     :return: serialized ElementTree object
     """
@@ -460,7 +458,7 @@ def asset_administration_shell_to_xml(obj: model.AssetAdministrationShell,
                                                                      "conceptDictionary"))
         et_aas.append(et_concept_dictionaries)
     if obj.security_:
-        et_aas.append(security_to_xml(obj.security_, namespace, "security"))
+        et_aas.append(security_to_xml(obj.security_, namespace=NS_ABAC, tag="security"))
     return et_aas
 
 
