@@ -183,13 +183,14 @@ def abstract_classes_to_xml(elm: ElTree.Element, namespace: str, obj: object) ->
             elm.append(generate_element(name=namespace+"kind", text="Instance"))
     if isinstance(obj, model.Qualifiable):
         if obj.qualifier:
-            et_qualifiers = generate_element(name=namespace+"qualifier", text=None)
+            et_qualifier = generate_element(name=namespace+"qualifier", text=None)  # constraints_t
             for qualifier in obj.qualifier:
-                pass
-                # et_qualifiers.append(qualifier_to_xml(qualifier, namespace, tag="qualifiers"))
-                # TODO: obj.qualifier is Set[Constraint] not qualifier
-                # todo: seems like the XSD-schema messed up the plural "s"?
-                # todo: formula and qualifier seem not to be implemented yet
+                et_qualifiers = generate_element(name=NS_AAS+"qualifiers")  # constraint_t
+                if isinstance(qualifier, model.Qualifier):
+                    et_qualifiers.append(qualifier_to_xml(qualifier, namespace, tag="qualifier"))
+                if isinstance(qualifier, model.Formula):
+                    et_qualifiers.append(formula_to_xml(qualifier, namespace, tag="formula"))
+                et_qualifier.append(et_qualifiers)
     return elm
 
 
