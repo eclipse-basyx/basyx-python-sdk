@@ -495,15 +495,37 @@ def submodel_element_to_xml(obj: model.SubmodelElement,
     """
     serialization of objects of class SubmodelElement to XML
 
-    todo: this seems to miss in the json implementation? Because it consists only of inherited parameters?
-    todo: this seems to be different in the schema and in our implementation
-
     :param obj: object of class SubmodelElement
     :param namespace: namespace of the serialized element
     :param tag: tag of the serialized element (optional), default is "submodelElement"
     :return: serialized ElementTree object
     """
-    return generate_parent(namespace, tag, obj)
+    et_submodel_element = generate_parent(namespace, tag, obj)
+    if isinstance(obj, model.AnnotatedRelationshipElement):
+        et_submodel_element.append(annotated_relationship_element_to_xml(obj, namespace))
+    if isinstance(obj, model.BasicEvent):
+        et_submodel_element.append(basic_event_to_xml(obj, namespace))
+    if isinstance(obj, model.Blob):
+        et_submodel_element.append(blob_to_xml(obj, namespace))
+    if isinstance(obj, model.Capability):
+        et_submodel_element.append(capability_to_xml(obj, namespace))
+    if isinstance(obj, model.Entity):
+        et_submodel_element.append(entity_to_xml(obj, namespace))
+    if isinstance(obj, model.File):
+        et_submodel_element.append(file_to_xml(obj, namespace))
+    if isinstance(obj, model.MultiLanguageProperty):
+        et_submodel_element.append(multi_language_property_to_xml(obj, namespace))
+    if isinstance(obj, model.Operation):
+        et_submodel_element.append(operation_to_xml(obj, namespace))
+    if isinstance(obj, model.Property):
+        et_submodel_element.append(property_to_xml(obj, namespace))
+    if isinstance(obj, model.Range):
+        et_submodel_element.append(range_to_xml(obj, namespace))
+    if isinstance(obj, model.RelationshipElement):
+        et_submodel_element.append(relationship_element_to_xml(obj, namespace))
+    if isinstance(obj, model.SubmodelElementCollection):
+        et_submodel_element.append(submodel_element_collection_to_xml(obj, namespace))
+    return et_submodel_element
 
 
 def submodel_to_xml(obj: model.Submodel,
