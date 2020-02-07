@@ -159,7 +159,7 @@ def abstract_classes_to_xml(elm: ElTree.Element, namespace: str, obj: object) ->
         if obj.category:
             elm.append(_generate_element(name=namespace + "category", text=obj.category))
         if obj.description:
-            elm.append(lang_string_set_to_xml(obj.description, namespace=namespace, tag="description"))
+            elm.append(lang_string_set_to_xml(obj.description, tag="description"))
     if isinstance(obj, model.Identifiable):
         elm.append(_generate_element(name=namespace + "identification",
                                      text=obj.identification.id,
@@ -199,18 +199,17 @@ def abstract_classes_to_xml(elm: ElTree.Element, namespace: str, obj: object) ->
 # ##############################################################
 
 
-def lang_string_set_to_xml(obj: model.LangStringSet, namespace: str, tag: str) -> ElTree.Element:
+def lang_string_set_to_xml(obj: model.LangStringSet, tag: str) -> ElTree.Element:
     """
     serialization of objects of class LangStringSet to XML
 
     :param obj: object of class LangStringSet
-    :param namespace: namespace of the element
     :param tag: tag of the returned element
     :return: serialized ElementTree object
     """
-    et_lss = _generate_element(name=namespace + tag)
+    et_lss = _generate_element(name=NS_AAS+tag)
     for language in obj:
-        et_lss.append(_generate_element(name=namespace + "langString",
+        et_lss.append(_generate_element(name=NS_AAS + "langString",
                                         text=obj[language],
                                         attributes={"lang": language}))
     return et_lss
@@ -595,7 +594,7 @@ def multi_language_property_to_xml(obj: model.MultiLanguageProperty,
     """
     et_multi_language_property = _generate_parent(namespace, tag, obj)
     if obj.value:
-        et_multi_language_property.append(lang_string_set_to_xml(obj.value, namespace=namespace, tag="value"))
+        et_multi_language_property.append(lang_string_set_to_xml(obj.value, tag="value"))
     if obj.value_id:
         et_multi_language_property.append(reference_to_xml(obj.value_id, namespace, "valueId"))
     return et_multi_language_property
