@@ -875,11 +875,11 @@ def write_aas_xml_file(file: IO,
     ElTree.register_namespace("aas_common", "http://www.admin-shell.io/aas_common/2/0")
     ElTree.register_namespace("xsi", "http://www.w3.org/2001/XMLSchema-instance")
     ElTree.register_namespace("IEC", "http://www.admin-shell.io/IEC61360/2/0")
-    root = ElTree.Element("aasenv")
-    # since it seems impossible to specify the xsi:schemaLocation, I am adding it per hand
-    root.set("xsi:schemaLocation", "http://www.admin-shell.io/aas/1/0 AAS.xsd "
-                                   "http://www.admin-shell.io/IEC61360/1/0IEC61360.xsd ")
-
+    attr_qname = ElTree.QName("http://www.w3.org/2001/XMLSchema-instance", "schemaLocation")
+    root = ElTree.Element(NS_AAS+"aasenv",
+                          {attr_qname: "http://www.admin-shell.io/aas/1/0 AAS.xsd "  # type: ignore
+                                       "http://www.admin-shell.io/IEC61360/1/0IEC61360.xsd "})
+    # todo: find out what this qname really does
     et_asset_administration_shells = ElTree.Element(NS_AAS + "assetAdministrationShells")
     for aas_obj in asset_administration_shells:
         et_asset_administration_shells.append(asset_administration_shell_to_xml(aas_obj, namespace=NS_AAS))
