@@ -136,6 +136,28 @@ ENTITY_TYPES: Dict[model.EntityType, str] = {
     model.EntityType.CO_MANAGED_ENTITY: 'CoManagedEntity',
     model.EntityType.SELF_MANAGED_ENTITY: 'SelfManagedEntity'}
 
+IEC61360_DATA_TYPES: Dict[model.concept.IEC61360DataType, str] = {
+    model.concept.IEC61360DataType.DATE: 'DATE',
+    model.concept.IEC61360DataType.STRING: 'STRING',
+    model.concept.IEC61360DataType.STRING_TRANSLATABLE: 'STRING_TRANSLATABLE',
+    model.concept.IEC61360DataType.REAL_MEASURE: 'REAL_MEASURE',
+    model.concept.IEC61360DataType.REAL_COUNT: 'REAL_COUNT',
+    model.concept.IEC61360DataType.REAL_CURRENCY: 'REAL_CURRENCY',
+    model.concept.IEC61360DataType.BOOLEAN: 'BOOLEAN',
+    model.concept.IEC61360DataType.URL: 'URL',
+    model.concept.IEC61360DataType.RATIONAL: 'RATIONAL',
+    model.concept.IEC61360DataType.RATIONAL_MEASURE: 'RATIONAL_MEASURE',
+    model.concept.IEC61360DataType.TIME: 'TIME',
+    model.concept.IEC61360DataType.TIMESTAMP: 'TIMESTAMP',
+}
+
+IEC61360_LEVEL_TYPES: Dict[model.concept.IEC61360LevelType, str] = {
+    model.concept.IEC61360LevelType.MIN: 'Min',
+    model.concept.IEC61360LevelType.MAX: 'Max',
+    model.concept.IEC61360LevelType.NOM: 'Nom',
+    model.concept.IEC61360LevelType.TYP: 'Typ',
+}
+
 
 # ##############################################################
 # transformation functions to serialize abstract classes from model.base
