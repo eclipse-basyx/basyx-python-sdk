@@ -11,11 +11,13 @@
 """
 Module for creation of an example concept description
 """
+import logging
 
 from ... import model
 from ._helper import AASDataChecker
 from ...model.concept import *
 
+logger = logging.getLogger(__name__)
 
 def create_iec61360_concept_description() -> IEC61360ConceptDescription:
     """
@@ -78,7 +80,7 @@ def check_example_iec61360_concept_description(checker: AASDataChecker,
     checker.check_concept_description_equal(concept_description, expected_concept_description)
 
 
-def check_full_example(checker: AASDataChecker, obj_store: model.DictObjectStore, failsafe: bool = True) -> None:
+def check_full_example(checker: AASDataChecker, obj_store: model.DictObjectStore, failsafe: bool = False) -> None:
     # separate different kind of objects
     assets = []
     submodels = []
@@ -94,24 +96,39 @@ def check_full_example(checker: AASDataChecker, obj_store: model.DictObjectStore
         elif isinstance(obj, model.ConceptDescription):
             concept_descriptions.append(obj)
         else:
+            error_message = 'Check for {} not implemented'.format(obj)
             if failsafe:
-                raise KeyError('Check for {} not implemented'.format(obj))
+                logger.warning(error_message)
+            else:
+                raise KeyError(error_message)
 
     for asset in assets:
+        error_message = '{} is not in example'.format(asset)
         if failsafe:
-            raise KeyError('{} is not in example'.format(asset))
+            logger.warning(error_message)
+        else:
+            raise KeyError(error_message)
 
     for shell in shells:
+        error_message = '{} is not in example'.format(shell)
         if failsafe:
-            raise KeyError('{} is not in example'.format(shell))
+            logger.warning(error_message)
+        else:
+            raise KeyError(error_message)
 
     for submodel in submodels:
+        error_message = '{} is not in example'.format(submodel)
         if failsafe:
-            raise KeyError('{} is not in example'.format(submodel))
+            logger.warning(error_message)
+        else:
+            raise KeyError(error_message)
 
     for cd in concept_descriptions:
         if cd.identification.id == 'http://acplt.org/DataSpecifciations/Example/Identification':
             check_example_iec61360_concept_description(checker, cd)  # type: ignore
         else:
+            error_message = '{} is not in example'.format(cd)
             if failsafe:
-                raise KeyError('{} is not in example'.format(cd))
+                logger.warning(error_message)
+            else:
+                raise KeyError(error_message)

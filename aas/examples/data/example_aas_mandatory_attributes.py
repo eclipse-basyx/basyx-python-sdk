@@ -16,9 +16,12 @@ attributes.
 To get this object store use the function 'create_full_example'. If you want to get single example objects or want to
 get more information use the other functions.
 """
+import logging
+
 from ... import model
 from ._helper import AASDataChecker
 
+logger = logging.getLogger(__name__)
 
 def create_full_example() -> model.DictObjectStore:
     """
@@ -265,7 +268,7 @@ def check_example_empty_submodel(checker: AASDataChecker, submodel: model.Submod
     checker.check_submodel_equal(submodel, expected_submodel)
 
 
-def check_full_example(checker: AASDataChecker, obj_store: model.DictObjectStore, failsafe: bool = True) -> None:
+def check_full_example(checker: AASDataChecker, obj_store: model.DictObjectStore, failsafe: bool = False) -> None:
     # separate different kind of objects
     assets = []
     submodels = []
@@ -281,15 +284,21 @@ def check_full_example(checker: AASDataChecker, obj_store: model.DictObjectStore
         elif isinstance(obj, model.ConceptDescription):
             concept_descriptions.append(obj)
         else:
+            error_message = 'Check for {} not implemented'.format(obj)
             if failsafe:
-                raise KeyError('Check for {} not implemented'.format(obj))
+                logger.warning(error_message)
+            else:
+                raise KeyError(error_message)
 
     for asset in assets:
         if asset.identification.id == 'https://acplt.org/Test_Asset_Mandatory':
             check_example_asset(checker, asset)
         else:
+            error_message = '{} is not in example'.format(asset)
             if failsafe:
-                raise KeyError('{} is not in example'.format(asset))
+                logger.warning(error_message)
+            else:
+                raise KeyError(error_message)
 
     for shell in shells:
         if shell.identification.id == 'https://acplt.org/Test_AssetAdministrationShell_Mandatory':
@@ -297,8 +306,11 @@ def check_full_example(checker: AASDataChecker, obj_store: model.DictObjectStore
         elif shell.identification.id == 'https://acplt.org/Test_AssetAdministrationShell2_Mandatory':
             check_example_empty_asset_administration_shell(checker, shell)
         else:
+            error_message = '{} is not in example'.format(shell)
             if failsafe:
-                raise KeyError('{} is not in example'.format(shell))
+                logger.warning(error_message)
+            else:
+                raise KeyError(error_message)
 
     for submodel in submodels:
         if submodel.identification.id == 'https://acplt.org/Test_Submodel_Mandatory':
@@ -306,12 +318,18 @@ def check_full_example(checker: AASDataChecker, obj_store: model.DictObjectStore
         elif submodel.identification.id == 'https://acplt.org/Test_Submodel2_Mandatory':
             check_example_empty_submodel(checker, submodel)
         else:
+            error_message = '{} is not in example'.format(submodel)
             if failsafe:
-                raise KeyError('{} is not in example'.format(submodel))
+                logger.warning(error_message)
+            else:
+                raise KeyError(error_message)
 
     for cd in concept_descriptions:
         if cd.identification.id == 'https://acplt.org/Test_ConceptDescription_Mandatory':
             check_example_concept_description(checker, cd)
         else:
+            error_message = '{} is not in example'.format(cd)
             if failsafe:
-                raise KeyError('{} is not in example'.format(cd))
+                logger.warning(error_message)
+            else:
+                raise KeyError(error_message)

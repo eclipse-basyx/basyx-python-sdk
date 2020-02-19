@@ -57,7 +57,7 @@ class ExampleAASTest(unittest.TestCase):
                                    identification=model.Identifier('test', model.IdentifierType.CUSTOM))
         obj_store.add(failed_asset)
         with self.assertRaises(KeyError) as cm:
-            example_aas.check_full_example(checker, obj_store)
+            example_aas.check_full_example(checker, obj_store, False)
         self.assertEqual(
             "'Asset[Identifier(CUSTOM=test)] is not in example'",
             str(cm.exception)
@@ -113,8 +113,8 @@ class ExampleAASTest(unittest.TestCase):
             "'Check for DummyIdentifiable[Identifier(CUSTOM=test)] not implemented'",
             str(cm.exception)
         )
-        example_aas.check_full_example(checker, obj_store, False)
         obj_store.discard(failed_identifiable)
+        example_aas.check_full_example(checker, obj_store, False)
 
 
 class ExampleAASMandatoryTest(unittest.TestCase):
@@ -210,8 +210,8 @@ class ExampleAASMandatoryTest(unittest.TestCase):
             "'Check for DummyIdentifiable[Identifier(CUSTOM=test)] not implemented'",
             str(cm.exception)
         )
-        example_aas_mandatory_attributes.check_full_example(checker, obj_store, False)
         obj_store.discard(failed_identifiable)
+        example_aas_mandatory_attributes.check_full_example(checker, obj_store)
 
 
 class ExampleAASMissingTest(unittest.TestCase):
@@ -302,8 +302,8 @@ class ExampleAASMissingTest(unittest.TestCase):
             "'Check for DummyIdentifiable[Identifier(CUSTOM=test)] not implemented'",
             str(cm.exception)
         )
-        example_aas_missing_attributes.check_full_example(checker, obj_store, False)
         obj_store.discard(failed_identifiable)
+        example_aas_missing_attributes.check_full_example(checker, obj_store, False)
 
 
 class ExampleConceptDescriptionTest(unittest.TestCase):
@@ -322,7 +322,7 @@ class ExampleConceptDescriptionTest(unittest.TestCase):
                                    identification=model.Identifier('test', model.IdentifierType.CUSTOM))
         obj_store.add(failed_asset)
         with self.assertRaises(KeyError) as cm:
-            example_concept_description.check_full_example(checker, obj_store)
+            example_concept_description.check_full_example(checker, obj_store, False)
         self.assertEqual(
             "'Asset[Identifier(CUSTOM=test)] is not in example'",
             str(cm.exception)
@@ -379,8 +379,8 @@ class ExampleConceptDescriptionTest(unittest.TestCase):
             "'Check for DummyIdentifiable[Identifier(CUSTOM=test)] not implemented'",
             str(cm.exception)
         )
-        example_concept_description.check_full_example(checker, obj_store, False)
         obj_store.discard(failed_identifiable)
+        example_concept_description.check_full_example(checker, obj_store, False)
 
 
 class ExampleSubmodelTemplate(unittest.TestCase):
@@ -399,7 +399,7 @@ class ExampleSubmodelTemplate(unittest.TestCase):
                                    identification=model.Identifier('test', model.IdentifierType.CUSTOM))
         obj_store.add(failed_asset)
         with self.assertRaises(KeyError) as cm:
-            example_submodel_template.check_full_example(checker, obj_store)
+            example_submodel_template.check_full_example(checker, obj_store, False)
         self.assertEqual(
             "'Asset[Identifier(CUSTOM=test)] is not in example'",
             str(cm.exception)
@@ -456,5 +456,5 @@ class ExampleSubmodelTemplate(unittest.TestCase):
             "'Check for DummyIdentifiable[Identifier(CUSTOM=test)] not implemented'",
             str(cm.exception)
         )
-        example_submodel_template.check_full_example(checker, obj_store, False)
         obj_store.discard(failed_identifiable)
+        example_submodel_template.check_full_example(checker, obj_store, False)
