@@ -19,6 +19,7 @@ from ._helper import AASDataChecker
 
 logger = logging.getLogger(__name__)
 
+
 def create_full_example() -> model.DictObjectStore:
     """
     creates an object store containing an example asset identification submodel, an example asset, an example submodel,

@@ -20,6 +20,7 @@ from ._helper import AASDataChecker
 
 logger = logging.getLogger(__name__)
 
+
 def create_example_submodel_template() -> model.Submodel:
     """
     creates an example submodel template containing all kind of SubmodelElement objects where the kind is always

@@ -19,6 +19,7 @@ from ...model.concept import *
 
 logger = logging.getLogger(__name__)
 
+
 def create_iec61360_concept_description() -> IEC61360ConceptDescription:
     """
     Creates a ConceptDescription after the IEC61360 standard

@@ -22,6 +22,7 @@ from ... import model
 
 logger = logging.getLogger(__name__)
 
+
 def create_full_example() -> model.DictObjectStore:
     """
     creates an object store which is filled with an example asset, submodel, concept description and asset
