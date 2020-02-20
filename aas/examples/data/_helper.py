@@ -830,31 +830,28 @@ class AASDataChecker(DataChecker):
         self.check(found_elements == set(), 'Asset list 2 must not have extra assets', value=found_elements)
 
         for shell_1 in shells_1:
-            shell_2: model.AssetAdministrationShell = self._find_element_by_attribute(shell_1, shells_2,
-                                                                                      'identification')  # type: ignore
+            shell_2 = self._find_element_by_attribute(shell_1, shells_2, 'identification')  # type: ignore
             if self.check(shell_2 is not None, 'Asset administration shell {} must exist in asset administration shell '
                                                'list 2'.format(shell_1)):
-                self.check_asset_administration_shell_equal(shell_1, shell_2)
+                self.check_asset_administration_shell_equal(shell_1, shell_2)  # type: ignore
 
         found_elements = self._find_extra_elements_by_attribute(shells_1, shells_2, 'identification')  # type:ignore
         self.check(found_elements == set(), 'Asset administration shell list 2 must not have extra asset '
                                             'administration shells', value=found_elements)
 
         for submodel_1 in submodels_1:
-            submodel_2: model.Submodel = self._find_element_by_attribute(submodel_1, submodels_2,
-                                                                         'identification')  # type: ignore
+            submodel_2 = self._find_element_by_attribute(submodel_1, submodels_2, 'identification')  # type: ignore
             if self.check(submodel_2 is not None, 'Submodel {} must exist in submodel list 2'.format(submodel_1)):
-                self.check_submodel_equal(submodel_1, submodel_2)
+                self.check_submodel_equal(submodel_1, submodel_2)  # type: ignore
 
         found_elements = self._find_extra_elements_by_attribute(submodels_1, submodels_2, 'identification')
         self.check(found_elements == set(), 'Submodel list 2 must not have extra submodels', value=found_elements)
 
-        for concept_description_1 in concept_descriptions_1:
-            concept_description_2: model.ConceptDescription = self._find_element_by_attribute(
-                concept_description_1, concept_descriptions_2, 'identification')  # type: ignore
-            if self.check(concept_description_2 is not None, 'Concept description {} must exist in concept description '
-                                                             'list 2'.format(concept_description_1)):
-                self.check_concept_description_equal(concept_description_1, concept_description_2)
+        for cd_1 in concept_descriptions_1:
+            cd_2 = self._find_element_by_attribute(cd_1, concept_descriptions_2, 'identification')  # type: ignore
+            if self.check(cd_2 is not None, 'Concept description {} must exist in concept description '
+                                            'list 2'.format(cd_1)):
+                self.check_concept_description_equal(cd_1, cd_2)  # type: ignore
 
         found_elements = self._find_extra_elements_by_attribute(concept_descriptions_1, concept_descriptions_2,
                                                                 'identification')
