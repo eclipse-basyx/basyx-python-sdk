@@ -822,7 +822,7 @@ class AASDataChecker(DataChecker):
                 concept_descriptions_2.append(obj)
 
         for asset_1 in assets_1:
-            asset_2: model.Asset = self._find_element_by_attribute(asset_1, assets_2, 'identification')  # type:ignore
+            asset_2: model.Asset = self._find_element_by_attribute(asset_1, assets_2, 'identification')  # type: ignore
             if self.check(asset_2 is not None, 'Asset {} must exist in asset list 2'.format(asset_1)):
                 self.check_asset_equal(asset_1, asset_2)
 
@@ -831,7 +831,7 @@ class AASDataChecker(DataChecker):
 
         for shell_1 in shells_1:
             shell_2: model.AssetAdministrationShell = self._find_element_by_attribute(shell_1, shells_2,
-                                                                                      'identification')  # type:ignore
+                                                                                      'identification')  # type: ignore
             if self.check(shell_2 is not None, 'Asset administration shell {} must exist in asset administration shell '
                                                'list 2'.format(shell_1)):
                 self.check_asset_administration_shell_equal(shell_1, shell_2)
@@ -842,7 +842,7 @@ class AASDataChecker(DataChecker):
 
         for submodel_1 in submodels_1:
             submodel_2: model.Submodel = self._find_element_by_attribute(submodel_1, submodels_2,
-                                                                         'identification')  # type:ignore
+                                                                         'identification')  # type: ignore
             if self.check(submodel_2 is not None, 'Submodel {} must exist in submodel list 2'.format(submodel_1)):
                 self.check_submodel_equal(submodel_1, submodel_2)
 
@@ -851,7 +851,7 @@ class AASDataChecker(DataChecker):
 
         for concept_description_1 in concept_descriptions_1:
             concept_description_2: model.ConceptDescription = self._find_element_by_attribute(
-                concept_description_1, concept_descriptions_2, 'identification')  # type:ignore
+                concept_description_1, concept_descriptions_2, 'identification')  # type: ignore
             if self.check(concept_description_2 is not None, 'Concept description {} must exist in concept description '
                                                              'list 2'.format(concept_description_1)):
                 self.check_concept_description_equal(concept_description_1, concept_description_2)
