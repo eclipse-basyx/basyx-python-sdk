@@ -183,3 +183,46 @@ def check_aas_example(file_path: str, failsafe: bool, logger: MessageLogger) -> 
             msg += '{}\n'.format(x)
         logger.add_msg(LoggingMessage('Data in file {} is equal to example data'.format(file_path),
                                       msg, MessageCategory.SUCCESS))
+
+
+def check_json_files_conform(file_path_1: str, file_path_2: str, failsafe: bool, logger: MessageLogger) -> None:
+    # configure logger of json_deserialization.py to avoid consol output
+    tmp_file = io.StringIO()
+    logging.basicConfig(format='%(levelname)s: %(message)s', level=logging.DEBUG, stream=tmp_file)
+
+    obj_store_1 = check_deserialization(file_path_1, False, logger)
+
+    if logger.error:
+        logger.add_msg(LoggingMessage('Could not check files cause of error in deserialization of '
+                                      'file{}'.format(file_path_1), '', MessageCategory.ERROR))
+        return
+
+    obj_store_2 = check_deserialization(file_path_2, False, logger)
+
+    if logger.error:
+        logger.add_msg(LoggingMessage('Could not check files cause of error in deserialization of '
+                                      'file{}'.format(file_path_2), '', MessageCategory.ERROR))
+        return
+
+    checker = AASDataChecker(raise_immediately=(not failsafe))
+    try:
+        checker.check_object_store(obj_store_1, obj_store_2)
+    except (KeyError, AssertionError) as error:
+        logger.add_msg(LoggingMessage('Data in file {} is not equal to data in file {}'.format(file_path_1,
+                                                                                               file_path_2),
+                                      str(error), MessageCategory.ERROR))
+        return
+
+    if len(list(checker.failed_checks)) > 0:
+        msg = ''
+        for x in checker.failed_checks:
+            msg += '{}\n'.format(x)
+        logger.add_msg(LoggingMessage('Data in file {} is not equal to data in file {}'.format(file_path_1,
+                                                                                               file_path_2),
+                                      msg, MessageCategory.ERROR))
+    else:
+        msg = ''
+        for x in checker.successful_checks:
+            msg += '{}\n'.format(x)
+        logger.add_msg(LoggingMessage('Data in file {} is equal to data in file {}'.format(file_path_1, file_path_2),
+                                      msg, MessageCategory.SUCCESS))
