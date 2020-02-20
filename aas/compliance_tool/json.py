@@ -11,6 +11,15 @@
 """
 Module which offers functions to use in a confirmation tool related to json files
 
+check_schema: Checks if a json file is conform to official JSON schema as defined in the 'Details of the Asset
+              Administration Shell' specification of Plattform Industrie 4.0.
+
+check_deserialization: Checks if a json file can be deserialized
+
+check_aas_example: Checks if a json file consist the data of the example data defined in
+                   aas.examples.data.example_aas.py
+
+check_json_files_conform: Checks if two json files have the same data regardless of their order
 """
 import io
 import json
