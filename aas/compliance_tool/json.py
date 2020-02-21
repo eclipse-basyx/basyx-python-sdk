@@ -53,15 +53,15 @@ def check_schema(file_path: str, logger: MessageLogger) -> None:
         # read given file and check if it is conform to the json syntax
         json_to_be_checked = json.load(file_to_be_checked)
     except FileNotFoundError as error:
-        logger.add_msg(LoggingMessage('Error while trying to open: {}'.format(file_path), str(error),
+        logger.add_msg(LoggingMessage('Unable to open json file: {}'.format(file_path), str(error),
                                       MessageCategory.ERROR))
         return
     except json.decoder.JSONDecodeError as error:
-        logger.add_msg(LoggingMessage('Unable to load json file: {}'.format(file_path), str(error),
+        logger.add_msg(LoggingMessage('Unable to deserialize json file: {}'.format(file_path), str(error),
                                       MessageCategory.ERROR))
-        return
-    finally:
         file_to_be_checked.close()
+        return
+    file_to_be_checked.close()
 
     # load json schema
     json_file = open(JSON_SCHEMA_FILE, 'r', encoding='utf-8-sig')
@@ -113,20 +113,20 @@ def check_deserialization(file_path: str, failsafe: bool, logger: MessageLogger)
         # read given file and check if it is conform to the json schema
         obj_store = json_deserialization.read_json_aas_file(file_to_be_checked, failsafe)
     except FileNotFoundError as error:
-        logger.add_msg(LoggingMessage('Could not open file: {}'.format(file_path), str(error),
+        logger.add_msg(LoggingMessage('Unable to open json file: {}'.format(file_path), str(error),
                                       MessageCategory.ERROR))
         return model.DictObjectStore()
     except (KeyError, TypeError) as error:
-        logger.add_msg(LoggingMessage('Could not deserialize file: {}'.format(file_path), str(error),
+        logger.add_msg(LoggingMessage('Unable to deserialize json file: {}'.format(file_path), str(error),
                                       MessageCategory.ERROR))
-        return model.DictObjectStore()
-    finally:
         file_to_be_checked.close()
+        return model.DictObjectStore()
+    file_to_be_checked.close()
 
     # add logger information to output
     if failsafe:
         if file_error.getvalue() != "":
-            logger.add_msg(LoggingMessage('Could not deserialize file: {}'.format(file_path),
+            logger.add_msg(LoggingMessage('Unable to deserialize json file: {}'.format(file_path),
                                           str(file_error.getvalue())+str(file_warning.getvalue()),
                                           MessageCategory.ERROR))
             return model.DictObjectStore()
@@ -136,12 +136,12 @@ def check_deserialization(file_path: str, failsafe: bool, logger: MessageLogger)
                                           MessageCategory.SUCCESS))
     else:
         if file_warning.getvalue() != "":
-            logger.add_msg(LoggingMessage('Could not deserialize file: {}'.format(file_path),
+            logger.add_msg(LoggingMessage('Unable to deserialize json file: {}'.format(file_path),
                                           str(file_warning.getvalue()), MessageCategory.ERROR))
             return model.DictObjectStore()
         else:
             logger.add_msg(LoggingMessage('Deserialization check of file {} was successful'.format(file_path),
-                                          '', MessageCategory.SUCCESS))
+                                          str(file_info.getvalue()), MessageCategory.SUCCESS))
     return obj_store
 
 
