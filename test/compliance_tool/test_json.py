@@ -16,8 +16,12 @@ import unittest
 import aas.compliance_tool.json as compliance_tool
 from aas.compliance_tool.helper import MessageLogger, MessageCategory
 
+dirname = os.path.dirname
+JSON_SCHEMA_FILE = os.path.join(dirname(dirname(dirname(__file__))), 'test\\adapter\\json\\aasJSONSchemaV2.0.json')
+
 
 class ComplianceToolJsonTest(unittest.TestCase):
+    @unittest.skipUnless(os.path.exists(JSON_SCHEMA_FILE), "JSON Schema not found for validation")
     def test_check_schema(self):
         logger = MessageLogger()
         script_dir = os.path.dirname(__file__)
