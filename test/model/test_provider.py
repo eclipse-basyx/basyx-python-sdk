@@ -14,7 +14,7 @@ import unittest
 from aas import model
 
 
-class RegistriesTest(unittest.TestCase):
+class ProvidersTest(unittest.TestCase):
     def setUp(self) -> None:
         self.aas1 = model.AssetAdministrationShell(model.AASReference((), model.Asset),
                                                    model.Identifier("urn:x-test:aas1", model.IdentifierType.IRI))
@@ -46,6 +46,15 @@ class RegistriesTest(unittest.TestCase):
         self.assertEqual("Identifier(IRI=urn:x-test:aas1)", str(cm.exception))
         self.assertIs(self.aas2, object_store.pop())
         self.assertEqual(0, len(object_store))
+
+    def test_store_update(self) -> None:
+        object_store1: model.DictObjectStore[model.AssetAdministrationShell] = model.DictObjectStore()
+        object_store1.add(self.aas1)
+        object_store2: model.DictObjectStore[model.AssetAdministrationShell] = model.DictObjectStore()
+        object_store2.add(self.aas2)
+        object_store1.update(object_store2)
+        self.assertIsInstance(object_store1, model.DictObjectStore)
+        self.assertIn(self.aas2, object_store1)
 
     def test_provider_multiplexer(self) -> None:
         aas_object_store: model.DictObjectStore[model.AssetAdministrationShell] = model.DictObjectStore()
