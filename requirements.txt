@@ -1,1 +1,2 @@
 jsonschema>=3.2,<4.0
+lxml
