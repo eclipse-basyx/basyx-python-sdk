@@ -51,7 +51,7 @@ class XMLSerializationTest(unittest.TestCase):
 
 
 @unittest.skipUnless(os.path.exists(XML_SCHEMA_FILE), "JSON Schema not found for validation")
-class JsonSerializationSchemaTest(unittest.TestCase):
+class XMLSerializationSchemaTest(unittest.TestCase):
     def test_random_object_serialization(self) -> None:
         asset_key = (model.Key(model.KeyElements.ASSET, True, "asset", model.KeyType.CUSTOM),)
         asset_reference = model.AASReference(asset_key, model.Asset)
