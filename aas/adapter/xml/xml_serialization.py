@@ -573,11 +573,11 @@ def property_to_xml(obj: model.Property,
     :return: serialized ElementTree object
     """
     et_property = _generate_parent(namespace, tag, obj)
-    et_property.append(_generate_element(namespace + "valueType", text=obj.value_type))
-    if obj.value:
-        et_property.append(_generate_element(namespace + "value", text=obj.value))
     if obj.value_id:
         et_property.append(reference_to_xml(obj.value_id, namespace, "valueId"))
+    if obj.value:
+        et_property.append(_generate_element(namespace + "value", text=obj.value))
+    et_property.append(_generate_element(namespace + "valueType", text=obj.value_type))
     return et_property
 
 
