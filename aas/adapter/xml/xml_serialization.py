@@ -612,11 +612,11 @@ def range_to_xml(obj: model.Range,
     :return: serialized ElementTree object
     """
     et_range = _generate_parent(namespace, tag, obj)
-    et_range.append(_generate_element(name=namespace + "valueType", text=obj.value_type))
-    if obj.min_:
-        et_range.append(_generate_element(name=namespace + "min", text=obj.min_))
     if obj.max_:
         et_range.append(_generate_element(name=namespace + "max", text=obj.max_))
+    if obj.min_:
+        et_range.append(_generate_element(name=namespace + "min", text=obj.min_))
+    et_range.append(_generate_element(name=namespace + "valueType", text=obj.value_type))
     return et_range
 
 
