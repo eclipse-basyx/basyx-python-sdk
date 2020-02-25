@@ -417,11 +417,11 @@ def concept_dictionary_to_xml(obj: model.ConceptDictionary,
     :return: serialized ElementTree object
     """
     et_concept_dictionary = _generate_parent(namespace, tag, obj)
+    et_concept_descriptions_refs = _generate_element(namespace + "conceptDescriptionRefs")
     if obj.concept_description:
-        et_concept_descriptions_refs = _generate_element(namespace + "conceptDescriptionRefs")
         for reference in obj.concept_description:
             et_concept_descriptions_refs.append(reference_to_xml(reference, namespace, "conceptDescriptionRef"))
-        et_concept_dictionary.append(et_concept_descriptions_refs)
+    et_concept_dictionary.append(et_concept_descriptions_refs)
     return et_concept_dictionary
 
 
