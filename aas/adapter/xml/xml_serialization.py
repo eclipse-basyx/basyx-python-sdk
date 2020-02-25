@@ -652,8 +652,8 @@ def file_to_xml(obj: model.File,
     :return: serialized ElementTree object
     """
     et_file = _generate_parent(namespace, tag, obj)
-    et_file.append(_generate_element(namespace + "value", text=obj.value))
     et_file.append(_generate_element(namespace + "mimeType", text=obj.mime_type))
+    et_file.append(_generate_element(namespace + "value", text=obj.value))
     return et_file
 
 
