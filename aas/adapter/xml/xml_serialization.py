@@ -539,11 +539,11 @@ def submodel_to_xml(obj: model.Submodel,
     :return: serialized ElementTree object
     """
     et_submodel = _generate_parent(namespace, tag, obj)
+    et_submodel_elements = _generate_element(namespace + "submodelElements")
     if obj.submodel_element:
-        et_submodel_elements = _generate_element(namespace + "submodelElements")
         for submodel_element in obj.submodel_element:
             et_submodel_elements.append(submodel_element_to_xml(submodel_element, namespace))
-        et_submodel.append(et_submodel_elements)
+    et_submodel.append(et_submodel_elements)
     return et_submodel
 
 
