@@ -499,7 +499,7 @@ def submodel_element_to_xml(obj: model.SubmodelElement,
     :param tag: tag of the serialized element (optional), default is "submodelElement"
     :return: serialized ElementTree object
     """
-    et_submodel_element = _generate_element(namespace+"submodelElement")
+    et_submodel_element = _generate_element(namespace+tag)
     if isinstance(obj, model.BasicEvent):
         et_submodel_element.append(basic_event_to_xml(obj, namespace))
     if isinstance(obj, model.Blob):
