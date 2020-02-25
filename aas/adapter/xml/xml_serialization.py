@@ -437,9 +437,9 @@ def asset_administration_shell_to_xml(obj: model.AssetAdministrationShell,
     :return: serialized ElementTree object
     """
     et_aas = _generate_parent(namespace, tag, obj)
-    et_aas.append(reference_to_xml(obj.asset, namespace=namespace, tag="assetRef"))
     if obj.derived_from:
         et_aas.append(reference_to_xml(obj.derived_from, namespace=namespace, tag="derivedFrom"))
+    et_aas.append(reference_to_xml(obj.asset, namespace=namespace, tag="assetRef"))
     if obj.submodel_:
         et_submodels = _generate_element(namespace + "submodelRefs")
         for reference in obj.submodel_:
