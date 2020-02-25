@@ -500,8 +500,6 @@ def submodel_element_to_xml(obj: model.SubmodelElement,
     :return: serialized ElementTree object
     """
     et_submodel_element = _generate_element(namespace+"submodelElement")
-    if isinstance(obj, model.AnnotatedRelationshipElement):
-        et_submodel_element.append(annotated_relationship_element_to_xml(obj, namespace))
     if isinstance(obj, model.BasicEvent):
         et_submodel_element.append(basic_event_to_xml(obj, namespace))
     if isinstance(obj, model.Blob):
@@ -521,7 +519,10 @@ def submodel_element_to_xml(obj: model.SubmodelElement,
     if isinstance(obj, model.Range):
         et_submodel_element.append(range_to_xml(obj, namespace))
     if isinstance(obj, model.RelationshipElement):
-        et_submodel_element.append(relationship_element_to_xml(obj, namespace))
+        if isinstance(obj, model.AnnotatedRelationshipElement):
+            et_submodel_element.append(annotated_relationship_element_to_xml(obj, namespace))
+        else:
+            et_submodel_element.append(relationship_element_to_xml(obj, namespace))
     if isinstance(obj, model.SubmodelElementCollection):
         et_submodel_element.append(submodel_element_collection_to_xml(obj, namespace))
     return et_submodel_element
