@@ -593,10 +593,10 @@ def multi_language_property_to_xml(obj: model.MultiLanguageProperty,
     :return: serialized ElementTree object
     """
     et_multi_language_property = _generate_parent(namespace, tag, obj)
-    if obj.value:
-        et_multi_language_property.append(lang_string_set_to_xml(obj.value, tag="value"))
     if obj.value_id:
         et_multi_language_property.append(reference_to_xml(obj.value_id, namespace, "valueId"))
+    if obj.value:
+        et_multi_language_property.append(lang_string_set_to_xml(obj.value, tag="value"))
     return et_multi_language_property
 
 
