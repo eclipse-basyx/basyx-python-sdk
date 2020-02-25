@@ -361,11 +361,11 @@ def view_to_xml(obj: model.View, namespace: str, tag: str = "view") -> ElTree.El
     :return: serialized ElementTree object
     """
     et_view = _generate_parent(namespace, tag, obj)
+    et_contained_elements = _generate_element(name=namespace + "containedElements")
     if obj.contained_element:
-        et_contained_elements = _generate_element(name=namespace + "containedElements")
         for contained_element in obj.contained_element:
             et_contained_elements.append(reference_to_xml(contained_element, namespace, "containedElementRef"))
-        et_view.append(et_contained_elements)
+    et_view.append(et_contained_elements)
     return et_view
 
 
