@@ -298,12 +298,12 @@ def qualifier_to_xml(obj: model.Qualifier, namespace: str, tag: str = "qualifier
     :return: serialized ElementTreeObject
     """
     et_qualifier = _generate_parent(namespace, tag, obj)
-    if obj.value:
-        et_qualifier.append(_generate_element(namespace + "value", text=obj.value))
     if obj.value_id:
         et_qualifier.append(reference_to_xml(obj.value_id, namespace, "valueId"))
-    et_qualifier.append(_generate_element(namespace + "valueType", text=obj.value_type))
+    if obj.value:
+        et_qualifier.append(_generate_element(namespace + "value", text=obj.value))
     et_qualifier.append(_generate_element(namespace + "type", text=obj.type_))
+    et_qualifier.append(_generate_element(namespace + "valueType", text=obj.value_type))
     return et_qualifier
 
 
