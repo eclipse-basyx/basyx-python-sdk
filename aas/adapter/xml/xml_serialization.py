@@ -172,15 +172,15 @@ def abstract_classes_to_xml(elm: ElTree.Element, namespace: str, obj: object) ->
                     et_administration.append(_generate_element(name=namespace + "revision",
                                                                text=obj.administration.revision))
             elm.append(et_administration)
-    if isinstance(obj, model.HasSemantics):
-        if obj.semantic_id:
-            elm.append(reference_to_xml(obj.semantic_id, namespace=namespace, tag="semanticId"))
     if isinstance(obj, model.HasKind):
         if obj.kind is model.ModelingKind.TEMPLATE:
             elm.append(_generate_element(name=namespace + "kind", text="Template"))
         else:
             # then modeling-kind is Instance
             elm.append(_generate_element(name=namespace + "kind", text="Instance"))
+    if isinstance(obj, model.HasSemantics):
+        if obj.semantic_id:
+            elm.append(reference_to_xml(obj.semantic_id, namespace=namespace, tag="semanticId"))
     if isinstance(obj, model.Qualifiable):
         if obj.qualifier:
             et_qualifier = _generate_element(name=namespace + "qualifier", text=None)  # constraints_t
