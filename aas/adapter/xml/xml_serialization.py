@@ -379,11 +379,11 @@ def asset_to_xml(obj: model.Asset, namespace: str, tag: str = "asset") -> ElTree
     :return: serialized ElementTree object
     """
     et_asset = _generate_parent(namespace, tag, obj)
-    et_asset.append(_generate_element(name=namespace + "kind", text=ASSET_KIND[obj.kind]))
     if obj.asset_identification_model:
         et_asset.append(reference_to_xml(obj.asset_identification_model, namespace, "assetIdentificationModelRef"))
     if obj.bill_of_material:
         et_asset.append(reference_to_xml(obj.bill_of_material, namespace, "billOfMaterialRef"))
+    et_asset.append(_generate_element(name=namespace + "kind", text=ASSET_KIND[obj.kind]))
     return et_asset
 
 
