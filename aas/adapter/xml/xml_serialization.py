@@ -632,11 +632,11 @@ def blob_to_xml(obj: model.Blob,
     :return: serialized ElementTree object
     """
     et_blob = _generate_parent(namespace, tag, obj)
-    et_blob.append(_generate_element(namespace + "mimeType", text=obj.mime_type))
-    et_value = ElTree.Element(namespace+"value")
+    et_value = ElTree.Element(namespace + "value")
     if obj.value is not None:
         et_value.text = base64.b64encode(obj.value).decode()
     et_blob.append(et_value)
+    et_blob.append(_generate_element(namespace + "mimeType", text=obj.mime_type))
     return et_blob
 
 
