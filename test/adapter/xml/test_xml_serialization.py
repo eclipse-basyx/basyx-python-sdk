@@ -50,8 +50,8 @@ class XMLSerializationTest(unittest.TestCase):
         xml_serialization.write_aas_xml_file(file=test_file, data=test_data)
 
 
-@unittest.skipUnless(os.path.exists(XML_SCHEMA_FILE), "JSON Schema not found for validation")
-class JsonSerializationSchemaTest(unittest.TestCase):
+@unittest.skipUnless(os.path.exists(XML_SCHEMA_FILE), "XML Schema not found for validation")
+class XMLSerializationSchemaTest(unittest.TestCase):
     def test_random_object_serialization(self) -> None:
         asset_key = (model.Key(model.KeyElements.ASSET, True, "asset", model.KeyType.CUSTOM),)
         asset_reference = model.AASReference(asset_key, model.Asset)
@@ -60,8 +60,6 @@ class JsonSerializationSchemaTest(unittest.TestCase):
         submodel_identifier = submodel_key[0].get_identifier()
         assert(submodel_identifier is not None)
         submodel_reference = model.AASReference(submodel_key, model.Submodel)
-        # The JSONSchema expects every object with HasSemnatics (like Submodels) to have a `semanticId` Reference, which
-        # must be a Reference. (This seems to be a bug in the JSONSchema.)
         submodel = model.Submodel(submodel_identifier, semantic_id=model.Reference((),))
         test_aas = model.AssetAdministrationShell(asset_reference, aas_identifier, submodel_={submodel_reference})
 
