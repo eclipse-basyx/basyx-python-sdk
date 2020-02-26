@@ -18,10 +18,13 @@ Module for deserializing Asset Administration Shell data from the official XML f
 
 from ... import model
 import xml.etree.ElementTree as ElTree
+import logging
 
-from typing import Dict, IO, Optional
+from typing import Dict, IO, Optional, Set, TypeVar, Callable, Type, Tuple
 from .xml_serialization import NS_AAS, NS_AAS_COMMON, NS_ABAC, NS_IEC, NS_XSI, MODELING_KIND, ASSET_KIND, KEY_ELEMENTS,\
     KEY_TYPES, IDENTIFIER_TYPES, ENTITY_TYPES, IEC61360_DATA_TYPES, IEC61360_LEVEL_TYPES
+
+logger = logging.getLogger(__name__)
 
 MODELING_KIND_INVERSE: Dict[str, model.ModelingKind] = {v: k for k, v in MODELING_KIND.items()}
 ASSET_KIND_INVERSE: Dict[str, model.AssetKind] = {v: k for k, v in ASSET_KIND.items()}
@@ -35,11 +38,34 @@ IEC61360_LEVEL_TYPES_INVERSE: Dict[str, model.concept.IEC61360LevelType] = \
     {v: k for k, v in IEC61360_LEVEL_TYPES.items()}
 
 
-def _get_text_or_none(_dict: Dict[str, ElTree.Element], key: str) -> Optional[str]:
-    return _dict[key].text if key in _dict else None
+def _get_child_text_or_none(element: ElTree.Element, child: str) -> Optional[str]:
+    optional_child = element.find(child)
+    return optional_child.text if optional_child else None
 
 
-def construct_key(element: ElTree.Element) -> model.Key:
+T = TypeVar('T')
+
+
+def object_from_xml(constructor: Callable[[ElTree.Element, bool], T], element: ElTree.Element, failsafe: bool) ->\
+        Optional[T]:
+    try:
+        return constructor(element, failsafe)
+    except(TypeError, KeyError) as e:
+        error_message = "{} while converting XML Element with tag {} to type {}: {}".format(
+            type(e).__name__,
+            element.tag,
+            constructor.__name__,
+            e
+        )
+        if failsafe:
+            logger.error(error_message)
+            return None
+        raise type(e)(error_message)
+
+
+def construct_key(element: ElTree.Element, failsafe: bool) -> model.Key:
+    if element.text is None:
+        raise TypeError("XML Key Element has no text!")
     return model.Key(
         KEY_ELEMENTS_INVERSE[element.attrib["type"]],
         element.attrib["local"] == "True",
@@ -48,71 +74,115 @@ def construct_key(element: ElTree.Element) -> model.Key:
     )
 
 
-def construct_reference(element: ElTree.Element) -> model.Reference:
+def construct_reference(element: ElTree.Element, failsafe: bool) -> model.Reference:
     return model.Reference(
-        [construct_key(k) for k in element["keys"]]
+        tuple(key for key in [object_from_xml(construct_key, el, failsafe) for el in element.find("keys") or []]
+              if key is not None)
     )
 
 
-def construct_administrative_information(element: ElTree.Element) -> model.AdministrativeInformation:
+def construct_administrative_information(element: ElTree.Element, failsafe: bool) -> model.AdministrativeInformation:
     return model.AdministrativeInformation(
-        _get_text_or_none(element, NS_AAS + "version"),
-        _get_text_or_none(element, NS_AAS + "revision")
+        _get_child_text_or_none(element, NS_AAS + "version"),
+        _get_child_text_or_none(element, NS_AAS + "revision")
     )
 
 
-def construct_lang_string_set(element: ElTree.Element) -> model.LangStringSet:
-    lss = model.LangStringSet
+def construct_lang_string_set(element: ElTree.Element, failsafe: bool) -> model.LangStringSet:
+    lss: model.LangStringSet
     for lang_string in element:
-        if lang_string.tag != NS_IEC + "langString" or not lang_string.attrib["lang"]:
+        if lang_string.tag != NS_IEC + "langString" or not lang_string.attrib["lang"] or lang_string.text is None:
+            logger.warning(f"Skipping invalid XML Element with tag {lang_string.tag}")
             continue
         lss[lang_string.attrib["lang"]] = lang_string.text
     return lss
 
 
-def construct_qualifier(element: ElTree.Element) -> model.Qualifier:
+def construct_qualifier(element: ElTree.Element, failsafe: bool) -> model.Qualifier:
+    type_ = _get_child_text_or_none(element, "type")
+    value_type = _get_child_text_or_none(element, "valueType")
+    if not type_ or not value_type:
+        raise TypeError("XML Qualifier Element has no type or valueType")
     q = model.Qualifier(
-        _get_text_or_none(element, "type"),
-        _get_text_or_none(element, "valueType"),
-        _get_text_or_none(element, "value"),
-        construct_reference(element["valueId"])
+        type_,
+        value_type,
+        _get_child_text_or_none(element, "value")
     )
-    amend_abstract_attributes(q, element)
+    value_id = element.find("valueId")
+    if value_id:
+        value_id_obj = object_from_xml(
+            construct_reference,
+            value_id,
+            failsafe
+        )
+        if value_id_obj:
+            q.value_id = value_id_obj
+    amend_abstract_attributes(q, element, failsafe)
     return q
 
 
-def construct_formula(element: ElTree.Element) -> model.Formula:
-    return model.Formula(
-        set(construct_reference(ref) for ref in element)
-    )
+def construct_formula(element: ElTree.Element, failsafe: bool) -> model.Formula:
+    ref_set: Set[model.Reference] = set()
+    for ref in element:
+        obj = object_from_xml(construct_reference, ref, failsafe)
+        if not obj:
+            logger.warning(f"Skipping invalid XML Element with tag {ref.tag}")
+            continue
+        ref_set.add(obj)
+    return model.Formula(ref_set)
 
 
-def construct_constraint(element: ElTree.Element) -> model.Constraint:
+def construct_constraint(element: ElTree.Element, failsafe: bool) -> model.Constraint:
     if element.tag == NS_AAS + "qualifier":
-        return construct_qualifier(element)
+        return construct_qualifier(element, failsafe)
     if element.tag == NS_AAS + "formula":
-        return construct_formula(element)
+        return construct_formula(element, failsafe)
     raise TypeError("Given element is neither a qualifier nor a formula!")
 
 
-def amend_abstract_attributes(obj: object, element: ElTree.Element) -> None:
+def amend_abstract_attributes(obj: object, element: ElTree.Element, failsafe: bool) -> None:
     if isinstance(obj, model.Referable):
-        if NS_AAS + "category" in element:
-            obj.category = element[NS_AAS + "category"].text
-        if NS_AAS + "description" in element:
-            obj.description = construct_lang_string_set(element[NS_AAS + "description"])
+        if element.find(NS_AAS + "category"):
+            obj.category = _get_child_text_or_none(element, NS_AAS + "category")
+        description = element.find(NS_AAS + "description")
+        if description:
+            obj.description = object_from_xml(
+                construct_lang_string_set,
+                description,
+                failsafe
+            )
     if isinstance(obj, model.Identifiable):
-        if NS_AAS + "idShort" in element:
-            obj.id_short = element[NS_AAS + "idShort"].text
-        if NS_AAS + "administration" in element:
-            obj.administration = construct_administrative_information(element[NS_AAS + "administration"])
+        if element.find(NS_AAS + "idShort"):
+            obj.id_short = _get_child_text_or_none(element, NS_AAS + "idShort")
+        administration = element.find(NS_AAS + "administration")
+        if administration:
+            obj.administration = object_from_xml(
+                construct_administrative_information,
+                administration,
+                failsafe
+            )
     if isinstance(obj, model.HasSemantics):
-        if NS_AAS + "semanticId" in element:
-            obj.semantic_id = construct_reference(element[NS_AAS + "semanticId"])
+        semantic_id = element.find(NS_AAS + "semanticId")
+        if semantic_id:
+            obj.semantic_id = object_from_xml(
+                construct_reference,
+                semantic_id,
+                failsafe
+            )
     if isinstance(obj, model.Qualifiable):
-        if NS_AAS + "qualifiers" in element:
-            for constraint in element[NS_AAS + "qualifiers"]:
-                obj.qualifier.add(construct_constraint(constraint))
+        for constraint in element:
+            if constraint.tag != NS_AAS + "qualifiers":
+                logger.warning(f"Skipping XML Element with invalid tag {constraint.tag}")
+                continue
+            constraint_obj = object_from_xml(
+                construct_constraint,
+                constraint,
+                failsafe
+            )
+            if not constraint_obj:
+                logger.warning(f"Skipping invalid XML Element with tag {constraint.tag}")
+                continue
+            obj.qualifier.add(constraint_obj)
 
 
 def read_xml_aas_file(file: IO, failsafe: bool = True) -> model.DictObjectStore:
@@ -124,5 +194,3 @@ def read_xml_aas_file(file: IO, failsafe: bool = True) -> model.DictObjectStore:
                      attributes and wrong types, errors are logged and defective objects are skipped
     :return: A DictObjectStore containing all AAS objects from the XML file
     """
-
-
