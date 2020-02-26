@@ -50,6 +50,11 @@ class ExampleAASTest(unittest.TestCase):
 
     def test_full_example(self):
         checker = AASDataChecker(raise_immediately=True)
+        obj_store = model.DictObjectStore()
+        with self.assertRaises(KeyError) as cm:
+            example_aas.check_full_example(checker, obj_store)
+        self.assertEqual("'Empty object store'", str(cm.exception))
+
         obj_store = example_aas.create_full_example()
         example_aas.check_full_example(checker, obj_store)
 
