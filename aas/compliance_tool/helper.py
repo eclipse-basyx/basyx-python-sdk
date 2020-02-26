@@ -88,11 +88,11 @@ class MessageLogger():
         warning_list = []
         info_list = []
         for x in self.messages:
-            if x.msg_category == MessageCategory.ERROR:
+            if x.category == MessageCategory.ERROR:
                 error_list.append(x)
-            elif x.msg_category == MessageCategory.WARNING:
+            elif x.category == MessageCategory.WARNING:
                 warning_list.append(x)
-            elif x.msg_category == MessageCategory.SUCCESS:
+            elif x.category == MessageCategory.SUCCESS:
                 info_list.append(x)
             else:
                 raise ValueError()
