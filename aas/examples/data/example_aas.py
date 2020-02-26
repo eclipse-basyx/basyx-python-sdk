@@ -688,6 +688,14 @@ def check_full_example(checker: AASDataChecker, obj_store: model.DictObjectStore
     submodels = []
     concept_descriptions = []
     shells = []
+    if len(obj_store) == 0:
+        error_message = 'Empty object store'
+        if failsafe:
+            logger.warning(error_message)
+        else:
+            raise KeyError(error_message)
+        return
+
     for obj in obj_store:
         if isinstance(obj, model.Asset):
             assets.append(obj)
