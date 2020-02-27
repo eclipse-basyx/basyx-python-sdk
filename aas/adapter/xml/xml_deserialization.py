@@ -13,14 +13,12 @@ Module for deserializing Asset Administration Shell data from the official XML f
 """
 
 # TODO: add more constructors
-# TODO: implement error handling / failsafe parsing
-# TODO: add better (more useful) helper functions
 
 from ... import model
 import xml.etree.ElementTree as ElTree
 import logging
 
-from typing import Dict, IO, Optional, Set, TypeVar, Callable, Type, Tuple
+from typing import Dict, IO, Optional, Set, TypeVar, Callable
 from .xml_serialization import NS_AAS, NS_AAS_COMMON, NS_ABAC, NS_IEC, NS_XSI, MODELING_KIND, ASSET_KIND, KEY_ELEMENTS,\
     KEY_TYPES, IDENTIFIER_TYPES, ENTITY_TYPES, IEC61360_DATA_TYPES, IEC61360_LEVEL_TYPES
 
@@ -63,7 +61,7 @@ def object_from_xml(constructor: Callable[[ElTree.Element, bool], T], element: E
         raise type(e)(error_message)
 
 
-def construct_key(element: ElTree.Element, failsafe: bool) -> model.Key:
+def construct_key(element: ElTree.Element, _failsafe: bool) -> model.Key:
     if element.text is None:
         raise TypeError("XML Key Element has no text!")
     return model.Key(
@@ -81,15 +79,15 @@ def construct_reference(element: ElTree.Element, failsafe: bool) -> model.Refere
     )
 
 
-def construct_administrative_information(element: ElTree.Element, failsafe: bool) -> model.AdministrativeInformation:
+def construct_administrative_information(element: ElTree.Element, _failsafe: bool) -> model.AdministrativeInformation:
     return model.AdministrativeInformation(
         _get_child_text_or_none(element, NS_AAS + "version"),
         _get_child_text_or_none(element, NS_AAS + "revision")
     )
 
 
-def construct_lang_string_set(element: ElTree.Element, failsafe: bool) -> model.LangStringSet:
-    lss: model.LangStringSet
+def construct_lang_string_set(element: ElTree.Element, _failsafe: bool) -> model.LangStringSet:
+    lss: model.LangStringSet = {}
     for lang_string in element:
         if lang_string.tag != NS_IEC + "langString" or not lang_string.attrib["lang"] or lang_string.text is None:
             logger.warning(f"Skipping invalid XML Element with tag {lang_string.tag}")
@@ -185,6 +183,22 @@ def amend_abstract_attributes(obj: object, element: ElTree.Element, failsafe: bo
             obj.qualifier.add(constraint_obj)
 
 
+def construct_asset_administration_shell(element: ElTree.Element, failsafe: bool) -> model.AssetAdministrationShell:
+    pass
+
+
+def construct_asset(element: ElTree.Element, failsafe: bool) -> model.Asset:
+    pass
+
+
+def construct_submodel(element: ElTree.Element, failsafe: bool) -> model.Submodel:
+    pass
+
+
+def construct_concept_description(element: ElTree.Element, failsafe: bool) -> model.ConceptDescription:
+    pass
+
+
 def read_xml_aas_file(file: IO, failsafe: bool = True) -> model.DictObjectStore:
     """
     Read an Asset Administration Shell XML file according to 'Details of the Asset Administration Shell', chapter 5.4
@@ -194,3 +208,39 @@ def read_xml_aas_file(file: IO, failsafe: bool = True) -> model.DictObjectStore:
                      attributes and wrong types, errors are logged and defective objects are skipped
     :return: A DictObjectStore containing all AAS objects from the XML file
     """
+
+    tag_parser_map = {
+        NS_AAS + "assetAdministrationShell": construct_asset_administration_shell,
+        NS_AAS + "asset": construct_asset,
+        NS_AAS + "submodel": construct_submodel,
+        NS_AAS + "conceptDescription": construct_concept_description
+    }
+
+    tree = ElTree.parse(file)
+    root = tree.getroot()
+
+    # Add AAS objects to ObjectStore
+    ret: model.DictObjectStore[model.Identifiable] = model.DictObjectStore()
+    for list_ in root:
+        try:
+            if list_.tag[-1] != "s":
+                raise TypeError(f"Unexpected list {list_.tag}")
+            constructor = tag_parser_map[list_.tag[:-1]]
+            for element in list_:
+                if element.tag not in tag_parser_map.keys():
+                    error_message = f"Unexpected element {element.tag} in list {list_.tag}"
+                    if failsafe:
+                        logger.warning(error_message)
+                    else:
+                        raise TypeError(error_message)
+                parsed = object_from_xml(constructor, element, failsafe)
+                # parsed is always Identifiable, because the tag is checked earlier
+                # this is just to satisfy the typechecker and to make sure no error occured while parsing
+                if parsed and isinstance(parsed, model.Identifiable):
+                    ret.add(parsed)
+        except (KeyError, TypeError) as e:
+            error_message = f"{type(e).__name__} while parsing XML List with tag {list_.tag}: {e}"
+            if not failsafe:
+                raise type(e)(error_message)
+            logger.error(error_message)
+    return ret
