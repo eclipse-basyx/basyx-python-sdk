@@ -8,13 +8,12 @@
 # Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an
 # "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
 # specific language governing permissions and limitations under the License.
-import io
 import os
 import re
 import unittest
 
 import aas.compliance_tool.json as compliance_tool
-from aas.compliance_tool.helper import MessageLogger, MessageCategory
+from aas.util.message_logger import MessageLogger, MessageCategory
 
 dirname = os.path.dirname
 JSON_SCHEMA_FILE = os.path.join(dirname(dirname(dirname(__file__))), 'test\\adapter\\json\\aasJSONSchemaV2.0.json')

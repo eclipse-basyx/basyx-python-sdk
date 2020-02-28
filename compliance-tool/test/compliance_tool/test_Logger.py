@@ -10,7 +10,7 @@
 # specific language governing permissions and limitations under the License.
 import unittest
 
-from aas.compliance_tool.helper import MessageLogger, MessageCategory, LoggingMessage
+from aas.util.message_logger import MessageLogger, MessageCategory, LoggingMessage
 
 
 class ComplianceToolLoggerTest(unittest.TestCase):
@@ -20,20 +20,21 @@ class ComplianceToolLoggerTest(unittest.TestCase):
         logger.add_msg(LoggingMessage('test_warning', 'test_warning_category', MessageCategory.WARNING))
         logger.add_msg(LoggingMessage('test_success', 'test_success_category', MessageCategory.SUCCESS))
         messages = logger.get_messages_in_list(MessageCategory.ALL)
-        self.assertEqual(messages[0].__str__(), 'ERROR: test_error\nOccurred log messages:\ntest_error_category\n')
-        self.assertEqual(messages[1].__str__(), 'WARNING: test_warning\nOccurred log messages:\n'
-                                                'test_warning_category\n')
+        self.assertEqual(messages[0].__str__(verbose=True), 'ERROR: test_error\nOccurred log messages:\ntest_error_'
+                                                            'category\n')
+        self.assertEqual(messages[1].__str__(verbose=True), 'WARNING: test_warning\nOccurred log messages:\n'
+                                                            'test_warning_category\n')
         self.assertEqual(messages[2].__str__(), 'SUCCESS: test_success\n')
-        self.assertEqual(messages[2].__str__(deep=True), 'SUCCESS: test_success\nOccurred log messages:\n'
-                                                         'test_success_category\n')
+        self.assertEqual(messages[2].__str__(verbose=True), 'SUCCESS: test_success\nOccurred log messages:\n'
+                                                            'test_success_category\n')
         message_list = logger.get_messages_in_ordered_lists()
-        self.assertEqual(message_list[0][0].__str__(), 'ERROR: test_error\nOccurred log messages:\ntest_error_'
-                                                       'category\n')
-        self.assertEqual(message_list[1][0].__str__(), 'WARNING: test_warning\nOccurred log messages:\n'
-                                                       'test_warning_category\n')
+        self.assertEqual(message_list[0][0].__str__(verbose=True), 'ERROR: test_error\nOccurred log messages:\ntest_'
+                                                                   'error_category\n')
+        self.assertEqual(message_list[1][0].__str__(verbose=True), 'WARNING: test_warning\nOccurred log messages:\n'
+                                                                   'test_warning_category\n')
         self.assertEqual(message_list[2][0].__str__(), 'SUCCESS: test_success\n')
-        self.assertEqual(message_list[2][0].__str__(deep=True), 'SUCCESS: test_success\nOccurred log messages:\n'
-                                                                'test_success_category\n')
+        self.assertEqual(message_list[2][0].__str__(verbose=True), 'SUCCESS: test_success\nOccurred log messages:\n'
+                                                                   'test_success_category\n')
         logger.add_msg(LoggingMessage('test_failure', '', MessageCategory.ALL))
         with self.assertRaises(ValueError):
             logger.get_messages_in_ordered_lists()
