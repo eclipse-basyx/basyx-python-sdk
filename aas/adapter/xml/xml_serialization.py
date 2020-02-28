@@ -731,11 +731,11 @@ def annotated_relationship_element_to_xml(obj: model.AnnotatedRelationshipElemen
     :return: serialized ElementTree object
     """
     et_annotated_relationship_element = relationship_element_to_xml(obj, namespace, tag)
+    et_annotations = _generate_element(name="" + "annotations")
     if obj.annotation:
-        et_annotations = _generate_element(name="" + "annotations")
         for ref in obj.annotation:
-            et_annotations.append(reference_to_xml(ref, namespace="", tag="annotation"))
-        et_annotated_relationship_element.append(et_annotations)
+            et_annotations.append(reference_to_xml(ref, namespace="", tag="reference"))
+    et_annotated_relationship_element.append(et_annotations)
     return et_annotated_relationship_element
 
 
