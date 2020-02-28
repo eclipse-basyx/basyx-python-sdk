@@ -753,7 +753,7 @@ def operation_variable_to_xml(obj: model.OperationVariable,
     :return: serialized ElementTree object
     """
     et_operation_variable = _generate_element(namespace + "operationVariable")
-    et_operation_variable.append(submodel_element_to_xml(obj.value, namespace, "value"))
+    et_operation_variable.append(submodel_element_to_xml(obj.value, namespace, tag="value"))
     return et_operation_variable
 
 
