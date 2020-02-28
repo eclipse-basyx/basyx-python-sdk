@@ -819,8 +819,7 @@ def entity_to_xml(obj: model.Entity,
     et_entity.append(_generate_element(namespace + "entityType", text=ENTITY_TYPES[obj.entity_type]))
     et_statements = _generate_element(namespace + "statements")
     for statement in obj.statement:
-        et_statements.append(submodel_element_to_xml(statement, namespace, "statement"))
-        # todo: schema unclear/wrong
+        et_statements.append(submodel_element_to_xml(statement, namespace, "submodelElement"))
     et_entity.append(et_statements)
     return et_entity
 
