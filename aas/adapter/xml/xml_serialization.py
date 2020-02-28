@@ -736,7 +736,7 @@ def annotated_relationship_element_to_xml(obj: model.AnnotatedRelationshipElemen
     et_annotations = _generate_element(name=NS_AAS+"annotations")
     if obj.annotation:
         for ref in obj.annotation:
-            et_annotations.append(reference_to_xml(ref, namespace="", tag="reference"))
+            et_annotations.append(reference_to_xml(ref, namespace=NS_AAS, tag="reference"))
     et_annotated_relationship_element.append(et_annotations)
     return et_annotated_relationship_element
 
