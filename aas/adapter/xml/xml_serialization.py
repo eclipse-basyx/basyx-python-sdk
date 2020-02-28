@@ -525,6 +525,8 @@ def submodel_element_to_xml(obj: model.SubmodelElement,
             et_submodel_element.append(relationship_element_to_xml(obj, namespace))
     if isinstance(obj, model.SubmodelElementCollection):
         et_submodel_element.append(submodel_element_collection_to_xml(obj, namespace))
+    if isinstance(obj, model.ReferenceElement):
+        et_submodel_element.append(reference_element_to_xml(obj, namespace))
     return et_submodel_element
 
 
