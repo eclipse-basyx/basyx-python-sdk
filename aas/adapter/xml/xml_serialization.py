@@ -693,11 +693,11 @@ def submodel_element_collection_to_xml(obj: model.SubmodelElementCollection,
     et_submodel_element_collection = _generate_parent(namespace, tag, obj)
     et_submodel_element_collection.append(_generate_element(namespace + "allowDuplicates", text="false"))
     et_submodel_element_collection.append(_generate_element(namespace + "ordered", text=boolean_to_xml(obj.ordered)))
+    et_value = _generate_element(namespace + "value")
     if obj.value:
-        et_value = _generate_element(namespace + "value")
         for submodel_element in obj.value:
             et_value.append(submodel_element_to_xml(submodel_element, namespace))
-        et_submodel_element_collection.append(et_value)
+    et_submodel_element_collection.append(et_value)
     return et_submodel_element_collection
 
 
