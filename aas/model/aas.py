@@ -63,7 +63,7 @@ class View(base.Referable, base.HasSemantics):
         self.id_short = id_short
         self.contained_element: Set[base.AASReference] = set() if contained_element is None else contained_element
         self.category: Optional[str] = category
-        self.description: Optional[base.LangStringSet] = description
+        self.description: Optional[base.LangStringSet] = dict() if description is None else description
         self.parent: Optional[base.Namespace] = parent
         self.semantic_id: Optional[base.Reference] = semantic_id
 
@@ -116,7 +116,7 @@ class Asset(base.Identifiable):
         self.identification: base.Identifier = identification
         self.id_short = id_short
         self.category: Optional[str] = category
-        self.description: Optional[base.LangStringSet] = description
+        self.description: Optional[base.LangStringSet] = dict() if description is None else description
         self.parent: Optional[base.Namespace] = parent
         self.administration: Optional[base.AdministrativeInformation] = administration
         self.asset_identification_model: Optional[base.AASReference["submodel.Submodel"]] = asset_identification_model
@@ -128,8 +128,8 @@ class AssetAdministrationShell(base.Identifiable, base.Namespace):
     An Asset Administration Shell
 
     :ivar asset: reference to the asset the AAS is representing.
-    :ivar security_: Definition of the security relevant aspects of the AAS.
-    :ivar submodel_: Unordered list of submodels to describe typically the asset of an AAS.
+    :ivar security: Definition of the security relevant aspects of the AAS.
+    :ivar submodel: Unordered list of submodels to describe typically the asset of an AAS.
     :ivar concept_dictionary: Unordered list of concept dictionaries. The concept dictionaries typically contain only
                               descriptions for elements that are also used within the AAS
     :ivar view: Unordered list of stakeholder specific views that can group the elements of the AAS.
@@ -171,13 +171,13 @@ class AssetAdministrationShell(base.Identifiable, base.Namespace):
         self.identification: base.Identifier = identification
         self.id_short = id_short
         self.category: Optional[str] = category
-        self.description: Optional[base.LangStringSet] = description
+        self.description: Optional[base.LangStringSet] = dict() if description is None else description
         self.parent: Optional[base.Namespace] = parent
         self.administration: Optional[base.AdministrativeInformation] = administration
         self.derived_from: Optional[base.AASReference["AssetAdministrationShell"]] = derived_from
-        self.security_: Optional[security.Security] = security_
+        self.security: Optional[security.Security] = security_
         self.asset: base.AASReference[Asset] = asset
-        self.submodel_: Set[base.AASReference["submodel.Submodel"]] = set() if submodel_ is None else submodel_
+        self.submodel: Set[base.AASReference["submodel.Submodel"]] = set() if submodel_ is None else submodel_
         self.concept_dictionary: base.NamespaceSet[concept.ConceptDictionary] = \
             base.NamespaceSet(self, concept_dictionary)
         self.view: base.NamespaceSet[View] = base.NamespaceSet(self, view)

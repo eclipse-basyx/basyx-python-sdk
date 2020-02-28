@@ -125,11 +125,3 @@ _iri_segment_quote_table: Dict[int, Optional[str]] = str.maketrans(_iri_segment_
 
 def _quote_iri_segment(segment: str) -> str:
     return segment.translate(_iri_segment_quote_table)
-
-
-def find_reference_in_set(reference: model.Reference, set_to_search: Set) -> bool:
-    for reference_to_find in set_to_search:
-        if reference_to_find == reference:
-            return True
-    else:
-        return False

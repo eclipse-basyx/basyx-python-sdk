@@ -49,8 +49,8 @@ import urllib.error
 import threading
 import logging
 
-from aas import model
-from aas.adapter.json import json_serialization, json_deserialization
+from .. import model
+from .json import json_serialization, json_deserialization
 
 logger = logging.getLogger(__name__)
 

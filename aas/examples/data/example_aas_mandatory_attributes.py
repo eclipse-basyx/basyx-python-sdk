@@ -16,7 +16,12 @@ attributes.
 To get this object store use the function 'create_full_example'. If you want to get single example objects or want to
 get more information use the other functions.
 """
-from aas import model
+import logging
+
+from ... import model
+from ._helper import AASDataChecker
+
+logger = logging.getLogger(__name__)
 
 
 def create_full_example() -> model.DictObjectStore:
@@ -57,14 +62,14 @@ def create_example_submodel() -> model.Submodel:
     """
     submodel_element_property = model.Property(
         id_short='ExampleProperty',
-        value_type='string')
+        value_type=model.datatypes.String)
 
     submodel_element_multi_language_property = model.MultiLanguageProperty(
         id_short='ExampleMultiLanguageProperty')
 
     submodel_element_range = model.Range(
         id_short='ExampleRange',
-        value_type='int')
+        value_type=model.datatypes.Int)
 
     submodel_element_blob = model.Blob(
         id_short='ExampleBlob',
@@ -193,19 +198,19 @@ def create_example_asset_administration_shell(concept_dictionary: model.ConceptD
         asset=model.AASReference((model.Key(type_=model.KeyElements.ASSET,
                                             local=False,
                                             value='https://acplt.org/Test_Asset_Mandatory',
-                                            id_type=model.KeyType.IRDI),),
+                                            id_type=model.KeyType.IRI),),
                                  model.Asset),
         identification=model.Identifier(id_='https://acplt.org/Test_AssetAdministrationShell_Mandatory',
                                         id_type=model.IdentifierType.IRI),
         submodel_={model.AASReference((model.Key(type_=model.KeyElements.SUBMODEL,
                                                  local=False,
                                                  value='https://acplt.org/Test_Submodel_Mandatory',
-                                                 id_type=model.KeyType.IRDI),),
+                                                 id_type=model.KeyType.IRI),),
                                       model.Submodel),
                    model.AASReference((model.Key(type_=model.KeyElements.SUBMODEL,
                                                  local=False,
                                                  value='https://acplt.org/Test_Submodel2_Mandatory',
-                                                 id_type=model.KeyType.IRDI),),
+                                                 id_type=model.KeyType.IRI),),
                                       model.Submodel)},
         concept_dictionary=[concept_dictionary])
     return asset_administration_shell
@@ -222,8 +227,110 @@ def create_example_empty_asset_administration_shell() -> model.AssetAdministrati
         asset=model.AASReference((model.Key(type_=model.KeyElements.ASSET,
                                             local=False,
                                             value='https://acplt.org/Test_Asset_Mandatory',
-                                            id_type=model.KeyType.IRDI),),
+                                            id_type=model.KeyType.IRI),),
                                  model.Asset),
         identification=model.Identifier(id_='https://acplt.org/Test_AssetAdministrationShell2_Mandatory',
                                         id_type=model.IdentifierType.IRI))
     return asset_administration_shell
+
+
+##############################################################################
+# check functions for checking if an given object is the same as the example #
+##############################################################################
+def check_example_asset(checker: AASDataChecker, asset: model.Asset) -> None:
+    expected_asset = create_example_asset()
+    checker.check_asset_equal(asset, expected_asset)
+
+
+def check_example_concept_description(checker: AASDataChecker, concept_description: model.ConceptDescription) -> None:
+    expected_concept_description = create_example_concept_description()
+    checker.check_concept_description_equal(concept_description, expected_concept_description)
+
+
+def check_example_asset_administration_shell(checker: AASDataChecker, shell: model.AssetAdministrationShell) -> None:
+    example_cd = create_example_concept_dictionary()
+    expected_shell = create_example_asset_administration_shell(example_cd)
+    checker.check_asset_administration_shell_equal(shell, expected_shell)
+
+
+def check_example_empty_asset_administration_shell(checker: AASDataChecker, shell: model.AssetAdministrationShell) \
+        -> None:
+    expected_shell = create_example_empty_asset_administration_shell()
+    checker.check_asset_administration_shell_equal(shell, expected_shell)
+
+
+def check_example_submodel(checker: AASDataChecker, submodel: model.Submodel) -> None:
+    expected_submodel = create_example_submodel()
+    checker.check_submodel_equal(submodel, expected_submodel)
+
+
+def check_example_empty_submodel(checker: AASDataChecker, submodel: model.Submodel) -> None:
+    expected_submodel = create_example_empty_submodel()
+    checker.check_submodel_equal(submodel, expected_submodel)
+
+
+def check_full_example(checker: AASDataChecker, obj_store: model.DictObjectStore, failsafe: bool = False) -> None:
+    # separate different kind of objects
+    assets = []
+    submodels = []
+    concept_descriptions = []
+    shells = []
+    for obj in obj_store:
+        if isinstance(obj, model.Asset):
+            assets.append(obj)
+        elif isinstance(obj, model.AssetAdministrationShell):
+            shells.append(obj)
+        elif isinstance(obj, model.Submodel):
+            submodels.append(obj)
+        elif isinstance(obj, model.ConceptDescription):
+            concept_descriptions.append(obj)
+        else:
+            error_message = 'Check for {} not implemented'.format(obj)
+            if failsafe:
+                logger.warning(error_message)
+            else:
+                raise KeyError(error_message)
+
+    for asset in assets:
+        if asset.identification.id == 'https://acplt.org/Test_Asset_Mandatory':
+            check_example_asset(checker, asset)
+        else:
+            error_message = '{} is not in example'.format(asset)
+            if failsafe:
+                logger.warning(error_message)
+            else:
+                raise KeyError(error_message)
+
+    for shell in shells:
+        if shell.identification.id == 'https://acplt.org/Test_AssetAdministrationShell_Mandatory':
+            check_example_asset_administration_shell(checker, shell)
+        elif shell.identification.id == 'https://acplt.org/Test_AssetAdministrationShell2_Mandatory':
+            check_example_empty_asset_administration_shell(checker, shell)
+        else:
+            error_message = '{} is not in example'.format(shell)
+            if failsafe:
+                logger.warning(error_message)
+            else:
+                raise KeyError(error_message)
+
+    for submodel in submodels:
+        if submodel.identification.id == 'https://acplt.org/Test_Submodel_Mandatory':
+            check_example_submodel(checker, submodel)
+        elif submodel.identification.id == 'https://acplt.org/Test_Submodel2_Mandatory':
+            check_example_empty_submodel(checker, submodel)
+        else:
+            error_message = '{} is not in example'.format(submodel)
+            if failsafe:
+                logger.warning(error_message)
+            else:
+                raise KeyError(error_message)
+
+    for cd in concept_descriptions:
+        if cd.identification.id == 'https://acplt.org/Test_ConceptDescription_Mandatory':
+            check_example_concept_description(checker, cd)
+        else:
+            error_message = '{} is not in example'.format(cd)
+            if failsafe:
+                logger.warning(error_message)
+            else:
+                raise KeyError(error_message)

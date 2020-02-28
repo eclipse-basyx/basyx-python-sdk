@@ -13,9 +13,9 @@ This module contains everything needed to model Submodels and define Events acco
 """
 
 import abc
-from typing import Optional, Set, Iterable, TYPE_CHECKING, List
+from typing import Optional, Set, Iterable, TYPE_CHECKING, List, Type
 
-from . import base
+from . import base, datatypes
 if TYPE_CHECKING:
     from . import aas
 
@@ -62,7 +62,7 @@ class SubmodelElement(base.Referable, base.Qualifiable, base.HasSemantics, base.
         super().__init__()
         self.id_short = id_short
         self.category: Optional[str] = category
-        self.description: Optional[base.LangStringSet] = description
+        self.description: Optional[base.LangStringSet] = dict() if description is None else description
         self.parent: Optional[base.Namespace] = parent
         self.semantic_id: Optional[base.Reference] = semantic_id
         self.qualifier: Set[base.Constraint] = set() if qualifier is None else qualifier
@@ -117,7 +117,7 @@ class Submodel(base.Identifiable, base.HasSemantics, base.HasKind, base.Qualifia
         self.submodel_element = base.NamespaceSet(self, submodel_element)
         self.id_short = id_short
         self.category: Optional[str] = category
-        self.description: Optional[base.LangStringSet] = description
+        self.description: Optional[base.LangStringSet] = dict() if description is None else description
         self.parent: Optional[base.Namespace] = parent
         self.administration: Optional[base.AdministrativeInformation] = administration
         self.semantic_id: Optional[base.Reference] = semantic_id
@@ -209,9 +209,21 @@ class Property(DataElement):
         """
 
         super().__init__(id_short, category, description, parent, semantic_id, qualifier, kind)
-        self.value_type: base.DataTypeDef = value_type
-        self.value: Optional[base.ValueDataType] = value
+        self.value_type: Type[datatypes.AnyXSDType] = value_type
+        self._value: Optional[base.ValueDataType] = (datatypes.trivial_cast(value, value_type)
+                                                     if value is not None else None)
         self.value_id: Optional[base.Reference] = value_id
+
+    @property
+    def value(self):
+        return self._value
+
+    @value.setter
+    def value(self, value) -> None:
+        if value is None:
+            self._value = None
+        else:
+            self._value = datatypes.trivial_cast(value, self.value_type)
 
 
 class MultiLanguageProperty(DataElement):
@@ -257,7 +269,7 @@ class MultiLanguageProperty(DataElement):
         """
 
         super().__init__(id_short, category, description, parent, semantic_id, qualifier, kind)
-        self.value: Optional[base.LangStringSet] = value
+        self.value: base.LangStringSet = dict() if value is None else value
         self.value_id: Optional[base.Reference] = value_id
 
 
@@ -266,11 +278,11 @@ class Range(DataElement):
     A property is a data element that has a multi language value.
 
     :ivar value_type: Data type of the min and max
-    :ivar min_: The minimum value of the range. If the min value is missing then the value is assumed to be negative
+    :ivar min: The minimum value of the range. If the min value is missing then the value is assumed to be negative
                 infinite.
                 Constraint AASd-013: In case of a range with kind=Instance either the min or the max value or both need
                                      to be defined
-    :ivar max_: The maximum of the range. If the max value is missing then the value is assumed to be positive infinite
+    :ivar max: The maximum of the range. If the max value is missing then the value is assumed to be positive infinite
     """
 
     def __init__(self,
@@ -311,8 +323,30 @@ class Range(DataElement):
 
         super().__init__(id_short, category, description, parent, semantic_id, qualifier, kind)
         self.value_type: base.DataTypeDef = value_type
-        self.min_: Optional[base.ValueDataType] = min_
-        self.max_: Optional[base.ValueDataType] = max_
+        self._min: Optional[base.ValueDataType] = datatypes.trivial_cast(min_, value_type) if min_ is not None else None
+        self._max: Optional[base.ValueDataType] = datatypes.trivial_cast(max_, value_type) if max_ is not None else None
+
+    @property
+    def min(self):
+        return self._min
+
+    @min.setter
+    def min(self, value) -> None:
+        if value is None:
+            self._min = None
+        else:
+            self._min = datatypes.trivial_cast(value, self.value_type)
+
+    @property
+    def max(self):
+        return self._max
+
+    @max.setter
+    def max(self, value) -> None:
+        if value is None:
+            self._max = None
+        else:
+            self._max = datatypes.trivial_cast(value, self.value_type)
 
 
 class Blob(DataElement):

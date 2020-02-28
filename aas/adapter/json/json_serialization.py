@@ -53,7 +53,6 @@ KEY_ELEMENTS: Dict[model.KeyElements, str] = {
     model.KeyElements.BLOB: 'Blob',
     model.KeyElements.CAPABILITY: 'Capability',
     model.KeyElements.CONCEPT_DICTIONARY: 'ConceptDictionary',
-    model.KeyElements.DATA_ELEMENT: 'DataElement',
     model.KeyElements.ENTITY: 'Entity',
     model.KeyElements.EVENT: 'Event',
     model.KeyElements.FILE: 'File',
@@ -67,7 +66,8 @@ KEY_ELEMENTS: Dict[model.KeyElements, str] = {
     model.KeyElements.SUBMODEL_ELEMENT_COLLECTION: 'SubmodelElementCollection',
     model.KeyElements.VIEW: 'View',
     model.KeyElements.GLOBAL_REFERENCE: 'GlobalReference',
-    model.KeyElements.FRAGMENT_REFERENCE: 'FragmentReference'}
+    model.KeyElements.FRAGMENT_REFERENCE: 'FragmentReference',
+    model.KeyElements.DATA_ELEMENT: 'DataElement'}
 
 KEY_TYPES: Dict[model.KeyType, str] = {
     model.KeyType.CUSTOM: 'Custom',
@@ -161,7 +161,7 @@ def key_to_json(obj: model.Key) -> Dict[str, object]:
     :return: dict with the serialized attributes of this object
     """
     data = abstract_classes_to_json(obj)
-    data.update({'type': KEY_ELEMENTS[obj.type_],
+    data.update({'type': KEY_ELEMENTS[obj.type],
                  'idType': KEY_TYPES[obj.id_type],
                  'value': obj.value,
                  'local': obj.local})
@@ -259,11 +259,11 @@ def qualifier_to_json(obj: model.Qualifier) -> Dict[str, object]:
     data = abstract_classes_to_json(obj)
     data.update(constraint_to_json(obj))
     if obj.value:
-        data['value'] = obj.value
+        data['value'] = model.datatypes.xsd_repr(obj.value) if obj.value is not None else None
     if obj.value_id:
         data['valueId'] = obj.value_id
-    data['valueType'] = obj.value_type
-    data['type'] = obj.type_
+    data['valueType'] = model.datatypes.XSD_TYPE_NAMES[obj.value_type]
+    data['type'] = obj.type
     return data
 
 
@@ -275,9 +275,9 @@ def value_reference_pair_to_json(obj: model.ValueReferencePair) -> Dict[str, obj
     :return: dict with the serialized attributes of this object
     """
     data = abstract_classes_to_json(obj)
-    data.update({'value': obj.value,
+    data.update({'value': model.datatypes.xsd_repr(obj.value),
                  'valueId': obj.value_id,
-                 'valueType': obj.value_type})
+                 'valueType': model.datatypes.XSD_TYPE_NAMES[obj.value_type]})
     return data
 
 
@@ -368,11 +368,11 @@ def append_iec61360_concept_description_attrs(obj: model.concept.IEC61360Concept
     if obj.symbol is not None:
         data_spec['symbol'] = obj.symbol
     if obj.value_format is not None:
-        data_spec['valueFormat'] = obj.value_format
+        data_spec['valueFormat'] = model.datatypes.XSD_TYPE_NAMES[obj.value_format]
     if obj.value_list is not None:
         data_spec['valueList'] = value_list_to_json(obj.value_list)
     if obj.value is not None:
-        data_spec['value'] = obj.value
+        data_spec['value'] = model.datatypes.xsd_repr(obj.value) if obj.value is not None else None
     if obj.value_id is not None:
         data_spec['valueId'] = obj.value_id
     if obj.level_types:
@@ -411,14 +411,14 @@ def asset_administration_shell_to_json(obj: model.AssetAdministrationShell) -> D
     if obj.derived_from:
         data["derivedFrom"] = obj.derived_from
     data["asset"] = obj.asset
-    if obj.submodel_:
-        data["submodels"] = list(obj.submodel_)
+    if obj.submodel:
+        data["submodels"] = list(obj.submodel)
     if obj.view:
         data["views"] = list(obj.view)
     if obj.concept_dictionary:
         data["conceptDictionaries"] = list(obj.concept_dictionary)
-    if obj.security_:
-        data["security"] = obj.security_
+    if obj.security:
+        data["security"] = obj.security
     return data
 
 
@@ -473,10 +473,10 @@ def property_to_json(obj: model.Property) -> Dict[str, object]:
     :return: dict with the serialized attributes of this object
     """
     data = abstract_classes_to_json(obj)
-    data['value'] = obj.value
+    data['value'] = model.datatypes.xsd_repr(obj.value) if obj.value is not None else None
     if obj.value_id:
         data['valueId'] = obj.value_id
-    data['valueType'] = obj.value_type
+    data['valueType'] = model.datatypes.XSD_TYPE_NAMES[obj.value_type]
     return data
 
 
@@ -503,7 +503,9 @@ def range_to_json(obj: model.Range) -> Dict[str, object]:
     :return: dict with the serialized attributes of this object
     """
     data = abstract_classes_to_json(obj)
-    data.update({'valueType': obj.value_type, 'min': obj.min_, 'max': obj.max_})
+    data.update({'valueType': model.datatypes.XSD_TYPE_NAMES[obj.value_type],
+                 'min': model.datatypes.xsd_repr(obj.min) if obj.min is not None else None,
+                 'max': model.datatypes.xsd_repr(obj.max) if obj.max is not None else None})
     return data
 
 
@@ -734,16 +736,7 @@ class AASToJsonEncoder(json.JSONEncoder):
         return super().default(obj)
 
 
-def write_aas_json_file(file: IO, data: model.AbstractObjectStore, **kwargs) -> None:
-    """
-    Write a set of AAS objects to an Asset Adminstration Shell JSON file according to 'Details of the Asset
-    Administration Shell', chapter 5.5
-
-    :param file: A file-like object to write the JSON-serialized data to
-    :param data: ObjectStore which contains different objects of the AAS meta model which should be serialized to a
-                 JSON file
-    :param kwargs: Additional keyword arguments to be passed to json.dump()
-    """
+def _create_dict(data: model.AbstractObjectStore) -> dict:
     # separate different kind of objects
     assets = []
     asset_administation_shells = []
@@ -758,11 +751,37 @@ def write_aas_json_file(file: IO, data: model.AbstractObjectStore, **kwargs) -> 
             submodels.append(obj)
         if isinstance(obj, model.ConceptDescription):
             concept_descriptions.append(obj)
-
-    # serialize object to json
-    json.dump({
+    dict_ = {
         'assetAdministrationShells': asset_administation_shells,
         'submodels': submodels,
         'assets': assets,
         'conceptDescriptions': concept_descriptions,
-    }, file, cls=AASToJsonEncoder, **kwargs)
+    }
+    return dict_
+
+
+def object_store_to_json(data: model.AbstractObjectStore, **kwargs) -> str:
+    """
+    Create a json serialization of a set of AAS objects according to 'Details of the Asset Administration Shell',
+    chapter 5.5
+
+    :param data: ObjectStore which contains different objects of the AAS meta model which should be serialized to a
+                 JSON file
+    :param kwargs: Additional keyword arguments to be passed to json.dump()
+    """
+    # serialize object to json
+    return json.dumps(_create_dict(data), cls=AASToJsonEncoder, **kwargs)
+
+
+def write_aas_json_file(file: IO, data: model.AbstractObjectStore, **kwargs) -> None:
+    """
+    Write a set of AAS objects to an Asset Adminstration Shell JSON file according to 'Details of the Asset
+    Administration Shell', chapter 5.5
+
+    :param file: A file-like object to write the JSON-serialized data to
+    :param data: ObjectStore which contains different objects of the AAS meta model which should be serialized to a
+                 JSON file
+    :param kwargs: Additional keyword arguments to be passed to json.dumps()
+    """
+    # serialize object to json
+    json.dump(_create_dict(data), file, cls=AASToJsonEncoder, **kwargs)

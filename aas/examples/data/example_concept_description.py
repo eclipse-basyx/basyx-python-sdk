@@ -11,9 +11,13 @@
 """
 Module for creation of an example concept description
 """
+import logging
 
-from aas import model
-from aas.model.concept import *
+from ... import model
+from ._helper import AASDataChecker
+from ...model.concept import *
+
+logger = logging.getLogger(__name__)
 
 
 def create_iec61360_concept_description() -> IEC61360ConceptDescription:
@@ -34,7 +38,7 @@ def create_iec61360_concept_description() -> IEC61360ConceptDescription:
         is_case_of={model.Reference((model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
                                                local=False,
                                                value='http://acplt.org/ReferenceElements/ConceptDescriptionX',
-                                               id_type=model.KeyType.IRDI),))},
+                                               id_type=model.KeyType.IRI),))},
         id_short="TestSpec_01",
         category=None,
         description=None,
@@ -44,25 +48,88 @@ def create_iec61360_concept_description() -> IEC61360ConceptDescription:
         unit_id=model.Reference((model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
                                            local=False,
                                            value='http://acplt.org/Units/SpaceUnit',
-                                           id_type=model.KeyType.IRDI),)),
+                                           id_type=model.KeyType.IRI),)),
         source_of_definition="http://acplt.org/DataSpec/ExampleDef",
         symbol="SU",
-        value_format="string",
+        value_format=model.datatypes.String,
         value_list={
             model.ValueReferencePair(
-                value_type='string',
+                value_type=model.datatypes.String,
                 value='exampleValue',
                 value_id=model.Reference((model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
                                                     local=False,
                                                     value='http://acplt.org/ValueId/ExampleValueId',
-                                                    id_type=model.KeyType.IRDI),)),),
+                                                    id_type=model.KeyType.IRI),)),),
             model.ValueReferencePair(
-                value_type='string',
+                value_type=model.datatypes.String,
                 value='exampleValue2',
                 value_id=model.Reference((model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
                                                     local=False,
                                                     value='http://acplt.org/ValueId/ExampleValueId2',
-                                                    id_type=model.KeyType.IRDI),)),)},
+                                                    id_type=model.KeyType.IRI),)),)},
         value="TEST",
         value_id=None,
         level_types={IEC61360LevelType.MIN, IEC61360LevelType.MAX})
+
+
+##############################################################################
+# check functions for checking if an given object is the same as the example #
+##############################################################################
+def check_example_iec61360_concept_description(checker: AASDataChecker,
+                                               concept_description: model.concept.IEC61360ConceptDescription) -> None:
+    expected_concept_description = create_iec61360_concept_description()
+    checker.check_concept_description_equal(concept_description, expected_concept_description)
+
+
+def check_full_example(checker: AASDataChecker, obj_store: model.DictObjectStore, failsafe: bool = False) -> None:
+    # separate different kind of objects
+    assets = []
+    submodels = []
+    concept_descriptions = []
+    shells = []
+    for obj in obj_store:
+        if isinstance(obj, model.Asset):
+            assets.append(obj)
+        elif isinstance(obj, model.AssetAdministrationShell):
+            shells.append(obj)
+        elif isinstance(obj, model.Submodel):
+            submodels.append(obj)
+        elif isinstance(obj, model.ConceptDescription):
+            concept_descriptions.append(obj)
+        else:
+            error_message = 'Check for {} not implemented'.format(obj)
+            if failsafe:
+                logger.warning(error_message)
+            else:
+                raise KeyError(error_message)
+
+    for asset in assets:
+        error_message = '{} is not in example'.format(asset)
+        if failsafe:
+            logger.warning(error_message)
+        else:
+            raise KeyError(error_message)
+
+    for shell in shells:
+        error_message = '{} is not in example'.format(shell)
+        if failsafe:
+            logger.warning(error_message)
+        else:
+            raise KeyError(error_message)
+
+    for submodel in submodels:
+        error_message = '{} is not in example'.format(submodel)
+        if failsafe:
+            logger.warning(error_message)
+        else:
+            raise KeyError(error_message)
+
+    for cd in concept_descriptions:
+        if cd.identification.id == 'http://acplt.org/DataSpecifciations/Example/Identification':
+            check_example_iec61360_concept_description(checker, cd)  # type: ignore
+        else:
+            error_message = '{} is not in example'.format(cd)
+            if failsafe:
+                logger.warning(error_message)
+            else:
+                raise KeyError(error_message)
