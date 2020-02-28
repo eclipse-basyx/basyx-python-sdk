@@ -25,7 +25,7 @@ XML_SCHEMA_FILE = os.path.join(os.path.dirname(__file__), 'AAS.xsd')
 class XMLSerializationTest(unittest.TestCase):
     def test_serialize_object(self) -> None:
         test_object = model.Property("test_id_short",
-                                     "string",
+                                     model.datatypes.String,
                                      category="PARAMETER",
                                      description={"en-us": "Germany", "de": "Deutschland"})
         xml_data = xml_serialization.property_to_xml(test_object, xml_serialization.NS_AAS, "test_object")

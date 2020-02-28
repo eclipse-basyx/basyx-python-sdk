@@ -265,7 +265,7 @@ def reference_to_xml(obj: model.Reference, namespace: str, tag: str) -> ElTree.E
                                          text=aas_key.value,
                                          attributes={"idType": KEY_TYPES[aas_key.id_type],
                                                      "local": boolean_to_xml(aas_key.local),
-                                                     "type": KEY_ELEMENTS[aas_key.type_]}))
+                                                     "type": KEY_ELEMENTS[aas_key.type]}))
     et_reference.append(et_keys)
     return et_reference
 
@@ -302,8 +302,8 @@ def qualifier_to_xml(obj: model.Qualifier, namespace: str, tag: str = "qualifier
         et_qualifier.append(reference_to_xml(obj.value_id, namespace, "valueId"))
     if obj.value:
         et_qualifier.append(_generate_element(namespace + "value", text=obj.value))
-    et_qualifier.append(_generate_element(namespace + "type", text=obj.type_))
-    et_qualifier.append(_generate_element(namespace + "valueType", text=obj.value_type))
+    et_qualifier.append(_generate_element(namespace + "type", text=obj.type))
+    et_qualifier.append(_generate_element(namespace + "valueType", text=model.datatypes.XSD_TYPE_NAMES[obj.value_type]))
     return et_qualifier
 
 
@@ -440,9 +440,9 @@ def asset_administration_shell_to_xml(obj: model.AssetAdministrationShell,
     if obj.derived_from:
         et_aas.append(reference_to_xml(obj.derived_from, namespace=namespace, tag="derivedFrom"))
     et_aas.append(reference_to_xml(obj.asset, namespace=namespace, tag="assetRef"))
-    if obj.submodel_:
+    if obj.submodel:
         et_submodels = _generate_element(namespace + "submodelRefs")
-        for reference in obj.submodel_:
+        for reference in obj.submodel:
             et_submodels.append(reference_to_xml(reference, namespace=namespace, tag="submodelRef"))
         et_aas.append(et_submodels)
     if obj.view:
@@ -457,8 +457,8 @@ def asset_administration_shell_to_xml(obj: model.AssetAdministrationShell,
                                                                      namespace,
                                                                      "conceptDictionary"))
         et_aas.append(et_concept_dictionaries)
-    if obj.security_:
-        et_aas.append(security_to_xml(obj.security_, namespace=NS_ABAC, tag="security"))
+    if obj.security:
+        et_aas.append(security_to_xml(obj.security, namespace=NS_ABAC, tag="security"))
     return et_aas
 
 
@@ -580,7 +580,7 @@ def property_to_xml(obj: model.Property,
         et_property.append(reference_to_xml(obj.value_id, namespace, "valueId"))
     if obj.value:
         et_property.append(_generate_element(namespace + "value", text=obj.value))
-    et_property.append(_generate_element(namespace + "valueType", text=obj.value_type))
+    et_property.append(_generate_element(namespace + "valueType", text=model.datatypes.XSD_TYPE_NAMES[obj.value_type]))
     return et_property
 
 
@@ -615,11 +615,12 @@ def range_to_xml(obj: model.Range,
     :return: serialized ElementTree object
     """
     et_range = _generate_parent(namespace, tag, obj)
-    if obj.max_:
-        et_range.append(_generate_element(name=namespace + "max", text=obj.max_))
-    if obj.min_:
-        et_range.append(_generate_element(name=namespace + "min", text=obj.min_))
-    et_range.append(_generate_element(name=namespace + "valueType", text=obj.value_type))
+    if obj.max:
+        et_range.append(_generate_element(name=namespace + "max", text=model.datatypes.xsd_repr(obj.max)))
+    if obj.min:
+        et_range.append(_generate_element(name=namespace + "min", text=model.datatypes.xsd_repr(obj.min)))
+    et_range.append(_generate_element(name=namespace + "valueType",
+                                      text=model.datatypes.XSD_TYPE_NAMES[obj.value_type]))
     return et_range
 
 
