@@ -13,6 +13,7 @@ Message Logger to store LoggingMessages
 """
 from enum import Flag, auto
 from typing import List, Tuple, Optional
+import logging
 
 
 class MessageCategory(Flag):
@@ -43,12 +44,19 @@ class LoggingMessage():
         self.msg_category: str = msg_category
         self.category: MessageCategory = category
 
-    def __str__(self, deep=False):
-        if self.msg_category and (self.category & MessageCategory.ERROR or self.category & MessageCategory.WARNING or
-                                  deep):
+    def __str__(self, verbose=False):
+        if self.msg_category and verbose:
             return '{}: {}\nOccurred log messages:\n{}\n'.format(self.category.name, self.msg, self.msg_category)
         else:
             return '{}: {}\n'.format(self.category.name, self.msg)
+
+
+class LogFilter(logging.Filter):
+    def __init__(self, level):
+        self.__level = level
+
+    def filter(self, log_record):
+        return log_record.levelno <= self.__level
 
 
 class MessageLogger():

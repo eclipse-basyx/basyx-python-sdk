@@ -32,18 +32,10 @@ from aas import model
 from aas.adapter.json import json_deserialization
 from aas.examples.data import example_aas
 from aas.examples.data._helper import AASDataChecker
-from aas.compliance_tool.helper import MessageLogger, LoggingMessage, MessageCategory
+from aas.util.message_logger import MessageLogger, LoggingMessage, MessageCategory, LogFilter
 
 dirname = os.path.dirname
 JSON_SCHEMA_FILE = os.path.join(dirname(dirname(dirname(__file__))), 'test\\adapter\\json\\aasJSONSchemaV2.0.json')
-
-
-class LogFilter(logging.Filter):
-    def __init__(self, level):
-        self.__level = level
-
-    def filter(self, log_record):
-        return log_record.levelno <= self.__level
 
 
 def check_schema(file_path: str, logger: MessageLogger) -> None:
@@ -165,11 +157,15 @@ def check_aas_example(file_path: str, failsafe: bool, logger: MessageLogger) -> 
     logger_example.addHandler(handler_warning)
     logger_example.addHandler(handler_info)
 
-    obj_store = check_deserialization(file_path, False, logger)
+    logger_2 = MessageLogger()
+    obj_store = check_deserialization(file_path, False, logger_2)
 
-    if logger.error:
+    if logger_2.error:
+        msg = ''
+        for m in logger_2.get_messages_in_list(MessageCategory.ERROR):
+            msg += '{}\n'.format(m)
         logger.add_msg(LoggingMessage('Could not check against example data cause of error in deserialization of '
-                                      'file {}'.format(file_path), '', MessageCategory.ERROR))
+                                      'file {}'.format(file_path), msg, MessageCategory.ERROR))
         return
 
     checker = AASDataChecker(raise_immediately=(not failsafe))
@@ -199,18 +195,25 @@ def check_json_files_conform(file_path_1: str, file_path_2: str, failsafe: bool,
     tmp_file = io.StringIO()
     logging.basicConfig(format='%(levelname)s: %(message)s', level=logging.DEBUG, stream=tmp_file)
 
-    obj_store_1 = check_deserialization(file_path_1, False, logger)
+    logger_2 = MessageLogger()
+    obj_store_1 = check_deserialization(file_path_1, False, logger_2)
 
-    if logger.error:
-        logger.add_msg(LoggingMessage('Could not check files cause of error in deserialization of '
-                                      'file {}'.format(file_path_1), '', MessageCategory.ERROR))
+    if logger_2.error:
+        msg = ''
+        for m in logger_2.get_messages_in_list(MessageCategory.ERROR):
+            msg += '{}\n'.format(m)
+        logger.add_msg(LoggingMessage('Could not check files cause of error in deserialization of file '
+                                      '{}'.format(file_path_1), msg, MessageCategory.ERROR))
         return
 
-    obj_store_2 = check_deserialization(file_path_2, False, logger)
+    obj_store_2 = check_deserialization(file_path_2, False, logger_2)
 
-    if logger.error:
-        logger.add_msg(LoggingMessage('Could not check files cause of error in deserialization of '
-                                      'file {}'.format(file_path_2), '', MessageCategory.ERROR))
+    if logger_2.error:
+        msg = ''
+        for m in logger_2.get_messages_in_list(MessageCategory.ERROR):
+            msg += '{}\n'.format(m)
+        logger.add_msg(LoggingMessage('Could not check files cause of error in deserialization of file '
+                                      '{}'.format(file_path_2), msg, MessageCategory.ERROR))
         return
 
     checker = AASDataChecker(raise_immediately=(not failsafe))
