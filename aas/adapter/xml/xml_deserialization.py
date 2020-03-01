@@ -41,7 +41,11 @@ T = TypeVar('T')
 def _unwrap(monad: Optional[Any]) -> Any:
     if monad is not None:
         return monad
-    raise Exception(f"Unwrap failed for value {monad}!")
+    raise TypeError(f"Unwrap failed for value {monad}!")
+
+
+def _constructor_name_to_typename(constructor: Callable[[ElTree.Element, bool], T]) -> str:
+    return "".join([s[0].upper() + s[1:] for s in constructor.__name__.split("_")[2:]])
 
 
 def _get_text_or_none(element: Optional[ElTree.Element]) -> Optional[str]:
@@ -50,10 +54,10 @@ def _get_text_or_none(element: Optional[ElTree.Element]) -> Optional[str]:
 
 def _get_text_mandatory(element: Optional[ElTree.Element]) -> str:
     # unwrap value here so an exception is thrown if the element is None
-    text = _get_text_or_none(_unwrap(element))
+    element_unwrapped = _unwrap(element)
+    text = _get_text_or_none(element_unwrapped)
     if not text:
-        # ignore type here as the "None case" cannot occur because of _unwrap()
-        raise TypeError(f"XML element {element.tag} has no text!")  # type: ignore
+        raise TypeError(f"XML element {element_unwrapped.tag} has no text!")
     return text
 
 
@@ -67,7 +71,7 @@ def _objects_from_xml_elements(elements: List[ElTree.Element], constructor: Call
             error_message = "{} while converting XML element with tag {} to type {}: {}".format(
                 type(e).__name__,
                 element.tag,
-                constructor.__name__,
+                _constructor_name_to_typename(constructor),
                 e
             )
             if failsafe:
@@ -91,7 +95,7 @@ def _object_from_xml_element_mandatory(parent: ElTree.Element, tag: str,
     return _unwrap(_object_from_xml_element(element, constructor, False))
 
 
-def construct_key(element: ElTree.Element, _failsafe: bool) -> model.Key:
+def _construct_key(element: ElTree.Element, _failsafe: bool) -> model.Key:
     return model.Key(
         KEY_ELEMENTS_INVERSE[element.attrib["type"]],
         element.attrib["local"] == "True",
@@ -100,28 +104,28 @@ def construct_key(element: ElTree.Element, _failsafe: bool) -> model.Key:
     )
 
 
-def construct_reference(element: ElTree.Element, failsafe: bool) -> model.Reference:
+def _construct_reference(element: ElTree.Element, failsafe: bool) -> model.Reference:
     return model.Reference(
-        tuple(_objects_from_xml_elements(_unwrap(element.find(NS_AAS + "keys")).findall(NS_AAS + "key"), construct_key,
+        tuple(_objects_from_xml_elements(_unwrap(element.find(NS_AAS + "keys")).findall(NS_AAS + "key"), _construct_key,
                                          failsafe))
     )
 
 
-def construct_administrative_information(element: ElTree.Element, _failsafe: bool) -> model.AdministrativeInformation:
+def _construct_administrative_information(element: ElTree.Element, _failsafe: bool) -> model.AdministrativeInformation:
     return model.AdministrativeInformation(
         _get_text_or_none(element.find(NS_AAS + "version")),
         _get_text_or_none(element.find(NS_AAS + "revision"))
     )
 
 
-def construct_lang_string_set(element: ElTree.Element, _failsafe: bool) -> model.LangStringSet:
+def _construct_lang_string_set(element: ElTree.Element, _failsafe: bool) -> model.LangStringSet:
     lss: model.LangStringSet = {}
     for lang_string in element.findall(NS_IEC + "langString"):
         lss[lang_string.attrib["lang"]] = _get_text_mandatory(lang_string)
     return lss
 
 
-def construct_qualifier(element: ElTree.Element, failsafe: bool) -> model.Qualifier:
+def _construct_qualifier(element: ElTree.Element, failsafe: bool) -> model.Qualifier:
     q = model.Qualifier(
         _get_text_mandatory(element.find(NS_AAS + "type")),
         _get_text_mandatory(element.find(NS_AAS + "valueType")),
@@ -129,16 +133,15 @@ def construct_qualifier(element: ElTree.Element, failsafe: bool) -> model.Qualif
     )
     value_id = element.find(NS_AAS + "valueId")
     if value_id:
-        q.value_id = _unwrap(_object_from_xml_element(value_id, construct_reference, failsafe))
-    amend_abstract_attributes(q, element, failsafe)
+        q.value_id = _unwrap(_object_from_xml_element(value_id, _construct_reference, failsafe))
+    _amend_abstract_attributes(q, element, failsafe)
     return q
 
 
-def construct_formula(element: ElTree.Element, failsafe: bool) -> model.Formula:
+def _construct_formula(element: ElTree.Element, failsafe: bool) -> model.Formula:
     ref_set: Set[model.Reference] = set()
-
     for ref in element:
-        obj = _object_from_xml_element(ref, construct_reference, failsafe)
+        obj = _object_from_xml_element(ref, _construct_reference, failsafe)
         if not obj:
             logger.warning(f"Skipping invalid XML element with tag {ref.tag}")
             continue
@@ -146,65 +149,65 @@ def construct_formula(element: ElTree.Element, failsafe: bool) -> model.Formula:
     return model.Formula(ref_set)
 
 
-def construct_constraint(element: ElTree.Element, failsafe: bool) -> model.Constraint:
+def _construct_constraint(element: ElTree.Element, failsafe: bool) -> model.Constraint:
     return {
-        NS_AAS + "qualifier": construct_qualifier,
-        NS_AAS + "formula": construct_formula
+        NS_AAS + "qualifier": _construct_qualifier,
+        NS_AAS + "formula": _construct_formula
     }[element.tag](element, failsafe)
 
 
-def construct_identification(element: ElTree.Element, _failsafe: bool) -> model.Identifier:
+def _construct_identification(element: ElTree.Element, _failsafe: bool) -> model.Identifier:
     return model.Identifier(
         _get_text_mandatory(element),
         IDENTIFIER_TYPES_INVERSE[element.attrib["idType"]]
     )
 
 
-def construct_asset_administration_shell(element: ElTree.Element, failsafe: bool) -> model.AssetAdministrationShell:
+def _construct_asset_administration_shell(element: ElTree.Element, failsafe: bool) -> model.AssetAdministrationShell:
     pass
 
 
-def construct_asset(element: ElTree.Element, failsafe: bool) -> model.Asset:
+def _construct_asset(element: ElTree.Element, failsafe: bool) -> model.Asset:
     pass
 
 
-def construct_submodel(element: ElTree.Element, failsafe: bool) -> model.Submodel:
+def _construct_submodel(element: ElTree.Element, failsafe: bool) -> model.Submodel:
     pass
 
 
-def construct_concept_description(element: ElTree.Element, failsafe: bool) -> model.ConceptDescription:
+def _construct_concept_description(element: ElTree.Element, failsafe: bool) -> model.ConceptDescription:
     cd = model.ConceptDescription(
-        _object_from_xml_element_mandatory(element, NS_AAS + "identification", construct_identification),
-        set(_objects_from_xml_elements(element.findall(NS_AAS + "isCaseOf"), construct_reference, failsafe))
+        _object_from_xml_element_mandatory(element, NS_AAS + "identification", _construct_identification),
+        set(_objects_from_xml_elements(element.findall(NS_AAS + "isCaseOf"), _construct_reference, failsafe))
     )
-    amend_abstract_attributes(cd, element, failsafe)
+    _amend_abstract_attributes(cd, element, failsafe)
     return cd
 
 
-def amend_abstract_attributes(obj: object, element: ElTree.Element, failsafe: bool) -> None:
+def _amend_abstract_attributes(obj: object, element: ElTree.Element, failsafe: bool) -> None:
     if isinstance(obj, model.Referable):
         if element.find(NS_AAS + "category"):
             obj.category = _get_text_or_none(element.find(NS_AAS + "category"))
         description = element.find(NS_AAS + "description")
         if description:
-            obj.description = _object_from_xml_element(description, construct_lang_string_set, failsafe)
+            obj.description = _object_from_xml_element(description, _construct_lang_string_set, failsafe)
     if isinstance(obj, model.Identifiable):
         if element.find(NS_AAS + "idShort"):
             obj.id_short = _get_text_or_none(element.find(NS_AAS + "idShort"))
         administration = element.find(NS_AAS + "administration")
         if administration:
-            obj.administration = _object_from_xml_element(administration, construct_administrative_information,
+            obj.administration = _object_from_xml_element(administration, _construct_administrative_information,
                                                           failsafe)
     if isinstance(obj, model.HasSemantics):
         semantic_id = element.find(NS_AAS + "semanticId")
         if semantic_id:
-            obj.semantic_id = _object_from_xml_element(semantic_id, construct_reference, failsafe)
+            obj.semantic_id = _object_from_xml_element(semantic_id, _construct_reference, failsafe)
     if isinstance(obj, model.Qualifiable):
         for constraint in element:
             if constraint.tag != NS_AAS + "qualifiers":
                 logger.warning(f"Skipping XML element with invalid tag {constraint.tag}")
                 continue
-            constraint_obj = _object_from_xml_element(constraint, construct_constraint, failsafe)
+            constraint_obj = _object_from_xml_element(constraint, _construct_constraint, failsafe)
             if not constraint_obj:
                 logger.warning(f"Skipping invalid XML element with tag {constraint.tag}")
                 continue
@@ -222,10 +225,10 @@ def read_xml_aas_file(file: IO, failsafe: bool = True) -> model.DictObjectStore:
     """
 
     tag_parser_map = {
-        NS_AAS + "assetAdministrationShell": construct_asset_administration_shell,
-        NS_AAS + "asset": construct_asset,
-        NS_AAS + "submodel": construct_submodel,
-        NS_AAS + "conceptDescription": construct_concept_description
+        NS_AAS + "assetAdministrationShell": _construct_asset_administration_shell,
+        NS_AAS + "asset": _construct_asset,
+        NS_AAS + "submodel": _construct_submodel,
+        NS_AAS + "conceptDescription": _construct_concept_description
     }
 
     tree = ElTree.parse(file)
