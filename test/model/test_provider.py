@@ -39,10 +39,13 @@ class ProvidersTest(unittest.TestCase):
         self.assertEqual(2, len(object_store))
         self.assertIs(self.aas1,
                       object_store.get_identifiable(model.Identifier("urn:x-test:aas1", model.IdentifierType.IRI)))
+        self.assertIs(self.aas1,
+                      object_store.get(model.Identifier("urn:x-test:aas1", model.IdentifierType.IRI)))
         object_store.discard(self.aas1)
         object_store.discard(self.aas1)
         with self.assertRaises(KeyError) as cm:
             object_store.get_identifiable(model.Identifier("urn:x-test:aas1", model.IdentifierType.IRI))
+        self.assertIsNone(object_store.get(model.Identifier("urn:x-test:aas1", model.IdentifierType.IRI)))
         self.assertEqual("Identifier(IRI=urn:x-test:aas1)", str(cm.exception))
         self.assertIs(self.aas2, object_store.pop())
         self.assertEqual(0, len(object_store))
