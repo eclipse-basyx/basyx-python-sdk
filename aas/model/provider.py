@@ -14,7 +14,7 @@ mapping identifiers to identifiable objects.
 """
 
 import abc
-from typing import MutableSet, Iterator, Generic, TypeVar, Dict, List, Optional
+from typing import MutableSet, Iterator, Generic, TypeVar, Dict, List, Optional, Iterable
 
 from .base import Identifier, Identifiable
 
@@ -54,6 +54,10 @@ class AbstractObjectStore(AbstractObjectProvider, MutableSet[_IT], Generic[_IT],
     """
     pass
 
+    def update(self, other: Iterable[_IT]) -> None:
+        for x in other:
+            self.add(x)
+
 
 class DictObjectStore(AbstractObjectStore[_IT], Generic[_IT]):
     """
@@ -91,7 +95,7 @@ class DictObjectStore(AbstractObjectStore[_IT], Generic[_IT]):
 
 class ObjectProviderMultiplexer(AbstractObjectProvider):
     """
-    A multiplexer for Registries of Identifiable objects.
+    A multiplexer for Providers of Identifiable objects.
 
     This class combines multiple Registries of Identifiable objects into a single one to allow retrieving Identifiable
     objects from different sources. It implements the AbstractObjectProvider interface to be used as Registry itself.
