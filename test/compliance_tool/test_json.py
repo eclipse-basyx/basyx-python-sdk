@@ -13,7 +13,7 @@ import re
 import unittest
 
 import aas.compliance_tool.json as compliance_tool
-from aas.util.message_logger import MessageLogger, MessageCategory
+from aas.compliance_tool.state_manager import ComplianceToolStateManager, Status
 
 dirname = os.path.dirname
 JSON_SCHEMA_FILE = os.path.join(dirname(dirname(dirname(__file__))), 'test\\adapter\\json\\aasJSONSchemaV2.0.json')
@@ -22,163 +22,171 @@ JSON_SCHEMA_FILE = os.path.join(dirname(dirname(dirname(__file__))), 'test\\adap
 class ComplianceToolJsonTest(unittest.TestCase):
     @unittest.skipUnless(os.path.exists(JSON_SCHEMA_FILE), "JSON Schema not found for validation")
     def test_check_schema(self):
-        logger = MessageLogger()
+        manager = ComplianceToolStateManager()
         script_dir = os.path.dirname(__file__)
 
         file_path_1 = os.path.join(script_dir, 'files/test_not_found.json')
-        compliance_tool.check_schema(file_path_1, logger)
-        message = logger.get_last_message_in_list(MessageCategory.ALL)
-        self.assertEqual(message.category, MessageCategory.ERROR)
-        self.assertEqual(message.msg, 'Unable to open json file: {}'.format(file_path_1))
+        compliance_tool.check_schema(file_path_1, manager)
+        self.assertEqual(len(manager.steps), 1)
+        self.assertEqual(manager.steps[0][1], Status.FAILED)
+        error_list = manager.get_error_logs_from_step(0)
+        self.assertIsNotNone(re.search(r"No such file or directory", error_list[0].getMessage()))
 
+        manager.steps = []
         file_path_2 = os.path.join(script_dir, 'files/test_not_serializable.json')
-        compliance_tool.check_schema(file_path_2, logger)
-        message = logger.get_last_message_in_list(MessageCategory.ALL)
-        self.assertEqual(message.category, MessageCategory.ERROR)
-        self.assertEqual(message.msg, 'Unable to deserialize json file: {}'.format(file_path_2))
+        compliance_tool.check_schema(file_path_2, manager)
+        self.assertEqual(len(manager.steps), 2)
+        self.assertEqual(manager.steps[0][1], Status.SUCCESS)
+        self.assertEqual(manager.steps[1][1], Status.FAILED)
+        error_list = manager.get_error_logs_from_step(1)
+        self.assertEqual(error_list[0].getMessage(), "Expecting ',' delimiter: line 5 column 2 (char 69)")
 
+        manager.steps = []
         file_path_3 = os.path.join(script_dir, 'files/test_missing_submodels.json')
-        compliance_tool.check_schema(file_path_3, logger)
-        message = logger.get_last_message_in_list(MessageCategory.ALL)
-        self.assertEqual(message.category, MessageCategory.ERROR)
-        self.assertEqual(message.msg, 'Validation of file {} was not successfull'.format(file_path_3))
-        self.assertIsNotNone(re.search(r"'submodels' is a required property", message.msg_category))
+        compliance_tool.check_schema(file_path_3, manager)
+        self.assertEqual(len(manager.steps), 3)
+        self.assertEqual(manager.steps[0][1], Status.SUCCESS)
+        self.assertEqual(manager.steps[1][1], Status.SUCCESS)
+        self.assertEqual(manager.steps[2][1], Status.FAILED)
+        error_list = manager.get_error_logs_from_step(2)
+        self.assertIsNotNone(re.search(r"'submodels' is a required property", error_list[0].getMessage()))
 
+        manager.steps = []
         file_path_4 = os.path.join(script_dir, 'files/test_empty.json')
-        compliance_tool.check_schema(file_path_4, logger)
-        message = logger.get_last_message_in_list(MessageCategory.ALL)
-        self.assertEqual(message.msg, 'Schema check of file {} was successful'.format(file_path_4))
-        self.assertEqual(message.category, MessageCategory.SUCCESS)
+        compliance_tool.check_schema(file_path_4, manager)
+        self.assertEqual(len(manager.steps), 3)
+        self.assertEqual(manager.steps[0][1], Status.SUCCESS)
+        self.assertEqual(manager.steps[1][1], Status.SUCCESS)
+        self.assertEqual(manager.steps[2][1], Status.SUCCESS)
 
     def test_check_deserialization(self):
-        logger = MessageLogger()
+        manager = ComplianceToolStateManager()
         script_dir = os.path.dirname(__file__)
 
         file_path_1 = os.path.join(script_dir, 'files/test_not_found.json')
-        compliance_tool.check_deserialization(file_path_1, True, logger)
-        message = logger.get_last_message_in_list(MessageCategory.ALL)
-        self.assertEqual(message.category, MessageCategory.ERROR)
-        self.assertEqual(message.msg, 'Unable to open json file: {}'.format(file_path_1))
+        compliance_tool.check_deserialization(file_path_1, manager)
+        self.assertEqual(len(manager.steps), 1)
+        self.assertEqual(manager.steps[0][1], Status.FAILED)
+        error_list = manager.get_error_logs_from_step(0)
+        self.assertIsNotNone(re.search(r"No such file or directory", error_list[0].getMessage()))
 
+        manager.steps = []
         file_path_2 = os.path.join(script_dir, 'files/test_not_serializable_aas.json')
-        compliance_tool.check_deserialization(file_path_2, False, logger)
-        message = logger.get_last_message_in_list(MessageCategory.ALL)
-        self.assertEqual(message.category, MessageCategory.ERROR)
-        self.assertEqual(message.msg, 'Unable to deserialize json file: {}'.format(file_path_2))
+        compliance_tool.check_deserialization(file_path_2, manager)
+        self.assertEqual(len(manager.steps), 2)
+        self.assertEqual(manager.steps[0][1], Status.SUCCESS)
+        self.assertEqual(manager.steps[1][1], Status.FAILED)
+        error_list = manager.get_error_logs_from_step(1)
         self.assertIsNotNone(re.search(r'Found JSON object with modelType="Test", which is not a known AAS class',
-                                       message.msg_category))
+                                       error_list[0].getMessage()))
 
-        compliance_tool.check_deserialization(file_path_2, True, logger)
-        message = logger.get_last_message_in_list(MessageCategory.ALL)
-        self.assertEqual(message.category, MessageCategory.ERROR)
-        self.assertEqual(message.msg, 'Unable to deserialize json file: {}'.format(file_path_2))
-        self.assertIsNotNone(re.search(r'Found JSON object with modelType="Test", which is not a known AAS class',
-                                       message.msg_category))
-
+        manager.steps = []
         file_path_3 = os.path.join(script_dir, 'files/test_serializable_aas_warning.json')
-        compliance_tool.check_deserialization(file_path_3, True, logger)
-        message = logger.get_last_message_in_list(MessageCategory.ALL)
-        self.assertEqual(message.category, MessageCategory.SUCCESS)
-        self.assertEqual(message.msg, 'Deserialization check of file {} was successful'.format(file_path_3))
+        compliance_tool.check_deserialization(file_path_3, manager)
+        self.assertEqual(len(manager.steps), 2)
+        self.assertEqual(manager.steps[0][1], Status.SUCCESS)
+        self.assertEqual(manager.steps[1][1], Status.FAILED)
+        error_list = manager.get_error_logs_from_step(1)
         self.assertIsNotNone(re.search(r"Ignoring 'revision' attribute of AdministrativeInformation object due to "
-                                       r"missing 'version'", message.msg_category))
+                                       r"missing 'version'", error_list[0].getMessage()))
 
-        compliance_tool.check_deserialization(file_path_3, False, logger)
-        message = logger.get_last_message_in_list(MessageCategory.ALL)
-        self.assertEqual(message.category, MessageCategory.ERROR)
-        self.assertEqual(message.msg, 'Unable to deserialize json file: {}'.format(file_path_3))
-        self.assertIsNotNone(re.search(r"Ignoring 'revision' attribute of AdministrativeInformation object due to "
-                                       r"missing 'version'", message.msg_category))
-
+        manager.steps = []
         file_path_4 = os.path.join(script_dir, 'files/test_empty.json')
-        compliance_tool.check_deserialization(file_path_4, True, logger)
-        message = logger.get_last_message_in_list(MessageCategory.ALL)
-        self.assertEqual(message.msg, 'Deserialization check of file {} was successful'.format(file_path_4))
-        self.assertEqual(message.category, MessageCategory.SUCCESS)
+        compliance_tool.check_deserialization(file_path_4, manager)
+        self.assertEqual(len(manager.steps), 2)
+        self.assertEqual(manager.steps[0][1], Status.SUCCESS)
+        self.assertEqual(manager.steps[1][1], Status.SUCCESS)
 
+        manager.steps = []
         file_path_4 = os.path.join(script_dir, 'files/test_empty.json')
-        compliance_tool.check_deserialization(file_path_4, False, logger)
-        message = logger.get_last_message_in_list(MessageCategory.ALL)
-        self.assertEqual(message.msg, 'Deserialization check of file {} was successful'.format(file_path_4))
-        self.assertEqual(message.category, MessageCategory.SUCCESS)
+        compliance_tool.check_deserialization(file_path_4, manager)
+        self.assertEqual(len(manager.steps), 2)
+        self.assertEqual(manager.steps[0][1], Status.SUCCESS)
+        self.assertEqual(manager.steps[1][1], Status.SUCCESS)
 
     def test_check_aas_example(self):
-        logger = MessageLogger()
+        manager = ComplianceToolStateManager()
         script_dir = os.path.dirname(__file__)
 
         file_path_2 = os.path.join(script_dir, 'files/test_demo_full_aas.json')
-        compliance_tool.check_aas_example(file_path_2, True, logger)
-        message = logger.get_last_message_in_list(MessageCategory.ALL)
-        self.assertEqual(message.category, MessageCategory.SUCCESS)
-        self.assertEqual(message.msg, 'Data in file {} is equal to example data'.format(file_path_2))
+        compliance_tool.check_aas_example(file_path_2, manager)
+        self.assertEqual(len(manager.steps), 3)
+        self.assertEqual(manager.steps[0][1], Status.SUCCESS)
+        self.assertEqual(manager.steps[1][1], Status.SUCCESS)
+        self.assertEqual(manager.steps[2][1], Status.SUCCESS)
 
+        manager.steps = []
         file_path_1 = os.path.join(script_dir, 'files/test_not_serializable_aas.json')
-        compliance_tool.check_aas_example(file_path_1, True, logger)
-        message = logger.get_last_message_in_list(MessageCategory.ALL)
-        self.assertEqual(message.category, MessageCategory.ERROR)
-        self.assertEqual(message.msg, 'Could not check against example data cause of error in deserialization of '
-                                      'file {}'.format(file_path_1))
+        compliance_tool.check_aas_example(file_path_1, manager)
+        self.assertEqual(len(manager.steps), 2)
+        self.assertEqual(manager.steps[0][1], Status.SUCCESS)
+        self.assertEqual(manager.steps[1][1], Status.FAILED)
+        error_list = manager.get_error_logs_from_step(1)
+        self.assertIsNotNone(re.search(r'Found JSON object with modelType="Test", which is not a known AAS class',
+                                       error_list[0].getMessage()))
 
-        logger_3 = MessageLogger()
+        manager.steps = []
         file_path_3 = os.path.join(script_dir, 'files/test_demo_full_aas_wrong_attribute.json')
-        compliance_tool.check_aas_example(file_path_3, True, logger_3)
-        message = logger_3.get_last_message_in_list(MessageCategory.ALL)
-        self.assertEqual(message.category, MessageCategory.ERROR)
-        self.assertEqual(message.msg, 'Data in file {} is not equal to example data'.format(file_path_3))
+        compliance_tool.check_aas_example(file_path_3, manager)
+        self.assertEqual(len(manager.steps), 3)
+        self.assertEqual(manager.steps[0][1], Status.SUCCESS)
+        self.assertEqual(manager.steps[1][1], Status.SUCCESS)
+        self.assertEqual(manager.steps[2][1], Status.FAILED)
+        error_list = manager.get_error_logs_from_step(2)
+        self.assertIsNotNone(re.search(r'Attribute description of AssetAdministrationShell\[Identifier'
+                                       r'\(IRI=https://acplt.org/Test_AssetAdministrationShell\)\] must be ==',
+                                       error_list[0].getMessage()))
 
-        logger_4 = MessageLogger()
-        file_path_4 = os.path.join(script_dir, 'files/test_demo_full_aas_wrong_attribute.json')
-        compliance_tool.check_aas_example(file_path_4, False, logger_4)
-        message = logger_4.get_last_message_in_list(MessageCategory.ALL)
-        self.assertEqual(message.category, MessageCategory.ERROR)
-        self.assertEqual(message.msg, 'Data in file {} is not equal to example data'.format(file_path_4))
-
-    def test_check_json_files_conform(self):
-        logger = MessageLogger()
+    def test_check_json_files_equivalence(self):
+        manager = ComplianceToolStateManager()
         script_dir = os.path.dirname(__file__)
 
         file_path_1 = os.path.join(script_dir, 'files/test_not_serializable_aas.json')
         file_path_2 = os.path.join(script_dir, 'files/test_empty.json')
-        compliance_tool.check_json_files_conform(file_path_1, file_path_2, True, logger)
-        message = logger.get_last_message_in_list(MessageCategory.ALL)
-        self.assertEqual(message.category, MessageCategory.ERROR)
-        self.assertEqual(message.msg, 'Could not check files cause of error in deserialization of '
-                                      'file {}'.format(file_path_1))
+        compliance_tool.check_json_files_equivalence(file_path_1, file_path_2, manager)
+        self.assertEqual(len(manager.steps), 2)
+        self.assertEqual(manager.steps[0][1], Status.SUCCESS)
+        self.assertEqual(manager.steps[1][1], Status.FAILED)
 
-        logger_2 = MessageLogger()
-        compliance_tool.check_json_files_conform(file_path_2, file_path_1, True, logger_2)
-        message = logger_2.get_last_message_in_list(MessageCategory.ALL)
-        self.assertEqual(message.category, MessageCategory.ERROR)
-        self.assertEqual(message.msg, 'Could not check files cause of error in deserialization of '
-                                      'file {}'.format(file_path_1))
+        manager.steps = []
+        compliance_tool.check_json_files_equivalence(file_path_2, file_path_1, manager)
+        self.assertEqual(len(manager.steps), 4)
+        self.assertEqual(manager.steps[0][1], Status.SUCCESS)
+        self.assertEqual(manager.steps[1][1], Status.SUCCESS)
+        self.assertEqual(manager.steps[2][1], Status.SUCCESS)
+        self.assertEqual(manager.steps[3][1], Status.FAILED)
 
-        logger_3 = MessageLogger()
+        manager.steps = []
         file_path_3 = os.path.join(script_dir, 'files/test_demo_full_aas.json')
         file_path_4 = os.path.join(script_dir, 'files/test_demo_full_aas.json')
-        compliance_tool.check_json_files_conform(file_path_3, file_path_4, True, logger_3)
-        message = logger_3.get_last_message_in_list(MessageCategory.ALL)
-        self.assertEqual(message.category, MessageCategory.SUCCESS)
-        self.assertEqual(message.msg, 'Data in file {} is equal to data in file {}'.format(file_path_3, file_path_4))
+        compliance_tool.check_json_files_equivalence(file_path_3, file_path_4, manager)
+        self.assertEqual(len(manager.steps), 5)
+        self.assertEqual(manager.steps[0][1], Status.SUCCESS)
+        self.assertEqual(manager.steps[1][1], Status.SUCCESS)
+        self.assertEqual(manager.steps[2][1], Status.SUCCESS)
+        self.assertEqual(manager.steps[3][1], Status.SUCCESS)
+        self.assertEqual(manager.steps[4][1], Status.SUCCESS)
 
-        logger_4 = MessageLogger()
+        manager.steps = []
         file_path_3 = os.path.join(script_dir, 'files/test_demo_full_aas.json')
         file_path_4 = os.path.join(script_dir, 'files/test_demo_full_aas_wrong_attribute.json')
-        compliance_tool.check_json_files_conform(file_path_3, file_path_4, True, logger_4)
-        message = logger_4.get_last_message_in_list(MessageCategory.ALL)
-        self.assertEqual(message.category, MessageCategory.ERROR)
-        self.assertEqual(message.msg, 'Data in file {} is not equal to data in file '
-                                      '{}'.format(file_path_3, file_path_4))
+        compliance_tool.check_json_files_equivalence(file_path_3, file_path_4, manager)
+        self.assertEqual(len(manager.steps), 5)
+        self.assertEqual(manager.steps[0][1], Status.SUCCESS)
+        self.assertEqual(manager.steps[1][1], Status.SUCCESS)
+        self.assertEqual(manager.steps[2][1], Status.SUCCESS)
+        self.assertEqual(manager.steps[3][1], Status.SUCCESS)
+        self.assertEqual(manager.steps[4][1], Status.FAILED)
 
-        logger_5 = MessageLogger()
-        compliance_tool.check_json_files_conform(file_path_4, file_path_3, True, logger_5)
-        message = logger_5.get_last_message_in_list(MessageCategory.ALL)
-        self.assertEqual(message.category, MessageCategory.ERROR)
-        self.assertEqual(message.msg, 'Data in file {} is not equal to data in file '
-                                      '{}'.format(file_path_4, file_path_3))
-
-        logger_6 = MessageLogger()
-        compliance_tool.check_json_files_conform(file_path_4, file_path_3, False, logger_6)
-        message = logger_6.get_last_message_in_list(MessageCategory.ALL)
-        self.assertEqual(message.category, MessageCategory.ERROR)
-        self.assertEqual(message.msg, 'Data in file {} is not equal to data in file '
-                                      '{}'.format(file_path_4, file_path_3))
+        manager.steps = []
+        compliance_tool.check_json_files_equivalence(file_path_4, file_path_3, manager)
+        self.assertEqual(len(manager.steps), 5)
+        self.assertEqual(manager.steps[0][1], Status.SUCCESS)
+        self.assertEqual(manager.steps[1][1], Status.SUCCESS)
+        self.assertEqual(manager.steps[2][1], Status.SUCCESS)
+        self.assertEqual(manager.steps[3][1], Status.SUCCESS)
+        self.assertEqual(manager.steps[4][1], Status.FAILED)
+        error_list = manager.get_error_logs_from_step(4)
+        self.assertIsNotNone(re.search(r'Attribute description of AssetAdministrationShell\[Identifier'
+                                       r'\(IRI=https://acplt.org/Test_AssetAdministrationShell\)\] must be ==',
+                                       error_list[0].getMessage()))

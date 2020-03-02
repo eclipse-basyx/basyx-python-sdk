@@ -17,8 +17,6 @@ from typing import List, NamedTuple, Iterator, Dict, Any, Type, Optional, Union,
 
 from ... import model
 
-logger = logging.getLogger(__name__)
-
 
 class CheckResult(NamedTuple):
     expectation: str
@@ -792,68 +790,68 @@ class AASDataChecker(DataChecker):
     def check_object_store(self, obj_store_1: model.DictObjectStore,
                            obj_store_2: model.DictObjectStore):
         # separate different kind of objects
-        assets_1 = []
-        submodels_1 = []
-        concept_descriptions_1 = []
-        shells_1 = []
+        asset_list_1 = []
+        submodel_list_1 = []
+        concept_description_list_1 = []
+        shell_list_1 = []
         for obj in obj_store_1:
             if isinstance(obj, model.Asset):
-                assets_1.append(obj)
+                asset_list_1.append(obj)
             elif isinstance(obj, model.AssetAdministrationShell):
-                shells_1.append(obj)
+                shell_list_1.append(obj)
             elif isinstance(obj, model.Submodel):
-                submodels_1.append(obj)
+                submodel_list_1.append(obj)
             elif isinstance(obj, model.ConceptDescription):
-                concept_descriptions_1.append(obj)
+                concept_description_list_1.append(obj)
 
         # separate different kind of objects
-        assets_2 = []
-        submodels_2 = []
-        concept_descriptions_2 = []
-        shells_2 = []
+        asset_list_2 = []
+        submodel_list_2 = []
+        concept_description_list_2 = []
+        shell_list_2 = []
         for obj in obj_store_2:
             if isinstance(obj, model.Asset):
-                assets_2.append(obj)
+                asset_list_2.append(obj)
             elif isinstance(obj, model.AssetAdministrationShell):
-                shells_2.append(obj)
+                shell_list_2.append(obj)
             elif isinstance(obj, model.Submodel):
-                submodels_2.append(obj)
+                submodel_list_2.append(obj)
             elif isinstance(obj, model.ConceptDescription):
-                concept_descriptions_2.append(obj)
+                concept_description_list_2.append(obj)
 
-        for asset_1 in assets_1:
-            asset_2: model.Asset = self._find_element_by_attribute(asset_1, assets_2, 'identification')  # type: ignore
+        for asset_1 in asset_list_1:
+            asset_2: model.Asset = obj_store_2.get_identifiable(asset_1.identification)
             if self.check(asset_2 is not None, 'Asset {} must exist in asset list 2'.format(asset_1)):
                 self.check_asset_equal(asset_1, asset_2)
 
-        found_elements = self._find_extra_elements_by_attribute(assets_1, assets_2, 'identification')
+        found_elements = self._find_extra_elements_by_attribute(asset_list_1, asset_list_2, 'identification')
         self.check(found_elements == set(), 'Asset list 2 must not have extra assets', value=found_elements)
 
-        for shell_1 in shells_1:
-            shell_2 = self._find_element_by_attribute(shell_1, shells_2, 'identification')  # type: ignore
+        for shell_1 in shell_list_1:
+            shell_2 = obj_store_2.get_identifiable(shell_1.identification)
             if self.check(shell_2 is not None, 'Asset administration shell {} must exist in asset administration shell '
                                                'list 2'.format(shell_1)):
                 self.check_asset_administration_shell_equal(shell_1, shell_2)  # type: ignore
 
-        found_elements = self._find_extra_elements_by_attribute(shells_1, shells_2, 'identification')  # type:ignore
+        found_elements = self._find_extra_elements_by_attribute(shell_list_1, shell_list_2, 'identification')
         self.check(found_elements == set(), 'Asset administration shell list 2 must not have extra asset '
                                             'administration shells', value=found_elements)
 
-        for submodel_1 in submodels_1:
-            submodel_2 = self._find_element_by_attribute(submodel_1, submodels_2, 'identification')  # type: ignore
+        for submodel_1 in submodel_list_1:
+            submodel_2 = obj_store_2.get_identifiable(submodel_1.identification)
             if self.check(submodel_2 is not None, 'Submodel {} must exist in submodel list 2'.format(submodel_1)):
                 self.check_submodel_equal(submodel_1, submodel_2)  # type: ignore
 
-        found_elements = self._find_extra_elements_by_attribute(submodels_1, submodels_2, 'identification')
+        found_elements = self._find_extra_elements_by_attribute(submodel_list_1, submodel_list_2, 'identification')
         self.check(found_elements == set(), 'Submodel list 2 must not have extra submodels', value=found_elements)
 
-        for cd_1 in concept_descriptions_1:
-            cd_2 = self._find_element_by_attribute(cd_1, concept_descriptions_2, 'identification')  # type: ignore
+        for cd_1 in concept_description_list_1:
+            cd_2 = obj_store_2.get_identifiable(cd_1.identification)
             if self.check(cd_2 is not None, 'Concept description {} must exist in concept description '
                                             'list 2'.format(cd_1)):
                 self.check_concept_description_equal(cd_1, cd_2)  # type: ignore
 
-        found_elements = self._find_extra_elements_by_attribute(concept_descriptions_1, concept_descriptions_2,
+        found_elements = self._find_extra_elements_by_attribute(concept_description_list_1, concept_description_list_2,
                                                                 'identification')
         self.check(found_elements == set(), 'Concept description list 2 must not have extra concept descriptions',
                    value=found_elements)

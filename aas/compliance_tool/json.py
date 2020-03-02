@@ -19,12 +19,12 @@ check_deserialization: Checks if a json file can be deserialized
 check_aas_example: Checks if a json file consist the data of the example data defined in
                    aas.examples.data.example_aas.py
 
-check_json_files_conform: Checks if two json files have the same data regardless of their order
+check_json_files_equivalence: Checks if two json files have the same data regardless of their order
 """
-import io
 import json
 import logging
 import os
+from typing import Optional
 
 import jsonschema  # type: ignore
 
@@ -32,25 +32,33 @@ from aas import model
 from aas.adapter.json import json_deserialization
 from aas.examples.data import example_aas
 from aas.examples.data._helper import AASDataChecker
-from aas.util.message_logger import MessageLogger, LoggingMessage, MessageCategory, LogFilter
+from aas.compliance_tool.state_manager import ComplianceToolStateManager, Status
 
 dirname = os.path.dirname
-JSON_SCHEMA_FILE = os.path.join(dirname(dirname(dirname(__file__))), 'test\\adapter\\json\\aasJSONSchemaV2.0.json')
+JSON_SCHEMA_FILE = os.path.join(dirname(__file__), '..', '..', 'test', 'adapter', 'json', 'aasJSONSchemaV2.0.json')
+# TODO change path if schema is added to the project
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
 
 
-def check_schema(file_path: str, logger: MessageLogger) -> None:
+def check_schema(file_path: str, state_manager: ComplianceToolStateManager) -> None:
+    logger.addHandler(state_manager)
     try:
         # open given file
+        state_manager.add_step('Open file')
         file_to_be_checked = open(file_path, 'r', encoding='utf-8-sig')
+        state_manager.set_step_status(Status.SUCCESS)
         # read given file and check if it is conform to the json syntax
+        state_manager.add_step('Read file and check if it is conform to the json syntax')
         json_to_be_checked = json.load(file_to_be_checked)
+        state_manager.set_step_status(Status.SUCCESS)
     except FileNotFoundError as error:
-        logger.add_msg(LoggingMessage('Unable to open json file: {}'.format(file_path), str(error),
-                                      MessageCategory.ERROR))
+        state_manager.set_step_status(Status.FAILED)
+        logger.error(error)
         return
     except json.decoder.JSONDecodeError as error:
-        logger.add_msg(LoggingMessage('Unable to deserialize json file: {}'.format(file_path), str(error),
-                                      MessageCategory.ERROR))
+        state_manager.set_step_status(Status.FAILED)
+        logger.error(error)
         file_to_be_checked.close()
         return
     file_to_be_checked.close()
@@ -60,181 +68,94 @@ def check_schema(file_path: str, logger: MessageLogger) -> None:
     aas_json_schema = json.load(json_file)
     json_file.close()
 
+    state_manager.add_step('Validate file against official json schema')
     # validate given file against schema
     try:
         jsonschema.validate(instance=json_to_be_checked, schema=aas_json_schema)
     except jsonschema.exceptions.ValidationError as error:
-        logger.add_msg(LoggingMessage('Validation of file {} was not successfull'.format(file_path), str(error),
-                                      MessageCategory.ERROR))
+        state_manager.set_step_status(Status.FAILED)
+        logger.error(error)
         return
 
-    logger.add_msg(LoggingMessage('Schema check of file {} was successful'.format(file_path),
-                                  '', MessageCategory.SUCCESS))
+    state_manager.set_step_status(Status.SUCCESS)
     return
 
 
-def check_deserialization(file_path: str, failsafe: bool, logger: MessageLogger) -> model.DictObjectStore:
-    # configure logger of json_deserialization.py to avoid consol output
-    tmp_file = io.StringIO()
-    logging.basicConfig(format='%(levelname)s: %(message)s', level=logging.DEBUG, stream=tmp_file)
+def check_deserialization(file_path: str, state_manager: ComplianceToolStateManager,
+                          file_info: Optional[str] = None) -> model.DictObjectStore:
+    logger.addHandler(state_manager)
 
     # create handler to get logger info
     logger_deserialization = logging.getLogger(json_deserialization.__name__)
-    formatter = logging.Formatter('%(levelname)s: %(message)s')
-    file_error = io.StringIO()
-    handler_error = logging.StreamHandler(file_error)
-    handler_error.setLevel(logging.ERROR)
-    handler_error.setFormatter(formatter)
-    file_warning = io.StringIO()
-    handler_warning = logging.StreamHandler(file_warning)
-    handler_warning.setLevel(logging.WARNING)
-    handler_warning.addFilter(LogFilter(logging.WARNING))
-    handler_warning.setFormatter(formatter)
-    file_info = io.StringIO()
-    handler_info = logging.StreamHandler(file_info)
-    handler_info.setLevel(logging.INFO)
-    handler_info.addFilter(LogFilter(logging.INFO))
-    handler_info.setFormatter(formatter)
-    logger_deserialization.addHandler(handler_error)
-    logger_deserialization.addHandler(handler_warning)
-    logger_deserialization.addHandler(handler_info)
+    logger_deserialization.addHandler(state_manager)
 
     try:
         # open given file
+        if file_info:
+            state_manager.add_step('Open {} file'.format(file_info))
+        else:
+            state_manager.add_step('Open file')
         file_to_be_checked = open(file_path, 'r', encoding='utf-8-sig')
-        # read given file and check if it is conform to the json schema
-        obj_store = json_deserialization.read_json_aas_file(file_to_be_checked, failsafe)
+        state_manager.set_step_status(Status.SUCCESS)
+
+        # read given file and check if it is conform to the official json schema
+        if file_info:
+            state_manager.add_step('Read {} file and check if it is conform to the json schema'.format(file_info))
+        else:
+            state_manager.add_step('Read file and check if it is conform to the json schema')
+        obj_store = json_deserialization.read_json_aas_file(file_to_be_checked, True)
+        state_manager.set_step_status(Status.SUCCESS)
     except FileNotFoundError as error:
-        logger.add_msg(LoggingMessage('Unable to open json file: {}'.format(file_path), str(error),
-                                      MessageCategory.ERROR))
-        return model.DictObjectStore()
-    except (KeyError, TypeError) as error:
-        logger.add_msg(LoggingMessage('Unable to deserialize json file: {}'.format(file_path), str(error),
-                                      MessageCategory.ERROR))
-        file_to_be_checked.close()
+        state_manager.set_step_status(Status.FAILED)
+        logger.error(error)
         return model.DictObjectStore()
     file_to_be_checked.close()
+    if len(state_manager.steps[-1][2]) > 0:
+        state_manager.set_step_status(Status.FAILED)
 
-    # add logger information to output
-    if failsafe:
-        if file_error.getvalue() != "":
-            logger.add_msg(LoggingMessage('Unable to deserialize json file: {}'.format(file_path),
-                                          str(file_error.getvalue())+str(file_warning.getvalue()),
-                                          MessageCategory.ERROR))
-            return model.DictObjectStore()
-        else:
-            logger.add_msg(LoggingMessage('Deserialization check of file {} was successful'.format(file_path),
-                                          str(file_warning.getvalue())+str(file_info.getvalue()),
-                                          MessageCategory.SUCCESS))
-    else:
-        if file_warning.getvalue() != "":
-            logger.add_msg(LoggingMessage('Unable to deserialize json file: {}'.format(file_path),
-                                          str(file_warning.getvalue()), MessageCategory.ERROR))
-            return model.DictObjectStore()
-        else:
-            logger.add_msg(LoggingMessage('Deserialization check of file {} was successful'.format(file_path),
-                                          str(file_info.getvalue()), MessageCategory.SUCCESS))
     return obj_store
 
 
-def check_aas_example(file_path: str, failsafe: bool, logger: MessageLogger) -> None:
-    # configure logger of json_deserialization.py to avoid consol output
-    tmp_file = io.StringIO()
-    logging.basicConfig(format='%(levelname)s: %(message)s', level=logging.DEBUG, stream=tmp_file)
+def check_aas_example(file_path: str, state_manager: ComplianceToolStateManager) -> None:
+    logger.addHandler(state_manager)
 
+    # create handler to get logger info
     logger_example = logging.getLogger(example_aas.__name__)
-    formatter = logging.Formatter('%(levelname)s: %(message)s')
-    file_warning = io.StringIO()
-    handler_warning = logging.StreamHandler(file_warning)
-    handler_warning.setLevel(logging.WARNING)
-    handler_warning.addFilter(LogFilter(logging.WARNING))
-    handler_warning.setFormatter(formatter)
-    file_info = io.StringIO()
-    handler_info = logging.StreamHandler(file_info)
-    handler_info.setLevel(logging.INFO)
-    handler_info.addFilter(LogFilter(logging.INFO))
-    handler_info.setFormatter(formatter)
-    logger_example.addHandler(handler_warning)
-    logger_example.addHandler(handler_info)
+    logger_example.addHandler(state_manager)
 
-    logger_2 = MessageLogger()
-    obj_store = check_deserialization(file_path, False, logger_2)
+    obj_store = check_deserialization(file_path, state_manager)
 
-    if logger_2.error:
-        msg = ''
-        for m in logger_2.get_messages_in_list(MessageCategory.ERROR):
-            msg += '{}\n'.format(m)
-        logger.add_msg(LoggingMessage('Could not check against example data cause of error in deserialization of '
-                                      'file {}'.format(file_path), msg, MessageCategory.ERROR))
+    if state_manager.status == Status.FAILED:
         return
 
-    checker = AASDataChecker(raise_immediately=(not failsafe))
+    checker = AASDataChecker(raise_immediately=False)
+
+    state_manager.add_step('Check if data is equal to example data')
+    example_aas.check_full_example(checker, obj_store, True)
+
+    state_manager.add_log_records_from_data_checker(checker)
+
+
+def check_json_files_equivalence(file_path_1: str, file_path_2: str, state_manager: ComplianceToolStateManager) -> None:
+    logger.addHandler(state_manager)
+
+    obj_store_1 = check_deserialization(file_path_1, state_manager, 'first')
+
+    if state_manager.status == Status.FAILED:
+        return
+
+    obj_store_2 = check_deserialization(file_path_2, state_manager, 'second')
+
+    if state_manager.status == Status.FAILED:
+        return
+
+    checker = AASDataChecker(raise_immediately=False)
     try:
-        example_aas.check_full_example(checker, obj_store, failsafe)
-    except (KeyError, AssertionError) as error:
-        logger.add_msg(LoggingMessage('Data in file {} is not equal to example data'.format(file_path),
-                                      str(error), MessageCategory.ERROR))
-        return
-
-    if len(list(checker.failed_checks)) > 0 or file_warning.getvalue() != "":
-        msg = ''
-        for x in checker.failed_checks:
-            msg += '{}\n'.format(x)
-        logger.add_msg(LoggingMessage('Data in file {} is not equal to example data'.format(file_path),
-                                      msg, MessageCategory.ERROR))
-    else:
-        msg = ''
-        for x in checker.successful_checks:
-            msg += '{}\n'.format(x)
-        logger.add_msg(LoggingMessage('Data in file {} is equal to example data'.format(file_path),
-                                      msg, MessageCategory.SUCCESS))
-
-
-def check_json_files_conform(file_path_1: str, file_path_2: str, failsafe: bool, logger: MessageLogger) -> None:
-    # configure logger of json_deserialization.py to avoid consol output
-    tmp_file = io.StringIO()
-    logging.basicConfig(format='%(levelname)s: %(message)s', level=logging.DEBUG, stream=tmp_file)
-
-    logger_2 = MessageLogger()
-    obj_store_1 = check_deserialization(file_path_1, False, logger_2)
-
-    if logger_2.error:
-        msg = ''
-        for m in logger_2.get_messages_in_list(MessageCategory.ERROR):
-            msg += '{}\n'.format(m)
-        logger.add_msg(LoggingMessage('Could not check files cause of error in deserialization of file '
-                                      '{}'.format(file_path_1), msg, MessageCategory.ERROR))
-        return
-
-    obj_store_2 = check_deserialization(file_path_2, False, logger_2)
-
-    if logger_2.error:
-        msg = ''
-        for m in logger_2.get_messages_in_list(MessageCategory.ERROR):
-            msg += '{}\n'.format(m)
-        logger.add_msg(LoggingMessage('Could not check files cause of error in deserialization of file '
-                                      '{}'.format(file_path_2), msg, MessageCategory.ERROR))
-        return
-
-    checker = AASDataChecker(raise_immediately=(not failsafe))
-    try:
+        state_manager.add_step('Check if data in files are equal')
         checker.check_object_store(obj_store_1, obj_store_2)
     except (KeyError, AssertionError) as error:
-        logger.add_msg(LoggingMessage('Data in file {} is not equal to data in file {}'.format(file_path_1,
-                                                                                               file_path_2),
-                                      str(error), MessageCategory.ERROR))
+        state_manager.set_step_status(Status.FAILED)
+        logger.error(error)
         return
 
-    if len(list(checker.failed_checks)) > 0:
-        msg = ''
-        for x in checker.failed_checks:
-            msg += '{}\n'.format(x)
-        logger.add_msg(LoggingMessage('Data in file {} is not equal to data in file {}'.format(file_path_1,
-                                                                                               file_path_2),
-                                      msg, MessageCategory.ERROR))
-    else:
-        msg = ''
-        for x in checker.successful_checks:
-            msg += '{}\n'.format(x)
-        logger.add_msg(LoggingMessage('Data in file {} is equal to data in file {}'.format(file_path_1, file_path_2),
-                                      msg, MessageCategory.SUCCESS))
+    state_manager.add_log_records_from_data_checker(checker)
