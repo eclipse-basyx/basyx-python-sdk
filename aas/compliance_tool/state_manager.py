@@ -107,7 +107,7 @@ class ComplianceToolStateManager(logging.Handler):
         """
         self.steps[-1].status = Status.SUCCESS if not any(True for _ in data_checker.failed_checks) else Status.FAILED
         for check in data_checker.checks:
-            self.steps[-1].log_list.append(logging.LogRecord(name=logging.getLogger().name,
+            self.steps[-1].log_list.append(logging.LogRecord(name=logging.getLogger(__name__).name,
                                                              level=logging.INFO if check.result else logging.ERROR,
                                                              pathname='',
                                                              lineno=0,

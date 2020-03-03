@@ -42,6 +42,12 @@ logger.setLevel(logging.INFO)
 
 
 def check_schema(file_path: str, state_manager: ComplianceToolStateManager) -> None:
+    """
+    checks a given file against the official json schema
+
+    :param file_path: path to the file which should be checked
+    :param state_manager: manager to log the steps
+    """
     logger.addHandler(state_manager)
     try:
         # open given file
@@ -55,11 +61,17 @@ def check_schema(file_path: str, state_manager: ComplianceToolStateManager) -> N
     except FileNotFoundError as error:
         state_manager.set_step_status(Status.FAILED)
         logger.error(error)
+        state_manager.add_step('Read file and check if it is conform to the json syntax')
+        state_manager.set_step_status(Status.NOT_EXECUTED)
+        state_manager.add_step('Validate file against official json schema')
+        state_manager.set_step_status(Status.NOT_EXECUTED)
         return
     except json.decoder.JSONDecodeError as error:
         state_manager.set_step_status(Status.FAILED)
         logger.error(error)
         file_to_be_checked.close()
+        state_manager.add_step('Validate file against official json schema')
+        state_manager.set_step_status(Status.NOT_EXECUTED)
         return
     file_to_be_checked.close()
 
@@ -83,6 +95,14 @@ def check_schema(file_path: str, state_manager: ComplianceToolStateManager) -> N
 
 def check_deserialization(file_path: str, state_manager: ComplianceToolStateManager,
                           file_info: Optional[str] = None) -> model.DictObjectStore:
+    """
+    Checks if a file could be deserialized
+
+    :param file_path: given file which should be deserialized
+    :param state_manager: manager to log the steps
+    :param file_info: additional information about the file for name of the steps
+    :return: returns the deserialized object store
+    """
     logger.addHandler(state_manager)
 
     # create handler to get logger info
@@ -108,6 +128,11 @@ def check_deserialization(file_path: str, state_manager: ComplianceToolStateMana
     except FileNotFoundError as error:
         state_manager.set_step_status(Status.FAILED)
         logger.error(error)
+        if file_info:
+            state_manager.add_step('Read {} file and check if it is conform to the json schema'.format(file_info))
+        else:
+            state_manager.add_step('Read file and check if it is conform to the json schema')
+        state_manager.set_step_status(Status.NOT_EXECUTED)
         return model.DictObjectStore()
     file_to_be_checked.close()
     if len(state_manager.steps[-1].log_list) > 0:
@@ -117,6 +142,12 @@ def check_deserialization(file_path: str, state_manager: ComplianceToolStateMana
 
 
 def check_aas_example(file_path: str, state_manager: ComplianceToolStateManager) -> None:
+    """
+    Checks if a file contains all elements of the aas example
+
+    :param file_path: given file which should be checked
+    :param state_manager: manager to log the steps
+    """
     logger.addHandler(state_manager)
 
     # create handler to get logger info
@@ -126,6 +157,8 @@ def check_aas_example(file_path: str, state_manager: ComplianceToolStateManager)
     obj_store = check_deserialization(file_path, state_manager)
 
     if state_manager.status == Status.FAILED:
+        state_manager.add_step('Check if data is equal to example data')
+        state_manager.set_step_status(Status.NOT_EXECUTED)
         return
 
     checker = AASDataChecker(raise_immediately=False)
@@ -137,16 +170,22 @@ def check_aas_example(file_path: str, state_manager: ComplianceToolStateManager)
 
 
 def check_json_files_equivalence(file_path_1: str, file_path_2: str, state_manager: ComplianceToolStateManager) -> None:
+    """
+    Checks if two json files contain the same elements in any order
+
+    :param file_path_1: given first file which should be checked
+    :param file_path_2: given second file which should be checked
+    :param state_manager: manager to log the steps
+    """
     logger.addHandler(state_manager)
 
     obj_store_1 = check_deserialization(file_path_1, state_manager, 'first')
 
-    if state_manager.status == Status.FAILED:
-        return
-
     obj_store_2 = check_deserialization(file_path_2, state_manager, 'second')
 
     if state_manager.status == Status.FAILED:
+        state_manager.add_step('Check if data in files are equal')
+        state_manager.set_step_status(Status.NOT_EXECUTED)
         return
 
     checker = AASDataChecker(raise_immediately=False)
