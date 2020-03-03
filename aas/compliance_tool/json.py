@@ -110,7 +110,7 @@ def check_deserialization(file_path: str, state_manager: ComplianceToolStateMana
         logger.error(error)
         return model.DictObjectStore()
     file_to_be_checked.close()
-    if len(state_manager.steps[-1][2]) > 0:
+    if len(state_manager.steps[-1].log_list) > 0:
         state_manager.set_step_status(Status.FAILED)
 
     return obj_store
