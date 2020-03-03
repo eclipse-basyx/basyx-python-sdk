@@ -108,7 +108,7 @@ class ComplianceToolJsonTest(unittest.TestCase):
         manager = ComplianceToolStateManager()
         script_dir = os.path.dirname(__file__)
 
-        file_path_2 = os.path.join(script_dir, 'files/test_demo_full_aas.json')
+        file_path_2 = os.path.join(script_dir, 'files/test_demo_full_example.json')
         compliance_tool.check_aas_example(file_path_2, manager)
         self.assertEqual(len(manager.steps), 3)
         self.assertEqual(manager.steps[0][1], Status.SUCCESS)
@@ -126,16 +126,17 @@ class ComplianceToolJsonTest(unittest.TestCase):
                                        error_list[0].getMessage()))
 
         manager.steps = []
-        file_path_3 = os.path.join(script_dir, 'files/test_demo_full_aas_wrong_attribute.json')
+        file_path_3 = os.path.join(script_dir, 'files/test_demo_full_example_wrong_attribute.json')
         compliance_tool.check_aas_example(file_path_3, manager)
         self.assertEqual(len(manager.steps), 3)
         self.assertEqual(manager.steps[0][1], Status.SUCCESS)
         self.assertEqual(manager.steps[1][1], Status.SUCCESS)
         self.assertEqual(manager.steps[2][1], Status.FAILED)
         error_list = manager.get_error_logs_from_step(2)
-        self.assertIsNotNone(re.search(r'Attribute description of AssetAdministrationShell\[Identifier'
-                                       r'\(IRI=https://acplt.org/Test_AssetAdministrationShell\)\] must be ==',
-                                       error_list[0].getMessage()))
+        self.assertNotEqual(-1, error_list[0].getMessage().find('Attribute id_short of AssetAdministrationShell'
+                                                                '[Identifier(IRI=https://acplt.org/'
+                                                                'Test_AssetAdministrationShell)] must be == '
+                                                                'TestAssetAdministrationShell123'))
 
     def test_check_json_files_equivalence(self):
         manager = ComplianceToolStateManager()

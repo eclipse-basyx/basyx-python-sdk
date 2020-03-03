@@ -30,7 +30,7 @@ import jsonschema  # type: ignore
 
 from aas import model
 from aas.adapter.json import json_deserialization
-from aas.examples.data import example_aas
+from aas.examples.data import example_aas, create_example
 from aas.examples.data._helper import AASDataChecker
 from aas.compliance_tool.state_manager import ComplianceToolStateManager, Status
 
@@ -131,7 +131,7 @@ def check_aas_example(file_path: str, state_manager: ComplianceToolStateManager)
     checker = AASDataChecker(raise_immediately=False)
 
     state_manager.add_step('Check if data is equal to example data')
-    example_aas.check_full_example(checker, obj_store, True)
+    checker.check_object_store(obj_store, create_example())
 
     state_manager.add_log_records_from_data_checker(checker)
 

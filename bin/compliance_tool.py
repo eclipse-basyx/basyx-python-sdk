@@ -9,13 +9,18 @@
 # "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
 # specific language governing permissions and limitations under the License.
 
+"""
+Command line script which is a compliance tool for creating and checking json and xml files in compliance with
+"Details of the Asset Administration Shell" specification of Plattform Industrie 4.0.
+"""
+
 import argparse
 import logging
 
 import aas.compliance_tool.json as compliance_tool_json
 
 from aas.adapter.json import json_serialization
-from aas.examples.data import example_aas
+from aas.examples.data import create_example
 from aas.compliance_tool.state_manager import ComplianceToolStateManager, Status
 
 parser = argparse.ArgumentParser(
@@ -50,7 +55,7 @@ logger.addHandler(manager)
 
 if args.action == 'create' or args.action == 'c':
     manager.add_step('Create example data')
-    data = example_aas.create_full_example()
+    data = create_example()
     manager.set_step_status(Status.SUCCESS)
     try:
         manager.add_step('Open file')

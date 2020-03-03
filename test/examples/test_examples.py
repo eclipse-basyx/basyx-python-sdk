@@ -8,6 +8,7 @@
 # Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an
 # "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
 # specific language governing permissions and limitations under the License.
+import re
 import unittest
 
 from aas.examples.data import example_aas, example_aas_mandatory_attributes, example_aas_missing_attributes, \
@@ -51,9 +52,9 @@ class ExampleAASTest(unittest.TestCase):
     def test_full_example(self):
         checker = AASDataChecker(raise_immediately=True)
         obj_store = model.DictObjectStore()
-        with self.assertRaises(KeyError) as cm:
+        with self.assertRaises(AssertionError) as cm:
             example_aas.check_full_example(checker, obj_store)
-        self.assertEqual("'Empty object store'", str(cm.exception))
+        self.assertNotEqual(-1, str(cm.exception).find("Asset[Identifier(IRI=https://acplt.org/Test_Asset)]"))
 
         obj_store = example_aas.create_full_example()
         example_aas.check_full_example(checker, obj_store)
@@ -61,12 +62,9 @@ class ExampleAASTest(unittest.TestCase):
         failed_asset = model.Asset(kind=model.AssetKind.INSTANCE,
                                    identification=model.Identifier('test', model.IdentifierType.CUSTOM))
         obj_store.add(failed_asset)
-        with self.assertRaises(KeyError) as cm:
-            example_aas.check_full_example(checker, obj_store, False)
-        self.assertEqual(
-            "'Asset[Identifier(CUSTOM=test)] is not in example'",
-            str(cm.exception)
-        )
+        with self.assertRaises(AssertionError) as cm:
+            example_aas.check_full_example(checker, obj_store)
+        self.assertNotEqual(-1, str(cm.exception).find("Asset[Identifier(CUSTOM=test)]"))
         obj_store.discard(failed_asset)
 
         failed_shell = model.AssetAdministrationShell(
@@ -78,32 +76,23 @@ class ExampleAASTest(unittest.TestCase):
             identification=model.Identifier('test', model.IdentifierType.CUSTOM)
         )
         obj_store.add(failed_shell)
-        with self.assertRaises(KeyError) as cm:
+        with self.assertRaises(AssertionError) as cm:
             example_aas.check_full_example(checker, obj_store)
-        self.assertEqual(
-            "'AssetAdministrationShell[Identifier(CUSTOM=test)] is not in example'",
-            str(cm.exception)
-        )
+        self.assertNotEqual(-1, str(cm.exception).find("AssetAdministrationShell[Identifier(CUSTOM=test)]"))
         obj_store.discard(failed_shell)
 
         failed_submodel = model.Submodel(identification=model.Identifier('test', model.IdentifierType.CUSTOM))
         obj_store.add(failed_submodel)
-        with self.assertRaises(KeyError) as cm:
+        with self.assertRaises(AssertionError) as cm:
             example_aas.check_full_example(checker, obj_store)
-        self.assertEqual(
-            "'Submodel[Identifier(CUSTOM=test)] is not in example'",
-            str(cm.exception)
-        )
+        self.assertNotEqual(-1, str(cm.exception).find("Submodel[Identifier(CUSTOM=test)]"))
         obj_store.discard(failed_submodel)
 
         failed_cd = model.ConceptDescription(identification=model.Identifier('test', model.IdentifierType.CUSTOM))
         obj_store.add(failed_cd)
-        with self.assertRaises(KeyError) as cm:
+        with self.assertRaises(AssertionError) as cm:
             example_aas.check_full_example(checker, obj_store)
-        self.assertEqual(
-            "'ConceptDescription[Identifier(CUSTOM=test)] is not in example'",
-            str(cm.exception)
-        )
+        self.assertNotEqual(-1, str(cm.exception).find("ConceptDescription[Identifier(CUSTOM=test)]"))
         obj_store.discard(failed_cd)
 
         class DummyIdentifiable(model.Identifiable):
@@ -114,12 +103,10 @@ class ExampleAASTest(unittest.TestCase):
         obj_store.add(failed_identifiable)
         with self.assertRaises(KeyError) as cm:
             example_aas.check_full_example(checker, obj_store)
-        self.assertEqual(
-            "'Check for DummyIdentifiable[Identifier(CUSTOM=test)] not implemented'",
-            str(cm.exception)
-        )
+        self.assertNotEqual(-1, str(cm.exception).find("Check for DummyIdentifiable[Identifier(CUSTOM=test)] not "
+                                                    "implemented"))
         obj_store.discard(failed_identifiable)
-        example_aas.check_full_example(checker, obj_store, False)
+        example_aas.check_full_example(checker, obj_store)
 
 
 class ExampleAASMandatoryTest(unittest.TestCase):
@@ -157,65 +144,11 @@ class ExampleAASMandatoryTest(unittest.TestCase):
         failed_asset = model.Asset(kind=model.AssetKind.INSTANCE,
                                    identification=model.Identifier('test', model.IdentifierType.CUSTOM))
         obj_store.add(failed_asset)
-        with self.assertRaises(KeyError) as cm:
+        with self.assertRaises(AssertionError) as cm:
             example_aas_mandatory_attributes.check_full_example(checker, obj_store)
-        self.assertEqual(
-            "'Asset[Identifier(CUSTOM=test)] is not in example'",
-            str(cm.exception)
-        )
+        self.assertNotEqual(-1, str(cm.exception).find("Asset list 2 must not have extra assets"))
+        self.assertNotEqual(-1, str(cm.exception).find("Asset[Identifier(CUSTOM=test)]"))
         obj_store.discard(failed_asset)
-
-        failed_shell = model.AssetAdministrationShell(
-            asset=model.AASReference((model.Key(type_=model.KeyElements.ASSET,
-                                                local=False,
-                                                value='test',
-                                                id_type=model.KeyType.IRI),),
-                                     model.Asset),
-            identification=model.Identifier('test', model.IdentifierType.CUSTOM)
-        )
-        obj_store.add(failed_shell)
-        with self.assertRaises(KeyError) as cm:
-            example_aas_mandatory_attributes.check_full_example(checker, obj_store)
-        self.assertEqual(
-            "'AssetAdministrationShell[Identifier(CUSTOM=test)] is not in example'",
-            str(cm.exception)
-        )
-        obj_store.discard(failed_shell)
-
-        failed_submodel = model.Submodel(identification=model.Identifier('test', model.IdentifierType.CUSTOM))
-        obj_store.add(failed_submodel)
-        with self.assertRaises(KeyError) as cm:
-            example_aas_mandatory_attributes.check_full_example(checker, obj_store)
-        self.assertEqual(
-            "'Submodel[Identifier(CUSTOM=test)] is not in example'",
-            str(cm.exception)
-        )
-        obj_store.discard(failed_submodel)
-
-        failed_cd = model.ConceptDescription(identification=model.Identifier('test', model.IdentifierType.CUSTOM))
-        obj_store.add(failed_cd)
-        with self.assertRaises(KeyError) as cm:
-            example_aas_mandatory_attributes.check_full_example(checker, obj_store)
-        self.assertEqual(
-            "'ConceptDescription[Identifier(CUSTOM=test)] is not in example'",
-            str(cm.exception)
-        )
-        obj_store.discard(failed_cd)
-
-        class DummyIdentifiable(model.Identifiable):
-            def __init__(self, identification: model.Identifier):
-                super().__init__()
-                self.identification = identification
-
-        failed_identifiable = DummyIdentifiable(identification=model.Identifier('test', model.IdentifierType.CUSTOM))
-        obj_store.add(failed_identifiable)
-        with self.assertRaises(KeyError) as cm:
-            example_aas_mandatory_attributes.check_full_example(checker, obj_store)
-        self.assertEqual(
-            "'Check for DummyIdentifiable[Identifier(CUSTOM=test)] not implemented'",
-            str(cm.exception)
-        )
-        obj_store.discard(failed_identifiable)
         example_aas_mandatory_attributes.check_full_example(checker, obj_store)
 
 
@@ -249,66 +182,11 @@ class ExampleAASMissingTest(unittest.TestCase):
         failed_asset = model.Asset(kind=model.AssetKind.INSTANCE,
                                    identification=model.Identifier('test', model.IdentifierType.CUSTOM))
         obj_store.add(failed_asset)
-        with self.assertRaises(KeyError) as cm:
+        with self.assertRaises(AssertionError) as cm:
             example_aas_missing_attributes.check_full_example(checker, obj_store)
-        self.assertEqual(
-            "'Asset[Identifier(CUSTOM=test)] is not in example'",
-            str(cm.exception)
-        )
+        self.assertNotEqual(-1, str(cm.exception).find("Asset[Identifier(CUSTOM=test)]"))
         obj_store.discard(failed_asset)
-
-        failed_shell = model.AssetAdministrationShell(
-            asset=model.AASReference((model.Key(type_=model.KeyElements.ASSET,
-                                                local=False,
-                                                value='test',
-                                                id_type=model.KeyType.IRI),),
-                                     model.Asset),
-            identification=model.Identifier('test', model.IdentifierType.CUSTOM)
-        )
-        obj_store.add(failed_shell)
-        with self.assertRaises(KeyError) as cm:
-            example_aas_missing_attributes.check_full_example(checker, obj_store)
-        self.assertEqual(
-            "'AssetAdministrationShell[Identifier(CUSTOM=test)] is not in example'",
-            str(cm.exception)
-        )
-        obj_store.discard(failed_shell)
-
-        failed_submodel = model.Submodel(identification=model.Identifier('test', model.IdentifierType.CUSTOM))
-        obj_store.add(failed_submodel)
-        with self.assertRaises(KeyError) as cm:
-            example_aas_missing_attributes.check_full_example(checker, obj_store)
-        self.assertEqual(
-            "'Submodel[Identifier(CUSTOM=test)] is not in example'",
-            str(cm.exception)
-        )
-        obj_store.discard(failed_submodel)
-
-        failed_cd = model.ConceptDescription(identification=model.Identifier('test', model.IdentifierType.CUSTOM))
-        obj_store.add(failed_cd)
-        with self.assertRaises(KeyError) as cm:
-            example_aas_missing_attributes.check_full_example(checker, obj_store)
-        self.assertEqual(
-            "'ConceptDescription[Identifier(CUSTOM=test)] is not in example'",
-            str(cm.exception)
-        )
-        obj_store.discard(failed_cd)
-
-        class DummyIdentifiable(model.Identifiable):
-            def __init__(self, identification: model.Identifier):
-                super().__init__()
-                self.identification = identification
-
-        failed_identifiable = DummyIdentifiable(identification=model.Identifier('test', model.IdentifierType.CUSTOM))
-        obj_store.add(failed_identifiable)
-        with self.assertRaises(KeyError) as cm:
-            example_aas_missing_attributes.check_full_example(checker, obj_store)
-        self.assertEqual(
-            "'Check for DummyIdentifiable[Identifier(CUSTOM=test)] not implemented'",
-            str(cm.exception)
-        )
-        obj_store.discard(failed_identifiable)
-        example_aas_missing_attributes.check_full_example(checker, obj_store, False)
+        example_aas_missing_attributes.check_full_example(checker, obj_store)
 
 
 class ExampleConceptDescriptionTest(unittest.TestCase):
@@ -326,66 +204,12 @@ class ExampleConceptDescriptionTest(unittest.TestCase):
         failed_asset = model.Asset(kind=model.AssetKind.INSTANCE,
                                    identification=model.Identifier('test', model.IdentifierType.CUSTOM))
         obj_store.add(failed_asset)
-        with self.assertRaises(KeyError) as cm:
-            example_concept_description.check_full_example(checker, obj_store, False)
-        self.assertEqual(
-            "'Asset[Identifier(CUSTOM=test)] is not in example'",
-            str(cm.exception)
-        )
+        with self.assertRaises(AssertionError) as cm:
+            example_concept_description.check_full_example(checker, obj_store)
+        self.assertNotEqual(-1, str(cm.exception).find("Asset[Identifier(CUSTOM=test)]"))
         obj_store.discard(failed_asset)
 
-        failed_shell = model.AssetAdministrationShell(
-            asset=model.AASReference((model.Key(type_=model.KeyElements.ASSET,
-                                                local=False,
-                                                value='test',
-                                                id_type=model.KeyType.IRI),),
-                                     model.Asset),
-            identification=model.Identifier('test', model.IdentifierType.CUSTOM)
-        )
-        obj_store.add(failed_shell)
-        with self.assertRaises(KeyError) as cm:
-            example_concept_description.check_full_example(checker, obj_store)
-        self.assertEqual(
-            "'AssetAdministrationShell[Identifier(CUSTOM=test)] is not in example'",
-            str(cm.exception)
-        )
-        obj_store.discard(failed_shell)
-
-        failed_submodel = model.Submodel(identification=model.Identifier('test', model.IdentifierType.CUSTOM))
-        obj_store.add(failed_submodel)
-        with self.assertRaises(KeyError) as cm:
-            example_concept_description.check_full_example(checker, obj_store)
-        self.assertEqual(
-            "'Submodel[Identifier(CUSTOM=test)] is not in example'",
-            str(cm.exception)
-        )
-        obj_store.discard(failed_submodel)
-
-        failed_cd = model.ConceptDescription(identification=model.Identifier('test', model.IdentifierType.CUSTOM))
-        obj_store.add(failed_cd)
-        with self.assertRaises(KeyError) as cm:
-            example_concept_description.check_full_example(checker, obj_store)
-        self.assertEqual(
-            "'ConceptDescription[Identifier(CUSTOM=test)] is not in example'",
-            str(cm.exception)
-        )
-        obj_store.discard(failed_cd)
-
-        class DummyIdentifiable(model.Identifiable):
-            def __init__(self, identification: model.Identifier):
-                super().__init__()
-                self.identification = identification
-
-        failed_identifiable = DummyIdentifiable(identification=model.Identifier('test', model.IdentifierType.CUSTOM))
-        obj_store.add(failed_identifiable)
-        with self.assertRaises(KeyError) as cm:
-            example_concept_description.check_full_example(checker, obj_store)
-        self.assertEqual(
-            "'Check for DummyIdentifiable[Identifier(CUSTOM=test)] not implemented'",
-            str(cm.exception)
-        )
-        obj_store.discard(failed_identifiable)
-        example_concept_description.check_full_example(checker, obj_store, False)
+        example_concept_description.check_full_example(checker, obj_store)
 
 
 class ExampleSubmodelTemplate(unittest.TestCase):
@@ -403,63 +227,9 @@ class ExampleSubmodelTemplate(unittest.TestCase):
         failed_asset = model.Asset(kind=model.AssetKind.INSTANCE,
                                    identification=model.Identifier('test', model.IdentifierType.CUSTOM))
         obj_store.add(failed_asset)
-        with self.assertRaises(KeyError) as cm:
-            example_submodel_template.check_full_example(checker, obj_store, False)
-        self.assertEqual(
-            "'Asset[Identifier(CUSTOM=test)] is not in example'",
-            str(cm.exception)
-        )
+        with self.assertRaises(AssertionError) as cm:
+            example_submodel_template.check_full_example(checker, obj_store)
+        self.assertNotEqual(-1, str(cm.exception).find("Asset[Identifier(CUSTOM=test)]"))
         obj_store.discard(failed_asset)
 
-        failed_shell = model.AssetAdministrationShell(
-            asset=model.AASReference((model.Key(type_=model.KeyElements.ASSET,
-                                                local=False,
-                                                value='test',
-                                                id_type=model.KeyType.IRI),),
-                                     model.Asset),
-            identification=model.Identifier('test', model.IdentifierType.CUSTOM)
-        )
-        obj_store.add(failed_shell)
-        with self.assertRaises(KeyError) as cm:
-            example_submodel_template.check_full_example(checker, obj_store)
-        self.assertEqual(
-            "'AssetAdministrationShell[Identifier(CUSTOM=test)] is not in example'",
-            str(cm.exception)
-        )
-        obj_store.discard(failed_shell)
-
-        failed_submodel = model.Submodel(identification=model.Identifier('test', model.IdentifierType.CUSTOM))
-        obj_store.add(failed_submodel)
-        with self.assertRaises(KeyError) as cm:
-            example_submodel_template.check_full_example(checker, obj_store)
-        self.assertEqual(
-            "'Submodel[Identifier(CUSTOM=test)] is not in example'",
-            str(cm.exception)
-        )
-        obj_store.discard(failed_submodel)
-
-        failed_cd = model.ConceptDescription(identification=model.Identifier('test', model.IdentifierType.CUSTOM))
-        obj_store.add(failed_cd)
-        with self.assertRaises(KeyError) as cm:
-            example_submodel_template.check_full_example(checker, obj_store)
-        self.assertEqual(
-            "'ConceptDescription[Identifier(CUSTOM=test)] is not in example'",
-            str(cm.exception)
-        )
-        obj_store.discard(failed_cd)
-
-        class DummyIdentifiable(model.Identifiable):
-            def __init__(self, identification: model.Identifier):
-                super().__init__()
-                self.identification = identification
-
-        failed_identifiable = DummyIdentifiable(identification=model.Identifier('test', model.IdentifierType.CUSTOM))
-        obj_store.add(failed_identifiable)
-        with self.assertRaises(KeyError) as cm:
-            example_submodel_template.check_full_example(checker, obj_store)
-        self.assertEqual(
-            "'Check for DummyIdentifiable[Identifier(CUSTOM=test)] not implemented'",
-            str(cm.exception)
-        )
-        obj_store.discard(failed_identifiable)
-        example_submodel_template.check_full_example(checker, obj_store, False)
+        example_submodel_template.check_full_example(checker, obj_store)
