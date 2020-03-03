@@ -104,7 +104,7 @@ class ExampleAASTest(unittest.TestCase):
         with self.assertRaises(KeyError) as cm:
             example_aas.check_full_example(checker, obj_store)
         self.assertNotEqual(-1, str(cm.exception).find("Check for DummyIdentifiable[Identifier(CUSTOM=test)] not "
-                                                    "implemented"))
+                                                       "implemented"))
         obj_store.discard(failed_identifiable)
         example_aas.check_full_example(checker, obj_store)
 

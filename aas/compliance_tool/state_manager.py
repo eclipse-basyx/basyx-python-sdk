@@ -59,7 +59,6 @@ class ComplianceToolStateManager(logging.Handler):
         self.steps[-1][1] = status
 
     def add_log_records_from_data_checker(self, data_checker: DataChecker):
-        x = any(True for _ in data_checker.failed_checks)
         self.steps[-1][1] = Status.SUCCESS if not any(True for _ in data_checker.failed_checks) else Status.FAILED
         for check in data_checker.checks:
             self.steps[-1][2].append(logging.LogRecord(name=logging.getLogger().name,
@@ -73,7 +72,7 @@ class ComplianceToolStateManager(logging.Handler):
     def get_error_logs_from_step(self, index: int) -> List[logging.LogRecord]:
         return [x for x in self.steps[index][2] if x.levelno == logging.ERROR or x.levelno == logging.WARNING]
 
-    def get_step_string(self, index: int, verbose_level: int = False) -> str:
+    def get_step_string(self, index: int, verbose_level: int = 0) -> str:
         if self.steps[index][1] == Status.SUCCESS:
             string = 'SUCCESS: '
         elif self.steps[index][1] == Status.FAILED:
@@ -90,7 +89,10 @@ class ComplianceToolStateManager(logging.Handler):
                 string += '\n\t- {}: {}'.format(log.levelname, log.getMessage())
         if verbose_level == 2:
             for log in self.steps[index][2]:
-                string += '\n\t- {}: {}'.format(log.levelname, log.getMessage())
+                if log.levelno == logging.INFO:
+                    string += '\n\t- {}:  {}'.format(log.levelname, log.getMessage())
+                else:
+                    string += '\n\t- {}: {}'.format(log.levelname, log.getMessage())
         return string
 
     def emit(self, record: logging.LogRecord):

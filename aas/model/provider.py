@@ -40,16 +40,16 @@ class AbstractObjectProvider(metaclass=abc.ABCMeta):
         """
         pass
 
-    def get(self, key, default: Optional[Identifiable] = None) -> Optional[Identifiable]:
+    def get(self, identifier: Identifier, default: Optional[Identifiable] = None) -> Optional[Identifiable]:
         """
-         Find an object in this set by its identification, with fallback parameter
+        Find an object in this set by its identification, with fallback parameter
 
-         :param default: An object to be returned, if no object with the given identification is found
-         :return: The Identifiable object with the given identification in the provider. Otherwise the `default` object
-                  or None, if none is given.
-         """
+        :param default: An object to be returned, if no object with the given identification is found
+        :return: The Identifiable object with the given identification in the provider. Otherwise the `default` object
+                 or None, if none is given.
+        """
         try:
-            return self.get_identifiable(key)
+            return self.get_identifiable(identifier)
         except KeyError:
             return default
 
