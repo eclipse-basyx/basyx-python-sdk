@@ -27,17 +27,20 @@ class ComplianceToolJsonTest(unittest.TestCase):
 
         file_path_1 = os.path.join(script_dir, 'files/test_not_found.json')
         compliance_tool.check_schema(file_path_1, manager)
-        self.assertEqual(len(manager.steps), 1)
+        self.assertEqual(len(manager.steps), 3)
         self.assertEqual(manager.steps[0].status, Status.FAILED)
+        self.assertEqual(manager.steps[1].status, Status.NOT_EXECUTED)
+        self.assertEqual(manager.steps[2].status, Status.NOT_EXECUTED)
         error_list = manager.get_error_logs_from_step(0)
         self.assertIsNotNone(re.search(r"No such file or directory", error_list[0].getMessage()))
 
         manager.steps = []
         file_path_2 = os.path.join(script_dir, 'files/test_not_serializable.json')
         compliance_tool.check_schema(file_path_2, manager)
-        self.assertEqual(len(manager.steps), 2)
+        self.assertEqual(len(manager.steps), 3)
         self.assertEqual(manager.steps[0].status, Status.SUCCESS)
         self.assertEqual(manager.steps[1].status, Status.FAILED)
+        self.assertEqual(manager.steps[2].status, Status.NOT_EXECUTED)
         error_list = manager.get_error_logs_from_step(1)
         self.assertEqual(error_list[0].getMessage(), "Expecting ',' delimiter: line 5 column 2 (char 69)")
 
@@ -65,8 +68,9 @@ class ComplianceToolJsonTest(unittest.TestCase):
 
         file_path_1 = os.path.join(script_dir, 'files/test_not_found.json')
         compliance_tool.check_deserialization(file_path_1, manager)
-        self.assertEqual(len(manager.steps), 1)
+        self.assertEqual(len(manager.steps), 2)
         self.assertEqual(manager.steps[0].status, Status.FAILED)
+        self.assertEqual(manager.steps[1].status, Status.NOT_EXECUTED)
         error_list = manager.get_error_logs_from_step(0)
         self.assertIsNotNone(re.search(r"No such file or directory", error_list[0].getMessage()))
 
@@ -118,9 +122,10 @@ class ComplianceToolJsonTest(unittest.TestCase):
         manager.steps = []
         file_path_1 = os.path.join(script_dir, 'files/test_not_serializable_aas.json')
         compliance_tool.check_aas_example(file_path_1, manager)
-        self.assertEqual(len(manager.steps), 2)
+        self.assertEqual(len(manager.steps), 3)
         self.assertEqual(manager.steps[0].status, Status.SUCCESS)
         self.assertEqual(manager.steps[1].status, Status.FAILED)
+        self.assertEqual(manager.steps[2].status, Status.NOT_EXECUTED)
         error_list = manager.get_error_logs_from_step(1)
         self.assertIsNotNone(re.search(r'Found JSON object with modelType="Test", which is not a known AAS class',
                                        error_list[0].getMessage()))
@@ -145,17 +150,21 @@ class ComplianceToolJsonTest(unittest.TestCase):
         file_path_1 = os.path.join(script_dir, 'files/test_not_serializable_aas.json')
         file_path_2 = os.path.join(script_dir, 'files/test_empty.json')
         compliance_tool.check_json_files_equivalence(file_path_1, file_path_2, manager)
-        self.assertEqual(len(manager.steps), 2)
+        self.assertEqual(len(manager.steps), 5)
         self.assertEqual(manager.steps[0].status, Status.SUCCESS)
         self.assertEqual(manager.steps[1].status, Status.FAILED)
+        self.assertEqual(manager.steps[2].status, Status.SUCCESS)
+        self.assertEqual(manager.steps[3].status, Status.SUCCESS)
+        self.assertEqual(manager.steps[4].status, Status.NOT_EXECUTED)
 
         manager.steps = []
         compliance_tool.check_json_files_equivalence(file_path_2, file_path_1, manager)
-        self.assertEqual(len(manager.steps), 4)
+        self.assertEqual(len(manager.steps), 5)
         self.assertEqual(manager.steps[0].status, Status.SUCCESS)
         self.assertEqual(manager.steps[1].status, Status.SUCCESS)
         self.assertEqual(manager.steps[2].status, Status.SUCCESS)
         self.assertEqual(manager.steps[3].status, Status.FAILED)
+        self.assertEqual(manager.steps[4].status, Status.NOT_EXECUTED)
 
         manager.steps = []
         file_path_3 = os.path.join(script_dir, 'files/test_demo_full_aas.json')
