@@ -10,7 +10,7 @@
 # specific language governing permissions and limitations under the License.
 import io
 import unittest
-from lxml import etree  # type: ignore  # todo: put lxml in project requirements?
+from lxml import etree  # type: ignore
 import os
 
 from aas import model
