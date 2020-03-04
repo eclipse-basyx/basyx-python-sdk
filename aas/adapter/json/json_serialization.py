@@ -29,83 +29,7 @@ from typing import List, Dict, IO
 import json
 
 from ... import model
-
-
-# ##########################################
-# dicts to serialize enum values to json
-# ##########################################
-
-MODELING_KIND: Dict[model.ModelingKind, str] = {
-    model.ModelingKind.TEMPLATE: 'Template',
-    model.ModelingKind.INSTANCE: 'Instance'}
-
-ASSET_KIND: Dict[model.AssetKind, str] = {
-    model.AssetKind.TYPE: 'Type',
-    model.AssetKind.INSTANCE: 'Instance'}
-
-KEY_ELEMENTS: Dict[model.KeyElements, str] = {
-    model.KeyElements.ASSET: 'Asset',
-    model.KeyElements.ASSET_ADMINISTRATION_SHELL: 'AssetAdministrationShell',
-    model.KeyElements.CONCEPT_DESCRIPTION: 'ConceptDescription',
-    model.KeyElements.SUBMODEL: 'Submodel',
-    model.KeyElements.ANNOTATED_RELATIONSHIP_ELEMENT: 'AnnotatedRelationshipElement',
-    model.KeyElements.BASIC_EVENT: 'BasicEvent',
-    model.KeyElements.BLOB: 'Blob',
-    model.KeyElements.CAPABILITY: 'Capability',
-    model.KeyElements.CONCEPT_DICTIONARY: 'ConceptDictionary',
-    model.KeyElements.ENTITY: 'Entity',
-    model.KeyElements.EVENT: 'Event',
-    model.KeyElements.FILE: 'File',
-    model.KeyElements.MULTI_LANGUAGE_PROPERTY: 'MultiLanguageProperty',
-    model.KeyElements.OPERATION: 'Operation',
-    model.KeyElements.PROPERTY: 'Property',
-    model.KeyElements.RANGE: 'Range',
-    model.KeyElements.REFERENCE_ELEMENT: 'ReferenceElement',
-    model.KeyElements.RELATIONSHIP_ELEMENT: 'RelationshipElement',
-    model.KeyElements.SUBMODEL_ELEMENT: 'SubmodelElement',
-    model.KeyElements.SUBMODEL_ELEMENT_COLLECTION: 'SubmodelElementCollection',
-    model.KeyElements.VIEW: 'View',
-    model.KeyElements.GLOBAL_REFERENCE: 'GlobalReference',
-    model.KeyElements.FRAGMENT_REFERENCE: 'FragmentReference',
-    model.KeyElements.DATA_ELEMENT: 'DataElement'}
-
-KEY_TYPES: Dict[model.KeyType, str] = {
-    model.KeyType.CUSTOM: 'Custom',
-    model.KeyType.IRDI: 'IRDI',
-    model.KeyType.IRI: 'IRI',
-    model.KeyType.IDSHORT: 'IdShort',
-    model.KeyType.FRAGMENT_ID: 'FragmentId'}
-
-IDENTIFIER_TYPES: Dict[model.IdentifierType, str] = {
-    model.IdentifierType.CUSTOM: 'Custom',
-    model.IdentifierType.IRDI: 'IRDI',
-    model.IdentifierType.IRI: 'IRI'}
-
-ENTITY_TYPES: Dict[model.EntityType, str] = {
-    model.EntityType.CO_MANAGED_ENTITY: 'CoManagedEntity',
-    model.EntityType.SELF_MANAGED_ENTITY: 'SelfManagedEntity'}
-
-IEC61360_DATA_TYPES: Dict[model.concept.IEC61360DataType, str] = {
-    model.concept.IEC61360DataType.DATE: 'DATE',
-    model.concept.IEC61360DataType.STRING: 'STRING',
-    model.concept.IEC61360DataType.STRING_TRANSLATABLE: 'STRING_TRANSLATABLE',
-    model.concept.IEC61360DataType.REAL_MEASURE: 'REAL_MEASURE',
-    model.concept.IEC61360DataType.REAL_COUNT: 'REAL_COUNT',
-    model.concept.IEC61360DataType.REAL_CURRENCY: 'REAL_CURRENCY',
-    model.concept.IEC61360DataType.BOOLEAN: 'BOOLEAN',
-    model.concept.IEC61360DataType.URL: 'URL',
-    model.concept.IEC61360DataType.RATIONAL: 'RATIONAL',
-    model.concept.IEC61360DataType.RATIONAL_MEASURE: 'RATIONAL_MEASURE',
-    model.concept.IEC61360DataType.TIME: 'TIME',
-    model.concept.IEC61360DataType.TIMESTAMP: 'TIMESTAMP',
-}
-
-IEC61360_LEVEL_TYPES: Dict[model.concept.IEC61360LevelType, str] = {
-    model.concept.IEC61360LevelType.MIN: 'Min',
-    model.concept.IEC61360LevelType.MAX: 'Max',
-    model.concept.IEC61360LevelType.NOM: 'Nom',
-    model.concept.IEC61360LevelType.TYP: 'Typ',
-}
+from .. import _generic
 
 
 def abstract_classes_to_json(obj: object) -> Dict[str, object]:
@@ -137,7 +61,7 @@ def abstract_classes_to_json(obj: object) -> Dict[str, object]:
             data['semanticId'] = obj.semantic_id
     if isinstance(obj, model.HasKind):
         if obj.kind is model.ModelingKind.TEMPLATE:
-            data['kind'] = MODELING_KIND[obj.kind]
+            data['kind'] = _generic.MODELING_KIND[obj.kind]
     if isinstance(obj, model.Qualifiable):
         if obj.qualifier:
             data['qualifiers'] = list(obj.qualifier)
@@ -161,8 +85,8 @@ def key_to_json(obj: model.Key) -> Dict[str, object]:
     :return: dict with the serialized attributes of this object
     """
     data = abstract_classes_to_json(obj)
-    data.update({'type': KEY_ELEMENTS[obj.type],
-                 'idType': KEY_TYPES[obj.id_type],
+    data.update({'type': _generic.KEY_ELEMENTS[obj.type],
+                 'idType': _generic.KEY_TYPES[obj.id_type],
                  'value': obj.value,
                  'local': obj.local})
     return data
@@ -192,7 +116,7 @@ def identifier_to_json(obj: model.Identifier) -> Dict[str, object]:
     """
     data = abstract_classes_to_json(obj)
     data['id'] = obj.id
-    data['idType'] = IDENTIFIER_TYPES[obj.id_type]
+    data['idType'] = _generic.IDENTIFIER_TYPES[obj.id_type]
     return data
 
 
@@ -316,7 +240,7 @@ def asset_to_json(obj: model.Asset) -> Dict[str, object]:
     :return: dict with the serialized attributes of this object
     """
     data = abstract_classes_to_json(obj)
-    data['kind'] = ASSET_KIND[obj.kind]
+    data['kind'] = _generic.ASSET_KIND[obj.kind]
     if obj.asset_identification_model:
         data['assetIdentificationModel'] = obj.asset_identification_model
     if obj.bill_of_material:
@@ -353,7 +277,7 @@ def append_iec61360_concept_description_attrs(obj: model.concept.IEC61360Concept
     """
     data_spec = {
         'preferredName': lang_string_set_to_json(obj.preferred_name),
-        'dataType': IEC61360_DATA_TYPES[obj.data_type],
+        'dataType': _generic.IEC61360_DATA_TYPES[obj.data_type],
     }
     if obj.definition is not None:
         data_spec['definition'] = lang_string_set_to_json(obj.definition)
@@ -376,7 +300,7 @@ def append_iec61360_concept_description_attrs(obj: model.concept.IEC61360Concept
     if obj.value_id is not None:
         data_spec['valueId'] = obj.value_id
     if obj.level_types:
-        data_spec['levelType'] = [IEC61360_LEVEL_TYPES[lt] for lt in obj.level_types]
+        data_spec['levelType'] = [_generic.IEC61360_LEVEL_TYPES[lt] for lt in obj.level_types]
     data['embeddedDataSpecifications'] = [
         {'dataSpecification': model.Reference((
             model.Key(model.KeyElements.GLOBAL_REFERENCE, False,
@@ -639,7 +563,7 @@ def entity_to_json(obj: model.Entity) -> Dict[str, object]:
     data = abstract_classes_to_json(obj)
     if obj.statement:
         data['statements'] = list(obj.statement)
-    data['entityType'] = ENTITY_TYPES[obj.entity_type]
+    data['entityType'] = _generic.ENTITY_TYPES[obj.entity_type]
     if obj.asset:
         data['asset'] = obj.asset
     return data
