@@ -91,9 +91,9 @@ def abstract_classes_to_xml(namespace: str, tag: str, obj: object) -> ElTree.Ele
     if isinstance(obj, model.Referable):
         elm.append(_generate_element(name=NS_AAS + "idShort", text=obj.id_short))
         if obj.category:
-            elm.append(_generate_element(name=NS_AAS+ "category", text=obj.category))
+            elm.append(_generate_element(name=NS_AAS + "category", text=obj.category))
         if obj.description:
-            elm.append(lang_string_set_to_xml(obj.description, tag="description"))
+            elm.append(lang_string_set_to_xml(obj.description, namespace=NS_AAS, tag="description"))
     if isinstance(obj, model.Identifiable):
         elm.append(_generate_element(name=NS_AAS + "identification",
                                      text=obj.identification.id,
@@ -133,15 +133,16 @@ def abstract_classes_to_xml(namespace: str, tag: str, obj: object) -> ElTree.Ele
 # ##############################################################
 
 
-def lang_string_set_to_xml(obj: model.LangStringSet, tag: str) -> ElTree.Element:
+def lang_string_set_to_xml(obj: model.LangStringSet, namespace: str, tag: str) -> ElTree.Element:
     """
     serialization of objects of class LangStringSet to XML
 
     :param obj: object of class LangStringSet
+    :param namespace: namespace of the element
     :param tag: tag of the returned element
     :return: serialized ElementTree object
     """
-    et_lss = _generate_element(name=NS_AAS+tag)
+    et_lss = _generate_element(name=namespace+tag)
     for language in obj:
         et_lss.append(_generate_element(name=NS_AAS + "langString",
                                         text=obj[language],
@@ -433,7 +434,7 @@ def submodel_element_to_xml(obj: model.SubmodelElement,
     :param tag: tag of the serialized element (optional), default is "submodelElement"
     :return: serialized ElementTree object
     """
-    et_submodel_element = _generate_element(NS_AAS+tag)
+    et_submodel_element = _generate_element(namespace+tag)
     if isinstance(obj, model.BasicEvent):
         et_submodel_element.append(basic_event_to_xml(obj, NS_AAS))
     if isinstance(obj, model.Blob):
@@ -533,7 +534,7 @@ def multi_language_property_to_xml(obj: model.MultiLanguageProperty,
     if obj.value_id:
         et_multi_language_property.append(reference_to_xml(obj.value_id, NS_AAS, "valueId"))
     if obj.value:
-        et_multi_language_property.append(lang_string_set_to_xml(obj.value, tag="value"))
+        et_multi_language_property.append(lang_string_set_to_xml(obj.value, namespace=NS_AAS, tag="value"))
     return et_multi_language_property
 
 
@@ -684,7 +685,7 @@ def operation_variable_to_xml(obj: model.OperationVariable,
     :param tag: tag of the serialized element (optional), default is "operationVariable"
     :return: serialized ElementTree object
     """
-    et_operation_variable = _generate_element(namespace + "operationVariable")
+    et_operation_variable = _generate_element(namespace + tag)
     et_operation_variable.append(submodel_element_to_xml(obj.value, NS_AAS, tag="value"))
     return et_operation_variable
 
@@ -767,7 +768,7 @@ def basic_event_to_xml(obj: model.BasicEvent,
     :param tag: tag of the serialized element (optional), default is "basicEvent"
     :return: serialized ElementTree object
     """
-    et_basic_event = abstract_classes_to_xml(NS_AAS, tag, obj)
+    et_basic_event = abstract_classes_to_xml(namespace, tag, obj)
     et_basic_event.append(reference_to_xml(obj.observed, NS_AAS, "observed"))
     return et_basic_event
 
