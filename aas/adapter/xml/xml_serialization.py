@@ -51,8 +51,8 @@ def _generate_element(name: str,
     if text:
         et_element.text = text
     if attributes:
-        for attribute in attributes:
-            et_element.set(attribute, attributes[attribute])
+        for key, value in attributes.items():
+            et_element.set(key, value)
     return et_element
 
 
