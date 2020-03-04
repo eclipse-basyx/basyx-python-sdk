@@ -69,18 +69,6 @@ def boolean_to_xml(obj: bool) -> str:
         return "false"
 
 
-def _generate_parent(namespace: str, tag: str, obj: object) -> ElTree.Element:
-    """
-    generates a parent element from its tag-name and object. Inserts abstract classes
-
-    :param namespace: namespace of the resulting element
-    :param tag: tag of the resulting element
-    :param obj: model object
-    :return: ElementTree that includes the serialized abstract classes
-    """
-    return abstract_classes_to_xml(_generate_element(name=namespace + tag), namespace, obj)
-
-
 # ##############################################################
 # dicts to serialize enum classes to xml
 # ##############################################################
@@ -142,18 +130,19 @@ ENTITY_TYPES: Dict[model.EntityType, str] = {
 # ##############################################################
 
 
-def abstract_classes_to_xml(elm: ElTree.Element, namespace: str, obj: object) -> ElTree.Element:
+def abstract_classes_to_xml(namespace: str, tag: str, obj: object) -> ElTree.Element:
     """
-    transformation function to serialize abstract classes from model.base which are inherited by many classes.
+    generates an element and serialize abstract classes from model.base which are inherited by many classes.
 
     If the object obj is inheriting from an abstract class, this function adds the serialized information of those
     abstract classes to the given parent element
 
-    :param elm: parent element that the abstract classes should be serialized for
     :param namespace: namespace of the children elements
+    :param tag: tag of the element
     :param obj: an object of the AAS
     :return: parent element with the serialized information from the abstract classes
     """
+    elm = _generate_element(namespace+tag)
     if isinstance(obj, model.Referable):
         elm.append(_generate_element(name=namespace + "idShort", text=obj.id_short))
         if obj.category:
@@ -226,7 +215,7 @@ def administrative_information_to_xml(obj: model.AdministrativeInformation,
     :param tag: tag of the serialized element. default is "administration"
     :return: serialized ElementTree object
     """
-    et_administration = _generate_parent(namespace, tag, obj)
+    et_administration = abstract_classes_to_xml(namespace, tag, obj)
     if obj.version:
         et_administration.append(_generate_element(name=namespace + "version", text=obj.version))
         if obj.revision:
@@ -243,7 +232,7 @@ def identifier_to_xml(obj: model.Identifier, namespace: str, tag: str = "identif
     :param tag: tag of the serialized element. default is "identifier"
     :return: serialized ElementTree object
     """
-    et_identifier = _generate_parent(namespace, tag, obj)
+    et_identifier = abstract_classes_to_xml(namespace, tag, obj)
     et_identifier.append(_generate_element(name=namespace + "id", text=obj.id))
     et_identifier.append(_generate_element(name=namespace + "idType", text=IDENTIFIER_TYPES[obj.id_type]))
     return et_identifier
@@ -279,7 +268,7 @@ def formula_to_xml(obj: model.Formula, namespace: str, tag: str = "formula") -> 
     :param tag: tag of the ElementTree object, default is "formula"
     :return: serialized ElementTree object
     """
-    et_formula = _generate_parent(namespace, tag, obj)
+    et_formula = abstract_classes_to_xml(namespace, tag, obj)
     if obj.depends_on:
         et_depends_on = _generate_element(name=namespace + "dependsOnRefs", text=None)
         for aas_reference in obj.depends_on:
@@ -297,7 +286,7 @@ def qualifier_to_xml(obj: model.Qualifier, namespace: str, tag: str = "qualifier
     :param tag: tag of the serialized ElementTree object, default is "qualifier"
     :return: serialized ElementTreeObject
     """
-    et_qualifier = _generate_parent(namespace, tag, obj)
+    et_qualifier = abstract_classes_to_xml(namespace, tag, obj)
     if obj.value_id:
         et_qualifier.append(reference_to_xml(obj.value_id, namespace, "valueId"))
     if obj.value:
@@ -321,7 +310,7 @@ def value_reference_pair_to_xml(obj: model.ValueReferencePair,
     :param tag: tag of the serialized element, default is "valueReferencePair"
     :return: serialized ElementTree object
     """
-    et_vrp = _generate_parent(namespace, tag, obj)
+    et_vrp = abstract_classes_to_xml(namespace, tag, obj)
     et_vrp.append(_generate_element(namespace + "value", text=obj.value))
     et_vrp.append(reference_to_xml(obj.value_id, namespace, "valueId"))
     return et_vrp
@@ -340,7 +329,7 @@ def value_list_to_xml(obj: model.ValueList,
     :param tag: tag of the serialized element, default is "valueList"
     :return: serialized ElementTree object
     """
-    et_value_list = _generate_parent(namespace, tag, obj)
+    et_value_list = abstract_classes_to_xml(namespace, tag, obj)
     for aas_reference_pair in obj:
         et_value_list.append(value_reference_pair_to_xml(aas_reference_pair, namespace))
     return et_value_list
@@ -360,7 +349,7 @@ def view_to_xml(obj: model.View, namespace: str, tag: str = "view") -> ElTree.El
     :param tag: namespace+tag of the ElementTree object. default is "view"
     :return: serialized ElementTree object
     """
-    et_view = _generate_parent(namespace, tag, obj)
+    et_view = abstract_classes_to_xml(namespace, tag, obj)
     et_contained_elements = _generate_element(name=namespace + "containedElements")
     if obj.contained_element:
         for contained_element in obj.contained_element:
@@ -378,7 +367,7 @@ def asset_to_xml(obj: model.Asset, namespace: str, tag: str = "asset") -> ElTree
     :param tag: namespace+tag of the ElementTree object. default is "asset"
     :return: serialized ElementTree object
     """
-    et_asset = _generate_parent(namespace, tag, obj)
+    et_asset = abstract_classes_to_xml(namespace, tag, obj)
     if obj.asset_identification_model:
         et_asset.append(reference_to_xml(obj.asset_identification_model, namespace, "assetIdentificationModelRef"))
     if obj.bill_of_material:
@@ -398,7 +387,7 @@ def concept_description_to_xml(obj: model.ConceptDescription,
     :param tag: tag of the ElementTree object. default is "conceptDescription"
     :return: serialized ElementTree object
     """
-    et_concept_description = _generate_parent(namespace, tag, obj)
+    et_concept_description = abstract_classes_to_xml(namespace, tag, obj)
     if obj.is_case_of:
         for reference in obj.is_case_of:
             et_concept_description.append(reference_to_xml(reference, namespace, "isCaseOf"))
@@ -416,7 +405,7 @@ def concept_dictionary_to_xml(obj: model.ConceptDictionary,
     :param tag: tag of the ElementTree object. default is "conceptDictionary"
     :return: serialized ElementTree object
     """
-    et_concept_dictionary = _generate_parent(namespace, tag, obj)
+    et_concept_dictionary = abstract_classes_to_xml(namespace, tag, obj)
     et_concept_descriptions_refs = _generate_element(namespace + "conceptDescriptionRefs")
     if obj.concept_description:
         for reference in obj.concept_description:
@@ -436,7 +425,7 @@ def asset_administration_shell_to_xml(obj: model.AssetAdministrationShell,
     :param tag: tag of the ElementTree object. default is "assetAdministrationShell"
     :return: serialized ElementTree object
     """
-    et_aas = _generate_parent(namespace, tag, obj)
+    et_aas = abstract_classes_to_xml(namespace, tag, obj)
     if obj.derived_from:
         et_aas.append(reference_to_xml(obj.derived_from, namespace=namespace, tag="derivedFrom"))
     et_aas.append(reference_to_xml(obj.asset, namespace=namespace, tag="assetRef"))
@@ -480,7 +469,7 @@ def security_to_xml(obj: model.Security,
     :param tag: tag of the serialized element (optional). Default is "security"
     :return: serialized ElementTree object
     """
-    return _generate_parent(namespace, tag, obj)
+    return abstract_classes_to_xml(namespace, tag, obj)
 
 
 # ##############################################################
@@ -541,7 +530,7 @@ def submodel_to_xml(obj: model.Submodel,
     :param tag: tag of the serialized element (optional). Default is "submodel"
     :return: serialized ElementTree object
     """
-    et_submodel = _generate_parent(namespace, tag, obj)
+    et_submodel = abstract_classes_to_xml(namespace, tag, obj)
     et_submodel_elements = _generate_element(namespace + "submodelElements")
     if obj.submodel_element:
         for submodel_element in obj.submodel_element:
@@ -561,7 +550,7 @@ def data_element_to_xml(obj: model.DataElement,
     :param tag: tag of the serialized element, default is "dataElement"
     :return: serialized ElementTree object
     """
-    return _generate_parent(namespace, tag, obj)
+    return abstract_classes_to_xml(namespace, tag, obj)
 
 
 def property_to_xml(obj: model.Property,
@@ -575,7 +564,7 @@ def property_to_xml(obj: model.Property,
     :param tag: tag of the serialized element (optional), default is "property"
     :return: serialized ElementTree object
     """
-    et_property = _generate_parent(namespace, tag, obj)
+    et_property = abstract_classes_to_xml(namespace, tag, obj)
     if obj.value_id:
         et_property.append(reference_to_xml(obj.value_id, namespace, "valueId"))
     if obj.value:
@@ -595,7 +584,7 @@ def multi_language_property_to_xml(obj: model.MultiLanguageProperty,
     :param tag: tag of the serialized element (optional), default is "multiLanguageProperty"
     :return: serialized ElementTree object
     """
-    et_multi_language_property = _generate_parent(namespace, tag, obj)
+    et_multi_language_property = abstract_classes_to_xml(namespace, tag, obj)
     if obj.value_id:
         et_multi_language_property.append(reference_to_xml(obj.value_id, namespace, "valueId"))
     if obj.value:
@@ -614,7 +603,7 @@ def range_to_xml(obj: model.Range,
     :param tag: namespace+tag of the serialized element (optional), default is "range
     :return: serialized ElementTree object
     """
-    et_range = _generate_parent(namespace, tag, obj)
+    et_range = abstract_classes_to_xml(namespace, tag, obj)
     if obj.max:
         et_range.append(_generate_element(name=namespace + "max", text=model.datatypes.xsd_repr(obj.max)))
     if obj.min:
@@ -635,7 +624,7 @@ def blob_to_xml(obj: model.Blob,
     :param tag: tag of the serialized element, default is "blob"
     :return: serialized ElementTree object
     """
-    et_blob = _generate_parent(namespace, tag, obj)
+    et_blob = abstract_classes_to_xml(namespace, tag, obj)
     et_value = ElTree.Element(namespace + "value")
     if obj.value is not None:
         et_value.text = base64.b64encode(obj.value).decode()
@@ -655,7 +644,7 @@ def file_to_xml(obj: model.File,
     :param tag: tag of the serialized element, default is "file"
     :return: serialized ElementTree object
     """
-    et_file = _generate_parent(namespace, tag, obj)
+    et_file = abstract_classes_to_xml(namespace, tag, obj)
     et_file.append(_generate_element(namespace + "mimeType", text=obj.mime_type))
     et_file.append(_generate_element(namespace + "value", text=obj.value))
     return et_file
@@ -672,7 +661,7 @@ def reference_element_to_xml(obj: model.ReferenceElement,
     :param tag: namespace+tag of the serialized element (optional), default is "referenceElement"
     :return: serialized ElementTree object
     """
-    et_reference_element = _generate_parent(namespace, tag, obj)
+    et_reference_element = abstract_classes_to_xml(namespace, tag, obj)
     if obj.value:
         et_reference_element.append(reference_to_xml(obj.value, namespace, "value"))
     return et_reference_element
@@ -691,7 +680,7 @@ def submodel_element_collection_to_xml(obj: model.SubmodelElementCollection,
     :param tag: namespace+tag of the serialized element (optional), default is "submodelElementCollection"
     :return: serialized ElementTree object
     """
-    et_submodel_element_collection = _generate_parent(namespace, tag, obj)
+    et_submodel_element_collection = abstract_classes_to_xml(namespace, tag, obj)
     et_submodel_element_collection.append(_generate_element(namespace + "allowDuplicates", text="false"))
     et_submodel_element_collection.append(_generate_element(namespace + "ordered", text=boolean_to_xml(obj.ordered)))
     et_value = _generate_element(namespace + "value")
@@ -713,7 +702,7 @@ def relationship_element_to_xml(obj: model.RelationshipElement,
     :param tag: tag of the serialized element (optional), default is "relationshipElement"
     :return: serialized ELementTree object
     """
-    et_relationship_element = _generate_parent(namespace, tag, obj)
+    et_relationship_element = abstract_classes_to_xml(namespace, tag, obj)
     et_relationship_element.append(reference_to_xml(obj.first, namespace, "first"))
     et_relationship_element.append(reference_to_xml(obj.second, namespace, "second"))
     return et_relationship_element
@@ -769,7 +758,7 @@ def operation_to_xml(obj: model.Operation,
     :param tag: namespace+tag of the serialized element (optional), default is "operation"
     :return: serialized ElementTree object
     """
-    et_operation = _generate_parent(namespace, tag, obj)
+    et_operation = abstract_classes_to_xml(namespace, tag, obj)
     if obj.in_output_variable:
         et_in_output_variable = _generate_element(namespace + "inoutputVariable")
         for in_out_ov in obj.in_output_variable:
@@ -801,7 +790,7 @@ def capability_to_xml(obj: model.Capability,
     :param tag: tag of the serialized element, default is "capability"
     :return: serialized ElementTree object
     """
-    et_capability = _generate_parent(namespace, tag, obj)
+    et_capability = abstract_classes_to_xml(namespace, tag, obj)
     return et_capability
 
 
@@ -816,7 +805,7 @@ def entity_to_xml(obj: model.Entity,
     :param tag: tag of the serialized element (optional), default is "entity"
     :return: serialized ElementTree object
     """
-    et_entity = _generate_parent(namespace, tag, obj)
+    et_entity = abstract_classes_to_xml(namespace, tag, obj)
     if obj.asset:
         et_entity.append(reference_to_xml(obj.asset, namespace, "assetRef"))
     et_entity.append(_generate_element(namespace + "entityType", text=ENTITY_TYPES[obj.entity_type]))
@@ -838,7 +827,7 @@ def basic_event_to_xml(obj: model.BasicEvent,
     :param tag: tag of the serialized element (optional), default is "basicEvent"
     :return: serialized ElementTree object
     """
-    et_basic_event = _generate_parent(namespace, tag, obj)
+    et_basic_event = abstract_classes_to_xml(namespace, tag, obj)
     et_basic_event.append(reference_to_xml(obj.observed, namespace, "observed"))
     return et_basic_event
 
