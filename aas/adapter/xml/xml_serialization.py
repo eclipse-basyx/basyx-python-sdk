@@ -22,6 +22,7 @@ from typing import Dict, IO, Optional
 import base64
 
 from aas import model
+from .. import _generic
 
 
 # ##############################################################
@@ -70,62 +71,6 @@ def boolean_to_xml(obj: bool) -> str:
 
 
 # ##############################################################
-# dicts to serialize enum classes to xml
-# ##############################################################
-
-
-MODELING_KIND: Dict[model.ModelingKind, str] = {
-    model.ModelingKind.TEMPLATE: 'Template',
-    model.ModelingKind.INSTANCE: 'Instance'}
-
-ASSET_KIND: Dict[model.AssetKind, str] = {
-    model.AssetKind.TYPE: 'Type',
-    model.AssetKind.INSTANCE: 'Instance'}
-
-KEY_ELEMENTS: Dict[model.KeyElements, str] = {
-    model.KeyElements.ASSET: 'Asset',
-    model.KeyElements.ASSET_ADMINISTRATION_SHELL: 'AssetAdministrationShell',
-    model.KeyElements.CONCEPT_DESCRIPTION: 'ConceptDescription',
-    model.KeyElements.SUBMODEL: 'Submodel',
-    model.KeyElements.ANNOTATED_RELATIONSHIP_ELEMENT: 'AnnotatedRelationshipElement',
-    model.KeyElements.BASIC_EVENT: 'BasicEvent',
-    model.KeyElements.BLOB: 'Blob',
-    model.KeyElements.CAPABILITY: 'Capability',
-    model.KeyElements.CONCEPT_DICTIONARY: 'ConceptDictionary',
-    model.KeyElements.DATA_ELEMENT: 'DataElement',
-    model.KeyElements.ENTITY: 'Entity',
-    model.KeyElements.EVENT: 'Event',
-    model.KeyElements.FILE: 'File',
-    model.KeyElements.MULTI_LANGUAGE_PROPERTY: 'MultiLanguageProperty',
-    model.KeyElements.OPERATION: 'Operation',
-    model.KeyElements.PROPERTY: 'Property',
-    model.KeyElements.RANGE: 'Range',
-    model.KeyElements.REFERENCE_ELEMENT: 'ReferenceElement',
-    model.KeyElements.RELATIONSHIP_ELEMENT: 'RelationshipElement',
-    model.KeyElements.SUBMODEL_ELEMENT: 'SubmodelElement',
-    model.KeyElements.SUBMODEL_ELEMENT_COLLECTION: 'SubmodelElementCollection',
-    model.KeyElements.VIEW: 'View',
-    model.KeyElements.GLOBAL_REFERENCE: 'GlobalReference',
-    model.KeyElements.FRAGMENT_REFERENCE: 'FragmentReference'}
-
-KEY_TYPES: Dict[model.KeyType, str] = {
-    model.KeyType.CUSTOM: 'Custom',
-    model.KeyType.IRDI: 'IRDI',
-    model.KeyType.IRI: 'IRI',
-    model.KeyType.IDSHORT: 'IdShort',
-    model.KeyType.FRAGMENT_ID: 'FragmentId'}
-
-IDENTIFIER_TYPES: Dict[model.IdentifierType, str] = {
-    model.IdentifierType.CUSTOM: 'Custom',
-    model.IdentifierType.IRDI: 'IRDI',
-    model.IdentifierType.IRI: 'IRI'}
-
-ENTITY_TYPES: Dict[model.EntityType, str] = {
-    model.EntityType.CO_MANAGED_ENTITY: 'CoManagedEntity',
-    model.EntityType.SELF_MANAGED_ENTITY: 'SelfManagedEntity'}
-
-
-# ##############################################################
 # transformation functions to serialize abstract classes from model.base
 # ##############################################################
 
@@ -152,7 +97,7 @@ def abstract_classes_to_xml(namespace: str, tag: str, obj: object) -> ElTree.Ele
     if isinstance(obj, model.Identifiable):
         elm.append(_generate_element(name=namespace + "identification",
                                      text=obj.identification.id,
-                                     attributes={"idType": IDENTIFIER_TYPES[obj.identification.id_type]}))
+                                     attributes={"idType": _generic.IDENTIFIER_TYPES[obj.identification.id_type]}))
         if obj.administration:
             et_administration = _generate_element(name=namespace + "administration")
             if obj.administration.version:
@@ -234,7 +179,7 @@ def identifier_to_xml(obj: model.Identifier, namespace: str, tag: str = "identif
     """
     et_identifier = abstract_classes_to_xml(namespace, tag, obj)
     et_identifier.append(_generate_element(name=namespace + "id", text=obj.id))
-    et_identifier.append(_generate_element(name=namespace + "idType", text=IDENTIFIER_TYPES[obj.id_type]))
+    et_identifier.append(_generate_element(name=namespace + "idType", text=_generic.IDENTIFIER_TYPES[obj.id_type]))
     return et_identifier
 
 
@@ -252,9 +197,9 @@ def reference_to_xml(obj: model.Reference, namespace: str, tag: str) -> ElTree.E
     for aas_key in obj.key:
         et_keys.append(_generate_element(name=namespace + "key",
                                          text=aas_key.value,
-                                         attributes={"idType": KEY_TYPES[aas_key.id_type],
+                                         attributes={"idType": _generic.KEY_TYPES[aas_key.id_type],
                                                      "local": boolean_to_xml(aas_key.local),
-                                                     "type": KEY_ELEMENTS[aas_key.type]}))
+                                                     "type": _generic.KEY_ELEMENTS[aas_key.type]}))
     et_reference.append(et_keys)
     return et_reference
 
@@ -372,7 +317,7 @@ def asset_to_xml(obj: model.Asset, namespace: str, tag: str = "asset") -> ElTree
         et_asset.append(reference_to_xml(obj.asset_identification_model, namespace, "assetIdentificationModelRef"))
     if obj.bill_of_material:
         et_asset.append(reference_to_xml(obj.bill_of_material, namespace, "billOfMaterialRef"))
-    et_asset.append(_generate_element(name=namespace + "kind", text=ASSET_KIND[obj.kind]))
+    et_asset.append(_generate_element(name=namespace + "kind", text=_generic.ASSET_KIND[obj.kind]))
     return et_asset
 
 
@@ -808,7 +753,7 @@ def entity_to_xml(obj: model.Entity,
     et_entity = abstract_classes_to_xml(namespace, tag, obj)
     if obj.asset:
         et_entity.append(reference_to_xml(obj.asset, namespace, "assetRef"))
-    et_entity.append(_generate_element(namespace + "entityType", text=ENTITY_TYPES[obj.entity_type]))
+    et_entity.append(_generate_element(namespace + "entityType", text=_generic.ENTITY_TYPES[obj.entity_type]))
     et_statements = _generate_element(namespace + "statements")
     for statement in obj.statement:
         et_statements.append(submodel_element_to_xml(statement, namespace, "submodelElement"))
