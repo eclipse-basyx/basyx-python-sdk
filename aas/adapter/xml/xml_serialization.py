@@ -63,7 +63,7 @@ def boolean_to_xml(obj: bool) -> str:
     :param obj: boolean
     :return: string in the XML accepted form
     """
-    if obj is True:
+    if obj:
         return "true"
     else:
         return "false"
