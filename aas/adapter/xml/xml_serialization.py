@@ -731,8 +731,7 @@ def capability_to_xml(obj: model.Capability,
     :param tag: tag of the serialized element, default is "capability"
     :return: serialized ElementTree object
     """
-    et_capability = abstract_classes_to_xml(namespace, tag, obj)
-    return et_capability
+    return abstract_classes_to_xml(namespace, tag, obj)
 
 
 def entity_to_xml(obj: model.Entity,
