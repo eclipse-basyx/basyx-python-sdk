@@ -18,7 +18,7 @@ from ... import model
 import xml.etree.ElementTree as ElTree
 import logging
 
-from typing import Callable, Dict, IO, List, Optional, Set, Tuple, Type, TypeVar
+from typing import Callable, Dict, IO, Iterable, Optional, Set, Tuple, Type, TypeVar
 from .xml_serialization import NS_AAS, NS_AAS_COMMON, NS_ABAC, NS_IEC, NS_XSI, MODELING_KIND, ASSET_KIND, KEY_ELEMENTS,\
     KEY_TYPES, IDENTIFIER_TYPES, ENTITY_TYPES, IEC61360_DATA_TYPES, IEC61360_LEVEL_TYPES
 
@@ -56,44 +56,39 @@ def _get_text_mandatory(element: Optional[ElTree.Element]) -> str:
     # unwrap value here so a TypeError is thrown if the element is None
     element_unwrapped = _unwrap(element)
     text = _get_text_or_none(element_unwrapped)
-    if not text:
+    if text is None:
         raise TypeError(f"XML element {element_unwrapped.tag} has no text!")
     return text
 
 
-def _objects_from_xml_elements(elements: List[ElTree.Element], constructor: Callable[[ElTree.Element, bool], T],
-                               failsafe: bool) -> List[T]:
-    ret: List[T] = []
+def _objects_from_xml_elements(elements: Iterable[ElTree.Element], constructor: Callable[[ElTree.Element, bool], T],
+                               failsafe: bool) -> Iterable[T]:
     for element in elements:
-        try:
-            ret.append(constructor(element, failsafe))
-        except (KeyError, TypeError) as e:
-            error_message = "{} while converting XML element with tag {} to type {}: {}".format(
-                type(e).__name__,
-                element.tag,
-                _constructor_name_to_typename(constructor),
-                e
-            )
-            if failsafe:
-                logger.error(error_message)
-                continue
-            raise type(e)(error_message)
-    return ret
+        parsed = _object_from_xml_element(element, constructor, failsafe)
+        if parsed is not None:
+            yield parsed
 
 
 def _object_from_xml_element(element: Optional[ElTree.Element], constructor: Callable[[ElTree.Element, bool], T],
                              failsafe: bool) -> Optional[T]:
     if element is None:
         return None
-    objects = _objects_from_xml_elements([element], constructor, failsafe)
-    return objects[0] if objects else None
+    try:
+        return constructor(element, failsafe)
+    except (KeyError, TypeError) as e:
+        error_message = f"{type(e).__name__} while converting XML element with tag {element.tag} to " \
+                        f"type {_constructor_name_to_typename(constructor)}: {e}"
+        if not failsafe:
+            raise type(e)(error_message) from e
+        logger.error(error_message)
+        return None
 
 
 def _object_from_xml_element_mandatory(parent: ElTree.Element, tag: str,
                                        constructor: Callable[[ElTree.Element, bool], T]) -> T:
     element = parent.find(tag)
     if element is None:
-        raise TypeError(f"No such element {tag} found in {parent.tag}!")
+        raise KeyError(f"No such element {tag} found in {parent.tag}!")
     return _unwrap(_object_from_xml_element(element, constructor, False))
 
 
