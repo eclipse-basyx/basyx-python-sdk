@@ -28,7 +28,7 @@ from aas.examples.data import example_aas, example_aas_mandatory_attributes, exa
 def create_example() -> model.DictObjectStore:
     """
     creates an object store which is filled with a example assets, submodels, concept descriptions and asset
-    administration shells using the function of this package
+    administration shells using the functionality of this package
 
     :return: object store
     """

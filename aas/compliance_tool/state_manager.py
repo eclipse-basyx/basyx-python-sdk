@@ -13,20 +13,23 @@ This module defines a State Manager to store LogRecords for single steps in a co
 """
 import logging
 import enum
-from typing import List
+from typing import List, Dict
 from aas.examples.data._helper import DataChecker
+
+logging.basicConfig(format='%(levelname)-7s: %(message)s')
 
 
 @enum.unique
 class Status(enum.IntEnum):
     SUCCESS = 0
-    FAILED = 1
-    NOT_EXECUTED = 2
+    SUCCESS_WITH_WARNINGS = 1
+    FAILED = 2
+    NOT_EXECUTED = 3
 
 
 class Step:
     """
-    A step is a object which is used in the ComplianceToolStateManager for a new step in a check.
+    A step represents a single test stage in a test protocol of a ComplianceToolStateManager
 
     :ivar name: Name of the step
     :ivar status: status of the step from type Status
@@ -40,14 +43,21 @@ class Step:
 
 class ComplianceToolStateManager(logging.Handler):
     """
-    A state manager to store steps while performing a compliance test. The manager provides functionalities to:
-    1. add a new step
-    2. set the step status
-    3. add logs to a step by hand
-    4. add logs to a step from a data checker
-    5. be used as a logging.Handler which adds logs to the actual step
+    "A ComplianceToolStateManager is used to create a report of a compliance check, divided into single Steps with
+    status and log. The manager provides methods to:
+    - add a new step
+    - set the step status
+    - set the step status from log
+    - add logs to a step by hand
+    - add logs to a step from a data checker
+    - be used as a logging.Handler which adds logs to the current step
 
-    :ivar steps: List of Step
+    example of a ComplianceTest for a schema check
+    Step 1: 'Open file'
+    Step 2: 'Read file and check if it is conform to the json syntax'
+    Step 3: 'Validate file against official json schema'
+
+    :ivar steps: List of steps
     """
     def __init__(self):
         """
@@ -56,6 +66,7 @@ class ComplianceToolStateManager(logging.Handler):
         """
         super().__init__()
         self.steps: List[Step] = []
+        self.setLevel(logging.INFO)
 
     @property
     def status(self) -> Status:
@@ -85,29 +96,35 @@ class ComplianceToolStateManager(logging.Handler):
         """
         Adds a LogRecord to the log list of the acutal step
 
-        :param record: LogRecord which should be added to the actual step
+        :param record: LogRecord which should be added to the current step
         """
         self.steps[-1].log_list.append(record)
 
     def set_step_status(self, status: Status) -> None:
         """
-        Sets the status of the actual step
+        Sets the status of the current step
 
         :param status: status which should be set
         """
         self.steps[-1].status = status
 
+    def set_step_status_from_log(self) -> None:
+        """
+        Sets the status of the current step based on the log entries
+        """
+        self.steps[-1].status = Status.FAILED if len(self.steps[-1].log_list) > 0 else Status.SUCCESS
+
     def add_log_records_from_data_checker(self, data_checker: DataChecker) -> None:
         """
-        Sets the status of the actual step and convert the checks to LogRecords and adds these to the actual step
+        Sets the status of the current step and convert the checks to LogRecords and adds these to the current step
 
         step: FAILED if the DataChecker consist at least one failed check otherwise SUCCESS
 
-        :param data_checker: DataChecker which checks should be added to the actual step
+        :param data_checker: DataChecker which checks should be added to the current step
         """
         self.steps[-1].status = Status.SUCCESS if not any(True for _ in data_checker.failed_checks) else Status.FAILED
         for check in data_checker.checks:
-            self.steps[-1].log_list.append(logging.LogRecord(name=logging.getLogger(__name__).name,
+            self.steps[-1].log_list.append(logging.LogRecord(name=__name__,
                                                              level=logging.INFO if check.result else logging.ERROR,
                                                              pathname='',
                                                              lineno=0,
@@ -122,9 +139,9 @@ class ComplianceToolStateManager(logging.Handler):
         :param index: step index in the step list of the manager
         :return: List of LogRecords with log levell logging.ERROR or logging.WARNING
         """
-        return [x for x in self.steps[index].log_list if x.levelno == logging.ERROR or x.levelno == logging.WARNING]
+        return [x for x in self.steps[index].log_list if x.levelno >= logging.WARNING]
 
-    def get_step_string(self, index: int, verbose_level: int = 0) -> str:
+    def format_step(self, index: int, verbose_level: int = 0) -> str:
         """
         Creates a string for the step containing the status, the step name and the LogRecords if wanted
 
@@ -135,31 +152,43 @@ class ComplianceToolStateManager(logging.Handler):
                               2: All LogRecords
         :return: formatted string of the step
         """
-        if self.steps[index].status == Status.SUCCESS:
-            string = 'SUCCESS: '
-        elif self.steps[index].status == Status.FAILED:
-            string = 'FAILED: '
-        elif self.steps[index].status == Status.NOT_EXECUTED:
-            string = 'NOT EXECUTED: '
-        else:
+        STEP_STATUS: Dict[Status, str] = {
+            Status.SUCCESS: '{:12}'.format('SUCCESS:'),
+            Status.SUCCESS_WITH_WARNINGS: '{:12}'.format('WARNINGS:'),
+            Status.FAILED: '{:12}'.format('FAILED:'),
+            Status.NOT_EXECUTED: '{:12}'.format('NOT_EXECUTED:'),
+            }
+        if self.steps[index].status not in STEP_STATUS:
             raise NotImplementedError
+        string = STEP_STATUS[self.steps[index].status]
+
         string += self.steps[index].name
-        if verbose_level == 1:
+        if verbose_level > 0:
             for log in self.steps[index].log_list:
                 if log.levelno < logging.WARNING:
-                    continue
-                string += '\n\t- {}: {}'.format(log.levelname, log.getMessage())
-        if verbose_level == 2:
-            for log in self.steps[index].log_list:
-                if log.levelno == logging.INFO:
-                    string += '\n\t- {}:  {}'.format(log.levelname, log.getMessage())
-                else:
-                    string += '\n\t- {}: {}'.format(log.levelname, log.getMessage())
+                    if verbose_level == 1:
+                        continue
+                string += '\n'+log.getMessage()
+        return string
+
+    def format_state_manager(self, verbose_level: int = 0) -> str:
+        """
+        Creates a report with all executed steps: containing the status, the step name and the LogRecords if wanted
+
+        :param verbose_level: Decision which kind of LogRecords should be in the string
+                              0: No LogRecords
+                              1: Only LogRecords with log level >= logging.WARNING
+                              2: All LogRecords
+        :return: formatted report
+        """
+        string = 'Compliance Test executed:'
+        for x in range(len(self.steps)):
+            string += '\n' + self.format_step(x, verbose_level)
         return string
 
     def emit(self, record: logging.LogRecord):
         """
-        logging.Handler function for adding LogRecords from a logger to the actual step
+        logging.Handler function for adding LogRecords from a logger to the current step
 
         :param record: LogRecord which should be added
         """

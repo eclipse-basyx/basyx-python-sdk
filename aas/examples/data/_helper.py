@@ -790,6 +790,15 @@ class AASDataChecker(DataChecker):
 
     def check_object_store(self, obj_store_1: model.DictObjectStore,
                            obj_store_2: model.DictObjectStore, list_identifier: str = '2'):
+        """
+        Checks if the given object stores are equal
+
+        :param obj_store_1: Given object store to check
+        :param obj_store_2: expected object store
+        :param list_identifier: optional string for naming the list in the second object store. Standard is xxx list 2
+                                e.g asset list 2
+        :return:
+        """
         # separate different kind of objects
         asset_list_1 = []
         submodel_list_1 = []

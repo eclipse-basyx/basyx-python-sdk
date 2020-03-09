@@ -11,7 +11,8 @@
 
 """
 Command line script which is a compliance tool for creating and checking json and xml files in compliance with
-"Details of the Asset Administration Shell" specification of Plattform Industrie 4.0.
+"Details of the Asset Administration Shell" specification of Plattform Industrie 4.0. It uses the create_example() from
+examples.data.__init__.py
 """
 
 import argparse
@@ -100,8 +101,7 @@ elif args.action == 'files' or args.action == 'f':
         parser.error("f or files requires two file path.")
         exit()
 
-if manager.status == Status.SUCCESS and args.quite:
+if manager.status is Status.SUCCESS and args.quite:
     exit()
 
-for i in range(len(manager.steps)):
-    print(manager.get_step_string(i, args.verbose))
+print(manager.format_state_manager(args.verbose))
