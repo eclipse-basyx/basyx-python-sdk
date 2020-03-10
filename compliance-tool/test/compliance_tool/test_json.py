@@ -156,8 +156,8 @@ class ComplianceToolJsonTest(unittest.TestCase):
         self.assertEqual(Status.NOT_EXECUTED, manager.steps[4].status)
 
         manager.steps = []
-        file_path_3 = os.path.join(script_dir, 'files/test_demo_full_aas.json')
-        file_path_4 = os.path.join(script_dir, 'files/test_demo_full_aas.json')
+        file_path_3 = os.path.join(script_dir, 'files/test_demo_full_example.json')
+        file_path_4 = os.path.join(script_dir, 'files/test_demo_full_example.json')
         compliance_tool.check_json_files_equivalence(file_path_3, file_path_4, manager)
         self.assertEqual(5, len(manager.steps))
         self.assertEqual(Status.SUCCESS, manager.steps[0].status)
@@ -167,8 +167,8 @@ class ComplianceToolJsonTest(unittest.TestCase):
         self.assertEqual(Status.SUCCESS, manager.steps[4].status)
 
         manager.steps = []
-        file_path_3 = os.path.join(script_dir, 'files/test_demo_full_aas.json')
-        file_path_4 = os.path.join(script_dir, 'files/test_demo_full_aas_wrong_attribute.json')
+        file_path_3 = os.path.join(script_dir, 'files/test_demo_full_example.json')
+        file_path_4 = os.path.join(script_dir, 'files/test_demo_full_example_wrong_attribute.json')
         compliance_tool.check_json_files_equivalence(file_path_3, file_path_4, manager)
         self.assertEqual(5, len(manager.steps))
         self.assertEqual(Status.SUCCESS, manager.steps[0].status)
@@ -185,6 +185,6 @@ class ComplianceToolJsonTest(unittest.TestCase):
         self.assertEqual(Status.SUCCESS, manager.steps[2].status)
         self.assertEqual(Status.SUCCESS, manager.steps[3].status)
         self.assertEqual(Status.FAILED, manager.steps[4].status)
-        self.assertIn('Attribute description of AssetAdministrationShell[Identifier'
-                      '(IRI=https://acplt.org/Test_AssetAdministrationShell)] must be ==',
+        self.assertIn('Attribute id_short of AssetAdministrationShell'
+                      '[Identifier(IRI=https://acplt.org/Test_AssetAdministrationShell)] must be ==',
                       manager.format_step(4, verbose_level=1))
