@@ -39,13 +39,13 @@ class ComplianceToolStateManagerTest(unittest.TestCase):
 
         manager.add_log_records_from_data_checker(checker)
         self.assertEqual(0, len(manager.get_error_logs_from_step(1)))
-        self.assertEqual('SUCCESS:    test 2', manager.format_step(1, 1))
-        self.assertEqual('SUCCESS:    test 2', manager.format_step(1, 1))
+        self.assertEqual('SUCCESS:      test 2', manager.format_step(1, 1))
+        self.assertEqual('SUCCESS:      test 2', manager.format_step(1, 1))
         self.assertIn('INFO:  Assertion test ()', manager.format_step(1, 2))
 
         checker.check(2 == 1, 'Assertion test 2')
         manager.add_log_records_from_data_checker(checker)
         self.assertEqual(1, len(manager.get_error_logs_from_step(1)))
-        self.assertEqual('FAILED:     test 2', manager.format_step(1))
+        self.assertEqual('FAILED:       test 2', manager.format_step(1))
         self.assertIn('ERROR: Assertion test 2 ()', manager.format_step(1, 1))
         self.assertIn('INFO:  Assertion test ()', manager.format_step(1, 2))
