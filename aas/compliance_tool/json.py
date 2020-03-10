@@ -39,7 +39,6 @@ from aas.compliance_tool.state_manager import ComplianceToolStateManager, Status
 dirname = os.path.dirname
 JSON_SCHEMA_FILE = os.path.join(dirname(__file__), '..', '..', 'test', 'adapter', 'json', 'aasJSONSchemaV2.0.json')
 # TODO change path if schema is added to the project
-logger = logging.getLogger(__name__)
 
 
 def check_schema(file_path: str, state_manager: ComplianceToolStateManager) -> None:
@@ -52,6 +51,7 @@ def check_schema(file_path: str, state_manager: ComplianceToolStateManager) -> N
     :param file_path: path to the file which should be checked
     :param state_manager: manager to log the steps
     """
+    logger = logging.getLogger('compliance_check')
     logger.addHandler(state_manager)
     logger.propagate = False
     logger.setLevel(logging.INFO)
@@ -110,6 +110,7 @@ def check_deserialization(file_path: str, state_manager: ComplianceToolStateMana
     :param file_info: additional information about the file for name of the steps
     :return: returns the deserialized object store
     """
+    logger = logging.getLogger('compliance_check')
     logger.addHandler(state_manager)
     logger.propagate = False
     logger.setLevel(logging.INFO)
@@ -159,10 +160,6 @@ def check_aas_example(file_path: str, state_manager: ComplianceToolStateManager)
     :param file_path: given file which should be checked
     :param state_manager: manager to log the steps
     """
-    logger.addHandler(state_manager)
-    logger.propagate = False
-    logger.setLevel(logging.INFO)
-
     # create handler to get logger info
     logger_example = logging.getLogger(example_aas.__name__)
     logger_example.addHandler(state_manager)
@@ -194,6 +191,7 @@ def check_json_files_equivalence(file_path_1: str, file_path_2: str, state_manag
     :param file_path_2: given second file which should be checked
     :param state_manager: manager to log the steps
     """
+    logger = logging.getLogger('compliance_check')
     logger.addHandler(state_manager)
     logger.propagate = False
     logger.setLevel(logging.INFO)

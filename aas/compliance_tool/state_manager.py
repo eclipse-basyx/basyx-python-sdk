@@ -13,10 +13,9 @@ This module defines a State Manager to store LogRecords for single steps in a co
 """
 import logging
 import enum
+import pprint
 from typing import List, Dict
 from aas.examples.data._helper import DataChecker
-
-logging.basicConfig(format='%(levelname)-7s: %(message)s')
 
 
 @enum.unique
@@ -128,7 +127,12 @@ class ComplianceToolStateManager(logging.Handler):
                                                              level=logging.INFO if check.result else logging.ERROR,
                                                              pathname='',
                                                              lineno=0,
-                                                             msg=repr(check),
+                                                             msg="{} ({})".format(
+                                                                 check.expectation,
+                                                                 ", ".join("{}={}".format(
+                                                                     k, pprint.pformat(
+                                                                         v, depth=2, width=2 ** 14, compact=True))
+                                                                           for k, v in check.data.items())),
                                                              args=(),
                                                              exc_info=None))
 
@@ -168,7 +172,7 @@ class ComplianceToolStateManager(logging.Handler):
                 if log.levelno < logging.WARNING:
                     if verbose_level == 1:
                         continue
-                string += '\n'+log.getMessage()
+                string += '\n'+' - {:6} {}'.format(log.levelname + ':', log.getMessage())
         return string
 
     def format_state_manager(self, verbose_level: int = 0) -> str:
