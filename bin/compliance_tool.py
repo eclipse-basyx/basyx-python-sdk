@@ -45,7 +45,7 @@ parser.add_argument('-q', '--quite', help="no information output if successful",
 group = parser.add_mutually_exclusive_group(required=True)
 group.add_argument('--json', help="checking or creating json file(s)", action='store_true')
 group.add_argument('--xml', help="checking or creating xml file(s)", action='store_true')
-parser.add_argument('-f', '--file', help="creates the log additional in the given file", default=None)
+parser.add_argument('-l', '--logfile', help="creates the log additional in the given file", default=None)
 
 args = parser.parse_args()
 
@@ -53,6 +53,7 @@ args = parser.parse_args()
 
 manager = ComplianceToolStateManager()
 logger = logging.getLogger(__name__)
+logger.propagate = False
 logger.addHandler(manager)
 
 if args.action == 'create' or args.action == 'c':
@@ -63,13 +64,14 @@ if args.action == 'create' or args.action == 'c':
         manager.add_step('Open file')
         with open(args.file_1, 'w', encoding='utf-8-sig') as file:
             manager.set_step_status(Status.SUCCESS)
+
             manager.add_step('Write data to file')
             if args.json:
                 json_serialization.write_aas_json_file(file=file, data=data)
                 manager.set_step_status(Status.SUCCESS)
             elif args.xml:
-                # Todo: if xml serialization is done add code here
-                raise NotImplementedError
+                    # Todo: if xml serialization is done add code here
+                    raise NotImplementedError
     except FileNotFoundError as error:
         logger.error(error)
         manager.set_step_status(Status.FAILED)
@@ -105,16 +107,8 @@ elif args.action == 'files' or args.action == 'f':
 if manager.status is Status.SUCCESS and args.quite:
     exit()
 
-if args.file:
-    try:
-        manager.add_step('Open log file')
-        with open(args.file, 'w', encoding='utf-8-sig') as file:
-            manager.set_step_status(Status.SUCCESS)
-            manager.add_step('Write log to file')
-            file.write(manager.format_state_manager(args.verbose))
-            manager.set_step_status(Status.SUCCESS)
-    except FileNotFoundError as error:
-        logger.error(error)
-        manager.set_step_status(Status.FAILED)
+if args.logfile:
+    with open(args.logfile, 'w', encoding='utf-8-sig') as file:
+        file.write(manager.format_state_manager(args.verbose))
 
 print(manager.format_state_manager(args.verbose))

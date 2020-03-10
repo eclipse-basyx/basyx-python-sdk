@@ -157,10 +157,10 @@ class ComplianceToolStateManager(logging.Handler):
         :return: formatted string of the step
         """
         STEP_STATUS: Dict[Status, str] = {
-            Status.SUCCESS: '{:12}'.format('SUCCESS:'),
-            Status.SUCCESS_WITH_WARNINGS: '{:12}'.format('WARNINGS:'),
-            Status.FAILED: '{:12}'.format('FAILED:'),
-            Status.NOT_EXECUTED: '{:12}'.format('NOT_EXECUTED:'),
+            Status.SUCCESS: '{:14}'.format('SUCCESS:'),
+            Status.SUCCESS_WITH_WARNINGS: '{:14}'.format('WARNINGS:'),
+            Status.FAILED: '{:14}'.format('FAILED:'),
+            Status.NOT_EXECUTED: '{:14}'.format('NOT_EXECUTED:'),
             }
         if self.steps[index].status not in STEP_STATUS:
             raise NotImplementedError
@@ -185,9 +185,8 @@ class ComplianceToolStateManager(logging.Handler):
                               2: All LogRecords
         :return: formatted report
         """
-        string = 'Compliance Test executed:'
-        for x in range(len(self.steps)):
-            string += '\n' + self.format_step(x, verbose_level)
+        string = 'Compliance Test executed:\n'
+        string += "\n".join(self.format_step(x, verbose_level) for x in range(len(self.steps)))
         return string
 
     def emit(self, record: logging.LogRecord):

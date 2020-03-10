@@ -21,7 +21,7 @@ check_aas_example: Checks if a json file consist the data of the example data de
 
 check_json_files_equivalence: Checks if two json files have the same data regardless of their order
 
-All functions reports any issues using the given StateManager by adding new steps and belonging LogRecords
+All functions reports any issues using the given StateManager by adding new steps and associated LogRecords
 """
 import json
 import logging
@@ -168,7 +168,7 @@ def check_aas_example(file_path: str, state_manager: ComplianceToolStateManager)
 
     obj_store = check_deserialization(file_path, state_manager)
 
-    if state_manager.status is Status.FAILED:
+    if state_manager.status in (Status.FAILED, Status.NOT_EXECUTED):
         state_manager.add_step('Check if data is equal to example data')
         state_manager.set_step_status(Status.NOT_EXECUTED)
         return
