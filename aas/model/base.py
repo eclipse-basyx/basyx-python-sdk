@@ -577,7 +577,7 @@ class AASReference(Reference, Generic[_RT]):
         # First, resolve the identifier-key via the provider
         identifier: Identifier = self.key[last_identifier_index].get_identifier()  # type: ignore
         try:
-            item = provider_.get_identifiable(identifier)
+            item: Referable = provider_.get_identifiable(identifier)
         except KeyError as e:
             raise KeyError("Could not resolve global reference key {}".format(identifier)) from e
         resolved_keys.append(str(identifier))
