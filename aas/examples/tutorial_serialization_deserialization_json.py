@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 # This work is licensed under a Creative Commons CCZero 1.0 Universal License.
 # See http://creativecommons.org/publicdomain/zero/1.0/ for more information.
 """
@@ -8,9 +9,9 @@ import io
 import json
 
 # Import all PyI40AAS classes from model package
-from .. import model
-from ..adapter.json import json_serialization, json_deserialization
-from ..model import Asset, AssetAdministrationShell, Submodel
+from aas import model
+from aas.adapter.json import json_serialization, json_deserialization
+from aas.model import Asset, AssetAdministrationShell, Submodel
 
 # In this tutorial you get a step by step guide how to serialize objects of the meta model according to
 # 'Details of the Asset Administration Shell'. Therefore, you will learn how to serialize one object and an object
