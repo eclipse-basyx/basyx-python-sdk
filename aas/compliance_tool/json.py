@@ -64,7 +64,7 @@ def check_schema(file_path: str, state_manager: ComplianceToolStateManager) -> N
         state_manager.add_step('Read file and check if it is conform to the json syntax')
         json_to_be_checked = json.load(file_to_be_checked)
         state_manager.set_step_status(Status.SUCCESS)
-    except FileNotFoundError as error:
+    except IOError as error:
         state_manager.set_step_status(Status.FAILED)
         logger.error(error)
         state_manager.add_step('Read file and check if it is conform to the json syntax')
@@ -136,7 +136,7 @@ def check_deserialization(file_path: str, state_manager: ComplianceToolStateMana
         else:
             state_manager.add_step('Read file and check if it is conform to the json schema')
         obj_store = json_deserialization.read_json_aas_file(file_to_be_checked, True)
-    except FileNotFoundError as error:
+    except IOError as error:
         state_manager.set_step_status(Status.FAILED)
         logger.error(error)
         if file_info:

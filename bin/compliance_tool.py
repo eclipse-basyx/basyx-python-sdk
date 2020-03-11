@@ -17,6 +17,7 @@ examples.data.__init__.py
 
 import argparse
 import logging
+import sys
 
 import aas.compliance_tool.json as compliance_tool_json
 
@@ -69,10 +70,10 @@ if args.action == 'create' or args.action == 'c':
             if args.json:
                 json_serialization.write_aas_json_file(file=file, data=data)
                 manager.set_step_status(Status.SUCCESS)
-            elif args.xml:
-                    # Todo: if xml serialization is done add code here
-                    raise NotImplementedError
-    except FileNotFoundError as error:
+            elif args.xml:  # Todo: if xml serialization is done add code here
+                logger.error("XML serialization is not implemented yet")
+                manager.set_step_status(Status.NOT_EXECUTED)
+    except IOError as error:
         logger.error(error)
         manager.set_step_status(Status.FAILED)
 elif args.action == 'schema' or args.action == 's':
@@ -80,26 +81,30 @@ elif args.action == 'schema' or args.action == 's':
         compliance_tool_json.check_schema(args.file_1, manager)
     elif args.xml:
         # Todo: if xml serialization is done add code here
-        raise NotImplementedError
+        logger.error("XML serialization is not implemented yet")
+        manager.set_step_status(Status.NOT_EXECUTED)
 elif args.action == 'deserialization' or args.action == 'd':
     if args.json:
         compliance_tool_json.check_deserialization(args.file_1, manager)
     elif args.xml:
         # Todo: if xml serialization is done add code here
-        raise NotImplementedError
+        logger.error("XML serialization is not implemented yet")
+        manager.set_step_status(Status.NOT_EXECUTED)
 elif args.action == 'example' or args.action == 'e':
     if args.json:
         compliance_tool_json.check_aas_example(args.file_1, manager)
     elif args.xml:
         # Todo: if xml serialization is done add code here
-        raise NotImplementedError
+        logger.error("XML serialization is not implemented yet")
+        manager.set_step_status(Status.NOT_EXECUTED)
 elif args.action == 'files' or args.action == 'f':
     if args.file_2:
         if args.json:
             compliance_tool_json.check_json_files_equivalence(args.file_1, args.file_2, manager)
         elif args.xml:
             # Todo: if xml serialization is done add code here
-            raise NotImplementedError
+            logger.error("XML serialization is not implemented yet")
+            manager.set_step_status(Status.NOT_EXECUTED)
     else:
         parser.error("f or files requires two file path.")
         exit()
@@ -107,8 +112,11 @@ elif args.action == 'files' or args.action == 'f':
 if manager.status is Status.SUCCESS and args.quite:
     exit()
 
-if args.logfile:
-    with open(args.logfile, 'w', encoding='utf-8-sig') as file:
-        file.write(manager.format_state_manager(args.verbose))
-
 print(manager.format_state_manager(args.verbose))
+
+if args.logfile:
+    try:
+        with open(args.logfile, 'w', encoding='utf-8-sig') as file:
+            file.write(manager.format_state_manager(args.verbose))
+    except IOError as error:
+        print('Could not open logfile: \n{}'.format(error))
