@@ -10,13 +10,16 @@
 # specific language governing permissions and limitations under the License.
 import os
 import subprocess
+import sys
 import unittest
 import aas.compliance_tool
 import tempfile
 
 from aas.adapter.json import json_deserialization
-from aas.examples.data import example_concept_description, create_example
+from aas.examples.data import create_example
 from aas.examples.data._helper import AASDataChecker
+
+JSON_SCHEMA_FILE = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'adapter', 'json', 'aasJSONSchemaV2.0.json')
 
 
 class ComplianceToolTest(unittest.TestCase):
@@ -25,76 +28,74 @@ class ComplianceToolTest(unittest.TestCase):
         test_file_path = os.path.join(os.path.dirname(__file__), 'files')
 
         # test schema check
-        output: subprocess.CalledProcessError = subprocess.run(["python3", file_path, "s"],
-                                                               stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        output: subprocess.CompletedProcess = subprocess.run([sys.executable, file_path, "s"],
+                                                             stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         self.assertTrue(output.returncode != 0)
         self.assertIn('error: the following arguments are required: file_1', str(output.stderr))
 
-        output: subprocess.CalledProcessError = subprocess.run(
-            ["python3", file_path, "s", os.path.join(test_file_path, "test_demo_full_example.json")],
+        output = subprocess.run(
+            [sys.executable, file_path, "s", os.path.join(test_file_path, "test_demo_full_example.json")],
             stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         self.assertTrue(output.returncode != 0)
         self.assertIn('error: one of the arguments --json --xml is required', str(output.stderr))
 
         # test deserialisation check
-        output: subprocess.CalledProcessError = subprocess.run(["python3", file_path, "d"], 
-                                                               stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        output = subprocess.run([sys.executable, file_path, "d"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         self.assertTrue(output.returncode != 0)
         self.assertIn('error: the following arguments are required: file_1', str(output.stderr))
 
-        output: subprocess.CalledProcessError = subprocess.run(
-            ["python3", file_path, "d", os.path.join(test_file_path, "test_demo_full_example.json")],
+        output = subprocess.run(
+            [sys.executable, file_path, "d", os.path.join(test_file_path, "test_demo_full_example.json")],
             stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         self.assertTrue(output.returncode != 0)
         self.assertIn('error: one of the arguments --json --xml is required', str(output.stderr))
 
         # test example check
-        output: subprocess.CalledProcessError = subprocess.run(["python3", file_path, "e"],
-                                                               stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        output = subprocess.run([sys.executable, file_path, "e"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         self.assertTrue(output.returncode != 0)
         self.assertIn('error: the following arguments are required: file_1', str(output.stderr))
 
-        output: subprocess.CalledProcessError = subprocess.run(
-            ["python3", file_path, "e", os.path.join(test_file_path, "test_demo_full_example.json")],
+        output = subprocess.run(
+            [sys.executable, file_path, "e", os.path.join(test_file_path, "test_demo_full_example.json")],
             stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         self.assertTrue(output.returncode != 0)
         self.assertIn('error: one of the arguments --json --xml is required', str(output.stderr))
 
         # test file check
-        output: subprocess.CalledProcessError = subprocess.run(["python3", file_path, "f"],
-                                                               stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        output = subprocess.run([sys.executable, file_path, "f"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         self.assertTrue(output.returncode != 0)
         self.assertIn('error: the following arguments are required: file_1', str(output.stderr))
 
-        output: subprocess.CalledProcessError = subprocess.run(
-            ["python3", file_path, "f", os.path.join(test_file_path, "test_demo_full_example.json")],
+        output = subprocess.run(
+            [sys.executable, file_path, "f", os.path.join(test_file_path, "test_demo_full_example.json")],
             stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         self.assertTrue(output.returncode != 0)
         self.assertIn('error: one of the arguments --json --xml is required', str(output.stderr))
 
-        output: subprocess.CalledProcessError = subprocess.run(
-            ["python3", file_path, "f", os.path.join(test_file_path, "test_demo_full_example.json"), "--json"],
+        output = subprocess.run(
+            [sys.executable, file_path, "f", os.path.join(test_file_path, "test_demo_full_example.json"), "--json"],
             stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         self.assertTrue(output.returncode != 0)
         self.assertIn('error: f or files requires two file path', str(output.stderr))
 
-        output: subprocess.CalledProcessError = subprocess.run(
-            ["python3", file_path, "f", os.path.join(test_file_path, "test_demo_full_example.json"),
+        output = subprocess.run(
+            [sys.executable, file_path, "f", os.path.join(test_file_path, "test_demo_full_example.json"),
              os.path.join(test_file_path, "test_demo_full_example.json")],
             stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         self.assertTrue(output.returncode != 0)
         self.assertIn('error: one of the arguments --json --xml is required', str(output.stderr))
 
         # test verbose
-        output: subprocess.CalledProcessError = subprocess.run(
-            ["python3", file_path, "e", os.path.join(test_file_path, "test_demo_full_example.json"), "--json", "-v"],
+        output = subprocess.run(
+            [sys.executable, file_path, "e", os.path.join(test_file_path, "test_demo_full_example.json"), "--json",
+             "-v"],
             stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         self.assertEqual(0, output.returncode)
         self.assertNotIn('ERROR', str(output.stdout))
         self.assertNotIn('INFO', str(output.stdout))
 
-        output: subprocess.CalledProcessError = subprocess.run(
-            ["python3", file_path, "e", os.path.join(test_file_path, "test_demo_full_example.json"), "--json",
+        output = subprocess.run(
+            [sys.executable, file_path, "e", os.path.join(test_file_path, "test_demo_full_example.json"), "--json",
              "-v", "-v"],
             stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         self.assertEqual(0, output.returncode)
@@ -102,36 +103,42 @@ class ComplianceToolTest(unittest.TestCase):
         self.assertIn('INFO', str(output.stdout))
 
         # test quite
-        output: subprocess.CalledProcessError = subprocess.run(
-            ["python3", file_path, "e", os.path.join(test_file_path, "test_demo_full_example.json"), "--json",
+        output = subprocess.run(
+            [sys.executable, file_path, "e", os.path.join(test_file_path, "test_demo_full_example.json"), "--json",
              "-q"],
             stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         self.assertEqual(0, output.returncode)
         self.assertEqual("b''", str(output.stdout))
 
         # test logfile
-        output: subprocess.CalledProcessError = subprocess.run(
-            ["python3", file_path, "e", os.path.join(test_file_path, "test_demo_full_example.json"), "--json", "-l"],
+        output = subprocess.run(
+            [sys.executable, file_path, "e", os.path.join(test_file_path, "test_demo_full_example.json"), "--json",
+             "-l"],
             stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         self.assertTrue(output.returncode != 0)
         self.assertIn('error: argument -l/--logfile: expected one argument', str(output.stderr))
 
-    def test_json(self):
+        # todo: add test for correct logfile
+
+    @unittest.skipUnless(os.path.exists(JSON_SCHEMA_FILE), "JSON Schema not found for validation")
+    def test_json_schema(self) -> None:
         file_path = os.path.join(os.path.dirname(aas.compliance_tool.__file__), 'aas_compliance_tool.py')
         test_file_path = os.path.join(os.path.dirname(__file__), 'files')
 
-        # test schema check
-        output: subprocess.CalledProcessError = subprocess.run(
-            ["python3", file_path, "s", os.path.join(test_file_path, "test_demo_full_example.json"), "--json"],
+        output: subprocess.CompletedProcess = subprocess.run(
+            [sys.executable, file_path, "s", os.path.join(test_file_path, "test_demo_full_example.json"), "--json"],
             stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         self.assertEqual(0, output.returncode)
         self.assertIn('SUCCESS:      Open file', str(output.stdout))
 
-        # test create example check
+    def test_json_create_example(self) -> None:
+        file_path = os.path.join(os.path.dirname(aas.compliance_tool.__file__), 'aas_compliance_tool.py')
+        test_file_path = os.path.join(os.path.dirname(__file__), 'files')
+
         file, filename = tempfile.mkstemp(suffix=".json")
         os.close(file)
-        output: subprocess.CalledProcessError = subprocess.run(["python3", file_path, "c", filename, "--json"],
-                                                               stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        output: subprocess.CompletedProcess = subprocess.run([sys.executable, file_path, "c", filename, "--json"],
+                                                             stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         self.assertEqual(0, output.returncode)
         self.assertIn('SUCCESS:      Create example data', str(output.stdout))
         self.assertIn('SUCCESS:      Open file', str(output.stdout))
@@ -144,44 +151,56 @@ class ComplianceToolTest(unittest.TestCase):
             checker.check_object_store(json_object_store, data)
         os.unlink(filename)
 
-        # test deserialisation check
-        output: subprocess.CalledProcessError = subprocess.run(
-            ["python3", file_path, "d", os.path.join(test_file_path, "test_demo_full_example.json"), "--json"],
+    def test_json_deserialization(self) -> None:
+        file_path = os.path.join(os.path.dirname(aas.compliance_tool.__file__), 'aas_compliance_tool.py')
+        test_file_path = os.path.join(os.path.dirname(__file__), 'files')
+
+        output: subprocess.CompletedProcess = subprocess.run(
+            [sys.executable, file_path, "d", os.path.join(test_file_path, "test_demo_full_example.json"), "--json"],
             stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         self.assertEqual(0, output.returncode)
         self.assertIn('SUCCESS:      Open file', str(output.stdout))
 
-        # test example check
-        output: subprocess.CalledProcessError = subprocess.run(
-            ["python3", file_path, "e", os.path.join(test_file_path, "test_demo_full_example.json"), "--json"],
+    def test_json_example(self) -> None:
+        file_path = os.path.join(os.path.dirname(aas.compliance_tool.__file__), 'aas_compliance_tool.py')
+        test_file_path = os.path.join(os.path.dirname(__file__), 'files')
+
+        output: subprocess.CompletedProcess = subprocess.run(
+            [sys.executable, file_path, "e", os.path.join(test_file_path, "test_demo_full_example.json"), "--json"],
             stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         self.assertEqual(0, output.returncode)
         self.assertIn('SUCCESS:      Open file', str(output.stdout))
 
-        # test file check
-        output: subprocess.CalledProcessError = subprocess.run(
-            ["python3", file_path, "f", os.path.join(test_file_path, "test_demo_full_example.json"),
+    def test_json_file(self) -> None:
+        file_path = os.path.join(os.path.dirname(aas.compliance_tool.__file__), 'aas_compliance_tool.py')
+        test_file_path = os.path.join(os.path.dirname(__file__), 'files')
+
+        output: subprocess.CompletedProcess = subprocess.run(
+            [sys.executable, file_path, "f", os.path.join(test_file_path, "test_demo_full_example.json"),
              os.path.join(test_file_path, "test_demo_full_example.json"), "--json"],
             stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         self.assertEqual(0, output.returncode)
 
     @unittest.expectedFailure
-    def test_xml(self):
+    def test_xml_schema(self) -> None:
         file_path = os.path.join(os.path.dirname(aas.compliance_tool.__file__), 'aas_compliance_tool.py')
         test_file_path = os.path.join(os.path.dirname(__file__), 'files')
 
-        # test schema check
-        output: subprocess.CalledProcessError = subprocess.run(
-            ["python3", file_path, "s", os.path.join(test_file_path, "test_demo_full_example.json"), "--xml"],
+        output: subprocess.CompletedProcess = subprocess.run(
+            [sys.executable, file_path, "s", os.path.join(test_file_path, "test_demo_full_example.json"), "--xml"],
             stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         self.assertEqual(0, output.returncode)
         self.assertIn('SUCCESS:      Open file', str(output.stdout))
 
-        # test create example check
+    @unittest.expectedFailure
+    def test_xml_create_example(self) -> None:
+        file_path = os.path.join(os.path.dirname(aas.compliance_tool.__file__), 'aas_compliance_tool.py')
+        test_file_path = os.path.join(os.path.dirname(__file__), 'files')
+
         file, filename = tempfile.mkstemp(suffix=".json")
         os.close(file)
-        output: subprocess.CalledProcessError = subprocess.run(["python3", file_path, "c", filename, "--xml"],
-                                                               stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        output: subprocess.CompletedProcess = subprocess.run([sys.executable, file_path, "c", filename, "--xml"],
+                                                             stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         self.assertEqual(0, output.returncode)
         self.assertIn('SUCCESS:      Create example data', str(output.stdout))
         self.assertIn('SUCCESS:      Open file', str(output.stdout))
@@ -194,23 +213,35 @@ class ComplianceToolTest(unittest.TestCase):
             checker.check_object_store(json_object_store, data)
         os.unlink(filename)
 
-        # test deserialisation check
-        output: subprocess.CalledProcessError = subprocess.run(
-            ["python3", file_path, "d", os.path.join(test_file_path, "test_demo_full_example.json"), "--xml"],
+    @unittest.expectedFailure
+    def test_xml_deseralization(self) -> None:
+        file_path = os.path.join(os.path.dirname(aas.compliance_tool.__file__), 'aas_compliance_tool.py')
+        test_file_path = os.path.join(os.path.dirname(__file__), 'files')
+
+        output: subprocess.CompletedProcess = subprocess.run(
+            [sys.executable, file_path, "d", os.path.join(test_file_path, "test_demo_full_example.json"), "--xml"],
             stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         self.assertEqual(0, output.returncode)
         self.assertIn('SUCCESS:      Open file', str(output.stdout))
 
-        # test example check
-        output: subprocess.CalledProcessError = subprocess.run(
-            ["python3", file_path, "e", os.path.join(test_file_path, "test_demo_full_example.json"), "--xml"],
+    @unittest.expectedFailure
+    def test_xml_example(self) -> None:
+        file_path = os.path.join(os.path.dirname(aas.compliance_tool.__file__), 'aas_compliance_tool.py')
+        test_file_path = os.path.join(os.path.dirname(__file__), 'files')
+
+        output: subprocess.CompletedProcess = subprocess.run(
+            [sys.executable, file_path, "e", os.path.join(test_file_path, "test_demo_full_example.json"), "--xml"],
             stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         self.assertEqual(0, output.returncode)
         self.assertIn('SUCCESS:      Open file', str(output.stdout))
 
-        # test file check
-        output: subprocess.CalledProcessError = subprocess.run(
-            ["python3", file_path, "f", os.path.join(test_file_path, "test_demo_full_example.json"),
+    @unittest.expectedFailure
+    def test_xml_file(self) -> None:
+        file_path = os.path.join(os.path.dirname(aas.compliance_tool.__file__), 'aas_compliance_tool.py')
+        test_file_path = os.path.join(os.path.dirname(__file__), 'files')
+
+        output: subprocess.CompletedProcess = subprocess.run(
+            [sys.executable, file_path, "f", os.path.join(test_file_path, "test_demo_full_example.json"),
              os.path.join(test_file_path, "test_demo_full_example.json"), "--xml"],
             stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         self.assertEqual(0, output.returncode)

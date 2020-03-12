@@ -16,7 +16,7 @@ from aas.examples.data._helper import DataChecker
 
 
 class ComplianceToolStateManagerTest(unittest.TestCase):
-    def test_state(self):
+    def test_state(self) -> None:
         manager = ComplianceToolStateManager()
         manager.add_step('test')
         self.assertEqual(Status.NOT_EXECUTED, manager.status)
@@ -25,7 +25,7 @@ class ComplianceToolStateManagerTest(unittest.TestCase):
         manager.set_step_status(Status.FAILED)
         self.assertEqual(Status.FAILED, manager.status)
 
-    def test_logs(self):
+    def test_logs(self) -> None:
         manager = ComplianceToolStateManager()
         manager.add_step('test')
         manager.add_log_record(logging.LogRecord('x', logging.INFO, '', 0, 'test_msg', (), None))

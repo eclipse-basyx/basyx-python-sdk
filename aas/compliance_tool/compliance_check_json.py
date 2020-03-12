@@ -55,15 +55,11 @@ def check_schema(file_path: str, state_manager: ComplianceToolStateManager) -> N
     logger.addHandler(state_manager)
     logger.propagate = False
     logger.setLevel(logging.INFO)
+
+    state_manager.add_step('Open file')
     try:
         # open given file
-        state_manager.add_step('Open file')
         file_to_be_checked = open(file_path, 'r', encoding='utf-8-sig')
-        state_manager.set_step_status(Status.SUCCESS)
-        # read given file and check if it is conform to the json syntax
-        state_manager.add_step('Read file and check if it is conform to the json syntax')
-        json_to_be_checked = json.load(file_to_be_checked)
-        state_manager.set_step_status(Status.SUCCESS)
     except IOError as error:
         state_manager.set_step_status(Status.FAILED)
         logger.error(error)
@@ -72,14 +68,19 @@ def check_schema(file_path: str, state_manager: ComplianceToolStateManager) -> N
         state_manager.add_step('Validate file against official json schema')
         state_manager.set_step_status(Status.NOT_EXECUTED)
         return
+    try:
+        with file_to_be_checked:
+            state_manager.set_step_status(Status.SUCCESS)
+            # read given file and check if it is conform to the json syntax
+            state_manager.add_step('Read file and check if it is conform to the json syntax')
+            json_to_be_checked = json.load(file_to_be_checked)
+            state_manager.set_step_status(Status.SUCCESS)
     except json.decoder.JSONDecodeError as error:
         state_manager.set_step_status(Status.FAILED)
         logger.error(error)
-        file_to_be_checked.close()
         state_manager.add_step('Validate file against official json schema')
         state_manager.set_step_status(Status.NOT_EXECUTED)
         return
-    file_to_be_checked.close()
 
     # load json schema
     json_file = open(JSON_SCHEMA_FILE, 'r', encoding='utf-8-sig')
@@ -121,21 +122,13 @@ def check_deserialization(file_path: str, state_manager: ComplianceToolStateMana
     logger_deserialization.propagate = False
     logger_deserialization.setLevel(logging.INFO)
 
+    if file_info:
+        state_manager.add_step('Open {} file'.format(file_info))
+    else:
+        state_manager.add_step('Open file')
     try:
         # open given file
-        if file_info:
-            state_manager.add_step('Open {} file'.format(file_info))
-        else:
-            state_manager.add_step('Open file')
         file_to_be_checked = open(file_path, 'r', encoding='utf-8-sig')
-        state_manager.set_step_status(Status.SUCCESS)
-
-        # read given file and check if it is conform to the official json schema
-        if file_info:
-            state_manager.add_step('Read {} file and check if it is conform to the json schema'.format(file_info))
-        else:
-            state_manager.add_step('Read file and check if it is conform to the json schema')
-        obj_store = json_deserialization.read_json_aas_file(file_to_be_checked, True)
     except IOError as error:
         state_manager.set_step_status(Status.FAILED)
         logger.error(error)
@@ -145,7 +138,16 @@ def check_deserialization(file_path: str, state_manager: ComplianceToolStateMana
             state_manager.add_step('Read file and check if it is conform to the json schema')
         state_manager.set_step_status(Status.NOT_EXECUTED)
         return model.DictObjectStore()
-    file_to_be_checked.close()
+    state_manager.set_step_status(Status.SUCCESS)
+
+    with file_to_be_checked:
+        # read given file and check if it is conform to the official json schema
+        if file_info:
+            state_manager.add_step('Read {} file and check if it is conform to the json schema'.format(file_info))
+        else:
+            state_manager.add_step('Read file and check if it is conform to the json schema')
+        obj_store = json_deserialization.read_json_aas_file(file_to_be_checked, True)
+
     state_manager.set_step_status_from_log()
 
     return obj_store
