@@ -31,7 +31,7 @@ test:
   - coverage run --source aas --branch -m xmlrunner -o testreports
   # Report test coverage; check typing and codestyle
   - coverage report -m
-  - mypy aas test bin
+  - mypy aas test
   - python -m pycodestyle --count --max-line-length 120 aas test
 
   artifacts:
