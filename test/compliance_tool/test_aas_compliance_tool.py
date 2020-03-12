@@ -25,66 +25,70 @@ class ComplianceToolTest(unittest.TestCase):
         test_file_path = os.path.join(os.path.dirname(__file__), 'files')
 
         # test schema check
-        output: subprocess.CalledProcessError = subprocess.run(["python", file_path, "s"], capture_output=True)
+        output: subprocess.CalledProcessError = subprocess.run(["python", file_path, "s"], 
+                                                               stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         self.assertTrue(output.returncode != 0)
         self.assertIn('error: the following arguments are required: file_1', str(output.stderr))
 
         output: subprocess.CalledProcessError = subprocess.run(
             ["python", file_path, "s", os.path.join(test_file_path, "test_demo_full_example.json")],
-            capture_output=True)
+            stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         self.assertTrue(output.returncode != 0)
         self.assertIn('error: one of the arguments --json --xml is required', str(output.stderr))
 
         # test deserialisation check
-        output: subprocess.CalledProcessError = subprocess.run(["python", file_path, "d"], capture_output=True)
+        output: subprocess.CalledProcessError = subprocess.run(["python", file_path, "d"], 
+                                                               stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         self.assertTrue(output.returncode != 0)
         self.assertIn('error: the following arguments are required: file_1', str(output.stderr))
 
         output: subprocess.CalledProcessError = subprocess.run(
             ["python", file_path, "d", os.path.join(test_file_path, "test_demo_full_example.json")],
-            capture_output=True)
+            stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         self.assertTrue(output.returncode != 0)
         self.assertIn('error: one of the arguments --json --xml is required', str(output.stderr))
 
         # test example check
-        output: subprocess.CalledProcessError = subprocess.run(["python", file_path, "e"], capture_output=True)
+        output: subprocess.CalledProcessError = subprocess.run(["python", file_path, "e"],
+                                                               stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         self.assertTrue(output.returncode != 0)
         self.assertIn('error: the following arguments are required: file_1', str(output.stderr))
 
         output: subprocess.CalledProcessError = subprocess.run(
             ["python", file_path, "e", os.path.join(test_file_path, "test_demo_full_example.json")],
-            capture_output=True)
+            stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         self.assertTrue(output.returncode != 0)
         self.assertIn('error: one of the arguments --json --xml is required', str(output.stderr))
 
         # test file check
-        output: subprocess.CalledProcessError = subprocess.run(["python", file_path, "f"], capture_output=True)
+        output: subprocess.CalledProcessError = subprocess.run(["python", file_path, "f"],
+                                                               stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         self.assertTrue(output.returncode != 0)
         self.assertIn('error: the following arguments are required: file_1', str(output.stderr))
 
         output: subprocess.CalledProcessError = subprocess.run(
             ["python", file_path, "f", os.path.join(test_file_path, "test_demo_full_example.json")],
-            capture_output=True)
+            stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         self.assertTrue(output.returncode != 0)
         self.assertIn('error: one of the arguments --json --xml is required', str(output.stderr))
 
         output: subprocess.CalledProcessError = subprocess.run(
             ["python", file_path, "f", os.path.join(test_file_path, "test_demo_full_example.json"), "--json"],
-            capture_output=True)
+            stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         self.assertTrue(output.returncode != 0)
         self.assertIn('error: f or files requires two file path', str(output.stderr))
 
         output: subprocess.CalledProcessError = subprocess.run(
             ["python", file_path, "f", os.path.join(test_file_path, "test_demo_full_example.json"),
              os.path.join(test_file_path, "test_demo_full_example.json")],
-            capture_output=True)
+            stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         self.assertTrue(output.returncode != 0)
         self.assertIn('error: one of the arguments --json --xml is required', str(output.stderr))
 
         # test verbose
         output: subprocess.CalledProcessError = subprocess.run(
             ["python", file_path, "e", os.path.join(test_file_path, "test_demo_full_example.json"), "--json", "-v"],
-            capture_output=True)
+            stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         self.assertEqual(0, output.returncode)
         self.assertNotIn('ERROR', str(output.stdout))
         self.assertNotIn('INFO', str(output.stdout))
@@ -92,7 +96,7 @@ class ComplianceToolTest(unittest.TestCase):
         output: subprocess.CalledProcessError = subprocess.run(
             ["python", file_path, "e", os.path.join(test_file_path, "test_demo_full_example.json"), "--json",
              "-v", "-v"],
-            capture_output=True)
+            stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         self.assertEqual(0, output.returncode)
         self.assertNotIn('ERROR', str(output.stdout))
         self.assertIn('INFO', str(output.stdout))
@@ -101,14 +105,14 @@ class ComplianceToolTest(unittest.TestCase):
         output: subprocess.CalledProcessError = subprocess.run(
             ["python", file_path, "e", os.path.join(test_file_path, "test_demo_full_example.json"), "--json",
              "-q"],
-            capture_output=True)
+            stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         self.assertEqual(0, output.returncode)
         self.assertEqual("b''", str(output.stdout))
 
         # test logfile
         output: subprocess.CalledProcessError = subprocess.run(
             ["python", file_path, "e", os.path.join(test_file_path, "test_demo_full_example.json"), "--json", "-l"],
-            capture_output=True)
+            stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         self.assertTrue(output.returncode != 0)
         self.assertIn('error: argument -l/--logfile: expected one argument', str(output.stderr))
 
@@ -119,7 +123,7 @@ class ComplianceToolTest(unittest.TestCase):
         # test schema check
         output: subprocess.CalledProcessError = subprocess.run(
             ["python", file_path, "s", os.path.join(test_file_path, "test_demo_full_example.json"), "--json"],
-            capture_output=True)
+            stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         self.assertEqual(0, output.returncode)
         self.assertIn('SUCCESS:      Open file', str(output.stdout))
 
@@ -127,7 +131,7 @@ class ComplianceToolTest(unittest.TestCase):
         file, filename = tempfile.mkstemp(suffix=".json")
         os.close(file)
         output: subprocess.CalledProcessError = subprocess.run(["python", file_path, "c", filename, "--json"],
-                                                               capture_output=True)
+                                                               stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         self.assertEqual(0, output.returncode)
         self.assertIn('SUCCESS:      Create example data', str(output.stdout))
         self.assertIn('SUCCESS:      Open file', str(output.stdout))
@@ -143,14 +147,14 @@ class ComplianceToolTest(unittest.TestCase):
         # test deserialisation check
         output: subprocess.CalledProcessError = subprocess.run(
             ["python", file_path, "d", os.path.join(test_file_path, "test_demo_full_example.json"), "--json"],
-            capture_output=True)
+            stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         self.assertEqual(0, output.returncode)
         self.assertIn('SUCCESS:      Open file', str(output.stdout))
 
         # test example check
         output: subprocess.CalledProcessError = subprocess.run(
             ["python", file_path, "e", os.path.join(test_file_path, "test_demo_full_example.json"), "--json"],
-            capture_output=True)
+            stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         self.assertEqual(0, output.returncode)
         self.assertIn('SUCCESS:      Open file', str(output.stdout))
 
@@ -158,7 +162,7 @@ class ComplianceToolTest(unittest.TestCase):
         output: subprocess.CalledProcessError = subprocess.run(
             ["python", file_path, "f", os.path.join(test_file_path, "test_demo_full_example.json"),
              os.path.join(test_file_path, "test_demo_full_example.json"), "--json"],
-            capture_output=True)
+            stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         self.assertEqual(0, output.returncode)
 
     @unittest.expectedFailure
@@ -169,7 +173,7 @@ class ComplianceToolTest(unittest.TestCase):
         # test schema check
         output: subprocess.CalledProcessError = subprocess.run(
             ["python", file_path, "s", os.path.join(test_file_path, "test_demo_full_example.json"), "--xml"],
-            capture_output=True)
+            stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         self.assertEqual(0, output.returncode)
         self.assertIn('SUCCESS:      Open file', str(output.stdout))
 
@@ -177,7 +181,7 @@ class ComplianceToolTest(unittest.TestCase):
         file, filename = tempfile.mkstemp(suffix=".json")
         os.close(file)
         output: subprocess.CalledProcessError = subprocess.run(["python", file_path, "c", filename, "--xml"],
-                                                               capture_output=True)
+                                                               stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         self.assertEqual(0, output.returncode)
         self.assertIn('SUCCESS:      Create example data', str(output.stdout))
         self.assertIn('SUCCESS:      Open file', str(output.stdout))
@@ -193,14 +197,14 @@ class ComplianceToolTest(unittest.TestCase):
         # test deserialisation check
         output: subprocess.CalledProcessError = subprocess.run(
             ["python", file_path, "d", os.path.join(test_file_path, "test_demo_full_example.json"), "--xml"],
-            capture_output=True)
+            stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         self.assertEqual(0, output.returncode)
         self.assertIn('SUCCESS:      Open file', str(output.stdout))
 
         # test example check
         output: subprocess.CalledProcessError = subprocess.run(
             ["python", file_path, "e", os.path.join(test_file_path, "test_demo_full_example.json"), "--xml"],
-            capture_output=True)
+            stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         self.assertEqual(0, output.returncode)
         self.assertIn('SUCCESS:      Open file', str(output.stdout))
 
@@ -208,5 +212,5 @@ class ComplianceToolTest(unittest.TestCase):
         output: subprocess.CalledProcessError = subprocess.run(
             ["python", file_path, "f", os.path.join(test_file_path, "test_demo_full_example.json"),
              os.path.join(test_file_path, "test_demo_full_example.json"), "--xml"],
-            capture_output=True)
+            stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         self.assertEqual(0, output.returncode)
