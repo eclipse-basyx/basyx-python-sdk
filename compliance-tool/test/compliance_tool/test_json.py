@@ -20,7 +20,7 @@ JSON_SCHEMA_FILE = os.path.join(dirname(dirname(dirname(__file__))), 'test\\adap
 
 class ComplianceToolJsonTest(unittest.TestCase):
     @unittest.skipUnless(os.path.exists(JSON_SCHEMA_FILE), "JSON Schema not found for validation")
-    def test_check_schema(self):
+    def test_check_schema(self) -> None:
         manager = ComplianceToolStateManager()
         script_dir = os.path.dirname(__file__)
         file_path_1 = os.path.join(script_dir, 'files/test_not_found.json')
@@ -65,7 +65,7 @@ class ComplianceToolJsonTest(unittest.TestCase):
         self.assertEqual(Status.SUCCESS, manager.steps[1].status)
         self.assertEqual(Status.SUCCESS, manager.steps[2].status)
 
-    def test_check_deserialization(self):
+    def test_check_deserialization(self) -> None:
         manager = ComplianceToolStateManager()
         script_dir = os.path.dirname(__file__)
 
@@ -108,7 +108,7 @@ class ComplianceToolJsonTest(unittest.TestCase):
         self.assertEqual(Status.SUCCESS, manager.steps[0].status)
         self.assertEqual(Status.SUCCESS, manager.steps[1].status)
 
-    def test_check_aas_example(self):
+    def test_check_aas_example(self) -> None:
         manager = ComplianceToolStateManager()
         script_dir = os.path.dirname(__file__)
 
@@ -140,7 +140,7 @@ class ComplianceToolJsonTest(unittest.TestCase):
                       'Test_AssetAdministrationShell)] must be == TestAssetAdministrationShell123',
                       manager.format_step(2, verbose_level=1))
 
-    def test_check_json_files_equivalence(self):
+    def test_check_json_files_equivalence(self) -> None:
         manager = ComplianceToolStateManager()
         script_dir = os.path.dirname(__file__)
 
