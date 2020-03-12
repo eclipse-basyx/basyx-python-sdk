@@ -11,7 +11,7 @@
 import os
 import unittest
 
-import aas.compliance_tool.json as compliance_tool
+import aas.compliance_tool.compliance_check_json as compliance_tool
 from aas.compliance_tool.state_manager import ComplianceToolStateManager, Status
 
 dirname = os.path.dirname
@@ -52,6 +52,14 @@ class ComplianceToolJsonTest(unittest.TestCase):
         manager.steps = []
         file_path_4 = os.path.join(script_dir, 'files/test_empty.json')
         compliance_tool.check_schema(file_path_4, manager)
+        self.assertEqual(3, len(manager.steps))
+        self.assertEqual(Status.SUCCESS, manager.steps[0].status)
+        self.assertEqual(Status.SUCCESS, manager.steps[1].status)
+        self.assertEqual(Status.SUCCESS, manager.steps[2].status)
+
+        manager.steps = []
+        file_path_5 = os.path.join(script_dir, 'files/test_demo_full_example.json')
+        compliance_tool.check_schema(file_path_5, manager)
         self.assertEqual(3, len(manager.steps))
         self.assertEqual(Status.SUCCESS, manager.steps[0].status)
         self.assertEqual(Status.SUCCESS, manager.steps[1].status)
