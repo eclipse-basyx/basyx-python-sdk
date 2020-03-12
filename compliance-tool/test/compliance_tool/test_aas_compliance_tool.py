@@ -245,3 +245,27 @@ class ComplianceToolTest(unittest.TestCase):
              os.path.join(test_file_path, "test_demo_full_example.json"), "--xml"],
             stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         self.assertEqual(0, output.returncode)
+
+    def test_logfile(self) -> None:
+        file_path = os.path.join(os.path.dirname(aas.compliance_tool.__file__), 'cli.py')
+        test_file_path = os.path.join(os.path.dirname(__file__), 'files')
+
+        file, filename = tempfile.mkstemp(suffix=".json")
+        file2, filename2 = tempfile.mkstemp(suffix=".log")
+        os.close(file)
+        os.close(file2)
+        output: subprocess.CompletedProcess = subprocess.run(
+            [sys.executable, file_path, "c", filename, "--json", "-v", "-v", "-l", filename2],
+            stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        self.assertEqual(0, output.returncode)
+        self.assertIn('SUCCESS:      Create example data', str(output.stdout))
+        self.assertIn('SUCCESS:      Open file', str(output.stdout))
+        self.assertIn('SUCCESS:      Write data to file', str(output.stdout))
+
+        with open(filename2, "r", encoding='utf-8-sig') as f:
+            data = f.read()
+            self.assertIn('SUCCESS:      Create example data', data)
+            self.assertIn('SUCCESS:      Open file', data)
+            self.assertIn('SUCCESS:      Write data to file', data)
+        os.unlink(filename)
+        os.unlink(filename2)
