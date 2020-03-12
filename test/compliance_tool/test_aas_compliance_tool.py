@@ -24,7 +24,7 @@ JSON_SCHEMA_FILE = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'ada
 
 class ComplianceToolTest(unittest.TestCase):
     def test_parse_args(self) -> None:
-        file_path = os.path.join(os.path.dirname(aas.compliance_tool.__file__), 'aas_compliance_tool.py')
+        file_path = os.path.join(os.path.dirname(aas.compliance_tool.__file__), 'cli.py')
         test_file_path = os.path.join(os.path.dirname(__file__), 'files')
 
         # test schema check
@@ -122,7 +122,7 @@ class ComplianceToolTest(unittest.TestCase):
 
     @unittest.skipUnless(os.path.exists(JSON_SCHEMA_FILE), "JSON Schema not found for validation")
     def test_json_schema(self) -> None:
-        file_path = os.path.join(os.path.dirname(aas.compliance_tool.__file__), 'aas_compliance_tool.py')
+        file_path = os.path.join(os.path.dirname(aas.compliance_tool.__file__), 'cli.py')
         test_file_path = os.path.join(os.path.dirname(__file__), 'files')
 
         output: subprocess.CompletedProcess = subprocess.run(
@@ -132,7 +132,7 @@ class ComplianceToolTest(unittest.TestCase):
         self.assertIn('SUCCESS:      Open file', str(output.stdout))
 
     def test_json_create_example(self) -> None:
-        file_path = os.path.join(os.path.dirname(aas.compliance_tool.__file__), 'aas_compliance_tool.py')
+        file_path = os.path.join(os.path.dirname(aas.compliance_tool.__file__), 'cli.py')
         test_file_path = os.path.join(os.path.dirname(__file__), 'files')
 
         file, filename = tempfile.mkstemp(suffix=".json")
@@ -152,7 +152,7 @@ class ComplianceToolTest(unittest.TestCase):
         os.unlink(filename)
 
     def test_json_deserialization(self) -> None:
-        file_path = os.path.join(os.path.dirname(aas.compliance_tool.__file__), 'aas_compliance_tool.py')
+        file_path = os.path.join(os.path.dirname(aas.compliance_tool.__file__), 'cli.py')
         test_file_path = os.path.join(os.path.dirname(__file__), 'files')
 
         output: subprocess.CompletedProcess = subprocess.run(
@@ -162,7 +162,7 @@ class ComplianceToolTest(unittest.TestCase):
         self.assertIn('SUCCESS:      Open file', str(output.stdout))
 
     def test_json_example(self) -> None:
-        file_path = os.path.join(os.path.dirname(aas.compliance_tool.__file__), 'aas_compliance_tool.py')
+        file_path = os.path.join(os.path.dirname(aas.compliance_tool.__file__), 'cli.py')
         test_file_path = os.path.join(os.path.dirname(__file__), 'files')
 
         output: subprocess.CompletedProcess = subprocess.run(
@@ -172,7 +172,7 @@ class ComplianceToolTest(unittest.TestCase):
         self.assertIn('SUCCESS:      Open file', str(output.stdout))
 
     def test_json_file(self) -> None:
-        file_path = os.path.join(os.path.dirname(aas.compliance_tool.__file__), 'aas_compliance_tool.py')
+        file_path = os.path.join(os.path.dirname(aas.compliance_tool.__file__), 'cli.py')
         test_file_path = os.path.join(os.path.dirname(__file__), 'files')
 
         output: subprocess.CompletedProcess = subprocess.run(
@@ -183,7 +183,7 @@ class ComplianceToolTest(unittest.TestCase):
 
     @unittest.expectedFailure
     def test_xml_schema(self) -> None:
-        file_path = os.path.join(os.path.dirname(aas.compliance_tool.__file__), 'aas_compliance_tool.py')
+        file_path = os.path.join(os.path.dirname(aas.compliance_tool.__file__), 'cli.py')
         test_file_path = os.path.join(os.path.dirname(__file__), 'files')
 
         output: subprocess.CompletedProcess = subprocess.run(
@@ -194,7 +194,7 @@ class ComplianceToolTest(unittest.TestCase):
 
     @unittest.expectedFailure
     def test_xml_create_example(self) -> None:
-        file_path = os.path.join(os.path.dirname(aas.compliance_tool.__file__), 'aas_compliance_tool.py')
+        file_path = os.path.join(os.path.dirname(aas.compliance_tool.__file__), 'cli.py')
         test_file_path = os.path.join(os.path.dirname(__file__), 'files')
 
         file, filename = tempfile.mkstemp(suffix=".json")
@@ -215,7 +215,7 @@ class ComplianceToolTest(unittest.TestCase):
 
     @unittest.expectedFailure
     def test_xml_deseralization(self) -> None:
-        file_path = os.path.join(os.path.dirname(aas.compliance_tool.__file__), 'aas_compliance_tool.py')
+        file_path = os.path.join(os.path.dirname(aas.compliance_tool.__file__), 'cli.py')
         test_file_path = os.path.join(os.path.dirname(__file__), 'files')
 
         output: subprocess.CompletedProcess = subprocess.run(
@@ -226,7 +226,7 @@ class ComplianceToolTest(unittest.TestCase):
 
     @unittest.expectedFailure
     def test_xml_example(self) -> None:
-        file_path = os.path.join(os.path.dirname(aas.compliance_tool.__file__), 'aas_compliance_tool.py')
+        file_path = os.path.join(os.path.dirname(aas.compliance_tool.__file__), 'cli.py')
         test_file_path = os.path.join(os.path.dirname(__file__), 'files')
 
         output: subprocess.CompletedProcess = subprocess.run(
@@ -237,7 +237,7 @@ class ComplianceToolTest(unittest.TestCase):
 
     @unittest.expectedFailure
     def test_xml_file(self) -> None:
-        file_path = os.path.join(os.path.dirname(aas.compliance_tool.__file__), 'aas_compliance_tool.py')
+        file_path = os.path.join(os.path.dirname(aas.compliance_tool.__file__), 'cli.py')
         test_file_path = os.path.join(os.path.dirname(__file__), 'files')
 
         output: subprocess.CompletedProcess = subprocess.run(

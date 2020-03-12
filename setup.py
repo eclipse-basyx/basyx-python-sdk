@@ -30,6 +30,11 @@ setuptools.setup(
         "Operating System :: OS Independent",
         "Development Status :: 3 - Alpha",
     ],
+    entry_points={
+        'console_scripts': [
+            "aas_compliance_check = aas.compliance_tool.cli:main"
+        ]
+    },
     python_requires='>=3.6',
     install_requires=[
         'python-dateutil>=2.8,<3'
