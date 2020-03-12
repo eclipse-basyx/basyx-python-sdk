@@ -26,11 +26,11 @@ test:
   - echo -e "[couchdb]\nurl = http://couchdb:5984" > test/test_config.ini
   - python test/_helper/setup_testdb.py -u "$COUCHDB_USER" -p "$COUCHDB_PASSWORD"
   # Run tests
-  - coverage run --source aas,bin --branch -m xmlrunner -o testreports
+  - coverage run --source aas --branch -m xmlrunner -o testreports
   # Report test coverage; check typing and codestyle
   - coverage report -m
   - mypy aas test bin
-  - python -m pycodestyle --count --max-line-length 120 aas test bin
+  - python -m pycodestyle --count --max-line-length 120 aas test
 
   artifacts:
     reports:

@@ -30,11 +30,11 @@ from typing import Optional
 
 import jsonschema  # type: ignore
 
-from aas import model
-from aas.adapter.json import json_deserialization
-from aas.examples.data import example_aas, create_example
-from aas.examples.data._helper import AASDataChecker
-from aas.compliance_tool.state_manager import ComplianceToolStateManager, Status
+from .. import model
+from ..adapter.json import json_deserialization
+from ..examples.data import example_aas, create_example
+from ..examples.data._helper import AASDataChecker
+from .state_manager import ComplianceToolStateManager, Status
 
 dirname = os.path.dirname
 JSON_SCHEMA_FILE = os.path.join(dirname(__file__), '..', '..', 'test', 'adapter', 'json', 'aasJSONSchemaV2.0.json')
