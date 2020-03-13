@@ -18,7 +18,7 @@ How to use:
   "[your_object_class_name_here]_to_xml()". The functions return a serialized etree.Element object.
 """
 
-import xml.etree.ElementTree as ElTree
+from lxml import etree
 from typing import Dict, IO, Optional
 import base64
 
@@ -27,7 +27,7 @@ from .. import _generic
 
 
 # ##############################################################
-# functions to manipulate ElTree.Elements more effectively
+# functions to manipulate etree.Elements more effectively
 # ##############################################################
 
 # Namespace definition
@@ -36,11 +36,16 @@ NS_ABAC = "{http://www.admin-shell.io/aas/abac/2/0}"
 NS_AAS_COMMON = "{http://www.admin-shell.io/aas_common/2/0}"
 NS_XSI = "{http://www.w3.org/2001/XMLSchema-instance}"
 NS_IEC = "{http://www.admin-shell.io/IEC61360/2/0}"
+NS_MAP = {"aas": "http://www.admin-shell.io/aas/2/0",
+          "abac": "http://www.admin-shell.io/aas/abac/2/0",
+          "aas_common": "http://www.admin-shell.io/aas_common/2/0",
+          "xsi": "http://www.w3.org/2001/XMLSchema-instance",
+          "IEC": "http://www.admin-shell.io/IEC61360/2/0"}
 
 
 def _generate_element(name: str,
                       text: Optional[str] = None,
-                      attributes: Optional[Dict] = None) -> ElTree.Element:
+                      attributes: Optional[Dict] = None) -> etree.Element:
     """
     generate an ElementTree.Element object
 
@@ -49,7 +54,7 @@ def _generate_element(name: str,
     :param attributes: Attributes of the elements in form of a dict {"attribute_name": "attribute_content"}
     :return: ElementTree.Element object
     """
-    et_element = ElTree.Element(name)
+    et_element = etree.Element(name)
     if text:
         et_element.text = text
     if attributes:
@@ -76,7 +81,7 @@ def boolean_to_xml(obj: bool) -> str:
 # ##############################################################
 
 
-def abstract_classes_to_xml(namespace: str, tag: str, obj: object) -> ElTree.Element:
+def abstract_classes_to_xml(namespace: str, tag: str, obj: object) -> etree.Element:
     """
     generates an element and serialize abstract classes from model.base which are inherited by many classes.
 
@@ -134,7 +139,7 @@ def abstract_classes_to_xml(namespace: str, tag: str, obj: object) -> ElTree.Ele
 # ##############################################################
 
 
-def lang_string_set_to_xml(obj: model.LangStringSet, namespace: str, tag: str) -> ElTree.Element:
+def lang_string_set_to_xml(obj: model.LangStringSet, namespace: str, tag: str) -> etree.Element:
     """
     serialization of objects of class LangStringSet to XML
 
@@ -153,7 +158,7 @@ def lang_string_set_to_xml(obj: model.LangStringSet, namespace: str, tag: str) -
 
 def administrative_information_to_xml(obj: model.AdministrativeInformation,
                                       namespace: str,
-                                      tag: str = "administration") -> ElTree.Element:
+                                      tag: str = "administration") -> etree.Element:
     """
     serialization of objects of class AdministrativeInformation to XML
 
@@ -170,7 +175,7 @@ def administrative_information_to_xml(obj: model.AdministrativeInformation,
     return et_administration
 
 
-def identifier_to_xml(obj: model.Identifier, namespace: str, tag: str = "identifier") -> ElTree.Element:
+def identifier_to_xml(obj: model.Identifier, namespace: str, tag: str = "identifier") -> etree.Element:
     """
     serialization of objects of class Identifier to XML
 
@@ -185,7 +190,7 @@ def identifier_to_xml(obj: model.Identifier, namespace: str, tag: str = "identif
     return et_identifier
 
 
-def reference_to_xml(obj: model.Reference, namespace: str, tag: str) -> ElTree.Element:
+def reference_to_xml(obj: model.Reference, namespace: str, tag: str) -> etree.Element:
     """
     serialization of objects of class Reference to XML
 
@@ -206,7 +211,7 @@ def reference_to_xml(obj: model.Reference, namespace: str, tag: str) -> ElTree.E
     return et_reference
 
 
-def formula_to_xml(obj: model.Formula, namespace: str, tag: str = "formula") -> ElTree.Element:
+def formula_to_xml(obj: model.Formula, namespace: str, tag: str = "formula") -> etree.Element:
     """
     serialization of objects of class Formula to XML
 
@@ -224,7 +229,7 @@ def formula_to_xml(obj: model.Formula, namespace: str, tag: str = "formula") -> 
     return et_formula
 
 
-def qualifier_to_xml(obj: model.Qualifier, namespace: str, tag: str = "qualifier") -> ElTree.Element:
+def qualifier_to_xml(obj: model.Qualifier, namespace: str, tag: str = "qualifier") -> etree.Element:
     """
     serialization of objects of class Qualifier to XML
 
@@ -237,7 +242,7 @@ def qualifier_to_xml(obj: model.Qualifier, namespace: str, tag: str = "qualifier
     if obj.value_id:
         et_qualifier.append(reference_to_xml(obj.value_id, NS_AAS, "valueId"))
     if obj.value:
-        et_qualifier.append(_generate_element(NS_AAS + "value", text=obj.value))
+        et_qualifier.append(_generate_element(NS_AAS + "value", text=str(obj.value)))
     et_qualifier.append(_generate_element(NS_AAS + "type", text=obj.type))
     et_qualifier.append(_generate_element(NS_AAS + "valueType", text=model.datatypes.XSD_TYPE_NAMES[obj.value_type]))
     return et_qualifier
@@ -245,7 +250,7 @@ def qualifier_to_xml(obj: model.Qualifier, namespace: str, tag: str = "qualifier
 
 def value_reference_pair_to_xml(obj: model.ValueReferencePair,
                                 namespace: str,
-                                tag: str = "valueReferencePair") -> ElTree.Element:
+                                tag: str = "valueReferencePair") -> etree.Element:
     """
     serialization of objects of class ValueReferencePair to XML
 
@@ -265,7 +270,7 @@ def value_reference_pair_to_xml(obj: model.ValueReferencePair,
 
 def value_list_to_xml(obj: model.ValueList,
                       namespace: str,
-                      tag: str = "valueList") -> ElTree.Element:
+                      tag: str = "valueList") -> etree.Element:
     """
     serialization of objects of class ValueList to XML
 
@@ -287,7 +292,7 @@ def value_list_to_xml(obj: model.ValueList,
 # ##############################################################
 
 
-def view_to_xml(obj: model.View, namespace: str, tag: str = "view") -> ElTree.Element:
+def view_to_xml(obj: model.View, namespace: str, tag: str = "view") -> etree.Element:
     """
     serialization of objects of class View to XML
 
@@ -305,7 +310,7 @@ def view_to_xml(obj: model.View, namespace: str, tag: str = "view") -> ElTree.El
     return et_view
 
 
-def asset_to_xml(obj: model.Asset, namespace: str, tag: str = "asset") -> ElTree.Element:
+def asset_to_xml(obj: model.Asset, namespace: str, tag: str = "asset") -> etree.Element:
     """
     serialization of objects of class Asset to XML
 
@@ -325,7 +330,7 @@ def asset_to_xml(obj: model.Asset, namespace: str, tag: str = "asset") -> ElTree
 
 def concept_description_to_xml(obj: model.ConceptDescription,
                                namespace: str,
-                               tag: str = "conceptDescription") -> ElTree.Element:
+                               tag: str = "conceptDescription") -> etree.Element:
     """
     serialization of objects of class ConceptDescription to XML
 
@@ -343,7 +348,7 @@ def concept_description_to_xml(obj: model.ConceptDescription,
 
 def concept_dictionary_to_xml(obj: model.ConceptDictionary,
                               namespace: str,
-                              tag: str = "conceptDictionary") -> ElTree.Element:
+                              tag: str = "conceptDictionary") -> etree.Element:
     """
     serialization of objects of class ConceptDictionary to XML
 
@@ -363,7 +368,7 @@ def concept_dictionary_to_xml(obj: model.ConceptDictionary,
 
 def asset_administration_shell_to_xml(obj: model.AssetAdministrationShell,
                                       namespace: str,
-                                      tag: str = "assetAdministrationShell") -> ElTree.Element:
+                                      tag: str = "assetAdministrationShell") -> etree.Element:
     """
     serialization of objects of class AssetAdministrationShell to XML
 
@@ -405,7 +410,7 @@ def asset_administration_shell_to_xml(obj: model.AssetAdministrationShell,
 
 def security_to_xml(obj: model.Security,
                     namespace: str,
-                    tag: str = "security") -> ElTree.Element:
+                    tag: str = "security") -> etree.Element:
     """
     serialization of objects of class Security to XML
 
@@ -426,7 +431,7 @@ def security_to_xml(obj: model.Security,
 
 def submodel_element_to_xml(obj: model.SubmodelElement,
                             namespace: str,
-                            tag: str = "submodelElement") -> ElTree.Element:
+                            tag: str = "submodelElement") -> etree.Element:
     """
     serialization of objects of class SubmodelElement to XML
 
@@ -468,7 +473,7 @@ def submodel_element_to_xml(obj: model.SubmodelElement,
 
 def submodel_to_xml(obj: model.Submodel,
                     namespace: str,
-                    tag: str = "submodel") -> ElTree.Element:
+                    tag: str = "submodel") -> etree.Element:
     """
     serialization of objects of class Submodel to XML
 
@@ -488,7 +493,7 @@ def submodel_to_xml(obj: model.Submodel,
 
 def data_element_to_xml(obj: model.DataElement,
                         namespace: str,
-                        tag: str = "dataElement") -> ElTree.Element:
+                        tag: str = "dataElement") -> etree.Element:
     """
     serialization of objects of class DataElement to XML
 
@@ -502,7 +507,7 @@ def data_element_to_xml(obj: model.DataElement,
 
 def property_to_xml(obj: model.Property,
                     namespace: str,
-                    tag: str = "property") -> ElTree.Element:
+                    tag: str = "property") -> etree.Element:
     """
     serialization of objects of class Property to XML
 
@@ -522,7 +527,7 @@ def property_to_xml(obj: model.Property,
 
 def multi_language_property_to_xml(obj: model.MultiLanguageProperty,
                                    namespace: str,
-                                   tag: str = "multiLanguageProperty") -> ElTree.Element:
+                                   tag: str = "multiLanguageProperty") -> etree.Element:
     """
     serialization of objects of class MultiLanguageProperty to XML
 
@@ -541,7 +546,7 @@ def multi_language_property_to_xml(obj: model.MultiLanguageProperty,
 
 def range_to_xml(obj: model.Range,
                  namespace: str,
-                 tag: str = "range") -> ElTree.Element:
+                 tag: str = "range") -> etree.Element:
     """
     serialization of objects of class Range to XML
 
@@ -562,7 +567,7 @@ def range_to_xml(obj: model.Range,
 
 def blob_to_xml(obj: model.Blob,
                 namespace: str,
-                tag: str = "blob") -> ElTree.Element:
+                tag: str = "blob") -> etree.Element:
     """
     serialization of objects of class Blob to XML
 
@@ -572,7 +577,7 @@ def blob_to_xml(obj: model.Blob,
     :return: serialized ElementTree object
     """
     et_blob = abstract_classes_to_xml(namespace, tag, obj)
-    et_value = ElTree.Element(NS_AAS + "value")
+    et_value = etree.Element(NS_AAS + "value")
     if obj.value is not None:
         et_value.text = base64.b64encode(obj.value).decode()
     et_blob.append(et_value)
@@ -582,7 +587,7 @@ def blob_to_xml(obj: model.Blob,
 
 def file_to_xml(obj: model.File,
                 namespace: str,
-                tag: str = "file") -> ElTree.Element:
+                tag: str = "file") -> etree.Element:
     """
     serialization of objects of class File to XML
 
@@ -599,7 +604,7 @@ def file_to_xml(obj: model.File,
 
 def reference_element_to_xml(obj: model.ReferenceElement,
                              namespace: str,
-                             tag: str = "referenceElement") -> ElTree.Element:
+                             tag: str = "referenceElement") -> etree.Element:
     """
     serialization of objects of class ReferenceElement to XMl
 
@@ -616,7 +621,7 @@ def reference_element_to_xml(obj: model.ReferenceElement,
 
 def submodel_element_collection_to_xml(obj: model.SubmodelElementCollection,
                                        namespace: str,
-                                       tag: str = "submodelElementCollection") -> ElTree.Element:
+                                       tag: str = "submodelElementCollection") -> etree.Element:
     """
     serialization of objects of class SubmodelElementCollection to XML
 
@@ -640,7 +645,7 @@ def submodel_element_collection_to_xml(obj: model.SubmodelElementCollection,
 
 def relationship_element_to_xml(obj: model.RelationshipElement,
                                 namespace: str,
-                                tag: str = "relationshipElement") -> ElTree.Element:
+                                tag: str = "relationshipElement") -> etree.Element:
     """
     serialization of objects of class RelationshipElement to XML
 
@@ -657,7 +662,7 @@ def relationship_element_to_xml(obj: model.RelationshipElement,
 
 def annotated_relationship_element_to_xml(obj: model.AnnotatedRelationshipElement,
                                           namespace: str,
-                                          tag: str = "annotatedRelationshipElement") -> ElTree.Element:
+                                          tag: str = "annotatedRelationshipElement") -> etree.Element:
     """
     serialization of objects of class AnnotatedRelationshipElement to XML
 
@@ -677,7 +682,7 @@ def annotated_relationship_element_to_xml(obj: model.AnnotatedRelationshipElemen
 
 def operation_variable_to_xml(obj: model.OperationVariable,
                               namespace: str,
-                              tag: str = "operationVariable") -> ElTree.Element:
+                              tag: str = "operationVariable") -> etree.Element:
     """
     serialization of objects of class OperationVariable to XML
 
@@ -693,7 +698,7 @@ def operation_variable_to_xml(obj: model.OperationVariable,
 
 def operation_to_xml(obj: model.Operation,
                      namespace: str,
-                     tag: str = "operation") -> ElTree.Element:
+                     tag: str = "operation") -> etree.Element:
     """
     serialization of objects of class Operation to XML
 
@@ -723,7 +728,7 @@ def operation_to_xml(obj: model.Operation,
 
 def capability_to_xml(obj: model.Capability,
                       namespace: str,
-                      tag: str = "capability") -> ElTree.Element:
+                      tag: str = "capability") -> etree.Element:
     """
     serialization of objects of class Capability to XML
 
@@ -737,7 +742,7 @@ def capability_to_xml(obj: model.Capability,
 
 def entity_to_xml(obj: model.Entity,
                   namespace: str,
-                  tag: str = "entity") -> ElTree.Element:
+                  tag: str = "entity") -> etree.Element:
     """
     serialization of objects of class Entity to XML
 
@@ -759,7 +764,7 @@ def entity_to_xml(obj: model.Entity,
 
 def basic_event_to_xml(obj: model.BasicEvent,
                        namespace: str,
-                       tag: str = "basicEvent") -> ElTree.Element:
+                       tag: str = "basicEvent") -> etree.Element:
     """
     serialization of objects of class BasicEvent to XML
 
@@ -804,22 +809,17 @@ def write_aas_xml_file(file: IO,
             concept_descriptions.append(obj)
 
     # serialize objects to XML
-    ElTree.register_namespace("aas", "http://www.admin-shell.io/aas/2/0")
-    ElTree.register_namespace("abac", "http://www.admin-shell.io/aas/abac/2/0")
-    ElTree.register_namespace("aas_common", "http://www.admin-shell.io/aas_common/2/0")
-    ElTree.register_namespace("xsi", "http://www.w3.org/2001/XMLSchema-instance")
-    ElTree.register_namespace("IEC", "http://www.admin-shell.io/IEC61360/2/0")
-    root = ElTree.Element(NS_AAS+"aasenv")
-    et_asset_administration_shells = ElTree.Element(NS_AAS + "assetAdministrationShells")
+    root = etree.Element(NS_AAS + "aasenv", nsmap=NS_MAP)
+    et_asset_administration_shells = etree.Element(NS_AAS + "assetAdministrationShells")
     for aas_obj in asset_administration_shells:
         et_asset_administration_shells.append(asset_administration_shell_to_xml(aas_obj, namespace=NS_AAS))
     et_assets = _generate_element(NS_AAS + "assets")
     for ass_obj in assets:
         et_assets.append(asset_to_xml(ass_obj, namespace=NS_AAS))
-    et_submodels = ElTree.Element(NS_AAS + "submodels")
+    et_submodels = etree.Element(NS_AAS + "submodels")
     for sub_obj in submodels:
         et_submodels.append(submodel_to_xml(sub_obj, namespace=NS_AAS))
-    et_concept_descriptions = ElTree.Element(NS_AAS + "conceptDescriptions")
+    et_concept_descriptions = etree.Element(NS_AAS + "conceptDescriptions")
     for con_obj in concept_descriptions:
         et_concept_descriptions.append(concept_description_to_xml(con_obj, namespace=NS_AAS))
     root.insert(0, et_concept_descriptions)
@@ -827,5 +827,5 @@ def write_aas_xml_file(file: IO,
     root.insert(0, et_assets)
     root.insert(0, et_asset_administration_shells)
 
-    tree = ElTree.ElementTree(root)
+    tree = etree.ElementTree(root)
     tree.write(file, encoding="UTF-8", xml_declaration=True, method="xml")
