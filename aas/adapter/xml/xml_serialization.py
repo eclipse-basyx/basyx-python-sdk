@@ -14,7 +14,8 @@ Module for serializing Asset Administration Shell data to the official XML forma
 How to use:
 - For generating an XML-File from a model.registry.AbstractObjectStore, check out the function "write_aas_xml_file".
 - For serializing any object to an xml.etree.ElementTree.Element, that fits the XML specification from 'Details of the
-  Asset Administration Shell', chapter 5.4, check out "aas_object_to_xml"
+  Asset Administration Shell', chapter 5.4, check out
+  "[your_object_class_name_here]_to_xml()". The functions return a serialized etree.Element object.
 """
 
 import xml.etree.ElementTree as ElTree
