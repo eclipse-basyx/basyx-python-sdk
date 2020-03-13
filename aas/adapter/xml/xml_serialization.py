@@ -18,7 +18,7 @@ How to use:
   "[your_object_class_name_here]_to_xml()". The functions return a serialized etree.Element object.
 """
 
-from lxml import etree
+from lxml import etree  # type: ignore
 from typing import Dict, IO, Optional
 import base64
 
