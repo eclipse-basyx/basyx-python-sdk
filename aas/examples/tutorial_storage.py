@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 # This work is licensed under a Creative Commons CCZero 1.0 Universal License.
 # See http://creativecommons.org/publicdomain/zero/1.0/ for more information.
 """
@@ -5,8 +6,8 @@ Tutorial for storing asset administration shells, submodels and assets
 """
 
 # Import all PyI40AAS classes from model package
-from .. import model
-from ..model import Asset, AssetAdministrationShell, Submodel
+from aas import model
+from aas.model import Asset, AssetAdministrationShell, Submodel
 
 # In this tutorial you get a step by step guide how to store an asset administration shell and its needed objects. For
 # storing an asset administration shell including the asset and submodels you need an object store. In an object

@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 # This work is licensed under a Creative Commons CCZero 1.0 Universal License.
 # See http://creativecommons.org/publicdomain/zero/1.0/ for more information.
 """
@@ -6,7 +7,7 @@ reference
 """
 
 # Import all PyI40AAS classes from model package
-from .. import model
+from aas import model
 
 # In this tutorial, you get a step by step guide on how to create an asset administration shell and its required
 # objects. First, you need an asset for which you want to create an asset administration shell. So, first, you will
