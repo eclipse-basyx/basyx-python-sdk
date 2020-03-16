@@ -28,7 +28,7 @@ class XMLSerializationTest(unittest.TestCase):
                                      model.datatypes.String,
                                      category="PARAMETER",
                                      description={"en-us": "Germany", "de": "Deutschland"})
-        xml_data = xml_serialization.property_to_xml(test_object, xml_serialization.NS_AAS, "test_object")
+        xml_data = xml_serialization.property_to_xml(test_object,  xml_serialization.NS_AAS+"test_object")
         # todo: is this a correct way to test it?
 
     def test_random_object_serialization(self) -> None:
