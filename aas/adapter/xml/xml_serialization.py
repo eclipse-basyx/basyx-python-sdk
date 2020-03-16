@@ -123,14 +123,13 @@ def abstract_classes_to_xml(namespace: str, tag: str, obj: object) -> etree.Elem
             elm.append(reference_to_xml(obj.semantic_id, namespace=NS_AAS, tag="semanticId"))
     if isinstance(obj, model.Qualifiable):
         if obj.qualifier:
-            et_qualifier = _generate_element(name=NS_AAS + "qualifiers", text=None)  # constraints_t
+            et_qualifiers = _generate_element(name=NS_AAS + "qualifiers", text=None)
             for qualifier in obj.qualifier:
-                et_qualifiers = _generate_element(name=NS_AAS + "qualifier")  # constraint_t
                 if isinstance(qualifier, model.Qualifier):
                     et_qualifiers.append(qualifier_to_xml(qualifier, NS_AAS, tag="qualifier"))
                 if isinstance(qualifier, model.Formula):
                     et_qualifiers.append(formula_to_xml(qualifier, NS_AAS, tag="formula"))
-                et_qualifier.append(et_qualifiers)
+            elm.append(et_qualifiers)
     return elm
 
 
