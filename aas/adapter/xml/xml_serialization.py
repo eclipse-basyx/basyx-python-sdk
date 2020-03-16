@@ -439,35 +439,32 @@ def submodel_element_to_xml(obj: model.SubmodelElement,
     :param tag: tag of the serialized element (optional), default is "submodelElement"
     :return: serialized ElementTree object
     """
-    et_submodel_element = _generate_element(namespace+tag)
     if isinstance(obj, model.BasicEvent):
-        et_submodel_element.append(basic_event_to_xml(obj, NS_AAS))
+        return basic_event_to_xml(obj, NS_AAS)
     if isinstance(obj, model.Blob):
-        et_submodel_element.append(blob_to_xml(obj, NS_AAS))
+        return blob_to_xml(obj, NS_AAS)
     if isinstance(obj, model.Capability):
-        et_submodel_element.append(capability_to_xml(obj, NS_AAS))
+        return capability_to_xml(obj, NS_AAS)
     if isinstance(obj, model.Entity):
-        et_submodel_element.append(entity_to_xml(obj, NS_AAS))
+        return entity_to_xml(obj, NS_AAS)
     if isinstance(obj, model.File):
-        et_submodel_element.append(file_to_xml(obj, NS_AAS))
+        return file_to_xml(obj, NS_AAS)
     if isinstance(obj, model.MultiLanguageProperty):
-        et_submodel_element.append(multi_language_property_to_xml(obj, NS_AAS))
+        return multi_language_property_to_xml(obj, NS_AAS)
     if isinstance(obj, model.Operation):
-        et_submodel_element.append(operation_to_xml(obj, NS_AAS))
+        return operation_to_xml(obj, NS_AAS)
     if isinstance(obj, model.Property):
-        et_submodel_element.append(property_to_xml(obj, NS_AAS))
+        return property_to_xml(obj, NS_AAS)
     if isinstance(obj, model.Range):
-        et_submodel_element.append(range_to_xml(obj, NS_AAS))
+        return range_to_xml(obj, NS_AAS)
+    if isinstance(obj, model.AnnotatedRelationshipElement):
+        return annotated_relationship_element_to_xml(obj, NS_AAS)
     if isinstance(obj, model.RelationshipElement):
-        if isinstance(obj, model.AnnotatedRelationshipElement):
-            et_submodel_element.append(annotated_relationship_element_to_xml(obj, NS_AAS))
-        else:
-            et_submodel_element.append(relationship_element_to_xml(obj, NS_AAS))
+        return relationship_element_to_xml(obj, NS_AAS)
     if isinstance(obj, model.SubmodelElementCollection):
-        et_submodel_element.append(submodel_element_collection_to_xml(obj, NS_AAS))
+        return submodel_element_collection_to_xml(obj, NS_AAS)
     if isinstance(obj, model.ReferenceElement):
-        et_submodel_element.append(reference_element_to_xml(obj, NS_AAS))
-    return et_submodel_element
+        return reference_element_to_xml(obj, NS_AAS)
 
 
 def submodel_to_xml(obj: model.Submodel,
@@ -691,7 +688,9 @@ def operation_variable_to_xml(obj: model.OperationVariable,
     :return: serialized ElementTree object
     """
     et_operation_variable = _generate_element(namespace + tag)
-    et_operation_variable.append(submodel_element_to_xml(obj.value, NS_AAS, tag="value"))
+    et_value = _generate_element(NS_AAS+"value")
+    et_value.append(submodel_element_to_xml(obj.value, NS_AAS))
+    et_operation_variable.append(et_value)
     return et_operation_variable
 
 
