@@ -339,10 +339,58 @@ def concept_description_to_xml(obj: model.ConceptDescription,
     :return: serialized ElementTree object
     """
     et_concept_description = abstract_classes_to_xml(namespace, tag, obj)
+    if isinstance(obj, model.concept.IEC61360ConceptDescription):
+        et_data_spec_content = _generate_element(NS_AAS+"dataSpecificationContent")
+        et_data_spec_content.append(_iec61360_concept_description_to_xml(obj))
+        et_concept_description.append(et_data_spec_content)
     if obj.is_case_of:
         for reference in obj.is_case_of:
             et_concept_description.append(reference_to_xml(reference, NS_AAS, "isCaseOf"))
     return et_concept_description
+
+
+def _iec61360_concept_description_to_xml(obj: model.concept.IEC61360ConceptDescription,
+                                         tag: str = NS_AAS+"dataSpecificationIEC61360") -> etree.Element:
+    """
+    Add the 'embeddedDataSpecifications' attribute to IEC61360ConceptDescription's JSON representation.
+
+    `IEC61360ConceptDescription` is not a distinct class according DotAAS, but instead is built by referencing
+    "DataSpecificationIEC61360" as dataSpecification. However, we implemented it as an explicit class, inheriting from
+    ConceptDescription, but we want to generate compliant XML documents. So, we fake the XML structure of an object
+    with dataSpecifications.
+
+    :param obj: model.concept.IEC61360ConceptDescription object
+    :param tag: name of the serialized tag
+    :return: serialized ElementTree object
+    """
+    et_iec = _generate_element(tag)
+    et_iec.append(lang_string_set_to_xml(obj.preferred_name, namespace=NS_IEC, tag="preferredName"))
+    if obj.short_name:
+        et_iec.append(lang_string_set_to_xml(obj.short_name, namespace=NS_IEC, tag="shortName"))
+    if obj.unit:
+        et_iec.append(_generate_element(NS_IEC+"unit", text=obj.unit))
+    if obj.unit_id:
+        et_iec.append(reference_to_xml(obj.unit_id, namespace=NS_IEC, tag="unitId"))
+    if obj.source_of_definition:
+        et_iec.append(_generate_element(NS_IEC+"sourceOfDefinition", text=obj.source_of_definition))
+    if obj.symbol:
+        et_iec.append(_generate_element(NS_IEC+"symbol", text=obj.symbol))
+    if obj.data_type:
+        et_iec.append(_generate_element(NS_IEC+"dataType", text=_generic.IEC61360_DATA_TYPES[obj.data_type]))
+    if obj.definition:
+        et_iec.append(lang_string_set_to_xml(obj.definition, namespace=NS_IEC, tag="definition"))
+    if obj.value_format:
+        et_iec.append(_generate_element(NS_IEC+"valueFormat", text=model.datatypes.XSD_TYPE_NAMES[obj.value_format]))
+    if obj.value_list:
+        et_iec.append(value_list_to_xml(obj.value_list, namespace=NS_IEC, tag="valueList"))
+    if obj.value:
+        et_iec.append(_generate_element(NS_IEC+"value", text=model.datatypes.XSD_TYPE_NAMES[obj.value]))
+    if obj.value_id:
+        et_iec.append(reference_to_xml(obj.value_id, namespace=NS_IEC, tag="valueId"))
+    if obj.level_types:
+        for level_type in obj.level_types:
+            et_iec.append(_generate_element(NS_IEC+"levelType", text=_generic.IEC61360_LEVEL_TYPES[level_type]))
+    return et_iec
 
 
 def concept_dictionary_to_xml(obj: model.ConceptDictionary,
