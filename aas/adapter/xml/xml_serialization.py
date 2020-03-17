@@ -176,7 +176,7 @@ def reference_to_xml(obj: model.Reference, tag: str = NS_AAS+"reference") -> etr
     et_keys = _generate_element(name=NS_AAS + "keys")
     for aas_key in obj.key:
         et_keys.append(_generate_element(name=NS_AAS + "key",
-                                         text=aas_key.value,
+                                         text=aas_key.value,  # type: str
                                          attributes={"idType": _generic.KEY_TYPES[aas_key.id_type],
                                                      "local": boolean_to_xml(aas_key.local),
                                                      "type": _generic.KEY_ELEMENTS[aas_key.type]}))
@@ -213,7 +213,7 @@ def qualifier_to_xml(obj: model.Qualifier, tag: str = NS_AAS+"qualifier") -> etr
     if obj.value_id:
         et_qualifier.append(reference_to_xml(obj.value_id, NS_AAS+"valueId"))
     if obj.value:
-        et_qualifier.append(_generate_element(NS_AAS + "value", text=str(obj.value)))
+        et_qualifier.append(_generate_element(NS_AAS + "value", text=model.datatypes.xsd_repr(obj.value)))
     et_qualifier.append(_generate_element(NS_AAS + "type", text=obj.type))
     et_qualifier.append(_generate_element(NS_AAS + "valueType", text=model.datatypes.XSD_TYPE_NAMES[obj.value_type]))
     return et_qualifier
@@ -232,7 +232,7 @@ def value_reference_pair_to_xml(obj: model.ValueReferencePair,
     :return: serialized ElementTree object
     """
     et_vrp = _generate_element(tag)
-    et_vrp.append(_generate_element("value", text=obj.value))
+    et_vrp.append(_generate_element("value", text=model.datatypes.xsd_repr(obj.value)))
     et_vrp.append(reference_to_xml(obj.value_id, "valueId"))
     return et_vrp
 
@@ -564,7 +564,7 @@ def property_to_xml(obj: model.Property,
     if obj.value_id:
         et_property.append(reference_to_xml(obj.value_id, NS_AAS+"valueId"))
     if obj.value:
-        et_property.append(_generate_element(NS_AAS + "value", text=obj.value))
+        et_property.append(_generate_element(NS_AAS + "value", text=model.datatypes.xsd_repr(obj.value)))
     et_property.append(_generate_element(NS_AAS + "valueType", text=model.datatypes.XSD_TYPE_NAMES[obj.value_type]))
     return et_property
 
