@@ -162,7 +162,7 @@ def administrative_information_to_xml(obj: model.AdministrativeInformation,
     :param tag: tag of the serialized element. default is "administration"
     :return: serialized ElementTree object
     """
-    et_administration = abstract_classes_to_xml(tag, obj)
+    et_administration = _generate_element(tag)
     if obj.version:
         et_administration.append(_generate_element(name=NS_AAS + "version", text=obj.version))
         if obj.revision:
@@ -251,7 +251,7 @@ def value_reference_pair_to_xml(obj: model.ValueReferencePair,
     :param tag: tag of the serialized element, default is "valueReferencePair"
     :return: serialized ElementTree object
     """
-    et_vrp = abstract_classes_to_xml(tag, obj)
+    et_vrp = _generate_element(tag)
     et_vrp.append(_generate_element("value", text=obj.value))
     et_vrp.append(reference_to_xml(obj.value_id, "valueId"))
     return et_vrp
@@ -268,7 +268,7 @@ def value_list_to_xml(obj: model.ValueList,
     :param tag: tag of the serialized element, default is "valueList"
     :return: serialized ElementTree object
     """
-    et_value_list = abstract_classes_to_xml(tag, obj)
+    et_value_list = _generate_element(tag)
     for aas_reference_pair in obj:
         et_value_list.append(value_reference_pair_to_xml(aas_reference_pair, "valueReferencePair"))
     return et_value_list
