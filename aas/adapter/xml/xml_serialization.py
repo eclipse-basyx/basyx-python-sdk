@@ -170,20 +170,6 @@ def administrative_information_to_xml(obj: model.AdministrativeInformation,
     return et_administration
 
 
-def identifier_to_xml(obj: model.Identifier, tag: str = NS_AAS+"identifier") -> etree.Element:
-    """
-    serialization of objects of class Identifier to XML
-
-    :param obj: object of class Identifier
-    :param tag: tag of the serialized element. default is "identifier"
-    :return: serialized ElementTree object
-    """
-    et_identifier = abstract_classes_to_xml(tag, obj)
-    et_identifier.append(_generate_element(name=NS_AAS + "id", text=obj.id))
-    et_identifier.append(_generate_element(name=NS_AAS + "idType", text=_generic.IDENTIFIER_TYPES[obj.id_type]))
-    return et_identifier
-
-
 def reference_to_xml(obj: model.Reference, tag: str = NS_AAS+"reference") -> etree.Element:
     """
     serialization of objects of class Reference to XML
@@ -504,18 +490,6 @@ def submodel_to_xml(obj: model.Submodel,
             et_submodel_elements.append(submodel_element_to_xml(submodel_element))
     et_submodel.append(et_submodel_elements)
     return et_submodel
-
-
-def data_element_to_xml(obj: model.DataElement,
-                        tag: str = NS_AAS+"dataElement") -> etree.Element:
-    """
-    serialization of objects of class DataElement to XML
-
-    :param obj: object of class DataElement
-    :param tag: tag of the serialized element, default is "dataElement"
-    :return: serialized ElementTree object
-    """
-    return abstract_classes_to_xml(tag, obj)
 
 
 def property_to_xml(obj: model.Property,
