@@ -348,7 +348,7 @@ def _iec61360_concept_description_to_xml(obj: model.concept.IEC61360ConceptDescr
     if obj.value_list:
         et_iec.append(value_list_to_xml(obj.value_list, tag=NS_IEC+"valueList"))
     if obj.value:
-        et_iec.append(_generate_element(NS_IEC+"value", text=model.datatypes.XSD_TYPE_NAMES[obj.value]))
+        et_iec.append(_generate_element(NS_IEC+"value", text=model.datatypes.xsd_repr(obj.value)))
     if obj.value_id:
         et_iec.append(reference_to_xml(obj.value_id, tag=NS_IEC+"valueId"))
     if obj.level_types:
