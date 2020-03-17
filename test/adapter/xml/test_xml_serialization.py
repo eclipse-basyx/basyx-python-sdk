@@ -17,7 +17,7 @@ from aas import model
 from aas.adapter.xml import xml_serialization
 
 from aas.examples.data import example_aas_missing_attributes, example_submodel_template, \
-    example_aas_mandatory_attributes, example_aas
+    example_aas_mandatory_attributes, example_aas, example_concept_description
 
 XML_SCHEMA_FILE = os.path.join(os.path.dirname(__file__), 'AAS.xsd')
 
@@ -121,6 +121,20 @@ class XMLSerializationSchemaTest(unittest.TestCase):
 
     def test_missing_serialization(self) -> None:
         data = example_aas_missing_attributes.create_full_example()
+        file = io.BytesIO()
+        xml_serialization.write_aas_xml_file(file=file, data=data)
+
+        # load schema
+        aas_schema = etree.XMLSchema(file=XML_SCHEMA_FILE)
+
+        # validate serialization against schema
+        parser = etree.XMLParser(schema=aas_schema)
+        file.seek(0)
+        root = etree.parse(file, parser=parser)
+
+    def test_concept_description(self) -> None:
+        data: model.DictObjectStore[model.Identifiable] = model.DictObjectStore()
+        data.add(example_concept_description.create_iec61360_concept_description())
         file = io.BytesIO()
         xml_serialization.write_aas_xml_file(file=file, data=data)
 

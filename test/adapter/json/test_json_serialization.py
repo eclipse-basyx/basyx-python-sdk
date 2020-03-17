@@ -19,7 +19,7 @@ from aas.adapter.json import json_serialization
 from jsonschema import validate  # type: ignore
 
 from aas.examples.data import example_aas_missing_attributes, example_submodel_template, \
-    example_aas_mandatory_attributes, example_aas
+    example_aas_mandatory_attributes, example_aas, example_concept_description
 
 JSON_SCHEMA_FILE = os.path.join(os.path.dirname(__file__), 'aasJSONSchemaV2.0.json')
 
@@ -127,6 +127,21 @@ class JsonSerializationSchemaTest(unittest.TestCase):
 
     def test_missing_serialization(self) -> None:
         data = example_aas_missing_attributes.create_full_example()
+        file = io.StringIO()
+        json_serialization.write_aas_json_file(file=file, data=data)
+
+        with open(JSON_SCHEMA_FILE, 'r') as json_file:
+            aas_json_schema = json.load(json_file)
+
+        file.seek(0)
+        json_data = json.load(file)
+
+        # validate serialization against schema
+        validate(instance=json_data, schema=aas_json_schema)
+
+    def test_concept_description(self) -> None:
+        data: model.DictObjectStore[model.Identifiable] = model.DictObjectStore()
+        data.add(example_concept_description.create_iec61360_concept_description())
         file = io.StringIO()
         json_serialization.write_aas_json_file(file=file, data=data)
 
