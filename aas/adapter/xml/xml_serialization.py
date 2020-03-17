@@ -13,9 +13,9 @@ Module for serializing Asset Administration Shell data to the official XML forma
 
 How to use:
 - For generating an XML-File from a model.registry.AbstractObjectStore, check out the function "write_aas_xml_file".
-- For serializing any object to an xml.etree.ElementTree.Element, that fits the XML specification from 'Details of the
-  Asset Administration Shell', chapter 5.4, check out
-  "[your_object_class_name_here]_to_xml()". The functions return a serialized etree.Element object.
+- For serializing any object to an XML fragment, that fits the XML specification from 'Details of the
+  Asset Administration Shell', chapter 5.4, check out `<your_object_class_name_here>_to_xml()`. These functions return
+  an xml.etree.ElementTree.Element object to be serialized into XML.
 """
 
 from lxml import etree  # type: ignore
@@ -83,10 +83,10 @@ def boolean_to_xml(obj: bool) -> str:
 
 def abstract_classes_to_xml(tag: str, obj: object) -> etree.Element:
     """
-    generates an element and serialize abstract classes from model.base which are inherited by many classes.
+    Generates an XML element and adds attributes of abstract base classes of `obj`.
 
-    If the object obj is inheriting from an abstract class, this function adds the serialized information of those
-    abstract classes to the given parent element
+    If the object obj is inheriting from any abstract AAS class, this function adds all the serialized information of
+    those abstract classes to the generated element.
 
     :param tag: tag of the element
     :param obj: an object of the AAS
