@@ -825,7 +825,8 @@ def basic_event_to_xml(obj: model.BasicEvent,
 
 
 def write_aas_xml_file(file: IO,
-                       data: model.AbstractObjectStore) -> None:
+                       data: model.AbstractObjectStore,
+                       **kwargs) -> None:
     """
     Write a set of AAS objects to an Asset Administration Shell XML file according to 'Details of the Asset
     Administration Shell', chapter 5.4
@@ -833,6 +834,7 @@ def write_aas_xml_file(file: IO,
     :param file: A file-like object to write the XML-serialized data to
     :param data: ObjectStore which contains different objects of the AAS meta model which should be serialized to an
                  XML file
+    :param kwargs: Additional keyword arguments to be passed to tree.write()
     """
     # separate different kind of objects
     assets = []
@@ -869,4 +871,4 @@ def write_aas_xml_file(file: IO,
     root.insert(0, et_asset_administration_shells)
 
     tree = etree.ElementTree(root)
-    tree.write(file, encoding="UTF-8", xml_declaration=True, method="xml")
+    tree.write(file, encoding="UTF-8", xml_declaration=True, method="xml", **kwargs)
