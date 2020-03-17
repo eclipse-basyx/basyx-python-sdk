@@ -35,12 +35,14 @@ NS_AAS = "{http://www.admin-shell.io/aas/2/0}"
 NS_ABAC = "{http://www.admin-shell.io/aas/abac/2/0}"
 NS_AAS_COMMON = "{http://www.admin-shell.io/aas_common/2/0}"
 NS_XSI = "{http://www.w3.org/2001/XMLSchema-instance}"
+NS_XS = "{http://www.w3.org/2001/XMLSchema}"
 NS_IEC = "{http://www.admin-shell.io/IEC61360/2/0}"
 NS_MAP = {"aas": "http://www.admin-shell.io/aas/2/0",
           "abac": "http://www.admin-shell.io/aas/abac/2/0",
           "aas_common": "http://www.admin-shell.io/aas_common/2/0",
           "xsi": "http://www.w3.org/2001/XMLSchema-instance",
-          "IEC": "http://www.admin-shell.io/IEC61360/2/0"}
+          "IEC": "http://www.admin-shell.io/IEC61360/2/0",
+          "xs": "http://www.w3.org/2001/XMLSchema"}
 
 
 def _generate_element(name: str,
@@ -213,7 +215,11 @@ def qualifier_to_xml(obj: model.Qualifier, tag: str = NS_AAS+"qualifier") -> etr
     if obj.value_id:
         et_qualifier.append(reference_to_xml(obj.value_id, NS_AAS+"valueId"))
     if obj.value:
-        et_qualifier.append(_generate_element(NS_AAS + "value", text=model.datatypes.xsd_repr(obj.value)))
+        et_qualifier.append(_generate_element(
+            NS_AAS+"value",
+            text=model.datatypes.xsd_repr(obj.value),
+            attributes={NS_XSI+"type": "xs:"+model.datatypes.XSD_TYPE_NAMES[obj.value_type]})
+        )
     et_qualifier.append(_generate_element(NS_AAS + "type", text=obj.type))
     et_qualifier.append(_generate_element(NS_AAS + "valueType", text=model.datatypes.XSD_TYPE_NAMES[obj.value_type]))
     return et_qualifier
@@ -225,14 +231,16 @@ def value_reference_pair_to_xml(obj: model.ValueReferencePair,
     serialization of objects of class ValueReferencePair to XML
 
     todo: couldn't find it in the official schema, so guessing how to implement serialization
-          check namespace and tag
+          check namespace, tag and correct serialization
 
     :param obj: object of class ValueReferencePair
     :param tag: tag of the serialized element, default is "valueReferencePair"
     :return: serialized ElementTree object
     """
     et_vrp = _generate_element(tag)
-    et_vrp.append(_generate_element("value", text=model.datatypes.xsd_repr(obj.value)))
+    et_vrp.append(_generate_element("value",
+                                    text=model.datatypes.xsd_repr(obj.value),
+                                    attributes={NS_XSI+"type": "xs:"+model.datatypes.XSD_TYPE_NAMES[obj.value_type]}))
     et_vrp.append(reference_to_xml(obj.value_id, "valueId"))
     return et_vrp
 
@@ -564,7 +572,11 @@ def property_to_xml(obj: model.Property,
     if obj.value_id:
         et_property.append(reference_to_xml(obj.value_id, NS_AAS+"valueId"))
     if obj.value:
-        et_property.append(_generate_element(NS_AAS + "value", text=model.datatypes.xsd_repr(obj.value)))
+        et_property.append(_generate_element(
+            NS_AAS + "value",
+            text=model.datatypes.xsd_repr(obj.value),
+            attributes={NS_XSI+"type": "xs:"+model.datatypes.XSD_TYPE_NAMES[obj.value_type]}
+        ))
     et_property.append(_generate_element(NS_AAS + "valueType", text=model.datatypes.XSD_TYPE_NAMES[obj.value_type]))
     return et_property
 
@@ -597,9 +609,17 @@ def range_to_xml(obj: model.Range,
     """
     et_range = abstract_classes_to_xml(tag, obj)
     if obj.max:
-        et_range.append(_generate_element(name=NS_AAS + "max", text=model.datatypes.xsd_repr(obj.max)))
+        et_range.append(_generate_element(
+            name=NS_AAS + "max",
+            text=model.datatypes.xsd_repr(obj.max),
+            attributes={NS_XSI+"type": "xs:"+model.datatypes.XSD_TYPE_NAMES[obj.value_type]}
+        ))
     if obj.min:
-        et_range.append(_generate_element(name=NS_AAS + "min", text=model.datatypes.xsd_repr(obj.min)))
+        et_range.append(_generate_element(
+            name=NS_AAS + "min",
+            text=model.datatypes.xsd_repr(obj.min),
+            attributes={NS_XSI+"type": "xs:"+model.datatypes.XSD_TYPE_NAMES[obj.value_type]}
+        ))
     et_range.append(_generate_element(name=NS_AAS + "valueType",
                                       text=model.datatypes.XSD_TYPE_NAMES[obj.value_type]))
     return et_range
