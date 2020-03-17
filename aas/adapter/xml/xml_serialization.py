@@ -98,7 +98,7 @@ def abstract_classes_to_xml(tag: str, obj: object) -> etree.Element:
         if obj.category:
             elm.append(_generate_element(name=NS_AAS + "category", text=obj.category))
         if obj.description:
-            elm.append(lang_string_set_to_xml(obj.description, namespace=NS_AAS, tag="description"))
+            elm.append(lang_string_set_to_xml(obj.description, tag=NS_AAS + "description"))
     if isinstance(obj, model.Identifiable):
         elm.append(_generate_element(name=NS_AAS + "identification",
                                      text=obj.identification.id,
@@ -137,16 +137,15 @@ def abstract_classes_to_xml(tag: str, obj: object) -> etree.Element:
 # ##############################################################
 
 
-def lang_string_set_to_xml(obj: model.LangStringSet, namespace: str, tag: str) -> etree.Element:
+def lang_string_set_to_xml(obj: model.LangStringSet, tag: str) -> etree.Element:
     """
     serialization of objects of class LangStringSet to XML
 
     :param obj: object of class LangStringSet
-    :param namespace: namespace of the element
-    :param tag: tag of the returned element
+    :param tag: tag name of the returned XML element (incl. namespace)
     :return: serialized ElementTree object
     """
-    et_lss = _generate_element(name=namespace+tag)
+    et_lss = _generate_element(name=tag)
     for language in obj:
         et_lss.append(_generate_element(name=NS_AAS + "langString",
                                         text=obj[language],
@@ -349,9 +348,9 @@ def _iec61360_concept_description_to_xml(obj: model.concept.IEC61360ConceptDescr
     :return: serialized ElementTree object
     """
     et_iec = _generate_element(tag)
-    et_iec.append(lang_string_set_to_xml(obj.preferred_name, namespace=NS_IEC, tag="preferredName"))
+    et_iec.append(lang_string_set_to_xml(obj.preferred_name, tag=NS_IEC + "preferredName"))
     if obj.short_name:
-        et_iec.append(lang_string_set_to_xml(obj.short_name, namespace=NS_IEC, tag="shortName"))
+        et_iec.append(lang_string_set_to_xml(obj.short_name, tag=NS_IEC + "shortName"))
     if obj.unit:
         et_iec.append(_generate_element(NS_IEC+"unit", text=obj.unit))
     if obj.unit_id:
@@ -363,7 +362,7 @@ def _iec61360_concept_description_to_xml(obj: model.concept.IEC61360ConceptDescr
     if obj.data_type:
         et_iec.append(_generate_element(NS_IEC+"dataType", text=_generic.IEC61360_DATA_TYPES[obj.data_type]))
     if obj.definition:
-        et_iec.append(lang_string_set_to_xml(obj.definition, namespace=NS_IEC, tag="definition"))
+        et_iec.append(lang_string_set_to_xml(obj.definition, tag=NS_IEC + "definition"))
     if obj.value_format:
         et_iec.append(_generate_element(NS_IEC+"valueFormat", text=model.datatypes.XSD_TYPE_NAMES[obj.value_format]))
     if obj.value_list:
@@ -550,7 +549,7 @@ def multi_language_property_to_xml(obj: model.MultiLanguageProperty,
     if obj.value_id:
         et_multi_language_property.append(reference_to_xml(obj.value_id, NS_AAS+"valueId"))
     if obj.value:
-        et_multi_language_property.append(lang_string_set_to_xml(obj.value, namespace=NS_AAS, tag="value"))
+        et_multi_language_property.append(lang_string_set_to_xml(obj.value, tag=NS_AAS + "value"))
     return et_multi_language_property
 
 
