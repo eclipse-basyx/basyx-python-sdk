@@ -634,7 +634,8 @@ def file_to_xml(obj: model.File,
     """
     et_file = abstract_classes_to_xml(tag, obj)
     et_file.append(_generate_element(NS_AAS + "mimeType", text=obj.mime_type))
-    et_file.append(_generate_element(NS_AAS + "value", text=obj.value))
+    if obj.value:
+        et_file.append(_generate_element(NS_AAS + "value", text=obj.value))
     return et_file
 
 
