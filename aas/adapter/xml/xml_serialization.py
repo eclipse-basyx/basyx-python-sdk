@@ -176,7 +176,7 @@ def reference_to_xml(obj: model.Reference, tag: str = NS_AAS+"reference") -> etr
     et_keys = _generate_element(name=NS_AAS + "keys")
     for aas_key in obj.key:
         et_keys.append(_generate_element(name=NS_AAS + "key",
-                                         text=aas_key.value,  # type: str
+                                         text=aas_key.value,
                                          attributes={"idType": _generic.KEY_TYPES[aas_key.id_type],
                                                      "local": boolean_to_xml(aas_key.local),
                                                      "type": _generic.KEY_ELEMENTS[aas_key.type]}))
