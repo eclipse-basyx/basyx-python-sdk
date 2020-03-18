@@ -11,26 +11,29 @@
 """
 TODO
 """
+import abc
 import os
 import re
-import io
-from typing import Dict, Tuple, IO, Union, List, Set, Optional, Callable
+from typing import Dict, Tuple, IO, Union, List, Set
 
 from .. import model
 from .json.json_deserialization import read_json_aas_file
 from .json.json_serialization import write_aas_json_file
 import pyecma376_2
+from ..util import traversal
 
 
-# TODO allow relative referencing of returned supplementary files
 # TODO allow reading thumbnail image
-def read_aasx(file: Union[os.PathLike, str, IO]) -> Tuple[model.AbstractObjectStore,
-                                                          Dict[str, bytes],
-                                                          pyecma376_2.OPCCoreProperties]:
+# TODO somehow get core properties
+def read_aasx(file: Union[os.PathLike, str, IO],
+              object_store: model.AbstractObjectStore,
+              file_store: "AbstractSupplementaryFileContainer") -> List[model.Identifier]:
     """
     TODO
-    :param file:
-    :return:
+    :param file: AASX file to read (filename or file-like object)
+    :param object_store: An ObjectStore to add the read AAS objects into
+    :param file_store: A SupplementaryFileContainer to add the supplementary files included in the AASX package to
+    :return: List of read AssetAdministrationShells' Identifiers
     """
     # Open file as OPC package file
     try:
@@ -47,31 +50,25 @@ def read_aasx(file: Union[os.PathLike, str, IO]) -> Tuple[model.AbstractObjectSt
             raise ValueError("{} is not a valid AASX file: aasx-origin Relationship is missing.".format(file)) \
                 from e
 
-        result_objects: model.DictObjectStore[model.Identifiable] = model.DictObjectStore()
-        supplementary_files: Dict[str, bytes] = {}
-
         # Iterate AAS files
         for aas_part in reader.get_related_parts_by_type(aasx_origin_part)[
                 "http://www.admin-shell.io/aasx/relationships/aas-spec"]:
             with reader.open_part(aas_part) as aas_file:
                 # TODO ignore KeyError which may occur due to redundant storage in different file formats
-                result_objects.update(_parse_aas_part(aas_part, reader.get_content_type(aas_part), aas_file))
+                part_objects = _parse_aas_part(aas_part, reader.get_content_type(aas_part), aas_file)
+            _collect_supplementary_files(reader, aas_part, part_objects, file_store)
+            object_store.update(part_objects)
 
             # Iterate split parts of AAS file
-            for split_part in reader.get_related_parts_by_type(aas_part).get(
-                    "http://www.admin-shell.io/aasx/relationships/aas-spec-split", []):
+            for split_part in reader.get_related_parts_by_type(aas_part)[
+                    "http://www.admin-shell.io/aasx/relationships/aas-spec-split"]:
                 with reader.open_part(split_part) as aas_file:
                     # TODO ignore KeyError which may occur due to redundant storage in different file formats
-                    result_objects.update(_parse_aas_part(aas_part, reader.get_content_type(aas_part), aas_file))
-                # TODO load supplementary files here, too?
+                    part_objects = _parse_aas_part(aas_part, reader.get_content_type(aas_part), aas_file)
+                _collect_supplementary_files(reader, aas_part, part_objects, file_store)
+                object_store.update(part_objects)
 
-            # Load supplementary files referenced by AAS file
-            for suppl_part in reader.get_related_parts_by_type(aas_part).get(
-                    "http://www.admin-shell.io/aasx/relationships/aas-suppl", []):
-                with reader.open_part(suppl_part) as suppl_file:
-                    supplementary_files[suppl_part] = suppl_file.read()
-
-        return result_objects, supplementary_files, reader.get_core_properties()
+    return []  # TODO
 
 
 def _parse_aas_part(part_name: str, content_type: str, file_handle: IO) -> model.DictObjectStore:
@@ -86,7 +83,8 @@ def _parse_aas_part(part_name: str, content_type: str, file_handle: IO) -> model
     extension = part_name.split("/")[-1].split(".")[-1]
     if content_type.split(";")[0] in ("text/xml", "application/xml") or content_type == "" and extension == "xml":
         # TODO XML Deserialization
-        return model.DictObjectStore()
+        raise NotImplementedError("XML deserialization is not implemented yet. Thus, AASX files with XML parts are not "
+                                  "supported.")
     elif content_type.split(";")[0] in ("text/json", "application/json") or content_type == "" and extension == "json":
         return read_json_aas_file(file_handle)
     else:
@@ -94,17 +92,38 @@ def _parse_aas_part(part_name: str, content_type: str, file_handle: IO) -> model
                          .format(content_type, extension, part_name))
 
 
-# TODO extend signature to allow writing supplementary files
+def _collect_supplementary_files(reader: pyecma376_2.package_model.OPCPackageReader, part_name: str,
+                                 objects: model.AbstractObjectStore, file_store: "AbstractSupplementaryFileContainer") -> None:
+    """
+    TODO
+    :param reader:
+    :param part_name:
+    :param objects:
+    :param file_store:
+    """
+    for identifiable_object in objects:
+        if isinstance(identifiable_object, model.Submodel):
+            for element in traversal.walk_submodel(identifiable_object):
+                if isinstance(element, model.File):
+                    absolute_name = pyecma376_2.package_model.part_realpath(element.value, part_name)
+                    element.value = absolute_name
+                    if absolute_name not in file_store:
+                        with reader.open_part(absolute_name) as p:
+                            file_store.add_file(absolute_name, p, reader.get_content_type(absolute_name))
+
+
 # TODO modify signature to take list of AAS ids and an AbstractObjectProvider to fetch the objects
 # TODO allow to specify, which supplementary parts (submodels, conceptDescriptions) should be added to the package
 # TODO allow to select JSON/XML serialization
 def write_aasx(file: str,
                objects: model.AbstractObjectStore,
+               files: "AbstractSupplementaryFileContainer",
                core_properties: pyecma376_2.OPCCoreProperties = pyecma376_2.OPCCoreProperties()) -> None:
     """
     TODO
     :param file:
     :param objects:
+    :param files:
     :param core_properties:
     :return:
     """
@@ -184,10 +203,37 @@ def write_aasx(file: str,
                 with writer.open_part(submodel_part_name, "application/json") as p:
                     write_aas_json_file(p, submodel_file_objects)
 
-            # TODO Write supplementary files of AAS (and submodels?)
+                # Write submodel's supplementary files to AASX file
+                submodel_file_names = []
+                for element in traversal.walk_submodel(submodel):
+                    if isinstance(element, model.File):
+                        file_name = element.value
+                        if file_name is None:
+                            continue
+                        try:
+                            content_type = files.get_content_type(file_name)
+                        except KeyError:
+                            # TODO log warning
+                            continue
+                        # TODO avoid double writes of same file
+                        with writer.open_part(file_name, content_type) as p:
+                            files.write_file(file_name, p)
+                        submodel_file_names.append(pyecma376_2.package_model.normalize_part_name(file_name))
+
+                # Add relationships from submodel to supplementary parts
+                # TODO should the releationships be added from the AAS instead?
+                writer.write_relationships(
+                    # FIXME: Count relationship ids up
+                    (pyecma376_2.OPCRelationship("r1", "http://www.admin-shell.io/aasx/relationships/aas-suppl",
+                                                 submodel_file_name,
+                                                 pyecma376_2.OPCTargetMode.INTERNAL)
+                     for submodel_file_name in submodel_file_names),
+                    submodel_part_name)
+
 
             # Add relationships from AAS part to submodel parts
             writer.write_relationships(
+                # FIXME: Count relationship ids up
                 (pyecma376_2.OPCRelationship("r1", "http://www.admin-shell.io/aasx/relationships/aasx-spec-split",
                                                 submodel_part_name,
                                                 pyecma376_2.OPCTargetMode.INTERNAL)
@@ -196,6 +242,7 @@ def write_aasx(file: str,
 
         # Add relationships from AASX-origin part to AAS parts
         writer.write_relationships(
+            # FIXME: Count relationship ids up
             (pyecma376_2.OPCRelationship("r1", "http://www.admin-shell.io/aasx/relationships/aasx-spec",
                                          aas_part_name,
                                          pyecma376_2.OPCTargetMode.INTERNAL)
@@ -244,45 +291,26 @@ class NameFriendlyfier:
         return amended_name
 
 
-class SupplementaryFileContainer:
-    def __init__(self):
-        # Each entry is: (absolute path within AASX,
-        #                 {context identifier: relative path from context},
-        #                 content type,
-        #                 payload)
-        self._data: List[Tuple[Optional[str], Dict[model.Identifier, str], str, bytes]] = []
-
-    def add(self, context_identifier: model.Identifier, path: str, payload: bytes, content_type: str = "") -> None:
-        # TODO if absolute path:
-        # TODO check if already existing with absolute path: Then add reference from this
+class AbstractSupplementaryFileContainer(metaclass=abc.ABCMeta):
+    @abc.abstractmethod
+    def add_file(self, name: str, file: IO[bytes], content_type: str) -> None:
         pass
 
-    def get(self, context_identifier: model.Identifier, path: str) -> Tuple[bytes, str]:
-        if path[0] == "/":
-            for abs_part, _refs, content_type, payload in self._data:
-                if (pyecma376_2.package_model.normalize_part_name(path)
-                        == pyecma376_2.package_model.normalize_part_name(abs_part)):
-                    return payload, content_type
-            raise KeyError()
-        else:
-            for _abs_part, refs, content_type, payload in self._data:
-                if (pyecma376_2.package_model.normalize_part_name(path)
-                        == pyecma376_2.package_model.normalize_part_name(refs.get(context_identifier, ''))):
-                    return payload, content_type
-            raise KeyError()
+    @abc.abstractmethod
+    def get_content_type(self, name: str) -> str:
+        pass
 
-    def read_from_aas(self, part_name: str,
-                      context_identifier: model.Identifier,
-                      part_content: io.BytesIO,
-                      content_type: str) -> None:
-        for abs_part, refs, _type, _payload in self._data:
-            if part_name == abs_part:
-                refs[context_identifier] = ""  # TODO relative path
-            return
-        self._data.append((part_name, {context_identifier: ""}, content_type, part_content.read()))  # TODO
-
-    def write_relative_of_context(self, context_identifier: model.Identifier,
-                                   writer_factory: Callable[[str, str], io.BytesIO]) -> None:
+    @abc.abstractmethod
+    def write_file(self, name: str, file: IO[bytes]) -> None:
+        pass
 
 
+class DictSupplementaryFileContainer(AbstractSupplementaryFileContainer, Dict[str, Tuple[bytes, str]]):
+    def add_file(self, name: str, file: IO[bytes], content_type: str) -> None:
+        self[name] = (file.read(), content_type)
 
+    def get_content_type(self, name: str) -> str:
+        return self[name][1]
+
+    def write_file(self, name: str, file: IO[bytes]) -> None:
+        file.write(self[name][0])
