@@ -29,7 +29,7 @@ import pprint
 from typing import Dict, Callable, TypeVar, Type, List, IO, Optional
 
 from ... import model
-from .json_serialization import MODELING_KIND, ASSET_KIND, KEY_ELEMENTS, KEY_TYPES, IDENTIFIER_TYPES, ENTITY_TYPES,\
+from .._generic import MODELING_KIND, ASSET_KIND, KEY_ELEMENTS, KEY_TYPES, IDENTIFIER_TYPES, ENTITY_TYPES,\
     IEC61360_DATA_TYPES, IEC61360_LEVEL_TYPES
 
 logger = logging.getLogger(__name__)

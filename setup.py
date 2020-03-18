@@ -38,6 +38,7 @@ setuptools.setup(
     },
     python_requires='>=3.6',
     install_requires=[
-        'python-dateutil>=2.8,<3'
+        'python-dateutil>=2.8,<3',
+        'lxml>=4.2,<5',
     ]
 )
