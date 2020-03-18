@@ -133,6 +133,22 @@ def abstract_classes_to_xml(tag: str, obj: object) -> etree.Element:
 # ##############################################################
 
 
+def _value_to_xml(value: model.ValueDataType,
+                  value_type: model.DataTypeDef,
+                  tag: str = NS_AAS+"value") -> etree.Element:
+    """
+    Serialization of objects of class ValueDataType to XML
+
+    :param value: model.ValueDataType object
+    :param value_type: Corresponding model.DataTypeDef
+    :param tag: tag of the serialized ValueDataType object
+    :return: Serialized ElementTree.Element object
+    """
+    return _generate_element(tag,
+                             text=model.datatypes.xsd_repr(value),
+                             attributes={NS_XSI+"type": "xs:"+model.datatypes.XSD_TYPE_NAMES[value_type]})
+
+
 def lang_string_set_to_xml(obj: model.LangStringSet, tag: str) -> etree.Element:
     """
     serialization of objects of class LangStringSet to XML
@@ -215,11 +231,7 @@ def qualifier_to_xml(obj: model.Qualifier, tag: str = NS_AAS+"qualifier") -> etr
     if obj.value_id:
         et_qualifier.append(reference_to_xml(obj.value_id, NS_AAS+"valueId"))
     if obj.value:
-        et_qualifier.append(_generate_element(
-            NS_AAS+"value",
-            text=model.datatypes.xsd_repr(obj.value),
-            attributes={NS_XSI+"type": "xs:"+model.datatypes.XSD_TYPE_NAMES[obj.value_type]})
-        )
+        et_qualifier.append(_value_to_xml(obj.value, obj.value_type))
     et_qualifier.append(_generate_element(NS_AAS + "type", text=obj.type))
     et_qualifier.append(_generate_element(NS_AAS + "valueType", text=model.datatypes.XSD_TYPE_NAMES[obj.value_type]))
     return et_qualifier
@@ -238,9 +250,7 @@ def value_reference_pair_to_xml(obj: model.ValueReferencePair,
     :return: serialized ElementTree object
     """
     et_vrp = _generate_element(tag)
-    et_vrp.append(_generate_element("value",
-                                    text=model.datatypes.xsd_repr(obj.value),
-                                    attributes={NS_XSI+"type": "xs:"+model.datatypes.XSD_TYPE_NAMES[obj.value_type]}))
+    et_vrp.append(_value_to_xml(obj.value, obj.value_type))
     et_vrp.append(reference_to_xml(obj.value_id, "valueId"))
     return et_vrp
 
@@ -383,7 +393,7 @@ def _iec61360_concept_description_to_xml(obj: model.concept.IEC61360ConceptDescr
         """
         et_vrp = _generate_element(vrp_tag)
         et_vrp.append(_iec_reference_to_xml(vrp.value_id, NS_IEC + "valueId"))
-        et_vrp.append(_generate_element(NS_IEC+"value", text=model.datatypes.xsd_repr(obj.value)))
+        et_vrp.append(_value_to_xml(vrp.value, vrp.value_type, tag=NS_IEC+"value"))
         return et_vrp
 
     def _iec_value_list_to_xml(vl: model.ValueList,
@@ -572,11 +582,7 @@ def property_to_xml(obj: model.Property,
     if obj.value_id:
         et_property.append(reference_to_xml(obj.value_id, NS_AAS+"valueId"))
     if obj.value:
-        et_property.append(_generate_element(
-            NS_AAS + "value",
-            text=model.datatypes.xsd_repr(obj.value),
-            attributes={NS_XSI+"type": "xs:"+model.datatypes.XSD_TYPE_NAMES[obj.value_type]}
-        ))
+        et_property.append(_value_to_xml(obj.value, obj.value_type))
     et_property.append(_generate_element(NS_AAS + "valueType", text=model.datatypes.XSD_TYPE_NAMES[obj.value_type]))
     return et_property
 
@@ -609,17 +615,9 @@ def range_to_xml(obj: model.Range,
     """
     et_range = abstract_classes_to_xml(tag, obj)
     if obj.max:
-        et_range.append(_generate_element(
-            name=NS_AAS + "max",
-            text=model.datatypes.xsd_repr(obj.max),
-            attributes={NS_XSI+"type": "xs:"+model.datatypes.XSD_TYPE_NAMES[obj.value_type]}
-        ))
+        et_range.append(_value_to_xml(obj.max, obj.value_type, tag=NS_AAS+"max"))
     if obj.min:
-        et_range.append(_generate_element(
-            name=NS_AAS + "min",
-            text=model.datatypes.xsd_repr(obj.min),
-            attributes={NS_XSI+"type": "xs:"+model.datatypes.XSD_TYPE_NAMES[obj.value_type]}
-        ))
+        et_range.append(_value_to_xml(obj.min, obj.value_type, tag=NS_AAS+"min"))
     et_range.append(_generate_element(name=NS_AAS + "valueType",
                                       text=model.datatypes.XSD_TYPE_NAMES[obj.value_type]))
     return et_range
