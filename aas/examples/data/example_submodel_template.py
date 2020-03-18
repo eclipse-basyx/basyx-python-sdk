@@ -330,54 +330,7 @@ def check_example_submodel(checker: AASDataChecker, submodel: model.Submodel) ->
     checker.check_submodel_equal(submodel, expected_submodel)
 
 
-def check_full_example(checker: AASDataChecker, obj_store: model.DictObjectStore, failsafe: bool = False) -> None:
-    # separate different kind of objects
-    assets = []
-    submodels = []
-    concept_descriptions = []
-    shells = []
-    for obj in obj_store:
-        if isinstance(obj, model.Asset):
-            assets.append(obj)
-        elif isinstance(obj, model.AssetAdministrationShell):
-            shells.append(obj)
-        elif isinstance(obj, model.Submodel):
-            submodels.append(obj)
-        elif isinstance(obj, model.ConceptDescription):
-            concept_descriptions.append(obj)
-        else:
-            error_message = 'Check for {} not implemented'.format(obj)
-            if failsafe:
-                logger.warning(error_message)
-            else:
-                raise KeyError(error_message)
-    for asset in assets:
-        error_message = '{} is not in example'.format(asset)
-        if failsafe:
-            logger.warning(error_message)
-        else:
-            raise KeyError(error_message)
-
-    for shell in shells:
-        error_message = '{} is not in example'.format(shell)
-        if failsafe:
-            logger.warning(error_message)
-        else:
-            raise KeyError(error_message)
-
-    for submodel in submodels:
-        if submodel.identification.id == 'https://acplt.org/Test_Submodel_Template':
-            check_example_submodel(checker, submodel)
-        else:
-            error_message = '{} is not in example'.format(submodel)
-            if failsafe:
-                logger.warning(error_message)
-            else:
-                raise KeyError(error_message)
-
-    for cd in concept_descriptions:
-        error_message = '{} is not in example'.format(cd)
-        if failsafe:
-            logger.warning(error_message)
-        else:
-            raise KeyError(error_message)
+def check_full_example(checker: AASDataChecker, obj_store: model.DictObjectStore) -> None:
+    example_data: model.DictObjectStore[model.Identifiable] = model.DictObjectStore()
+    example_data.add(create_example_submodel_template())
+    checker.check_object_store(example_data, obj_store)

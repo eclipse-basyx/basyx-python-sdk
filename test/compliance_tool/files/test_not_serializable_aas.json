@@ -1,0 +1,6 @@
+{
+	"assetAdministrationShells":[{"identification":{"id":"https://acplt.org/Test_AssetAdministrationShell","idType":"IRI"},"idShort":"TestAssetAdministrationShell","modelType":{"name":"Test"},"asset":{"keys":[{"idType":"IRI","local":false,"type":"Asset","value":"https://acplt.org/Test_Asset"}]}}],
+	"assets": [],
+	"submodels": [],
+	"conceptDescriptions": []
+}

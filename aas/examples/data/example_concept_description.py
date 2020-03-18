@@ -81,55 +81,7 @@ def check_example_iec61360_concept_description(checker: AASDataChecker,
     checker.check_concept_description_equal(concept_description, expected_concept_description)
 
 
-def check_full_example(checker: AASDataChecker, obj_store: model.DictObjectStore, failsafe: bool = False) -> None:
-    # separate different kind of objects
-    assets = []
-    submodels = []
-    concept_descriptions = []
-    shells = []
-    for obj in obj_store:
-        if isinstance(obj, model.Asset):
-            assets.append(obj)
-        elif isinstance(obj, model.AssetAdministrationShell):
-            shells.append(obj)
-        elif isinstance(obj, model.Submodel):
-            submodels.append(obj)
-        elif isinstance(obj, model.ConceptDescription):
-            concept_descriptions.append(obj)
-        else:
-            error_message = 'Check for {} not implemented'.format(obj)
-            if failsafe:
-                logger.warning(error_message)
-            else:
-                raise KeyError(error_message)
-
-    for asset in assets:
-        error_message = '{} is not in example'.format(asset)
-        if failsafe:
-            logger.warning(error_message)
-        else:
-            raise KeyError(error_message)
-
-    for shell in shells:
-        error_message = '{} is not in example'.format(shell)
-        if failsafe:
-            logger.warning(error_message)
-        else:
-            raise KeyError(error_message)
-
-    for submodel in submodels:
-        error_message = '{} is not in example'.format(submodel)
-        if failsafe:
-            logger.warning(error_message)
-        else:
-            raise KeyError(error_message)
-
-    for cd in concept_descriptions:
-        if cd.identification.id == 'http://acplt.org/DataSpecifciations/Example/Identification':
-            check_example_iec61360_concept_description(checker, cd)  # type: ignore
-        else:
-            error_message = '{} is not in example'.format(cd)
-            if failsafe:
-                logger.warning(error_message)
-            else:
-                raise KeyError(error_message)
+def check_full_example(checker: AASDataChecker, obj_store: model.DictObjectStore) -> None:
+    example_data: model.DictObjectStore[model.Identifiable] = model.DictObjectStore()
+    example_data.add(create_iec61360_concept_description())
+    checker.check_object_store(example_data, obj_store)
