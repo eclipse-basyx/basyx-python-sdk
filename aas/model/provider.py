@@ -76,8 +76,10 @@ class DictObjectStore(AbstractObjectStore[_IT], Generic[_IT]):
     """
     A local in-memory object store for Identifiable Objects, backed by a dict, mapping Identifier → Identifiable
     """
-    def __init__(self):
+    def __init__(self, objects: Iterable[_IT] = ()) -> None:
         self._backend: Dict[Identifier, _IT] = {}
+        for x in objects:
+            self.add(x)
 
     def get_identifiable(self, identifier: Identifier) -> _IT:
         return self._backend[identifier]
