@@ -113,6 +113,8 @@ def _collect_supplementary_files(reader: pyecma376_2.package_model.OPCPackageRea
         if isinstance(identifiable_object, model.Submodel):
             for element in traversal.walk_submodel(identifiable_object):
                 if isinstance(element, model.File):
+                    if element.value is None:
+                        continue
                     absolute_name = pyecma376_2.package_model.part_realpath(element.value, part_name)
                     element.value = absolute_name
                     logger.debug("Reading supplementary file {} from AASX package ...".format(absolute_name))
@@ -209,7 +211,7 @@ def write_aasx(file: str,
                 except KeyError:
                     # Don't add submodel to the AASX file, if it is not included in the given object store
                     continue
-                submodel_file_objects = model.DictObjectStore()
+                submodel_file_objects: model.DictObjectStore[model.Identifiable] = model.DictObjectStore()
                 submodel_file_objects.add(submodel)
                 submodel_friendly_name = aas_friendlyfier.get_friendly_name(submodel.identification)
                 submodel_part_name = "/aasx/{0}/{1}/{1}.submodel.json".format(aas_friendly_name, submodel_friendly_name)
@@ -326,6 +328,10 @@ class AbstractSupplementaryFileContainer(metaclass=abc.ABCMeta):
     def write_file(self, name: str, file: IO[bytes]) -> None:
         pass
 
+    @abc.abstractmethod
+    def __contains__(self, item: str) -> bool:
+        pass
+
 
 class DictSupplementaryFileContainer(AbstractSupplementaryFileContainer, Dict[str, Tuple[bytes, str]]):
     def add_file(self, name: str, file: IO[bytes], content_type: str) -> None:
@@ -336,3 +342,5 @@ class DictSupplementaryFileContainer(AbstractSupplementaryFileContainer, Dict[st
 
     def write_file(self, name: str, file: IO[bytes]) -> None:
         file.write(self[name][0])
+
+    def __contains__(self, item: object) -> bool: ...   # This stub is required to make MyPy happy
