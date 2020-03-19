@@ -245,32 +245,31 @@ def write_aasx(file: str,
                 logger.debug("Writing aas-suppl relationships for Submodel {} to AASX package ..."
                              .format(submodel.identification))
                 writer.write_relationships(
-                    # FIXME: Count relationship ids up
-                    (pyecma376_2.OPCRelationship("r1", "http://www.admin-shell.io/aasx/relationships/aas-suppl",
+                    (pyecma376_2.OPCRelationship("r{}".format(i),
+                                                 "http://www.admin-shell.io/aasx/relationships/aas-suppl",
                                                  submodel_file_name,
                                                  pyecma376_2.OPCTargetMode.INTERNAL)
-                     for submodel_file_name in submodel_file_names),
+                     for i, submodel_file_name in enumerate(submodel_file_names)),
                     submodel_part_name)
 
             # Add relationships from AAS part to submodel parts
             logger.debug("Writing aasx-spec-split relationships for AAS {} to AASX package ..."
                          .format(aas.identification))
             writer.write_relationships(
-                # FIXME: Count relationship ids up
-                (pyecma376_2.OPCRelationship("r1", "http://www.admin-shell.io/aasx/relationships/aasx-spec-split",
-                                                submodel_part_name,
-                                                pyecma376_2.OPCTargetMode.INTERNAL)
-                 for submodel_part_name in submodel_part_names),
+                (pyecma376_2.OPCRelationship("r{}".format(i),
+                                             "http://www.admin-shell.io/aasx/relationships/aasx-spec-split",
+                                             submodel_part_name,
+                                             pyecma376_2.OPCTargetMode.INTERNAL)
+                 for i, submodel_part_name in enumerate(submodel_part_names)),
                 aas_part_name)
 
         # Add relationships from AASX-origin part to AAS parts
         logger.debug("Writing aasx-spec relationships to AASX package ...")
         writer.write_relationships(
-            # FIXME: Count relationship ids up
-            (pyecma376_2.OPCRelationship("r1", "http://www.admin-shell.io/aasx/relationships/aasx-spec",
+            (pyecma376_2.OPCRelationship("r{}".format(i), "http://www.admin-shell.io/aasx/relationships/aasx-spec",
                                          aas_part_name,
                                          pyecma376_2.OPCTargetMode.INTERNAL)
-             for aas_part_name in aas_part_names),
+             for i, aas_part_name in enumerate(aas_part_names)),
             AASX_ORIGIN_PART_NAME)
 
 
