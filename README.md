@@ -24,7 +24,7 @@ file.
 The `aas`-module is structured into 5 submodules, which will be explained in more detail further down. For an
 overview, consider this project structure:
 
-| Module name                                                                           | Explanation                              |
+| Module Name                                                                           | Explanation                              |
 |---------------------------------------------------------------------------------------|------------------------------------------|
 | [model](#module-model-the-aas-metamodel-implemented-in-python)                        | The AAS metamodel implemented in python  |
 | [util](#module-util-generate-identifiers)                                             | Generate identifiers                     |
