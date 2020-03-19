@@ -48,7 +48,7 @@ for persistently storing AAS objects. The module is divided into the following s
 |---------------------------------------------|----------------------------------------------------------------|
 | [adapter.json](#module-adapterjson)         | JSON (de)-serialization                                        |
 | [adapter.xml](#module-adapterxml)           | XML (de)-serialization                                         |
-| [adapter.couchdb](#module-adaptercouchdb)   | couchdb-backend for storing AAS objects                        |
+| [adapter.couchdb](#module-adaptercouchdb)   | CouchDB-backend for storing AAS objects                        |
 | [adapter._generic](#module-adapter_generic) | Generic information that is needed for all (de)-serializations |
 
 
