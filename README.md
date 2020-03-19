@@ -33,11 +33,52 @@ overview, consider this project structure:
 | [examples](#module-examples-examples-and-tutorials)                                   | Examples and tutorials                   |
 
 
+
 ### Module `model`: The AAS Metamodel Implemented in Python
 
 ### Module `util`: Generate Identifiers
 
+
 ### Module `adapter`: Adapter to Various File Formats
+
+The `adapter`-module is used for (de)-serialization from and to JSON and XML. Furthermore, there is a couchdb-backend
+for persistently storing AAS objects. The module is divided into the following sub-modules:
+
+| Module Name                                 | Explanation                                                    |
+|---------------------------------------------|----------------------------------------------------------------|
+| [adapter.json](#module-adapterjson)         | JSON (de)-serialization                                        |
+| [adapter.xml](#module-adapterxml)           | XML (de)-serialization                                         |
+| [adapter.couchdb](#module-adaptercouchdb)   | couchdb-backend for storing AAS objects                        |
+| [adapter._generic](#module-adapter_generic) | Generic information that is needed for all (de)-serializations |
+
+
+#### Module `adapter.json`
+
+Modules for serializing Asset Administration Shell data to the official JSON format.
+Serialization of objects from `aas.model` to JSON is done with `adapter.json.json_serialization`.
+Deserialization of JSON files or IO-objects to pyaas objects can be achieved with `adapter.json.json_deserialization`
+
+
+#### Module `adapter.xml`
+
+Modules for serializing Asset Administration Shell data to the official XML format.
+Serialization of objects from `aas.model` to XML files or IO-objects is done with `adapter.xml.xml_serialization`. 
+The other way around from XML to `aas.model`-objects is done with `adapter.xml.xml_deserialization`
+
+
+#### Module `adapter._generic`
+
+This module contains generic information in dicts, that are needed in all (de)-serializations.
+
+
+#### Module `adapter.couchdb`
+
+CouchDB backend for persistently storing AAS objects
+
+This module provides the `CouchDBObjectStore` class, that implements the AbstractObjectStore interface for storing and
+retrieving Identifiable PyI40AAS objects in/from a CouchDB server. The objects are serialized to JSON using the
+aas.adapter.json package and transferred to the configured CouchDB database.
+
 
 ### Module `compliance_tool`: Check Compliance to JSON and XML Schemas
 
