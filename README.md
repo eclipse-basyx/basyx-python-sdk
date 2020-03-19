@@ -15,20 +15,33 @@ The PyI40AAS project is provided under the terms of the Apache License (Version 
 For more information, especially considering the licenses of included third-party works, please consult the `NOTICE`
 file. 
 
+# test
 
 ## Features
 
 ### Project Structure
 
-### Module: `model` - The AAS Metamodel Implemented in Python
+The `aas`-module is structured into 5 submodules, which will be explained in more detail further down. For an
+overview, consider this project structure:
 
-### Module: `util` - Generate Identifiers
+| Module name                                                                           | Explanation                              |
+|---------------------------------------------------------------------------------------|------------------------------------------|
+| [model](#module-model-the-aas-metamodel-implemented-in-python)                        | The AAS metamodel implemented in python  |
+| [util](#module-util-generate-identifiers)                                             | Generate identifiers                     |
+| [adapter](#module-adapter-adapter-to-various-file-formats)                            | Adapter to various file formats          |
+| [compliance_tools](#module-compliance_tool-check-compliance-to-json-and-xml-schemas)  | Check compliance to JSON and XML Schemas |
+| [examples](#module-examples-examples-and-tutorials)                                   | Examples and tutorials                   |
 
-### Module: `adapter` - Adapter to Various File Formats
 
-### Module `compliance_tool` - Check Compliance to JSON and XML Schemas
+### Module `model`: The AAS Metamodel Implemented in Python
 
-### Module: `examples` - Examples and Tutorials
+### Module `util`: Generate Identifiers
+
+### Module `adapter`: Adapter to Various File Formats
+
+### Module `compliance_tool`: Check Compliance to JSON and XML Schemas
+
+### Module `examples`: Examples and Tutorials
 
 
 ## Getting Started
