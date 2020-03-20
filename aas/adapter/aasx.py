@@ -15,7 +15,7 @@ import abc
 import logging
 import os
 import re
-from typing import Dict, Tuple, IO, Union, List, Set
+from typing import Dict, Tuple, IO, Union, List, Set, Iterable
 
 from .. import model
 from .json.json_deserialization import read_json_aas_file
@@ -30,7 +30,7 @@ logger = logging.getLogger(__name__)
 # TODO somehow get core properties
 def read_aasx(file: Union[os.PathLike, str, IO],
               object_store: model.AbstractObjectStore,
-              file_store: "AbstractSupplementaryFileContainer") -> List[model.Identifier]:
+              file_store: "AbstractSupplementaryFileContainer") -> Set[model.Identifier]:
     """
     TODO
     :param file: AASX file to read (filename or file-like object)
@@ -45,6 +45,8 @@ def read_aasx(file: Union[os.PathLike, str, IO],
     except Exception as e:
         raise ValueError("{} is not a valid ECMA376-2 (OPC) file".format(file)) from e
 
+    read_identifiables: Set[model.Identifier] = set()
+
     with reader:
         # Find AASX-Origin part
         core_rels = reader.get_related_parts_by_type()
@@ -58,21 +60,37 @@ def read_aasx(file: Union[os.PathLike, str, IO],
         for aas_part in reader.get_related_parts_by_type(aasx_origin_part)[
                 "http://www.admin-shell.io/aasx/relationships/aas-spec"]:
             with reader.open_part(aas_part) as aas_file:
-                # TODO ignore KeyError which may occur due to redundant storage in different file formats
                 part_objects = _parse_aas_part(aas_part, reader.get_content_type(aas_part), aas_file)
+            for obj in part_objects:
+                if obj.identification in read_identifiables:
+                    continue
+                if obj.identification not in object_store:
+                    object_store.add(obj)
+                    read_identifiables.add(obj.identification)
+                else:
+                    logger.warning("Skipping {}, since an object with the same id is already contained in the "
+                                   "ObjectStore".format(obj))
+            # TODO only read files for non-skipped objects
             _collect_supplementary_files(reader, aas_part, part_objects, file_store)
-            object_store.update(part_objects)
 
             # Iterate split parts of AAS file
             for split_part in reader.get_related_parts_by_type(aas_part)[
                     "http://www.admin-shell.io/aasx/relationships/aas-spec-split"]:
                 with reader.open_part(split_part) as aas_file:
-                    # TODO ignore KeyError which may occur due to redundant storage in different file formats
                     part_objects = _parse_aas_part(aas_part, reader.get_content_type(aas_part), aas_file)
+                for obj in part_objects:
+                    if obj.identification in read_identifiables:
+                        continue
+                    if obj.identification not in object_store:
+                        object_store.add(obj)
+                        read_identifiables.add(obj.identification)
+                    else:
+                        logger.warning("Skipping {}, since an object with the same id is already contained in the "
+                                       "ObjectStore".format(obj))
+                # TODO only read files for non-skipped objects
                 _collect_supplementary_files(reader, aas_part, part_objects, file_store)
-                object_store.update(part_objects)
 
-    return []  # TODO
+    return read_identifiables
 
 
 def _parse_aas_part(part_name: str, content_type: str, file_handle: IO) -> model.DictObjectStore:
@@ -100,8 +118,10 @@ def _parse_aas_part(part_name: str, content_type: str, file_handle: IO) -> model
                          .format(content_type, extension, part_name))
 
 
-def _collect_supplementary_files(reader: pyecma376_2.package_model.OPCPackageReader, part_name: str,
-                                 objects: model.AbstractObjectStore, file_store: "AbstractSupplementaryFileContainer") -> None:
+def _collect_supplementary_files(reader: pyecma376_2.package_model.OPCPackageReader,
+                                 part_name: str,
+                                 objects: Iterable[model.Identifiable],
+                                 file_store: "AbstractSupplementaryFileContainer") -> None:
     """
     TODO
     :param reader:
@@ -117,8 +137,9 @@ def _collect_supplementary_files(reader: pyecma376_2.package_model.OPCPackageRea
                         continue
                     absolute_name = pyecma376_2.package_model.part_realpath(element.value, part_name)
                     element.value = absolute_name
-                    logger.debug("Reading supplementary file {} from AASX package ...".format(absolute_name))
+                    # TODO merge files by hash?
                     if absolute_name not in file_store:
+                        logger.debug("Reading supplementary file {} from AASX package ...".format(absolute_name))
                         with reader.open_part(absolute_name) as p:
                             file_store.add_file(absolute_name, p, reader.get_content_type(absolute_name))
 
