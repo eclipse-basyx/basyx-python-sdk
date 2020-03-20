@@ -49,7 +49,6 @@ for persistently storing AAS objects. The module is divided into the following s
 | [adapter.json](#module-adapterjson)         | JSON (de)-serialization                                        |
 | [adapter.xml](#module-adapterxml)           | XML (de)-serialization                                         |
 | [adapter.couchdb](#module-adaptercouchdb)   | CouchDB-backend for storing AAS objects                        |
-| [adapter._generic](#module-adapter_generic) | Generic information that is needed for all (de)-serializations |
 
 
 #### Module `adapter.json`
@@ -64,11 +63,6 @@ Deserialization of JSON files or IO-objects to pyaas objects can be achieved wit
 Modules for serializing Asset Administration Shell data to the official XML format.
 Serialization of objects from `aas.model` to XML files or IO-objects is done with `adapter.xml.xml_serialization`. 
 The other way around from XML to `aas.model`-objects is done with `adapter.xml.xml_deserialization`
-
-
-#### Module `adapter._generic`
-
-This module contains generic information in dicts, that are needed in all (de)-serializations.
 
 
 #### Module `adapter.couchdb`
