@@ -12,10 +12,11 @@
 TODO
 """
 import abc
+import io
 import logging
 import os
 import re
-from typing import Dict, Tuple, IO, Union, List, Set, Iterable
+from typing import Dict, Tuple, IO, Union, List, Set
 
 from .. import model
 from .json.json_deserialization import read_json_aas_file
@@ -26,122 +27,120 @@ from ..util import traversal
 logger = logging.getLogger(__name__)
 
 
-# TODO allow reading thumbnail image
-# TODO somehow get core properties
-def read_aasx(file: Union[os.PathLike, str, IO],
-              object_store: model.AbstractObjectStore,
-              file_store: "AbstractSupplementaryFileContainer") -> Set[model.Identifier]:
-    """
-    TODO
-    :param file: AASX file to read (filename or file-like object)
-    :param object_store: An ObjectStore to add the read AAS objects into
-    :param file_store: A SupplementaryFileContainer to add the supplementary files included in the AASX package to
-    :return: List of read AssetAdministrationShells' Identifiers
-    """
-    # Open file as OPC package file
-    try:
-        logger.debug("Opening {} as AASX pacakge for reading ...".format(file))
-        reader = pyecma376_2.ZipPackageReader(file)
-    except Exception as e:
-        raise ValueError("{} is not a valid ECMA376-2 (OPC) file".format(file)) from e
+class AASXReader:
+    def __init__(self, file: Union[os.PathLike, str, IO]):
+        try:
+            logger.debug("Opening {} as AASX pacakge for reading ...".format(file))
+            self.reader = pyecma376_2.ZipPackageReader(file)
+        except Exception as e:
+            raise ValueError("{} is not a valid ECMA376-2 (OPC) file".format(file)) from e
 
-    read_identifiables: Set[model.Identifier] = set()
-
-    with reader:
+    def read_into(self, object_store: model.AbstractObjectStore,
+                  file_store: "AbstractSupplementaryFileContainer") -> Set[model.Identifier]:
         # Find AASX-Origin part
-        core_rels = reader.get_related_parts_by_type()
+        core_rels = self.reader.get_related_parts_by_type()
         try:
             aasx_origin_part = core_rels["http://www.admin-shell.io/aasx/relationships/aasx-origin"][0]
         except IndexError as e:
-            raise ValueError("{} is not a valid AASX file: aasx-origin Relationship is missing.".format(file)) \
-                from e
+            raise ValueError("Not a valid AASX file: aasx-origin Relationship is missing.") from e
+
+        read_identifiables: Set[model.Identifier] = set()
 
         # Iterate AAS files
-        for aas_part in reader.get_related_parts_by_type(aasx_origin_part)[
+        for aas_part in self.reader.get_related_parts_by_type(aasx_origin_part)[
                 "http://www.admin-shell.io/aasx/relationships/aas-spec"]:
-            with reader.open_part(aas_part) as aas_file:
-                part_objects = _parse_aas_part(aas_part, reader.get_content_type(aas_part), aas_file)
-            for obj in part_objects:
-                if obj.identification in read_identifiables:
-                    continue
-                if obj.identification not in object_store:
-                    object_store.add(obj)
-                    read_identifiables.add(obj.identification)
-                else:
-                    logger.warning("Skipping {}, since an object with the same id is already contained in the "
-                                   "ObjectStore".format(obj))
-            # TODO only read files for non-skipped objects
-            _collect_supplementary_files(reader, aas_part, part_objects, file_store)
+            self._read_aas_part_into(aas_part, object_store, file_store, read_identifiables)
 
             # Iterate split parts of AAS file
-            for split_part in reader.get_related_parts_by_type(aas_part)[
+            for split_part in self.reader.get_related_parts_by_type(aas_part)[
                     "http://www.admin-shell.io/aasx/relationships/aas-spec-split"]:
-                with reader.open_part(split_part) as aas_file:
-                    part_objects = _parse_aas_part(aas_part, reader.get_content_type(aas_part), aas_file)
-                for obj in part_objects:
-                    if obj.identification in read_identifiables:
-                        continue
-                    if obj.identification not in object_store:
-                        object_store.add(obj)
-                        read_identifiables.add(obj.identification)
-                    else:
-                        logger.warning("Skipping {}, since an object with the same id is already contained in the "
-                                       "ObjectStore".format(obj))
-                # TODO only read files for non-skipped objects
-                _collect_supplementary_files(reader, aas_part, part_objects, file_store)
+                self._read_aas_part_into(split_part, object_store, file_store, read_identifiables)
 
-    return read_identifiables
+        return read_identifiables
 
+    def close(self) -> None:
+        self.reader.close()
 
-def _parse_aas_part(part_name: str, content_type: str, file_handle: IO) -> model.DictObjectStore:
-    """
-    TODO
+    def __enter__(self) -> "AASXReader":
+        return self
 
-    :param part_name:
-    :param content_type:
-    :param file_handle:
-    :return:
-    """
-    extension = part_name.split("/")[-1].split(".")[-1]
-    if content_type.split(";")[0] in ("text/xml", "application/xml") or content_type == "" and extension == "xml":
-        # TODO XML Deserialization
-        logger.debug("Parsing AAS objects from XML stream in OPC part {} ...".format(part_name))
-        raise NotImplementedError("XML deserialization is not implemented yet. Thus, AASX files with XML parts are not "
-                                  "supported.")
-    elif content_type.split(";")[0] in ("text/json", "application/json") or content_type == "" and extension == "json":
-        logger.debug("Parsing AAS objects from JSON stream in OPC part {} ...".format(part_name))
-        return read_json_aas_file(file_handle)
-    else:
-        logger.error("Could not determine part format of AASX part {}".format(part_name))
-        # TODO failsafe mode?
-        raise ValueError("Unknown Content Type '{}' and extension '{}' of AASX part {}"
-                         .format(content_type, extension, part_name))
+    def __exit__(self, exc_type, exc_val, exc_tb) -> None:
+        self.close()
 
+    def _read_aas_part_into(self, part_name: str,
+                            object_store: model.AbstractObjectStore,
+                            file_store: "AbstractSupplementaryFileContainer",
+                            read_identifiables: Set[model.Identifier]):
+        """
+        TODO
 
-def _collect_supplementary_files(reader: pyecma376_2.package_model.OPCPackageReader,
-                                 part_name: str,
-                                 objects: Iterable[model.Identifiable],
-                                 file_store: "AbstractSupplementaryFileContainer") -> None:
-    """
-    TODO
-    :param reader:
-    :param part_name:
-    :param objects:
-    :param file_store:
-    """
-    for identifiable_object in objects:
-        if isinstance(identifiable_object, model.Submodel):
-            for element in traversal.walk_submodel(identifiable_object):
-                if isinstance(element, model.File):
-                    if element.value is None:
-                        continue
-                    absolute_name = pyecma376_2.package_model.part_realpath(element.value, part_name)
-                    element.value = absolute_name
-                    # TODO merge files by hash?
-                    if absolute_name not in file_store:
-                        logger.debug("Reading supplementary file {} from AASX package ...".format(absolute_name))
-                        with reader.open_part(absolute_name) as p:
-                            file_store.add_file(absolute_name, p, reader.get_content_type(absolute_name))
+        :param part_name:
+        :param object_store:
+        :param file_store:
+        :param read_identifiables:
+        :return:
+        """
+        for obj in self._parse_aas_part(part_name):
+            if obj.identification in read_identifiables:
+                continue
+            if obj.identification not in object_store:
+                object_store.add(obj)
+                read_identifiables.add(obj.identification)
+                if isinstance(obj, model.Submodel):
+                    self._collect_supplementary_files(part_name, obj, file_store)
+            else:
+                # TODO non-failsafe mode? Merge-mode?
+                logger.warning("Skipping {}, since an object with the same id is already contained in the "
+                               "ObjectStore".format(obj))
+
+    def _parse_aas_part(self, part_name: str) -> model.DictObjectStore:
+        """
+        TODO
+
+        :param part_name:
+        :param content_type:
+        :param file_handle:
+        :return:
+        """
+        content_type = self.reader.get_content_type(part_name)
+        extension = part_name.split("/")[-1].split(".")[-1]
+        if content_type.split(";")[0] in ("text/xml", "application/xml") or content_type == "" and extension == "xml":
+            logger.debug("Parsing AAS objects from XML stream in OPC part {} ...".format(part_name))
+            # TODO XML Deserialization
+            raise NotImplementedError("XML deserialization is not implemented yet. Thus, AASX files with XML parts are "
+                                      "not supported.")
+        elif content_type.split(";")[0] in ("text/json", "application/json") \
+                or content_type == "" and extension == "json":
+            logger.debug("Parsing AAS objects from JSON stream in OPC part {} ...".format(part_name))
+            with self.reader.open_part(part_name) as p:
+                return read_json_aas_file(io.TextIOWrapper(p, encoding='utf-8-sig'))
+        else:
+            logger.error("Could not determine part format of AASX part {}".format(part_name))
+            # TODO failsafe mode?
+            raise ValueError("Unknown Content Type '{}' and extension '{}' of AASX part {}"
+                             .format(content_type, extension, part_name))
+
+    def _collect_supplementary_files(self,
+                                     part_name: str,
+                                     submodel: model.Submodel,
+                                     file_store: "AbstractSupplementaryFileContainer") -> None:
+        """
+        TODO
+        :param part_name:
+        :param submodel:
+        :param file_store:
+        """
+        for element in traversal.walk_submodel(submodel):
+            if isinstance(element, model.File):
+                if element.value is None:
+                    continue
+                absolute_name = pyecma376_2.package_model.part_realpath(element.value, part_name)
+                element.value = absolute_name
+                # TODO compare/merge files by hash?
+                if absolute_name not in file_store:
+                    logger.debug("Reading supplementary file {} from AASX package ...".format(absolute_name))
+                    with self.reader.open_part(absolute_name) as p:
+                        file_store.add_file(absolute_name, p, self.reader.get_content_type(absolute_name))
 
 
 # TODO modify signature to take list of AAS ids and an AbstractObjectProvider to fetch the objects
