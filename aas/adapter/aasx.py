@@ -155,154 +155,214 @@ class AASXReader:
                         file_store.add_file(absolute_name, p, self.reader.get_content_type(absolute_name))
 
 
-# TODO modify signature to take list of AAS ids and an AbstractObjectProvider to fetch the objects
-# TODO allow to specify, which supplementary parts (submodels, conceptDescriptions) should be added to the package
-# TODO allow to select JSON/XML serialization
-def write_aasx(file: str,
-               objects: model.AbstractObjectStore,
-               files: "AbstractSupplementaryFileContainer",
-               core_properties: pyecma376_2.OPCCoreProperties = pyecma376_2.OPCCoreProperties()) -> None:
+class AASXWriter:
     """
     TODO
-    :param file:
-    :param objects:
-    :param files:
-    :param core_properties:
-    :return:
     """
     AASX_ORIGIN_PART_NAME = "/aasx/aasx-origin"
 
-    # Create list of AAS ids to be added
-    aas_to_add = [aas.identification for aas in objects if isinstance(aas, model.AssetAdministrationShell)]
+    def __init__(self, file: Union[os.PathLike, str, IO]):
+        self.aas_part_names: List[str] = []
+        self.thumbnail_part: Optional[str] = None
+        self.properties_part: Optional[str] = None
+        self.aas_name_friendlyfier = NameFriendlyfier()
 
-    # Open OPC package file
-    try:
-        logger.debug("Creating AASX package in {} ...".format(file))
-        writer = pyecma376_2.ZipPackageWriter(file)
-    except Exception as e:
-        raise ValueError("{} is not a valid ECMA376-2 (OPC) file".format(file)) from e
+        # Open OPC package writer
+        self.writer = pyecma376_2.ZipPackageWriter(file)
 
-    with writer:
-        # Create AASX origin part, CoreProperties part, and root relationships
+        # Create AASX origin part
         logger.debug("Creating AASX origin part in AASX package ...")
-        p = writer.open_part(AASX_ORIGIN_PART_NAME, "text/plain")
+        p = self.writer.open_part(self.AASX_ORIGIN_PART_NAME, "text/plain")
         p.close()
-        logger.debug("Writing core properties to AASX package ...")
-        with writer.open_part(pyecma376_2.DEFAULT_CORE_PROPERTIES_NAME, "application/xml") as p:
-            core_properties.write_xml(p)
-        logger.debug("Writing package relationships to AASX package ...")
-        writer.write_relationships((
-            pyecma376_2.OPCRelationship("r1", "http://www.admin-shell.io/aasx/relationships/aasx-origin",
-                                        AASX_ORIGIN_PART_NAME,
-                                        pyecma376_2.OPCTargetMode.INTERNAL),
-            pyecma376_2.OPCRelationship("r2", pyecma376_2.RELATIONSHIP_TYPE_CORE_PROPERTIES,
-                                        pyecma376_2.DEFAULT_CORE_PROPERTIES_NAME,
-                                        pyecma376_2.OPCTargetMode.INTERNAL)))
 
-        # Create a part for each asset administration shell
-        friendlyfier = NameFriendlyfier()
-        aas_part_names: List[str] = []
-        for aas_id in aas_to_add:
-            aas_friendly_name = friendlyfier.get_friendly_name(aas_id)
-            aas_part_name = "/aasx/{0}/{0}.aas.json".format(aas_friendly_name)
-            aas_part_names.append(aas_part_name)
-            aas_friendlyfier = NameFriendlyfier()
+    # TODO allow to specify, which supplementary parts (submodels, conceptDescriptions) should be added to the package
+    # TODO allow to select JSON/XML serialization
+    def write_aasx(self,
+                   aas_id: model.Identifier,
+                   object_store: model.AbstractObjectStore,
+                   file_store: "AbstractSupplementaryFileContainer") -> None:
+        """
+        TODO
 
-            aas: model.AssetAdministrationShell = objects.get_identifiable(aas_id)  # type: ignore
-            objects_to_be_written: model.DictObjectStore[model.Identifiable] = model.DictObjectStore()
-            objects_to_be_written.add(aas)
+        :param aas_id:
+        :param object_store:
+        :param file_store:
+        :return:
+        """
+        aas_friendly_name = self.aas_name_friendlyfier.get_friendly_name(aas_id)
+        aas_part_name = "/aasx/{0}/{0}.aas.json".format(aas_friendly_name)
+        self.aas_part_names.append(aas_part_name)
+        aas_friendlyfier = NameFriendlyfier()
 
-            # Add the Asset object to the objects in the AAS part
-            try:
-                objects_to_be_written.add(aas.asset.resolve(objects))
-            except KeyError:
-                # Don't add asset to the AASX file, if it is not included in the object store
-                pass
+        aas: model.AssetAdministrationShell = object_store.get_identifiable(aas_id)  # type: ignore
+        objects_to_be_written: model.DictObjectStore[model.Identifiable] = model.DictObjectStore()
+        objects_to_be_written.add(aas)
 
-            # Add referenced ConceptDescriptions to the AAS part
-            for dictionary in aas.concept_dictionary:
-                for concept_rescription_ref in dictionary.concept_description:
-                    try:
-                        objects_to_be_written.add(concept_rescription_ref.resolve(objects))
-                    except KeyError:
-                        # Don't add asset to the AASX file, if it is not included in the given object store
-                        # Also ignore duplicate ConceptDescriptions (i.e. same Description referenced from multiple
-                        # Dictionaries)
-                        pass
+        # Add the Asset object to the objects in the AAS part
+        try:
+            objects_to_be_written.add(aas.asset.resolve(object_store))
+        except KeyError:
+            # Don't add asset to the AASX file, if it is not included in the object store
+            pass
 
-            # Write AAS part
-            logger.debug("Writing AAS {} to part {} in AASX package ...".format(aas.identification, aas_part_name))
-            with writer.open_part(aas_part_name, "application/json") as p:
-                write_aas_json_file(p, objects_to_be_written)
-
-            # Create a AAS split part for each (available) submodel of the AAS
-            submodel_part_names: List[str] = []
-            for submodel_ref in aas.submodel:
+        # Add referenced ConceptDescriptions to the AAS part
+        for dictionary in aas.concept_dictionary:
+            for concept_rescription_ref in dictionary.concept_description:
                 try:
-                    submodel = submodel_ref.resolve(objects)
+                    objects_to_be_written.add(concept_rescription_ref.resolve(object_store))
                 except KeyError:
-                    # Don't add submodel to the AASX file, if it is not included in the given object store
+                    # Don't add asset to the AASX file, if it is not included in the given object store
+                    # Also ignore duplicate ConceptDescriptions (i.e. same Description referenced from multiple
+                    # Dictionaries)
+                    pass
+
+        # Write AAS part
+        logger.debug("Writing AAS {} to part {} in AASX package ...".format(aas.identification, aas_part_name))
+        with self.writer.open_part(aas_part_name, "application/json") as p:
+            write_aas_json_file(p, objects_to_be_written)
+
+        # Create a AAS split part for each (available) submodel of the AAS
+        aas_split_part_names: List[str] = []
+        for submodel_ref in aas.submodel:
+            try:
+                submodel = submodel_ref.resolve(object_store)
+            except KeyError:
+                # Don't add submodel to the AASX file, if it is not included in the given object store
+                continue
+            submodel_friendly_name = aas_friendlyfier.get_friendly_name(submodel.identification)
+            submodel_part_name = "/aasx/{0}/{1}/{1}.submodel.json".format(aas_friendly_name, submodel_friendly_name)
+            self._write_submodel_part(file_store, submodel, submodel_part_name)
+            aas_split_part_names.append(submodel_part_name)
+
+        # Add relationships from AAS part to (submodel) split parts
+        logger.debug("Writing aasx-spec-split relationships for AAS {} to AASX package ..."
+                     .format(aas.identification))
+        self.writer.write_relationships(
+            (pyecma376_2.OPCRelationship("r{}".format(i),
+                                         "http://www.admin-shell.io/aasx/relationships/aasx-spec-split",
+                                         submodel_part_name,
+                                         pyecma376_2.OPCTargetMode.INTERNAL)
+             for i, submodel_part_name in enumerate(aas_split_part_names)),
+            aas_part_name)
+
+    def _write_submodel_part(self, file_store: "AbstractSupplementaryFileContainer",
+                             submodel: model.Submodel, submodel_part_name: str) -> None:
+        """
+        TODO
+
+        :param file_store:
+        :param submodel:
+        :param submodel_part_name:
+        :return:
+        """
+        logger.debug("Writing Submodel {} to part {} in AASX package ..."
+                     .format(submodel.identification, submodel_part_name))
+
+        submodel_file_objects: model.DictObjectStore[model.Identifiable] = model.DictObjectStore()
+        submodel_file_objects.add(submodel)
+        with self.writer.open_part(submodel_part_name, "application/json") as p:
+            write_aas_json_file(p, submodel_file_objects)
+
+        # Write submodel's supplementary files to AASX file
+        submodel_file_names = []
+        for element in traversal.walk_submodel(submodel):
+            if isinstance(element, model.File):
+                file_name = element.value
+                if file_name is None:
                     continue
-                submodel_file_objects: model.DictObjectStore[model.Identifiable] = model.DictObjectStore()
-                submodel_file_objects.add(submodel)
-                submodel_friendly_name = aas_friendlyfier.get_friendly_name(submodel.identification)
-                submodel_part_name = "/aasx/{0}/{1}/{1}.submodel.json".format(aas_friendly_name, submodel_friendly_name)
-                submodel_part_names.append(submodel_part_name)
-                logger.debug("Writing Submodel {} to part {} in AASX package ..."
-                             .format(submodel.identification, submodel_part_name))
-                with writer.open_part(submodel_part_name, "application/json") as p:
-                    write_aas_json_file(p, submodel_file_objects)
+                try:
+                    content_type = file_store.get_content_type(file_name)
+                except KeyError:
+                    logger.warning("Could not find file {} in file store, referenced from {}."
+                                   .format(file_name, element))
+                    continue
+                # TODO avoid double writes of same file
+                logger.debug("Writing supplementary file {} to AASX package ...".format(file_name))
+                with self.writer.open_part(file_name, content_type) as p:
+                    file_store.write_file(file_name, p)
+                submodel_file_names.append(pyecma376_2.package_model.normalize_part_name(file_name))
 
-                # Write submodel's supplementary files to AASX file
-                submodel_file_names = []
-                for element in traversal.walk_submodel(submodel):
-                    if isinstance(element, model.File):
-                        file_name = element.value
-                        if file_name is None:
-                            continue
-                        try:
-                            content_type = files.get_content_type(file_name)
-                        except KeyError:
-                            logger.warning("Could not find file {} in file store, referenced from {}."
-                                           .format(file_name, element))
-                            continue
-                        # TODO avoid double writes of same file
-                        logger.debug("Writing supplementary file {} to AASX package ...".format(file_name))
-                        with writer.open_part(file_name, content_type) as p:
-                            files.write_file(file_name, p)
-                        submodel_file_names.append(pyecma376_2.package_model.normalize_part_name(file_name))
+        # Add relationships from submodel to supplementary parts
+        # TODO should the relationships be added from the AAS instead?
+        logger.debug("Writing aas-suppl relationships for Submodel {} to AASX package ..."
+                     .format(submodel.identification))
+        self.writer.write_relationships(
+            (pyecma376_2.OPCRelationship("r{}".format(i),
+                                         "http://www.admin-shell.io/aasx/relationships/aas-suppl",
+                                         submodel_file_name,
+                                         pyecma376_2.OPCTargetMode.INTERNAL)
+             for i, submodel_file_name in enumerate(submodel_file_names)),
+            submodel_part_name)
 
-                # Add relationships from submodel to supplementary parts
-                # TODO should the releationships be added from the AAS instead?
-                logger.debug("Writing aas-suppl relationships for Submodel {} to AASX package ..."
-                             .format(submodel.identification))
-                writer.write_relationships(
-                    (pyecma376_2.OPCRelationship("r{}".format(i),
-                                                 "http://www.admin-shell.io/aasx/relationships/aas-suppl",
-                                                 submodel_file_name,
-                                                 pyecma376_2.OPCTargetMode.INTERNAL)
-                     for i, submodel_file_name in enumerate(submodel_file_names)),
-                    submodel_part_name)
+    def write_core_properties(self, core_properties: pyecma376_2.OPCCoreProperties):
+        """
+        TODO
+        :param core_properties:
+        :return:
+        """
+        if self.properties_part is not None:
+            raise RuntimeError("Core Properties have already been written.")
+        logger.debug("Writing core properties to AASX package ...")
+        with self.writer.open_part(pyecma376_2.DEFAULT_CORE_PROPERTIES_NAME, "application/xml") as p:
+            core_properties.write_xml(p)
+        self.properties_part = pyecma376_2.DEFAULT_CORE_PROPERTIES_NAME
 
-            # Add relationships from AAS part to submodel parts
-            logger.debug("Writing aasx-spec-split relationships for AAS {} to AASX package ..."
-                         .format(aas.identification))
-            writer.write_relationships(
-                (pyecma376_2.OPCRelationship("r{}".format(i),
-                                             "http://www.admin-shell.io/aasx/relationships/aasx-spec-split",
-                                             submodel_part_name,
-                                             pyecma376_2.OPCTargetMode.INTERNAL)
-                 for i, submodel_part_name in enumerate(submodel_part_names)),
-                aas_part_name)
+    def write_thumbnail(self, name: str, data: bytearray, content_type: str):
+        """
+        TODO
+        """
+        if self.thumbnail_part is not None:
+            raise RuntimeError("package thumbnail has already been written to {}.".format(self.thumbnail_part))
+        with self.writer.open_part(name, content_type) as p:
+            p.write(data)
+        self.thumbnail_part = name
 
+    def close(self):
+        """
+        TODO
+        :return:
+        """
+        self._write_aasx_origin_relationships()
+        self._write_package_relationships()
+        self.writer.close()
+
+    def __enter__(self) -> "AASXWriter":
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb) -> None:
+        self.close()
+
+    def _write_aasx_origin_relationships(self):
+        """
+        TODO
+        :return:
+        """
         # Add relationships from AASX-origin part to AAS parts
         logger.debug("Writing aasx-spec relationships to AASX package ...")
-        writer.write_relationships(
+        self.writer.write_relationships(
             (pyecma376_2.OPCRelationship("r{}".format(i), "http://www.admin-shell.io/aasx/relationships/aasx-spec",
                                          aas_part_name,
                                          pyecma376_2.OPCTargetMode.INTERNAL)
-             for i, aas_part_name in enumerate(aas_part_names)),
-            AASX_ORIGIN_PART_NAME)
+             for i, aas_part_name in enumerate(self.aas_part_names)),
+            self.AASX_ORIGIN_PART_NAME)
+
+    def _write_package_relationships(self):
+        """
+        TODO
+        :return:
+        """
+        logger.debug("Writing package relationships to AASX package ...")
+        # TODO write only neccessary relationships
+        self.writer.write_relationships((
+            pyecma376_2.OPCRelationship("r1", "http://www.admin-shell.io/aasx/relationships/aasx-origin",
+                                        self.AASX_ORIGIN_PART_NAME,
+                                        pyecma376_2.OPCTargetMode.INTERNAL),
+            pyecma376_2.OPCRelationship("r2", pyecma376_2.RELATIONSHIP_TYPE_CORE_PROPERTIES,
+                                        self.properties_part,
+                                        pyecma376_2.OPCTargetMode.INTERNAL),
+            pyecma376_2.OPCRelationship("r3", pyecma376_2.RELATIONSHIP_TYPE_THUMBNAIL,
+                                        self.thumbnail_part,
+                                        pyecma376_2.OPCTargetMode.INTERNAL)))
 
 
 class NameFriendlyfier:
