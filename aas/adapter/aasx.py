@@ -16,7 +16,7 @@ import io
 import logging
 import os
 import re
-from typing import Dict, Tuple, IO, Union, List, Set
+from typing import Dict, Tuple, IO, Union, List, Set, Optional
 
 from .. import model
 from .json.json_deserialization import read_json_aas_file
@@ -34,6 +34,18 @@ class AASXReader:
             self.reader = pyecma376_2.ZipPackageReader(file)
         except Exception as e:
             raise ValueError("{} is not a valid ECMA376-2 (OPC) file".format(file)) from e
+
+    def get_core_properties(self) -> pyecma376_2.OPCCoreProperties:
+        return self.reader.get_core_properties()
+
+    def get_thumbnail(self) -> Optional[bytes]:
+        try:
+            thumbnail_part = self.reader.get_related_parts_by_type()[pyecma376_2.RELATIONSHIP_TYPE_THUMBNAIL][0]
+        except IndexError:
+            return None
+
+        with self.reader.open_part(thumbnail_part) as p:
+            return p.read()
 
     def read_into(self, object_store: model.AbstractObjectStore,
                   file_store: "AbstractSupplementaryFileContainer") -> Set[model.Identifier]:
