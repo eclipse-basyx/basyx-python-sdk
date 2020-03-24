@@ -15,7 +15,8 @@ import aas.compliance_tool.compliance_check_json as compliance_tool
 from aas.compliance_tool.state_manager import ComplianceToolStateManager, Status
 
 dirname = os.path.dirname
-JSON_SCHEMA_FILE = os.path.join(dirname(dirname(dirname(__file__))), 'test\\adapter\\json\\aasJSONSchemaV2.0.json')
+JSON_SCHEMA_FILE = os.path.join(dirname(dirname(dirname(__file__))), 'test', 'adapter', 'json',
+                                'aasJSONSchemaV2.0.json')
 
 
 class ComplianceToolJsonTest(unittest.TestCase):
