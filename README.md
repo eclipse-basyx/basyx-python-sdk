@@ -32,14 +32,21 @@ overview, consider this project structure:
 
 ## Getting Started
 
-### Installation?
+### Installation
+
+For most users, the recommended method to install is via pip:
+
+```python
+pip install pyi40aas
+```
+
 
 ### Example
 
 Following `examples.tutorial_create_simple_ass`, these are the steps to take to set up an exemplary 
 Asset Administration Shell with PyI40AAS:
 
-First, we create an Asset. We need an Identifier for the Asset:
+First, we create an `Asset`, for which we need an `Identifier`:
 ```python
 from aas import model  # Import all PYI40AAS classes from the model package
 
@@ -51,20 +58,20 @@ asset = model.Asset(
     identification=identifier  # set identifier
 )
 ```
-Now, we can create the AssetAdministrationShell, which in turn, needs an Identifier. The method 
-`model.AASReference.from_referable()` lets us create a Reference to the Asset we just created from the asset itself,
-in order to add it to our AssetAdministrationShell.
+Now, we can create the `AssetAdministrationShell`, which needs an `Identifier` as well. The method 
+`model.AASReference.from_referable()` lets us create a `Reference` to the `Asset` we just created from the asset itself,
+in order to add it to our `AssetAdministrationShell`.
 ```python
 identifier = model.Identifier('https://acplt.org/Simple_AAS', model.IdentifierType.IRI)
 aas = model.AssetAdministrationShell(
     identification=identifier,  # set identifier
-    asset=model.AASReference.from_referable(asset)  # generate a Reference object to the asset (from its identifier)
+    asset=model.AASReference.from_referable(asset)
 )
 ```
-Congratulations: Now you have created your first AssetAdministrationShell with PyI40AAS. From here, you can continue
+Congratulations: Now you have created your first `AssetAdministrationShell` with PyI40AAS. From here, you can continue
 by creating submodels (`model.Submodel`) and submodel elements like properties (`model.Property`). 
 
-Alternatively you can look into storing the information your AssetAdministrationShell contains, either with JSON, XML 
+Alternatively you can look into storing the information your `AssetAdministrationShell` contains, either with JSON, XML 
 or CouchDB.
 
 
@@ -91,8 +98,23 @@ def function(variable: type) -> type:
     do something
     return object
 ```
-The tests for the code are located in the `test`-package, which has the same structure as the `aas`-package. We use
-the `unittest`-package for writing the test and expect at least 80% coverage. 
+Before pushing anything to the repository, make sure that you test your changes with `mypy`, `pycodestyle` and 
+`unittest`. To install those, use:
+```
+pip install mypy
+pip install pycodestyle
+```
+
+The tests for the `unittest` are located in the `test`-package, which has the same structure as the `aas`-package. We use
+the `unittest`-package for writing the test and expect at least 80% coverage.
+
+Please make sure that running:
+```
+mypy aas test
+python -m pycodestyle --max-line-length 120 aas test
+python -m unittest
+```
+does not result in any error, before pushing.
 
 
 ### Contribute Code/Patches
