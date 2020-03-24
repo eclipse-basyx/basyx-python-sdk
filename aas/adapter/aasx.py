@@ -412,19 +412,19 @@ class NameFriendlyfier:
 class AbstractSupplementaryFileContainer(metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def add_file(self, name: str, file: IO[bytes], content_type: str) -> None:
-        pass
+        pass  # pragma: no cover
 
     @abc.abstractmethod
     def get_content_type(self, name: str) -> str:
-        pass
+        pass  # pragma: no cover
 
     @abc.abstractmethod
     def write_file(self, name: str, file: IO[bytes]) -> None:
-        pass
+        pass  # pragma: no cover
 
     @abc.abstractmethod
     def __contains__(self, item: str) -> bool:
-        pass
+        pass  # pragma: no cover
 
 
 class DictSupplementaryFileContainer(AbstractSupplementaryFileContainer, Dict[str, Tuple[bytes, str]]):
