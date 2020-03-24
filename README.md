@@ -104,8 +104,8 @@ pip install mypy
 pip install pycodestyle
 ```
 
-The tests for the `unittest` are located in the `test`-package, which has the same structure as the `aas`-package. We use
-the `unittest`-package for writing the test and expect at least 80% coverage.
+The tests for the `unittest` are located in the `test`-package, which has the same structure as the `aas`-package. We
+expect at least 80% coverage per module.
 
 Please make sure that running:
 ```
