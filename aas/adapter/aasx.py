@@ -26,6 +26,11 @@ from ..util import traversal
 
 logger = logging.getLogger(__name__)
 
+RELATIONSHIP_TYPE_AASX_ORIGIN = "http://www.admin-shell.io/aasx/relationships/aasx-origin"
+RELATIONSHIP_TYPE_AAS_SPEC = "http://www.admin-shell.io/aasx/relationships/aas-spec"
+RELATIONSHIP_TYPE_AAS_SPEC_SPLIT = "http://www.admin-shell.io/aasx/relationships/aas-spec-split"
+RELATIONSHIP_TYPE_AAS_SUPL = "http://www.admin-shell.io/aasx/relationships/aas-suppl"
+
 
 class AASXReader:
     def __init__(self, file: Union[os.PathLike, str, IO]):
@@ -52,7 +57,7 @@ class AASXReader:
         # Find AASX-Origin part
         core_rels = self.reader.get_related_parts_by_type()
         try:
-            aasx_origin_part = core_rels["http://www.admin-shell.io/aasx/relationships/aasx-origin"][0]
+            aasx_origin_part = core_rels[RELATIONSHIP_TYPE_AASX_ORIGIN][0]
         except IndexError as e:
             raise ValueError("Not a valid AASX file: aasx-origin Relationship is missing.") from e
 
@@ -60,12 +65,12 @@ class AASXReader:
 
         # Iterate AAS files
         for aas_part in self.reader.get_related_parts_by_type(aasx_origin_part)[
-                "http://www.admin-shell.io/aasx/relationships/aas-spec"]:
+                RELATIONSHIP_TYPE_AAS_SPEC]:
             self._read_aas_part_into(aas_part, object_store, file_store, read_identifiables)
 
             # Iterate split parts of AAS file
             for split_part in self.reader.get_related_parts_by_type(aas_part)[
-                    "http://www.admin-shell.io/aasx/relationships/aas-spec-split"]:
+                    RELATIONSHIP_TYPE_AAS_SPEC_SPLIT]:
                 self._read_aas_part_into(split_part, object_store, file_store, read_identifiables)
 
         return read_identifiables
@@ -239,7 +244,7 @@ class AASXWriter:
                      .format(aas.identification))
         self.writer.write_relationships(
             (pyecma376_2.OPCRelationship("r{}".format(i),
-                                         "http://www.admin-shell.io/aasx/relationships/aas-spec-split",
+                                         RELATIONSHIP_TYPE_AAS_SPEC_SPLIT,
                                          submodel_part_name,
                                          pyecma376_2.OPCTargetMode.INTERNAL)
              for i, submodel_part_name in enumerate(aas_split_part_names)),
@@ -288,7 +293,7 @@ class AASXWriter:
                      .format(submodel.identification))
         self.writer.write_relationships(
             (pyecma376_2.OPCRelationship("r{}".format(i),
-                                         "http://www.admin-shell.io/aasx/relationships/aas-suppl",
+                                         RELATIONSHIP_TYPE_AAS_SUPL,
                                          submodel_file_name,
                                          pyecma376_2.OPCTargetMode.INTERNAL)
              for i, submodel_file_name in enumerate(submodel_file_names)),
@@ -340,7 +345,7 @@ class AASXWriter:
         # Add relationships from AASX-origin part to AAS parts
         logger.debug("Writing aas-spec relationships to AASX package ...")
         self.writer.write_relationships(
-            (pyecma376_2.OPCRelationship("r{}".format(i), "http://www.admin-shell.io/aasx/relationships/aas-spec",
+            (pyecma376_2.OPCRelationship("r{}".format(i), RELATIONSHIP_TYPE_AAS_SPEC,
                                          aas_part_name,
                                          pyecma376_2.OPCTargetMode.INTERNAL)
              for i, aas_part_name in enumerate(self._aas_part_names)),
@@ -353,7 +358,7 @@ class AASXWriter:
         """
         logger.debug("Writing package relationships to AASX package ...")
         package_relationships: List[pyecma376_2.OPCRelationship] = [
-            pyecma376_2.OPCRelationship("r1", "http://www.admin-shell.io/aasx/relationships/aasx-origin",
+            pyecma376_2.OPCRelationship("r1", RELATIONSHIP_TYPE_AASX_ORIGIN,
                                         self.AASX_ORIGIN_PART_NAME,
                                         pyecma376_2.OPCTargetMode.INTERNAL),
         ]
