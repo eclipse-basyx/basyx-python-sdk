@@ -60,7 +60,7 @@ class AASXReader:
         Open an AASX reader for the given filename or file handle
 
         The given file is opened as OPC ZIP package. Make sure to call `AASXReader.close()` after reading the file
-        contents to close the underlying ZIP file reader. You may also use the AASXReader as a context handler to ensure
+        contents to close the underlying ZIP file reader. You may also use the AASXReader as a context manager to ensure
         closing under any circumstances.
 
         :param file: A filename, file path or an open file-like object in binary mode
@@ -235,14 +235,38 @@ class AASXReader:
 
 class AASXWriter:
     """
-    TODO
+    An AASXWriter wraps a new AASX package file to write its contents to it piece by piece.
+
+    Basic usage:
+
+        # object_store and file_store are expected to be given (e.g. some storage backend or previously created data)
+        cp = OPCCoreProperties()
+        cp.creator = "ACPLT"
+        cp.created = datetime.datetime.now()
+
+        with AASXWriter("filename.aasx") as writer:
+            writer.write_aas(Identifier("https://acplt.org/AssetAdministrationShell", IdentifierType.IRI),
+                             object_store,
+                             file_store)
+            writer.write_aas(Identifier("https://acplt.org/AssetAdministrationShell2", IdentifierType.IRI),
+                             object_store,
+                             file_store)
+            writer.write_core_properties(cp)
+
+    Attention: The AASXWriter must always be closed using the close() method or its context manager functionality (as
+    shown above). Otherwise the resulting AASX file will lack important data structures and will not be readable.
     """
     AASX_ORIGIN_PART_NAME = "/aasx/aasx-origin"
 
     def __init__(self, file: Union[os.PathLike, str, IO]):
         """
-        TODO
-        :param file:
+        Create a new AASX package in the given file and open the AASXWriter to add contents to the package.
+
+        Make sure to call `AASXWriter.close()` after writing all contents to write the aas-spec relationships for all
+        AAS parts to the file and close the underlying ZIP file writer. You may also use the AASXWriter as a context
+        manager to ensure closing under any circumstances.
+
+        :param file: filename, path, or binary file handle opened for writing
         """
         self._aas_part_names: List[str] = []
         self._thumbnail_part: Optional[str] = None
@@ -264,12 +288,19 @@ class AASXWriter:
                   object_store: model.AbstractObjectStore,
                   file_store: "AbstractSupplementaryFileContainer") -> None:
         """
-        TODO
+        Add an Asset Administration Shell with all included and referenced objects to the AASX package.
 
-        :param aas_id:
-        :param object_store:
-        :param file_store:
-        :return:
+        This method takes the AAS's Identifier (as `aas_id`) to retrieve it from the given object_store. References to
+        the Asset, ConceptDescriptions and Submodels are also resolved using the object_store. All of these objects are
+        written to aas-spec parts in the AASX package, follwing the conventions presented in "Details of the Asset
+        Administration Shell". For each Submodel, a aas-spec-split part is used. Supplementary files which are
+        referenced by a File object in any of the Submodels, are also added to the AASX package.
+
+        :param aas_id: Identifier of the AAS to be added to the AASX file
+        :param object_store: ObjectStore to retrieve the Identifiable AAS objects (AAS, Asset, ConceptDescriptions and
+            Submodels) from
+        :param file_store: SupplementaryFileContainer to retrieve supplementary files from, which are referenced by File
+            objects
         """
         aas_friendly_name = self._aas_name_friendlyfier.get_friendly_name(aas_id)
         aas_part_name = "/aasx/{0}/{0}.aas.json".format(aas_friendly_name)
@@ -330,12 +361,12 @@ class AASXWriter:
     def _write_submodel_part(self, file_store: "AbstractSupplementaryFileContainer",
                              submodel: model.Submodel, submodel_part_name: str) -> None:
         """
-        TODO
+        Helper function for `write_aas()` to write an aas-spec-split part for a Submodel object and add the relevant
+        supplementary files.
 
-        :param file_store:
-        :param submodel:
-        :param submodel_part_name:
-        :return:
+        :param file_store: The SupplementaryFileContainer to retrieve supplementary files from
+        :param submodel: The submodel to be written into the AASX package
+        :param submodel_part_name: OPC part name of the aas-spec-split part for this Submodel
         """
         logger.debug("Writing Submodel {} to part {} in AASX package ..."
                      .format(submodel.identification, submodel_part_name))
@@ -378,9 +409,11 @@ class AASXWriter:
 
     def write_core_properties(self, core_properties: pyecma376_2.OPCCoreProperties):
         """
-        TODO
-        :param core_properties:
-        :return:
+        Write OPC Core Properties (meta data) to the AASX package file.
+
+        Attention: This method may only be called once for each AASXWriter!
+
+        :param core_properties: The OPCCoreProperties object with the meta data to be written to the package file
         """
         if self._properties_part is not None:
             raise RuntimeError("Core Properties have already been written.")
@@ -391,7 +424,13 @@ class AASXWriter:
 
     def write_thumbnail(self, name: str, data: bytearray, content_type: str):
         """
-        TODO
+        Write an image file as thumbnail image to the AASX package.
+
+        Attention: This method may only be called once for each AASXWriter!
+
+        :param name: The OPC part name of the thumbnail part. Should not contain '/' or URI-encoded '/' or '\'.
+        :param data: The image file's binary contents to be written
+        :param content_type: OPC content type (MIME type) of the image file
         """
         if self._thumbnail_part is not None:
             raise RuntimeError("package thumbnail has already been written to {}.".format(self._thumbnail_part))
@@ -401,8 +440,7 @@ class AASXWriter:
 
     def close(self):
         """
-        TODO
-        :return:
+        Write relationships for all data files to package and close underlying OPC package and ZIP file.
         """
         self._write_aasx_origin_relationships()
         self._write_package_relationships()
@@ -416,8 +454,10 @@ class AASXWriter:
 
     def _write_aasx_origin_relationships(self):
         """
-        TODO
-        :return:
+        Helper function to write aas-spec relationships of the aasx-origin part.
+
+        This method uses the list of aas-spec parts in `_aas_part_names`. It should be called just before closing the
+        file to make sure all aas-spec parts of the package have already been written.
         """
         # Add relationships from AASX-origin part to AAS parts
         logger.debug("Writing aas-spec relationships to AASX package ...")
@@ -430,8 +470,13 @@ class AASXWriter:
 
     def _write_package_relationships(self):
         """
-        TODO
-        :return:
+        Helper function to write package (root) relationships to the OPC package.
+
+        This method must be called just before closing the package file to make sure we write exactly the correct
+        relationships:
+        * aasx-origin (always)
+        * core-properties (if core properties have been added)
+        * thumbnail (if thumbnail part has been added)
         """
         logger.debug("Writing package relationships to AASX package ...")
         package_relationships: List[pyecma376_2.OPCRelationship] = [
