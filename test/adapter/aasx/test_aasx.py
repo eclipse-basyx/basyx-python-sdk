@@ -54,7 +54,7 @@ class AASXWriterTest(unittest.TestCase):
             writer.write_core_properties(cp)
 
         # Read AASX file
-        new_data = model.DictObjectStore()
+        new_data: model.DictObjectStore[model.Identifiable] = model.DictObjectStore()
         new_files = aasx.DictSupplementaryFileContainer()
         with aasx.AASXReader(filename) as reader:
             reader.read_into(new_data, new_files)
