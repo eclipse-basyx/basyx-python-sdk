@@ -162,10 +162,10 @@ class AASXWriter:
     AASX_ORIGIN_PART_NAME = "/aasx/aasx-origin"
 
     def __init__(self, file: Union[os.PathLike, str, IO]):
-        self.aas_part_names: List[str] = []
-        self.thumbnail_part: Optional[str] = None
-        self.properties_part: Optional[str] = None
-        self.aas_name_friendlyfier = NameFriendlyfier()
+        self._aas_part_names: List[str] = []
+        self._thumbnail_part: Optional[str] = None
+        self._properties_part: Optional[str] = None
+        self._aas_name_friendlyfier = NameFriendlyfier()
 
         # Open OPC package writer
         self.writer = pyecma376_2.ZipPackageWriter(file)
@@ -177,10 +177,10 @@ class AASXWriter:
 
     # TODO allow to specify, which supplementary parts (submodels, conceptDescriptions) should be added to the package
     # TODO allow to select JSON/XML serialization
-    def write_aasx(self,
-                   aas_id: model.Identifier,
-                   object_store: model.AbstractObjectStore,
-                   file_store: "AbstractSupplementaryFileContainer") -> None:
+    def write_aas(self,
+                  aas_id: model.Identifier,
+                  object_store: model.AbstractObjectStore,
+                  file_store: "AbstractSupplementaryFileContainer") -> None:
         """
         TODO
 
@@ -189,9 +189,9 @@ class AASXWriter:
         :param file_store:
         :return:
         """
-        aas_friendly_name = self.aas_name_friendlyfier.get_friendly_name(aas_id)
+        aas_friendly_name = self._aas_name_friendlyfier.get_friendly_name(aas_id)
         aas_part_name = "/aasx/{0}/{0}.aas.json".format(aas_friendly_name)
-        self.aas_part_names.append(aas_part_name)
+        self._aas_part_names.append(aas_part_name)
         aas_friendlyfier = NameFriendlyfier()
 
         aas: model.AssetAdministrationShell = object_store.get_identifiable(aas_id)  # type: ignore
@@ -300,22 +300,22 @@ class AASXWriter:
         :param core_properties:
         :return:
         """
-        if self.properties_part is not None:
+        if self._properties_part is not None:
             raise RuntimeError("Core Properties have already been written.")
         logger.debug("Writing core properties to AASX package ...")
         with self.writer.open_part(pyecma376_2.DEFAULT_CORE_PROPERTIES_NAME, "application/xml") as p:
             core_properties.write_xml(p)
-        self.properties_part = pyecma376_2.DEFAULT_CORE_PROPERTIES_NAME
+        self._properties_part = pyecma376_2.DEFAULT_CORE_PROPERTIES_NAME
 
     def write_thumbnail(self, name: str, data: bytearray, content_type: str):
         """
         TODO
         """
-        if self.thumbnail_part is not None:
-            raise RuntimeError("package thumbnail has already been written to {}.".format(self.thumbnail_part))
+        if self._thumbnail_part is not None:
+            raise RuntimeError("package thumbnail has already been written to {}.".format(self._thumbnail_part))
         with self.writer.open_part(name, content_type) as p:
             p.write(data)
-        self.thumbnail_part = name
+        self._thumbnail_part = name
 
     def close(self):
         """
@@ -343,7 +343,7 @@ class AASXWriter:
             (pyecma376_2.OPCRelationship("r{}".format(i), "http://www.admin-shell.io/aasx/relationships/aasx-spec",
                                          aas_part_name,
                                          pyecma376_2.OPCTargetMode.INTERNAL)
-             for i, aas_part_name in enumerate(self.aas_part_names)),
+             for i, aas_part_name in enumerate(self._aas_part_names)),
             self.AASX_ORIGIN_PART_NAME)
 
     def _write_package_relationships(self):
@@ -352,17 +352,20 @@ class AASXWriter:
         :return:
         """
         logger.debug("Writing package relationships to AASX package ...")
-        # TODO write only neccessary relationships
-        self.writer.write_relationships((
+        package_relationships: List[pyecma376_2.OPCRelationship] = [
             pyecma376_2.OPCRelationship("r1", "http://www.admin-shell.io/aasx/relationships/aasx-origin",
                                         self.AASX_ORIGIN_PART_NAME,
                                         pyecma376_2.OPCTargetMode.INTERNAL),
-            pyecma376_2.OPCRelationship("r2", pyecma376_2.RELATIONSHIP_TYPE_CORE_PROPERTIES,
-                                        self.properties_part,
-                                        pyecma376_2.OPCTargetMode.INTERNAL),
-            pyecma376_2.OPCRelationship("r3", pyecma376_2.RELATIONSHIP_TYPE_THUMBNAIL,
-                                        self.thumbnail_part,
-                                        pyecma376_2.OPCTargetMode.INTERNAL)))
+        ]
+        if self._properties_part is not None:
+            package_relationships.append(pyecma376_2.OPCRelationship(
+                "r2", pyecma376_2.RELATIONSHIP_TYPE_CORE_PROPERTIES, self._properties_part,
+                pyecma376_2.OPCTargetMode.INTERNAL))
+        if self._thumbnail_part is not None:
+            package_relationships.append(pyecma376_2.OPCRelationship(
+                "r3", pyecma376_2.RELATIONSHIP_TYPE_THUMBNAIL, self._thumbnail_part,
+                pyecma376_2.OPCTargetMode.INTERNAL))
+        self.writer.write_relationships(package_relationships)
 
 
 class NameFriendlyfier:
