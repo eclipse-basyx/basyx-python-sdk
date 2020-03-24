@@ -9,8 +9,19 @@
 # "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
 # specific language governing permissions and limitations under the License.
 """
-TODO
+Functionality for reading and writing AASX files according to "Details of the Asset Administration Shell Part 1 V2.0",
+section 7.
+
+The AASX file format is built upon the Open Packaging Conventions (OPC; ECMA 376-2). We use the `pyecma376_2` library
+for low level OPC reading and writing. It currently supports all required features except for embedded digital
+signatures.
+
+Writing and reading of AASX packages is performed through the AASXReader and AASXWriter classes. Each instance of these
+classes wraps an existing AASX file resp. a file to be created and allows to read/write the included AAS objects
+into/form object stores. For handling of embedded supplementary files, this module provides the
+`AbstractSupplementaryFileContainer` class interface and the `DictSupplementaryFileContainer` implementation.
 """
+
 import abc
 import io
 import logging
@@ -33,7 +44,28 @@ RELATIONSHIP_TYPE_AAS_SUPL = "http://www.admin-shell.io/aasx/relationships/aas-s
 
 
 class AASXReader:
+    """
+    An AASXReader wraps an existing AASX package file to allow reading its contents and metadata.
+
+    Basic usage:
+
+        objects = DictObjectStore()
+        files = DictSupplementaryFileContainer()
+        with AASXReader("filename.aasx") as reader:
+            meta_data = reader.get_core_properties()
+            reader.read_into(objects, files)
+    """
     def __init__(self, file: Union[os.PathLike, str, IO]):
+        """
+        Open an AASX reader for the given filename or file handle
+
+        The given file is opened as OPC ZIP package. Make sure to call `AASXReader.close()` after reading the file
+        contents to close the underlying ZIP file reader. You may also use the AASXReader as a context handler to ensure
+        closing under any circumstances.
+
+        :param file: A filename, file path or an open file-like object in binary mode
+        :raises ValueError: If the file is not a valid OPC zip package
+        """
         try:
             logger.debug("Opening {} as AASX pacakge for reading ...".format(file))
             self.reader = pyecma376_2.ZipPackageReader(file)
@@ -41,9 +73,28 @@ class AASXReader:
             raise ValueError("{} is not a valid ECMA376-2 (OPC) file".format(file)) from e
 
     def get_core_properties(self) -> pyecma376_2.OPCCoreProperties:
+        """
+        Retrieve the OPC Core Properties (meta data) of the AASX package file.
+
+        If no meta data is provided in the package file, an emtpy OPCCoreProperties object is returned.
+
+        :return: The AASX package's meta data
+        """
         return self.reader.get_core_properties()
 
     def get_thumbnail(self) -> Optional[bytes]:
+        """
+        Retrieve the packages thumbnail image
+
+        The thumbnail image file is read into memory and returned as bytes object. You may use some python image library
+        for further processing or conversion, e.g. `pillow`:
+
+            import io
+            from PIL import Image
+            thumbnail = Image.open(io.BytesIO(reader.get_thumbnail()))
+
+        :return: The AASX package thumbnail's file contents or None if no thumbnail is provided
+        """
         try:
             thumbnail_part = self.reader.get_related_parts_by_type()[pyecma376_2.RELATIONSHIP_TYPE_THUMBNAIL][0]
         except IndexError:
@@ -54,6 +105,20 @@ class AASXReader:
 
     def read_into(self, object_store: model.AbstractObjectStore,
                   file_store: "AbstractSupplementaryFileContainer") -> Set[model.Identifier]:
+        """
+        Read the contents of the AASX package and add them into a given ObjectStore
+
+        This function does the main job of reading the AASX file's contents. It traverses the relationships within the
+        package to find AAS JSON or XML parts, parses them and adds the contained AAS objects into the provided
+        `object_store`. While doing so, it searches all parsed Submodels for File objects to extract the supplementary
+        files. The referenced supplementary files are added to the given `file_store` and the File objects' values are
+        updated with the absolute name of the supplementary file to allow for robust resolution the file within the
+        `file_store` later.
+
+        :param object_store: An ObjectStore to add the AAS objects from the AASX file to
+        :param file_store: A SupplementaryFileContainer to add the embedded supplementary files to
+        :return: A set of the Identifiers of all Identifiable objects parsed from the AASX file
+        """
         # Find AASX-Origin part
         core_rels = self.reader.get_related_parts_by_type()
         try:
@@ -76,6 +141,9 @@ class AASXReader:
         return read_identifiables
 
     def close(self) -> None:
+        """
+        Close the AASXReader and the underlying OPC / ZIP file readers. Must be called after reading the file.
+        """
         self.reader.close()
 
     def __enter__(self) -> "AASXReader":
@@ -89,13 +157,17 @@ class AASXReader:
                             file_store: "AbstractSupplementaryFileContainer",
                             read_identifiables: Set[model.Identifier]):
         """
-        TODO
+        Helper function for `read_into()` to read and process the contents of an AAS-spec part of the AASX file.
 
-        :param part_name:
-        :param object_store:
-        :param file_store:
-        :param read_identifiables:
-        :return:
+        This method primarily checks for duplicate objects. It uses `_parse_aas_parse()` to do the actual parsing and
+        `_collect_supplementary_files()` for supplementary file processing of non-duplicate objects.
+
+        :param part_name: The OPC part name to read
+        :param object_store: An ObjectStore to add the AAS objects from the AASX file to
+        :param file_store: A SupplementaryFileContainer to add the embedded supplementary files to, which are reference
+            from a File object of this part
+        :param read_identifiables: A set of Identifiers of objects which have already been read. New objects'
+            Identifiers are added to this set. Objects with already known Identifiers are skipped silently.
         """
         for obj in self._parse_aas_part(part_name):
             if obj.identification in read_identifiables:
@@ -112,12 +184,12 @@ class AASXReader:
 
     def _parse_aas_part(self, part_name: str) -> model.DictObjectStore:
         """
-        TODO
+        Helper function to parse the AAS objects from a single JSON or XML part of the AASX package.
 
-        :param part_name:
-        :param content_type:
-        :param file_handle:
-        :return:
+        This method chooses and calls the correct parser.
+
+        :param part_name: The OPC part name of the part to be parsed
+        :return: A DictObjectStore containing the parsed AAS objects
         """
         content_type = self.reader.get_content_type(part_name)
         extension = part_name.split("/")[-1].split(".")[-1]
@@ -137,15 +209,16 @@ class AASXReader:
             raise ValueError("Unknown Content Type '{}' and extension '{}' of AASX part {}"
                              .format(content_type, extension, part_name))
 
-    def _collect_supplementary_files(self,
-                                     part_name: str,
-                                     submodel: model.Submodel,
+    def _collect_supplementary_files(self, part_name: str, submodel: model.Submodel,
                                      file_store: "AbstractSupplementaryFileContainer") -> None:
         """
-        TODO
-        :param part_name:
-        :param submodel:
-        :param file_store:
+        Helper function to search File objects within a single parsed Submodel, extract the referenced supplementary
+        files and update the File object's values with the absolute path.
+
+        :param part_name: The OPC part name of the part the submodel has been parsed from. This is used to resolve
+            relative file paths.
+        :param submodel: The Submodel to process
+        :param file_store: The SupplementaryFileContainer to add the extracted supplementary files to
         """
         for element in traversal.walk_submodel(submodel):
             if isinstance(element, model.File):
@@ -167,6 +240,10 @@ class AASXWriter:
     AASX_ORIGIN_PART_NAME = "/aasx/aasx-origin"
 
     def __init__(self, file: Union[os.PathLike, str, IO]):
+        """
+        TODO
+        :param file:
+        """
         self._aas_part_names: List[str] = []
         self._thumbnail_part: Optional[str] = None
         self._properties_part: Optional[str] = None
