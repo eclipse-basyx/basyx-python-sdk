@@ -116,7 +116,8 @@ def _construct_submodel_reference(element: ElTree.Element, failsafe: bool, **_kw
     return model.AASReference(_construct_key_tuple(element, failsafe), model.Submodel)
 
 
-def _construct_asset_reference(element: ElTree.Element, failsafe: bool, **_kwargs: Any) -> model.AASReference[model.Asset]:
+def _construct_asset_reference(element: ElTree.Element, failsafe: bool, **_kwargs: Any)\
+        -> model.AASReference[model.Asset]:
     return model.AASReference(_construct_key_tuple(element, failsafe), model.Asset)
 
 
@@ -227,7 +228,7 @@ def _construct_asset_administration_shell(element: ElTree.Element, failsafe: boo
     submodels = element.find(NS_AAS + "submodelRefs")
     if submodels is not None:
         aas.submodel = set(_objects_from_xml_elements(submodels.findall(NS_AAS + "submodelRef"),
-                                                       _construct_submodel_reference, failsafe))
+                                                      _construct_submodel_reference, failsafe))
     views = element.find(NS_AAS + "views")
     if views is not None:
         for view in _objects_from_xml_elements(views.findall(NS_AAS + "view"), _construct_view, failsafe):
