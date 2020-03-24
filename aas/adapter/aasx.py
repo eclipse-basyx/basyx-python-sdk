@@ -219,7 +219,7 @@ class AASXWriter:
         # Write AAS part
         logger.debug("Writing AAS {} to part {} in AASX package ...".format(aas.identification, aas_part_name))
         with self.writer.open_part(aas_part_name, "application/json") as p:
-            write_aas_json_file(p, objects_to_be_written)
+            write_aas_json_file(io.TextIOWrapper(p, encoding='utf-8'), objects_to_be_written)
 
         # Create a AAS split part for each (available) submodel of the AAS
         aas_split_part_names: List[str] = []
@@ -235,11 +235,11 @@ class AASXWriter:
             aas_split_part_names.append(submodel_part_name)
 
         # Add relationships from AAS part to (submodel) split parts
-        logger.debug("Writing aasx-spec-split relationships for AAS {} to AASX package ..."
+        logger.debug("Writing aas-spec-split relationships for AAS {} to AASX package ..."
                      .format(aas.identification))
         self.writer.write_relationships(
             (pyecma376_2.OPCRelationship("r{}".format(i),
-                                         "http://www.admin-shell.io/aasx/relationships/aasx-spec-split",
+                                         "http://www.admin-shell.io/aasx/relationships/aas-spec-split",
                                          submodel_part_name,
                                          pyecma376_2.OPCTargetMode.INTERNAL)
              for i, submodel_part_name in enumerate(aas_split_part_names)),
@@ -261,7 +261,7 @@ class AASXWriter:
         submodel_file_objects: model.DictObjectStore[model.Identifiable] = model.DictObjectStore()
         submodel_file_objects.add(submodel)
         with self.writer.open_part(submodel_part_name, "application/json") as p:
-            write_aas_json_file(p, submodel_file_objects)
+            write_aas_json_file(io.TextIOWrapper(p, encoding='utf-8'), submodel_file_objects)
 
         # Write submodel's supplementary files to AASX file
         submodel_file_names = []
@@ -338,9 +338,9 @@ class AASXWriter:
         :return:
         """
         # Add relationships from AASX-origin part to AAS parts
-        logger.debug("Writing aasx-spec relationships to AASX package ...")
+        logger.debug("Writing aas-spec relationships to AASX package ...")
         self.writer.write_relationships(
-            (pyecma376_2.OPCRelationship("r{}".format(i), "http://www.admin-shell.io/aasx/relationships/aasx-spec",
+            (pyecma376_2.OPCRelationship("r{}".format(i), "http://www.admin-shell.io/aasx/relationships/aas-spec",
                                          aas_part_name,
                                          pyecma376_2.OPCTargetMode.INTERNAL)
              for i, aas_part_name in enumerate(self._aas_part_names)),
