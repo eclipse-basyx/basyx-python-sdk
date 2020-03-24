@@ -20,8 +20,7 @@ The `aas`-package provides the following features:
 
 ### Project Structure
 
-The `aas`-package is structured into 5 submodules, which will be explained in more detail further down. For an
-overview, consider this project structure:
+The `aas`-package is structured into 5 submodules. For an overview, consider this project structure:
 
 * `aas.model`: The AAS metamodel implemented in python
 * `aas.adapter`: Adapter to various file formats
