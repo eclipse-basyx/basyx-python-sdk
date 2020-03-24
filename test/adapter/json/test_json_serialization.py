@@ -19,14 +19,14 @@ from aas.adapter.json import json_serialization
 from jsonschema import validate  # type: ignore
 
 from aas.examples.data import example_aas_missing_attributes, example_submodel_template, \
-    example_aas_mandatory_attributes, example_aas
+    example_aas_mandatory_attributes, example_aas, create_example, example_concept_description
 
 JSON_SCHEMA_FILE = os.path.join(os.path.dirname(__file__), 'aasJSONSchemaV2.0.json')
 
 
 class JsonSerializationTest(unittest.TestCase):
     def test_serialize_object(self) -> None:
-        test_object = model.Property("test_id_short", "string", category="PARAMETER",
+        test_object = model.Property("test_id_short", model.datatypes.String, category="PARAMETER",
                                      description={"en-us": "Germany", "de": "Deutschland"})
         json_data = json.dumps(test_object, cls=json_serialization.AASToJsonEncoder)
 
@@ -82,7 +82,7 @@ class JsonSerializationSchemaTest(unittest.TestCase):
         # validate serialization against schema
         validate(instance=json_data_new, schema=aas_schema)
 
-    def test_full_example_serialization(self) -> None:
+    def test_aas_example_serialization(self) -> None:
         data = example_aas.create_full_example()
         file = io.StringIO()
         json_serialization.write_aas_json_file(file=file, data=data)
@@ -127,6 +127,35 @@ class JsonSerializationSchemaTest(unittest.TestCase):
 
     def test_missing_serialization(self) -> None:
         data = example_aas_missing_attributes.create_full_example()
+        file = io.StringIO()
+        json_serialization.write_aas_json_file(file=file, data=data)
+
+        with open(JSON_SCHEMA_FILE, 'r') as json_file:
+            aas_json_schema = json.load(json_file)
+
+        file.seek(0)
+        json_data = json.load(file)
+
+        # validate serialization against schema
+        validate(instance=json_data, schema=aas_json_schema)
+
+    def test_concept_description_serialization(self) -> None:
+        data: model.DictObjectStore[model.Identifiable] = model.DictObjectStore()
+        data.add(example_concept_description.create_iec61360_concept_description())
+        file = io.StringIO()
+        json_serialization.write_aas_json_file(file=file, data=data)
+
+        with open(JSON_SCHEMA_FILE, 'r') as json_file:
+            aas_json_schema = json.load(json_file)
+
+        file.seek(0)
+        json_data = json.load(file)
+
+        # validate serialization against schema
+        validate(instance=json_data, schema=aas_json_schema)
+
+    def test_full_example_serialization(self) -> None:
+        data = create_example()
         file = io.StringIO()
         json_serialization.write_aas_json_file(file=file, data=data)
 

@@ -26,10 +26,10 @@ import base64
 import json
 import logging
 import pprint
-from typing import Dict, Callable, TypeVar, Type, List, IO
+from typing import Dict, Callable, TypeVar, Type, List, IO, Optional
 
 from ... import model
-from .json_serialization import MODELING_KIND, ASSET_KIND, KEY_ELEMENTS, KEY_TYPES, IDENTIFIER_TYPES, ENTITY_TYPES,\
+from .._generic import MODELING_KIND, ASSET_KIND, KEY_ELEMENTS, KEY_TYPES, IDENTIFIER_TYPES, ENTITY_TYPES,\
     IEC61360_DATA_TYPES, IEC61360_LEVEL_TYPES
 
 logger = logging.getLogger(__name__)
@@ -274,9 +274,9 @@ class AASFromJsonDecoder(json.JSONDecoder):
     def _construct_aas_reference(cls, dct: Dict[str, object], type_: Type[T], object_class=model.AASReference)\
             -> model.AASReference:
         keys = [cls._construct_key(key_data) for key_data in _get_ts(dct, "keys", list)]
-        if keys and not issubclass(KEY_ELEMENTS_CLASSES_INVERSE.get(keys[-1].type_, type(None)), type_):
+        if keys and not issubclass(KEY_ELEMENTS_CLASSES_INVERSE.get(keys[-1].type, type(None)), type_):
             logger.warning("type %s of last key of reference to %s does not match reference type %s",
-                           keys[-1].type_.name, " / ".join(str(k) for k in keys), type_.__name__)
+                           keys[-1].type.name, " / ".join(str(k) for k in keys), type_.__name__)
         return object_class(tuple(keys), type_)
 
     @classmethod
@@ -308,7 +308,7 @@ class AASFromJsonDecoder(json.JSONDecoder):
         return ret
 
     @classmethod
-    def _construct_lang_string_set(cls, lst: List[Dict[str, object]]) -> model.LangStringSet:
+    def _construct_lang_string_set(cls, lst: List[Dict[str, object]]) -> Optional[model.LangStringSet]:
         ret = {}
         for desc in lst:
             try:
@@ -338,10 +338,12 @@ class AASFromJsonDecoder(json.JSONDecoder):
         return ret
 
     @classmethod
-    def _construct_value_reference_pair(cls, dct: Dict[str, object], object_class=model.ValueReferencePair):
-        return object_class(value=_get_ts(dct, 'value', str),
-                            value_id=cls._construct_reference(_get_ts(dct, 'valueId', dict)),
-                            value_type=_get_ts(dct, 'valueType', str))
+    def _construct_value_reference_pair(cls, dct: Dict[str, object], object_class=model.ValueReferencePair) -> \
+            model.ValueReferencePair:
+        value_type = model.datatypes.XSD_TYPE_CLASSES[_get_ts(dct, 'valueType', str)]
+        return object_class(value_type=value_type,
+                            value=model.datatypes.from_xsd(_get_ts(dct, 'value', str), value_type),
+                            value_id=cls._construct_reference(_get_ts(dct, 'valueId', dict)))
 
     # #############################################################################
     # Direct Constructor Methods (for classes with `modelType`) starting from here
@@ -371,7 +373,7 @@ class AASFromJsonDecoder(json.JSONDecoder):
         cls._amend_abstract_attributes(ret, dct)
         if 'submodels' in dct:
             for sm_data in _get_ts(dct, 'submodels', list):
-                ret.submodel_.add(cls._construct_aas_reference(sm_data, model.Submodel))
+                ret.submodel.add(cls._construct_aas_reference(sm_data, model.Submodel))
         if 'views' in dct:
             for view in _get_ts(dct, 'views', list):
                 if _expect_type(view, model.View, str(ret), cls.failsafe):
@@ -381,7 +383,7 @@ class AASFromJsonDecoder(json.JSONDecoder):
                 if _expect_type(concept_dictionary, model.ConceptDictionary, str(ret), cls.failsafe):
                     ret.concept_dictionary.add(concept_dictionary)
         if 'security' in dct:
-            ret.security_ = cls._construct_security(_get_ts(dct, 'security', dict))
+            ret.security = cls._construct_security(_get_ts(dct, 'security', dict))
         if 'derivedFrom' in dct:
             ret.derived_from = cls._construct_aas_reference(_get_ts(dct, 'derivedFrom', dict),
                                                             model.AssetAdministrationShell)
@@ -437,11 +439,11 @@ class AASFromJsonDecoder(json.JSONDecoder):
         if 'symbol' in data_spec:
             ret.symbol = _get_ts(data_spec, 'symbol', str)
         if 'valueFormat' in data_spec:
-            ret.value_format = _get_ts(data_spec, 'valueFormat', str)
+            ret.value_format = model.datatypes.XSD_TYPE_CLASSES[_get_ts(data_spec, 'valueFormat', str)]
         if 'valueList' in data_spec:
             ret.value_list = cls._construct_value_list(_get_ts(data_spec, 'valueList', dict))
         if 'value' in data_spec:
-            ret.value = _get_ts(data_spec, 'value', str)
+            ret.value = model.datatypes.from_xsd(_get_ts(data_spec, 'value', str), ret.value_format)
         if 'valueId' in data_spec:
             ret.value_id = cls._construct_reference(_get_ts(data_spec, 'valueId', dict))
         if 'levelType' in data_spec:
@@ -476,10 +478,10 @@ class AASFromJsonDecoder(json.JSONDecoder):
     @classmethod
     def _construct_qualifier(cls, dct: Dict[str, object], object_class=model.Qualifier) -> model.Qualifier:
         ret = object_class(type_=_get_ts(dct, 'type', str),
-                           value_type=_get_ts(dct, 'valueType', str))
+                           value_type=model.datatypes.XSD_TYPE_CLASSES[_get_ts(dct, 'valueType', str)])
         cls._amend_abstract_attributes(ret, dct)
         if 'value' in dct:
-            ret.value = _get_ts(dct, 'value', str)
+            ret.value = model.datatypes.from_xsd(_get_ts(dct, 'value', str), ret.value_type)
         if 'valueId' in dct:
             ret.value_id = cls._construct_reference(_get_ts(dct, 'valueId', dict))
         return ret
@@ -639,11 +641,11 @@ class AASFromJsonDecoder(json.JSONDecoder):
     @classmethod
     def _construct_property(cls, dct: Dict[str, object], object_class=model.Property) -> model.Property:
         ret = object_class(id_short=_get_ts(dct, "idShort", str),
-                           value_type=_get_ts(dct, 'valueType', str),
+                           value_type=model.datatypes.XSD_TYPE_CLASSES[_get_ts(dct, 'valueType', str)],
                            kind=cls._get_kind(dct))
         cls._amend_abstract_attributes(ret, dct)
         if 'value' in dct and dct['value'] is not None:
-            ret.value = _get_ts(dct, 'value', str)
+            ret.value = model.datatypes.from_xsd(_get_ts(dct, 'value', str), ret.value_type)
         if 'valueId' in dct:
             ret.value_id = cls._construct_reference(_get_ts(dct, 'valueId', dict))
         return ret
@@ -651,13 +653,13 @@ class AASFromJsonDecoder(json.JSONDecoder):
     @classmethod
     def _construct_range(cls, dct: Dict[str, object], object_class=model.Range) -> model.Range:
         ret = object_class(id_short=_get_ts(dct, "idShort", str),
-                           value_type=_get_ts(dct, 'valueType', str),
+                           value_type=model.datatypes.XSD_TYPE_CLASSES[_get_ts(dct, 'valueType', str)],
                            kind=cls._get_kind(dct))
         cls._amend_abstract_attributes(ret, dct)
         if 'min' in dct and dct['min'] is not None:
-            ret.min_ = _get_ts(dct, 'min', str)
+            ret.min = model.datatypes.from_xsd(_get_ts(dct, 'min', str), ret.value_type)
         if 'max' in dct and dct['max'] is not None:
-            ret.max_ = _get_ts(dct, 'max', str)
+            ret.max = model.datatypes.from_xsd(_get_ts(dct, 'max', str), ret.value_type)
         return ret
 
     @classmethod

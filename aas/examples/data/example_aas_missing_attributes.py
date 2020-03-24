@@ -12,7 +12,12 @@
 Module for the creation of a object store with missing object attribute combination for testing the serialization
 
 """
-from aas import model
+import logging
+
+from ... import model
+from ._helper import AASDataChecker
+
+logger = logging.getLogger(__name__)
 
 
 def create_full_example() -> model.DictObjectStore:
@@ -59,11 +64,11 @@ def create_example_submodel() -> model.Submodel:
     """
     qualifier = model.Qualifier(
         type_='http://acplt.org/Qualifier/ExampleQualifier',
-        value_type='string')
+        value_type=model.datatypes.String)
 
     submodel_element_property = model.Property(
         id_short='ExampleProperty',
-        value_type='string',
+        value_type=model.datatypes.String,
         value='exampleValue',
         value_id=None,  # TODO
         category='CONSTANT',
@@ -73,7 +78,7 @@ def create_example_submodel() -> model.Submodel:
         semantic_id=model.Reference((model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
                                                local=False,
                                                value='http://acplt.org/Properties/ExampleProperty',
-                                               id_type=model.KeyType.IRDI),)),
+                                               id_type=model.KeyType.IRI),)),
         qualifier={qualifier},
         kind=model.ModelingKind.INSTANCE)
 
@@ -90,15 +95,15 @@ def create_example_submodel() -> model.Submodel:
                                                local=False,
                                                value='http://acplt.org/MultiLanguageProperties/'
                                                      'ExampleMultiLanguageProperty',
-                                               id_type=model.KeyType.IRDI),)),
+                                               id_type=model.KeyType.IRI),)),
         qualifier=None,
         kind=model.ModelingKind.INSTANCE)
 
     submodel_element_range = model.Range(
         id_short='ExampleRange',
-        value_type='int',
-        min_='0',
-        max_='100',
+        value_type=model.datatypes.Int,
+        min_=0,
+        max_=100,
         category='PARAMETER',
         description={'en-us': 'Example Range object',
                      'de': 'Beispiel Range Element'},
@@ -106,7 +111,7 @@ def create_example_submodel() -> model.Submodel:
         semantic_id=model.Reference((model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
                                                local=False,
                                                value='http://acplt.org/Ranges/ExampleRange',
-                                               id_type=model.KeyType.IRDI),)),
+                                               id_type=model.KeyType.IRI),)),
         qualifier=None,
         kind=model.ModelingKind.INSTANCE)
 
@@ -121,7 +126,7 @@ def create_example_submodel() -> model.Submodel:
         semantic_id=model.Reference((model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
                                                local=False,
                                                value='http://acplt.org/Blobs/ExampleBlob',
-                                               id_type=model.KeyType.IRDI),)),
+                                               id_type=model.KeyType.IRI),)),
         qualifier=None,
         kind=model.ModelingKind.INSTANCE)
 
@@ -136,7 +141,7 @@ def create_example_submodel() -> model.Submodel:
         semantic_id=model.Reference((model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
                                                local=False,
                                                value='http://acplt.org/Files/ExampleFile',
-                                               id_type=model.KeyType.IRDI),)),
+                                               id_type=model.KeyType.IRI),)),
         qualifier=None,
         kind=model.ModelingKind.INSTANCE)
 
@@ -154,7 +159,7 @@ def create_example_submodel() -> model.Submodel:
         semantic_id=model.Reference((model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
                                                local=False,
                                                value='http://acplt.org/ReferenceElements/ExampleReferenceElement',
-                                               id_type=model.KeyType.IRDI),)),
+                                               id_type=model.KeyType.IRI),)),
         qualifier=None,
         kind=model.ModelingKind.INSTANCE)
 
@@ -178,7 +183,7 @@ def create_example_submodel() -> model.Submodel:
                                                local=False,
                                                value='http://acplt.org/RelationshipElements/'
                                                      'ExampleRelationshipElement',
-                                               id_type=model.KeyType.IRDI),)),
+                                               id_type=model.KeyType.IRI),)),
         qualifier=None,
         kind=model.ModelingKind.INSTANCE)
 
@@ -207,7 +212,7 @@ def create_example_submodel() -> model.Submodel:
                                                local=False,
                                                value='http://acplt.org/RelationshipElements/'
                                                      'ExampleAnnotatedRelationshipElement',
-                                               id_type=model.KeyType.IRDI),)),
+                                               id_type=model.KeyType.IRI),)),
         qualifier=None,
         kind=model.ModelingKind.INSTANCE)
 
@@ -233,7 +238,7 @@ def create_example_submodel() -> model.Submodel:
                                                local=False,
                                                value='http://acplt.org/Operations/'
                                                      'ExampleOperation',
-                                               id_type=model.KeyType.IRDI),)),
+                                               id_type=model.KeyType.IRI),)),
         qualifier=None,
         kind=model.ModelingKind.INSTANCE)
 
@@ -247,7 +252,7 @@ def create_example_submodel() -> model.Submodel:
                                                local=False,
                                                value='http://acplt.org/Capabilities/'
                                                      'ExampleCapability',
-                                               id_type=model.KeyType.IRDI),)),
+                                               id_type=model.KeyType.IRI),)),
         qualifier=None,
         kind=model.ModelingKind.INSTANCE)
 
@@ -266,7 +271,7 @@ def create_example_submodel() -> model.Submodel:
                                                local=False,
                                                value='http://acplt.org/Events/'
                                                      'ExampleBasicEvent',
-                                               id_type=model.KeyType.IRDI),)),
+                                               id_type=model.KeyType.IRI),)),
         qualifier=None,
         kind=model.ModelingKind.INSTANCE)
 
@@ -283,7 +288,7 @@ def create_example_submodel() -> model.Submodel:
                                                local=False,
                                                value='http://acplt.org/SubmodelElementCollections/'
                                                      'ExampleSubmodelElementCollectionOrdered',
-                                               id_type=model.KeyType.IRDI),)),
+                                               id_type=model.KeyType.IRI),)),
         qualifier=None,
         kind=model.ModelingKind.INSTANCE)
 
@@ -300,7 +305,7 @@ def create_example_submodel() -> model.Submodel:
                                                local=False,
                                                value='http://acplt.org/SubmodelElementCollections/'
                                                      'ExampleSubmodelElementCollectionUnordered',
-                                               id_type=model.KeyType.IRDI),)),
+                                               id_type=model.KeyType.IRI),)),
         qualifier=None,
         kind=model.ModelingKind.INSTANCE)
 
@@ -325,7 +330,7 @@ def create_example_submodel() -> model.Submodel:
                                                local=False,
                                                value='http://acplt.org/SubmodelTemplates/'
                                                      'ExampleSubmodel',
-                                               id_type=model.KeyType.IRDI),)),
+                                               id_type=model.KeyType.IRI),)),
         qualifier=None,
         kind=model.ModelingKind.INSTANCE)
     return submodel
@@ -366,7 +371,7 @@ def create_example_concept_dictionary() -> model.ConceptDictionary:
         concept_description={model.AASReference((model.Key(type_=model.KeyElements.CONCEPT_DESCRIPTION,
                                                            local=False,
                                                            value='https://acplt.org/Test_ConceptDescription_Missing',
-                                                           id_type=model.KeyType.IRDI),),
+                                                           id_type=model.KeyType.IRI),),
                                                 model.ConceptDescription)})
     return concept_dictionary
 
@@ -383,7 +388,7 @@ def create_example_asset_administration_shell(concept_dictionary: model.ConceptD
         contained_element={model.AASReference((model.Key(type_=model.KeyElements.SUBMODEL,
                                                          local=False,
                                                          value='https://acplt.org/Test_Submodel_Missing',
-                                                         id_type=model.KeyType.IRDI),),
+                                                         id_type=model.KeyType.IRI),),
                                               model.Submodel)})
     view_2 = model.View(
         id_short='ExampleView2')
@@ -392,7 +397,7 @@ def create_example_asset_administration_shell(concept_dictionary: model.ConceptD
         asset=model.AASReference((model.Key(type_=model.KeyElements.ASSET,
                                             local=False,
                                             value='https://acplt.org/Test_Asset_Missing',
-                                            id_type=model.KeyType.IRDI),),
+                                            id_type=model.KeyType.IRI),),
                                  model.Asset),
         identification=model.Identifier(id_='https://acplt.org/Test_AssetAdministrationShell_Missing',
                                         id_type=model.IdentifierType.IRI),
@@ -407,9 +412,38 @@ def create_example_asset_administration_shell(concept_dictionary: model.ConceptD
         submodel_={model.AASReference((model.Key(type_=model.KeyElements.SUBMODEL,
                                                  local=False,
                                                  value='https://acplt.org/Test_Submodel_Missing',
-                                                 id_type=model.KeyType.IRDI),),
+                                                 id_type=model.KeyType.IRI),),
                                       model.Submodel)},
         concept_dictionary=[concept_dictionary],
         view=[view, view_2],
         derived_from=None)
     return asset_administration_shell
+
+
+##############################################################################
+# check functions for checking if an given object is the same as the example #
+##############################################################################
+def check_example_asset(checker: AASDataChecker, asset: model.Asset) -> None:
+    expected_asset = create_example_asset()
+    checker.check_asset_equal(asset, expected_asset)
+
+
+def check_example_concept_description(checker: AASDataChecker, concept_description: model.ConceptDescription) -> None:
+    expected_concept_description = create_example_concept_description()
+    checker.check_concept_description_equal(concept_description, expected_concept_description)
+
+
+def check_example_asset_administration_shell(checker: AASDataChecker, shell: model.AssetAdministrationShell) -> None:
+    example_cd = create_example_concept_dictionary()
+    expected_shell = create_example_asset_administration_shell(example_cd)
+    checker.check_asset_administration_shell_equal(shell, expected_shell)
+
+
+def check_example_submodel(checker: AASDataChecker, submodel: model.Submodel) -> None:
+    expected_submodel = create_example_submodel()
+    checker.check_submodel_equal(submodel, expected_submodel)
+
+
+def check_full_example(checker: AASDataChecker, obj_store: model.DictObjectStore) -> None:
+    example_data = create_full_example()
+    checker.check_object_store(example_data, obj_store)

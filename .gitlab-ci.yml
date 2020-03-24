@@ -25,6 +25,8 @@ test:
   # Setup test config and CouchDB database server
   - echo -e "[couchdb]\nurl = http://couchdb:5984" > test/test_config.ini
   - python test/_helper/setup_testdb.py -u "$COUCHDB_USER" -p "$COUCHDB_PASSWORD"
+  # Add source directory to PYTHONPATH to allow testing our CLI scripts, which import our modules
+  - export PYTHONPATH=".:$PYTHONPATH"
   # Run tests
   - coverage run --source aas --branch -m xmlrunner -o testreports
   # Report test coverage; check typing and codestyle
@@ -35,3 +37,5 @@ test:
   artifacts:
     reports:
       junit: testreports/*.xml
+
+  only: [branches, tags, merge_requests]

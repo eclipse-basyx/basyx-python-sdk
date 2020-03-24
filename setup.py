@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 # Copyright 2019 PyI40AAS Contributors
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
@@ -30,5 +31,14 @@ setuptools.setup(
         "Operating System :: OS Independent",
         "Development Status :: 3 - Alpha",
     ],
+    entry_points={
+        'console_scripts': [
+            "aas_compliance_check = aas.compliance_tool.cli:main"
+        ]
+    },
     python_requires='>=3.6',
+    install_requires=[
+        'python-dateutil>=2.8,<3',
+        'lxml>=4.2,<5',
+    ]
 )

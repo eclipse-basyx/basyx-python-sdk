@@ -3,9 +3,9 @@ This module contains the classes `ConceptDescription` and `ConceptDictionary` fr
 specialized ConceptDescriptions like `IEC61360ConceptDescription`.
 """
 from enum import unique, Enum
-from typing import Optional, Set
+from typing import Optional, Set, Type
 
-from . import base
+from . import base, datatypes
 
 
 class ConceptDescription(base.Identifiable):
@@ -48,7 +48,7 @@ class ConceptDescription(base.Identifiable):
         self.is_case_of: Set[base.Reference] = set() if is_case_of is None else is_case_of
         self.id_short = id_short
         self.category: Optional[str] = category
-        self.description: Optional[base.LangStringSet] = description
+        self.description: Optional[base.LangStringSet] = dict() if description is None else description
         self.parent: Optional[base.Namespace] = parent
         self.administration: Optional[base.AdministrativeInformation] = administration
 
@@ -85,7 +85,7 @@ class ConceptDictionary(base.Referable):
         super().__init__()
         self.id_short = id_short
         self.category: Optional[str] = category
-        self.description: Optional[base.LangStringSet] = description
+        self.description: Optional[base.LangStringSet] = dict() if description is None else description
         self.parent: Optional[base.Namespace] = parent
         self.concept_description: Set[base.AASReference[ConceptDescription]] = \
             set() if concept_description is None else concept_description
@@ -143,7 +143,7 @@ class IEC61360ConceptDescription(ConceptDescription):
                  unit_id: Optional[base.Reference] = None,
                  source_of_definition: Optional[str] = None,
                  symbol: Optional[str] = None,
-                 value_format: Optional[str] = None,
+                 value_format: base.DataTypeDef = None,
                  value_list: Optional[base.ValueList] = None,
                  value: Optional[base.ValueDataType] = None,
                  value_id: Optional[base.Reference] = None,
@@ -186,8 +186,20 @@ class IEC61360ConceptDescription(ConceptDescription):
         self.unit_id: Optional[base.Reference] = unit_id
         self.source_of_definition: Optional[str] = source_of_definition
         self.symbol: Optional[str] = symbol
-        self.value_format: Optional[str] = value_format
         self.value_list: Optional[base.ValueList] = value_list
-        self.value: Optional[base.ValueDataType] = value
         self.value_id: Optional[base.Reference] = value_id
         self.level_types: Set[IEC61360LevelType] = level_types if level_types else set()
+        self.value_format: Optional[Type[datatypes.AnyXSDType]] = value_format
+        self._value: Optional[base.ValueDataType] = (datatypes.trivial_cast(value, self.value_format)
+                                                     if (value is not None and self.value_format is not None) else None)
+
+    @property
+    def value(self):
+        return self._value
+
+    @value.setter
+    def value(self, value) -> None:
+        if value is None or self.value_format is None:
+            self._value = None
+        else:
+            self._value = datatypes.trivial_cast(value, self.value_format)

@@ -21,15 +21,17 @@ from typing import List, Optional, Set, TypeVar, MutableSet, Generic, Iterable, 
     MutableSequence, Type, Any, TYPE_CHECKING, Tuple
 import re
 
+from . import datatypes
+
 if TYPE_CHECKING:
     from . import provider
 
-DataTypeDef = str  # any xsd simple type as string
+DataTypeDef = Type[datatypes.AnyXSDType]
+ValueDataType = datatypes.AnyXSDType  # any xsd atomic type (from .datatypes)
 BlobType = bytes
 MimeType = str  # any mimetype as in RFC2046
 PathType = str
 QualifierType = str
-ValueDataType = str  # any xsd atomic type
 # A dict of language-Identifier (according to ISO 639-1 and ISO 3166-1) and string in this language.
 # The meaning of the string in each language is the same.
 # << Data Type >> Example ["en-US", "germany"]
@@ -203,7 +205,7 @@ class Key:
     """
     A key is a reference to an element by its id.
 
-    :ivar type_: Denote which kind of entity is referenced. In case type = GlobalReference then the element is a
+    :ivar type: Denote which kind of entity is referenced. In case type = GlobalReference then the element is a
                 global unique id. In all other cases the key references a model element of the same or of another AAS.
                 The name of the model element is explicitly listed.
     :ivar local: Denotes if the key references a model element of the same AAS (=true) or not (=false). In case of
@@ -234,11 +236,11 @@ class Key:
 
         TODO: Add instruction what to do after construction
         """
-        self.type_: KeyElements
+        self.type: KeyElements
         self.local: bool
         self.value: str
         self.id_type: KeyType
-        super().__setattr__('type_', type_)
+        super().__setattr__('type', type_)
         super().__setattr__('local', local)
         super().__setattr__('value', value)
         super().__setattr__('id_type', id_type)
@@ -252,6 +254,17 @@ class Key:
 
     def __str__(self) -> str:
         return "{}={}".format(self.id_type.name, self.value)
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, Key):
+            return NotImplemented
+        return (self.id_type is other.id_type
+                and self.value == other.value
+                and self.local == other.local
+                and self.type == other.type)
+
+    def __hash__(self):
+        return hash((self.id_type, self.value, self.local, self.type))
 
     def get_identifier(self) -> Optional["Identifier"]:
         """
@@ -327,6 +340,12 @@ class AdministrativeInformation:
         else:
             self._revision = revision
 
+    def __eq__(self, other) -> bool:
+        return self.version == other.version and self._revision == other._revision
+
+    def __repr__(self) -> str:
+        return "AdminstrativeInformation(version={}, revision={})".format(self.version, self.revision)
+
     revision = property(_get_revision, _set_revision)
 
 
@@ -363,11 +382,13 @@ class Identifier:
     def __hash__(self):
         return hash((self.id_type, self.id))
 
-    def __eq__(self, other) -> bool:
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, Identifier):
+            return NotImplemented
         return self.id_type == other.id_type and self.id == other.id
 
     def __repr__(self) -> str:
-        return "{}={}".format(self.id_type.name, self.id)
+        return "Identifier({}={})".format(self.id_type.name, self.id)
 
 
 class Referable(metaclass=abc.ABCMeta):
@@ -395,8 +416,8 @@ class Referable(metaclass=abc.ABCMeta):
     def __init__(self):
         super().__init__()
         self.id_short: Optional[str] = ""
-        self.category: Optional[str] = None
-        self.description: Optional[LangStringSet] = None
+        self.category: Optional[str] = ""
+        self.description: Optional[LangStringSet] = set()
         # We use a Python reference to the parent Namespace instead of a Reference Object, as specified. This allows
         # simpler and faster navigation/checks and it has no effect in the serialized data formats anyway.
         self.parent: Optional[Namespace] = None
@@ -412,7 +433,9 @@ class Referable(metaclass=abc.ABCMeta):
                 reversed_path.append(item.id_short)
                 item = item.parent
             else:
-                break
+                raise AttributeError('Referable must have an identifiable as root object and only parents that are '
+                                     'referable')
+
         return "{}[{}]".format(self.__class__.__name__, " / ".join(reversed(reversed_path)))
 
     def _get_id_short(self):
@@ -467,7 +490,7 @@ class Reference:
     :ivar: key: Ordered list of unique reference in its name space, each key referencing an element. The complete
                 list of keys may for example be concatenated to a path that then gives unique access to an element
                 or entity.
-    :ivar: type_: The type of the referenced object (additional attribute, not from the AAS Metamodel)
+    :ivar: type: The type of the referenced object (additional attribute, not from the AAS Metamodel)
     """
 
     def __init__(self,
@@ -494,18 +517,12 @@ class Reference:
     def __hash__(self):
         return hash(self.key)
 
-    def __eq__(self, other) -> bool:
-        if isinstance(other, Reference) is False:
-            return False
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, Reference):
+            return NotImplemented
         if len(self.key) != len(other.key):
             return False
-        for i in range(len(self.key)):
-            if (self.key[i].value != other.key[i].value) or \
-               (self.key[i].type_ != other.key[i].type_) or \
-               (self.key[i].local != other.key[i].local) or \
-               (self.key[i].id_type != other.key[i].id_type):
-                return False
-        return True
+        return all(k1 == k2 for k1, k2 in zip(self.key, other.key))
 
 
 class AASReference(Reference, Generic[_RT]):
@@ -560,7 +577,7 @@ class AASReference(Reference, Generic[_RT]):
         # First, resolve the identifier-key via the provider
         identifier: Identifier = self.key[last_identifier_index].get_identifier()  # type: ignore
         try:
-            item = provider_.get_identifiable(identifier)
+            item: Referable = provider_.get_identifiable(identifier)
         except KeyError as e:
             raise KeyError("Could not resolve global reference key {}".format(identifier)) from e
         resolved_keys.append(str(identifier))
@@ -722,7 +739,7 @@ class Qualifier(Constraint, HasSemantics):
     """
     A qualifier is a type-value pair that makes additional statements w.r.t. the value of the element.
 
-    :ivar type_: The type of the qualifier that is applied to the element.
+    :ivar type: The type of the qualifier that is applied to the element.
     :ivar value_type: Data type of the qualifier value
     :ivar value: The value of the qualifier.
                  Constraint AASd-006: if both, the value and the valueId are present then the value needs to be
@@ -749,11 +766,25 @@ class Qualifier(Constraint, HasSemantics):
         TODO: Add instruction what to do after construction
         """
         super().__init__()
-        self.type_: QualifierType = type_
-        self.value_type: DataTypeDef = value_type
-        self.value: Optional[ValueDataType] = value
+        self.type: QualifierType = type_
+        self.value_type: Type[datatypes.AnyXSDType] = value_type
+        self._value: Optional[ValueDataType] = datatypes.trivial_cast(value, value_type) if value is not None else None
         self.value_id: Optional[Reference] = value_id
         self.semantic_id: Optional[Reference] = semantic_id
+
+    def __repr__(self) -> str:
+        return "Qualifier(type={})".format(self.type)
+
+    @property
+    def value(self):
+        return self._value
+
+    @value.setter
+    def value(self, value) -> None:
+        if value is None:
+            self._value = None
+        else:
+            self._value = datatypes.trivial_cast(value, self.value_type)
 
 
 class ValueReferencePair:
@@ -767,9 +798,9 @@ class ValueReferencePair:
     """
 
     def __init__(self,
+                 value_type: DataTypeDef,
                  value: ValueDataType,
-                 value_id: Reference,
-                 value_type: str):
+                 value_id: Reference):
         """
         Initializer of ValueReferencePair
 
@@ -779,9 +810,25 @@ class ValueReferencePair:
 
         TODO: Add instruction what to do after construction
         """
-        self.value: ValueDataType = value
+        self.value_type: Type[datatypes.AnyXSDType] = value_type
         self.value_id: Reference = value_id
-        self.value_type: str = value_type
+        self._value: ValueDataType = datatypes.trivial_cast(value, value_type)
+
+    @property
+    def value(self):
+        return self._value
+
+    @value.setter
+    def value(self, value) -> None:
+        if value is None:
+            raise AttributeError('Value can not be None')
+        else:
+            self._value = datatypes.trivial_cast(value, self.value_type)
+
+    def __repr__(self) -> str:
+        return "ValueReferencePair(value_type={}, value={}, value_id={})".format(self.value_type,
+                                                                                 self.value,
+                                                                                 self.value_id)
 
 
 ValueList = Set[ValueReferencePair]
@@ -1028,37 +1075,3 @@ class DataSpecificationContent(metaclass=abc.ABCMeta):
     <<abstract>>
     """
     pass
-
-
-class DataSpecification(Identifiable, DataSpecificationContent, metaclass=abc.ABCMeta):
-    """
-    A DataSpecification to be referenced by model.aas.ConceptDescription
-
-    <<abstract>>
-    """
-    def __init__(self,
-                 administration: AdministrativeInformation,
-                 identification: Identifier,
-                 id_short: str = "",
-                 category: Optional[str] = None,
-                 description: Optional[LangStringSet] = None,
-                 parent: Optional[Namespace] = None):
-        """
-        Initializer of DataSpecification
-
-        :param administration: Administrative information of an identifiable element. (from base.Identifiable)
-        :param identification: The globally unique identification of the element. (from base.Identifiable)
-        :param id_short: Identifying string of the element within its name space. (from base.Referable)
-        :param category: The category is a value that gives further meta information w.r.t. to the class of the element.
-                         It affects the expected existence of attributes and the applicability of constraints.
-                         (from base.Referable)
-        :param description: Description or comments on the element. (from base.Referable)
-        :param parent: Reference to the next referable parent element of the element. (from base.Referable)
-        """
-        super().__init__()
-        self.administration: AdministrativeInformation = administration
-        self.identification: Identifier = identification
-        self.id_short = id_short
-        self.category: Optional[str] = category
-        self.description: Optional[LangStringSet] = description
-        self.parent: Optional[Namespace] = parent

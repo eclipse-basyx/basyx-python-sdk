@@ -17,10 +17,8 @@ import unittest
 import urllib.request
 import urllib.error
 
-from aas import model
 from aas.adapter import couchdb
-from aas.examples.data import example_aas
-from test._helper.testCase_for_example_aas import *
+from aas.examples.data.example_aas import *
 
 
 TEST_CONFIG = configparser.ConfigParser()
@@ -61,7 +59,7 @@ class CouchDBTest(unittest.TestCase):
         self.db.logout()
 
     def test_example_submodel_storing(self) -> None:
-        example_submodel = example_aas.create_example_submodel()
+        example_submodel = create_example_submodel()
 
         # Add exmaple submodel
         self.db.add(example_submodel)
@@ -72,14 +70,15 @@ class CouchDBTest(unittest.TestCase):
         submodel_restored = self.db.get_identifiable(
             model.Identifier(id_='https://acplt.org/Test_Submodel', id_type=model.IdentifierType.IRI))
         assert(isinstance(submodel_restored, model.Submodel))
-        assert_example_submodel(self, submodel_restored)
+        checker = AASDataChecker(raise_immediately=True)
+        check_example_submodel(checker, submodel_restored)
 
         # Delete example submodel
         self.db.discard(submodel_restored)
         self.assertNotIn(example_submodel, self.db)
 
     def test_iterating(self) -> None:
-        example_data = example_aas.create_full_example()
+        example_data = create_full_example()
 
         # Add all objects
         for item in example_data:
@@ -91,10 +90,11 @@ class CouchDBTest(unittest.TestCase):
         retrieved_data_store: model.provider.DictObjectStore[model.Identifiable] = model.provider.DictObjectStore()
         for item in self.db:
             retrieved_data_store.add(item)
-        assert_full_example(self, retrieved_data_store)
+        checker = AASDataChecker(raise_immediately=True)
+        check_full_example(checker, retrieved_data_store)
 
     def test_parallel_iterating(self) -> None:
-        example_data = example_aas.create_full_example()
+        example_data = create_full_example()
         ids = [item.identification for item in example_data]
 
         # Add objects via thread pool executor
@@ -112,7 +112,8 @@ class CouchDBTest(unittest.TestCase):
         for item in retrieved_objects:
             retrieved_data_store.add(item)
         self.assertEqual(6, len(retrieved_data_store))
-        assert_full_example(self, retrieved_data_store)
+        checker = AASDataChecker(raise_immediately=True)
+        check_full_example(checker, retrieved_data_store)
 
         # Delete objects via thread pool executor
         with concurrent.futures.ThreadPoolExecutor() as pool:
@@ -123,25 +124,31 @@ class CouchDBTest(unittest.TestCase):
 
     def test_key_errors(self) -> None:
         # Double adding an object should raise a KeyError
-        example_submodel = example_aas.create_example_submodel()
+        example_submodel = create_example_submodel()
         self.db.add(example_submodel)
-        with self.assertRaises(KeyError):
+        with self.assertRaises(KeyError) as cm:
             self.db.add(example_submodel)
+        self.assertEqual("'Identifiable with id Identifier(IRI=https://acplt.org/Test_Submodel) already exists in "
+                         "CouchDB database'", str(cm.exception))
 
         # Querying a deleted object should raise a KeyError
         retrieved_submodel = self.db.get_identifiable(
             model.Identifier('https://acplt.org/Test_Submodel', model.IdentifierType.IRI))
         self.db.discard(example_submodel)
-        with self.assertRaises(KeyError):
+        with self.assertRaises(KeyError) as cm:
             self.db.get_identifiable(model.Identifier('https://acplt.org/Test_Submodel', model.IdentifierType.IRI))
+        self.assertEqual("'No Identifiable with id IRI-https://acplt.org/Test_Submodel found in CouchDB database'",
+                         str(cm.exception))
 
         # Double deleting should also raise a KeyError
-        with self.assertRaises(KeyError):
+        with self.assertRaises(KeyError) as cm:
             self.db.discard(retrieved_submodel)
+        self.assertEqual("'No AAS object with id Identifier(IRI=https://acplt.org/Test_Submodel) exists in "
+                         "CouchDB database'", str(cm.exception))
 
     def test_conflict_errors(self) -> None:
         # Preperation: add object and retrieve it from the database
-        example_submodel = example_aas.create_example_submodel()
+        example_submodel = create_example_submodel()
         self.db.add(example_submodel)
         retrieved_submodel = self.db.get_identifiable(
             model.Identifier('https://acplt.org/Test_Submodel', model.IdentifierType.IRI))
@@ -153,22 +160,28 @@ class CouchDBTest(unittest.TestCase):
 
         # Committing changes to the retrieved object should now raise a conflict error
         retrieved_submodel.id_short = "myOtherNewIdShort"
-        with self.assertRaises(couchdb.CouchDBConflictError):
+        with self.assertRaises(couchdb.CouchDBConflictError) as cm:
             retrieved_submodel.commit_changes()
+        self.assertEqual("Could not commit changes to id Identifier(IRI=https://acplt.org/Test_Submodel) due to a "
+                         "concurrent modification in the database.", str(cm.exception))
 
         # Deleting the submodel with safe_delete should also raise a conflict error. Deletion without safe_delete should
         # work
-        with self.assertRaises(couchdb.CouchDBConflictError):
+        with self.assertRaises(couchdb.CouchDBConflictError) as cm:
             self.db.discard(retrieved_submodel, True)
+        self.assertEqual("Object with id Identifier(IRI=https://acplt.org/Test_Submodel) has been modified in the "
+                         "database since the version requested to be deleted.", str(cm.exception))
         self.db.discard(retrieved_submodel, False)
         self.assertEqual(0, len(self.db))
 
         # Committing after deletion should also raise a conflict error
-        with self.assertRaises(couchdb.CouchDBConflictError):
+        with self.assertRaises(couchdb.CouchDBConflictError) as cm:
             retrieved_submodel.commit_changes()
+        self.assertEqual("Could not commit changes to id Identifier(IRI=https://acplt.org/Test_Submodel) due to a "
+                         "concurrent modification in the database.", str(cm.exception))
 
     def test_editing(self) -> None:
-        example_submodel = example_aas.create_example_submodel()
+        example_submodel = create_example_submodel()
         self.db.add(example_submodel)
 
         # Retrieve submodel from database and change ExampleCapability's semanticId

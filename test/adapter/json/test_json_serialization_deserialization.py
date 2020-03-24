@@ -19,10 +19,7 @@ from aas.adapter.json import json_serialization, json_deserialization
 
 from aas.examples.data import example_aas_missing_attributes, example_submodel_template, \
     example_aas_mandatory_attributes, example_aas, example_concept_description
-from test._helper import testCase_for_example_aas, testCase_for_example_aas_mandatory_attributes, \
-    testCase_for_example_aas_missing_attributes, testCase_for_example_concept_description, \
-    testCase_for_example_submodel_template
-
+from aas.examples.data._helper import AASDataChecker
 JSON_SCHEMA_FILE = os.path.join(os.path.dirname(__file__), 'aasJSONSchemaV2.0.json')
 
 
@@ -60,7 +57,8 @@ class JsonSerializationDeserializationTest(unittest.TestCase):
         # module
         file.seek(0)
         json_object_store = json_deserialization.read_json_aas_file(file, failsafe=False)
-        testCase_for_example_aas.assert_full_example(self, json_object_store)
+        checker = AASDataChecker(raise_immediately=True)
+        example_aas.check_full_example(checker, json_object_store)
 
 
 class JsonSerializationDeserializationTest2(unittest.TestCase):
@@ -73,7 +71,8 @@ class JsonSerializationDeserializationTest2(unittest.TestCase):
         # module
         file.seek(0)
         json_object_store = json_deserialization.read_json_aas_file(file, failsafe=False)
-        testCase_for_example_aas_mandatory_attributes.assert_full_example(self, json_object_store)
+        checker = AASDataChecker(raise_immediately=True)
+        example_aas_mandatory_attributes.check_full_example(checker, json_object_store)
 
 
 class JsonSerializationDeserializationTest3(unittest.TestCase):
@@ -85,7 +84,8 @@ class JsonSerializationDeserializationTest3(unittest.TestCase):
         # module
         file.seek(0)
         json_object_store = json_deserialization.read_json_aas_file(file, failsafe=False)
-        testCase_for_example_aas_missing_attributes.assert_full_example(self, json_object_store)
+        checker = AASDataChecker(raise_immediately=True)
+        example_aas_missing_attributes.check_full_example(checker, json_object_store)
 
 
 class JsonSerializationDeserializationTest4(unittest.TestCase):
@@ -98,7 +98,8 @@ class JsonSerializationDeserializationTest4(unittest.TestCase):
         # module
         file.seek(0)
         json_object_store = json_deserialization.read_json_aas_file(file, failsafe=False)
-        testCase_for_example_submodel_template.assert_full_example(self, json_object_store)
+        checker = AASDataChecker(raise_immediately=True)
+        example_submodel_template.check_full_example(checker, json_object_store)
 
 
 class JsonSerializationDeserializationTest5(unittest.TestCase):
@@ -111,47 +112,5 @@ class JsonSerializationDeserializationTest5(unittest.TestCase):
         # module
         file.seek(0)
         json_object_store = json_deserialization.read_json_aas_file(file, failsafe=False)
-        testCase_for_example_concept_description.assert_full_example(self, json_object_store)
-
-
-class JsonSerializationDeserializationTest6(unittest.TestCase):
-    def test_all_examples_serialization_deserialization(self) -> None:
-        data: model.DictObjectStore[model.Identifiable] = model.DictObjectStore()
-        # add object from example_aas:
-        data.add(example_aas.create_example_asset_identification_submodel())
-        data.add(example_aas.create_example_bill_of_material_submodel())
-        data.add(example_aas.create_example_asset())
-        data.add(example_aas.create_example_submodel())
-        data.add(example_aas.create_example_concept_description())
-        data.add(example_aas.create_example_asset_administration_shell(
-            example_aas.create_example_concept_dictionary()))
-        # add objects from example_aas_mandatory_attributes:
-        data.add(example_aas_mandatory_attributes.create_example_asset())
-        data.add(example_aas_mandatory_attributes.create_example_submodel())
-        data.add(example_aas_mandatory_attributes.create_example_empty_submodel())
-        data.add(example_aas_mandatory_attributes.create_example_concept_description())
-        data.add(example_aas_mandatory_attributes.create_example_asset_administration_shell(
-            example_aas_mandatory_attributes.create_example_concept_dictionary()))
-        data.add(example_aas_mandatory_attributes.create_example_empty_asset_administration_shell())
-        # add objects from example_aas_missing_attributes:
-        data.add(example_aas_missing_attributes.create_example_asset())
-        data.add(example_aas_missing_attributes.create_example_submodel())
-        data.add(example_aas_missing_attributes.create_example_concept_description())
-        data.add(example_aas_missing_attributes.create_example_asset_administration_shell(
-            example_aas_missing_attributes.create_example_concept_dictionary()))
-        # add objects from example_concept_description:
-        data.add(example_concept_description.create_iec61360_concept_description())
-        # add objects from example_submodel_template:
-        data.add(example_submodel_template.create_example_submodel_template())
-
-        file = io.StringIO()
-        json_serialization.write_aas_json_file(file=file, data=data)
-        # try deserializing the json string into a DictObjectStore of AAS objects with help of the json_deserialization
-        # module
-        file.seek(0)
-        json_object_store = json_deserialization.read_json_aas_file(file, failsafe=False)
-        testCase_for_example_aas.assert_full_example(self, json_object_store, False)
-        testCase_for_example_aas_mandatory_attributes.assert_full_example(self, json_object_store, False)
-        testCase_for_example_aas_missing_attributes.assert_full_example(self, json_object_store, False)
-        testCase_for_example_concept_description.assert_full_example(self, json_object_store, False)
-        testCase_for_example_submodel_template.assert_full_example(self, json_object_store, False)
+        checker = AASDataChecker(raise_immediately=True)
+        example_concept_description.check_full_example(checker, json_object_store)

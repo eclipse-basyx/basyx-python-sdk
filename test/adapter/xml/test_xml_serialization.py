@@ -10,14 +10,14 @@
 # specific language governing permissions and limitations under the License.
 import io
 import unittest
-from lxml import etree  # type: ignore  # todo: put lxml in project requirements?
+from lxml import etree  # type: ignore
 import os
 
 from aas import model
 from aas.adapter.xml import xml_serialization
 
 from aas.examples.data import example_aas_missing_attributes, example_submodel_template, \
-    example_aas_mandatory_attributes, example_aas
+    example_aas_mandatory_attributes, example_aas, example_concept_description
 
 XML_SCHEMA_FILE = os.path.join(os.path.dirname(__file__), 'AAS.xsd')
 
@@ -25,10 +25,10 @@ XML_SCHEMA_FILE = os.path.join(os.path.dirname(__file__), 'AAS.xsd')
 class XMLSerializationTest(unittest.TestCase):
     def test_serialize_object(self) -> None:
         test_object = model.Property("test_id_short",
-                                     "string",
+                                     model.datatypes.String,
                                      category="PARAMETER",
                                      description={"en-us": "Germany", "de": "Deutschland"})
-        xml_data = xml_serialization.property_to_xml(test_object, xml_serialization.NS_AAS, "test_object")
+        xml_data = xml_serialization.property_to_xml(test_object,  xml_serialization.NS_AAS+"test_object")
         # todo: is this a correct way to test it?
 
     def test_random_object_serialization(self) -> None:
@@ -121,6 +121,20 @@ class XMLSerializationSchemaTest(unittest.TestCase):
 
     def test_missing_serialization(self) -> None:
         data = example_aas_missing_attributes.create_full_example()
+        file = io.BytesIO()
+        xml_serialization.write_aas_xml_file(file=file, data=data)
+
+        # load schema
+        aas_schema = etree.XMLSchema(file=XML_SCHEMA_FILE)
+
+        # validate serialization against schema
+        parser = etree.XMLParser(schema=aas_schema)
+        file.seek(0)
+        root = etree.parse(file, parser=parser)
+
+    def test_concept_description(self) -> None:
+        data: model.DictObjectStore[model.Identifiable] = model.DictObjectStore()
+        data.add(example_concept_description.create_iec61360_concept_description())
         file = io.BytesIO()
         xml_serialization.write_aas_xml_file(file=file, data=data)
 
