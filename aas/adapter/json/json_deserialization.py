@@ -258,7 +258,7 @@ class AASFromJsonDecoder(json.JSONDecoder):
     @classmethod
     def _construct_reference(cls, dct: Dict[str, object], object_class=model.Reference) -> model.Reference:
         keys = [cls._construct_key(key_data) for key_data in _get_ts(dct, "keys", list)]
-        return model.Reference(tuple(keys))
+        return object_class(tuple(keys))
 
     @classmethod
     def _construct_aas_reference(cls, dct: Dict[str, object], type_: Type[T], object_class=model.AASReference)\
