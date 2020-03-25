@@ -23,6 +23,7 @@ into/form object stores. For handling of embedded supplementary files, this modu
 """
 
 import abc
+import hashlib
 import io
 import logging
 import os
@@ -225,12 +226,10 @@ class AASXReader:
                 if element.value is None:
                     continue
                 absolute_name = pyecma376_2.package_model.part_realpath(element.value, part_name)
-                element.value = absolute_name
-                # TODO compare/merge files by hash?
-                if absolute_name not in file_store:
-                    logger.debug("Reading supplementary file {} from AASX package ...".format(absolute_name))
-                    with self.reader.open_part(absolute_name) as p:
-                        file_store.add_file(absolute_name, p, self.reader.get_content_type(absolute_name))
+                logger.debug("Reading supplementary file {} from AASX package ...".format(absolute_name))
+                with self.reader.open_part(absolute_name) as p:
+                    final_name = file_store.add_file(absolute_name, p, self.reader.get_content_type(absolute_name))
+                element.value = final_name
 
 
 class AASXWriter:
@@ -537,31 +536,124 @@ class NameFriendlyfier:
 
 
 class AbstractSupplementaryFileContainer(metaclass=abc.ABCMeta):
+    """
+    Abstract interface for containers of supplementary files for AASs.
+
+    Supplementary files may be PDF files or other binary or textual files, referenced in a File object of an AAS by
+    their name. They are used to provide associated documents without embedding their contents (as Blob object) in the
+    AAS.
+
+    A SupplementaryFileContainer keeps track of the name and content_type (MIME type) for each file. Additionally it
+    allows to resolve name conflicts by comparing the files' contents and providing an alternative name for a dissimilar
+    new file. It also provides each files sha256 hash sum to allow name conflict checking in other classes (e.g. when
+    writing AASX files).
+    """
     @abc.abstractmethod
-    def add_file(self, name: str, file: IO[bytes], content_type: str) -> None:
+    def add_file(self, name: str, file: IO[bytes], content_type: str) -> str:
+        """
+        Add a new file to the SupplementaryFileContainer and resolve name conflicts.
+
+        The file contents must be provided as a binary file-like object to be read by the SupplementaryFileContainer.
+        If the container already contains an equally named file, the content_type and file contents are compared (using
+        a hash sum). In case of dissimilar files, a new unique name for the new file is computed and returned. It should
+        be used to update in the File object of the AAS.
+
+        :param name: The file's proposed name. Should start with a '/'. Should not contain URI-encoded '/' or '\'
+        :param file: A binary file-like opened for reading the file contents
+        :param content_type: The file's content_type
+        :return: The file name as stored in the SupplementaryFileContainer. Typically `name` or a modified version of
+            `name` to resolve conflicts.
+        """
         pass  # pragma: no cover
 
     @abc.abstractmethod
     def get_content_type(self, name: str) -> str:
+        """
+        Get a stored file's content_type.
+
+        :param name: file name of questioned file
+        :return: The file's content_type
+        :raises KeyError: If no file with this name is stored
+        """
+        pass  # pragma: no cover
+
+    @abc.abstractmethod
+    def get_sha256(self, name: str) -> bytes:
+        """
+        Get a stored file content's sha256 hash sum.
+
+        This may be used by other classes (e.g. the AASXWriter) to check for name conflicts.
+
+        :param name: file name of questioned file
+        :return: The file content's sha256 hash sum
+        :raises KeyError: If no file with this name is stored
+        """
         pass  # pragma: no cover
 
     @abc.abstractmethod
     def write_file(self, name: str, file: IO[bytes]) -> None:
+        """
+        Retrieve a stored file's contents by writing them into a binary writable file-like object.
+
+        :param name: file name of questioned file
+        :param file: A binary file-like object with write() method to write the file contents into
+        :raises KeyError: If no file with this name is stored
+        """
         pass  # pragma: no cover
 
     @abc.abstractmethod
     def __contains__(self, item: str) -> bool:
+        """
+        Check if a file with the given name is stored in this SupplementaryFileContainer.
+        """
         pass  # pragma: no cover
 
 
-class DictSupplementaryFileContainer(AbstractSupplementaryFileContainer, Dict[str, Tuple[bytes, str]]):
-    def add_file(self, name: str, file: IO[bytes], content_type: str) -> None:
-        self[name] = (file.read(), content_type)
+class DictSupplementaryFileContainer(AbstractSupplementaryFileContainer):
+    """
+    SupplementaryFileContainer implementation using a dict to store the file contents in-memory.
+    """
+    def __init__(self):
+        # Stores the files' contents, identified by their sha256 hash
+        self._store: Dict[bytes, bytes] = {}
+        # Maps file names to (sha256, content_type)
+        self._name_map: Dict[str, Tuple[bytes, str]] = {}
+
+    def add_file(self, name: str, file: IO[bytes], content_type: str) -> str:
+        data = file.read()
+        hash = hashlib.sha256(data).digest()
+        if hash not in self._store:
+            self._store[hash] = data
+        name_map_data = (hash, content_type)
+        new_name = name
+        i = 1
+        while True:
+            if new_name not in self._name_map:
+                self._name_map[new_name] = name_map_data
+                return new_name
+            elif self._name_map[new_name] == name_map_data:
+                return new_name
+            new_name = self._append_counter(name, i)
+            i += 1
+
+    @staticmethod
+    def _append_counter(name: str, i: int) -> str:
+        split1 = name.split('/')
+        split2 = split1[-1].split('.')
+        index = -2 if len(split2) > 1 else -1
+        new_basename = "{}_{:04d}".format(split2[index], i)
+        split2[index] = new_basename
+        split1[-1] = ".".join(split2)
+        return "/".join(split1)
 
     def get_content_type(self, name: str) -> str:
-        return self[name][1]
+        return self._name_map[name][1]
+
+    def get_sha256(self, name: str) -> bytes:
+        return self._name_map[name][0]
 
     def write_file(self, name: str, file: IO[bytes]) -> None:
-        file.write(self[name][0])
+        file.write(self._store[self._name_map[name][0]])
 
-    def __contains__(self, item: object) -> bool: ...   # This stub is required to make MyPy happy
+    def __contains__(self, item: object) -> bool:
+        return item in self._name_map

@@ -29,6 +29,34 @@ class TestAASXUtils(unittest.TestCase):
         name2 = friendlyfier.get_friendly_name(model.Identifier("http://example.com/AAS+a", model.IdentifierType.IRI))
         self.assertEqual("http___example_com_AAS_a_1", name2)
 
+    def test_supplementary_file_container(self) -> None:
+        container = aasx.DictSupplementaryFileContainer()
+        with open(os.path.join(os.path.dirname(__file__), 'TestFile.pdf'), 'rb') as f:
+            new_name = container.add_file("/TestFile.pdf", f, "application/pdf")
+            # Name should not be modified, since there is no conflict
+            self.assertEqual("/TestFile.pdf", new_name)
+            f.seek(0)
+            container.add_file("/TestFile.pdf", f, "application/pdf")
+        # Name should not be modified, since there is still no conflict
+        self.assertEqual("/TestFile.pdf", new_name)
+
+        with open(__file__, 'rb') as f:
+            new_name = container.add_file("/TestFile.pdf", f, "application/pdf")
+        # Now, we have a conflict
+        self.assertNotEqual("/TestFile.pdf", new_name)
+        self.assertIn(new_name, container)
+
+        # Check metadata
+        self.assertEqual("application/pdf", container.get_content_type("/TestFile.pdf"))
+        self.assertEqual("b18229b24a4ee92c6c2b6bc6a8018563b17472f1150d35d5a5945afeb447ed44",
+                         container.get_sha256("/TestFile.pdf").hex())
+        self.assertIn("/TestFile.pdf", container)
+
+        # Check contents
+        file_content = io.BytesIO()
+        container.write_file("/TestFile.pdf", file_content)
+        self.assertEqual(hashlib.sha1(file_content.getvalue()).hexdigest(), "78450a66f59d74c073bf6858db340090ea72a8b1")
+
 
 class AASXWriterTest(unittest.TestCase):
     def test_writing_reading_example_aas(self) -> None:
