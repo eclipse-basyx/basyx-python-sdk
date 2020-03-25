@@ -42,36 +42,45 @@ pip install pyi40aas
 
 ### Example
 
-Following `examples.tutorial_create_simple_ass`, these are the steps to take to set up an exemplary 
-Asset Administration Shell with PyI40AAS:
+Creation of a `Submodel` with a `Propery` and serialization of said `Submodel` to `XML`:
 
-First, we create an `Asset`, for which we need an `Identifier`:
+Create a `Submodel`:
 ```python
 from aas import model  # Import all PYI40AAS classes from the model package
 
-id_type = model.IdentifierType.IRI
-id_ = 'https://acplt.org/Simple_Asset'
-identifier = model.Identifier(id_, id_type)
-asset = model.Asset(
-    kind=model.AssetKind.INSTANCE,  # define that the asset is of kind instance
-    identification=identifier  # set identifier
-)
+identifier = model.Identifier('https://acplt.org/Simple_Submodel', model.IdentifierType.IRI)
+submodel = model.Submodel(identification=identifier)
 ```
-Now, we can create the `AssetAdministrationShell`, which needs an `Identifier` as well. The method 
-`model.AASReference.from_referable()` lets us create a `Reference` to the `Asset` we just created from the asset itself,
-in order to add it to our `AssetAdministrationShell`.
-```python
-identifier = model.Identifier('https://acplt.org/Simple_AAS', model.IdentifierType.IRI)
-aas = model.AssetAdministrationShell(
-    identification=identifier,  # set identifier
-    asset=model.AASReference.from_referable(asset)
-)
-```
-Congratulations: Now you have created your first `AssetAdministrationShell` with PyI40AAS. From here, you can continue
-by creating submodels (`model.Submodel`) and submodel elements like properties (`model.Property`). 
 
-Alternatively you can look into storing the information your `AssetAdministrationShell` contains, either with JSON, XML 
-or CouchDB.
+Create a `Property` and add it to the `Submodel`:
+```python
+# create a global reference to a semantic description of the property
+semantic_reference = model.Reference(
+    (model.Key(
+        type_=model.KeyElements.GLOBAL_REFERENCE,
+        local=False,
+        value='http://acplt.org/Properties/SimpleProperty',
+        id_type=model.KeyType.IRI
+    ),)
+)
+property = model.Property(
+    id_short='ExampleProperty',  # Identifying string of the element within the submodel namespace
+    value_type=model.datatypes.String,  # Data type of the value
+    value='exampleValue',  # Value of the property
+    semantic_id=semantic_reference  # set the semantic reference
+)
+submodel.submodel_element.add(property)
+```
+
+Serialize the `Submodel` to `XML`:
+```python
+import aas.adapter.xml.xml_serialization
+
+data: model.DictObjectStore[model.Identifiable] = model.DictObjectStore()
+data.add(submodel)
+file = io.BytesIO()
+aas.adapter.xml.xml_serialization.write_aas_xml_file(file=file, data=data)
+```
 
 
 ### Examples and Tutorials
