@@ -105,7 +105,8 @@ class AASXReader:
             return p.read()
 
     def read_into(self, object_store: model.AbstractObjectStore,
-                  file_store: "AbstractSupplementaryFileContainer") -> Set[model.Identifier]:
+                  file_store: "AbstractSupplementaryFileContainer",
+                  override_existing: bool = False) -> Set[model.Identifier]:
         """
         Read the contents of the AASX package and add them into a given ObjectStore
 
@@ -118,6 +119,8 @@ class AASXReader:
 
         :param object_store: An ObjectStore to add the AAS objects from the AASX file to
         :param file_store: A SupplementaryFileContainer to add the embedded supplementary files to
+        :param override_existing: If True, existing objects in the object store are overridden with objects from the
+            AASX that have the same Identifer. Default behavior is to skip those objects from the AASX.
         :return: A set of the Identifiers of all Identifiable objects parsed from the AASX file
         """
         # Find AASX-Origin part
@@ -132,12 +135,12 @@ class AASXReader:
         # Iterate AAS files
         for aas_part in self.reader.get_related_parts_by_type(aasx_origin_part)[
                 RELATIONSHIP_TYPE_AAS_SPEC]:
-            self._read_aas_part_into(aas_part, object_store, file_store, read_identifiables)
+            self._read_aas_part_into(aas_part, object_store, file_store, read_identifiables, override_existing)
 
             # Iterate split parts of AAS file
             for split_part in self.reader.get_related_parts_by_type(aas_part)[
                     RELATIONSHIP_TYPE_AAS_SPEC_SPLIT]:
-                self._read_aas_part_into(split_part, object_store, file_store, read_identifiables)
+                self._read_aas_part_into(split_part, object_store, file_store, read_identifiables, override_existing)
 
         return read_identifiables
 
@@ -156,7 +159,8 @@ class AASXReader:
     def _read_aas_part_into(self, part_name: str,
                             object_store: model.AbstractObjectStore,
                             file_store: "AbstractSupplementaryFileContainer",
-                            read_identifiables: Set[model.Identifier]):
+                            read_identifiables: Set[model.Identifier],
+                            override_existing: bool) -> None:
         """
         Helper function for `read_into()` to read and process the contents of an AAS-spec part of the AASX file.
 
@@ -169,19 +173,24 @@ class AASXReader:
             from a File object of this part
         :param read_identifiables: A set of Identifiers of objects which have already been read. New objects'
             Identifiers are added to this set. Objects with already known Identifiers are skipped silently.
+        :param override_existing: If True, existing objects in the object store are overridden with objects from the
+            AASX that have the same Identifer. Default behavior is to skip those objects from the AASX.
         """
         for obj in self._parse_aas_part(part_name):
             if obj.identification in read_identifiables:
                 continue
-            if obj.identification not in object_store:
-                object_store.add(obj)
-                read_identifiables.add(obj.identification)
-                if isinstance(obj, model.Submodel):
-                    self._collect_supplementary_files(part_name, obj, file_store)
-            else:
-                # TODO non-failsafe mode? Merge-mode?
-                logger.warning("Skipping {}, since an object with the same id is already contained in the "
-                               "ObjectStore".format(obj))
+            if obj.identification in object_store:
+                if override_existing:
+                    logger.info("Overriding existing object in  ObjectStore with {} ...".format(obj))
+                    object_store.discard(obj)
+                else:
+                    logger.warning("Skipping {}, since an object with the same id is already contained in the "
+                                   "ObjectStore".format(obj))
+                    continue
+            object_store.add(obj)
+            read_identifiables.add(obj.identification)
+            if isinstance(obj, model.Submodel):
+                self._collect_supplementary_files(part_name, obj, file_store)
 
     def _parse_aas_part(self, part_name: str) -> model.DictObjectStore:
         """
@@ -205,10 +214,9 @@ class AASXReader:
             with self.reader.open_part(part_name) as p:
                 return read_json_aas_file(io.TextIOWrapper(p, encoding='utf-8-sig'))
         else:
-            logger.error("Could not determine part format of AASX part {}".format(part_name))
-            # TODO failsafe mode?
-            raise ValueError("Unknown Content Type '{}' and extension '{}' of AASX part {}"
-                             .format(content_type, extension, part_name))
+            logger.error("Could not determine part format of AASX part {} (Content Type: {}, extension: {}"
+                         .format(part_name, content_type, extension))
+            return model.DictObjectStore()
 
     def _collect_supplementary_files(self, part_name: str, submodel: model.Submodel,
                                      file_store: "AbstractSupplementaryFileContainer") -> None:
@@ -318,18 +326,23 @@ class AASXWriter:
         # Add the Asset object to the objects in the AAS part
         try:
             objects_to_be_written.add(aas.asset.resolve(object_store))
-        except KeyError:
-            # Don't add asset to the AASX file, if it is not included in the object store
+        except KeyError as e:
+            logger.warning("Skipping Asset object, since {} could not be resolved: {}".format(aas.asset, e))
             pass
 
         # Add referenced ConceptDescriptions to the AAS part
         for dictionary in aas.concept_dictionary:
             for concept_rescription_ref in dictionary.concept_description:
                 try:
-                    objects_to_be_written.add(concept_rescription_ref.resolve(object_store))
+                    obj = concept_rescription_ref.resolve(object_store)
+                except KeyError as e:
+                    logger.warning("Skipping ConceptDescription, since {} could not be resolved: {}"
+                                   .format(concept_rescription_ref, e))
+                    continue
+                try:
+                    objects_to_be_written.add(obj)
                 except KeyError:
-                    # Don't add asset to the AASX file, if it is not included in the given object store
-                    # Also ignore duplicate ConceptDescriptions (i.e. same Description referenced from multiple
+                    # Ignore duplicate ConceptDescriptions (i.e. same Description referenced from multiple
                     # Dictionaries)
                     pass
 
@@ -343,8 +356,8 @@ class AASXWriter:
         for submodel_ref in aas.submodel:
             try:
                 submodel = submodel_ref.resolve(object_store)
-            except KeyError:
-                # Don't add submodel to the AASX file, if it is not included in the given object store
+            except KeyError as e:
+                logger.warning("Skipping Submodel, since {} could not be resolved: {}".format(submodel_ref, e))
                 continue
             submodel_friendly_name = aas_friendlyfier.get_friendly_name(submodel.identification)
             submodel_part_name = "/aasx/{0}/{1}/{1}.submodel.json".format(aas_friendly_name, submodel_friendly_name)
@@ -398,9 +411,8 @@ class AASXWriter:
                 if self._supplementary_part_names.get(file_name) == hash:
                     continue
                 elif file_name in self._supplementary_part_names:
-                    # TODO failsafe mode?
-                    raise RuntimeError("Trying to write supplementary file {} to AASX twice with different contents"
-                                       .format(file_name))
+                    logger.error("Trying to write supplementary file {} to AASX twice with different contents"
+                                 .format(file_name))
                 logger.debug("Writing supplementary file {} to AASX package ...".format(file_name))
                 with self.writer.open_part(file_name, content_type) as p:
                     file_store.write_file(file_name, p)
