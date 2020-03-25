@@ -12,7 +12,7 @@
 
 import setuptools
 
-with open("README.md", "r") as fh:
+with open("README.md", "r", encoding='utf-8') as fh:
     long_description = fh.read()
 
 setuptools.setup(
@@ -25,6 +25,8 @@ setuptools.setup(
     long_description_content_type="text/markdown",
     url="https://git.rwth-aachen.de/acplt/pyaas",
     packages=setuptools.find_packages(),
+    zip_safe=False,
+    package_data={"aas": ["py.typed"]},
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: Apache Software License",
@@ -40,5 +42,6 @@ setuptools.setup(
     install_requires=[
         'python-dateutil>=2.8,<3',
         'lxml>=4.2,<5',
+        'pyecma376-2>=0.2',
     ]
 )

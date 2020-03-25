@@ -1,5 +1,5 @@
 """
-Dicts to serialize enum classes
+Dicts to serialize and deserialize enum classes
 """
 from typing import Dict
 
@@ -76,3 +76,15 @@ IEC61360_LEVEL_TYPES: Dict[model.concept.IEC61360LevelType, str] = {
     model.concept.IEC61360LevelType.NOM: 'Nom',
     model.concept.IEC61360LevelType.TYP: 'Typ',
 }
+
+MODELING_KIND_INVERSE: Dict[str, model.ModelingKind] = {v: k for k, v in MODELING_KIND.items()}
+ASSET_KIND_INVERSE: Dict[str, model.AssetKind] = {v: k for k, v in ASSET_KIND.items()}
+KEY_ELEMENTS_INVERSE: Dict[str, model.KeyElements] = {v: k for k, v in KEY_ELEMENTS.items()}
+KEY_TYPES_INVERSE: Dict[str, model.KeyType] = {v: k for k, v in KEY_TYPES.items()}
+IDENTIFIER_TYPES_INVERSE: Dict[str, model.IdentifierType] = {v: k for k, v in IDENTIFIER_TYPES.items()}
+ENTITY_TYPES_INVERSE: Dict[str, model.EntityType] = {v: k for k, v in ENTITY_TYPES.items()}
+IEC61360_DATA_TYPES_INVERSE: Dict[str, model.concept.IEC61360DataType] = {v: k for k, v in IEC61360_DATA_TYPES.items()}
+IEC61360_LEVEL_TYPES_INVERSE: Dict[str, model.concept.IEC61360LevelType] = \
+    {v: k for k, v in IEC61360_LEVEL_TYPES.items()}
+
+KEY_ELEMENTS_CLASSES_INVERSE: Dict[model.KeyElements, type] = {v: k for k, v in model.KEY_ELEMENTS_CLASSES.items()}
