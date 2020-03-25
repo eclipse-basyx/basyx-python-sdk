@@ -267,9 +267,14 @@ class AASXWriter:
 
         :param file: filename, path, or binary file handle opened for writing
         """
+        # names of aas-spec parts, used by `_write_aasx_origin_relationships()`
         self._aas_part_names: List[str] = []
+        # name of the thumbnail part (if any)
         self._thumbnail_part: Optional[str] = None
+        # name of the core properties part (if any)
         self._properties_part: Optional[str] = None
+        # names and hashes of all supplementary file parts that have already been written
+        self._supplementary_part_names: Dict[str, Optional[bytes]] = {}
         self._aas_name_friendlyfier = NameFriendlyfier()
 
         # Open OPC package writer
@@ -384,15 +389,23 @@ class AASXWriter:
                     continue
                 try:
                     content_type = file_store.get_content_type(file_name)
+                    hash = file_store.get_sha256(file_name)
                 except KeyError:
                     logger.warning("Could not find file {} in file store, referenced from {}."
                                    .format(file_name, element))
                     continue
-                # TODO avoid double writes of same file
+                # Check if this supplementary file has already been written to the AASX package or has a name conflict
+                if self._supplementary_part_names.get(file_name) == hash:
+                    continue
+                elif file_name in self._supplementary_part_names:
+                    # TODO failsafe mode?
+                    raise RuntimeError("Trying to write supplementary file {} to AASX twice with different contents"
+                                       .format(file_name))
                 logger.debug("Writing supplementary file {} to AASX package ...".format(file_name))
                 with self.writer.open_part(file_name, content_type) as p:
                     file_store.write_file(file_name, p)
                 submodel_file_names.append(pyecma376_2.package_model.normalize_part_name(file_name))
+                self._supplementary_part_names[file_name] = hash
 
         # Add relationships from submodel to supplementary parts
         # TODO should the relationships be added from the AAS instead?
