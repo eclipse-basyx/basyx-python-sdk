@@ -25,6 +25,8 @@ setuptools.setup(
     long_description_content_type="text/markdown",
     url="https://git.rwth-aachen.de/acplt/pyaas",
     packages=setuptools.find_packages(),
+    zip_safe=False,
+    package_data={"aas": ["py.typed"]},
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: Apache Software License",
