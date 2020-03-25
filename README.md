@@ -74,6 +74,18 @@ Alternatively you can look into storing the information your `AssetAdministratio
 or CouchDB.
 
 
+### Examples and Tutorials
+
+For further examples and tutorials, check out the `aas.examples`-package. Here is a quick overview:
+
+* `examples.tutorial_create_simple_aas`: Create an Asset Administration Shell, containing an asset reference and a 
+submodel reference
+* `examples.tutorial_serialization_deserialization_json`: Tutorial for the serialization and deserialization of asset 
+administration shells, submodels and assets
+* `examples.tutorial_storage`: Tutorial for storing asset administration shells, submodels and assets
+* `examples.data`: Package containing simple creator functions for various example objects for testing purposes 
+
+
 ## Contributing
 
 When contributing to this repository, please first discuss the change you wish to make via issue,
