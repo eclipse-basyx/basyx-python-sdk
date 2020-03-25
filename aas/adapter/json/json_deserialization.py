@@ -29,21 +29,11 @@ import pprint
 from typing import Dict, Callable, TypeVar, Type, List, IO, Optional
 
 from ... import model
-from .._generic import MODELING_KIND, ASSET_KIND, KEY_ELEMENTS, KEY_TYPES, IDENTIFIER_TYPES, ENTITY_TYPES,\
-    IEC61360_DATA_TYPES, IEC61360_LEVEL_TYPES
+from .._generic import MODELING_KIND_INVERSE, ASSET_KIND_INVERSE, KEY_ELEMENTS_INVERSE, KEY_TYPES_INVERSE,\
+    IDENTIFIER_TYPES_INVERSE, ENTITY_TYPES_INVERSE, IEC61360_DATA_TYPES_INVERSE, IEC61360_LEVEL_TYPES_INVERSE,\
+    KEY_ELEMENTS_CLASSES_INVERSE
 
 logger = logging.getLogger(__name__)
-
-MODELING_KIND_INVERSE: Dict[str, model.ModelingKind] = {v: k for k, v in MODELING_KIND.items()}
-ASSET_KIND_INVERSE: Dict[str, model.AssetKind] = {v: k for k, v in ASSET_KIND.items()}
-KEY_ELEMENTS_INVERSE: Dict[str, model.KeyElements] = {v: k for k, v in KEY_ELEMENTS.items()}
-KEY_TYPES_INVERSE: Dict[str, model.KeyType] = {v: k for k, v in KEY_TYPES.items()}
-IDENTIFIER_TYPES_INVERSE: Dict[str, model.IdentifierType] = {v: k for k, v in IDENTIFIER_TYPES.items()}
-ENTITY_TYPES_INVERSE: Dict[str, model.EntityType] = {v: k for k, v in ENTITY_TYPES.items()}
-KEY_ELEMENTS_CLASSES_INVERSE: Dict[model.KeyElements, type] = {v: k for k, v in model.KEY_ELEMENTS_CLASSES.items()}
-IEC61360_DATA_TYPES_INVERSE: Dict[str, model.concept.IEC61360DataType] = {v: k for k, v in IEC61360_DATA_TYPES.items()}
-IEC61360_LEVEL_TYPES_INVERSE: Dict[str, model.concept.IEC61360LevelType] = \
-    {v: k for k, v in IEC61360_LEVEL_TYPES.items()}
 
 
 # #############################################################################
@@ -268,7 +258,7 @@ class AASFromJsonDecoder(json.JSONDecoder):
     @classmethod
     def _construct_reference(cls, dct: Dict[str, object], object_class=model.Reference) -> model.Reference:
         keys = [cls._construct_key(key_data) for key_data in _get_ts(dct, "keys", list)]
-        return model.Reference(tuple(keys))
+        return object_class(tuple(keys))
 
     @classmethod
     def _construct_aas_reference(cls, dct: Dict[str, object], type_: Type[T], object_class=model.AASReference)\
