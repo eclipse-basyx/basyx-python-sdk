@@ -10,6 +10,26 @@
 # specific language governing permissions and limitations under the License.
 """
 Module for deserializing Asset Administration Shell data from the official XML format
+
+Use this module by calling read_xml_aas_file(file, failsafe).
+The function returns a DictObjectStore containing all parsed elements.
+
+Unlike the JSON deserialization, parsing is done top-down. Elements with a specific tag are searched on the level
+directly below the level of the current xml element (in terms of parent and child relation) and parsed when
+found. Constructor functions of these elements will then again search for mandatory and optional child elements
+and construct them if available, and so on.
+
+This module supports parsing in failsafe and non-failsafe mode.
+In failsafe mode errors regarding missing attributes and elements or invalid values are caught and logged.
+In non-failsafe mode any error would abort parsing.
+Error handling is done only by _failsafe_construct() in this module. Nearly all constructor functions are called
+by other constructor functions via _failsafe_construct(), so an error chain is constructed in the error case,
+which allows printing stacktrace-like error messages like the following in the error case (in failsafe mode of course):
+KeyError: XML element {http://www.admin-shell.io/aas/2/0}identification has no attribute with name idType!
+ -> while converting XML element with tag {http://www.admin-shell.io/aas/2/0}identification to type Identifier
+ -> while converting XML element with tag {http://www.admin-shell.io/aas/2/0}assetAdministrationShell to type
+    AssetAdministrationShell
+Failed to construct AssetAdministrationShell!
 """
 
 # TODO: add constructor for submodel + all classes required by submodel
@@ -30,6 +50,14 @@ T = TypeVar('T')
 
 
 def _get_child_mandatory(element: ElTree.Element, child_tag: str) -> ElTree.Element:
+    """
+    A helper function for getting a mandatory child element.
+
+    :param element: The parent element.
+    :param child_tag: The tag of the child element to return.
+    :return: The child element.
+    :raises KeyError: If the parent element has no child element with the given tag.
+    """
     child = element.find(child_tag)
     if child is None:
         raise KeyError(f"XML element {element.tag} has no child {child_tag}!")
@@ -37,12 +65,34 @@ def _get_child_mandatory(element: ElTree.Element, child_tag: str) -> ElTree.Elem
 
 
 def _get_attrib_mandatory(element: ElTree.Element, attrib: str) -> str:
+    """
+    A helper function for getting a mandatory attribute of an element.
+
+    :param element: The xml element.
+    :param attrib: The name of the attribute.
+    :return: The value of the attribute.
+    :raises KeyError: If the attribute does not exist.
+    """
     if attrib not in element.attrib:
         raise KeyError(f"XML element {element.tag} has no attribute with name {attrib}!")
     return element.attrib[attrib]
 
 
 def _get_attrib_mandatory_mapped(element: ElTree.Element, attrib: str, dct: Dict[str, T]) -> T:
+    """
+    A helper function for getting a mapped mandatory attribute of an xml element.
+
+    It first gets the attribute value using _get_attrib_mandatory(), which raises a KeyError if the attribute
+    does not exist.
+    Then it returns dct[<attribute value>] and raises a ValueError, if the attribute value does not exist in the dict.
+
+    :param element: The xml element.
+    :param attrib: The name of the attribute.
+    :param dct: The dictionary that is used to map the attribute value.
+    :return: The mapped value of the attribute.
+    :raises KeyError: If the attribute does not exist.
+    :raises ValueError: If the value of the attribute does not exist in dct.
+    """
     attrib_value = _get_attrib_mandatory(element, attrib)
     if attrib_value not in dct:
         raise ValueError(f"Attribute {attrib} of XML element {element.tag} has invalid value: {attrib_value}")
@@ -50,10 +100,29 @@ def _get_attrib_mandatory_mapped(element: ElTree.Element, attrib: str, dct: Dict
 
 
 def _get_text_or_none(element: Optional[ElTree.Element]) -> Optional[str]:
+    """
+    A helper function for getting the text of an element, when it's not clear whether the element exists or not.
+
+    This function is useful whenever the text of an optional child element is needed.
+    Then the text can be get with: text = _get_text_or_none(element.find("childElement")
+    element.find() returns either the element or None, if it doesn't exist. This is why this function accepts
+    an optional element, to reduce the amount of code in the constructor functions below.
+
+    :param element: The xml element or None.
+    :return: The text of the xml element if the xml element is not None and if the xml element has a text.
+             None otherwise.
+    """
     return element.text if element is not None else None
 
 
 def _get_text_mandatory(element: ElTree.Element) -> str:
+    """
+    A helper function for getting the mandatory text of an element.
+
+    :param element: The xml element.
+    :return: The text of the xml element.
+    :raises KeyError: If the xml element has no text.
+    """
     text = element.text
     if text is None:
         raise KeyError(f"XML element {element.tag} has no text!")
@@ -61,6 +130,19 @@ def _get_text_mandatory(element: ElTree.Element) -> str:
 
 
 def _get_text_mandatory_mapped(element: ElTree.Element, dct: Dict[str, T]) -> T:
+    """
+    A helper function for getting the mapped mandatory text of an element.
+
+    It first gets the text of the element using _get_text_mandatory(),
+    which raises a KeyError if the element has no text.
+    Then it returns dct[<element text>] and raises a ValueError, if the text of the element does not exist in the dict.
+
+    :param element: The xml element.
+    :param dct: The dictionary that is used to map the text.
+    :return: The mapped text of the element.
+    :raises KeyError: If the element has no text.
+    :raises ValueError: If the text of the xml element does not exist in dct.
+    """
     text = _get_text_mandatory(element)
     if text not in dct:
         raise ValueError(f"Text of XML element {element.tag} is invalid: {text}")
@@ -68,16 +150,49 @@ def _get_text_mandatory_mapped(element: ElTree.Element, dct: Dict[str, T]) -> T:
 
 
 def _constructor_name_to_typename(constructor: Callable[[ElTree.Element, bool], T]) -> str:
+    """
+    A helper function for converting the name of a constructor function to the respective type name.
+
+    _construct_some_type -> SomeType
+
+    :param constructor: The constructor function.
+    :return: The name of the type the constructor function constructs.
+    """
     return "".join([s[0].upper() + s[1:] for s in constructor.__name__.split("_")[2:]])
 
 
 def _exception_to_str(exception: BaseException) -> str:
+    """
+    A helper function used to stringify exceptions.
+
+    It removes the quotation marks '' that are put around str(KeyError), otherwise it's just calls str(exception).
+
+    :param exception: The exception to stringify.
+    :return: The stringified exception.
+    """
     string = str(exception)
     return string[1:-1] if isinstance(exception, KeyError) else string
 
 
 def _failsafe_construct(element: Optional[ElTree.Element], constructor: Callable[..., T], failsafe: bool,
                         **kwargs: Any) -> Optional[T]:
+    """
+    A wrapper function that is used to handle exceptions raised in constructor functions.
+
+    This is the only function of this module where exceptions are caught.
+    This is why constructor functions should (in almost all cases) call other constructor functions using this function,
+    so errors can be caught and logged in failsafe mode.
+    The functions accepts None as a valid value for element for the same reason _get_text_or_none() does, so it can be
+    called like _failsafe_construct(element.find("childElement"), ...), since element.find() can return None.
+    This function will also return None in this case.
+
+    :param element: The xml element or None.
+    :param constructor: The constructor function to apply on the element.
+    :param failsafe: Indicates whether errors should be caught or re-raised.
+    :param kwargs: Optional keyword arguments that are passed to the constructor function.
+    :return: The constructed class instance, if construction was successful.
+             None if the element was None or if the construction failed.
+    """
     if element is None:
         return None
     try:
@@ -99,6 +214,17 @@ def _failsafe_construct(element: Optional[ElTree.Element], constructor: Callable
 
 def _failsafe_construct_multiple(elements: Iterable[ElTree.Element], constructor: Callable[..., T], failsafe: bool,
                                  **kwargs: Any) -> Iterable[T]:
+    """
+    A generator function that applies _failsafe_construct() to multiple elements.
+
+    :param elements: Any iterable containing any number of xml elements.
+    :param constructor: The constructor function to apply on the xml elements.
+    :param failsafe: Indicates whether errors should be caught or re-raised.
+    :param kwargs: Optional keyword arguments that are passed to the constructor function.
+    :return: An iterator over the successfully constructed elements.
+             If an error occurred while constructing an element and while in failsafe mode,
+             this element will be skipped.
+    """
     for element in elements:
         parsed = _failsafe_construct(element, constructor, failsafe, **kwargs)
         if parsed is not None:
@@ -107,11 +233,61 @@ def _failsafe_construct_multiple(elements: Iterable[ElTree.Element], constructor
 
 def _find_and_construct_mandatory(element: ElTree.Element, child_tag: str, constructor: Callable[..., T],
                                   **kwargs: Any) -> T:
+    """
+    A helper function that finds a mandatory child element and applies a constructor function to it
+    in non-failsafe mode, meaning that any errors will not be caught.
+
+    Useful when constructing mandatory child elements while not knowing whether their respective xml elements exist
+    in the first place.
+
+    :param element: The parent xml element.
+    :param child_tag: The tag of the child element.
+    :param constructor: The constructor function to apply on the xml element.
+    :param kwargs: Optional keyword arguments that are passed to the constructor function.
+    :return: The constructed child element.
+    :raises TypeError: If the result of _failsafe_construct() in non-failsafe mode was None.
+                       This shouldn't be possible and if it happens, indicates a bug in _failsafe_construct().
+    """
     constructed = _failsafe_construct(_get_child_mandatory(element, child_tag), constructor, False, **kwargs)
     if constructed is None:
         raise TypeError("The result of a non-failsafe _failsafe_construct() call was None! "
                         "This is a bug in the pyAAS XML deserialization, please report it!")
     return constructed
+
+
+def _amend_abstract_attributes(obj: object, element: ElTree.Element, failsafe: bool) -> None:
+    """
+    A helper function that amends optional attributes to already constructed class instances, if they inherit
+    from an abstract class like Referable, Identifiable, HasSemantics or Qualifiable.
+
+    :param obj: The constructed class instance.
+    :param element: The respective xml element.
+    :param failsafe: Indicates whether errors should be caught or re-raised.
+    :return: None
+    """
+    if isinstance(obj, model.Referable):
+        category = _get_text_or_none(element.find(NS_AAS + "category"))
+        if category is not None:
+            obj.category = category
+        description = _failsafe_construct(element.find(NS_AAS + "description"), _construct_lang_string_set, failsafe)
+        if description is not None:
+            obj.description = description
+    if isinstance(obj, model.Identifiable):
+        id_short = _get_text_or_none(element.find(NS_AAS + "idShort"))
+        if id_short is not None:
+            obj.id_short = id_short
+        administration = _failsafe_construct(element.find(NS_AAS + "administration"),
+                                             _construct_administrative_information, failsafe)
+        if administration:
+            obj.administration = administration
+    if isinstance(obj, model.HasSemantics):
+        semantic_id = _failsafe_construct(element.find(NS_AAS + "semanticId"), _construct_reference, failsafe)
+        if semantic_id is not None:
+            obj.semantic_id = semantic_id
+    if isinstance(obj, model.Qualifiable):
+        for constraint in _failsafe_construct_multiple(element.findall(NS_AAS + "qualifiers"), _construct_constraint,
+                                                       failsafe):
+            obj.qualifier.add(constraint)
 
 
 def _construct_key(element: ElTree.Element, _failsafe: bool, **_kwargs: Any) -> model.Key:
@@ -307,32 +483,6 @@ def _construct_concept_description(element: ElTree.Element, failsafe: bool, **_k
     return cd
 
 
-def _amend_abstract_attributes(obj: object, element: ElTree.Element, failsafe: bool, **_kwargs: Any) -> None:
-    if isinstance(obj, model.Referable):
-        category = _get_text_or_none(element.find(NS_AAS + "category"))
-        if category is not None:
-            obj.category = category
-        description = _failsafe_construct(element.find(NS_AAS + "description"), _construct_lang_string_set, failsafe)
-        if description is not None:
-            obj.description = description
-    if isinstance(obj, model.Identifiable):
-        id_short = _get_text_or_none(element.find(NS_AAS + "idShort"))
-        if id_short is not None:
-            obj.id_short = id_short
-        administration = _failsafe_construct(element.find(NS_AAS + "administration"),
-                                             _construct_administrative_information, failsafe)
-        if administration:
-            obj.administration = administration
-    if isinstance(obj, model.HasSemantics):
-        semantic_id = _failsafe_construct(element.find(NS_AAS + "semanticId"), _construct_reference, failsafe)
-        if semantic_id is not None:
-            obj.semantic_id = semantic_id
-    if isinstance(obj, model.Qualifiable):
-        for constraint in _failsafe_construct_multiple(element.findall(NS_AAS + "qualifiers"), _construct_constraint,
-                                                       failsafe):
-            obj.qualifier.add(constraint)
-
-
 def read_xml_aas_file(file: IO, failsafe: bool = True) -> model.DictObjectStore:
     """
     Read an Asset Administration Shell XML file according to 'Details of the Asset Administration Shell', chapter 5.4
@@ -357,8 +507,12 @@ def read_xml_aas_file(file: IO, failsafe: bool = True) -> model.DictObjectStore:
     ret: model.DictObjectStore[model.Identifiable] = model.DictObjectStore()
     for list_ in root:
         element_tag = list_.tag[:-1]
-        if list_.tag[-1] != "s" or element_tag not in element_constructors.keys():
-            raise TypeError(f"Unexpected list {list_.tag}")
+        if list_.tag[-1] != "s" or element_tag not in element_constructors:
+            error_message = f"Unexpected top-level list {list_.tag}"
+            if not failsafe:
+                raise TypeError(error_message)
+            logger.warning(error_message)
+            continue
         constructor = element_constructors[element_tag]
         for element in _failsafe_construct_multiple(list_.findall(element_tag), constructor, failsafe):
             # element is always Identifiable, because the tag is checked earlier
