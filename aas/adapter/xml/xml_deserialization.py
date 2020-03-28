@@ -38,7 +38,7 @@ from ... import model
 import xml.etree.ElementTree as ElTree
 import logging
 
-from typing import Any, Callable, Dict, IO, Iterable, List, Optional, Set, Tuple, Type, TypeVar
+from typing import Any, Callable, Dict, IO, Iterable, List, Optional, Set, Tuple, Type, TypedDict, TypeVar
 from .xml_serialization import NS_AAS, NS_AAS_COMMON, NS_ABAC, NS_IEC, NS_XSI
 from .._generic import MODELING_KIND_INVERSE, ASSET_KIND_INVERSE, KEY_ELEMENTS_INVERSE, KEY_TYPES_INVERSE,\
     IDENTIFIER_TYPES_INVERSE, ENTITY_TYPES_INVERSE, IEC61360_DATA_TYPES_INVERSE, IEC61360_LEVEL_TYPES_INVERSE,\
@@ -46,7 +46,7 @@ from .._generic import MODELING_KIND_INVERSE, ASSET_KIND_INVERSE, KEY_ELEMENTS_I
 
 logger = logging.getLogger(__name__)
 
-T = TypeVar('T')
+T = TypeVar("T")
 
 
 def _get_child_mandatory(element: ElTree.Element, child_tag: str) -> ElTree.Element:
@@ -285,9 +285,40 @@ def _amend_abstract_attributes(obj: object, element: ElTree.Element, failsafe: b
         if semantic_id is not None:
             obj.semantic_id = semantic_id
     if isinstance(obj, model.Qualifiable):
-        for constraint in _failsafe_construct_multiple(element.findall(NS_AAS + "qualifiers"), _construct_constraint,
-                                                       failsafe):
-            obj.qualifier.add(constraint)
+        qualifiers = element.find(NS_AAS + "qualifiers")
+        if qualifiers is not None:
+            for formula in _failsafe_construct_multiple(qualifiers.findall(NS_AAS + "formula"),
+                                                        _construct_formula, failsafe):
+                obj.qualifier.add(formula)
+            for qualifier in _failsafe_construct_multiple(qualifiers.findall(NS_AAS + "qualifier"),
+                                                          _construct_qualifier, failsafe):
+                obj.qualifier.add(qualifier)
+
+
+class ModelingKindKwArg(TypedDict, total=False):
+    kind: model.ModelingKind
+
+
+def _get_modeling_kind_kwarg(element: ElTree.Element) -> ModelingKindKwArg:
+    """
+    A helper function that creates a dict containing the modeling kind or nothing for a given xml element.
+
+    Since the modeling kind can only be set in the __init__ method of a class that inherits from model.HasKind,
+    the dict returned by this function can be passed directly to the classes __init__ method.
+    An alternative to this function would be returning the modeling kind directly and falling back to the default
+    value if no "kind" xml element is present, but in this case the default value would have to be defined here as well.
+    In my opinion defining what the default value is, should be the task of the __init__ method, not the task of any
+    function in the deserialization.
+
+    :param element: The xml element.
+    :return: A dict containing {"kind": <the parsed modeling kind>}, if a kind element was found.
+             An empty dict if not.
+    """
+    kwargs: ModelingKindKwArg = ModelingKindKwArg()
+    kind = element.find(NS_AAS + "kind")
+    if kind is not None:
+        kwargs["kind"] = _get_text_mandatory_mapped(kind, MODELING_KIND_INVERSE)
+    return kwargs
 
 
 def _construct_key(element: ElTree.Element, _failsafe: bool, **_kwargs: Any) -> model.Key:
@@ -382,13 +413,6 @@ def _construct_formula(element: ElTree.Element, failsafe: bool, **_kwargs: Any) 
     return model.Formula(ref_set)
 
 
-def _construct_constraint(element: ElTree.Element, failsafe: bool, **_kwargs: Any) -> model.Constraint:
-    return {
-        NS_AAS + "qualifier": _construct_qualifier,
-        NS_AAS + "formula": _construct_formula
-    }[element.tag](element, failsafe)
-
-
 def _construct_identifier(element: ElTree.Element, _failsafe: bool, **_kwargs: Any) -> model.Identifier:
     return model.Identifier(
         _get_text_mandatory(element),
@@ -469,7 +493,14 @@ def _construct_asset(element: ElTree.Element, failsafe: bool, **_kwargs: Any) ->
 
 
 def _construct_submodel(element: ElTree.Element, failsafe: bool, **_kwargs: Any) -> model.Submodel:
-    pass
+    submodel_elements = _get_child_mandatory(element, NS_AAS + "submodelElements")
+    submodel = model.Submodel(
+        _find_and_construct_mandatory(element, NS_AAS + "identification", _construct_identifier),
+        **_get_modeling_kind_kwarg(element)
+    )
+    # TODO: continue here
+    _amend_abstract_attributes(submodel, element, failsafe)
+    return submodel
 
 
 def _construct_concept_description(element: ElTree.Element, failsafe: bool, **_kwargs: Any) -> model.ConceptDescription:
