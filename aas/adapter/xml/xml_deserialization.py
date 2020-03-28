@@ -38,7 +38,8 @@ from ... import model
 import xml.etree.ElementTree as ElTree
 import logging
 
-from typing import Any, Callable, Dict, IO, Iterable, List, Optional, Set, Tuple, Type, TypedDict, TypeVar
+from typing import Any, Callable, Dict, IO, Iterable, Optional, Set, Tuple, Type, TypeVar
+from mypy_extensions import TypedDict  # TODO: import this from typing should we require python 3.8+ at some point
 from .xml_serialization import NS_AAS, NS_AAS_COMMON, NS_ABAC, NS_IEC, NS_XSI
 from .._generic import MODELING_KIND_INVERSE, ASSET_KIND_INVERSE, KEY_ELEMENTS_INVERSE, KEY_TYPES_INVERSE,\
     IDENTIFIER_TYPES_INVERSE, ENTITY_TYPES_INVERSE, IEC61360_DATA_TYPES_INVERSE, IEC61360_LEVEL_TYPES_INVERSE,\
