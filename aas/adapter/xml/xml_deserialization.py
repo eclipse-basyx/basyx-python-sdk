@@ -25,6 +25,7 @@ In non-failsafe mode any error would abort parsing.
 Error handling is done only by _failsafe_construct() in this module. Nearly all constructor functions are called
 by other constructor functions via _failsafe_construct(), so an error chain is constructed in the error case,
 which allows printing stacktrace-like error messages like the following in the error case (in failsafe mode of course):
+
 KeyError: XML element {http://www.admin-shell.io/aas/2/0}identification has no attribute with name idType!
  -> while converting XML element with tag {http://www.admin-shell.io/aas/2/0}identification to type Identifier
  -> while converting XML element with tag {http://www.admin-shell.io/aas/2/0}assetAdministrationShell to type
@@ -32,11 +33,10 @@ KeyError: XML element {http://www.admin-shell.io/aas/2/0}identification has no a
 Failed to construct AssetAdministrationShell!
 """
 
-# TODO: add constructor for submodel + all classes required by submodel
-
 from ... import model
 import xml.etree.ElementTree as ElTree
 import logging
+import base64
 
 from typing import Any, Callable, Dict, IO, Iterable, Optional, Set, Tuple, Type, TypeVar
 from mypy_extensions import TypedDict  # TODO: import this from typing should we require python 3.8+ at some point
@@ -50,18 +50,18 @@ logger = logging.getLogger(__name__)
 T = TypeVar("T")
 
 
-def _get_child_mandatory(element: ElTree.Element, child_tag: str) -> ElTree.Element:
+def _get_child_mandatory(parent: ElTree.Element, child_tag: str) -> ElTree.Element:
     """
     A helper function for getting a mandatory child element.
 
-    :param element: The parent element.
+    :param parent: The parent element.
     :param child_tag: The tag of the child element to return.
     :return: The child element.
     :raises KeyError: If the parent element has no child element with the given tag.
     """
-    child = element.find(child_tag)
+    child = parent.find(child_tag)
     if child is None:
-        raise KeyError(f"XML element {element.tag} has no child {child_tag}!")
+        raise KeyError(f"XML element {parent.tag} has no child {child_tag}!")
     return child
 
 
@@ -91,7 +91,6 @@ def _get_attrib_mandatory_mapped(element: ElTree.Element, attrib: str, dct: Dict
     :param attrib: The name of the attribute.
     :param dct: The dictionary that is used to map the attribute value.
     :return: The mapped value of the attribute.
-    :raises KeyError: If the attribute does not exist.
     :raises ValueError: If the value of the attribute does not exist in dct.
     """
     attrib_value = _get_attrib_mandatory(element, attrib)
@@ -141,7 +140,6 @@ def _get_text_mandatory_mapped(element: ElTree.Element, dct: Dict[str, T]) -> T:
     :param element: The xml element.
     :param dct: The dictionary that is used to map the text.
     :return: The mapped text of the element.
-    :raises KeyError: If the element has no text.
     :raises ValueError: If the text of the xml element does not exist in dct.
     """
     text = _get_text_mandatory(element)
@@ -213,6 +211,25 @@ def _failsafe_construct(element: Optional[ElTree.Element], constructor: Callable
         return None
 
 
+def _failsafe_construct_mandatory(element: ElTree.Element, constructor: Callable[..., T],
+                                  **kwargs: Any) -> T:
+    """
+    _failsafe_construct() but not failsafe and it returns T instead of Optional[T]
+
+    :param element: The xml element.
+    :param constructor: The constructor function to apply on the xml element.
+    :param kwargs: Optional keyword arguments that are passed to the constructor function.
+    :return: The constructed child element.
+    :raises TypeError: If the result of _failsafe_construct() in non-failsafe mode was None.
+                       This shouldn't be possible and if it happens, indicates a bug in _failsafe_construct().
+    """
+    constructed = _failsafe_construct(element, constructor, False, **kwargs)
+    if constructed is None:
+        raise TypeError("The result of a non-failsafe _failsafe_construct() call was None! "
+                        "This is a bug in the pyAAS XML deserialization, please report it!")
+    return constructed
+
+
 def _failsafe_construct_multiple(elements: Iterable[ElTree.Element], constructor: Callable[..., T], failsafe: bool,
                                  **kwargs: Any) -> Iterable[T]:
     """
@@ -232,28 +249,41 @@ def _failsafe_construct_multiple(elements: Iterable[ElTree.Element], constructor
             yield parsed
 
 
-def _find_and_construct_mandatory(element: ElTree.Element, child_tag: str, constructor: Callable[..., T],
-                                  **kwargs: Any) -> T:
+def _child_construct_mandatory(parent: ElTree.Element, child_tag: str, constructor: Callable[..., T], **kwargs: Any)\
+        -> T:
     """
-    A helper function that finds a mandatory child element and applies a constructor function to it
-    in non-failsafe mode, meaning that any errors will not be caught.
+    Shorthand for _failsafe_construct_mandatory() in combination with _get_child_mandatory().
 
-    Useful when constructing mandatory child elements while not knowing whether their respective xml elements exist
-    in the first place.
-
-    :param element: The parent xml element.
-    :param child_tag: The tag of the child element.
-    :param constructor: The constructor function to apply on the xml element.
+    :param parent: The xml element where the child element is searched.
+    :param child_tag: The tag of the child element to construct.
+    :param constructor: The constructor function for the child element.
     :param kwargs: Optional keyword arguments that are passed to the constructor function.
     :return: The constructed child element.
-    :raises TypeError: If the result of _failsafe_construct() in non-failsafe mode was None.
-                       This shouldn't be possible and if it happens, indicates a bug in _failsafe_construct().
     """
-    constructed = _failsafe_construct(_get_child_mandatory(element, child_tag), constructor, False, **kwargs)
-    if constructed is None:
-        raise TypeError("The result of a non-failsafe _failsafe_construct() call was None! "
-                        "This is a bug in the pyAAS XML deserialization, please report it!")
-    return constructed
+    return _failsafe_construct_mandatory(_get_child_mandatory(parent, child_tag), constructor, **kwargs)
+
+
+def _child_text_mandatory(parent: ElTree.Element, child_tag: str) -> str:
+    """
+    Shorthand for _get_text_mandatory() in combination with _get_child_mandatory().
+
+    :param parent: The xml element where the child element is searched.
+    :param child_tag: The tag of the child element to get the text from.
+    :return: The text of the child element.
+    """
+    return _get_text_mandatory(_get_child_mandatory(parent, child_tag))
+
+
+def _child_text_mandatory_mapped(parent: ElTree.Element, child_tag: str, dct: Dict[str, T]) -> T:
+    """
+    Shorthand for _get_text_mandatory_mapped() in combination with _get_child_mandatory().
+
+    :param parent: The xml element where the child element is searched.
+    :param child_tag: The tag of the child element to get the text from.
+    :param dct: The dictionary that is used to map the text of the child element.
+    :return: The mapped text of the child element.
+    """
+    return _get_text_mandatory_mapped(_get_child_mandatory(parent, child_tag), dct)
 
 
 def _amend_abstract_attributes(obj: object, element: ElTree.Element, failsafe: bool) -> None:
@@ -288,12 +318,8 @@ def _amend_abstract_attributes(obj: object, element: ElTree.Element, failsafe: b
     if isinstance(obj, model.Qualifiable):
         qualifiers = element.find(NS_AAS + "qualifiers")
         if qualifiers is not None:
-            for formula in _failsafe_construct_multiple(qualifiers.findall(NS_AAS + "formula"),
-                                                        _construct_formula, failsafe):
-                obj.qualifier.add(formula)
-            for qualifier in _failsafe_construct_multiple(qualifiers.findall(NS_AAS + "qualifier"),
-                                                          _construct_qualifier, failsafe):
-                obj.qualifier.add(qualifier)
+            for constraint in _failsafe_construct_multiple(qualifiers, _construct_constraint, failsafe):
+                obj.qualifier.add(constraint)
 
 
 class ModelingKindKwArg(TypedDict, total=False):
@@ -374,6 +400,11 @@ def _construct_concept_description_reference(element: ElTree.Element, failsafe: 
     return _construct_aas_reference(element, failsafe, model.ConceptDescription, **kwargs)
 
 
+def _construct_data_element_reference(element: ElTree.Element, failsafe: bool, **kwargs: Any)\
+        -> model.AASReference[model.DataElement]:
+    return _construct_aas_reference(element, failsafe, model.DataElement, **kwargs)
+
+
 def _construct_administrative_information(element: ElTree.Element, _failsafe: bool, **_kwargs: Any)\
         -> model.AdministrativeInformation:
     return model.AdministrativeInformation(
@@ -391,13 +422,12 @@ def _construct_lang_string_set(element: ElTree.Element, _failsafe: bool, **_kwar
 
 def _construct_qualifier(element: ElTree.Element, failsafe: bool, **_kwargs: Any) -> model.Qualifier:
     q = model.Qualifier(
-        _get_text_mandatory(_get_child_mandatory(element, NS_AAS + "type")),
-        _get_text_mandatory_mapped(_get_child_mandatory(element, NS_AAS + "valueType"),
-                                   model.datatypes.XSD_TYPE_CLASSES)
+        _child_text_mandatory(element, NS_AAS + "type"),
+        _child_text_mandatory_mapped(element, NS_AAS + "valueType", model.datatypes.XSD_TYPE_CLASSES)
     )
-    value = element.find(NS_AAS + "value")
+    value = _get_text_or_none(element.find(NS_AAS + "value"))
     if value is not None:
-        q.value = value.text
+        q.value = value
     value_id = _failsafe_construct(element.find(NS_AAS + "valueId"), _construct_reference, failsafe)
     if value_id is not None:
         q.value_id = value_id
@@ -426,43 +456,213 @@ def _construct_security(_element: ElTree.Element, _failsafe: bool, **_kwargs: An
 
 
 def _construct_view(element: ElTree.Element, failsafe: bool, **_kwargs: Any) -> model.View:
-    view = model.View(_get_text_mandatory(_get_child_mandatory(element, NS_AAS + "idShort")))
+    view = model.View(_child_text_mandatory(element, NS_AAS + "idShort"))
     contained_elements = element.find(NS_AAS + "containedElements")
     if contained_elements is not None:
-        view.contained_element = set(
-            _failsafe_construct_multiple(contained_elements.findall(NS_AAS + "containedElementRef"),
-                                         _construct_referable_reference, failsafe)
-        )
+        for ce in _failsafe_construct_multiple(contained_elements.findall(NS_AAS + "containedElementRef"),
+                                               _construct_referable_reference, failsafe):
+            view.contained_element.add(ce)
     _amend_abstract_attributes(view, element, failsafe)
     return view
 
 
 def _construct_concept_dictionary(element: ElTree.Element, failsafe: bool, **_kwargs: Any) -> model.ConceptDictionary:
-    cd = model.ConceptDictionary(_get_text_mandatory(_get_child_mandatory(element, NS_AAS + "idShort")))
+    concept_dictionary = model.ConceptDictionary(_child_text_mandatory(element, NS_AAS + "idShort"))
     concept_description = element.find(NS_AAS + "conceptDescriptionRefs")
     if concept_description is not None:
-        cd.concept_description = set(_failsafe_construct_multiple(
-            concept_description.findall(NS_AAS + "conceptDescriptionRef"),
-            _construct_concept_description_reference,
-            failsafe
-        ))
-    _amend_abstract_attributes(cd, element, failsafe)
-    return cd
+        for cd in _failsafe_construct_multiple(concept_description.findall(NS_AAS + "conceptDescriptionRef"),
+                                               _construct_concept_description_reference, failsafe):
+            concept_dictionary.concept_description.add(cd)
+    _amend_abstract_attributes(concept_dictionary, element, failsafe)
+    return concept_dictionary
+
+
+def _construct_submodel_element(element: ElTree.Element, failsafe: bool, **kwargs: Any) -> model.SubmodelElement:
+    submodel_elements: Dict[str, Callable[..., model.SubmodelElement]] = {NS_AAS + k: v for k, v in {
+        "annotatedRelationshipElement": _construct_annotated_relationship_element,
+        "basicEvent": _construct_basic_event,
+        "blob": _construct_blob,
+        "capability": _construct_capability,
+        "entity": _construct_entity,
+        "file": _construct_file,
+        "multiLanguageProperty": _construct_multi_language_property,
+        "operation": _construct_operation,
+        "property": _construct_property,
+        "range": _construct_range,
+        "referenceElement": _construct_reference_element,
+        "relationshipElement": _construct_relationship_element,
+        "submodelElementCollection": _construct_submodel_element_collection
+    }.items()}
+    if element.tag not in submodel_elements:
+        raise KeyError(f"XML element {element.tag} is not a valid submodel element!")
+    return submodel_elements[element.tag](element, failsafe, **kwargs)
+
+
+def _construct_constraint(element: ElTree.Element, failsafe: bool, **kwargs: Any) -> model.Constraint:
+    constraints: Dict[str, Callable[..., model.Constraint]] = {NS_AAS + k: v for k, v in {
+        "formula": _construct_formula,
+        "qualifier": _construct_qualifier
+    }.items()}
+    if element.tag not in constraints:
+        raise KeyError(f"XML element {element.tag} is not a valid constraint!")
+    return constraints[element.tag](element, failsafe, **kwargs)
+
+
+def _construct_operation_variable(element: ElTree.Element, _failsafe: bool, **_kwargs: Any) -> model.OperationVariable:
+    value = _get_child_mandatory(element, NS_AAS + "value")
+    if len(value) == 0:
+        raise KeyError("Value of operation variable has no submodel element!")
+    if len(value) > 1:
+        logger.warning("Value of operation variable has more than one submodel element, using the first one...")
+    return model.OperationVariable(
+        _failsafe_construct_mandatory(value[0], _construct_submodel_element)
+    )
+
+
+def _construct_annotated_relationship_element(element: ElTree.Element, failsafe: bool, **_kwargs: Any)\
+        -> model.AnnotatedRelationshipElement:
+    annotated_relationship_element = model.AnnotatedRelationshipElement(
+        _child_text_mandatory(element, NS_AAS + "idShort"),
+        _child_construct_mandatory(element, NS_AAS + "first", _construct_referable_reference),
+        _child_construct_mandatory(element, NS_AAS + "second", _construct_referable_reference),
+        **_get_modeling_kind_kwarg(element)
+    )
+    annotations = _get_child_mandatory(element, NS_AAS + "annotations")
+    for data_element_ref in _failsafe_construct_multiple(annotations.findall(NS_AAS + "reference"),
+                                                         _construct_data_element_reference, failsafe):
+        annotated_relationship_element.annotation.add(data_element_ref)
+    _amend_abstract_attributes(annotated_relationship_element, element, failsafe)
+    return annotated_relationship_element
+
+
+def _construct_basic_event(element: ElTree.Element, failsafe: bool, **_kwargs: Any) -> model.BasicEvent:
+    basic_event = model.BasicEvent(
+        _child_text_mandatory(element, NS_AAS + "idShort"),
+        _child_construct_mandatory(element, NS_AAS + "observed", _construct_referable_reference),
+        **_get_modeling_kind_kwarg(element)
+    )
+    _amend_abstract_attributes(basic_event, element, failsafe)
+    return basic_event
+
+
+def _construct_blob(element: ElTree.Element, failsafe: bool, **_kwargs: Any) -> model.Blob:
+    blob = model.Blob(
+        _child_text_mandatory(element, NS_AAS + "idShort"),
+        _child_text_mandatory(element, NS_AAS + "mimeType"),
+        **_get_modeling_kind_kwarg(element)
+    )
+    value = element.find(NS_AAS + "value")
+    if value is not None:
+        blob.value = base64.b64decode(_get_text_mandatory(value))
+    _amend_abstract_attributes(blob, element, failsafe)
+    return blob
+
+
+def _construct_capability(element: ElTree.Element, failsafe: bool, **_kwargs: Any) -> model.Capability:
+    capability = model.Capability(
+        _child_text_mandatory(element, NS_AAS + "idShort"),
+        **_get_modeling_kind_kwarg(element)
+    )
+    _amend_abstract_attributes(capability, element, failsafe)
+    return capability
+
+
+def _construct_entity(element: ElTree.Element, failsafe: bool, **_kwargs: Any) -> model.Entity:
+    entity = model.Entity(
+        _child_text_mandatory(element, NS_AAS + "idShort"),
+        _child_text_mandatory_mapped(element, NS_AAS + "entityType", ENTITY_TYPES_INVERSE),
+        **_get_modeling_kind_kwarg(element)
+    )
+    asset_ref = _failsafe_construct(element.find(NS_AAS + "assetRef"), _construct_asset_reference, failsafe)
+    if asset_ref is not None:
+        entity.asset = asset_ref
+    for stmt in _failsafe_construct_multiple(_get_child_mandatory(element, NS_AAS + "statements"),
+                                             _construct_submodel_element, failsafe):
+        entity.statement.add(stmt)
+    _amend_abstract_attributes(entity, element, failsafe)
+    return entity
+
+
+def _construct_file(element: ElTree.Element, failsafe: bool, **_kwargs: Any) -> model.File:
+    file = model.File(
+        _child_text_mandatory(element, NS_AAS + "idShort"),
+        _child_text_mandatory(element, NS_AAS + "idShort"),
+        **_get_modeling_kind_kwarg(element)
+    )
+    value = element.find(NS_AAS + "value")
+    if value is not None:
+        file.value = _get_text_mandatory(value)
+    _amend_abstract_attributes(file, element, failsafe)
+    return file
+
+
+def _construct_multi_language_property(element: ElTree.Element, failsafe: bool, **_kwargs: Any)\
+        -> model.MultiLanguageProperty:
+    multi_language_property = model.MultiLanguageProperty(
+        _child_text_mandatory(element, NS_AAS + "idShort"),
+        **_get_modeling_kind_kwarg(element)
+    )
+    value = _failsafe_construct(element.find(NS_AAS + "value"), _construct_lang_string_set, failsafe)
+    if value is not None:
+        multi_language_property.value = value
+    value_id = _failsafe_construct(element.find(NS_AAS + "valueId"), _construct_reference, failsafe)
+    if value_id is not None:
+        multi_language_property.value_id = value_id
+    _amend_abstract_attributes(multi_language_property, element, failsafe)
+    return multi_language_property
+
+
+def _construct_operation(element: ElTree.Element, failsafe: bool, **_kwargs: Any) -> model.Operation:
+    operation = model.Operation(
+        _child_text_mandatory(element, NS_AAS + "idShort"),
+        **_get_modeling_kind_kwarg(element)
+    )
+    # TODO
+    _amend_abstract_attributes(operation, element, failsafe)
+    return operation
+
+
+def _construct_property(element: ElTree.Element, failsafe: bool, **_kwargs: Any) -> model.Property:
+    # TODO
+    pass
+
+
+def _construct_range(element: ElTree.Element, failsafe: bool, **_kwargs: Any) -> model.Range:
+    # TODO
+    pass
+
+
+def _construct_reference_element(element: ElTree.Element, failsafe: bool, **_kwargs: Any) -> model.ReferenceElement:
+    # TODO
+    pass
+
+
+def _construct_relationship_element(element: ElTree.Element, failsafe: bool, **_kwargs: Any)\
+        -> model.RelationshipElement:
+    # TODO
+    pass
+
+
+def _construct_submodel_element_collection(element: ElTree.Element, failsafe: bool, **_kwargs: Any)\
+        -> model.SubmodelElementCollection:
+    # TODO
+    pass
 
 
 def _construct_asset_administration_shell(element: ElTree.Element, failsafe: bool, **_kwargs: Any)\
         -> model.AssetAdministrationShell:
     aas = model.AssetAdministrationShell(
-        _find_and_construct_mandatory(element, NS_AAS + "assetRef", _construct_asset_reference),
-        _find_and_construct_mandatory(element, NS_AAS + "identification", _construct_identifier)
+        _child_construct_mandatory(element, NS_AAS + "assetRef", _construct_asset_reference),
+        _child_construct_mandatory(element, NS_AAS + "identification", _construct_identifier)
     )
     security = _failsafe_construct(element.find(NS_ABAC + "security"), _construct_security, failsafe)
     if security is not None:
         aas.security = security
     submodels = element.find(NS_AAS + "submodelRefs")
     if submodels is not None:
-        aas.submodel = set(_failsafe_construct_multiple(submodels.findall(NS_AAS + "submodelRef"),
-                                                        _construct_submodel_reference, failsafe))
+        for sm in _failsafe_construct_multiple(submodels.findall(NS_AAS + "submodelRef"), _construct_submodel_reference,
+                                               failsafe):
+            aas.submodel.add(sm)
     views = element.find(NS_AAS + "views")
     if views is not None:
         for view in _failsafe_construct_multiple(views.findall(NS_AAS + "view"), _construct_view, failsafe):
@@ -482,31 +682,37 @@ def _construct_asset_administration_shell(element: ElTree.Element, failsafe: boo
 
 def _construct_asset(element: ElTree.Element, failsafe: bool, **_kwargs: Any) -> model.Asset:
     asset = model.Asset(
-        _get_text_mandatory_mapped(_get_child_mandatory(element, NS_AAS + "kind"), ASSET_KIND_INVERSE),
-        _find_and_construct_mandatory(element, NS_AAS + "identification", _construct_identifier)
+        _child_text_mandatory_mapped(element, NS_AAS + "kind", ASSET_KIND_INVERSE),
+        _child_construct_mandatory(element, NS_AAS + "identification", _construct_identifier)
     )
-    asset.asset_identification_model = _failsafe_construct(element.find(NS_AAS + "assetIdentificationModelRef"),
-                                                           _construct_submodel_reference, failsafe)
-    asset.bill_of_material = _failsafe_construct(element.find(NS_AAS + "billOfMaterialRef"),
-                                                 _construct_submodel_reference, failsafe)
+    asset_identification_model = _failsafe_construct(element.find(NS_AAS + "assetIdentificationModelRef"),
+                                                     _construct_submodel_reference, failsafe)
+    if asset_identification_model is not None:
+        asset.asset_identification_model = asset_identification_model
+    bill_of_material = _failsafe_construct(element.find(NS_AAS + "billOfMaterialRef"), _construct_submodel_reference,
+                                           failsafe)
+    if bill_of_material is not None:
+        asset.bill_of_material = bill_of_material
     _amend_abstract_attributes(asset, element, failsafe)
     return asset
 
 
 def _construct_submodel(element: ElTree.Element, failsafe: bool, **_kwargs: Any) -> model.Submodel:
-    submodel_elements = _get_child_mandatory(element, NS_AAS + "submodelElements")
     submodel = model.Submodel(
-        _find_and_construct_mandatory(element, NS_AAS + "identification", _construct_identifier),
+        _failsafe_construct_mandatory(_get_child_mandatory(element, NS_AAS + "identification"), _construct_identifier),
         **_get_modeling_kind_kwarg(element)
     )
-    # TODO: continue here
+    for submodel_element in _get_child_mandatory(element, NS_AAS + "submodelElements"):
+        constructed = _failsafe_construct(submodel_element, _construct_submodel_element, failsafe)
+        if constructed is not None:
+            submodel.submodel_element.add(constructed)
     _amend_abstract_attributes(submodel, element, failsafe)
     return submodel
 
 
 def _construct_concept_description(element: ElTree.Element, failsafe: bool, **_kwargs: Any) -> model.ConceptDescription:
     cd = model.ConceptDescription(
-        _find_and_construct_mandatory(element, NS_AAS + "identification", _construct_identifier)
+        _failsafe_construct_mandatory(_get_child_mandatory(element, NS_AAS + "identification"), _construct_identifier)
     )
     is_case_of = set(_failsafe_construct_multiple(element.findall(NS_AAS + "isCaseOf"), _construct_reference, failsafe))
     if len(is_case_of) != 0:
@@ -525,12 +731,12 @@ def read_xml_aas_file(file: IO, failsafe: bool = True) -> model.DictObjectStore:
     :return: A DictObjectStore containing all AAS objects from the XML file
     """
 
-    element_constructors = {
-        NS_AAS + "assetAdministrationShell": _construct_asset_administration_shell,
-        NS_AAS + "asset": _construct_asset,
-        NS_AAS + "submodel": _construct_submodel,
-        NS_AAS + "conceptDescription": _construct_concept_description
-    }
+    element_constructors = {NS_AAS + k: v for k, v in {
+        "assetAdministrationShell": _construct_asset_administration_shell,
+        "asset": _construct_asset,
+        "submodel": _construct_submodel,
+        "conceptDescription": _construct_concept_description
+    }.items()}
 
     tree = ElTree.parse(file)
     root = tree.getroot()
@@ -540,7 +746,7 @@ def read_xml_aas_file(file: IO, failsafe: bool = True) -> model.DictObjectStore:
     for list_ in root:
         element_tag = list_.tag[:-1]
         if list_.tag[-1] != "s" or element_tag not in element_constructors:
-            error_message = f"Unexpected top-level list {list_.tag}"
+            error_message = f"Unexpected top-level list {list_.tag}!"
             if not failsafe:
                 raise TypeError(error_message)
             logger.warning(error_message)
