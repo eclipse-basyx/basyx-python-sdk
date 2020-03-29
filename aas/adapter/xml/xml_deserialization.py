@@ -34,23 +34,22 @@ Failed to construct AssetAdministrationShell!
 """
 
 from ... import model
-import xml.etree.ElementTree as ElTree
+from lxml import etree  # type: ignore
 import logging
 import base64
 
-from typing import Any, Callable, Dict, IO, Iterable, Optional, Set, Tuple, Type, TypeVar
+from typing import Any, Callable, Dict, IO, Iterable, Optional, Tuple, Type, TypeVar
 from mypy_extensions import TypedDict  # TODO: import this from typing should we require python 3.8+ at some point
-from .xml_serialization import NS_AAS, NS_AAS_COMMON, NS_ABAC, NS_IEC, NS_XSI
+from .xml_serialization import NS_AAS, NS_ABAC, NS_IEC
 from .._generic import MODELING_KIND_INVERSE, ASSET_KIND_INVERSE, KEY_ELEMENTS_INVERSE, KEY_TYPES_INVERSE,\
-    IDENTIFIER_TYPES_INVERSE, ENTITY_TYPES_INVERSE, IEC61360_DATA_TYPES_INVERSE, IEC61360_LEVEL_TYPES_INVERSE,\
-    KEY_ELEMENTS_CLASSES_INVERSE
+    IDENTIFIER_TYPES_INVERSE, ENTITY_TYPES_INVERSE, KEY_ELEMENTS_CLASSES_INVERSE
 
 logger = logging.getLogger(__name__)
 
 T = TypeVar("T")
 
 
-def _get_child_mandatory(parent: ElTree.Element, child_tag: str) -> ElTree.Element:
+def _get_child_mandatory(parent: etree.Element, child_tag: str) -> etree.Element:
     """
     A helper function for getting a mandatory child element.
 
@@ -65,7 +64,7 @@ def _get_child_mandatory(parent: ElTree.Element, child_tag: str) -> ElTree.Eleme
     return child
 
 
-def _get_attrib_mandatory(element: ElTree.Element, attrib: str) -> str:
+def _get_attrib_mandatory(element: etree.Element, attrib: str) -> str:
     """
     A helper function for getting a mandatory attribute of an element.
 
@@ -79,7 +78,7 @@ def _get_attrib_mandatory(element: ElTree.Element, attrib: str) -> str:
     return element.attrib[attrib]
 
 
-def _get_attrib_mandatory_mapped(element: ElTree.Element, attrib: str, dct: Dict[str, T]) -> T:
+def _get_attrib_mandatory_mapped(element: etree.Element, attrib: str, dct: Dict[str, T]) -> T:
     """
     A helper function for getting a mapped mandatory attribute of an xml element.
 
@@ -99,7 +98,7 @@ def _get_attrib_mandatory_mapped(element: ElTree.Element, attrib: str, dct: Dict
     return dct[attrib_value]
 
 
-def _get_text_or_none(element: Optional[ElTree.Element]) -> Optional[str]:
+def _get_text_or_none(element: Optional[etree.Element]) -> Optional[str]:
     """
     A helper function for getting the text of an element, when it's not clear whether the element exists or not.
 
@@ -115,7 +114,7 @@ def _get_text_or_none(element: Optional[ElTree.Element]) -> Optional[str]:
     return element.text if element is not None else None
 
 
-def _get_text_mandatory(element: ElTree.Element) -> str:
+def _get_text_mandatory(element: etree.Element) -> str:
     """
     A helper function for getting the mandatory text of an element.
 
@@ -129,7 +128,7 @@ def _get_text_mandatory(element: ElTree.Element) -> str:
     return text
 
 
-def _get_text_mandatory_mapped(element: ElTree.Element, dct: Dict[str, T]) -> T:
+def _get_text_mandatory_mapped(element: etree.Element, dct: Dict[str, T]) -> T:
     """
     A helper function for getting the mapped mandatory text of an element.
 
@@ -148,7 +147,7 @@ def _get_text_mandatory_mapped(element: ElTree.Element, dct: Dict[str, T]) -> T:
     return dct[text]
 
 
-def _constructor_name_to_typename(constructor: Callable[[ElTree.Element, bool], T]) -> str:
+def _constructor_name_to_typename(constructor: Callable[[etree.Element, bool], T]) -> str:
     """
     A helper function for converting the name of a constructor function to the respective type name.
 
@@ -173,7 +172,7 @@ def _exception_to_str(exception: BaseException) -> str:
     return string[1:-1] if isinstance(exception, KeyError) else string
 
 
-def _failsafe_construct(element: Optional[ElTree.Element], constructor: Callable[..., T], failsafe: bool,
+def _failsafe_construct(element: Optional[etree.Element], constructor: Callable[..., T], failsafe: bool,
                         **kwargs: Any) -> Optional[T]:
     """
     A wrapper function that is used to handle exceptions raised in constructor functions.
@@ -212,7 +211,7 @@ def _failsafe_construct(element: Optional[ElTree.Element], constructor: Callable
         return None
 
 
-def _failsafe_construct_mandatory(element: ElTree.Element, constructor: Callable[..., T],
+def _failsafe_construct_mandatory(element: etree.Element, constructor: Callable[..., T],
                                   **kwargs: Any) -> T:
     """
     _failsafe_construct() but not failsafe and it returns T instead of Optional[T]
@@ -231,7 +230,7 @@ def _failsafe_construct_mandatory(element: ElTree.Element, constructor: Callable
     return constructed
 
 
-def _failsafe_construct_multiple(elements: Iterable[ElTree.Element], constructor: Callable[..., T], failsafe: bool,
+def _failsafe_construct_multiple(elements: Iterable[etree.Element], constructor: Callable[..., T], failsafe: bool,
                                  **kwargs: Any) -> Iterable[T]:
     """
     A generator function that applies _failsafe_construct() to multiple elements.
@@ -250,7 +249,7 @@ def _failsafe_construct_multiple(elements: Iterable[ElTree.Element], constructor
             yield parsed
 
 
-def _child_construct_mandatory(parent: ElTree.Element, child_tag: str, constructor: Callable[..., T], **kwargs: Any)\
+def _child_construct_mandatory(parent: etree.Element, child_tag: str, constructor: Callable[..., T], **kwargs: Any)\
         -> T:
     """
     Shorthand for _failsafe_construct_mandatory() in combination with _get_child_mandatory().
@@ -264,7 +263,7 @@ def _child_construct_mandatory(parent: ElTree.Element, child_tag: str, construct
     return _failsafe_construct_mandatory(_get_child_mandatory(parent, child_tag), constructor, **kwargs)
 
 
-def _child_text_mandatory(parent: ElTree.Element, child_tag: str) -> str:
+def _child_text_mandatory(parent: etree.Element, child_tag: str) -> str:
     """
     Shorthand for _get_text_mandatory() in combination with _get_child_mandatory().
 
@@ -275,7 +274,7 @@ def _child_text_mandatory(parent: ElTree.Element, child_tag: str) -> str:
     return _get_text_mandatory(_get_child_mandatory(parent, child_tag))
 
 
-def _child_text_mandatory_mapped(parent: ElTree.Element, child_tag: str, dct: Dict[str, T]) -> T:
+def _child_text_mandatory_mapped(parent: etree.Element, child_tag: str, dct: Dict[str, T]) -> T:
     """
     Shorthand for _get_text_mandatory_mapped() in combination with _get_child_mandatory().
 
@@ -287,7 +286,7 @@ def _child_text_mandatory_mapped(parent: ElTree.Element, child_tag: str, dct: Di
     return _get_text_mandatory_mapped(_get_child_mandatory(parent, child_tag), dct)
 
 
-def _amend_abstract_attributes(obj: object, element: ElTree.Element, failsafe: bool) -> None:
+def _amend_abstract_attributes(obj: object, element: etree.Element, failsafe: bool) -> None:
     """
     A helper function that amends optional attributes to already constructed class instances, if they inherit
     from an abstract class like Referable, Identifiable, HasSemantics or Qualifiable.
@@ -327,7 +326,7 @@ class ModelingKindKwArg(TypedDict, total=False):
     kind: model.ModelingKind
 
 
-def _get_modeling_kind_kwarg(element: ElTree.Element) -> ModelingKindKwArg:
+def _get_modeling_kind_kwarg(element: etree.Element) -> ModelingKindKwArg:
     """
     A helper function that creates a dict containing the modeling kind or nothing for a given xml element.
 
@@ -349,7 +348,7 @@ def _get_modeling_kind_kwarg(element: ElTree.Element) -> ModelingKindKwArg:
     return kwargs
 
 
-def _construct_key(element: ElTree.Element, _failsafe: bool, **_kwargs: Any) -> model.Key:
+def _construct_key(element: etree.Element, _failsafe: bool, **_kwargs: Any) -> model.Key:
     return model.Key(
         _get_attrib_mandatory_mapped(element, "type", KEY_ELEMENTS_INVERSE),
         _get_attrib_mandatory(element, "local").lower() == "true",
@@ -358,16 +357,16 @@ def _construct_key(element: ElTree.Element, _failsafe: bool, **_kwargs: Any) -> 
     )
 
 
-def _construct_key_tuple(element: ElTree.Element, failsafe: bool, **_kwargs: Any) -> Tuple[model.Key, ...]:
+def _construct_key_tuple(element: etree.Element, failsafe: bool, **_kwargs: Any) -> Tuple[model.Key, ...]:
     keys = _get_child_mandatory(element, NS_AAS + "keys")
     return tuple(_failsafe_construct_multiple(keys.findall(NS_AAS + "key"), _construct_key, failsafe))
 
 
-def _construct_reference(element: ElTree.Element, failsafe: bool, **_kwargs: Any) -> model.Reference:
+def _construct_reference(element: etree.Element, failsafe: bool, **_kwargs: Any) -> model.Reference:
     return model.Reference(_construct_key_tuple(element, failsafe))
 
 
-def _construct_aas_reference(element: ElTree.Element, failsafe: bool, type_: Type[model.base._RT], **_kwargs: Any)\
+def _construct_aas_reference(element: etree.Element, failsafe: bool, type_: Type[model.base._RT], **_kwargs: Any)\
         -> model.AASReference[model.base._RT]:
     keys = _construct_key_tuple(element, failsafe)
     if len(keys) != 0 and not issubclass(KEY_ELEMENTS_CLASSES_INVERSE.get(keys[-1].type, type(None)), type_):
@@ -376,37 +375,37 @@ def _construct_aas_reference(element: ElTree.Element, failsafe: bool, type_: Typ
     return model.AASReference(keys, type_)
 
 
-def _construct_submodel_reference(element: ElTree.Element, failsafe: bool, **kwargs: Any)\
+def _construct_submodel_reference(element: etree.Element, failsafe: bool, **kwargs: Any)\
         -> model.AASReference[model.Submodel]:
     return _construct_aas_reference(element, failsafe, model.Submodel, **kwargs)
 
 
-def _construct_asset_reference(element: ElTree.Element, failsafe: bool, **kwargs: Any)\
+def _construct_asset_reference(element: etree.Element, failsafe: bool, **kwargs: Any)\
         -> model.AASReference[model.Asset]:
     return _construct_aas_reference(element, failsafe, model.Asset, **kwargs)
 
 
-def _construct_asset_administration_shell_reference(element: ElTree.Element, failsafe: bool, **kwargs: Any)\
+def _construct_asset_administration_shell_reference(element: etree.Element, failsafe: bool, **kwargs: Any)\
         -> model.AASReference[model.AssetAdministrationShell]:
     return _construct_aas_reference(element, failsafe, model.AssetAdministrationShell, **kwargs)
 
 
-def _construct_referable_reference(element: ElTree.Element, failsafe: bool, **kwargs: Any)\
+def _construct_referable_reference(element: etree.Element, failsafe: bool, **kwargs: Any)\
         -> model.AASReference[model.Referable]:
     return _construct_aas_reference(element, failsafe, model.Referable, **kwargs)
 
 
-def _construct_concept_description_reference(element: ElTree.Element, failsafe: bool, **kwargs: Any)\
+def _construct_concept_description_reference(element: etree.Element, failsafe: bool, **kwargs: Any)\
         -> model.AASReference[model.ConceptDescription]:
     return _construct_aas_reference(element, failsafe, model.ConceptDescription, **kwargs)
 
 
-def _construct_data_element_reference(element: ElTree.Element, failsafe: bool, **kwargs: Any)\
+def _construct_data_element_reference(element: etree.Element, failsafe: bool, **kwargs: Any)\
         -> model.AASReference[model.DataElement]:
     return _construct_aas_reference(element, failsafe, model.DataElement, **kwargs)
 
 
-def _construct_administrative_information(element: ElTree.Element, _failsafe: bool, **_kwargs: Any)\
+def _construct_administrative_information(element: etree.Element, _failsafe: bool, **_kwargs: Any)\
         -> model.AdministrativeInformation:
     return model.AdministrativeInformation(
         _get_text_or_none(element.find(NS_AAS + "version")),
@@ -414,14 +413,14 @@ def _construct_administrative_information(element: ElTree.Element, _failsafe: bo
     )
 
 
-def _construct_lang_string_set(element: ElTree.Element, _failsafe: bool, **_kwargs: Any) -> model.LangStringSet:
+def _construct_lang_string_set(element: etree.Element, _failsafe: bool, **_kwargs: Any) -> model.LangStringSet:
     lss: model.LangStringSet = {}
     for lang_string in element.findall(NS_IEC + "langString"):
         lss[_get_attrib_mandatory(lang_string, "lang")] = _get_text_mandatory(lang_string)
     return lss
 
 
-def _construct_qualifier(element: ElTree.Element, failsafe: bool, **_kwargs: Any) -> model.Qualifier:
+def _construct_qualifier(element: etree.Element, failsafe: bool, **_kwargs: Any) -> model.Qualifier:
     qualifier = model.Qualifier(
         _child_text_mandatory(element, NS_AAS + "type"),
         _child_text_mandatory_mapped(element, NS_AAS + "valueType", model.datatypes.XSD_TYPE_CLASSES)
@@ -436,7 +435,7 @@ def _construct_qualifier(element: ElTree.Element, failsafe: bool, **_kwargs: Any
     return qualifier
 
 
-def _construct_formula(element: ElTree.Element, failsafe: bool, **_kwargs: Any) -> model.Formula:
+def _construct_formula(element: etree.Element, failsafe: bool, **_kwargs: Any) -> model.Formula:
     formula = model.Formula()
     depends_on_refs = element.find(NS_AAS + "dependsOnRefs")
     if depends_on_refs is not None:
@@ -446,21 +445,21 @@ def _construct_formula(element: ElTree.Element, failsafe: bool, **_kwargs: Any) 
     return formula
 
 
-def _construct_identifier(element: ElTree.Element, _failsafe: bool, **_kwargs: Any) -> model.Identifier:
+def _construct_identifier(element: etree.Element, _failsafe: bool, **_kwargs: Any) -> model.Identifier:
     return model.Identifier(
         _get_text_mandatory(element),
         _get_attrib_mandatory_mapped(element, "idType", IDENTIFIER_TYPES_INVERSE)
     )
 
 
-def _construct_security(_element: ElTree.Element, _failsafe: bool, **_kwargs: Any) -> model.Security:
+def _construct_security(_element: etree.Element, _failsafe: bool, **_kwargs: Any) -> model.Security:
     """
     TODO: this is just a stub implementation
     """
     return model.Security()
 
 
-def _construct_view(element: ElTree.Element, failsafe: bool, **_kwargs: Any) -> model.View:
+def _construct_view(element: etree.Element, failsafe: bool, **_kwargs: Any) -> model.View:
     view = model.View(_child_text_mandatory(element, NS_AAS + "idShort"))
     contained_elements = element.find(NS_AAS + "containedElements")
     if contained_elements is not None:
@@ -471,7 +470,7 @@ def _construct_view(element: ElTree.Element, failsafe: bool, **_kwargs: Any) -> 
     return view
 
 
-def _construct_concept_dictionary(element: ElTree.Element, failsafe: bool, **_kwargs: Any) -> model.ConceptDictionary:
+def _construct_concept_dictionary(element: etree.Element, failsafe: bool, **_kwargs: Any) -> model.ConceptDictionary:
     concept_dictionary = model.ConceptDictionary(_child_text_mandatory(element, NS_AAS + "idShort"))
     concept_description = element.find(NS_AAS + "conceptDescriptionRefs")
     if concept_description is not None:
@@ -482,7 +481,7 @@ def _construct_concept_dictionary(element: ElTree.Element, failsafe: bool, **_kw
     return concept_dictionary
 
 
-def _construct_submodel_element(element: ElTree.Element, failsafe: bool, **kwargs: Any) -> model.SubmodelElement:
+def _construct_submodel_element(element: etree.Element, failsafe: bool, **kwargs: Any) -> model.SubmodelElement:
     submodel_elements: Dict[str, Callable[..., model.SubmodelElement]] = {NS_AAS + k: v for k, v in {
         "annotatedRelationshipElement": _construct_annotated_relationship_element,
         "basicEvent": _construct_basic_event,
@@ -503,7 +502,7 @@ def _construct_submodel_element(element: ElTree.Element, failsafe: bool, **kwarg
     return submodel_elements[element.tag](element, failsafe, **kwargs)
 
 
-def _construct_constraint(element: ElTree.Element, failsafe: bool, **kwargs: Any) -> model.Constraint:
+def _construct_constraint(element: etree.Element, failsafe: bool, **kwargs: Any) -> model.Constraint:
     constraints: Dict[str, Callable[..., model.Constraint]] = {NS_AAS + k: v for k, v in {
         "formula": _construct_formula,
         "qualifier": _construct_qualifier
@@ -513,7 +512,7 @@ def _construct_constraint(element: ElTree.Element, failsafe: bool, **kwargs: Any
     return constraints[element.tag](element, failsafe, **kwargs)
 
 
-def _construct_operation_variable(element: ElTree.Element, _failsafe: bool, **_kwargs: Any) -> model.OperationVariable:
+def _construct_operation_variable(element: etree.Element, _failsafe: bool, **_kwargs: Any) -> model.OperationVariable:
     value = _get_child_mandatory(element, NS_AAS + "value")
     if len(value) == 0:
         raise KeyError("Value of operation variable has no submodel element!")
@@ -524,7 +523,7 @@ def _construct_operation_variable(element: ElTree.Element, _failsafe: bool, **_k
     )
 
 
-def _construct_annotated_relationship_element(element: ElTree.Element, failsafe: bool, **_kwargs: Any)\
+def _construct_annotated_relationship_element(element: etree.Element, failsafe: bool, **_kwargs: Any)\
         -> model.AnnotatedRelationshipElement:
     annotated_relationship_element = model.AnnotatedRelationshipElement(
         _child_text_mandatory(element, NS_AAS + "idShort"),
@@ -540,7 +539,7 @@ def _construct_annotated_relationship_element(element: ElTree.Element, failsafe:
     return annotated_relationship_element
 
 
-def _construct_basic_event(element: ElTree.Element, failsafe: bool, **_kwargs: Any) -> model.BasicEvent:
+def _construct_basic_event(element: etree.Element, failsafe: bool, **_kwargs: Any) -> model.BasicEvent:
     basic_event = model.BasicEvent(
         _child_text_mandatory(element, NS_AAS + "idShort"),
         _child_construct_mandatory(element, NS_AAS + "observed", _construct_referable_reference),
@@ -550,7 +549,7 @@ def _construct_basic_event(element: ElTree.Element, failsafe: bool, **_kwargs: A
     return basic_event
 
 
-def _construct_blob(element: ElTree.Element, failsafe: bool, **_kwargs: Any) -> model.Blob:
+def _construct_blob(element: etree.Element, failsafe: bool, **_kwargs: Any) -> model.Blob:
     blob = model.Blob(
         _child_text_mandatory(element, NS_AAS + "idShort"),
         _child_text_mandatory(element, NS_AAS + "mimeType"),
@@ -563,7 +562,7 @@ def _construct_blob(element: ElTree.Element, failsafe: bool, **_kwargs: Any) -> 
     return blob
 
 
-def _construct_capability(element: ElTree.Element, failsafe: bool, **_kwargs: Any) -> model.Capability:
+def _construct_capability(element: etree.Element, failsafe: bool, **_kwargs: Any) -> model.Capability:
     capability = model.Capability(
         _child_text_mandatory(element, NS_AAS + "idShort"),
         **_get_modeling_kind_kwarg(element)
@@ -572,7 +571,7 @@ def _construct_capability(element: ElTree.Element, failsafe: bool, **_kwargs: An
     return capability
 
 
-def _construct_entity(element: ElTree.Element, failsafe: bool, **_kwargs: Any) -> model.Entity:
+def _construct_entity(element: etree.Element, failsafe: bool, **_kwargs: Any) -> model.Entity:
     entity = model.Entity(
         _child_text_mandatory(element, NS_AAS + "idShort"),
         _child_text_mandatory_mapped(element, NS_AAS + "entityType", ENTITY_TYPES_INVERSE),
@@ -588,7 +587,7 @@ def _construct_entity(element: ElTree.Element, failsafe: bool, **_kwargs: Any) -
     return entity
 
 
-def _construct_file(element: ElTree.Element, failsafe: bool, **_kwargs: Any) -> model.File:
+def _construct_file(element: etree.Element, failsafe: bool, **_kwargs: Any) -> model.File:
     file = model.File(
         _child_text_mandatory(element, NS_AAS + "idShort"),
         _child_text_mandatory(element, NS_AAS + "idShort"),
@@ -601,7 +600,7 @@ def _construct_file(element: ElTree.Element, failsafe: bool, **_kwargs: Any) -> 
     return file
 
 
-def _construct_multi_language_property(element: ElTree.Element, failsafe: bool, **_kwargs: Any)\
+def _construct_multi_language_property(element: etree.Element, failsafe: bool, **_kwargs: Any)\
         -> model.MultiLanguageProperty:
     multi_language_property = model.MultiLanguageProperty(
         _child_text_mandatory(element, NS_AAS + "idShort"),
@@ -617,7 +616,7 @@ def _construct_multi_language_property(element: ElTree.Element, failsafe: bool, 
     return multi_language_property
 
 
-def _construct_operation(element: ElTree.Element, failsafe: bool, **_kwargs: Any) -> model.Operation:
+def _construct_operation(element: etree.Element, failsafe: bool, **_kwargs: Any) -> model.Operation:
     operation = model.Operation(
         _child_text_mandatory(element, NS_AAS + "idShort"),
         **_get_modeling_kind_kwarg(element)
@@ -641,7 +640,7 @@ def _construct_operation(element: ElTree.Element, failsafe: bool, **_kwargs: Any
     return operation
 
 
-def _construct_property(element: ElTree.Element, failsafe: bool, **_kwargs: Any) -> model.Property:
+def _construct_property(element: etree.Element, failsafe: bool, **_kwargs: Any) -> model.Property:
     property = model.Property(
         _child_text_mandatory(element, NS_AAS + "idShort"),
         value_type=_child_text_mandatory_mapped(element, NS_AAS + "valueType", model.datatypes.XSD_TYPE_CLASSES),
@@ -657,7 +656,7 @@ def _construct_property(element: ElTree.Element, failsafe: bool, **_kwargs: Any)
     return property
 
 
-def _construct_range(element: ElTree.Element, failsafe: bool, **_kwargs: Any) -> model.Range:
+def _construct_range(element: etree.Element, failsafe: bool, **_kwargs: Any) -> model.Range:
     range = model.Range(
         _child_text_mandatory(element, NS_AAS + "idShort"),
         value_type=_child_text_mandatory_mapped(element, NS_AAS + "valueType", model.datatypes.XSD_TYPE_CLASSES),
@@ -673,7 +672,7 @@ def _construct_range(element: ElTree.Element, failsafe: bool, **_kwargs: Any) ->
     return range
 
 
-def _construct_reference_element(element: ElTree.Element, failsafe: bool, **_kwargs: Any) -> model.ReferenceElement:
+def _construct_reference_element(element: etree.Element, failsafe: bool, **_kwargs: Any) -> model.ReferenceElement:
     reference_element = model.ReferenceElement(
         _child_text_mandatory(element, NS_AAS + "idShort"),
         **_get_modeling_kind_kwarg(element)
@@ -685,7 +684,7 @@ def _construct_reference_element(element: ElTree.Element, failsafe: bool, **_kwa
     return reference_element
 
 
-def _construct_relationship_element(element: ElTree.Element, failsafe: bool, **_kwargs: Any)\
+def _construct_relationship_element(element: etree.Element, failsafe: bool, **_kwargs: Any)\
         -> model.RelationshipElement:
     relationship_element = model.RelationshipElement(
         _child_text_mandatory(element, NS_AAS + "idShort"),
@@ -697,7 +696,7 @@ def _construct_relationship_element(element: ElTree.Element, failsafe: bool, **_
     return relationship_element
 
 
-def _construct_submodel_element_collection(element: ElTree.Element, failsafe: bool, **_kwargs: Any)\
+def _construct_submodel_element_collection(element: etree.Element, failsafe: bool, **_kwargs: Any)\
         -> model.SubmodelElementCollection:
     ordered = _child_text_mandatory(element, NS_AAS + "ordered").lower() == "true"
     collection_type = model.SubmodelElementCollectionOrdered if ordered else model.SubmodelElementCollectionUnordered
@@ -712,7 +711,7 @@ def _construct_submodel_element_collection(element: ElTree.Element, failsafe: bo
     return collection
 
 
-def _construct_asset_administration_shell(element: ElTree.Element, failsafe: bool, **_kwargs: Any)\
+def _construct_asset_administration_shell(element: etree.Element, failsafe: bool, **_kwargs: Any)\
         -> model.AssetAdministrationShell:
     aas = model.AssetAdministrationShell(
         _child_construct_mandatory(element, NS_AAS + "assetRef", _construct_asset_reference),
@@ -743,7 +742,7 @@ def _construct_asset_administration_shell(element: ElTree.Element, failsafe: boo
     return aas
 
 
-def _construct_asset(element: ElTree.Element, failsafe: bool, **_kwargs: Any) -> model.Asset:
+def _construct_asset(element: etree.Element, failsafe: bool, **_kwargs: Any) -> model.Asset:
     asset = model.Asset(
         _child_text_mandatory_mapped(element, NS_AAS + "kind", ASSET_KIND_INVERSE),
         _child_construct_mandatory(element, NS_AAS + "identification", _construct_identifier)
@@ -760,7 +759,7 @@ def _construct_asset(element: ElTree.Element, failsafe: bool, **_kwargs: Any) ->
     return asset
 
 
-def _construct_submodel(element: ElTree.Element, failsafe: bool, **_kwargs: Any) -> model.Submodel:
+def _construct_submodel(element: etree.Element, failsafe: bool, **_kwargs: Any) -> model.Submodel:
     submodel = model.Submodel(
         _child_construct_mandatory(element, NS_AAS + "identification", _construct_identifier),
         **_get_modeling_kind_kwarg(element)
@@ -773,7 +772,7 @@ def _construct_submodel(element: ElTree.Element, failsafe: bool, **_kwargs: Any)
     return submodel
 
 
-def _construct_concept_description(element: ElTree.Element, failsafe: bool, **_kwargs: Any) -> model.ConceptDescription:
+def _construct_concept_description(element: etree.Element, failsafe: bool, **_kwargs: Any) -> model.ConceptDescription:
     cd = model.ConceptDescription(
         _child_construct_mandatory(element, NS_AAS + "identification", _construct_identifier)
     )
@@ -787,7 +786,7 @@ def read_xml_aas_file(file: IO, failsafe: bool = True) -> model.DictObjectStore:
     """
     Read an Asset Administration Shell XML file according to 'Details of the Asset Administration Shell', chapter 5.4
 
-    :param file: A file-like object to read the XML-serialized data from
+    :param file: A filename or file-like object to read the XML-serialized data from
     :param failsafe: If True, the file is parsed in a failsafe way: Instead of raising an Exception for missing
                      attributes and wrong types, errors are logged and defective objects are skipped
     :return: A DictObjectStore containing all AAS objects from the XML file
@@ -800,7 +799,9 @@ def read_xml_aas_file(file: IO, failsafe: bool = True) -> model.DictObjectStore:
         "conceptDescription": _construct_concept_description
     }.items()}
 
-    tree = ElTree.parse(file)
+    parser = etree.XMLParser(remove_blank_text=True, remove_comments=True)
+
+    tree = etree.parse(file, parser)
     root = tree.getroot()
 
     # Add AAS objects to ObjectStore
