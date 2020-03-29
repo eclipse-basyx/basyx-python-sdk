@@ -197,8 +197,9 @@ def _failsafe_construct(element: Optional[ElTree.Element], constructor: Callable
     try:
         return constructor(element, failsafe, **kwargs)
     except (KeyError, ValueError) as e:
+        type_name = _constructor_name_to_typename(constructor)
         error_message = f"while converting XML element with tag {element.tag} to "\
-                        f"type {_constructor_name_to_typename(constructor)}"
+                        f"type {type_name}"
         if not failsafe:
             raise type(e)(error_message) from e
         error_type = type(e).__name__
@@ -207,7 +208,7 @@ def _failsafe_construct(element: Optional[ElTree.Element], constructor: Callable
             error_message = _exception_to_str(cause) + "\n -> " + error_message
             cause = cause.__cause__
         logger.error(error_type + ": " + error_message)
-        logger.error(f"Failed to construct {_constructor_name_to_typename(constructor)}!")
+        logger.error(f"Failed to construct {type_name}!")
         return None
 
 
@@ -421,27 +422,28 @@ def _construct_lang_string_set(element: ElTree.Element, _failsafe: bool, **_kwar
 
 
 def _construct_qualifier(element: ElTree.Element, failsafe: bool, **_kwargs: Any) -> model.Qualifier:
-    q = model.Qualifier(
+    qualifier = model.Qualifier(
         _child_text_mandatory(element, NS_AAS + "type"),
         _child_text_mandatory_mapped(element, NS_AAS + "valueType", model.datatypes.XSD_TYPE_CLASSES)
     )
     value = _get_text_or_none(element.find(NS_AAS + "value"))
     if value is not None:
-        q.value = value
+        qualifier.value = model.datatypes.from_xsd(value, qualifier.value_type)
     value_id = _failsafe_construct(element.find(NS_AAS + "valueId"), _construct_reference, failsafe)
     if value_id is not None:
-        q.value_id = value_id
-    _amend_abstract_attributes(q, element, failsafe)
-    return q
+        qualifier.value_id = value_id
+    _amend_abstract_attributes(qualifier, element, failsafe)
+    return qualifier
 
 
 def _construct_formula(element: ElTree.Element, failsafe: bool, **_kwargs: Any) -> model.Formula:
-    ref_set: Set[model.Reference] = set()
+    formula = model.Formula()
     depends_on_refs = element.find(NS_AAS + "dependsOnRefs")
     if depends_on_refs is not None:
-        ref_set = set(_failsafe_construct_multiple(depends_on_refs.findall(NS_AAS + "reference"), _construct_reference,
-                                                   failsafe))
-    return model.Formula(ref_set)
+        for ref in _failsafe_construct_multiple(depends_on_refs.findall(NS_AAS + "reference"), _construct_reference,
+                                                failsafe):
+            formula.depends_on.add(ref)
+    return formula
 
 
 def _construct_identifier(element: ElTree.Element, _failsafe: bool, **_kwargs: Any) -> model.Identifier:
@@ -452,6 +454,9 @@ def _construct_identifier(element: ElTree.Element, _failsafe: bool, **_kwargs: A
 
 
 def _construct_security(_element: ElTree.Element, _failsafe: bool, **_kwargs: Any) -> model.Security:
+    """
+    TODO: this is just a stub implementation
+    """
     return model.Security()
 
 
@@ -459,9 +464,9 @@ def _construct_view(element: ElTree.Element, failsafe: bool, **_kwargs: Any) -> 
     view = model.View(_child_text_mandatory(element, NS_AAS + "idShort"))
     contained_elements = element.find(NS_AAS + "containedElements")
     if contained_elements is not None:
-        for ce in _failsafe_construct_multiple(contained_elements.findall(NS_AAS + "containedElementRef"),
-                                               _construct_referable_reference, failsafe):
-            view.contained_element.add(ce)
+        for ref in _failsafe_construct_multiple(contained_elements.findall(NS_AAS + "containedElementRef"),
+                                                _construct_referable_reference, failsafe):
+            view.contained_element.add(ref)
     _amend_abstract_attributes(view, element, failsafe)
     return view
 
@@ -470,9 +475,9 @@ def _construct_concept_dictionary(element: ElTree.Element, failsafe: bool, **_kw
     concept_dictionary = model.ConceptDictionary(_child_text_mandatory(element, NS_AAS + "idShort"))
     concept_description = element.find(NS_AAS + "conceptDescriptionRefs")
     if concept_description is not None:
-        for cd in _failsafe_construct_multiple(concept_description.findall(NS_AAS + "conceptDescriptionRef"),
-                                               _construct_concept_description_reference, failsafe):
-            concept_dictionary.concept_description.add(cd)
+        for ref in _failsafe_construct_multiple(concept_description.findall(NS_AAS + "conceptDescriptionRef"),
+                                                _construct_concept_description_reference, failsafe):
+            concept_dictionary.concept_description.add(ref)
     _amend_abstract_attributes(concept_dictionary, element, failsafe)
     return concept_dictionary
 
@@ -617,36 +622,94 @@ def _construct_operation(element: ElTree.Element, failsafe: bool, **_kwargs: Any
         _child_text_mandatory(element, NS_AAS + "idShort"),
         **_get_modeling_kind_kwarg(element)
     )
-    # TODO
+    in_output_variable = element.find(NS_AAS + "inoutputVariable")
+    if in_output_variable is not None:
+        for var in _failsafe_construct_multiple(in_output_variable.findall(NS_AAS + "operationVariable"),
+                                                _construct_operation_variable, failsafe):
+            operation.in_output_variable.append(var)
+    input_variable = element.find(NS_AAS + "inputVariable")
+    if input_variable is not None:
+        for var in _failsafe_construct_multiple(input_variable.findall(NS_AAS + "operationVariable"),
+                                                _construct_operation_variable, failsafe):
+            operation.input_variable.append(var)
+    output_variable = element.find(NS_AAS + "outputVariable")
+    if output_variable is not None:
+        for var in _failsafe_construct_multiple(output_variable.findall(NS_AAS + "operationVariable"),
+                                                _construct_operation_variable, failsafe):
+            operation.output_variable.append(var)
     _amend_abstract_attributes(operation, element, failsafe)
     return operation
 
 
 def _construct_property(element: ElTree.Element, failsafe: bool, **_kwargs: Any) -> model.Property:
-    # TODO
-    pass
+    property = model.Property(
+        _child_text_mandatory(element, NS_AAS + "idShort"),
+        value_type=_child_text_mandatory_mapped(element, NS_AAS + "valueType", model.datatypes.XSD_TYPE_CLASSES),
+        **_get_modeling_kind_kwarg(element)
+    )
+    value = _get_text_or_none(element.find(NS_AAS + "value"))
+    if value is not None:
+        property.value = model.datatypes.from_xsd(value, property.value_type)
+    value_id = _failsafe_construct(element.find(NS_AAS + "valueId"), _construct_reference, failsafe)
+    if value_id is not None:
+        property.value_id = value_id
+    _amend_abstract_attributes(property, element, failsafe)
+    return property
 
 
 def _construct_range(element: ElTree.Element, failsafe: bool, **_kwargs: Any) -> model.Range:
-    # TODO
-    pass
+    range = model.Range(
+        _child_text_mandatory(element, NS_AAS + "idShort"),
+        value_type=_child_text_mandatory_mapped(element, NS_AAS + "valueType", model.datatypes.XSD_TYPE_CLASSES),
+        **_get_modeling_kind_kwarg(element)
+    )
+    max = _get_text_or_none(element.find(NS_AAS + "max"))
+    if max is not None:
+        range.max = model.datatypes.from_xsd(max, range.value_type)
+    min = _get_text_or_none(element.find(NS_AAS + "min"))
+    if min is not None:
+        range.min = model.datatypes.from_xsd(min, range.value_type)
+    _amend_abstract_attributes(range, element, failsafe)
+    return range
 
 
 def _construct_reference_element(element: ElTree.Element, failsafe: bool, **_kwargs: Any) -> model.ReferenceElement:
-    # TODO
-    pass
+    reference_element = model.ReferenceElement(
+        _child_text_mandatory(element, NS_AAS + "idShort"),
+        **_get_modeling_kind_kwarg(element)
+    )
+    value = _failsafe_construct(element.find(NS_AAS + "value"), _construct_referable_reference, failsafe)
+    if value is not None:
+        reference_element.value = value
+    _amend_abstract_attributes(reference_element, element, failsafe)
+    return reference_element
 
 
 def _construct_relationship_element(element: ElTree.Element, failsafe: bool, **_kwargs: Any)\
         -> model.RelationshipElement:
-    # TODO
-    pass
+    relationship_element = model.RelationshipElement(
+        _child_text_mandatory(element, NS_AAS + "idShort"),
+        _child_construct_mandatory(element, NS_AAS + "first", _construct_referable_reference),
+        _child_construct_mandatory(element, NS_AAS + "second", _construct_referable_reference),
+        **_get_modeling_kind_kwarg(element)
+    )
+    _amend_abstract_attributes(relationship_element, element, failsafe)
+    return relationship_element
 
 
 def _construct_submodel_element_collection(element: ElTree.Element, failsafe: bool, **_kwargs: Any)\
         -> model.SubmodelElementCollection:
-    # TODO
-    pass
+    ordered = _child_text_mandatory(element, NS_AAS + "ordered").lower() == "true"
+    collection_type = model.SubmodelElementCollectionOrdered if ordered else model.SubmodelElementCollectionUnordered
+    collection = collection_type(
+        _child_text_mandatory(element, NS_AAS + "idShort"),
+        **_get_modeling_kind_kwarg(element)
+    )
+    value = _get_child_mandatory(element, NS_AAS + "value")
+    for se in _failsafe_construct_multiple(value, _construct_submodel_element, failsafe):
+        collection.value.add(se)
+    _amend_abstract_attributes(collection, element, failsafe)
+    return collection
 
 
 def _construct_asset_administration_shell(element: ElTree.Element, failsafe: bool, **_kwargs: Any)\
@@ -660,9 +723,9 @@ def _construct_asset_administration_shell(element: ElTree.Element, failsafe: boo
         aas.security = security
     submodels = element.find(NS_AAS + "submodelRefs")
     if submodels is not None:
-        for sm in _failsafe_construct_multiple(submodels.findall(NS_AAS + "submodelRef"), _construct_submodel_reference,
-                                               failsafe):
-            aas.submodel.add(sm)
+        for ref in _failsafe_construct_multiple(submodels.findall(NS_AAS + "submodelRef"),
+                                                _construct_submodel_reference, failsafe):
+            aas.submodel.add(ref)
     views = element.find(NS_AAS + "views")
     if views is not None:
         for view in _failsafe_construct_multiple(views.findall(NS_AAS + "view"), _construct_view, failsafe):
@@ -699,7 +762,7 @@ def _construct_asset(element: ElTree.Element, failsafe: bool, **_kwargs: Any) ->
 
 def _construct_submodel(element: ElTree.Element, failsafe: bool, **_kwargs: Any) -> model.Submodel:
     submodel = model.Submodel(
-        _failsafe_construct_mandatory(_get_child_mandatory(element, NS_AAS + "identification"), _construct_identifier),
+        _child_construct_mandatory(element, NS_AAS + "identification", _construct_identifier),
         **_get_modeling_kind_kwarg(element)
     )
     for submodel_element in _get_child_mandatory(element, NS_AAS + "submodelElements"):
@@ -712,11 +775,10 @@ def _construct_submodel(element: ElTree.Element, failsafe: bool, **_kwargs: Any)
 
 def _construct_concept_description(element: ElTree.Element, failsafe: bool, **_kwargs: Any) -> model.ConceptDescription:
     cd = model.ConceptDescription(
-        _failsafe_construct_mandatory(_get_child_mandatory(element, NS_AAS + "identification"), _construct_identifier)
+        _child_construct_mandatory(element, NS_AAS + "identification", _construct_identifier)
     )
-    is_case_of = set(_failsafe_construct_multiple(element.findall(NS_AAS + "isCaseOf"), _construct_reference, failsafe))
-    if len(is_case_of) != 0:
-        cd.is_case_of = is_case_of
+    for ref in _failsafe_construct_multiple(element.findall(NS_AAS + "isCaseOf"), _construct_reference, failsafe):
+        cd.is_case_of.add(ref)
     _amend_abstract_attributes(cd, element, failsafe)
     return cd
 
