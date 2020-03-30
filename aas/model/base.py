@@ -463,6 +463,22 @@ class Referable(metaclass=abc.ABCMeta):
             raise ValueError("The id_short must start with a letter")
         self._id_short = id_short
 
+    def update(self, timeout: float) -> None:
+        """
+        Update the local Referable object from the underlying backend. If the object does not have one, this function
+        does nothing
+
+        :param timeout: Timeout in seconds
+        """
+        pass
+
+    def commit(self) -> None:
+        """
+        Commit the local Referable object to the underlying backend. If the object does not have one, this function
+        does nothing
+        """
+        pass
+
     id_short = property(_get_id_short, _set_id_short)
 
 
