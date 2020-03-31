@@ -26,11 +26,9 @@ Error handling is done only by _failsafe_construct() in this module. Nearly all 
 by other constructor functions via _failsafe_construct(), so an error chain is constructed in the error case,
 which allows printing stacktrace-like error messages like the following in the error case (in failsafe mode of course):
 
-KeyError: XML element {http://www.admin-shell.io/aas/2/0}identification has no attribute with name idType!
- -> while converting XML element with tag {http://www.admin-shell.io/aas/2/0}identification to type Identifier
- -> while converting XML element with tag {http://www.admin-shell.io/aas/2/0}assetAdministrationShell to type
-    AssetAdministrationShell
-Failed to construct AssetAdministrationShell!
+KeyError: aas:identification on line 252 has no attribute with name idType!
+ -> Failed to convert aas:identification on line 252 to type Identifier!
+ -> Failed to convert aas:conceptDescription on line 247 to type ConceptDescription!
 """
 
 from ... import model
@@ -41,12 +39,72 @@ import base64
 from typing import Any, Callable, Dict, IO, Iterable, Optional, Tuple, Type, TypeVar
 from mypy_extensions import TypedDict  # TODO: import this from typing should we require python 3.8+ at some point
 from .xml_serialization import NS_AAS, NS_ABAC, NS_IEC
-from .._generic import MODELING_KIND_INVERSE, ASSET_KIND_INVERSE, KEY_ELEMENTS_INVERSE, KEY_TYPES_INVERSE,\
+from .._generic import MODELING_KIND_INVERSE, ASSET_KIND_INVERSE, KEY_ELEMENTS_INVERSE, KEY_TYPES_INVERSE, \
     IDENTIFIER_TYPES_INVERSE, ENTITY_TYPES_INVERSE, KEY_ELEMENTS_CLASSES_INVERSE
 
 logger = logging.getLogger(__name__)
 
 T = TypeVar("T")
+
+
+def _tag_replace_namespace(tag: str, nsmap: Dict[str, str]) -> str:
+    """
+    Attempts to replace the namespace in front of a tag with the prefix used in the xml document.
+
+    :param tag: The tag of an xml element.
+    :param nsmap: A dict mapping prefixes to namespaces.
+    :return: The modified element tag. If the namespace wasn't found in nsmap, the unmodified tag is returned.
+    """
+    split = tag.split("}")
+    for prefix, namespace in nsmap.items():
+        if namespace == split[0][1:]:
+            return prefix + ":" + split[1]
+    return tag
+
+
+def _element_pretty_identifier(element: etree.Element) -> str:
+    """
+    Returns a pretty element identifier for a given XML element.
+
+    If the prefix is known, the namespace in the element tag is replaced by the prefix.
+    If additionally also the sourceline is known, is is added as a suffix to name.
+    For example, instead of "{http://www.admin-shell.io/aas/2/0}assetAdministrationShell" this function would return
+    "aas:assetAdministrationShell on line $line", if both, prefix and sourceline, are known.
+
+    :param element: The xml element.
+    :return: The pretty element identifier.
+    """
+    identifier = element.tag
+    if element.prefix is not None:
+        identifier = element.prefix + ":" + element.tag.split("}")[1]
+    if element.sourceline is not None:
+        identifier += f" on line {element.sourceline}"
+    return identifier
+
+
+def _constructor_name_to_typename(constructor: Callable[[etree.Element, bool], T]) -> str:
+    """
+    A helper function for converting the name of a constructor function to the respective type name.
+
+    _construct_some_type -> SomeType
+
+    :param constructor: The constructor function.
+    :return: The name of the type the constructor function constructs.
+    """
+    return "".join([s[0].upper() + s[1:] for s in constructor.__name__.split("_")[2:]])
+
+
+def _exception_to_str(exception: BaseException) -> str:
+    """
+    A helper function used to stringify exceptions.
+
+    It removes the quotation marks '' that are put around str(KeyError), otherwise it's just calls str(exception).
+
+    :param exception: The exception to stringify.
+    :return: The stringified exception.
+    """
+    string = str(exception)
+    return string[1:-1] if isinstance(exception, KeyError) else string
 
 
 def _get_child_mandatory(parent: etree.Element, child_tag: str) -> etree.Element:
@@ -60,8 +118,32 @@ def _get_child_mandatory(parent: etree.Element, child_tag: str) -> etree.Element
     """
     child = parent.find(child_tag)
     if child is None:
-        raise KeyError(f"XML element {parent.tag} has no child {child_tag}!")
+        raise KeyError(_element_pretty_identifier(parent)
+                       + f" has no child {_tag_replace_namespace(child_tag, parent.nsmap)}!")
     return child
+
+
+def _get_child_multiple(parent: etree.Element, exppected_tag: str, failsafe: bool) -> Iterable[etree.Element]:
+    """
+    Iterates over all children, matching the tag.
+
+    not failsafe: Throws an error if a child element doesn't match.
+    failsafe: Logs a warning if a child element doesn't match.
+
+    :param parent: The parent element.
+    :param exppected_tag: The tag of the children.
+    :return: An iterator over all child elements that match child_tag.
+    :raises KeyError: If the tag of a child element doesn't match and failsafe is true.
+    """
+    for child in parent:
+        if child.tag != exppected_tag:
+            error_message = f"{_element_pretty_identifier(child)}, child of {_element_pretty_identifier(parent)}, " \
+                            f"doesn't match the expected tag {_tag_replace_namespace(exppected_tag, child.nsmap)}!"
+            if not failsafe:
+                raise KeyError(error_message)
+            logger.warning(error_message)
+            continue
+        yield child
 
 
 def _get_attrib_mandatory(element: etree.Element, attrib: str) -> str:
@@ -74,7 +156,7 @@ def _get_attrib_mandatory(element: etree.Element, attrib: str) -> str:
     :raises KeyError: If the attribute does not exist.
     """
     if attrib not in element.attrib:
-        raise KeyError(f"XML element {element.tag} has no attribute with name {attrib}!")
+        raise KeyError(f"{_element_pretty_identifier(element)} has no attribute with name {attrib}!")
     return element.attrib[attrib]
 
 
@@ -94,7 +176,8 @@ def _get_attrib_mandatory_mapped(element: etree.Element, attrib: str, dct: Dict[
     """
     attrib_value = _get_attrib_mandatory(element, attrib)
     if attrib_value not in dct:
-        raise ValueError(f"Attribute {attrib} of XML element {element.tag} has invalid value: {attrib_value}")
+        raise ValueError(f"Attribute {attrib} of {_element_pretty_identifier(element)} "
+                         f"has invalid value: {attrib_value}")
     return dct[attrib_value]
 
 
@@ -124,7 +207,7 @@ def _get_text_mandatory(element: etree.Element) -> str:
     """
     text = element.text
     if text is None:
-        raise KeyError(f"XML element {element.tag} has no text!")
+        raise KeyError(_element_pretty_identifier(element) + " has no text!")
     return text
 
 
@@ -143,33 +226,8 @@ def _get_text_mandatory_mapped(element: etree.Element, dct: Dict[str, T]) -> T:
     """
     text = _get_text_mandatory(element)
     if text not in dct:
-        raise ValueError(f"Text of XML element {element.tag} is invalid: {text}")
+        raise ValueError(_element_pretty_identifier(element) + f" has invalid text: {text}")
     return dct[text]
-
-
-def _constructor_name_to_typename(constructor: Callable[[etree.Element, bool], T]) -> str:
-    """
-    A helper function for converting the name of a constructor function to the respective type name.
-
-    _construct_some_type -> SomeType
-
-    :param constructor: The constructor function.
-    :return: The name of the type the constructor function constructs.
-    """
-    return "".join([s[0].upper() + s[1:] for s in constructor.__name__.split("_")[2:]])
-
-
-def _exception_to_str(exception: BaseException) -> str:
-    """
-    A helper function used to stringify exceptions.
-
-    It removes the quotation marks '' that are put around str(KeyError), otherwise it's just calls str(exception).
-
-    :param exception: The exception to stringify.
-    :return: The stringified exception.
-    """
-    string = str(exception)
-    return string[1:-1] if isinstance(exception, KeyError) else string
 
 
 def _failsafe_construct(element: Optional[etree.Element], constructor: Callable[..., T], failsafe: bool,
@@ -197,8 +255,7 @@ def _failsafe_construct(element: Optional[etree.Element], constructor: Callable[
         return constructor(element, failsafe, **kwargs)
     except (KeyError, ValueError) as e:
         type_name = _constructor_name_to_typename(constructor)
-        error_message = f"while converting XML element with tag {element.tag} to "\
-                        f"type {type_name}"
+        error_message = f"Failed to convert {_element_pretty_identifier(element)} to type {type_name}!"
         if not failsafe:
             raise type(e)(error_message) from e
         error_type = type(e).__name__
@@ -207,12 +264,10 @@ def _failsafe_construct(element: Optional[etree.Element], constructor: Callable[
             error_message = _exception_to_str(cause) + "\n -> " + error_message
             cause = cause.__cause__
         logger.error(error_type + ": " + error_message)
-        logger.error(f"Failed to construct {type_name}!")
         return None
 
 
-def _failsafe_construct_mandatory(element: etree.Element, constructor: Callable[..., T],
-                                  **kwargs: Any) -> T:
+def _failsafe_construct_mandatory(element: etree.Element, constructor: Callable[..., T], **kwargs: Any) -> T:
     """
     _failsafe_construct() but not failsafe and it returns T instead of Optional[T]
 
@@ -241,7 +296,7 @@ def _failsafe_construct_multiple(elements: Iterable[etree.Element], constructor:
     :param kwargs: Optional keyword arguments that are passed to the constructor function.
     :return: An iterator over the successfully constructed elements.
              If an error occurred while constructing an element and while in failsafe mode,
-             this element will be skipped.
+             the respective element will be skipped.
     """
     for element in elements:
         parsed = _failsafe_construct(element, constructor, failsafe, **kwargs)
@@ -249,7 +304,7 @@ def _failsafe_construct_multiple(elements: Iterable[etree.Element], constructor:
             yield parsed
 
 
-def _child_construct_mandatory(parent: etree.Element, child_tag: str, constructor: Callable[..., T], **kwargs: Any)\
+def _child_construct_mandatory(parent: etree.Element, child_tag: str, constructor: Callable[..., T], **kwargs: Any) \
         -> T:
     """
     Shorthand for _failsafe_construct_mandatory() in combination with _get_child_mandatory().
@@ -261,6 +316,23 @@ def _child_construct_mandatory(parent: etree.Element, child_tag: str, constructo
     :return: The constructed child element.
     """
     return _failsafe_construct_mandatory(_get_child_mandatory(parent, child_tag), constructor, **kwargs)
+
+
+def _child_construct_multiple(parent: etree.Element, expected_tag: str, constructor: Callable[..., T], failsafe: bool,
+                              **kwargs: Any) -> Iterable[T]:
+    """
+    Shorthand for _failsafe_construct_multiple() in combination with _get_child_multiple().
+
+    :param parent: The xml element where child elements are searched.
+    :param expected_tag: The expected tag of the child elements.
+    :param constructor: The constructor function for the child element.
+    :param kwargs: Optional keyword arguments that are passed to the constructor function.
+    :return: An iterator over successfully constructed child elements.
+             If an error occurred while constructing an element and while in failsafe mode,
+             the respective element will be skipped.
+    """
+    return _failsafe_construct_multiple(_get_child_multiple(parent, expected_tag, failsafe), constructor, failsafe,
+                                        **kwargs)
 
 
 def _child_text_mandatory(parent: etree.Element, child_tag: str) -> str:
@@ -359,14 +431,14 @@ def _construct_key(element: etree.Element, _failsafe: bool, **_kwargs: Any) -> m
 
 def _construct_key_tuple(element: etree.Element, failsafe: bool, **_kwargs: Any) -> Tuple[model.Key, ...]:
     keys = _get_child_mandatory(element, NS_AAS + "keys")
-    return tuple(_failsafe_construct_multiple(keys.findall(NS_AAS + "key"), _construct_key, failsafe))
+    return tuple(_child_construct_multiple(keys, NS_AAS + "key", _construct_key, failsafe))
 
 
 def _construct_reference(element: etree.Element, failsafe: bool, **_kwargs: Any) -> model.Reference:
     return model.Reference(_construct_key_tuple(element, failsafe))
 
 
-def _construct_aas_reference(element: etree.Element, failsafe: bool, type_: Type[model.base._RT], **_kwargs: Any)\
+def _construct_aas_reference(element: etree.Element, failsafe: bool, type_: Type[model.base._RT], **_kwargs: Any) \
         -> model.AASReference[model.base._RT]:
     keys = _construct_key_tuple(element, failsafe)
     if len(keys) != 0 and not issubclass(KEY_ELEMENTS_CLASSES_INVERSE.get(keys[-1].type, type(None)), type_):
@@ -375,37 +447,37 @@ def _construct_aas_reference(element: etree.Element, failsafe: bool, type_: Type
     return model.AASReference(keys, type_)
 
 
-def _construct_submodel_reference(element: etree.Element, failsafe: bool, **kwargs: Any)\
+def _construct_submodel_reference(element: etree.Element, failsafe: bool, **kwargs: Any) \
         -> model.AASReference[model.Submodel]:
     return _construct_aas_reference(element, failsafe, model.Submodel, **kwargs)
 
 
-def _construct_asset_reference(element: etree.Element, failsafe: bool, **kwargs: Any)\
+def _construct_asset_reference(element: etree.Element, failsafe: bool, **kwargs: Any) \
         -> model.AASReference[model.Asset]:
     return _construct_aas_reference(element, failsafe, model.Asset, **kwargs)
 
 
-def _construct_asset_administration_shell_reference(element: etree.Element, failsafe: bool, **kwargs: Any)\
+def _construct_asset_administration_shell_reference(element: etree.Element, failsafe: bool, **kwargs: Any) \
         -> model.AASReference[model.AssetAdministrationShell]:
     return _construct_aas_reference(element, failsafe, model.AssetAdministrationShell, **kwargs)
 
 
-def _construct_referable_reference(element: etree.Element, failsafe: bool, **kwargs: Any)\
+def _construct_referable_reference(element: etree.Element, failsafe: bool, **kwargs: Any) \
         -> model.AASReference[model.Referable]:
     return _construct_aas_reference(element, failsafe, model.Referable, **kwargs)
 
 
-def _construct_concept_description_reference(element: etree.Element, failsafe: bool, **kwargs: Any)\
+def _construct_concept_description_reference(element: etree.Element, failsafe: bool, **kwargs: Any) \
         -> model.AASReference[model.ConceptDescription]:
     return _construct_aas_reference(element, failsafe, model.ConceptDescription, **kwargs)
 
 
-def _construct_data_element_reference(element: etree.Element, failsafe: bool, **kwargs: Any)\
+def _construct_data_element_reference(element: etree.Element, failsafe: bool, **kwargs: Any) \
         -> model.AASReference[model.DataElement]:
     return _construct_aas_reference(element, failsafe, model.DataElement, **kwargs)
 
 
-def _construct_administrative_information(element: etree.Element, _failsafe: bool, **_kwargs: Any)\
+def _construct_administrative_information(element: etree.Element, _failsafe: bool, **_kwargs: Any) \
         -> model.AdministrativeInformation:
     return model.AdministrativeInformation(
         _get_text_or_none(element.find(NS_AAS + "version")),
@@ -413,9 +485,9 @@ def _construct_administrative_information(element: etree.Element, _failsafe: boo
     )
 
 
-def _construct_lang_string_set(element: etree.Element, _failsafe: bool, **_kwargs: Any) -> model.LangStringSet:
+def _construct_lang_string_set(element: etree.Element, failsafe: bool, **_kwargs: Any) -> model.LangStringSet:
     lss: model.LangStringSet = {}
-    for lang_string in element.findall(NS_IEC + "langString"):
+    for lang_string in _get_child_multiple(element, NS_AAS + "langString", failsafe):
         lss[_get_attrib_mandatory(lang_string, "lang")] = _get_text_mandatory(lang_string)
     return lss
 
@@ -498,7 +570,7 @@ def _construct_submodel_element(element: etree.Element, failsafe: bool, **kwargs
         "submodelElementCollection": _construct_submodel_element_collection
     }.items()}
     if element.tag not in submodel_elements:
-        raise KeyError(f"XML element {element.tag} is not a valid submodel element!")
+        raise KeyError(_element_pretty_identifier(element) + " is not a valid submodel element!")
     return submodel_elements[element.tag](element, failsafe, **kwargs)
 
 
@@ -508,22 +580,23 @@ def _construct_constraint(element: etree.Element, failsafe: bool, **kwargs: Any)
         "qualifier": _construct_qualifier
     }.items()}
     if element.tag not in constraints:
-        raise KeyError(f"XML element {element.tag} is not a valid constraint!")
+        raise KeyError(_element_pretty_identifier(element) + " is not a valid constraint!")
     return constraints[element.tag](element, failsafe, **kwargs)
 
 
 def _construct_operation_variable(element: etree.Element, _failsafe: bool, **_kwargs: Any) -> model.OperationVariable:
     value = _get_child_mandatory(element, NS_AAS + "value")
     if len(value) == 0:
-        raise KeyError("Value of operation variable has no submodel element!")
+        raise KeyError(f"{_element_pretty_identifier(value)} has no submodel element!")
     if len(value) > 1:
-        logger.warning("Value of operation variable has more than one submodel element, using the first one...")
+        logger.warning(f"{_element_pretty_identifier(value)} has more than one submodel element,"
+                       "using the first one...")
     return model.OperationVariable(
         _failsafe_construct_mandatory(value[0], _construct_submodel_element)
     )
 
 
-def _construct_annotated_relationship_element(element: etree.Element, failsafe: bool, **_kwargs: Any)\
+def _construct_annotated_relationship_element(element: etree.Element, failsafe: bool, **_kwargs: Any) \
         -> model.AnnotatedRelationshipElement:
     annotated_relationship_element = model.AnnotatedRelationshipElement(
         _child_text_mandatory(element, NS_AAS + "idShort"),
@@ -600,7 +673,7 @@ def _construct_file(element: etree.Element, failsafe: bool, **_kwargs: Any) -> m
     return file
 
 
-def _construct_multi_language_property(element: etree.Element, failsafe: bool, **_kwargs: Any)\
+def _construct_multi_language_property(element: etree.Element, failsafe: bool, **_kwargs: Any) \
         -> model.MultiLanguageProperty:
     multi_language_property = model.MultiLanguageProperty(
         _child_text_mandatory(element, NS_AAS + "idShort"),
@@ -623,53 +696,53 @@ def _construct_operation(element: etree.Element, failsafe: bool, **_kwargs: Any)
     )
     in_output_variable = element.find(NS_AAS + "inoutputVariable")
     if in_output_variable is not None:
-        for var in _failsafe_construct_multiple(in_output_variable.findall(NS_AAS + "operationVariable"),
-                                                _construct_operation_variable, failsafe):
+        for var in _child_construct_multiple(in_output_variable, NS_AAS + "operationVariable",
+                                             _construct_operation_variable, failsafe):
             operation.in_output_variable.append(var)
     input_variable = element.find(NS_AAS + "inputVariable")
     if input_variable is not None:
-        for var in _failsafe_construct_multiple(input_variable.findall(NS_AAS + "operationVariable"),
-                                                _construct_operation_variable, failsafe):
+        for var in _child_construct_multiple(input_variable, NS_AAS + "operationVariable",
+                                             _construct_operation_variable, failsafe):
             operation.input_variable.append(var)
     output_variable = element.find(NS_AAS + "outputVariable")
     if output_variable is not None:
-        for var in _failsafe_construct_multiple(output_variable.findall(NS_AAS + "operationVariable"),
-                                                _construct_operation_variable, failsafe):
+        for var in _child_construct_multiple(output_variable, NS_AAS + "operationVariable",
+                                             _construct_operation_variable, failsafe):
             operation.output_variable.append(var)
     _amend_abstract_attributes(operation, element, failsafe)
     return operation
 
 
 def _construct_property(element: etree.Element, failsafe: bool, **_kwargs: Any) -> model.Property:
-    property = model.Property(
+    property_ = model.Property(
         _child_text_mandatory(element, NS_AAS + "idShort"),
         value_type=_child_text_mandatory_mapped(element, NS_AAS + "valueType", model.datatypes.XSD_TYPE_CLASSES),
         **_get_modeling_kind_kwarg(element)
     )
     value = _get_text_or_none(element.find(NS_AAS + "value"))
     if value is not None:
-        property.value = model.datatypes.from_xsd(value, property.value_type)
+        property_.value = model.datatypes.from_xsd(value, property_.value_type)
     value_id = _failsafe_construct(element.find(NS_AAS + "valueId"), _construct_reference, failsafe)
     if value_id is not None:
-        property.value_id = value_id
-    _amend_abstract_attributes(property, element, failsafe)
-    return property
+        property_.value_id = value_id
+    _amend_abstract_attributes(property_, element, failsafe)
+    return property_
 
 
 def _construct_range(element: etree.Element, failsafe: bool, **_kwargs: Any) -> model.Range:
-    range = model.Range(
+    range_ = model.Range(
         _child_text_mandatory(element, NS_AAS + "idShort"),
         value_type=_child_text_mandatory_mapped(element, NS_AAS + "valueType", model.datatypes.XSD_TYPE_CLASSES),
         **_get_modeling_kind_kwarg(element)
     )
-    max = _get_text_or_none(element.find(NS_AAS + "max"))
-    if max is not None:
-        range.max = model.datatypes.from_xsd(max, range.value_type)
-    min = _get_text_or_none(element.find(NS_AAS + "min"))
-    if min is not None:
-        range.min = model.datatypes.from_xsd(min, range.value_type)
-    _amend_abstract_attributes(range, element, failsafe)
-    return range
+    max_ = _get_text_or_none(element.find(NS_AAS + "max"))
+    if max_ is not None:
+        range_.max = model.datatypes.from_xsd(max_, range_.value_type)
+    min_ = _get_text_or_none(element.find(NS_AAS + "min"))
+    if min_ is not None:
+        range_.min = model.datatypes.from_xsd(min_, range_.value_type)
+    _amend_abstract_attributes(range_, element, failsafe)
+    return range_
 
 
 def _construct_reference_element(element: etree.Element, failsafe: bool, **_kwargs: Any) -> model.ReferenceElement:
@@ -684,7 +757,7 @@ def _construct_reference_element(element: etree.Element, failsafe: bool, **_kwar
     return reference_element
 
 
-def _construct_relationship_element(element: etree.Element, failsafe: bool, **_kwargs: Any)\
+def _construct_relationship_element(element: etree.Element, failsafe: bool, **_kwargs: Any) \
         -> model.RelationshipElement:
     relationship_element = model.RelationshipElement(
         _child_text_mandatory(element, NS_AAS + "idShort"),
@@ -696,7 +769,7 @@ def _construct_relationship_element(element: etree.Element, failsafe: bool, **_k
     return relationship_element
 
 
-def _construct_submodel_element_collection(element: etree.Element, failsafe: bool, **_kwargs: Any)\
+def _construct_submodel_element_collection(element: etree.Element, failsafe: bool, **_kwargs: Any) \
         -> model.SubmodelElementCollection:
     ordered = _child_text_mandatory(element, NS_AAS + "ordered").lower() == "true"
     collection_type = model.SubmodelElementCollectionOrdered if ordered else model.SubmodelElementCollectionUnordered
@@ -711,7 +784,7 @@ def _construct_submodel_element_collection(element: etree.Element, failsafe: boo
     return collection
 
 
-def _construct_asset_administration_shell(element: etree.Element, failsafe: bool, **_kwargs: Any)\
+def _construct_asset_administration_shell(element: etree.Element, failsafe: bool, **_kwargs: Any) \
         -> model.AssetAdministrationShell:
     aas = model.AssetAdministrationShell(
         _child_construct_mandatory(element, NS_AAS + "assetRef", _construct_asset_reference),
@@ -722,17 +795,17 @@ def _construct_asset_administration_shell(element: etree.Element, failsafe: bool
         aas.security = security
     submodels = element.find(NS_AAS + "submodelRefs")
     if submodels is not None:
-        for ref in _failsafe_construct_multiple(submodels.findall(NS_AAS + "submodelRef"),
-                                                _construct_submodel_reference, failsafe):
+        for ref in _child_construct_multiple(submodels, NS_AAS + "submodelRef", _construct_submodel_reference,
+                                             failsafe):
             aas.submodel.add(ref)
     views = element.find(NS_AAS + "views")
     if views is not None:
-        for view in _failsafe_construct_multiple(views.findall(NS_AAS + "view"), _construct_view, failsafe):
+        for view in _child_construct_multiple(views, NS_AAS + "view", _construct_view, failsafe):
             aas.view.add(view)
     concept_dictionaries = element.find(NS_AAS + "conceptDictionaries")
     if concept_dictionaries is not None:
-        for cd in _failsafe_construct_multiple(concept_dictionaries.findall(NS_AAS + "conceptDictionary"),
-                                               _construct_concept_dictionary, failsafe):
+        for cd in _child_construct_multiple(concept_dictionaries, NS_AAS + "conceptDictionary",
+                                            _construct_concept_dictionary, failsafe):
             aas.concept_dictionary.add(cd)
     derived_from = _failsafe_construct(element.find(NS_AAS + "derivedFrom"),
                                        _construct_asset_administration_shell_reference, failsafe)
@@ -799,23 +872,30 @@ def read_xml_aas_file(file: IO, failsafe: bool = True) -> model.DictObjectStore:
         "conceptDescription": _construct_concept_description
     }.items()}
 
+    ret: model.DictObjectStore[model.Identifiable] = model.DictObjectStore()
     parser = etree.XMLParser(remove_blank_text=True, remove_comments=True)
 
-    tree = etree.parse(file, parser)
+    try:
+        tree = etree.parse(file, parser)
+    except etree.XMLSyntaxError as e:
+        if failsafe:
+            logger.error(e)
+            return ret
+        raise e
+
     root = tree.getroot()
 
     # Add AAS objects to ObjectStore
-    ret: model.DictObjectStore[model.Identifiable] = model.DictObjectStore()
     for list_ in root:
         element_tag = list_.tag[:-1]
         if list_.tag[-1] != "s" or element_tag not in element_constructors:
-            error_message = f"Unexpected top-level list {list_.tag}!"
+            error_message = f"Unexpected top-level list {_element_pretty_identifier(list_)}!"
             if not failsafe:
                 raise TypeError(error_message)
             logger.warning(error_message)
             continue
         constructor = element_constructors[element_tag]
-        for element in _failsafe_construct_multiple(list_.findall(element_tag), constructor, failsafe):
+        for element in _child_construct_multiple(list_, element_tag, constructor, failsafe):
             # element is always Identifiable, because the tag is checked earlier
             # this is just to satisfy the type checker
             if isinstance(element, model.Identifiable):
