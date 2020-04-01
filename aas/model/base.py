@@ -472,6 +472,18 @@ class Referable(metaclass=abc.ABCMeta):
         """
         pass
 
+    def update_from(self, other: "Referable"):
+        """
+        Updates the Referable object from an other
+
+        :param other: The object to update from
+        """
+        for name, var in vars(other).items():
+            if isinstance(var, NamespaceSet):
+                # update the elements of the NameSpaceSet
+                vars(self)[name].update_nss_from(var)
+            vars(self)[name] = var  # that variable is not a NameSpaceSet, so it isn't Referable
+
     def commit(self) -> None:
         """
         Commit the local Referable object to the underlying backend. If the object does not have one, this function
@@ -980,6 +992,14 @@ class NamespaceSet(MutableSet[_RT], Generic[_RT]):
                  none is given.
         """
         return self._backend.get(key, default)
+
+    def update_nss_from(self, other: "NamespaceSet"):
+        """
+        Update a NamespaceSet from a given NamespaceSet.
+
+        :param other: The NamespaceSet to update from
+        """
+        pass  # todo
 
 
 class OrderedNamespaceSet(NamespaceSet[_RT], MutableSequence[_RT], Generic[_RT]):
