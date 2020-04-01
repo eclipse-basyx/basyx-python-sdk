@@ -47,6 +47,21 @@ logger = logging.getLogger(__name__)
 T = TypeVar("T")
 
 
+def _str_to_bool(string: str) -> bool:
+    """
+    XML only allows "false" and "true" (case-sensitive) as valid values for a boolean.
+
+    This function checks the string and raises a ValueError if the string is neither "true" nor "false".
+
+    :param string: String representation of a boolean. ("true" or "false")
+    :return: The respective boolean value.
+    :raises ValueError: If string is neither "true" nor "false".
+    """
+    if string not in ("true", "false"):
+        raise ValueError(f"{string} is not a valid boolean! Only true and false are allowed.")
+    return string == "true"
+
+
 def _tag_replace_namespace(tag: str, nsmap: Dict[str, str]) -> str:
     """
     Attempts to replace the namespace in front of a tag with the prefix used in the xml document.
@@ -255,7 +270,7 @@ def _failsafe_construct(element: Optional[etree.Element], constructor: Callable[
         return constructor(element, failsafe, **kwargs)
     except (KeyError, ValueError) as e:
         type_name = _constructor_name_to_typename(constructor)
-        error_message = f"Failed to convert {_element_pretty_identifier(element)} to type {type_name}!"
+        error_message = f"Failed to create {type_name} from {_element_pretty_identifier(element)}!"
         if not failsafe:
             raise type(e)(error_message) from e
         error_type = type(e).__name__
@@ -423,7 +438,7 @@ def _get_modeling_kind_kwarg(element: etree.Element) -> ModelingKindKwArg:
 def _construct_key(element: etree.Element, _failsafe: bool, **_kwargs: Any) -> model.Key:
     return model.Key(
         _get_attrib_mandatory_mapped(element, "type", KEY_ELEMENTS_INVERSE),
-        _get_attrib_mandatory(element, "local").lower() == "true",
+        _str_to_bool(_get_attrib_mandatory(element, "local")),
         _get_text_mandatory(element),
         _get_attrib_mandatory_mapped(element, "idType", KEY_TYPES_INVERSE)
     )
@@ -771,7 +786,7 @@ def _construct_relationship_element(element: etree.Element, failsafe: bool, **_k
 
 def _construct_submodel_element_collection(element: etree.Element, failsafe: bool, **_kwargs: Any) \
         -> model.SubmodelElementCollection:
-    ordered = _child_text_mandatory(element, NS_AAS + "ordered").lower() == "true"
+    ordered = _str_to_bool(_child_text_mandatory(element, NS_AAS + "ordered"))
     collection_type = model.SubmodelElementCollectionOrdered if ordered else model.SubmodelElementCollectionUnordered
     collection = collection_type(
         _child_text_mandatory(element, NS_AAS + "idShort"),
