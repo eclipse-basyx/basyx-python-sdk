@@ -997,9 +997,23 @@ class NamespaceSet(MutableSet[_RT], Generic[_RT]):
         """
         Update a NamespaceSet from a given NamespaceSet.
 
+        WARNING: By updating, the "other" NamespaceSet gets destroyed.
+
         :param other: The NamespaceSet to update from
         """
-        pass  # todo
+        for other_referable in other:
+            try:
+                referable = self._backend[other_referable.id_short]
+                if type(referable) is type(other_referable):
+                    # referable is the same as other referable
+                    referable.update_from(other_referable)
+            except KeyError:
+                # other referable is not in NamespaceSet
+                self.add(other_referable)
+        for id_short, referable in self._backend.items():
+            if not other.get(id_short):
+                # referable does not exist in the other NamespaceSet
+                self.remove(referable)
 
 
 class OrderedNamespaceSet(NamespaceSet[_RT], MutableSequence[_RT], Generic[_RT]):
