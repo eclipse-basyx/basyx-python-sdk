@@ -19,7 +19,7 @@ import argparse
 import logging
 
 from aas.compliance_tool import compliance_check_json as compliance_tool_json
-from aas.adapter.json import json_serialization
+from aas.adapter.json import write_aas_json_file
 from aas.examples.data import create_example
 from aas.compliance_tool.state_manager import ComplianceToolStateManager, Status
 
@@ -68,7 +68,7 @@ def main():
 
                 manager.add_step('Write data to file')
                 if args.json:
-                    json_serialization.write_aas_json_file(file=file, data=data)
+                    write_aas_json_file(file=file, data=data)
                     manager.set_step_status(Status.SUCCESS)
                 elif args.xml:
                     # Todo: if xml serialization is done add code here
