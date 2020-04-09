@@ -327,6 +327,12 @@ def concept_description_to_xml(obj: model.ConceptDescription,
         et_data_spec_content.append(_iec61360_concept_description_to_xml(obj))
         et_embedded_data_specification.append(et_data_spec_content)
         et_concept_description.append(et_embedded_data_specification)
+        et_embedded_data_specification.append(reference_to_xml(model.Reference(tuple([model.Key(
+            model.KeyElements.GLOBAL_REFERENCE,
+            False,
+            "http://admin-shell.io/DataSpecificationTemplates/DataSpecificationIEC61360/2/0",
+            model.KeyType.IRI
+        )])), NS_AAS+"dataSpecification"))
     if obj.is_case_of:
         for reference in obj.is_case_of:
             et_concept_description.append(reference_to_xml(reference, NS_AAS+"isCaseOf"))
@@ -614,9 +620,9 @@ def range_to_xml(obj: model.Range,
     :return: serialized ElementTree object
     """
     et_range = abstract_classes_to_xml(tag, obj)
-    if obj.max:
+    if obj.max is not None:
         et_range.append(_value_to_xml(obj.max, obj.value_type, tag=NS_AAS+"max"))
-    if obj.min:
+    if obj.min is not None:
         et_range.append(_value_to_xml(obj.min, obj.value_type, tag=NS_AAS+"min"))
     et_range.append(_generate_element(name=NS_AAS + "valueType",
                                       text=model.datatypes.XSD_TYPE_NAMES[obj.value_type]))
