@@ -1,6 +1,8 @@
 """
-This package contains different kind of adapter
+This package contains different kinds of adapters.
 
 json
-    This package offers an adapter for serialization and deserialization of PyAAS objects to/from JSON
+    This package offers an adapter for serialization and deserialization of PyAAS objects to/from JSON.
+xml
+    This package offers an adapter for serialization and deserialization of PyAAS objects to/from XML.
 """

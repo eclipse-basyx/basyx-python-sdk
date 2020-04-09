@@ -50,7 +50,7 @@ import threading
 import logging
 
 from .. import model
-from .json import json_serialization, json_deserialization
+from .json import StrictAASFromJsonDecoder, AASToJsonEncoder
 
 logger = logging.getLogger(__name__)
 
@@ -194,7 +194,7 @@ class CouchDBObjectStore(model.AbstractObjectStore):
         """
         logger.debug("Adding object %s to CouchDB database ...", repr(x))
         # Serialize data
-        data = json.dumps({'data': x}, cls=json_serialization.AASToJsonEncoder)
+        data = json.dumps({'data': x}, cls=AASToJsonEncoder)
 
         # Create and issue HTTP request (raises HTTPError on status != 200)
         request = urllib.request.Request(
@@ -222,7 +222,7 @@ class CouchDBObjectStore(model.AbstractObjectStore):
         logger.debug("Committing changes of object %s based on revision %s to CouchDB database ...",
                      repr(x), x.couchdb_revision)
         # Serialize data
-        data = json.dumps({'data': x, '_rev': x.couchdb_revision}, cls=json_serialization.AASToJsonEncoder)
+        data = json.dumps({'data': x, '_rev': x.couchdb_revision}, cls=AASToJsonEncoder)
 
         # Create and issue HTTP request (raises HTTPError on status != 200)
         request = urllib.request.Request(
@@ -468,7 +468,7 @@ class CouchDBSubmodel(model.Submodel, CouchDBIdentifiable):
     pass
 
 
-class CouchDBJSONDecoder(json_deserialization.StrictAASFromJsonDecoder):
+class CouchDBJSONDecoder(StrictAASFromJsonDecoder):
     """
     Special json.JSONDecoder class for deserializing AAS objects received from the CouchDB server
 

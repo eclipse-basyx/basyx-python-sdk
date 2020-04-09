@@ -87,12 +87,12 @@ submodel.submodel_element.add(property)
 
 Serialize the `Submodel` to XML:
 ```python
-import aas.adapter.xml.xml_serialization
+from aas.adapter.xml import write_aas_xml_file
 
 data: model.DictObjectStore[model.Identifiable] = model.DictObjectStore()
 data.add(submodel)
 with open('Simple_Submodel.xml', 'w', encoding='utf-8') as f:
-    aas.adapter.xml.xml_serialization.write_aas_xml_file(file=f, data=data)
+    write_aas_xml_file(file=f, data=data)
 ```
 
 

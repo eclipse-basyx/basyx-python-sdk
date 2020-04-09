@@ -15,7 +15,7 @@ import os
 import unittest
 
 from aas import model
-from aas.adapter.json import json_serialization, json_deserialization
+from aas.adapter.json import AASToJsonEncoder, write_aas_json_file, read_aas_json_file
 
 from aas.examples.data import example_aas_missing_attributes, example_submodel_template, \
     example_aas_mandatory_attributes, example_aas, example_concept_description
@@ -41,22 +41,20 @@ class JsonSerializationDeserializationTest(unittest.TestCase):
                 'submodels': [submodel],
                 'assets': [],
                 'conceptDescriptions': [],
-            }, cls=json_serialization.AASToJsonEncoder)
+            }, cls=AASToJsonEncoder)
         json_data_new = json.loads(json_data)
 
-        # try deserializing the json string into a DictObjectStore of AAS objects with help of the json_deserialization
-        # module
-        json_object_store = json_deserialization.read_json_aas_file(io.StringIO(json_data), failsafe=False)
+        # try deserializing the json string into a DictObjectStore of AAS objects with help of the json module
+        json_object_store = read_aas_json_file(io.StringIO(json_data), failsafe=False)
 
     def test_example_serialization_deserialization(self) -> None:
         data = example_aas.create_full_example()
         file = io.StringIO()
-        json_serialization.write_aas_json_file(file=file, data=data)
+        write_aas_json_file(file=file, data=data)
 
-        # try deserializing the json string into a DictObjectStore of AAS objects with help of the json_deserialization
-        # module
+        # try deserializing the json string into a DictObjectStore of AAS objects with help of the json module
         file.seek(0)
-        json_object_store = json_deserialization.read_json_aas_file(file, failsafe=False)
+        json_object_store = read_aas_json_file(file, failsafe=False)
         checker = AASDataChecker(raise_immediately=True)
         example_aas.check_full_example(checker, json_object_store)
 
@@ -65,12 +63,11 @@ class JsonSerializationDeserializationTest2(unittest.TestCase):
     def test_example_mandatory_attributes_serialization_deserialization(self) -> None:
         data = example_aas_mandatory_attributes.create_full_example()
         file = io.StringIO()
-        json_serialization.write_aas_json_file(file=file, data=data)
+        write_aas_json_file(file=file, data=data)
 
-        # try deserializing the json string into a DictObjectStore of AAS objects with help of the json_deserialization
-        # module
+        # try deserializing the json string into a DictObjectStore of AAS objects with help of the json module
         file.seek(0)
-        json_object_store = json_deserialization.read_json_aas_file(file, failsafe=False)
+        json_object_store = read_aas_json_file(file, failsafe=False)
         checker = AASDataChecker(raise_immediately=True)
         example_aas_mandatory_attributes.check_full_example(checker, json_object_store)
 
@@ -79,11 +76,10 @@ class JsonSerializationDeserializationTest3(unittest.TestCase):
     def test_example_missing_attributes_serialization_deserialization(self) -> None:
         data = example_aas_missing_attributes.create_full_example()
         file = io.StringIO()
-        json_serialization.write_aas_json_file(file=file, data=data)
-        # try deserializing the json string into a DictObjectStore of AAS objects with help of the json_deserialization
-        # module
+        write_aas_json_file(file=file, data=data)
+        # try deserializing the json string into a DictObjectStore of AAS objects with help of the json module
         file.seek(0)
-        json_object_store = json_deserialization.read_json_aas_file(file, failsafe=False)
+        json_object_store = read_aas_json_file(file, failsafe=False)
         checker = AASDataChecker(raise_immediately=True)
         example_aas_missing_attributes.check_full_example(checker, json_object_store)
 
@@ -93,11 +89,10 @@ class JsonSerializationDeserializationTest4(unittest.TestCase):
         data: model.DictObjectStore[model.Identifiable] = model.DictObjectStore()
         data.add(example_submodel_template.create_example_submodel_template())
         file = io.StringIO()
-        json_serialization.write_aas_json_file(file=file, data=data)
-        # try deserializing the json string into a DictObjectStore of AAS objects with help of the json_deserialization
-        # module
+        write_aas_json_file(file=file, data=data)
+        # try deserializing the json string into a DictObjectStore of AAS objects with help of the json module
         file.seek(0)
-        json_object_store = json_deserialization.read_json_aas_file(file, failsafe=False)
+        json_object_store = read_aas_json_file(file, failsafe=False)
         checker = AASDataChecker(raise_immediately=True)
         example_submodel_template.check_full_example(checker, json_object_store)
 
@@ -107,10 +102,9 @@ class JsonSerializationDeserializationTest5(unittest.TestCase):
         data: model.DictObjectStore[model.Identifiable] = model.DictObjectStore()
         data.add(example_concept_description.create_iec61360_concept_description())
         file = io.StringIO()
-        json_serialization.write_aas_json_file(file=file, data=data)
-        # try deserializing the json string into a DictObjectStore of AAS objects with help of the json_deserialization
-        # module
+        write_aas_json_file(file=file, data=data)
+        # try deserializing the json string into a DictObjectStore of AAS objects with help of the json module
         file.seek(0)
-        json_object_store = json_deserialization.read_json_aas_file(file, failsafe=False)
+        json_object_store = read_aas_json_file(file, failsafe=False)
         checker = AASDataChecker(raise_immediately=True)
         example_concept_description.check_full_example(checker, json_object_store)

@@ -675,7 +675,7 @@ class StrictAASFromJsonDecoder(AASFromJsonDecoder):
     failsafe = False
 
 
-def read_json_aas_file(file: IO, failsafe: bool = True) -> model.DictObjectStore:
+def read_aas_json_file(file: IO, failsafe: bool = True) -> model.DictObjectStore:
     """
     Read an Asset Adminstration Shell JSON file according to 'Details of the Asset Administration Shell', chapter 5.5
 
