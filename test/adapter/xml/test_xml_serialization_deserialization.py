@@ -24,8 +24,7 @@ def _serialize_and_deserialize(data: model.DictObjectStore) -> model.DictObjectS
     file = io.BytesIO()
     write_aas_xml_file(file=file, data=data)
 
-    # try deserializing the xml document into a DictObjectStore of AAS objects with help of the xml_deserialization
-    # module
+    # try deserializing the xml document into a DictObjectStore of AAS objects with help of the xml module
     file.seek(0)
     return read_aas_xml_file(file, failsafe=False)
 
