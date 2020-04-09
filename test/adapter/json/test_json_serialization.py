@@ -21,7 +21,7 @@ from jsonschema import validate  # type: ignore
 from aas.examples.data import example_aas_missing_attributes, example_submodel_template, \
     example_aas_mandatory_attributes, example_aas, create_example, example_concept_description
 
-JSON_SCHEMA_FILE = os.path.join(os.path.dirname(__file__), 'aasJSONSchemaV2.0.json')
+JSON_SCHEMA_FILE = os.path.join(os.path.dirname(__file__), 'aasJSONSchema.json')
 
 
 class JsonSerializationTest(unittest.TestCase):

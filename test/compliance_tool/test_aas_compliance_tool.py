@@ -19,7 +19,7 @@ from aas.adapter.json import json_deserialization
 from aas.examples.data import create_example
 from aas.examples.data._helper import AASDataChecker
 
-JSON_SCHEMA_FILE = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'adapter', 'json', 'aasJSONSchemaV2.0.json')
+JSON_SCHEMA_FILE = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'adapter', 'json', 'aasJSONSchema.json')
 
 
 class ComplianceToolTest(unittest.TestCase):

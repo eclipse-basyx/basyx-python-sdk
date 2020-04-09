@@ -20,7 +20,7 @@ from aas.adapter.json import json_serialization, json_deserialization
 from aas.examples.data import example_aas_missing_attributes, example_submodel_template, \
     example_aas_mandatory_attributes, example_aas, example_concept_description
 from aas.examples.data._helper import AASDataChecker
-JSON_SCHEMA_FILE = os.path.join(os.path.dirname(__file__), 'aasJSONSchemaV2.0.json')
+JSON_SCHEMA_FILE = os.path.join(os.path.dirname(__file__), 'aasJSONSchema.json')
 
 
 class JsonSerializationDeserializationTest(unittest.TestCase):
