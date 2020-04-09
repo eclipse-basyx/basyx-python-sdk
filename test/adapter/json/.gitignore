@@ -1,2 +1,2 @@
 # JSON schema should not be added to the Git Repository due to license concerns
-aasJSONSchemaV2.0.json
+aasJSONSchema*.json
