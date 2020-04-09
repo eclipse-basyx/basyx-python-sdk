@@ -985,7 +985,7 @@ def _construct_concept_description(element: etree.Element, failsafe: bool, **_kw
     return cd
 
 
-def read_xml_aas_file(file: IO, failsafe: bool = True) -> model.DictObjectStore:
+def read_aas_xml_file(file: IO, failsafe: bool = True) -> model.DictObjectStore:
     """
     Read an Asset Administration Shell XML file according to 'Details of the Asset Administration Shell', chapter 5.4
 

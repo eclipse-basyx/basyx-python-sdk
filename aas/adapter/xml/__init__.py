@@ -9,3 +9,4 @@ xml_deserialization.py
 """
 
 from .xml_serialization import write_aas_xml_file
+from .xml_deserialization import read_aas_xml_file

@@ -13,7 +13,7 @@ import io
 import unittest
 
 from aas import model
-from aas.adapter.xml import xml_serialization, xml_deserialization
+from aas.adapter.xml import write_aas_xml_file, read_aas_xml_file
 
 from aas.examples.data import example_aas_missing_attributes, example_submodel_template, \
     example_aas_mandatory_attributes, example_aas, example_concept_description
@@ -22,12 +22,12 @@ from aas.examples.data._helper import AASDataChecker
 
 def _serialize_and_deserialize(data: model.DictObjectStore) -> model.DictObjectStore:
     file = io.BytesIO()
-    xml_serialization.write_aas_xml_file(file=file, data=data)
+    write_aas_xml_file(file=file, data=data)
 
     # try deserializing the xml document into a DictObjectStore of AAS objects with help of the xml_deserialization
     # module
     file.seek(0)
-    return xml_deserialization.read_xml_aas_file(file, failsafe=False)
+    return read_aas_xml_file(file, failsafe=False)
 
 
 class XMLSerializationDeserializationTest(unittest.TestCase):
