@@ -13,6 +13,7 @@ import io
 import logging
 import unittest
 
+from aas import model
 from aas.adapter.xml import read_aas_xml_file
 from lxml import etree  # type: ignore
 from typing import Iterable, Type, Union
@@ -161,7 +162,11 @@ class XMLDeserializationTest(unittest.TestCase):
         </aas:submodels>
         """)
         # should get parsed successfully
-        read_aas_xml_file(io.BytesIO(xml.encode("utf-8")), False)
+        object_store = read_aas_xml_file(io.BytesIO(xml.encode("utf-8")), False)
+        # modeling kind should default to INSTANCE
+        submodel = object_store.pop()
+        self.assertIsInstance(submodel, model.Submodel)
+        self.assertEqual(submodel._kind, model.ModelingKind.INSTANCE)
 
     def test_reference_kind_mismatch(self) -> None:
         xml = _xml_wrap("""

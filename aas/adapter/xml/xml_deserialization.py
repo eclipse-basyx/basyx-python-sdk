@@ -37,7 +37,6 @@ import logging
 import base64
 
 from typing import Any, Callable, Dict, IO, Iterable, Optional, Tuple, Type, TypeVar
-from mypy_extensions import TypedDict  # TODO: import this from typing should we require python 3.8+ at some point
 from .xml_serialization import NS_AAS, NS_ABAC, NS_IEC
 from .._generic import MODELING_KIND_INVERSE, ASSET_KIND_INVERSE, KEY_ELEMENTS_INVERSE, KEY_TYPES_INVERSE, \
     IDENTIFIER_TYPES_INVERSE, ENTITY_TYPES_INVERSE, IEC61360_DATA_TYPES_INVERSE, IEC61360_LEVEL_TYPES_INVERSE, \
@@ -424,30 +423,15 @@ def _amend_abstract_attributes(obj: object, element: etree.Element, failsafe: bo
                 obj.qualifier.add(constraint)
 
 
-class ModelingKindKwArg(TypedDict, total=False):
-    kind: model.ModelingKind
-
-
-def _get_modeling_kind_kwarg(element: etree.Element) -> ModelingKindKwArg:
+def _get_modeling_kind(element: etree.Element) -> model.ModelingKind:
     """
-    A helper function that creates a dict containing the modeling kind or nothing for a given xml element.
-
-    Since the modeling kind can only be set in the __init__ method of a class that inherits from model.HasKind,
-    the dict returned by this function can be passed directly to the classes __init__ method.
-    An alternative to this function would be returning the modeling kind directly and falling back to the default
-    value if no "kind" xml element is present, but in this case the default value would have to be defined here as well.
-    In my opinion defining what the default value is, should be the task of the __init__ method, not the task of any
-    function in the deserialization.
+    Returns the modeling kind of an element with the default value INSTANCE, if none specified.
 
     :param element: The xml element.
-    :return: A dict containing {"kind": <the parsed modeling kind>}, if a kind element was found.
-             An empty dict if not.
+    :return: The modeling kind of the element.
     """
-    kwargs: ModelingKindKwArg = ModelingKindKwArg()
-    kind = _get_text_mapped_or_none(element.find(NS_AAS + "kind"), MODELING_KIND_INVERSE)
-    if kind is not None:
-        kwargs["kind"] = kind
-    return kwargs
+    modeling_kind = _get_text_mapped_or_none(element.find(NS_AAS + "kind"), MODELING_KIND_INVERSE)
+    return modeling_kind if modeling_kind is not None else model.ModelingKind.INSTANCE
 
 
 def _construct_key(element: etree.Element, _failsafe: bool, **_kwargs: Any) -> model.Key:
@@ -635,7 +619,7 @@ def _construct_annotated_relationship_element(element: etree.Element, failsafe: 
         _child_text_mandatory(element, NS_AAS + "idShort"),
         _child_construct_mandatory(element, NS_AAS + "first", _construct_referable_reference),
         _child_construct_mandatory(element, NS_AAS + "second", _construct_referable_reference),
-        **_get_modeling_kind_kwarg(element)
+        kind=_get_modeling_kind(element)
     )
     annotations = _get_child_mandatory(element, NS_AAS + "annotations")
     for data_element_ref in _failsafe_construct_multiple(annotations.findall(NS_AAS + "reference"),
@@ -649,7 +633,7 @@ def _construct_basic_event(element: etree.Element, failsafe: bool, **_kwargs: An
     basic_event = model.BasicEvent(
         _child_text_mandatory(element, NS_AAS + "idShort"),
         _child_construct_mandatory(element, NS_AAS + "observed", _construct_referable_reference),
-        **_get_modeling_kind_kwarg(element)
+        kind=_get_modeling_kind(element)
     )
     _amend_abstract_attributes(basic_event, element, failsafe)
     return basic_event
@@ -659,7 +643,7 @@ def _construct_blob(element: etree.Element, failsafe: bool, **_kwargs: Any) -> m
     blob = model.Blob(
         _child_text_mandatory(element, NS_AAS + "idShort"),
         _child_text_mandatory(element, NS_AAS + "mimeType"),
-        **_get_modeling_kind_kwarg(element)
+        kind=_get_modeling_kind(element)
     )
     value = _get_text_or_none(element.find(NS_AAS + "value"))
     if value is not None:
@@ -671,7 +655,7 @@ def _construct_blob(element: etree.Element, failsafe: bool, **_kwargs: Any) -> m
 def _construct_capability(element: etree.Element, failsafe: bool, **_kwargs: Any) -> model.Capability:
     capability = model.Capability(
         _child_text_mandatory(element, NS_AAS + "idShort"),
-        **_get_modeling_kind_kwarg(element)
+        kind=_get_modeling_kind(element)
     )
     _amend_abstract_attributes(capability, element, failsafe)
     return capability
@@ -683,7 +667,7 @@ def _construct_entity(element: etree.Element, failsafe: bool, **_kwargs: Any) ->
         _child_text_mandatory_mapped(element, NS_AAS + "entityType", ENTITY_TYPES_INVERSE),
         # pass the asset to the constructor, because self managed entities need asset references
         asset=_failsafe_construct(element.find(NS_AAS + "assetRef"), _construct_asset_reference, failsafe),
-        **_get_modeling_kind_kwarg(element)
+        kind=_get_modeling_kind(element)
     )
     for stmt in _failsafe_construct_multiple(_get_child_mandatory(element, NS_AAS + "statements"),
                                              _construct_submodel_element, failsafe):
@@ -696,7 +680,7 @@ def _construct_file(element: etree.Element, failsafe: bool, **_kwargs: Any) -> m
     file = model.File(
         _child_text_mandatory(element, NS_AAS + "idShort"),
         _child_text_mandatory(element, NS_AAS + "mimeType"),
-        **_get_modeling_kind_kwarg(element)
+        kind=_get_modeling_kind(element)
     )
     value = _get_text_or_none(element.find(NS_AAS + "value"))
     if value is not None:
@@ -709,7 +693,7 @@ def _construct_multi_language_property(element: etree.Element, failsafe: bool, *
         -> model.MultiLanguageProperty:
     multi_language_property = model.MultiLanguageProperty(
         _child_text_mandatory(element, NS_AAS + "idShort"),
-        **_get_modeling_kind_kwarg(element)
+        kind=_get_modeling_kind(element)
     )
     value = _failsafe_construct(element.find(NS_AAS + "value"), _construct_lang_string_set, failsafe)
     if value is not None:
@@ -724,7 +708,7 @@ def _construct_multi_language_property(element: etree.Element, failsafe: bool, *
 def _construct_operation(element: etree.Element, failsafe: bool, **_kwargs: Any) -> model.Operation:
     operation = model.Operation(
         _child_text_mandatory(element, NS_AAS + "idShort"),
-        **_get_modeling_kind_kwarg(element)
+        kind=_get_modeling_kind(element)
     )
     in_output_variable = element.find(NS_AAS + "inoutputVariable")
     if in_output_variable is not None:
@@ -749,7 +733,7 @@ def _construct_property(element: etree.Element, failsafe: bool, **_kwargs: Any) 
     property_ = model.Property(
         _child_text_mandatory(element, NS_AAS + "idShort"),
         value_type=_child_text_mandatory_mapped(element, NS_AAS + "valueType", model.datatypes.XSD_TYPE_CLASSES),
-        **_get_modeling_kind_kwarg(element)
+        kind=_get_modeling_kind(element)
     )
     value = _get_text_or_none(element.find(NS_AAS + "value"))
     if value is not None:
@@ -765,7 +749,7 @@ def _construct_range(element: etree.Element, failsafe: bool, **_kwargs: Any) -> 
     range_ = model.Range(
         _child_text_mandatory(element, NS_AAS + "idShort"),
         value_type=_child_text_mandatory_mapped(element, NS_AAS + "valueType", model.datatypes.XSD_TYPE_CLASSES),
-        **_get_modeling_kind_kwarg(element)
+        kind=_get_modeling_kind(element)
     )
     max_ = _get_text_or_none(element.find(NS_AAS + "max"))
     if max_ is not None:
@@ -780,7 +764,7 @@ def _construct_range(element: etree.Element, failsafe: bool, **_kwargs: Any) -> 
 def _construct_reference_element(element: etree.Element, failsafe: bool, **_kwargs: Any) -> model.ReferenceElement:
     reference_element = model.ReferenceElement(
         _child_text_mandatory(element, NS_AAS + "idShort"),
-        **_get_modeling_kind_kwarg(element)
+        kind=_get_modeling_kind(element)
     )
     value = _failsafe_construct(element.find(NS_AAS + "value"), _construct_referable_reference, failsafe)
     if value is not None:
@@ -795,7 +779,7 @@ def _construct_relationship_element(element: etree.Element, failsafe: bool, **_k
         _child_text_mandatory(element, NS_AAS + "idShort"),
         _child_construct_mandatory(element, NS_AAS + "first", _construct_referable_reference),
         _child_construct_mandatory(element, NS_AAS + "second", _construct_referable_reference),
-        **_get_modeling_kind_kwarg(element)
+        kind=_get_modeling_kind(element)
     )
     _amend_abstract_attributes(relationship_element, element, failsafe)
     return relationship_element
@@ -807,7 +791,7 @@ def _construct_submodel_element_collection(element: etree.Element, failsafe: boo
     collection_type = model.SubmodelElementCollectionOrdered if ordered else model.SubmodelElementCollectionUnordered
     collection = collection_type(
         _child_text_mandatory(element, NS_AAS + "idShort"),
-        **_get_modeling_kind_kwarg(element)
+        kind=_get_modeling_kind(element)
     )
     value = _get_child_mandatory(element, NS_AAS + "value")
     for se in _failsafe_construct_multiple(value, _construct_submodel_element, failsafe):
@@ -867,7 +851,7 @@ def _construct_asset(element: etree.Element, failsafe: bool, **_kwargs: Any) -> 
 def _construct_submodel(element: etree.Element, failsafe: bool, **_kwargs: Any) -> model.Submodel:
     submodel = model.Submodel(
         _child_construct_mandatory(element, NS_AAS + "identification", _construct_identifier),
-        **_get_modeling_kind_kwarg(element)
+        kind=_get_modeling_kind(element)
     )
     for submodel_element in _get_child_mandatory(element, NS_AAS + "submodelElements"):
         constructed = _failsafe_construct(submodel_element, _construct_submodel_element, failsafe)
@@ -956,9 +940,6 @@ def _construct_iec61360_concept_description(element: etree.Element, failsafe: bo
 
 
 def _construct_concept_description(element: etree.Element, failsafe: bool, **_kwargs: Any) -> model.ConceptDescription:
-    """
-    TODO: our model doesn't support more than one embeddedDataSpecification (yet)
-    """
     cd: Optional[model.ConceptDescription] = None
     identifier = _child_construct_mandatory(element, NS_AAS + "identification", _construct_identifier)
     # Hack to detect IEC61360ConceptDescriptions, which are represented using dataSpecification according to DotAAS
