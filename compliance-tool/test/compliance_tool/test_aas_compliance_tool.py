@@ -15,7 +15,7 @@ import unittest
 import aas.compliance_tool
 import tempfile
 
-from aas.adapter.json import json_deserialization
+from aas.adapter.json import read_aas_json_file
 from aas.examples.data import create_example
 from aas.examples.data._helper import AASDataChecker
 
@@ -145,7 +145,7 @@ class ComplianceToolTest(unittest.TestCase):
         self.assertIn('SUCCESS:      Write data to file', str(output.stdout))
 
         with open(filename, "r", encoding='utf-8-sig') as f:
-            json_object_store = json_deserialization.read_json_aas_file(f, failsafe=False)
+            json_object_store = read_aas_json_file(f, failsafe=False)
             data = create_example()
             checker = AASDataChecker(raise_immediately=True)
             checker.check_object_store(json_object_store, data)
@@ -207,7 +207,7 @@ class ComplianceToolTest(unittest.TestCase):
         self.assertIn('SUCCESS:      Write data to file', str(output.stdout))
 
         with open(filename, "r", encoding='utf-8-sig') as f:
-            json_object_store = json_deserialization.read_json_aas_file(f, failsafe=False)
+            json_object_store = read_aas_json_file(f, failsafe=False)
             data = create_example()
             checker = AASDataChecker(raise_immediately=True)
             checker.check_object_store(json_object_store, data)
