@@ -10,7 +10,7 @@ import json
 
 # Import all PyI40AAS classes from model package
 from aas import model
-from aas.adapter.json import json_serialization, json_deserialization
+from aas.adapter.json import AASToJsonEncoder, read_aas_json_file, write_aas_json_file, object_store_to_json
 from aas.model import Asset, AssetAdministrationShell, Submodel
 
 # In this tutorial you get a step by step guide how to serialize objects of the meta model according to
@@ -58,13 +58,13 @@ aas = AssetAdministrationShell(
 # step 2: serialize an object to json and write it to file #
 ############################################################
 # step 2.1: serialize an object to json
-# json_serialization.AASToJsonEncoder is a custom JSONDecoder class for serializing Asset Administration Shell data
+# AASToJsonEncoder is a custom JSONDecoder class for serializing Asset Administration Shell data
 # into the official JSON format according to 'Details of the Asset Administration Shell', chapter 5.5
 # serialize an asset administration shell
-json_data_object = json.loads(json.dumps(aas, cls=json_serialization.AASToJsonEncoder))
+json_data_object = json.loads(json.dumps(aas, cls=AASToJsonEncoder))
 # serialize a property
 json_data_object = json.loads(json.dumps(submodel.submodel_element.get_referable('ExampleProperty'),
-                                         cls=json_serialization.AASToJsonEncoder))
+                                         cls=AASToJsonEncoder))
 # step 2.2: write json data to file
 # define a file stream, here an internal file stream is used. For an external file stream use
 # 'open('tutorial.json', 'w', encoding='utf-8')' for opening a json-File to write json data inside
@@ -82,8 +82,8 @@ obj_store: model.DictObjectStore[model.Identifiable] = model.DictObjectStore()
 obj_store.add(asset)
 obj_store.add(submodel)
 obj_store.add(aas)
-# serialize the store using the function 'object_store_to_json' of the 'json_serialization' module
-json_data_store = json_serialization.object_store_to_json(obj_store)
+# serialize the store using the function 'object_store_to_json' of the 'json' module
+json_data_store = object_store_to_json(obj_store)
 # step 2.2: write json data to file
 # define a file stream, here an internal file stream is used. For an external file stream use
 # 'open('tutorial.json', 'w', encoding='utf-8')' for opening a json-File to write json data inside
@@ -93,7 +93,7 @@ json.dump(json_data_store, file_store)
 
 # serialize an object store and write it to a file can be done in one step using the function 'write_aas_json_file'
 file_store_2 = io.StringIO()
-json_serialization.write_aas_json_file(file=file_store_2, data=obj_store)
+write_aas_json_file(file=file_store_2, data=obj_store)
 
 #################################################################################################
 # step 4: # read a json string from file and deserialize it into an object store of AAS objects #
@@ -103,7 +103,7 @@ json_serialization.write_aas_json_file(file=file_store_2, data=obj_store)
 # we have to set the file pointer to the beginning cause we are using the same file stream. Normally, you do not need
 # to do this.
 file_store_2.seek(0)
-json_object_store = json_deserialization.read_json_aas_file(file_store_2, failsafe=False)
+json_object_store = read_aas_json_file(file_store_2, failsafe=False)
 
 # take a submodel out of the object store, for more details look at 'tutorial_storage.py'
 tmp_submodel: Submodel = json_object_store.get_identifiable(  # type: ignore

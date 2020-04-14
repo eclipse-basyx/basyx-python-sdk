@@ -14,7 +14,7 @@ from lxml import etree  # type: ignore
 import os
 
 from aas import model
-from aas.adapter.xml import xml_serialization
+from aas.adapter.xml import write_aas_xml_file, xml_serialization
 
 from aas.examples.data import example_aas_missing_attributes, example_submodel_template, \
     example_aas_mandatory_attributes, example_aas, example_concept_description
@@ -47,7 +47,7 @@ class XMLSerializationTest(unittest.TestCase):
         test_data.add(submodel)
 
         test_file = io.BytesIO()
-        xml_serialization.write_aas_xml_file(file=test_file, data=test_data)
+        write_aas_xml_file(file=test_file, data=test_data)
 
 
 @unittest.skipUnless(os.path.exists(XML_SCHEMA_FILE), "XML Schema not found for validation")
@@ -69,7 +69,7 @@ class XMLSerializationSchemaTest(unittest.TestCase):
         test_data.add(submodel)
 
         test_file = io.BytesIO()
-        xml_serialization.write_aas_xml_file(file=test_file, data=test_data)
+        write_aas_xml_file(file=test_file, data=test_data)
 
         # load schema
         aas_schema = etree.XMLSchema(file=XML_SCHEMA_FILE)
@@ -82,7 +82,7 @@ class XMLSerializationSchemaTest(unittest.TestCase):
     def test_full_example_serialization(self) -> None:
         data = example_aas.create_full_example()
         file = io.BytesIO()
-        xml_serialization.write_aas_xml_file(file=file, data=data)
+        write_aas_xml_file(file=file, data=data)
 
         # load schema
         aas_schema = etree.XMLSchema(file=XML_SCHEMA_FILE)
@@ -96,7 +96,7 @@ class XMLSerializationSchemaTest(unittest.TestCase):
         data: model.DictObjectStore[model.Identifiable] = model.DictObjectStore()
         data.add(example_submodel_template.create_example_submodel_template())
         file = io.BytesIO()
-        xml_serialization.write_aas_xml_file(file=file, data=data)
+        write_aas_xml_file(file=file, data=data)
 
         # load schema
         aas_schema = etree.XMLSchema(file=XML_SCHEMA_FILE)
@@ -109,7 +109,7 @@ class XMLSerializationSchemaTest(unittest.TestCase):
     def test_full_empty_example_serialization(self) -> None:
         data = example_aas_mandatory_attributes.create_full_example()
         file = io.BytesIO()
-        xml_serialization.write_aas_xml_file(file=file, data=data)
+        write_aas_xml_file(file=file, data=data)
 
         # load schema
         aas_schema = etree.XMLSchema(file=XML_SCHEMA_FILE)
@@ -122,7 +122,7 @@ class XMLSerializationSchemaTest(unittest.TestCase):
     def test_missing_serialization(self) -> None:
         data = example_aas_missing_attributes.create_full_example()
         file = io.BytesIO()
-        xml_serialization.write_aas_xml_file(file=file, data=data)
+        write_aas_xml_file(file=file, data=data)
 
         # load schema
         aas_schema = etree.XMLSchema(file=XML_SCHEMA_FILE)
@@ -136,7 +136,7 @@ class XMLSerializationSchemaTest(unittest.TestCase):
         data: model.DictObjectStore[model.Identifiable] = model.DictObjectStore()
         data.add(example_concept_description.create_iec61360_concept_description())
         file = io.BytesIO()
-        xml_serialization.write_aas_xml_file(file=file, data=data)
+        write_aas_xml_file(file=file, data=data)
 
         # load schema
         aas_schema = etree.XMLSchema(file=XML_SCHEMA_FILE)

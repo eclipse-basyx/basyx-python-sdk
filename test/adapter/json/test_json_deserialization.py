@@ -19,7 +19,7 @@ import io
 import json
 import logging
 import unittest
-from aas.adapter.json import json_deserialization
+from aas.adapter.json import AASFromJsonDecoder, StrictAASFromJsonDecoder, read_aas_json_file
 from aas import model
 
 
@@ -32,9 +32,9 @@ class JsonDeserializationTest(unittest.TestCase):
                 "conceptDescriptions": []
             }"""
         with self.assertRaisesRegex(KeyError, r"submodels"):
-            json_deserialization.read_json_aas_file(io.StringIO(data), False)
+            read_aas_json_file(io.StringIO(data), False)
         with self.assertLogs(logging.getLogger(), level=logging.WARNING) as cm:
-            json_deserialization.read_json_aas_file(io.StringIO(data), True)
+            read_aas_json_file(io.StringIO(data), True)
         self.assertIn("submodels", cm.output[0])
 
     def test_file_format_wrong_list(self) -> None:
@@ -57,9 +57,9 @@ class JsonDeserializationTest(unittest.TestCase):
                 ]
             }"""
         with self.assertRaisesRegex(TypeError, r"submodels.*Asset"):
-            json_deserialization.read_json_aas_file(io.StringIO(data), False)
+            read_aas_json_file(io.StringIO(data), False)
         with self.assertLogs(logging.getLogger(), level=logging.WARNING) as cm:
-            json_deserialization.read_json_aas_file(io.StringIO(data), True)
+            read_aas_json_file(io.StringIO(data), True)
         self.assertIn("submodels", cm.output[0])
         self.assertIn("Asset", cm.output[0])
 
@@ -74,9 +74,9 @@ class JsonDeserializationTest(unittest.TestCase):
                 ]
             }"""
         with self.assertRaisesRegex(TypeError, r"submodels.*'foo'"):
-            json_deserialization.read_json_aas_file(io.StringIO(data), False)
+            read_aas_json_file(io.StringIO(data), False)
         with self.assertLogs(logging.getLogger(), level=logging.WARNING) as cm:
-            json_deserialization.read_json_aas_file(io.StringIO(data), True)
+            read_aas_json_file(io.StringIO(data), True)
         self.assertIn("submodels", cm.output[0])
         self.assertIn("'foo'", cm.output[0])
 
@@ -100,11 +100,11 @@ class JsonDeserializationTest(unittest.TestCase):
             ]"""
         # In strict mode, we should catch an exception
         with self.assertRaisesRegex(KeyError, r"identification"):
-            json.loads(data, cls=json_deserialization.StrictAASFromJsonDecoder)
+            json.loads(data, cls=StrictAASFromJsonDecoder)
 
         # In failsafe mode, we should get a log entry and the first Asset entry should be returned as untouched dict
         with self.assertLogs(logging.getLogger(), level=logging.WARNING) as cm:
-            parsed_data = json.loads(data, cls=json_deserialization.AASFromJsonDecoder)
+            parsed_data = json.loads(data, cls=AASFromJsonDecoder)
         self.assertIn("identification", cm.output[0])
         self.assertIsInstance(parsed_data, list)
         self.assertEqual(3, len(parsed_data))
@@ -143,13 +143,13 @@ class JsonDeserializationTest(unittest.TestCase):
         # The broken object should not raise an exception, but log a warning, even in strict mode.
         with self.assertLogs(logging.getLogger(), level=logging.WARNING) as cm:
             with self.assertRaisesRegex(TypeError, r"SubmodelElement.*Asset"):
-                json.loads(data, cls=json_deserialization.StrictAASFromJsonDecoder)
+                json.loads(data, cls=StrictAASFromJsonDecoder)
         self.assertIn("modelType", cm.output[0])
 
         # In failsafe mode, we should get a log entries for the broken object and the wrong type of the first two
         #   submodelElements
         with self.assertLogs(logging.getLogger(), level=logging.WARNING) as cm:
-            parsed_data = json.loads(data, cls=json_deserialization.AASFromJsonDecoder)
+            parsed_data = json.loads(data, cls=AASFromJsonDecoder)
         self.assertGreaterEqual(len(cm.output), 3)
         self.assertIn("SubmodelElement", cm.output[1])
         self.assertIn("SubmodelElement", cm.output[2])
@@ -168,7 +168,7 @@ class JsonDeserializationDerivingTest(unittest.TestCase):
                 super().__init__(**kwargs)
                 self.enhanced_attribute = "fancy!"
 
-        class EnhancedAASDecoder(json_deserialization.AASFromJsonDecoder):
+        class EnhancedAASDecoder(AASFromJsonDecoder):
             @classmethod
             def _construct_asset(cls, dct):
                 return super()._construct_asset(dct, object_class=EnhancedAsset)

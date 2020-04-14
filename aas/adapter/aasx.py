@@ -31,8 +31,7 @@ import re
 from typing import Dict, Tuple, IO, Union, List, Set, Optional
 
 from .. import model
-from .json.json_deserialization import read_json_aas_file
-from .json.json_serialization import write_aas_json_file
+from .json import read_aas_json_file, write_aas_json_file
 import pyecma376_2
 from ..util import traversal
 
@@ -212,7 +211,7 @@ class AASXReader:
                 or content_type == "" and extension == "json":
             logger.debug("Parsing AAS objects from JSON stream in OPC part {} ...".format(part_name))
             with self.reader.open_part(part_name) as p:
-                return read_json_aas_file(io.TextIOWrapper(p, encoding='utf-8-sig'))
+                return read_aas_json_file(io.TextIOWrapper(p, encoding='utf-8-sig'))
         else:
             logger.error("Could not determine part format of AASX part {} (Content Type: {}, extension: {}"
                          .format(part_name, content_type, extension))
