@@ -166,6 +166,7 @@ class XMLDeserializationTest(unittest.TestCase):
         # modeling kind should default to INSTANCE
         submodel = object_store.pop()
         self.assertIsInstance(submodel, model.Submodel)
+        assert(isinstance(submodel, model.Submodel))  # to make mypy happy
         self.assertEqual(submodel.kind, model.ModelingKind.INSTANCE)
 
     def test_reference_kind_mismatch(self) -> None:
