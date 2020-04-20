@@ -10,7 +10,7 @@
 # specific language governing permissions and limitations under the License.
 """
 The main module of the AAS meta-model. It is used to define the class structures of high level elements such as
-AssetAdministrationShell, ConceptDictionary and Asset.
+AssetAdministrationShell and Asset.
 
 This module contains the following classes from an up-to-down-level:
  - AssetAdministrationShell
