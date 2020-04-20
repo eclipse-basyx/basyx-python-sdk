@@ -183,13 +183,16 @@ class AASDataChecker(DataChecker):
         :param expected_object: The expected qualifiable object
         :return: The value of expression to be used in control statements
         """
-        # TODO add check of formula => not clear how to identify a formula
         self.check_contained_element_length(object_, 'qualifier', model.Constraint, len(expected_object.qualifier))
         for expected_element in expected_object.qualifier:
             element = self._find_element_by_attribute(expected_element, object_.qualifier, 'type')
             if self.check(element is not None, 'Constraint{} must exist'.format(repr(expected_element))):
-                self._check_qualifier_equal(element, expected_element)  # type: ignore
-
+                if isinstance(element, model.Formula):
+                    self._check_formula_equal(element, expected_element)  # type: ignore
+                elif isinstance(element, model.Qualifier):
+                    self._check_qualifier_equal(element, expected_element)  # type: ignore
+                else:
+                    raise TypeError('Constraint class not implemented')
         found_elements = self._find_extra_elements_by_attribute(object_.qualifier, expected_object.qualifier, 'type')
         self.check(found_elements == set(), 'Qualifiable Element {} must not have extra elements'.format(repr(object_)),
                    value=found_elements)
@@ -593,6 +596,19 @@ class AASDataChecker(DataChecker):
         self.check_attribute_equal(object_, 'value_type', expected_value.value_type)
         self.check_attribute_equal(object_, 'value', expected_value.value)
         self.check_attribute_equal(object_, 'value_id', expected_value.value_id)
+
+    def _check_formula_equal(self, object_: model.Formula, expected_value: model.Formula):
+        """
+        Checks if the given Formula objects are equal
+
+        :param object_: Given Formula object to check
+        :param expected_value: expected Formula object
+        :return:
+        """
+        for expected_ref in expected_value.depends_on:
+            ref = self._find_reference(expected_ref, object_.depends_on)
+            if self.check(ref is not None, 'Reference {} must exist'.format(repr(expected_ref))):
+                self._check_reference_equal(ref, expected_ref)  # type: ignore
 
     def check_asset_equal(self, object_: model.Asset, expected_value: model.Asset):
         """

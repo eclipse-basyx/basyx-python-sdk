@@ -161,7 +161,12 @@ def create_example_bill_of_material_submodel() -> model.Submodel:
                                                local=False,
                                                value='http://acplt.org/Properties/ExampleProperty',
                                                id_type=model.KeyType.IRI),)),
-        qualifier=None,
+        qualifier={model.Formula(
+            depends_on={model.Reference((model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
+                                                   local=False,
+                                                   value='http://acplt.org/ValueId/ExampleValueId',
+                                                   id_type=model.KeyType.IRI),))}),
+                   model.Formula()},
         kind=model.ModelingKind.INSTANCE)
 
     submodel_element_property2 = model.Property(
