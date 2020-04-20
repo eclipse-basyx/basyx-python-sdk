@@ -93,7 +93,10 @@ class AASXWriterTest(unittest.TestCase):
         example_aas.check_full_example(checker, new_data)
 
         # Check core properties
-        self.assertEqual(new_cp.created, cp.created)
+        assert(isinstance(cp.created, datetime.datetime))  # to make mypy happy
+        self.assertIsInstance(new_cp.created, datetime.datetime)
+        assert(isinstance(new_cp.created, datetime.datetime))  # to make mypy happy
+        self.assertAlmostEqual(new_cp.created, cp.created, delta=datetime.timedelta(milliseconds=20))
         self.assertEqual(new_cp.creator, "PyI40AAS Testing Framework")
         self.assertIsNone(new_cp.lastModifiedBy)
 
