@@ -14,8 +14,6 @@ AssetAdministrationShell, ConceptDictionary and Asset.
 
 This module contains the following classes from an up-to-down-level:
  - AssetAdministrationShell
- - ConceptDictionary
- - ConceptDescription
  - Asset
  - View
 """

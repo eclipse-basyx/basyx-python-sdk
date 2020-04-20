@@ -1,5 +1,6 @@
 """
-Dicts to serialize and deserialize enum classes
+The dicts defined in this module are used in the json and xml modules to translate enum members of our
+implementation to the respective string and vice versa.
 """
 from typing import Dict
 
