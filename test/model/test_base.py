@@ -208,6 +208,7 @@ class ModelNamespaceTest(unittest.TestCase):
             namespace1.set1.get_referable("Prop2")
         self.assertEqual("'Prop2'", str(cm.exception))
         # Check that the parent of Prop3 is adapted correctly:
+        self.assertEqual(namespace1.get_referable("Prop1").parent, namespace1)
         self.assertEqual(namespace1.get_referable("Prop3").parent, namespace1)
 
 
