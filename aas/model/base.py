@@ -479,6 +479,8 @@ class Referable(metaclass=abc.ABCMeta):
         :param other: The object to update from
         """
         for name, var in vars(other).items():
+            if name == "parent":  # do not update the parent
+                continue
             if isinstance(var, NamespaceSet):
                 # update the elements of the NameSpaceSet
                 vars(self)[name].update_nss_from(var)
@@ -1001,6 +1003,8 @@ class NamespaceSet(MutableSet[_RT], Generic[_RT]):
 
         :param other: The NamespaceSet to update from
         """
+        referables_to_add: List[Referable] = []  # objects from the other nss to add to self
+        referables_to_remove: List[Referable] = []  # objects to remove from self
         for other_referable in other:
             try:
                 referable = self._backend[other_referable.id_short]
@@ -1009,11 +1013,16 @@ class NamespaceSet(MutableSet[_RT], Generic[_RT]):
                     referable.update_from(other_referable)
             except KeyError:
                 # other referable is not in NamespaceSet
-                self.add(other_referable)
+                referables_to_add.append(other_referable)
         for id_short, referable in self._backend.items():
             if not other.get(id_short):
                 # referable does not exist in the other NamespaceSet
-                self.remove(referable)
+                referables_to_remove.append(referable)
+        for referable_to_add in referables_to_add:
+            other.remove(referable_to_add)
+            self.add(referable_to_add)  # type: ignore
+        for referable_to_remove in referables_to_remove:
+            self.remove(referable_to_remove)  # type: ignore
 
 
 class OrderedNamespaceSet(NamespaceSet[_RT], MutableSequence[_RT], Generic[_RT]):
