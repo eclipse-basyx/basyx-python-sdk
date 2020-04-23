@@ -189,12 +189,16 @@ class XMLDeserializationTest(unittest.TestCase):
         self.assertIn("Asset", context.output[0])
 
     def test_invalid_submodel_element(self) -> None:
+        # TODO: simplify this should our suggestion regarding the XML schema get accepted
+        # https://git.rwth-aachen.de/acplt/pyaas/-/issues/57
         xml = _xml_wrap("""
         <aas:submodels>
             <aas:submodel>
                 <aas:identification idType="IRI">http://acplt.org/test_submodel</aas:identification>
                 <aas:submodelElements>
-                    <aas:invalidSubmodelElement/>
+                    <aas:submodelElement>
+                        <aas:invalidSubmodelElement/>
+                    </aas:submodelElement>
                 </aas:submodelElements>
             </aas:submodel>
         </aas:submodels>
@@ -202,33 +206,41 @@ class XMLDeserializationTest(unittest.TestCase):
         self._assertInExceptionAndLog(xml, "aas:invalidSubmodelElement", KeyError, logging.ERROR)
 
     def test_invalid_constraint(self) -> None:
+        # TODO: simplify this should our suggestion regarding the XML schema get accepted
+        # https://git.rwth-aachen.de/acplt/pyaas/-/issues/56
         xml = _xml_wrap("""
         <aas:submodels>
             <aas:submodel>
                 <aas:identification idType="IRI">http://acplt.org/test_submodel</aas:identification>
                 <aas:submodelElements/>
-                <aas:qualifiers>
-                    <aas:invalidConstraint/>
-                </aas:qualifiers>
+                <aas:qualifier>
+                    <aas:qualifiers>
+                        <aas:invalidConstraint/>
+                    </aas:qualifiers>
+                </aas:qualifier>
             </aas:submodel>
         </aas:submodels>
         """)
         self._assertInExceptionAndLog(xml, "aas:invalidConstraint", KeyError, logging.ERROR)
 
     def test_operation_variable_no_submodel_element(self) -> None:
+        # TODO: simplify this should our suggestion regarding the XML schema get accepted
+        # https://git.rwth-aachen.de/acplt/pyaas/-/issues/57
         xml = _xml_wrap("""
         <aas:submodels>
             <aas:submodel>
                 <aas:identification idType="IRI">http://acplt.org/test_submodel</aas:identification>
                 <aas:submodelElements>
-                    <aas:operation>
-                        <aas:idShort>test_operation</aas:idShort>
-                        <aas:outputVariable>
-                            <aas:operationVariable>
-                                <aas:value/>
-                            </aas:operationVariable>
-                        </aas:outputVariable>
-                    </aas:operation>
+                    <aas:submodelElement>
+                        <aas:operation>
+                            <aas:idShort>test_operation</aas:idShort>
+                            <aas:outputVariable>
+                                <aas:operationVariable>
+                                    <aas:value/>
+                                </aas:operationVariable>
+                            </aas:outputVariable>
+                        </aas:operation>
+                    </aas:submodelElement>
                 </aas:submodelElements>
             </aas:submodel>
         </aas:submodels>
@@ -236,28 +248,32 @@ class XMLDeserializationTest(unittest.TestCase):
         self._assertInExceptionAndLog(xml, "aas:value", KeyError, logging.ERROR)
 
     def test_operation_variable_too_many_submodel_elements(self) -> None:
+        # TODO: simplify this should our suggestion regarding the XML schema get accepted
+        # https://git.rwth-aachen.de/acplt/pyaas/-/issues/57
         xml = _xml_wrap("""
         <aas:submodels>
             <aas:submodel>
                 <aas:identification idType="IRI">http://acplt.org/test_submodel</aas:identification>
                 <aas:submodelElements>
-                    <aas:operation>
-                        <aas:idShort>test_operation</aas:idShort>
-                        <aas:outputVariable>
-                            <aas:operationVariable>
-                                <aas:value>
-                                    <aas:file>
-                                        <aas:idShort>test_file</aas:idShort>
-                                        <aas:mimeType>application/problem+xml</aas:mimeType>
-                                    </aas:file>
-                                    <aas:file>
-                                        <aas:idShort>test_file2</aas:idShort>
-                                        <aas:mimeType>application/problem+xml</aas:mimeType>
-                                    </aas:file>
-                                </aas:value>
-                            </aas:operationVariable>
-                        </aas:outputVariable>
-                    </aas:operation>
+                    <aas:submodelElement>
+                        <aas:operation>
+                            <aas:idShort>test_operation</aas:idShort>
+                            <aas:outputVariable>
+                                <aas:operationVariable>
+                                    <aas:value>
+                                        <aas:file>
+                                            <aas:idShort>test_file</aas:idShort>
+                                            <aas:mimeType>application/problem+xml</aas:mimeType>
+                                        </aas:file>
+                                        <aas:file>
+                                            <aas:idShort>test_file2</aas:idShort>
+                                            <aas:mimeType>application/problem+xml</aas:mimeType>
+                                        </aas:file>
+                                    </aas:value>
+                                </aas:operationVariable>
+                            </aas:outputVariable>
+                        </aas:operation>
+                    </aas:submodelElement>
                 </aas:submodelElements>
             </aas:submodel>
         </aas:submodels>
