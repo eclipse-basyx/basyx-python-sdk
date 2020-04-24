@@ -463,18 +463,22 @@ class Referable(metaclass=abc.ABCMeta):
             raise ValueError("The id_short must start with a letter")
         self._id_short = id_short
 
-    def update(self, timeout: float) -> None:
+    def update(self, timeout: float = 0) -> None:
         """
-        Update the local Referable object from the underlying backend. If the object does not have one, this function
-        does nothing
+        Update the local Referable object from the underlying backend.
 
-        :param timeout: Timeout in seconds
+        If the object does not belong to a backend, i.e. it is a simple in-memory object, this function does nothing.
+
+        :param timeout: Only update the object, if it has not been updated within the last `timeout` seconds.
         """
         pass
 
     def update_from(self, other: "Referable"):
         """
-        Updates the Referable object from an other
+        Internal function to updates the object's attributes from another object of a similar type.
+
+        This function should not be used directly. It is typically used by backend implementations (database adapters,
+        protocol clients, etc.) to update the object's data, after `update()` has been called.
 
         :param other: The object to update from
         """
@@ -488,8 +492,9 @@ class Referable(metaclass=abc.ABCMeta):
 
     def commit(self) -> None:
         """
-        Commit the local Referable object to the underlying backend. If the object does not have one, this function
-        does nothing
+        Transfer local changes on this object to the underlying backend.
+
+        If the object does not belong to a backend, i.e. it is a simple in-memory object, this function does nothing.
         """
         pass
 
