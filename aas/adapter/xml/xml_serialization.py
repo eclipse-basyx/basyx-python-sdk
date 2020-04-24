@@ -118,12 +118,16 @@ def abstract_classes_to_xml(tag: str, obj: object) -> etree.Element:
             elm.append(reference_to_xml(obj.semantic_id, tag=NS_AAS+"semanticId"))
     if isinstance(obj, model.Qualifiable):
         if obj.qualifier:
-            et_qualifiers = _generate_element(name=NS_AAS + "qualifiers", text=None)
+            # TODO: simplify & fix plural "s", should our suggestion regarding the XML schema get accepted
+            # https://git.rwth-aachen.de/acplt/pyaas/-/issues/56
+            et_qualifiers = _generate_element(name=NS_AAS + "qualifier", text=None)
             for qualifier in obj.qualifier:
+                et_qualifier = _generate_element(NS_AAS+"qualifiers")
                 if isinstance(qualifier, model.Qualifier):
-                    et_qualifiers.append(qualifier_to_xml(qualifier, tag=NS_AAS+"qualifier"))
+                    et_qualifier.append(qualifier_to_xml(qualifier, tag=NS_AAS+"qualifier"))
                 if isinstance(qualifier, model.Formula):
-                    et_qualifiers.append(formula_to_xml(qualifier, tag=NS_AAS+"formula"))
+                    et_qualifier.append(formula_to_xml(qualifier, tag=NS_AAS+"formula"))
+                et_qualifiers.append(et_qualifier)
             elm.append(et_qualifiers)
     return elm
 
@@ -570,7 +574,11 @@ def submodel_to_xml(obj: model.Submodel,
     et_submodel_elements = _generate_element(NS_AAS + "submodelElements")
     if obj.submodel_element:
         for submodel_element in obj.submodel_element:
-            et_submodel_elements.append(submodel_element_to_xml(submodel_element))
+            # TODO: simplify this should our suggestion regarding the XML schema get accepted
+            # https://git.rwth-aachen.de/acplt/pyaas/-/issues/57
+            et_submodel_element = _generate_element(NS_AAS+"submodelElement")
+            et_submodel_element.append(submodel_element_to_xml(submodel_element))
+            et_submodel_elements.append(et_submodel_element)
     et_submodel.append(et_submodel_elements)
     return et_submodel
 
