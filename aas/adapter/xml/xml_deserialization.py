@@ -417,10 +417,19 @@ def _amend_abstract_attributes(obj: object, element: etree.Element, failsafe: bo
         if semantic_id is not None:
             obj.semantic_id = semantic_id
     if isinstance(obj, model.Qualifiable):
-        qualifiers = element.find(NS_AAS + "qualifiers")
+        qualifiers = element.find(NS_AAS + "qualifier")
+        # TODO: simplify this should our suggestion regarding the XML schema get accepted
+        # https://git.rwth-aachen.de/acplt/pyaas/-/issues/56
         if qualifiers is not None:
-            for constraint in _failsafe_construct_multiple(qualifiers, _construct_constraint, failsafe):
-                obj.qualifier.add(constraint)
+            for constraint in _get_all_children_expect_tag(qualifiers, NS_AAS + "qualifiers", failsafe):
+                if len(constraint) == 0:
+                    raise KeyError(f"{_element_pretty_identifier(constraint)} has no constraint!")
+                if len(constraint) > 1:
+                    logger.warning(f"{_element_pretty_identifier(constraint)} has more than one constraint,"
+                                   "using the first one...")
+                constructed = _failsafe_construct(constraint[0], _construct_constraint, failsafe)
+                if constructed is not None:
+                    obj.qualifier.add(constructed)
 
 
 def _get_modeling_kind(element: etree.Element) -> model.ModelingKind:
@@ -853,8 +862,16 @@ def _construct_submodel(element: etree.Element, failsafe: bool, **_kwargs: Any) 
         _child_construct_mandatory(element, NS_AAS + "identification", _construct_identifier),
         kind=_get_modeling_kind(element)
     )
-    for submodel_element in _get_child_mandatory(element, NS_AAS + "submodelElements"):
-        constructed = _failsafe_construct(submodel_element, _construct_submodel_element, failsafe)
+    # TODO: simplify this should our suggestion regarding the XML schema get accepted
+    # https://git.rwth-aachen.de/acplt/pyaas/-/issues/57
+    for submodel_element in _get_all_children_expect_tag(
+            _get_child_mandatory(element, NS_AAS + "submodelElements"), NS_AAS + "submodelElement", failsafe):
+        if len(submodel_element) == 0:
+            raise KeyError(f"{_element_pretty_identifier(submodel_element)} has no submodel element!")
+        if len(submodel_element) > 1:
+            logger.warning(f"{_element_pretty_identifier(submodel_element)} has more than one submodel element,"
+                           "using the first one...")
+        constructed = _failsafe_construct(submodel_element[0], _construct_submodel_element, failsafe)
         if constructed is not None:
             submodel.submodel_element.add(constructed)
     _amend_abstract_attributes(submodel, element, failsafe)
