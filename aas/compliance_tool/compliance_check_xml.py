@@ -9,44 +9,41 @@
 # "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
 # specific language governing permissions and limitations under the License.
 """
-Module which offers functions to use in a confirmation tool related to json files
+Module which offers functions to use in a confirmation tool related to xml files
 
-check_schema: Checks if a json file is conform to official JSON schema as defined in the 'Details of the Asset
+check_schema: Checks if a xml file is conform to official JSON schema as defined in the 'Details of the Asset
               Administration Shell' specification of Plattform Industrie 4.0
 
-check_deserialization: Checks if a json file can be deserialized
+check_deserialization: Checks if a xml file can be deserialized
 
-check_aas_example: Checks if a json file consist the data of the example data defined in
+check_aas_example: Checks if a xml file consist the data of the example data defined in
                    aas.examples.data.example_aas.py
 
-check_json_files_equivalence: Checks if two json files have the same data regardless of their order
+check_xml_files_equivalence: Checks if two xml files have the same data regardless of their order
 
 All functions reports any issues using the given StateManager by adding new steps and associated LogRecords
 """
-import json
+from lxml import etree  # type: ignore
 import logging
 import os
 from typing import Optional
 
-import jsonschema  # type: ignore
-
 from .. import model
-from ..adapter.json import json_deserialization
+from ..adapter.xml import xml_deserialization
 from ..examples.data import example_aas, create_example
 from ..examples.data._helper import AASDataChecker
 from .state_manager import ComplianceToolStateManager, Status
 
 dirname = os.path.dirname
-JSON_SCHEMA_FILE = os.path.join(dirname(__file__), '..', '..', 'test', 'adapter', 'json', 'aasJSONSchema.json')
-# TODO change path if schema is added to the project
+XML_SCHEMA_FILE = os.path.join(dirname(__file__), '..', '..', 'test', 'adapter', 'xml', 'AAS.xsd')
 
 
 def check_schema(file_path: str, state_manager: ComplianceToolStateManager) -> None:
     """
-    checks a given file against the official json schema and reports any issues using the given StateManager
+    checks a given file against the official xml schema and reports any issues using the given StateManager
 
-    add the steps: 'Open file', 'Read file and check if it is conform to the json syntax' and 'Validate file against
-    official json schema'
+    add the steps: 'Open file', 'Read file and check if it is conform to the xml syntax' and 'Validate file against
+    official xml schema'
 
     :param file_path: path to the file which should be checked
     :param state_manager: manager to log the steps
@@ -59,38 +56,40 @@ def check_schema(file_path: str, state_manager: ComplianceToolStateManager) -> N
     state_manager.add_step('Open file')
     try:
         # open given file
-        file_to_be_checked = open(file_path, 'r', encoding='utf-8-sig')
+        file_to_be_checked = open(file_path, 'rb')
     except IOError as error:
         state_manager.set_step_status(Status.FAILED)
         logger.error(error)
-        state_manager.add_step('Read file and check if it is conform to the json syntax')
+        state_manager.add_step('Read file and check if it is conform to the xml syntax')
         state_manager.set_step_status(Status.NOT_EXECUTED)
-        state_manager.add_step('Validate file against official json schema')
+        state_manager.add_step('Validate file against official xml schema')
         state_manager.set_step_status(Status.NOT_EXECUTED)
         return
     try:
         with file_to_be_checked:
             state_manager.set_step_status(Status.SUCCESS)
-            # read given file and check if it is conform to the json syntax
-            state_manager.add_step('Read file and check if it is conform to the json syntax')
-            json_to_be_checked = json.load(file_to_be_checked)
+            # read given file and check if it is conform to the xml syntax
+            state_manager.add_step('Read file and check if it is conform to the xml syntax')
+            parser = etree.XMLParser(remove_blank_text=True, remove_comments=True)
+            etree.parse(file_to_be_checked, parser)
             state_manager.set_step_status(Status.SUCCESS)
-    except json.decoder.JSONDecodeError as error:
+    except etree.XMLSyntaxError as error:
         state_manager.set_step_status(Status.FAILED)
         logger.error(error)
-        state_manager.add_step('Validate file against official json schema')
+        state_manager.add_step('Validate file against official xml schema')
         state_manager.set_step_status(Status.NOT_EXECUTED)
         return
 
-    # load json schema
-    json_file = open(JSON_SCHEMA_FILE, 'r', encoding='utf-8-sig')
-    aas_json_schema = json.load(json_file)
-    json_file.close()
-    state_manager.add_step('Validate file against official json schema')
+    # load aas xml schema
+    aas_xml_schema = etree.XMLSchema(file=XML_SCHEMA_FILE)
+    parser = etree.XMLParser(schema=aas_xml_schema)
+
+    state_manager.add_step('Validate file against official xml schema')
     # validate given file against schema
     try:
-        jsonschema.validate(instance=json_to_be_checked, schema=aas_json_schema)
-    except jsonschema.exceptions.ValidationError as error:
+        with open(file_path, 'rb') as file_to_be_checked:
+            etree.parse(file_to_be_checked, parser=parser)
+    except etree.ParseError as error:
         state_manager.set_step_status(Status.FAILED)
         logger.error(error)
         return
@@ -102,9 +101,9 @@ def check_schema(file_path: str, state_manager: ComplianceToolStateManager) -> N
 def check_deserialization(file_path: str, state_manager: ComplianceToolStateManager,
                           file_info: Optional[str] = None) -> model.DictObjectStore:
     """
-    Deserializes a JSON AAS file and reports any issues using the given StateManager
+    Deserializes a XML AAS file and reports any issues using the given StateManager
 
-    add the steps: 'Open {} file' and 'Read {} file and check if it is conform to the json schema'
+    add the steps: 'Open {} file' and 'Read {} file and check if it is conform to the xml schema'
 
     :param file_path: given file which should be deserialized
     :param state_manager: manager to log the steps
@@ -117,7 +116,7 @@ def check_deserialization(file_path: str, state_manager: ComplianceToolStateMana
     logger.setLevel(logging.INFO)
 
     # create handler to get logger info
-    logger_deserialization = logging.getLogger(json_deserialization.__name__)
+    logger_deserialization = logging.getLogger(xml_deserialization.__name__)
     logger_deserialization.addHandler(state_manager)
     logger_deserialization.propagate = False
     logger_deserialization.setLevel(logging.INFO)
@@ -128,25 +127,25 @@ def check_deserialization(file_path: str, state_manager: ComplianceToolStateMana
         state_manager.add_step('Open file')
     try:
         # open given file
-        file_to_be_checked = open(file_path, 'r', encoding='utf-8-sig')
+        file_to_be_checked = open(file_path, 'rb')
     except IOError as error:
         state_manager.set_step_status(Status.FAILED)
         logger.error(error)
         if file_info:
-            state_manager.add_step('Read {} file and check if it is conform to the json schema'.format(file_info))
+            state_manager.add_step('Read {} file and check if it is conform to the xml schema'.format(file_info))
         else:
-            state_manager.add_step('Read file and check if it is conform to the json schema')
+            state_manager.add_step('Read file and check if it is conform to the xml schema')
         state_manager.set_step_status(Status.NOT_EXECUTED)
         return model.DictObjectStore()
     state_manager.set_step_status(Status.SUCCESS)
 
     with file_to_be_checked:
-        # read given file and check if it is conform to the official json schema
+        # read given file and check if it is conform to the official xml schema
         if file_info:
-            state_manager.add_step('Read {} file and check if it is conform to the json schema'.format(file_info))
+            state_manager.add_step('Read {} file and check if it is conform to the xml schema'.format(file_info))
         else:
-            state_manager.add_step('Read file and check if it is conform to the json schema')
-        obj_store = json_deserialization.read_aas_json_file(file_to_be_checked, True)
+            state_manager.add_step('Read file and check if it is conform to the xml schema')
+        obj_store = xml_deserialization.read_aas_xml_file(file_to_be_checked, True)
 
     state_manager.set_step_status_from_log()
 
@@ -183,9 +182,9 @@ def check_aas_example(file_path: str, state_manager: ComplianceToolStateManager)
     state_manager.add_log_records_from_data_checker(checker)
 
 
-def check_json_files_equivalence(file_path_1: str, file_path_2: str, state_manager: ComplianceToolStateManager) -> None:
+def check_xml_files_equivalence(file_path_1: str, file_path_2: str, state_manager: ComplianceToolStateManager) -> None:
     """
-    Checks if two json files contain the same elements in any order and reports any issues using the given StateManager
+    Checks if two xml files contain the same elements in any order and reports any issues using the given StateManager
 
     calls the check_deserialization for ech file and add the steps: 'Check if data in files are equal'
 

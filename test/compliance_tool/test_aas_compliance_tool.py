@@ -16,10 +16,12 @@ import aas.compliance_tool
 import tempfile
 
 from aas.adapter.json import read_aas_json_file
+from aas.adapter.xml import read_aas_xml_file
 from aas.examples.data import create_example
 from aas.examples.data._helper import AASDataChecker
 
 JSON_SCHEMA_FILE = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'adapter', 'json', 'aasJSONSchema.json')
+XML_SCHEMA_FILE = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'adapter', 'xml', 'AAS.xsd')
 
 
 class ComplianceToolTest(unittest.TestCase):
@@ -181,23 +183,22 @@ class ComplianceToolTest(unittest.TestCase):
             stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         self.assertEqual(0, output.returncode)
 
-    @unittest.expectedFailure
+    @unittest.skipUnless(os.path.exists(XML_SCHEMA_FILE), "XML Schema not found for validation")
     def test_xml_schema(self) -> None:
         file_path = os.path.join(os.path.dirname(aas.compliance_tool.__file__), 'cli.py')
         test_file_path = os.path.join(os.path.dirname(__file__), 'files')
 
         output: subprocess.CompletedProcess = subprocess.run(
-            [sys.executable, file_path, "s", os.path.join(test_file_path, "test_demo_full_example.json"), "--xml"],
+            [sys.executable, file_path, "s", os.path.join(test_file_path, "test_demo_full_example.xml"), "--xml"],
             stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         self.assertEqual(0, output.returncode)
         self.assertIn('SUCCESS:      Open file', str(output.stdout))
 
-    @unittest.expectedFailure
     def test_xml_create_example(self) -> None:
         file_path = os.path.join(os.path.dirname(aas.compliance_tool.__file__), 'cli.py')
         test_file_path = os.path.join(os.path.dirname(__file__), 'files')
 
-        file, filename = tempfile.mkstemp(suffix=".json")
+        file, filename = tempfile.mkstemp(suffix=".xml")
         os.close(file)
         output: subprocess.CompletedProcess = subprocess.run([sys.executable, file_path, "c", filename, "--xml"],
                                                              stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -206,43 +207,40 @@ class ComplianceToolTest(unittest.TestCase):
         self.assertIn('SUCCESS:      Open file', str(output.stdout))
         self.assertIn('SUCCESS:      Write data to file', str(output.stdout))
 
-        with open(filename, "r", encoding='utf-8-sig') as f:
-            json_object_store = read_aas_json_file(f, failsafe=False)
+        with open(filename, "rb") as f:
+            xml_object_store = read_aas_xml_file(f, failsafe=False)
             data = create_example()
             checker = AASDataChecker(raise_immediately=True)
-            checker.check_object_store(json_object_store, data)
+            checker.check_object_store(xml_object_store, data)
         os.unlink(filename)
 
-    @unittest.expectedFailure
     def test_xml_deseralization(self) -> None:
         file_path = os.path.join(os.path.dirname(aas.compliance_tool.__file__), 'cli.py')
         test_file_path = os.path.join(os.path.dirname(__file__), 'files')
 
         output: subprocess.CompletedProcess = subprocess.run(
-            [sys.executable, file_path, "d", os.path.join(test_file_path, "test_demo_full_example.json"), "--xml"],
+            [sys.executable, file_path, "d", os.path.join(test_file_path, "test_demo_full_example.xml"), "--xml"],
             stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         self.assertEqual(0, output.returncode)
         self.assertIn('SUCCESS:      Open file', str(output.stdout))
 
-    @unittest.expectedFailure
     def test_xml_example(self) -> None:
         file_path = os.path.join(os.path.dirname(aas.compliance_tool.__file__), 'cli.py')
         test_file_path = os.path.join(os.path.dirname(__file__), 'files')
 
         output: subprocess.CompletedProcess = subprocess.run(
-            [sys.executable, file_path, "e", os.path.join(test_file_path, "test_demo_full_example.json"), "--xml"],
+            [sys.executable, file_path, "e", os.path.join(test_file_path, "test_demo_full_example.xml"), "--xml"],
             stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         self.assertEqual(0, output.returncode)
         self.assertIn('SUCCESS:      Open file', str(output.stdout))
 
-    @unittest.expectedFailure
     def test_xml_file(self) -> None:
         file_path = os.path.join(os.path.dirname(aas.compliance_tool.__file__), 'cli.py')
         test_file_path = os.path.join(os.path.dirname(__file__), 'files')
 
         output: subprocess.CompletedProcess = subprocess.run(
-            [sys.executable, file_path, "f", os.path.join(test_file_path, "test_demo_full_example.json"),
-             os.path.join(test_file_path, "test_demo_full_example.json"), "--xml"],
+            [sys.executable, file_path, "f", os.path.join(test_file_path, "test_demo_full_example.xml"),
+             os.path.join(test_file_path, "test_demo_full_example.xml"), "--xml"],
             stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         self.assertEqual(0, output.returncode)
 
