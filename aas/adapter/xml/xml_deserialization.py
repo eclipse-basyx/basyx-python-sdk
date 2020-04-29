@@ -678,9 +678,18 @@ def _construct_entity(element: etree.Element, failsafe: bool, **_kwargs: Any) ->
         asset=_failsafe_construct(element.find(NS_AAS + "assetRef"), _construct_asset_reference, failsafe),
         kind=_get_modeling_kind(element)
     )
-    for stmt in _failsafe_construct_multiple(_get_child_mandatory(element, NS_AAS + "statements"),
-                                             _construct_submodel_element, failsafe):
-        entity.statement.add(stmt)
+    # TODO: simplify this should our suggestion regarding the XML schema get accepted
+    # https://git.rwth-aachen.de/acplt/pyaas/-/issues/57
+    for statement in _get_all_children_expect_tag(
+            _get_child_mandatory(element, NS_AAS + "statements"), NS_AAS + "submodelElement", failsafe):
+        if len(statement) == 0:
+            raise KeyError(f"{_element_pretty_identifier(statement)} has no submodel element!")
+        if len(statement) > 1:
+            logger.warning(f"{_element_pretty_identifier(statement)} has more than one submodel element,"
+                           "using the first one...")
+        constructed = _failsafe_construct(statement[0], _construct_submodel_element, failsafe)
+        if constructed is not None:
+            entity.statement.add(constructed)
     _amend_abstract_attributes(entity, element, failsafe)
     return entity
 
@@ -802,9 +811,18 @@ def _construct_submodel_element_collection(element: etree.Element, failsafe: boo
         _child_text_mandatory(element, NS_AAS + "idShort"),
         kind=_get_modeling_kind(element)
     )
-    value = _get_child_mandatory(element, NS_AAS + "value")
-    for se in _failsafe_construct_multiple(value, _construct_submodel_element, failsafe):
-        collection.value.add(se)
+    # TODO: simplify this should our suggestion regarding the XML schema get accepted
+    # https://git.rwth-aachen.de/acplt/pyaas/-/issues/57
+    for se in _get_all_children_expect_tag(
+            _get_child_mandatory(element, NS_AAS + "value"), NS_AAS + "submodelElement", failsafe):
+        if len(se) == 0:
+            raise KeyError(f"{_element_pretty_identifier(se)} has no submodel element!")
+        if len(se) > 1:
+            logger.warning(f"{_element_pretty_identifier(se)} has more than one submodel element,"
+                           "using the first one...")
+        constructed = _failsafe_construct(se[0], _construct_submodel_element, failsafe)
+        if constructed is not None:
+            collection.value.add(constructed)
     _amend_abstract_attributes(collection, element, failsafe)
     return collection
 
