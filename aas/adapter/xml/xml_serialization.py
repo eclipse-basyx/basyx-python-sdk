@@ -148,9 +148,10 @@ def _value_to_xml(value: model.ValueDataType,
     :param tag: tag of the serialized ValueDataType object
     :return: Serialized ElementTree.Element object
     """
+    # todo: add attributes: {NS_XSI+"type": "xs:"+model.datatypes.XSD_TYPE_NAMES[value_type]} when the schema
+    #  gets changed to allow it
     return _generate_element(tag,
-                             text=model.datatypes.xsd_repr(value),
-                             attributes={NS_XSI+"type": "xs:"+model.datatypes.XSD_TYPE_NAMES[value_type]})
+                             text=model.datatypes.xsd_repr(value))
 
 
 def lang_string_set_to_xml(obj: model.LangStringSet, tag: str) -> etree.Element:
@@ -703,7 +704,9 @@ def submodel_element_collection_to_xml(obj: model.SubmodelElementCollection,
     et_value = _generate_element(NS_AAS + "value")
     if obj.value:
         for submodel_element in obj.value:
-            et_value.append(submodel_element_to_xml(submodel_element))
+            et_submodel_element = _generate_element(NS_AAS+"submodelElement")
+            et_submodel_element.append(submodel_element_to_xml(submodel_element))
+            et_value.append(et_submodel_element)
     et_submodel_element_collection.append(et_value)
     return et_submodel_element_collection
 
@@ -812,7 +815,10 @@ def entity_to_xml(obj: model.Entity,
     et_entity.append(_generate_element(NS_AAS + "entityType", text=_generic.ENTITY_TYPES[obj.entity_type]))
     et_statements = _generate_element(NS_AAS + "statements")
     for statement in obj.statement:
-        et_statements.append(submodel_element_to_xml(statement))
+        # todo: remove the <submodelElement> once the proposed changes get accepted
+        et_submodel_element = _generate_element(NS_AAS+"submodelElement")
+        et_submodel_element.append(submodel_element_to_xml(statement))
+        et_statements.append(et_submodel_element)
     et_entity.append(et_statements)
     return et_entity
 
