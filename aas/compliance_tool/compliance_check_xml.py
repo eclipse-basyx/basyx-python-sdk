@@ -132,19 +132,19 @@ def check_deserialization(file_path: str, state_manager: ComplianceToolStateMana
         state_manager.set_step_status(Status.FAILED)
         logger.error(error)
         if file_info:
-            state_manager.add_step('Read {} file and check if it is conform to the xml schema'.format(file_info))
+            state_manager.add_step('Read file {} and check if it is deserializable'.format(file_info))
         else:
-            state_manager.add_step('Read file and check if it is conform to the xml schema')
+            state_manager.add_step('Read file and check if it is deserializable')
         state_manager.set_step_status(Status.NOT_EXECUTED)
         return model.DictObjectStore()
-    state_manager.set_step_status(Status.SUCCESS)
 
     with file_to_be_checked:
+        state_manager.set_step_status(Status.SUCCESS)
         # read given file and check if it is conform to the official xml schema
         if file_info:
-            state_manager.add_step('Read {} file and check if it is conform to the xml schema'.format(file_info))
+            state_manager.add_step('Read file {} and check if it is deserializable'.format(file_info))
         else:
-            state_manager.add_step('Read file and check if it is conform to the xml schema')
+            state_manager.add_step('Read file and check if it is deserializable')
         obj_store = xml_deserialization.read_aas_xml_file(file_to_be_checked, True)
 
     state_manager.set_step_status_from_log()

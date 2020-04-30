@@ -41,6 +41,12 @@ class ComplianceToolTest(unittest.TestCase):
         self.assertTrue(output.returncode != 0)
         self.assertIn('error: one of the arguments --json --xml is required', str(output.stderr))
 
+        output = subprocess.run(
+            [sys.executable, file_path, "s", os.path.join(test_file_path, "test_demo_full_example.json"), "--json"],
+            stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        self.assertTrue(output.returncode != 0)
+        self.assertIn('error: s or schema requires a schema path.', str(output.stderr))
+
         # test deserialisation check
         output = subprocess.run([sys.executable, file_path, "d"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         self.assertTrue(output.returncode != 0)
@@ -128,8 +134,8 @@ class ComplianceToolTest(unittest.TestCase):
         test_file_path = os.path.join(os.path.dirname(__file__), 'files')
 
         output: subprocess.CompletedProcess = subprocess.run(
-            [sys.executable, file_path, "s", os.path.join(test_file_path, "test_demo_full_example.json"), "--json"],
-            stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            [sys.executable, file_path, "s", os.path.join(test_file_path, "test_demo_full_example.json"), "--json",
+             "-s {}".format(JSON_SCHEMA_FILE)], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         self.assertEqual(0, output.returncode)
         self.assertIn('SUCCESS:      Open file', str(output.stdout))
 
@@ -189,8 +195,8 @@ class ComplianceToolTest(unittest.TestCase):
         test_file_path = os.path.join(os.path.dirname(__file__), 'files')
 
         output: subprocess.CompletedProcess = subprocess.run(
-            [sys.executable, file_path, "s", os.path.join(test_file_path, "test_demo_full_example.xml"), "--xml"],
-            stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            [sys.executable, file_path, "s", os.path.join(test_file_path, "test_demo_full_example.xml"), "--xml",
+             "-s {}".format(XML_SCHEMA_FILE)], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         self.assertEqual(0, output.returncode)
         self.assertIn('SUCCESS:      Open file', str(output.stdout))
 

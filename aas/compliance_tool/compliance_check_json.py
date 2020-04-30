@@ -83,9 +83,8 @@ def check_schema(file_path: str, state_manager: ComplianceToolStateManager) -> N
         return
 
     # load json schema
-    json_file = open(JSON_SCHEMA_FILE, 'r', encoding='utf-8-sig')
-    aas_json_schema = json.load(json_file)
-    json_file.close()
+    with open(JSON_SCHEMA_FILE, 'r', encoding='utf-8-sig') as json_file:
+        aas_json_schema = json.load(json_file)
     state_manager.add_step('Validate file against official json schema')
     # validate given file against schema
     try:
@@ -133,19 +132,19 @@ def check_deserialization(file_path: str, state_manager: ComplianceToolStateMana
         state_manager.set_step_status(Status.FAILED)
         logger.error(error)
         if file_info:
-            state_manager.add_step('Read {} file and check if it is conform to the json schema'.format(file_info))
+            state_manager.add_step('Read file {} and check if it is deserializable'.format(file_info))
         else:
-            state_manager.add_step('Read file and check if it is conform to the json schema')
+            state_manager.add_step('Read file and check if it is deserializable')
         state_manager.set_step_status(Status.NOT_EXECUTED)
         return model.DictObjectStore()
-    state_manager.set_step_status(Status.SUCCESS)
 
     with file_to_be_checked:
+        state_manager.set_step_status(Status.SUCCESS)
         # read given file and check if it is conform to the official json schema
         if file_info:
-            state_manager.add_step('Read {} file and check if it is conform to the json schema'.format(file_info))
+            state_manager.add_step('Read file {} and check if it is deserializable'.format(file_info))
         else:
-            state_manager.add_step('Read file and check if it is conform to the json schema')
+            state_manager.add_step('Read file and check if it is deserializable')
         obj_store = json_deserialization.read_aas_json_file(file_to_be_checked, True)
 
     state_manager.set_step_status_from_log()
