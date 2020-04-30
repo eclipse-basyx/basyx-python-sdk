@@ -135,7 +135,8 @@ class ComplianceToolTest(unittest.TestCase):
 
         output: subprocess.CompletedProcess = subprocess.run(
             [sys.executable, file_path, "s", os.path.join(test_file_path, "test_demo_full_example.json"), "--json",
-             "-s {}".format(JSON_SCHEMA_FILE)], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+             "-s", JSON_SCHEMA_FILE], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        print(output)
         self.assertEqual(0, output.returncode)
         self.assertIn('SUCCESS:      Open file', str(output.stdout))
 
@@ -196,7 +197,7 @@ class ComplianceToolTest(unittest.TestCase):
 
         output: subprocess.CompletedProcess = subprocess.run(
             [sys.executable, file_path, "s", os.path.join(test_file_path, "test_demo_full_example.xml"), "--xml",
-             "-s {}".format(XML_SCHEMA_FILE)], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+             "-s", XML_SCHEMA_FILE], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         self.assertEqual(0, output.returncode)
         self.assertIn('SUCCESS:      Open file', str(output.stdout))
 

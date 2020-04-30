@@ -24,7 +24,7 @@ class ComplianceToolJsonTest(unittest.TestCase):
         manager = ComplianceToolStateManager()
         script_dir = os.path.dirname(__file__)
         file_path_1 = os.path.join(script_dir, 'files/test_not_found.json')
-        compliance_tool.check_schema(file_path_1, manager)
+        compliance_tool.check_schema(file_path_1, JSON_SCHEMA_FILE, manager)
         self.assertEqual(3, len(manager.steps))
         self.assertEqual(Status.FAILED, manager.steps[0].status)
         self.assertEqual(Status.NOT_EXECUTED, manager.steps[1].status)
@@ -33,7 +33,7 @@ class ComplianceToolJsonTest(unittest.TestCase):
 
         manager.steps = []
         file_path_2 = os.path.join(script_dir, 'files/test_not_deserializable.json')
-        compliance_tool.check_schema(file_path_2, manager)
+        compliance_tool.check_schema(file_path_2, JSON_SCHEMA_FILE, manager)
         self.assertEqual(3, len(manager.steps))
         self.assertEqual(Status.SUCCESS, manager.steps[0].status)
         self.assertEqual(Status.FAILED, manager.steps[1].status)
@@ -42,7 +42,7 @@ class ComplianceToolJsonTest(unittest.TestCase):
 
         manager.steps = []
         file_path_3 = os.path.join(script_dir, 'files/test_missing_submodels.json')
-        compliance_tool.check_schema(file_path_3, manager)
+        compliance_tool.check_schema(file_path_3, JSON_SCHEMA_FILE, manager)
         self.assertEqual(3, len(manager.steps))
         self.assertEqual(Status.SUCCESS, manager.steps[0].status)
         self.assertEqual(Status.SUCCESS, manager.steps[1].status)
@@ -51,7 +51,7 @@ class ComplianceToolJsonTest(unittest.TestCase):
 
         manager.steps = []
         file_path_4 = os.path.join(script_dir, 'files/test_empty.json')
-        compliance_tool.check_schema(file_path_4, manager)
+        compliance_tool.check_schema(file_path_4, JSON_SCHEMA_FILE,  manager)
         self.assertEqual(3, len(manager.steps))
         self.assertEqual(Status.SUCCESS, manager.steps[0].status)
         self.assertEqual(Status.SUCCESS, manager.steps[1].status)
@@ -59,7 +59,7 @@ class ComplianceToolJsonTest(unittest.TestCase):
 
         manager.steps = []
         file_path_5 = os.path.join(script_dir, 'files/test_demo_full_example.json')
-        compliance_tool.check_schema(file_path_5, manager)
+        compliance_tool.check_schema(file_path_5, JSON_SCHEMA_FILE, manager)
         self.assertEqual(3, len(manager.steps))
         self.assertEqual(Status.SUCCESS, manager.steps[0].status)
         self.assertEqual(Status.SUCCESS, manager.steps[1].status)
