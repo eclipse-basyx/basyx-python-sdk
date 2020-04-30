@@ -84,9 +84,9 @@ def main():
     elif args.action == 'schema' or args.action == 's':
         if args.schema:
             if args.json:
-                compliance_tool_json.check_schema(args.file_1, manager)
+                compliance_tool_json.check_schema(args.file_1, args.schema, manager)
             elif args.xml:
-                compliance_tool_xml.check_schema(args.file_1, manager)
+                compliance_tool_xml.check_schema(args.file_1, args.schema, manager)
         else:
             parser.error("s or schema requires a schema path.")
             exit()

@@ -36,12 +36,8 @@ from ..examples.data import example_aas, create_example
 from ..examples.data._helper import AASDataChecker
 from .state_manager import ComplianceToolStateManager, Status
 
-dirname = os.path.dirname
-JSON_SCHEMA_FILE = os.path.join(dirname(__file__), '..', '..', 'test', 'adapter', 'json', 'aasJSONSchema.json')
-# TODO change path if schema is added to the project
 
-
-def check_schema(file_path: str, state_manager: ComplianceToolStateManager) -> None:
+def check_schema(file_path: str, schema_path: str, state_manager: ComplianceToolStateManager) -> None:
     """
     checks a given file against the official json schema and reports any issues using the given StateManager
 
@@ -49,6 +45,7 @@ def check_schema(file_path: str, state_manager: ComplianceToolStateManager) -> N
     official json schema'
 
     :param file_path: path to the file which should be checked
+    :param schema_path: path to the official json schema
     :param state_manager: manager to log the steps
     """
     logger = logging.getLogger('compliance_check')
@@ -83,7 +80,8 @@ def check_schema(file_path: str, state_manager: ComplianceToolStateManager) -> N
         return
 
     # load json schema
-    with open(JSON_SCHEMA_FILE, 'r', encoding='utf-8-sig') as json_file:
+    # TODO change path if schema is added to the project
+    with open(schema_path, 'r', encoding='utf-8-sig') as json_file:
         aas_json_schema = json.load(json_file)
     state_manager.add_step('Validate file against official json schema')
     # validate given file against schema
