@@ -146,7 +146,8 @@ class ExampleAASMandatoryTest(unittest.TestCase):
         obj_store.add(failed_asset)
         with self.assertRaises(AssertionError) as cm:
             example_aas_mandatory_attributes.check_full_example(checker, obj_store)
-        self.assertNotEqual(-1, str(cm.exception).find("Asset list 2 must not have extra assets"))
+        self.assertNotEqual(-1, str(cm.exception).find("Asset Asset[Identifier(CUSTOM=test)] must exist in given "
+                                                       "asset list"))
         self.assertNotEqual(-1, str(cm.exception).find("Asset[Identifier(CUSTOM=test)]"))
         obj_store.discard(failed_asset)
         example_aas_mandatory_attributes.check_full_example(checker, obj_store)

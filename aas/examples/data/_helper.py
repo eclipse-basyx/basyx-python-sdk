@@ -849,45 +849,44 @@ class AASDataChecker(DataChecker):
             else:
                 raise KeyError('Check for {} not implemented'.format(obj))
 
-        for asset_1 in asset_list_1:
-            asset_2 = obj_store_2.get(asset_1.identification)
-            if self.check(asset_2 is not None, 'Asset {} must exist in asset list {}'.format(asset_1, list_identifier)):
-                self.check_asset_equal(asset_2, asset_1)  # type: ignore
+        for asset_2 in asset_list_2:
+            asset_1 = obj_store_1.get(asset_2.identification)
+            if self.check(asset_1 is not None, 'Asset {} must exist in given asset list'.format(asset_2)):
+                self.check_asset_equal(asset_1, asset_2)  # type: ignore
 
-        found_elements = self._find_extra_elements_by_attribute(asset_list_2, asset_list_1, 'identification')
-        self.check(found_elements == set(), 'Asset list {} must not have extra assets'.format(list_identifier),
+        found_elements = self._find_extra_elements_by_attribute(asset_list_1, asset_list_2, 'identification')
+        self.check(found_elements == set(), 'Given asset list must not have extra assets',
                    value=found_elements)
 
-        for shell_1 in shell_list_1:
-            shell_2 = obj_store_2.get(shell_1.identification)
-            if self.check(shell_2 is not None, 'Asset administration shell {} must exist in asset administration shell '
-                                               'list {}'.format(shell_1, list_identifier)):
-                self.check_asset_administration_shell_equal(shell_2, shell_1)  # type: ignore
+        for shell_2 in shell_list_2:
+            shell_1 = obj_store_1.get(shell_2.identification)
+            if self.check(shell_1 is not None, 'Asset administration shell {} must exist in given asset administration'
+                                               'shell list'.format(shell_2)):
+                self.check_asset_administration_shell_equal(shell_1, shell_2)  # type: ignore
 
-        found_elements = self._find_extra_elements_by_attribute(shell_list_2, shell_list_1, 'identification')
-        self.check(found_elements == set(), 'Asset administration shell list {} must not have extra asset '
-                                            'administration shells'.format(list_identifier), value=found_elements)
+        found_elements = self._find_extra_elements_by_attribute(shell_list_1, shell_list_2, 'identification')
+        self.check(found_elements == set(), 'Given asset administration shell list must not have extra asset '
+                                            'administration shells', value=found_elements)
 
-        for submodel_1 in submodel_list_1:
-            submodel_2 = obj_store_2.get(submodel_1.identification)
-            if self.check(submodel_2 is not None, 'Submodel {} must exist in submodel list {}'.format(submodel_1,
-                                                                                                      list_identifier)):
-                self.check_submodel_equal(submodel_2, submodel_1)  # type: ignore
+        for submodel_2 in submodel_list_2:
+            submodel_1 = obj_store_1.get(submodel_2.identification)
+            if self.check(submodel_1 is not None, 'Submodel {} must exist in given submodel list'.format(submodel_2)):
+                self.check_submodel_equal(submodel_1, submodel_2)  # type: ignore
 
-        found_elements = self._find_extra_elements_by_attribute(submodel_list_2, submodel_list_1, 'identification')
-        self.check(found_elements == set(), 'Submodel list {} must not have extra submodels'.format(list_identifier),
+        found_elements = self._find_extra_elements_by_attribute(submodel_list_1, submodel_list_2, 'identification')
+        self.check(found_elements == set(), 'Given submodel list must not have extra submodels',
                    value=found_elements)
 
-        for cd_1 in concept_description_list_1:
-            cd_2 = obj_store_2.get(cd_1.identification)
-            if self.check(cd_2 is not None, 'Concept description {} must exist in concept description '
-                                            'list {}'.format(cd_1, list_identifier)):
-                self.check_concept_description_equal(cd_2, cd_1)  # type: ignore
+        for cd_2 in concept_description_list_2:
+            cd_1 = obj_store_1.get(cd_2.identification)
+            if self.check(cd_1 is not None, 'Concept description {} must exist in given concept description '
+                                            'list'.format(cd_2)):
+                self.check_concept_description_equal(cd_1, cd_2)  # type: ignore
 
-        found_elements = self._find_extra_elements_by_attribute(concept_description_list_2, concept_description_list_1,
+        found_elements = self._find_extra_elements_by_attribute(concept_description_list_1, concept_description_list_2,
                                                                 'identification')
-        self.check(found_elements == set(), 'Concept description list {} must not have extra concept '
-                                            'descriptions'.format(list_identifier),
+        self.check(found_elements == set(), 'Given concept description list must not have extra concept '
+                                            'descriptions',
                    value=found_elements)
 
     def check_attribute_equal(self, object_: object, attribute_name: str, expected_value: object, **kwargs) -> bool:
