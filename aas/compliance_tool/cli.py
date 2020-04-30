@@ -41,8 +41,10 @@ def main():
                              'e or example: checks if a given file contains the example aas elements\n'
                              'f or files: checks if two given files contains the same aas elements in any order')
     parser.add_argument('file_1', help="path to file 1")
-    parser.add_argument('file_2', nargs='?', default=None, help="path to file 2")
-    parser.add_argument('-s', '--schema', help="sets the path to the schema", default=None)
+    parser.add_argument('file_2', nargs='?', default=None, help="path to file 2: is required if action f or files is "
+                                                                "choosen")
+    parser.add_argument('-s', '--schema', help="path to the aas schema: is required if action s or schema is choosen.",
+                        default=None)
     parser.add_argument('-v', '--verbose', help="display all information occurred while checking: 1: Error information,"
                                                 " 2: Additional Success information", action='count', default=0)
     parser.add_argument('-q', '--quite', help="no information output if successful", action='store_true')
@@ -82,14 +84,12 @@ def main():
             logger.error(error)
             manager.set_step_status(Status.FAILED)
     elif args.action == 'schema' or args.action == 's':
-        if args.schema:
-            if args.json:
-                compliance_tool_json.check_schema(args.file_1, args.schema, manager)
-            elif args.xml:
-                compliance_tool_xml.check_schema(args.file_1, args.schema, manager)
-        else:
+        if not args.schema:
             parser.error("s or schema requires a schema path.")
-            exit()
+        if args.json:
+            compliance_tool_json.check_schema(args.file_1, args.schema, manager)
+        if args.xml:
+            compliance_tool_xml.check_schema(args.file_1, args.schema, manager)
     elif args.action == 'deserialization' or args.action == 'd':
         if args.json:
             compliance_tool_json.check_deserialization(args.file_1, manager)

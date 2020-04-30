@@ -32,65 +32,65 @@ class ComplianceToolTest(unittest.TestCase):
         # test schema check
         output: subprocess.CompletedProcess = subprocess.run([sys.executable, file_path, "s"],
                                                              stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        self.assertTrue(output.returncode != 0)
+        self.assertNotEqual(0, output.returncode)
         self.assertIn('error: the following arguments are required: file_1', str(output.stderr))
 
         output = subprocess.run(
             [sys.executable, file_path, "s", os.path.join(test_file_path, "test_demo_full_example.json")],
             stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        self.assertTrue(output.returncode != 0)
+        self.assertNotEqual(0, output.returncode)
         self.assertIn('error: one of the arguments --json --xml is required', str(output.stderr))
 
         output = subprocess.run(
             [sys.executable, file_path, "s", os.path.join(test_file_path, "test_demo_full_example.json"), "--json"],
             stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        self.assertTrue(output.returncode != 0)
+        self.assertNotEqual(0, output.returncode)
         self.assertIn('error: s or schema requires a schema path.', str(output.stderr))
 
         # test deserialisation check
         output = subprocess.run([sys.executable, file_path, "d"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        self.assertTrue(output.returncode != 0)
+        self.assertNotEqual(0, output.returncode)
         self.assertIn('error: the following arguments are required: file_1', str(output.stderr))
 
         output = subprocess.run(
             [sys.executable, file_path, "d", os.path.join(test_file_path, "test_demo_full_example.json")],
             stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        self.assertTrue(output.returncode != 0)
+        self.assertNotEqual(0, output.returncode)
         self.assertIn('error: one of the arguments --json --xml is required', str(output.stderr))
 
         # test example check
         output = subprocess.run([sys.executable, file_path, "e"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        self.assertTrue(output.returncode != 0)
+        self.assertNotEqual(0, output.returncode)
         self.assertIn('error: the following arguments are required: file_1', str(output.stderr))
 
         output = subprocess.run(
             [sys.executable, file_path, "e", os.path.join(test_file_path, "test_demo_full_example.json")],
             stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        self.assertTrue(output.returncode != 0)
+        self.assertNotEqual(0, output.returncode)
         self.assertIn('error: one of the arguments --json --xml is required', str(output.stderr))
 
         # test file check
         output = subprocess.run([sys.executable, file_path, "f"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        self.assertTrue(output.returncode != 0)
+        self.assertNotEqual(0, output.returncode)
         self.assertIn('error: the following arguments are required: file_1', str(output.stderr))
 
         output = subprocess.run(
             [sys.executable, file_path, "f", os.path.join(test_file_path, "test_demo_full_example.json")],
             stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        self.assertTrue(output.returncode != 0)
+        self.assertNotEqual(0, output.returncode)
         self.assertIn('error: one of the arguments --json --xml is required', str(output.stderr))
 
         output = subprocess.run(
             [sys.executable, file_path, "f", os.path.join(test_file_path, "test_demo_full_example.json"), "--json"],
             stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        self.assertTrue(output.returncode != 0)
+        self.assertNotEqual(0, output.returncode)
         self.assertIn('error: f or files requires two file path', str(output.stderr))
 
         output = subprocess.run(
             [sys.executable, file_path, "f", os.path.join(test_file_path, "test_demo_full_example.json"),
              os.path.join(test_file_path, "test_demo_full_example.json")],
             stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        self.assertTrue(output.returncode != 0)
+        self.assertNotEqual(0, output.returncode)
         self.assertIn('error: one of the arguments --json --xml is required', str(output.stderr))
 
         # test verbose
@@ -123,7 +123,7 @@ class ComplianceToolTest(unittest.TestCase):
             [sys.executable, file_path, "e", os.path.join(test_file_path, "test_demo_full_example.json"), "--json",
              "-l"],
             stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        self.assertTrue(output.returncode != 0)
+        self.assertNotEqual(0, output.returncode)
         self.assertIn('error: argument -l/--logfile: expected one argument', str(output.stderr))
 
         # todo: add test for correct logfile
@@ -136,7 +136,6 @@ class ComplianceToolTest(unittest.TestCase):
         output: subprocess.CompletedProcess = subprocess.run(
             [sys.executable, file_path, "s", os.path.join(test_file_path, "test_demo_full_example.json"), "--json",
              "-s", JSON_SCHEMA_FILE], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        print(output)
         self.assertEqual(0, output.returncode)
         self.assertIn('SUCCESS:      Open file', str(output.stdout))
 
