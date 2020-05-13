@@ -806,14 +806,17 @@ def entity_to_xml(obj: model.Entity,
     :param tag: tag of the serialized element (optional), default is "entity"
     :return: serialized ElementTree object
     """
+    # todo: remove wrapping submodelElement, in accordance to future schemas
     et_entity = abstract_classes_to_xml(tag, obj)
-    if obj.asset:
-        et_entity.append(reference_to_xml(obj.asset, NS_AAS+"assetRef"))
-    et_entity.append(_generate_element(NS_AAS + "entityType", text=_generic.ENTITY_TYPES[obj.entity_type]))
     et_statements = _generate_element(NS_AAS + "statements")
     for statement in obj.statement:
-        et_statements.append(submodel_element_to_xml(statement))
+        et_submodel_element = _generate_element(NS_AAS+"submodelElement")
+        et_submodel_element.append(submodel_element_to_xml(statement))
+        et_statements.append(et_submodel_element)
     et_entity.append(et_statements)
+    et_entity.append(_generate_element(NS_AAS + "entityType", text=_generic.ENTITY_TYPES[obj.entity_type]))
+    if obj.asset:
+        et_entity.append(reference_to_xml(obj.asset, NS_AAS+"assetRef"))
     return et_entity
 
 
