@@ -183,6 +183,27 @@ def administrative_information_to_xml(obj: model.AdministrativeInformation,
     return et_administration
 
 
+def data_element_to_xml(obj: model.DataElement) -> etree.Element:
+    """
+    serialization of objects of class DataElement to XML
+
+    :param obj: Object of class DataElement
+    :return: serialized ElementTree element
+    """
+    if isinstance(obj, model.MultiLanguageProperty):
+        return multi_language_property_to_xml(obj)
+    if isinstance(obj, model.Property):
+        return property_to_xml(obj)
+    if isinstance(obj, model.Range):
+        return range_to_xml(obj)
+    if isinstance(obj, model.Blob):
+        return blob_to_xml(obj)
+    if isinstance(obj, model.File):
+        return file_to_xml(obj)
+    if isinstance(obj, model.ReferenceElement):
+        return reference_element_to_xml(obj)
+
+
 def reference_to_xml(obj: model.Reference, tag: str = NS_AAS+"reference") -> etree.Element:
     """
     serialization of objects of class Reference to XML
