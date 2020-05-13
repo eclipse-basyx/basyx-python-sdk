@@ -699,13 +699,16 @@ def submodel_element_collection_to_xml(obj: model.SubmodelElementCollection,
     :return: serialized ElementTree object
     """
     et_submodel_element_collection = abstract_classes_to_xml(tag, obj)
-    et_submodel_element_collection.append(_generate_element(NS_AAS + "allowDuplicates", text="false"))
-    et_submodel_element_collection.append(_generate_element(NS_AAS + "ordered", text=boolean_to_xml(obj.ordered)))
+    # todo: remove wrapping submodelElement-tag, in accordance to future schema
     et_value = _generate_element(NS_AAS + "value")
     if obj.value:
         for submodel_element in obj.value:
-            et_value.append(submodel_element_to_xml(submodel_element))
+            et_submodel_element = _generate_element(NS_AAS+"submodelElement")
+            et_submodel_element.append(submodel_element_to_xml(submodel_element))
+            et_value.append(et_submodel_element)
     et_submodel_element_collection.append(et_value)
+    et_submodel_element_collection.append(_generate_element(NS_AAS + "ordered", text=boolean_to_xml(obj.ordered)))
+    et_submodel_element_collection.append(_generate_element(NS_AAS + "allowDuplicates", text="false"))
     return et_submodel_element_collection
 
 
