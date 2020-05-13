@@ -250,12 +250,12 @@ def qualifier_to_xml(obj: model.Qualifier, tag: str = NS_AAS+"qualifier") -> etr
     :return: serialized ElementTreeObject
     """
     et_qualifier = abstract_classes_to_xml(tag, obj)
+    et_qualifier.append(_generate_element(NS_AAS + "type", text=obj.type))
+    et_qualifier.append(_generate_element(NS_AAS + "valueType", text=model.datatypes.XSD_TYPE_NAMES[obj.value_type]))
     if obj.value_id:
         et_qualifier.append(reference_to_xml(obj.value_id, NS_AAS+"valueId"))
     if obj.value:
         et_qualifier.append(_value_to_xml(obj.value, obj.value_type))
-    et_qualifier.append(_generate_element(NS_AAS + "type", text=obj.type))
-    et_qualifier.append(_generate_element(NS_AAS + "valueType", text=model.datatypes.XSD_TYPE_NAMES[obj.value_type]))
     return et_qualifier
 
 
