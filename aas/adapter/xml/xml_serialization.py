@@ -118,17 +118,13 @@ def abstract_classes_to_xml(tag: str, obj: object) -> etree.Element:
             elm.append(reference_to_xml(obj.semantic_id, tag=NS_AAS+"semanticId"))
     if isinstance(obj, model.Qualifiable):
         if obj.qualifier:
-            # TODO: simplify & fix plural "s", should our suggestion regarding the XML schema get accepted
-            # https://git.rwth-aachen.de/acplt/pyaas/-/issues/56
-            et_qualifiers = _generate_element(name=NS_AAS + "qualifier", text=None)
             for qualifier in obj.qualifier:
-                et_qualifier = _generate_element(NS_AAS+"qualifiers")
+                et_qualifier = _generate_element(NS_AAS+"qualifier")
                 if isinstance(qualifier, model.Qualifier):
                     et_qualifier.append(qualifier_to_xml(qualifier, tag=NS_AAS+"qualifier"))
                 if isinstance(qualifier, model.Formula):
                     et_qualifier.append(formula_to_xml(qualifier, tag=NS_AAS+"formula"))
-                et_qualifiers.append(et_qualifier)
-            elm.append(et_qualifiers)
+                elm.append(et_qualifier)
     return elm
 
 
