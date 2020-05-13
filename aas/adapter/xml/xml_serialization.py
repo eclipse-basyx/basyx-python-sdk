@@ -611,11 +611,11 @@ def property_to_xml(obj: model.Property,
     :return: serialized ElementTree object
     """
     et_property = abstract_classes_to_xml(tag, obj)
-    if obj.value_id:
-        et_property.append(reference_to_xml(obj.value_id, NS_AAS+"valueId"))
+    et_property.append(_generate_element(NS_AAS + "valueType", text=model.datatypes.XSD_TYPE_NAMES[obj.value_type]))
     if obj.value:
         et_property.append(_value_to_xml(obj.value, obj.value_type))
-    et_property.append(_generate_element(NS_AAS + "valueType", text=model.datatypes.XSD_TYPE_NAMES[obj.value_type]))
+    if obj.value_id:
+        et_property.append(reference_to_xml(obj.value_id, NS_AAS + "valueId"))
     return et_property
 
 
