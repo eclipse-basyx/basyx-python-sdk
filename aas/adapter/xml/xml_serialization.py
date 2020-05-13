@@ -789,20 +789,14 @@ def operation_to_xml(obj: model.Operation,
     """
     et_operation = abstract_classes_to_xml(tag, obj)
     if obj.input_variable:
-        et_input_variable = _generate_element(NS_AAS + "inputVariable")
         for input_ov in obj.input_variable:
-            et_input_variable.append(operation_variable_to_xml(input_ov, NS_AAS+"operationVariable"))
-        et_operation.append(et_input_variable)
+            et_operation.append(operation_variable_to_xml(input_ov, NS_AAS+"inputVariable"))
     if obj.output_variable:
-        et_output_variable = _generate_element(NS_AAS + "outputVariable")
         for output_ov in obj.output_variable:
-            et_output_variable.append(operation_variable_to_xml(output_ov, NS_AAS+"operationVariable"))
-        et_operation.append(et_output_variable)
+            et_operation.append(operation_variable_to_xml(output_ov, NS_AAS+"outputVariable"))
     if obj.in_output_variable:
-        et_in_output_variable = _generate_element(NS_AAS + "inoutputVariable")
         for in_out_ov in obj.in_output_variable:
-            et_in_output_variable.append(operation_variable_to_xml(in_out_ov, NS_AAS+"operationVariable"))
-        et_operation.append(et_in_output_variable)
+            et_operation.append(operation_variable_to_xml(in_out_ov, NS_AAS+"inoutputVariable"))
     return et_operation
 
 
