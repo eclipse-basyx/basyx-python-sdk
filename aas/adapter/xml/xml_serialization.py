@@ -646,12 +646,12 @@ def range_to_xml(obj: model.Range,
     :return: serialized ElementTree object
     """
     et_range = abstract_classes_to_xml(tag, obj)
-    if obj.max is not None:
-        et_range.append(_value_to_xml(obj.max, obj.value_type, tag=NS_AAS+"max"))
-    if obj.min is not None:
-        et_range.append(_value_to_xml(obj.min, obj.value_type, tag=NS_AAS+"min"))
     et_range.append(_generate_element(name=NS_AAS + "valueType",
                                       text=model.datatypes.XSD_TYPE_NAMES[obj.value_type]))
+    if obj.min is not None:
+        et_range.append(_value_to_xml(obj.min, obj.value_type, tag=NS_AAS+"min"))
+    if obj.max is not None:
+        et_range.append(_value_to_xml(obj.max, obj.value_type, tag=NS_AAS+"max"))
     return et_range
 
 
