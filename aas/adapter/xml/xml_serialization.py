@@ -825,6 +825,7 @@ def entity_to_xml(obj: model.Entity,
     et_entity = abstract_classes_to_xml(tag, obj)
     et_statements = _generate_element(NS_AAS + "statements")
     for statement in obj.statement:
+        # todo: remove the <submodelElement> once the proposed changes get accepted
         et_submodel_element = _generate_element(NS_AAS+"submodelElement")
         et_submodel_element.append(submodel_element_to_xml(statement))
         et_statements.append(et_submodel_element)

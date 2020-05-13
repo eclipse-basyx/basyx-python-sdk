@@ -16,7 +16,7 @@ from aas import model
 from aas.adapter.xml import write_aas_xml_file, read_aas_xml_file
 
 from aas.examples.data import example_aas_missing_attributes, example_submodel_template, \
-    example_aas_mandatory_attributes, example_aas, example_concept_description
+    example_aas_mandatory_attributes, example_aas, example_concept_description, create_example
 from aas.examples.data._helper import AASDataChecker
 
 
@@ -58,3 +58,9 @@ class XMLSerializationDeserializationTest(unittest.TestCase):
         object_store = _serialize_and_deserialize(data)
         checker = AASDataChecker(raise_immediately=True)
         example_concept_description.check_full_example(checker, object_store)
+
+    def test_example_all_examples_serialization_deserialization(self) -> None:
+        data: model.DictObjectStore[model.Identifiable] = create_example()
+        object_store = _serialize_and_deserialize(data)
+        checker = AASDataChecker(raise_immediately=True)
+        checker.check_object_store(object_store, data)

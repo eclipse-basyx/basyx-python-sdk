@@ -463,6 +463,41 @@ class Referable(metaclass=abc.ABCMeta):
             raise ValueError("The id_short must start with a letter")
         self._id_short = id_short
 
+    def update(self, timeout: float = 0) -> None:
+        """
+        Update the local Referable object from the underlying backend.
+
+        If the object does not belong to a backend, i.e. it is a simple in-memory object, this function does nothing.
+
+        :param timeout: Only update the object, if it has not been updated within the last `timeout` seconds.
+        """
+        pass
+
+    def update_from(self, other: "Referable"):
+        """
+        Internal function to updates the object's attributes from another object of a similar type.
+
+        This function should not be used directly. It is typically used by backend implementations (database adapters,
+        protocol clients, etc.) to update the object's data, after `update()` has been called.
+
+        :param other: The object to update from
+        """
+        for name, var in vars(other).items():
+            if name == "parent":  # do not update the parent
+                continue
+            if isinstance(var, NamespaceSet):
+                # update the elements of the NameSpaceSet
+                vars(self)[name].update_nss_from(var)
+            vars(self)[name] = var  # that variable is not a NameSpaceSet, so it isn't Referable
+
+    def commit(self) -> None:
+        """
+        Transfer local changes on this object to the underlying backend.
+
+        If the object does not belong to a backend, i.e. it is a simple in-memory object, this function does nothing.
+        """
+        pass
+
     id_short = property(_get_id_short, _set_id_short)
 
 
@@ -964,6 +999,35 @@ class NamespaceSet(MutableSet[_RT], Generic[_RT]):
                  none is given.
         """
         return self._backend.get(key, default)
+
+    def update_nss_from(self, other: "NamespaceSet"):
+        """
+        Update a NamespaceSet from a given NamespaceSet.
+
+        WARNING: By updating, the "other" NamespaceSet gets destroyed.
+
+        :param other: The NamespaceSet to update from
+        """
+        referables_to_add: List[Referable] = []  # objects from the other nss to add to self
+        referables_to_remove: List[Referable] = []  # objects to remove from self
+        for other_referable in other:
+            try:
+                referable = self._backend[other_referable.id_short]
+                if type(referable) is type(other_referable):
+                    # referable is the same as other referable
+                    referable.update_from(other_referable)
+            except KeyError:
+                # other referable is not in NamespaceSet
+                referables_to_add.append(other_referable)
+        for id_short, referable in self._backend.items():
+            if not other.get(id_short):
+                # referable does not exist in the other NamespaceSet
+                referables_to_remove.append(referable)
+        for referable_to_add in referables_to_add:
+            other.remove(referable_to_add)
+            self.add(referable_to_add)  # type: ignore
+        for referable_to_remove in referables_to_remove:
+            self.remove(referable_to_remove)  # type: ignore
 
 
 class OrderedNamespaceSet(NamespaceSet[_RT], MutableSequence[_RT], Generic[_RT]):

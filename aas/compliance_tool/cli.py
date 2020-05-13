@@ -18,7 +18,9 @@ import argparse
 
 import logging
 
+from aas.adapter.xml import write_aas_xml_file
 from aas.compliance_tool import compliance_check_json as compliance_tool_json
+from aas.compliance_tool import compliance_check_xml as compliance_tool_xml
 from aas.adapter.json import write_aas_json_file
 from aas.examples.data import create_example
 from aas.compliance_tool.state_manager import ComplianceToolStateManager, Status
@@ -39,7 +41,10 @@ def main():
                              'e or example: checks if a given file contains the example aas elements\n'
                              'f or files: checks if two given files contains the same aas elements in any order')
     parser.add_argument('file_1', help="path to file 1")
-    parser.add_argument('file_2', nargs='?', default=None, help="path to file 2")
+    parser.add_argument('file_2', nargs='?', default=None, help="path to file 2: is required if action f or files is "
+                                                                "choosen")
+    parser.add_argument('-s', '--schema', help="path to the aas schema: is required if action s or schema is choosen.",
+                        default=None)
     parser.add_argument('-v', '--verbose', help="display all information occurred while checking: 1: Error information,"
                                                 " 2: Additional Success information", action='count', default=0)
     parser.add_argument('-q', '--quite', help="no information output if successful", action='store_true')
@@ -63,44 +68,44 @@ def main():
         manager.set_step_status(Status.SUCCESS)
         try:
             manager.add_step('Open file')
-            with open(args.file_1, 'w', encoding='utf-8-sig') as file:
-                manager.set_step_status(Status.SUCCESS)
-
-                manager.add_step('Write data to file')
-                if args.json:
+            if args.json:
+                with open(args.file_1, 'w', encoding='utf-8-sig') as file:
+                    manager.set_step_status(Status.SUCCESS)
+                    manager.add_step('Write data to file')
                     write_aas_json_file(file=file, data=data)
                     manager.set_step_status(Status.SUCCESS)
-                elif args.xml:
-                    # Todo: if xml serialization is done add code here
-                    raise NotImplementedError
+            elif args.xml:
+                with open(args.file_1, 'wb') as file:
+                    manager.set_step_status(Status.SUCCESS)
+                    manager.add_step('Write data to file')
+                    write_aas_xml_file(file=file, data=data)
+                    manager.set_step_status(Status.SUCCESS)
         except IOError as error:
             logger.error(error)
             manager.set_step_status(Status.FAILED)
     elif args.action == 'schema' or args.action == 's':
+        if not args.schema:
+            parser.error("s or schema requires a schema path.")
         if args.json:
-            compliance_tool_json.check_schema(args.file_1, manager)
-        elif args.xml:
-            # Todo: if xml serialization is done add code here
-            raise NotImplementedError
+            compliance_tool_json.check_schema(args.file_1, args.schema, manager)
+        if args.xml:
+            compliance_tool_xml.check_schema(args.file_1, args.schema, manager)
     elif args.action == 'deserialization' or args.action == 'd':
         if args.json:
             compliance_tool_json.check_deserialization(args.file_1, manager)
         elif args.xml:
-            # Todo: if xml serialization is done add code here
-            raise NotImplementedError
+            compliance_tool_xml.check_deserialization(args.file_1, manager)
     elif args.action == 'example' or args.action == 'e':
         if args.json:
             compliance_tool_json.check_aas_example(args.file_1, manager)
         elif args.xml:
-            # Todo: if xml serialization is done add code here
-            raise NotImplementedError
+            compliance_tool_xml.check_aas_example(args.file_1, manager)
     elif args.action == 'files' or args.action == 'f':
         if args.file_2:
             if args.json:
                 compliance_tool_json.check_json_files_equivalence(args.file_1, args.file_2, manager)
             elif args.xml:
-                # Todo: if xml serialization is done add code here
-                raise NotImplementedError
+                compliance_tool_xml.check_xml_files_equivalence(args.file_1, args.file_2, manager)
         else:
             parser.error("f or files requires two file path.")
             exit()
