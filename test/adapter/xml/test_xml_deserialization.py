@@ -214,9 +214,7 @@ class XMLDeserializationTest(unittest.TestCase):
                 <aas:identification idType="IRI">http://acplt.org/test_submodel</aas:identification>
                 <aas:submodelElements/>
                 <aas:qualifier>
-                    <aas:qualifiers>
-                        <aas:invalidConstraint/>
-                    </aas:qualifiers>
+                    <aas:invalidConstraint/>
                 </aas:qualifier>
             </aas:submodel>
         </aas:submodels>
@@ -235,9 +233,7 @@ class XMLDeserializationTest(unittest.TestCase):
                         <aas:operation>
                             <aas:idShort>test_operation</aas:idShort>
                             <aas:outputVariable>
-                                <aas:operationVariable>
-                                    <aas:value/>
-                                </aas:operationVariable>
+                                <aas:value/>
                             </aas:outputVariable>
                         </aas:operation>
                     </aas:submodelElement>
@@ -259,18 +255,16 @@ class XMLDeserializationTest(unittest.TestCase):
                         <aas:operation>
                             <aas:idShort>test_operation</aas:idShort>
                             <aas:outputVariable>
-                                <aas:operationVariable>
-                                    <aas:value>
-                                        <aas:file>
-                                            <aas:idShort>test_file</aas:idShort>
-                                            <aas:mimeType>application/problem+xml</aas:mimeType>
-                                        </aas:file>
-                                        <aas:file>
-                                            <aas:idShort>test_file2</aas:idShort>
-                                            <aas:mimeType>application/problem+xml</aas:mimeType>
-                                        </aas:file>
-                                    </aas:value>
-                                </aas:operationVariable>
+                                <aas:value>
+                                    <aas:file>
+                                        <aas:idShort>test_file</aas:idShort>
+                                        <aas:mimeType>application/problem+xml</aas:mimeType>
+                                    </aas:file>
+                                    <aas:file>
+                                        <aas:idShort>test_file2</aas:idShort>
+                                        <aas:mimeType>application/problem+xml</aas:mimeType>
+                                    </aas:file>
+                                </aas:value>
                             </aas:outputVariable>
                         </aas:operation>
                     </aas:submodelElement>
