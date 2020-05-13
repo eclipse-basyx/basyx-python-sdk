@@ -788,11 +788,6 @@ def operation_to_xml(obj: model.Operation,
     :return: serialized ElementTree object
     """
     et_operation = abstract_classes_to_xml(tag, obj)
-    if obj.in_output_variable:
-        et_in_output_variable = _generate_element(NS_AAS + "inoutputVariable")
-        for in_out_ov in obj.in_output_variable:
-            et_in_output_variable.append(operation_variable_to_xml(in_out_ov, NS_AAS+"operationVariable"))
-        et_operation.append(et_in_output_variable)
     if obj.input_variable:
         et_input_variable = _generate_element(NS_AAS + "inputVariable")
         for input_ov in obj.input_variable:
@@ -803,6 +798,11 @@ def operation_to_xml(obj: model.Operation,
         for output_ov in obj.output_variable:
             et_output_variable.append(operation_variable_to_xml(output_ov, NS_AAS+"operationVariable"))
         et_operation.append(et_output_variable)
+    if obj.in_output_variable:
+        et_in_output_variable = _generate_element(NS_AAS + "inoutputVariable")
+        for in_out_ov in obj.in_output_variable:
+            et_in_output_variable.append(operation_variable_to_xml(in_out_ov, NS_AAS+"operationVariable"))
+        et_operation.append(et_in_output_variable)
     return et_operation
 
 
