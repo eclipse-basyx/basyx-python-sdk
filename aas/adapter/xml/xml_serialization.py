@@ -148,9 +148,10 @@ def _value_to_xml(value: model.ValueDataType,
     :param tag: tag of the serialized ValueDataType object
     :return: Serialized ElementTree.Element object
     """
+    # todo: add "{NS_XSI+"type": "xs:"+model.datatypes.XSD_TYPE_NAMES[value_type]}" as attribute, if the schema allows
+    #  it
     return _generate_element(tag,
-                             text=model.datatypes.xsd_repr(value),
-                             attributes={NS_XSI+"type": "xs:"+model.datatypes.XSD_TYPE_NAMES[value_type]})
+                             text=model.datatypes.xsd_repr(value))
 
 
 def lang_string_set_to_xml(obj: model.LangStringSet, tag: str) -> etree.Element:
