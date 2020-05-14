@@ -551,32 +551,22 @@ def submodel_element_to_xml(obj: model.SubmodelElement) -> etree.Element:
     :param obj: object of class SubmodelElement
     :return: serialized ElementTree object
     """
+    if isinstance(obj, model.DataElement):
+        return data_element_to_xml(obj)
     if isinstance(obj, model.BasicEvent):
         return basic_event_to_xml(obj)
-    if isinstance(obj, model.Blob):
-        return blob_to_xml(obj)
     if isinstance(obj, model.Capability):
         return capability_to_xml(obj)
     if isinstance(obj, model.Entity):
         return entity_to_xml(obj)
-    if isinstance(obj, model.File):
-        return file_to_xml(obj)
-    if isinstance(obj, model.MultiLanguageProperty):
-        return multi_language_property_to_xml(obj)
     if isinstance(obj, model.Operation):
         return operation_to_xml(obj)
-    if isinstance(obj, model.Property):
-        return property_to_xml(obj)
-    if isinstance(obj, model.Range):
-        return range_to_xml(obj)
     if isinstance(obj, model.AnnotatedRelationshipElement):
         return annotated_relationship_element_to_xml(obj)
     if isinstance(obj, model.RelationshipElement):
         return relationship_element_to_xml(obj)
     if isinstance(obj, model.SubmodelElementCollection):
         return submodel_element_collection_to_xml(obj)
-    if isinstance(obj, model.ReferenceElement):
-        return reference_element_to_xml(obj)
 
 
 def submodel_to_xml(obj: model.Submodel,
