@@ -692,6 +692,7 @@ class AnnotatedRelationshipElement(RelationshipElement, base.Namespace):
                  id_short: str,
                  first: base.AASReference,
                  second: base.AASReference,
+                 annotation: Optional[Iterable[DataElement]] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
                  parent: Optional[base.Namespace] = None,
@@ -702,6 +703,7 @@ class AnnotatedRelationshipElement(RelationshipElement, base.Namespace):
         Initializer of AnnotatedRelationshipElement
 
         :param id_short: Identifying string of the element within its name space. (from base.Referable)
+        :param annotation: Unordered list of annotations that hold for the relationship between two elements
         :param category: The category is a value that gives further meta information w.r.t. to the class of the element.
                          It affects the expected existence of attributes and the applicability of constraints.
                          (from base.Referable)
@@ -719,7 +721,10 @@ class AnnotatedRelationshipElement(RelationshipElement, base.Namespace):
         """
 
         super().__init__(id_short, first, second, category, description, parent, semantic_id, qualifier, kind)
-        self.annotation: base.NamespaceSet[DataElement] = None  # type: ignore
+        if annotation is None:
+            self.annotation: base.NamespaceSet[DataElement] = base.NamespaceSet(self)
+        else:
+            self.annotation = base.NamespaceSet(self, annotation)
 
 
 class OperationVariable:
