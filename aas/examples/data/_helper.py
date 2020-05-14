@@ -362,12 +362,13 @@ class AASDataChecker(DataChecker):
         self.check_relationship_element_equal(object_, expected_value)
         self.check_contained_element_length(object_, 'annotation', model.AASReference,
                                             len(expected_value.annotation))
-        for expected_ref in expected_value.annotation:
-            ref = self._find_reference(expected_ref, object_.annotation)
-            if self.check(ref is not None, 'Annotated Reference {} must exist'.format(repr(expected_ref))):
-                self._check_reference_equal(ref, expected_ref)  # type: ignore
+        for expected_data_element in expected_value.annotation:
+            self.check(
+                object_.annotation.get(expected_data_element.id_short) is not None,
+                'Annotation {} must exist'.format(repr(expected_data_element))
+            )
 
-        found_elements = self._find_extra_reference(object_.annotation, expected_value.annotation)
+        found_elements = self._find_extra_elements_by_id_short(object_.annotation, expected_value.annotation)
         self.check(found_elements == set(), 'Annotated Reference {} must not have extra '
                                             'references'.format(repr(object_)),
                    value=found_elements)
