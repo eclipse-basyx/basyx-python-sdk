@@ -2,36 +2,40 @@
 # This work is licensed under a Creative Commons CCZero 1.0 Universal License.
 # See http://creativecommons.org/publicdomain/zero/1.0/ for more information.
 """
-Tutorial for the serialization and deserialization of asset administration shells, submodels and assets
+Tutorial for the serialization and deserialization of asset administration shells, submodels and assets into/from JSON
+and XML files.
 """
 
-import io
 import json
 
-# Import all PyI40AAS classes from model package
 from aas import model
-from aas.adapter.json import AASToJsonEncoder, read_aas_json_file, write_aas_json_file, object_store_to_json
-from aas.model import Asset, AssetAdministrationShell, Submodel
+import aas.adapter.json
+import aas.adapter.xml
 
-# In this tutorial you get a step by step guide how to serialize objects of the meta model according to
-# 'Details of the Asset Administration Shell'. Therefore, you will learn how to serialize one object and an object
-# store to json data. You also will learn how to write this json data to a json file. This tutorial close with a
-# demonstration of how to deserialize json data from a json file.
-# Step by step guide:
-# step 1: create asset, submodel and asset administration shell, for more details look at
-#         'tutorial_create_simple_aas.py'
-# step 2: serialize an object to json and write it to file
-# step 3: serialize an object store to json and write it to file
-# step 4: # read a json string from file and deserialize it into an object store of AAS objects
+# 'Details of the Asset Administration Shell' specifies multiple official serialization formats for AAS data. In this
+# tutorial, we show, how the PyI40AAS library can be used to serialize AAS objects into JSON or XML and to create
+# JSON/XML files according to the standardized format. It is also demonstrated, how these files can be parsed to
+# restore the AAS objects as Python objects.
+#
+# Step by Step Guide:
+# step 1: creating Asset, Submodel and Asset Administration Shell objects
+# step 2: serializing single objects to JSON
+# step 3: parsing single objects or custom data structures from JSON
+# step 4: writing multiple identifiable objects to a (standard-compliant) JSON/XML file
+# Step 5: reading the serialized aas objects from JSON/XML files
 
-#################################################################
-# step 1: create asset, submodel and asset administration shell #
-#################################################################
-asset = Asset(
+
+###########################################################################
+# Step 1: Creating Asset, Submodel and Asset Administration Shell Objects #
+###########################################################################
+
+# For more details, take a look at `tutorial_create_simple_aas.py`
+
+asset = model.Asset(
     kind=model.AssetKind.INSTANCE,
     identification=model.Identifier('https://acplt.org/Simple_Asset', model.IdentifierType.IRI)
 )
-submodel = Submodel(
+submodel = model.Submodel(
     identification=model.Identifier('https://acplt.org/Simple_Submodel', model.IdentifierType.IRI),
     submodel_element={
         model.Property(
@@ -48,63 +52,98 @@ submodel = Submodel(
             )
         )}
 )
-aas = AssetAdministrationShell(
+aashell = model.AssetAdministrationShell(
     identification=model.Identifier('https://acplt.org/Simple_AAS', model.IdentifierType.IRI),
     asset=model.AASReference.from_referable(asset),
     submodel_={model.AASReference.from_referable(submodel)}
 )
 
-############################################################
-# step 2: serialize an object to json and write it to file #
-############################################################
-# step 2.1: serialize an object to json
-# AASToJsonEncoder is a custom JSONDecoder class for serializing Asset Administration Shell data
-# into the official JSON format according to 'Details of the Asset Administration Shell', chapter 5.5
-# serialize an asset administration shell
-json_data_object = json.loads(json.dumps(aas, cls=AASToJsonEncoder))
-# serialize a property
-json_data_object = json.loads(json.dumps(submodel.submodel_element.get_referable('ExampleProperty'),
-                                         cls=AASToJsonEncoder))
-# step 2.2: write json data to file
-# define a file stream, here an internal file stream is used. For an external file stream use
-# 'open('tutorial.json', 'w', encoding='utf-8')' for opening a json-File to write json data inside
-file_object = io.StringIO()
-# write json_data to file
-json.dump(json_data_object, file_object)
 
-##################################################################
-# step 3: serialize an object store to json and write it to file #
-##################################################################
-# step 2.1: serialize an object store to json
-# create an object store containing the asset administration shell, the asset and submodel, defined above, for more
-# detail look at 'tutorial_storage.py'
+##############################################
+# Step 2: Serializing Single Objects to JSON #
+##############################################
+
+# `AASToJsonEncoder` from the `aas.adapter.json` module is a custom JSONEncoder class for serializing
+# Asset Administration Shell data into the official JSON format according to
+# 'Details of the Asset Administration Shell', chapter 5.5, using Python's built-in JSON library. When provided to the
+# the `json.dump()` and `json.dumps()` methods, these methods are enabled to correctly handle AAS objects within the
+# dumped data structure.
+aashell_json_string = json.dumps(aashell, cls=aas.adapter.json.AASToJsonEncoder)
+
+property_json_string = json.dumps(submodel.submodel_element.get_referable('ExampleProperty'),
+                                  cls=aas.adapter.json.AASToJsonEncoder)
+
+# Using this technique, we can also serialize Python dict and list data structures with nested AAS objects:
+json_string = json.dumps({'the_submodel': submodel,
+                          'the_aas': aashell
+                          },
+                         cls=aas.adapter.json.AASToJsonEncoder)
+
+
+######################################################################
+# Step 3: Parsing Single Objects or Custom Data Structures from JSON #
+######################################################################
+
+# JSON deserialization works in a similar way to JSON serialization: The `aas.adapter.json` module provides a
+# JSONDecoder class, called `AASFromJSONDecoder` which can be passed to `json.load()` or `json.loads()` to ensure that
+# AAS objects contained in the JSON data are transformed into their PyI40AAS Python object representation instead of
+# simple Python dicts:
+submodel_and_aas = json.loads(json_string, cls=aas.adapter.json.AASFromJsonDecoder)
+
+# Alternatively, one can use the `StrictAASFromJsonDecoder` which works in just the same way, but enforces the format
+# specification more strictly. While `AASFromJSONDecoder` will tolerate some semantic errors by simple skipping the
+# broken object and issuing a log message, `StrictAASFromJsonDecoder` will raise an Exception in these cases.
+
+
+#########################################################################################
+# Step 4: Writing Multiple Identifiable Objects to a (Standard-compliant) JSON/XML File #
+#########################################################################################
+
+# step 4.1: creating an ObjectStore containing the objects to be serialized
+# For more information, take a look into `tutorial_storage.py`
 obj_store: model.DictObjectStore[model.Identifiable] = model.DictObjectStore()
 obj_store.add(asset)
 obj_store.add(submodel)
-obj_store.add(aas)
-# serialize the store using the function 'object_store_to_json' of the 'json' module
-json_data_store = object_store_to_json(obj_store)
-# step 2.2: write json data to file
-# define a file stream, here an internal file stream is used. For an external file stream use
-# 'open('tutorial.json', 'w', encoding='utf-8')' for opening a json-File to write json data inside
-file_store = io.StringIO()
-# write json_data to file
-json.dump(json_data_store, file_store)
+obj_store.add(aashell)
 
-# serialize an object store and write it to a file can be done in one step using the function 'write_aas_json_file'
-file_store_2 = io.StringIO()
-write_aas_json_file(file=file_store_2, data=obj_store)
+# step 4.2: writing the contents of the ObjectStore to a JSON file
+# Heads up! It is important to open the file in text-mode with utf-8 encoding!
+with open('data.json', 'w', encoding='utf-8') as json_file:
+    aas.adapter.json.write_aas_json_file(json_file, obj_store)
 
-#################################################################################################
-# step 4: # read a json string from file and deserialize it into an object store of AAS objects #
-#################################################################################################
-# define a file stream, here the internal file stream from above is used. For an external file stream use
-# 'open('tutorial.json', 'r', encoding='utf-8-sig')' for opening a json-File to read json data inside
-# we have to set the file pointer to the beginning cause we are using the same file stream. Normally, you do not need
-# to do this.
-file_store_2.seek(0)
-json_object_store = read_aas_json_file(file_store_2, failsafe=False)
+# We can pass the additional keyword argument `indent=4` to `write_aas_json_file()` to format the JSON file in a more
+# human-readable (but much more space-consuming) manner.
 
-# take a submodel out of the object store, for more details look at 'tutorial_storage.py'
-tmp_submodel: Submodel = json_object_store.get_identifiable(  # type: ignore
-    model.Identifier('https://acplt.org/Simple_Submodel', model.IdentifierType.IRI))
+# step 4.3: writing the contents of the ObjectStore to an XML file
+# Heads up! For writing XML files -- in contrast to writing JSON --, the file must be opened in binary mode! The XML
+# writer will handle character encoding internally.
+with open('data.xml', 'wb') as xml_file:
+    aas.adapter.xml.write_aas_xml_file(xml_file, obj_store)
+
+
+##################################################################
+# Step 5: Reading the Serialized AAS Objects From JSON/XML Files #
+##################################################################
+
+# step 5.1: reading contents of the JSON file as an ObjectStore
+# Heads up! It is important to open the file in text-mode with utf-8 encoding! Using 'utf-8-sig' is recommended to
+# handle unicode Byte Order Marks (BOM) correctly.
+with open('data.json', encoding='utf-8-sig') as json_file:
+    json_file_data = aas.adapter.json.read_aas_json_file(json_file)
+
+# By passing the `failsafe=False` argument to `read_aas_json_file()`, we can switch to the `StrictAASFromJsonDecoder`
+# (see step 3) for a stricter error reporting.
+
+# step 5.2: reading contents of the XML file as an ObjectStore
+# Heads up! For reading XML files -- in contrast to reading JSON --, the file must be opened in binary mode! The XML
+# writer will handle character encoding internally.
+with open('data.xml', 'rb') as xml_file:
+    xml_file_data = aas.adapter.xml.read_aas_xml_file(xml_file)
+
+# Again, we can use `failsafe=False` for switching on stricter error reporting in the parser.
+
+# step 5.3: Retrieving the objects from the ObjectStore
+# For more information on the availiable techniques, see `tutorial_storage.py`.
+submodel_from_xml = xml_file_data.get_identifiable(model.Identifier('https://acplt.org/Simple_Submodel',
+                                                                    model.IdentifierType.IRI))
+assert(isinstance(submodel_from_xml, model.Submodel))

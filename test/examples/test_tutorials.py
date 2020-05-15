@@ -35,7 +35,9 @@ class TutorialTest(unittest.TestCase):
         # The tutorial already includes assert statements for the relevant points. So no further checks are required.
 
     def test_tutorial_serialization_deserialization_json(self):
-        from aas.examples import tutorial_serialization_deserialization_json
+        with temporary_workingdirectory():
+            from aas.examples import tutorial_serialization_deserialization_json
+        # The tutorial already includes assert statements for the relevant points. So no further checks are required.
 
     def test_tutorial_dynamic_model(self) -> None:
         with temporary_workingdirectory():
