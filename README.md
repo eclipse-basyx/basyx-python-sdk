@@ -100,13 +100,14 @@ with open('Simple_Submodel.xml', 'w', encoding='utf-8') as f:
 
 For further examples and tutorials, check out the `aas.examples`-package. Here is a quick overview:
 
-* `examples.tutorial_create_simple_aas`: Create an Asset Administration Shell, containing an asset reference and a 
-submodel reference
-* `examples.tutorial_serialization_deserialization_json`: Tutorial for the serialization and deserialization of asset 
-administration shells, submodels and assets
-* `examples.tutorial_storage`: Tutorial for storing asset administration shells, submodels and assets
-* `examples.tutorial_dynamic_model`: Tutorial about creating a submodel with elements that update dynamically from a
-  custom data source 
+* `aas.examples.tutorial_create_simple_aas`: Create an Asset Administration Shell, including an Asset object and a 
+  Submodel
+* `aas.examples.tutorial_storage`: Manage a larger number of Asset Administration Shells in an ObjectStore and resolve
+  references
+* `aas.examples.tutorial_serialization_deserialization`: Use the JSON and XML serialization/deserialization for
+  single objects or full standard-compliant files 
+* `aas.examples.tutorial_dynamic_model`: Create a submodel with elements that are dynamically updated from a custom data
+  source
 
 
 ## Contributing
