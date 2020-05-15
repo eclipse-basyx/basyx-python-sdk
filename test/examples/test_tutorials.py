@@ -32,6 +32,7 @@ class TutorialTest(unittest.TestCase):
 
     def test_tutorial_storage(self):
         from aas.examples import tutorial_storage
+        # The tutorial already includes assert statements for the relevant points. So no further checks are required.
 
     def test_tutorial_serialization_deserialization_json(self):
         from aas.examples import tutorial_serialization_deserialization_json
