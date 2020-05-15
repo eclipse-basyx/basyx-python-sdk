@@ -105,6 +105,8 @@ submodel reference
 * `examples.tutorial_serialization_deserialization_json`: Tutorial for the serialization and deserialization of asset 
 administration shells, submodels and assets
 * `examples.tutorial_storage`: Tutorial for storing asset administration shells, submodels and assets
+* `examples.tutorial_dynamic_model`: Tutorial about creating a submodel with elements that update dynamically from a
+  custom data source 
 
 
 ## Contributing
