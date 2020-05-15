@@ -32,26 +32,26 @@ def main():
         description='Compliance tool for creating and checking json and xml files in compliance with "Details of the '
                     'Asset Administration Shell" specification of Plattform Industrie 4.0. \n\n'
                     'This tool has five features: \n'
-                    '1. create a xml or json file with example aas elements\n'
-                    '2. check a given xml or json file if it is compliance with the official json or xml aas schema\n'
+                    '1. create an xml or json file with example aas elements\n'
+                    '2. check a given xml or json file if it is compliant with the official json or xml aas schema\n'
                     '3. check if a given xml or json file is deserializable\n'
                     '4. check if the data in a given xml or json file is the same as the example data\n'
-                    '5. check if two given xml or json files containing the same aas elements in any order\n\n'
+                    '5. check if two given xml or json files contain the same aas elements in any order\n\n'
                     'For the use first the feature must be specified (create, schema, deserialization, example, files)'
                     ' or in short (c, s, d, e or f).\n'
                     'Depending the chosen feature different arguments must be specified:\n'
                     'create or c:          path to the file which shall be created (file_1)\n'
-                    'schema or s:          file which should be checked (file_1) and the path to the official aas '
+                    'schema or s:          file to be checked (file_1) and the path to the official aas '
                     'schema (-s or --schema)\n'
-                    'deserialization or d: file which should be checked (file_1)\n'
-                    'example or e:         file which should be checked (file_1)\n'
+                    'deserialization or d: file to be checked (file_1)\n'
+                    'example or e:         file to be checked (file_1)\n'
                     'files or f:           file 1 which should be checked (file_1) and file 2 which should be checked '
                     '(file_2)\n'
                     'For all features it must be specified weather the given or created files are json (--json) or '
                     'xml (--xml).\n\n'
                     'Additionally the tool offers some extra features for more convenient use:\n'
-                    'a. Different kind of displaying the information:\n'
-                    '   Standard output is just the status for each step performed. With -v or --verbose additional '
+                    'a. Different levels of displaying information:\n'
+                    '   Default output is just the status for each step performed. With -v or --verbose additional '
                     'information in case of status = FAILED will be provided. With one more -v or --verbose additional'
                     ' information even in case of status = SUCCESS or WARNINGS will be provided.\n'
                     'b. No Information output if successful:\n'
@@ -66,14 +66,15 @@ def main():
                              's or schema: checks a given file if it is compliance with the official schema\n'
                              'd or deserialization: checks if a given file is deserializable\n'
                              'e or example: checks if a given file contains the example aas elements\n'
-                             'f or files: checks if two given files contains the same aas elements in any order')
+                             'f or file_compare: checks if two given files contain the same aas elements in any order')
     parser.add_argument('file_1', help="path to file 1")
     parser.add_argument('file_2', nargs='?', default=None, help="path to file 2: is required if action f or files is "
                                                                 "choosen")
     parser.add_argument('-s', '--schema', help="path to the aas schema: is required if action s or schema is choosen.",
                         default=None)
-    parser.add_argument('-v', '--verbose', help="display all information occurred while checking: 1: Error information,"
-                                                " 2: Additional Success information", action='count', default=0)
+    parser.add_argument('-v', '--verbose', help="Print detailed information for each check. Multiple -v options "
+                                                "increase the verbosity. 1: Detailed error information, 2: Additional "
+                                                "detailed success information", action='count', default=0)
     parser.add_argument('-q', '--quite', help="no information output if successful", action='store_true')
     group = parser.add_mutually_exclusive_group(required=True)
     group.add_argument('--json', help="checking or creating json file(s)", action='store_true')
