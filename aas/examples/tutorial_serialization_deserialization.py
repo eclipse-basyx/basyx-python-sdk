@@ -63,6 +63,11 @@ aashell = model.AssetAdministrationShell(
 # Step 2: Serializing Single Objects to JSON #
 ##############################################
 
+# Before serializing the data, we should make sure, it's up to data. This is irrelevant for the static AAS objects in
+# this tutorial, but may be important when dealing with dynamic data.
+# See `tutorial_dynamic_model.py` for more information on that topic.
+aashell.update()
+
 # `AASToJsonEncoder` from the `aas.adapter.json` module is a custom JSONEncoder class for serializing
 # Asset Administration Shell data into the official JSON format according to
 # 'Details of the Asset Administration Shell', chapter 5.5, using Python's built-in JSON library. When provided to the
@@ -106,7 +111,12 @@ obj_store.add(asset)
 obj_store.add(submodel)
 obj_store.add(aashell)
 
-# step 4.2: writing the contents of the ObjectStore to a JSON file
+# step 4.2: Again, make sure that the data is up to date
+asset.update()
+submodel.update()
+aashell.update()
+
+# step 4.3: writing the contents of the ObjectStore to a JSON file
 # Heads up! It is important to open the file in text-mode with utf-8 encoding!
 with open('data.json', 'w', encoding='utf-8') as json_file:
     aas.adapter.json.write_aas_json_file(json_file, obj_store)
@@ -114,7 +124,7 @@ with open('data.json', 'w', encoding='utf-8') as json_file:
 # We can pass the additional keyword argument `indent=4` to `write_aas_json_file()` to format the JSON file in a more
 # human-readable (but much more space-consuming) manner.
 
-# step 4.3: writing the contents of the ObjectStore to an XML file
+# step 4.4: writing the contents of the ObjectStore to an XML file
 # Heads up! For writing XML files -- in contrast to writing JSON --, the file must be opened in binary mode! The XML
 # writer will handle character encoding internally.
 with open('data.xml', 'wb') as xml_file:
