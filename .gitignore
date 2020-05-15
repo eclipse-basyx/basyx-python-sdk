@@ -4,8 +4,9 @@
 /.mypy_cache/
 /build/
 /dist/
-/aas.egg-info/
+/*.egg-info/
 /venv/
 /.coverage
+/htmlcov/
 
 /test/test_config.ini
