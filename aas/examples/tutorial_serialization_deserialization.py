@@ -2,7 +2,7 @@
 # This work is licensed under a Creative Commons CCZero 1.0 Universal License.
 # See http://creativecommons.org/publicdomain/zero/1.0/ for more information.
 """
-Tutorial for the serialization and deserialization of asset administration shells, submodels and assets into/from JSON
+Tutorial for the serialization and deserialization of Asset Administration Shells, Submodels and Assets into/from JSON
 and XML files.
 """
 

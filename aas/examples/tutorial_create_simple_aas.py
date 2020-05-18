@@ -22,17 +22,17 @@ from aas import model
 
 
 #################################
-# Step 1: create a simple asset #
+# Step 1: Create a Simple Asset #
 #################################
 
-# step 1.1: create an identifier for the asset
+# step 1.1: create an identifier for the Asset
 # Here we use an IRI identifier
 identifier = model.Identifier(id_='https://acplt.org/Simple_Asset',
                               id_type=model.IdentifierType.IRI)
 
 # step 1.2: create the Asset object
 asset = model.Asset(
-    kind=model.AssetKind.INSTANCE,  # define that the asset is of kind instance
+    kind=model.AssetKind.INSTANCE,  # define that the Asset is of kind instance
     identification=identifier  # set identifier
 )
 
@@ -41,7 +41,7 @@ asset = model.Asset(
 # Step 2: Create a Simple Asset Administration Shell Containing a Reference to the Asset #
 ##########################################################################################
 
-# step 2.1: create the asset administration shell
+# step 2.1: create the Asset Administration Shell
 identifier = model.Identifier('https://acplt.org/Simple_AAS', model.IdentifierType.IRI)
 aas = model.AssetAdministrationShell(
     identification=identifier,  # set identifier
@@ -59,7 +59,7 @@ submodel = model.Submodel(
     identification=identifier
 )
 
-# step 3.2: create a reference to that submodel and add it to the Asset Administration Shell's `submodel` set
+# step 3.2: create a reference to that Submodel and add it to the Asset Administration Shell's `submodel` set
 aas.submodel.add(model.AASReference.from_referable(submodel))
 
 
@@ -77,10 +77,10 @@ aas = model.AssetAdministrationShell(
 
 
 ###############################################################
-# step 4: create a simple property and add it to the submodel #
+# step 4: Create a Simple Property and Add it to the Submodel #
 ###############################################################
 
-# step 4.1: create a global reference to a semantic description of the property
+# step 4.1: create a global reference to a semantic description of the Property
 # A global reference consist of one key which points to the address where the semantic description is stored
 semantic_reference = model.Reference(
     (model.Key(
@@ -91,15 +91,15 @@ semantic_reference = model.Reference(
     ),)
 )
 
-# step 4.2: create the simple property
+# step 4.2: create the simple Property
 property_ = model.Property(
-    id_short='ExampleProperty',  # Identifying string of the element within the submodel namespace
+    id_short='ExampleProperty',  # Identifying string of the element within the Submodel namespace
     value_type=model.datatypes.String,  # Data type of the value
-    value='exampleValue',  # Value of the property
+    value='exampleValue',  # Value of the Property
     semantic_id=semantic_reference  # set the semantic reference
 )
 
-# step 4.3: add the property to the submodel
+# step 4.3: add the Property to the Submodel
 submodel.submodel_element.add(property_)
 
 
