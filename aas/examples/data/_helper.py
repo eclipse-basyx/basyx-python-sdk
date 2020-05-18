@@ -360,7 +360,7 @@ class AASDataChecker(DataChecker):
         :return:
         """
         self.check_relationship_element_equal(object_, expected_value)
-        self.check_contained_element_length(object_, 'annotation', model.AASReference,
+        self.check_contained_element_length(object_, 'annotation', model.DataElement,
                                             len(expected_value.annotation))
         for expected_data_element in expected_value.annotation:
             self.check(
