@@ -26,12 +26,18 @@ from aas.adapter.json import read_aas_json_file
 class TutorialTest(unittest.TestCase):
     def test_tutorial_create_simple_aas(self):
         from aas.examples import tutorial_create_simple_aas
+        self.assertEqual(tutorial_create_simple_aas.submodel.get_referable('ExampleProperty').value, 'exampleValue')
+        store = model.DictObjectStore({tutorial_create_simple_aas.submodel})
+        next(iter(tutorial_create_simple_aas.aas.submodel)).resolve(store)
 
     def test_tutorial_storage(self):
         from aas.examples import tutorial_storage
+        # The tutorial already includes assert statements for the relevant points. So no further checks are required.
 
     def test_tutorial_serialization_deserialization_json(self):
-        from aas.examples import tutorial_serialization_deserialization_json
+        with temporary_workingdirectory():
+            from aas.examples import tutorial_serialization_deserialization
+        # The tutorial already includes assert statements for the relevant points. So no further checks are required.
 
     def test_tutorial_dynamic_model(self) -> None:
         with temporary_workingdirectory():
