@@ -37,26 +37,26 @@ def main():
                     '3. check if a given xml or json file is deserializable\n'
                     '4. check if the data in a given xml or json file is the same as the example data\n'
                     '5. check if two given xml or json files contain the same aas elements in any order\n\n'
-                    'For the use first the feature must be specified (create, schema, deserialization, example, files)'
-                    ' or in short (c, s, d, e or f).\n'
-                    'Depending the chosen feature different arguments must be specified:\n'
+                    'As a first argument, the feature must be specified (create, schema, deserialization, example, '
+                    'files) or in short (c, s, d, e or f).\n'
+                    'Depending the chosen feature, different additional arguments must be specified:\n'
                     'create or c:          path to the file which shall be created (file_1)\n'
                     'schema or s:          file to be checked (file_1) and the path to the official aas '
                     'schema (-s or --schema)\n'
                     'deserialization or d: file to be checked (file_1)\n'
                     'example or e:         file to be checked (file_1)\n'
                     'file_compare or f:    files to compare (file_1, file_2)\n'
-                    'For all features it must be specified weather the given or created files are json (--json) or '
+                    'In any case, it must be specified whether the (given or created) files are json (--json) or '
                     'xml (--xml).\n\n'
-                    'Additionally the tool offers some extra features for more convenient use:\n'
-                    'a. Different levels of displaying information:\n'
-                    '   Default output is just the status for each step performed. With -v or --verbose additional '
-                    'information in case of status = FAILED will be provided. With one more -v or --verbose additional'
+                    'Additionally, the tool offers some extra features for more convenient usage:\n'
+                    'a. Different levels of verbosity:\n'
+                    '   Default output is just the status for each step performed. With -v or --verbose, additional '
+                    'information in case of status = FAILED will be provided. With one more -v or --verbose, additional'
                     ' information even in case of status = SUCCESS or WARNINGS will be provided.\n'
-                    'b. No Information output if successful:\n'
+                    'b. Suppressing output on success:\n'
                     '   With -q or --quite no output will be generated if the status = SUCCESS.\n'
                     'c. Save log additionally in a logfile:\n'
-                    '   With -l or --logfile a path to the file where the logfiles shall be created can be specified.',
+                    '   With -l or --logfile, a path to the file where the logfiles shall be created can be specified.',
         formatter_class=argparse.RawTextHelpFormatter)
 
     parser.add_argument('action', choices=['create', 'c', 'schema', 's', 'deserialization', 'd', 'example', 'e',
@@ -69,16 +69,17 @@ def main():
     parser.add_argument('file_1', help="path to file 1")
     parser.add_argument('file_2', nargs='?', default=None, help="path to file 2: is required if action f or files is "
                                                                 "choosen")
-    parser.add_argument('-s', '--schema', help="path to the aas schema: is required if action s or schema is choosen.",
+    parser.add_argument('-s', '--schema', help="path to the AAS xml/json schema file. Required, if action 's' or "
+                                               "'schema' is choosen.",
                         default=None)
     parser.add_argument('-v', '--verbose', help="Print detailed information for each check. Multiple -v options "
                                                 "increase the verbosity. 1: Detailed error information, 2: Additional "
                                                 "detailed success information", action='count', default=0)
     parser.add_argument('-q', '--quite', help="no information output if successful", action='store_true')
     group = parser.add_mutually_exclusive_group(required=True)
-    group.add_argument('--json', help="checking or creating json file(s)", action='store_true')
-    group.add_argument('--xml', help="checking or creating xml file(s)", action='store_true')
-    parser.add_argument('-l', '--logfile', help="creates the log additional in the given file", default=None)
+    group.add_argument('--json', help="Use AAS json format when checking or creating files", action='store_true')
+    group.add_argument('--xml', help="Use AAS xml format when checking or creating files", action='store_true')
+    parser.add_argument('-l', '--logfile', help="Log file to be created in addition to output to stdout", default=None)
 
     args = parser.parse_args()
 
