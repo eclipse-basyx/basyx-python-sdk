@@ -109,8 +109,8 @@ administration shells, submodels and assets
 
 ### Compliance Tool
 
-A compliance tool for testing xml and json files is provided in the `aas.compliance_tool`-package. Following 
-functionalities are supported:
+The PyI40AAS project contains a compliance tool for testing xml and json files is provided in the 
+`aas.compliance_tool`-package. Following functionalities are supported:
 
 * create an xml or json file compliant to the official schema containing example Asset Administration Shell elements
 * check if a given xml or json file is compliant to the official schema
@@ -118,6 +118,11 @@ functionalities are supported:
 * check if the data in a given xml or json file is the same as the example data
 * check if two given xml or json file contain the same Asset Administration Shell elements in any order 
 
+Invoking should work with either `python -m aas.compliance_tool.cli` or (when installed correctly and PATH is set 
+correctly) with `aas_compliance_check` on the command line.
+
+For further usage information consider the `aas.compliance_tool`-package or invoke with 
+`python -m aas.compliance_tool.cli --help` respectively `aas_compliance_check --help`.
 
 ## Contributing
 
