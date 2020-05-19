@@ -110,6 +110,23 @@ For further examples and tutorials, check out the `aas.examples`-package. Here i
   source
 
 
+### Compliance Tool
+
+The PyI40AAS project contains a compliance tool for testing xml and json files is provided in the 
+`aas.compliance_tool`-package. Following functionalities are supported:
+
+* create an xml or json file compliant to the official schema containing example Asset Administration Shell elements
+* check if a given xml or json file is compliant to the official schema
+* check if a given xml or json file is deserializable even if it is not compliant to the offical schema
+* check if the data in a given xml or json file is the same as the example data
+* check if two given xml or json file contain the same Asset Administration Shell elements in any order 
+
+Invoking should work with either `python -m aas.compliance_tool.cli` or (when installed correctly and PATH is set 
+correctly) with `aas_compliance_check` on the command line.
+
+For further usage information consider the `aas.compliance_tool`-package or invoke with 
+`python -m aas.compliance_tool.cli --help` respectively `aas_compliance_check --help`.
+
 ## Contributing
 
 If you plan contributing code to the PyI40AAS project, please get in touch with us via E-Mail first: m.thies@plt.rwth-aachen.de
