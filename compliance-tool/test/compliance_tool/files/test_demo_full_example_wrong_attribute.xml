@@ -25,7 +25,7 @@
 			<aas:submodelRefs>
 				<aas:submodelRef>
 					<aas:keys>
-						<aas:key idType="IRI" local="false" type="Submodel">http://acplt.org/Submodels/Assets/TestAsset/BillOfMaterial</aas:key>
+						<aas:key idType="IRI" local="false" type="Submodel">https://acplt.org/Test_Submodel</aas:key>
 					</aas:keys>
 				</aas:submodelRef>
 				<aas:submodelRef>
@@ -35,7 +35,7 @@
 				</aas:submodelRef>
 				<aas:submodelRef>
 					<aas:keys>
-						<aas:key idType="IRI" local="false" type="Submodel">https://acplt.org/Test_Submodel</aas:key>
+						<aas:key idType="IRI" local="false" type="Submodel">http://acplt.org/Submodels/Assets/TestAsset/BillOfMaterial</aas:key>
 					</aas:keys>
 				</aas:submodelRef>
 			</aas:submodelRefs>
@@ -311,29 +311,6 @@
 						<aas:statements>
 							<aas:submodelElement>
 								<aas:property>
-									<aas:idShort>ExampleProperty2</aas:idShort>
-									<aas:category>CONSTANT</aas:category>
-									<aas:description>
-										<aas:langString lang="en-us">Example Property object</aas:langString>
-										<aas:langString lang="de">Beispiel Property Element</aas:langString>
-									</aas:description>
-									<aas:kind>Instance</aas:kind>
-									<aas:semanticId>
-										<aas:keys>
-											<aas:key idType="IRI" local="false" type="GlobalReference">http://acplt.org/Properties/ExampleProperty</aas:key>
-										</aas:keys>
-									</aas:semanticId>
-									<aas:valueType>string</aas:valueType>
-									<aas:value>exampleValue2</aas:value>
-									<aas:valueId>
-										<aas:keys>
-											<aas:key idType="IRI" local="false" type="GlobalReference">http://acplt.org/ValueId/ExampleValueId</aas:key>
-										</aas:keys>
-									</aas:valueId>
-								</aas:property>
-							</aas:submodelElement>
-							<aas:submodelElement>
-								<aas:property>
 									<aas:idShort>ExampleProperty</aas:idShort>
 									<aas:category>CONSTANT</aas:category>
 									<aas:description>
@@ -362,6 +339,29 @@
 									</aas:qualifier>
 									<aas:valueType>string</aas:valueType>
 									<aas:value>exampleValue</aas:value>
+									<aas:valueId>
+										<aas:keys>
+											<aas:key idType="IRI" local="false" type="GlobalReference">http://acplt.org/ValueId/ExampleValueId</aas:key>
+										</aas:keys>
+									</aas:valueId>
+								</aas:property>
+							</aas:submodelElement>
+							<aas:submodelElement>
+								<aas:property>
+									<aas:idShort>ExampleProperty2</aas:idShort>
+									<aas:category>CONSTANT</aas:category>
+									<aas:description>
+										<aas:langString lang="en-us">Example Property object</aas:langString>
+										<aas:langString lang="de">Beispiel Property Element</aas:langString>
+									</aas:description>
+									<aas:kind>Instance</aas:kind>
+									<aas:semanticId>
+										<aas:keys>
+											<aas:key idType="IRI" local="false" type="GlobalReference">http://acplt.org/Properties/ExampleProperty</aas:key>
+										</aas:keys>
+									</aas:semanticId>
+									<aas:valueType>string</aas:valueType>
+									<aas:value>exampleValue2</aas:value>
 									<aas:valueId>
 										<aas:keys>
 											<aas:key idType="IRI" local="false" type="GlobalReference">http://acplt.org/ValueId/ExampleValueId</aas:key>
@@ -466,11 +466,19 @@
 							</aas:keys>
 						</aas:second>
 						<aas:annotations>
-							<aas:reference>
-								<aas:keys>
-									<aas:key idType="IdShort" local="true" type="Property">ExampleProperty3</aas:key>
-								</aas:keys>
-							</aas:reference>
+							<aas:property>
+								<aas:idShort>ExampleAnnotatedProperty</aas:idShort>
+								<aas:kind>Instance</aas:kind>
+								<aas:valueType>string</aas:valueType>
+								<aas:value>exampleValue</aas:value>
+							</aas:property>
+							<aas:range>
+								<aas:idShort>ExampleAnnotatedRange</aas:idShort>
+								<aas:kind>Instance</aas:kind>
+								<aas:valueType>integer</aas:valueType>
+								<aas:min>1</aas:min>
+								<aas:max>5</aas:max>
+							</aas:range>
 						</aas:annotations>
 					</aas:annotatedRelationshipElement>
 				</aas:submodelElement>
@@ -976,11 +984,19 @@
 							</aas:keys>
 						</aas:second>
 						<aas:annotations>
-							<aas:reference>
-								<aas:keys>
-									<aas:key idType="IdShort" local="true" type="Property">ExampleProperty</aas:key>
-								</aas:keys>
-							</aas:reference>
+							<aas:property>
+								<aas:idShort>ExampleAnnotatedProperty</aas:idShort>
+								<aas:kind>Instance</aas:kind>
+								<aas:valueType>string</aas:valueType>
+								<aas:value>exampleValue</aas:value>
+							</aas:property>
+							<aas:range>
+								<aas:idShort>ExampleAnnotatedRange</aas:idShort>
+								<aas:kind>Instance</aas:kind>
+								<aas:valueType>integer</aas:valueType>
+								<aas:min>1</aas:min>
+								<aas:max>5</aas:max>
+							</aas:range>
 						</aas:annotations>
 					</aas:annotatedRelationshipElement>
 				</aas:submodelElement>
@@ -1725,8 +1741,8 @@
 							</IEC:valueReferencePair>
 						</IEC:valueList>
 						<IEC:value>TEST</IEC:value>
-						<IEC:levelType>Max</IEC:levelType>
 						<IEC:levelType>Min</IEC:levelType>
+						<IEC:levelType>Max</IEC:levelType>
 					</aas:dataSpecificationIEC61360>
 				</aas:dataSpecificationContent>
 				<aas:dataSpecification>

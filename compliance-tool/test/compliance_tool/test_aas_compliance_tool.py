@@ -141,7 +141,6 @@ class ComplianceToolTest(unittest.TestCase):
 
     def test_json_create_example(self) -> None:
         file_path = os.path.join(os.path.dirname(aas.compliance_tool.__file__), 'cli.py')
-        test_file_path = os.path.join(os.path.dirname(__file__), 'files')
 
         file, filename = tempfile.mkstemp(suffix=".json")
         os.close(file)
@@ -202,7 +201,6 @@ class ComplianceToolTest(unittest.TestCase):
 
     def test_xml_create_example(self) -> None:
         file_path = os.path.join(os.path.dirname(aas.compliance_tool.__file__), 'cli.py')
-        test_file_path = os.path.join(os.path.dirname(__file__), 'files')
 
         file, filename = tempfile.mkstemp(suffix=".xml")
         os.close(file)
