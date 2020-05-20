@@ -562,17 +562,9 @@ class AASFromJsonDecoder(json.JSONDecoder):
             kind=cls._get_kind(dct))
         cls._amend_abstract_attributes(ret, dct)
         if 'annotation' in dct:
-            for annotation_data in _get_ts(dct, 'annotation', list):
-                try:
-                    ret.annotation.add(cls._construct_aas_reference(annotation_data, model.DataElement))
-                except (KeyError, TypeError) as e:
-                    error_message = \
-                        "Error while trying to convert JSON object into annotation Reference for {}: {} >>> {}".format(
-                            ret, e, pprint.pformat(dct, depth=2, width=2 ** 14, compact=True))
-                    if cls.failsafe:
-                        logger.error(error_message, exc_info=e)
-                    else:
-                        raise type(e)(error_message) from e
+            for element in _get_ts(dct, "annotation", list):
+                if _expect_type(element, model.DataElement, str(ret), cls.failsafe):
+                    ret.annotation.add(element)
         return ret
 
     @classmethod
