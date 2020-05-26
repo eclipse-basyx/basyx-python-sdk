@@ -13,6 +13,7 @@ import io
 import unittest
 import json
 import os
+from os.path import dirname
 
 from aas import model
 from aas.adapter.json import AASToJsonEncoder, write_aas_json_file
@@ -21,7 +22,8 @@ from jsonschema import validate  # type: ignore
 from aas.examples.data import example_aas_missing_attributes, example_submodel_template, \
     example_aas_mandatory_attributes, example_aas, create_example, example_concept_description
 
-JSON_SCHEMA_FILE = os.path.join(os.path.dirname(__file__), 'aasJSONSchema.json')
+JSON_SCHEMA_FILE = os.path.join(dirname(dirname(dirname(dirname(__file__)))),
+                                'aas', 'adapter', 'json', 'aasJSONSchema.json')
 
 
 class JsonSerializationTest(unittest.TestCase):
@@ -51,7 +53,6 @@ class JsonSerializationTest(unittest.TestCase):
         json_data_new = json.loads(json_data)
 
 
-@unittest.skipUnless(os.path.exists(JSON_SCHEMA_FILE), "JSON Schema not found for validation")
 class JsonSerializationSchemaTest(unittest.TestCase):
     def test_random_object_serialization(self) -> None:
         asset_key = (model.Key(model.KeyElements.ASSET, True, "asset", model.KeyType.CUSTOM),)

@@ -23,6 +23,8 @@ check_xml_files_equivalence: Checks if two xml files have the same data regardle
 
 All functions reports any issues using the given StateManager by adding new steps and associated LogRecords
 """
+from os.path import dirname
+
 from lxml import etree  # type: ignore
 import logging
 import os
@@ -34,8 +36,10 @@ from ..examples.data import example_aas, create_example
 from ..examples.data._helper import AASDataChecker
 from .state_manager import ComplianceToolStateManager, Status
 
+XML_SCHEMA_FILE = os.path.join(dirname(dirname(dirname(__file__))), 'aas', 'adapter', 'xml', 'AAS.xsd')
 
-def check_schema(file_path: str, schema_path: str, state_manager: ComplianceToolStateManager) -> None:
+
+def check_schema(file_path: str, state_manager: ComplianceToolStateManager) -> None:
     """
     checks a given file against the official xml schema and reports any issues using the given StateManager
 
@@ -43,7 +47,6 @@ def check_schema(file_path: str, schema_path: str, state_manager: ComplianceTool
     official xml schema'
 
     :param file_path: path to the file which should be checked
-    :param schema_path: path to the official json schema
     :param state_manager: manager to log the steps
     """
     logger = logging.getLogger('compliance_check')
@@ -79,8 +82,7 @@ def check_schema(file_path: str, schema_path: str, state_manager: ComplianceTool
         return
 
     # load aas xml schema
-    # TODO change path if schema is added to the project
-    aas_xml_schema = etree.XMLSchema(file=schema_path)
+    aas_xml_schema = etree.XMLSchema(file=XML_SCHEMA_FILE)
     parser = etree.XMLParser(schema=aas_xml_schema)
 
     state_manager.add_step('Validate file against official xml schema')
