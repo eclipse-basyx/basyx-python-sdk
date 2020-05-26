@@ -12,6 +12,8 @@ import os
 import subprocess
 import sys
 import unittest
+from os.path import dirname
+
 import aas.compliance_tool
 import tempfile
 
@@ -20,8 +22,8 @@ from aas.adapter.xml import read_aas_xml_file
 from aas.examples.data import create_example
 from aas.examples.data._helper import AASDataChecker
 
-JSON_SCHEMA_FILE = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'adapter', 'json', 'aasJSONSchema.json')
-XML_SCHEMA_FILE = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'adapter', 'xml', 'AAS.xsd')
+JSON_SCHEMA_FILE = os.path.join(dirname(dirname(dirname(__file__))), 'aas', 'adapter', 'json', 'aasJSONSchema.json')
+XML_SCHEMA_FILE = os.path.join(dirname(dirname(dirname(__file__))), 'aas', 'adapter', 'xml', 'AAS.xsd')
 
 
 class ComplianceToolTest(unittest.TestCase):
@@ -40,12 +42,6 @@ class ComplianceToolTest(unittest.TestCase):
             stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         self.assertNotEqual(0, output.returncode)
         self.assertIn('error: one of the arguments --json --xml is required', str(output.stderr))
-
-        output = subprocess.run(
-            [sys.executable, file_path, "s", os.path.join(test_file_path, "test_demo_full_example.json"), "--json"],
-            stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        self.assertNotEqual(0, output.returncode)
-        self.assertIn('error: s or schema requires a schema path.', str(output.stderr))
 
         # test deserialisation check
         output = subprocess.run([sys.executable, file_path, "d"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -113,8 +109,7 @@ class ComplianceToolTest(unittest.TestCase):
         # test quite
         output = subprocess.run(
             [sys.executable, file_path, "e", os.path.join(test_file_path, "test_demo_full_example.json"), "--json",
-             "-q"],
-            stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+             "-q"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         self.assertEqual(0, output.returncode)
         self.assertEqual("b''", str(output.stdout))
 
@@ -128,14 +123,13 @@ class ComplianceToolTest(unittest.TestCase):
 
         # todo: add test for correct logfile
 
-    @unittest.skipUnless(os.path.exists(JSON_SCHEMA_FILE), "JSON Schema not found for validation")
     def test_json_schema(self) -> None:
         file_path = os.path.join(os.path.dirname(aas.compliance_tool.__file__), 'cli.py')
         test_file_path = os.path.join(os.path.dirname(__file__), 'files')
 
         output: subprocess.CompletedProcess = subprocess.run(
-            [sys.executable, file_path, "s", os.path.join(test_file_path, "test_demo_full_example.json"), "--json",
-             "-s", JSON_SCHEMA_FILE], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            [sys.executable, file_path, "s", os.path.join(test_file_path, "test_demo_full_example.json"), "--json"],
+            stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         self.assertEqual(0, output.returncode)
         self.assertIn('SUCCESS:      Open file', str(output.stdout))
 
@@ -188,14 +182,13 @@ class ComplianceToolTest(unittest.TestCase):
             stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         self.assertEqual(0, output.returncode)
 
-    @unittest.skipUnless(os.path.exists(XML_SCHEMA_FILE), "XML Schema not found for validation")
     def test_xml_schema(self) -> None:
         file_path = os.path.join(os.path.dirname(aas.compliance_tool.__file__), 'cli.py')
         test_file_path = os.path.join(os.path.dirname(__file__), 'files')
 
         output: subprocess.CompletedProcess = subprocess.run(
-            [sys.executable, file_path, "s", os.path.join(test_file_path, "test_demo_full_example.xml"), "--xml",
-             "-s", XML_SCHEMA_FILE], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            [sys.executable, file_path, "s", os.path.join(test_file_path, "test_demo_full_example.xml"), "--xml"],
+            stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         self.assertEqual(0, output.returncode)
         self.assertIn('SUCCESS:      Open file', str(output.stdout))
 
