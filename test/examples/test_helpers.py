@@ -197,21 +197,19 @@ class AASDataCheckerTest(unittest.TestCase):
                                                                                        id_type=model.KeyType.IDSHORT),),
                                                                             model.Property),
                                                   annotation={
-                                                      model.AASReference((model.Key(type_=model.KeyElements.PROPERTY,
-                                                                                    local=True,
-                                                                                    value='ExampleProperty',
-                                                                                    id_type=model.KeyType.IDSHORT),),
-                                                                         model.Property)
+                                                      model.Property(id_short="ExampleAnnotatedProperty",
+                                                                     value_type=model.datatypes.String,
+                                                                     value='exampleValue',
+                                                                     parent=None)
                                                   })
         checker = AASDataChecker(raise_immediately=False)
         checker.check_annotated_relationship_element_equal(rel1, rel2)
         self.assertEqual(2, sum(1 for _ in checker.failed_checks))
         checker_iterator = iter(checker.failed_checks)
-        self.assertEqual("FAIL: AnnotatedRelationshipElement[test] must contain 1 AASReferences "
+        self.assertEqual("FAIL: AnnotatedRelationshipElement[test] must contain 1 DataElements "
                          "(count=0)",
                          repr(next(checker_iterator)))
-        self.assertEqual("FAIL: Annotated Reference AASReference(type=Property, key=(Key(local=True, id_type=IDSHORT, "
-                         "value=ExampleProperty),)) must exist ()",
+        self.assertEqual("FAIL: Annotation Property[test / ExampleAnnotatedProperty] must exist ()",
                          repr(next(checker_iterator)))
 
     def test_submodel_checker(self):

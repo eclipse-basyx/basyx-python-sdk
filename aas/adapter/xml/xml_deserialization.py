@@ -417,19 +417,17 @@ def _amend_abstract_attributes(obj: object, element: etree.Element, failsafe: bo
         if semantic_id is not None:
             obj.semantic_id = semantic_id
     if isinstance(obj, model.Qualifiable):
-        qualifiers = element.find(NS_AAS + "qualifier")
         # TODO: simplify this should our suggestion regarding the XML schema get accepted
         # https://git.rwth-aachen.de/acplt/pyaas/-/issues/56
-        if qualifiers is not None:
-            for constraint in _get_all_children_expect_tag(qualifiers, NS_AAS + "qualifiers", failsafe):
-                if len(constraint) == 0:
-                    raise KeyError(f"{_element_pretty_identifier(constraint)} has no constraint!")
-                if len(constraint) > 1:
-                    logger.warning(f"{_element_pretty_identifier(constraint)} has more than one constraint,"
-                                   "using the first one...")
-                constructed = _failsafe_construct(constraint[0], _construct_constraint, failsafe)
-                if constructed is not None:
-                    obj.qualifier.add(constructed)
+        for constraint in element.findall(NS_AAS + "qualifier"):
+            if len(constraint) == 0:
+                raise KeyError(f"{_element_pretty_identifier(constraint)} has no constraint!")
+            if len(constraint) > 1:
+                logger.warning(f"{_element_pretty_identifier(constraint)} has more than one constraint,"
+                               "using the first one...")
+            constructed = _failsafe_construct(constraint[0], _construct_constraint, failsafe)
+            if constructed is not None:
+                obj.qualifier.add(constructed)
 
 
 def _get_modeling_kind(element: etree.Element) -> model.ModelingKind:
@@ -583,21 +581,30 @@ def _construct_submodel_element(element: etree.Element, failsafe: bool, **kwargs
     submodel_elements: Dict[str, Callable[..., model.SubmodelElement]] = {NS_AAS + k: v for k, v in {
         "annotatedRelationshipElement": _construct_annotated_relationship_element,
         "basicEvent": _construct_basic_event,
-        "blob": _construct_blob,
         "capability": _construct_capability,
         "entity": _construct_entity,
-        "file": _construct_file,
-        "multiLanguageProperty": _construct_multi_language_property,
         "operation": _construct_operation,
-        "property": _construct_property,
-        "range": _construct_range,
-        "referenceElement": _construct_reference_element,
         "relationshipElement": _construct_relationship_element,
         "submodelElementCollection": _construct_submodel_element_collection
     }.items()}
     if element.tag not in submodel_elements:
-        raise KeyError(_element_pretty_identifier(element) + " is not a valid submodel element!")
+        return _construct_data_element(element, failsafe, abstract_class_name="submodel element", **kwargs)
     return submodel_elements[element.tag](element, failsafe, **kwargs)
+
+
+def _construct_data_element(element: etree.Element, failsafe: bool, abstract_class_name: str = "data element",
+                            **kwargs: Any) -> model.DataElement:
+    data_elements: Dict[str, Callable[..., model.DataElement]] = {NS_AAS + k: v for k, v in {
+        "blob": _construct_blob,
+        "file": _construct_file,
+        "multiLanguageProperty": _construct_multi_language_property,
+        "property": _construct_property,
+        "range": _construct_range,
+        "referenceElement": _construct_reference_element,
+    }.items()}
+    if element.tag not in data_elements:
+        raise KeyError(_element_pretty_identifier(element) + f" is not a valid {abstract_class_name}!")
+    return data_elements[element.tag](element, failsafe, **kwargs)
 
 
 def _construct_constraint(element: etree.Element, failsafe: bool, **kwargs: Any) -> model.Constraint:
@@ -624,17 +631,13 @@ def _construct_operation_variable(element: etree.Element, _failsafe: bool, **_kw
 
 def _construct_annotated_relationship_element(element: etree.Element, failsafe: bool, **_kwargs: Any) \
         -> model.AnnotatedRelationshipElement:
-    annotated_relationship_element = model.AnnotatedRelationshipElement(
-        _child_text_mandatory(element, NS_AAS + "idShort"),
-        _child_construct_mandatory(element, NS_AAS + "first", _construct_referable_reference),
-        _child_construct_mandatory(element, NS_AAS + "second", _construct_referable_reference),
-        kind=_get_modeling_kind(element)
+    annotated_relationship_element = _construct_relationship_element_internal(
+        element, failsafe, object_class=model.AnnotatedRelationshipElement
     )
-    annotations = _get_child_mandatory(element, NS_AAS + "annotations")
-    for data_element_ref in _failsafe_construct_multiple(annotations.findall(NS_AAS + "reference"),
-                                                         _construct_data_element_reference, failsafe):
-        annotated_relationship_element.annotation.add(data_element_ref)
-    _amend_abstract_attributes(annotated_relationship_element, element, failsafe)
+    for data_element in _get_child_mandatory(element, NS_AAS + "annotations"):
+        constructed = _failsafe_construct(data_element, _construct_data_element, failsafe)
+        if constructed is not None:
+            annotated_relationship_element.annotation.add(constructed)
     return annotated_relationship_element
 
 
@@ -678,16 +681,15 @@ def _construct_entity(element: etree.Element, failsafe: bool, **_kwargs: Any) ->
         asset=_failsafe_construct(element.find(NS_AAS + "assetRef"), _construct_asset_reference, failsafe),
         kind=_get_modeling_kind(element)
     )
-    # TODO: simplify this should our suggestion regarding the XML schema get accepted
-    # https://git.rwth-aachen.de/acplt/pyaas/-/issues/57
-    for statement in _get_all_children_expect_tag(
-            _get_child_mandatory(element, NS_AAS + "statements"), NS_AAS + "submodelElement", failsafe):
-        if len(statement) == 0:
-            raise KeyError(f"{_element_pretty_identifier(statement)} has no submodel element!")
-        if len(statement) > 1:
-            logger.warning(f"{_element_pretty_identifier(statement)} has more than one submodel element,"
+    # TODO: remove wrapping submodelElement, in accordance to future schemas
+    statements = _get_child_mandatory(element, NS_AAS + "statements")
+    for submodel_element in _get_all_children_expect_tag(statements, NS_AAS + "submodelElement", failsafe):
+        if len(submodel_element) == 0:
+            raise KeyError(f"{_element_pretty_identifier(submodel_element)} has no submodel element!")
+        if len(submodel_element) > 1:
+            logger.warning(f"{_element_pretty_identifier(submodel_element)} has more than one submodel element,"
                            "using the first one...")
-        constructed = _failsafe_construct(statement[0], _construct_submodel_element, failsafe)
+        constructed = _failsafe_construct(submodel_element[0], _construct_submodel_element, failsafe)
         if constructed is not None:
             entity.statement.add(constructed)
     _amend_abstract_attributes(entity, element, failsafe)
@@ -728,21 +730,15 @@ def _construct_operation(element: etree.Element, failsafe: bool, **_kwargs: Any)
         _child_text_mandatory(element, NS_AAS + "idShort"),
         kind=_get_modeling_kind(element)
     )
-    in_output_variable = element.find(NS_AAS + "inoutputVariable")
-    if in_output_variable is not None:
-        for var in _child_construct_multiple(in_output_variable, NS_AAS + "operationVariable",
-                                             _construct_operation_variable, failsafe):
-            operation.in_output_variable.append(var)
-    input_variable = element.find(NS_AAS + "inputVariable")
-    if input_variable is not None:
-        for var in _child_construct_multiple(input_variable, NS_AAS + "operationVariable",
-                                             _construct_operation_variable, failsafe):
-            operation.input_variable.append(var)
-    output_variable = element.find(NS_AAS + "outputVariable")
-    if output_variable is not None:
-        for var in _child_construct_multiple(output_variable, NS_AAS + "operationVariable",
-                                             _construct_operation_variable, failsafe):
-            operation.output_variable.append(var)
+    for input_variable in _failsafe_construct_multiple(element.findall(NS_AAS + "inputVariable"),
+                                                       _construct_operation_variable, failsafe):
+        operation.input_variable.append(input_variable)
+    for output_variable in _failsafe_construct_multiple(element.findall(NS_AAS + "outputVariable"),
+                                                        _construct_operation_variable, failsafe):
+        operation.output_variable.append(output_variable)
+    for in_output_variable in _failsafe_construct_multiple(element.findall(NS_AAS + "inoutputVariable"),
+                                                           _construct_operation_variable, failsafe):
+        operation.in_output_variable.append(in_output_variable)
     _amend_abstract_attributes(operation, element, failsafe)
     return operation
 
@@ -793,7 +789,15 @@ def _construct_reference_element(element: etree.Element, failsafe: bool, **_kwar
 
 def _construct_relationship_element(element: etree.Element, failsafe: bool, **_kwargs: Any) \
         -> model.RelationshipElement:
-    relationship_element = model.RelationshipElement(
+    return _construct_relationship_element_internal(element, failsafe, model.RelationshipElement, **_kwargs)
+
+
+RE = TypeVar("RE", bound=model.RelationshipElement)
+
+
+def _construct_relationship_element_internal(element: etree.Element, failsafe: bool,
+                                             object_class: Type[RE], **_kwargs: Any) -> RE:
+    relationship_element = object_class(
         _child_text_mandatory(element, NS_AAS + "idShort"),
         _child_construct_mandatory(element, NS_AAS + "first", _construct_referable_reference),
         _child_construct_mandatory(element, NS_AAS + "second", _construct_referable_reference),
@@ -811,16 +815,16 @@ def _construct_submodel_element_collection(element: etree.Element, failsafe: boo
         _child_text_mandatory(element, NS_AAS + "idShort"),
         kind=_get_modeling_kind(element)
     )
+    value = _get_child_mandatory(element, NS_AAS + "value")
     # TODO: simplify this should our suggestion regarding the XML schema get accepted
     # https://git.rwth-aachen.de/acplt/pyaas/-/issues/57
-    for se in _get_all_children_expect_tag(
-            _get_child_mandatory(element, NS_AAS + "value"), NS_AAS + "submodelElement", failsafe):
-        if len(se) == 0:
-            raise KeyError(f"{_element_pretty_identifier(se)} has no submodel element!")
-        if len(se) > 1:
-            logger.warning(f"{_element_pretty_identifier(se)} has more than one submodel element,"
+    for submodel_element in _get_all_children_expect_tag(value, NS_AAS + "submodelElement", failsafe):
+        if len(submodel_element) == 0:
+            raise KeyError(f"{_element_pretty_identifier(submodel_element)} has no submodel element!")
+        if len(submodel_element) > 1:
+            logger.warning(f"{_element_pretty_identifier(submodel_element)} has more than one submodel element,"
                            "using the first one...")
-        constructed = _failsafe_construct(se[0], _construct_submodel_element, failsafe)
+        constructed = _failsafe_construct(submodel_element[0], _construct_submodel_element, failsafe)
         if constructed is not None:
             collection.value.add(constructed)
     _amend_abstract_attributes(collection, element, failsafe)
