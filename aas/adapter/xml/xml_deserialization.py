@@ -495,11 +495,6 @@ def _construct_concept_description_reference(element: etree.Element, failsafe: b
     return _construct_aas_reference(element, failsafe, model.ConceptDescription, **kwargs)
 
 
-def _construct_data_element_reference(element: etree.Element, failsafe: bool, **kwargs: Any) \
-        -> model.AASReference[model.DataElement]:
-    return _construct_aas_reference(element, failsafe, model.DataElement, **kwargs)
-
-
 def _construct_administrative_information(element: etree.Element, _failsafe: bool, **_kwargs: Any) \
         -> model.AdministrativeInformation:
     return model.AdministrativeInformation(
@@ -635,7 +630,12 @@ def _construct_annotated_relationship_element(element: etree.Element, failsafe: 
         element, failsafe, object_class=model.AnnotatedRelationshipElement
     )
     for data_element in _get_child_mandatory(element, NS_AAS + "annotations"):
-        constructed = _failsafe_construct(data_element, _construct_data_element, failsafe)
+        if len(data_element) == 0:
+            raise KeyError(f"{_element_pretty_identifier(data_element)} has no constraint!")
+        if len(data_element) > 1:
+            logger.warning(f"{_element_pretty_identifier(data_element)} has more than one constraint,"
+                           "using the first one...")
+        constructed = _failsafe_construct(data_element[0], _construct_data_element, failsafe)
         if constructed is not None:
             annotated_relationship_element.annotation.add(constructed)
     return annotated_relationship_element
