@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<schema elementFormDefault="qualified" targetNamespace="http://www.adminshell.io/IEC61360/2/0" xmlns="http://www.w3.org/2001/XMLSchema"
+<schema elementFormDefault="qualified" targetNamespace="http://www.admin-shell.io/IEC61360/2/0" xmlns="http://www.w3.org/2001/XMLSchema"
 xmlns:IEC61360="http://www.admin-shell.io/IEC61360/2/0">
 	<attributeGroup name="keyTypes">
 		<attribute name="identifierType" use="optional">
@@ -168,3 +168,4 @@ name="valueReferencePair" type="IEC61360:valueReferencePair_t"/>
 			<enumeration value="Typ"/>
 		</restriction>
 	</simpleType>
+</schema>

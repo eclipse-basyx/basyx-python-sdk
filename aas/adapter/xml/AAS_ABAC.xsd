@@ -4,7 +4,7 @@ targetNamespace="http://www.admin-shell.io/aas/abac/2/0"
 elementFormDefault="qualified"
 xmlns:aas="http://www.admin-shell.io/aas/2/0"
 xmlns:abac="http://www.admin-shell.io/aas/abac/2/0">
-	<import schemaLocation="AAS.xsd" namespace="http://www.adminshell.io/aas/2/0"/>
+	<import schemaLocation="AAS.xsd" namespace="http://www.admin-shell.io/aas/2/0"/>
 	<complexType name="security_t">
 		<sequence>
 			<element name="accessControlPolicyPoints"
