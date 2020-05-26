@@ -466,19 +466,23 @@
 							</aas:keys>
 						</aas:second>
 						<aas:annotations>
-							<aas:property>
-								<aas:idShort>ExampleAnnotatedProperty</aas:idShort>
-								<aas:kind>Instance</aas:kind>
-								<aas:valueType>string</aas:valueType>
-								<aas:value>exampleValue</aas:value>
-							</aas:property>
-							<aas:range>
-								<aas:idShort>ExampleAnnotatedRange</aas:idShort>
-								<aas:kind>Instance</aas:kind>
-								<aas:valueType>integer</aas:valueType>
-								<aas:min>1</aas:min>
-								<aas:max>5</aas:max>
-							</aas:range>
+							<aas:dataElement>
+								<aas:property>
+									<aas:idShort>ExampleAnnotatedProperty</aas:idShort>
+									<aas:kind>Instance</aas:kind>
+									<aas:valueType>string</aas:valueType>
+									<aas:value>exampleValue</aas:value>
+								</aas:property>
+							</aas:dataElement>
+							<aas:dataElement>
+								<aas:range>
+									<aas:idShort>ExampleAnnotatedRange</aas:idShort>
+									<aas:kind>Instance</aas:kind>
+									<aas:valueType>integer</aas:valueType>
+									<aas:min>1</aas:min>
+									<aas:max>5</aas:max>
+								</aas:range>
+							</aas:dataElement>
 						</aas:annotations>
 					</aas:annotatedRelationshipElement>
 				</aas:submodelElement>
@@ -984,19 +988,23 @@
 							</aas:keys>
 						</aas:second>
 						<aas:annotations>
-							<aas:property>
-								<aas:idShort>ExampleAnnotatedProperty</aas:idShort>
-								<aas:kind>Instance</aas:kind>
-								<aas:valueType>string</aas:valueType>
-								<aas:value>exampleValue</aas:value>
-							</aas:property>
-							<aas:range>
-								<aas:idShort>ExampleAnnotatedRange</aas:idShort>
-								<aas:kind>Instance</aas:kind>
-								<aas:valueType>integer</aas:valueType>
-								<aas:min>1</aas:min>
-								<aas:max>5</aas:max>
-							</aas:range>
+							<aas:dataElement>
+								<aas:property>
+									<aas:idShort>ExampleAnnotatedProperty</aas:idShort>
+									<aas:kind>Instance</aas:kind>
+									<aas:valueType>string</aas:valueType>
+									<aas:value>exampleValue</aas:value>
+								</aas:property>
+							</aas:dataElement>
+							<aas:dataElement>
+								<aas:range>
+									<aas:idShort>ExampleAnnotatedRange</aas:idShort>
+									<aas:kind>Instance</aas:kind>
+									<aas:valueType>integer</aas:valueType>
+									<aas:min>1</aas:min>
+									<aas:max>5</aas:max>
+								</aas:range>
+							</aas:dataElement>
 						</aas:annotations>
 					</aas:annotatedRelationshipElement>
 				</aas:submodelElement>

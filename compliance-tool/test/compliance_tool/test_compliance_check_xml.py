@@ -18,7 +18,7 @@ dirname = os.path.dirname
 XML_SCHEMA_FILE = os.path.join(dirname(dirname(dirname(__file__))), 'aas', 'adapter', 'xml', 'AAS.xsd')
 
 
-class ComplianceToolJsonTest(unittest.TestCase):
+class ComplianceToolXmlTest(unittest.TestCase):
     def test_check_schema(self) -> None:
         manager = ComplianceToolStateManager()
         script_dir = os.path.dirname(__file__)
