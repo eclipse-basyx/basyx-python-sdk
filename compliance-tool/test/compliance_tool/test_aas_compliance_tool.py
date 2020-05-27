@@ -12,18 +12,14 @@ import os
 import subprocess
 import sys
 import unittest
-from os.path import dirname
 
 import aas.compliance_tool
 import tempfile
 
-from aas.adapter.json import read_aas_json_file
-from aas.adapter.xml import read_aas_xml_file
+from aas.adapter.json import read_aas_json_file, JSON_SCHEMA_FILE
+from aas.adapter.xml import read_aas_xml_file, XML_SCHEMA_FILE
 from aas.examples.data import create_example
 from aas.examples.data._helper import AASDataChecker
-
-JSON_SCHEMA_FILE = os.path.join(dirname(dirname(dirname(__file__))), 'aas', 'adapter', 'json', 'aasJSONSchema.json')
-XML_SCHEMA_FILE = os.path.join(dirname(dirname(dirname(__file__))), 'aas', 'adapter', 'xml', 'AAS.xsd')
 
 
 class ComplianceToolTest(unittest.TestCase):
