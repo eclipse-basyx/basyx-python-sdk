@@ -23,20 +23,16 @@ check_xml_files_equivalence: Checks if two xml files have the same data regardle
 
 All functions reports any issues using the given StateManager by adding new steps and associated LogRecords
 """
-from os.path import dirname
 
 from lxml import etree  # type: ignore
 import logging
-import os
 from typing import Optional
 
 from .. import model
-from ..adapter.xml import xml_deserialization
+from ..adapter.xml import xml_deserialization, XML_SCHEMA_FILE
 from ..examples.data import example_aas, create_example
 from ..examples.data._helper import AASDataChecker
 from .state_manager import ComplianceToolStateManager, Status
-
-XML_SCHEMA_FILE = os.path.join(dirname(dirname(dirname(__file__))), 'aas', 'adapter', 'xml', 'AAS.xsd')
 
 
 def check_schema(file_path: str, state_manager: ComplianceToolStateManager) -> None:

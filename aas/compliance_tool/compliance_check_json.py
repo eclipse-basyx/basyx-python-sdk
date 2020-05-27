@@ -25,19 +25,15 @@ All functions reports any issues using the given StateManager by adding new step
 """
 import json
 import logging
-import os
-from os.path import dirname
 from typing import Optional
 
 import jsonschema  # type: ignore
 
 from .. import model
-from ..adapter.json import json_deserialization
+from ..adapter.json import json_deserialization, JSON_SCHEMA_FILE
 from ..examples.data import example_aas, create_example
 from ..examples.data._helper import AASDataChecker
 from .state_manager import ComplianceToolStateManager, Status
-
-JSON_SCHEMA_FILE = os.path.join(dirname(dirname(dirname(__file__))), 'aas', 'adapter', 'json', 'aasJSONSchema.json')
 
 
 def check_schema(file_path: str, state_manager: ComplianceToolStateManager) -> None:

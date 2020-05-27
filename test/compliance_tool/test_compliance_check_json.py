@@ -14,9 +14,6 @@ import unittest
 import aas.compliance_tool.compliance_check_json as compliance_tool
 from aas.compliance_tool.state_manager import ComplianceToolStateManager, Status
 
-dirname = os.path.dirname
-JSON_SCHEMA_FILE = os.path.join(dirname(dirname(dirname(__file__))), 'aas', 'adapter', 'json', 'aasJSONSchema.json')
-
 
 class ComplianceToolJsonTest(unittest.TestCase):
     def test_check_schema(self) -> None:

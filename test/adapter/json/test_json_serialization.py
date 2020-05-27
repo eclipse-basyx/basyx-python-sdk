@@ -12,18 +12,13 @@
 import io
 import unittest
 import json
-import os
-from os.path import dirname
 
 from aas import model
-from aas.adapter.json import AASToJsonEncoder, write_aas_json_file
+from aas.adapter.json import AASToJsonEncoder, write_aas_json_file, JSON_SCHEMA_FILE
 from jsonschema import validate  # type: ignore
 
 from aas.examples.data import example_aas_missing_attributes, example_submodel_template, \
     example_aas_mandatory_attributes, example_aas, create_example, example_concept_description
-
-JSON_SCHEMA_FILE = os.path.join(dirname(dirname(dirname(dirname(__file__)))),
-                                'aas', 'adapter', 'json', 'aasJSONSchema.json')
 
 
 class JsonSerializationTest(unittest.TestCase):

@@ -14,9 +14,6 @@ import unittest
 import aas.compliance_tool.compliance_check_xml as compliance_tool
 from aas.compliance_tool.state_manager import ComplianceToolStateManager, Status
 
-dirname = os.path.dirname
-XML_SCHEMA_FILE = os.path.join(dirname(dirname(dirname(__file__))), 'aas', 'adapter', 'xml', 'AAS.xsd')
-
 
 class ComplianceToolXmlTest(unittest.TestCase):
     def test_check_schema(self) -> None:

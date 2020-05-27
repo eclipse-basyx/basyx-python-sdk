@@ -12,6 +12,9 @@ json_deserialization.py
     PyI40AAS object. A function `read_json_aas_file()` is provided to read all AAS objects within a JSON file and return
     them as PyI40AAS ObjectStore.
 """
+import os.path
 
 from .json_serialization import AASToJsonEncoder, write_aas_json_file, object_store_to_json
 from .json_deserialization import StrictAASFromJsonDecoder, AASFromJsonDecoder, read_aas_json_file
+
+JSON_SCHEMA_FILE = os.path.join(os.path.dirname(__file__), 'aasJSONSchema.json')
