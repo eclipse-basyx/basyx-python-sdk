@@ -423,7 +423,7 @@ def _amend_abstract_attributes(obj: object, element: etree.Element, failsafe: bo
             if len(constraint) == 0:
                 raise KeyError(f"{_element_pretty_identifier(constraint)} has no constraint!")
             if len(constraint) > 1:
-                logger.warning(f"{_element_pretty_identifier(constraint)} has more than one constraint,"
+                logger.warning(f"{_element_pretty_identifier(constraint)} has more than one constraint, "
                                "using the first one...")
             constructed = _failsafe_construct(constraint[0], _construct_constraint, failsafe)
             if constructed is not None:
@@ -617,7 +617,7 @@ def _construct_operation_variable(element: etree.Element, _failsafe: bool, **_kw
     if len(value) == 0:
         raise KeyError(f"{_element_pretty_identifier(value)} has no submodel element!")
     if len(value) > 1:
-        logger.warning(f"{_element_pretty_identifier(value)} has more than one submodel element,"
+        logger.warning(f"{_element_pretty_identifier(value)} has more than one submodel element, "
                        "using the first one...")
     return model.OperationVariable(
         _failsafe_construct_mandatory(value[0], _construct_submodel_element)
@@ -633,7 +633,7 @@ def _construct_annotated_relationship_element(element: etree.Element, failsafe: 
         if len(data_element) == 0:
             raise KeyError(f"{_element_pretty_identifier(data_element)} has no data element!")
         if len(data_element) > 1:
-            logger.warning(f"{_element_pretty_identifier(data_element)} has more than one data element,"
+            logger.warning(f"{_element_pretty_identifier(data_element)} has more than one data element, "
                            "using the first one...")
         constructed = _failsafe_construct(data_element[0], _construct_data_element, failsafe)
         if constructed is not None:
@@ -687,7 +687,7 @@ def _construct_entity(element: etree.Element, failsafe: bool, **_kwargs: Any) ->
         if len(submodel_element) == 0:
             raise KeyError(f"{_element_pretty_identifier(submodel_element)} has no submodel element!")
         if len(submodel_element) > 1:
-            logger.warning(f"{_element_pretty_identifier(submodel_element)} has more than one submodel element,"
+            logger.warning(f"{_element_pretty_identifier(submodel_element)} has more than one submodel element, "
                            "using the first one...")
         constructed = _failsafe_construct(submodel_element[0], _construct_submodel_element, failsafe)
         if constructed is not None:
@@ -822,7 +822,7 @@ def _construct_submodel_element_collection(element: etree.Element, failsafe: boo
         if len(submodel_element) == 0:
             raise KeyError(f"{_element_pretty_identifier(submodel_element)} has no submodel element!")
         if len(submodel_element) > 1:
-            logger.warning(f"{_element_pretty_identifier(submodel_element)} has more than one submodel element,"
+            logger.warning(f"{_element_pretty_identifier(submodel_element)} has more than one submodel element, "
                            "using the first one...")
         constructed = _failsafe_construct(submodel_element[0], _construct_submodel_element, failsafe)
         if constructed is not None:
@@ -891,7 +891,7 @@ def _construct_submodel(element: etree.Element, failsafe: bool, **_kwargs: Any) 
         if len(submodel_element) == 0:
             raise KeyError(f"{_element_pretty_identifier(submodel_element)} has no submodel element!")
         if len(submodel_element) > 1:
-            logger.warning(f"{_element_pretty_identifier(submodel_element)} has more than one submodel element,"
+            logger.warning(f"{_element_pretty_identifier(submodel_element)} has more than one submodel element, "
                            "using the first one...")
         constructed = _failsafe_construct(submodel_element[0], _construct_submodel_element, failsafe)
         if constructed is not None:
