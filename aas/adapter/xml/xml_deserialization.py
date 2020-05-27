@@ -631,9 +631,9 @@ def _construct_annotated_relationship_element(element: etree.Element, failsafe: 
     )
     for data_element in _get_child_mandatory(element, NS_AAS + "annotations"):
         if len(data_element) == 0:
-            raise KeyError(f"{_element_pretty_identifier(data_element)} has no constraint!")
+            raise KeyError(f"{_element_pretty_identifier(data_element)} has no data element!")
         if len(data_element) > 1:
-            logger.warning(f"{_element_pretty_identifier(data_element)} has more than one constraint,"
+            logger.warning(f"{_element_pretty_identifier(data_element)} has more than one data element,"
                            "using the first one...")
         constructed = _failsafe_construct(data_element[0], _construct_data_element, failsafe)
         if constructed is not None:
