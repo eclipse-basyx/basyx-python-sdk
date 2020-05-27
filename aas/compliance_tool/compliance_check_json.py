@@ -28,8 +28,6 @@ import logging
 import os
 from typing import Optional
 
-import jsonschema  # type: ignore
-
 from .. import model
 from ..adapter.json import json_deserialization
 from ..examples.data import example_aas, create_example
@@ -84,7 +82,15 @@ def check_schema(file_path: str, schema_path: str, state_manager: ComplianceTool
     with open(schema_path, 'r', encoding='utf-8-sig') as json_file:
         aas_json_schema = json.load(json_file)
     state_manager.add_step('Validate file against official json schema')
+
     # validate given file against schema
+    try:
+        import jsonschema  # type: ignore
+    except ImportError as error:
+        state_manager.set_step_status(Status.NOT_EXECUTED)
+        logger.error("Python package 'jsonschema' is required for validating the JSON file.", error)
+        return
+
     try:
         jsonschema.validate(instance=json_to_be_checked, schema=aas_json_schema)
     except jsonschema.exceptions.ValidationError as error:
