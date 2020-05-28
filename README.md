@@ -36,17 +36,26 @@ file.
 
 ## Dependencies
 
-PyI40AAS requires the following Python packages to be installed for production usage:
+PyI40AAS requires the following Python packages to be installed for production usage. These dependencies are listed in
+`setup.py` to be fetched automatically when installing with `pip`:
 * `python-dateutil` (BSD 3-clause License)
 * `lxml` (BSD 3-clause License, using `libxml2` under MIT License)
 * `pyecma376-2` (Apache License v2.0)
+
+Optional production usage dependencies:
+* For using the Compliance Tool to validate JSON files against the JSON Schema: `jsonschema` and its
+dependencies (MIT License, Apache License, PSF License)
+
+Development/testing/example dependencies (see `requirements.txt`):
+* `jsonschema` and its dependencies (MIT License, Apache License, PSF License)
+* `psutil` (BSD 3-clause License)
 
 
 ## Getting Started
 
 ### Installation
 
-For most users, the recommended method to install is from PyPI:
+For production usage and building applications with PyI40AAS, we recommended installation from PyPI:
 
 ```python
 pip install pyi40aas
