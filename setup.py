@@ -24,7 +24,7 @@ setuptools.setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://git.rwth-aachen.de/acplt/pyaas",
-    packages=setuptools.find_packages(),
+    packages=setuptools.find_packages(exclude=["test", "test.*"]),
     zip_safe=False,
     package_data={"aas": ["py.typed"]},
     classifiers=[
