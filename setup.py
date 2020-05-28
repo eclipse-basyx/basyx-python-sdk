@@ -23,7 +23,7 @@ setuptools.setup(
     description="An implementation of the Asset Administration Shell for Industry 4.0 systems",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://git.rwth-aachen.de/acplt/pyaas",
+    url="https://git.rwth-aachen.de/acplt/pyi40aas",
     packages=setuptools.find_packages(exclude=["test", "test.*"]),
     zip_safe=False,
     package_data={
