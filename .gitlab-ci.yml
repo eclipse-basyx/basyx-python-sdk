@@ -1,14 +1,14 @@
 image: python:3.6
 
+stages:
+  - build
+  - test
+  - package
+  - deploy
+
 # Change pip's package cache directory to be inside the project directory to allow caching via Gitlab CI
 variables:
     PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
-    COUCHDB_USER: "admin"
-    COUCHDB_PASSWORD: "yo0Quai3"
-
-services:
-  - couchdb:2.3
-
 cache:
   paths:
     - .cache/pip
@@ -16,8 +16,18 @@ cache:
 before_script:
   - python -V               # Print out python version for debugging
 
+# Our main CI test script
 test:
   stage: test
+  only: [branches, tags, merge_requests]
+  inherit:
+    variables: ["PIP_CACHE_DIR"]
+  variables:
+    COUCHDB_USER: "admin"
+    COUCHDB_PASSWORD: "yo0Quai3"
+  services:
+    - couchdb:2.3
+
   script:
   # Install python testing dependencies
   - pip install --cache-dir="$PIP_CACHE_DIR" mypy pycodestyle unittest-xml-reporting coverage
@@ -38,4 +48,29 @@ test:
     reports:
       junit: testreports/*.xml
 
-  only: [branches, tags, merge_requests]
+
+# Use setup.py to build a source distribution package
+package:
+  stage: package
+
+  script:
+    - python setup.py sdist
+
+  artifacts:
+    paths:
+      - dist/*.tar.gz
+
+
+# Publish package to PyPI for every vX.X.X tag
+publish:
+  stage: deploy
+  only:
+    - /^v\d+(\.\d+)*$/
+  except:
+    - branches
+  dependencies:
+    - package
+
+  script:
+    - pip install --cache-dir="$PIP_CACHE_DIR" twine
+    - twine upload dist/*.tar.gz
