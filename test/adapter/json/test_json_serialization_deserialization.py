@@ -13,6 +13,7 @@ import io
 import json
 import os
 import unittest
+from os.path import dirname
 
 from aas import model
 from aas.adapter.json import AASToJsonEncoder, write_aas_json_file, read_aas_json_file
@@ -20,7 +21,6 @@ from aas.adapter.json import AASToJsonEncoder, write_aas_json_file, read_aas_jso
 from aas.examples.data import example_aas_missing_attributes, example_submodel_template, \
     example_aas_mandatory_attributes, example_aas, example_concept_description, create_example
 from aas.examples.data._helper import AASDataChecker
-JSON_SCHEMA_FILE = os.path.join(os.path.dirname(__file__), 'aasJSONSchema.json')
 
 
 class JsonSerializationDeserializationTest(unittest.TestCase):

@@ -10,16 +10,14 @@
 # specific language governing permissions and limitations under the License.
 import io
 import unittest
+
 from lxml import etree  # type: ignore
-import os
 
 from aas import model
-from aas.adapter.xml import write_aas_xml_file, xml_serialization
+from aas.adapter.xml import write_aas_xml_file, xml_serialization, XML_SCHEMA_FILE
 
 from aas.examples.data import example_aas_missing_attributes, example_submodel_template, \
     example_aas_mandatory_attributes, example_aas, example_concept_description
-
-XML_SCHEMA_FILE = os.path.join(os.path.dirname(__file__), 'AAS.xsd')
 
 
 class XMLSerializationTest(unittest.TestCase):
@@ -50,7 +48,6 @@ class XMLSerializationTest(unittest.TestCase):
         write_aas_xml_file(file=test_file, data=test_data)
 
 
-@unittest.skipUnless(os.path.exists(XML_SCHEMA_FILE), "XML Schema not found for validation")
 class XMLSerializationSchemaTest(unittest.TestCase):
     def test_random_object_serialization(self) -> None:
         asset_key = (model.Key(model.KeyElements.ASSET, True, "asset", model.KeyType.CUSTOM),)

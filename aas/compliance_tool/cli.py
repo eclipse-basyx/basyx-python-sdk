@@ -41,8 +41,7 @@ def main():
                     'files) or in short (c, s, d, e or f).\n'
                     'Depending the chosen feature, different additional arguments must be specified:\n'
                     'create or c:          path to the file which shall be created (file_1)\n'
-                    'schema or s:          file to be checked (file_1) and the path to the official aas '
-                    'schema (-s or --schema)\n'
+                    'schema or s:          file to be checked (file_1)\n'
                     'deserialization or d: file to be checked (file_1)\n'
                     'example or e:         file to be checked (file_1)\n'
                     'file_compare or f:    files to compare (file_1, file_2)\n'
@@ -69,9 +68,6 @@ def main():
     parser.add_argument('file_1', help="path to file 1")
     parser.add_argument('file_2', nargs='?', default=None, help="path to file 2: is required if action f or files is "
                                                                 "choosen")
-    parser.add_argument('-s', '--schema', help="path to the AAS xml/json schema file. Required, if action 's' or "
-                                               "'schema' is choosen.",
-                        default=None)
     parser.add_argument('-v', '--verbose', help="Print detailed information for each check. Multiple -v options "
                                                 "increase the verbosity. 1: Detailed error information, 2: Additional "
                                                 "detailed success information", action='count', default=0)
@@ -112,12 +108,10 @@ def main():
             logger.error(error)
             manager.set_step_status(Status.FAILED)
     elif args.action == 'schema' or args.action == 's':
-        if not args.schema:
-            parser.error("s or schema requires a schema path.")
         if args.json:
-            compliance_tool_json.check_schema(args.file_1, args.schema, manager)
+            compliance_tool_json.check_schema(args.file_1, manager)
         if args.xml:
-            compliance_tool_xml.check_schema(args.file_1, args.schema, manager)
+            compliance_tool_xml.check_schema(args.file_1, manager)
     elif args.action == 'deserialization' or args.action == 'd':
         if args.json:
             compliance_tool_json.check_deserialization(args.file_1, manager)

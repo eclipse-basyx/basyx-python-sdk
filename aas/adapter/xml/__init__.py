@@ -7,6 +7,9 @@ xml_serialization:
 xml_deserialization.py
     The module offers a function to create an ObjectStore from a given xml document.
 """
+import os.path
 
 from .xml_serialization import write_aas_xml_file
 from .xml_deserialization import read_aas_xml_file
+
+XML_SCHEMA_FILE = os.path.join(os.path.dirname(__file__), 'AAS.xsd')

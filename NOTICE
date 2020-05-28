@@ -3,3 +3,16 @@ Copyright 2019 Chair of Process Control Engineering, RWTH Aachen University
 
 This product includes software developed at
 Chair of Process Control Engineering, RWTH Aachen University (https://www.plt.rwth-aachen.de/).
+
+---
+
+This product includes XSD and JSON Schema files, developed at
+Plattform Industrie 4.0, Bundesministerium für Wirtschaft und Energie (https://www.plattform-i40.de)
+
+Published in "Details of the Asset Administration Shell – Part 1"
+at https://www.plattform-i40.de/PI40/Redaktion/DE/Downloads/Publikation/Details-of-the-Asset-Administration-Shell-Part1.html
+
+under the terms of the Creative Commons Attribution-NoDerivs 3.0 Germany License (CC BY-ND 3.0 DE)
+https://creativecommons.org/licenses/by-nd/3.0/de/deed.en
+
+These files are located at `aas/adapter/json/aasJSONSchema.json` and `aas/adapter/xml/{AAS,AAS_ABAC,IEC61360}.xsd`.
