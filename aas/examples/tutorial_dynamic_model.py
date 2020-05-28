@@ -52,7 +52,11 @@ class ProcessMemProperty(model.Property):
     def update(self, timeout: float = 0) -> None:
         if datetime.datetime.now() - self.last_update < datetime.timedelta(seconds=timeout):
             return
-        self.value = self.process.memory_percent()
+        try:
+            self.value = self.process.memory_percent()
+        except psutil.Error:
+            # Set value to None in case of an error while fetching the memory usage
+            self.value = None
         self.last_update = datetime.datetime.now()
 
     def commit(self) -> None:
@@ -119,7 +123,11 @@ class ProcessList(model.SubmodelElementCollectionUnordered):
         for pid in pids:
             id_short = "process_{}".format(pid)
             if id_short not in self.value:  # The NamespaceSet object in `self.value` allows for a given id_short
-                self.value.add(ProcessDataCollection(pid, id_short))
+                try:
+                    self.value.add(ProcessDataCollection(pid, id_short))
+                except psutil.AccessDenied:
+                    # Skip process in case we are not allowed to access its details
+                    pass
 
         # 3. Step: Update the data within the ProcessDataCollections recursively
         for c in self.value:
