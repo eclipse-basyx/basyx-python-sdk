@@ -47,9 +47,9 @@ class Date(datetime.date):
 
     def __new__(cls, year: int, month: Optional[int] = None, day: Optional[int] = None,
                 tzinfo: Optional[datetime.tzinfo] = None) -> "Date":
-        res = datetime.date.__new__(cls, year, month, day)  # type: ignore
+        res: "Date" = datetime.date.__new__(cls, year, month, day)  # type: ignore  # pickle support is not in typeshed
         # TODO normalize tzinfo to '+12:00' through '-11:59'
-        res._tzinfo = tzinfo
+        res._tzinfo = tzinfo  # type: ignore  # Workaround for MyPy bug, not recognizing our additional __slots__
         return res
 
     def begin(self) -> datetime.datetime:
