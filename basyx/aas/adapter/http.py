@@ -39,15 +39,15 @@ class XmlResponseAlt(XmlResponse):
         super().__init__(*args, **kwargs, content_type="text/xml")
 
 
-    """
-    A mapping of supported content types to their respective ResponseType.
-    The first content type in this dict will be preferred if the requester doesn't specify preferred content types using
-    and HTTP-"Accept" header.
-    """
+"""
+A mapping of supported content types to their respective ResponseType.
+The first content type in this dict will be preferred if the requester doesn't specify preferred content types using
+and HTTP-"Accept" header.
+"""
 RESPONSE_TYPES = {
     "application/json": JsonResponse,
-#    "application/xml": XmlResponse,
-#    "text/xml": XmlResponseAlt
+    # "application/xml": XmlResponse,
+    # "text/xml": XmlResponseAlt
 }
 
 
