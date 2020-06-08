@@ -16,7 +16,7 @@ cache:
 before_script:
   - python -V               # Print out python version for debugging
 
-# Our main CI test script
+# Run python unittests (and report coverage)
 test:
   stage: test
   only: [branches, tags, merge_requests]
@@ -30,7 +30,7 @@ test:
 
   script:
   # Install python testing dependencies
-  - pip install --cache-dir="$PIP_CACHE_DIR" mypy pycodestyle unittest-xml-reporting coverage
+  - pip install --cache-dir="$PIP_CACHE_DIR" unittest-xml-reporting coverage
   - pip install --cache-dir="$PIP_CACHE_DIR" -r requirements.txt
   # Setup test config and CouchDB database server
   - echo -e "[couchdb]\nurl = http://couchdb:5984" > test/test_config.ini
@@ -39,14 +39,28 @@ test:
   - export PYTHONPATH=".:$PYTHONPATH"
   # Run tests
   - coverage run --source aas --branch -m xmlrunner -o testreports
-  # Report test coverage; check typing and codestyle
+  # Report test coverage
   - coverage report -m
-  - mypy aas test
-  - python -m pycodestyle --count --max-line-length 120 aas test
 
   artifacts:
     reports:
       junit: testreports/*.xml
+
+
+# Run static code analysis with MyPy and PyCodestyle
+static_analysis:
+  stage: test
+  only: [branches, tags, merge_requests]
+  inherit:
+    variables: ["PIP_CACHE_DIR"]
+
+  script:
+    # Install python testing dependencies
+    - pip install --cache-dir="$PIP_CACHE_DIR" mypy pycodestyle
+    - pip install --cache-dir="$PIP_CACHE_DIR" -r requirements.txt
+    # Check typing und report
+    - mypy aas test
+    - python -m pycodestyle --count --max-line-length 120 aas test
 
 
 # Use setup.py to build a source distribution package
