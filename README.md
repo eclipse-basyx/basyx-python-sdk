@@ -155,7 +155,7 @@ pip install mypy pycodestyle
 Running all checks:
 ```bash
 mypy aas test
-python -m pycodestyle --max-line-length 120 aas test
+pycodestyle --max-line-length 120 aas test
 python -m unittest
 ```
 
