@@ -410,7 +410,7 @@ class Referable(metaclass=abc.ABCMeta):
     :ivar parent: Reference to the next referable parent element of the element.
                   Constraint AASd-004: Add parent in case of non identifiable elements.
     :ivar source: Source/Backend of the object. This is used to specify where the Referable should be updated from and
-                  committed to. Default is an empty string, making it use the source of its parent. 
+                  committed to. Default is an empty string, making it use the source of its parent.
     """
 
     def __init__(self):
@@ -464,15 +464,23 @@ class Referable(metaclass=abc.ABCMeta):
             raise ValueError("The id_short must start with a letter")
         self._id_short = id_short
 
-    def update(self, timeout: float = 0) -> None:
+    def update(self, timeout: float = 0, _relative_path: str = "") -> None:
         """
-        Update the local Referable object from the underlying backend.
+        Update the local Referable object from the underlying source
 
-        If the object does not belong to a backend, i.e. it is a simple in-memory object, this function does nothing.
+        If there is no source given, it will find its next ancestor with a source and update from this source.
+        If there is no source in any ancestor, this function will do nothing
 
-        :param timeout: Only update the object, if it has not been updated within the last `timeout` seconds.
+        :param timeout: Only update the object, if it has not been updated within the last `timeout` seconds. todo
+        :param _relative_path: Relative path to the child object that needs updating (Internal parameter)
         """
-        pass
+        if self.source != "":
+            # todo find Backend from source and update there
+            return
+        else:
+            _relative_path = self.id_short+"/"+_relative_path  # todo CHECK
+            if isinstance(self.parent, Referable):
+                self.parent.update()
 
     def update_from(self, other: "Referable"):
         """
