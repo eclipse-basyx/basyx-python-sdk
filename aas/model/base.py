@@ -409,8 +409,8 @@ class Referable(metaclass=abc.ABCMeta):
     :ivar description: Description or comments on the element.
     :ivar parent: Reference to the next referable parent element of the element.
                   Constraint AASd-004: Add parent in case of non identifiable elements.
-
-
+    :ivar source: Source/Backend of the object. This is used to specify where the Referable should be updated from and
+                  committed to. Default is an empty string, making it use the source of its parent. 
     """
 
     def __init__(self):
@@ -421,6 +421,7 @@ class Referable(metaclass=abc.ABCMeta):
         # We use a Python reference to the parent Namespace instead of a Reference Object, as specified. This allows
         # simpler and faster navigation/checks and it has no effect in the serialized data formats anyway.
         self.parent: Optional[Namespace] = None
+        self.source: str = ""
 
     def __repr__(self) -> str:
         reversed_path = []
