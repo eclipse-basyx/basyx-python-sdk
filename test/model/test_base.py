@@ -148,6 +148,11 @@ class ModelNamespaceTest(unittest.TestCase):
         self.assertEqual('"Referable with id_short \'Prop2\' is already present in another set in the same namespace"',
                          str(cm.exception))
 
+        namespace2 = self._namespace_class()
+        with self.assertRaises(ValueError) as cm2:
+            namespace2.set1.add(self.prop1)
+        self.assertIn('has already a parent', str(cm2.exception))
+
         self.namespace.set1.remove(self.prop1)
         self.assertEqual(1, len(self.namespace.set1))
         self.assertIsNone(self.prop1.parent)
@@ -179,18 +184,7 @@ class ModelNamespaceTest(unittest.TestCase):
             namespace.get_referable("Prop3")
         self.assertEqual("'Referable with id_short Prop3 not found in this namespace'", str(cm.exception))
 
-    def test_add_and_remove(self) -> None:
-        namespace2 = self._namespace_class()
-        namespace2.set1.add(self.prop1)
-        with self.assertRaises(ValueError) as cm:
-            self.namespace.set1.add(self.prop1)
-        self.assertIn('has already a parent', str(cm.exception))
-        namespace2.set1.get_referable('Prop1')
-        namespace2.set1.remove('Prop1')
-        with self.assertRaises(KeyError):
-            namespace2.set1.get_referable('Prop1')
-
-    def test_update_from(self) -> None:
+    def test_Namespaceset_update_from(self) -> None:
         # Prop1 is getting its value updated by namespace2.set1
         # Prop2 is getting deleted since it does not exist in namespace2.set1
         # Prop3 is getting added, since it does not exist in namespace1.set1 yet
