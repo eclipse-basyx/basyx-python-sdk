@@ -180,7 +180,7 @@ class ModelNamespaceTest(unittest.TestCase):
         self.assertEqual("'Referable with id_short Prop3 not found in this namespace'", str(cm.exception))
 
     def test_add_and_remove(self):
-        namespace2 = ExampleNamespace()
+        namespace2 = self._namespace_class()
         namespace2.set1.add(self.prop1)
         with self.assertRaises(ValueError) as cm:
             self.namespace.set1.add(self.prop1)
@@ -195,10 +195,10 @@ class ModelNamespaceTest(unittest.TestCase):
         # Prop1 is getting its value updated by namespace2.set1
         # Prop2 is getting deleted since it does not exist in namespace2.set1
         # Prop3 is getting added, since it does not exist in namespace1.set1 yet
-        namespace1 = ExampleNamespace()
+        namespace1 = self._namespace_class()
         namespace1.set1.add(model.Property("Prop1", model.datatypes.Int, 1))
         namespace1.set1.add(model.Property("Prop2", model.datatypes.Int, 0))
-        namespace2 = ExampleNamespace()
+        namespace2 = self._namespace_class()
         namespace2.set1.add(model.Property("Prop1", model.datatypes.Int, 0))
         namespace2.set1.add(model.Property("Prop3", model.datatypes.Int, 2))
         namespace1.set1.update_nss_from(namespace2.set1)
