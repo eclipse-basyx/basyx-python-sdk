@@ -466,7 +466,7 @@ class Referable(metaclass=abc.ABCMeta):
 
     def update(self, timeout: float = 0, _relative_path: str = "") -> None:
         """
-        Update the local Referable object from the underlying source
+        Update the local Referable object from the underlying source.
 
         If there is no source given, it will find its next ancestor with a source and update from this source.
         If there is no source in any ancestor, this function will do nothing
@@ -478,7 +478,7 @@ class Referable(metaclass=abc.ABCMeta):
             # todo find Backend from source and update there
             return
         else:
-            _relative_path = self.id_short+"/"+_relative_path  # todo CHECK
+            _relative_path = self.id_short+"/"+_relative_path if _relative_path != "" else self.id_short  # todo CHECK
             if isinstance(self.parent, Referable):
                 self.parent.update()
 
@@ -499,13 +499,20 @@ class Referable(metaclass=abc.ABCMeta):
                 vars(self)[name].update_nss_from(var)
             vars(self)[name] = var  # that variable is not a NameSpaceSet, so it isn't Referable
 
-    def commit(self) -> None:
+    def commit(self, _relative_path: str = "") -> None:
         """
-        Transfer local changes on this object to the underlying backend.
+        Transfer local changes on this object to the underlying source(s).
 
-        If the object does not belong to a backend, i.e. it is a simple in-memory object, this function does nothing.
+        This function commits the current state of this object to its own and each source of its ancestors.
+        If there is no source, this function will do nothing.
+
+        :param _relative_path: Relative path to the child object that is getting committed (Internal parameter)
         """
-        pass
+        if self.source != "":
+            # todo: Find backend from source and commit to it
+            pass
+        _relative_path = self.id_short + "/" + _relative_path if _relative_path != "" else self.id_short  # todo: Check
+        self.parent.commit(_relative_path)
 
     id_short = property(_get_id_short, _set_id_short)
 
