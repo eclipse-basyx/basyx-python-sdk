@@ -30,6 +30,7 @@ import os
 import re
 from typing import Dict, Tuple, IO, Union, List, Set, Optional
 
+from .xml import read_aas_xml_file
 from .. import model
 from .json import read_aas_json_file, write_aas_json_file
 import pyecma376_2
@@ -204,9 +205,8 @@ class AASXReader:
         extension = part_name.split("/")[-1].split(".")[-1]
         if content_type.split(";")[0] in ("text/xml", "application/xml") or content_type == "" and extension == "xml":
             logger.debug("Parsing AAS objects from XML stream in OPC part {} ...".format(part_name))
-            # TODO XML Deserialization
-            raise NotImplementedError("XML deserialization is not implemented yet. Thus, AASX files with XML parts are "
-                                      "not supported.")
+            with self.reader.open_part(part_name) as p:
+                return read_aas_xml_file(p)
         elif content_type.split(";")[0] in ("text/json", "application/json") \
                 or content_type == "" and extension == "json":
             logger.debug("Parsing AAS objects from JSON stream in OPC part {} ...".format(part_name))
