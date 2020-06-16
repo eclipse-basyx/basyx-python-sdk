@@ -148,6 +148,11 @@ class ModelNamespaceTest(unittest.TestCase):
         self.assertEqual('"Referable with id_short \'Prop2\' is already present in another set in the same namespace"',
                          str(cm.exception))
 
+        namespace2 = self._namespace_class()
+        with self.assertRaises(ValueError) as cm2:
+            namespace2.set1.add(self.prop1)
+        self.assertIn('has already a parent', str(cm2.exception))
+
         self.namespace.set1.remove(self.prop1)
         self.assertEqual(1, len(self.namespace.set1))
         self.assertIsNone(self.prop1.parent)
@@ -179,37 +184,33 @@ class ModelNamespaceTest(unittest.TestCase):
             namespace.get_referable("Prop3")
         self.assertEqual("'Referable with id_short Prop3 not found in this namespace'", str(cm.exception))
 
-    def test_add_and_remove(self):
-        namespace2 = ExampleNamespace()
-        namespace2.set1.add(self.prop1)
-        with self.assertRaises(ValueError) as cm:
-            self.namespace.set1.add(self.prop1)
-        self.assertEqual('Object has already a parent, but it must not be part of two namespaces.', str(cm.exception))
-        namespace2.set1.get_referable('Prop1')
-        namespace2.set1.remove('Prop1')
-        with self.assertRaises(KeyError) as cm:
-            namespace2.set1.get_referable('Prop1')
-        self.assertEqual("'Prop1'", str(cm.exception))
-
-    def test_update(self):
+    def test_Namespaceset_update_from(self) -> None:
         # Prop1 is getting its value updated by namespace2.set1
         # Prop2 is getting deleted since it does not exist in namespace2.set1
         # Prop3 is getting added, since it does not exist in namespace1.set1 yet
-        namespace1 = ExampleNamespace()
-        namespace1.set1.add(model.Property("Prop1", model.datatypes.Int, 1))
-        namespace1.set1.add(model.Property("Prop2", model.datatypes.Int, 0))
-        namespace2 = ExampleNamespace()
+        namespace1 = self._namespace_class()
+        prop1 = model.Property("Prop1", model.datatypes.Int, 1)
+        prop2 = model.Property("Prop2", model.datatypes.Int, 0)
+        namespace1.set1.add(prop1)
+        namespace1.set1.add(prop2)
+        namespace2 = self._namespace_class()
         namespace2.set1.add(model.Property("Prop1", model.datatypes.Int, 0))
         namespace2.set1.add(model.Property("Prop3", model.datatypes.Int, 2))
         namespace1.set1.update_nss_from(namespace2.set1)
-        self.assertEqual(namespace1.set1.get_referable("Prop1").value, 0)  # Check that Prop1 got updated correctly
-        self.assertEqual(namespace1.set1.get_referable("Prop3").value, 2)  # Check that Prop3 got added
-        with self.assertRaises(KeyError) as cm:  # Check that Prop2 got removed
-            namespace1.set1.get_referable("Prop2")
-        self.assertEqual("'Prop2'", str(cm.exception))
-        # Check that the parent of Prop3 is adapted correctly:
-        self.assertEqual(namespace1.get_referable("Prop1").parent, namespace1)
-        self.assertEqual(namespace1.get_referable("Prop3").parent, namespace1)
+        # Check that Prop1 got updated correctly
+        self.assertIs(namespace1.get_referable("Prop1"), prop1)
+        self.assertEqual(prop1.value, 0)
+        self.assertIs(namespace1.get_referable("Prop1").parent, namespace1)
+        # Check that Prop3 got added correctly
+        prop3_new = namespace1.set1.get_referable("Prop3")
+        self.assertIs(prop3_new.parent, namespace1)
+        assert(isinstance(prop3_new, model.Property))
+        self.assertEqual(prop3_new.value, 2)
+        # Check that Prop2 got removed correctly
+        self.assertNotIn("Prop2", namespace1.set1)
+        with self.assertRaises(KeyError):
+            namespace1.get_referable("Prop2")
+        self.assertIsNone(prop2.parent)
 
 
 class ExampleOrderedNamespace(model.Namespace):
