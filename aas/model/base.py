@@ -532,11 +532,7 @@ class Referable(metaclass=abc.ABCMeta):
 
         :param _relative_path: Relative path to the child object that is getting committed (Internal parameter)
         """
-        if self.source != "":
-            # todo: Find backend from source and commit to it
-            pass
-        _relative_path = self.id_short + "/" + _relative_path if _relative_path != "" else self.id_short  # todo: Check
-        self.parent.commit(_relative_path)
+        pass
 
     id_short = property(_get_id_short, _set_id_short)
 
