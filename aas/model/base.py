@@ -464,7 +464,10 @@ class Referable(metaclass=abc.ABCMeta):
             raise ValueError("The id_short must start with a letter")
         self._id_short = id_short
 
-    def update(self, timeout: float = 0, _relative_path: str = "") -> None:
+    def update(self,
+               timeout: float = 0,
+               _source: str = "",
+               _updated_object: Optional["Referable"] = None) -> None:
         """
         Update the local Referable object from the underlying source.
 
@@ -472,15 +475,36 @@ class Referable(metaclass=abc.ABCMeta):
         If there is no source in any ancestor, this function will do nothing
 
         :param timeout: Only update the object, if it has not been updated within the last `timeout` seconds. todo
-        :param _relative_path: Relative path to the child object that needs updating (Internal parameter)
+        :param _source: The last used source (Internal parameter)
+        :param _updated_object: Object to be updated (Internal parameter)
+        """
+        _source, store_object, _relative_path = self.find_source()
+
+        # todo: find backend from source (maybe raise an error if it cannot be found)
+        # call Backend.update_object(_updated_object if not None else self, store_object, _relative_path)
+
+        # update all the children
+        _relative_path.append(self.id_short)
+        for name, var in vars(self).items():
+            # update all children that are referable
+            if name == "parent":
+                pass  # don't update the parent
+            if isinstance(var, Referable):
+                var.update(timeout, _source, None)
+
+    def find_source(self, _relative_path: List[str] = []) -> Tuple[str, "Referable", List[str]]:
+        """
+        Finds the closest source in this objects ancestors.
+
+        :return: (The source from this objects closest ancestor,
+                 that ancestor,
+                 the relative path of id_shorts to that ancestor)
         """
         if self.source != "":
-            # todo find Backend from source and update there
-            return
-        else:
-            _relative_path = self.id_short+"/"+_relative_path if _relative_path != "" else self.id_short  # todo CHECK
-            if isinstance(self.parent, Referable):
-                self.parent.update()
+            return self.source, self, _relative_path
+        _relative_path.append(self.id_short)
+        if isinstance(self.parent, Referable):  # should be always the case
+            self.parent.find_source()
 
     def update_from(self, other: "Referable"):
         """
