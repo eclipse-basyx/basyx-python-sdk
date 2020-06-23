@@ -39,31 +39,6 @@ class TutorialTest(unittest.TestCase):
             from aas.examples import tutorial_serialization_deserialization
         # The tutorial already includes assert statements for the relevant points. So no further checks are required.
 
-    def test_tutorial_dynamic_model(self) -> None:
-        with temporary_workingdirectory():
-            from aas.examples import tutorial_dynamic_model
-
-            # After executing the tutorial, there should be an AAS JSON file in the temporary working directory,
-            # containing a list of processes, which should at least contain one "python" process.
-            with open('ComputerInformationTest.json') as f:
-                objects = read_aas_json_file(f, failsafe=False)
-
-        submodel = objects.get_identifiable(model.Identifier('https://acplt.org/ComputerInformationTest',
-                                                             model.IdentifierType.IRI))
-        assert(isinstance(submodel, model.Submodel))
-        process_list = submodel.get_referable('processes')
-        assert(isinstance(process_list, model.SubmodelElementCollection))
-        processes = [(p.get_referable('pid').value,   # type: ignore
-                      p.get_referable('name').value,   # type: ignore
-                      p.get_referable('mem').value)   # type: ignore
-                     for p in process_list.value]
-        r = re.compile(r'[Pp]ython|coverage')  # When tests are run via `coverage`, there might not be a Python process
-        python_processes = list(filter(lambda p: r.match(p[1]), processes))
-        self.assertTrue(len(python_processes) > 0,
-                        "'Python' not found in Process list {}".format([p[1] for p in processes]))
-        self.assertGreater(python_processes[0][0], 0)
-        self.assertGreater(python_processes[0][2], 0.0)
-
 
 @contextmanager
 def temporary_workingdirectory():
