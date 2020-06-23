@@ -465,7 +465,8 @@ class Referable(metaclass=abc.ABCMeta):
         self._id_short = id_short
 
     def update(self,
-               timeout: float = 0) -> None:
+               timeout: float = 0,
+               recursive: bool = True) -> None:
         """
         Update the local Referable object from the underlying source.
 
@@ -473,22 +474,27 @@ class Referable(metaclass=abc.ABCMeta):
         If there is no source in any ancestor, this function will do nothing
 
         :param timeout: Only update the object, if it has not been updated within the last `timeout` seconds. todo
+        :param recursive: Also call update on all children of this object. Default is True
         """
-        store_object, _relative_path = self.find_source()
+        source = self.find_source()
+        if source is not None:
+            store_object: Optional[Referable] = source[0]
+            _relative_path: List[str] = source[1]
+            # todo: find backend from store_object.source
+            # call Backend.update_object(_updated_object if not None else self, store_object, _relative_path)
+        else:
+            _relative_path = []
+        if recursive:
+            # update all the children
+            _relative_path.append(self.id_short)
+            for name, var in vars(self).items():
+                # update all children that are referable
+                if name == "parent":
+                    pass  # don't update the parent
+                if isinstance(var, Referable):
+                    var.update(timeout)
 
-        # todo: find backend from store_object.source
-        # call Backend.update_object(_updated_object if not None else self, store_object, _relative_path)
-
-        # update all the children
-        _relative_path.append(self.id_short)
-        for name, var in vars(self).items():
-            # update all children that are referable
-            if name == "parent":
-                pass  # don't update the parent
-            if isinstance(var, Referable):
-                var.update(timeout)
-
-    def find_source(self, _relative_path: List[str] = []) -> Tuple["Referable", List[str]]:
+    def find_source(self, _relative_path: List[str] = []) -> Optional[Tuple["Referable", List[str]]]:  # type: ignore
         """
         Finds the closest source in this objects ancestors.
 
