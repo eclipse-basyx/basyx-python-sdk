@@ -465,9 +465,7 @@ class Referable(metaclass=abc.ABCMeta):
         self._id_short = id_short
 
     def update(self,
-               timeout: float = 0,
-               _source: str = "",
-               _updated_object: Optional["Referable"] = None) -> None:
+               timeout: float = 0) -> None:
         """
         Update the local Referable object from the underlying source.
 
@@ -475,12 +473,10 @@ class Referable(metaclass=abc.ABCMeta):
         If there is no source in any ancestor, this function will do nothing
 
         :param timeout: Only update the object, if it has not been updated within the last `timeout` seconds. todo
-        :param _source: The last used source (Internal parameter)
-        :param _updated_object: Object to be updated (Internal parameter)
         """
-        _source, store_object, _relative_path = self.find_source()
+        store_object, _relative_path = self.find_source()
 
-        # todo: find backend from source (maybe raise an error if it cannot be found)
+        # todo: find backend from store_object.source
         # call Backend.update_object(_updated_object if not None else self, store_object, _relative_path)
 
         # update all the children
@@ -490,9 +486,9 @@ class Referable(metaclass=abc.ABCMeta):
             if name == "parent":
                 pass  # don't update the parent
             if isinstance(var, Referable):
-                var.update(timeout, _source, None)
+                var.update(timeout)
 
-    def find_source(self, _relative_path: List[str] = []) -> Tuple[str, "Referable", List[str]]:
+    def find_source(self, _relative_path: List[str] = []) -> Tuple["Referable", List[str]]:
         """
         Finds the closest source in this objects ancestors.
 
@@ -501,7 +497,7 @@ class Referable(metaclass=abc.ABCMeta):
                  the relative path of id_shorts to that ancestor)
         """
         if self.source != "":
-            return self.source, self, _relative_path
+            return self, _relative_path
         _relative_path.append(self.id_short)
         if isinstance(self.parent, Referable):  # should be always the case
             self.parent.find_source()
