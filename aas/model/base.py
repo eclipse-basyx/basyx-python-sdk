@@ -494,7 +494,7 @@ class Referable(metaclass=abc.ABCMeta):
                 if isinstance(var, Referable):
                     var.update(timeout)
 
-    def find_source(self, _relative_path: List[str] = []) -> Optional[Tuple["Referable", List[str]]]:  # type: ignore
+    def find_source(self, _relative_path) -> Optional[Tuple["Referable", List[str]]]:  # type: ignore
         """
         Finds the closest source in this objects ancestors.
 
@@ -505,8 +505,8 @@ class Referable(metaclass=abc.ABCMeta):
         if self.source != "":
             return self, _relative_path
         _relative_path.append(self.id_short)
-        if isinstance(self.parent, Referable):  # should be always the case
-            self.parent.find_source()
+        assert(self.parent, Referable)  # should be always the case
+        return self.parent.find_source()
 
     def update_from(self, other: "Referable"):
         """
