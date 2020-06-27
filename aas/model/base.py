@@ -466,7 +466,8 @@ class Referable(metaclass=abc.ABCMeta):
 
     def update(self,
                timeout: float = 0,
-               recursive: bool = True) -> None:
+               recursive: bool = True,
+               _is_child: bool = False) -> None:
         """
         Update the local Referable object from the underlying source.
 
@@ -475,24 +476,29 @@ class Referable(metaclass=abc.ABCMeta):
 
         :param timeout: Only update the object, if it has not been updated within the last `timeout` seconds. todo
         :param recursive: Also call update on all children of this object. Default is True
+        :param _is_child: Internal parameter to avoid duplicate updating.
         """
-        source = self.find_source()
-        if source is not None:
-            store_object: Optional[Referable] = source[0]
-            _relative_path: List[str] = source[1]
-            # todo: find backend from store_object.source
-            # call Backend.update_object(_updated_object if not None else self, store_object, _relative_path)
+        if _is_child:
+            # Update was already called on an ancestor of this Referable. Only update it, if it has its own source
+            if self.source != "":
+                # call Backend.update_object() on that Referable with its own source
+                pass
         else:
-            _relative_path = []
+            # Try to find a valid source for this Referable
+            _relative_path: List[str] = []
+            source = self.find_source(_relative_path)
+            if source is not None:
+                store_object: Optional[Referable] = source[0]
+                _relative_path = source[1]
+                # todo: find backend from store_object.source
+                # call Backend.update_object()
+
         if recursive:
-            # update all the children
-            _relative_path.append(self.id_short)
-            for name, var in vars(self).items():
-                # update all children that are referable
-                if name == "parent":
-                    pass  # don't update the parent
-                if isinstance(var, Referable):
-                    var.update(timeout)
+            # update all the children who have their own source
+            if isinstance(self, Namespace):
+                for namespace_set in self.namespace_element_sets:
+                    for referable in namespace_set:
+                        referable.update(timeout, recursive=True, _is_child=True)
 
     def find_source(self, _relative_path) -> Optional[Tuple["Referable", List[str]]]:  # type: ignore
         """
@@ -505,8 +511,8 @@ class Referable(metaclass=abc.ABCMeta):
         if self.source != "":
             return self, _relative_path
         _relative_path.append(self.id_short)
-        assert(self.parent, Referable)  # should be always the case
-        return self.parent.find_source()
+        assert(self.parent, Referable)  # type: ignore # should be always the case
+        return self.parent.find_source()  # type: ignore
 
     def update_from(self, other: "Referable"):
         """
