@@ -531,7 +531,7 @@ class Referable(metaclass=abc.ABCMeta):
                 vars(self)[name].update_nss_from(var)
             vars(self)[name] = var  # that variable is not a NameSpaceSet, so it isn't Referable
 
-    def commit(self, _relative_path: str = "") -> None:
+    def commit(self) -> None:
         """
         Transfer local changes on this object to the underlying source(s).
 
@@ -540,7 +540,16 @@ class Referable(metaclass=abc.ABCMeta):
 
         :param _relative_path: Relative path to the child object that is getting committed (Internal parameter)
         """
-        pass
+        # Try to find a valid source for this Referable
+        _relative_path: List[str] = []
+        source = self.find_source(_relative_path)
+        if source is not None:
+            store_object: Optional[Referable] = source[0]
+            _relative_path = source[1]
+            # todo: find backend from store_object.source
+            # call Backend.commit
+        else:
+            pass  # do nothing
 
     id_short = property(_get_id_short, _set_id_short)
 
