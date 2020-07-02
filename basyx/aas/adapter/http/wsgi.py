@@ -10,6 +10,7 @@
 # specific language governing permissions and limitations under the License.
 
 
+import urllib.parse
 import werkzeug
 from werkzeug.exceptions import BadRequest, NotAcceptable, NotFound, NotImplemented
 from werkzeug.routing import Rule, Submount
@@ -17,10 +18,25 @@ from werkzeug.wrappers import Request
 
 from aas import model
 
-from .response import RESPONSE_TYPES, MessageType, ResponseData, create_result_response
-from .._generic import identifier_uri_decode, identifier_uri_encode
+from .response import APIResponse, get_response_type, http_exception_to_response
+from .._generic import IDENTIFIER_TYPES, IDENTIFIER_TYPES_INVERSE
 
 from typing import Dict, Iterable, Optional, Type
+
+
+def identifier_uri_encode(id_: model.Identifier) -> str:
+    return IDENTIFIER_TYPES[id_.id_type] + ":" + urllib.parse.quote(id_.id, safe="")
+
+
+def identifier_uri_decode(id_str: str) -> model.Identifier:
+    try:
+        id_type_str, id_ = id_str.split(":", 1)
+    except ValueError as e:
+        raise ValueError(f"Identifier '{id_str}' is not of format 'ID_TYPE:ID'")
+    id_type = IDENTIFIER_TYPES_INVERSE.get(id_type_str)
+    if id_type is None:
+        raise ValueError(f"Identifier Type '{id_type_str}' is invalid")
+    return model.Identifier(urllib.parse.unquote(id_), id_type)
 
 
 class IdentifierConverter(werkzeug.routing.UnicodeConverter):
@@ -55,56 +71,39 @@ class WSGIApp:
         response = self.handle_request(Request(environ))
         return response(environ, start_response)
 
-    @classmethod
-    def preferred_content_type(cls, headers: werkzeug.datastructures.Headers, content_types: Iterable[str]) \
-            -> Optional[str]:
-        accept_str: Optional[str] = headers.get("accept")
-        if accept_str is None:
-            # return first content type in case accept http header is not specified
-            return next(iter(content_types))
-        accept = werkzeug.http.parse_accept_header(accept_str, werkzeug.datastructures.MIMEAccept)
-        return accept.best_match(content_types)
-
     # this is not used yet
     @classmethod
     def mandatory_request_param(cls, request: Request, param: str) -> str:
         req_param = request.args.get(param)
         if req_param is None:
-            raise create_result_response("mandatory_param_missing", f"Parameter '{param}' is mandatory",
-                                         MessageType.ERROR, 400)
+            raise BadRequest(f"Parameter '{param}' is mandatory")
         return req_param
 
     def get_obj_ts(self, identifier: model.Identifier, type_: Type[model.provider._IT]) -> model.provider._IT:
         identifiable = self.object_store.get(identifier)
         if not isinstance(identifiable, type_):
-            raise create_result_response("identifier_not_found", f"No {type_.__name__} with {identifier} found!",
-                                         MessageType.ERROR, 404)
+            raise NotFound(f"No {type_.__name__} with {identifier} found!")
         return identifiable
 
     def handle_request(self, request: Request):
         adapter = self.url_map.bind_to_environ(request.environ)
         # determine response content type
-        preferred_response_type = self.preferred_content_type(request.headers, RESPONSE_TYPES.keys())
-        if preferred_response_type is None:
-            return NotAcceptable(f"This server supports the following content types: "
-                                 + ", ".join(RESPONSE_TYPES.keys()))
-        response_type = RESPONSE_TYPES[preferred_response_type]
         try:
             endpoint, values = adapter.match()
             if endpoint is None:
                 return NotImplemented("This route is not yet implemented.")
-            return response_type(endpoint(request, values))
+            return endpoint(request, values)
         # any raised error that leaves this function will cause a 500 internal server error
         # so catch raised http exceptions and return them
         except werkzeug.exceptions.HTTPException as e:
-            return e
-        except ResponseData as rd:
-            return response_type(rd)
+            return http_exception_to_response(e, get_response_type(request))
 
-    def get_aas(self, request: Request, url_args: Dict) -> ResponseData:
+    def get_aas(self, request: Request, url_args: Dict) -> APIResponse:
         # TODO: depth parameter
-        return ResponseData(self.get_obj_ts(url_args["aas_id"], model.AssetAdministrationShell))
+        response = get_response_type(request)
+        return response(self.get_obj_ts(url_args["aas_id"], model.AssetAdministrationShell))
 
-    def get_sm(self, request: Request, url_args: Dict) -> ResponseData:
+    def get_sm(self, request: Request, url_args: Dict) -> APIResponse:
         # TODO: depth parameter
-        return ResponseData(self.get_obj_ts(url_args["sm_id"], model.Submodel))
+        response = get_response_type(request)
+        return response(self.get_obj_ts(url_args["sm_id"], model.Submodel))

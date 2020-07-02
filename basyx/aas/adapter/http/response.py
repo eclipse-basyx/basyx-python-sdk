@@ -14,7 +14,7 @@ import enum
 import json
 from lxml import etree  # type: ignore
 import werkzeug.exceptions
-from werkzeug.wrappers import Response
+from werkzeug.wrappers import Request, Response
 
 from aas import model
 from aas.adapter.json import json_serialization
@@ -48,23 +48,16 @@ class Result:
         self.messages = messages
 
 
-ResponseDataType = Union[Result, model.Referable, List[model.Referable]]
-
-
-class ResponseData(BaseException):
-    def __init__(self, data: ResponseDataType, http_status_code: int = 200):
-        self.data = data
-        self.http_status_code = 200
+ResponseData = Union[Result, model.Referable, List[model.Referable]]
 
 
 class APIResponse(abc.ABC, Response):
     def __init__(self, data: ResponseData, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.status_code = data.http_status_code
-        self.data = self.serialize(data.data)
+        self.data = self.serialize(data)
 
     @abc.abstractmethod
-    def serialize(self, data: ResponseDataType) -> str:
+    def serialize(self, data: ResponseData) -> str:
         pass
 
 
@@ -72,7 +65,7 @@ class JsonResponse(APIResponse):
     def __init__(self, *args, content_type="application/json", **kwargs):
         super().__init__(*args, **kwargs, content_type=content_type)
 
-    def serialize(self, data: ResponseDataType) -> str:
+    def serialize(self, data: ResponseData) -> str:
         return json.dumps(data, cls=json_serialization.AASToJsonEncoder)
 
 
@@ -80,7 +73,7 @@ class XmlResponse(APIResponse):
     def __init__(self, *args, content_type="application/xml", **kwargs):
         super().__init__(*args, **kwargs, content_type=content_type)
 
-    def serialize(self, data: ResponseDataType) -> str:
+    def serialize(self, data: ResponseData) -> str:
         return ""
 
 
@@ -89,27 +82,35 @@ class XmlResponseAlt(XmlResponse):
         super().__init__(*args, **kwargs, content_type=content_type)
 
 
-"""
-A mapping of supported content types to their respective ResponseType.
-The first content type in this dict will be preferred if the requester
-doesn't specify preferred content types using the HTTP Accept header.
-"""
-RESPONSE_TYPES: Dict[str, Type[APIResponse]] = {
-    "application/json": JsonResponse,
-    "application/xml": XmlResponse,
-    "text/xml": XmlResponseAlt
-}
-
-
-def create_result_response(code: str, text: str, message_type: MessageType, http_status_code: int = 200,
-                           success: bool = False, is_exception: bool = False) -> ResponseData:
-    message = Message(code, text, message_type)
-    result = Result(success, is_exception, [message])
-    return ResponseData(result, http_status_code)
-
-
 def xml_element_to_str(element: etree.Element) -> str:
     # namespaces will just get assigned a prefix like nsX, where X is a positive integer
     # "aas" would be a better prefix for the AAS namespace
     # TODO: find a way to specify a namespace map when serializing
     return etree.tostring(element, xml_declaration=True, encoding="utf-8")
+
+
+def get_response_type(request: Request) -> Type[APIResponse]:
+    response_types: Dict[str, Type[APIResponse]] = {
+        "application/json": JsonResponse,
+        "application/xml": XmlResponse,
+        "text/xml": XmlResponseAlt
+    }
+    accept_str: Optional[str] = request.headers.get("accept")
+    if accept_str is None:
+        # default to json in case unspecified
+        return JsonResponse
+    accept = werkzeug.http.parse_accept_header(accept_str, werkzeug.datastructures.MIMEAccept)
+    mime_type = accept.best_match(response_types)
+    if mime_type is None:
+        raise werkzeug.exceptions.NotAcceptable(f"This server supports the following content types: "
+                                                + ", ".join(response_types.keys()))
+    return response_types[mime_type]
+
+
+def http_exception_to_response(exception: werkzeug.exceptions.HTTPException, response_type: Type[APIResponse]) \
+        -> APIResponse:
+    success: bool = exception.code < 400 if exception.code is not None else False
+    message_type = MessageType.INFORMATION if success else MessageType.ERROR
+    message = Message(type(exception).__name__, exception.description if exception.description is not None else "",
+                      message_type)
+    return response_type(Result(success, not success, [message]))
