@@ -25,7 +25,7 @@ from ..json import json_deserialization
 from .._generic import IDENTIFIER_TYPES, IDENTIFIER_TYPES_INVERSE
 from .response import get_response_type, http_exception_to_response
 
-from typing import Dict, Optional, Type
+from typing import Dict, List, Optional, Type
 
 
 def parse_request_body(request: Request, expect_type: Type[model.base._RT]) -> model.base._RT:
@@ -88,9 +88,6 @@ def identifier_uri_decode(id_str: str) -> model.Identifier:
 
 
 class IdentifierConverter(werkzeug.routing.UnicodeConverter):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
     def to_url(self, value: model.Identifier) -> str:
         return super().to_url(identifier_uri_encode(value))
 
@@ -132,7 +129,12 @@ class WSGIApp:
                 Submount("/submodels/<identifier:submodel_id>", [
                     Rule("/submodel", methods=["GET"], endpoint=self.get_submodel),
                     Submount("/submodel", [
-
+                        Rule("/submodelElements", methods=["GET"], endpoint=self.get_submodel_submodel_elements),
+                        Rule("/submodelElements", methods=["PUT"], endpoint=self.put_submodel_submodel_elements),
+                        Rule("/submodelElements/<path:id_shorts>", methods=["GET"],
+                             endpoint=self.get_submodel_submodel_element_specific_nested),
+                        Rule("/submodelElements/<string(minlength=1):id_short>", methods=["DELETE"],
+                             endpoint=self.delete_submodel_submodel_element_specific)
                     ])
                 ])
             ])
@@ -141,14 +143,6 @@ class WSGIApp:
     def __call__(self, environ, start_response):
         response = self.handle_request(Request(environ))
         return response(environ, start_response)
-
-    # this is not used yet
-    @classmethod
-    def mandatory_request_param(cls, request: Request, param: str) -> str:
-        req_param = request.args.get(param)
-        if req_param is None:
-            raise BadRequest(f"Parameter '{param}' is mandatory")
-        return req_param
 
     def get_obj_ts(self, identifier: model.Identifier, type_: Type[model.provider._IT]) -> model.provider._IT:
         identifiable = self.object_store.get(identifier)
@@ -180,6 +174,7 @@ class WSGIApp:
             except werkzeug.exceptions.NotAcceptable as e:
                 return e
 
+    # --------- AAS ROUTES ---------
     def get_aas(self, request: Request, url_args: Dict) -> Response:
         # TODO: depth parameter
         response_t = get_response_type(request)
@@ -213,7 +208,10 @@ class WSGIApp:
             submodels = filter(lambda s: s.semantic_id is not None  # type: ignore
                                and len(s.semantic_id.key) > 0
                                and semantic_id in s.semantic_id.key[0].value, submodels)  # type: ignore
-        return response_t(list(submodels))
+        submodels_list = list(submodels)
+        if len(submodels_list) == 0:
+            raise NotFound("No submodels found!")
+        return response_t(submodels_list)
 
     def put_aas_submodels(self, request: Request, url_args: Dict) -> Response:
         response_t = get_response_type(request)
@@ -314,11 +312,11 @@ class WSGIApp:
         aas = self.get_obj_ts(url_args["aas_id"], model.AssetAdministrationShell)
         aas.update()
         id_short = url_args["id_short"]
-        concept_dictionaries = aas.concept_dictionary.get(id_short)
-        if concept_dictionaries is None:
+        concept_dictionary = aas.concept_dictionary.get(id_short)
+        if concept_dictionary is None:
             raise NotFound(f"No concept dictionary with idShort '{id_short}' found!")
-        concept_dictionaries.update()
-        aas.view.remove(concept_dictionaries.id_short)
+        concept_dictionary.update()
+        aas.view.remove(concept_dictionary.id_short)
         return Response(status=204)
 
     def get_aas_submodels_specific(self, request: Request, url_args: Dict) -> Response:
@@ -345,9 +343,68 @@ class WSGIApp:
                 return Response(status=204)
         raise NotFound(f"No submodel with idShort '{id_short}' found!")
 
+    # --------- SUBMODEL ROUTES ---------
     def get_submodel(self, request: Request, url_args: Dict) -> Response:
         # TODO: depth parameter
         response_t = get_response_type(request)
         submodel = self.get_obj_ts(url_args["submodel_id"], model.Submodel)
         submodel.update()
         return response_t(submodel)
+
+    def get_submodel_submodel_elements(self, request: Request, url_args: Dict) -> Response:
+        # TODO: filter parameter
+        response_t = get_response_type(request)
+        submodel = self.get_obj_ts(url_args["submodel_id"], model.Submodel)
+        submodel.update()
+        submodel_elements = submodel.submodel_element
+        semantic_id: Optional[str] = request.args.get("semanticId")
+        if semantic_id is not None:
+            # mypy doesn't propagate type restrictions to nested functions: https://github.com/python/mypy/issues/2608
+            submodel_elements = filter(lambda se: se.semantic_id is not None  # type: ignore
+                                       and len(se.semantic_id.key) > 0
+                                       and semantic_id in se.semantic_id.key[0].value, submodel_elements  # type: ignore
+                                       )
+        submodel_elements_list = list(submodel_elements)
+        if len(submodel_elements_list) == 0:
+            raise NotFound("No submodel elements found!")
+        return response_t(submodel_elements_list)
+
+    def put_submodel_submodel_elements(self, request: Request, url_args: Dict) -> Response:
+        response_t = get_response_type(request)
+        new_concept_dictionary = parse_request_body(request, model.SubmodelElement)
+        submodel = self.get_obj_ts(url_args["submodel_id"], model.Submodel)
+        submodel.update()
+        old_submodel_element = submodel.submodel_element.get(new_concept_dictionary.id_short)
+        if old_submodel_element is not None:
+            submodel.submodel_element.discard(old_submodel_element)
+        submodel.submodel_element.add(new_concept_dictionary)
+        submodel.commit()
+        return response_t(new_concept_dictionary, status=201)
+
+    def get_submodel_submodel_element_specific_nested(self, request: Request, url_args: Dict) -> Response:
+        response_t = get_response_type(request)
+        submodel = self.get_obj_ts(url_args["submodel_id"], model.Submodel)
+        submodel.update()
+        id_shorts: List[str] = url_args["id_shorts"].split("/")
+        submodel_element: model.SubmodelElement = \
+            model.SubmodelElementCollectionUnordered("init_wrapper", submodel.submodel_element)
+        for id_short in id_shorts:
+            if not isinstance(submodel_element, model.SubmodelElementCollection):
+                raise NotFound(f"Nested submodel element {submodel_element} is not a submodel element collection!")
+            try:
+                submodel_element = submodel_element.value.get_referable(id_short)
+            except KeyError:
+                raise NotFound(f"No nested submodel element with idShort '{id_short}' found!")
+            submodel_element.update()
+        return response_t(submodel_element)
+
+    def delete_submodel_submodel_element_specific(self, request: Request, url_args: Dict) -> Response:
+        submodel = self.get_obj_ts(url_args["submodel_id"], model.Submodel)
+        submodel.update()
+        id_short = url_args["id_short"]
+        submodel_element = submodel.submodel_element.get(id_short)
+        if submodel_element is None:
+            raise NotFound(f"No submodel element with idShort '{id_short}' found!")
+        submodel_element.update()
+        submodel.submodel_element.remove(submodel_element.id_short)
+        return Response(status=204)

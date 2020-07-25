@@ -203,9 +203,12 @@ def get_response_type(request: Request) -> Type[APIResponse]:
 
 def http_exception_to_response(exception: werkzeug.exceptions.HTTPException, response_type: Type[APIResponse]) \
         -> APIResponse:
+    headers = exception.get_headers()
+    location = exception.get_response().location
+    if location is not None:
+        headers.append(("Location", location))
     success: bool = exception.code < 400 if exception.code is not None else False
     message_type = MessageType.INFORMATION if success else MessageType.ERROR
     message = Message(type(exception).__name__, exception.description if exception.description is not None else "",
                       message_type)
-    return response_type(Result(success, not success, [message]), status=exception.code,
-                         headers=exception.get_headers())
+    return response_type(Result(success, not success, [message]), status=exception.code, headers=headers)
