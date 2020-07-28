@@ -537,19 +537,33 @@ class Referable(metaclass=abc.ABCMeta):
 
         This function commits the current state of this object to its own and each source of its ancestors.
         If there is no source, this function will do nothing.
-
-        :param _relative_path: Relative path to the child object that is getting committed (Internal parameter)
         """
-        # Try to find a valid source for this Referable
-        _relative_path: List[str] = []
-        source = self.find_source(_relative_path)
-        if source is not None:
-            store_object: Optional[Referable] = source[0]
-            _relative_path = source[1]
-            # todo: find backend from store_object.source
-            # call Backend.commit
-        else:
-            pass  # do nothing
+        current_ancestor = self.parent
+        relative_path: List[str] = []
+        # Commit to all ancestors with sources
+        while current_ancestor:
+            assert(isinstance(current_ancestor, Referable))
+            relative_path.append(current_ancestor.id_short)
+            if current_ancestor.source != "":
+                # find backend
+                # backend.commit_object(self, current_ancestor, relative_path)
+                pass
+            current_ancestor = current_ancestor.parent
+        # Commit to own source and check if there are children with sources to commit to
+        self._direct_source_commit()
+
+    def _direct_source_commit(self):
+        """
+        Commits children of an ancestor recursively, if they have a specific source given
+        """
+        if self.source != "":
+            # find backend
+            # backend.commit_object(self, self, [])
+            pass
+        if isinstance(self, Namespace):
+            for namespace_set in self.namespace_element_sets:
+                for referable in namespace_set:
+                    referable._direct_source_commit()
 
     id_short = property(_get_id_short, _set_id_short)
 
