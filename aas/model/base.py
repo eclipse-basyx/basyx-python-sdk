@@ -22,6 +22,7 @@ from typing import List, Optional, Set, TypeVar, MutableSet, Generic, Iterable, 
 import re
 
 from . import datatypes
+from .. import backends
 
 if TYPE_CHECKING:
     from . import provider
@@ -481,17 +482,16 @@ class Referable(metaclass=abc.ABCMeta):
         if not _indirect_source:
             # Update was already called on an ancestor of this Referable. Only update it, if it has its own source
             if self.source != "":
-                # call Backend.update_object() on that Referable with its own source
-                pass
+                backends.get_backend(self.source).update_object(self, self, [])
+
         else:
             # Try to find a valid source for this Referable
             _relative_path: List[str] = []
-            source = self.find_source(_relative_path)
-            if source is not None:
-                store_object: Optional[Referable] = source[0]
-                _relative_path = source[1]
-                # todo: find backend from store_object.source
-                # call Backend.update_object()
+            source_info = self.find_source(_relative_path)
+            if source_info is not None:
+                store_object: Referable = source_info[0]
+                _relative_path = source_info[1]
+                backends.get_backend(store_object.source).update_object(self, store_object, _relative_path)
 
         if recursive:
             # update all the children who have their own source
@@ -545,9 +545,8 @@ class Referable(metaclass=abc.ABCMeta):
             assert(isinstance(current_ancestor, Referable))
             relative_path.append(current_ancestor.id_short)
             if current_ancestor.source != "":
-                # find backend
-                # backend.commit_object(self, current_ancestor, relative_path)
-                pass
+                backends.get_backend(current_ancestor.source).commit_object(self, current_ancestor, relative_path)
+
             current_ancestor = current_ancestor.parent
         # Commit to own source and check if there are children with sources to commit to
         self._direct_source_commit()
@@ -557,9 +556,8 @@ class Referable(metaclass=abc.ABCMeta):
         Commits children of an ancestor recursively, if they have a specific source given
         """
         if self.source != "":
-            # find backend
-            # backend.commit_object(self, self, [])
-            pass
+            backends.get_backend(self.source).commit_object(self, self, [])
+
         if isinstance(self, Namespace):
             for namespace_set in self.namespace_element_sets:
                 for referable in namespace_set:
