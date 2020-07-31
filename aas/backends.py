@@ -15,13 +15,11 @@ import abc
 import re
 from typing import List, Dict, Type
 
-from aas.model import Referable
-
 
 class Backend(metaclass=abc.ABCMeta):
     @classmethod
     @abc.abstractmethod
-    def commit_object(cls, committed_object: Referable, store_object: Referable, relative_path: List[str]) -> None:
+    def commit_object(cls, committed_object: "Referable", store_object: "Referable", relative_path: List[str]) -> None:
         """
         TODO
         :param committed_object:
@@ -32,7 +30,7 @@ class Backend(metaclass=abc.ABCMeta):
 
     @classmethod
     @abc.abstractmethod
-    def update_object(cls, updated_object: Referable, store_object: Referable, relative_path: List[str]) -> None:
+    def update_object(cls, updated_object: "Referable", store_object: "Referable", relative_path: List[str]) -> None:
         """
         TODO
         :param updated_object:
