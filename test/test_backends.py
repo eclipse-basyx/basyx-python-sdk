@@ -12,8 +12,8 @@ class BackendTest:
 class BackendsTest(unittest.TestCase):
     def test_backend_store(self):
         with mock.patch("aas.backends.Backend") as mock_backend:
-            backends.register_backend("urn", mock_backend)
-            self.assertEqual(backends.get_backend("urn:x-test:test_backend"), mock_backend)
+            backends.register_backend("mockScheme", mock_backend)
+            self.assertEqual(backends.get_backend("mockScheme:x-test:test_backend"), mock_backend)
 
             backends._backends_map = {}
             backends.register_backend("<this is totally a valid uri>", mock_backend)
