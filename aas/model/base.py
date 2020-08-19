@@ -488,8 +488,7 @@ class Referable(metaclass=abc.ABCMeta):
 
         else:
             # Try to find a valid source for this Referable
-            _relative_path: List[str] = []
-            source_info = self.find_source(_relative_path)
+            source_info = self.find_source()
             if source_info is not None:
                 store_object: Referable = source_info[0]
                 _relative_path = source_info[1]
@@ -502,19 +501,21 @@ class Referable(metaclass=abc.ABCMeta):
                     for referable in namespace_set:
                         referable.update(timeout, recursive=True, _indirect_source=False)
 
-    def find_source(self, _relative_path) -> Optional[Tuple["Referable", List[str]]]:  # type: ignore
+    def find_source(self) -> Optional[Tuple["Referable", List[str]]]:  # type: ignore
         """
-        Finds the closest source in this objects ancestors.
+        Finds the closest source in this objects ancestors. If there is no source, returns None
 
-        :return: (The source from this objects closest ancestor,
-                 that ancestor,
-                 the relative path of id_shorts to that ancestor)
+        :return: (The closest ancestor with a defined source, the relative path of id_shorts to that ancestor)
         """
-        if self.source != "":
-            return self, _relative_path
-        _relative_path.append(self.id_short)
-        assert(self.parent, Referable)  # type: ignore # should be always the case
-        return self.parent.find_source()  # type: ignore
+        referable = self
+        relative_path = [self.id_short]
+        while referable is not None:
+            if referable.source != "":
+                relative_path.reverse()
+                return referable, relative_path
+            referable = referable.parent  # type: ignore
+            relative_path.append(referable.id_short) # type: ignore
+        return None
 
     def update_from(self, other: "Referable"):
         """
