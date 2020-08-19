@@ -470,7 +470,7 @@ class Referable(metaclass=abc.ABCMeta):
                recursive: bool = True,
                _indirect_source: bool = True) -> None:
         """
-        Update the local Referable object from the underlying source.
+        Update the local Referable object from the underlying source, using an appropriate backend
 
         If there is no source given, it will find its next ancestor with a source and update from this source.
         If there is no source in any ancestor, this function will do nothing
