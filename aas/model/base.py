@@ -475,7 +475,7 @@ class Referable(metaclass=abc.ABCMeta):
 
         If there is no source given, it will find its next ancestor with a source and update from this source.
         If there is no source in any ancestor, this function will do nothing
-        If the appropriate backend to the relevant source is not available todo raise an Exception
+        If the appropriate backend to the relevant source is not available, raises backends.BackendNotAvailableException
 
         :param timeout: Only update the object, if it has not been updated within the last `timeout` seconds. todo
         :param recursive: Also call update on all children of this object. Default is True

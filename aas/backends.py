@@ -75,4 +75,24 @@ def get_backend(url: str) -> Type[Backend]:
     if not scheme_match:
         raise ValueError("{} is not a valid URL with URI scheme.".format(url))
     scheme = scheme_match[1]
-    return _backends_map[scheme]
+    try:
+        return _backends_map[scheme]
+    except KeyError:
+        raise UnknownBackendException("Could not find Backend for source '{}'".format(url))
+
+
+# #################################################################################################
+# Custom Exception classes for reporting errors during interaction with Backends
+class BackendError(Exception):
+    """Base class of all exceptions raised by the backends module"""
+    pass
+
+
+class UnknownBackendException(BackendError):
+    """Raised, if the backend is not found in the registry"""
+    pass
+
+
+class BackendNotAvailableException(BackendError):
+    """Raised, if the backend does exist in the registry, but is not available for some reason"""
+    pass
