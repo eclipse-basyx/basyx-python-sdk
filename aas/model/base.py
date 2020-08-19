@@ -410,8 +410,9 @@ class Referable(metaclass=abc.ABCMeta):
     :ivar description: Description or comments on the element.
     :ivar parent: Reference to the next referable parent element of the element.
                   Constraint AASd-004: Add parent in case of non identifiable elements.
-    :ivar source: Source/Backend of the object. This is used to specify where the Referable should be updated from and
-                  committed to. Default is an empty string, making it use the source of its parent.
+    :ivar source: Source of the object, an URI, that defines where this object's data originates from.
+                  This is used to specify where the Referable should be updated from and committed to.
+                  Default is an empty string, making it use the source of its ancestor, if possible.
     """
 
     def __init__(self):
@@ -474,6 +475,7 @@ class Referable(metaclass=abc.ABCMeta):
 
         If there is no source given, it will find its next ancestor with a source and update from this source.
         If there is no source in any ancestor, this function will do nothing
+        If the appropriate backend to the relevant source is not available todo raise an Exception
 
         :param timeout: Only update the object, if it has not been updated within the last `timeout` seconds. todo
         :param recursive: Also call update on all children of this object. Default is True
