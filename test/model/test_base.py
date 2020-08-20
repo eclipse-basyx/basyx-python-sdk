@@ -10,8 +10,10 @@
 # specific language governing permissions and limitations under the License.
 
 import unittest
+from unittest import mock
+from typing import Optional
 
-from aas import model
+from aas import model, backends
 from aas.model import Identifier, Identifiable
 
 
@@ -67,9 +69,50 @@ class ExampleReferable(model.Referable):
         super().__init__()
 
 
+class ExampleRefereableWithNamespace(model.Referable, model.Namespace):
+    def __init__(self):
+        super().__init__()
+
+
 class ExampleIdentifiable(model.Identifiable):
     def __init__(self):
         super().__init__()
+
+
+def generate_example_referable_tree() -> model.Referable:
+    """
+    Generates an example referable tree, built like this:
+
+        example_grandparent -> example_parent -> example_referable -> example_child -> example_grandchild
+        example_grandparent and example_grandchild both have an nonempty source, pointing to the mock-backend
+
+    :return: example_referable
+    """
+    def generate_example_referable_with_namespace(id_short: str,
+                                                  child: Optional[model.Referable] = None) -> model.Referable:
+        """
+        Generates an example referable with a namespace.
+
+        :param id_short: id_short of the referable created
+        :param child: Child to be added to the namespace sets of the Referable
+        :return: The generated Referable
+        """
+        referable = ExampleRefereableWithNamespace()
+        referable.id_short = id_short
+        if child:
+            namespace_set = model.NamespaceSet(parent=referable, items=[child])
+        return referable
+
+    example_grandchild = generate_example_referable_with_namespace("exampleGrandchild")
+    example_child = generate_example_referable_with_namespace("exampleChild", example_grandchild)
+    example_referable = generate_example_referable_with_namespace("exampleReferable", example_child)
+    example_parent = generate_example_referable_with_namespace("exampleParent", example_referable)
+    example_grandparent = generate_example_referable_with_namespace("exampleGrandparent", example_parent)
+
+    example_grandchild.source = "mockScheme:exampleGrandchild"
+    example_grandparent.source = "mockScheme:exampleGrandparent"
+
+    return example_referable
 
 
 class ReferableTest(unittest.TestCase):
@@ -111,6 +154,18 @@ class ReferableTest(unittest.TestCase):
             ref.__repr__()
         self.assertEqual('Referable must have an identifiable as root object and only parents that are referable',
                          str(cm.exception))
+
+    def test_update(self):
+        with mock.patch("aas.backends.Backend") as mock_backend:
+            backends.register_backend("mockScheme", mock_backend)
+            example_referable = generate_example_referable_tree()
+            example_referable.update()
+            mock_backend.update_object.assert_called_with(example_referable.parent.parent,
+                                                          example_referable,
+                                                          ["exampleGrandparent", "exampleParent", "exampleReferable"])
+
+    def test_commit(self):
+        pass
 
 
 class ExampleNamespace(model.Namespace):
