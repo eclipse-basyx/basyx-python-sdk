@@ -484,7 +484,9 @@ class Referable(metaclass=abc.ABCMeta):
         if not _indirect_source:
             # Update was already called on an ancestor of this Referable. Only update it, if it has its own source
             if self.source != "":
-                backends.get_backend(self.source)().update_object(self, self, [])
+                backends.get_backend(self.source).update_object(updated_object=self,
+                                                                store_object=self,
+                                                                relative_path=[self.id_short])
 
         else:
             # Try to find a valid source for this Referable
@@ -492,9 +494,9 @@ class Referable(metaclass=abc.ABCMeta):
             if source_info is not None:
                 store_object: Referable = source_info[0]
                 relative_path = source_info[1]
-                backends.get_backend(store_object.source)().update_object(updated_object=self,
-                                                                          store_object=store_object,
-                                                                          relative_path=relative_path)
+                backends.get_backend(store_object.source).update_object(updated_object=self,
+                                                                        store_object=store_object,
+                                                                        relative_path=relative_path)
 
         if recursive:
             # update all the children who have their own source
@@ -550,7 +552,7 @@ class Referable(metaclass=abc.ABCMeta):
             assert(isinstance(current_ancestor, Referable))
             relative_path.append(current_ancestor.id_short)
             if current_ancestor.source != "":
-                backends.get_backend(current_ancestor.source)().commit_object(self, current_ancestor, relative_path)
+                backends.get_backend(current_ancestor.source).commit_object(self, current_ancestor, relative_path)
 
             current_ancestor = current_ancestor.parent
         # Commit to own source and check if there are children with sources to commit to
@@ -561,7 +563,7 @@ class Referable(metaclass=abc.ABCMeta):
         Commits children of an ancestor recursively, if they have a specific source given
         """
         if self.source != "":
-            backends.get_backend(self.source)().commit_object(self, self, [])
+            backends.get_backend(self.source).commit_object(self, self, [])
 
         if isinstance(self, Namespace):
             for namespace_set in self.namespace_element_sets:
