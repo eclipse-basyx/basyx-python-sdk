@@ -11,7 +11,7 @@
 
 import unittest
 from unittest import mock
-from typing import Optional
+from typing import Optional, List
 
 from aas import model, backends
 from aas.model import Identifier, Identifiable
@@ -72,6 +72,23 @@ class ExampleReferable(model.Referable):
 class ExampleRefereableWithNamespace(model.Referable, model.Namespace):
     def __init__(self):
         super().__init__()
+
+
+class MockBackend(backends.Backend):
+    @classmethod
+    def update_object(cls,
+                      updated_object: "Referable",  # type: ignore
+                      store_object: "Referable",  # type: ignore
+                      relative_path: List[str]) -> None: ...
+
+    @classmethod
+    def commit_object(cls,
+                      committed_object: "Referable",  # type: ignore
+                      store_object: "Referable",  # type: ignore
+                      relative_path: List[str]) -> None: ...
+
+    update_object = mock.Mock()
+    commit_object = mock.Mock()
 
 
 class ExampleIdentifiable(model.Identifiable):
@@ -156,13 +173,41 @@ class ReferableTest(unittest.TestCase):
                          str(cm.exception))
 
     def test_update(self):
-        with mock.patch("aas.backends.Backend") as mock_backend:
-            backends.register_backend("mockScheme", mock_backend)
-            example_referable = generate_example_referable_tree()
-            example_referable.update()
-            mock_backend.update_object.assert_called_with(example_referable.parent.parent,
-                                                          example_referable,
-                                                          ["exampleGrandparent", "exampleParent", "exampleReferable"])
+        backends.register_backend("mockScheme", MockBackend)
+        example_referable = generate_example_referable_tree()
+        example_grandparent = example_referable.parent.parent
+        example_grandchild = example_referable.get_referable("exampleChild").get_referable("exampleGrandchild")
+
+        # Test update with parameter "recursive=False"
+        example_referable.update(recursive=False)
+        MockBackend.update_object.assert_called_once_with(
+            updated_object=example_referable,
+            store_object=example_grandparent,
+            relative_path=["exampleGrandparent", "exampleParent", "exampleReferable"]
+        )
+        MockBackend.update_object.call_count = 0  # Reset call count
+
+        # Test update with parameter "recursive=True"
+        example_referable.update()
+        self.assertEqual(MockBackend.update_object.call_count, 2)
+        MockBackend.update_object.assert_has_calls([
+            mock.call(updated_object=example_referable,
+                      store_object=example_grandparent,
+                      relative_path=["exampleGrandparent", "exampleParent", "exampleReferable"]),
+            mock.call(updated_object=example_grandchild,
+                      store_object=example_grandchild,
+                      relative_path=["exampleGrandchild"])
+        ])
+        MockBackend.update_object.call_count = 0  # Reset call count
+
+        # Test update with source != "" in example_referable
+        example_referable.source = "mockScheme:exampleReferable"
+        example_referable.update(recursive=False)
+        MockBackend.update_object.assert_called_once_with(
+            updated_object=example_referable,
+            store_object=example_referable,
+            relative_path=["exampleReferable"]
+        )
 
     def test_commit(self):
         pass
