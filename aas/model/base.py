@@ -550,9 +550,11 @@ class Referable(metaclass=abc.ABCMeta):
         # Commit to all ancestors with sources
         while current_ancestor:
             assert(isinstance(current_ancestor, Referable))
-            relative_path.append(current_ancestor.id_short)
+            relative_path.insert(0, current_ancestor.id_short)
             if current_ancestor.source != "":
-                backends.get_backend(current_ancestor.source).commit_object(self, current_ancestor, relative_path)
+                backends.get_backend(current_ancestor.source).commit_object(committed_object=self,
+                                                                            store_object=current_ancestor,
+                                                                            relative_path=relative_path)
 
             current_ancestor = current_ancestor.parent
         # Commit to own source and check if there are children with sources to commit to
@@ -563,7 +565,9 @@ class Referable(metaclass=abc.ABCMeta):
         Commits children of an ancestor recursively, if they have a specific source given
         """
         if self.source != "":
-            backends.get_backend(self.source).commit_object(self, self, [])
+            backends.get_backend(self.source).commit_object(committed_object=self,
+                                                            store_object=self,
+                                                            relative_path=[])
 
         if isinstance(self, Namespace):
             for namespace_set in self.namespace_element_sets:
