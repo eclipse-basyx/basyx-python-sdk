@@ -185,7 +185,7 @@ class ReferableTest(unittest.TestCase):
             store_object=example_grandparent,
             relative_path=["exampleGrandparent", "exampleParent", "exampleReferable"]
         )
-        MockBackend.update_object.call_count = 0  # Reset call count
+        MockBackend.update_object.reset_mock()
 
         # Test update with parameter "recursive=True"
         example_referable.update()
@@ -198,7 +198,7 @@ class ReferableTest(unittest.TestCase):
                       store_object=example_grandchild,
                       relative_path=["exampleGrandchild"])
         ])
-        MockBackend.update_object.call_count = 0  # Reset call count
+        MockBackend.update_object.reset_mock()
 
         # Test update with source != "" in example_referable
         example_referable.source = "mockScheme:exampleReferable"
@@ -210,7 +210,56 @@ class ReferableTest(unittest.TestCase):
         )
 
     def test_commit(self):
-        pass
+        backends.register_backend("mockScheme", MockBackend)
+        example_referable = generate_example_referable_tree()
+        example_grandparent = example_referable.parent.parent
+        example_grandchild = example_referable.get_referable("exampleChild").get_referable("exampleGrandchild")
+
+        # Test commit starting from example_referable
+        example_referable.commit()
+        self.assertEqual(MockBackend.commit_object.call_count, 2)
+        MockBackend.commit_object.assert_has_calls([
+            mock.call(committed_object=example_referable,
+                      store_object=example_grandparent,
+                      relative_path=["exampleGrandparent", "exampleParent"]),
+            mock.call(committed_object=example_grandchild,
+                      store_object=example_grandchild,
+                      relative_path=[])
+        ])
+        MockBackend.commit_object.reset_mock()
+
+        # Test commit starting from example_grandchild
+        example_grandchild.commit()
+        self.assertEqual(MockBackend.commit_object.call_count, 2)
+        MockBackend.commit_object.assert_has_calls([
+            mock.call(committed_object=example_grandchild,
+                      store_object=example_grandparent,
+                      relative_path=["exampleGrandparent", "exampleParent", "exampleReferable", "exampleChild"]),
+            mock.call(committed_object=example_grandchild,
+                      store_object=example_grandchild,
+                      relative_path=[])
+        ])
+        MockBackend.commit_object.reset_mock()
+
+        # Test commit starting from example_grandchild after adding a source to example_referable
+        example_referable.source = "mockScheme:exampleReferable"
+        example_grandchild.commit()
+        self.assertEqual(MockBackend.commit_object.call_count, 3)
+        MockBackend.commit_object.assert_has_calls([
+            mock.call(committed_object=example_grandchild,
+                      store_object=example_referable,
+                      relative_path=["exampleGrandparent", "exampleParent", "exampleReferable", "exampleChild"]),
+            # Todo
+            # Note here that we are not expecting this relative_path to be called, and in fact it isn't. We expect
+            # relative_path=["exampleReferable", "exampleChild"] and the debugger shows that this is what is called.
+            # What happens here exactly, that forces the use of a "wrong" parameter, is described in issue #88.
+            mock.call(committed_object=example_grandchild,
+                      store_object=example_grandparent,
+                      relative_path=["exampleGrandparent", "exampleParent", "exampleReferable", "exampleChild"]),
+            mock.call(committed_object=example_grandchild,
+                      store_object=example_grandchild,
+                      relative_path=[])
+        ])
 
 
 class ExampleNamespace(model.Namespace):
@@ -536,3 +585,12 @@ class ValueReferencePairTest(unittest.TestCase):
         self.assertEqual('Value can not be None', str(cm.exception))
         pair.value = 3
         self.assertEqual(pair.value, 3)
+
+
+if __name__ == '__main__':
+    backends.register_backend("mockScheme", MockBackend)
+    example_referable = generate_example_referable_tree()
+    example_grandparent = example_referable.parent.parent
+    example_grandchild = example_referable.get_referable("exampleChild").get_referable("exampleGrandchild")
+    example_referable.source = "mockScheme:exampleReferable"
+    example_grandchild.commit()
