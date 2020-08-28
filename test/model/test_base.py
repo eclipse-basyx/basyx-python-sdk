@@ -585,12 +585,3 @@ class ValueReferencePairTest(unittest.TestCase):
         self.assertEqual('Value can not be None', str(cm.exception))
         pair.value = 3
         self.assertEqual(pair.value, 3)
-
-
-if __name__ == '__main__':
-    backends.register_backend("mockScheme", MockBackend)
-    example_referable = generate_example_referable_tree()
-    example_grandparent = example_referable.parent.parent
-    example_grandchild = example_referable.get_referable("exampleChild").get_referable("exampleGrandchild")
-    example_referable.source = "mockScheme:exampleReferable"
-    example_grandchild.commit()
