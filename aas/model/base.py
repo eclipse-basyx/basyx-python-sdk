@@ -496,7 +496,7 @@ class Referable(metaclass=abc.ABCMeta):
                 relative_path = source_info[1]
                 backends.get_backend(store_object.source).update_object(updated_object=self,
                                                                         store_object=store_object,
-                                                                        relative_path=relative_path)
+                                                                        relative_path=list(relative_path))
 
         if recursive:
             # update all the children who have their own source
@@ -554,7 +554,7 @@ class Referable(metaclass=abc.ABCMeta):
             if current_ancestor.source != "":
                 backends.get_backend(current_ancestor.source).commit_object(committed_object=self,
                                                                             store_object=current_ancestor,
-                                                                            relative_path=relative_path)
+                                                                            relative_path=list(relative_path))
 
             current_ancestor = current_ancestor.parent
         # Commit to own source and check if there are children with sources to commit to

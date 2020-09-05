@@ -248,11 +248,7 @@ class ReferableTest(unittest.TestCase):
         MockBackend.commit_object.assert_has_calls([
             mock.call(committed_object=example_grandchild,
                       store_object=example_referable,
-                      relative_path=["exampleGrandparent", "exampleParent", "exampleReferable", "exampleChild"]),
-            # Todo
-            # Note here that we are not expecting this relative_path to be called, and in fact it isn't. We expect
-            # relative_path=["exampleReferable", "exampleChild"] and the debugger shows that this is what is called.
-            # What happens here exactly, that forces the use of a "wrong" parameter, is described in issue #88.
+                      relative_path=["exampleReferable", "exampleChild"]),
             mock.call(committed_object=example_grandchild,
                       store_object=example_grandparent,
                       relative_path=["exampleGrandparent", "exampleParent", "exampleReferable", "exampleChild"]),
