@@ -5,7 +5,7 @@ info:
   description: REST API Specification for the pyI40AAS framework. Any identifier variables are encoded as follows `{identifierType}:URIencode(URIencode({identifier}))`, e.g. `IRI:http:%252F%252Facplt.org%252Fasset`.
   termsOfService: None
   contact:
-    name: 'Michael Hoffmeister, Manuel Sauer, Constantin Ziesche'
+    name: 'Michael Hoffmeister, Manuel Sauer, Constantin Ziesche, Leon Möller'
   license:
     name: Use under Eclipse Public License 2.0
     url: 'https://www.eclipse.org/legal/epl-2.0/'
@@ -32,7 +32,7 @@ paths:
       schema:
         type: string
     get:
-      summary: Retrieves the Asset Administration Shell
+      summary: Retrieves the stripped Asset Administration Shell, without Submodel References, Views and Concept Dictionaries.
       operationId: RetrieveAssetAdministrationShell
       responses:
         '200':
@@ -40,35 +40,9 @@ paths:
           content:
             'application/json':
               schema:
-                $ref: '#/components/schemas/AssetAdministrationShell'
+                $ref: '#/components/schemas/Result'
         '404':
           description: No Concept Dictionary found
-          content:
-            'application/json':
-              schema:
-                $ref: '#/components/schemas/Result'
-        default:
-          description: Unexpected error
-          content:
-            'application/json':
-              schema:
-                $ref: '#/components/schemas/Result'
-      tags:
-        - Asset Administration Shell Interface
-  '/aas/{identifier}/asset':
-    parameters:
-    - name: identifier
-      in: path
-      description: 'Serialized identifier'
-      required: true
-      schema:
-        type: string
-    get:
-      summary: Returns a reference to the asset of the Asset Administration Shell
-      operationId: RetrieveAssetReference
-      responses:
-        '200':
-          description: Success
           content:
             'application/json':
               schema:
@@ -436,7 +410,7 @@ paths:
       schema:
         type: string
     get:
-      summary: Retrieves the entire Submodel
+      summary: Retrieves the stripped Submodel (without submodel elements)
       operationId: RetrieveSubmodel
       responses:
         '200':
@@ -612,7 +586,7 @@ paths:
       schema:
         type: string
     get:
-      summary: Retrieve Concept Dictionary by Identifier
+      summary: Returns the stripped Concept Dictionary (without Concept Descriptions)
       operationId: RetrieveConceptDictionary
       responses:
         '200':
