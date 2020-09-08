@@ -114,6 +114,64 @@ paths:
                 $ref: "#/components/schemas/Result"
       tags:
         - Asset Administration Shell Interface
+  "/aas/{identifier}/submodels/{target-identifier}":
+    parameters:
+      - name: identifier
+        in: path
+        description: "Serialized identifier"
+        required: true
+        schema:
+          type: string
+      - name: target-identifier
+        in: path
+        description: "Serialized identifier of the referenced target"
+        required: true
+        schema:
+          type: string
+    get:
+      summary: Returns the reference specified by target-identifier
+      operationId: RetrieveSubmodelReference
+      responses:
+        "200":
+          description: Returns the reference
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/Result"
+        "404":
+          description: target-identifier is not referenced
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/Result"
+        default:
+          description: Unexpected error
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/Result"
+      tags:
+        - Asset Administration Shell Interface
+    delete:
+      summary: Deletes the reference specified by target-identifier
+      operationId: DeleteSubmodelReference
+      responses:
+        "201":
+          description: Deletes the reference
+        "404":
+          description: target-identifier is not referenced
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/Result"
+        default:
+          description: Unexpected error
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/Result"
+      tags:
+        - Asset Administration Shell Interface
   "/aas/{identifier}/views":
     parameters:
       - name: identifier
