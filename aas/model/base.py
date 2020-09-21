@@ -516,7 +516,7 @@ class Referable(metaclass=abc.ABCMeta):
                 relative_path.reverse()
                 return referable, relative_path
             referable = referable.parent  # type: ignore
-            relative_path.append(referable.id_short)  # type: ignore
+            relative_path.append(referable.id_short)
         return None, None
 
     def update_from(self, other: "Referable"):
