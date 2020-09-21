@@ -510,7 +510,7 @@ class Referable(metaclass=abc.ABCMeta):
         :return: (The closest ancestor with a defined source, the relative path of id_shorts to that ancestor)
         """
         referable = self
-        relative_path = []
+        relative_path: List[str] = []
         while referable is not None:
             if referable.source != "":
                 relative_path.reverse()
