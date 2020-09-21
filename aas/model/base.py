@@ -552,12 +552,11 @@ class Referable(metaclass=abc.ABCMeta):
         # Commit to all ancestors with sources
         while current_ancestor:
             assert(isinstance(current_ancestor, Referable))
-            relative_path.insert(0, current_ancestor.id_short)
             if current_ancestor.source != "":
                 backends.get_backend(current_ancestor.source).commit_object(committed_object=self,
                                                                             store_object=current_ancestor,
                                                                             relative_path=list(relative_path))
-
+            relative_path.insert(0, current_ancestor.id_short)
             current_ancestor = current_ancestor.parent
         # Commit to own source and check if there are children with sources to commit to
         self._direct_source_commit()
