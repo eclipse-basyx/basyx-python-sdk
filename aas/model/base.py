@@ -516,6 +516,8 @@ class Referable(metaclass=abc.ABCMeta):
                 relative_path.reverse()
                 return referable, relative_path
             referable = referable.parent  # type: ignore
+            if referable is None:  # todo: Why do I need this? Should this while not break as soon as referable = None?
+                return None, None
             relative_path.append(referable.id_short)
         return None, None
 
