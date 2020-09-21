@@ -509,17 +509,18 @@ class Referable(metaclass=abc.ABCMeta):
 
         :return: (The closest ancestor with a defined source, the relative path of id_shorts to that ancestor)
         """
-        referable = self
+        referable: Referable = self
         relative_path: List[str] = []
         while referable is not None:
             if referable.source != "":
                 relative_path.reverse()
                 return referable, relative_path
-            assert(isinstance(referable.parent, Referable))
-            referable = referable.parent
-            if referable is None:  # todo: Why do I need this? Should this while not break as soon as referable = None?
-                return None, None
-            relative_path.append(referable.id_short)
+            if referable.parent:
+                assert(isinstance(referable.parent, Referable))
+                referable = referable.parent
+                relative_path.append(referable.id_short)
+                continue
+            break
         return None, None
 
     def update_from(self, other: "Referable"):
