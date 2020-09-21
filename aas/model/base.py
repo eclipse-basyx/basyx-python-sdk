@@ -486,7 +486,7 @@ class Referable(metaclass=abc.ABCMeta):
             if self.source != "":
                 backends.get_backend(self.source).update_object(updated_object=self,
                                                                 store_object=self,
-                                                                relative_path=[self.id_short])
+                                                                relative_path=[])
 
         else:
             # Try to find a valid source for this Referable
@@ -512,7 +512,7 @@ class Referable(metaclass=abc.ABCMeta):
         :return: (The closest ancestor with a defined source, the relative path of id_shorts to that ancestor)
         """
         referable = self
-        relative_path = [self.id_short]
+        relative_path = []
         while referable is not None:
             if referable.source != "":
                 relative_path.reverse()
