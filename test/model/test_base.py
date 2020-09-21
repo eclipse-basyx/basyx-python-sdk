@@ -183,7 +183,7 @@ class ReferableTest(unittest.TestCase):
         MockBackend.update_object.assert_called_once_with(
             updated_object=example_referable,
             store_object=example_grandparent,
-            relative_path=["exampleGrandparent", "exampleParent"]
+            relative_path=["exampleGrandparent", "exampleParent", "exampleReferable"]
         )
         MockBackend.update_object.reset_mock()
 
@@ -193,7 +193,7 @@ class ReferableTest(unittest.TestCase):
         MockBackend.update_object.assert_has_calls([
             mock.call(updated_object=example_referable,
                       store_object=example_grandparent,
-                      relative_path=["exampleGrandparent", "exampleParent"]),
+                      relative_path=["exampleGrandparent", "exampleParent", "exampleReferable"]),
             mock.call(updated_object=example_grandchild,
                       store_object=example_grandchild,
                       relative_path=[])
@@ -228,7 +228,7 @@ class ReferableTest(unittest.TestCase):
         MockBackend.commit_object.assert_has_calls([
             mock.call(committed_object=example_referable,
                       store_object=example_grandparent,
-                      relative_path=["exampleParent"]),
+                      relative_path=["exampleParent", "exampleReferable"]),
             mock.call(committed_object=example_grandchild,
                       store_object=example_grandchild,
                       relative_path=[])
@@ -241,7 +241,7 @@ class ReferableTest(unittest.TestCase):
         MockBackend.commit_object.assert_has_calls([
             mock.call(committed_object=example_grandchild,
                       store_object=example_grandparent,
-                      relative_path=["exampleParent", "exampleReferable", "exampleChild"]),
+                      relative_path=["exampleParent", "exampleReferable", "exampleChild", "exampleGrandchild"]),
             mock.call(committed_object=example_grandchild,
                       store_object=example_grandchild,
                       relative_path=[])
@@ -255,10 +255,10 @@ class ReferableTest(unittest.TestCase):
         MockBackend.commit_object.assert_has_calls([
             mock.call(committed_object=example_grandchild,
                       store_object=example_referable,
-                      relative_path=["exampleChild"]),
+                      relative_path=["exampleChild", "exampleGrandchild"]),
             mock.call(committed_object=example_grandchild,
                       store_object=example_grandparent,
-                      relative_path=["exampleParent", "exampleReferable", "exampleChild"]),
+                      relative_path=["exampleParent", "exampleReferable", "exampleChild", "exampleGrandchild"]),
             mock.call(committed_object=example_grandchild,
                       store_object=example_grandchild,
                       relative_path=[])
