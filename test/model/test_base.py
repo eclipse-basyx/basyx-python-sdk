@@ -183,7 +183,7 @@ class ReferableTest(unittest.TestCase):
         MockBackend.update_object.assert_called_once_with(
             updated_object=example_referable,
             store_object=example_grandparent,
-            relative_path=["exampleGrandparent", "exampleParent", "exampleReferable"]
+            relative_path=["exampleGrandparent", "exampleParent"]
         )
         MockBackend.update_object.reset_mock()
 
@@ -193,10 +193,10 @@ class ReferableTest(unittest.TestCase):
         MockBackend.update_object.assert_has_calls([
             mock.call(updated_object=example_referable,
                       store_object=example_grandparent,
-                      relative_path=["exampleGrandparent", "exampleParent", "exampleReferable"]),
+                      relative_path=["exampleGrandparent", "exampleParent"]),
             mock.call(updated_object=example_grandchild,
                       store_object=example_grandchild,
-                      relative_path=["exampleGrandchild"])
+                      relative_path=[])
         ])
         MockBackend.update_object.reset_mock()
 
@@ -206,7 +206,7 @@ class ReferableTest(unittest.TestCase):
         MockBackend.update_object.assert_called_once_with(
             updated_object=example_referable,
             store_object=example_referable,
-            relative_path=["exampleReferable"]
+            relative_path=[]
         )
 
     def test_commit(self):
