@@ -208,6 +208,13 @@ class ReferableTest(unittest.TestCase):
             store_object=example_referable,
             relative_path=[]
         )
+        MockBackend.update_object.reset_mock()
+
+        # Test update with no source available
+        example_grandparent.source = ""
+        example_referable.source = ""
+        example_referable.update(recursive=False)
+        MockBackend.update_object.assert_not_called()
 
     def test_commit(self):
         backends.register_backend("mockScheme", MockBackend)
