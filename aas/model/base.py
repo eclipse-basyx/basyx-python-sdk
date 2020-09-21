@@ -490,10 +490,8 @@ class Referable(metaclass=abc.ABCMeta):
 
         else:
             # Try to find a valid source for this Referable
-            source_info = self.find_source()
-            if source_info is not None:
-                store_object: Referable = source_info[0]
-                relative_path = source_info[1]
+            store_object, relative_path = self.find_source()
+            if store_object and relative_path is not None:
                 backends.get_backend(store_object.source).update_object(updated_object=self,
                                                                         store_object=store_object,
                                                                         relative_path=list(relative_path))
@@ -505,7 +503,7 @@ class Referable(metaclass=abc.ABCMeta):
                     for referable in namespace_set:
                         referable.update(timeout, recursive=True, _indirect_source=False)
 
-    def find_source(self) -> Optional[Tuple["Referable", List[str]]]:  # type: ignore
+    def find_source(self) -> Tuple[Optional["Referable"], Optional[List[str]]]:  # type: ignore
         """
         Finds the closest source in this objects ancestors. If there is no source, returns None
 
@@ -519,7 +517,7 @@ class Referable(metaclass=abc.ABCMeta):
                 return referable, relative_path
             referable = referable.parent  # type: ignore
             relative_path.append(referable.id_short)  # type: ignore
-        return None
+        return None, None
 
     def update_from(self, other: "Referable"):
         """
