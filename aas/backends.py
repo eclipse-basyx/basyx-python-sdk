@@ -77,8 +77,8 @@ def get_backend(url: str) -> Type[Backend]:
     scheme = scheme_match[1]
     try:
         return _backends_map[scheme]
-    except KeyError:
-        raise UnknownBackendException("Could not find Backend for source '{}'".format(url))
+    except KeyError as e:
+        raise UnknownBackendException("Could not find Backend for source '{}'".format(url)) from e
 
 
 # #################################################################################################
