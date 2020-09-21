@@ -490,11 +490,16 @@ class Referable(metaclass=abc.ABCMeta):
 
         else:
             # Try to find a valid source for this Referable
-            store_object, relative_path = self.find_source()
-            if store_object and relative_path is not None:
-                backends.get_backend(store_object.source).update_object(updated_object=self,
-                                                                        store_object=store_object,
-                                                                        relative_path=list(relative_path))
+            if self.source != "":
+                backends.get_backend(self.source).update_object(updated_object=self,
+                                                                store_object=self,
+                                                                relative_path=[])
+            else:
+                store_object, relative_path = self.find_source()
+                if store_object and relative_path is not None:
+                    backends.get_backend(store_object.source).update_object(updated_object=self,
+                                                                            store_object=store_object,
+                                                                            relative_path=list(relative_path))
 
         if recursive:
             # update all the children who have their own source
@@ -510,7 +515,7 @@ class Referable(metaclass=abc.ABCMeta):
         :return: (The closest ancestor with a defined source, the relative path of id_shorts to that ancestor)
         """
         referable: Referable = self
-        relative_path: List[str] = []
+        relative_path: List[str] = [self.id_short]
         while referable is not None:
             if referable.source != "":
                 relative_path.reverse()
@@ -548,7 +553,7 @@ class Referable(metaclass=abc.ABCMeta):
         If there is no source, this function will do nothing.
         """
         current_ancestor = self.parent
-        relative_path: List[str] = []
+        relative_path: List[str] = [self.id_short]
         # Commit to all ancestors with sources
         while current_ancestor:
             assert(isinstance(current_ancestor, Referable))
