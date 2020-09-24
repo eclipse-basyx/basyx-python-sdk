@@ -293,7 +293,6 @@ class AASXWriter:
         p.close()
 
     # TODO allow to specify, which supplementary parts (submodels, conceptDescriptions) should be added to the package
-    # TODO allow to select JSON/XML serialization
     def write_aas(self,
                   aas_id: model.Identifier,
                   object_store: model.AbstractObjectStore,
