@@ -5,7 +5,7 @@ info:
   description: REST API Specification for the pyI40AAS framework. Any identifier variables are encoded as follows `{identifierType}:URIencode(URIencode({identifier}))`, e.g. `IRI:http:%252F%252Facplt.org%252Fasset`.
   termsOfService: None
   contact:
-    name: "Michael Hoffmeister, Manuel Sauer, Constantin Ziesche, Leon Möller"
+    name: "Michael Thies, Torben Miny, Leon Möller"
   license:
     name: Use under Eclipse Public License 2.0
     url: "https://www.eclipse.org/legal/epl-2.0/"
@@ -23,69 +23,59 @@ servers:
         default: v1
         description: The Version of the API-Specification
 paths:
-  "/aas/{identifier}":
-    parameters:
-      - name: identifier
-        in: path
-        description: "Serialized identifier"
-        required: true
-        schema:
-          type: string
+  "/":
     get:
       summary: Retrieves the stripped Asset Administration Shell, without Submodel References, Views and Concept Dictionaries.
-      operationId: RetrieveAssetAdministrationShell
+      operationId: ReadAAS
       responses:
         "200":
           description: Success
           content:
             "application/json":
               schema:
-                $ref: "#/components/schemas/Result"
+                $ref: "#/components/schemas/AASResult"
         "404":
-          description: No Concept Dictionary found
+          description: AssetAdministrationShell not found
           content:
             "application/json":
               schema:
-                $ref: "#/components/schemas/Result"
+                $ref: "#/components/schemas/AASResult"
         default:
           description: Unexpected error
           content:
             "application/json":
               schema:
-                $ref: "#/components/schemas/Result"
+                $ref: "#/components/schemas/AASResult"
       tags:
         - Asset Administration Shell Interface
-  "/aas/{identifier}/submodels":
-    parameters:
-      - name: identifier
-        in: path
-        description: "Serialized identifier"
-        required: true
-        schema:
-          type: string
+  "/submodels":
     get:
       summary: Returns a list of references to the submodels of the asset administration shell
-      operationId: RetrieveAllSubmodelsReferences
+      operationId: ReadAASSubmodelReferences
       responses:
         "200":
           description: Returns a list of requested Submodels or its links
           content:
             "application/json":
               schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/Result"
+                $ref: "#/components/schemas/ReferenceListResult"
+        "404":
+          description: AssetAdministrationShell not found
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/ReferenceListResult"
         default:
           description: Unexpected error
           content:
             "application/json":
               schema:
-                $ref: "#/components/schemas/Result"
+                $ref: "#/components/schemas/ReferenceListResult"
       tags:
         - Asset Administration Shell Interface
     post:
       summary: Adds a new Submodel reference to the Asset Administration Shell
-      operationId: CreateSubmodelReference
+      operationId: CreateAASSubmodelReference
       requestBody:
         description: The serialized Submodel reference
         required: true
@@ -99,29 +89,29 @@ paths:
           content:
             "application/json":
               schema:
-                $ref: "#/components/schemas/Result"
+                $ref: "#/components/schemas/ReferenceResult"
+        "404":
+          description: AssetAdministrationShell not found
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/ReferenceResult"
         "409":
           description: Submodel reference already exists
           content:
             "application/json":
               schema:
-                $ref: "#/components/schemas/Result"
+                $ref: "#/components/schemas/ReferenceResult"
         default:
           description: Unexpected error
           content:
             "application/json":
               schema:
-                $ref: "#/components/schemas/Result"
+                $ref: "#/components/schemas/ReferenceResult"
       tags:
         - Asset Administration Shell Interface
-  "/aas/{identifier}/submodels/{target-identifier}":
+  "/submodels/{target-identifier}":
     parameters:
-      - name: identifier
-        in: path
-        description: "Serialized identifier"
-        required: true
-        schema:
-          type: string
       - name: target-identifier
         in: path
         description: "Serialized identifier of the referenced target"
@@ -130,79 +120,80 @@ paths:
           type: string
     get:
       summary: Returns the reference specified by target-identifier
-      operationId: RetrieveSubmodelReference
+      operationId: ReadAASSubmodelReference
       responses:
         "200":
           description: Returns the reference
           content:
             "application/json":
               schema:
-                $ref: "#/components/schemas/Result"
+                $ref: "#/components/schemas/ReferenceResult"
         "404":
-          description: target-identifier is not referenced
+          description: AssetAdministrationShell not found or target-identifier is not referenced
           content:
             "application/json":
               schema:
-                $ref: "#/components/schemas/Result"
+                $ref: "#/components/schemas/ReferenceResult"
         default:
           description: Unexpected error
           content:
             "application/json":
               schema:
-                $ref: "#/components/schemas/Result"
+                $ref: "#/components/schemas/ReferenceResult"
       tags:
         - Asset Administration Shell Interface
     delete:
       summary: Deletes the reference specified by target-identifier
-      operationId: DeleteSubmodelReference
+      operationId: DeleteAASSubmodelReference
       responses:
-        "201":
-          description: Deletes the reference
-        "404":
-          description: target-identifier is not referenced
+        "200":
+          description: Reference deleted successfully
           content:
             "application/json":
               schema:
-                $ref: "#/components/schemas/Result"
+                $ref: "#/components/schemas/BaseResult"
+        "404":
+          description: AssetAdministrationShell not found or target-identifier is not referenced
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/BaseResult"
         default:
           description: Unexpected error
           content:
             "application/json":
               schema:
-                $ref: "#/components/schemas/Result"
+                $ref: "#/components/schemas/BaseResult"
       tags:
         - Asset Administration Shell Interface
-  "/aas/{identifier}/views":
-    parameters:
-      - name: identifier
-        in: path
-        description: "Serialized identifier"
-        required: true
-        schema:
-          type: string
+  "/views":
     get:
       summary: Retrieves all Views from the  Asset Administration Shell
-      operationId: RetrieveAllViews
+      operationId: ReadAASViews
       responses:
         "200":
           description: Returns a list of requested Views or its links
           content:
             "application/json":
               schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/Result"
+                $ref: "#/components/schemas/ViewListResult"
+        "404":
+          description: AssetAdministrationShell not found
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/ViewListResult"
         default:
           description: Unexpected error
           content:
             "application/json":
               schema:
-                $ref: "#/components/schemas/Result"
+                $ref: "#/components/schemas/ViewListResult"
       tags:
         - Asset Administration Shell Interface
     post:
       summary: Adds a new View
-      operationId: CreateOrUpdateView
+      operationId: CreateAASView
       requestBody:
         description: The serialized View
         required: true
@@ -216,29 +207,29 @@ paths:
           content:
             "application/json":
               schema:
-                $ref: "#/components/schemas/Result"
+                $ref: "#/components/schemas/ViewResult"
+        "404":
+          description: AssetAdministrationShell not found
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/ViewResult"
         "409":
           description: View with given idShort already exists
           content:
             "application/json":
               schema:
-                $ref: "#/components/schemas/Result"
+                $ref: "#/components/schemas/ViewResult"
         default:
           description: Unexpected error
           content:
             "application/json":
               schema:
-                $ref: "#/components/schemas/Result"
+                $ref: "#/components/schemas/ViewResult"
       tags:
         - Asset Administration Shell Interface
-  "/aas/{identifier}/views/{view-idShort}":
+  "/views/{view-idShort}":
     parameters:
-      - name: identifier
-        in: path
-        description: "Serialized identifier"
-        required: true
-        schema:
-          type: string
       - name: view-idShort
         in: path
         description: "idShort of the view"
@@ -247,281 +238,153 @@ paths:
           type: string
     get:
       summary: Retrieves a specific View from the Asset Administration Shell
-      operationId: RetrieveViewByIdShort
+      operationId: ReadAASView
       responses:
         "200":
           description: View retrieved successfully
           content:
             "application/json":
               schema:
-                $ref: "#/components/schemas/Result"
+                $ref: "#/components/schemas/ViewResult"
         "404":
-          description: No View found
+          description: AssetAdministrationShell or View not found
           content:
             "application/json":
               schema:
-                $ref: "#/components/schemas/Result"
+                $ref: "#/components/schemas/ViewResult"
         default:
           description: Unexpected error
           content:
             "application/json":
               schema:
-                $ref: "#/components/schemas/Result"
+                $ref: "#/components/schemas/ViewResult"
       tags:
         - Asset Administration Shell Interface
     put:
       summary: Updates a specific View from the Asset Administration Shell
-      operationId: UpdateViewByIdShort
+      operationId: UpdateAASView
       responses:
         "200":
           description: View updated successfully
           content:
             "application/json":
               schema:
-                $ref: "#/components/schemas/Result"
+                $ref: "#/components/schemas/ViewResult"
         "404":
-          description: No View found
+          description: AssetAdministrationShell or View not found
           content:
             "application/json":
               schema:
-                $ref: "#/components/schemas/Result"
+                $ref: "#/components/schemas/ViewResult"
         default:
           description: Unexpected error
           content:
             "application/json":
               schema:
-                $ref: "#/components/schemas/Result"
+                $ref: "#/components/schemas/ViewResult"
+      tags:
+        - Asset Administration Shell Interface
+    patch:
+      summary: Updates a specific View from the Asset Administration Shell
+      operationId: PatchAASView
+      responses:
+        "200":
+          description: View updated successfully
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/ViewResult"
+        "404":
+          description: AssetAdministrationShell or View not found
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/ViewResult"
+        default:
+          description: Unexpected error
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/ViewResult"
       tags:
         - Asset Administration Shell Interface
     delete:
       summary: Deletes a specific View from the Asset Administration Shell
-      operationId: DeleteViewByIdShort
+      operationId: DeleteAASView
       responses:
-        "204":
+        "200":
           description: View deleted successfully
-        "404":
-          description: No View found
           content:
             "application/json":
               schema:
-                $ref: "#/components/schemas/Result"
+                $ref: "#/components/schemas/BaseResult"
+        "404":
+          description: AssetAdministrationShell or View not found
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/BaseResult"
         default:
           description: Unexpected error
           content:
             "application/json":
               schema:
-                $ref: "#/components/schemas/Result"
+                $ref: "#/components/schemas/BaseResult"
       tags:
         - Asset Administration Shell Interface
-  "/aas/{identifier}/conceptDictionaries":
-    parameters:
-      - name: identifier
-        in: path
-        description: "Serialized identifier"
-        required: true
-        schema:
-          type: string
+  "//":
     get:
-      summary: Retrieves all Concept Dictionaries of the  Asset Administration Shell
-      operationId: RetrieveAllConceptDictionaries
-      responses:
-        "200":
-          description: Returns a list of all Concept Dictionary
-          content:
-            "application/json":
-              schema:
-                $ref: "#/components/schemas/Result"
-        default:
-          description: Unexpected error
-          content:
-            "application/json":
-              schema:
-                $ref: "#/components/schemas/Result"
-      tags:
-        - Asset Administration Shell Interface
-    post:
-      summary: Adds a new Concept Dictionary
-      operationId: CreateConceptDictionary
-      requestBody:
-        description: The serialized Concept Dictionary
-        required: true
-        content:
-          "application/json":
-            schema:
-              $ref: "#/components/schemas/ConceptDictionary"
-      responses:
-        "201":
-          description: Concept Dictionary created successfully
-          content:
-            "application/json":
-              schema:
-                $ref: "#/components/schemas/Result"
-        "409":
-          description: Concept Dictionary with given idShort already exists
-          content:
-            "application/json":
-              schema:
-                $ref: "#/components/schemas/Result"
-        default:
-          description: Unexpected error
-          content:
-            "application/json":
-              schema:
-                $ref: "#/components/schemas/Result"
-      tags:
-        - Asset Administration Shell Interface
-  "/aas/{identifier}/conceptDictionaries/{cd-idShort}":
-    parameters:
-      - name: identifier
-        in: path
-        description: "Serialized identifier"
-        required: true
-        schema:
-          type: string
-      - name: cd-idShort
-        in: path
-        description: The Concept Dictionary's short id
-        required: true
-        schema:
-          type: string
-    get:
-      summary: Retrieves a specific Concept Dictionary
-      operationId: RetrieveConceptDictionaryByIdShort
-      responses:
-        "200":
-          description: Returns the requested Concept Dictionary
-          content:
-            "application/json":
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/Result"
-        "404":
-          description: No Concept Dictionary found
-          content:
-            "application/json":
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/Result"
-        default:
-          description: Unexpected error
-          content:
-            "application/json":
-              schema:
-                $ref: "#/components/schemas/Result"
-
-      tags:
-        - Asset Administration Shell Interface
-    put:
-      summary: Update a specific Concept Dictionary
-      operationId: UpdateConceptDictionaryByIdShort
-      responses:
-        "200":
-          description: Returns the updated Concept Dictionaries
-          content:
-            "application/json":
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/Result"
-        "404":
-          description: No Concept Dictionary found
-          content:
-            "application/json":
-              schema:
-                $ref: "#/components/schemas/Result"
-        default:
-          description: Unexpected error
-          content:
-            "application/json":
-              schema:
-                $ref: "#/components/schemas/Result"
-      tags:
-        - Asset Administration Shell Interface
-    delete:
-      summary: Deletes a specific Concept Dictionary
-      operationId: DeleteConceptDictionaryByIdShort
-      responses:
-        "204":
-          description: Concept Dictionary deleted successfully
-        "404":
-          description: No Concept Dictionary found
-          content:
-            "application/json":
-              schema:
-                $ref: "#/components/schemas/Result"
-        default:
-          description: Unexpected error
-          content:
-            "application/json":
-              schema:
-                $ref: "#/components/schemas/Result"
-      tags:
-        - Asset Administration Shell Interface
-  "/submodel/{identifier}":
-    parameters:
-      - name: identifier
-        in: path
-        description: "Serialized identifier"
-        required: true
-        schema:
-          type: string
-    get:
-      summary: Retrieves the stripped Submodel (without submodel elements)
-      operationId: RetrieveSubmodel
+      summary: "Retrieves the stripped Submodel (without SubmodelElements and Constraints (property: qualifiers))"
+      operationId: ReadSubmodel
       responses:
         "200":
           description: Success
           content:
             "application/json":
               schema:
-                $ref: "#/components/schemas/Result"
+                $ref: "#/components/schemas/SubmodelResult"
         "404":
           description: No Submodel found
           content:
             "application/json":
               schema:
-                $ref: "#/components/schemas/Result"
+                $ref: "#/components/schemas/SubmodelResult"
         default:
           description: Unexpected error
           content:
             "application/json":
               schema:
-                $ref: "#/components/schemas/Result"
+                $ref: "#/components/schemas/SubmodelResult"
       tags:
         - Submodel Interface
-  "/submodel/{identifier}/submodelElements":
-    parameters:
-      - name: identifier
-        in: path
-        description: "Serialized identifier"
-        required: true
-        schema:
-          type: string
+  "/submodelElements":
     get:
       summary: Retrieves all Submodel-Elements from the current Submodel
-      operationId: RetrieveAllSubmodelElements
+      operationId: ReadSubmodelSubmodelElements
       responses:
         "200":
           description: Returns a list of found Submodel-Elements
           content:
             "application/json":
               schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/Result"
+                $ref: "#/components/schemas/SubmodelElementListResult"
+        "404":
+          description: Submodel not found
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/SubmodelElementListResult"
         default:
           description: Unexpected error
           content:
             "application/json":
               schema:
-                $ref: "#/components/schemas/Result"
+                $ref: "#/components/schemas/SubmodelElementListResult"
       tags:
         - Submodel Interface
     post:
       summary: Adds a new Submodel-Element to the Submodel
-      operationId: CreateSubmodelElement
+      operationId: CreateSubmodelSubmodelElement
       requestBody:
         description: The Submodel-Element
         required: true
@@ -531,60 +394,72 @@ paths:
               $ref: "#/components/schemas/SubmodelElement"
       responses:
         "201":
-          description: Submodel-Element created successfully
+          description: SubmodelElement created successfully
           content:
             "application/json":
               schema:
-                $ref: "#/components/schemas/Result"
+                $ref: "#/components/schemas/SubmodelElementResult"
+        "404":
+          description: Submodel not found
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/SubmodelElementResult"
         "409":
           description: Submodel-Element with given idShort already exists
           content:
             "application/json":
               schema:
-                $ref: "#/components/schemas/Result"
+                $ref: "#/components/schemas/SubmodelElementResult"
         default:
           description: Unexpected error
           content:
             "application/json":
               schema:
-                $ref: "#/components/schemas/Result"
+                $ref: "#/components/schemas/SubmodelElementResult"
       tags:
         - Submodel Interface
-  "/submodel/{identifier}/submodelElements/{se-idShort}":
+  "/{se-idShort1}/.../{se-idShortN}":
     parameters:
-      - name: identifier
+      - name: se-idShort1
         in: path
-        description: "Serialized identifier"
+        description: The Submodel-Element's short id
         required: true
         schema:
           type: string
-      - name: se-idShort
+      - name: se-idShortN
         in: path
         description: The Submodel-Element's short id
         required: true
         schema:
           type: string
     get:
-      summary: Retrieves a specific Submodel-Element from the Submodel
-      operationId: GetSubmodelElementByIdShort
+      summary: Returns the (stripped) nested Submodel Element
+      operationId: ReadSubmodelSubmodelElement
       responses:
         "200":
           description: Returns the requested Submodel-Element
           content:
             "application/json":
               schema:
-                $ref: "#/components/schemas/Result"
+                $ref: "#/components/schemas/SubmodelElementListResult"
         "404":
-          description: Submodel-Element not found
+          description: Any SubmodelElement referred to by idShort[1-N] not found
           content:
             "application/json":
               schema:
-                $ref: "#/components/schemas/Result"
+                $ref: "#/components/schemas/SubmodelElementListResult"
+        default:
+          description: Unexpected error
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/SubmodelElementListResult"
       tags:
         - Submodel Interface
     put:
-      summary: Update a specific Submodel Element
-      operationId: UpdateSubmodelElementByIdShort
+      summary: Update a nested Submodel Element
+      operationId: UpdateSubmodelSubmodelElement
       requestBody:
         description: The Submodel-Element
         required: true
@@ -598,224 +473,620 @@ paths:
           content:
             "application/json":
               schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/Result"
+                $ref: "#/components/schemas/SubmodelElementResult"
         "404":
-          description: No Submodel-Element found
+          description: Any SubmodelElement referred to by idShort[1-N] not found
           content:
             "application/json":
               schema:
-                $ref: "#/components/schemas/Result"
+                $ref: "#/components/schemas/SubmodelElementResult"
         default:
           description: Unexpected error
           content:
             "application/json":
               schema:
-                $ref: "#/components/schemas/Result"
+                $ref: "#/components/schemas/SubmodelElementResult"
       tags:
         - Submodel Interface
     delete:
-      summary: Deletes a specific Submodel-Element from the Submodel
-      operationId: DeleteSubmodelElementByIdShort
+      summary: Deletes a specific nested Submodel-Element from the Submodel
+      operationId: DeleteSubmodelSubmodelElement
       responses:
-        "204":
+        "200":
           description: Submodel-Element deleted successfully
-        "404":
-          description: Submodel-Element not found
           content:
             "application/json":
               schema:
-                $ref: "#/components/schemas/Result"
+                $ref: "#/components/schemas/BaseResult"
+        "404":
+          description: Any SubmodelElement referred to by idShort[1-N] not found
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/BaseResult"
         default:
           description: Unexpected error
           content:
             "application/json":
               schema:
-                $ref: "#/components/schemas/Result"
+                $ref: "#/components/schemas/BaseResult"
       tags:
         - Submodel Interface
-  "/conceptDictionary/{identifier}":
+  "/{se-idShort1}/.../{se-idShortN}/value":
     parameters:
-      - name: identifier
+      - name: se-idShort1
         in: path
-        description: "Serialized identifier"
+        description: The Submodel-Element's short id
+        required: true
+        schema:
+          type: string
+      - name: se-idShortN
+        in: path
+        description: The Submodel-Element's short id
         required: true
         schema:
           type: string
     get:
-      summary: Returns the stripped Concept Dictionary (without Concept Descriptions)
-      operationId: RetrieveConceptDictionary
+      summary: If the (nested) Submodel-Element is a Submodel-Element-Collection, return contained (stripped) Submodel-Elements
+      operationId: ReadSubmodelSubmodelElementValue
       responses:
         "200":
-          description: Return the requested Concept Dictionary
+          description: Returns the requested Submodel-Element
           content:
             "application/json":
               schema:
-                $ref: "#/components/schemas/Result"
+                $ref: "#/components/schemas/SubmodelElementListResult"
+        "400":
+          description: Submodel-Element exists, but is not a SubmodelElementCollection, so /value is not possible.
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/SubmodelElementListResult"
         "404":
-          description: No Concept Dictionary found
+          description: Any SubmodelElement referred to by idShort[1-N] not found
           content:
             "application/json":
               schema:
-                $ref: "#/components/schemas/Result"
+                $ref: "#/components/schemas/SubmodelElementListResult"
         default:
           description: Unexpected error
           content:
             "application/json":
               schema:
-                $ref: "#/components/schemas/Result"
+                $ref: "#/components/schemas/SubmodelElementListResult"
       tags:
-        - Concept Dictionary Interface
-  "/conceptDictionary/{identifier}/conceptDescriptions":
-    parameters:
-      - name: identifier
-        in: path
-        description: "Serialized identifier"
-        required: true
-        schema:
-          type: string
-    get:
-      summary: Retrieve all Concept Descriptions of the Concept Dictionary
-      operationId: RetrieveConceptDescriptions
-      responses:
-        "200":
-          description: Return Concept Descriptions
-          content:
-            "application/json":
-              schema:
-                $ref: "#/components/schemas/Result"
-        default:
-          description: Unexpected error
-          content:
-            "application/json":
-              schema:
-                $ref: "#/components/schemas/Result"
-      tags:
-        - Concept Dictionary Interface
+        - Submodel Interface
     post:
-      summary: Creates a new Concept Description
-      operationId: CreateConceptDescription
+      summary: If the (nested) Submodel-Element is a Submodel-Element-Collection, add the Submodel-Element from the request body.
+      operationId: CreateSubmodelSubmodelElementValue
       requestBody:
-        description: The serialized Concept Description
+        description: The Submodel-Element
         required: true
         content:
           "application/json":
             schema:
-              $ref: "#/components/schemas/Result"
+              $ref: "#/components/schemas/SubmodelElement"
       responses:
         "201":
-          description: Concept Description created successfully
+          description: Submodel-Element created successfully
           content:
             "application/json":
               schema:
-                $ref: "#/components/schemas/Result"
+                $ref: "#/components/schemas/SubmodelElementResult"
+        "400":
+          description: Submodel-Element exists, but is not a SubmodelElementCollection, so /value is not possible.
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/SubmodelElementResult"
+        "404":
+          description: Any SubmodelElement referred to by idShort[1-N] not found
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/SubmodelElementResult"
         "409":
-          description: Concept Description already exists
+          description: Submodel-Element with given idShort already exists.
           content:
             "application/json":
               schema:
-                $ref: "#/components/schemas/Result"
+                $ref: "#/components/schemas/SubmodelElementResult"
         default:
           description: Unexpected error
           content:
             "application/json":
               schema:
-                $ref: "#/components/schemas/Result"
+                $ref: "#/components/schemas/BaseResult"
       tags:
-        - Concept Dictionary Interface
-  "/conceptDictionary/{identifier}/conceptDescriptions/{cd-idShort}":
+        - Submodel Interface
+  "/{se-idShort1}/.../{se-idShortN}/annotation":
     parameters:
-      - name: identifier
+      - name: se-idShort1
         in: path
-        description: "Serialized identifier"
+        description: The Submodel-Element's short id
         required: true
         schema:
           type: string
-      - name: cd-idShort
+      - name: se-idShortN
         in: path
-        description: The Concept Description's short id
+        description: The Submodel-Element's short id
         required: true
         schema:
           type: string
     get:
-      summary: Retrieves a specific Concept Description
-      operationId: RetrieveConceptDescriptionByIdShort
+      summary: If the (nested) Submodel-Element is an AnnotatedRelationshipElement, return contained (stripped) Submodel-Elements
+      operationId: ReadSubmodelSubmodelElementAnnotation
       responses:
         "200":
-          description: Return the requested Concept Description
+          description: Returns the requested Submodel-Element
           content:
             "application/json":
               schema:
-                $ref: "#/components/schemas/Result"
+                $ref: "#/components/schemas/SubmodelElementListResult"
+        "400":
+          description: Submodel-Element exists, but is not an AnnotatedRelationshipElement, so /annotation is not possible.
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/SubmodelElementListResult"
         "404":
-          description: No Concept Description found
+          description: Any SubmodelElement referred to by idShort[1-N] not found
           content:
             "application/json":
               schema:
-                $ref: "#/components/schemas/Result"
+                $ref: "#/components/schemas/SubmodelElementListResult"
         default:
           description: Unexpected error
           content:
             "application/json":
               schema:
-                $ref: "#/components/schemas/Result"
+                $ref: "#/components/schemas/SubmodelElementListResult"
       tags:
-        - Concept Dictionary Interface
-    put:
-      summary: Updates a specific Concept Description
-      operationId: UpdateConceptDescriptionByIdShort
+        - Submodel Interface
+    post:
+      summary: If the (nested) Submodel-Element is an AnnotatedRelationshipElement, add the Submodel-Element from the request body.
+      operationId: CreateSubmodelSubmodelElementAnnotation
       requestBody:
-        description: The Concept Description
+        description: The Submodel-Element
         required: true
         content:
           "application/json":
             schema:
-              $ref: "#/components/schemas/ConceptDescription"
+              $ref: "#/components/schemas/SubmodelElement"
+      responses:
+        "201":
+          description: Submodel-Element created successfully
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/SubmodelElementResult"
+        "400":
+          description: Submodel-Element exists, but is not an AnnotatedRelationshipElement, so /annotation is not possible.
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/SubmodelElementResult"
+        "404":
+          description: Any SubmodelElement referred to by idShort[1-N] not found
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/SubmodelElementResult"
+        "409":
+          description: Submodel-Element with given idShort already exists.
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/SubmodelElementResult"
+        default:
+          description: Unexpected error
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/SubmodelElementResult"
+      tags:
+        - Submodel Interface
+  "/{se-idShort1}/.../{se-idShortN}/statement":
+    parameters:
+      - name: se-idShort1
+        in: path
+        description: The Submodel-Element's short id
+        required: true
+        schema:
+          type: string
+      - name: se-idShortN
+        in: path
+        description: The Submodel-Element's short id
+        required: true
+        schema:
+          type: string
+    get:
+      summary: If the (nested) Submodel-Element is an Entity, return contained (stripped) Submodel-Elements
+      operationId: ReadSubmodelSubmodelElementStatement
       responses:
         "200":
-          description: Concept Description updated successfully
+          description: Returns the requested Submodel-Element
           content:
             "application/json":
               schema:
-                $ref: "#/components/schemas/Result"
+                $ref: "#/components/schemas/SubmodelElementListResult"
+        "400":
+          description: Submodel-Element exists, but is not an Entity, so /statement is not possible.
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/SubmodelElementListResult"
         "404":
-          description: No Concept Description found
+          description: Any SubmodelElement referred to by idShort[1-N] not found
           content:
             "application/json":
               schema:
-                $ref: "#/components/schemas/Result"
+                $ref: "#/components/schemas/SubmodelElementListResult"
         default:
           description: Unexpected error
           content:
             "application/json":
               schema:
-                $ref: "#/components/schemas/Result"
+                $ref: "#/components/schemas/SubmodelElementListResult"
       tags:
-        - Concept Dictionary Interface
-    delete:
-      summary: Deletes a specific Concept Description
-      operationId: DeleteConceptDescriptionByIdShort
+        - Submodel Interface
+    post:
+      summary: If the (nested) Submodel-Element is an Entity, add the Submodel-Element from the request body.
+      operationId: CreateSubmodelSubmodelElementStatement
+      requestBody:
+        description: The Submodel-Element
+        required: true
+        content:
+          "application/json":
+            schema:
+              $ref: "#/components/schemas/SubmodelElement"
       responses:
-        "204":
-          description: Concept Description deleted successfully
-        "404":
-          description: No Concept Description found
+        "201":
+          description: Submodel-Element created successfully
           content:
             "application/json":
               schema:
-                $ref: "#/components/schemas/Result"
+                $ref: "#/components/schemas/SubmodelElementResult"
+        "400":
+          description: Submodel-Element exists, but is not an Entity, so /statement is not possible.
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/SubmodelElementResult"
+        "404":
+          description: Any SubmodelElement referred to by idShort[1-N] not found
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/SubmodelElementResult"
+        "409":
+          description: Submodel-Element with given idShort already exists.
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/SubmodelElementResult"
         default:
           description: Unexpected error
           content:
             "application/json":
               schema:
-                $ref: "#/components/schemas/Result"
+                $ref: "#/components/schemas/SubmodelElementResult"
       tags:
-        - Concept Dictionary Interface
+        - Submodel Interface
+  "/{se-idShort1}/.../{se-idShortN}/constraints":
+    parameters:
+      - name: se-idShort1
+        in: path
+        description: The Submodel-Element's short id
+        required: true
+        schema:
+          type: string
+      - name: se-idShortN
+        in: path
+        description: The Submodel-Element's short id
+        required: true
+        schema:
+          type: string
+    get:
+      summary: Retrieves all Constraints from the current Submodel
+      operationId: ReadSubmodelSubmodelElementConstraints
+      responses:
+        "200":
+          description: Returns a list of found Constraints
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/ConstraintListResult"
+        "404":
+          description: Any SubmodelElement referred to by idShort[1-N] not found
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/ConstraintListResult"
+        default:
+          description: Unexpected error
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/ConstraintListResult"
+      tags:
+        - Submodel Interface
+    post:
+      summary: Adds a new Constraint to the Submodel
+      operationId: CreateSubmodelSubmodelElementConstraint
+      requestBody:
+        description: The Submodel-Element
+        required: true
+        content:
+          "application/json":
+            schema:
+              $ref: "#/components/schemas/Constraint"
+      responses:
+        "201":
+          description: Constraint created successfully
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/ConstraintResult"
+        "404":
+          description: Any SubmodelElement referred to by idShort[1-N] not found
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/ConstraintResult"
+        "409":
+          description: "When trying to add a qualifier: Qualifier with specified type already exists"
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/ConstraintResult"
+        default:
+          description: Unexpected error
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/ConstraintResult"
+      tags:
+        - Submodel Interface
+  "/{se-idShort1}/.../{se-idShortN}/constraints/{qualifier-type}":
+    parameters:
+      - name: se-idShort1
+        in: path
+        description: The Submodel-Element's short id
+        required: true
+        schema:
+          type: string
+      - name: se-idShortN
+        in: path
+        description: The Submodel-Element's short id
+        required: true
+        schema:
+          type: string
+      - name: qualifier-type
+        in: path
+        description: "Type of the qualifier"
+        required: true
+        schema:
+          type: string
+    get:
+      summary: Retrieves a specific Qualifier from the submodel's constraints
+      operationId: ReadSubmodelSubmodelElementConstraint
+      responses:
+        "200":
+          description: Returns the qualifier
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/ConstraintResult"
+        "404":
+          description: Submodel, any SubmodelElement referred to by idShort[1-N] or qualifier not found
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/ConstraintResult"
+        default:
+          description: Unexpected error
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/ConstraintResult"
+      tags:
+        - Submodel Interface
+    put:
+      summary: Updates an existing qualifier in the submodel
+      operationId: UpdateSubmodelSubmodelElementConstraint
+      requestBody:
+        description: The Submodel-Element
+        required: true
+        content:
+          "application/json":
+            schema:
+              $ref: "#/components/schemas/Constraint"
+      responses:
+        "201":
+          description: Constraint created successfully
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/ConstraintResult"
+        "404":
+          description: Any SubmodelElement referred to by idShort[1-N] or qualifier not found
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/ConstraintResult"
+        default:
+          description: Unexpected error
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/ConstraintResult"
+      tags:
+        - Submodel Interface
+    delete:
+      summary: Deletes an existing qualifier from the submodel
+      operationId: DeleteSubmodelSubmodelElementConstraint
+      responses:
+        "200":
+          description: Constraint deleted successfully
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/BaseResult"
+        "404":
+          description: Any SubmodelElement referred to by idShort[1-N] or qualifier not found
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/BaseResult"
+        default:
+          description: Unexpected error
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/BaseResult"
+      tags:
+        - Submodel Interface
+  "/constraints":
+    get:
+      summary: Retrieves all Constraints from the current Submodel
+      operationId: ReadSubmodelConstraints
+      responses:
+        "200":
+          description: Returns a list of found Constraints
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/ConstraintListResult"
+        default:
+          description: Unexpected error
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/ConstraintListResult"
+      tags:
+        - Submodel Interface
+    post:
+      summary: Adds a new Constraint to the Submodel
+      operationId: CreateSubmodelConstraint
+      requestBody:
+        description: The Submodel-Element
+        required: true
+        content:
+          "application/json":
+            schema:
+              $ref: "#/components/schemas/Constraint"
+      responses:
+        "201":
+          description: Constraint created successfully
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/ConstraintResult"
+        "409":
+          description: "When trying to add a qualifier: Qualifier with specified type already exists"
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/ConstraintResult"
+        default:
+          description: Unexpected error
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/ConstraintResult"
+      tags:
+        - Submodel Interface
+  "/constraints/{qualifier-type}":
+    parameters:
+      - name: qualifier-type
+        in: path
+        description: "Type of the qualifier"
+        required: true
+        schema:
+          type: string
+    get:
+      summary: Retrieves a specific Qualifier from the submodel's constraints
+      operationId: ReadSubmodelConstraint
+      responses:
+        "200":
+          description: Returns the qualifier
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/ConstraintResult"
+        "404":
+          description: Submodel or Constraint not found
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/ConstraintResult"
+        default:
+          description: Unexpected error
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/ConstraintResult"
+      tags:
+        - Submodel Interface
+    put:
+      summary: Updates an existing qualifier in the submodel
+      operationId: UpdateSubmodelConstraint
+      requestBody:
+        description: The Submodel-Element
+        required: true
+        content:
+          "application/json":
+            schema:
+              $ref: "#/components/schemas/ConstraintResult"
+      responses:
+        "201":
+          description: Constraint created successfully
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/ConstraintResult"
+        "404":
+          description: Submodel or Constraint not found
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/ConstraintResult"
+        default:
+          description: Unexpected error
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/ConstraintResult"
+      tags:
+        - Submodel Interface
+    delete:
+      summary: Deletes an existing qualifier from the submodel
+      operationId: DeleteSubmodelConstraint
+      responses:
+        "200":
+          description: Constraint deleted successfully
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/BaseResult"
+        "404":
+          description: Submodel or Constraint not found
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/BaseResult"
+        default:
+          description: Unexpected error
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/BaseResult"
+      tags:
+        - Submodel Interface
 components:
   schemas:
-    Result:
+    BaseResult:
       type: object
       properties:
         success:
@@ -843,89 +1114,75 @@ components:
         data:
           nullable: true
           readOnly: true
-          oneOf:
-            - $ref: "#/components/schemas/Referable"
-            - type: array
-              items:
-                $ref: "#/components/schemas/Referable"
-            - $ref: "#/components/schemas/Reference"
-            - type: array
+          type: object
+    AASResult:
+      allOf:
+        - $ref: "#/components/schemas/BaseResult"
+        - properties:
+            data:
+              $ref: "#/components/schemas/StrippedAssetAdministrationShell"
+    ReferenceResult:
+      allOf:
+        - $ref: "#/components/schemas/BaseResult"
+        - properties:
+            data:
+              $ref: "#/components/schemas/Reference"
+    ReferenceListResult:
+      allOf:
+        - $ref: "#/components/schemas/BaseResult"
+        - properties:
+            data:
+              type: array
               items:
                 $ref: "#/components/schemas/Reference"
-    OperationRequest:
-      type: object
-      properties:
-        requestId:
-          type: string
-        callbackUrls:
-          type: object
-          properties:
-            failedUrl:
-              type: string
-            successUrl:
-              type: string
-        params:
-          type: array
-          items:
-            $ref: "#/components/schemas/OperationVariable"
-    EventSubscription:
-      type: object
-      properties:
-        clientId:
-          type: string
-        endpoint:
-          $ref: "#/components/schemas/Endpoint"
-    AssetAdministrationShellDescriptor:
-      type: object
-      properties:
-        idShort:
-          type: string
-        identification:
-          $ref: "#/components/schemas/Identifier"
-        administration:
-          $ref: "#/components/schemas/AdministrativeInformation"
-        description:
-          type: array
-          items:
-            $ref: "#/components/schemas/LangString"
-        asset:
-          $ref: "#/components/schemas/Asset"
-        endpoints:
-          type: array
-          items:
-            $ref: "#/components/schemas/Endpoint"
-        submodelDescriptors:
-          type: array
-          items:
-            $ref: "#/components/schemas/SubmodelDescriptor"
-    SubmodelDescriptor:
-      type: object
-      properties:
-        idShort:
-          type: string
-        identification:
-          $ref: "#/components/schemas/Identifier"
-        administration:
-          $ref: "#/components/schemas/AdministrativeInformation"
-        description:
-          type: array
-          items:
-            $ref: "#/components/schemas/LangString"
-        semanticId:
-          $ref: "#/components/schemas/Reference"
-        endpoints:
-          type: array
-          items:
-            $ref: "#/components/schemas/Endpoint"
-    Endpoint:
-      type: object
-      properties:
-        address:
-          type: string
-        type:
-          type: string
-        parameters:
-          type: object
+    ViewResult:
+      allOf:
+        - $ref: "#/components/schemas/BaseResult"
+        - properties:
+            data:
+              $ref: "#/components/schemas/View"
+    ViewListResult:
+      allOf:
+        - $ref: "#/components/schemas/BaseResult"
+        - properties:
+            data:
+              type: array
+              items:
+                $ref: "#/components/schemas/View"
+    SubmodelResult:
+      allOf:
+        - $ref: "#/components/schemas/BaseResult"
+        - properties:
+            data:
+              $ref: "#/components/schemas/StrippedSubmodel"
+    SubmodelElementResult:
+      allOf:
+        - $ref: "#/components/schemas/BaseResult"
+        - properties:
+            data:
+              $ref: "#/components/schemas/StrippedSubmodelElement"
+    SubmodelElementListResult:
+      allOf:
+        - $ref: "#/components/schemas/BaseResult"
+        - properties:
+            data:
+              type: array
+              items:
+                $ref: "#/components/schemas/StrippedSubmodelElement"
+    ConstraintResult:
+      allOf:
+        - $ref: "#/components/schemas/BaseResult"
+        - properties:
+            data:
+              $ref: "#/components/schemas/Constraint"
+    ConstraintListResult:
+      allOf:
+        - $ref: "#/components/schemas/BaseResult"
+        - properties:
+            data:
+              type: array
+              items:
+                $ref: "#/components/schemas/Constraint"
     Referable:
       type: object
       properties:
@@ -936,22 +1193,22 @@ components:
         description:
           type: array
           items:
-            "$ref": "#/components/schemas/LangString"
+            $ref: "#/components/schemas/LangString"
         parent:
-          "$ref": "#/components/schemas/Reference"
+          $ref: "#/components/schemas/Reference"
         modelType:
-          "$ref": "#/components/schemas/ModelType"
+          $ref: "#/components/schemas/ModelType"
       required:
         - idShort
         - modelType
     Identifiable:
       allOf:
-        - "$ref": "#/components/schemas/Referable"
+        - $ref: "#/components/schemas/Referable"
         - properties:
             identification:
-              "$ref": "#/components/schemas/Identifier"
+              $ref: "#/components/schemas/Identifier"
             administration:
-              "$ref": "#/components/schemas/AdministrativeInformation"
+              $ref: "#/components/schemas/AdministrativeInformation"
           required:
             - identification
     Qualifiable:
@@ -960,53 +1217,61 @@ components:
         qualifiers:
           type: array
           items:
-            "$ref": "#/components/schemas/Constraint"
+            $ref: "#/components/schemas/Constraint"
     HasSemantics:
       type: object
       properties:
         semanticId:
-          "$ref": "#/components/schemas/Reference"
-      required:
-        - semanticId
+          $ref: "#/components/schemas/Reference"
     HasDataSpecification:
       type: object
       properties:
         embeddedDataSpecifications:
           type: array
           items:
-            "$ref": "#/components/schemas/EmbeddedDataSpecification"
+            $ref: "#/components/schemas/EmbeddedDataSpecification"
     AssetAdministrationShell:
       allOf:
-        - "$ref": "#/components/schemas/Identifiable"
-        - "$ref": "#/components/schemas/HasDataSpecification"
+        - $ref: "#/components/schemas/Identifiable"
+        - $ref: "#/components/schemas/HasDataSpecification"
         - properties:
             derivedFrom:
-              "$ref": "#/components/schemas/Reference"
+              $ref: "#/components/schemas/Reference"
             asset:
-              "$ref": "#/components/schemas/Reference"
+              $ref: "#/components/schemas/Reference"
             submodels:
               type: array
               items:
-                "$ref": "#/components/schemas/Reference"
+                $ref: "#/components/schemas/Reference"
             views:
               type: array
               items:
-                "$ref": "#/components/schemas/View"
+                $ref: "#/components/schemas/View"
             conceptDictionaries:
               type: array
               items:
-                "$ref": "#/components/schemas/ConceptDictionary"
+                $ref: "#/components/schemas/ConceptDictionary"
             security:
-              "$ref": "#/components/schemas/Security"
+              $ref: "#/components/schemas/Security"
           required:
             - asset
+    StrippedAssetAdministrationShell:
+      allOf:
+        - $ref: "#/components/schemas/AssetAdministrationShell"
+        - properties:
+            views:
+              not: {}
+            submodels:
+              not: {}
+            conceptDictionaries:
+              not: {}
     Identifier:
       type: object
       properties:
         id:
           type: string
         idType:
-          "$ref": "#/components/schemas/KeyType"
+          $ref: "#/components/schemas/KeyType"
       required:
         - id
         - idType
@@ -1041,16 +1306,16 @@ components:
         keys:
           type: array
           items:
-            "$ref": "#/components/schemas/Key"
+            $ref: "#/components/schemas/Key"
       required:
         - keys
     Key:
       type: object
       properties:
         type:
-          "$ref": "#/components/schemas/KeyElements"
+          $ref: "#/components/schemas/KeyElements"
         idType:
-          "$ref": "#/components/schemas/KeyType"
+          $ref: "#/components/schemas/KeyType"
         value:
           type: string
         local:
@@ -1123,23 +1388,23 @@ components:
       type: object
       properties:
         name:
-          "$ref": "#/components/schemas/ModelTypes"
+          $ref: "#/components/schemas/ModelTypes"
       required:
         - name
     EmbeddedDataSpecification:
       type: object
       properties:
         dataSpecification:
-          "$ref": "#/components/schemas/Reference"
+          $ref: "#/components/schemas/Reference"
         dataSpecificationContent:
-          "$ref": "#/components/schemas/DataSpecificationContent"
+          $ref: "#/components/schemas/DataSpecificationContent"
       required:
         - dataSpecification
         - dataSpecificationContent
     DataSpecificationContent:
       oneOf:
-        - "$ref": "#/components/schemas/DataSpecificationIEC61360Content"
-        - "$ref": "#/components/schemas/DataSpecificationPhysicalUnitContent"
+        - $ref: "#/components/schemas/DataSpecificationIEC61360Content"
+        - $ref: "#/components/schemas/DataSpecificationPhysicalUnitContent"
     DataSpecificationPhysicalUnitContent:
       type: object
       properties:
@@ -1150,7 +1415,7 @@ components:
         definition:
           type: array
           items:
-            "$ref": "#/components/schemas/LangString"
+            $ref: "#/components/schemas/LangString"
         siNotation:
           type: string
         siName:
@@ -1177,7 +1442,7 @@ components:
         - definition
     DataSpecificationIEC61360Content:
       allOf:
-        - "$ref": "#/components/schemas/ValueObject"
+        - $ref: "#/components/schemas/ValueObject"
         - type: object
           properties:
             dataType:
@@ -1194,18 +1459,21 @@ components:
                 - RATIONAL_MEASURE
                 - TIME
                 - TIMESTAMP
+                - INTEGER_COUNT
+                - INTEGER_MEASURE
+                - INTEGER_CURRENCY
             definition:
               type: array
               items:
-                "$ref": "#/components/schemas/LangString"
+                $ref: "#/components/schemas/LangString"
             preferredName:
               type: array
               items:
-                "$ref": "#/components/schemas/LangString"
+                $ref: "#/components/schemas/LangString"
             shortName:
               type: array
               items:
-                "$ref": "#/components/schemas/LangString"
+                $ref: "#/components/schemas/LangString"
             sourceOfDefinition:
               type: string
             symbol:
@@ -1213,15 +1481,15 @@ components:
             unit:
               type: string
             unitId:
-              "$ref": "#/components/schemas/Reference"
+              $ref: "#/components/schemas/Reference"
             valueFormat:
               type: string
             valueList:
-              "$ref": "#/components/schemas/ValueList"
+              $ref: "#/components/schemas/ValueList"
             levelType:
               type: array
               items:
-                "$ref": "#/components/schemas/LevelType"
+                $ref: "#/components/schemas/LevelType"
           required:
             - preferredName
     LevelType:
@@ -1238,19 +1506,19 @@ components:
           type: array
           minItems: 1
           items:
-            "$ref": "#/components/schemas/ValueReferencePairType"
+            $ref: "#/components/schemas/ValueReferencePairType"
       required:
         - valueReferencePairTypes
     ValueReferencePairType:
       allOf:
-        - "$ref": "#/components/schemas/ValueObject"
+        - $ref: "#/components/schemas/ValueObject"
     ValueObject:
       type: object
       properties:
         value:
           type: string
         valueId:
-          "$ref": "#/components/schemas/Reference"
+          $ref: "#/components/schemas/Reference"
         valueType:
           type: string
           enum:
@@ -1300,15 +1568,15 @@ components:
             - time
     Asset:
       allOf:
-        - "$ref": "#/components/schemas/Identifiable"
-        - "$ref": "#/components/schemas/HasDataSpecification"
+        - $ref: "#/components/schemas/Identifiable"
+        - $ref: "#/components/schemas/HasDataSpecification"
         - properties:
             kind:
-              "$ref": "#/components/schemas/AssetKind"
+              $ref: "#/components/schemas/AssetKind"
             assetIdentificationModel:
-              "$ref": "#/components/schemas/Reference"
+              $ref: "#/components/schemas/Reference"
             billOfMaterial:
-              "$ref": "#/components/schemas/Reference"
+              $ref: "#/components/schemas/Reference"
           required:
             - kind
     AssetKind:
@@ -1323,78 +1591,92 @@ components:
         - Instance
     Submodel:
       allOf:
-        - "$ref": "#/components/schemas/Identifiable"
-        - "$ref": "#/components/schemas/HasDataSpecification"
-        - "$ref": "#/components/schemas/Qualifiable"
-        - "$ref": "#/components/schemas/HasSemantics"
+        - $ref: "#/components/schemas/Identifiable"
+        - $ref: "#/components/schemas/HasDataSpecification"
+        - $ref: "#/components/schemas/Qualifiable"
+        - $ref: "#/components/schemas/HasSemantics"
         - properties:
             kind:
-              "$ref": "#/components/schemas/ModelingKind"
+              $ref: "#/components/schemas/ModelingKind"
             submodelElements:
               type: array
               items:
-                "$ref": "#/components/schemas/SubmodelElement"
+                $ref: "#/components/schemas/SubmodelElement"
+    StrippedSubmodel:
+      allOf:
+        - $ref: "#/components/schemas/Submodel"
+        - properties:
+            submodelElements:
+              not: {}
+            qualifiers:
+              not: {}
     Constraint:
       type: object
       properties:
         modelType:
-          "$ref": "#/components/schemas/ModelType"
+          $ref: "#/components/schemas/ModelType"
       required:
         - modelType
     Operation:
       allOf:
-        - "$ref": "#/components/schemas/SubmodelElement"
+        - $ref: "#/components/schemas/SubmodelElement"
         - properties:
             inputVariable:
               type: array
               items:
-                "$ref": "#/components/schemas/OperationVariable"
+                $ref: "#/components/schemas/OperationVariable"
             outputVariable:
               type: array
               items:
-                "$ref": "#/components/schemas/OperationVariable"
+                $ref: "#/components/schemas/OperationVariable"
             inoutputVariable:
               type: array
               items:
-                "$ref": "#/components/schemas/OperationVariable"
+                $ref: "#/components/schemas/OperationVariable"
     OperationVariable:
       type: object
       properties:
         value:
           oneOf:
-            - "$ref": "#/components/schemas/Blob"
-            - "$ref": "#/components/schemas/File"
-            - "$ref": "#/components/schemas/Capability"
-            - "$ref": "#/components/schemas/Entity"
-            - "$ref": "#/components/schemas/Event"
-            - "$ref": "#/components/schemas/BasicEvent"
-            - "$ref": "#/components/schemas/MultiLanguageProperty"
-            - "$ref": "#/components/schemas/Operation"
-            - "$ref": "#/components/schemas/Property"
-            - "$ref": "#/components/schemas/Range"
-            - "$ref": "#/components/schemas/ReferenceElement"
-            - "$ref": "#/components/schemas/RelationshipElement"
-            - "$ref": "#/components/schemas/SubmodelElementCollection"
+            - $ref: "#/components/schemas/Blob"
+            - $ref: "#/components/schemas/File"
+            - $ref: "#/components/schemas/Capability"
+            - $ref: "#/components/schemas/Entity"
+            - $ref: "#/components/schemas/Event"
+            - $ref: "#/components/schemas/BasicEvent"
+            - $ref: "#/components/schemas/MultiLanguageProperty"
+            - $ref: "#/components/schemas/Operation"
+            - $ref: "#/components/schemas/Property"
+            - $ref: "#/components/schemas/Range"
+            - $ref: "#/components/schemas/ReferenceElement"
+            - $ref: "#/components/schemas/RelationshipElement"
+            - $ref: "#/components/schemas/SubmodelElementCollection"
       required:
         - value
     SubmodelElement:
       allOf:
-        - "$ref": "#/components/schemas/Referable"
-        - "$ref": "#/components/schemas/HasDataSpecification"
-        - "$ref": "#/components/schemas/HasSemantics"
-        - "$ref": "#/components/schemas/Qualifiable"
+        - $ref: "#/components/schemas/Referable"
+        - $ref: "#/components/schemas/HasDataSpecification"
+        - $ref: "#/components/schemas/HasSemantics"
+        - $ref: "#/components/schemas/Qualifiable"
         - properties:
             kind:
-              "$ref": "#/components/schemas/ModelingKind"
+              $ref: "#/components/schemas/ModelingKind"
+    StrippedSubmodelElement:
+      allOf:
+        - $ref: "#/components/schemas/SubmodelElement"
+        - properties:
+            qualifiers:
+              not: {}
     Event:
       allOf:
-        - "$ref": "#/components/schemas/SubmodelElement"
+        - $ref: "#/components/schemas/SubmodelElement"
     BasicEvent:
       allOf:
-        - "$ref": "#/components/schemas/Event"
+        - $ref: "#/components/schemas/Event"
         - properties:
             observed:
-              "$ref": "#/components/schemas/Reference"
+              $ref: "#/components/schemas/Reference"
           required:
             - observed
     EntityType:
@@ -1404,56 +1686,56 @@ components:
         - SelfManagedEntity
     Entity:
       allOf:
-        - "$ref": "#/components/schemas/SubmodelElement"
+        - $ref: "#/components/schemas/SubmodelElement"
         - properties:
             statements:
               type: array
               items:
-                "$ref": "#/components/schemas/SubmodelElement"
+                $ref: "#/components/schemas/SubmodelElement"
             entityType:
-              "$ref": "#/components/schemas/EntityType"
+              $ref: "#/components/schemas/EntityType"
             asset:
-              "$ref": "#/components/schemas/Reference"
+              $ref: "#/components/schemas/Reference"
           required:
             - entityType
     View:
       allOf:
-        - "$ref": "#/components/schemas/Referable"
-        - "$ref": "#/components/schemas/HasDataSpecification"
-        - "$ref": "#/components/schemas/HasSemantics"
+        - $ref: "#/components/schemas/Referable"
+        - $ref: "#/components/schemas/HasDataSpecification"
+        - $ref: "#/components/schemas/HasSemantics"
         - properties:
             containedElements:
               type: array
               items:
-                "$ref": "#/components/schemas/Reference"
+                $ref: "#/components/schemas/Reference"
     ConceptDictionary:
       allOf:
-        - "$ref": "#/components/schemas/Referable"
-        - "$ref": "#/components/schemas/HasDataSpecification"
+        - $ref: "#/components/schemas/Referable"
+        - $ref: "#/components/schemas/HasDataSpecification"
         - properties:
             conceptDescriptions:
               type: array
               items:
-                "$ref": "#/components/schemas/Reference"
+                $ref: "#/components/schemas/Reference"
     ConceptDescription:
       allOf:
-        - "$ref": "#/components/schemas/Identifiable"
-        - "$ref": "#/components/schemas/HasDataSpecification"
+        - $ref: "#/components/schemas/Identifiable"
+        - $ref: "#/components/schemas/HasDataSpecification"
         - properties:
             isCaseOf:
               type: array
               items:
-                "$ref": "#/components/schemas/Reference"
+                $ref: "#/components/schemas/Reference"
     Capability:
       allOf:
-        - "$ref": "#/components/schemas/SubmodelElement"
+        - $ref: "#/components/schemas/SubmodelElement"
     Property:
       allOf:
-        - "$ref": "#/components/schemas/SubmodelElement"
-        - "$ref": "#/components/schemas/ValueObject"
+        - $ref: "#/components/schemas/SubmodelElement"
+        - $ref: "#/components/schemas/ValueObject"
     Range:
       allOf:
-        - "$ref": "#/components/schemas/SubmodelElement"
+        - $ref: "#/components/schemas/SubmodelElement"
         - properties:
             valueType:
               type: string
@@ -1508,21 +1790,19 @@ components:
               type: string
           required:
             - valueType
-            - min
-            - max
     MultiLanguageProperty:
       allOf:
-        - "$ref": "#/components/schemas/SubmodelElement"
+        - $ref: "#/components/schemas/SubmodelElement"
         - properties:
             value:
               type: array
               items:
-                "$ref": "#/components/schemas/LangString"
+                $ref: "#/components/schemas/LangString"
             valueId:
-              "$ref": "#/components/schemas/Reference"
+              $ref: "#/components/schemas/Reference"
     File:
       allOf:
-        - "$ref": "#/components/schemas/SubmodelElement"
+        - $ref: "#/components/schemas/SubmodelElement"
         - properties:
             value:
               type: string
@@ -1530,10 +1810,9 @@ components:
               type: string
           required:
             - mimeType
-            - value
     Blob:
       allOf:
-        - "$ref": "#/components/schemas/SubmodelElement"
+        - $ref: "#/components/schemas/SubmodelElement"
         - properties:
             value:
               type: string
@@ -1541,62 +1820,67 @@ components:
               type: string
           required:
             - mimeType
-            - value
     ReferenceElement:
       allOf:
-        - "$ref": "#/components/schemas/SubmodelElement"
+        - $ref: "#/components/schemas/SubmodelElement"
         - properties:
             value:
-              "$ref": "#/components/schemas/Reference"
+              $ref: "#/components/schemas/Reference"
     SubmodelElementCollection:
       allOf:
-        - "$ref": "#/components/schemas/SubmodelElement"
+        - $ref: "#/components/schemas/SubmodelElement"
         - properties:
             value:
               type: array
               items:
                 oneOf:
-                  - "$ref": "#/components/schemas/Blob"
-                  - "$ref": "#/components/schemas/File"
-                  - "$ref": "#/components/schemas/Capability"
-                  - "$ref": "#/components/schemas/Entity"
-                  - "$ref": "#/components/schemas/Event"
-                  - "$ref": "#/components/schemas/BasicEvent"
-                  - "$ref": "#/components/schemas/MultiLanguageProperty"
-                  - "$ref": "#/components/schemas/Operation"
-                  - "$ref": "#/components/schemas/Property"
-                  - "$ref": "#/components/schemas/Range"
-                  - "$ref": "#/components/schemas/ReferenceElement"
-                  - "$ref": "#/components/schemas/RelationshipElement"
-                  - "$ref": "#/components/schemas/SubmodelElementCollection"
+                  - $ref: "#/components/schemas/Blob"
+                  - $ref: "#/components/schemas/File"
+                  - $ref: "#/components/schemas/Capability"
+                  - $ref: "#/components/schemas/Entity"
+                  - $ref: "#/components/schemas/Event"
+                  - $ref: "#/components/schemas/BasicEvent"
+                  - $ref: "#/components/schemas/MultiLanguageProperty"
+                  - $ref: "#/components/schemas/Operation"
+                  - $ref: "#/components/schemas/Property"
+                  - $ref: "#/components/schemas/Range"
+                  - $ref: "#/components/schemas/ReferenceElement"
+                  - $ref: "#/components/schemas/RelationshipElement"
+                  - $ref: "#/components/schemas/SubmodelElementCollection"
             allowDuplicates:
               type: boolean
             ordered:
               type: boolean
     RelationshipElement:
       allOf:
-        - "$ref": "#/components/schemas/SubmodelElement"
+        - $ref: "#/components/schemas/SubmodelElement"
         - properties:
             first:
-              "$ref": "#/components/schemas/Reference"
+              $ref: "#/components/schemas/Reference"
             second:
-              "$ref": "#/components/schemas/Reference"
+              $ref: "#/components/schemas/Reference"
           required:
             - first
             - second
     AnnotatedRelationshipElement:
       allOf:
-        - "$ref": "#/components/schemas/RelationshipElement"
+        - $ref: "#/components/schemas/RelationshipElement"
         - properties:
             annotation:
               type: array
               items:
-                "$ref": "#/components/schemas/Reference"
+                oneOf:
+                  - $ref: "#/components/schemas/Blob"
+                  - $ref: "#/components/schemas/File"
+                  - $ref: "#/components/schemas/MultiLanguageProperty"
+                  - $ref: "#/components/schemas/Property"
+                  - $ref: "#/components/schemas/Range"
+                  - $ref: "#/components/schemas/ReferenceElement"
     Qualifier:
       allOf:
-        - "$ref": "#/components/schemas/Constraint"
-        - "$ref": "#/components/schemas/HasSemantics"
-        - "$ref": "#/components/schemas/ValueObject"
+        - $ref: "#/components/schemas/Constraint"
+        - $ref: "#/components/schemas/HasSemantics"
+        - $ref: "#/components/schemas/ValueObject"
         - properties:
             type:
               type: string
@@ -1604,53 +1888,53 @@ components:
             - type
     Formula:
       allOf:
-        - "$ref": "#/components/schemas/Constraint"
+        - $ref: "#/components/schemas/Constraint"
         - properties:
             dependsOn:
               type: array
               items:
-                "$ref": "#/components/schemas/Reference"
+                $ref: "#/components/schemas/Reference"
     Security:
       type: object
       properties:
         accessControlPolicyPoints:
-          "$ref": "#/components/schemas/AccessControlPolicyPoints"
+          $ref: "#/components/schemas/AccessControlPolicyPoints"
         certificate:
           type: array
           items:
             oneOf:
-              - "$ref": "#/components/schemas/BlobCertificate"
+              - $ref: "#/components/schemas/BlobCertificate"
         requiredCertificateExtension:
           type: array
           items:
-            "$ref": "#/components/schemas/Reference"
+            $ref: "#/components/schemas/Reference"
       required:
         - accessControlPolicyPoints
     Certificate:
       type: object
     BlobCertificate:
       allOf:
-        - "$ref": "#/components/schemas/Certificate"
+        - $ref: "#/components/schemas/Certificate"
         - properties:
             blobCertificate:
-              "$ref": "#/components/schemas/Blob"
+              $ref: "#/components/schemas/Blob"
             containedExtension:
               type: array
               items:
-                "$ref": "#/components/schemas/Reference"
+                $ref: "#/components/schemas/Reference"
             lastCertificate:
               type: boolean
     AccessControlPolicyPoints:
       type: object
       properties:
         policyAdministrationPoint:
-          "$ref": "#/components/schemas/PolicyAdministrationPoint"
+          $ref: "#/components/schemas/PolicyAdministrationPoint"
         policyDecisionPoint:
-          "$ref": "#/components/schemas/PolicyDecisionPoint"
+          $ref: "#/components/schemas/PolicyDecisionPoint"
         policyEnforcementPoint:
-          "$ref": "#/components/schemas/PolicyEnforcementPoint"
+          $ref: "#/components/schemas/PolicyEnforcementPoint"
         policyInformationPoints:
-          "$ref": "#/components/schemas/PolicyInformationPoints"
+          $ref: "#/components/schemas/PolicyInformationPoints"
       required:
         - policyAdministrationPoint
         - policyDecisionPoint
@@ -1659,7 +1943,7 @@ components:
       type: object
       properties:
         localAccessControl:
-          "$ref": "#/components/schemas/AccessControl"
+          $ref: "#/components/schemas/AccessControl"
         externalAccessControl:
           type: boolean
       required:
@@ -1670,7 +1954,7 @@ components:
         internalInformationPoint:
           type: array
           items:
-            "$ref": "#/components/schemas/Reference"
+            $ref: "#/components/schemas/Reference"
         externalInformationPoint:
           type: boolean
       required:
@@ -1693,35 +1977,35 @@ components:
       type: object
       properties:
         selectableSubjectAttributes:
-          "$ref": "#/components/schemas/Reference"
+          $ref: "#/components/schemas/Reference"
         defaultSubjectAttributes:
-          "$ref": "#/components/schemas/Reference"
+          $ref: "#/components/schemas/Reference"
         selectablePermissions:
-          "$ref": "#/components/schemas/Reference"
+          $ref: "#/components/schemas/Reference"
         defaultPermissions:
-          "$ref": "#/components/schemas/Reference"
+          $ref: "#/components/schemas/Reference"
         selectableEnvironmentAttributes:
-          "$ref": "#/components/schemas/Reference"
+          $ref: "#/components/schemas/Reference"
         defaultEnvironmentAttributes:
-          "$ref": "#/components/schemas/Reference"
+          $ref: "#/components/schemas/Reference"
         accessPermissionRule:
           type: array
           items:
-            "$ref": "#/components/schemas/AccessPermissionRule"
+            $ref: "#/components/schemas/AccessPermissionRule"
     AccessPermissionRule:
       allOf:
-        - "$ref": "#/components/schemas/Referable"
-        - "$ref": "#/components/schemas/Qualifiable"
+        - $ref: "#/components/schemas/Referable"
+        - $ref: "#/components/schemas/Qualifiable"
         - properties:
             targetSubjectAttributes:
               type: array
               items:
-                "$ref": "#/components/schemas/SubjectAttributes"
+                $ref: "#/components/schemas/SubjectAttributes"
               minItems: 1
             permissionsPerObject:
               type: array
               items:
-                "$ref": "#/components/schemas/PermissionsPerObject"
+                $ref: "#/components/schemas/PermissionsPerObject"
           required:
             - targetSubjectAttributes
     SubjectAttributes:
@@ -1730,32 +2014,32 @@ components:
         subjectAttributes:
           type: array
           items:
-            "$ref": "#/components/schemas/Reference"
+            $ref: "#/components/schemas/Reference"
           minItems: 1
     PermissionsPerObject:
       type: object
       properties:
         object:
-          "$ref": "#/components/schemas/Reference"
+          $ref: "#/components/schemas/Reference"
         targetObjectAttributes:
-          "$ref": "#/components/schemas/ObjectAttributes"
+          $ref: "#/components/schemas/ObjectAttributes"
         permission:
           type: array
           items:
-            "$ref": "#/components/schemas/Permission"
+            $ref: "#/components/schemas/Permission"
     ObjectAttributes:
       type: object
       properties:
         objectAttribute:
           type: array
           items:
-            "$ref": "#/components/schemas/Property"
+            $ref: "#/components/schemas/Property"
           minItems: 1
     Permission:
       type: object
       properties:
         permission:
-          "$ref": "#/components/schemas/Reference"
+          $ref: "#/components/schemas/Reference"
         kindOfPermission:
           type: string
           enum:
