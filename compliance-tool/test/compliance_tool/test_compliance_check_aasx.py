@@ -34,7 +34,6 @@ class ComplianceToolAASXTest(unittest.TestCase):
         self.assertEqual(1, len(manager.steps))
         self.assertEqual(Status.SUCCESS, manager.steps[0].status)
 
-
     def test_check_aas_example(self) -> None:
         manager = ComplianceToolStateManager()
         script_dir = os.path.dirname(__file__)
