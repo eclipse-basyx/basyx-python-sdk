@@ -30,7 +30,7 @@ import os
 import re
 from typing import Dict, Tuple, IO, Union, List, Set, Optional
 
-from .xml import read_aas_xml_file
+from .xml import read_aas_xml_file, write_aas_xml_file
 from .. import model
 from .json import read_aas_json_file, write_aas_json_file
 import pyecma376_2
@@ -293,11 +293,11 @@ class AASXWriter:
         p.close()
 
     # TODO allow to specify, which supplementary parts (submodels, conceptDescriptions) should be added to the package
-    # TODO allow to select JSON/XML serialization
     def write_aas(self,
                   aas_id: model.Identifier,
                   object_store: model.AbstractObjectStore,
-                  file_store: "AbstractSupplementaryFileContainer") -> None:
+                  file_store: "AbstractSupplementaryFileContainer",
+                  write_json: bool = False) -> None:
         """
         Add an Asset Administration Shell with all included and referenced objects to the AASX package.
 
@@ -312,9 +312,11 @@ class AASXWriter:
             Submodels) from
         :param file_store: SupplementaryFileContainer to retrieve supplementary files from, which are referenced by File
             objects
+        :param write_json:  If True, JSON parts are created for the AAS and each submodel in the AASX package file
+            instead of XML parts. Defaults to False.
         """
         aas_friendly_name = self._aas_name_friendlyfier.get_friendly_name(aas_id)
-        aas_part_name = "/aasx/{0}/{0}.aas.json".format(aas_friendly_name)
+        aas_part_name = "/aasx/{0}/{0}.aas.{1}".format(aas_friendly_name, "json" if write_json else "xml")
         self._aas_part_names.append(aas_part_name)
         aas_friendlyfier = NameFriendlyfier()
 
@@ -347,8 +349,11 @@ class AASXWriter:
 
         # Write AAS part
         logger.debug("Writing AAS {} to part {} in AASX package ...".format(aas.identification, aas_part_name))
-        with self.writer.open_part(aas_part_name, "application/json") as p:
-            write_aas_json_file(io.TextIOWrapper(p, encoding='utf-8'), objects_to_be_written)
+        with self.writer.open_part(aas_part_name, "application/json" if write_json else "application/xml") as p:
+            if write_json:
+                write_aas_json_file(io.TextIOWrapper(p, encoding='utf-8'), objects_to_be_written)
+            else:
+                write_aas_xml_file(p, objects_to_be_written)
 
         # Create a AAS split part for each (available) submodel of the AAS
         aas_split_part_names: List[str] = []
@@ -359,8 +364,9 @@ class AASXWriter:
                 logger.warning("Skipping Submodel, since {} could not be resolved: {}".format(submodel_ref, e))
                 continue
             submodel_friendly_name = aas_friendlyfier.get_friendly_name(submodel.identification)
-            submodel_part_name = "/aasx/{0}/{1}/{1}.submodel.json".format(aas_friendly_name, submodel_friendly_name)
-            self._write_submodel_part(file_store, submodel, submodel_part_name)
+            submodel_part_name = "/aasx/{0}/{1}/{1}.submodel.{2}".format(aas_friendly_name, submodel_friendly_name,
+                                                                         "json" if write_json else "xml")
+            self._write_submodel_part(file_store, submodel, submodel_part_name, write_json)
             aas_split_part_names.append(submodel_part_name)
 
         # Add relationships from AAS part to (submodel) split parts
@@ -375,7 +381,7 @@ class AASXWriter:
             aas_part_name)
 
     def _write_submodel_part(self, file_store: "AbstractSupplementaryFileContainer",
-                             submodel: model.Submodel, submodel_part_name: str) -> None:
+                             submodel: model.Submodel, submodel_part_name: str, write_json: bool = False) -> None:
         """
         Helper function for `write_aas()` to write an aas-spec-split part for a Submodel object and add the relevant
         supplementary files.
@@ -383,14 +389,19 @@ class AASXWriter:
         :param file_store: The SupplementaryFileContainer to retrieve supplementary files from
         :param submodel: The submodel to be written into the AASX package
         :param submodel_part_name: OPC part name of the aas-spec-split part for this Submodel
+        :param write_json:  If True, the submodel is written as a JSON file instead of an XML file to the given OPC
+            part. Defaults to False.
         """
         logger.debug("Writing Submodel {} to part {} in AASX package ..."
                      .format(submodel.identification, submodel_part_name))
 
         submodel_file_objects: model.DictObjectStore[model.Identifiable] = model.DictObjectStore()
         submodel_file_objects.add(submodel)
-        with self.writer.open_part(submodel_part_name, "application/json") as p:
-            write_aas_json_file(io.TextIOWrapper(p, encoding='utf-8'), submodel_file_objects)
+        with self.writer.open_part(submodel_part_name, "application/json" if write_json else "application/xml") as p:
+            if write_json:
+                write_aas_json_file(io.TextIOWrapper(p, encoding='utf-8'), submodel_file_objects)
+            else:
+                write_aas_xml_file(p, submodel_file_objects)
 
         # Write submodel's supplementary files to AASX file
         submodel_file_names = []
