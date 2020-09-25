@@ -15,12 +15,18 @@ Command line script which is a compliance tool for creating and checking json an
 examples.data.__init__.py
 """
 import argparse
+import datetime
 
 import logging
 
+import pyecma376_2
+
+from aas import model
+from aas.adapter import aasx
 from aas.adapter.xml import write_aas_xml_file
 from aas.compliance_tool import compliance_check_json as compliance_tool_json
 from aas.compliance_tool import compliance_check_xml as compliance_tool_xml
+from aas.compliance_tool import compliance_check_aasx as compliance_tool_aasx
 from aas.adapter.json import write_aas_json_file
 from aas.examples.data import create_example
 from aas.compliance_tool.state_manager import ComplianceToolStateManager, Status
@@ -32,11 +38,11 @@ def main():
         description='Compliance tool for creating and checking json and xml files in compliance with "Details of the '
                     'Asset Administration Shell" specification of Plattform Industrie 4.0. \n\n'
                     'This tool has five features: \n'
-                    '1. create an xml or json file with example aas elements\n'
+                    '1. create a xml or json file or an AASX file using xml or json files with example aas elements\n'
                     '2. check a given xml or json file if it is compliant with the official json or xml aas schema\n'
-                    '3. check if a given xml or json file is deserializable\n'
-                    '4. check if the data in a given xml or json file is the same as the example data\n'
-                    '5. check if two given xml or json files contain the same aas elements in any order\n\n'
+                    '3. check if a given xml, json or aasx file is deserializable\n'
+                    '4. check if the data in a given xml, json or aasx file is the same as the example data\n'
+                    '5. check if two given xml, json or aasx files contain the same aas elements in any order\n\n'                    
                     'As a first argument, the feature must be specified (create, schema, deserialization, example, '
                     'files) or in short (c, s, d, e or f).\n'
                     'Depending the chosen feature, different additional arguments must be specified:\n'
@@ -44,9 +50,11 @@ def main():
                     'schema or s:          file to be checked (file_1)\n'
                     'deserialization or d: file to be checked (file_1)\n'
                     'example or e:         file to be checked (file_1)\n'
-                    'file_compare or f:    files to compare (file_1, file_2)\n'
+                    'file_compare or f:    files to compare (file_1, file_2)\n,'               
                     'In any case, it must be specified whether the (given or created) files are json (--json) or '
                     'xml (--xml).\n\n'
+                    'In all cases except of schema, it could be specified if the (given or created) files should be '
+                    'aasx files or only simple json or xml files (--aasx).\n\n'
                     'Additionally, the tool offers some extra features for more convenient usage:\n'
                     'a. Different levels of verbosity:\n'
                     '   Default output is just the status for each step performed. With -v or --verbose, additional '
@@ -76,6 +84,7 @@ def main():
     group.add_argument('--json', help="Use AAS json format when checking or creating files", action='store_true')
     group.add_argument('--xml', help="Use AAS xml format when checking or creating files", action='store_true')
     parser.add_argument('-l', '--logfile', help="Log file to be created in addition to output to stdout", default=None)
+    parser.add_argument('--aasx', help="Create or read AASX files", action='store_true')
 
     args = parser.parse_args()
 
@@ -92,7 +101,31 @@ def main():
         manager.set_step_status(Status.SUCCESS)
         try:
             manager.add_step('Open file')
-            if args.json:
+            if args.aasx:
+                with aasx.AASXWriter(args.file_1) as writer:
+                    manager.set_step_status(Status.SUCCESS)
+                    manager.add_step('Write data to file')
+
+                    # Todo add Example TestFile.pdf
+                    files = aasx.DictSupplementaryFileContainer()
+
+                    # Create OPC/AASX core properties
+                    cp = pyecma376_2.OPCCoreProperties()
+                    cp.created = datetime.datetime.now()
+                    cp.creator = "PyI40AAS Testing Framework"
+
+                    # Decide wether write json or xml files
+                    if args.json:
+                        write_json = True
+                    elif args.xml:
+                        write_json = False
+
+                    for identifiable in data:
+                        if isinstance(identifiable, model.AssetAdministrationShell):
+                            writer.write_aas(identifiable.identification, data, files, write_json=write_json)
+                    writer.write_core_properties(cp)
+                    manager.set_step_status(Status.SUCCESS)
+            elif args.json:
                 with open(args.file_1, 'w', encoding='utf-8-sig') as file:
                     manager.set_step_status(Status.SUCCESS)
                     manager.add_step('Write data to file')
@@ -113,18 +146,24 @@ def main():
         if args.xml:
             compliance_tool_xml.check_schema(args.file_1, manager)
     elif args.action == 'deserialization' or args.action == 'd':
-        if args.json:
+        if args.aasx:
+            compliance_tool_aasx.check_deserialization(args.file_1, manager)
+        elif args.json:
             compliance_tool_json.check_deserialization(args.file_1, manager)
         elif args.xml:
             compliance_tool_xml.check_deserialization(args.file_1, manager)
     elif args.action == 'example' or args.action == 'e':
-        if args.json:
+        if args.aasx:
+            compliance_tool_aasx.check_aas_example(args.file_1, manager)
+        elif args.json:
             compliance_tool_json.check_aas_example(args.file_1, manager)
         elif args.xml:
             compliance_tool_xml.check_aas_example(args.file_1, manager)
     elif args.action == 'files' or args.action == 'f':
         if args.file_2:
-            if args.json:
+            if args.aasx:
+                compliance_tool_aasx.check_aasx_files_equivalence(args.file_1, args.file_2, manager)
+            elif args.json:
                 compliance_tool_json.check_json_files_equivalence(args.file_1, args.file_2, manager)
             elif args.xml:
                 compliance_tool_xml.check_xml_files_equivalence(args.file_1, args.file_2, manager)
