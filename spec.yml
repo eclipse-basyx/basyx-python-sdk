@@ -2,16 +2,25 @@ openapi: 3.0.0
 info:
   version: "1"
   title: pyI40AAS REST API
-  description: REST API Specification for the pyI40AAS framework. Any identifier variables are encoded as follows `{identifierType}:URIencode(URIencode({identifier}))`, e.g. `IRI:http:%252F%252Facplt.org%252Fasset`.
-  termsOfService: None
+  description: "REST API Specification for the pyI40AAS framework.  
+  
+
+  Any identifier variables are encoded as follows `{identifierType}:URIencode(URIencode({identifier}))`, e.g. `IRI:http:%252F%252Facplt.org%252Fasset`.  
+  
+
+  This specification contains one exemplary `PATCH` route. In the future there should be a `PATCH` route for every `PUT` route, where it makes sense.
+  
+
+  In our implementation the AAS Interface will be available at `/aas/{identifier}` and the Submodel Interface will be available at `/submodel/{identifier}`."
   contact:
     name: "Michael Thies, Torben Miny, Leon Möller"
-  license:
-    name: Use under Eclipse Public License 2.0
-    url: "https://www.eclipse.org/legal/epl-2.0/"
+# TODO: which license?
+#  license:
+#    name: Use under Eclipse Public License 2.0
+#    url: "https://www.eclipse.org/legal/epl-2.0/"
 servers:
   - url: http://{authority}/{basePath}/{api-version}
-    description: "This is the Server to access the Asset Administration Shell"
+    description: This is the Server to access the Asset Administration Shell
     variables:
       authority:
         default: localhost:8080
@@ -25,7 +34,7 @@ servers:
 paths:
   "/":
     get:
-      summary: Retrieves the stripped Asset Administration Shell, without Submodel References, Views and Concept Dictionaries.
+      summary: Retrieves the stripped AssetAdministrationShell, without Submodel-References and Views.
       operationId: ReadAAS
       responses:
         "200":
@@ -40,21 +49,15 @@ paths:
             "application/json":
               schema:
                 $ref: "#/components/schemas/AASResult"
-        default:
-          description: Unexpected error
-          content:
-            "application/json":
-              schema:
-                $ref: "#/components/schemas/AASResult"
       tags:
         - Asset Administration Shell Interface
   "/submodels":
     get:
-      summary: Returns a list of references to the submodels of the asset administration shell
+      summary: Returns all Submodel-References of the AssetAdministrationShell
       operationId: ReadAASSubmodelReferences
       responses:
         "200":
-          description: Returns a list of requested Submodels or its links
+          description: Success
           content:
             "application/json":
               schema:
@@ -65,19 +68,13 @@ paths:
             "application/json":
               schema:
                 $ref: "#/components/schemas/ReferenceListResult"
-        default:
-          description: Unexpected error
-          content:
-            "application/json":
-              schema:
-                $ref: "#/components/schemas/ReferenceListResult"
       tags:
         - Asset Administration Shell Interface
     post:
-      summary: Adds a new Submodel reference to the Asset Administration Shell
+      summary: Adds a new Submodel-Reference to the AssetAdministrationShell
       operationId: CreateAASSubmodelReference
       requestBody:
-        description: The serialized Submodel reference
+        description: The Submodel-Reference to create
         required: true
         content:
           "application/json":
@@ -85,7 +82,7 @@ paths:
               $ref: "#/components/schemas/Reference"
       responses:
         "201":
-          description: Submodel reference created successfully
+          description: Success
           content:
             "application/json":
               schema:
@@ -97,45 +94,33 @@ paths:
               schema:
                 $ref: "#/components/schemas/ReferenceResult"
         "409":
-          description: Submodel reference already exists
-          content:
-            "application/json":
-              schema:
-                $ref: "#/components/schemas/ReferenceResult"
-        default:
-          description: Unexpected error
+          description: Submodel-Reference already exists
           content:
             "application/json":
               schema:
                 $ref: "#/components/schemas/ReferenceResult"
       tags:
         - Asset Administration Shell Interface
-  "/submodels/{target-identifier}":
+  "/submodels/{submodel-identifier}":
     parameters:
-      - name: target-identifier
+      - name: submodel-identifier
         in: path
-        description: "Serialized identifier of the referenced target"
+        description: The Identifier of the referenced Submodel
         required: true
         schema:
           type: string
     get:
-      summary: Returns the reference specified by target-identifier
+      summary: Returns the Reference specified by submodel-identifier
       operationId: ReadAASSubmodelReference
       responses:
         "200":
-          description: Returns the reference
+          description: Success
           content:
             "application/json":
               schema:
                 $ref: "#/components/schemas/ReferenceResult"
         "404":
-          description: AssetAdministrationShell not found or target-identifier is not referenced
-          content:
-            "application/json":
-              schema:
-                $ref: "#/components/schemas/ReferenceResult"
-        default:
-          description: Unexpected error
+          description: AssetAdministrationShell not found or the specified Submodel is not referenced
           content:
             "application/json":
               schema:
@@ -143,23 +128,17 @@ paths:
       tags:
         - Asset Administration Shell Interface
     delete:
-      summary: Deletes the reference specified by target-identifier
+      summary: Deletes the Reference specified by submodel-identifier
       operationId: DeleteAASSubmodelReference
       responses:
         "200":
-          description: Reference deleted successfully
+          description: Success
           content:
             "application/json":
               schema:
                 $ref: "#/components/schemas/BaseResult"
         "404":
           description: AssetAdministrationShell not found or target-identifier is not referenced
-          content:
-            "application/json":
-              schema:
-                $ref: "#/components/schemas/BaseResult"
-        default:
-          description: Unexpected error
           content:
             "application/json":
               schema:
@@ -168,11 +147,11 @@ paths:
         - Asset Administration Shell Interface
   "/views":
     get:
-      summary: Retrieves all Views from the  Asset Administration Shell
+      summary: Returns all Views of the AssetAdministrationShell
       operationId: ReadAASViews
       responses:
         "200":
-          description: Returns a list of requested Views or its links
+          description: Success
           content:
             "application/json":
               schema:
@@ -183,19 +162,13 @@ paths:
             "application/json":
               schema:
                 $ref: "#/components/schemas/ViewListResult"
-        default:
-          description: Unexpected error
-          content:
-            "application/json":
-              schema:
-                $ref: "#/components/schemas/ViewListResult"
       tags:
         - Asset Administration Shell Interface
     post:
-      summary: Adds a new View
+      summary: Adds a new View to the AssetAdministrationShell
       operationId: CreateAASView
       requestBody:
-        description: The serialized View
+        description: The View to create
         required: true
         content:
           "application/json":
@@ -203,7 +176,7 @@ paths:
               $ref: "#/components/schemas/View"
       responses:
         "201":
-          description: View created successfully
+          description: Success
           content:
             "application/json":
               schema:
@@ -215,13 +188,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/ViewResult"
         "409":
-          description: View with given idShort already exists
-          content:
-            "application/json":
-              schema:
-                $ref: "#/components/schemas/ViewResult"
-        default:
-          description: Unexpected error
+          description: View with same idShort already exists
           content:
             "application/json":
               schema:
@@ -232,28 +199,22 @@ paths:
     parameters:
       - name: view-idShort
         in: path
-        description: "idShort of the view"
+        description: The idShort of the View
         required: true
         schema:
           type: string
     get:
-      summary: Retrieves a specific View from the Asset Administration Shell
+      summary: Returns a specific View of the AssetAdministrationShell
       operationId: ReadAASView
       responses:
         "200":
-          description: View retrieved successfully
+          description: Success
           content:
             "application/json":
               schema:
                 $ref: "#/components/schemas/ViewResult"
         "404":
           description: AssetAdministrationShell or View not found
-          content:
-            "application/json":
-              schema:
-                $ref: "#/components/schemas/ViewResult"
-        default:
-          description: Unexpected error
           content:
             "application/json":
               schema:
@@ -261,23 +222,24 @@ paths:
       tags:
         - Asset Administration Shell Interface
     put:
-      summary: Updates a specific View from the Asset Administration Shell
+      summary: Updates a specific View of the AssetAdministrationShell
       operationId: UpdateAASView
+      requestBody:
+        description: The View used to overwrite the existing View
+        required: true
+        content:
+          "application/json":
+            schema:
+              $ref: "#/components/schemas/View"
       responses:
         "200":
-          description: View updated successfully
+          description: Success
           content:
             "application/json":
               schema:
                 $ref: "#/components/schemas/ViewResult"
         "404":
           description: AssetAdministrationShell or View not found
-          content:
-            "application/json":
-              schema:
-                $ref: "#/components/schemas/ViewResult"
-        default:
-          description: Unexpected error
           content:
             "application/json":
               schema:
@@ -285,23 +247,24 @@ paths:
       tags:
         - Asset Administration Shell Interface
     patch:
-      summary: Updates a specific View from the Asset Administration Shell
+      summary: Updates a specific View of the AssetAdministrationShell by only providing properties that should be changed
       operationId: PatchAASView
+      requestBody:
+        description: The (partial) View used to update the existing View
+        required: true
+        content:
+          "application/json":
+            schema:
+              $ref: "#/components/schemas/View"
       responses:
         "200":
-          description: View updated successfully
+          description: Success
           content:
             "application/json":
               schema:
                 $ref: "#/components/schemas/ViewResult"
         "404":
           description: AssetAdministrationShell or View not found
-          content:
-            "application/json":
-              schema:
-                $ref: "#/components/schemas/ViewResult"
-        default:
-          description: Unexpected error
           content:
             "application/json":
               schema:
@@ -313,7 +276,7 @@ paths:
       operationId: DeleteAASView
       responses:
         "200":
-          description: View deleted successfully
+          description: Success
           content:
             "application/json":
               schema:
@@ -324,17 +287,11 @@ paths:
             "application/json":
               schema:
                 $ref: "#/components/schemas/BaseResult"
-        default:
-          description: Unexpected error
-          content:
-            "application/json":
-              schema:
-                $ref: "#/components/schemas/BaseResult"
       tags:
         - Asset Administration Shell Interface
   "//":
     get:
-      summary: "Retrieves the stripped Submodel (without SubmodelElements and Constraints (property: qualifiers))"
+      summary: "Returns the stripped Submodel (without SubmodelElements and Constraints (property: qualifiers))"
       operationId: ReadSubmodel
       responses:
         "200":
@@ -349,617 +306,21 @@ paths:
             "application/json":
               schema:
                 $ref: "#/components/schemas/SubmodelResult"
-        default:
-          description: Unexpected error
-          content:
-            "application/json":
-              schema:
-                $ref: "#/components/schemas/SubmodelResult"
-      tags:
-        - Submodel Interface
-  "/submodelElements":
-    get:
-      summary: Retrieves all Submodel-Elements from the current Submodel
-      operationId: ReadSubmodelSubmodelElements
-      responses:
-        "200":
-          description: Returns a list of found Submodel-Elements
-          content:
-            "application/json":
-              schema:
-                $ref: "#/components/schemas/SubmodelElementListResult"
-        "404":
-          description: Submodel not found
-          content:
-            "application/json":
-              schema:
-                $ref: "#/components/schemas/SubmodelElementListResult"
-        default:
-          description: Unexpected error
-          content:
-            "application/json":
-              schema:
-                $ref: "#/components/schemas/SubmodelElementListResult"
-      tags:
-        - Submodel Interface
-    post:
-      summary: Adds a new Submodel-Element to the Submodel
-      operationId: CreateSubmodelSubmodelElement
-      requestBody:
-        description: The Submodel-Element
-        required: true
-        content:
-          "application/json":
-            schema:
-              $ref: "#/components/schemas/SubmodelElement"
-      responses:
-        "201":
-          description: SubmodelElement created successfully
-          content:
-            "application/json":
-              schema:
-                $ref: "#/components/schemas/SubmodelElementResult"
-        "404":
-          description: Submodel not found
-          content:
-            "application/json":
-              schema:
-                $ref: "#/components/schemas/SubmodelElementResult"
-        "409":
-          description: Submodel-Element with given idShort already exists
-          content:
-            "application/json":
-              schema:
-                $ref: "#/components/schemas/SubmodelElementResult"
-        default:
-          description: Unexpected error
-          content:
-            "application/json":
-              schema:
-                $ref: "#/components/schemas/SubmodelElementResult"
-      tags:
-        - Submodel Interface
-  "/{se-idShort1}/.../{se-idShortN}":
-    parameters:
-      - name: se-idShort1
-        in: path
-        description: The Submodel-Element's short id
-        required: true
-        schema:
-          type: string
-      - name: se-idShortN
-        in: path
-        description: The Submodel-Element's short id
-        required: true
-        schema:
-          type: string
-    get:
-      summary: Returns the (stripped) nested Submodel Element
-      operationId: ReadSubmodelSubmodelElement
-      responses:
-        "200":
-          description: Returns the requested Submodel-Element
-          content:
-            "application/json":
-              schema:
-                $ref: "#/components/schemas/SubmodelElementListResult"
-        "404":
-          description: Any SubmodelElement referred to by idShort[1-N] not found
-          content:
-            "application/json":
-              schema:
-                $ref: "#/components/schemas/SubmodelElementListResult"
-        default:
-          description: Unexpected error
-          content:
-            "application/json":
-              schema:
-                $ref: "#/components/schemas/SubmodelElementListResult"
-      tags:
-        - Submodel Interface
-    put:
-      summary: Update a nested Submodel Element
-      operationId: UpdateSubmodelSubmodelElement
-      requestBody:
-        description: The Submodel-Element
-        required: true
-        content:
-          "application/json":
-            schema:
-              $ref: "#/components/schemas/SubmodelElement"
-      responses:
-        "200":
-          description: Returns the updated Submodel-Element
-          content:
-            "application/json":
-              schema:
-                $ref: "#/components/schemas/SubmodelElementResult"
-        "404":
-          description: Any SubmodelElement referred to by idShort[1-N] not found
-          content:
-            "application/json":
-              schema:
-                $ref: "#/components/schemas/SubmodelElementResult"
-        default:
-          description: Unexpected error
-          content:
-            "application/json":
-              schema:
-                $ref: "#/components/schemas/SubmodelElementResult"
-      tags:
-        - Submodel Interface
-    delete:
-      summary: Deletes a specific nested Submodel-Element from the Submodel
-      operationId: DeleteSubmodelSubmodelElement
-      responses:
-        "200":
-          description: Submodel-Element deleted successfully
-          content:
-            "application/json":
-              schema:
-                $ref: "#/components/schemas/BaseResult"
-        "404":
-          description: Any SubmodelElement referred to by idShort[1-N] not found
-          content:
-            "application/json":
-              schema:
-                $ref: "#/components/schemas/BaseResult"
-        default:
-          description: Unexpected error
-          content:
-            "application/json":
-              schema:
-                $ref: "#/components/schemas/BaseResult"
-      tags:
-        - Submodel Interface
-  "/{se-idShort1}/.../{se-idShortN}/value":
-    parameters:
-      - name: se-idShort1
-        in: path
-        description: The Submodel-Element's short id
-        required: true
-        schema:
-          type: string
-      - name: se-idShortN
-        in: path
-        description: The Submodel-Element's short id
-        required: true
-        schema:
-          type: string
-    get:
-      summary: If the (nested) Submodel-Element is a Submodel-Element-Collection, return contained (stripped) Submodel-Elements
-      operationId: ReadSubmodelSubmodelElementValue
-      responses:
-        "200":
-          description: Returns the requested Submodel-Element
-          content:
-            "application/json":
-              schema:
-                $ref: "#/components/schemas/SubmodelElementListResult"
-        "400":
-          description: Submodel-Element exists, but is not a SubmodelElementCollection, so /value is not possible.
-          content:
-            "application/json":
-              schema:
-                $ref: "#/components/schemas/SubmodelElementListResult"
-        "404":
-          description: Any SubmodelElement referred to by idShort[1-N] not found
-          content:
-            "application/json":
-              schema:
-                $ref: "#/components/schemas/SubmodelElementListResult"
-        default:
-          description: Unexpected error
-          content:
-            "application/json":
-              schema:
-                $ref: "#/components/schemas/SubmodelElementListResult"
-      tags:
-        - Submodel Interface
-    post:
-      summary: If the (nested) Submodel-Element is a Submodel-Element-Collection, add the Submodel-Element from the request body.
-      operationId: CreateSubmodelSubmodelElementValue
-      requestBody:
-        description: The Submodel-Element
-        required: true
-        content:
-          "application/json":
-            schema:
-              $ref: "#/components/schemas/SubmodelElement"
-      responses:
-        "201":
-          description: Submodel-Element created successfully
-          content:
-            "application/json":
-              schema:
-                $ref: "#/components/schemas/SubmodelElementResult"
-        "400":
-          description: Submodel-Element exists, but is not a SubmodelElementCollection, so /value is not possible.
-          content:
-            "application/json":
-              schema:
-                $ref: "#/components/schemas/SubmodelElementResult"
-        "404":
-          description: Any SubmodelElement referred to by idShort[1-N] not found
-          content:
-            "application/json":
-              schema:
-                $ref: "#/components/schemas/SubmodelElementResult"
-        "409":
-          description: Submodel-Element with given idShort already exists.
-          content:
-            "application/json":
-              schema:
-                $ref: "#/components/schemas/SubmodelElementResult"
-        default:
-          description: Unexpected error
-          content:
-            "application/json":
-              schema:
-                $ref: "#/components/schemas/BaseResult"
-      tags:
-        - Submodel Interface
-  "/{se-idShort1}/.../{se-idShortN}/annotation":
-    parameters:
-      - name: se-idShort1
-        in: path
-        description: The Submodel-Element's short id
-        required: true
-        schema:
-          type: string
-      - name: se-idShortN
-        in: path
-        description: The Submodel-Element's short id
-        required: true
-        schema:
-          type: string
-    get:
-      summary: If the (nested) Submodel-Element is an AnnotatedRelationshipElement, return contained (stripped) Submodel-Elements
-      operationId: ReadSubmodelSubmodelElementAnnotation
-      responses:
-        "200":
-          description: Returns the requested Submodel-Element
-          content:
-            "application/json":
-              schema:
-                $ref: "#/components/schemas/SubmodelElementListResult"
-        "400":
-          description: Submodel-Element exists, but is not an AnnotatedRelationshipElement, so /annotation is not possible.
-          content:
-            "application/json":
-              schema:
-                $ref: "#/components/schemas/SubmodelElementListResult"
-        "404":
-          description: Any SubmodelElement referred to by idShort[1-N] not found
-          content:
-            "application/json":
-              schema:
-                $ref: "#/components/schemas/SubmodelElementListResult"
-        default:
-          description: Unexpected error
-          content:
-            "application/json":
-              schema:
-                $ref: "#/components/schemas/SubmodelElementListResult"
-      tags:
-        - Submodel Interface
-    post:
-      summary: If the (nested) Submodel-Element is an AnnotatedRelationshipElement, add the Submodel-Element from the request body.
-      operationId: CreateSubmodelSubmodelElementAnnotation
-      requestBody:
-        description: The Submodel-Element
-        required: true
-        content:
-          "application/json":
-            schema:
-              $ref: "#/components/schemas/SubmodelElement"
-      responses:
-        "201":
-          description: Submodel-Element created successfully
-          content:
-            "application/json":
-              schema:
-                $ref: "#/components/schemas/SubmodelElementResult"
-        "400":
-          description: Submodel-Element exists, but is not an AnnotatedRelationshipElement, so /annotation is not possible.
-          content:
-            "application/json":
-              schema:
-                $ref: "#/components/schemas/SubmodelElementResult"
-        "404":
-          description: Any SubmodelElement referred to by idShort[1-N] not found
-          content:
-            "application/json":
-              schema:
-                $ref: "#/components/schemas/SubmodelElementResult"
-        "409":
-          description: Submodel-Element with given idShort already exists.
-          content:
-            "application/json":
-              schema:
-                $ref: "#/components/schemas/SubmodelElementResult"
-        default:
-          description: Unexpected error
-          content:
-            "application/json":
-              schema:
-                $ref: "#/components/schemas/SubmodelElementResult"
-      tags:
-        - Submodel Interface
-  "/{se-idShort1}/.../{se-idShortN}/statement":
-    parameters:
-      - name: se-idShort1
-        in: path
-        description: The Submodel-Element's short id
-        required: true
-        schema:
-          type: string
-      - name: se-idShortN
-        in: path
-        description: The Submodel-Element's short id
-        required: true
-        schema:
-          type: string
-    get:
-      summary: If the (nested) Submodel-Element is an Entity, return contained (stripped) Submodel-Elements
-      operationId: ReadSubmodelSubmodelElementStatement
-      responses:
-        "200":
-          description: Returns the requested Submodel-Element
-          content:
-            "application/json":
-              schema:
-                $ref: "#/components/schemas/SubmodelElementListResult"
-        "400":
-          description: Submodel-Element exists, but is not an Entity, so /statement is not possible.
-          content:
-            "application/json":
-              schema:
-                $ref: "#/components/schemas/SubmodelElementListResult"
-        "404":
-          description: Any SubmodelElement referred to by idShort[1-N] not found
-          content:
-            "application/json":
-              schema:
-                $ref: "#/components/schemas/SubmodelElementListResult"
-        default:
-          description: Unexpected error
-          content:
-            "application/json":
-              schema:
-                $ref: "#/components/schemas/SubmodelElementListResult"
-      tags:
-        - Submodel Interface
-    post:
-      summary: If the (nested) Submodel-Element is an Entity, add the Submodel-Element from the request body.
-      operationId: CreateSubmodelSubmodelElementStatement
-      requestBody:
-        description: The Submodel-Element
-        required: true
-        content:
-          "application/json":
-            schema:
-              $ref: "#/components/schemas/SubmodelElement"
-      responses:
-        "201":
-          description: Submodel-Element created successfully
-          content:
-            "application/json":
-              schema:
-                $ref: "#/components/schemas/SubmodelElementResult"
-        "400":
-          description: Submodel-Element exists, but is not an Entity, so /statement is not possible.
-          content:
-            "application/json":
-              schema:
-                $ref: "#/components/schemas/SubmodelElementResult"
-        "404":
-          description: Any SubmodelElement referred to by idShort[1-N] not found
-          content:
-            "application/json":
-              schema:
-                $ref: "#/components/schemas/SubmodelElementResult"
-        "409":
-          description: Submodel-Element with given idShort already exists.
-          content:
-            "application/json":
-              schema:
-                $ref: "#/components/schemas/SubmodelElementResult"
-        default:
-          description: Unexpected error
-          content:
-            "application/json":
-              schema:
-                $ref: "#/components/schemas/SubmodelElementResult"
-      tags:
-        - Submodel Interface
-  "/{se-idShort1}/.../{se-idShortN}/constraints":
-    parameters:
-      - name: se-idShort1
-        in: path
-        description: The Submodel-Element's short id
-        required: true
-        schema:
-          type: string
-      - name: se-idShortN
-        in: path
-        description: The Submodel-Element's short id
-        required: true
-        schema:
-          type: string
-    get:
-      summary: Retrieves all Constraints from the current Submodel
-      operationId: ReadSubmodelSubmodelElementConstraints
-      responses:
-        "200":
-          description: Returns a list of found Constraints
-          content:
-            "application/json":
-              schema:
-                $ref: "#/components/schemas/ConstraintListResult"
-        "404":
-          description: Any SubmodelElement referred to by idShort[1-N] not found
-          content:
-            "application/json":
-              schema:
-                $ref: "#/components/schemas/ConstraintListResult"
-        default:
-          description: Unexpected error
-          content:
-            "application/json":
-              schema:
-                $ref: "#/components/schemas/ConstraintListResult"
-      tags:
-        - Submodel Interface
-    post:
-      summary: Adds a new Constraint to the Submodel
-      operationId: CreateSubmodelSubmodelElementConstraint
-      requestBody:
-        description: The Submodel-Element
-        required: true
-        content:
-          "application/json":
-            schema:
-              $ref: "#/components/schemas/Constraint"
-      responses:
-        "201":
-          description: Constraint created successfully
-          content:
-            "application/json":
-              schema:
-                $ref: "#/components/schemas/ConstraintResult"
-        "404":
-          description: Any SubmodelElement referred to by idShort[1-N] not found
-          content:
-            "application/json":
-              schema:
-                $ref: "#/components/schemas/ConstraintResult"
-        "409":
-          description: "When trying to add a qualifier: Qualifier with specified type already exists"
-          content:
-            "application/json":
-              schema:
-                $ref: "#/components/schemas/ConstraintResult"
-        default:
-          description: Unexpected error
-          content:
-            "application/json":
-              schema:
-                $ref: "#/components/schemas/ConstraintResult"
-      tags:
-        - Submodel Interface
-  "/{se-idShort1}/.../{se-idShortN}/constraints/{qualifier-type}":
-    parameters:
-      - name: se-idShort1
-        in: path
-        description: The Submodel-Element's short id
-        required: true
-        schema:
-          type: string
-      - name: se-idShortN
-        in: path
-        description: The Submodel-Element's short id
-        required: true
-        schema:
-          type: string
-      - name: qualifier-type
-        in: path
-        description: "Type of the qualifier"
-        required: true
-        schema:
-          type: string
-    get:
-      summary: Retrieves a specific Qualifier from the submodel's constraints
-      operationId: ReadSubmodelSubmodelElementConstraint
-      responses:
-        "200":
-          description: Returns the qualifier
-          content:
-            "application/json":
-              schema:
-                $ref: "#/components/schemas/ConstraintResult"
-        "404":
-          description: Submodel, any SubmodelElement referred to by idShort[1-N] or qualifier not found
-          content:
-            "application/json":
-              schema:
-                $ref: "#/components/schemas/ConstraintResult"
-        default:
-          description: Unexpected error
-          content:
-            "application/json":
-              schema:
-                $ref: "#/components/schemas/ConstraintResult"
-      tags:
-        - Submodel Interface
-    put:
-      summary: Updates an existing qualifier in the submodel
-      operationId: UpdateSubmodelSubmodelElementConstraint
-      requestBody:
-        description: The Submodel-Element
-        required: true
-        content:
-          "application/json":
-            schema:
-              $ref: "#/components/schemas/Constraint"
-      responses:
-        "201":
-          description: Constraint created successfully
-          content:
-            "application/json":
-              schema:
-                $ref: "#/components/schemas/ConstraintResult"
-        "404":
-          description: Any SubmodelElement referred to by idShort[1-N] or qualifier not found
-          content:
-            "application/json":
-              schema:
-                $ref: "#/components/schemas/ConstraintResult"
-        default:
-          description: Unexpected error
-          content:
-            "application/json":
-              schema:
-                $ref: "#/components/schemas/ConstraintResult"
-      tags:
-        - Submodel Interface
-    delete:
-      summary: Deletes an existing qualifier from the submodel
-      operationId: DeleteSubmodelSubmodelElementConstraint
-      responses:
-        "200":
-          description: Constraint deleted successfully
-          content:
-            "application/json":
-              schema:
-                $ref: "#/components/schemas/BaseResult"
-        "404":
-          description: Any SubmodelElement referred to by idShort[1-N] or qualifier not found
-          content:
-            "application/json":
-              schema:
-                $ref: "#/components/schemas/BaseResult"
-        default:
-          description: Unexpected error
-          content:
-            "application/json":
-              schema:
-                $ref: "#/components/schemas/BaseResult"
       tags:
         - Submodel Interface
   "/constraints":
     get:
-      summary: Retrieves all Constraints from the current Submodel
+      summary: Returns all Constraints of the current Submodel
       operationId: ReadSubmodelConstraints
       responses:
         "200":
-          description: Returns a list of found Constraints
+          description: Success
           content:
             "application/json":
               schema:
                 $ref: "#/components/schemas/ConstraintListResult"
-        default:
-          description: Unexpected error
+        "404":
+          description: Submodel not found
           content:
             "application/json":
               schema:
@@ -970,7 +331,7 @@ paths:
       summary: Adds a new Constraint to the Submodel
       operationId: CreateSubmodelConstraint
       requestBody:
-        description: The Submodel-Element
+        description: The Constraint to create
         required: true
         content:
           "application/json":
@@ -978,19 +339,19 @@ paths:
               $ref: "#/components/schemas/Constraint"
       responses:
         "201":
-          description: Constraint created successfully
+          description: Success
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/ConstraintResult"
+        "404":
+          description: Submodel not found
           content:
             "application/json":
               schema:
                 $ref: "#/components/schemas/ConstraintResult"
         "409":
-          description: "When trying to add a qualifier: Qualifier with specified type already exists"
-          content:
-            "application/json":
-              schema:
-                $ref: "#/components/schemas/ConstraintResult"
-        default:
-          description: Unexpected error
+          description: "When trying to add a qualifier: Qualifier with same type already exists"
           content:
             "application/json":
               schema:
@@ -1001,16 +362,16 @@ paths:
     parameters:
       - name: qualifier-type
         in: path
-        description: "Type of the qualifier"
+        description: The type of the Qualifier
         required: true
         schema:
           type: string
     get:
-      summary: Retrieves a specific Qualifier from the submodel's constraints
+      summary: Retrieves a specific Qualifier of the Submodel's constraints (Formulas cannot be referred to yet)
       operationId: ReadSubmodelConstraint
       responses:
         "200":
-          description: Returns the qualifier
+          description: Success
           content:
             "application/json":
               schema:
@@ -1021,24 +382,18 @@ paths:
             "application/json":
               schema:
                 $ref: "#/components/schemas/ConstraintResult"
-        default:
-          description: Unexpected error
-          content:
-            "application/json":
-              schema:
-                $ref: "#/components/schemas/ConstraintResult"
       tags:
         - Submodel Interface
     put:
-      summary: Updates an existing qualifier in the submodel
+      summary: Updates an existing Qualifier in the Submodel (Formulas cannot be referred to yet)
       operationId: UpdateSubmodelConstraint
       requestBody:
-        description: The Submodel-Element
+        description: The Qualifier used to overwrite the existing Qualifier
         required: true
         content:
           "application/json":
             schema:
-              $ref: "#/components/schemas/ConstraintResult"
+              $ref: "#/components/schemas/Qualifier"
       responses:
         "201":
           description: Constraint created successfully
@@ -1052,16 +407,10 @@ paths:
             "application/json":
               schema:
                 $ref: "#/components/schemas/ConstraintResult"
-        default:
-          description: Unexpected error
-          content:
-            "application/json":
-              schema:
-                $ref: "#/components/schemas/ConstraintResult"
       tags:
         - Submodel Interface
     delete:
-      summary: Deletes an existing qualifier from the submodel
+      summary: Deletes an existing Qualifier from the Submodel (Formulas cannot be referred to yet)
       operationId: DeleteSubmodelConstraint
       responses:
         "200":
@@ -1076,8 +425,496 @@ paths:
             "application/json":
               schema:
                 $ref: "#/components/schemas/BaseResult"
-        default:
-          description: Unexpected error
+      tags:
+        - Submodel Interface
+  "/submodelElements":
+    get:
+      summary: Returns all SubmodelElements of the current Submodel
+      operationId: ReadSubmodelSubmodelElements
+      responses:
+        "200":
+          description: Success
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/SubmodelElementListResult"
+        "404":
+          description: Submodel not found
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/SubmodelElementListResult"
+      tags:
+        - Submodel Interface
+    post:
+      summary: Adds a new SubmodelElement to the Submodel
+      operationId: CreateSubmodelSubmodelElement
+      requestBody:
+        description: The SubmodelElement to create
+        required: true
+        content:
+          "application/json":
+            schema:
+              $ref: "#/components/schemas/SubmodelElement"
+      responses:
+        "201":
+          description: Success
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/SubmodelElementResult"
+        "404":
+          description: Submodel not found
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/SubmodelElementResult"
+        "409":
+          description: SubmodelElement with same idShort already exists
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/SubmodelElementResult"
+      tags:
+        - Submodel Interface
+  "/{se-idShort1}/.../{se-idShortN}":
+    parameters:
+      - name: se-idShort1
+        in: path
+        description: The SubmodelElement's idShort
+        required: true
+        schema:
+          type: string
+      - name: se-idShortN
+        in: path
+        description: The SubmodelElement's idShort
+        required: true
+        schema:
+          type: string
+    get:
+      summary: Returns the (stripped) (nested) SubmodelElement
+      operationId: ReadSubmodelSubmodelElement
+      responses:
+        "200":
+          description: Success
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/SubmodelElementListResult"
+        "404":
+          description: Submodel or any SubmodelElement referred to by idShort[1-N] not found
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/SubmodelElementListResult"
+      tags:
+        - Submodel Interface
+    put:
+      summary: Updates a nested SubmodelElement
+      operationId: UpdateSubmodelSubmodelElement
+      requestBody:
+        description: The SubmodelElement used to overwrite the existing SubmodelElement
+        required: true
+        content:
+          "application/json":
+            schema:
+              $ref: "#/components/schemas/SubmodelElement"
+      responses:
+        "200":
+          description: Returns the updated SubmodelElement
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/SubmodelElementResult"
+        "404":
+          description: Submodel or any SubmodelElement referred to by idShort[1-N] not found
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/SubmodelElementResult"
+      tags:
+        - Submodel Interface
+    delete:
+      summary: Deletes a specific (nested) SubmodelElement from the Submodel
+      operationId: DeleteSubmodelSubmodelElement
+      responses:
+        "200":
+          description: Success
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/BaseResult"
+        "404":
+          description: Submodel or any SubmodelElement referred to by idShort[1-N] not found
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/BaseResult"
+      tags:
+        - Submodel Interface
+  "/{se-idShort1}/.../{se-idShortN}/value":
+    parameters:
+      - name: se-idShort1
+        in: path
+        description: The SubmodelElement's idShort
+        required: true
+        schema:
+          type: string
+      - name: se-idShortN
+        in: path
+        description: The SubmodelElement's idShort
+        required: true
+        schema:
+          type: string
+    get:
+      summary: If the (nested) SubmodelElement is a SubmodelElementCollection, return contained (stripped) SubmodelElements
+      operationId: ReadSubmodelSubmodelElementValue
+      responses:
+        "200":
+          description: Success
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/SubmodelElementListResult"
+        "400":
+          description: SubmodelElement exists, but is not a SubmodelElementCollection, so /value is not possible
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/SubmodelElementListResult"
+        "404":
+          description: Submodel or any SubmodelElement referred to by idShort[1-N] not found
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/SubmodelElementListResult"
+      tags:
+        - Submodel Interface
+    post:
+      summary: If the (nested) SubmodelElement is a SubmodelElementCollection, add a SubmodelElement to its value
+      operationId: CreateSubmodelSubmodelElementValue
+      requestBody:
+        description: The SubmodelElement to create
+        required: true
+        content:
+          "application/json":
+            schema:
+              $ref: "#/components/schemas/SubmodelElement"
+      responses:
+        "201":
+          description: Success
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/SubmodelElementResult"
+        "400":
+          description: SubmodelElement exists, but is not a SubmodelElementCollection, so /value is not possible
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/SubmodelElementResult"
+        "404":
+          description: Submodel or any SubmodelElement referred to by idShort[1-N] not found
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/SubmodelElementResult"
+        "409":
+          description: SubmodelElement with same idShort already exists
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/SubmodelElementResult"
+      tags:
+        - Submodel Interface
+  "/{se-idShort1}/.../{se-idShortN}/annotation":
+    parameters:
+      - name: se-idShort1
+        in: path
+        description: The SubmodelElement's idShort
+        required: true
+        schema:
+          type: string
+      - name: se-idShortN
+        in: path
+        description: The SubmodelElement's idShort
+        required: true
+        schema:
+          type: string
+    get:
+      summary: If the (nested) SubmodelElement is an AnnotatedRelationshipElement, return contained (stripped) SubmodelElements
+      operationId: ReadSubmodelSubmodelElementAnnotation
+      responses:
+        "200":
+          description: Success
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/SubmodelElementListResult"
+        "400":
+          description: SubmodelElement exists, but is not an AnnotatedRelationshipElement, so /annotation is not possible
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/SubmodelElementListResult"
+        "404":
+          description: Any SubmodelElement referred to by idShort[1-N] not found
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/SubmodelElementListResult"
+      tags:
+        - Submodel Interface
+    post:
+      summary: If the (nested) SubmodelElement is an AnnotatedRelationshipElement, add a SubmodelElement to its annotation
+      operationId: CreateSubmodelSubmodelElementAnnotation
+      requestBody:
+        description: The SubmodelElement to create
+        required: true
+        content:
+          "application/json":
+            schema:
+              $ref: "#/components/schemas/SubmodelElement"
+      responses:
+        "201":
+          description: Success
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/SubmodelElementResult"
+        "400":
+          description: SubmodelElement exists, but is not an AnnotatedRelationshipElement, so /annotation is not possible
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/SubmodelElementResult"
+        "404":
+          description: Any SubmodelElement referred to by idShort[1-N] not found
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/SubmodelElementResult"
+        "409":
+          description: SubmodelElement with given idShort already exists
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/SubmodelElementResult"
+      tags:
+        - Submodel Interface
+  "/{se-idShort1}/.../{se-idShortN}/statement":
+    parameters:
+      - name: se-idShort1
+        in: path
+        description: The SubmodelElement's idShort
+        required: true
+        schema:
+          type: string
+      - name: se-idShortN
+        in: path
+        description: The SubmodelElement's idShort
+        required: true
+        schema:
+          type: string
+    get:
+      summary: If the (nested) SubmodelElement is an Entity, return contained (stripped) SubmodelElements
+      operationId: ReadSubmodelSubmodelElementStatement
+      responses:
+        "200":
+          description: Success
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/SubmodelElementListResult"
+        "400":
+          description: SubmodelElement exists, but is not an Entity, so /statement is not possible.
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/SubmodelElementListResult"
+        "404":
+          description: Any SubmodelElement referred to by idShort[1-N] not found
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/SubmodelElementListResult"
+      tags:
+        - Submodel Interface
+    post:
+      summary: If the (nested) SubmodelElement is an Entity, add a SubmodelElement to its statement
+      operationId: CreateSubmodelSubmodelElementStatement
+      requestBody:
+        description: The SubmodelElement to create
+        required: true
+        content:
+          "application/json":
+            schema:
+              $ref: "#/components/schemas/SubmodelElement"
+      responses:
+        "201":
+          description: Success
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/SubmodelElementResult"
+        "400":
+          description: SubmodelElement exists, but is not an Entity, so /statement is not possible
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/SubmodelElementResult"
+        "404":
+          description: Any SubmodelElement referred to by idShort[1-N] not found
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/SubmodelElementResult"
+        "409":
+          description: SubmodelElement with same idShort already exists
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/SubmodelElementResult"
+      tags:
+        - Submodel Interface
+  "/{se-idShort1}/.../{se-idShortN}/constraints":
+    parameters:
+      - name: se-idShort1
+        in: path
+        description: The SubmodelElement's idShort
+        required: true
+        schema:
+          type: string
+      - name: se-idShortN
+        in: path
+        description: The SubmodelElement's idShort
+        required: true
+        schema:
+          type: string
+    get:
+      summary: Returns all Constraints of the (nested) SubmodelElement
+      operationId: ReadSubmodelSubmodelElementConstraints
+      responses:
+        "200":
+          description: Success
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/ConstraintListResult"
+        "404":
+          description: Submodel or any SubmodelElement referred to by idShort[1-N] not found
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/ConstraintListResult"
+      tags:
+        - Submodel Interface
+    post:
+      summary: Adds a new Constraint to the (nested) SubmodelElement
+      operationId: CreateSubmodelSubmodelElementConstraint
+      requestBody:
+        description: The Constraint to create
+        required: true
+        content:
+          "application/json":
+            schema:
+              $ref: "#/components/schemas/Constraint"
+      responses:
+        "201":
+          description: Success
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/ConstraintResult"
+        "404":
+          description: Submodel or any SubmodelElement referred to by idShort[1-N] not found
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/ConstraintResult"
+        "409":
+          description: "When trying to add a qualifier: Qualifier with specified type already exists"
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/ConstraintResult"
+      tags:
+        - Submodel Interface
+  "/{se-idShort1}/.../{se-idShortN}/constraints/{qualifier-type}":
+    parameters:
+      - name: se-idShort1
+        in: path
+        description: The SubmodelElement's idShort
+        required: true
+        schema:
+          type: string
+      - name: se-idShortN
+        in: path
+        description: The SubmodelElement's idShort
+        required: true
+        schema:
+          type: string
+      - name: qualifier-type
+        in: path
+        description: "Type of the qualifier"
+        required: true
+        schema:
+          type: string
+    get:
+      summary: Retrieves a specific Qualifier of the (nested) SubmodelElements's Constraints (Formulas cannot be referred to yet)
+      operationId: ReadSubmodelSubmodelElementConstraint
+      responses:
+        "200":
+          description: Success
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/ConstraintResult"
+        "404":
+          description: Submodel, Qualifier or any SubmodelElement referred to by idShort[1-N] not found
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/ConstraintResult"
+      tags:
+        - Submodel Interface
+    put:
+      summary: Updates an existing Qualifier in the (nested) SubmodelElement (Formulas cannot be referred to yet)
+      operationId: UpdateSubmodelSubmodelElementConstraint
+      requestBody:
+        description: The Qualifier used to overwrite the existing Qualifier
+        required: true
+        content:
+          "application/json":
+            schema:
+              $ref: "#/components/schemas/Qualifier"
+      responses:
+        "201":
+          description: Success
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/ConstraintResult"
+        "404":
+          description: Submodel, Qualifier or any SubmodelElement referred to by idShort[1-N] not found
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/ConstraintResult"
+      tags:
+        - Submodel Interface
+    delete:
+      summary: Deletes an existing Qualifier from the (nested) SubmodelElement (Formulas cannot be referred to yet)
+      operationId: DeleteSubmodelSubmodelElementConstraint
+      responses:
+        "200":
+          description: Success
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/BaseResult"
+        "404":
+          description: Submodel, Qualifier or any SubmodelElement referred to by idShort[1-N] not found
           content:
             "application/json":
               schema:
