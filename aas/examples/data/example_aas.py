@@ -379,6 +379,23 @@ def create_example_submodel() -> model.Submodel:
         qualifier=None,
         kind=model.ModelingKind.INSTANCE)
 
+    submodel_element_file_uri = model.File(
+        id_short='ExampleFileURI',
+        mime_type='application/pdf',
+        value='https://www.plattform-i40.de/PI40/Redaktion/DE/Downloads/Publikation/Details-of-the-Asset-'
+              'Administration-Shell-Part1.pdf?__blob=publicationFile&v=5',
+        category='CONSTANT',
+        description={'en-us': 'Details of the Asset Administration Shell—An example for an external file reference',
+                     'de': 'Details of the Asset Administration Shell – Ein Beispiel für eine extern referenzierte '
+                           'Datei'},
+        parent=None,
+        semantic_id=model.Reference((model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
+                                               local=False,
+                                               value='http://acplt.org/Files/ExampleFile',
+                                               id_type=model.KeyType.IRI),)),
+        qualifier=None,
+        kind=model.ModelingKind.INSTANCE)
+
     submodel_element_reference_element = model.ReferenceElement(
         id_short='ExampleReferenceElement',
         value=model.AASReference((model.Key(type_=model.KeyElements.PROPERTY,
@@ -535,6 +552,7 @@ def create_example_submodel() -> model.Submodel:
         id_short='ExampleSubmodelCollectionUnordered',
         value=(submodel_element_blob,
                submodel_element_file,
+               submodel_element_file_uri,
                submodel_element_reference_element),
         category='PARAMETER',
         description={'en-us': 'Example SubmodelElementCollectionUnordered object',
