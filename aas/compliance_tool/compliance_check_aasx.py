@@ -67,6 +67,8 @@ def check_deserialization(file_path: str, state_manager: ComplianceToolStateMana
         obj_store: model.DictObjectStore[model.Identifiable] = model.DictObjectStore()
         files = aasx.DictSupplementaryFileContainer()
         with aasx.AASXReader(file_path) as reader:
+            state_manager.set_step_status_from_log()
+            state_manager.add_step('Read file')
             reader.read_into(obj_store, files)
             new_cp = reader.get_core_properties()
     except ValueError as error:

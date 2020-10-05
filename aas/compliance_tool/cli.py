@@ -20,7 +20,6 @@ import datetime
 import logging
 
 import pyecma376_2
-from coverage.annotate import os
 
 from aas import model
 from aas.adapter import aasx
