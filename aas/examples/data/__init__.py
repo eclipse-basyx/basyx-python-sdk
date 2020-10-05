@@ -20,9 +20,13 @@ example_submodel_template.py
     Module for the creation of an example submodel template containing all kind of submodel elements where the kind is
     always TEMPLATE.
 """
+import os
+
 from aas import model
 from aas.examples.data import example_aas, example_aas_mandatory_attributes, example_aas_missing_attributes, \
     example_submodel_template, example_concept_description
+
+TEST_PDF_FILE = os.path.join(os.path.dirname(__file__), 'TestFile.pdf')
 
 
 def create_example() -> model.DictObjectStore:

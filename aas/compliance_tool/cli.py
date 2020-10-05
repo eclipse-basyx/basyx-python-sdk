@@ -20,6 +20,7 @@ import datetime
 import logging
 
 import pyecma376_2
+from coverage.annotate import os
 
 from aas import model
 from aas.adapter import aasx
@@ -28,7 +29,7 @@ from aas.compliance_tool import compliance_check_json as compliance_tool_json
 from aas.compliance_tool import compliance_check_xml as compliance_tool_xml
 from aas.compliance_tool import compliance_check_aasx as compliance_tool_aasx
 from aas.adapter.json import write_aas_json_file
-from aas.examples.data import create_example
+from aas.examples.data import create_example, TEST_PDF_FILE
 from aas.compliance_tool.state_manager import ComplianceToolStateManager, Status
 
 
@@ -106,8 +107,10 @@ def main():
                     manager.set_step_status(Status.SUCCESS)
                     manager.add_step('Write data to file')
 
-                    # Todo add Example TestFile.pdf
                     files = aasx.DictSupplementaryFileContainer()
+                    with open(TEST_PDF_FILE, 'rb') as f:
+                        files.add_file("/TestFile.pdf", f, "application/pdf")
+                        f.seek(0)
 
                     # Create OPC/AASX core properties
                     cp = pyecma376_2.OPCCoreProperties()
