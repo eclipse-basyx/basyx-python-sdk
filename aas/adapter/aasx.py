@@ -238,6 +238,7 @@ class AASXReader:
                 if element.value.startswith('//') or ':' in element.value.split('/')[0]:
                     logger.info("Skipping supplementary file %s, since it seems to be an absolute URI or network-path "
                                 "URI reference", element.value)
+                    continue
                 absolute_name = pyecma376_2.package_model.part_realpath(element.value, part_name)
                 logger.debug("Reading supplementary file {} from AASX package ...".format(absolute_name))
                 with self.reader.open_part(absolute_name) as p:
