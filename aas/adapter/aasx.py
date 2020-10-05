@@ -415,7 +415,9 @@ class AASXWriter:
         for element in traversal.walk_submodel(submodel):
             if isinstance(element, model.File):
                 file_name = element.value
-                if file_name is None:
+                # Skip File objects with empty value URI references that are considered to be no local file (absolute
+                # URIs or network-path URI references)
+                if file_name is None or file_name.startswith('//') or ':' in file_name.split('/')[0]:
                     continue
                 try:
                     content_type = file_store.get_content_type(file_name)
