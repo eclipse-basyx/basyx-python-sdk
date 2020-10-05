@@ -75,6 +75,8 @@ def check_deserialization(file_path: str, state_manager: ComplianceToolStateMana
         state_manager.set_step_status(Status.FAILED)
         logger.error(error)
         state_manager.set_step_status_from_log()
+        state_manager.add_step('Read file')
+        state_manager.set_step_status(Status.NOT_EXECUTED)
         return model.DictObjectStore(), aasx.DictSupplementaryFileContainer(), pyecma376_2.OPCCoreProperties()
 
     state_manager.set_step_status_from_log()

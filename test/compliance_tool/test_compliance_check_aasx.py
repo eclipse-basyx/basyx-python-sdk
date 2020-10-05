@@ -22,17 +22,19 @@ class ComplianceToolAASXTest(unittest.TestCase):
 
         file_path_1 = os.path.join(script_dir, 'files/test_not_found.aasx')
         compliance_tool.check_deserialization(file_path_1, manager)
-        self.assertEqual(1, len(manager.steps))
+        self.assertEqual(2, len(manager.steps))
         self.assertEqual(Status.FAILED, manager.steps[0].status)
         self.assertIn("is not a valid ECMA376-2 (OPC) file", manager.format_step(0, verbose_level=1))
+        self.assertEqual(Status.NOT_EXECUTED, manager.steps[1].status)
 
         # Todo add more tests for checking wrong aasx files
 
         manager.steps = []
         file_path_5 = os.path.join(script_dir, 'files/test_demo_full_example.aasx')
         compliance_tool.check_deserialization(file_path_5, manager)
-        self.assertEqual(1, len(manager.steps))
+        self.assertEqual(2, len(manager.steps))
         self.assertEqual(Status.SUCCESS, manager.steps[0].status)
+        self.assertEqual(Status.SUCCESS, manager.steps[1].status)
 
     def test_check_aas_example(self) -> None:
         manager = ComplianceToolStateManager()
@@ -40,20 +42,22 @@ class ComplianceToolAASXTest(unittest.TestCase):
 
         file_path_2 = os.path.join(script_dir, 'files/test_demo_full_example.aasx')
         compliance_tool.check_aas_example(file_path_2, manager)
-        self.assertEqual(2, len(manager.steps))
+        self.assertEqual(3, len(manager.steps))
         self.assertEqual(Status.SUCCESS, manager.steps[0].status)
+        self.assertEqual(Status.SUCCESS, manager.steps[1].status)
         # Todo update AASX library for saving also sm and cds which are not linked to an aas
-        self.assertEqual(Status.FAILED, manager.steps[1].status)
+        self.assertEqual(Status.FAILED, manager.steps[2].status)
 
         manager.steps = []
         file_path_3 = os.path.join(script_dir, 'files/test_demo_full_example_wrong_attribute.aasx')
         compliance_tool.check_aas_example(file_path_3, manager)
-        self.assertEqual(2, len(manager.steps))
+        self.assertEqual(3, len(manager.steps))
         self.assertEqual(Status.SUCCESS, manager.steps[0].status)
-        self.assertEqual(Status.FAILED, manager.steps[1].status)
+        self.assertEqual(Status.SUCCESS, manager.steps[1].status)
+        self.assertEqual(Status.FAILED, manager.steps[2].status)
         self.assertIn('Attribute id_short of AssetAdministrationShell[Identifier(IRI=https://acplt.org/'
                       'Test_AssetAdministrationShell)] must be == TestAssetAdministrationShell',
-                      manager.format_step(1, verbose_level=1))
+                      manager.format_step(2, verbose_level=1))
 
     def test_check_aasx_files_equivalence(self) -> None:
         manager = ComplianceToolStateManager()
@@ -62,45 +66,55 @@ class ComplianceToolAASXTest(unittest.TestCase):
         file_path_1 = os.path.join(script_dir, 'files/test_demo_full_example.aasx')
         file_path_2 = os.path.join(script_dir, 'files/test_empty.aasx')
         compliance_tool.check_aasx_files_equivalence(file_path_1, file_path_2, manager)
-        self.assertEqual(3, len(manager.steps))
+        self.assertEqual(5, len(manager.steps))
         self.assertEqual(Status.SUCCESS, manager.steps[0].status)
         self.assertEqual(Status.SUCCESS, manager.steps[1].status)
-        self.assertEqual(Status.FAILED, manager.steps[2].status)
+        self.assertEqual(Status.SUCCESS, manager.steps[2].status)
+        self.assertEqual(Status.SUCCESS, manager.steps[3].status)
+        self.assertEqual(Status.FAILED, manager.steps[4].status)
 
         manager.steps = []
         compliance_tool.check_aasx_files_equivalence(file_path_2, file_path_1, manager)
-        self.assertEqual(3, len(manager.steps))
+        self.assertEqual(5, len(manager.steps))
         self.assertEqual(Status.SUCCESS, manager.steps[0].status)
         self.assertEqual(Status.SUCCESS, manager.steps[1].status)
-        self.assertEqual(Status.FAILED, manager.steps[2].status)
+        self.assertEqual(Status.SUCCESS, manager.steps[2].status)
+        self.assertEqual(Status.SUCCESS, manager.steps[3].status)
+        self.assertEqual(Status.FAILED, manager.steps[4].status)
 
         manager.steps = []
         file_path_3 = os.path.join(script_dir, 'files/test_demo_full_example.aasx')
         file_path_4 = os.path.join(script_dir, 'files/test_demo_full_example.aasx')
         compliance_tool.check_aasx_files_equivalence(file_path_3, file_path_4, manager)
-        self.assertEqual(3, len(manager.steps))
+        self.assertEqual(5, len(manager.steps))
         self.assertEqual(Status.SUCCESS, manager.steps[0].status)
         self.assertEqual(Status.SUCCESS, manager.steps[1].status)
         self.assertEqual(Status.SUCCESS, manager.steps[2].status)
+        self.assertEqual(Status.SUCCESS, manager.steps[3].status)
+        self.assertEqual(Status.SUCCESS, manager.steps[4].status)
 
         manager.steps = []
         file_path_3 = os.path.join(script_dir, 'files/test_demo_full_example.aasx')
         file_path_4 = os.path.join(script_dir, 'files/test_demo_full_example_wrong_attribute.aasx')
         compliance_tool.check_aasx_files_equivalence(file_path_3, file_path_4, manager)
-        self.assertEqual(3, len(manager.steps))
+        self.assertEqual(5, len(manager.steps))
         self.assertEqual(Status.SUCCESS, manager.steps[0].status)
         self.assertEqual(Status.SUCCESS, manager.steps[1].status)
-        self.assertEqual(Status.FAILED, manager.steps[2].status)
+        self.assertEqual(Status.SUCCESS, manager.steps[2].status)
+        self.assertEqual(Status.SUCCESS, manager.steps[3].status)
+        self.assertEqual(Status.FAILED, manager.steps[4].status)
         self.assertIn('Attribute id_short of AssetAdministrationShell'
                       '[Identifier(IRI=https://acplt.org/Test_AssetAdministrationShell)] must be ==',
-                      manager.format_step(2, verbose_level=1))
+                      manager.format_step(4, verbose_level=1))
 
         manager.steps = []
         compliance_tool.check_aasx_files_equivalence(file_path_4, file_path_3, manager)
-        self.assertEqual(3, len(manager.steps))
+        self.assertEqual(5, len(manager.steps))
         self.assertEqual(Status.SUCCESS, manager.steps[0].status)
         self.assertEqual(Status.SUCCESS, manager.steps[1].status)
-        self.assertEqual(Status.FAILED, manager.steps[2].status)
+        self.assertEqual(Status.SUCCESS, manager.steps[2].status)
+        self.assertEqual(Status.SUCCESS, manager.steps[3].status)
+        self.assertEqual(Status.FAILED, manager.steps[4].status)
         self.assertIn('Attribute id_short of AssetAdministrationShell'
                       '[Identifier(IRI=https://acplt.org/Test_AssetAdministrationShell)] must be ==',
-                      manager.format_step(2, verbose_level=1))
+                      manager.format_step(4, verbose_level=1))
