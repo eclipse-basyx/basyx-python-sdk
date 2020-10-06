@@ -1,8 +1,8 @@
 openapi: 3.0.0
 info:
   version: "1"
-  title: pyI40AAS REST API
-  description: "REST API Specification for the pyI40AAS framework.  
+  title: PyI40AAS REST API
+  description: "REST API Specification for the [PyI40AAS framework](https://git.rwth-aachen.de/acplt/pyi40aas).  
   
 
   Any identifier variables are encoded as follows `{identifierType}:URIencode(URIencode({identifier}))`, e.g. `IRI:http:%252F%252Facplt.org%252Fasset`.  
