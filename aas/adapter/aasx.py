@@ -232,6 +232,13 @@ class AASXReader:
             if isinstance(element, model.File):
                 if element.value is None:
                     continue
+                # Only absolute-path references and relative-path URI references (see RFC 3986, sec. 4.2) are considered
+                # to refer to files within the AASX package. Thus, we must skip all other types of URIs (esp. absolute
+                # URIs and network-path references)
+                if element.value.startswith('//') or ':' in element.value.split('/')[0]:
+                    logger.info("Skipping supplementary file %s, since it seems to be an absolute URI or network-path "
+                                "URI reference", element.value)
+                    continue
                 absolute_name = pyecma376_2.package_model.part_realpath(element.value, part_name)
                 logger.debug("Reading supplementary file {} from AASX package ...".format(absolute_name))
                 with self.reader.open_part(absolute_name) as p:
@@ -408,7 +415,9 @@ class AASXWriter:
         for element in traversal.walk_submodel(submodel):
             if isinstance(element, model.File):
                 file_name = element.value
-                if file_name is None:
+                # Skip File objects with empty value URI references that are considered to be no local file (absolute
+                # URIs or network-path URI references)
+                if file_name is None or file_name.startswith('//') or ':' in file_name.split('/')[0]:
                     continue
                 try:
                     content_type = file_store.get_content_type(file_name)
