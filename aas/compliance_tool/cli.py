@@ -28,7 +28,7 @@ from aas.compliance_tool import compliance_check_json as compliance_tool_json
 from aas.compliance_tool import compliance_check_xml as compliance_tool_xml
 from aas.compliance_tool import compliance_check_aasx as compliance_tool_aasx
 from aas.adapter.json import write_aas_json_file
-from aas.examples.data import create_example, TEST_PDF_FILE
+from aas.examples.data import create_example, create_example_aas_binding, TEST_PDF_FILE
 from aas.compliance_tool.state_manager import ComplianceToolStateManager, Status
 
 
@@ -97,7 +97,10 @@ def main():
 
     if args.action == 'create' or args.action == 'c':
         manager.add_step('Create example data')
-        data = create_example()
+        if args.aasx:
+            data = create_example_aas_binding()
+        else:
+            data = create_example()
         manager.set_step_status(Status.SUCCESS)
         try:
             manager.add_step('Open file')
@@ -113,7 +116,7 @@ def main():
 
                     # Create OPC/AASX core properties
                     cp = pyecma376_2.OPCCoreProperties()
-                    cp.created = datetime.datetime.now()
+                    cp.created = datetime.datetime.fromtimestamp(1577829600)
                     cp.creator = "PyI40AAS Testing Framework"
 
                     # Decide wether write json or xml files

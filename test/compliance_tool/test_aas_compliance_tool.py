@@ -8,17 +8,24 @@
 # Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an
 # "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
 # specific language governing permissions and limitations under the License.
+import datetime
+import hashlib
 import os
 import subprocess
 import sys
 import unittest
+import io
+
+import pyecma376_2
 
 import aas.compliance_tool
 import tempfile
 
+from aas import model
+from aas.adapter import aasx
 from aas.adapter.json import read_aas_json_file, JSON_SCHEMA_FILE
 from aas.adapter.xml import read_aas_xml_file, XML_SCHEMA_FILE
-from aas.examples.data import create_example
+from aas.examples.data import create_example, create_example_aas_binding
 from aas.examples.data._helper import AASDataChecker
 
 
@@ -50,6 +57,12 @@ class ComplianceToolTest(unittest.TestCase):
         self.assertNotEqual(0, output.returncode)
         self.assertIn('error: one of the arguments --json --xml is required', str(output.stderr))
 
+        output = subprocess.run(
+            [sys.executable, file_path, "d", os.path.join(test_file_path, "test_demo_full_example.json"), "--aasx"],
+            stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        self.assertNotEqual(0, output.returncode)
+        self.assertIn('error: one of the arguments --json --xml is required', str(output.stderr))
+
         # test example check
         output = subprocess.run([sys.executable, file_path, "e"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         self.assertNotEqual(0, output.returncode)
@@ -61,6 +74,12 @@ class ComplianceToolTest(unittest.TestCase):
         self.assertNotEqual(0, output.returncode)
         self.assertIn('error: one of the arguments --json --xml is required', str(output.stderr))
 
+        output = subprocess.run(
+            [sys.executable, file_path, "e", os.path.join(test_file_path, "test_demo_full_example.json"), "--aasx"],
+            stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        self.assertNotEqual(0, output.returncode)
+        self.assertIn('error: one of the arguments --json --xml is required', str(output.stderr))
+
         # test file check
         output = subprocess.run([sys.executable, file_path, "f"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         self.assertNotEqual(0, output.returncode)
@@ -68,6 +87,12 @@ class ComplianceToolTest(unittest.TestCase):
 
         output = subprocess.run(
             [sys.executable, file_path, "f", os.path.join(test_file_path, "test_demo_full_example.json")],
+            stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        self.assertNotEqual(0, output.returncode)
+        self.assertIn('error: one of the arguments --json --xml is required', str(output.stderr))
+
+        output = subprocess.run(
+            [sys.executable, file_path, "f", os.path.join(test_file_path, "test_demo_full_example.json"), "--aasx"],
             stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         self.assertNotEqual(0, output.returncode)
         self.assertIn('error: one of the arguments --json --xml is required', str(output.stderr))
@@ -128,6 +153,8 @@ class ComplianceToolTest(unittest.TestCase):
             stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         self.assertEqual(0, output.returncode)
         self.assertIn('SUCCESS:      Open file', str(output.stdout))
+        self.assertIn('SUCCESS:      Read file and check if it is conform to the json syntax', str(output.stdout))
+        self.assertIn('SUCCESS:      Validate file against official json schema', str(output.stdout))
 
     def test_json_create_example(self) -> None:
         file_path = os.path.join(os.path.dirname(aas.compliance_tool.__file__), 'cli.py')
@@ -157,6 +184,7 @@ class ComplianceToolTest(unittest.TestCase):
             stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         self.assertEqual(0, output.returncode)
         self.assertIn('SUCCESS:      Open file', str(output.stdout))
+        self.assertIn('SUCCESS:      Read file and check if it is deserializable', str(output.stdout))
 
     def test_json_example(self) -> None:
         file_path = os.path.join(os.path.dirname(aas.compliance_tool.__file__), 'cli.py')
@@ -167,6 +195,8 @@ class ComplianceToolTest(unittest.TestCase):
             stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         self.assertEqual(0, output.returncode)
         self.assertIn('SUCCESS:      Open file', str(output.stdout))
+        self.assertIn('SUCCESS:      Read file and check if it is deserializable', str(output.stdout))
+        self.assertIn('SUCCESS:      Check if data is equal to example data', str(output.stdout))
 
     def test_json_file(self) -> None:
         file_path = os.path.join(os.path.dirname(aas.compliance_tool.__file__), 'cli.py')
@@ -177,6 +207,11 @@ class ComplianceToolTest(unittest.TestCase):
              os.path.join(test_file_path, "test_demo_full_example.json"), "--json"],
             stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         self.assertEqual(0, output.returncode)
+        self.assertIn('SUCCESS:      Open first file', str(output.stdout))
+        self.assertIn('SUCCESS:      Read file', str(output.stdout))
+        self.assertIn('SUCCESS:      Open second file', str(output.stdout))
+        self.assertIn('SUCCESS:      Read file', str(output.stdout))
+        self.assertIn('SUCCESS:      Check if data in files are equal', str(output.stdout))
 
     def test_xml_schema(self) -> None:
         file_path = os.path.join(os.path.dirname(aas.compliance_tool.__file__), 'cli.py')
@@ -187,6 +222,8 @@ class ComplianceToolTest(unittest.TestCase):
             stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         self.assertEqual(0, output.returncode)
         self.assertIn('SUCCESS:      Open file', str(output.stdout))
+        self.assertIn('SUCCESS:      Read file and check if it is conform to the xml syntax', str(output.stdout))
+        self.assertIn('SUCCESS:      Validate file against official xml schema', str(output.stdout))
 
     def test_xml_create_example(self) -> None:
         file_path = os.path.join(os.path.dirname(aas.compliance_tool.__file__), 'cli.py')
@@ -216,6 +253,7 @@ class ComplianceToolTest(unittest.TestCase):
             stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         self.assertEqual(0, output.returncode)
         self.assertIn('SUCCESS:      Open file', str(output.stdout))
+        self.assertIn('SUCCESS:      Read file and check if it is deserializable', str(output.stdout))
 
     def test_xml_example(self) -> None:
         file_path = os.path.join(os.path.dirname(aas.compliance_tool.__file__), 'cli.py')
@@ -226,6 +264,8 @@ class ComplianceToolTest(unittest.TestCase):
             stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         self.assertEqual(0, output.returncode)
         self.assertIn('SUCCESS:      Open file', str(output.stdout))
+        self.assertIn('SUCCESS:      Read file and check if it is deserializable', str(output.stdout))
+        self.assertIn('SUCCESS:      Check if data is equal to example data', str(output.stdout))
 
     def test_xml_file(self) -> None:
         file_path = os.path.join(os.path.dirname(aas.compliance_tool.__file__), 'cli.py')
@@ -236,6 +276,95 @@ class ComplianceToolTest(unittest.TestCase):
              os.path.join(test_file_path, "test_demo_full_example.xml"), "--xml"],
             stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         self.assertEqual(0, output.returncode)
+        self.assertIn('SUCCESS:      Open first file', str(output.stdout))
+        self.assertIn('SUCCESS:      Read file', str(output.stdout))
+        self.assertIn('SUCCESS:      Open second file', str(output.stdout))
+        self.assertIn('SUCCESS:      Read file', str(output.stdout))
+        self.assertIn('SUCCESS:      Check if data in files are equal', str(output.stdout))
+
+    def test_aasx_create_example(self) -> None:
+        file_path = os.path.join(os.path.dirname(aas.compliance_tool.__file__), 'cli.py')
+
+        file, filename = tempfile.mkstemp(suffix=".aasx")
+        os.close(file)
+        output: subprocess.CompletedProcess = subprocess.run([sys.executable, file_path, "c", filename, "--xml",
+                                                              "--aasx"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        self.assertEqual(0, output.returncode)
+        self.assertIn('SUCCESS:      Create example data', str(output.stdout))
+        self.assertIn('SUCCESS:      Open file', str(output.stdout))
+        self.assertIn('SUCCESS:      Write data to file', str(output.stdout))
+
+        # Read AASX file
+        new_data: model.DictObjectStore[model.Identifiable] = model.DictObjectStore()
+        new_files = aasx.DictSupplementaryFileContainer()
+        with aasx.AASXReader(filename) as reader:
+            reader.read_into(new_data, new_files)
+            new_cp = reader.get_core_properties()
+
+        # Check AAS objects
+        data = create_example_aas_binding()
+        checker = AASDataChecker(raise_immediately=True)
+        checker.check_object_store(new_data, data)
+
+        # Create OPC/AASX core properties
+        cp = pyecma376_2.OPCCoreProperties()
+        cp.created = datetime.datetime.fromtimestamp(1577829600)
+        cp.creator = "PyI40AAS Testing Framework"
+
+        # Check core properties
+        assert (isinstance(cp.created, datetime.datetime))  # to make mypy happy
+        self.assertIsInstance(new_cp.created, datetime.datetime)
+        assert (isinstance(new_cp.created, datetime.datetime))  # to make mypy happy
+        self.assertAlmostEqual(new_cp.created, cp.created, delta=datetime.timedelta(milliseconds=20))
+        self.assertEqual(new_cp.creator, "PyI40AAS Testing Framework")
+        self.assertIsNone(new_cp.lastModifiedBy)
+
+        # Check files
+        self.assertEqual(new_files.get_content_type("/TestFile.pdf"), "application/pdf")
+        file_content = io.BytesIO()
+        new_files.write_file("/TestFile.pdf", file_content)
+        self.assertEqual(hashlib.sha1(file_content.getvalue()).hexdigest(),
+                         "78450a66f59d74c073bf6858db340090ea72a8b1")
+
+        os.unlink(filename)
+
+    def test_aasx_deseralization(self) -> None:
+        file_path = os.path.join(os.path.dirname(aas.compliance_tool.__file__), 'cli.py')
+        test_file_path = os.path.join(os.path.dirname(__file__), 'files')
+
+        output: subprocess.CompletedProcess = subprocess.run(
+            [sys.executable, file_path, "d", os.path.join(test_file_path, "test_demo_full_example.aasx"), "--xml",
+             "--aasx"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        self.assertEqual(0, output.returncode)
+        self.assertIn('SUCCESS:      Open file', str(output.stdout))
+        self.assertIn('SUCCESS:      Read file', str(output.stdout))
+
+    def test_aasx_example(self) -> None:
+        file_path = os.path.join(os.path.dirname(aas.compliance_tool.__file__), 'cli.py')
+        test_file_path = os.path.join(os.path.dirname(__file__), 'files')
+
+        output: subprocess.CompletedProcess = subprocess.run(
+            [sys.executable, file_path, "e", os.path.join(test_file_path, "test_demo_full_example.aasx"), "--xml",
+             "--aasx"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        self.assertEqual(0, output.returncode)
+        self.assertIn('SUCCESS:      Open file', str(output.stdout))
+        self.assertIn('SUCCESS:      Read file', str(output.stdout))
+        # self.assertIn('SUCCESS:      Check if data is equal to example data', str(output.stdout))
+
+    def test_aasx_file(self) -> None:
+        file_path = os.path.join(os.path.dirname(aas.compliance_tool.__file__), 'cli.py')
+        test_file_path = os.path.join(os.path.dirname(__file__), 'files')
+
+        output: subprocess.CompletedProcess = subprocess.run(
+            [sys.executable, file_path, "f", os.path.join(test_file_path, "test_demo_full_example.aasx"),
+             os.path.join(test_file_path, "test_demo_full_example.aasx"), "--xml", "--aasx"],
+            stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        self.assertEqual(0, output.returncode)
+        self.assertIn('SUCCESS:      Open first file', str(output.stdout))
+        self.assertIn('SUCCESS:      Read file', str(output.stdout))
+        self.assertIn('SUCCESS:      Open second file', str(output.stdout))
+        self.assertIn('SUCCESS:      Read file', str(output.stdout))
+        self.assertIn('SUCCESS:      Check if data in files are equal', str(output.stdout))
 
     def test_logfile(self) -> None:
         file_path = os.path.join(os.path.dirname(aas.compliance_tool.__file__), 'cli.py')
