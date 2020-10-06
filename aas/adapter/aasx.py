@@ -340,12 +340,12 @@ class AASXWriter:
 
         # Add referenced ConceptDescriptions to the AAS part
         for dictionary in aas.concept_dictionary:
-            for concept_rescription_ref in dictionary.concept_description:
+            for concept_description_ref in dictionary.concept_description:
                 try:
-                    obj = concept_rescription_ref.resolve(object_store)
+                    obj = concept_description_ref.resolve(object_store)
                 except KeyError as e:
                     logger.warning("Skipping ConceptDescription, since {} could not be resolved: {}"
-                                   .format(concept_rescription_ref, e))
+                                   .format(concept_description_ref, e))
                     continue
                 try:
                     objects_to_be_written.add(obj)
