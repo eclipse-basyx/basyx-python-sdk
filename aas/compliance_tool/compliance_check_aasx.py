@@ -121,10 +121,11 @@ def check_aas_example(file_path: str, state_manager: ComplianceToolStateManager)
     state_manager.add_step('Check if core properties are equal')
     # Create OPC/AASX core properties
     cp = pyecma376_2.OPCCoreProperties()
-    cp.created = datetime.datetime.fromtimestamp(1577829600)
+    cp.created = datetime.datetime(2020, 1, 1, 0, 0, 0)
     cp.creator = "PyI40AAS Testing Framework"
 
     checker2 = DataChecker(raise_immediately=False)
+    assert (isinstance(cp_new.created, datetime.datetime))
     duration = cp_new.created - cp.created
     checker2.check(duration.microseconds < 20, "created must be {}".format(cp.created))
     checker2.check(cp_new.creator == "PyI40AAS Testing Framework", "creator must be 'PyI40AAS Testing Framework'")
@@ -179,6 +180,8 @@ def check_aasx_files_equivalence(file_path_1: str, file_path_2: str, state_manag
 
     state_manager.add_step('Check if core properties are equal')
     checker2 = DataChecker(raise_immediately=False)
+    assert (isinstance(cp_1.created, datetime.datetime))
+    assert (isinstance(cp_2.created, datetime.datetime))
     duration = cp_1.created - cp_2.created
     checker2.check(duration.microseconds < 20, "created must be {}".format(cp_1.created), value=cp_2.created)
     checker2.check(cp_1.creator == cp_2.creator, "creator must be {}".format(cp_1.creator), value=cp_2.creator)

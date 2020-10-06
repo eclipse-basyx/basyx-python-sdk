@@ -59,7 +59,8 @@ def create_example_aas_binding() -> model.DictObjectStore:
     obj_store.update(example_aas_missing_attributes.create_full_example())
     obj_store.add(example_submodel_template.create_example_submodel_template())
 
-    aas = obj_store.get_identifiable(model.Identifier('https://acplt.org/Test_AssetAdministrationShell', model.IdentifierType.IRI))
+    aas = obj_store.get_identifiable(model.Identifier('https://acplt.org/Test_AssetAdministrationShell',
+                                                      model.IdentifierType.IRI))
     sm = obj_store.get_identifiable(model.Identifier('https://acplt.org/Test_Submodel_Template',
                                                      model.IdentifierType.IRI))
     assert (isinstance(aas, model.aas.AssetAdministrationShell))  # make mypy happy
