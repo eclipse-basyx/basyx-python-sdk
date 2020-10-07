@@ -14,7 +14,7 @@ import logging
 import unittest
 
 from aas import model
-from aas.adapter.xml import read_aas_xml_file
+from aas.adapter.xml import read_aas_xml_file, read_aas_xml_file_into
 from lxml import etree  # type: ignore
 from typing import Iterable, Type, Union
 
@@ -52,11 +52,11 @@ class XMLDeserializationTest(unittest.TestCase):
             strings = [strings]
         bytes_io = io.BytesIO(xml.encode("utf-8"))
         with self.assertLogs(logging.getLogger(), level=log_level) as log_ctx:
-            read_aas_xml_file(bytes_io, True)
+            read_aas_xml_file(bytes_io, failsafe=True)
         for s in strings:
             self.assertIn(s, log_ctx.output[0])
         with self.assertRaises(error_type) as err_ctx:
-            read_aas_xml_file(bytes_io, False)
+            read_aas_xml_file(bytes_io, failsafe=False)
         cause = _root_cause(err_ctx.exception)
         for s in strings:
             self.assertIn(s, str(cause))
@@ -70,9 +70,9 @@ class XMLDeserializationTest(unittest.TestCase):
         for s in xml:
             bytes_io = io.BytesIO(s.encode("utf-8"))
             with self.assertRaises(etree.XMLSyntaxError):
-                read_aas_xml_file(bytes_io, False)
+                read_aas_xml_file(bytes_io, failsafe=False)
             with self.assertLogs(logging.getLogger(), level=logging.ERROR):
-                read_aas_xml_file(bytes_io, True)
+                read_aas_xml_file(bytes_io, failsafe=True)
 
     def test_invalid_list_name(self) -> None:
         xml = _xml_wrap("<aas:invalidList></aas:invalidList>")
@@ -162,7 +162,7 @@ class XMLDeserializationTest(unittest.TestCase):
         </aas:submodels>
         """)
         # should get parsed successfully
-        object_store = read_aas_xml_file(io.BytesIO(xml.encode("utf-8")), False)
+        object_store = read_aas_xml_file(io.BytesIO(xml.encode("utf-8")), failsafe=False)
         # modeling kind should default to INSTANCE
         submodel = object_store.pop()
         self.assertIsInstance(submodel, model.Submodel)
@@ -183,10 +183,9 @@ class XMLDeserializationTest(unittest.TestCase):
         </aas:assetAdministrationShells>
         """)
         with self.assertLogs(logging.getLogger(), level=logging.WARNING) as context:
-            read_aas_xml_file(io.BytesIO(xml.encode("utf-8")), False)
-        self.assertIn("GLOBAL_REFERENCE", context.output[0])
-        self.assertIn("IRI=http://acplt.org/test_ref", context.output[0])
-        self.assertIn("Asset", context.output[0])
+            read_aas_xml_file(io.BytesIO(xml.encode("utf-8")), failsafe=False)
+        for s in ("GLOBAL_REFERENCE", "RI=http://acplt.org/test_ref", "Asset"):
+            self.assertIn(s, context.output[0])
 
     def test_invalid_submodel_element(self) -> None:
         # TODO: simplify this should our suggestion regarding the XML schema get accepted
@@ -273,5 +272,56 @@ class XMLDeserializationTest(unittest.TestCase):
         </aas:submodels>
         """)
         with self.assertLogs(logging.getLogger(), level=logging.WARNING) as context:
-            read_aas_xml_file(io.BytesIO(xml.encode("utf-8")), False)
+            read_aas_xml_file(io.BytesIO(xml.encode("utf-8")), failsafe=False)
         self.assertIn("aas:value", context.output[0])
+
+    def test_duplicate_identifier(self) -> None:
+        xml = _xml_wrap("""
+        <aas:assetAdministrationShells>
+            <aas:assetAdministrationShell>
+                <aas:identification idType="IRI">http://acplt.org/test_aas</aas:identification>
+                <aas:assetRef>
+                    <aas:keys>
+                        <aas:key idType="IRI" local="false" type="Asset">http://acplt.org/asset_ref</aas:key>
+                    </aas:keys>
+                </aas:assetRef>
+            </aas:assetAdministrationShell>
+        </aas:assetAdministrationShells>
+        <aas:submodels>
+            <aas:submodel>
+                <aas:identification idType="IRI">http://acplt.org/test_aas</aas:identification>
+                <aas:submodelElements/>
+            </aas:submodel>
+        </aas:submodels>
+        """)
+        self._assertInExceptionAndLog(xml, "duplicate identifier", KeyError, logging.ERROR)
+
+    def test_duplicate_identifier_object_store(self) -> None:
+        def get_clean_store() -> model.DictObjectStore:
+            store: model.DictObjectStore = model.DictObjectStore()
+            submodel = model.Submodel(model.Identifier("http://acplt.org/test_submodel", model.IdentifierType.IRI))
+            store.add(submodel)
+            return store
+        xml = _xml_wrap("""
+        <aas:submodels>
+            <aas:submodel>
+                <aas:identification idType="IRI">http://acplt.org/test_submodel</aas:identification>
+                <aas:submodelElements/>
+            </aas:submodel>
+        </aas:submodels>
+        """)
+        bytes_io = io.BytesIO(xml.encode("utf-8"))
+
+        object_store = get_clean_store()
+        read_aas_xml_file_into(object_store, bytes_io, replace_existing=True, ignore_existing=False)
+        self.assertIsInstance(object_store.pop(), model.Submodel)
+
+        object_store = get_clean_store()
+        with self.assertLogs(logging.getLogger(), level=logging.INFO) as log_ctx:
+            read_aas_xml_file_into(object_store, bytes_io, replace_existing=False, ignore_existing=True)
+        self.assertIn("already exists in the object store", log_ctx.output[0])
+
+        with self.assertRaises(KeyError) as err_ctx:
+            read_aas_xml_file_into(object_store, bytes_io, replace_existing=False, ignore_existing=False)
+        cause = _root_cause(err_ctx.exception)
+        self.assertIn("already exists in the object store", str(cause))

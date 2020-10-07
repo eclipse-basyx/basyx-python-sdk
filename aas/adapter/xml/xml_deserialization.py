@@ -36,7 +36,7 @@ from lxml import etree  # type: ignore
 import logging
 import base64
 
-from typing import Any, Callable, Dict, IO, Iterable, Optional, Tuple, Type, TypeVar
+from typing import Any, Callable, Dict, IO, Iterable, Optional, Set, Tuple, Type, TypeVar
 from .xml_serialization import NS_AAS, NS_ABAC, NS_IEC
 from .._generic import MODELING_KIND_INVERSE, ASSET_KIND_INVERSE, KEY_ELEMENTS_INVERSE, KEY_TYPES_INVERSE, \
     IDENTIFIER_TYPES_INVERSE, ENTITY_TYPES_INVERSE, IEC61360_DATA_TYPES_INVERSE, IEC61360_LEVEL_TYPES_INVERSE, \
@@ -1105,17 +1105,23 @@ class AASFromXmlDecoder:
         return cd
 
 
-def read_aas_xml_file(file: IO, failsafe: bool = True, decoder: Type[AASFromXmlDecoder] = AASFromXmlDecoder) \
-        -> model.DictObjectStore[model.Identifiable]:
+def read_aas_xml_file_into(object_store: model.AbstractObjectStore[model.Identifiable], file: IO, failsafe: bool = True,
+                           replace_existing: bool = False, ignore_existing: bool = False,
+                           decoder: Type[AASFromXmlDecoder] = AASFromXmlDecoder) -> Set[model.Identifier]:
     """
     Read an Asset Administration Shell XML file according to 'Details of the Asset Administration Shell', chapter 5.4
 
+    :param object_store: The object store in which the identifiable objects should be stored
     :param file: A filename or file-like object to read the XML-serialized data from
     :param failsafe: If True, the file is parsed in a failsafe way: Instead of raising an Exception for missing
                      attributes and wrong types, errors are logged and defective objects are skipped
+    :param replace_existing: Whether to replace existing objects with the same identifier in the object store or not
+    :param ignore_existing: Whether to ignore existing objects (e.g. log a message) or raise an error.
+                            This parameter is ignored if replace_existing is True.
     :param decoder: The decoder class used to decode the XML elements
-    :return: A DictObjectStore containing all AAS objects from the XML file
+    :return: A set of identifiers that were added to object_store
     """
+    ret: Set[model.Identifier] = set()
 
     element_constructors: Dict[str, Callable[..., model.Identifiable]] = {
         "assetAdministrationShell": decoder.construct_asset_administration_shell,
@@ -1126,7 +1132,6 @@ def read_aas_xml_file(file: IO, failsafe: bool = True, decoder: Type[AASFromXmlD
 
     element_constructors = {NS_AAS + k: v for k, v in element_constructors.items()}
 
-    ret: model.DictObjectStore[model.Identifiable] = model.DictObjectStore()
     parser = etree.XMLParser(remove_blank_text=True, remove_comments=True)
 
     try:
@@ -1150,8 +1155,36 @@ def read_aas_xml_file(file: IO, failsafe: bool = True, decoder: Type[AASFromXmlD
             continue
         constructor = element_constructors[element_tag]
         for element in _child_construct_multiple(list_, element_tag, constructor, failsafe):
-            # element is always Identifiable, because the tag is checked earlier
-            # this is just to satisfy the type checker
-            if isinstance(element, model.Identifiable):
-                ret.add(element)
+            if element.identification in ret:
+                error_message = f"{element} has a duplicate identifier already parsed in the document!"
+                if not failsafe:
+                    raise KeyError(error_message)
+                logger.error(error_message + " skipping it...")
+                continue
+            existing_element = object_store.get(element.identification)
+            if existing_element is not None:
+                if not replace_existing:
+                    error_message = f"object with identifier {element.identification} already exists " \
+                                    f"in the object store: {existing_element}!"
+                    if not ignore_existing:
+                        raise KeyError(error_message + f" failed to insert {element}!")
+                    logger.info(error_message + f" skipping insertion of {element}...")
+                    continue
+                object_store.discard(existing_element)
+            object_store.add(element)
+            ret.add(element.identification)
     return ret
+
+
+def read_aas_xml_file(file: IO, **kwargs: Any) -> model.DictObjectStore[model.Identifiable]:
+    """
+    A wrapper of read_aas_xml_file_into(), that reads all objects in an empty DictObjectStore. This function supports
+    the same keyword arguments as read_aas_xml_file_into().
+
+    :param file: A filename or file-like object to read the XML-serialized data from
+    :param kwargs: Keyword arguments passed to read_aas_xml_file_into()
+    :return: A DictObjectStore containing all AAS objects from the XML file
+    """
+    object_store: model.DictObjectStore[model.Identifiable] = model.DictObjectStore()
+    read_aas_xml_file_into(object_store, file, **kwargs)
+    return object_store
