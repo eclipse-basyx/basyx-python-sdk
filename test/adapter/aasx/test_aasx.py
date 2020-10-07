@@ -18,7 +18,7 @@ import unittest
 import pyecma376_2
 from aas import model
 from aas.adapter import aasx
-from aas.examples.data import example_aas, _helper
+from aas.examples.data import example_aas, _helper, example_aas_mandatory_attributes
 
 
 class TestAASXUtils(unittest.TestCase):
@@ -74,39 +74,67 @@ class AASXWriterTest(unittest.TestCase):
 
         # Write AASX file
         for write_json in (False, True):
+            for submodel_split_parts in (False, True):
+                with self.subTest(write_json=write_json, submodel_split_parts=submodel_split_parts):
+                    fd, filename = tempfile.mkstemp(suffix=".aasx")
+                    os.close(fd)
+                    with aasx.AASXWriter(filename) as writer:
+                        writer.write_aas(model.Identifier(id_='https://acplt.org/Test_AssetAdministrationShell',
+                                                          id_type=model.IdentifierType.IRI),
+                                         data, files, write_json=write_json, submodel_split_parts=submodel_split_parts)
+                        writer.write_core_properties(cp)
+
+                    # Read AASX file
+                    new_data: model.DictObjectStore[model.Identifiable] = model.DictObjectStore()
+                    new_files = aasx.DictSupplementaryFileContainer()
+                    with aasx.AASXReader(filename) as reader:
+                        reader.read_into(new_data, new_files)
+                        new_cp = reader.get_core_properties()
+
+                    # Check AAS objects
+                    checker = _helper.AASDataChecker(raise_immediately=True)
+                    example_aas.check_full_example(checker, new_data)
+
+                    # Check core properties
+                    assert(isinstance(cp.created, datetime.datetime))  # to make mypy happy
+                    self.assertIsInstance(new_cp.created, datetime.datetime)
+                    assert(isinstance(new_cp.created, datetime.datetime))  # to make mypy happy
+                    self.assertAlmostEqual(new_cp.created, cp.created, delta=datetime.timedelta(milliseconds=20))
+                    self.assertEqual(new_cp.creator, "PyI40AAS Testing Framework")
+                    self.assertIsNone(new_cp.lastModifiedBy)
+
+                    # Check files
+                    self.assertEqual(new_files.get_content_type("/TestFile.pdf"), "application/pdf")
+                    file_content = io.BytesIO()
+                    new_files.write_file("/TestFile.pdf", file_content)
+                    self.assertEqual(hashlib.sha1(file_content.getvalue()).hexdigest(),
+                                     "78450a66f59d74c073bf6858db340090ea72a8b1")
+
+                    os.unlink(filename)
+
+    def test_writing_reading_objects_single_part(self) -> None:
+        # Create example data and file_store
+        data = example_aas_mandatory_attributes.create_full_example()
+        files = aasx.DictSupplementaryFileContainer()
+
+        # Write AASX file
+        for write_json in (False, True):
             with self.subTest(write_json=write_json):
                 fd, filename = tempfile.mkstemp(suffix=".aasx")
                 os.close(fd)
                 with aasx.AASXWriter(filename) as writer:
-                    writer.write_aas(model.Identifier(id_='https://acplt.org/Test_AssetAdministrationShell',
-                                                      id_type=model.IdentifierType.IRI),
-                                     data, files, write_json=write_json)
-                    writer.write_core_properties(cp)
+                    writer.write_aas_objects('/aasx/aasx.{}'.format('json' if write_json else 'xml'),
+                                             [obj.identification for obj in data],
+                                             data, files, write_json)
 
                 # Read AASX file
                 new_data: model.DictObjectStore[model.Identifiable] = model.DictObjectStore()
                 new_files = aasx.DictSupplementaryFileContainer()
                 with aasx.AASXReader(filename) as reader:
                     reader.read_into(new_data, new_files)
-                    new_cp = reader.get_core_properties()
 
                 # Check AAS objects
                 checker = _helper.AASDataChecker(raise_immediately=True)
-                example_aas.check_full_example(checker, new_data)
-
-                # Check core properties
-                assert(isinstance(cp.created, datetime.datetime))  # to make mypy happy
-                self.assertIsInstance(new_cp.created, datetime.datetime)
-                assert(isinstance(new_cp.created, datetime.datetime))  # to make mypy happy
-                self.assertAlmostEqual(new_cp.created, cp.created, delta=datetime.timedelta(milliseconds=20))
-                self.assertEqual(new_cp.creator, "PyI40AAS Testing Framework")
-                self.assertIsNone(new_cp.lastModifiedBy)
-
-                # Check files
-                self.assertEqual(new_files.get_content_type("/TestFile.pdf"), "application/pdf")
-                file_content = io.BytesIO()
-                new_files.write_file("/TestFile.pdf", file_content)
-                self.assertEqual(hashlib.sha1(file_content.getvalue()).hexdigest(),
-                                 "78450a66f59d74c073bf6858db340090ea72a8b1")
+                example_aas_mandatory_attributes.check_full_example(checker, new_data)
 
                 os.unlink(filename)
