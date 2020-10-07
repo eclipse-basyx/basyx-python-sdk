@@ -276,9 +276,10 @@ def append_iec61360_concept_description_attrs(obj: model.concept.IEC61360Concept
     with dataSpecifications.
     """
     data_spec = {
-        'preferredName': lang_string_set_to_json(obj.preferred_name),
-        'dataType': _generic.IEC61360_DATA_TYPES[obj.data_type],
+        'preferredName': lang_string_set_to_json(obj.preferred_name)
     }
+    if obj.data_type is not None:
+        data_spec['dataType'] = _generic.IEC61360_DATA_TYPES[obj.data_type]
     if obj.definition is not None:
         data_spec['definition'] = lang_string_set_to_json(obj.definition)
     if obj.short_name is not None:
