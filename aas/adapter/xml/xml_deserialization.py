@@ -929,8 +929,10 @@ def _construct_iec61360_concept_description(element: etree.Element, failsafe: bo
     cd = model.IEC61360ConceptDescription(
         identifier,
         _child_construct_mandatory(element, NS_IEC + "preferredName", _construct_lang_string_set, namespace=NS_IEC),
-        _child_text_mandatory_mapped(element, NS_IEC + "dataType", IEC61360_DATA_TYPES_INVERSE)
     )
+    data_type = _get_text_mapped_or_none(element.find(NS_IEC + "dataType"), IEC61360_DATA_TYPES_INVERSE)
+    if data_type is not None:
+        cd.data_type = data_type
     definition = _failsafe_construct(element.find(NS_IEC + "definition"), _construct_lang_string_set, failsafe,
                                      namespace=NS_IEC)
     if definition is not None:

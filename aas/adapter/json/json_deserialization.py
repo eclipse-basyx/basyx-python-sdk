@@ -414,8 +414,9 @@ class AASFromJsonDecoder(json.JSONDecoder):
                                                 object_class=model.concept.IEC61360ConceptDescription)\
             -> model.concept.IEC61360ConceptDescription:
         ret = object_class(identification=cls._construct_identifier(_get_ts(dct, 'identification', dict)),
-                           preferred_name=cls._construct_lang_string_set(_get_ts(data_spec, 'preferredName', list)),
-                           data_type=IEC61360_DATA_TYPES_INVERSE[_get_ts(data_spec, 'dataType', str)])
+                           preferred_name=cls._construct_lang_string_set(_get_ts(data_spec, 'preferredName', list)))
+        if 'dataType' in data_spec:
+            ret.data_type = IEC61360_DATA_TYPES_INVERSE[_get_ts(data_spec, 'dataType', str)]
         if 'definition' in data_spec:
             ret.definition = cls._construct_lang_string_set(_get_ts(data_spec, 'definition', list))
         if 'shortName' in data_spec:
