@@ -275,7 +275,7 @@ def append_iec61360_concept_description_attrs(obj: model.concept.IEC61360Concept
     ConceptDescription, but we want to generate compliant JSON documents. So, we fake the JSON structure of an object
     with dataSpecifications.
     """
-    data_spec = {
+    data_spec: Dict[str, object] = {
         'preferredName': lang_string_set_to_json(obj.preferred_name)
     }
     if obj.data_type is not None:
