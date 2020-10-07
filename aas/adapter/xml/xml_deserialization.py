@@ -106,7 +106,7 @@ def _constructor_name_to_typename(constructor: Callable[[etree.Element, bool], T
     :param constructor: The constructor function.
     :return: The name of the type the constructor function constructs.
     """
-    return "".join([s[0].upper() + s[1:] for s in constructor.__name__.split("_")[2:]])
+    return "".join([s.capitalize() for s in constructor.__name__.split("_")[2:]])
 
 
 def _exception_to_str(exception: BaseException) -> str:
@@ -138,7 +138,7 @@ def _get_child_mandatory(parent: etree.Element, child_tag: str) -> etree.Element
     return child
 
 
-def _get_all_children_expect_tag(parent: etree.Element, exppected_tag: str, failsafe: bool) -> Iterable[etree.Element]:
+def _get_all_children_expect_tag(parent: etree.Element, expected_tag: str, failsafe: bool) -> Iterable[etree.Element]:
     """
     Iterates over all children, matching the tag.
 
@@ -146,14 +146,14 @@ def _get_all_children_expect_tag(parent: etree.Element, exppected_tag: str, fail
     failsafe: Logs a warning if a child element doesn't match.
 
     :param parent: The parent element.
-    :param exppected_tag: The tag of the children.
+    :param expected_tag: The tag of the children.
     :return: An iterator over all child elements that match child_tag.
     :raises KeyError: If the tag of a child element doesn't match and failsafe is true.
     """
     for child in parent:
-        if child.tag != exppected_tag:
+        if child.tag != expected_tag:
             error_message = f"{_element_pretty_identifier(child)}, child of {_element_pretty_identifier(parent)}, " \
-                            f"doesn't match the expected tag {_tag_replace_namespace(exppected_tag, child.nsmap)}!"
+                            f"doesn't match the expected tag {_tag_replace_namespace(expected_tag, child.nsmap)}!"
             if not failsafe:
                 raise KeyError(error_message)
             logger.warning(error_message)
@@ -310,7 +310,7 @@ def _failsafe_construct_mandatory(element: etree.Element, constructor: Callable[
     constructed = _failsafe_construct(element, constructor, False, **kwargs)
     if constructed is None:
         raise TypeError("The result of a non-failsafe _failsafe_construct() call was None! "
-                        "This is a bug in the pyAAS XML deserialization, please report it!")
+                        "This is a bug in the PyI40AAS XML deserialization, please report it!")
     return constructed
 
 
@@ -418,7 +418,7 @@ def _amend_abstract_attributes(obj: object, element: etree.Element, failsafe: bo
             obj.semantic_id = semantic_id
     if isinstance(obj, model.Qualifiable):
         # TODO: simplify this should our suggestion regarding the XML schema get accepted
-        # https://git.rwth-aachen.de/acplt/pyaas/-/issues/56
+        # https://git.rwth-aachen.de/acplt/pyi40aas/-/issues/56
         for constraint in element.findall(NS_AAS + "qualifier"):
             if len(constraint) == 0:
                 raise KeyError(f"{_element_pretty_identifier(constraint)} has no constraint!")
@@ -817,7 +817,7 @@ def _construct_submodel_element_collection(element: etree.Element, failsafe: boo
     )
     value = _get_child_mandatory(element, NS_AAS + "value")
     # TODO: simplify this should our suggestion regarding the XML schema get accepted
-    # https://git.rwth-aachen.de/acplt/pyaas/-/issues/57
+    # https://git.rwth-aachen.de/acplt/pyi40aas/-/issues/57
     for submodel_element in _get_all_children_expect_tag(value, NS_AAS + "submodelElement", failsafe):
         if len(submodel_element) == 0:
             raise KeyError(f"{_element_pretty_identifier(submodel_element)} has no submodel element!")
@@ -885,7 +885,7 @@ def _construct_submodel(element: etree.Element, failsafe: bool, **_kwargs: Any) 
         kind=_get_modeling_kind(element)
     )
     # TODO: simplify this should our suggestion regarding the XML schema get accepted
-    # https://git.rwth-aachen.de/acplt/pyaas/-/issues/57
+    # https://git.rwth-aachen.de/acplt/pyi40aas/-/issues/57
     for submodel_element in _get_all_children_expect_tag(
             _get_child_mandatory(element, NS_AAS + "submodelElements"), NS_AAS + "submodelElement", failsafe):
         if len(submodel_element) == 0:
