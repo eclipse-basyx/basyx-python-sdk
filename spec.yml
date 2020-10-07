@@ -14,10 +14,9 @@ info:
   In our implementation the AAS Interface will be available at `/aas/{identifier}` and the Submodel Interface will be available at `/submodel/{identifier}`."
   contact:
     name: "Michael Thies, Torben Miny, Leon Möller"
-# TODO: which license?
-#  license:
-#    name: Use under Eclipse Public License 2.0
-#    url: "https://www.eclipse.org/legal/epl-2.0/"
+  license:
+    name: Use under Eclipse Public License 2.0
+    url: "https://www.eclipse.org/legal/epl-2.0/"
 servers:
   - url: http://{authority}/{basePath}/{api-version}
     description: This is the Server to access the Asset Administration Shell
