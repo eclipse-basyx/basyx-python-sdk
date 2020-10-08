@@ -14,7 +14,7 @@ import logging
 import unittest
 
 from aas import model
-from aas.adapter.xml import read_aas_xml_file, read_aas_xml_file_into
+from aas.adapter.xml import AASFromXmlDecoder, read_aas_xml_file, read_aas_xml_file_into, read_aas_xml_element
 from lxml import etree  # type: ignore
 from typing import Iterable, Type, Union
 
@@ -325,3 +325,15 @@ class XMLDeserializationTest(unittest.TestCase):
             read_aas_xml_file_into(object_store, bytes_io, replace_existing=False, ignore_existing=False)
         cause = _root_cause(err_ctx.exception)
         self.assertIn("already exists in the object store", str(cause))
+
+    def test_read_aas_xml_element(self) -> None:
+        xml = """
+        <aas:submodel xmlns:aas="http://www.admin-shell.io/aas/2/0">
+            <aas:identification idType="IRI">http://acplt.org/test_submodel</aas:identification>
+            <aas:submodelElements/>
+        </aas:submodel>
+        """
+        bytes_io = io.BytesIO(xml.encode("utf-8"))
+
+        submodel = read_aas_xml_element(bytes_io, AASFromXmlDecoder.construct_submodel, failsafe=False)
+        self.assertIsInstance(submodel, model.Submodel)

@@ -1103,9 +1103,49 @@ class AASFromXmlDecoder:
         return cd
 
 
+def _parse_xml_document(file: IO, failsafe: bool = True, **parser_kwargs: Any) -> Optional[etree.Element]:
+    """
+    Parse an XML document into an element tree
+
+    :param file: A filename or file-like object to read the XML-serialized data from
+    :param failsafe: If True, the file is parsed in a failsafe way: Instead of raising an Exception for missing
+                     attributes and wrong types, errors are logged and defective objects are skipped
+    :param parser_kwargs: Keyword arguments passed to the XMLParser constructor
+    :return: The root element of the element tree
+    """
+
+    parser = etree.XMLParser(remove_blank_text=True, remove_comments=True, **parser_kwargs)
+
+    try:
+        return etree.parse(file, parser).getroot()
+    except etree.XMLSyntaxError as e:
+        if failsafe:
+            logger.error(e)
+            return None
+        raise e
+
+
+def read_aas_xml_element(file: IO, constructor: Callable[..., T], failsafe: bool = True, **parser_kwargs) \
+        -> Optional[T]:
+    """
+    Construct a single object from an XML string. The namespaces have to be declared on the object itself, since there
+    is no surrounding aasenv element.
+
+    :param file: A filename or file-like object to read the XML-serialized data from
+    :param constructor: Constructor function, that converts an xml element to
+    :param failsafe: If True, the file is parsed in a failsafe way: Instead of raising an Exception for missing
+                     attributes and wrong types, errors are logged and defective objects are skipped
+    :param parser_kwargs: Keyword arguments passed to the XMLParser constructor
+    :return: The constructed object or None, if an error occurred in failsafe mode.
+    """
+    element = _parse_xml_document(file, failsafe=failsafe, **parser_kwargs)
+    return _failsafe_construct(element, constructor, failsafe)
+
+
 def read_aas_xml_file_into(object_store: model.AbstractObjectStore[model.Identifiable], file: IO, failsafe: bool = True,
                            replace_existing: bool = False, ignore_existing: bool = False,
-                           decoder: Type[AASFromXmlDecoder] = AASFromXmlDecoder) -> Set[model.Identifier]:
+                           decoder: Type[AASFromXmlDecoder] = AASFromXmlDecoder, **parser_kwargs: Any) \
+        -> Set[model.Identifier]:
     """
     Read an Asset Administration Shell XML file according to 'Details of the Asset Administration Shell', chapter 5.4
 
@@ -1117,6 +1157,7 @@ def read_aas_xml_file_into(object_store: model.AbstractObjectStore[model.Identif
     :param ignore_existing: Whether to ignore existing objects (e.g. log a message) or raise an error.
                             This parameter is ignored if replace_existing is True.
     :param decoder: The decoder class used to decode the XML elements
+    :param parser_kwargs: Keyword arguments passed to the XMLParser constructor
     :return: A set of identifiers that were added to object_store
     """
     ret: Set[model.Identifier] = set()
@@ -1130,17 +1171,10 @@ def read_aas_xml_file_into(object_store: model.AbstractObjectStore[model.Identif
 
     element_constructors = {NS_AAS + k: v for k, v in element_constructors.items()}
 
-    parser = etree.XMLParser(remove_blank_text=True, remove_comments=True)
+    root = _parse_xml_document(file, failsafe, **parser_kwargs)
 
-    try:
-        tree = etree.parse(file, parser)
-    except etree.XMLSyntaxError as e:
-        if failsafe:
-            logger.error(e)
-            return ret
-        raise e
-
-    root = tree.getroot()
+    if root is None:
+        return ret
 
     # Add AAS objects to ObjectStore
     for list_ in root:
