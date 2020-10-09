@@ -398,11 +398,10 @@ def create_example_submodel() -> model.Submodel:
 
     submodel_element_reference_element = model.ReferenceElement(
         id_short='ExampleReferenceElement',
-        value=model.AASReference((model.Key(type_=model.KeyElements.PROPERTY,
-                                            local=True,
-                                            value='ExampleProperty',
-                                            id_type=model.KeyType.IDSHORT),),
-                                 model.Property),
+        value=model.Reference((model.Key(type_=model.KeyElements.PROPERTY,
+                                         local=True,
+                                         value='ExampleProperty',
+                                         id_type=model.KeyType.IDSHORT),)),
         category='PARAMETER',
         description={'en-us': 'Example Reference Element object',
                      'de': 'Beispiel Reference Element Element'},
