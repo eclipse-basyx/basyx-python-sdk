@@ -77,7 +77,9 @@ class CouchDBBackendOfflineMethodsTest(unittest.TestCase):
                                                                                  COUCHDB_ERROR))
 class CouchDBBackendTest(unittest.TestCase):
     def test_authorization(self):
-        couchdb.register_credentials("localhost:5984", "aas_test", "aas_test")
+        couchdb.register_credentials(TEST_CONFIG["couchdb"]["url"].lstrip("http://"),
+                                     TEST_CONFIG["couchdb"]["user"],
+                                     TEST_CONFIG["couchdb"]["password"])
         req = urllib.request.Request("{}/{}".format(TEST_CONFIG["couchdb"]["url"], TEST_CONFIG["couchdb"]["database"]),
                                      headers={'Content-type': 'application/json'})
         couchdb.CouchDBBackend._do_request(req)
