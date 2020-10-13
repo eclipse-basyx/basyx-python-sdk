@@ -354,6 +354,28 @@ class AASReferenceTest(unittest.TestCase):
             ref5.resolve(DummyObjectProvider())
         self.assertEqual('List of keys is empty', str(cm_5.exception))
 
+    def test_get_identifier(self) -> None:
+        ref = model.AASReference((model.Key(model.KeyElements.SUBMODEL, False, "urn:x-test:x", model.KeyType.IRI),),
+                                 model.Submodel)
+        self.assertEqual(model.Identifier("urn:x-test:x", model.IdentifierType.IRI), ref.get_identifier())
+
+        ref2 = model.AASReference((model.Key(model.KeyElements.SUBMODEL, False, "urn:x-test:x", model.KeyType.IRI),
+                                   model.Key(model.KeyElements.PROPERTY, False, "myProperty", model.KeyType.IDSHORT),),
+                                 model.Submodel)
+        self.assertEqual(model.Identifier("urn:x-test:x", model.IdentifierType.IRI), ref.get_identifier())
+
+        # People will do strange things ...
+        ref3 = model.AASReference((model.Key(model.KeyElements.ASSET_ADMINISTRATION_SHELL, False, "urn:x-test-aas:x",
+                                             model.KeyType.IRI),
+                                   model.Key(model.KeyElements.SUBMODEL, False, "urn:x-test:x", model.KeyType.IRI),),
+                                 model.Submodel)
+        self.assertEqual(model.Identifier("urn:x-test:x", model.IdentifierType.IRI), ref2.get_identifier())
+
+        ref4 = model.AASReference((model.Key(model.KeyElements.PROPERTY, False, "myProperty", model.KeyType.IDSHORT),),
+                                  model.Property)
+        with self.assertRaises(ValueError):
+                ref4.get_identifier()
+
     def test_from_referable(self) -> None:
         prop = model.Property("prop", model.datatypes.Int)
         collection = model.SubmodelElementCollectionUnordered("collection", {prop})
