@@ -416,7 +416,7 @@ class AASXWriter:
             try:
                 the_object = object_store.get_identifiable(identifier)
             except KeyError:
-                logger.error("Could not find object {} in ObjectStore".format(file_name))
+                logger.error("Could not find object {} in ObjectStore".format(identifier))
                 continue
             objects.add(the_object)
             if isinstance(the_object, model.Submodel):
