@@ -11,7 +11,7 @@
 """
 Todo: Add module docstring
 """
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 import re
 import urllib.parse
 import urllib.request
@@ -21,7 +21,8 @@ import json
 import http.client
 
 from . import backends
-from aas.adapter.json import json_deserialization
+from aas.adapter.json import json_deserialization, json_serialization
+from aas import model
 
 
 logger = logging.getLogger(__name__)
@@ -33,8 +34,12 @@ class CouchDBBackend(backends.Backend):
                       updated_object: "Referable",  # type: ignore
                       store_object: "Referable",  # type: ignore
                       relative_path: List[str]) -> None:
+
+        if not isinstance(store_object, model.Identifiable):
+            raise CouchDBSourceError("The given store_object is not Identifiable, therefore cannot be found "
+                                     "in the CouchDB")
         url = CouchDBBackend._parse_source(store_object.source)
-        request = urllib.request.Request(urllib.parse.quote(url, safe=""),
+        request = urllib.request.Request(url,
                                          headers={'Accept': 'application/json'})
         try:
             data = CouchDBBackend._do_request(request)
@@ -43,19 +48,92 @@ class CouchDBBackend(backends.Backend):
                 raise KeyError("No Identifiable found in CouchDB at {}".format(url)) from e
             raise
 
-        # Add CouchDB meta data (for later commits) to object
-        store_obj = data['data']
-        # if not isinstance(obj, "Referable"):  # todo
-        #     raise CouchDBResponseError(
-        #         "The CouchDB document with id {} does not contain an identifiable AAS object."
-        #         .format(identifier))
+        updated_store_object = data['data']
+        store_object.update_from(updated_store_object)
 
     @classmethod
     def commit_object(cls,
                       committed_object: "Referable",  # type: ignore
                       store_object: "Referable",  # type: ignore
                       relative_path: List[str]) -> None:
-        pass
+        if not isinstance(store_object, model.Identifiable):
+            raise CouchDBSourceError("The given store_object is not Identifiable, therefore cannot be found "
+                                     "in the CouchDB")
+        url = CouchDBBackend._parse_source(store_object.source)
+        # We need to get the revision of the object, if it already exists, otherwise we cannot write to the Couchdb
+        request = urllib.request.Request(
+            url,
+            headers={'Content-type': 'application/json'},
+            method='GET'
+        )
+        couchdb_revision: Optional[str] = None
+        try:
+            revision_data = CouchDBBackend._do_request(request)
+            couchdb_revision = revision_data['_rev']
+        except CouchDBServerError as e:
+            if not e.code == 404:
+                raise
+
+        data_to_commit: Dict[str, Any] = {'data': store_object}
+        if couchdb_revision:
+            data_to_commit['_rev'] = couchdb_revision
+        data = json.dumps(data_to_commit, cls=json_serialization.AASToJsonEncoder)
+        request = urllib.request.Request(
+            url,
+            headers={'Content-type': 'application/json'},
+            method='PUT',
+            data=data.encode())
+        try:
+            CouchDBBackend._do_request(request)
+        except CouchDBServerError as e:
+            if e.code == 409:
+                raise CouchDBConflictError("Could not commit changes to id {} due to a concurrent modification in the "
+                                           "database.".format(store_object.identification)) from e
+            elif e.code == 404:
+                raise KeyError("Object with id {} was not found in the CouchDB at {}"
+                               .format(store_object.identification, url)) from e
+            raise
+
+    @classmethod
+    def delete_object(cls, obj: "Referable"):  # type: ignore
+        """
+        Deletes the given object from the couchdb
+
+        :param obj: Object to delete
+        """
+        if not isinstance(obj, model.Identifiable):
+            raise CouchDBSourceError("The given store_object is not Identifiable, therefore cannot be found "
+                                     "in the CouchDB")
+        url = CouchDBBackend._parse_source(obj.source)
+        # We need to get the revision of the object, if it already exists, otherwise we cannot write to the Couchdb
+        request = urllib.request.Request(
+            url,
+            headers={'Content-type': 'application/json'},
+            method='GET'
+        )
+        try:
+            data = CouchDBBackend._do_request(request)
+            couchdb_revision: str = data['_rev']
+        except CouchDBServerError as e:
+            if e.code == 404:
+                raise KeyError("Object with id {} was not found in the CouchDB at {}"
+                               .format(obj.identification, url)) from e
+            raise
+
+        req = urllib.request.Request(url,
+                                     headers={'Content-type': 'application/json'},
+                                     method='DELETE',
+                                     data=json.dumps({'_rev': couchdb_revision}).encode())
+        try:
+            CouchDBBackend._do_request(request)
+        except CouchDBServerError as e:
+            if e.code == 409:
+                raise CouchDBConflictError("Could not delete object with to id {} due to a concurrent modification in "
+                                           "the database.".format(obj.identification)) from e
+            elif e.code == 404:
+                raise KeyError("Object with id {} was not found in the CouchDB at {}"
+                               .format(obj.identification, url)) from e
+            raise
 
     @classmethod
     def _parse_source(cls, source: str) -> str:
@@ -126,7 +204,9 @@ class CouchDBBackend(backends.Backend):
 
 
 # Global registry for credentials for CouchDB Servers
-_credentials_store: urllib.request.HTTPPasswordMgrWithDefaultRealm = urllib.request.HTTPPasswordMgrWithDefaultRealm()
+_credentials_store: urllib.request.HTTPPasswordMgrWithPriorAuth = urllib.request.HTTPPasswordMgrWithPriorAuth()
+# todo: Why does this work and not HTTPPasswordMgrWithBasicAuth?
+# https://stackoverflow.com/questions/29708708/http-basic-authentication-not-working-in-python-3-4
 
 
 def register_credentials(url: str, username: str, password: str):
@@ -139,7 +219,7 @@ def register_credentials(url: str, username: str, password: str):
     :param username: Username to that CouchDB instance
     :param password: Password to the Username
     """
-    _credentials_store.add_password(None, url, username, password)
+    _credentials_store.add_password(None, url, username, password, is_authenticated=True)
 
 
 # #################################################################################################
