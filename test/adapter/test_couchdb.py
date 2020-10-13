@@ -43,6 +43,8 @@ except urllib.error.URLError as e:
     COUCHDB_OKAY = False
     COUCHDB_ERROR = e
 
+COUCHDB_OKAY = False
+
 
 @unittest.skipUnless(COUCHDB_OKAY, "No CouchDB is reachable at {}/{}: {}".format(TEST_CONFIG['couchdb']['url'],
                                                                                  TEST_CONFIG['couchdb']['database'],
