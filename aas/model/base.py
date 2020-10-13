@@ -644,7 +644,7 @@ class AASReference(Reference, Generic[_RT]):
             last_identifier = next(key.get_identifier()
                                    for key in reversed(self.key)
                                    if key.get_identifier())
-            return last_identifier
+            return last_identifier  # type: ignore  # MyPy doesn't get the generator expression above
         except StopIteration:
             raise ValueError("")
 
