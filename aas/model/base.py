@@ -633,6 +633,21 @@ class AASReference(Reference, Generic[_RT]):
                                             .format(item, self.type.__name__))
         return item
 
+    def get_identifier(self) -> Identifier:
+        """
+        Retrieve the Identifier of the Identifiable object, which is referenced or in which the referenced Referable is
+        contained.
+
+        :raises ValueError: If this Reference does not include a Key with global KeyType (IRDI, IRI, CUSTOM)
+        """
+        try:
+            last_identifier = next(key.get_identifier()
+                                   for key in reversed(self.key)
+                                   if key.get_identifier())
+            return last_identifier
+        except StopIteration:
+            raise ValueError("")
+
     def __repr__(self) -> str:
         return "AASReference(type={}, key={})".format(self.type.__name__, self.key)
 
