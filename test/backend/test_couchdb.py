@@ -24,6 +24,9 @@ TEST_CONFIG = configparser.ConfigParser()
 TEST_CONFIG.read((os.path.join(os.path.dirname(__file__), "..", "test_config.default.ini"),
                   os.path.join(os.path.dirname(__file__), "..", "test_config.ini")))
 
+source_core: str = "couchdb:" + TEST_CONFIG["couchdb"]["url"].lstrip("http://") + "/" + \
+                   TEST_CONFIG["couchdb"]["database"] + "/"
+
 
 # Check if CouchDB database is available. Otherwise, skip tests.
 try:
@@ -75,13 +78,13 @@ class CouchDBBackendOfflineMethodsTest(unittest.TestCase):
 class CouchDBBackendTest(unittest.TestCase):
     def test_authorization(self):
         couchdb.register_credentials("localhost:5984", "aas_test", "aas_test")
-        req = urllib.request.Request("http://localhost:5984/aas_test",
+        req = urllib.request.Request("{}/{}".format(TEST_CONFIG["couchdb"]["url"], TEST_CONFIG["couchdb"]["database"]),
                                      headers={'Content-type': 'application/json'})
         couchdb.CouchDBBackend._do_request(req)
 
     def test_commit_object(self):
         test_object = create_example_submodel()
-        test_object.source = "couchdb:localhost:5984/aas_test/example_submodel"
+        test_object.source = source_core + "example_submodel"
         couchdb.CouchDBBackend.commit_object(test_object, test_object, [])
         # Cleanup CouchDB
         couchdb.CouchDBBackend.delete_object(test_object)
@@ -89,7 +92,7 @@ class CouchDBBackendTest(unittest.TestCase):
     def test_commit_nested_object(self):
         backends.register_backend("couchdb", couchdb.CouchDBBackend)
         test_submodel = create_example_submodel()
-        test_submodel.source = "couchdb:localhost:5984/aas_test/another_example_submodel"
+        test_submodel.source = source_core + "another_example_submodel"
         test_property = test_submodel.get_referable("ExampleSubmodelCollectionOrdered").get_referable("ExampleProperty")
         self.assertIsInstance(test_property, model.Property)
         test_property.commit()
@@ -98,17 +101,17 @@ class CouchDBBackendTest(unittest.TestCase):
 
     def test_update_object(self):
         test_object = create_example_submodel()
-        test_object.source = "couchdb:localhost:5984/aas_test/example_submodel"
+        test_object.source = source_core + "example_submodel"
         couchdb.CouchDBBackend.commit_object(test_object, test_object, [])
         couchdb.CouchDBBackend.update_object(test_object, test_object, [])
         # Cleanup CouchDB
-        test_object.source = "couchdb:localhost:5984/aas_test/example_submodel"
+        test_object.source = source_core + "example_submodel"
         # todo: remove the line above, when the json de/serialization is fixed
         couchdb.CouchDBBackend.delete_object(test_object)
 
     def test_update_nested_object(self):
         test_submodel = create_example_submodel()
-        test_submodel.source = "couchdb:localhost:5984/aas_test/another_example_submodel"
+        test_submodel.source = source_core + "another_example_submodel"
         test_submodel.commit()
         test_property = test_submodel.get_referable("ExampleSubmodelCollectionOrdered").get_referable("ExampleProperty")
         self.assertIsInstance(test_property, model.Property)
@@ -116,13 +119,13 @@ class CouchDBBackendTest(unittest.TestCase):
         test_property.update()
         self.assertEqual(test_property.value, 'exampleValue')
         # Cleanup CouchDB
-        test_submodel.source = "couchdb:localhost:5984/aas_test/another_example_submodel"
+        test_submodel.source = source_core + "another_example_submodel"
         # todo: remove the line above, when the json de/serialization is fixed
         couchdb.CouchDBBackend.delete_object(test_submodel)
 
     def test_commit_overwrite(self):
         test_submodel = create_example_submodel()
-        test_submodel.source = "couchdb:localhost:5984/aas_test/another_example_submodel"
+        test_submodel.source = source_core + "another_example_submodel"
         test_submodel.commit()
 
         test_property = test_submodel.get_referable("ExampleSubmodelCollectionOrdered").get_referable("ExampleProperty")
@@ -134,6 +137,6 @@ class CouchDBBackendTest(unittest.TestCase):
         test_property.update()
         self.assertEqual(test_property.value, "A new value")
         # Cleanup Couchdb
-        test_submodel.source = "couchdb:localhost:5984/aas_test/another_example_submodel"
+        test_submodel.source = source_core + "another_example_submodel"
         # todo: remove the line above, when the json de/serialization is fixed
         couchdb.CouchDBBackend.delete_object(test_submodel)
