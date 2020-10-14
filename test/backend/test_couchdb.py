@@ -107,8 +107,6 @@ class CouchDBBackendTest(unittest.TestCase):
         couchdb.CouchDBBackend.commit_object(test_object, test_object, [])
         couchdb.CouchDBBackend.update_object(test_object, test_object, [])
         # Cleanup CouchDB
-        test_object.source = source_core + "example_submodel"
-        # todo: remove the line above, when the json de/serialization is fixed
         couchdb.CouchDBBackend.delete_object(test_object)
 
     def test_update_nested_object(self):
@@ -121,8 +119,6 @@ class CouchDBBackendTest(unittest.TestCase):
         test_property.update()
         self.assertEqual(test_property.value, 'exampleValue')
         # Cleanup CouchDB
-        test_submodel.source = source_core + "another_example_submodel"
-        # todo: remove the line above, when the json de/serialization is fixed
         couchdb.CouchDBBackend.delete_object(test_submodel)
 
     def test_commit_overwrite(self):
@@ -139,6 +135,4 @@ class CouchDBBackendTest(unittest.TestCase):
         test_property.update()
         self.assertEqual(test_property.value, "A new value")
         # Cleanup Couchdb
-        test_submodel.source = source_core + "another_example_submodel"
-        # todo: remove the line above, when the json de/serialization is fixed
         couchdb.CouchDBBackend.delete_object(test_submodel)
