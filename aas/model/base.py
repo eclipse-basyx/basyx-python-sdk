@@ -531,7 +531,7 @@ class Referable(metaclass=abc.ABCMeta):
         :param other: The object to update from
         """
         for name, var in vars(other).items():
-            if name == "parent":  # do not update the parent
+            if name == "parent" or name == "source":  # do not update the parent or source
                 continue
             if isinstance(var, NamespaceSet):
                 # update the elements of the NameSpaceSet
