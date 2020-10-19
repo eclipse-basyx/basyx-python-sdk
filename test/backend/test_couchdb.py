@@ -82,7 +82,7 @@ class CouchDBBackendTest(unittest.TestCase):
                                      TEST_CONFIG["couchdb"]["password"])
         req = urllib.request.Request("{}/{}".format(TEST_CONFIG["couchdb"]["url"], TEST_CONFIG["couchdb"]["database"]),
                                      headers={'Content-type': 'application/json'})
-        couchdb.CouchDBBackend._do_request(req)
+        couchdb.CouchDBBackend.do_request(req)
 
     def test_commit_object(self):
         test_object = create_example_submodel()
@@ -136,3 +136,14 @@ class CouchDBBackendTest(unittest.TestCase):
         self.assertEqual(test_property.value, "A new value")
         # Cleanup Couchdb
         couchdb.CouchDBBackend.delete_object(test_submodel)
+
+    def test_delete(self):
+        test_submodel = create_example_submodel()
+        test_submodel.source = source_core + "another_example_submodel"
+        test_submodel.commit()
+        couchdb.CouchDBBackend.delete_object(test_submodel)
+        with self.assertRaises(KeyError) as cm:
+            test_submodel.update()
+        self.assertEqual(
+            "'No Identifiable found in CouchDB at http://localhost:5984/aas_test/another_example_submodel'",
+            str(cm.exception))
