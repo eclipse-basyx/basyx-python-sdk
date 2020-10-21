@@ -9,7 +9,17 @@
 # "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
 # specific language governing permissions and limitations under the License.
 """
-TODO
+This module provides a registry and and abstract base class for Backends. A backend is a class that allows to
+synchronize Referable AAS objects or their included data with external data sources such as a remote API or a local
+source for real time data. Each backend provides access to one kind of data source.
+
+The data source of an individual object is specified as an URI in its `source` attribute. The schema part of that URI
+defines the type of data source and, in consequence, the backend class to use for synchronizing this object.
+
+Custom backends for additional types of data sources can be implemented by subclassing the `Backend` class and
+implementing the `commit_object()` and `update_object()` class methods. These are used internally by the objects'
+`update()` and `commit()` methods when the backend is applicable for the relevant source URI. Then, the Backend class
+needs to be registered to handle update/commit requests for a specific URI schema, using `register_backend()`.
 """
 import abc
 import re
