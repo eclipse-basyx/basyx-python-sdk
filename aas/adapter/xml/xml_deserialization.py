@@ -1301,6 +1301,8 @@ def read_aas_xml_element(file: IO, construct: XMLConstructables, failsafe: bool 
         constructor = decoder_.construct_value_list
     elif construct == XMLConstructables.LANG_STRING_SET:
         constructor = decoder_.construct_lang_string_set
+    else:
+        raise ValueError(f"{construct.name} cannot be constructed!")
 
     element = _parse_xml_document(file, failsafe=decoder_.failsafe)
     return _failsafe_construct(element, constructor, decoder_.failsafe, **constructor_kwargs)
