@@ -53,12 +53,11 @@ class XMLDeserializationTest(unittest.TestCase):
         bytes_io = io.BytesIO(xml.encode("utf-8"))
         with self.assertLogs(logging.getLogger(), level=log_level) as log_ctx:
             read_aas_xml_file(bytes_io, failsafe=True)
-        for s in strings:
-            self.assertIn(s, log_ctx.output[0])
         with self.assertRaises(error_type) as err_ctx:
             read_aas_xml_file(bytes_io, failsafe=False)
         cause = _root_cause(err_ctx.exception)
         for s in strings:
+            self.assertIn(s, log_ctx.output[0])
             self.assertIn(s, str(cause))
 
     def test_malformed_xml(self) -> None:

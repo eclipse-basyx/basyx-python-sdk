@@ -534,9 +534,9 @@ class AASFromXmlDecoder:
         it will default to the type Referable. This behaviour is wanted in read_aas_xml_element().
         """
         keys = cls._construct_key_tuple(element)
-        type_: type = model.Referable
+        type_: Type[model.Referable] = model.Referable
         if len(keys) > 0:
-            type_ = KEY_ELEMENTS_CLASSES_INVERSE.get(keys[-1].type, type(None))
+            type_ = KEY_ELEMENTS_CLASSES_INVERSE.get(keys[-1].type, model.Referable)
         return object_class(keys, type_)
 
     @classmethod
