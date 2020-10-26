@@ -23,7 +23,10 @@ needs to be registered to handle update/commit requests for a specific URI schem
 """
 import abc
 import re
-from typing import List, Dict, Type
+from typing import List, Dict, Type, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from .model import Referable
 
 
 class Backend(metaclass=abc.ABCMeta):
@@ -39,8 +42,8 @@ class Backend(metaclass=abc.ABCMeta):
     @classmethod
     @abc.abstractmethod
     def commit_object(cls,
-                      committed_object: "Referable",  # type: ignore
-                      store_object: "Referable",  # type: ignore
+                      committed_object: "Referable",
+                      store_object: "Referable",
                       relative_path: List[str]) -> None:
         """
         Function (class method) to be called when an object shall be committed (local changes pushed to the external
@@ -75,8 +78,8 @@ class Backend(metaclass=abc.ABCMeta):
     @classmethod
     @abc.abstractmethod
     def update_object(cls,
-                      updated_object: "Referable",  # type: ignore
-                      store_object: "Referable",  # type: ignore
+                      updated_object: "Referable",
+                      store_object: "Referable",
                       relative_path: List[str]) -> None:
         """
         Function (class method) to be called when an object shall be updated (local object updated with changes from the
