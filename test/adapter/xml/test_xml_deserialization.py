@@ -14,7 +14,7 @@ import logging
 import unittest
 
 from aas import model
-from aas.adapter.xml import AASFromXmlDecoder, read_aas_xml_file, read_aas_xml_file_into, read_aas_xml_element
+from aas.adapter.xml import XMLConstructables, read_aas_xml_file, read_aas_xml_file_into, read_aas_xml_element
 from lxml import etree  # type: ignore
 from typing import Iterable, Type, Union
 
@@ -166,7 +166,7 @@ class XMLDeserializationTest(unittest.TestCase):
         # modeling kind should default to INSTANCE
         submodel = object_store.pop()
         self.assertIsInstance(submodel, model.Submodel)
-        assert(isinstance(submodel, model.Submodel))  # to make mypy happy
+        assert isinstance(submodel, model.Submodel)  # to make mypy happy
         self.assertEqual(submodel.kind, model.ModelingKind.INSTANCE)
 
     def test_reference_kind_mismatch(self) -> None:
@@ -184,12 +184,12 @@ class XMLDeserializationTest(unittest.TestCase):
         """)
         with self.assertLogs(logging.getLogger(), level=logging.WARNING) as context:
             read_aas_xml_file(io.BytesIO(xml.encode("utf-8")), failsafe=False)
-        for s in ("GLOBAL_REFERENCE", "RI=http://acplt.org/test_ref", "Asset"):
+        for s in ("GLOBAL_REFERENCE", "IRI=http://acplt.org/test_ref", "Asset"):
             self.assertIn(s, context.output[0])
 
     def test_invalid_submodel_element(self) -> None:
         # TODO: simplify this should our suggestion regarding the XML schema get accepted
-        # https://git.rwth-aachen.de/acplt/pyaas/-/issues/57
+        # https://git.rwth-aachen.de/acplt/pyi40aas/-/issues/57
         xml = _xml_wrap("""
         <aas:submodels>
             <aas:submodel>
@@ -206,7 +206,7 @@ class XMLDeserializationTest(unittest.TestCase):
 
     def test_invalid_constraint(self) -> None:
         # TODO: simplify this should our suggestion regarding the XML schema get accepted
-        # https://git.rwth-aachen.de/acplt/pyaas/-/issues/56
+        # https://git.rwth-aachen.de/acplt/pyi40aas/-/issues/57
         xml = _xml_wrap("""
         <aas:submodels>
             <aas:submodel>
@@ -222,7 +222,7 @@ class XMLDeserializationTest(unittest.TestCase):
 
     def test_operation_variable_no_submodel_element(self) -> None:
         # TODO: simplify this should our suggestion regarding the XML schema get accepted
-        # https://git.rwth-aachen.de/acplt/pyaas/-/issues/57
+        # https://git.rwth-aachen.de/acplt/pyi40aas/-/issues/57
         xml = _xml_wrap("""
         <aas:submodels>
             <aas:submodel>
@@ -244,7 +244,7 @@ class XMLDeserializationTest(unittest.TestCase):
 
     def test_operation_variable_too_many_submodel_elements(self) -> None:
         # TODO: simplify this should our suggestion regarding the XML schema get accepted
-        # https://git.rwth-aachen.de/acplt/pyaas/-/issues/57
+        # https://git.rwth-aachen.de/acplt/pyi40aas/-/issues/57
         xml = _xml_wrap("""
         <aas:submodels>
             <aas:submodel>
@@ -297,15 +297,19 @@ class XMLDeserializationTest(unittest.TestCase):
         self._assertInExceptionAndLog(xml, "duplicate identifier", KeyError, logging.ERROR)
 
     def test_duplicate_identifier_object_store(self) -> None:
+        sm_id = model.Identifier("http://acplt.org/test_submodel", model.IdentifierType.IRI)
+
         def get_clean_store() -> model.DictObjectStore:
             store: model.DictObjectStore = model.DictObjectStore()
-            submodel = model.Submodel(model.Identifier("http://acplt.org/test_submodel", model.IdentifierType.IRI))
-            store.add(submodel)
+            submodel_ = model.Submodel(sm_id, id_short="test123")
+            store.add(submodel_)
             return store
+
         xml = _xml_wrap("""
         <aas:submodels>
             <aas:submodel>
                 <aas:identification idType="IRI">http://acplt.org/test_submodel</aas:identification>
+                <aas:idShort>test456</aas:idShort>
                 <aas:submodelElements/>
             </aas:submodel>
         </aas:submodels>
@@ -313,18 +317,30 @@ class XMLDeserializationTest(unittest.TestCase):
         bytes_io = io.BytesIO(xml.encode("utf-8"))
 
         object_store = get_clean_store()
-        read_aas_xml_file_into(object_store, bytes_io, replace_existing=True, ignore_existing=False)
-        self.assertIsInstance(object_store.pop(), model.Submodel)
+        identifiers = read_aas_xml_file_into(object_store, bytes_io, replace_existing=True, ignore_existing=False)
+        self.assertEqual(identifiers.pop(), sm_id)
+        submodel = object_store.pop()
+        self.assertIsInstance(submodel, model.Submodel)
+        self.assertEqual(submodel.id_short, "test456")
 
         object_store = get_clean_store()
         with self.assertLogs(logging.getLogger(), level=logging.INFO) as log_ctx:
-            read_aas_xml_file_into(object_store, bytes_io, replace_existing=False, ignore_existing=True)
+            identifiers = read_aas_xml_file_into(object_store, bytes_io, replace_existing=False, ignore_existing=True)
+        self.assertEqual(len(identifiers), 0)
         self.assertIn("already exists in the object store", log_ctx.output[0])
+        submodel = object_store.pop()
+        self.assertIsInstance(submodel, model.Submodel)
+        self.assertEqual(submodel.id_short, "test123")
 
+        object_store = get_clean_store()
         with self.assertRaises(KeyError) as err_ctx:
-            read_aas_xml_file_into(object_store, bytes_io, replace_existing=False, ignore_existing=False)
+            identifiers = read_aas_xml_file_into(object_store, bytes_io, replace_existing=False, ignore_existing=False)
+        self.assertEqual(len(identifiers), 0)
         cause = _root_cause(err_ctx.exception)
         self.assertIn("already exists in the object store", str(cause))
+        submodel = object_store.pop()
+        self.assertIsInstance(submodel, model.Submodel)
+        self.assertEqual(submodel.id_short, "test123")
 
     def test_read_aas_xml_element(self) -> None:
         xml = """
@@ -335,5 +351,141 @@ class XMLDeserializationTest(unittest.TestCase):
         """
         bytes_io = io.BytesIO(xml.encode("utf-8"))
 
-        submodel = read_aas_xml_element(bytes_io, AASFromXmlDecoder.construct_submodel, failsafe=False)
+        submodel = read_aas_xml_element(bytes_io, XMLConstructables.SUBMODEL)
         self.assertIsInstance(submodel, model.Submodel)
+
+    def test_stripped_qualifiable(self) -> None:
+        xml = """
+        <aas:submodel xmlns:aas="http://www.admin-shell.io/aas/2/0">
+            <aas:identification idType="IRI">http://acplt.org/test_stripped_submodel</aas:identification>
+            <aas:submodelElements>
+                <aas:submodelElement>
+                    <aas:operation>
+                        <aas:idShort>test_operation</aas:idShort>
+                        <aas:qualifier>
+                            <aas:qualifier>
+                                <aas:type>test_qualifier</aas:type>
+                                <aas:valueType>string</aas:valueType>
+                            </aas:qualifier>
+                        </aas:qualifier>
+                    </aas:operation>
+                </aas:submodelElement>
+            </aas:submodelElements>
+            <aas:qualifier>
+                <aas:qualifier>
+                    <aas:type>test_qualifier</aas:type>
+                    <aas:valueType>string</aas:valueType>
+                </aas:qualifier>
+            </aas:qualifier>
+        </aas:submodel>
+        """
+        bytes_io = io.BytesIO(xml.encode("utf-8"))
+
+        # check if XML with constraints can be parsed successfully
+        submodel = read_aas_xml_element(bytes_io, XMLConstructables.SUBMODEL, failsafe=False)
+        self.assertIsInstance(submodel, model.Submodel)
+        assert isinstance(submodel, model.Submodel)
+        self.assertEqual(len(submodel.qualifier), 1)
+
+        # check if constraints are ignored in stripped mode
+        submodel = read_aas_xml_element(bytes_io, XMLConstructables.SUBMODEL, failsafe=False, stripped=True)
+        self.assertIsInstance(submodel, model.Submodel)
+        assert isinstance(submodel, model.Submodel)
+        self.assertEqual(len(submodel.qualifier), 0)
+
+    def test_stripped_annotated_relationship_element(self) -> None:
+        xml = """
+        <aas:annotatedRelationshipElement xmlns:aas="http://www.admin-shell.io/aas/2/0">
+            <aas:idShort>test_annotated_relationship_element</aas:idShort>
+            <aas:first>
+                <aas:keys>
+                    <aas:key idType="IdShort" local="true" type="AnnotatedRelationshipElement">test_ref</aas:key>
+                </aas:keys>
+            </aas:first>
+            <aas:second>
+                <aas:keys>
+                    <aas:key idType="IdShort" local="true" type="AnnotatedRelationshipElement">test_ref</aas:key>
+                </aas:keys>
+            </aas:second>
+        </aas:annotatedRelationshipElement>
+        """
+        bytes_io = io.BytesIO(xml.encode("utf-8"))
+
+        # XML schema requires annotations to be present, so parsing should fail
+        with self.assertRaises(KeyError):
+            read_aas_xml_element(bytes_io, XMLConstructables.ANNOTATED_RELATIONSHIP_ELEMENT, failsafe=False)
+
+        # check if it can be parsed in stripped mode
+        read_aas_xml_element(bytes_io, XMLConstructables.ANNOTATED_RELATIONSHIP_ELEMENT, failsafe=False, stripped=True)
+
+    def test_stripped_entity(self) -> None:
+        xml = """
+        <aas:entity xmlns:aas="http://www.admin-shell.io/aas/2/0">
+            <aas:idShort>test_entity</aas:idShort>
+            <aas:entityType>CoManagedEntity</aas:entityType>
+        </aas:entity>
+        """
+        bytes_io = io.BytesIO(xml.encode("utf-8"))
+
+        # XML schema requires statements to be present, so parsing should fail
+        with self.assertRaises(KeyError):
+            read_aas_xml_element(bytes_io, XMLConstructables.ENTITY, failsafe=False)
+
+        # check if it can be parsed in stripped mode
+        read_aas_xml_element(bytes_io, XMLConstructables.ENTITY, failsafe=False, stripped=True)
+
+    def test_stripped_submodel_element_collection(self) -> None:
+        xml = """
+        <aas:submodelElementCollection xmlns:aas="http://www.admin-shell.io/aas/2/0">
+            <aas:idShort>test_collection</aas:idShort>
+            <aas:ordered>false</aas:ordered>
+        </aas:submodelElementCollection>
+        """
+        bytes_io = io.BytesIO(xml.encode("utf-8"))
+
+        # XML schema requires statements to be present, so parsing should fail
+        with self.assertRaises(KeyError):
+            read_aas_xml_element(bytes_io, XMLConstructables.SUBMODEL_ELEMENT_COLLECTION, failsafe=False)
+
+        # check if it can be parsed in stripped mode
+        read_aas_xml_element(bytes_io, XMLConstructables.SUBMODEL_ELEMENT_COLLECTION, failsafe=False, stripped=True)
+
+    def test_stripped_asset_administration_shell(self) -> None:
+        xml = """
+        <aas:assetAdministrationShell xmlns:aas="http://www.admin-shell.io/aas/2/0">
+            <aas:identification idType="IRI">http://acplt.org/test_aas</aas:identification>
+            <aas:assetRef>
+                <aas:keys>
+                    <aas:key idType="IRI" local="false" type="Asset">http://acplt.org/test_ref</aas:key>
+                </aas:keys>
+            </aas:assetRef>
+            <aas:submodelRefs>
+                <aas:submodelRef>
+                    <aas:keys>
+                        <aas:key idType="IRI" local="false" type="Submodel">http://acplt.org/test_ref</aas:key>
+                    </aas:keys>
+                </aas:submodelRef>
+            </aas:submodelRefs>
+            <aas:views>
+                <aas:view>
+                    <aas:idShort>test_view</aas:idShort>
+                </aas:view>
+            </aas:views>
+        </aas:assetAdministrationShell>
+        """
+        bytes_io = io.BytesIO(xml.encode("utf-8"))
+
+        # check if XML with constraints can be parsed successfully
+        aas = read_aas_xml_element(bytes_io, XMLConstructables.ASSET_ADMINISTRATION_SHELL, failsafe=False)
+        self.assertIsInstance(aas, model.AssetAdministrationShell)
+        assert isinstance(aas, model.AssetAdministrationShell)
+        self.assertEqual(len(aas.submodel), 1)
+        self.assertEqual(len(aas.view), 1)
+
+        # check if constraints are ignored in stripped mode
+        aas = read_aas_xml_element(bytes_io, XMLConstructables.ASSET_ADMINISTRATION_SHELL, failsafe=False,
+                                   stripped=True)
+        self.assertIsInstance(aas, model.AssetAdministrationShell)
+        assert isinstance(aas, model.AssetAdministrationShell)
+        self.assertEqual(len(aas.submodel), 0)
+        self.assertEqual(len(aas.view), 0)
