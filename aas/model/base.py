@@ -467,7 +467,7 @@ class Referable(metaclass=abc.ABCMeta):
         self._id_short = id_short
 
     def update(self,
-               timeout: float = 0,
+               max_age: float = 0,
                recursive: bool = True,
                _indirect_source: bool = True) -> None:
         """
@@ -476,11 +476,13 @@ class Referable(metaclass=abc.ABCMeta):
         If there is no source given, it will find its next ancestor with a source and update from this source.
         If there is no source in any ancestor, this function will do nothing
 
-        :param timeout: Only update the object, if it has not been updated within the last `timeout` seconds. todo
+        :param max_age: Maximum age of the local data in seconds. This method may return early, if the previous update
+            of the object has been performed less than `max_age` seconds ago.
         :param recursive: Also call update on all children of this object. Default is True
         :param _indirect_source: Internal parameter to avoid duplicate updating.
         :raises backends.BackendError: If no appropriate backend or the data source is not available
         """
+        # TODO consider max_age
         if not _indirect_source:
             # Update was already called on an ancestor of this Referable. Only update it, if it has its own source
             if self.source != "":
@@ -506,7 +508,7 @@ class Referable(metaclass=abc.ABCMeta):
             if isinstance(self, Namespace):
                 for namespace_set in self.namespace_element_sets:
                     for referable in namespace_set:
-                        referable.update(timeout, recursive=True, _indirect_source=False)
+                        referable.update(max_age, recursive=True, _indirect_source=False)
 
     def find_source(self) -> Tuple[Optional["Referable"], Optional[List[str]]]:  # type: ignore
         """
