@@ -415,7 +415,7 @@ class Referable(metaclass=abc.ABCMeta):
 
     def __init__(self):
         super().__init__()
-        self.id_short: Optional[str] = ""
+        self._id_short: Optional[str] = ""
         self.category: Optional[str] = ""
         self.description: Optional[LangStringSet] = set()
         # We use a Python reference to the parent Namespace instead of a Reference Object, as specified. This allows
@@ -450,8 +450,12 @@ class Referable(metaclass=abc.ABCMeta):
         Constraint AASd-002: idShort shall only feature letters, digits, underscore ('_'); starting mandatory with a
         letter
 
+        Additionally check that the idShort is not already present in the same parent Namespace (if this object is
+        already contained in a parent Namespace).
+
         :param id_short: Identifying string of the element within its name space
-        :raises: Exception if the constraint is not fulfilled
+        :raises ValueError: if the constraint is not fulfilled
+        :raises KeyError: if the new idShort causes a name collision in the parent Namespace
         """
 
         if id_short is None and not hasattr(self, 'identification'):
@@ -461,6 +465,13 @@ class Referable(metaclass=abc.ABCMeta):
             raise ValueError("The id_short must contain only letters, digits and underscore")
         if not re.match("^([a-zA-Z].*|)$", test_id_short):
             raise ValueError("The id_short must start with a letter")
+
+        if self.parent is not None and id_short != self.id_short:
+            for set_ in self.parent.namespace_element_sets:
+                if id_short in set_:
+                    raise KeyError("Referable with id_short '{}' is already present in the parent Namespace"
+                                   .format(id_short))
+
         self._id_short = id_short
 
     def update(self, timeout: float = 0) -> None:

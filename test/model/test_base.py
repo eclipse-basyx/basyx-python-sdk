@@ -184,6 +184,17 @@ class ModelNamespaceTest(unittest.TestCase):
             namespace.get_referable("Prop3")
         self.assertEqual("'Referable with id_short Prop3 not found in this namespace'", str(cm.exception))
 
+    def test_renaming(self) -> None:
+        self.namespace.set1.add(self.prop1)
+        self.namespace.set1.add(self.prop2)
+
+        self.prop1.id_short = "Prop3"
+        self.assertEqual("Prop3", self.prop1.id_short)
+
+        with self.assertRaises(KeyError) as cm:
+            self.prop1.id_short = "Prop2"
+        self.assertIn("already present", str(cm.exception))
+
     def test_Namespaceset_update_from(self) -> None:
         # Prop1 is getting its value updated by namespace2.set1
         # Prop2 is getting deleted since it does not exist in namespace2.set1
