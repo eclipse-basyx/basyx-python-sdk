@@ -471,7 +471,7 @@ class Referable(metaclass=abc.ABCMeta):
                recursive: bool = True,
                _indirect_source: bool = True) -> None:
         """
-        Update the local Referable object from the underlying source, using an appropriate backend
+        Update the local Referable object from any underlying external data source, using an appropriate backend
 
         If there is no source given, it will find its next ancestor with a source and update from this source.
         If there is no source in any ancestor, this function will do nothing
@@ -479,7 +479,7 @@ class Referable(metaclass=abc.ABCMeta):
         :param timeout: Only update the object, if it has not been updated within the last `timeout` seconds. todo
         :param recursive: Also call update on all children of this object. Default is True
         :param _indirect_source: Internal parameter to avoid duplicate updating.
-        :raises backends.BackendNotAvailableException: If the appropriate backend to the source is not available
+        :raises backends.BackendError: If no appropriate backend or the data source is not available
         """
         if not _indirect_source:
             # Update was already called on an ancestor of this Referable. Only update it, if it has its own source
@@ -547,10 +547,10 @@ class Referable(metaclass=abc.ABCMeta):
 
     def commit(self) -> None:
         """
-        Transfer local changes on this object to the underlying source(s).
+        Transfer local changes on this object to all underlying external data sources.
 
-        This function commits the current state of this object to its own and each source of its ancestors.
-        If there is no source, this function will do nothing.
+        This function commits the current state of this object to its own and each external data source of its
+        ancestors. If there is no source, this function will do nothing.
         """
         current_ancestor = self.parent
         relative_path: List[str] = [self.id_short]
