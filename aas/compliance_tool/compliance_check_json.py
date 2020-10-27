@@ -25,10 +25,9 @@ All functions reports any issues using the given StateManager by adding new step
 """
 import json
 import logging
-from typing import Optional, Tuple
+from typing import Optional
 
 from .. import model
-from ..adapter import aasx
 from ..adapter.json import json_deserialization, JSON_SCHEMA_FILE
 from ..examples.data import example_aas, create_example
 from ..examples.data._helper import AASDataChecker

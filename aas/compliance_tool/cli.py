@@ -52,9 +52,9 @@ def main():
                     'example or e:         file to be checked (file_1)\n'
                     'file_compare or f:    files to compare (file_1, file_2)\n,'
                     'In any case, it must be specified whether the (given or created) files are json (--json) or '
-                    'xml (--xml).\n\n'
-                    'In all cases except of schema, it could be specified if the (given or created) files should be '
-                    'aasx files or only simple json or xml files (--aasx).\n\n'
+                    'xml (--xml).\n'
+                    'All features except "schema" support reading/writing AASX packages instead of plain XML or JSON '
+                    'files via the --aasx option.\n\n'
                     'Additionally, the tool offers some extra features for more convenient usage:\n'
                     'a. Different levels of verbosity:\n'
                     '   Default output is just the status for each step performed. With -v or --verbose, additional '
@@ -112,24 +112,17 @@ def main():
                     files = aasx.DictSupplementaryFileContainer()
                     with open(TEST_PDF_FILE, 'rb') as f:
                         files.add_file("/TestFile.pdf", f, "application/pdf")
-                        f.seek(0)
 
                     # Create OPC/AASX core properties
                     cp = pyecma376_2.OPCCoreProperties()
                     cp.created = datetime.datetime.fromtimestamp(1577829600)
                     cp.creator = "PyI40AAS Testing Framework"
 
-                    # Decide wether write json or xml files
-                    if args.json:
-                        write_json = True
-                    elif args.xml:
-                        write_json = False
-
                     for identifiable in data:
                         if isinstance(identifiable, model.AssetAdministrationShell):
-                            writer.write_aas(identifiable.identification, data, files, write_json=write_json)
+                            writer.write_aas(identifiable.identification, data, files, write_json=args.json)
                     writer.write_core_properties(cp)
-                    manager.set_step_status(Status.SUCCESS)
+                manager.set_step_status(Status.SUCCESS)
             elif args.json:
                 with open(args.file_1, 'w', encoding='utf-8-sig') as file:
                     manager.set_step_status(Status.SUCCESS)
