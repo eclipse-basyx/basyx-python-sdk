@@ -134,13 +134,13 @@ def main():
                 with open(args.file_1, 'w', encoding='utf-8-sig') as file:
                     manager.set_step_status(Status.SUCCESS)
                     manager.add_step('Write data to file')
-                    write_aas_json_file(file=file, data=data)
+                    write_aas_json_file(file=file, data=data, indent=4)
                     manager.set_step_status(Status.SUCCESS)
             elif args.xml:
                 with open(args.file_1, 'wb') as file:
                     manager.set_step_status(Status.SUCCESS)
                     manager.add_step('Write data to file')
-                    write_aas_xml_file(file=file, data=data)
+                    write_aas_xml_file(file=file, data=data, pretty_print=True)
                     manager.set_step_status(Status.SUCCESS)
         except IOError as error:
             logger.error(error)
