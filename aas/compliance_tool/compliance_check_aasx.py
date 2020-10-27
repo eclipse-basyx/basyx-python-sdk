@@ -67,7 +67,6 @@ def check_deserialization(file_path: str, state_manager: ComplianceToolStateMana
         reader = aasx.AASXReader(file_path)
         state_manager.set_step_status_from_log()
     except ValueError as error:
-        state_manager.set_step_status(Status.FAILED)
         logger.error(error)
         state_manager.set_step_status_from_log()
         state_manager.add_step('Read file')
@@ -83,9 +82,8 @@ def check_deserialization(file_path: str, state_manager: ComplianceToolStateMana
         new_cp = reader.get_core_properties()
         state_manager.set_step_status(Status.SUCCESS)
     except ValueError as error:
-        state_manager.set_step_status(Status.FAILED)
         logger.error(error)
-        state_manager.set_step_status_from_log()
+        state_manager.set_step_status(Status.FAILED)
         return model.DictObjectStore(), aasx.DictSupplementaryFileContainer(), pyecma376_2.OPCCoreProperties()
     finally:
         reader.close()
@@ -102,6 +100,11 @@ def check_aas_example(file_path: str, state_manager: ComplianceToolStateManager)
     :param file_path: given file which should be checked
     :param state_manager: manager to log the steps
     """
+    logger = logging.getLogger('compliance_check')
+    logger.addHandler(state_manager)
+    logger.propagate = False
+    logger.setLevel(logging.INFO)
+
     # create handler to get logger info
     logger_example = logging.getLogger(example_aas.__name__)
     logger_example.addHandler(state_manager)
@@ -120,7 +123,8 @@ def check_aas_example(file_path: str, state_manager: ComplianceToolStateManager)
     checker = AASDataChecker(raise_immediately=False)
 
     state_manager.add_step('Check if data is equal to example data')
-    checker.check_object_store(obj_store, create_example_aas_binding())
+    example_data = create_example_aas_binding()
+    checker.check_object_store(obj_store, example_data)
     state_manager.add_log_records_from_data_checker(checker)
 
     if state_manager.status in (Status.FAILED, Status.NOT_EXECUTED):
@@ -140,8 +144,29 @@ def check_aas_example(file_path: str, state_manager: ComplianceToolStateManager)
     checker2.check(duration.microseconds < 20, "created must be {}".format(cp.created))
     checker2.check(cp_new.creator == "PyI40AAS Testing Framework", "creator must be 'PyI40AAS Testing Framework'")
     checker2.check(cp_new.lastModifiedBy is cp.lastModifiedBy, "lastModifiedBy must be {}".format(cp.lastModifiedBy))
+
+    # Check if file in file object is the same
+    list_of_id_shorts = ["ExampleSubmodelCollectionUnordered", "ExampleFile"]
+    obj = example_data.get_identifiable(model.Identifier("https://acplt.org/Test_Submodel", model.IdentifierType.IRI))
+    for id_short in list_of_id_shorts:
+        obj = obj.get_referable(id_short)
+    obj2 = obj_store.get_identifiable(model.Identifier("https://acplt.org/Test_Submodel", model.IdentifierType.IRI))
+    for id_short in list_of_id_shorts:
+        obj2 = obj2.get_referable(id_short)
+    try:
+        sha_file = files.get_sha256(obj.value)
+    except KeyError as error:
+        state_manager.add_log_records_from_data_checker(checker2)
+        logger.error(error)
+        state_manager.set_step_status(Status.FAILED)
+        return
+
+    checker2.check(sha_file == files.get_sha256(obj2.value), "File of {} must be {}.".format(obj.value, obj2.value))
     state_manager.add_log_records_from_data_checker(checker2)
-    state_manager.set_step_status(Status.SUCCESS)
+    if state_manager.status in (Status.FAILED, Status.NOT_EXECUTED):
+        state_manager.set_step_status(Status.FAILED)
+    else:
+        state_manager.set_step_status(Status.SUCCESS)
 
 
 def check_aasx_files_equivalence(file_path_1: str, file_path_2: str, state_manager: ComplianceToolStateManager) -> None:
