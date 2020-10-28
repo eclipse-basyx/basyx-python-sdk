@@ -347,7 +347,7 @@ class CouchDBObjectStore(model.AbstractObjectStore):
                                                      self.database_name,
                                                      self._transform_id(x.identification)))
         if rev is not None:
-            logger.debug("using the object's stored revision token %s for deletion." %rev)
+            logger.debug("using the object's stored revision token %s for deletion." % rev)
         if rev is None:
             if safe_delete:
                 raise CouchDBConflictError("No CouchDBRevision found for the object")

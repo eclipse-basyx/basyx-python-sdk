@@ -142,7 +142,8 @@ class CouchDBBackendTest(unittest.TestCase):
             model.Identifier('https://acplt.org/Test_Submodel', model.IdentifierType.IRI))
         self.object_store.discard(example_submodel)
         with self.assertRaises(KeyError) as cm:
-            self.object_store.get_identifiable(model.Identifier('https://acplt.org/Test_Submodel', model.IdentifierType.IRI))
+            self.object_store.get_identifiable(model.Identifier('https://acplt.org/Test_Submodel',
+                                                                model.IdentifierType.IRI))
         self.assertEqual("'No Identifiable with id IRI-https://acplt.org/Test_Submodel found in CouchDB database'",
                          str(cm.exception))
 
