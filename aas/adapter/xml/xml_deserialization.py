@@ -870,7 +870,7 @@ class AASFromXmlDecoder:
             _child_text_mandatory(element, NS_AAS + "idShort"),
             kind=_get_modeling_kind(element)
         )
-        value = _failsafe_construct(element.find(NS_AAS + "value"), cls._construct_referable_reference, cls.failsafe)
+        value = _failsafe_construct(element.find(NS_AAS + "value"), cls._construct_reference, cls.failsafe)
         if value is not None:
             reference_element.value = value
         cls._amend_abstract_attributes(reference_element, element)
