@@ -33,7 +33,7 @@ test:
   - pip install --cache-dir="$PIP_CACHE_DIR" unittest-xml-reporting coverage
   - pip install --cache-dir="$PIP_CACHE_DIR" -r requirements.txt
   # Setup test config and CouchDB database server
-  - echo -e "[couchdb]\nurl = http://couchdb:5984\nuser = $COUCHDB_USER\npassword = $COUCHDB_PASSWORD" > test/test_config.ini
+  - echo -e "[couchdb]\nurl = http://couchdb:5984\n" > test/test_config.ini
   - python test/_helper/setup_testdb.py -u "$COUCHDB_USER" -p "$COUCHDB_PASSWORD"
   # Add source directory to PYTHONPATH to allow testing our CLI scripts, which import our modules
   - export PYTHONPATH=".:$PYTHONPATH"
