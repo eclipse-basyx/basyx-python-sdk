@@ -12,7 +12,7 @@
 The dicts defined in this module are used in the json and xml modules to translate enum members of our
 implementation to the respective string and vice versa.
 """
-from typing import Dict
+from typing import Dict, Type
 
 from aas import model
 
@@ -98,4 +98,5 @@ IEC61360_DATA_TYPES_INVERSE: Dict[str, model.concept.IEC61360DataType] = {v: k f
 IEC61360_LEVEL_TYPES_INVERSE: Dict[str, model.concept.IEC61360LevelType] = \
     {v: k for k, v in IEC61360_LEVEL_TYPES.items()}
 
-KEY_ELEMENTS_CLASSES_INVERSE: Dict[model.KeyElements, type] = {v: k for k, v in model.KEY_ELEMENTS_CLASSES.items()}
+KEY_ELEMENTS_CLASSES_INVERSE: Dict[model.KeyElements, Type[model.Referable]] = \
+    {v: k for k, v in model.KEY_ELEMENTS_CLASSES.items()}

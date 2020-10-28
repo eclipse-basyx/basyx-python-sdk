@@ -142,7 +142,7 @@ def check_deserialization(file_path: str, state_manager: ComplianceToolStateMana
             state_manager.add_step('Read file {} and check if it is deserializable'.format(file_info))
         else:
             state_manager.add_step('Read file and check if it is deserializable')
-        obj_store = xml_deserialization.read_aas_xml_file(file_to_be_checked, True)
+        obj_store = xml_deserialization.read_aas_xml_file(file_to_be_checked, failsafe=True)
 
     state_manager.set_step_status_from_log()
 
