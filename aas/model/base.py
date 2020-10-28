@@ -646,7 +646,8 @@ class AASReference(Reference, Generic[_RT]):
                                    if key.get_identifier())
             return last_identifier  # type: ignore  # MyPy doesn't get the generator expression above
         except StopIteration:
-            raise ValueError("")
+            raise ValueError("Reference cannot be represented as an Identifier, since it does not contain a Key with "
+                             "global KeyType (IRDI, IRI, CUSTOM)")
 
     def __repr__(self) -> str:
         return "AASReference(type={}, key={})".format(self.type.__name__, self.key)

@@ -333,7 +333,7 @@ class AASXWriter:
 
         aas = object_store.get_identifiable(aas_id)
         if not isinstance(aas, model.AssetAdministrationShell):
-            raise ValueError(f"Identifier does not belong to an AssetAdminstrationShell object but to {repr(aas)}")
+            raise ValueError(f"Identifier does not belong to an AssetAdminstrationShell object but to {aas!r}")
 
         objects_to_be_written: Set[model.Identifier] = {aas.identification}
 
