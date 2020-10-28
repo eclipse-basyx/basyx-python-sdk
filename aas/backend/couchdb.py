@@ -11,7 +11,7 @@
 """
 Todo: Add module docstring
 """
-from typing import List, Dict, Any, Optional, Iterator, Iterable
+from typing import List, Dict, Any, Optional, Iterator, Iterable, Union
 import re
 import urllib.parse
 import urllib.request
@@ -55,6 +55,7 @@ class CouchDBBackend(backends.Backend):
             raise
 
         updated_store_object = data['data']
+        set_couchdb_revision(url, data["_rev"])
         store_object.update_from(updated_store_object)
 
     @classmethod
@@ -67,30 +68,19 @@ class CouchDBBackend(backends.Backend):
                                      "in the CouchDB")
         url = CouchDBBackend._parse_source(store_object.source)
         # We need to get the revision of the object, if it already exists, otherwise we cannot write to the Couchdb
-        request = urllib.request.Request(
-            url,
-            headers={'Content-type': 'application/json'},
-            method='GET'
-        )
-        couchdb_revision: Optional[str] = None
-        try:
-            revision_data = CouchDBBackend.do_request(request)
-            couchdb_revision = revision_data['_rev']
-        except CouchDBServerError as e:
-            if not e.code == 404:
-                raise
+        if get_couchdb_revision(url) is None:
+            raise CouchDBConflictError("No revision found for the given object. Try calling `update` on it.")
 
-        data_to_commit: Dict[str, Any] = {'data': store_object}
-        if couchdb_revision:
-            data_to_commit['_rev'] = couchdb_revision
-        data = json.dumps(data_to_commit, cls=json_serialization.AASToJsonEncoder)
+        data = json.dumps({'data': store_object, "_rev": get_couchdb_revision(url)},
+                          cls=json_serialization.AASToJsonEncoder)
         request = urllib.request.Request(
             url,
             headers={'Content-type': 'application/json'},
             method='PUT',
             data=data.encode())
         try:
-            CouchDBBackend.do_request(request)
+            response = CouchDBBackend.do_request(request)
+            set_couchdb_revision(url, response["rev"])
         except CouchDBServerError as e:
             if e.code == 409:
                 raise CouchDBConflictError("Could not commit changes to id {} due to a concurrent modification in the "
@@ -98,46 +88,6 @@ class CouchDBBackend(backends.Backend):
             elif e.code == 404:
                 raise KeyError("Object with id {} was not found in the CouchDB at {}"
                                .format(store_object.identification, url)) from e
-            raise
-
-    @classmethod
-    def delete_object(cls, obj: "Referable"):  # type: ignore
-        """
-        Deletes the given object from the couchdb
-
-        :param obj: Object to delete
-        """
-        if not isinstance(obj, model.Identifiable):
-            raise CouchDBSourceError("The given store_object is not Identifiable, therefore cannot be found "
-                                     "in the CouchDB")
-        url = CouchDBBackend._parse_source(obj.source)
-        # We need to get the revision of the object, if it already exists, otherwise we cannot write to the Couchdb
-        req = urllib.request.Request(
-            url,
-            headers={'Content-type': 'application/json'},
-            method='GET'
-        )
-        try:
-            data = CouchDBBackend.do_request(req)
-            couchdb_revision: str = data['_rev']
-        except CouchDBServerError as e:
-            if e.code == 404:
-                raise KeyError("Object with id {} was not found in the CouchDB at {}"
-                               .format(obj.identification, url)) from e
-            raise
-
-        req = urllib.request.Request(url+"?rev="+couchdb_revision,
-                                     headers={'Content-type': 'application/json'},
-                                     method='DELETE')
-        try:
-            CouchDBBackend.do_request(req)
-        except CouchDBServerError as e:
-            if e.code == 409:
-                raise CouchDBConflictError("Could not delete object with to id {} due to a concurrent modification in "
-                                           "the database.".format(obj.identification)) from e
-            elif e.code == 404:
-                raise KeyError("Object with id {} was not found in the CouchDB at {}"
-                               .format(obj.identification, url)) from e
             raise
 
     @classmethod
@@ -149,16 +99,16 @@ class CouchDBBackend(backends.Backend):
         :return: URL to the document
         :raises CouchDBBackendSourceError, if the source has the wrong format
         """
-        couchdb_s = re.match("couchdbs:", source)  # Note: Works, since match only checks the beginning of the string
+        couchdb_s = re.match("couchdbs://", source)  # Note: Works, since match only checks the beginning of the string
         if couchdb_s:
-            url = source.replace("couchdbs:", "https://", 1)
+            url = source.replace("couchdbs://", "https://", 1)
         else:
-            couchdb_wo_s = re.match("couchdb:", source)
+            couchdb_wo_s = re.match("couchdb://", source)
             if couchdb_wo_s:
-                url = source.replace("couchdb:", "http://", 1)
+                url = source.replace("couchdb://", "http://", 1)
             else:
                 raise CouchDBSourceError("Source has wrong format. "
-                                         "Expected to start with {couchdb, couchdbs}, got {" + source + "}")
+                                         "Expected to start with {couchdb://, couchdbs://}, got {" + source + "}")
         return url
 
     @classmethod
@@ -209,21 +159,54 @@ class CouchDBBackend(backends.Backend):
 
 # Global registry for credentials for CouchDB Servers
 _credentials_store: urllib.request.HTTPPasswordMgrWithPriorAuth = urllib.request.HTTPPasswordMgrWithPriorAuth()
-# todo: Why does this work and not HTTPPasswordMgrWithBasicAuth?
-# https://stackoverflow.com/questions/29708708/http-basic-authentication-not-working-in-python-3-4
+# Note: The HTTPPasswordMgr is not thread safe during writing, should be thread safe for reading only.
 
 
 def register_credentials(url: str, username: str, password: str):
     """
     Register the credentials of a CouchDB server to the global credentials store
 
-    Todo: make thread safe
+    Warning: Do not use this function, while other threads may be accessing the credentials via the CouchDBObjectStore
+             or update or commit functions of model.base.Referable objects!
 
     :param url: Toplevel URL
     :param username: Username to that CouchDB instance
     :param password: Password to the Username
     """
     _credentials_store.add_password(None, url, username, password, is_authenticated=True)
+
+
+# Global registry for CouchDB Revisions
+_revision_store: Dict[str, str] = {}
+
+
+def set_couchdb_revision(url: str, revision: str):
+    """
+    Set the CouchDB revision of the given document in the revision store
+
+    :param url: URL to the CouchDB document
+    :param revision: CouchDB revision
+    """
+    _revision_store[url] = revision
+
+
+def get_couchdb_revision(url: str) -> Optional[str]:
+    """
+    Get the CouchDB revision from the revision store for the given URL to a CouchDB Document
+
+    :param url: URL to the CouchDB document
+    :return: CouchDB-revision, if there is one, otherwise returns None
+    """
+    return _revision_store.get(url)
+
+
+def delete_couchdb_revision(url: str):
+    """
+    Delete the CouchDB revision from the revision store for the given URL to a CouchDB Document
+
+    :param url: URL to the CouchDB document
+    """
+    del _revision_store[url]
 
 
 class CouchDBObjectStore(model.AbstractObjectStore):
@@ -253,9 +236,6 @@ class CouchDBObjectStore(model.AbstractObjectStore):
         """
         self.url: str = url
         self.database_name: str = database
-        self.ssl: bool = False
-        if re.match("https:", self.url):
-            self.ssl = True
 
     def check_database(self, create=False):
         """
@@ -287,9 +267,12 @@ class CouchDBObjectStore(model.AbstractObjectStore):
             method='PUT')
         CouchDBBackend.do_request(request)
 
-    def get_identifiable(self, identifier: model.Identifier) -> model.Identifiable:
+    def get_identifiable(self, identifier: Union[str, model.Identifier]) -> model.Identifiable:
         """
         Retrieve an AAS object from the CouchDB by its Identifier
+
+        If the identifier is a string, it is assumed that the string is a correct couchdb-ID-string (according to the
+        internal conversion rules, see CouchDBObjectStore._transform_id() )
 
         :raises KeyError: If no such object is stored in the database
         :raises CouchDBError: If error occur during the request to the CouchDB server (see `_do_request()` for details)
@@ -313,8 +296,9 @@ class CouchDBObjectStore(model.AbstractObjectStore):
         if not isinstance(obj, model.Identifiable):
             raise CouchDBResponseError("The CouchDB document with id {} does not contain an identifiable AAS object."
                                        .format(identifier))
-        obj._store = self
-        obj.couchdb_revision = data['_rev']
+        self.generate_source(obj)  # Generate the source parameter of this object
+        set_couchdb_revision("{}/{}/{}".format(self.url, self.database_name, urllib.parse.quote(identifier, safe='')),
+                             data["_rev"])
         return obj
 
     def add(self, x: model.Identifiable) -> None:
@@ -335,12 +319,67 @@ class CouchDBObjectStore(model.AbstractObjectStore):
             method='PUT',
             data=data.encode())
         try:
-            CouchDBBackend.do_request(request)
+            response = CouchDBBackend.do_request(request)
+            set_couchdb_revision("{}/{}/{}".format(self.url, self.database_name, self._transform_id(x.identification)),
+                                 response["rev"])
         except CouchDBServerError as e:
             if e.code == 409:
                 raise KeyError("Identifiable with id {} already exists in CouchDB database".format(x.identification))\
                     from e
             raise
+        self.generate_source(x)  # Set the source of the object
+
+    def discard(self, x: model.Identifiable, safe_delete=False) -> None:
+        """
+        Delete an Identifiable AAS object from the CouchDB database
+
+        :param x: The object to be deleted
+        :param safe_delete: If True, only delete the object if it has not been modified in the database in comparison to
+                            the provided revision. This uses the CouchDB revision token and thus only works with
+                            CouchDBIdentifiable objects retrieved from this database.
+        :raises KeyError: If the object does not exist in the database
+        :raises CouchDBConflictError: If safe_delete is true and the object has been modified or deleted in the database
+        :raises CouchDBError: If error occur during the request to the CouchDB server (see `_do_request()` for details)
+        """
+        logger.debug("Deleting object %s from CouchDB database ...", repr(x))
+        # If x is not a CouchDBIdentifiable, retrieve x from the database to get the current couchdb_revision
+        rev = get_couchdb_revision("{}/{}/{}".format(self.url,
+                                                     self.database_name,
+                                                     self._transform_id(x.identification)))
+        if rev is not None:
+            logger.debug("using the object's stored revision token %s for deletion." %rev)
+        if rev is None:
+            if safe_delete:
+                raise CouchDBConflictError("No CouchDBRevision found for the object")
+            else:
+                try:
+                    logger.debug("fetching the current object revision for deletion ...")
+                    self.get_identifiable(x.identification)
+                except KeyError as e:
+                    raise KeyError(
+                        "No AAS object with id {} exists in CouchDB database".format(x.identification)) from e
+            rev = get_couchdb_revision("{}/{}/{}".format(self.url,
+                                                         self.database_name,
+                                                         self._transform_id(x.identification)))
+            logger.debug("using the current object revision %s for deletion." % rev)
+
+        request = urllib.request.Request(
+            "{}/{}/{}?rev={}".format(self.url, self.database_name, self._transform_id(x.identification), rev),
+            headers={'Content-type': 'application/json'},
+            method='DELETE')
+        try:
+            CouchDBBackend.do_request(request)
+        except CouchDBServerError as e:
+            if e.code == 404:
+                raise KeyError("No AAS object with id {} exists in CouchDB database".format(x.identification)) from e
+            elif e.code == 409:
+                raise CouchDBConflictError(
+                    "Object with id {} has been modified in the database since "
+                    "the version requested to be deleted.".format(x.identification)) from e
+            raise
+        delete_couchdb_revision("{}/{}/{}".format(self.url,
+                                                  self.database_name,
+                                                  self._transform_id(x.identification)))
 
     def __contains__(self, x: object) -> bool:
         """
@@ -357,7 +396,7 @@ class CouchDBObjectStore(model.AbstractObjectStore):
             identifier = x.identification
         else:
             return False
-        logger.debug("Checking existance of object with id %s in database ...", repr(x))
+        logger.debug("Checking existence of object with id %s in database ...", repr(x))
         request = urllib.request.Request(
             "{}/{}/{}".format(self.url, self.database_name, self._transform_id(identifier)),
             headers={'Accept': 'application/json'},
@@ -430,12 +469,8 @@ class CouchDBObjectStore(model.AbstractObjectStore):
 
         :param identifiable: Identifiable object
         """
-        source: str = self.url
-        if self.ssl:
-            source.replace("https://", "couchdbs:")
-        else:
-            source.replace("http://", "couchdb")
-        source += self.database_name + "/" + self._transform_id(identifiable.identification)
+        source: str = self.url.replace("https://", "couchdbs://").replace("http://", "couchdb://")
+        source += "/" + self.database_name + "/" + self._transform_id(identifiable.identification)
         identifiable.source = source
 
 

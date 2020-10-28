@@ -10,13 +10,13 @@
 # specific language governing permissions and limitations under the License.
 import base64
 import configparser
+import copy
 import os
 import unittest
 import urllib.request
 import urllib.error
 
 from aas.backend import backends, couchdb
-from aas import model
 from aas.examples.data.example_aas import *
 
 
@@ -24,7 +24,7 @@ TEST_CONFIG = configparser.ConfigParser()
 TEST_CONFIG.read((os.path.join(os.path.dirname(__file__), "..", "test_config.default.ini"),
                   os.path.join(os.path.dirname(__file__), "..", "test_config.ini")))
 
-source_core: str = "couchdb:" + TEST_CONFIG["couchdb"]["url"].lstrip("http://") + "/" + \
+source_core: str = "couchdb://" + TEST_CONFIG["couchdb"]["url"].lstrip("http://") + "/" + \
                    TEST_CONFIG["couchdb"]["database"] + "/"
 
 
@@ -53,13 +53,13 @@ class CouchDBBackendOfflineMethodsTest(unittest.TestCase):
                                      password="test_password")
 
         url = couchdb.CouchDBBackend._parse_source(
-            "couchdbs:couchdb.plt.rwth-aachen.de:5984/path_to_db/path_to_doc"
+            "couchdbs://couchdb.plt.rwth-aachen.de:5984/path_to_db/path_to_doc"
         )
         expected_url = "https://couchdb.plt.rwth-aachen.de:5984/path_to_db/path_to_doc"
         self.assertEqual(expected_url, url)
 
         url = couchdb.CouchDBBackend._parse_source(
-            "couchdb:couchdb.plt.rwth-aachen.de:5984/path_to_db/path_to_doc"
+            "couchdb://couchdb.plt.rwth-aachen.de:5984/path_to_db/path_to_doc"
         )
         expected_url = "http://couchdb.plt.rwth-aachen.de:5984/path_to_db/path_to_doc"
         self.assertEqual(expected_url, url)
@@ -76,74 +76,130 @@ class CouchDBBackendOfflineMethodsTest(unittest.TestCase):
                                                                                  TEST_CONFIG['couchdb']['database'],
                                                                                  COUCHDB_ERROR))
 class CouchDBBackendTest(unittest.TestCase):
-    def test_authorization(self):
-        couchdb.register_credentials(TEST_CONFIG["couchdb"]["url"].lstrip("http://"),
+    def setUp(self) -> None:
+        self.object_store = couchdb.CouchDBObjectStore(TEST_CONFIG['couchdb']['url'],
+                                                       TEST_CONFIG['couchdb']['database'])
+        couchdb.register_credentials(TEST_CONFIG["couchdb"]["url"],
                                      TEST_CONFIG["couchdb"]["user"],
                                      TEST_CONFIG["couchdb"]["password"])
-        req = urllib.request.Request("{}/{}".format(TEST_CONFIG["couchdb"]["url"], TEST_CONFIG["couchdb"]["database"]),
-                                     headers={'Content-type': 'application/json'})
-        couchdb.CouchDBBackend.do_request(req)
-
-    def test_commit_object(self):
-        test_object = create_example_submodel()
-        test_object.source = source_core + "example_submodel"
-        couchdb.CouchDBBackend.commit_object(test_object, test_object, [])
-        # Cleanup CouchDB
-        couchdb.CouchDBBackend.delete_object(test_object)
-
-    def test_commit_nested_object(self):
         backends.register_backend("couchdb", couchdb.CouchDBBackend)
-        test_submodel = create_example_submodel()
-        test_submodel.source = source_core + "another_example_submodel"
-        test_property = test_submodel.get_referable("ExampleSubmodelCollectionOrdered").get_referable("ExampleProperty")
-        self.assertIsInstance(test_property, model.Property)
-        test_property.commit()
-        # Cleanup CouchDB
-        couchdb.CouchDBBackend.delete_object(test_submodel)
+        self.object_store.check_database()
 
-    def test_update_object(self):
+    def tearDown(self) -> None:
+        self.object_store.clear()
+
+    def test_object_store_add(self):
         test_object = create_example_submodel()
-        test_object.source = source_core + "example_submodel"
-        couchdb.CouchDBBackend.commit_object(test_object, test_object, [])
-        couchdb.CouchDBBackend.update_object(test_object, test_object, [])
-        # Cleanup CouchDB
-        couchdb.CouchDBBackend.delete_object(test_object)
+        self.object_store.add(test_object)
+        self.assertEqual(test_object.source, source_core+"IRI-https%3A%2F%2Facplt.org%2FTest_Submodel")
 
-    def test_update_nested_object(self):
-        test_submodel = create_example_submodel()
-        test_submodel.source = source_core + "another_example_submodel"
-        test_submodel.commit()
-        test_property = test_submodel.get_referable("ExampleSubmodelCollectionOrdered").get_referable("ExampleProperty")
-        self.assertIsInstance(test_property, model.Property)
-        test_property.value = "A new value"
-        test_property.update()
-        self.assertEqual(test_property.value, 'exampleValue')
-        # Cleanup CouchDB
-        couchdb.CouchDBBackend.delete_object(test_submodel)
+    def test_example_submodel_storing(self) -> None:
+        example_submodel = create_example_submodel()
 
-    def test_commit_overwrite(self):
-        test_submodel = create_example_submodel()
-        test_submodel.source = source_core + "another_example_submodel"
-        test_submodel.commit()
+        # Add exmaple submodel
+        self.object_store.add(example_submodel)
+        self.assertEqual(1, len(self.object_store))
+        self.assertIn(example_submodel, self.object_store)
 
-        test_property = test_submodel.get_referable("ExampleSubmodelCollectionOrdered").get_referable("ExampleProperty")
-        self.assertIsInstance(test_property, model.Property)
-        test_property.value = "A new value"
-        test_property.commit()
+        # Restore example submodel and check data
+        submodel_restored = self.object_store.get_identifiable(
+            model.Identifier(id_='https://acplt.org/Test_Submodel', id_type=model.IdentifierType.IRI))
+        assert (isinstance(submodel_restored, model.Submodel))
+        checker = AASDataChecker(raise_immediately=True)
+        check_example_submodel(checker, submodel_restored)
 
-        test_property.value = "Something else"
-        test_property.update()
-        self.assertEqual(test_property.value, "A new value")
-        # Cleanup Couchdb
-        couchdb.CouchDBBackend.delete_object(test_submodel)
+        # Delete example submodel
+        self.object_store.discard(submodel_restored)
+        self.assertNotIn(example_submodel, self.object_store)
 
-    def test_delete(self):
-        test_submodel = create_example_submodel()
-        test_submodel.source = source_core + "another_example_submodel"
-        test_submodel.commit()
-        couchdb.CouchDBBackend.delete_object(test_submodel)
+    def test_iterating(self) -> None:
+        example_data = create_full_example()
+
+        # Add all objects
+        for item in example_data:
+            self.object_store.add(item)
+
+        self.assertEqual(6, len(self.object_store))
+
+        # Iterate objects, add them to a DictObjectStore and check them
+        retrieved_data_store: model.provider.DictObjectStore[model.Identifiable] = model.provider.DictObjectStore()
+        for item in self.object_store:
+            retrieved_data_store.add(item)
+        checker = AASDataChecker(raise_immediately=True)
+        check_full_example(checker, retrieved_data_store)
+
+    def test_key_errors(self) -> None:
+        # Double adding an object should raise a KeyError
+        example_submodel = create_example_submodel()
+        self.object_store.add(example_submodel)
         with self.assertRaises(KeyError) as cm:
-            test_submodel.update()
-        self.assertEqual(
-            "'No Identifiable found in CouchDB at http://localhost:5984/aas_test/another_example_submodel'",
-            str(cm.exception))
+            self.object_store.add(example_submodel)
+        self.assertEqual("'Identifiable with id Identifier(IRI=https://acplt.org/Test_Submodel) already exists in "
+                         "CouchDB database'", str(cm.exception))
+
+        # Querying a deleted object should raise a KeyError
+        retrieved_submodel = self.object_store.get_identifiable(
+            model.Identifier('https://acplt.org/Test_Submodel', model.IdentifierType.IRI))
+        self.object_store.discard(example_submodel)
+        with self.assertRaises(KeyError) as cm:
+            self.object_store.get_identifiable(model.Identifier('https://acplt.org/Test_Submodel', model.IdentifierType.IRI))
+        self.assertEqual("'No Identifiable with id IRI-https://acplt.org/Test_Submodel found in CouchDB database'",
+                         str(cm.exception))
+
+        # Double deleting should also raise a KeyError
+        with self.assertRaises(KeyError) as cm:
+            self.object_store.discard(retrieved_submodel)
+        self.assertEqual("'No AAS object with id Identifier(IRI=https://acplt.org/Test_Submodel) exists in "
+                         "CouchDB database'", str(cm.exception))
+
+    def test_conflict_errors(self):
+        # Preperation: add object and retrieve it from the database
+        example_submodel = create_example_submodel()
+        self.object_store.add(example_submodel)
+        retrieved_submodel = self.object_store.get_identifiable(
+            model.Identifier('https://acplt.org/Test_Submodel', model.IdentifierType.IRI))
+
+        # Simulate a concurrent modification
+        remote_modified_submodel = copy.copy(retrieved_submodel)
+        remote_modified_submodel.id_short = "newIdShort"
+        remote_modified_submodel.commit()
+        # Todo: With the current architecture, it is not possible to change something in the CouchDB without also
+        #       changing the revision
+        """
+        # Committing changes to the retrieved object should now raise a conflict error
+        retrieved_submodel.id_short = "myOtherNewIdShort"
+        with self.assertRaises(couchdb.CouchDBConflictError) as cm:
+            retrieved_submodel.commit()
+        self.assertEqual("Could not commit changes to id Identifier(IRI=https://acplt.org/Test_Submodel) due to a "
+                         "concurrent modification in the database.", str(cm.exception))
+
+        # Deleting the submodel with safe_delete should also raise a conflict error. Deletion without safe_delete should
+        # work
+        with self.assertRaises(couchdb.CouchDBConflictError) as cm:
+            self.object_store.discard(retrieved_submodel, True)
+        self.assertEqual("Object with id Identifier(IRI=https://acplt.org/Test_Submodel) has been modified in the "
+                         "database since the version requested to be deleted.", str(cm.exception))
+        self.object_store.discard(retrieved_submodel, False)
+        self.assertEqual(0, len(self.object_store))
+
+        # Committing after deletion should also raise a conflict error
+        with self.assertRaises(couchdb.CouchDBConflictError) as cm:
+            retrieved_submodel.commit()
+        self.assertEqual("Could not commit changes to id Identifier(IRI=https://acplt.org/Test_Submodel) due to a "
+                         "concurrent modification in the database.", str(cm.exception))
+        """
+
+    def test_editing(self):
+        test_object = create_example_submodel()
+        self.object_store.add(test_object)
+
+        # Test if update restores changes
+        test_object.id_short = "SomeNewIdShort"
+        test_object.update()
+        self.assertEqual("TestSubmodel", test_object.id_short)
+
+        # Test if commit uploads changes
+        test_object.id_short = "SomeNewIdShort"
+        test_object.commit()
+        new_test_object = self.object_store.get_identifiable(test_object.identification)
+        self.assertEqual("SomeNewIdShort", new_test_object.id_short)
