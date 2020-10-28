@@ -461,7 +461,7 @@ class ReferenceElement(DataElement):
 
     def __init__(self,
                  id_short: str,
-                 value: Optional[base.AASReference] = None,
+                 value: Optional[base.Reference] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
                  parent: Optional[base.Namespace] = None,
@@ -491,7 +491,7 @@ class ReferenceElement(DataElement):
         """
 
         super().__init__(id_short, category, description, parent, semantic_id, qualifier, kind)
-        self.value: Optional[base.AASReference] = value
+        self.value: Optional[base.Reference] = value
 
 
 class SubmodelElementCollection(SubmodelElement, base.Namespace, metaclass=abc.ABCMeta):

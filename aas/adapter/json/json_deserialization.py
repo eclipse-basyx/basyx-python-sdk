@@ -653,7 +653,7 @@ class AASFromJsonDecoder(json.JSONDecoder):
                            kind=cls._get_kind(dct))
         cls._amend_abstract_attributes(ret, dct)
         if 'value' in dct and dct['value'] is not None:
-            ret.value = cls._construct_aas_reference(_get_ts(dct, 'value', dict), model.Referable)
+            ret.value = cls._construct_reference(_get_ts(dct, 'value', dict))
         return ret
 
 
