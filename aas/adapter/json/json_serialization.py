@@ -704,6 +704,20 @@ class StrippedAASToJsonEncoder(AASToJsonEncoder):
     stripped = True
 
 
+def _select_encoder(stripped: bool, encoder: Optional[Type[AASToJsonEncoder]] = None) -> Type[AASToJsonEncoder]:
+    """
+    Returns the correct encoder based on the stripped parameter. If an encoder class is given, stripped is ignored.
+
+    :param stripped: If true, an encoder for parsing stripped JSON objects is selected. Ignored if an encoder class is
+                     specified.
+    :param encoder: Is returned, if specified.
+    :return: A AASToJsonEncoder (sub)class.
+    """
+    if encoder is not None:
+        return encoder
+    return AASToJsonEncoder if not stripped else StrippedAASToJsonEncoder
+
+
 def _create_dict(data: model.AbstractObjectStore) -> dict:
     # separate different kind of objects
     assets = []
@@ -728,20 +742,27 @@ def _create_dict(data: model.AbstractObjectStore) -> dict:
     return dict_
 
 
-def object_store_to_json(data: model.AbstractObjectStore, **kwargs) -> str:
+def object_store_to_json(data: model.AbstractObjectStore, stripped: bool = False,
+                         encoder: Optional[Type[AASToJsonEncoder]] = None, **kwargs) -> str:
     """
     Create a json serialization of a set of AAS objects according to 'Details of the Asset Administration Shell',
     chapter 5.5
 
     :param data: ObjectStore which contains different objects of the AAS meta model which should be serialized to a
                  JSON file
+    :param stripped: If true, objects are serialized to stripped json objects..
+                     See https://git.rwth-aachen.de/acplt/pyi40aas/-/issues/91
+                     This parameter is ignored if an encoder class is specified.
+    :param encoder: The encoder class used to encoder the JSON objects
     :param kwargs: Additional keyword arguments to be passed to json.dump()
     """
+    encoder_ = _select_encoder(stripped, encoder)
     # serialize object to json
-    return json.dumps(_create_dict(data), cls=AASToJsonEncoder, **kwargs)
+    return json.dumps(_create_dict(data), cls=encoder_, **kwargs)
 
 
-def write_aas_json_file(file: IO, data: model.AbstractObjectStore, **kwargs) -> None:
+def write_aas_json_file(file: IO, data: model.AbstractObjectStore, stripped: bool = False,
+                        encoder: Optional[Type[AASToJsonEncoder]] = None, **kwargs) -> None:
     """
     Write a set of AAS objects to an Asset Administration Shell JSON file according to 'Details of the Asset
     Administration Shell', chapter 5.5
@@ -749,7 +770,12 @@ def write_aas_json_file(file: IO, data: model.AbstractObjectStore, **kwargs) -> 
     :param file: A file-like object to write the JSON-serialized data to
     :param data: ObjectStore which contains different objects of the AAS meta model which should be serialized to a
                  JSON file
+    :param stripped: If true, objects are serialized to stripped json objects..
+                     See https://git.rwth-aachen.de/acplt/pyi40aas/-/issues/91
+                     This parameter is ignored if an encoder class is specified.
+    :param encoder: The encoder class used to encoder the JSON objects
     :param kwargs: Additional keyword arguments to be passed to json.dumps()
     """
+    encoder_ = _select_encoder(stripped, encoder)
     # serialize object to json
-    json.dump(_create_dict(data), file, cls=AASToJsonEncoder, **kwargs)
+    json.dump(_create_dict(data), file, cls=encoder_, **kwargs)
