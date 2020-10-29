@@ -12,7 +12,7 @@
 Module for serializing Asset Administration Shell objects to the official JSON format
 
 The module provides an custom JSONEncoder class `AASToJsonEncoder` to be used with the Python standard `json` module.
-It contains a custom `default` function which converts PyI40AAS objects to simple python types for an automatical
+It contains a custom `default` function which converts PyI40AAS objects to simple python types for an automatic
 JSON serialization. Additionally, there's the `write_aas_json_file()` function, that takes a complete ObjectStore and
 writes all contained AAS objects into a JSON file.
 
@@ -28,7 +28,7 @@ import inspect
 from typing import List, Dict, IO
 import json
 
-from ... import model
+from aas import model
 from .. import _generic
 
 
@@ -707,20 +707,20 @@ class StrippedAASToJsonEncoder(AASToJsonEncoder):
 def _create_dict(data: model.AbstractObjectStore) -> dict:
     # separate different kind of objects
     assets = []
-    asset_administation_shells = []
+    asset_administration_shells = []
     submodels = []
     concept_descriptions = []
     for obj in data:
         if isinstance(obj, model.Asset):
             assets.append(obj)
         if isinstance(obj, model.AssetAdministrationShell):
-            asset_administation_shells.append(obj)
+            asset_administration_shells.append(obj)
         if isinstance(obj, model.Submodel):
             submodels.append(obj)
         if isinstance(obj, model.ConceptDescription):
             concept_descriptions.append(obj)
     dict_ = {
-        'assetAdministrationShells': asset_administation_shells,
+        'assetAdministrationShells': asset_administration_shells,
         'submodels': submodels,
         'assets': assets,
         'conceptDescriptions': concept_descriptions,
@@ -743,7 +743,7 @@ def object_store_to_json(data: model.AbstractObjectStore, **kwargs) -> str:
 
 def write_aas_json_file(file: IO, data: model.AbstractObjectStore, **kwargs) -> None:
     """
-    Write a set of AAS objects to an Asset Adminstration Shell JSON file according to 'Details of the Asset
+    Write a set of AAS objects to an Asset Administration Shell JSON file according to 'Details of the Asset
     Administration Shell', chapter 5.5
 
     :param file: A file-like object to write the JSON-serialized data to

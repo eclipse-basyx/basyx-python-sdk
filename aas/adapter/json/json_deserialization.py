@@ -28,7 +28,7 @@ import logging
 import pprint
 from typing import Dict, Callable, TypeVar, Type, List, IO, Optional, Set
 
-from ... import model
+from aas import model
 from .._generic import MODELING_KIND_INVERSE, ASSET_KIND_INVERSE, KEY_ELEMENTS_INVERSE, KEY_TYPES_INVERSE,\
     IDENTIFIER_TYPES_INVERSE, ENTITY_TYPES_INVERSE, IEC61360_DATA_TYPES_INVERSE, IEC61360_LEVEL_TYPES_INVERSE,\
     KEY_ELEMENTS_CLASSES_INVERSE
@@ -50,7 +50,7 @@ def _get_ts(dct: Dict[str, object], key: str, type_: Type[T]) -> T:
     The type of the object is checked at runtime and a TypeError is raised, if the object has not the expected type.
 
     :param dct: The dict
-    :param key: The key of the item to retreive
+    :param key: The key of the item to retrieve
     :param type_: The expected type of the item
     :return: The item
     :raises TypeError: If the item has an unexpected type
@@ -78,7 +78,7 @@ def _expect_type(object_: object, type_: Type, context: str, failsafe: bool) -> 
     :param type_: The expected type
     :param context: A string to add to the exception message / log message, that describes the context in that the
                     object has been found
-    :param failsafe: Log error and return false instead of rasing a TypeError
+    :param failsafe: Log error and return false instead of raising a TypeError
     :return: True if the
     :raises TypeError: If the object is not of the expected type and the failsafe mode is not active
     """
@@ -228,7 +228,7 @@ class AASFromJsonDecoder(json.JSONDecoder):
             if 'semanticId' in dct:
                 obj.semantic_id = cls._construct_reference(_get_ts(dct, 'semanticId', dict))
         # `HasKind` provides only mandatory, immutable attributes; so we cannot do anything here, after object creation.
-        # However, the `cls._get_kind()` function may assist by retreiving them from the JSON object
+        # However, the `cls._get_kind()` function may assist by retrieving them from the JSON object
         if isinstance(obj, model.Qualifiable) and not cls.stripped:
             if 'qualifiers' in dct:
                 for constraint in _get_ts(dct, 'qualifiers', list):
@@ -694,7 +694,7 @@ def _select_decoder(failsafe: bool, stripped: bool, decoder: Optional[Type[AASFr
     and stripped are ignored.
 
     :param failsafe: If true, a failsafe decoder is selected. Ignored if a decoder class is specified.
-    :param stripped: If true, a deocder for parsing stripped JSON objects is selected. Ignored if a decoder class is
+    :param stripped: If true, a decoder for parsing stripped JSON objects is selected. Ignored if a decoder class is
                      specified.
     :param decoder: Is returned, if specified.
     :return: A AASFromJsonDecoder (sub)class.
