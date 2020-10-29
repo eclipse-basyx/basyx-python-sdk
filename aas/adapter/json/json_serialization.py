@@ -12,14 +12,14 @@
 Module for serializing Asset Administration Shell objects to the official JSON format
 
 The module provides an custom JSONEncoder class `AASToJsonEncoder` to be used with the Python standard `json` module.
-It contains a custom `default` function which converts PyAAS objects to simple python types for an automatical
+It contains a custom `default` function which converts PyI40AAS objects to simple python types for an automatical
 JSON serialization. Additionally, there's the `write_aas_json_file()` function, that takes a complete ObjectStore and
 writes all contained AAS objects into a JSON file.
 
 This job is performed in an iterative approach: The `default()` function gets called for every object and checks if an
-object is an PyAAS object. In this case, it calls a special function for the respective PyAAS class which converts the
-object (but not the contained objects) into a simple Python dict, which is serializable. Any contained PyAAS objects
-are included into the dict as they are to be converted later on. The special helper function
+object is an PyI40AAS object. In this case, it calls a special function for the respective PyI40AAS class which converts
+the object (but not the contained objects) into a simple Python dict, which is serializable. Any contained
+PyI40AAS objects are included into the dict as they are to be converted later on. The special helper function
 `abstract_classes_to_json()` is called by most of the conversion functions to handle all the attributes of abstract base
 classes.
 """
@@ -597,7 +597,7 @@ class AASToJsonEncoder(json.JSONEncoder):
     Custom JSONDecoder class to use the `json` module for serializing Asset Administration Shell data into the
     official JSON format
 
-    The class overrides the `default()` method to transform PyAAS objects into dicts that may be serialized by the
+    The class overrides the `default()` method to transform PyI40AAS objects into dicts that may be serialized by the
     standard encode method. Typical usage:
 
         json_string = json.dumps(data, cls=AASToJsonEncoder)

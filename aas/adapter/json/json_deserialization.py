@@ -13,7 +13,7 @@ Module for deserializing Asset Administration Shell data from the official JSON 
 
 The module provides custom JSONDecoder classes `AASFromJsonDecoder` and `StrictAASFromJsonDecoder` to be used with
 the Python standard `json` module. They contain a custom `object_hook` function to detect encoded AAS objects within the
-JSON data and convert them to PyAAS objects while parsing. Additionally, there's the `read_json_aas_file()` function,
+JSON data and convert them to PyI40AAS objects while parsing. Additionally, there's the `read_json_aas_file()` function,
 that takes a complete AAS JSON file, reads its contents and returns the contained AAS objects as DictObjectStore.
 
 This job is performed in a bottom-up approach: The `object_hook()` method gets called for every parsed JSON object
@@ -97,20 +97,21 @@ class AASFromJsonDecoder(json.JSONDecoder):
     official JSON format
 
     The class contains a custom `object_hook` function to detect encoded AAS objects within the JSON data and convert
-    them to PyAAS objects while parsing. Typical usage:
+    them to PyI40AAS objects while parsing. Typical usage:
 
         data = json.loads(json_string, cls=AASFromJsonDecoder)
 
     The `object_hook` function uses a set of `_construct_*()` methods, one for each
-    AAS object type to transform the JSON objects in to PyAAS objects. These constructor methods are divided into two
-    parts: "Helper Constructor Methods", that are used to construct PyAAS types without a `modelType` attribute as
-    embedded objects within other PyAAS objects, and "Direct Constructor Methods" for PyAAS types *with* `modelType`
-    attribute. The former are called from other constructor methods or utility methods based on the expected type of an
-    attribute, the latter are called directly from the `object_hook()` function based on the `modelType` attribute.
+    AAS object type to transform the JSON objects in to PyI40AAS objects. These constructor methods are divided into two
+    parts: "Helper Constructor Methods", that are used to construct PyI40AAS types without a `modelType` attribute as
+    embedded objects within other PyI40AAS objects, and "Direct Constructor Methods" for PyI40AAS type
+    *with* `modelType` attribute. The former are called from other constructor methods or utility methods based on
+    the expected type of an attribute, the latter are called directly from the `object_hook()` function based on
+    the `modelType` attribute.
 
     This class may be subclassed to override some of the constructor functions, e.g. to construct objects of specialized
-    subclasses of the PyAAS object classes instead of these normal classes from the `model` package. To simplify this
-    tasks, (nearly) all the constructor methods take a parameter `object_type` defaulting to the normal PyAAS object
+    subclasses of the PyI40AAS object classes instead of these normal classes from the `model` package. To simplify this
+    tasks, (nearly) all the constructor methods take a parameter `object_type` defaulting to the normal PyI40AAS object
     class, that can be overridden in a derived function:
 
         class EnhancedAsset(model.Asset):
@@ -181,7 +182,7 @@ class AASFromJsonDecoder(json.JSONDecoder):
             logger.error("Found JSON object with modelType=\"%s\", which is not a known AAS class", model_type)
             return dct
 
-        # Use constructor function to transform JSON representation into PyAAS model object
+        # Use constructor function to transform JSON representation into PyI40AAS model object
         try:
             return AAS_CLASS_PARSERS[model_type](dct)
         except (KeyError, TypeError) as e:
@@ -670,7 +671,7 @@ class StrictAASFromJsonDecoder(AASFromJsonDecoder):
 
 def read_aas_json_file(file: IO, failsafe: bool = True) -> model.DictObjectStore[model.Identifiable]:
     """
-    Read an Asset Adminstration Shell JSON file according to 'Details of the Asset Administration Shell', chapter 5.5
+    Read an Asset Administration Shell JSON file according to 'Details of the Asset Administration Shell', chapter 5.5
 
     :param file: A file-like object to read the JSON-serialized data from
     :param failsafe: If True, the file is parsed in a failsafe way: Instead of raising an Exception for missing
