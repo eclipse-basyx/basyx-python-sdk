@@ -11,9 +11,7 @@
 
 import io
 import json
-import os
 import unittest
-from os.path import dirname
 
 from aas import model
 from aas.adapter.json import AASToJsonEncoder, write_aas_json_file, read_aas_json_file
