@@ -32,11 +32,13 @@ from ... import model
 from .. import _generic
 
 
-def abstract_classes_to_json(obj: object) -> Dict[str, object]:
+def abstract_classes_to_json(obj: object, stripped: bool = False) -> Dict[str, object]:
     """
     transformation function to serialize abstract classes from model.base which are inherited by many classes
 
     :param obj: object which must be serialized
+    :param stripped: whether to add the qualifiers attributes to qualifiable objects or not.
+                     see https://git.rwth-aachen.de/acplt/pyi40aas/-/issues/91
     :return: dict with the serialized attributes of the abstract classes this object inherits from
     """
     data = {}
@@ -62,7 +64,7 @@ def abstract_classes_to_json(obj: object) -> Dict[str, object]:
     if isinstance(obj, model.HasKind):
         if obj.kind is model.ModelingKind.TEMPLATE:
             data['kind'] = _generic.MODELING_KIND[obj.kind]
-    if isinstance(obj, model.Qualifiable):
+    if isinstance(obj, model.Qualifiable) and not stripped:
         if obj.qualifier:
             data['qualifiers'] = list(obj.qualifier)
     return data
@@ -324,21 +326,23 @@ def concept_dictionary_to_json(obj: model.ConceptDictionary) -> Dict[str, object
     return data
 
 
-def asset_administration_shell_to_json(obj: model.AssetAdministrationShell) -> Dict[str, object]:
+def asset_administration_shell_to_json(obj: model.AssetAdministrationShell, stripped: bool) -> Dict[str, object]:
     """
     serialization of an object from class AssetAdministrationShell to json
 
     :param obj: object of class AssetAdministrationShell
+    :param stripped: whether to serialize the views and submodels attributes or not.
+                     see https://git.rwth-aachen.de/acplt/pyi40aas/-/issues/91
     :return: dict with the serialized attributes of this object
     """
-    data = abstract_classes_to_json(obj)
+    data = abstract_classes_to_json(obj, stripped=stripped)
     data.update(namespace_to_json(obj))
     if obj.derived_from:
         data["derivedFrom"] = obj.derived_from
     data["asset"] = obj.asset
-    if obj.submodel:
+    if not stripped and obj.submodel:
         data["submodels"] = list(obj.submodel)
-    if obj.view:
+    if not stripped and obj.view:
         data["views"] = list(obj.view)
     if obj.concept_dictionary:
         data["conceptDictionaries"] = list(obj.concept_dictionary)
@@ -367,15 +371,17 @@ def security_to_json(obj: model.Security) -> Dict[str, object]:  # has no attrib
 # transformation functions to serialize classes from model.submodel
 # #################################################################
 
-def submodel_to_json(obj: model.Submodel) -> Dict[str, object]:  # TODO make kind optional
+def submodel_to_json(obj: model.Submodel, stripped: bool) -> Dict[str, object]:  # TODO make kind optional
     """
     serialization of an object from class Submodel to json
 
     :param obj: object of class Submodel
+    :param stripped: whether to serialize submodel elements and qualifiers or not.
+                     see https://git.rwth-aachen.de/acplt/pyi40aas/-/issues/91
     :return: dict with the serialized attributes of this object
     """
-    data = abstract_classes_to_json(obj)
-    if obj.submodel_element != set():
+    data = abstract_classes_to_json(obj, stripped=stripped)
+    if not stripped and obj.submodel_element != set():
         data['submodelElements'] = list(obj.submodel_element)
     return data
 
@@ -390,14 +396,16 @@ def data_element_to_json(obj: model.DataElement) -> Dict[str, object]:  # no att
     return {}
 
 
-def property_to_json(obj: model.Property) -> Dict[str, object]:
+def property_to_json(obj: model.Property, stripped: bool) -> Dict[str, object]:
     """
     serialization of an object from class Property to json
 
     :param obj: object of class Property
+    :param stripped: whether to serialize qualifiers or not
+                     see https://git.rwth-aachen.de/acplt/pyi40aas/-/issues/91
     :return: dict with the serialized attributes of this object
     """
-    data = abstract_classes_to_json(obj)
+    data = abstract_classes_to_json(obj, stripped=stripped)
     data['value'] = model.datatypes.xsd_repr(obj.value) if obj.value is not None else None
     if obj.value_id:
         data['valueId'] = obj.value_id
@@ -405,14 +413,16 @@ def property_to_json(obj: model.Property) -> Dict[str, object]:
     return data
 
 
-def multi_language_property_to_json(obj: model.MultiLanguageProperty) -> Dict[str, object]:
+def multi_language_property_to_json(obj: model.MultiLanguageProperty, stripped: bool) -> Dict[str, object]:
     """
     serialization of an object from class MultiLanguageProperty to json
 
     :param obj: object of class MultiLanguageProperty
+    :param stripped: whether to serialize qualifiers or not
+                     see https://git.rwth-aachen.de/acplt/pyi40aas/-/issues/91
     :return: dict with the serialized attributes of this object
     """
-    data = abstract_classes_to_json(obj)
+    data = abstract_classes_to_json(obj, stripped=stripped)
     if obj.value:
         data['value'] = lang_string_set_to_json(obj.value)
     if obj.value_id:
@@ -420,96 +430,111 @@ def multi_language_property_to_json(obj: model.MultiLanguageProperty) -> Dict[st
     return data
 
 
-def range_to_json(obj: model.Range) -> Dict[str, object]:
+def range_to_json(obj: model.Range, stripped: bool) -> Dict[str, object]:
     """
     serialization of an object from class Range to json
 
     :param obj: object of class Range
+    :param stripped: whether to serialize qualifiers or not
+                     see https://git.rwth-aachen.de/acplt/pyi40aas/-/issues/91
     :return: dict with the serialized attributes of this object
     """
-    data = abstract_classes_to_json(obj)
+    data = abstract_classes_to_json(obj, stripped=stripped)
     data.update({'valueType': model.datatypes.XSD_TYPE_NAMES[obj.value_type],
                  'min': model.datatypes.xsd_repr(obj.min) if obj.min is not None else None,
                  'max': model.datatypes.xsd_repr(obj.max) if obj.max is not None else None})
     return data
 
 
-def blob_to_json(obj: model.Blob) -> Dict[str, object]:
+def blob_to_json(obj: model.Blob, stripped: bool) -> Dict[str, object]:
     """
     serialization of an object from class Blob to json
 
     :param obj: object of class Blob
+    :param stripped: whether to serialize qualifiers or not
+                     see https://git.rwth-aachen.de/acplt/pyi40aas/-/issues/91
     :return: dict with the serialized attributes of this object
     """
-    data = abstract_classes_to_json(obj)
+    data = abstract_classes_to_json(obj, stripped=stripped)
     data['mimeType'] = obj.mime_type
     if obj.value is not None:
         data['value'] = base64.b64encode(obj.value).decode()
     return data
 
 
-def file_to_json(obj: model.File) -> Dict[str, object]:
+def file_to_json(obj: model.File, stripped: bool) -> Dict[str, object]:
     """
     serialization of an object from class File to json
 
     :param obj: object of class File
+    :param stripped: whether to serialize qualifiers or not
+                     see https://git.rwth-aachen.de/acplt/pyi40aas/-/issues/91
     :return: dict with the serialized attributes of this object
     """
-    data = abstract_classes_to_json(obj)
+    data = abstract_classes_to_json(obj, stripped=stripped)
     data.update({'value': obj.value, 'mimeType': obj.mime_type})
     return data
 
 
-def reference_element_to_json(obj: model.ReferenceElement) -> Dict[str, object]:
+def reference_element_to_json(obj: model.ReferenceElement, stripped: bool) -> Dict[str, object]:
     """
     serialization of an object from class Reference to json
 
     :param obj: object of class Reference
+    :param stripped: whether to serialize qualifiers or not
+                     see https://git.rwth-aachen.de/acplt/pyi40aas/-/issues/91
     :return: dict with the serialized attributes of this object
     """
-    data = abstract_classes_to_json(obj)
+    data = abstract_classes_to_json(obj, stripped=stripped)
     if obj.value:
         data['value'] = obj.value
     return data
 
 
-def submodel_element_collection_to_json(obj: model.SubmodelElementCollection) -> Dict[str, object]:
+def submodel_element_collection_to_json(obj: model.SubmodelElementCollection, stripped: bool) -> Dict[str, object]:
     """
     serialization of an object from class SubmodelElementCollectionOrdered and SubmodelElementCollectionUnordered to
     json
 
     :param obj: object of class SubmodelElementCollectionOrdered and SubmodelElementCollectionUnordered
+    :param stripped: whether to serialize the value and qualifiers attributes or not.
+                     see https://git.rwth-aachen.de/acplt/pyi40aas/-/issues/91
     :return: dict with the serialized attributes of this object
     """
-    data = abstract_classes_to_json(obj)
-    if obj.value:
+    data = abstract_classes_to_json(obj, stripped=stripped)
+    if not stripped and obj.value:
         data['value'] = list(obj.value)
     data['ordered'] = obj.ordered
     return data
 
 
-def relationship_element_to_json(obj: model.RelationshipElement) -> Dict[str, object]:
+def relationship_element_to_json(obj: model.RelationshipElement, stripped: bool) -> Dict[str, object]:
     """
     serialization of an object from class RelationshipElement to json
 
     :param obj: object of class RelationshipElement
+    :param stripped: whether to serialize qualifiers or not
+                     see https://git.rwth-aachen.de/acplt/pyi40aas/-/issues/91
     :return: dict with the serialized attributes of this object
     """
-    data = abstract_classes_to_json(obj)
+    data = abstract_classes_to_json(obj, stripped=stripped)
     data.update({'first': obj.first, 'second': obj.second})
     return data
 
 
-def annotated_relationship_element_to_json(obj: model.AnnotatedRelationshipElement) -> Dict[str, object]:
+def annotated_relationship_element_to_json(obj: model.AnnotatedRelationshipElement, stripped: bool) \
+        -> Dict[str, object]:
     """
     serialization of an object from class AnnotatedRelationshipElement to json
 
     :param obj: object of class AnnotatedRelationshipElement
+    :param stripped: whether to serialize the annotation and qualifiers attributes or not.
+                     see https://git.rwth-aachen.de/acplt/pyi40aas/-/issues/91
     :return: dict with the serialized attributes of this object
     """
-    data = abstract_classes_to_json(obj)
+    data = abstract_classes_to_json(obj, stripped=stripped)
     data.update({'first': obj.first, 'second': obj.second})
-    if obj.annotation:
+    if not stripped and obj.annotation:
         data['annotation'] = list(obj.annotation)
     return data
 
@@ -526,14 +551,16 @@ def operation_variable_to_json(obj: model.OperationVariable) -> Dict[str, object
     return data
 
 
-def operation_to_json(obj: model.Operation) -> Dict[str, object]:
+def operation_to_json(obj: model.Operation, stripped: bool) -> Dict[str, object]:
     """
     serialization of an object from class Operation to json
 
     :param obj: object of class Operation
+    :param stripped: whether to serialize qualifiers or not
+                     see https://git.rwth-aachen.de/acplt/pyi40aas/-/issues/91
     :return: dict with the serialized attributes of this object
     """
-    data = abstract_classes_to_json(obj)
+    data = abstract_classes_to_json(obj, stripped=stripped)
     if obj.input_variable:
         data['inputVariable'] = list(obj.input_variable)
     if obj.output_variable:
@@ -543,26 +570,31 @@ def operation_to_json(obj: model.Operation) -> Dict[str, object]:
     return data
 
 
-def capability_to_json(obj: model.Capability) -> Dict[str, object]:  # no attributes in specification yet
+def capability_to_json(obj: model.Capability, stripped: bool) -> Dict[str, object]:
     """
     serialization of an object from class Capability to json
 
     :param obj: object of class Capability
+    :param stripped: whether to serialize qualifiers or not
+                     see https://git.rwth-aachen.de/acplt/pyi40aas/-/issues/91
     :return: dict with the serialized attributes of this object
     """
-    data = abstract_classes_to_json(obj)
+    data = abstract_classes_to_json(obj, stripped=stripped)
+    # no attributes in specification yet
     return data
 
 
-def entity_to_json(obj: model.Entity) -> Dict[str, object]:
+def entity_to_json(obj: model.Entity, stripped: bool) -> Dict[str, object]:
     """
     serialization of an object from class Entity to json
 
     :param obj: object of class Entity
+    :param stripped: whether to serialize the statements and qualifiers attributes or not.
+                     see https://git.rwth-aachen.de/acplt/pyi40aas/-/issues/91
     :return: dict with the serialized attributes of this object
     """
-    data = abstract_classes_to_json(obj)
-    if obj.statement:
+    data = abstract_classes_to_json(obj, stripped=stripped)
+    if not stripped and obj.statement:
         data['statements'] = list(obj.statement)
     data['entityType'] = _generic.ENTITY_TYPES[obj.entity_type]
     if obj.asset:
@@ -580,14 +612,16 @@ def event_to_json(obj: model.Event) -> Dict[str, object]:  # no attributes in sp
     return {}
 
 
-def basic_event_to_json(obj: model.BasicEvent) -> Dict[str, object]:
+def basic_event_to_json(obj: model.BasicEvent, stripped: bool) -> Dict[str, object]:
     """
     serialization of an object from class BasicEvent to json
 
     :param obj: object of class BasicEvent
+    :param stripped: whether to serialize qualifiers or not
+                     see https://git.rwth-aachen.de/acplt/pyi40aas/-/issues/91
     :return: dict with the serialized attributes of this object
     """
-    data = abstract_classes_to_json(obj)
+    data = abstract_classes_to_json(obj, stripped=stripped)
     data['observed'] = obj.observed
     return data
 
@@ -602,10 +636,11 @@ class AASToJsonEncoder(json.JSONEncoder):
 
         json_string = json.dumps(data, cls=AASToJsonEncoder)
     """
+    stripped = False
 
     def default(self, obj: object) -> object:
         if isinstance(obj, model.AssetAdministrationShell):
-            return asset_administration_shell_to_json(obj)
+            return asset_administration_shell_to_json(obj, self.stripped)
         if isinstance(obj, model.Identifier):
             return identifier_to_json(obj)
         if isinstance(obj, model.AdministrativeInformation):
@@ -619,17 +654,17 @@ class AASToJsonEncoder(json.JSONEncoder):
         if isinstance(obj, model.Asset):
             return asset_to_json(obj)
         if isinstance(obj, model.Submodel):
-            return submodel_to_json(obj)
+            return submodel_to_json(obj, self.stripped)
         if isinstance(obj, model.Operation):
-            return operation_to_json(obj)
+            return operation_to_json(obj, self.stripped)
         if isinstance(obj, model.OperationVariable):
             return operation_variable_to_json(obj)
         if isinstance(obj, model.Capability):
-            return capability_to_json(obj)
+            return capability_to_json(obj, self.stripped)
         if isinstance(obj, model.BasicEvent):
-            return basic_event_to_json(obj)
+            return basic_event_to_json(obj, self.stripped)
         if isinstance(obj, model.Entity):
-            return entity_to_json(obj)
+            return entity_to_json(obj, self.stripped)
         if isinstance(obj, model.View):
             return view_to_json(obj)
         if isinstance(obj, model.ConceptDictionary):
@@ -637,28 +672,36 @@ class AASToJsonEncoder(json.JSONEncoder):
         if isinstance(obj, model.ConceptDescription):
             return concept_description_to_json(obj)
         if isinstance(obj, model.Property):
-            return property_to_json(obj)
+            return property_to_json(obj, self.stripped)
         if isinstance(obj, model.Range):
-            return range_to_json(obj)
+            return range_to_json(obj, self.stripped)
         if isinstance(obj, model.MultiLanguageProperty):
-            return multi_language_property_to_json(obj)
+            return multi_language_property_to_json(obj, self.stripped)
         if isinstance(obj, model.File):
-            return file_to_json(obj)
+            return file_to_json(obj, self.stripped)
         if isinstance(obj, model.Blob):
-            return blob_to_json(obj)
+            return blob_to_json(obj, self.stripped)
         if isinstance(obj, model.ReferenceElement):
-            return reference_element_to_json(obj)
+            return reference_element_to_json(obj, self.stripped)
         if isinstance(obj, model.SubmodelElementCollection):
-            return submodel_element_collection_to_json(obj)
+            return submodel_element_collection_to_json(obj, self.stripped)
         if isinstance(obj, model.AnnotatedRelationshipElement):
-            return annotated_relationship_element_to_json(obj)
+            return annotated_relationship_element_to_json(obj, self.stripped)
         if isinstance(obj, model.RelationshipElement):
-            return relationship_element_to_json(obj)
+            return relationship_element_to_json(obj, self.stripped)
         if isinstance(obj, model.Qualifier):
             return qualifier_to_json(obj)
         if isinstance(obj, model.Formula):
             return formula_to_json(obj)
         return super().default(obj)
+
+
+class StrippedAASToJsonEncoder(AASToJsonEncoder):
+    """
+    AASToJsonEncoder for stripped objects. Used in the HTTP API.
+    See https://git.rwth-aachen.de/acplt/pyi40aas/-/issues/91
+    """
+    stripped = True
 
 
 def _create_dict(data: model.AbstractObjectStore) -> dict:
