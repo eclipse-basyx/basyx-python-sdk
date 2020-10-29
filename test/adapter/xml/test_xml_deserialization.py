@@ -14,7 +14,8 @@ import logging
 import unittest
 
 from aas import model
-from aas.adapter.xml import XMLConstructables, read_aas_xml_file, read_aas_xml_file_into, read_aas_xml_element
+from aas.adapter.xml import StrictAASFromXmlDecoder, XMLConstructables, read_aas_xml_file, read_aas_xml_file_into, \
+    read_aas_xml_element
 from lxml import etree  # type: ignore
 from typing import Iterable, Type, Union
 
@@ -36,7 +37,7 @@ def _root_cause(exception: BaseException) -> BaseException:
     return exception
 
 
-class XMLDeserializationTest(unittest.TestCase):
+class XmlDeserializationTest(unittest.TestCase):
     def _assertInExceptionAndLog(self, xml: str, strings: Union[Iterable[str], str], error_type: Type[BaseException],
                                  log_level: int) -> None:
         """
@@ -353,6 +354,8 @@ class XMLDeserializationTest(unittest.TestCase):
         submodel = read_aas_xml_element(bytes_io, XMLConstructables.SUBMODEL)
         self.assertIsInstance(submodel, model.Submodel)
 
+
+class XmlDeserializationStrippedObjectsTest(unittest.TestCase):
     def test_stripped_qualifiable(self) -> None:
         xml = """
         <aas:submodel xmlns:aas="http://www.admin-shell.io/aas/2/0">
@@ -385,12 +388,15 @@ class XMLDeserializationTest(unittest.TestCase):
         self.assertIsInstance(submodel, model.Submodel)
         assert isinstance(submodel, model.Submodel)
         self.assertEqual(len(submodel.qualifier), 1)
+        operation = submodel.submodel_element.pop()
+        self.assertEqual(len(operation.qualifier), 1)
 
         # check if constraints are ignored in stripped mode
         submodel = read_aas_xml_element(bytes_io, XMLConstructables.SUBMODEL, failsafe=False, stripped=True)
         self.assertIsInstance(submodel, model.Submodel)
         assert isinstance(submodel, model.Submodel)
         self.assertEqual(len(submodel.qualifier), 0)
+        self.assertEqual(len(submodel.submodel_element), 0)
 
     def test_stripped_annotated_relationship_element(self) -> None:
         xml = """
@@ -442,7 +448,7 @@ class XMLDeserializationTest(unittest.TestCase):
         """
         bytes_io = io.BytesIO(xml.encode("utf-8"))
 
-        # XML schema requires statements to be present, so parsing should fail
+        # XML schema requires value to be present, so parsing should fail
         with self.assertRaises(KeyError):
             read_aas_xml_element(bytes_io, XMLConstructables.SUBMODEL_ELEMENT_COLLECTION, failsafe=False)
 
@@ -474,17 +480,44 @@ class XMLDeserializationTest(unittest.TestCase):
         """
         bytes_io = io.BytesIO(xml.encode("utf-8"))
 
-        # check if XML with constraints can be parsed successfully
+        # check if XML with submodelRef and views can be parsed successfully
         aas = read_aas_xml_element(bytes_io, XMLConstructables.ASSET_ADMINISTRATION_SHELL, failsafe=False)
         self.assertIsInstance(aas, model.AssetAdministrationShell)
         assert isinstance(aas, model.AssetAdministrationShell)
         self.assertEqual(len(aas.submodel), 1)
         self.assertEqual(len(aas.view), 1)
 
-        # check if constraints are ignored in stripped mode
+        # check if submodelRef and views are ignored in stripped mode
         aas = read_aas_xml_element(bytes_io, XMLConstructables.ASSET_ADMINISTRATION_SHELL, failsafe=False,
                                    stripped=True)
         self.assertIsInstance(aas, model.AssetAdministrationShell)
         assert isinstance(aas, model.AssetAdministrationShell)
         self.assertEqual(len(aas.submodel), 0)
         self.assertEqual(len(aas.view), 0)
+
+
+class XmlDeserializationDerivingTest(unittest.TestCase):
+    def test_submodel_constructor_overriding(self) -> None:
+        class EnhancedSubmodel(model.Submodel):
+            def __init__(self, *args, **kwargs):
+                super().__init__(*args, **kwargs)
+                self.enhanced_attribute = "fancy!"
+
+        class EnhancedAASDecoder(StrictAASFromXmlDecoder):
+            @classmethod
+            def construct_submodel(cls, element: etree.Element, object_class=model.Submodel, **kwargs) \
+                    -> model.Submodel:
+                return super().construct_submodel(element, object_class=EnhancedSubmodel, **kwargs)
+
+        xml = """
+        <aas:submodel xmlns:aas="http://www.admin-shell.io/aas/2/0">
+            <aas:identification idType="IRI">http://acplt.org/test_stripped_submodel</aas:identification>
+            <aas:submodelElements/>
+        </aas:submodel>
+        """
+        bytes_io = io.BytesIO(xml.encode("utf-8"))
+
+        submodel = read_aas_xml_element(bytes_io, XMLConstructables.SUBMODEL, decoder=EnhancedAASDecoder)
+        self.assertIsInstance(submodel, EnhancedSubmodel)
+        assert isinstance(submodel, EnhancedSubmodel)
+        self.assertEqual(submodel.enhanced_attribute, "fancy!")
