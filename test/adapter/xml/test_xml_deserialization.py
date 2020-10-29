@@ -505,9 +505,9 @@ class XmlDeserializationDerivingTest(unittest.TestCase):
 
         class EnhancedAASDecoder(StrictAASFromXmlDecoder):
             @classmethod
-            def construct_submodel(cls, element: etree.Element, object_class=model.Submodel, **kwargs) \
+            def construct_submodel(cls, element: etree.Element, object_class=EnhancedSubmodel, **kwargs) \
                     -> model.Submodel:
-                return super().construct_submodel(element, object_class=EnhancedSubmodel, **kwargs)
+                return super().construct_submodel(element, object_class=object_class, **kwargs)
 
         xml = """
         <aas:submodel xmlns:aas="http://www.admin-shell.io/aas/2/0">
