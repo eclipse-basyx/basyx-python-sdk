@@ -26,7 +26,7 @@ import base64
 import json
 import logging
 import pprint
-from typing import Dict, Callable, TypeVar, Type, List, IO, Optional
+from typing import Dict, Callable, TypeVar, Type, List, IO, Optional, Set
 
 from ... import model
 from .._generic import MODELING_KIND_INVERSE, ASSET_KIND_INVERSE, KEY_ELEMENTS_INVERSE, KEY_TYPES_INVERSE,\
@@ -125,8 +125,12 @@ class AASFromJsonDecoder(json.JSONDecoder):
     :cvar failsafe: If True (the default), don't raise Exceptions for missing attributes and wrong types, but instead
                     skip defective objects and use logger to output warnings. Use StrictAASFromJsonDecoder for a
                     non-failsafe version.
+    :cvar stripped: If True, the JSON objects will be parsed in a stripped manner, excluding some attributes.
+                    Defaults to False.
+                    See https://git.rwth-aachen.de/acplt/pyi40aas/-/issues/91
     """
     failsafe = True
+    stripped = False
 
     def __init__(self, *args, **kwargs):
         json.JSONDecoder.__init__(self, object_hook=self.object_hook, *args, **kwargs)
@@ -225,7 +229,7 @@ class AASFromJsonDecoder(json.JSONDecoder):
                 obj.semantic_id = cls._construct_reference(_get_ts(dct, 'semanticId', dict))
         # `HasKind` provides only mandatory, immutable attributes; so we cannot do anything here, after object creation.
         # However, the `cls._get_kind()` function may assist by retreiving them from the JSON object
-        if isinstance(obj, model.Qualifiable):
+        if isinstance(obj, model.Qualifiable) and not cls.stripped:
             if 'qualifiers' in dct:
                 for constraint in _get_ts(dct, 'qualifiers', list):
                     if _expect_type(constraint, model.Constraint, str(obj), cls.failsafe):
@@ -362,10 +366,10 @@ class AASFromJsonDecoder(json.JSONDecoder):
             asset=cls._construct_aas_reference(_get_ts(dct, 'asset', dict), model.Asset),
             identification=cls._construct_identifier(_get_ts(dct, 'identification', dict)))
         cls._amend_abstract_attributes(ret, dct)
-        if 'submodels' in dct:
+        if not cls.stripped and 'submodels' in dct:
             for sm_data in _get_ts(dct, 'submodels', list):
                 ret.submodel.add(cls._construct_aas_reference(sm_data, model.Submodel))
-        if 'views' in dct:
+        if not cls.stripped and 'views' in dct:
             for view in _get_ts(dct, 'views', list):
                 if _expect_type(view, model.View, str(ret), cls.failsafe):
                     ret.view.add(view)
@@ -461,7 +465,7 @@ class AASFromJsonDecoder(json.JSONDecoder):
                                   if 'asset' in dct else None),
                            kind=cls._get_kind(dct))
         cls._amend_abstract_attributes(ret, dct)
-        if 'statements' in dct:
+        if not cls.stripped and 'statements' in dct:
             for element in _get_ts(dct, "statements", list):
                 if _expect_type(element, model.SubmodelElement, str(ret), cls.failsafe):
                     ret.statement.add(element)
@@ -501,7 +505,7 @@ class AASFromJsonDecoder(json.JSONDecoder):
         ret = object_class(identification=cls._construct_identifier(_get_ts(dct, 'identification', dict)),
                            kind=cls._get_kind(dct))
         cls._amend_abstract_attributes(ret, dct)
-        if 'submodelElements' in dct:
+        if not cls.stripped and 'submodelElements' in dct:
             for element in _get_ts(dct, "submodelElements", list):
                 if _expect_type(element, model.SubmodelElement, str(ret), cls.failsafe):
                     ret.submodel_element.add(element)
@@ -563,7 +567,7 @@ class AASFromJsonDecoder(json.JSONDecoder):
             second=cls._construct_aas_reference(_get_ts(dct, 'second', dict), model.Referable),
             kind=cls._get_kind(dct))
         cls._amend_abstract_attributes(ret, dct)
-        if 'annotation' in dct:
+        if not cls.stripped and 'annotation' in dct:
             for element in _get_ts(dct, "annotation", list):
                 if _expect_type(element, model.DataElement, str(ret), cls.failsafe):
                     ret.annotation.add(element)
@@ -584,7 +588,7 @@ class AASFromJsonDecoder(json.JSONDecoder):
             ret = object_class_unordered(
                 id_short=_get_ts(dct, "idShort", str), kind=cls._get_kind(dct))
         cls._amend_abstract_attributes(ret, dct)
-        if 'value' in dct:
+        if not cls.stripped and 'value' in dct:
             for element in _get_ts(dct, "value", list):
                 if _expect_type(element, model.SubmodelElement, str(ret), cls.failsafe):
                     ret.value.add(element)
@@ -669,20 +673,71 @@ class StrictAASFromJsonDecoder(AASFromJsonDecoder):
     failsafe = False
 
 
-def read_aas_json_file(file: IO, failsafe: bool = True) -> model.DictObjectStore[model.Identifiable]:
+class StrippedAASFromJsonDecoder(AASFromJsonDecoder):
+    """
+    Decoder for stripped JSON objects. Used in the HTTP adapter.
+    """
+    stripped = True
+
+
+class StrictStrippedAASFromJsonDecoder(StrictAASFromJsonDecoder, StrippedAASFromJsonDecoder):
+    """
+    Non-failsafe decoder for stripped JSON objects.
+    """
+    pass
+
+
+def _select_decoder(failsafe: bool, stripped: bool, decoder: Optional[Type[AASFromJsonDecoder]]) \
+        -> Type[AASFromJsonDecoder]:
+    """
+    Returns the correct decoder based on the parameters failsafe and stripped. If a decoder class is given, failsafe
+    and stripped are ignored.
+
+    :param failsafe: If true, a failsafe decoder is selected. Ignored if a decoder class is specified.
+    :param stripped: If true, a deocder for parsing stripped JSON objects is selected. Ignored if a decoder class is
+                     specified.
+    :param decoder: Is returned, if specified.
+    :return: A AASFromJsonDecoder (sub)class.
+    """
+    if decoder is not None:
+        return decoder
+    if failsafe:
+        if stripped:
+            return StrippedAASFromJsonDecoder
+        return AASFromJsonDecoder
+    else:
+        if stripped:
+            return StrictStrippedAASFromJsonDecoder
+        return StrictAASFromJsonDecoder
+
+
+def read_aas_json_file_into(object_store: model.AbstractObjectStore, file: IO, replace_existing: bool = False,
+                            ignore_existing: bool = False, failsafe: bool = True, stripped: bool = False,
+                            decoder: Optional[Type[AASFromJsonDecoder]] = None) -> Set[model.Identifier]:
     """
     Read an Asset Administration Shell JSON file according to 'Details of the Asset Administration Shell', chapter 5.5
+    into a given object store.
 
+    :param object_store: The object store in which the identifiable objects should be stored
     :param file: A file-like object to read the JSON-serialized data from
-    :param failsafe: If True, the file is parsed in a failsafe way: Instead of raising an Exception for missing
-                     attributes and wrong types, errors are logged and defective objects are skipped
-    :return: A DictObjectStore containing all AAS objects from the JSON file
+    :param replace_existing: Whether to replace existing objects with the same identifier in the object store or not
+    :param ignore_existing: Whether to ignore existing objects (e.g. log a message) or raise an error.
+                            This parameter is ignored if replace_existing is True.
+    :param failsafe: If true, the document is parsed in a failsafe way: missing attributes and elements are logged
+                     instead of causing exceptions. Defect objects are skipped.
+                     This parameter is ignored if a decoder class is specified.
+    :param stripped: If true, stripped JSON objects are parsed.
+                     See https://git.rwth-aachen.de/acplt/pyi40aas/-/issues/91
+                     This parameter is ignored if a decoder class is specified.
+    :param decoder: The decoder class used to decode the JSON objects
+    :return: A set of identifiers that were added to object_store
     """
-    # read, parse and convert JSON file
-    data = json.load(file, cls=AASFromJsonDecoder if failsafe else StrictAASFromJsonDecoder)
+    ret: Set[model.Identifier] = set()
+    decoder_ = _select_decoder(failsafe, stripped, decoder)
 
-    # Add AAS objects to ObjectStore
-    ret: model.DictObjectStore[model.Identifiable] = model.DictObjectStore()
+    # read, parse and convert JSON file
+    data = json.load(file, cls=decoder_)
+
     for name, expected_type in (('assetAdministrationShells', model.AssetAdministrationShell),
                                 ('assets', model.Asset),
                                 ('submodels', model.Submodel),
@@ -691,7 +746,7 @@ def read_aas_json_file(file: IO, failsafe: bool = True) -> model.DictObjectStore
             lst = _get_ts(data, name, list)
         except (KeyError, TypeError) as e:
             error_message = "Could not find list '{}' in AAS JSON file".format(name)
-            if failsafe:
+            if decoder_.failsafe:
                 logger.warning(error_message)
                 continue
             else:
@@ -702,14 +757,44 @@ def read_aas_json_file(file: IO, failsafe: bool = True) -> model.DictObjectStore
                 expected_type.__name__, name, repr(item))
             if isinstance(item, model.Identifiable):
                 if not isinstance(item, expected_type):
-                    if failsafe:
+                    if decoder_.failsafe:
                         logger.warning("{} was in wrong list '{}'; nevertheless, we'll use it".format(item, name))
                     else:
                         raise TypeError(error_message)
-                ret.add(item)
-            elif failsafe:
+                if item.identification in ret:
+                    error_message = f"{item} has a duplicate identifier already parsed in the document!"
+                    if not decoder_.failsafe:
+                        raise KeyError(error_message)
+                    logger.error(error_message + " skipping it...")
+                    continue
+                existing_element = object_store.get(item.identification)
+                if existing_element is not None:
+                    if not replace_existing:
+                        error_message = f"object with identifier {item.identification} already exists " \
+                                        f"in the object store: {existing_element}!"
+                        if not ignore_existing:
+                            raise KeyError(error_message + f" failed to insert {item}!")
+                        logger.info(error_message + f" skipping insertion of {item}...")
+                        continue
+                    object_store.discard(existing_element)
+                object_store.add(item)
+                ret.add(item.identification)
+            elif decoder_.failsafe:
                 logger.error(error_message)
             else:
                 raise TypeError(error_message)
-
     return ret
+
+
+def read_aas_json_file(file: IO, **kwargs) -> model.DictObjectStore[model.Identifiable]:
+    """
+    A wrapper of read_aas_json_file_into(), that reads all objects in an empty DictObjectStore. This function supports
+    the same keyword arguments as read_aas_json_file_into().
+
+    :param file: A filename or file-like object to read the JSON-serialized data from
+    :param kwargs: Keyword arguments passed to read_aas_json_file_into()
+    :return: A DictObjectStore containing all AAS objects from the JSON file
+    """
+    object_store: model.DictObjectStore[model.Identifiable] = model.DictObjectStore()
+    read_aas_json_file_into(object_store, file, **kwargs)
+    return object_store
