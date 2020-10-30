@@ -306,18 +306,19 @@ class ComplianceToolTest(unittest.TestCase):
         checker = AASDataChecker(raise_immediately=True)
         checker.check_object_store(new_data, data)
 
-        # Create OPC/AASX core properties
-        cp = pyecma376_2.OPCCoreProperties()
-        cp.created = datetime.datetime.fromtimestamp(1577829600)
-        cp.creator = "PyI40AAS Testing Framework"
-
-        # Check core properties
-        assert (isinstance(cp.created, datetime.datetime))  # to make mypy happy
+        assert (isinstance(new_cp.created, datetime.datetime))
         self.assertIsInstance(new_cp.created, datetime.datetime)
-        assert (isinstance(new_cp.created, datetime.datetime))  # to make mypy happy
-        self.assertAlmostEqual(new_cp.created, cp.created, delta=datetime.timedelta(milliseconds=20))
+        self.assertAlmostEqual(new_cp.created, datetime.datetime(2020, 1, 1, 0, 0, 0),
+                               delta=datetime.timedelta(milliseconds=20))
         self.assertEqual(new_cp.creator, "PyI40AAS Testing Framework")
-        self.assertIsNone(new_cp.lastModifiedBy)
+        self.assertEqual(new_cp.description, "Test_Description")
+        self.assertEqual(new_cp.lastModifiedBy, "PyI40AAS Testing Framework Compliance Tool")
+        assert (isinstance(new_cp.modified, datetime.datetime))
+        self.assertAlmostEqual(new_cp.modified, datetime.datetime(2020, 1, 1, 0, 0, 1),
+                               delta=datetime.timedelta(milliseconds=20))
+        self.assertEqual(new_cp.revision, "1.0")
+        self.assertEqual(new_cp.version, "2.0.1")
+        self.assertEqual(new_cp.title, "Test Title")
 
         # Check files
         self.assertEqual(new_files.get_content_type("/TestFile.pdf"), "application/pdf")
