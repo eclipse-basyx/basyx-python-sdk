@@ -14,6 +14,7 @@ import io
 import os
 import tempfile
 import unittest
+import warnings
 
 import pyecma376_2
 from aas import model
@@ -78,11 +79,21 @@ class AASXWriterTest(unittest.TestCase):
                 with self.subTest(write_json=write_json, submodel_split_parts=submodel_split_parts):
                     fd, filename = tempfile.mkstemp(suffix=".aasx")
                     os.close(fd)
-                    with aasx.AASXWriter(filename) as writer:
-                        writer.write_aas(model.Identifier(id_='https://acplt.org/Test_AssetAdministrationShell',
-                                                          id_type=model.IdentifierType.IRI),
-                                         data, files, write_json=write_json, submodel_split_parts=submodel_split_parts)
-                        writer.write_core_properties(cp)
+
+                    # Write AASX file
+                    # the zipfile library reports errors as UserWarnings via the warnings library. Let's check for
+                    # warnings
+                    with warnings.catch_warnings(record=True) as w:
+                        with aasx.AASXWriter(filename) as writer:
+                            writer.write_aas(model.Identifier(id_='https://acplt.org/Test_AssetAdministrationShell',
+                                                              id_type=model.IdentifierType.IRI),
+                                             data, files, write_json=write_json,
+                                             submodel_split_parts=submodel_split_parts)
+                            writer.write_core_properties(cp)
+
+                    assert isinstance(w, list)  # This should be True due to the record=True parameter
+                    self.assertEqual(0, len(w), f"Warnings were issued while writhing the AASX file: "
+                                                f"{[warning.message for warning in w]}")
 
                     # Read AASX file
                     new_data: model.DictObjectStore[model.Identifiable] = model.DictObjectStore()
