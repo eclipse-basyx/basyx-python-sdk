@@ -137,13 +137,26 @@ def check_aas_example(file_path: str, state_manager: ComplianceToolStateManager)
     cp = pyecma376_2.OPCCoreProperties()
     cp.created = datetime.datetime(2020, 1, 1, 0, 0, 0)
     cp.creator = "PyI40AAS Testing Framework"
+    cp.description = "Test_Description"
+    cp.lastModifiedBy = "PyI40AAS Testing Framework Compliance Tool"
+    cp.modified = datetime.datetime(2020, 1, 1, 0, 0, 1)
+    cp.revision = "1.0"
+    cp.version = "2.0.1"
+    cp.title = "Test Title"
 
     checker2 = DataChecker(raise_immediately=False)
     assert (isinstance(cp_new.created, datetime.datetime))
     duration = cp_new.created - cp.created
     checker2.check(duration.microseconds < 20, "created must be {}".format(cp.created))
-    checker2.check(cp_new.creator == "PyI40AAS Testing Framework", "creator must be 'PyI40AAS Testing Framework'")
-    checker2.check(cp_new.lastModifiedBy is cp.lastModifiedBy, "lastModifiedBy must be {}".format(cp.lastModifiedBy))
+    checker2.check(cp_new.creator == cp.creator, "creator must be {}".format(cp.creator))
+    checker2.check(cp_new.description == cp.description, "description must be {}".format(cp.description))
+    checker2.check(cp_new.lastModifiedBy == cp.lastModifiedBy, "lastModifiedBy must be {}".format(cp.lastModifiedBy))
+    assert (isinstance(cp_new.modified, datetime.datetime))
+    duration = cp_new.modified - cp.modified
+    checker2.check(duration.microseconds < 20, "modified must be {}".format(cp.modified))
+    checker2.check(cp_new.revision == cp.revision, "revision must be {}".format(cp.revision))
+    checker2.check(cp_new.version == cp.version, "version must be {}".format(cp.version))
+    checker2.check(cp_new.title == cp.title, "title must be {}".format(cp.title))
 
     # Check if file in file object is the same
     list_of_id_shorts = ["ExampleSubmodelCollectionUnordered", "ExampleFile"]

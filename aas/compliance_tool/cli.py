@@ -115,8 +115,14 @@ def main():
 
                     # Create OPC/AASX core properties
                     cp = pyecma376_2.OPCCoreProperties()
-                    cp.created = datetime.datetime.fromtimestamp(1577829600)
+                    cp.created = datetime.datetime(2020, 1, 1, 0, 0, 0)
                     cp.creator = "PyI40AAS Testing Framework"
+                    cp.description = "Test_Description"
+                    cp.lastModifiedBy = "PyI40AAS Testing Framework Compliance Tool"
+                    cp.modified = datetime.datetime(2020, 1, 1, 0, 0, 1)
+                    cp.revision = "1.0"
+                    cp.version = "2.0.1"
+                    cp.title = "Test Title"
 
                     for identifiable in data:
                         if isinstance(identifiable, model.AssetAdministrationShell):
