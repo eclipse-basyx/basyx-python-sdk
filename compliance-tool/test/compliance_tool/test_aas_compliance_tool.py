@@ -302,10 +302,6 @@ class ComplianceToolTest(unittest.TestCase):
             new_cp = reader.get_core_properties()
 
         # Check AAS objects
-        data = create_example_aas_binding()
-        checker = AASDataChecker(raise_immediately=True)
-        checker.check_object_store(new_data, data)
-
         assert (isinstance(new_cp.created, datetime.datetime))
         self.assertIsInstance(new_cp.created, datetime.datetime)
         self.assertAlmostEqual(new_cp.created, datetime.datetime(2020, 1, 1, 0, 0, 0),
