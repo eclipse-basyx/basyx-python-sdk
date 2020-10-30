@@ -583,7 +583,7 @@ def submodel_to_xml(obj: model.Submodel,
     if obj.submodel_element:
         for submodel_element in obj.submodel_element:
             # TODO: simplify this should our suggestion regarding the XML schema get accepted
-            # https://git.rwth-aachen.de/acplt/pyaas/-/issues/57
+            # https://git.rwth-aachen.de/acplt/pyi40aas/-/issues/57
             et_submodel_element = _generate_element(NS_AAS+"submodelElement")
             et_submodel_element.append(submodel_element_to_xml(submodel_element))
             et_submodel_elements.append(et_submodel_element)
