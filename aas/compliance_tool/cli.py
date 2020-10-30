@@ -124,9 +124,9 @@ def main():
                     cp.version = "2.0.1"
                     cp.title = "Test Title"
 
-                    for identifiable in data:
-                        if isinstance(identifiable, model.AssetAdministrationShell):
-                            writer.write_aas(identifiable.identification, data, files, write_json=args.json)
+                    writer.write_aas_objects("/aasx/data.json" if args.json else "/aasx/data.xml",
+                                             [obj.identification for obj in data], data, files,
+                                             write_json=args.json)
                     writer.write_core_properties(cp)
                 manager.set_step_status(Status.SUCCESS)
             elif args.json:

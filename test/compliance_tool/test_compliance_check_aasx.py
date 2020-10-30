@@ -49,8 +49,17 @@ class ComplianceToolAASXTest(unittest.TestCase):
         self.assertEqual(Status.SUCCESS, manager.steps[3].status)
 
         manager.steps = []
-        file_path_3 = os.path.join(script_dir, 'files/test_demo_full_example_wrong_attribute.aasx')
+        file_path_3 = os.path.join(script_dir, 'files/test_demo_full_example2.aasx')
         compliance_tool.check_aas_example(file_path_3, manager)
+        self.assertEqual(4, len(manager.steps))
+        self.assertEqual(Status.SUCCESS, manager.steps[0].status)
+        self.assertEqual(Status.SUCCESS, manager.steps[1].status)
+        self.assertEqual(Status.SUCCESS, manager.steps[2].status)
+        self.assertEqual(Status.SUCCESS, manager.steps[3].status)
+
+        manager.steps = []
+        file_path_4 = os.path.join(script_dir, 'files/test_demo_full_example_wrong_attribute.aasx')
+        compliance_tool.check_aas_example(file_path_4, manager)
         self.assertEqual(4, len(manager.steps))
         self.assertEqual(Status.SUCCESS, manager.steps[0].status)
         self.assertEqual(Status.SUCCESS, manager.steps[1].status)
