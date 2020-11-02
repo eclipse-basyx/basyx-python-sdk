@@ -19,7 +19,8 @@ import io
 import json
 import logging
 import unittest
-from aas.adapter.json import AASFromJsonDecoder, StrictAASFromJsonDecoder, read_aas_json_file
+from aas.adapter.json import AASFromJsonDecoder, StrictAASFromJsonDecoder, StrictStrippedAASFromJsonDecoder, \
+    read_aas_json_file, read_aas_json_file_into
 from aas import model
 
 
@@ -32,9 +33,9 @@ class JsonDeserializationTest(unittest.TestCase):
                 "conceptDescriptions": []
             }"""
         with self.assertRaisesRegex(KeyError, r"submodels"):
-            read_aas_json_file(io.StringIO(data), False)
+            read_aas_json_file(io.StringIO(data), failsafe=False)
         with self.assertLogs(logging.getLogger(), level=logging.WARNING) as cm:
-            read_aas_json_file(io.StringIO(data), True)
+            read_aas_json_file(io.StringIO(data), failsafe=True)
         self.assertIn("submodels", cm.output[0])
 
     def test_file_format_wrong_list(self) -> None:
@@ -57,9 +58,9 @@ class JsonDeserializationTest(unittest.TestCase):
                 ]
             }"""
         with self.assertRaisesRegex(TypeError, r"submodels.*Asset"):
-            read_aas_json_file(io.StringIO(data), False)
+            read_aas_json_file(io.StringIO(data), failsafe=False)
         with self.assertLogs(logging.getLogger(), level=logging.WARNING) as cm:
-            read_aas_json_file(io.StringIO(data), True)
+            read_aas_json_file(io.StringIO(data), failsafe=True)
         self.assertIn("submodels", cm.output[0])
         self.assertIn("Asset", cm.output[0])
 
@@ -74,9 +75,9 @@ class JsonDeserializationTest(unittest.TestCase):
                 ]
             }"""
         with self.assertRaisesRegex(TypeError, r"submodels.*'foo'"):
-            read_aas_json_file(io.StringIO(data), False)
+            read_aas_json_file(io.StringIO(data), failsafe=False)
         with self.assertLogs(logging.getLogger(), level=logging.WARNING) as cm:
-            read_aas_json_file(io.StringIO(data), True)
+            read_aas_json_file(io.StringIO(data), failsafe=True)
         self.assertIn("submodels", cm.output[0])
         self.assertIn("'foo'", cm.output[0])
 
@@ -160,6 +161,88 @@ class JsonDeserializationTest(unittest.TestCase):
         self.assertIsInstance(cap, model.Capability)
         self.assertEqual("TestCapability", cap.id_short)
 
+    def test_duplicate_identifier(self) -> None:
+        data = """
+            {
+                "assetAdministrationShells": [{
+                    "modelType": {"name": "AssetAdministrationShell"},
+                    "identification": {"idType": "IRI", "id": "http://acplt.org/test_aas"},
+                    "asset": {
+                        "keys": [{
+                            "idType": "IRI",
+                            "local": false,
+                            "type": "Asset",
+                            "value": "http://acplt.org/test_aas"
+                        }]
+                    }
+                }],
+                "submodels": [{
+                    "modelType": {"name": "Submodel"},
+                    "identification": {"idType": "IRI", "id": "http://acplt.org/test_aas"}
+                }],
+                "assets": [],
+                "conceptDescriptions": []
+            }"""
+        string_io = io.StringIO(data)
+        with self.assertLogs(logging.getLogger(), level=logging.ERROR) as cm:
+            read_aas_json_file(string_io, failsafe=True)
+        self.assertIn("duplicate identifier", cm.output[0])
+        string_io.seek(0)
+        with self.assertRaisesRegex(KeyError, r"duplicate identifier"):
+            read_aas_json_file(string_io, failsafe=False)
+
+    def test_duplicate_identifier_object_store(self) -> None:
+        sm_id = model.Identifier("http://acplt.org/test_submodel", model.IdentifierType.IRI)
+
+        def get_clean_store() -> model.DictObjectStore:
+            store: model.DictObjectStore = model.DictObjectStore()
+            submodel_ = model.Submodel(sm_id, id_short="test123")
+            store.add(submodel_)
+            return store
+
+        data = """
+            {
+                "submodels": [{
+                    "modelType": {"name": "Submodel"},
+                    "identification": {"idType": "IRI", "id": "http://acplt.org/test_submodel"},
+                    "idShort": "test456"
+                }],
+                "assetAdministrationShells": [],
+                "assets": [],
+                "conceptDescriptions": []
+            }"""
+
+        string_io = io.StringIO(data)
+
+        object_store = get_clean_store()
+        identifiers = read_aas_json_file_into(object_store, string_io, replace_existing=True, ignore_existing=False)
+        self.assertEqual(identifiers.pop(), sm_id)
+        submodel = object_store.pop()
+        self.assertIsInstance(submodel, model.Submodel)
+        self.assertEqual(submodel.id_short, "test456")
+
+        string_io.seek(0)
+
+        object_store = get_clean_store()
+        with self.assertLogs(logging.getLogger(), level=logging.INFO) as log_ctx:
+            identifiers = read_aas_json_file_into(object_store, string_io, replace_existing=False, ignore_existing=True)
+        self.assertEqual(len(identifiers), 0)
+        self.assertIn("already exists in the object store", log_ctx.output[0])
+        submodel = object_store.pop()
+        self.assertIsInstance(submodel, model.Submodel)
+        self.assertEqual(submodel.id_short, "test123")
+
+        string_io.seek(0)
+
+        object_store = get_clean_store()
+        with self.assertRaisesRegex(KeyError, r"already exists in the object store"):
+            identifiers = read_aas_json_file_into(object_store, string_io, replace_existing=False,
+                                                  ignore_existing=False)
+        self.assertEqual(len(identifiers), 0)
+        submodel = object_store.pop()
+        self.assertIsInstance(submodel, model.Submodel)
+        self.assertEqual(submodel.id_short, "test123")
+
 
 class JsonDeserializationDerivingTest(unittest.TestCase):
     def test_asset_constructor_overriding(self) -> None:
@@ -185,3 +268,169 @@ class JsonDeserializationDerivingTest(unittest.TestCase):
         self.assertEqual(1, len(parsed_data))
         self.assertIsInstance(parsed_data[0], EnhancedAsset)
         self.assertEqual(parsed_data[0].enhanced_attribute, "fancy!")
+
+
+class JsonDeserializationStrippedObjectsTest(unittest.TestCase):
+    def test_stripped_qualifiable(self) -> None:
+        data = """
+            {
+                "modelType": {"name": "Submodel"},
+                "identification": {"idType": "IRI", "id": "http://acplt.org/test_stripped_submodel"},
+                "submodelElements": [{
+                    "modelType": {"name": "Operation"},
+                    "idShort": "test_operation",
+                    "qualifiers": [{
+                        "modelType": {"name": "Qualifier"},
+                        "type": "test_qualifier",
+                        "valueType": "string"
+                    }]
+                }],
+                "qualifiers": [{
+                    "modelType": {"name": "Qualifier"},
+                    "type": "test_qualifier",
+                    "valueType": "string"
+                }]
+            }"""
+
+        # check if JSON with constraints can be parsed successfully
+        submodel = json.loads(data, cls=StrictAASFromJsonDecoder)
+        self.assertIsInstance(submodel, model.Submodel)
+        assert isinstance(submodel, model.Submodel)
+        self.assertEqual(len(submodel.qualifier), 1)
+        operation = submodel.submodel_element.pop()
+        self.assertEqual(len(operation.qualifier), 1)
+
+        # check if constraints are ignored in stripped mode
+        submodel = json.loads(data, cls=StrictStrippedAASFromJsonDecoder)
+        self.assertIsInstance(submodel, model.Submodel)
+        assert isinstance(submodel, model.Submodel)
+        self.assertEqual(len(submodel.qualifier), 0)
+        self.assertEqual(len(submodel.submodel_element), 0)
+
+    def test_stripped_annotated_relationship_element(self) -> None:
+        data = """
+            {
+                "modelType": {"name": "AnnotatedRelationshipElement"},
+                "idShort": "test_annotated_relationship_element",
+                "first": {
+                    "keys": [{
+                        "idType": "IdShort",
+                        "local": true,
+                        "type": "AnnotatedRelationshipElement",
+                        "value": "test_ref"
+                    }]
+                },
+                "second": {
+                    "keys": [{
+                        "idType": "IdShort",
+                        "local": true,
+                        "type": "AnnotatedRelationshipElement",
+                        "value": "test_ref"
+                    }]
+                },
+                "annotation": [{
+                    "modelType": {"name": "MultiLanguageProperty"},
+                    "idShort": "test_multi_language_property"
+                }]
+            }"""
+
+        # check if JSON with annotation can be parsed successfully
+        are = json.loads(data, cls=StrictAASFromJsonDecoder)
+        self.assertIsInstance(are, model.AnnotatedRelationshipElement)
+        assert isinstance(are, model.AnnotatedRelationshipElement)
+        self.assertEqual(len(are.annotation), 1)
+
+        # check if annotation is ignored in stripped mode
+        are = json.loads(data, cls=StrictStrippedAASFromJsonDecoder)
+        self.assertIsInstance(are, model.AnnotatedRelationshipElement)
+        assert isinstance(are, model.AnnotatedRelationshipElement)
+        self.assertEqual(len(are.annotation), 0)
+
+    def test_stripped_entity(self) -> None:
+        data = """
+            {
+                "modelType": {"name": "Entity"},
+                "idShort": "test_entity",
+                "entityType": "CoManagedEntity",
+                "statements": [{
+                    "modelType": {"name": "MultiLanguageProperty"},
+                    "idShort": "test_multi_language_property"
+                }]
+            }"""
+
+        # check if JSON with statements can be parsed successfully
+        entity = json.loads(data, cls=StrictAASFromJsonDecoder)
+        self.assertIsInstance(entity, model.Entity)
+        assert isinstance(entity, model.Entity)
+        self.assertEqual(len(entity.statement), 1)
+
+        # check if statements is ignored in stripped mode
+        entity = json.loads(data, cls=StrictStrippedAASFromJsonDecoder)
+        self.assertIsInstance(entity, model.Entity)
+        assert isinstance(entity, model.Entity)
+        self.assertEqual(len(entity.statement), 0)
+
+    def test_stripped_submodel_element_collection(self) -> None:
+        data = """
+            {
+                "modelType": {"name": "SubmodelElementCollection"},
+                "idShort": "test_submodel_element_collection",
+                "ordered": false,
+                "value": [{
+                    "modelType": {"name": "MultiLanguageProperty"},
+                    "idShort": "test_multi_language_property"
+                }]
+            }"""
+
+        # check if JSON with value can be parsed successfully
+        sec = json.loads(data, cls=StrictAASFromJsonDecoder)
+        self.assertIsInstance(sec, model.SubmodelElementCollectionUnordered)
+        assert isinstance(sec, model.SubmodelElementCollectionUnordered)
+        self.assertEqual(len(sec.value), 1)
+
+        # check if value is ignored in stripped mode
+        sec = json.loads(data, cls=StrictStrippedAASFromJsonDecoder)
+        self.assertIsInstance(sec, model.SubmodelElementCollectionUnordered)
+        assert isinstance(sec, model.SubmodelElementCollectionUnordered)
+        self.assertEqual(len(sec.value), 0)
+
+    def test_stripped_asset_administration_shell(self) -> None:
+        data = """
+            {
+                "modelType": {"name": "AssetAdministrationShell"},
+                "identification": {"idType": "IRI", "id": "http://acplt.org/test_aas"},
+                "asset": {
+                    "keys": [{
+                        "idType": "IRI",
+                        "local": false,
+                        "type": "Asset",
+                        "value": "http://acplt.org/test_aas"
+                    }]
+                },
+                "submodels": [{
+                    "keys": [{
+                        "idType": "IRI",
+                        "local": false,
+                        "type": "Submodel",
+                        "value": "http://acplt.org/test_submodel"
+                    }]
+                }],
+                "views": [{
+                    "modelType": {"name": "View"},
+                    "idShort": "test_view"
+                }]
+            }"""
+
+        # check if JSON with submodels and views can be parsed successfully
+        aas = json.loads(data, cls=StrictAASFromJsonDecoder)
+        self.assertIsInstance(aas, model.AssetAdministrationShell)
+        assert isinstance(aas, model.AssetAdministrationShell)
+        self.assertEqual(len(aas.submodel), 1)
+        self.assertEqual(len(aas.view), 1)
+
+        # check if submodels and views are ignored in stripped mode
+        aas = json.loads(data, cls=StrictStrippedAASFromJsonDecoder)
+        self.assertIsInstance(aas, model.AssetAdministrationShell)
+        assert isinstance(aas, model.AssetAdministrationShell)
+        self.assertEqual(len(aas.submodel), 0)
+        self.assertEqual(len(aas.view), 0)

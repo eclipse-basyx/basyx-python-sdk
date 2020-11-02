@@ -14,8 +14,9 @@ import unittest
 import json
 
 from aas import model
-from aas.adapter.json import AASToJsonEncoder, write_aas_json_file, JSON_SCHEMA_FILE
+from aas.adapter.json import AASToJsonEncoder, StrippedAASToJsonEncoder, write_aas_json_file, JSON_SCHEMA_FILE
 from jsonschema import validate  # type: ignore
+from typing import Set, Union
 
 from aas.examples.data import example_aas_missing_attributes, example_submodel_template, \
     example_aas_mandatory_attributes, example_aas, create_example, example_concept_description
@@ -163,3 +164,73 @@ class JsonSerializationSchemaTest(unittest.TestCase):
 
         # validate serialization against schema
         validate(instance=json_data, schema=aas_json_schema)
+
+
+class JsonSerializationStrippedObjectsTest(unittest.TestCase):
+    def _checkNormalAndStripped(self, attributes: Union[Set[str], str], obj: object) -> None:
+        if isinstance(attributes, str):
+            attributes = {attributes}
+
+        # attributes should be present when using the normal encoder,
+        # but must not be present when using the stripped encoder
+        for cls, assert_fn in ((AASToJsonEncoder, self.assertIn), (StrippedAASToJsonEncoder, self.assertNotIn)):
+            data = json.loads(json.dumps(obj, cls=cls))
+            for attr in attributes:
+                assert_fn(attr, data)
+
+    def test_stripped_qualifiable(self) -> None:
+        qualifier = model.Qualifier("test_qualifier", str)
+        operation = model.Operation("test_operation", qualifier={qualifier})
+        submodel = model.Submodel(
+            model.Identifier("http://acplt.org/test_submodel", model.IdentifierType.IRI),
+            submodel_element=[operation],
+            qualifier={qualifier}
+        )
+
+        self._checkNormalAndStripped({"submodelElements", "qualifiers"}, submodel)
+        self._checkNormalAndStripped("qualifiers", operation)
+
+    def test_stripped_annotated_relationship_element(self) -> None:
+        mlp = model.MultiLanguageProperty("test_multi_language_property")
+        ref = model.AASReference(
+            (model.Key(model.KeyElements.SUBMODEL, False, "http://acplt.org/test_ref", model.KeyType.IRI),),
+            model.Submodel
+        )
+        are = model.AnnotatedRelationshipElement(
+            "test_annotated_relationship_element",
+            ref,
+            ref,
+            annotation=[mlp]
+        )
+
+        self._checkNormalAndStripped("annotation", are)
+
+    def test_stripped_entity(self) -> None:
+        mlp = model.MultiLanguageProperty("test_multi_language_property")
+        entity = model.Entity("test_entity", model.EntityType.CO_MANAGED_ENTITY, statement=[mlp])
+
+        self._checkNormalAndStripped("statements", entity)
+
+    def test_stripped_submodel_element_collection(self) -> None:
+        mlp = model.MultiLanguageProperty("test_multi_language_property")
+        sec = model.SubmodelElementCollectionOrdered("test_submodel_element_collection", value=[mlp])
+
+        self._checkNormalAndStripped("value", sec)
+
+    def test_stripped_asset_administration_shell(self) -> None:
+        asset_ref = model.AASReference(
+            (model.Key(model.KeyElements.ASSET, False, "http://acplt.org/test_ref", model.KeyType.IRI),),
+            model.Asset
+        )
+        submodel_ref = model.AASReference(
+            (model.Key(model.KeyElements.SUBMODEL, False, "http://acplt.org/test_ref", model.KeyType.IRI),),
+            model.Submodel
+        )
+        aas = model.AssetAdministrationShell(
+            asset_ref,
+            model.Identifier("http://acplt.org/test_aas", model.IdentifierType.IRI),
+            submodel_={submodel_ref},
+            view=[model.View("test_view")]
+        )
+
+        self._checkNormalAndStripped({"submodels", "views"}, aas)
