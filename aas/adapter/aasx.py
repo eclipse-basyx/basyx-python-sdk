@@ -25,6 +25,7 @@ into/form object stores. For handling of embedded supplementary files, this modu
 import abc
 import hashlib
 import io
+import itertools
 import logging
 import os
 import re
@@ -345,17 +346,10 @@ class AASXWriter:
             for concept_rescription_ref in dictionary.concept_description:
                 objects_to_be_written.add(concept_rescription_ref.get_identifier())
 
-        if not submodel_split_parts:
-            for submodel_ref in aas.submodel:
-                objects_to_be_written.add(submodel_ref.get_identifier())
-
-        # Write AAS part
-        logger.debug("Writing AAS {} to part {} in AASX package ...".format(aas.identification, aas_part_name))
-        self.write_aas_objects(aas_part_name, objects_to_be_written, object_store, file_store, write_json)
-
+        # Write submodels: Either create a split part for each of them or otherwise add them to objects_to_be_written
+        aas_split_part_names: List[str] = []
         if submodel_split_parts:
             # Create a AAS split part for each (available) submodel of the AAS
-            aas_split_part_names: List[str] = []
             aas_friendlyfier = NameFriendlyfier()
             for submodel_ref in aas.submodel:
                 submodel_identification = submodel_ref.get_identifier()
@@ -363,19 +357,21 @@ class AASXWriter:
                 submodel_part_name = "/aasx/{0}/{1}/{1}.submodel.{2}".format(aas_friendly_name, submodel_friendly_name,
                                                                              "json" if write_json else "xml")
                 self.write_aas_objects(submodel_part_name, [submodel_identification], object_store, file_store,
-                                       write_json)
+                                       write_json, split_part=True)
                 aas_split_part_names.append(submodel_part_name)
+        else:
+            for submodel_ref in aas.submodel:
+                objects_to_be_written.add(submodel_ref.get_identifier())
 
-            # Add relationships from AAS part to (submodel) split parts
-            logger.debug("Writing aas-spec-split relationships for AAS {} to AASX package ..."
-                         .format(aas.identification))
-            self.writer.write_relationships(
-                (pyecma376_2.OPCRelationship("r{}".format(i),
-                                             RELATIONSHIP_TYPE_AAS_SPEC_SPLIT,
-                                             submodel_part_name,
-                                             pyecma376_2.OPCTargetMode.INTERNAL)
-                 for i, submodel_part_name in enumerate(aas_split_part_names)),
-                aas_part_name)
+        # Write AAS part
+        logger.debug("Writing AAS {} to part {} in AASX package ...".format(aas.identification, aas_part_name))
+        self.write_aas_objects(aas_part_name, objects_to_be_written, object_store, file_store, write_json,
+                               split_part=False,
+                               additional_relationships=(pyecma376_2.OPCRelationship("r{}".format(i),
+                                                                                     RELATIONSHIP_TYPE_AAS_SPEC_SPLIT,
+                                                                                     submodel_part_name,
+                                                                                     pyecma376_2.OPCTargetMode.INTERNAL)
+                                                         for i, submodel_part_name in enumerate(aas_split_part_names)))
 
     def write_aas_objects(self,
                           part_name: str,
@@ -383,7 +379,8 @@ class AASXWriter:
                           object_store: model.AbstractObjectStore,
                           file_store: "AbstractSupplementaryFileContainer",
                           write_json: bool = False,
-                          split_part: bool = False) -> None:
+                          split_part: bool = False,
+                          additional_relationships: Iterable[pyecma376_2.OPCRelationship] = ()) -> None:
         """
         Write a defined list of AAS objects to an XML or JSON part in the AASX package and append the referenced
         supplementary files to the package.
@@ -405,6 +402,8 @@ class AASXWriter:
         :param write_json: If True, the part is written as a JSON file instead of an XML file. Defaults to False.
         :param split_part: If True, no aas-spec relationship is added from the aasx-origin to this part. You must make
             sure to reference it via a aas-spec-split relationship from another aas-spec part
+        :param additional_relationships: Optional OPC/ECMA376 relationships which should originate at the AAS object
+            part to be written, in addition to the aas-suppl relationships which are created automatically.
         """
         logger.debug("Writing AASX part {} with AAS objects ...".format(part_name))
 
@@ -464,11 +463,13 @@ class AASXWriter:
         # Add relationships from submodel to supplementary parts
         logger.debug("Writing aas-suppl relationships for AAS object part {} to AASX package ...".format(part_name))
         self.writer.write_relationships(
-            (pyecma376_2.OPCRelationship("r{}".format(i),
-                                         RELATIONSHIP_TYPE_AAS_SUPL,
-                                         submodel_file_name,
-                                         pyecma376_2.OPCTargetMode.INTERNAL)
-             for i, submodel_file_name in enumerate(supplementary_file_names)),
+            itertools.chain(
+                (pyecma376_2.OPCRelationship("r{}".format(i),
+                                             RELATIONSHIP_TYPE_AAS_SUPL,
+                                             submodel_file_name,
+                                             pyecma376_2.OPCTargetMode.INTERNAL)
+                 for i, submodel_file_name in enumerate(supplementary_file_names)),
+                additional_relationships),
             part_name)
 
     def write_core_properties(self, core_properties: pyecma376_2.OPCCoreProperties):
