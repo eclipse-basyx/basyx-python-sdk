@@ -92,7 +92,7 @@ class AASXWriterTest(unittest.TestCase):
                             writer.write_core_properties(cp)
 
                     assert isinstance(w, list)  # This should be True due to the record=True parameter
-                    self.assertEqual(0, len(w), f"Warnings were issued while writhing the AASX file: "
+                    self.assertEqual(0, len(w), f"Warnings were issued while writing the AASX file: "
                                                 f"{[warning.message for warning in w]}")
 
                     # Read AASX file
