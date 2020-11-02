@@ -1149,7 +1149,7 @@ def _select_decoder(failsafe: bool, stripped: bool, decoder: Optional[Type[AASFr
     and stripped are ignored.
 
     :param failsafe: If true, a failsafe decoder is selected. Ignored if a decoder class is specified.
-    :param stripped: If true, a deocder for parsing stripped XML elements is selected. Ignored if a decoder class is
+    :param stripped: If true, a decoder for parsing stripped XML elements is selected. Ignored if a decoder class is
                      specified.
     :param decoder: Is returned, if specified.
     :return: A AASFromXmlDecoder (sub)class.
