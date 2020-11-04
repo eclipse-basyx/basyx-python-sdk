@@ -346,22 +346,24 @@ class CouchDBObjectStore(model.AbstractObjectStore):
         rev = get_couchdb_revision("{}/{}/{}".format(self.url,
                                                      self.database_name,
                                                      self._transform_id(x.identification)))
-        if rev is not None:
+
+        if rev is not None and safe_delete:
             logger.debug("using the object's stored revision token %s for deletion." % rev)
-        if rev is None:
-            if safe_delete:
-                raise CouchDBConflictError("No CouchDBRevision found for the object")
-            else:
-                try:
-                    logger.debug("fetching the current object revision for deletion ...")
-                    self.get_identifiable(x.identification)
-                except KeyError as e:
-                    raise KeyError(
-                        "No AAS object with id {} exists in CouchDB database".format(x.identification)) from e
-            rev = get_couchdb_revision("{}/{}/{}".format(self.url,
-                                                         self.database_name,
-                                                         self._transform_id(x.identification)))
-            logger.debug("using the current object revision %s for deletion." % rev)
+        elif safe_delete:
+            raise CouchDBConflictError("No CouchDBRevision found for the object")
+        else:
+            try:
+                logger.debug("fetching the current object revision for deletion ...")
+                request = urllib.request.Request(
+                    "{}/{}/{}".format(self.url, self.database_name, self._transform_id(x.identification)),
+                    headers={'Accept': 'application/json'})
+                current_data = CouchDBBackend.do_request(request)
+            except CouchDBServerError as e:
+                if e.code == 404:
+                    raise KeyError("No AAS object with id {} exists in CouchDB database".format(x.identification))\
+                        from e
+                raise
+            rev = current_data['_rev']
 
         request = urllib.request.Request(
             "{}/{}/{}?rev={}".format(self.url, self.database_name, self._transform_id(x.identification), rev),
