@@ -382,6 +382,7 @@ class CouchDBObjectStore(model.AbstractObjectStore):
         delete_couchdb_revision("{}/{}/{}".format(self.url,
                                                   self.database_name,
                                                   self._transform_id(x.identification)))
+        x.source = ""
 
     def __contains__(self, x: object) -> bool:
         """
