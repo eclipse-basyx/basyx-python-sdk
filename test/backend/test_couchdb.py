@@ -13,6 +13,7 @@ import configparser
 import copy
 import os
 import unittest
+import unittest.mock
 import urllib.request
 import urllib.error
 
@@ -160,13 +161,11 @@ class CouchDBBackendTest(unittest.TestCase):
         retrieved_submodel = self.object_store.get_identifiable(
             model.Identifier('https://acplt.org/Test_Submodel', model.IdentifierType.IRI))
 
-        # Simulate a concurrent modification
-        remote_modified_submodel = copy.copy(retrieved_submodel)
-        remote_modified_submodel.id_short = "newIdShort"
-        remote_modified_submodel.commit()
-        # Todo: With the current architecture, it is not possible to change something in the CouchDB without also
-        #       changing the revision
-        """
+        # Simulate a concurrent modification (Commit submodel, while preventing that the couchdb revision store is
+        # updated)
+        with unittest.mock.patch("aas.backend.couchdb.set_couchdb_revision"):
+            retrieved_submodel.commit()
+
         # Committing changes to the retrieved object should now raise a conflict error
         retrieved_submodel.id_short = "myOtherNewIdShort"
         with self.assertRaises(couchdb.CouchDBConflictError) as cm:
@@ -186,9 +185,6 @@ class CouchDBBackendTest(unittest.TestCase):
         # Committing after deletion should also raise a conflict error
         with self.assertRaises(couchdb.CouchDBConflictError) as cm:
             retrieved_submodel.commit()
-        self.assertEqual("Could not commit changes to id Identifier(IRI=https://acplt.org/Test_Submodel) due to a "
-                         "concurrent modification in the database.", str(cm.exception))
-        """
 
     def test_editing(self):
         test_object = create_example_submodel()
