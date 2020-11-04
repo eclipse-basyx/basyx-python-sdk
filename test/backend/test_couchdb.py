@@ -182,9 +182,8 @@ class CouchDBBackendTest(unittest.TestCase):
         self.object_store.discard(retrieved_submodel, False)
         self.assertEqual(0, len(self.object_store))
 
-        # Committing after deletion should also raise a conflict error
-        with self.assertRaises(couchdb.CouchDBConflictError) as cm:
-            retrieved_submodel.commit()
+        # Committing after deletion should not raise a conflict error due to removal of the source attribute
+        retrieved_submodel.commit()
 
     def test_editing(self):
         test_object = create_example_submodel()
