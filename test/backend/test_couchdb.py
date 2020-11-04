@@ -189,13 +189,11 @@ class CouchDBBackendTest(unittest.TestCase):
         test_object = create_example_submodel()
         self.object_store.add(test_object)
 
-        # Test if update restores changes
-        test_object.id_short = "SomeNewIdShort"
-        test_object.update()
-        self.assertEqual("TestSubmodel", test_object.id_short)
-
         # Test if commit uploads changes
         test_object.id_short = "SomeNewIdShort"
         test_object.commit()
-        new_test_object = self.object_store.get_identifiable(test_object.identification)
-        self.assertEqual("SomeNewIdShort", new_test_object.id_short)
+
+        # Test if update restores changes
+        test_object.id_short = "AnotherIdShort"
+        test_object.update()
+        self.assertEqual("SomeNewIdShort", test_object.id_short)
