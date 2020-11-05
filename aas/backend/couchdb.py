@@ -342,7 +342,6 @@ class CouchDBObjectStore(model.AbstractObjectStore):
         :raises CouchDBError: If error occur during the request to the CouchDB server (see `_do_request()` for details)
         """
         logger.debug("Deleting object %s from CouchDB database ...", repr(x))
-        # If x is not a CouchDBIdentifiable, retrieve x from the database to get the current couchdb_revision
         rev = get_couchdb_revision("{}/{}/{}".format(self.url,
                                                      self.database_name,
                                                      self._transform_id(x.identification)))
@@ -352,18 +351,22 @@ class CouchDBObjectStore(model.AbstractObjectStore):
         elif safe_delete:
             raise CouchDBConflictError("No CouchDBRevision found for the object")
         else:
+            # If not safe_delete, fetch the current document revision from the database using a HEAD request and the
+            # ETag response header
             try:
                 logger.debug("fetching the current object revision for deletion ...")
                 request = urllib.request.Request(
                     "{}/{}/{}".format(self.url, self.database_name, self._transform_id(x.identification)),
-                    headers={'Accept': 'application/json'})
-                current_data = CouchDBBackend.do_request(request)
-            except CouchDBServerError as e:
+                    headers={'Accept': 'application/json'},
+                    method='HEAD')
+                opener = urllib.request.build_opener(urllib.request.HTTPBasicAuthHandler(_credentials_store))
+                response = opener.open(request)
+                rev = response.getheader('ETag')[1:-1]
+            except urllib.error.HTTPError as e:
                 if e.code == 404:
                     raise KeyError("No AAS object with id {} exists in CouchDB database".format(x.identification))\
                         from e
                 raise
-            rev = current_data['_rev']
 
         request = urllib.request.Request(
             "{}/{}/{}?rev={}".format(self.url, self.database_name, self._transform_id(x.identification), rev),
