@@ -140,7 +140,7 @@ class IEC61360ConceptDescription(ConceptDescription):
     def __init__(self,
                  identification: base.Identifier,
                  preferred_name: base.LangStringSet,
-                 data_type: IEC61360DataType,
+                 data_type: Optional[IEC61360DataType] = None,
                  definition: Optional[base.LangStringSet] = None,
                  short_name: Optional[base.LangStringSet] = None,
                  is_case_of: Optional[Set[base.Reference]] = None,
@@ -190,7 +190,7 @@ class IEC61360ConceptDescription(ConceptDescription):
         super().__init__(identification, is_case_of, id_short, category, description, parent, administration)
         self.preferred_name: base.LangStringSet = preferred_name
         self.short_name: Optional[base.LangStringSet] = short_name
-        self.data_type: IEC61360DataType = data_type
+        self.data_type: Optional[IEC61360DataType] = data_type
         self.definition: Optional[base.LangStringSet] = definition
         self.unit: Optional[str] = unit
         self.unit_id: Optional[base.Reference] = unit_id

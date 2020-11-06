@@ -30,6 +30,7 @@ setuptools.setup(
         "aas": ["py.typed"],
         "aas.adapter.json": ["aasJSONSchema.json"],
         "aas.adapter.xml": ["AAS.xsd", "AAS_ABAC.xsd", "IEC61360.xsd"],
+        "aas.examples.data": ["TestFile.pdf"],
     },
     classifiers=[
         "Programming Language :: Python :: 3",

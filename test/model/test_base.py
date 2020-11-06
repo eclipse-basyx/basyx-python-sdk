@@ -197,7 +197,7 @@ class ReferableTest(unittest.TestCase):
                       relative_path=["exampleGrandparent", "exampleParent", "exampleReferable"]),
             mock.call(updated_object=example_grandchild,
                       store_object=example_grandchild,
-                      relative_path=["exampleGrandchild"])
+                      relative_path=[])
         ])
         MockBackend.update_object.reset_mock()
 
@@ -207,8 +207,15 @@ class ReferableTest(unittest.TestCase):
         MockBackend.update_object.assert_called_once_with(
             updated_object=example_referable,
             store_object=example_referable,
-            relative_path=["exampleReferable"]
+            relative_path=[]
         )
+        MockBackend.update_object.reset_mock()
+
+        # Test update with no source available
+        example_grandparent.source = ""
+        example_referable.source = ""
+        example_referable.update(recursive=False)
+        MockBackend.update_object.assert_not_called()
 
     def test_commit(self):
         backends.register_backend("mockScheme", MockBackend)
@@ -222,7 +229,7 @@ class ReferableTest(unittest.TestCase):
         MockBackend.commit_object.assert_has_calls([
             mock.call(committed_object=example_referable,
                       store_object=example_grandparent,
-                      relative_path=["exampleGrandparent", "exampleParent"]),
+                      relative_path=["exampleParent", "exampleReferable"]),
             mock.call(committed_object=example_grandchild,
                       store_object=example_grandchild,
                       relative_path=[])
@@ -235,7 +242,7 @@ class ReferableTest(unittest.TestCase):
         MockBackend.commit_object.assert_has_calls([
             mock.call(committed_object=example_grandchild,
                       store_object=example_grandparent,
-                      relative_path=["exampleGrandparent", "exampleParent", "exampleReferable", "exampleChild"]),
+                      relative_path=["exampleParent", "exampleReferable", "exampleChild", "exampleGrandchild"]),
             mock.call(committed_object=example_grandchild,
                       store_object=example_grandchild,
                       relative_path=[])
@@ -249,10 +256,10 @@ class ReferableTest(unittest.TestCase):
         MockBackend.commit_object.assert_has_calls([
             mock.call(committed_object=example_grandchild,
                       store_object=example_referable,
-                      relative_path=["exampleReferable", "exampleChild"]),
+                      relative_path=["exampleChild", "exampleGrandchild"]),
             mock.call(committed_object=example_grandchild,
                       store_object=example_grandparent,
-                      relative_path=["exampleGrandparent", "exampleParent", "exampleReferable", "exampleChild"]),
+                      relative_path=["exampleParent", "exampleReferable", "exampleChild", "exampleGrandchild"]),
             mock.call(committed_object=example_grandchild,
                       store_object=example_grandchild,
                       relative_path=[])
@@ -294,6 +301,11 @@ class ModelNamespaceTest(unittest.TestCase):
         self.assertEqual('"Referable with id_short \'Prop2\' is already present in another set in the same namespace"',
                          str(cm.exception))
 
+        namespace2 = self._namespace_class()
+        with self.assertRaises(ValueError) as cm2:
+            namespace2.set1.add(self.prop1)
+        self.assertIn('has already a parent', str(cm2.exception))
+
         self.namespace.set1.remove(self.prop1)
         self.assertEqual(1, len(self.namespace.set1))
         self.assertIsNone(self.prop1.parent)
@@ -325,37 +337,44 @@ class ModelNamespaceTest(unittest.TestCase):
             namespace.get_referable("Prop3")
         self.assertEqual("'Referable with id_short Prop3 not found in this namespace'", str(cm.exception))
 
-    def test_add_and_remove(self):
-        namespace2 = ExampleNamespace()
-        namespace2.set1.add(self.prop1)
-        with self.assertRaises(ValueError) as cm:
-            self.namespace.set1.add(self.prop1)
-        self.assertEqual('Object has already a parent, but it must not be part of two namespaces.', str(cm.exception))
-        namespace2.set1.get_referable('Prop1')
-        namespace2.set1.remove('Prop1')
-        with self.assertRaises(KeyError) as cm:
-            namespace2.set1.get_referable('Prop1')
-        self.assertEqual("'Prop1'", str(cm.exception))
+    def test_renaming(self) -> None:
+        self.namespace.set1.add(self.prop1)
+        self.namespace.set1.add(self.prop2)
 
-    def test_update(self):
+        self.prop1.id_short = "Prop3"
+        self.assertEqual("Prop3", self.prop1.id_short)
+
+        with self.assertRaises(KeyError) as cm:
+            self.prop1.id_short = "Prop2"
+        self.assertIn("already present", str(cm.exception))
+
+    def test_Namespaceset_update_from(self) -> None:
         # Prop1 is getting its value updated by namespace2.set1
         # Prop2 is getting deleted since it does not exist in namespace2.set1
         # Prop3 is getting added, since it does not exist in namespace1.set1 yet
-        namespace1 = ExampleNamespace()
-        namespace1.set1.add(model.Property("Prop1", model.datatypes.Int, 1))
-        namespace1.set1.add(model.Property("Prop2", model.datatypes.Int, 0))
-        namespace2 = ExampleNamespace()
+        namespace1 = self._namespace_class()
+        prop1 = model.Property("Prop1", model.datatypes.Int, 1)
+        prop2 = model.Property("Prop2", model.datatypes.Int, 0)
+        namespace1.set1.add(prop1)
+        namespace1.set1.add(prop2)
+        namespace2 = self._namespace_class()
         namespace2.set1.add(model.Property("Prop1", model.datatypes.Int, 0))
         namespace2.set1.add(model.Property("Prop3", model.datatypes.Int, 2))
         namespace1.set1.update_nss_from(namespace2.set1)
-        self.assertEqual(namespace1.set1.get_referable("Prop1").value, 0)  # Check that Prop1 got updated correctly
-        self.assertEqual(namespace1.set1.get_referable("Prop3").value, 2)  # Check that Prop3 got added
-        with self.assertRaises(KeyError) as cm:  # Check that Prop2 got removed
-            namespace1.set1.get_referable("Prop2")
-        self.assertEqual("'Prop2'", str(cm.exception))
-        # Check that the parent of Prop3 is adapted correctly:
-        self.assertEqual(namespace1.get_referable("Prop1").parent, namespace1)
-        self.assertEqual(namespace1.get_referable("Prop3").parent, namespace1)
+        # Check that Prop1 got updated correctly
+        self.assertIs(namespace1.get_referable("Prop1"), prop1)
+        self.assertEqual(prop1.value, 0)
+        self.assertIs(namespace1.get_referable("Prop1").parent, namespace1)
+        # Check that Prop3 got added correctly
+        prop3_new = namespace1.set1.get_referable("Prop3")
+        self.assertIs(prop3_new.parent, namespace1)
+        assert(isinstance(prop3_new, model.Property))
+        self.assertEqual(prop3_new.value, 2)
+        # Check that Prop2 got removed correctly
+        self.assertNotIn("Prop2", namespace1.set1)
+        with self.assertRaises(KeyError):
+            namespace1.get_referable("Prop2")
+        self.assertIsNone(prop2.parent)
 
 
 class ExampleOrderedNamespace(model.Namespace):
@@ -498,6 +517,28 @@ class AASReferenceTest(unittest.TestCase):
         with self.assertRaises(IndexError) as cm_5:
             ref5.resolve(DummyObjectProvider())
         self.assertEqual('List of keys is empty', str(cm_5.exception))
+
+    def test_get_identifier(self) -> None:
+        ref = model.AASReference((model.Key(model.KeyElements.SUBMODEL, False, "urn:x-test:x", model.KeyType.IRI),),
+                                 model.Submodel)
+        self.assertEqual(model.Identifier("urn:x-test:x", model.IdentifierType.IRI), ref.get_identifier())
+
+        ref2 = model.AASReference((model.Key(model.KeyElements.SUBMODEL, False, "urn:x-test:x", model.KeyType.IRI),
+                                   model.Key(model.KeyElements.PROPERTY, False, "myProperty", model.KeyType.IDSHORT),),
+                                  model.Submodel)
+        self.assertEqual(model.Identifier("urn:x-test:x", model.IdentifierType.IRI), ref.get_identifier())
+
+        # People will do strange things ...
+        ref3 = model.AASReference((model.Key(model.KeyElements.ASSET_ADMINISTRATION_SHELL, False, "urn:x-test-aas:x",
+                                             model.KeyType.IRI),
+                                   model.Key(model.KeyElements.SUBMODEL, False, "urn:x-test:x", model.KeyType.IRI),),
+                                  model.Submodel)
+        self.assertEqual(model.Identifier("urn:x-test:x", model.IdentifierType.IRI), ref2.get_identifier())
+
+        ref4 = model.AASReference((model.Key(model.KeyElements.PROPERTY, False, "myProperty", model.KeyType.IDSHORT),),
+                                  model.Property)
+        with self.assertRaises(ValueError):
+            ref4.get_identifier()
 
     def test_from_referable(self) -> None:
         prop = model.Property("prop", model.datatypes.Int)

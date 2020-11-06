@@ -417,7 +417,7 @@ class Referable(metaclass=abc.ABCMeta):
 
     def __init__(self):
         super().__init__()
-        self.id_short: Optional[str] = ""
+        self._id_short: Optional[str] = ""
         self.category: Optional[str] = ""
         self.description: Optional[LangStringSet] = set()
         # We use a Python reference to the parent Namespace instead of a Reference Object, as specified. This allows
@@ -453,8 +453,12 @@ class Referable(metaclass=abc.ABCMeta):
         Constraint AASd-002: idShort shall only feature letters, digits, underscore ('_'); starting mandatory with a
         letter
 
+        Additionally check that the idShort is not already present in the same parent Namespace (if this object is
+        already contained in a parent Namespace).
+
         :param id_short: Identifying string of the element within its name space
-        :raises: Exception if the constraint is not fulfilled
+        :raises ValueError: if the constraint is not fulfilled
+        :raises KeyError: if the new idShort causes a name collision in the parent Namespace
         """
 
         if id_short is None and not hasattr(self, 'identification'):
@@ -464,62 +468,78 @@ class Referable(metaclass=abc.ABCMeta):
             raise ValueError("The id_short must contain only letters, digits and underscore")
         if not re.match("^([a-zA-Z].*|)$", test_id_short):
             raise ValueError("The id_short must start with a letter")
+
+        if self.parent is not None and id_short != self.id_short:
+            for set_ in self.parent.namespace_element_sets:
+                if id_short in set_:
+                    raise KeyError("Referable with id_short '{}' is already present in the parent Namespace"
+                                   .format(id_short))
+
         self._id_short = id_short
 
     def update(self,
-               timeout: float = 0,
+               max_age: float = 0,
                recursive: bool = True,
                _indirect_source: bool = True) -> None:
         """
-        Update the local Referable object from the underlying source, using an appropriate backend
+        Update the local Referable object from any underlying external data source, using an appropriate backend
 
         If there is no source given, it will find its next ancestor with a source and update from this source.
         If there is no source in any ancestor, this function will do nothing
-        If the appropriate backend to the relevant source is not available, raises backends.BackendNotAvailableException
 
-        :param timeout: Only update the object, if it has not been updated within the last `timeout` seconds. todo
+        :param max_age: Maximum age of the local data in seconds. This method may return early, if the previous update
+            of the object has been performed less than `max_age` seconds ago.
         :param recursive: Also call update on all children of this object. Default is True
         :param _indirect_source: Internal parameter to avoid duplicate updating.
+        :raises backends.BackendError: If no appropriate backend or the data source is not available
         """
+        # TODO consider max_age
         if not _indirect_source:
             # Update was already called on an ancestor of this Referable. Only update it, if it has its own source
             if self.source != "":
                 backends.get_backend(self.source).update_object(updated_object=self,
                                                                 store_object=self,
-                                                                relative_path=[self.id_short])
+                                                                relative_path=[])
 
         else:
             # Try to find a valid source for this Referable
-            source_info = self.find_source()
-            if source_info is not None:
-                store_object: Referable = source_info[0]
-                relative_path = source_info[1]
-                backends.get_backend(store_object.source).update_object(updated_object=self,
-                                                                        store_object=store_object,
-                                                                        relative_path=list(relative_path))
+            if self.source != "":
+                backends.get_backend(self.source).update_object(updated_object=self,
+                                                                store_object=self,
+                                                                relative_path=[])
+            else:
+                store_object, relative_path = self.find_source()
+                if store_object and relative_path is not None:
+                    backends.get_backend(store_object.source).update_object(updated_object=self,
+                                                                            store_object=store_object,
+                                                                            relative_path=list(relative_path))
 
         if recursive:
             # update all the children who have their own source
             if isinstance(self, Namespace):
                 for namespace_set in self.namespace_element_sets:
                     for referable in namespace_set:
-                        referable.update(timeout, recursive=True, _indirect_source=False)
+                        referable.update(max_age, recursive=True, _indirect_source=False)
 
-    def find_source(self) -> Optional[Tuple["Referable", List[str]]]:  # type: ignore
+    def find_source(self) -> Tuple[Optional["Referable"], Optional[List[str]]]:  # type: ignore
         """
         Finds the closest source in this objects ancestors. If there is no source, returns None
 
         :return: (The closest ancestor with a defined source, the relative path of id_shorts to that ancestor)
         """
-        referable = self
-        relative_path = [self.id_short]
+        referable: Referable = self
+        relative_path: List[str] = [self.id_short]
         while referable is not None:
             if referable.source != "":
                 relative_path.reverse()
                 return referable, relative_path
-            referable = referable.parent  # type: ignore
-            relative_path.append(referable.id_short)  # type: ignore
-        return None
+            if referable.parent:
+                assert(isinstance(referable.parent, Referable))
+                referable = referable.parent
+                relative_path.append(referable.id_short)
+                continue
+            break
+        return None, None
 
     def update_from(self, other: "Referable", update_source: bool = False):
         """
@@ -543,22 +563,21 @@ class Referable(metaclass=abc.ABCMeta):
 
     def commit(self) -> None:
         """
-        Transfer local changes on this object to the underlying source(s).
+        Transfer local changes on this object to all underlying external data sources.
 
-        This function commits the current state of this object to its own and each source of its ancestors.
-        If there is no source, this function will do nothing.
+        This function commits the current state of this object to its own and each external data source of its
+        ancestors. If there is no source, this function will do nothing.
         """
         current_ancestor = self.parent
-        relative_path: List[str] = []
+        relative_path: List[str] = [self.id_short]
         # Commit to all ancestors with sources
         while current_ancestor:
             assert(isinstance(current_ancestor, Referable))
-            relative_path.insert(0, current_ancestor.id_short)
             if current_ancestor.source != "":
                 backends.get_backend(current_ancestor.source).commit_object(committed_object=self,
                                                                             store_object=current_ancestor,
                                                                             relative_path=list(relative_path))
-
+            relative_path.insert(0, current_ancestor.id_short)
             current_ancestor = current_ancestor.parent
         # Commit to own source and check if there are children with sources to commit to
         self._direct_source_commit()
@@ -711,6 +730,22 @@ class AASReference(Reference, Generic[_RT]):
             raise UnexpectedTypeError(item, "Retrieved object {} is not an instance of referenced type {}"
                                             .format(item, self.type.__name__))
         return item
+
+    def get_identifier(self) -> Identifier:
+        """
+        Retrieve the Identifier of the Identifiable object, which is referenced or in which the referenced Referable is
+        contained.
+
+        :raises ValueError: If this Reference does not include a Key with global KeyType (IRDI, IRI, CUSTOM)
+        """
+        try:
+            last_identifier = next(key.get_identifier()
+                                   for key in reversed(self.key)
+                                   if key.get_identifier())
+            return last_identifier  # type: ignore  # MyPy doesn't get the generator expression above
+        except StopIteration:
+            raise ValueError("Reference cannot be represented as an Identifier, since it does not contain a Key with "
+                             "global KeyType (IRDI, IRI, CUSTOM)")
 
     def __repr__(self) -> str:
         return "AASReference(type={}, key={})".format(self.type.__name__, self.key)
