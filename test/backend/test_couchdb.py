@@ -109,6 +109,12 @@ class CouchDBBackendTest(unittest.TestCase):
             model.Identifier(id_='https://acplt.org/Test_Submodel', id_type=model.IdentifierType.IRI))
         self.assertIs(test_object_retrieved, test_object_retrieved_again)
 
+        # However, a changed source should invalidate the cached object, so we should get a new copy
+        test_object_retrieved.source = "couchdb://example.com/example/IRI-https%3A%2F%2Facplt.org%2FTest_Submodel"
+        test_object_retrieved_third = self.object_store.get_identifiable(
+            model.Identifier(id_='https://acplt.org/Test_Submodel', id_type=model.IdentifierType.IRI))
+        self.assertIsNot(test_object_retrieved, test_object_retrieved_third)
+
     def test_example_submodel_storing(self) -> None:
         example_submodel = create_example_submodel()
 

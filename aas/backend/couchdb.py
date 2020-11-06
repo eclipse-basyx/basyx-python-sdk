@@ -12,6 +12,7 @@
 Todo: Add module docstring
 """
 import threading
+import weakref
 from typing import List, Dict, Any, Optional, Iterator, Iterable, Union
 import re
 import urllib.parse
@@ -232,6 +233,14 @@ class CouchDBObjectStore(model.AbstractObjectStore):
         self.url: str = url
         self.database_name: str = database
 
+        # A dictionary of weak references to local replications of stored objects. Objects are kept in this cache as
+        # long as there is any other reference in the Python application to them. We use this to make sure that only one
+        # local replication of each object is kept in the application and retrieving an object from the store always
+        # returns the **same** (not only equal) object. Still, objects are forgotten, when they are not referenced
+        # anywhere else to save memory.
+        self._object_cache = weakref.WeakValueDictionary()
+        self._object_cache_lock = threading.Lock()
+
     def check_database(self, create=False):
         """
         Check if the database exists and created it if not (and requested to do so)
@@ -294,6 +303,19 @@ class CouchDBObjectStore(model.AbstractObjectStore):
         self.generate_source(obj)  # Generate the source parameter of this object
         set_couchdb_revision("{}/{}/{}".format(self.url, self.database_name, urllib.parse.quote(identifier, safe='')),
                              data["_rev"])
+
+        # If we still have a local replication of that object (since it is referenced from anywhere else), update that
+        # replication and return it.
+        with self._object_cache_lock:
+            if obj.identification in self._object_cache:
+                old_obj = self._object_cache[obj.identification]
+                # If the source does not match the correct source for this CouchDB backend, the object seems to belong
+                # to another backend now, so we return a fresh copy
+                if old_obj.source == obj.source:
+                    old_obj.update_from(obj)
+                    return old_obj
+
+        self._object_cache[obj.identification] = obj
         return obj
 
     def add(self, x: model.Identifiable) -> None:
@@ -322,6 +344,8 @@ class CouchDBObjectStore(model.AbstractObjectStore):
                 raise KeyError("Identifiable with id {} already exists in CouchDB database".format(x.identification))\
                     from e
             raise
+        with self._object_cache_lock:
+            self._object_cache[x.identification] = x
         self.generate_source(x)  # Set the source of the object
 
     def discard(self, x: model.Identifiable, safe_delete=False) -> None:
@@ -380,6 +404,8 @@ class CouchDBObjectStore(model.AbstractObjectStore):
         delete_couchdb_revision("{}/{}/{}".format(self.url,
                                                   self.database_name,
                                                   self._transform_id(x.identification)))
+        with self._object_cache_lock:
+            del self._object_cache[x.identification]
         x.source = ""
 
     def __contains__(self, x: object) -> bool:
