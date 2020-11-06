@@ -238,7 +238,8 @@ class CouchDBObjectStore(model.AbstractObjectStore):
         # local replication of each object is kept in the application and retrieving an object from the store always
         # returns the **same** (not only equal) object. Still, objects are forgotten, when they are not referenced
         # anywhere else to save memory.
-        self._object_cache = weakref.WeakValueDictionary()
+        self._object_cache: weakref.WeakValueDictionary[model.Identifier, model.Identifiable]\
+            = weakref.WeakValueDictionary()
         self._object_cache_lock = threading.Lock()
 
     def check_database(self, create=False):
