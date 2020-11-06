@@ -11,6 +11,7 @@
 """
 Todo: Add module docstring
 """
+import threading
 from typing import List, Dict, Any, Optional, Iterator, Iterable, Union
 import re
 import urllib.parse
@@ -177,6 +178,7 @@ def register_credentials(url: str, username: str, password: str):
 
 
 # Global registry for CouchDB Revisions
+_revision_store_lock = threading.Lock()
 _revision_store: Dict[str, str] = {}
 
 
@@ -187,7 +189,8 @@ def set_couchdb_revision(url: str, revision: str):
     :param url: URL to the CouchDB document
     :param revision: CouchDB revision
     """
-    _revision_store[url] = revision
+    with _revision_store_lock:
+        _revision_store[url] = revision
 
 
 def get_couchdb_revision(url: str) -> Optional[str]:
@@ -197,7 +200,8 @@ def get_couchdb_revision(url: str) -> Optional[str]:
     :param url: URL to the CouchDB document
     :return: CouchDB-revision, if there is one, otherwise returns None
     """
-    return _revision_store.get(url)
+    with _revision_store_lock:
+        return _revision_store.get(url)
 
 
 def delete_couchdb_revision(url: str):
@@ -206,26 +210,17 @@ def delete_couchdb_revision(url: str):
 
     :param url: URL to the CouchDB document
     """
-    del _revision_store[url]
+    with _revision_store_lock:
+        del _revision_store[url]
 
 
 class CouchDBObjectStore(model.AbstractObjectStore):
     """
     An ObjectStore implementation for Identifiable PyI40AAS objects backed by a CouchDB database server.
 
-    todo: adapt the following text
     All methods of the `CouchDBObjectStore` are blocking, i.e. they stop the current thread's execution until they
     receive a response from the CouchDB server (or encounter a timeout). However, the `CouchDBObjectStore` objects are
-    thread-safe, meaning that you may run multiple method calls on the same CouchDBObjectStore in parallel in different
-    threads. For example, you could use a ThreadPoolExecutor to add a large number of objects to the database:
-
-        import concurrent.futures
-        submodels = [submodel1, submodel2, submodel3]
-        database = CouchDBObjectStore('localhost:5984', 'aas_test')
-        database.login('test', 'test')
-        with concurrent.futures.ThreadPoolExecutor() as pool:
-            pool.map(database.add, submodels)
-
+    thread-safe, as long as no CouchDB credentials are added (via `register_credentials()`) during transactions.
     """
     def __init__(self, url: str, database: str):
         """
