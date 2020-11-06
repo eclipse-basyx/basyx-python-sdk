@@ -26,7 +26,7 @@ import re
 from typing import List, Dict, Type, TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from .model import Referable
+    from ..model import Referable
 
 
 class Backend(metaclass=abc.ABCMeta):
