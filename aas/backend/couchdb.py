@@ -125,38 +125,41 @@ class CouchDBBackend(backends.Backend):
         try:
             response = opener.open(request)
         except urllib.error.HTTPError as e:
-            logger.debug("Request %s %s finished with HTTP status code %s.",
-                         request.get_method(), request.full_url, e.code)
-            if e.headers.get('Content-type', None) != 'application/json':
-                raise CouchDBResponseError("Unexpected Content-type header {} of response from CouchDB server"
-                                           .format(e.headers.get('Content-type', None)))
+            with e:  # close the reponse (socket) when done
+                logger.debug("Request %s %s finished with HTTP status code %s.",
+                             request.get_method(), request.full_url, e.code)
+                if e.headers.get('Content-type', None) != 'application/json':
+                    raise CouchDBResponseError("Unexpected Content-type header {} of response from CouchDB server"
+                                               .format(e.headers.get('Content-type', None)))
 
-            if request.get_method() == 'HEAD':
-                raise CouchDBServerError(e.code, "", "", "HTTP {}") from e
+                if request.get_method() == 'HEAD':
+                    raise CouchDBServerError(e.code, "", "", "HTTP {}") from e
 
-            try:
-                data = json.load(e)
-            except json.JSONDecodeError:
-                raise CouchDBResponseError("Could not parse error message of HTTP {}"
-                                           .format(e.code))
-            raise CouchDBServerError(e.code, data['error'], data['reason'],
-                                     "HTTP {}: {} (reason: {})".format(e.code, data['error'], data['reason'])) from e
+                try:
+                    data = json.load(e)
+                except json.JSONDecodeError:
+                    raise CouchDBResponseError("Could not parse error message of HTTP {}"
+                                               .format(e.code))
+                raise CouchDBServerError(e.code, data['error'], data['reason'],
+                                         "HTTP {}: {} (reason: {})".format(e.code, data['error'], data['reason']))\
+                    from e
         except urllib.error.URLError as e:
             raise CouchDBConnectionError("Error while connecting to the CouchDB server: {}".format(e)) from e
 
         # Check response & parse data
         assert (isinstance(response, http.client.HTTPResponse))
-        logger.debug("Request %s %s finished successfully.", request.get_method(), request.full_url)
-        if request.get_method() == 'HEAD':
-            return {}
+        with response:  # close the reponse (socket) when done
+            logger.debug("Request %s %s finished successfully.", request.get_method(), request.full_url)
+            if request.get_method() == 'HEAD':
+                return {}
 
-        if response.getheader('Content-type') != 'application/json':
-            raise CouchDBResponseError("Unexpected Content-type header")
-        try:
-            data = json.load(response, cls=json_deserialization.AASFromJsonDecoder)
-        except json.JSONDecodeError as e:
-            raise CouchDBResponseError("Could not parse CouchDB server response as JSON data.") from e
-        return data
+            if response.getheader('Content-type') != 'application/json':
+                raise CouchDBResponseError("Unexpected Content-type header")
+            try:
+                data = json.load(response, cls=json_deserialization.AASFromJsonDecoder)
+            except json.JSONDecodeError as e:
+                raise CouchDBResponseError("Could not parse CouchDB server response as JSON data.") from e
+            return data
 
 
 # Global registry for credentials for CouchDB Servers
