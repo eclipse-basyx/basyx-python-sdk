@@ -94,6 +94,21 @@ class CouchDBBackendTest(unittest.TestCase):
         self.object_store.add(test_object)
         self.assertEqual(test_object.source, source_core+"IRI-https%3A%2F%2Facplt.org%2FTest_Submodel")
 
+    def test_retrieval(self):
+        test_object = create_example_submodel()
+        self.object_store.add(test_object)
+
+        # When retrieving the object, we should get the *same* instance as we added
+        test_object_retrieved = self.object_store.get_identifiable(
+            model.Identifier(id_='https://acplt.org/Test_Submodel', id_type=model.IdentifierType.IRI))
+        self.assertIs(test_object, test_object_retrieved)
+
+        # When retrieving it again, we should still get the same object
+        del test_object
+        test_object_retrieved_again = self.object_store.get_identifiable(
+            model.Identifier(id_='https://acplt.org/Test_Submodel', id_type=model.IdentifierType.IRI))
+        self.assertIs(test_object_retrieved, test_object_retrieved_again)
+
     def test_example_submodel_storing(self) -> None:
         example_submodel = create_example_submodel()
 
