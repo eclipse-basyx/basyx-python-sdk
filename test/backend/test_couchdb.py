@@ -83,7 +83,6 @@ class CouchDBBackendTest(unittest.TestCase):
         couchdb.register_credentials(TEST_CONFIG["couchdb"]["url"],
                                      TEST_CONFIG["couchdb"]["user"],
                                      TEST_CONFIG["couchdb"]["password"])
-        backends.register_backend("couchdb", couchdb.CouchDBBackend)
         self.object_store.check_database()
 
     def tearDown(self) -> None:

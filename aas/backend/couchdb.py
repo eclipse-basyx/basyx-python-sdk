@@ -159,6 +159,10 @@ class CouchDBBackend(backends.Backend):
             return data
 
 
+backends.register_backend("couchdb", CouchDBBackend)
+backends.register_backend("couchdbs", CouchDBBackend)
+
+
 # Global registry for credentials for CouchDB Servers
 _credentials_store: urllib.request.HTTPPasswordMgrWithPriorAuth = urllib.request.HTTPPasswordMgrWithPriorAuth()
 # Note: The HTTPPasswordMgr is not thread safe during writing, should be thread safe for reading only.
