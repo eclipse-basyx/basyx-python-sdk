@@ -101,16 +101,13 @@ class CouchDBBackend(backends.Backend):
         :return: URL to the document
         :raises CouchDBBackendSourceError, if the source has the wrong format
         """
-        couchdb_s = re.match("couchdbs://", source)  # Note: Works, since match only checks the beginning of the string
-        if couchdb_s:
+        if source.startswith("couchdbs://"):
             url = source.replace("couchdbs://", "https://", 1)
+        elif source.startswith("couchdb://"):
+            url = source.replace("couchdb://", "http://", 1)
         else:
-            couchdb_wo_s = re.match("couchdb://", source)
-            if couchdb_wo_s:
-                url = source.replace("couchdb://", "http://", 1)
-            else:
-                raise CouchDBSourceError("Source has wrong format. "
-                                         "Expected to start with {couchdb://, couchdbs://}, got {" + source + "}")
+            raise CouchDBSourceError("Source has wrong format. "
+                                     "Expected to start with {couchdb://, couchdbs://}, got {" + source + "}")
         return url
 
     @classmethod
