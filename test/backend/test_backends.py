@@ -2,6 +2,7 @@ from typing import List
 import unittest
 
 from aas.backend import backends
+from aas.model import Referable
 
 
 class ExampleBackend(backends.Backend):
