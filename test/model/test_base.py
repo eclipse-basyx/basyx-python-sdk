@@ -13,7 +13,8 @@ import unittest
 from unittest import mock
 from typing import Optional, List
 
-from aas import model, backends
+from aas import model
+from aas.backend import backends
 from aas.model import Identifier, Identifiable
 
 

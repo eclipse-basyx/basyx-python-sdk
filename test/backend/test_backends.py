@@ -1,12 +1,12 @@
 from unittest import mock
 import unittest
 
-from aas import backends
+from aas.backend import backends
 
 
 class BackendsTest(unittest.TestCase):
     def test_backend_store(self):
-        with mock.patch("aas.backends.Backend") as mock_backend:
+        with mock.patch("aas.backend.backends.Backend") as mock_backend:
             backends.register_backend("mockScheme", mock_backend)
             self.assertEqual(backends.get_backend("mockScheme:x-test:test_backend"), mock_backend)
 

@@ -22,7 +22,7 @@ from typing import List, Optional, Set, TypeVar, MutableSet, Generic, Iterable, 
 import re
 
 from . import datatypes
-from .. import backends
+from ..backend import backends
 
 if TYPE_CHECKING:
     from . import provider
@@ -541,7 +541,7 @@ class Referable(metaclass=abc.ABCMeta):
             break
         return None, None
 
-    def update_from(self, other: "Referable"):
+    def update_from(self, other: "Referable", update_source: bool = False):
         """
         Internal function to updates the object's attributes from another object of a similar type.
 
@@ -549,9 +549,12 @@ class Referable(metaclass=abc.ABCMeta):
         protocol clients, etc.) to update the object's data, after `update()` has been called.
 
         :param other: The object to update from
+        :param update_source: Update the source attribute with the other's source attribute. This is not propagated
+                              recursively
         """
         for name, var in vars(other).items():
-            if name == "parent":  # do not update the parent
+            # do not update the parent or source (depending on update_source parameter)
+            if name == "parent" or name == "source" and not update_source:
                 continue
             if isinstance(var, NamespaceSet):
                 # update the elements of the NameSpaceSet
@@ -1126,7 +1129,7 @@ class NamespaceSet(MutableSet[_RT], Generic[_RT]):
                 referable = self._backend[other_referable.id_short]
                 if type(referable) is type(other_referable):
                     # referable is the same as other referable
-                    referable.update_from(other_referable)
+                    referable.update_from(other_referable, update_source=True)
             except KeyError:
                 # other referable is not in NamespaceSet
                 referables_to_add.append(other_referable)
