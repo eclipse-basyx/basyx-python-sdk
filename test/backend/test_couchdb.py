@@ -10,14 +10,13 @@
 # specific language governing permissions and limitations under the License.
 import base64
 import configparser
-import copy
 import os
 import unittest
 import unittest.mock
 import urllib.request
 import urllib.error
 
-from aas.backend import backends, couchdb
+from aas.backend import couchdb
 from aas.examples.data.example_aas import *
 
 
