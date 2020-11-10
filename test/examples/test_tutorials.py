@@ -34,6 +34,9 @@ class TutorialTest(unittest.TestCase):
         from aas.examples import tutorial_storage
         # The tutorial already includes assert statements for the relevant points. So no further checks are required.
 
+    def test_tutorial_backend_couchdb(self):
+        from aas.examples import tutorial_backend_couchdb
+
     def test_tutorial_serialization_deserialization_json(self):
         with temporary_workingdirectory():
             from aas.examples import tutorial_serialization_deserialization
