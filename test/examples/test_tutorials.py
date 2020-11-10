@@ -14,13 +14,12 @@ Tests for the tutorials
 Functions to test if a tutorial is executable
 """
 import os
-import re
 import tempfile
 import unittest
 from contextlib import contextmanager
 
 from aas import model
-from aas.adapter.json import read_aas_json_file
+from .._helper.test_helpers import COUCHDB_OKAY, TEST_CONFIG, COUCHDB_ERROR
 
 
 class TutorialTest(unittest.TestCase):
@@ -34,6 +33,9 @@ class TutorialTest(unittest.TestCase):
         from aas.examples import tutorial_storage
         # The tutorial already includes assert statements for the relevant points. So no further checks are required.
 
+    @unittest.skipUnless(COUCHDB_OKAY, "No CouchDB is reachable at {}/{}: {}".format(TEST_CONFIG['couchdb']['url'],
+                                                                                     TEST_CONFIG['couchdb']['database'],
+                                                                                     COUCHDB_ERROR))
     def test_tutorial_backend_couchdb(self):
         from aas.examples import tutorial_backend_couchdb
 
