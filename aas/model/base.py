@@ -345,7 +345,7 @@ class AdministrativeInformation:
         return self.version == other.version and self._revision == other._revision
 
     def __repr__(self) -> str:
-        return "AdminstrativeInformation(version={}, revision={})".format(self.version, self.revision)
+        return "AdministrativeInformation(version={}, revision={})".format(self.version, self.revision)
 
     revision = property(_get_revision, _set_revision)
 
@@ -1244,12 +1244,3 @@ class OrderedNamespaceSet(NamespaceSet[_RT], MutableSequence[_RT], Generic[_RT])
         for o in self._order[i]:
             super().remove(o)
         del self._order[i]
-
-
-class DataSpecificationContent(metaclass=abc.ABCMeta):
-    """
-    Content of a DataSpecification.
-
-    <<abstract>>
-    """
-    pass

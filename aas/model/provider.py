@@ -34,7 +34,7 @@ class AbstractObjectProvider(metaclass=abc.ABCMeta):
         This may include looking up the object's endpoint in a registry and fetching it from an HTTP server or a
         database.
 
-        :param identifier:
+        :param identifier: The identifier of the object to return
         :return: The Identifiable object (or a proxy object for a remote Identifiable object)
         :raises KeyError: If no such Referable can be found
         """
@@ -44,6 +44,7 @@ class AbstractObjectProvider(metaclass=abc.ABCMeta):
         """
         Find an object in this set by its identification, with fallback parameter
 
+        :param identifier: The identifier of the object to return
         :param default: An object to be returned, if no object with the given identification is found
         :return: The Identifiable object with the given identification in the provider. Otherwise the `default` object
                  or None, if none is given.
@@ -65,7 +66,6 @@ class AbstractObjectStore(AbstractObjectProvider, MutableSet[_IT], Generic[_IT],
     delete objects (i.e. behave like a Python set). This includes local object stores (like `DictObjectStore`) and
     database clients.
     """
-    pass
 
     def update(self, other: Iterable[_IT]) -> None:
         for x in other:
