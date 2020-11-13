@@ -501,7 +501,9 @@ class AASFromXmlDecoder:
         """
         Helper function. Doesn't support the object_class parameter. Overwrite construct_aas_reference instead.
         """
-        return cls.construct_aas_reference_expect_type(element, model.Referable, **kwargs)
+        # TODO: remove the following type: ignore comments when mypy supports abstract types for Type[T]
+        # see https://github.com/python/mypy/issues/5374
+        return cls.construct_aas_reference_expect_type(element, model.Referable, **kwargs)  # type: ignore
 
     @classmethod
     def _construct_concept_description_reference(cls, element: etree.Element, **kwargs: Any) \
@@ -534,9 +536,11 @@ class AASFromXmlDecoder:
         it will default to the type Referable. This behaviour is wanted in read_aas_xml_element().
         """
         keys = cls._construct_key_tuple(element)
-        type_: Type[model.Referable] = model.Referable
+        # TODO: remove the following type: ignore comments when mypy supports abstract types for Type[T]
+        # see https://github.com/python/mypy/issues/5374
+        type_: Type[model.Referable] = model.Referable  # type: ignore
         if len(keys) > 0:
-            type_ = KEY_ELEMENTS_CLASSES_INVERSE.get(keys[-1].type, model.Referable)
+            type_ = KEY_ELEMENTS_CLASSES_INVERSE.get(keys[-1].type, model.Referable)  # type: ignore
         return object_class(keys, type_)
 
     @classmethod
