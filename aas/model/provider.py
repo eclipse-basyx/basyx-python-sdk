@@ -66,6 +66,9 @@ class AbstractObjectStore(AbstractObjectProvider, MutableSet[_IT], Generic[_IT],
     delete objects (i.e. behave like a Python set). This includes local object stores (like `DictObjectStore`) and
     database clients.
     """
+    @abc.abstractmethod
+    def __init__(self):
+        pass
 
     def update(self, other: Iterable[_IT]) -> None:
         for x in other:
@@ -77,6 +80,7 @@ class DictObjectStore(AbstractObjectStore[_IT], Generic[_IT]):
     A local in-memory object store for Identifiable Objects, backed by a dict, mapping Identifier → Identifiable
     """
     def __init__(self, objects: Iterable[_IT] = ()) -> None:
+        super().__init__()
         self._backend: Dict[Identifier, _IT] = {}
         for x in objects:
             self.add(x)

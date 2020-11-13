@@ -414,7 +414,7 @@ class Referable(metaclass=abc.ABCMeta):
                   This is used to specify where the Referable should be updated from and committed to.
                   Default is an empty string, making it use the source of its ancestor, if possible.
     """
-
+    @abc.abstractmethod
     def __init__(self):
         super().__init__()
         self._id_short: Optional[str] = ""
@@ -788,7 +788,7 @@ class Identifiable(Referable, metaclass=abc.ABCMeta):
     :ivar administration: Administrative information of an identifiable element.
     :ivar identification: The globally unique identification of the element.
     """
-
+    @abc.abstractmethod
     def __init__(self):
         super().__init__()
         self.administration: Optional[AdministrativeInformation] = None
@@ -808,7 +808,7 @@ class HasSemantics(metaclass=abc.ABCMeta):
                        The semantic id may either reference an external global id or it may reference a referable model
                        element of kind=Type that defines the semantics of the element.
     """
-
+    @abc.abstractmethod
     def __init__(self):
         super().__init__()
         self.semantic_id: Optional[Reference] = None
@@ -823,7 +823,7 @@ class HasKind(metaclass=abc.ABCMeta):
 
     :ivar kind: Kind of the element: either type or instance. Default = Instance.
     """
-
+    @abc.abstractmethod
     def __init__(self):
         super().__init__()
         self._kind: ModelingKind = ModelingKind.INSTANCE
@@ -839,7 +839,7 @@ class Constraint(metaclass=abc.ABCMeta):
 
     << abstract >>
     """
-
+    @abc.abstractmethod
     def __init__(self):
         pass
 
@@ -852,7 +852,7 @@ class Qualifiable(metaclass=abc.ABCMeta):
 
     :ivar qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
     """
-
+    @abc.abstractmethod
     def __init__(self):
         super().__init__()
         self.qualifier: Set[Constraint] = set()
@@ -993,6 +993,7 @@ class Namespace(metaclass=abc.ABCMeta):
 
     :ivar namespace_element_sets: A list of all NamespaceSets of this Namespace
     """
+    @abc.abstractmethod
     def __init__(self) -> None:
         super().__init__()
         self.namespace_element_sets: List[NamespaceSet] = []

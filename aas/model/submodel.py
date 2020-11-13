@@ -30,7 +30,7 @@ class SubmodelElement(base.Referable, base.Qualifiable, base.HasSemantics, base.
     The property instances (kind=Instance) typically have a value. A property instance is also called
     property-value pair in certain standards.
     """
-
+    @abc.abstractmethod
     def __init__(self,
                  id_short: str,
                  category: Optional[str] = None,
@@ -133,7 +133,7 @@ class DataElement(SubmodelElement, metaclass=abc.ABCMeta):
 
     << abstract >>
     """
-
+    @abc.abstractmethod
     def __init__(self,
                  id_short: str,
                  category: Optional[str] = None,
@@ -506,7 +506,7 @@ class SubmodelElementCollection(SubmodelElement, base.Namespace, metaclass=abc.A
                    `ordered` shall not be set directly, instead one of the subclasses
                    `SubmodelElementCollectionOrdered` or `SubmodelElementCollectionUnordered` shall be used.
     """
-
+    @abc.abstractmethod
     def __init__(self,
                  id_short: str,
                  category: Optional[str] = None,
@@ -893,7 +893,7 @@ class Event(SubmodelElement, metaclass=abc.ABCMeta):
     """
     An event
     """
-
+    @abc.abstractmethod
     def __init__(self,
                  id_short: str,
                  category: Optional[str] = None,
