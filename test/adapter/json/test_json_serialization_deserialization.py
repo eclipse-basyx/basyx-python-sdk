@@ -31,7 +31,7 @@ class JsonSerializationDeserializationTest(unittest.TestCase):
         assert(submodel_identifier is not None)
         submodel_reference = model.AASReference(submodel_key, model.Submodel)
         submodel = model.Submodel(submodel_identifier)
-        test_aas = model.AssetAdministrationShell(asset_reference, aas_identifier, submodel_={submodel_reference})
+        test_aas = model.AssetAdministrationShell(asset_reference, aas_identifier, submodel={submodel_reference})
 
         # serialize object to json
         json_data = json.dumps({

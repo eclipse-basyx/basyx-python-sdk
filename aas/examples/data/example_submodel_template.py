@@ -63,8 +63,8 @@ def create_example_submodel_template() -> model.Submodel:
     submodel_element_range = model.Range(
         id_short='ExampleRange',
         value_type=model.datatypes.Int,
-        min_=None,
-        max_=100,
+        min=None,
+        max=100,
         category='PARAMETER',
         description={'en-us': 'Example Range object',
                      'de': 'Beispiel Range Element'},
@@ -79,8 +79,8 @@ def create_example_submodel_template() -> model.Submodel:
     submodel_element_range_2 = model.Range(
         id_short='ExampleRange2',
         value_type=model.datatypes.Int,
-        min_=0,
-        max_=None,
+        min=0,
+        max=None,
         category='PARAMETER',
         description={'en-us': 'Example Range object',
                      'de': 'Beispiel Range Element'},

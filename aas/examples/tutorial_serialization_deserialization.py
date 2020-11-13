@@ -55,7 +55,7 @@ submodel = model.Submodel(
 aashell = model.AssetAdministrationShell(
     identification=model.Identifier('https://acplt.org/Simple_AAS', model.IdentifierType.IRI),
     asset=model.AASReference.from_referable(asset),
-    submodel_={model.AASReference.from_referable(submodel)}
+    submodel={model.AASReference.from_referable(submodel)}
 )
 
 
