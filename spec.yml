@@ -933,7 +933,7 @@ components:
           nullable: true
           readOnly: true
           properties:
-            errorType:
+            type:
               enum:
                 - Unspecified
                 - Debug
