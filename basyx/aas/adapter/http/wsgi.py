@@ -12,7 +12,6 @@
 
 import io
 import json
-from lxml import etree  # type: ignore
 import urllib.parse
 import werkzeug
 from werkzeug.exceptions import BadRequest, InternalServerError, NotFound, NotImplemented
@@ -20,10 +19,10 @@ from werkzeug.routing import Rule, Submount
 from werkzeug.wrappers import Request, Response
 
 from aas import model
-from ..xml import xml_deserialization
-from ..json import json_deserialization
+from ..xml import XMLConstructables, read_aas_xml_element
+from ..json import StrippedAASFromJsonDecoder
 from .._generic import IDENTIFIER_TYPES, IDENTIFIER_TYPES_INVERSE
-from .response import get_response_type, http_exception_to_response
+from .response import Result, get_response_type, http_exception_to_response
 
 from typing import Dict, List, Optional, Type
 
@@ -35,12 +34,14 @@ def parse_request_body(request: Request, expect_type: Type[model.base._RT]) -> m
           also: what would be a reasonable maximum content length? the request body isn't limited by the xml/json schema
     """
     xml_constructors = {
-        model.Submodel: xml_deserialization._construct_submodel,
-        model.View: xml_deserialization._construct_view,
-        model.ConceptDictionary: xml_deserialization._construct_concept_dictionary,
-        model.ConceptDescription: xml_deserialization._construct_concept_description,
-        model.SubmodelElement: xml_deserialization._construct_submodel_element
+        model.AASReference: XMLConstructables.AAS_REFERENCE,
+        model.View: XMLConstructables.VIEW,
+        model.Constraint: XMLConstructables.CONSTRAINT,
+        model.SubmodelElement: XMLConstructables.SUBMODEL_ELEMENT
     }
+
+    if expect_type not in xml_constructors:
+        raise TypeError(f"Parsing {expect_type} is not supported!")
 
     valid_content_types = ("application/json", "application/xml", "text/xml")
 
@@ -51,28 +52,19 @@ def parse_request_body(request: Request, expect_type: Type[model.base._RT]) -> m
     if request.mimetype == "application/json":
         json_data = request.get_data()
         try:
-            rv = json.loads(json_data, cls=json_deserialization.AASFromJsonDecoder)
+            rv = json.loads(json_data, cls=StrippedAASFromJsonDecoder)
         except json.decoder.JSONDecodeError as e:
             raise BadRequest(str(e)) from e
     else:
-        parser = etree.XMLParser(remove_blank_text=True, remove_comments=True)
         xml_data = io.BytesIO(request.get_data())
-        try:
-            tree = etree.parse(xml_data, parser)
-        except etree.XMLSyntaxError as e:
-            raise BadRequest(str(e)) from e
-        # TODO: check tag of root element
-        root = tree.getroot()
-        try:
-            rv = xml_constructors[expect_type](root, failsafe=False)
-        except (KeyError, ValueError) as e:
-            raise BadRequest(xml_deserialization._exception_to_str(e)) from e
+        rv = read_aas_xml_element(xml_data, xml_constructors[expect_type], stripped=True)
 
-    assert(isinstance(rv, expect_type))
+    assert isinstance(rv, expect_type)
     return rv
 
 
 def identifier_uri_encode(id_: model.Identifier) -> str:
+    # TODO: replace urllib with urllib3 if we're using it anyways?
     return IDENTIFIER_TYPES[id_.id_type] + ":" + urllib.parse.quote(id_.id, safe="")
 
 
@@ -102,40 +94,36 @@ class WSGIApp:
     def __init__(self, object_store: model.AbstractObjectStore):
         self.object_store: model.AbstractObjectStore = object_store
         self.url_map = werkzeug.routing.Map([
-            Submount("/api/v1.0", [
-                Submount("/shells/<identifier:aas_id>", [
-                    Rule("/aas", methods=["GET"], endpoint=self.get_aas),
-                    Submount("/aas", [
-                        Rule("/asset", methods=["GET"], endpoint=self.get_aas_asset),
-                        Rule("/submodels", methods=["GET"], endpoint=self.get_aas_submodels),
-                        Rule("/submodels", methods=["PUT"], endpoint=self.put_aas_submodels),
-                        Rule("/views", methods=["GET"], endpoint=self.get_aas_views),
-                        Rule("/views/<string(minlength=1):id_short>", methods=["GET"],
-                             endpoint=self.get_aas_views_specific),
-                        Rule("/views/<string(minlength=1):id_short>", methods=["DELETE"],
-                             endpoint=self.delete_aas_views_specific),
-                        Rule("/conceptDictionaries", methods=["GET"], endpoint=self.get_aas_concept_dictionaries),
-                        Rule("/conceptDictionaries", methods=["PUT"], endpoint=self.put_aas_concept_dictionaries),
-                        Rule("/conceptDictionaries/<string(minlength=1):id_short>", methods=["GET"],
-                             endpoint=self.get_aas_concept_dictionaries_specific),
-                        Rule("/conceptDictionaries/<string(minlength=1):id_short>", methods=["DELETE"],
-                             endpoint=self.delete_aas_concept_dictionaries_specific),
-                        Rule("/submodels/<string(minlength=1):id_short>", methods=["GET"],
-                             endpoint=self.get_aas_submodels_specific),
-                        Rule("/submodels/<string(minlength=1):id_short>", methods=["DELETE"],
-                             endpoint=self.delete_aas_submodels_specific),
-                    ])
+            Submount("/api/v1", [
+                Rule("/aas/<identifier:aas_id>", endpoint=self.get_aas),
+                Submount("/aas/<identifier:aas_id>", [
+                    Rule("/asset", methods=["GET"], endpoint=self.get_aas_asset),
+                    Rule("/submodels", methods=["GET"], endpoint=self.get_aas_submodels),
+                    Rule("/submodels", methods=["PUT"], endpoint=self.put_aas_submodels),
+                    Rule("/views", methods=["GET"], endpoint=self.get_aas_views),
+                    Rule("/views/<string(minlength=1):id_short>", methods=["GET"],
+                         endpoint=self.get_aas_views_specific),
+                    Rule("/views/<string(minlength=1):id_short>", methods=["DELETE"],
+                         endpoint=self.delete_aas_views_specific),
+                    Rule("/conceptDictionaries", methods=["GET"], endpoint=self.get_aas_concept_dictionaries),
+                    Rule("/conceptDictionaries", methods=["PUT"], endpoint=self.put_aas_concept_dictionaries),
+                    Rule("/conceptDictionaries/<string(minlength=1):id_short>", methods=["GET"],
+                         endpoint=self.get_aas_concept_dictionaries_specific),
+                    Rule("/conceptDictionaries/<string(minlength=1):id_short>", methods=["DELETE"],
+                         endpoint=self.delete_aas_concept_dictionaries_specific),
+                    Rule("/submodels/<string(minlength=1):id_short>", methods=["GET"],
+                         endpoint=self.get_aas_submodels_specific),
+                    Rule("/submodels/<string(minlength=1):id_short>", methods=["DELETE"],
+                         endpoint=self.delete_aas_submodels_specific),
                 ]),
+                Rule("/submodels/<identifier:submodel_id>", endpoint=self.get_submodel),
                 Submount("/submodels/<identifier:submodel_id>", [
-                    Rule("/submodel", methods=["GET"], endpoint=self.get_submodel),
-                    Submount("/submodel", [
-                        Rule("/submodelElements", methods=["GET"], endpoint=self.get_submodel_submodel_elements),
-                        Rule("/submodelElements", methods=["PUT"], endpoint=self.put_submodel_submodel_elements),
-                        Rule("/submodelElements/<path:id_shorts>", methods=["GET"],
-                             endpoint=self.get_submodel_submodel_element_specific_nested),
-                        Rule("/submodelElements/<string(minlength=1):id_short>", methods=["DELETE"],
-                             endpoint=self.delete_submodel_submodel_element_specific)
-                    ])
+                    Rule("/submodelElements", methods=["GET"], endpoint=self.get_submodel_submodel_elements),
+                    Rule("/submodelElements", methods=["PUT"], endpoint=self.put_submodel_submodel_elements),
+                    Rule("/submodelElements/<path:id_shorts>", methods=["GET"],
+                         endpoint=self.get_submodel_submodel_element_specific_nested),
+                    Rule("/submodelElements/<string(minlength=1):id_short>", methods=["DELETE"],
+                         endpoint=self.delete_submodel_submodel_element_specific)
                 ])
             ])
         ], converters={"identifier": IdentifierConverter})
@@ -144,17 +132,17 @@ class WSGIApp:
         response = self.handle_request(Request(environ))
         return response(environ, start_response)
 
-    def get_obj_ts(self, identifier: model.Identifier, type_: Type[model.provider._IT]) -> model.provider._IT:
+    def _get_obj_ts(self, identifier: model.Identifier, type_: Type[model.provider._IT]) -> model.provider._IT:
         identifiable = self.object_store.get(identifier)
         if not isinstance(identifiable, type_):
             raise NotFound(f"No {type_.__name__} with {identifier} found!")
         return identifiable
 
-    def resolve_reference(self, reference: model.AASReference[model.base._RT]) -> model.base._RT:
+    def _resolve_reference(self, reference: model.AASReference[model.base._RT]) -> model.base._RT:
         try:
             return reference.resolve(self.object_store)
-        except (KeyError, TypeError, model.base.UnexpectedTypeError) as e:
-            raise InternalServerError(xml_deserialization._exception_to_str(e)) from e
+        except (KeyError, TypeError, model.UnexpectedTypeError) as e:
+            raise InternalServerError(str(e)) from e
 
     def handle_request(self, request: Request):
         adapter = self.url_map.bind_to_environ(request.environ)
@@ -176,26 +164,24 @@ class WSGIApp:
 
     # --------- AAS ROUTES ---------
     def get_aas(self, request: Request, url_args: Dict) -> Response:
-        # TODO: depth parameter
         response_t = get_response_type(request)
-        aas = self.get_obj_ts(url_args["aas_id"], model.AssetAdministrationShell)
+        aas = self._get_obj_ts(url_args["aas_id"], model.AssetAdministrationShell)
         aas.update()
-        return response_t(aas)
+        return response_t(Result(aas))
 
     def get_aas_asset(self, request: Request, url_args: Dict) -> Response:
         response_t = get_response_type(request)
-        aas = self.get_obj_ts(url_args["aas_id"], model.AssetAdministrationShell)
+        aas = self._get_obj_ts(url_args["aas_id"], model.AssetAdministrationShell)
         aas.update()
-        asset = self.resolve_reference(aas.asset)
+        asset = self._resolve_reference(aas.asset)
         asset.update()
-        return response_t(asset)
+        return response_t(Result(asset))
 
     def get_aas_submodels(self, request: Request, url_args: Dict) -> Response:
-        # TODO: depth parameter
         response_t = get_response_type(request)
-        aas = self.get_obj_ts(url_args["aas_id"], model.AssetAdministrationShell)
+        aas = self._get_obj_ts(url_args["aas_id"], model.AssetAdministrationShell)
         aas.update()
-        submodels = [self.resolve_reference(ref) for ref in aas.submodel]
+        submodels = [self._resolve_reference(ref) for ref in aas.submodel]
         for submodel in submodels:
             submodel.update()
         identification_id: Optional[str] = request.args.get("identification.id")
@@ -211,15 +197,15 @@ class WSGIApp:
         submodels_list = list(submodels)
         if len(submodels_list) == 0:
             raise NotFound("No submodels found!")
-        return response_t(submodels_list)
+        return response_t(Result(submodels_list))
 
     def put_aas_submodels(self, request: Request, url_args: Dict) -> Response:
         response_t = get_response_type(request)
         new_submodel = parse_request_body(request, model.Submodel)
-        aas = self.get_obj_ts(url_args["aas_id"], model.AssetAdministrationShell)
+        aas = self._get_obj_ts(url_args["aas_id"], model.AssetAdministrationShell)
         aas.update()
         current_submodel = None
-        for s in iter(self.resolve_reference(ref) for ref in aas.submodel):
+        for s in iter(self._resolve_reference(ref) for ref in aas.submodel):
             if s.identification == new_submodel.identification:
                 current_submodel = s
                 break
@@ -232,41 +218,40 @@ class WSGIApp:
         if current_submodel is not None:
             self.object_store.discard(current_submodel)
         self.object_store.add(new_submodel)
-        return response_t(new_submodel, status=201)
+        return response_t(Result(new_submodel), status=201)
 
     def get_aas_views(self, request: Request, url_args: Dict) -> Response:
-        # TODO: filter parameter
         response_t = get_response_type(request)
-        aas = self.get_obj_ts(url_args["aas_id"], model.AssetAdministrationShell)
+        aas = self._get_obj_ts(url_args["aas_id"], model.AssetAdministrationShell)
         if len(aas.view) == 0:
             raise NotFound("No views found!")
-        return response_t(list(aas.view))
+        return response_t(Result((aas.view,)))
 
     def put_aas_views(self, request: Request, url_args: Dict) -> Response:
         response_t = get_response_type(request)
         new_view = parse_request_body(request, model.View)
-        aas = self.get_obj_ts(url_args["aas_id"], model.AssetAdministrationShell)
+        aas = self._get_obj_ts(url_args["aas_id"], model.AssetAdministrationShell)
         aas.update()
         old_view = aas.view.get(new_view.id_short)
         if old_view is not None:
             aas.view.discard(old_view)
         aas.view.add(new_view)
         aas.commit()
-        return response_t(new_view, status=201)
+        return response_t(Result(new_view), status=201)
 
     def get_aas_views_specific(self, request: Request, url_args: Dict) -> Response:
         response_t = get_response_type(request)
-        aas = self.get_obj_ts(url_args["aas_id"], model.AssetAdministrationShell)
+        aas = self._get_obj_ts(url_args["aas_id"], model.AssetAdministrationShell)
         aas.update()
         id_short = url_args["id_short"]
         view = aas.view.get(id_short)
         if view is None:
             raise NotFound(f"No view with idShort '{id_short}' found!")
         view.update()
-        return response_t(view)
+        return response_t(Result(view))
 
     def delete_aas_views_specific(self, request: Request, url_args: Dict) -> Response:
-        aas = self.get_obj_ts(url_args["aas_id"], model.AssetAdministrationShell)
+        aas = self._get_obj_ts(url_args["aas_id"], model.AssetAdministrationShell)
         aas.update()
         id_short = url_args["id_short"]
         view = aas.view.get(id_short)
@@ -277,39 +262,38 @@ class WSGIApp:
         return Response(status=204)
 
     def get_aas_concept_dictionaries(self, request: Request, url_args: Dict) -> Response:
-        # TODO: depth parameter
         response_t = get_response_type(request)
-        aas = self.get_obj_ts(url_args["aas_id"], model.AssetAdministrationShell)
+        aas = self._get_obj_ts(url_args["aas_id"], model.AssetAdministrationShell)
         aas.update()
         if len(aas.concept_dictionary) == 0:
             raise NotFound("No concept dictionaries found!")
-        return response_t(list(aas.concept_dictionary))
+        return response_t(Result((aas.concept_dictionary,)))
 
     def put_aas_concept_dictionaries(self, request: Request, url_args: Dict) -> Response:
         response_t = get_response_type(request)
         new_concept_dictionary = parse_request_body(request, model.ConceptDictionary)
-        aas = self.get_obj_ts(url_args["aas_id"], model.AssetAdministrationShell)
+        aas = self._get_obj_ts(url_args["aas_id"], model.AssetAdministrationShell)
         aas.update()
         old_concept_dictionary = aas.concept_dictionary.get(new_concept_dictionary.id_short)
         if old_concept_dictionary is not None:
             aas.concept_dictionary.discard(old_concept_dictionary)
         aas.concept_dictionary.add(new_concept_dictionary)
         aas.commit()
-        return response_t(new_concept_dictionary, status=201)
+        return response_t(Result((new_concept_dictionary,)), status=201)
 
     def get_aas_concept_dictionaries_specific(self, request: Request, url_args: Dict) -> Response:
         response_t = get_response_type(request)
-        aas = self.get_obj_ts(url_args["aas_id"], model.AssetAdministrationShell)
+        aas = self._get_obj_ts(url_args["aas_id"], model.AssetAdministrationShell)
         aas.update()
         id_short = url_args["id_short"]
         concept_dictionary = aas.concept_dictionary.get(id_short)
         if concept_dictionary is None:
             raise NotFound(f"No concept dictionary with idShort '{id_short}' found!")
         concept_dictionary.update()
-        return response_t(concept_dictionary)
+        return response_t(Result(concept_dictionary))
 
     def delete_aas_concept_dictionaries_specific(self, request: Request, url_args: Dict) -> Response:
-        aas = self.get_obj_ts(url_args["aas_id"], model.AssetAdministrationShell)
+        aas = self._get_obj_ts(url_args["aas_id"], model.AssetAdministrationShell)
         aas.update()
         id_short = url_args["id_short"]
         concept_dictionary = aas.concept_dictionary.get(id_short)
@@ -321,21 +305,21 @@ class WSGIApp:
 
     def get_aas_submodels_specific(self, request: Request, url_args: Dict) -> Response:
         response_t = get_response_type(request)
-        aas = self.get_obj_ts(url_args["aas_id"], model.AssetAdministrationShell)
+        aas = self._get_obj_ts(url_args["aas_id"], model.AssetAdministrationShell)
         aas.update()
         id_short = url_args["id_short"]
-        for submodel in iter(self.resolve_reference(ref) for ref in aas.submodel):
+        for submodel in iter(self._resolve_reference(ref) for ref in aas.submodel):
             submodel.update()
             if submodel.id_short == id_short:
-                return response_t(submodel)
+                return response_t(Result(submodel))
         raise NotFound(f"No submodel with idShort '{id_short}' found!")
 
     def delete_aas_submodels_specific(self, request: Request, url_args: Dict) -> Response:
-        aas = self.get_obj_ts(url_args["aas_id"], model.AssetAdministrationShell)
+        aas = self._get_obj_ts(url_args["aas_id"], model.AssetAdministrationShell)
         aas.update()
         id_short = url_args["id_short"]
         for ref in aas.submodel:
-            submodel = self.resolve_reference(ref)
+            submodel = self._resolve_reference(ref)
             submodel.update()
             if submodel.id_short == id_short:
                 aas.submodel.discard(ref)
@@ -345,16 +329,14 @@ class WSGIApp:
 
     # --------- SUBMODEL ROUTES ---------
     def get_submodel(self, request: Request, url_args: Dict) -> Response:
-        # TODO: depth parameter
         response_t = get_response_type(request)
-        submodel = self.get_obj_ts(url_args["submodel_id"], model.Submodel)
+        submodel = self._get_obj_ts(url_args["submodel_id"], model.Submodel)
         submodel.update()
-        return response_t(submodel)
+        return response_t(Result(submodel))
 
     def get_submodel_submodel_elements(self, request: Request, url_args: Dict) -> Response:
-        # TODO: filter parameter
         response_t = get_response_type(request)
-        submodel = self.get_obj_ts(url_args["submodel_id"], model.Submodel)
+        submodel = self._get_obj_ts(url_args["submodel_id"], model.Submodel)
         submodel.update()
         submodel_elements = submodel.submodel_element
         semantic_id: Optional[str] = request.args.get("semanticId")
@@ -364,26 +346,26 @@ class WSGIApp:
                                        and len(se.semantic_id.key) > 0
                                        and semantic_id in se.semantic_id.key[0].value, submodel_elements  # type: ignore
                                        )
-        submodel_elements_list = list(submodel_elements)
-        if len(submodel_elements_list) == 0:
+        submodel_elements_tuple = (submodel_elements,)
+        if len(submodel_elements_tuple) == 0:
             raise NotFound("No submodel elements found!")
-        return response_t(submodel_elements_list)
+        return response_t(Result(submodel_elements_tuple))
 
     def put_submodel_submodel_elements(self, request: Request, url_args: Dict) -> Response:
         response_t = get_response_type(request)
         new_concept_dictionary = parse_request_body(request, model.SubmodelElement)
-        submodel = self.get_obj_ts(url_args["submodel_id"], model.Submodel)
+        submodel = self._get_obj_ts(url_args["submodel_id"], model.Submodel)
         submodel.update()
         old_submodel_element = submodel.submodel_element.get(new_concept_dictionary.id_short)
         if old_submodel_element is not None:
             submodel.submodel_element.discard(old_submodel_element)
         submodel.submodel_element.add(new_concept_dictionary)
         submodel.commit()
-        return response_t(new_concept_dictionary, status=201)
+        return response_t(Result(new_concept_dictionary), status=201)
 
     def get_submodel_submodel_element_specific_nested(self, request: Request, url_args: Dict) -> Response:
         response_t = get_response_type(request)
-        submodel = self.get_obj_ts(url_args["submodel_id"], model.Submodel)
+        submodel = self._get_obj_ts(url_args["submodel_id"], model.Submodel)
         submodel.update()
         id_shorts: List[str] = url_args["id_shorts"].split("/")
         submodel_element: model.SubmodelElement = \
@@ -396,10 +378,10 @@ class WSGIApp:
             except KeyError:
                 raise NotFound(f"No nested submodel element with idShort '{id_short}' found!")
             submodel_element.update()
-        return response_t(submodel_element)
+        return response_t(Result(submodel_element))
 
     def delete_submodel_submodel_element_specific(self, request: Request, url_args: Dict) -> Response:
-        submodel = self.get_obj_ts(url_args["submodel_id"], model.Submodel)
+        submodel = self._get_obj_ts(url_args["submodel_id"], model.Submodel)
         submodel.update()
         id_short = url_args["id_short"]
         submodel_element = submodel.submodel_element.get(id_short)

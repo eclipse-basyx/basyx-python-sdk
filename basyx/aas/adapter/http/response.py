@@ -17,14 +17,14 @@ import werkzeug.exceptions
 from werkzeug.wrappers import Request, Response
 
 from aas import model
-from aas.adapter.json import json_serialization
-from aas.adapter.xml import xml_serialization
+from ..json import StrippedAASToJsonEncoder
+from ..xml import xml_serialization
 
-from typing import Dict, List, Sequence, Type, Union
+from typing import Dict, Iterable, Optional, Tuple, Type, Union
 
 
 @enum.unique
-class MessageType(enum.Enum):
+class ErrorType(enum.Enum):
     UNSPECIFIED = enum.auto()
     DEBUG = enum.auto()
     INFORMATION = enum.auto()
@@ -37,37 +37,35 @@ class MessageType(enum.Enum):
         return self.name.capitalize()
 
 
-class Message:
-    def __init__(self, code: str, text: str, message_type: MessageType = MessageType.UNSPECIFIED):
-        self.message_type = message_type
+class Error:
+    def __init__(self, code: str, text: str, type_: ErrorType = ErrorType.UNSPECIFIED):
+        self.type = type_
         self.code = code
         self.text = text
 
 
+ResultData = Union[object, Tuple[object]]
+
+
 class Result:
-    def __init__(self, success: bool, is_exception: bool, messages: List[Message]):
-        self.success = success
-        self.is_exception = is_exception
-        self.messages = messages
-
-
-# not all sequence types are json serializable, but Sequence is covariant,
-# which is necessary for List[Submodel] or List[AssetAdministrationShell] to be valid for List[Referable]
-ResponseData = Union[Result, model.Referable, Sequence[model.Referable]]
-
-ResponseDataInternal = Union[Result, model.Referable, List[model.Referable]]
+    def __init__(self, data: Optional[Union[ResultData, Error]] = None):
+        self.success: bool = not isinstance(data, Error)
+        self.data: Optional[ResultData] = None
+        self.error: Optional[Error] = None
+        if isinstance(data, Error):
+            self.error = data
+        else:
+            self.data = data
 
 
 class APIResponse(abc.ABC, Response):
-    def __init__(self, data: ResponseData, *args, **kwargs):
+    @abc.abstractmethod
+    def __init__(self, result: Result, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # convert possible sequence types to List (see line 54-55)
-        if isinstance(data, Sequence):
-            data = list(data)
-        self.data = self.serialize(data)
+        self.data = self.serialize(result)
 
     @abc.abstractmethod
-    def serialize(self, data: ResponseDataInternal) -> str:
+    def serialize(self, result: Result) -> str:
         pass
 
 
@@ -75,17 +73,18 @@ class JsonResponse(APIResponse):
     def __init__(self, *args, content_type="application/json", **kwargs):
         super().__init__(*args, **kwargs, content_type=content_type)
 
-    def serialize(self, data: ResponseDataInternal) -> str:
-        return json.dumps(data, cls=ResultToJsonEncoder if isinstance(data, Result)
-                          else json_serialization.AASToJsonEncoder)
+    def serialize(self, result: Result) -> str:
+        return json.dumps(result, cls=ResultToJsonEncoder)
 
 
 class XmlResponse(APIResponse):
     def __init__(self, *args, content_type="application/xml", **kwargs):
         super().__init__(*args, **kwargs, content_type=content_type)
 
-    def serialize(self, data: ResponseDataInternal) -> str:
-        return xml_element_to_str(response_data_to_xml(data))
+    def serialize(self, result: Result) -> str:
+        result_elem = result_to_xml(result, nsmap=xml_serialization.NS_MAP)
+        etree.cleanup_namespaces(result_elem)
+        return etree.tostring(result_elem, xml_declaration=True, encoding="utf-8")
 
 
 class XmlResponseAlt(XmlResponse):
@@ -93,20 +92,13 @@ class XmlResponseAlt(XmlResponse):
         super().__init__(*args, **kwargs, content_type=content_type)
 
 
-def xml_element_to_str(element: etree.Element) -> str:
-    # namespaces will just get assigned a prefix like nsX, where X is a positive integer
-    # "aas" would be a better prefix for the AAS namespace
-    # TODO: find a way to specify a namespace map when serializing
-    return etree.tostring(element, xml_declaration=True, encoding="utf-8")
-
-
-class ResultToJsonEncoder(json.JSONEncoder):
+class ResultToJsonEncoder(StrippedAASToJsonEncoder):
     def default(self, obj: object) -> object:
         if isinstance(obj, Result):
             return result_to_json(obj)
-        if isinstance(obj, Message):
-            return message_to_json(obj)
-        if isinstance(obj, MessageType):
+        if isinstance(obj, Error):
+            return error_to_json(obj)
+        if isinstance(obj, ErrorType):
             return str(obj)
         return super().default(obj)
 
@@ -114,78 +106,72 @@ class ResultToJsonEncoder(json.JSONEncoder):
 def result_to_json(result: Result) -> Dict[str, object]:
     return {
         "success": result.success,
-        "isException": result.is_exception,
-        "messages": result.messages
+        "error": result.error,
+        "data": result.data
     }
 
 
-def message_to_json(message: Message) -> Dict[str, object]:
+def error_to_json(error: Error) -> Dict[str, object]:
     return {
-        "messageType": message.message_type,
-        "code": message.code,
-        "text": message.text
+        "type": error.type,
+        "code": error.code,
+        "text": error.text
     }
 
 
-def response_data_to_xml(data: ResponseDataInternal) -> etree.Element:
-    if isinstance(data, Result):
-        return result_to_xml(data)
-    if isinstance(data, model.Referable):
-        return referable_to_xml(data)
-    if isinstance(data, List):
-        elements: List[etree.Element] = [referable_to_xml(obj) for obj in data]
-        wrapper = etree.Element("list")
-        for elem in elements:
-            wrapper.append(elem)
-        return wrapper
-
-
-def referable_to_xml(data: model.Referable) -> etree.Element:
-    # TODO: maybe support more referables
-    if isinstance(data, model.AssetAdministrationShell):
-        return xml_serialization.asset_administration_shell_to_xml(data)
-    if isinstance(data, model.Submodel):
-        return xml_serialization.submodel_to_xml(data)
-    if isinstance(data, model.SubmodelElement):
-        return xml_serialization.submodel_element_to_xml(data)
-    if isinstance(data, model.ConceptDictionary):
-        return xml_serialization.concept_dictionary_to_xml(data)
-    if isinstance(data, model.ConceptDescription):
-        return xml_serialization.concept_description_to_xml(data)
-    if isinstance(data, model.View):
-        return xml_serialization.view_to_xml(data)
-    if isinstance(data, model.Asset):
-        return xml_serialization.asset_to_xml(data)
-    raise TypeError(f"Referable {data} couldn't be serialized to xml (unsupported type)!")
-
-
-def result_to_xml(result: Result) -> etree.Element:
-    result_elem = etree.Element("result")
+def result_to_xml(result: Result, **kwargs) -> etree.Element:
+    result_elem = etree.Element("result", **kwargs)
     success_elem = etree.Element("success")
     success_elem.text = xml_serialization.boolean_to_xml(result.success)
-    is_exception_elem = etree.Element("isException")
-    is_exception_elem.text = xml_serialization.boolean_to_xml(result.is_exception)
-    messages_elem = etree.Element("messages")
-    for message in result.messages:
-        messages_elem.append(message_to_xml(message))
+    error_elem = etree.Element("error")
+    if result.error is not None:
+        append_error_elements(error_elem, result.error)
+    data_elem = etree.Element("data")
+    if result.data is not None:
+        for element in result_data_to_xml(result.data):
+            data_elem.append(element)
     result_elem.append(success_elem)
-    result_elem.append(is_exception_elem)
-    result_elem.append(messages_elem)
+    result_elem.append(error_elem)
+    result_elem.append(data_elem)
     return result_elem
 
 
-def message_to_xml(message: Message) -> etree.Element:
-    message_elem = etree.Element("message")
-    message_type_elem = etree.Element("messageType")
-    message_type_elem.text = str(message.message_type)
+def append_error_elements(element: etree.Element, error: Error) -> None:
+    type_elem = etree.Element("type")
+    type_elem.text = str(error.type)
     code_elem = etree.Element("code")
-    code_elem.text = message.code
+    code_elem.text = error.code
     text_elem = etree.Element("text")
-    text_elem.text = message.text
-    message_elem.append(message_type_elem)
-    message_elem.append(code_elem)
-    message_elem.append(text_elem)
-    return message_elem
+    text_elem.text = error.text
+    element.append(type_elem)
+    element.append(code_elem)
+    element.append(text_elem)
+
+
+def result_data_to_xml(data: ResultData) -> Iterable[etree.Element]:
+    if not isinstance(data, tuple):
+        data = (data,)
+    for obj in data:
+        yield aas_object_to_xml(obj)
+
+
+def aas_object_to_xml(obj: object) -> etree.Element:
+    if isinstance(obj, model.AssetAdministrationShell):
+        return xml_serialization.asset_administration_shell_to_xml(obj)
+    if isinstance(obj, model.Reference):
+        return xml_serialization.reference_to_xml(obj)
+    if isinstance(obj, model.View):
+        return xml_serialization.view_to_xml(obj)
+    if isinstance(obj, model.Submodel):
+        return xml_serialization.submodel_to_xml(obj)
+    # TODO: xml serialization needs a constraint_to_xml() function
+    if isinstance(obj, model.Qualifier):
+        return xml_serialization.qualifier_to_xml(obj)
+    if isinstance(obj, model.Formula):
+        return xml_serialization.formula_to_xml(obj)
+    if isinstance(obj, model.SubmodelElement):
+        return xml_serialization.submodel_element_to_xml(obj)
+    raise TypeError(f"Serializing {type(obj).__name__} to XML is not supported!")
 
 
 def get_response_type(request: Request) -> Type[APIResponse]:
@@ -207,8 +193,9 @@ def http_exception_to_response(exception: werkzeug.exceptions.HTTPException, res
     location = exception.get_response().location
     if location is not None:
         headers.append(("Location", location))
-    success: bool = exception.code < 400 if exception.code is not None else False
-    message_type = MessageType.INFORMATION if success else MessageType.ERROR
-    message = Message(type(exception).__name__, exception.description if exception.description is not None else "",
-                      message_type)
-    return response_type(Result(success, not success, [message]), status=exception.code, headers=headers)
+    result = Result()
+    if exception.code and exception.code >= 400:
+        error = Error(type(exception).__name__, exception.description if exception.description is not None else "",
+                      ErrorType.ERROR)
+        result = Result(error)
+    return response_type(result, status=exception.code, headers=headers)
