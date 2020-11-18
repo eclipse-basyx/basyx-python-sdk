@@ -137,7 +137,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/BaseResult"
         "404":
-          description: AssetAdministrationShell not found or target-identifier is not referenced
+          description: AssetAdministrationShell not found or the specified Submodel is not referenced
           content:
             "application/json":
               schema:
