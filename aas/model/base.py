@@ -1009,6 +1009,9 @@ class Namespace(metaclass=abc.ABCMeta):
                 return dict_.get_referable(id_short)
         raise KeyError("Referable with id_short {} not found in this namespace".format(id_short))
 
+    def __iter__(self) -> Iterator[_RT]:
+        return itertools.chain.from_iterable(self.namespace_element_sets)
+
 
 class NamespaceSet(MutableSet[_RT], Generic[_RT]):
     """
