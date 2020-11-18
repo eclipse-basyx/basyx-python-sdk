@@ -115,7 +115,7 @@ property_reference = model.AASReference(
          value='ExampleProperty',
          id_type=model.KeyType.IDSHORT),
      ),
-    type_=model.Property
+    target_type=model.Property
 )
 
 # Now, we can resolve this new reference.

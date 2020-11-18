@@ -666,7 +666,7 @@ class AASReference(Reference, Generic[_RT]):
     """
     def __init__(self,
                  key: Tuple[Key, ...],
-                 type_: Type[_RT]):
+                 target_type: Type[_RT]):
         """
         Initializer of AASReference
 
@@ -680,7 +680,7 @@ class AASReference(Reference, Generic[_RT]):
         # TODO check keys for validity. GlobalReference and Fragment-Type keys are not allowed here
         super().__init__(key)
         self.type: Type[_RT]
-        object.__setattr__(self, 'type', type_)
+        object.__setattr__(self, 'type', target_type)
 
     def resolve(self, provider_: "provider.AbstractObjectProvider") -> _RT:
         """
