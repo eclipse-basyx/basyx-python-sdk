@@ -394,7 +394,7 @@ paths:
             schema:
               $ref: "#/components/schemas/Qualifier"
       responses:
-        "201":
+        "200":
           description: Success
           content:
             "application/json":
@@ -888,7 +888,7 @@ paths:
             schema:
               $ref: "#/components/schemas/Qualifier"
       responses:
-        "201":
+        "200":
           description: Success
           content:
             "application/json":
