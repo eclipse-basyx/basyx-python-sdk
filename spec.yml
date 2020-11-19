@@ -86,6 +86,11 @@ paths:
             "application/json":
               schema:
                 $ref: "#/components/schemas/ReferenceResult"
+          headers:
+            Location:
+              description: The URL of the created Submodel-Reference
+              schema:
+                type: string
         "404":
           description: AssetAdministrationShell not found
           content:
@@ -180,6 +185,11 @@ paths:
             "application/json":
               schema:
                 $ref: "#/components/schemas/ViewResult"
+          headers:
+            Location:
+              description: The URL of the created View
+              schema:
+                type: string
         "404":
           description: AssetAdministrationShell not found
           content:
@@ -349,6 +359,11 @@ paths:
             "application/json":
               schema:
                 $ref: "#/components/schemas/ConstraintResult"
+          headers:
+            Location:
+              description: The URL of the created Constraint
+              schema:
+                type: string
         "404":
           description: Submodel not found
           content:
@@ -474,6 +489,11 @@ paths:
             "application/json":
               schema:
                 $ref: "#/components/schemas/SubmodelElementResult"
+          headers:
+            Location:
+              description: The URL of the created SubmodelElement
+              schema:
+                type: string
         "404":
           description: Submodel not found
           content:
@@ -624,6 +644,11 @@ paths:
             "application/json":
               schema:
                 $ref: "#/components/schemas/SubmodelElementResult"
+          headers:
+            Location:
+              description: The URL of the created SubmodelElement
+              schema:
+                type: string
         "400":
           description: SubmodelElement exists, but is not a SubmodelElementCollection, so /value is not possible
           content:
@@ -699,6 +724,11 @@ paths:
             "application/json":
               schema:
                 $ref: "#/components/schemas/SubmodelElementResult"
+          headers:
+            Location:
+              description: The URL of the created SubmodelElement
+              schema:
+                type: string
         "400":
           description: SubmodelElement exists, but is not an AnnotatedRelationshipElement, so /annotation is not possible
           content:
@@ -774,6 +804,11 @@ paths:
             "application/json":
               schema:
                 $ref: "#/components/schemas/SubmodelElementResult"
+          headers:
+            Location:
+              description: The URL of the created SubmodelElement
+              schema:
+                type: string
         "400":
           description: SubmodelElement exists, but is not an Entity, so /statement is not possible
           content:
@@ -843,6 +878,11 @@ paths:
             "application/json":
               schema:
                 $ref: "#/components/schemas/ConstraintResult"
+          headers:
+            Location:
+              description: The URL of the created Constraint
+              schema:
+                type: string
         "404":
           description: Submodel or any SubmodelElement referred to by idShort[1-N] not found
           content:
