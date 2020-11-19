@@ -144,18 +144,6 @@ class ComplianceToolTest(unittest.TestCase):
 
         # todo: add test for correct logfile
 
-    def test_json_schema(self) -> None:
-        file_path = os.path.join(os.path.dirname(aas.compliance_tool.__file__), 'cli.py')
-        test_file_path = os.path.join(os.path.dirname(__file__), 'files')
-
-        output: subprocess.CompletedProcess = subprocess.run(
-            [sys.executable, file_path, "s", os.path.join(test_file_path, "test_demo_full_example.json"), "--json"],
-            stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        self.assertEqual(0, output.returncode)
-        self.assertIn('SUCCESS:      Open file', str(output.stdout))
-        self.assertIn('SUCCESS:      Read file and check if it is conform to the json syntax', str(output.stdout))
-        self.assertIn('SUCCESS:      Validate file against official json schema', str(output.stdout))
-
     def test_json_create_example(self) -> None:
         file_path = os.path.join(os.path.dirname(aas.compliance_tool.__file__), 'cli.py')
 
@@ -212,18 +200,6 @@ class ComplianceToolTest(unittest.TestCase):
         self.assertIn('SUCCESS:      Open second file', str(output.stdout))
         self.assertIn('SUCCESS:      Read file', str(output.stdout))
         self.assertIn('SUCCESS:      Check if data in files are equal', str(output.stdout))
-
-    def test_xml_schema(self) -> None:
-        file_path = os.path.join(os.path.dirname(aas.compliance_tool.__file__), 'cli.py')
-        test_file_path = os.path.join(os.path.dirname(__file__), 'files')
-
-        output: subprocess.CompletedProcess = subprocess.run(
-            [sys.executable, file_path, "s", os.path.join(test_file_path, "test_demo_full_example.xml"), "--xml"],
-            stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        self.assertEqual(0, output.returncode)
-        self.assertIn('SUCCESS:      Open file', str(output.stdout))
-        self.assertIn('SUCCESS:      Read file and check if it is conform to the xml syntax', str(output.stdout))
-        self.assertIn('SUCCESS:      Validate file against official xml schema', str(output.stdout))
 
     def test_xml_create_example(self) -> None:
         file_path = os.path.join(os.path.dirname(aas.compliance_tool.__file__), 'cli.py')
