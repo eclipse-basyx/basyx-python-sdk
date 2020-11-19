@@ -395,7 +395,7 @@ paths:
               $ref: "#/components/schemas/Qualifier"
       responses:
         "201":
-          description: Constraint created successfully
+          description: Success
           content:
             "application/json":
               schema:
@@ -413,7 +413,7 @@ paths:
       operationId: DeleteSubmodelConstraint
       responses:
         "200":
-          description: Constraint deleted successfully
+          description: Success
           content:
             "application/json":
               schema:
@@ -520,7 +520,7 @@ paths:
               $ref: "#/components/schemas/SubmodelElement"
       responses:
         "200":
-          description: Returns the updated SubmodelElement
+          description: Success
           content:
             "application/json":
               schema:
