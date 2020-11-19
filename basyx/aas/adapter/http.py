@@ -290,6 +290,14 @@ class WSGIApp:
                          endpoint=self.get_aas_submodel_refs_specific),
                     Rule("/submodels/<identifier:sm_id>", methods=["DELETE"],
                          endpoint=self.delete_aas_submodel_refs_specific),
+                    Rule("/views", methods=["GET"], endpoint=self.get_aas_views),
+                    Rule("/views", methods=["POST"], endpoint=self.post_aas_views),
+                    Rule("/views/<string(minlength=1):view_idshort>", methods=["GET"],
+                         endpoint=self.get_aas_views_specific),
+                    Rule("/views/<string(minlength=1):view_idshort>", methods=["PUT"],
+                         endpoint=self.put_aas_views_specific),
+                    Rule("/views/<string(minlength=1):view_idshort>", methods=["DELETE"],
+                         endpoint=self.delete_aas_views_specific)
                 ]),
                 Rule("/submodels/<identifier:submodel_id>", endpoint=self.get_submodel),
             ])
@@ -382,6 +390,60 @@ class WSGIApp:
         # in an InternalServerError
         aas.submodel.remove(sm_ref)
         aas.commit()
+        return response_t(Result(None))
+
+    def get_aas_views(self, request: Request, url_args: Dict) -> Response:
+        response_t = get_response_type(request)
+        aas = self._get_obj_ts(url_args["aas_id"], model.AssetAdministrationShell)
+        aas.update()
+        return response_t(Result(tuple(aas.view)))
+
+    def post_aas_views(self, request: Request, url_args: Dict) -> Response:
+        response_t = get_response_type(request)
+        aas = self._get_obj_ts(url_args["aas_id"], model.AssetAdministrationShell)
+        aas.update()
+        view = parse_request_body(request, model.View)
+        if view.id_short in aas.view:
+            raise Conflict(f"View with idShort {view.id_short} already exists!")
+        aas.view.add(view)
+        aas.commit()
+        return response_t(Result(view))
+
+    def get_aas_views_specific(self, request: Request, url_args: Dict) -> Response:
+        response_t = get_response_type(request)
+        aas = self._get_obj_ts(url_args["aas_id"], model.AssetAdministrationShell)
+        aas.update()
+        view_idshort = url_args["view_idshort"]
+        view = aas.view.get(view_idshort)
+        if view is None:
+            raise NotFound(f"No view with idShort {view_idshort} found!")
+        # TODO: is view.update() necessary here?
+        view.update()
+        return response_t(Result(view))
+
+    def put_aas_views_specific(self, request: Request, url_args: Dict) -> Response:
+        response_t = get_response_type(request)
+        aas = self._get_obj_ts(url_args["aas_id"], model.AssetAdministrationShell)
+        aas.update()
+        view_idshort = url_args["view_idshort"]
+        view = aas.view.get(view_idshort)
+        if view is None:
+            raise NotFound(f"No view with idShort {view_idshort} found!")
+        new_view = parse_request_body(request, model.View)
+        if new_view.id_short != view.id_short:
+            raise BadRequest(f"idShort of new {new_view} doesn't match the old {view}")
+        aas.view.remove(view)
+        aas.view.add(new_view)
+        return response_t(Result(new_view))
+
+    def delete_aas_views_specific(self, request: Request, url_args: Dict) -> Response:
+        response_t = get_response_type(request)
+        aas = self._get_obj_ts(url_args["aas_id"], model.AssetAdministrationShell)
+        aas.update()
+        view_idshort = url_args["view_idshort"]
+        if view_idshort not in aas.view:
+            raise NotFound(f"No view with idShort {view_idshort} found!")
+        aas.view.remove(view_idshort)
         return response_t(Result(None))
 
     # --------- SUBMODEL ROUTES ---------
