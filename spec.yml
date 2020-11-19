@@ -237,6 +237,12 @@ paths:
             "application/json":
               schema:
                 $ref: "#/components/schemas/ViewResult"
+        "400":
+          description: idShort of new View does not match the old one
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/ViewResult"
         "404":
           description: AssetAdministrationShell or View not found
           content:
@@ -400,6 +406,12 @@ paths:
             "application/json":
               schema:
                 $ref: "#/components/schemas/ConstraintResult"
+        "400":
+          description: type of new Qualifier does not match the old one
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/ConstraintResult"
         "404":
           description: Submodel or Constraint not found
           content:
@@ -521,6 +533,12 @@ paths:
       responses:
         "200":
           description: Success
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/SubmodelElementResult"
+        "400":
+          description: idShort of new SubmodelElement does not match the old one
           content:
             "application/json":
               schema:
@@ -890,6 +908,12 @@ paths:
       responses:
         "200":
           description: Success
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/ConstraintResult"
+        "400":
+          description: type of new Qualifier does not match the old one
           content:
             "application/json":
               schema:
