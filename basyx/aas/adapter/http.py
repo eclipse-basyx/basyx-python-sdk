@@ -276,7 +276,7 @@ class IdentifierConverter(werkzeug.routing.UnicodeConverter):
         try:
             return identifier_uri_decode(super().to_python(value))
         except ValueError as e:
-            raise BadRequest(str(e))
+            raise BadRequest(str(e)) from e
 
 
 class WSGIApp:
