@@ -16,7 +16,6 @@ import io
 import json
 from lxml import etree  # type: ignore
 import urllib.parse
-import werkzeug
 from werkzeug.exceptions import BadRequest, Conflict, InternalServerError, NotFound, NotImplemented
 from werkzeug.routing import Rule, Submount
 from werkzeug.wrappers import Request, Response
@@ -26,7 +25,7 @@ from .xml import XMLConstructables, read_aas_xml_element, xml_serialization
 from .json import StrippedAASToJsonEncoder, StrictStrippedAASFromJsonDecoder
 from ._generic import IDENTIFIER_TYPES, IDENTIFIER_TYPES_INVERSE
 
-from typing import Dict, Iterable, List, Optional, Tuple, Type, Union
+from typing import Dict, Iterable, Optional, Tuple, Type, Union
 
 
 @enum.unique
