@@ -239,6 +239,10 @@ def parse_request_body(request: Request, expect_type: Type[model.base._RT]) -> m
     try:
         if request.mimetype == "application/json":
             rv = json.loads(request.get_data(), cls=StrictStrippedAASFromJsonDecoder)
+            # TODO: the following is ugly, but necessary because references aren't self-identified objects
+            #  in the json schema
+            if expect_type is model.AASReference:
+                rv = StrictStrippedAASFromJsonDecoder._construct_aas_reference(rv, model.Submodel)
         else:
             xml_data = io.BytesIO(request.get_data())
             rv = read_aas_xml_element(xml_data, type_constructables_map[expect_type], stripped=True, failsafe=False)
