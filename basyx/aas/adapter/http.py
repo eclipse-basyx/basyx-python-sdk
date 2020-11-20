@@ -15,7 +15,7 @@ import enum
 import io
 import json
 from lxml import etree  # type: ignore
-import urllib.parse
+import werkzeug.urls
 from werkzeug.exceptions import BadRequest, Conflict, InternalServerError, NotFound, NotImplemented
 from werkzeug.routing import Rule, Submount
 from werkzeug.wrappers import Request, Response
@@ -250,8 +250,7 @@ def parse_request_body(request: Request, expect_type: Type[model.base._RT]) -> m
 
 
 def identifier_uri_encode(id_: model.Identifier) -> str:
-    # TODO: replace urllib with urllib3 if we're using it anyways?
-    return IDENTIFIER_TYPES[id_.id_type] + ":" + urllib.parse.quote(id_.id, safe="")
+    return IDENTIFIER_TYPES[id_.id_type] + ":" + werkzeug.urls.url_quote(id_.id, safe="")
 
 
 def identifier_uri_decode(id_str: str) -> model.Identifier:
@@ -261,8 +260,8 @@ def identifier_uri_decode(id_str: str) -> model.Identifier:
         raise ValueError(f"Identifier '{id_str}' is not of format 'ID_TYPE:ID'")
     id_type = IDENTIFIER_TYPES_INVERSE.get(id_type_str)
     if id_type is None:
-        raise ValueError(f"Identifier Type '{id_type_str}' is invalid")
-    return model.Identifier(urllib.parse.unquote(id_), id_type)
+        raise ValueError(f"IdentifierType '{id_type_str}' is invalid")
+    return model.Identifier(werkzeug.urls.url_unquote(id_), id_type)
 
 
 class IdentifierConverter(werkzeug.routing.UnicodeConverter):
