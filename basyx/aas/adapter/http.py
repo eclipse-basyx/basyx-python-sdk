@@ -331,12 +331,12 @@ class WSGIApp:
         raise NotFound(f"No reference to submodel with {sm_identifier} found!")
 
     def handle_request(self, request: Request):
-        adapter = self.url_map.bind_to_environ(request.environ)
+        map_adapter = self.url_map.bind_to_environ(request.environ)
         try:
-            endpoint, values = adapter.match()
+            endpoint, values = map_adapter.match()
             if endpoint is None:
                 raise NotImplemented("This route is not yet implemented.")
-            return endpoint(request, values)
+            return endpoint(request, values, map_adapter=map_adapter)
         # any raised error that leaves this function will cause a 500 internal server error
         # so catch raised http exceptions and return them
         except werkzeug.exceptions.NotAcceptable as e:
@@ -349,39 +349,50 @@ class WSGIApp:
                 return e
 
     # --------- AAS ROUTES ---------
-    def get_aas(self, request: Request, url_args: Dict) -> Response:
+    def get_aas(self, request: Request, url_args: Dict, **_kwargs) -> Response:
         response_t = get_response_type(request)
         aas = self._get_obj_ts(url_args["aas_id"], model.AssetAdministrationShell)
         aas.update()
         return response_t(Result(aas))
 
-    def get_aas_submodel_refs(self, request: Request, url_args: Dict) -> Response:
+    def get_aas_submodel_refs(self, request: Request, url_args: Dict, **_kwargs) -> Response:
         response_t = get_response_type(request)
         aas = self._get_obj_ts(url_args["aas_id"], model.AssetAdministrationShell)
         aas.update()
         return response_t(Result(tuple(aas.submodel)))
 
-    def post_aas_submodel_refs(self, request: Request, url_args: Dict) -> Response:
+    def post_aas_submodel_refs(self, request: Request, url_args: Dict, map_adapter: werkzeug.routing.MapAdapter) \
+            -> Response:
         response_t = get_response_type(request)
-        aas = self._get_obj_ts(url_args["aas_id"], model.AssetAdministrationShell)
+        aas_identifier = url_args["aas_id"]
+        aas = self._get_obj_ts(aas_identifier, model.AssetAdministrationShell)
         aas.update()
         sm_ref = parse_request_body(request, model.AASReference)  # type: ignore
         assert isinstance(sm_ref, model.AASReference)
+        # to give a location header in the response we have to be able to get the submodel identifier from the reference
+        try:
+            submodel_identifier = sm_ref.get_identifier()
+        except ValueError as e:
+            raise BadRequest(f"Can't resolve submodel identifier for given reference!") from e
         if sm_ref in aas.submodel:
             raise Conflict(f"{sm_ref!r} already exists!")
         # TODO: check if reference references a non-existant submodel?
         aas.submodel.add(sm_ref)
         aas.commit()
-        return response_t(Result(sm_ref), status=201)
+        created_resource_url = map_adapter.build(self.get_aas_submodel_refs_specific, {
+            "aas_id": aas_identifier,
+            "sm_id": submodel_identifier
+        }, force_external=True)
+        return response_t(Result(sm_ref), status=201, headers={"Location": created_resource_url})
 
-    def get_aas_submodel_refs_specific(self, request: Request, url_args: Dict) -> Response:
+    def get_aas_submodel_refs_specific(self, request: Request, url_args: Dict, **_kwargs) -> Response:
         response_t = get_response_type(request)
         aas = self._get_obj_ts(url_args["aas_id"], model.AssetAdministrationShell)
         aas.update()
         sm_ref = self._get_aas_submodel_reference_by_submodel_identifier(aas, url_args["sm_id"])
         return response_t(Result(sm_ref))
 
-    def delete_aas_submodel_refs_specific(self, request: Request, url_args: Dict) -> Response:
+    def delete_aas_submodel_refs_specific(self, request: Request, url_args: Dict, **_kwargs) -> Response:
         response_t = get_response_type(request)
         aas = self._get_obj_ts(url_args["aas_id"], model.AssetAdministrationShell)
         aas.update()
@@ -394,24 +405,29 @@ class WSGIApp:
         aas.commit()
         return response_t(Result(None))
 
-    def get_aas_views(self, request: Request, url_args: Dict) -> Response:
+    def get_aas_views(self, request: Request, url_args: Dict, **_kwargs) -> Response:
         response_t = get_response_type(request)
         aas = self._get_obj_ts(url_args["aas_id"], model.AssetAdministrationShell)
         aas.update()
         return response_t(Result(tuple(aas.view)))
 
-    def post_aas_views(self, request: Request, url_args: Dict) -> Response:
+    def post_aas_views(self, request: Request, url_args: Dict, map_adapter: werkzeug.routing.MapAdapter) -> Response:
         response_t = get_response_type(request)
-        aas = self._get_obj_ts(url_args["aas_id"], model.AssetAdministrationShell)
+        aas_identifier = url_args["aas_id"]
+        aas = self._get_obj_ts(aas_identifier, model.AssetAdministrationShell)
         aas.update()
         view = parse_request_body(request, model.View)
         if view.id_short in aas.view:
             raise Conflict(f"View with idShort {view.id_short} already exists!")
         aas.view.add(view)
         aas.commit()
-        return response_t(Result(view))
+        created_resource_url = map_adapter.build(self.get_aas_views_specific, {
+            "aas_id": aas_identifier,
+            "view_idshort": view.id_short
+        }, force_external=True)
+        return response_t(Result(view), status=201, headers={"Location": created_resource_url})
 
-    def get_aas_views_specific(self, request: Request, url_args: Dict) -> Response:
+    def get_aas_views_specific(self, request: Request, url_args: Dict, **_kwargs) -> Response:
         response_t = get_response_type(request)
         aas = self._get_obj_ts(url_args["aas_id"], model.AssetAdministrationShell)
         aas.update()
@@ -423,7 +439,7 @@ class WSGIApp:
         view.update()
         return response_t(Result(view))
 
-    def put_aas_views_specific(self, request: Request, url_args: Dict) -> Response:
+    def put_aas_views_specific(self, request: Request, url_args: Dict, **_kwargs) -> Response:
         response_t = get_response_type(request)
         aas = self._get_obj_ts(url_args["aas_id"], model.AssetAdministrationShell)
         aas.update()
@@ -438,7 +454,7 @@ class WSGIApp:
         aas.view.add(new_view)
         return response_t(Result(new_view))
 
-    def delete_aas_views_specific(self, request: Request, url_args: Dict) -> Response:
+    def delete_aas_views_specific(self, request: Request, url_args: Dict, **_kwargs) -> Response:
         response_t = get_response_type(request)
         aas = self._get_obj_ts(url_args["aas_id"], model.AssetAdministrationShell)
         aas.update()
@@ -449,7 +465,7 @@ class WSGIApp:
         return response_t(Result(None))
 
     # --------- SUBMODEL ROUTES ---------
-    def get_submodel(self, request: Request, url_args: Dict) -> Response:
+    def get_submodel(self, request: Request, url_args: Dict, **_kwargs) -> Response:
         response_t = get_response_type(request)
         submodel = self._get_obj_ts(url_args["submodel_id"], model.Submodel)
         submodel.update()
