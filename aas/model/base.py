@@ -9,7 +9,7 @@
 # "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
 # specific language governing permissions and limitations under the License.
 """
-This module implements the basic structures of the AAS metamodel, including the abstract classes and enums needed for
+This module implements the basic structures of the AAS meta-model, including the abstract classes and enums needed for
 the higher level classes to inherit from.
 """
 
@@ -42,7 +42,7 @@ LangStringSet = Dict[str, str]
 @unique
 class IdentifierType(Enum):
     """
-    Enumeration of different types of Identifiers for global identification
+    Enumeration of different types of :class:`Identifiers <.Identifier>` for global identification
 
     :cvar IRDI: IRDI (International Registration Data Identifier) according to ISO29002-5 as an Identifier scheme for
                 properties and classifications.
@@ -61,41 +61,47 @@ class KeyElements(Enum):
     Enumeration for denoting which kind of entity is referenced. They can be categorized in ReferableElements,
     IdentifiableElements and other KeyElements
 
-    # IdentifiableElements starting from 0
-    :cvar ASSET: asset
-    :cvar ASSET_ADMINISTRATION_SHELL: asset administration shell
-    :cvar CONCEPT_DESCRIPTION: concept description
-    :cvar SUBMODEL: submodel
+    **IdentifiableElements starting from 0**
 
-    # ReferableElements starting from 1000
+    :cvar ASSET: :class:`~aas.model.aas.Asset`
+    :cvar ASSET_ADMINISTRATION_SHELL: :class:`~aas.model.aas.AssetAdministrationShell`
+    :cvar CONCEPT_DESCRIPTION: :class:`~aas.model.concept.ConceptDescription`
+    :cvar SUBMODEL: :class:`~aas.model.submodel.Submodel`
+
+    **ReferableElements starting from 1000**
+
     :cvar ACCESS_PERMISSION_RULE: access permission rule
-    :cvar ANNOTATED_RELATIONSHIP_ELEMENT: annotated relationship element
-    :cvar BASIC_EVENT: basic event
-    :cvar BLOB: blob
-    :cvar CAPABILITY: capability
-    :cvar CONCEPT_DICTIONARY: concept dictionary
-    :cvar DATA_ELEMENT: data element,
-                        Note: Date Element is abstract, i. e. if a key uses "DATA_ELEMENT" the reference may be
-                              Property, File etc.
-    :cvar ENTITY: entity
-    :cvar EVENT: event, Note: Event is abstract
-    :cvar FILE: file
-    :cvar MULTI_LANGUAGE_PROPERTY: property with a value that can be provided in multiple languages
-    :cvar OPERATION: operation
-    :cvar PROPERTY: property
-    :cvar RANGE: range with min and max
-    :cvar REFERENCE_ELEMENT: reference
-    :cvar RELATIONSHIP_ELEMENT: relationship
-    :cvar SUBMODEL_ELEMENT: submodel element,
-                            Note: Submodel Element is abstract, i.e. if a key uses “SUBMODEL_ELEMENT” the reference may
-                                  be a Property, a SubmodelElementCollection, an Operation etc.
-    :cvar SUBMODEL_ELEMENT_COLLECTION: collection of submodel elements
-    :cvar VIEW: view
+    :cvar ANNOTATED_RELATIONSHIP_ELEMENT: :class:`~aas.model.submodel.AnnotatedRelationshipElement`
+    :cvar BASIC_EVENT: :class:`~aas.model.submodel.BasicEvent`
+    :cvar BLOB: :class:`~aas.model.submodel.Blob`
+    :cvar CAPABILITY: :class:`~aas.model.submodel.Capability`
+    :cvar CONCEPT_DICTIONARY: :class:`~aas.model.concept.ConceptDictionary`
+    :cvar DATA_ELEMENT: | :class:`~aas.model.submodel.DataElement`,
+                        | **Note:** Date Element is abstract, i. e. if a key uses "DATA_ELEMENT" the reference may be
+                          :class:`~aas.model.submodel.Property`, :class:`~aas.model.submodel.File` etc.
+    :cvar ENTITY: :class:`~aas.model.submodel.Entity`
+    :cvar EVENT: :class:`~aas.model.submodel.Event`, Note: Event is abstract
+    :cvar FILE: :class:`~aas.model.submodel.File`
+    :cvar MULTI_LANGUAGE_PROPERTY: :class:`~aas.model.submodel.MultiLanguageProperty` property with a value that can be
+                                   provided in multiple languages
+    :cvar OPERATION: :class:`~aas.model.submodel.Operation`
+    :cvar PROPERTY: :class:`~aas.model.submodel.Property`
+    :cvar RANGE: :class:`~aas.model.submodel.Range` with min and max
+    :cvar REFERENCE_ELEMENT: :class:`~aas.model.submodel.ReferenceElement`
+    :cvar RELATIONSHIP_ELEMENT: :class:`~aas.model.submodel.RelationshipElement`
+    :cvar SUBMODEL_ELEMENT: | :class:`~aas.model.submodel.SubmodelElement`,
+                            | **Note:** :class:`~aas.model.submodel.SubmodelElement` is abstract, i.e. if a key uses
+                              “SUBMODEL_ELEMENT” the reference may be a :class:`~aas.model.submodel.Property`, a
+                              :class:`~aas.model.submodel.SubmodelElementCollection`, an
+                              :class:`~aas.model.submodel.Operation` etc.
+    :cvar SUBMODEL_ELEMENT_COLLECTION: :class:`~aas.model.submodel.SubmodelElementCollection`
+    :cvar VIEW: :class:`~aas.model.aas.View`
 
-    # KeyElements starting from 2000
-    :cvar GLOBAL_REFERENCE: reference to an element not belonging to an asset administration shel
+    **KeyElements starting from 2000**
+
+    :cvar GLOBAL_REFERENCE: reference to an element not belonging to an asset administration shell
     :cvar FRAGMENT_REFERENCE: unique reference to an element within a file. The file itself is assumed to be part of an
-                             asset administration shell.
+                              asset administration shell.
     """
 
     # IdentifiableElements starting from 0
@@ -159,11 +165,13 @@ class EntityType(Enum):
     """
     Enumeration for denoting whether an entity is a self-managed or a co-managed entity
 
-    :cvar CO_MANAGED_ENTITY: For co-managed entities there is no separate AAS. Co-managed entities need to be part of a
-                             self-managed entity
-    :cvar SELF_MANAGED_ENTITY: Self-managed entities have their own AAS but can be part of the bill of material of a
-                               composite self-managed entity. The asset of an I4.0-component is a self-managed entity
-                               per definition.
+    :cvar CO_MANAGED_ENTITY: For co-managed entities there is no separate
+                             :class:`AAS <aas.model.aas.AssetAdministrationShell>`. Co-managed entities need to be part
+                             of a self-managed entity
+    :cvar SELF_MANAGED_ENTITY: Self-managed entities have their own
+                               :class:`AAS <aas.model.aas.AssetAdministrationShell>`, but can be part of the bill of
+                               material of a composite self-managed entity. The :class:`~aas.model.aas.Asset` of an
+                               I4.0-component is a self-managed entity per definition.
     """
 
     CO_MANAGED_ENTITY = 0
@@ -176,10 +184,10 @@ class ModelingKind(Enum):
     Enumeration for denoting whether an element is a type or an instance.
 
     :cvar TEMPLATE: Software element which specifies the common attributes shared by all instances of the template
-    :cvar INSTANCE: concrete, clearly identifiable component of a certain template,
-                    Note: It becomes an individual entity of a template, for example a device model, by defining
-                          specific property values.
-                    Note: In an object oriented view, an instance denotes an object of a template (class).
+    :cvar INSTANCE: | concrete, clearly identifiable component of a certain template,
+                    | **Note:** It becomes an individual entity of a template, for example a device model, by defining
+                      specific property values.
+                    | **Note:** In an object oriented view, an instance denotes an object of a template (class).
     """
 
     TEMPLATE = 0
@@ -192,10 +200,10 @@ class AssetKind(Enum):
     Enumeration for denoting whether an element is a type or an instance.
 
     :cvar TYPE: hardware or software element which specifies the common attributes shared by all instances of the type
-    :cvar INSTANCE: concrete, clearly identifiable component of a certain type,
-                    Note: It becomes an individual entity of a type, for example a device, by defining specific
-                          property values.
-                    Note: In an object oriented view, an instance denotes an object of a class (of a type)
+    :cvar INSTANCE: | concrete, clearly identifiable component of a certain type,
+                    | **Note:** It becomes an individual entity of a type, for example a device, by defining specific
+                      property values.
+                    | **Note:** In an object oriented view, an instance denotes an object of a class (of a type)
     """
 
     TYPE = 0
@@ -269,9 +277,9 @@ class Key:
 
     def get_identifier(self) -> Optional["Identifier"]:
         """
-        Get an identifier object corresponding to this key, if it is a global key.
+        Get an :class:`~.Identifier` object corresponding to this key, if it is a global key.
 
-        :return: None if this is no global key, otherwise a corresponding identifier object
+        :return: None if this is no global key, otherwise a corresponding :class:`~.Identifier` object
         """
         if self.id_type.is_local_key_type:
             return None
@@ -280,7 +288,7 @@ class Key:
     @staticmethod
     def from_referable(referable: "Referable") -> "Key":
         """
-        Construct a key for a given Referable (or Identifiable) object
+        Construct a key for a given :class:`~.Referable` (or :class:`~.Identifiable`) object
         """
         # Get the `type` by finding the first class from the base classes list (via inspect.getmro), that is contained
         # in KEY_ELEMENTS_CLASSES
@@ -306,8 +314,9 @@ class AdministrativeInformation:
 
     :ivar version: Version of the element.
     :ivar revision: Revision of the element.
-    Constraint AASd-005: A revision requires a version. This means, if there is no version there is no revision
-                         neither.
+
+    **Constraint AASd-005:** A revision requires a version. This means, if there is no version there is no revision
+    either.
     """
 
     def __init__(self,
@@ -354,9 +363,9 @@ class Identifier:
     """
     Used to uniquely identify an entity by using an identifier.
 
-    :ivar id: Identifier of the element. Its type is defined in id_type.
+    :ivar id_: Identifier of the element. Its type is defined in id_type.
     :ivar id_type: Type of the Identifier, e.g. URI, IRDI etc. The supported Identifier types are defined in
-                   the enumeration "IdentifierType".
+                   the :class:`~.IdentifierType` enumeration.
     """
 
     def __init__(self,
@@ -395,21 +404,21 @@ class Identifier:
 class Referable(metaclass=abc.ABCMeta):
     """
     An element that is referable by its id_short. This id is not globally unique. This id is unique within
-    the name space of the element.
+    the :class:`name space <.Namespace>` of the element.
 
     << abstract >>
 
-    :ivar id_short: Identifying string of the element within its name space.
-                    Constraint AASd-001: In case of a referable element not being an identifiable element this id is
-                                         mandatory and used for referring to the element in its name space.
-                    Constraint AASd-002: idShort shall only feature letters, digits, underscore ("_"); starting
-                                         mandatory with a letter.
-                    Constraint AASd-003: idShort shall be matched case insensitive.
+    :ivar _id_short: | Identifying string of the element within its name space.
+                     | **Constraint AASd-001:** In case of a referable element not being an identifiable element this id
+                       is mandatory and used for referring to the element in its name space.
+                     | **Constraint AASd-002:** idShort shall only feature letters, digits, underscore ("_"); starting
+                       mandatory with a letter.
+                     | **Constraint AASd-003:** idShort shall be matched case insensitive.
     :ivar category: The category is a value that gives further meta information w.r.t. to the class of the element.
                     It affects the expected existence of attributes and the applicability of constraints.
     :ivar description: Description or comments on the element.
-    :ivar parent: Reference to the next referable parent element of the element.
-                  Constraint AASd-004: Add parent in case of non identifiable elements.
+    :ivar parent: | Reference to the next referable parent element of the element.
+                  | **Constraint AASd-004:** Add parent in case of non identifiable elements.
     :ivar source: Source of the object, an URI, that defines where this object's data originates from.
                   This is used to specify where the Referable should be updated from and committed to.
                   Default is an empty string, making it use the source of its ancestor, if possible.
@@ -488,7 +497,7 @@ class Referable(metaclass=abc.ABCMeta):
         If there is no source in any ancestor, this function will do nothing
 
         :param max_age: Maximum age of the local data in seconds. This method may return early, if the previous update
-            of the object has been performed less than `max_age` seconds ago.
+                        of the object has been performed less than `max_age` seconds ago.
         :param recursive: Also call update on all children of this object. Default is True
         :param _indirect_source: Internal parameter to avoid duplicate updating.
         :raises backends.BackendError: If no appropriate backend or the data source is not available
@@ -525,7 +534,8 @@ class Referable(metaclass=abc.ABCMeta):
         """
         Finds the closest source in this objects ancestors. If there is no source, returns None
 
-        :return: (The closest ancestor with a defined source, the relative path of id_shorts to that ancestor)
+        :return: Tuple with the closest ancestor with a defined source and the relative path of id_shorts to that
+                 ancestor
         """
         referable: Referable = self
         relative_path: List[str] = [self.id_short]
@@ -604,7 +614,8 @@ _RT = TypeVar('_RT', bound=Referable)
 
 class UnexpectedTypeError(TypeError):
     """
-    Exception to be raised by Reference.resolve() if the retrieved object has not the expected type.
+    Exception to be raised by :meth:`aas.model.base.Reference.resolve` if the retrieved object has not the expected
+    type.
 
     :ivar value: The object of unexpected type
     """
@@ -615,15 +626,15 @@ class UnexpectedTypeError(TypeError):
 
 class Reference:
     """
-    Reference to either a model element of the same or another AAs or to an external entity.
+    Reference to either a model element of the same or another AAS or to an external entity.
 
-    A reference is an ordered list of keys, each key referencing an element. The complete list of keys may for
-    example be concatenated to a path that then gives unique access to an element or entity
+    A reference is an ordered list of :class:`keys <.Key>`, each key referencing an element. The complete list of keys
+    may, for example, be concatenated to a path that then gives unique access to an element or entity
 
-    :ivar: key: Ordered list of unique reference in its name space, each key referencing an element. The complete
+    :ivar: key: Ordered list of unique references in its name space, each key referencing an element. The complete
                 list of keys may for example be concatenated to a path that then gives unique access to an element
                 or entity.
-    :ivar: type: The type of the referenced object (additional attribute, not from the AAS Metamodel)
+    :ivar: type: The type of the referenced object (additional attribute, not from the AAS Meta-model)
     """
 
     def __init__(self,
@@ -660,7 +671,7 @@ class Reference:
 
 class AASReference(Reference, Generic[_RT]):
     """
-    Typed Reference to any referable Asset Administration Shell object.
+    Typed Reference to any referable :class:`Asset Administration Shell <aas.model.aas.AssetAdministrationShell>` object
 
     This is a special construct of the implementation to allow typed references and dereferencing.
     """
@@ -684,11 +695,11 @@ class AASReference(Reference, Generic[_RT]):
 
     def resolve(self, provider_: "provider.AbstractObjectProvider") -> _RT:
         """
-        Follow the reference and retrieve the Referable object it points to
+        Follow the reference and retrieve the :class:`~aas.model.base.Referable` object it points to
 
         :return: The referenced object (or a proxy object for it)
         :raises IndexError: If the list of keys is empty
-        :raises TypeError: If one of the intermediate objects on the path is not a Namespace
+        :raises TypeError: If one of the intermediate objects on the path is not a :class:`~aas.model.base.Namespace`
         :raises UnexpectedTypeError: If the retrieved object is not of the expected type (or one of its subclasses). The
                                      object is stored in the `value` attribute of the exception
         :raises KeyError: If the reference could not be resolved
@@ -733,10 +744,11 @@ class AASReference(Reference, Generic[_RT]):
 
     def get_identifier(self) -> Identifier:
         """
-        Retrieve the Identifier of the Identifiable object, which is referenced or in which the referenced Referable is
-        contained.
+        Retrieve the :class:`~aas.model.base.Identifier` of the :class:`~aas.model.base.Identifiable` object, which is
+        referenced or in which the referenced :class:`~aas.model.base.Referable` is contained.
 
-        :raises ValueError: If this Reference does not include a Key with global KeyType (IRDI, IRI, CUSTOM)
+        :raises ValueError: If this Reference does not include a Key with global :class:`~aas.model.base.KeyType`
+                            (IRDI, IRI, CUSTOM)
         """
         try:
             last_identifier = next(key.get_identifier()
@@ -753,12 +765,14 @@ class AASReference(Reference, Generic[_RT]):
     @staticmethod
     def from_referable(referable: Referable) -> "AASReference":
         """
-        Construct a Reference to a given Referable AAS object
+        Construct a reference to a given :class:`~aas.model.base.Referable` object
 
-        This requires that the Referable object is Identifiable itself or is a child-, grand-child-, etc. object of an
-        Identifiable object. Additionally, the object must be an instance of a known Referable type.
+        This requires that the :class:`~aas.model.base.Referable` object is :class:`~aas.model.base.Identifiable` itself
+        or is a child-, grand-child-, etc. object of an Identifiable object. Additionally, the object must be an
+        instance of a known :class:`~aas.model.base.Referable` type.
 
-        :raises ValueError: If no Identifiable object is found while traversing the object's ancestors
+        :raises ValueError: If no :class:`~aas.model.base.Identifiable` object is found while traversing the object's
+                ancestors
         """
         # Get the first class from the base classes list (via inspect.getmro), that is contained in KEY_ELEMENTS_CLASSES
         from . import KEY_ELEMENTS_CLASSES
@@ -785,8 +799,8 @@ class Identifiable(Referable, metaclass=abc.ABCMeta):
 
     << abstract >>
 
-    :ivar administration: Administrative information of an identifiable element.
-    :ivar identification: The globally unique identification of the element.
+    :ivar administration: :class:`~.AdministrativeInformation` of an identifiable element.
+    :ivar identification: The globally unique :class:`identification <.Identifier>` of the element.
     """
 
     def __init__(self):
@@ -805,8 +819,9 @@ class HasSemantics(metaclass=abc.ABCMeta):
     << abstract >>
 
     :ivar semantic_id: Identifier of the semantic definition of the element. It is called semantic id of the element.
-                       The semantic id may either reference an external global id or it may reference a referable model
-                       element of kind=Type that defines the semantics of the element.
+                       The semantic id may either :class:`reference <.Reference>` an external global id or it may
+                       :class:`reference <.Reference>` a :class:`~.Referable` model element of kind=Type that defines
+                       the semantics of the element.
     """
 
     def __init__(self):
@@ -821,7 +836,7 @@ class HasKind(metaclass=abc.ABCMeta):
 
     << abstract >>
 
-    :ivar kind: Kind of the element: either type or instance. Default = Instance.
+    :ivar _kind: Kind of the element: either type or instance. Default = Instance.
     """
 
     def __init__(self):
@@ -850,7 +865,8 @@ class Qualifiable(metaclass=abc.ABCMeta):
 
     << abstract >>
 
-    :ivar qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
+    :ivar qualifier: Unordered list of :class:`Constraints <.Constraint>` that gives additional qualification of a
+                     qualifiable element.
     """
 
     def __init__(self):
@@ -862,8 +878,9 @@ class Formula(Constraint):
     """
     A formula is used to describe constraints by a logical expression.
 
-    :ivar depends_on: Unordered list of references to referable or even external global elements that are used in the
-                      logical expression. The value of the referenced elements needs to be accessible so that
+    :ivar depends_on: Unordered list of :class:`References <aas.model.base.Reference>` to
+                      :class:`Referable <aas.model.base.Referable>` or even external global elements that are used in
+                      the logical expression. The value of the referenced elements needs to be accessible so that
                       it can be evaluated in the formula to true or false in the corresponding logical expression
                       it is used in.
     """
@@ -888,13 +905,13 @@ class Qualifier(Constraint, HasSemantics):
     """
     A qualifier is a type-value pair that makes additional statements w.r.t. the value of the element.
 
-    :ivar type: The type of the qualifier that is applied to the element.
-    :ivar value_type: Data type of the qualifier value
-    :ivar value: The value of the qualifier.
-                 Constraint AASd-006: if both, the value and the valueId are present then the value needs to be
-                                      identical to the value of the referenced coded value in Qualifier/valueId.
-    :ivar value_id: Reference to the global unique id of a coded value.
-    :ivar semantic_id: The semantic_id defined in the HasSemantics class.
+    :ivar type: The type (`aas.model.base.QualifierType`) of the qualifier that is applied to the element.
+    :ivar value_type: Data type (`aas.model.base.DataTypeDef`) of the qualifier value
+    :ivar value: | The value (`aas.model.base.ValueDataType`) of the qualifier.
+                 | **Constraint AASd-006:** if both, the value and the valueId are present then the value needs to be
+                   identical to the value of the referenced coded value in Qualifier/valueId.
+    :ivar value_id: :class:`~.Reference` to the global unique id of a coded value.
+    :ivar semantic_id: The semantic_id defined in :class:`~.HasSemantics`.
     """
 
     def __init__(self,
@@ -985,13 +1002,14 @@ ValueList = Set[ValueReferencePair]
 
 class Namespace(metaclass=abc.ABCMeta):
     """
-    Abstract baseclass for all objects which form a Namespace to hold Referable objects and resolve them by their
-    id_short.
+    Abstract baseclass for all objects which form a Namespace to hold :class:`~.Referable` objects and resolve them by
+    their id_short.
 
-    A Namespace can contain multiple NamespaceSets, which contain Referable objects of different types. However, the
-    id_short of each object must be unique across all NamespaceSets of one Namespace.
+    A Namespace can contain multiple :class:`NamespaceSets <.NamespaceSet>`, which contain :class:`~.Referable` objects
+    of different types. However, the id_short of each object must be unique across all
+    :class:`NamespaceSets <.NamespaceSet>` of one Namespace.
 
-    :ivar namespace_element_sets: A list of all NamespaceSets of this Namespace
+    :ivar namespace_element_sets: A list of all :class:`NamespaceSets <.NamespaceSet>` of this Namespace
     """
     def __init__(self) -> None:
         super().__init__()
@@ -999,9 +1017,9 @@ class Namespace(metaclass=abc.ABCMeta):
 
     def get_referable(self, id_short: str) -> Referable:
         """
-        Find a Referable in this Namespaces by its id_short
+        Find a :class:`~.Referable` in this Namespaces by its id_short
 
-        :raises KeyError: If no such Referable can be found
+        :raises KeyError: If no such :class:`~.Referable` can be found
         """
         for dict_ in self.namespace_element_sets:
             if id_short in dict_:
@@ -1011,16 +1029,29 @@ class Namespace(metaclass=abc.ABCMeta):
 
 class NamespaceSet(MutableSet[_RT], Generic[_RT]):
     """
-    Helper class for storing Referable objects of a given type in a Namespace and find them by their id_short.
+    Helper class for storing :class:`~.Referable` objects of a given type in a :class:`~.Namespace` and find them by
+    their id_short.
 
-    This class behaves much like a set of Referable objects of a defined type, but uses a dict internally to rapidly
-    find those objects by their id_short. Additionally, it manages the `parent` attribute of the stored Referables and
-    ensures the uniqueness of their id_short within the Namespace.
+    This class behaves much like a set of :class:`~.Referable` objects of a defined type, but uses a dict internally to
+    rapidly find those objects by their id_short. Additionally, it manages the `parent` attribute of the stored
+    :class:`~.Referable` objects and ensures the uniqueness of their id_short within the :class:`~.Namespace`.
 
-    Use `add()`, `remove()`, `pop()`, `discard()`, `clear()`, `len()`, `x in` checks and iteration  just like on a
-    normal set of Referables. To get a referable by its id_short, use `get_referable()` or `get()` (the latter one
-    allows a default argument and returns None instead of raising a KeyError). As a bonus, the `x in` check supports
-    checking for existence of id_short *or* a concrete Referable object.
+    Use
+
+    .. code-block:: python
+
+        add()
+        remove()
+        pop()
+        discard()
+        clear()
+        len()
+        x in
+
+    checks and iteration  just like on a normal set of :class:`~.Referable` objects. To get a :class:`~.Referable` by
+    its id_short, use `get_referable()` or `get()` (the latter one allows a default argument and returns None instead
+    of raising a KeyError). As a bonus, the `x in` check supports checking for existence of id_short *or* a concrete
+    :class:`~.Referable` object.
     """
     def __init__(self, parent: Namespace, items: Iterable[_RT] = ()) -> None:
         """
@@ -1108,6 +1139,7 @@ class NamespaceSet(MutableSet[_RT], Generic[_RT]):
         """
         Find an object in this set by its id_short, with fallback parameter
 
+        :param key: id_short of the object
         :param default: An object to be returned, if no object with the given id_short is found
         :return: The Referable object with the given id_short in the set. Otherwise the `default` object or None, if
                  none is given.
@@ -1146,10 +1178,12 @@ class NamespaceSet(MutableSet[_RT], Generic[_RT]):
 
 class OrderedNamespaceSet(NamespaceSet[_RT], MutableSequence[_RT], Generic[_RT]):
     """
-    A specialized version of NamespaceSet, that keeps track of the order of the stored Referable objects.
+    A specialized version of :class:`~.NamespaceSet`, that keeps track of the order of the stored
+    :class:`~.Referable` objects.
 
-    Additionally to the MutableSet interface of NamespaceSet, this class provides a set-like interface (actually it
-    is derived from MutableSequence). However, we don't permit duplicate entries in the ordered list of objects.
+    Additionally to the MutableSet interface of :class:`~.NamespaceSet`, this class provides a set-like interface
+    (actually it is derived from MutableSequence). However, we don't permit duplicate entries in the ordered list of
+    objects.
     """
     def __init__(self, parent: Namespace, items: Iterable[_RT] = ()) -> None:
         """
