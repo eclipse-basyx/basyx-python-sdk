@@ -8,5 +8,6 @@
 /venv/
 /.coverage
 /htmlcov/
+/docs/build/
 
 /test/test_config.ini
