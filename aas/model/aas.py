@@ -31,7 +31,8 @@ class View(base.Referable, base.HasSemantics):
 
     todo: what does this exactly?
 
-    :ivar contained_element: Unordered list of references to elements of class Referable
+    :ivar contained_element: Unordered list of :class:`references <aas.model.base.AASReference>` to elements
+                             of class :class:`~aas.model.base.Referable`
     """
     def __init__(self,
                  id_short: str,
@@ -73,12 +74,14 @@ class Asset(base.Identifiable):
     The asset may either represent an asset type or an asset instance. The asset has a globally unique identifier plus
     – if needed – additional domain specific (proprietary) identifiers.
 
-    :ivar kind: Denotes whether the Asset is of kind "Type" or "Instance".
-    :ivar asset_identification_model: A reference to a Submodel that defines the handling of additional domain
-                                      specific (proprietary) Identifiers for the asset like e.g. serial number etc
-    :ivar bill_of_material: Bill of material of the asset represented by a submodel of the same AAS. This submodel
-                            contains a set of entities describing the material used to compose the composite I4.0
-                            Component.
+    :ivar kind: Denotes whether the Asset is of :class:`kind <aas.model.base.AssetKind>` "Type" or "Instance".
+    :ivar asset_identification_model: A :class:`reference <aas.model.base.AASReference>` to a
+                                      :class:`~aas.model.submodel.Submodel` that defines the handling of additional
+                                      domain specific (proprietary) Identifiers for the asset like e.g.
+                                      serial number etc
+    :ivar bill_of_material: Bill of material of the asset represented by a :class:`~aas.model.submodel.Submodel` of the
+                            same AAS. This submodel contains a set of entities describing the material used to compose
+                            the composite I4.0 Component.
     """
 
     def __init__(self,
@@ -125,13 +128,17 @@ class AssetAdministrationShell(base.Identifiable, base.Namespace):
     """
     An Asset Administration Shell
 
-    :ivar asset: reference to the asset the AAS is representing.
+    :ivar asset: :class:`Reference <aas.model.base.AASReference>` to the :class:`~aas.model.aas.Asset` the AAS is
+                 representing.
     :ivar security: Definition of the security relevant aspects of the AAS.
-    :ivar submodel: Unordered list of submodels to describe typically the asset of an AAS.
-    :ivar concept_dictionary: Unordered list of concept dictionaries. The concept dictionaries typically contain only
-                              descriptions for elements that are also used within the AAS
-    :ivar view: Unordered list of stakeholder specific views that can group the elements of the AAS.
-    :ivar derived_from: The reference to the AAS the AAs was derived from
+    :ivar submodel: Unordered list of :class:`submodels <aas.model.submodel.Submodel>` to describe typically the asset
+                    of an AAS.
+    :ivar concept_dictionary: Unordered list of :class:`concept dictionaries <aas.model.concept.ConceptDictionary>`.
+                              The concept dictionaries typically contain only descriptions for elements that are also
+                              used within the AAS
+    :ivar view: Unordered list of stakeholder specific :class:`views <aas.model.aas.View>` that can group the elements
+                of the AAS.
+    :ivar derived_from: The :class:`reference <aas.model.base.AASReference>` to the AAS the AAs was derived from
     """
     def __init__(self,
                  asset: base.AASReference[Asset],
