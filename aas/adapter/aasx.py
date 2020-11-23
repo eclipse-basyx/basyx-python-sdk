@@ -29,7 +29,7 @@ import itertools
 import logging
 import os
 import re
-from typing import Dict, Tuple, IO, Union, List, Set, Optional, Iterable
+from typing import Dict, Tuple, IO, Union, List, Set, Optional, Iterable, Iterator
 
 from .xml import read_aas_xml_file, write_aas_xml_file
 from .. import model
@@ -674,6 +674,13 @@ class AbstractSupplementaryFileContainer(metaclass=abc.ABCMeta):
         """
         pass  # pragma: no cover
 
+    @abc.abstractmethod
+    def __iter__(self) -> Iterator[str]:
+        """
+        Return an iterator over all file names stored in this SupplementaryFileContainer.
+        """
+        pass  # pragma: no cover
+
 
 class DictSupplementaryFileContainer(AbstractSupplementaryFileContainer):
     """
@@ -723,3 +730,6 @@ class DictSupplementaryFileContainer(AbstractSupplementaryFileContainer):
 
     def __contains__(self, item: object) -> bool:
         return item in self._name_map
+
+    def __iter__(self) -> Iterator[str]:
+        return iter(self._name_map)
