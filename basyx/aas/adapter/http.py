@@ -241,6 +241,8 @@ def parse_request_body(request: Request, expect_type: Type[model.base._RT]) -> m
             rv = json.loads(request.get_data(), cls=StrictStrippedAASFromJsonDecoder)
             # TODO: the following is ugly, but necessary because references aren't self-identified objects
             #  in the json schema
+            # TODO: json deserialization automatically creates AASReference[Submodel] this way, so we can't check,
+            #  whether the client posted a submodel reference or not
             if expect_type is model.AASReference:
                 rv = StrictStrippedAASFromJsonDecoder._construct_aas_reference(rv, model.Submodel)
         else:
@@ -369,6 +371,8 @@ class WSGIApp:
         aas.update()
         sm_ref = parse_request_body(request, model.AASReference)  # type: ignore
         assert isinstance(sm_ref, model.AASReference)
+        if sm_ref.type is not model.Submodel:
+            raise BadRequest(f"{sm_ref!r} does not reference a Submodel!")
         # to give a location header in the response we have to be able to get the submodel identifier from the reference
         try:
             submodel_identifier = sm_ref.get_identifier()
