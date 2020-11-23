@@ -15,7 +15,7 @@ import urllib.error
 from aas.backend import couchdb
 from aas.examples.data.example_aas import *
 
-from .._helper.test_helpers import TEST_CONFIG, COUCHDB_OKAY, COUCHDB_ERROR
+from test._helper.test_helpers import TEST_CONFIG, COUCHDB_OKAY, COUCHDB_ERROR
 
 
 source_core: str = "couchdb://" + TEST_CONFIG["couchdb"]["url"].lstrip("http://") + "/" + \
