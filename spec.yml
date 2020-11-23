@@ -558,7 +558,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/SubmodelElementResult"
         "400":
-          description: idShort of new SubmodelElement does not match the old one
+          description: type or idShort of new SubmodelElement does not match the old one
           content:
             "application/json":
               schema:
