@@ -288,26 +288,32 @@ class WSGIApp:
         self.object_store: model.AbstractObjectStore = object_store
         self.url_map = werkzeug.routing.Map([
             Submount("/api/v1", [
-                Rule("/aas/<identifier:aas_id>", endpoint=self.get_aas),
                 Submount("/aas/<identifier:aas_id>", [
-                    Rule("/submodels", methods=["GET"], endpoint=self.get_aas_submodel_refs),
-                    Rule("/submodels", methods=["POST"], endpoint=self.post_aas_submodel_refs),
-                    Rule("/submodels/<identifier:sm_id>", methods=["GET"],
-                         endpoint=self.get_aas_submodel_refs_specific),
-                    Rule("/submodels/<identifier:sm_id>", methods=["DELETE"],
-                         endpoint=self.delete_aas_submodel_refs_specific),
-                    Rule("/views", methods=["GET"], endpoint=self.get_aas_views),
-                    Rule("/views", methods=["POST"], endpoint=self.post_aas_views),
-                    Rule("/views/<string(minlength=1):view_idshort>", methods=["GET"],
-                         endpoint=self.get_aas_views_specific),
-                    Rule("/views/<string(minlength=1):view_idshort>", methods=["PUT"],
-                         endpoint=self.put_aas_views_specific),
-                    Rule("/views/<string(minlength=1):view_idshort>", methods=["DELETE"],
-                         endpoint=self.delete_aas_views_specific)
+                    Rule("/", methods=["GET"], endpoint=self.get_aas),
+                    Submount("/submodels", [
+                        Rule("/", methods=["GET"], endpoint=self.get_aas_submodel_refs),
+                        Rule("/", methods=["POST"], endpoint=self.post_aas_submodel_refs),
+                        Rule("/<identifier:sm_id>", methods=["GET"],
+                             endpoint=self.get_aas_submodel_refs_specific),
+                        Rule("/<identifier:sm_id>", methods=["DELETE"],
+                             endpoint=self.delete_aas_submodel_refs_specific)
+                    ]),
+                    Submount("/views", [
+                        Rule("/", methods=["GET"], endpoint=self.get_aas_views),
+                        Rule("/", methods=["POST"], endpoint=self.post_aas_views),
+                        Rule("/<string(minlength=1):view_idshort>", methods=["GET"],
+                             endpoint=self.get_aas_views_specific),
+                        Rule("/<string(minlength=1):view_idshort>", methods=["PUT"],
+                             endpoint=self.put_aas_views_specific),
+                        Rule("/<string(minlength=1):view_idshort>", methods=["DELETE"],
+                             endpoint=self.delete_aas_views_specific)
+                    ])
                 ]),
-                Rule("/submodels/<identifier:submodel_id>", endpoint=self.get_submodel),
+                Submount("/submodels/<identifier:submodel_id>", [
+                    Rule("/", methods=["GET"], endpoint=self.get_submodel),
+                ])
             ])
-        ], converters={"identifier": IdentifierConverter})
+        ], converters={"identifier": IdentifierConverter}, strict_slashes=False)
 
     def __call__(self, environ, start_response):
         response = self.handle_request(Request(environ))
@@ -337,6 +343,18 @@ class WSGIApp:
     def handle_request(self, request: Request):
         map_adapter: MapAdapter = self.url_map.bind_to_environ(request.environ)
         try:
+            # redirect requests with a trailing slash to the path without trailing slash
+            # if the path without trailing slash exists.
+            # if not, map_adapter.match() will raise NotFound() in both cases
+            if request.path != "/" and request.path.endswith("/"):
+                map_adapter.match(request.path[:-1], request.method)
+                # from werkzeug's internal routing redirection
+                raise werkzeug.routing.RequestRedirect(
+                    map_adapter.make_redirect_url(
+                        werkzeug.urls.url_quote(request.path[:-1], map_adapter.map.charset, safe="/:|+"),
+                        map_adapter.query_args
+                    )
+                )
             endpoint, values = map_adapter.match()
             if endpoint is None:
                 raise werkzeug.exceptions.NotImplemented("This route is not yet implemented.")
