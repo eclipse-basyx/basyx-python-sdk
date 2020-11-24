@@ -187,7 +187,7 @@ def create_example_bill_of_material_submodel() -> model.Submodel:
                                                        external_subject_id=model.Reference((
                                                            model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
                                                                      value='http://acplt.org/SpecificAssetId/',
-                                                                   id_type=model.KeyType.IRI),))),
+                                                                     id_type=model.KeyType.IRI),))),
         category=None,
         description={'en-us': 'Legally valid designation of the natural or judicial person which is directly '
                               'responsible for the design, production, packaging and labeling of a product in '

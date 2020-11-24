@@ -473,7 +473,7 @@ class AASFromJsonDecoder(json.JSONDecoder):
             specific_asset_id = cls._construct_identifier_key_value_pair(_get_ts(dct, 'externalAssetId', dict))
 
         ret = object_class(id_short=_get_ts(dct, "idShort", str),
-                           entity_type = ENTITY_TYPES_INVERSE[_get_ts(dct, "entityType", str)],
+                           entity_type=ENTITY_TYPES_INVERSE[_get_ts(dct, "entityType", str)],
                            global_asset_id=global_asset_id,
                            specific_asset_id=specific_asset_id)
         cls._amend_abstract_attributes(ret, dct)

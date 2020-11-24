@@ -322,7 +322,7 @@ class JsonDeserializationStrippedObjectsTest(unittest.TestCase):
                 },
                 "second": {
                     "keys": [{
-                        "idType": "IdShort",                        
+                        "idType": "IdShort",
                         "type": "AnnotatedRelationshipElement",
                         "value": "test_ref"
                     }]
