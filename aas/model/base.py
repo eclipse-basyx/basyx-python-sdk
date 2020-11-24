@@ -1009,6 +1009,17 @@ class Namespace(metaclass=abc.ABCMeta):
                 return dict_.get_referable(id_short)
         raise KeyError("Referable with id_short {} not found in this namespace".format(id_short))
 
+    def remove_referable(self, id_short: str) -> None:
+        """
+        Remove a Referable from this Namespace by its id_short
+
+        :raises KeyError: If no such Referable can be found
+        """
+        for dict_ in self.namespace_element_sets:
+            if id_short in dict_:
+                return dict_.remove(id_short)
+        raise KeyError("Referable with id_short {} not found in this namespace".format(id_short))
+
     def __iter__(self) -> Iterator[_RT]:
         return itertools.chain.from_iterable(self.namespace_element_sets)
 
