@@ -15,9 +15,11 @@ import enum
 import io
 import json
 from lxml import etree  # type: ignore
+import werkzeug.exceptions
+import werkzeug.routing
 import werkzeug.urls
-from werkzeug.exceptions import BadRequest, Conflict, InternalServerError, NotFound, NotImplemented
-from werkzeug.routing import Rule, Submount
+from werkzeug.exceptions import BadRequest, Conflict, NotFound
+from werkzeug.routing import MapAdapter, Rule, Submount
 from werkzeug.wrappers import Request, Response
 
 from aas import model
@@ -91,7 +93,7 @@ class ResultToJsonEncoder(StrippedAASToJsonEncoder):
         return super().default(obj)
 
 
-class APIResponse(abc.ABC, werkzeug.wrappers.Response):
+class APIResponse(abc.ABC, Response):
     @abc.abstractmethod
     def __init__(self, result: Result, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -321,7 +323,7 @@ class WSGIApp:
         try:
             return reference.resolve(self.object_store)
         except (KeyError, TypeError, model.UnexpectedTypeError) as e:
-            raise InternalServerError(str(e)) from e
+            raise werkzeug.exceptions.InternalServerError(str(e)) from e
 
     @classmethod
     def _get_aas_submodel_reference_by_submodel_identifier(cls, aas: model.AssetAdministrationShell,
@@ -333,11 +335,11 @@ class WSGIApp:
         raise NotFound(f"No reference to submodel with {sm_identifier} found!")
 
     def handle_request(self, request: Request):
-        map_adapter = self.url_map.bind_to_environ(request.environ)
+        map_adapter: MapAdapter = self.url_map.bind_to_environ(request.environ)
         try:
             endpoint, values = map_adapter.match()
             if endpoint is None:
-                raise NotImplemented("This route is not yet implemented.")
+                raise werkzeug.exceptions.NotImplemented("This route is not yet implemented.")
             return endpoint(request, values, map_adapter=map_adapter)
         # any raised error that leaves this function will cause a 500 internal server error
         # so catch raised http exceptions and return them
@@ -363,8 +365,7 @@ class WSGIApp:
         aas.update()
         return response_t(Result(tuple(aas.submodel)))
 
-    def post_aas_submodel_refs(self, request: Request, url_args: Dict, map_adapter: werkzeug.routing.MapAdapter) \
-            -> Response:
+    def post_aas_submodel_refs(self, request: Request, url_args: Dict, map_adapter: MapAdapter) -> Response:
         response_t = get_response_type(request)
         aas_identifier = url_args["aas_id"]
         aas = self._get_obj_ts(aas_identifier, model.AssetAdministrationShell)
@@ -415,7 +416,7 @@ class WSGIApp:
         aas.update()
         return response_t(Result(tuple(aas.view)))
 
-    def post_aas_views(self, request: Request, url_args: Dict, map_adapter: werkzeug.routing.MapAdapter) -> Response:
+    def post_aas_views(self, request: Request, url_args: Dict, map_adapter: MapAdapter) -> Response:
         response_t = get_response_type(request)
         aas_identifier = url_args["aas_id"]
         aas = self._get_obj_ts(aas_identifier, model.AssetAdministrationShell)
