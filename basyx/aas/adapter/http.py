@@ -109,7 +109,7 @@ class JsonResponse(APIResponse):
         super().__init__(*args, **kwargs, content_type=content_type)
 
     def serialize(self, result: Result) -> str:
-        return json.dumps(result, cls=ResultToJsonEncoder)
+        return json.dumps(result, cls=ResultToJsonEncoder, separators=(",", ":"))
 
 
 class XmlResponse(APIResponse):
