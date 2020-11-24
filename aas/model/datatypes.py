@@ -14,15 +14,17 @@ them from/into their lexical XML representation.
 
 See https://www.w3.org/TR/xmlschema-2/#built-in-datatypes for the XSD simple type hierarchy and more information on the
 datatypes. All types from this type hierarchy (except for `token` and its descendants) are implemented or aliased in
-this module using their pythonized: Duration, DateTime, GMonthDay, String, Integer, Decimal, Short …. These types are
-meant to be used directly for data values in the context of Asset Administration Shells.
+this module using their pythonized equivalents: Duration, DateTime, GMonthDay, String, Integer, Decimal, Short ….
+These types are meant to be used directly for data values in the context of Asset Administration Shells.
 
-There are three conversion functions for useage in PyI40AAS' model and adapters:
-* `xsd_repr()` serializes any XSD type from this module into it's lexical representation
-* `from_xsd()` parses an XSD type from its lexical representation (its required to name the type for unambiguous
-  conversion)
-* `trivial_cast()` type-cast a python value into an XSD type, if this is trivially possible. Meant for fixing the type
-  of Properties' values automatically, esp. for literal values.
+There are three conversion functions for usage in `PyI40AAS'` model and adapters:
+
+* :meth:`~aas.model.datatypes.xsd_repr` serializes any XSD type from this module into it's lexical representation
+* :meth:`~aas.model.datatypes.from_xsd` parses an XSD type from its lexical representation (its required to name the
+  type for unambiguous conversion)
+* :meth:`~aas.model.datatypes.trivial_cast` type-cast a python value into an XSD type, if this is trivially possible.
+  Meant for fixing the type of :class:`Properties' <aas.model.submodel.Property>` values automatically, esp. for literal
+  values.
 """
 import base64
 import datetime
@@ -402,15 +404,16 @@ def trivial_cast(value, type_: Type[AnyXSDType]) -> AnyXSDType:  # workaround. W
     """
     Type-cast a python value into an XSD type, if this is a trivial conversion
 
-    The main purpose of this function is to allow AAS Properties (and similar objects with XSD-type values) to take
-    Python literal values and convert them to their XSD type. However, we want to stay strongly typed, so we only allow
-    this type-cast if it is trivial to do, i.e. does not change the value's semantics. Examples, where this holds true:
+    The main purpose of this function is to allow AAS :class:`Properties <aas.model.submodel.Property>`
+    (and similar objects with XSD-type values) to take Python literal values and convert them to their XSD type.
+    However, we want to stay strongly typed, so we only allow this type-cast if it is trivial to do, i.e. does not
+    change the value's semantics. Examples, where this holds true:
 
-    * int → datatypes.Int (if the value is in the expected range)
-    * bytes → datatypes.Base64Binary
-    * datetime.date → datatypes.Date
+    * int → :class:`aas.model.datatypes.Int` (if the value is in the expected range)
+    * bytes → :class:`aas.model.datatypes.Base64Binary`
+    * datetime.date → :class:`aas.model.datatypes.Date`
 
-    Yet, it is not allowed to cast float → datatypes.Integer.
+    Yet, it is not allowed to cast float → :class:`aas.model.datatypes.Int`.
 
     :param value: The value to cast
     :param type_: Target type to cast into. Must be an XSD type from this module
@@ -430,6 +433,9 @@ def trivial_cast(value, type_: Type[AnyXSDType]) -> AnyXSDType:  # workaround. W
 def xsd_repr(value: AnyXSDType) -> str:
     """
     Serialize an XSD type value into it's lexical representation
+
+    :param value: Any XSD type (from this module)
+    :returns: Lexical representation as string
     """
     if isinstance(value, Duration):
         return _serialize_duration(value)
@@ -514,6 +520,7 @@ def from_xsd(value: str, type_: Type[AnyXSDType]) -> AnyXSDType:  # workaround. 
     """
     Parse an XSD type value from its lexical representation
 
+    :param value: Lexical representation
     :param type_: The expected XSD type (from this module). It is required to chose the correct conversion.
     """
     if type_ is Boolean:
