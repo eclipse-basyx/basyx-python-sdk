@@ -27,7 +27,7 @@ from .xml import XMLConstructables, read_aas_xml_element, xml_serialization
 from .json import StrippedAASToJsonEncoder, StrictStrippedAASFromJsonDecoder
 from ._generic import IDENTIFIER_TYPES, IDENTIFIER_TYPES_INVERSE
 
-from typing import Dict, Iterable, Optional, Tuple, Type, Union
+from typing import Dict, Iterable, Optional, Tuple, Type, TypeVar, Union
 
 
 @enum.unique
@@ -216,7 +216,10 @@ def http_exception_to_response(exception: werkzeug.exceptions.HTTPException, res
     return response_type(result, status=exception.code, headers=headers)
 
 
-def parse_request_body(request: Request, expect_type: Type[model.base._RT]) -> model.base._RT:
+T = TypeVar("T")
+
+
+def parse_request_body(request: Request, expect_type: Type[T]) -> T:
     """
     TODO: werkzeug documentation recommends checking the content length before retrieving the body to prevent
           running out of memory. but it doesn't state how to check the content length
@@ -388,8 +391,7 @@ class WSGIApp:
         aas_identifier = url_args["aas_id"]
         aas = self._get_obj_ts(aas_identifier, model.AssetAdministrationShell)
         aas.update()
-        sm_ref = parse_request_body(request, model.AASReference)  # type: ignore
-        assert isinstance(sm_ref, model.AASReference)
+        sm_ref = parse_request_body(request, model.AASReference)
         if sm_ref.type is not model.Submodel:
             raise BadRequest(f"{sm_ref!r} does not reference a Submodel!")
         # to give a location header in the response we have to be able to get the submodel identifier from the reference
