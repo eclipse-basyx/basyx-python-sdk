@@ -9,8 +9,8 @@
 # "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
 # specific language governing permissions and limitations under the License.
 """
-This module contains the classes `ConceptDescription` and `ConceptDictionary` from the AAS meta model as well as
-specialized ConceptDescriptions like `IEC61360ConceptDescription`.
+This module contains the classes :class:`~.ConceptDescription` and :class:`~.ConceptDictionary` from the AAS meta model
+as well as specialized :class:`ConceptDescriptions <.ConceptDescription>` like :class:`~.IEC61360ConceptDescription`.
 """
 from enum import unique, Enum
 from typing import Optional, Set, Type
@@ -25,8 +25,8 @@ class ConceptDescription(base.Identifiable):
 
     The description of the concept should follow a standardized schema (realized as data specification template).
 
-    :ivar is_case_of: Unordered list of global references to external definitions the concept is compatible to or was
-                      derived from.
+    :ivar is_case_of: Unordered list of global :class:`References <aas.model.base.Reference>` to external definitions
+                      the concept is compatible to or was derived from.
                       Note: Compare to is-case-of relationship in ISO 13584-32 & IEC EN 61360
     """
 
@@ -65,13 +65,15 @@ class ConceptDescription(base.Identifiable):
 
 class ConceptDictionary(base.Referable):
     """
-    A dictionary containing concept descriptions.
+    A dictionary containing :class:`ConceptDescriptions <.ConceptDescription>`.
 
-    Typically a concept description dictionary of an AAS contains only concept descriptions of elements used within
-    submodels of the AAS.
+    Typically a concept description dictionary of an AAS contains only
+    :class:`ConceptDescriptions <.ConceptDescription>` of elements used within
+    :class:`Submodels <aas.model.submodel.Submodel>` of the AAS.
 
 
-    :param concept_description: Unordered list of references to elements of class ConceptDescription
+    :param concept_description: Unordered list of :class:`References <aas.model.base.Reference>` to elements of class
+                                :class:`~.ConceptDescription`
     """
     def __init__(self,
                  id_short: str,
@@ -106,7 +108,7 @@ class ConceptDictionary(base.Referable):
 @unique
 class IEC61360DataType(Enum):
     """
-    Data types for data_type in DataSpecificationIEC61360
+    Data types for data_type in :class:`DataSpecificationIEC61360 <.IEC61360ConceptDescription>`
     """
     DATE = 0
     STRING = 1
@@ -125,7 +127,7 @@ class IEC61360DataType(Enum):
 @unique
 class IEC61360LevelType(Enum):
     """
-    Level types for the level_type in DataSpecificationIEC61360
+    Level types for the level_type in :class:`DataSpecificationIEC61360 <.IEC61360ConceptDescription>`
     """
     MIN = 0
     MAX = 1
@@ -135,7 +137,7 @@ class IEC61360LevelType(Enum):
 
 class IEC61360ConceptDescription(ConceptDescription):
     """
-    A specialized ConceptDescription to define concepts according to IEC61360
+    A specialized :class:`~.ConceptDescription` to define concepts according to IEC61360
     """
     def __init__(self,
                  identification: base.Identifier,
