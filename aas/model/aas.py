@@ -18,11 +18,9 @@ This module contains the following classes from an up-to-down-level:
  - View
 """
 
-from typing import Optional, Set, Iterable, TYPE_CHECKING
+from typing import Optional, Set, Iterable
 
-from . import base, security, concept
-if TYPE_CHECKING:
-    from . import submodel
+from . import base, security, concept, submodel
 
 
 class View(base.Referable, base.HasSemantics):
@@ -60,7 +58,7 @@ class View(base.Referable, base.HasSemantics):
         super().__init__()
         self.id_short = id_short
         self.contained_element: Set[base.AASReference] = set() if contained_element is None else contained_element
-        self.category: Optional[str] = category
+        self.category = category
         self.description: Optional[base.LangStringSet] = dict() if description is None else description
         self.parent: Optional[base.Namespace] = parent
         self.semantic_id: Optional[base.Reference] = semantic_id
@@ -82,15 +80,12 @@ class Asset(base.Identifiable):
     """
 
     def __init__(self,
-                 kind: base.AssetKind,
                  identification: base.Identifier,
-                 id_short: str = "",
+                 id_short: str = "NotSet",
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
                  parent: Optional[base.Namespace] = None,
-                 administration: Optional[base.AdministrativeInformation] = None,
-                 asset_identification_model: Optional[base.AASReference["submodel.Submodel"]] = None,
-                 bill_of_material: Optional[base.AASReference["submodel.Submodel"]] = None):
+                 administration: Optional[base.AdministrativeInformation] = None):
         """
         Initializer of Asset
 
@@ -103,29 +98,91 @@ class Asset(base.Identifiable):
         :param description: Description or comments on the element. (from base.Referable)
         :param parent: Reference to the next referable parent element of the element. (from base.Referable)
         :param administration: Administrative information of an identifiable element. (from base.Identifiable)
-        :param asset_identification_model: A reference to a Submodel that defines the handling of additional domain
-                                           specific (proprietary) Identifiers for the asset like e.g. serial number etc
-        :param bill_of_material: Bill of material of the asset represented by a submodel of the same AAS. This submodel
-                                 contains a set of entities describing the material used to compose the composite I4.0
-                                 Component.
         """
         super().__init__()
-        self.kind: base.AssetKind = kind
         self.identification: base.Identifier = identification
         self.id_short = id_short
-        self.category: Optional[str] = category
+        self.category = category
         self.description: Optional[base.LangStringSet] = dict() if description is None else description
         self.parent: Optional[base.Namespace] = parent
         self.administration: Optional[base.AdministrativeInformation] = administration
-        self.asset_identification_model: Optional[base.AASReference["submodel.Submodel"]] = asset_identification_model
-        self.bill_of_material: Optional[base.AASReference["submodel.Submodel"]] = bill_of_material
+
+
+class AssetInformation():
+    """
+    In AssetInformation identifying meta data of the asset that is represented by an AAS is defined.
+
+    The asset may either represent an asset type or an asset instance.
+    The asset has a globally unique identifier plus – if needed – additional domain specific (proprietary)
+    identifiers. However, to support the corner case of very first phase of lifecycle where a stabilised/constant
+    global asset identifier does not already exist, the corresponding attribute “globalAssetId” is optional.
+
+    :ivar asset_kind Denotes whether the Asset is of kind "Type" or "Instance".
+    :ivar global_asset_id: Reference to either an Asset object or a global reference to the asset the AAS is
+                           representing. This attribute is required as soon as the AAS is exchanged via partners in the
+                           life cycle of the asset. In a first phase of the life cycle the asset might not yet have a
+                           global id but already an internal identifier. The internal identifier would be modelled via
+                           “specificAssetId”.
+    :ivar specific_asset_id: Additional domain specific specific, typically proprietary Identifier for the asset like
+                             e.g. serial number etc.
+    :ivar bill_of_material: Bill of material of the asset represented by a submodel of the same AAS. This submodel
+                            contains a set of entities describing the material used to compose the composite I4.0
+                            Component.
+    :ivar default_thumbnail: Thumbnail of the asset represented by the asset administration shell. Used as default.
+    """
+
+    def __init__(self,
+                 asset_kind: base.AssetKind = base.AssetKind.INSTANCE,
+                 global_asset_id: Optional[base.Reference] = None,
+                 specific_asset_id: Optional[Set[base.IdentifierKeyValuePair]] = None,
+                 bill_of_material: Optional[Set[base.AASReference["submodel.Submodel"]]] = None,
+                 default_thumbnail: Optional[submodel.File] = None):
+        """
+        Initializer of Asset
+
+        :param asset_kind: Denotes whether the Asset is of kind "Type" or "Instance".
+        :param global_asset_id: Reference to either an Asset object or a global reference to the asset the AAS is
+                                representing. This attribute is required as soon as the AAS is exchanged via partners
+                                in the life cycle of the asset. In a first phase of the life cycle the asset might not
+                                yet have a global id but already an internal identifier. The internal identifier would
+                                be modelled via “specificAssetId”.
+        :param specific_asset_id: Additional domain specific specific, typically proprietary Identifier for the asset
+                                  like e.g. serial number etc.
+        :param bill_of_material: Bill of material of the asset represented by a submodel of the same AAS. This submodel
+                                 contains a set of entities describing the material used to compose the composite I4.0
+                                 Component.
+        :param default_thumbnail: Thumbnail of the asset represented by the asset administration shell. Used as default.
+        """
+        super().__init__()
+        self.asset_kind: base.AssetKind = asset_kind
+        self._global_asset_id: Optional[base.Reference] = global_asset_id
+        self.specific_asset_id: Set[base.IdentifierKeyValuePair] = set() if specific_asset_id is None \
+            else specific_asset_id
+        self.bill_of_material: Set[base.AASReference["submodel.Submodel"]] = set() if bill_of_material is None \
+            else bill_of_material
+        self.default_thumbnail: Optional[submodel.File] = default_thumbnail
+
+    def _get_global_asset_id(self):
+        return self._global_asset_id
+
+    def _set_global_asset_id(self, global_asset_id: Optional[base.Reference]):
+        if global_asset_id is None and (self.specific_asset_id is None or not self.specific_asset_id):
+            raise ValueError("either global or specific asset id must be set")
+        self._global_asset_id = global_asset_id
+
+    global_asset_id = property(_get_global_asset_id, _set_global_asset_id)
+
+    def __repr__(self) -> str:
+        return "AssetInformation(assetKind={}, globalAssetId={}, specificAssetId={}, billOfMaterial={}, " \
+               "defaultThumbNail={})".format(self.asset_kind, self._global_asset_id, str(self.specific_asset_id),
+                                             str(self.bill_of_material), str(self.default_thumbnail))
 
 
 class AssetAdministrationShell(base.Identifiable, base.Namespace):
     """
     An Asset Administration Shell
 
-    :ivar asset: reference to the asset the AAS is representing.
+    :ivar asset_information: Meta information about the asset the AAS is representing.
     :ivar security: Definition of the security relevant aspects of the AAS.
     :ivar submodel: Unordered list of submodels to describe typically the asset of an AAS.
     :ivar concept_dictionary: Unordered list of concept dictionaries. The concept dictionaries typically contain only
@@ -134,21 +191,20 @@ class AssetAdministrationShell(base.Identifiable, base.Namespace):
     :ivar derived_from: The reference to the AAS the AAs was derived from
     """
     def __init__(self,
-                 asset: base.AASReference[Asset],
+                 asset_information: AssetInformation,
                  identification: base.Identifier,
-                 id_short: str = "",
+                 id_short: str = "NotSet",
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
                  parent: Optional[base.Namespace] = None,
                  administration: Optional[base.AdministrativeInformation] = None,
                  security_: Optional[security.Security] = None,
                  submodel_: Optional[Set[base.AASReference["submodel.Submodel"]]] = None,
-                 concept_dictionary: Iterable[concept.ConceptDictionary] = (),
                  view: Iterable[View] = (),
                  derived_from: Optional[base.AASReference["AssetAdministrationShell"]] = None):
         """
         Initializer of AssetAdministrationShell
-        :param asset: reference to the asset the AAS is representing.
+        :param asset_information: Meta information about the asset the AAS is representing.
         :param identification: The globally unique identification of the element. (from base.Identifiable)
         :param id_short: Identifying string of the element within its name space. (from base.Referable)
         :param category: The category is a value that gives further meta information w.r.t. to the class of the element.
@@ -167,15 +223,13 @@ class AssetAdministrationShell(base.Identifiable, base.Namespace):
 
         super().__init__()
         self.identification: base.Identifier = identification
+        self.asset_information: AssetInformation = asset_information
         self.id_short = id_short
-        self.category: Optional[str] = category
+        self.category = category
         self.description: Optional[base.LangStringSet] = dict() if description is None else description
         self.parent: Optional[base.Namespace] = parent
         self.administration: Optional[base.AdministrativeInformation] = administration
         self.derived_from: Optional[base.AASReference["AssetAdministrationShell"]] = derived_from
         self.security: Optional[security.Security] = security_
-        self.asset: base.AASReference[Asset] = asset
         self.submodel: Set[base.AASReference["submodel.Submodel"]] = set() if submodel_ is None else submodel_
-        self.concept_dictionary: base.NamespaceSet[concept.ConceptDictionary] = \
-            base.NamespaceSet(self, concept_dictionary)
         self.view: base.NamespaceSet[View] = base.NamespaceSet(self, view)

@@ -28,11 +28,6 @@ class ExampleAASTest(unittest.TestCase):
         submodel = example_aas.create_example_bill_of_material_submodel()
         example_aas.check_example_bill_of_material_submodel(checker, submodel)
 
-    def test_example_asset(self):
-        checker = AASDataChecker(raise_immediately=True)
-        asset = example_aas.create_example_asset()
-        example_aas.check_example_asset(checker, asset)
-
     def test_example_concept_description(self):
         checker = AASDataChecker(raise_immediately=True)
         concept_description = example_aas.create_example_concept_description()
@@ -40,8 +35,7 @@ class ExampleAASTest(unittest.TestCase):
 
     def test_example_asset_administration_shell(self):
         checker = AASDataChecker(raise_immediately=True)
-        concept_dictionary = example_aas.create_example_concept_dictionary()
-        shell = example_aas.create_example_asset_administration_shell(concept_dictionary)
+        shell = example_aas.create_example_asset_administration_shell()
         example_aas.check_example_asset_administration_shell(checker, shell)
 
     def test_example_submodel(self):
@@ -54,25 +48,17 @@ class ExampleAASTest(unittest.TestCase):
         obj_store = model.DictObjectStore()
         with self.assertRaises(AssertionError) as cm:
             example_aas.check_full_example(checker, obj_store)
-        self.assertNotEqual(-1, str(cm.exception).find("Asset[Identifier(IRI=https://acplt.org/Test_Asset)]"))
+        print(cm.exception)
+        self.assertNotEqual(-1, str(cm.exception).find("AssetAdministrationShell[Identifier"
+                                                       "(IRI=https://acplt.org/Test_AssetAdministrationShell)]"))
 
         obj_store = example_aas.create_full_example()
         example_aas.check_full_example(checker, obj_store)
 
-        failed_asset = model.Asset(kind=model.AssetKind.INSTANCE,
-                                   identification=model.Identifier('test', model.IdentifierType.CUSTOM))
-        obj_store.add(failed_asset)
-        with self.assertRaises(AssertionError) as cm:
-            example_aas.check_full_example(checker, obj_store)
-        self.assertNotEqual(-1, str(cm.exception).find("Asset[Identifier(CUSTOM=test)]"))
-        obj_store.discard(failed_asset)
-
         failed_shell = model.AssetAdministrationShell(
-            asset=model.AASReference((model.Key(type_=model.KeyElements.ASSET,
-                                                local=False,
-                                                value='test',
-                                                id_type=model.KeyType.IRI),),
-                                     model.Asset),
+            asset_information=model.AssetInformation(global_asset_id=model.AASReference(
+                (model.Key(type_=model.KeyElements.ASSET, value='test', id_type=model.KeyType.IRI),),
+                model.Asset)),
             identification=model.Identifier('test', model.IdentifierType.CUSTOM)
         )
         obj_store.add(failed_shell)
@@ -110,11 +96,6 @@ class ExampleAASTest(unittest.TestCase):
 
 
 class ExampleAASMandatoryTest(unittest.TestCase):
-    def test_example_asset(self):
-        checker = AASDataChecker(raise_immediately=True)
-        asset = example_aas_mandatory_attributes.create_example_asset()
-        example_aas_mandatory_attributes.check_example_asset(checker, asset)
-
     def test_example_submodel(self):
         checker = AASDataChecker(raise_immediately=True)
         submodel = example_aas_mandatory_attributes.create_example_submodel()
@@ -132,8 +113,7 @@ class ExampleAASMandatoryTest(unittest.TestCase):
 
     def test_example_asset_administration_shell(self):
         checker = AASDataChecker(raise_immediately=True)
-        concept_dictionary = example_aas_mandatory_attributes.create_example_concept_dictionary()
-        shell = example_aas_mandatory_attributes.create_example_asset_administration_shell(concept_dictionary)
+        shell = example_aas_mandatory_attributes.create_example_asset_administration_shell()
         example_aas_mandatory_attributes.check_example_asset_administration_shell(checker, shell)
 
     def test_full_example(self):
@@ -141,24 +121,17 @@ class ExampleAASMandatoryTest(unittest.TestCase):
         obj_store = example_aas_mandatory_attributes.create_full_example()
         example_aas_mandatory_attributes.check_full_example(checker, obj_store)
 
-        failed_asset = model.Asset(kind=model.AssetKind.INSTANCE,
-                                   identification=model.Identifier('test', model.IdentifierType.CUSTOM))
-        obj_store.add(failed_asset)
+        failed_submodel = model.Submodel(identification=model.Identifier('test', model.IdentifierType.CUSTOM))
+        obj_store.add(failed_submodel)
         with self.assertRaises(AssertionError) as cm:
             example_aas_mandatory_attributes.check_full_example(checker, obj_store)
-        self.assertNotEqual(-1, str(cm.exception).find("Asset Asset[Identifier(CUSTOM=test)] must exist in given "
-                                                       "asset list"))
-        self.assertNotEqual(-1, str(cm.exception).find("Asset[Identifier(CUSTOM=test)]"))
-        obj_store.discard(failed_asset)
+        self.assertNotEqual(-1, str(cm.exception).find("Given submodel list must not have extra submodels"))
+        self.assertNotEqual(-1, str(cm.exception).find("Submodel[Identifier(CUSTOM=test)]"))
+        obj_store.discard(failed_submodel)
         example_aas_mandatory_attributes.check_full_example(checker, obj_store)
 
 
 class ExampleAASMissingTest(unittest.TestCase):
-    def test_example_asset(self):
-        checker = AASDataChecker(raise_immediately=True)
-        asset = example_aas_missing_attributes.create_example_asset()
-        example_aas_missing_attributes.check_example_asset(checker, asset)
-
     def test_example_submodel(self):
         checker = AASDataChecker(raise_immediately=True)
         submodel = example_aas_missing_attributes.create_example_submodel()
@@ -171,8 +144,7 @@ class ExampleAASMissingTest(unittest.TestCase):
 
     def test_example_asset_administration_shell(self):
         checker = AASDataChecker(raise_immediately=True)
-        concept_dictionary = example_aas_missing_attributes.create_example_concept_dictionary()
-        shell = example_aas_missing_attributes.create_example_asset_administration_shell(concept_dictionary)
+        shell = example_aas_missing_attributes.create_example_asset_administration_shell()
         example_aas_missing_attributes.check_example_asset_administration_shell(checker, shell)
 
     def test_full_example(self):
@@ -180,13 +152,14 @@ class ExampleAASMissingTest(unittest.TestCase):
         obj_store = example_aas_missing_attributes.create_full_example()
         example_aas_missing_attributes.check_full_example(checker, obj_store)
 
-        failed_asset = model.Asset(kind=model.AssetKind.INSTANCE,
-                                   identification=model.Identifier('test', model.IdentifierType.CUSTOM))
-        obj_store.add(failed_asset)
+        failed_submodel = model.Submodel(identification=model.Identifier('test', model.IdentifierType.CUSTOM))
+        obj_store.add(failed_submodel)
         with self.assertRaises(AssertionError) as cm:
             example_aas_missing_attributes.check_full_example(checker, obj_store)
-        self.assertNotEqual(-1, str(cm.exception).find("Asset[Identifier(CUSTOM=test)]"))
-        obj_store.discard(failed_asset)
+        print(cm.exception)
+        self.assertNotEqual(-1, str(cm.exception).find("Given submodel list must not have extra submodels"))
+        self.assertNotEqual(-1, str(cm.exception).find("Submodel[Identifier(CUSTOM=test)]"))
+        obj_store.discard(failed_submodel)
         example_aas_missing_attributes.check_full_example(checker, obj_store)
 
 
@@ -202,13 +175,14 @@ class ExampleConceptDescriptionTest(unittest.TestCase):
         obj_store.add(example_concept_description.create_iec61360_concept_description())
         example_concept_description.check_full_example(checker, obj_store)
 
-        failed_asset = model.Asset(kind=model.AssetKind.INSTANCE,
-                                   identification=model.Identifier('test', model.IdentifierType.CUSTOM))
-        obj_store.add(failed_asset)
+        failed_submodel = model.Submodel(identification=model.Identifier('test', model.IdentifierType.CUSTOM))
+        obj_store.add(failed_submodel)
         with self.assertRaises(AssertionError) as cm:
             example_concept_description.check_full_example(checker, obj_store)
-        self.assertNotEqual(-1, str(cm.exception).find("Asset[Identifier(CUSTOM=test)]"))
-        obj_store.discard(failed_asset)
+        print(cm.exception)
+        self.assertNotEqual(-1, str(cm.exception).find("Given submodel list must not have extra submodels"))
+        self.assertNotEqual(-1, str(cm.exception).find("Submodel[Identifier(CUSTOM=test)]"))
+        obj_store.discard(failed_submodel)
 
         example_concept_description.check_full_example(checker, obj_store)
 
@@ -225,12 +199,13 @@ class ExampleSubmodelTemplate(unittest.TestCase):
         obj_store.add(example_submodel_template.create_example_submodel_template())
         example_submodel_template.check_full_example(checker, obj_store)
 
-        failed_asset = model.Asset(kind=model.AssetKind.INSTANCE,
-                                   identification=model.Identifier('test', model.IdentifierType.CUSTOM))
-        obj_store.add(failed_asset)
+        failed_submodel = model.Submodel(identification=model.Identifier('test', model.IdentifierType.CUSTOM))
+        obj_store.add(failed_submodel)
         with self.assertRaises(AssertionError) as cm:
             example_submodel_template.check_full_example(checker, obj_store)
-        self.assertNotEqual(-1, str(cm.exception).find("Asset[Identifier(CUSTOM=test)]"))
-        obj_store.discard(failed_asset)
+        print(cm.exception)
+        self.assertNotEqual(-1, str(cm.exception).find("Given submodel list must not have extra submodels"))
+        self.assertNotEqual(-1, str(cm.exception).find("Submodel[Identifier(CUSTOM=test)]"))
+        obj_store.discard(failed_submodel)
 
         example_submodel_template.check_full_example(checker, obj_store)

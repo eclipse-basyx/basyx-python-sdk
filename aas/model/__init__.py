@@ -31,7 +31,7 @@ from .security import *
 from .base import *
 from .submodel import *
 from .provider import *
-from .concept import ConceptDescription, ConceptDictionary, IEC61360ConceptDescription
+from .concept import ConceptDescription, IEC61360ConceptDescription
 from . import datatypes
 
 # A mapping of PyI40AAS implementation classes to the corresponding `KeyElements` enum members for all classes that are
@@ -42,7 +42,6 @@ KEY_ELEMENTS_CLASSES: Dict[Type[Referable], KeyElements] = {
     ConceptDescription: KeyElements.CONCEPT_DESCRIPTION,
     Submodel: KeyElements.SUBMODEL,
     View: KeyElements.VIEW,
-    ConceptDictionary: KeyElements.CONCEPT_DICTIONARY,
     Entity: KeyElements.ENTITY,
     BasicEvent: KeyElements.BASIC_EVENT,
     Event: KeyElements.EVENT,

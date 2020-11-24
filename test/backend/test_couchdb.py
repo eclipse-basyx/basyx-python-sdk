@@ -141,7 +141,7 @@ class CouchDBBackendTest(unittest.TestCase):
         for item in example_data:
             self.object_store.add(item)
 
-        self.assertEqual(6, len(self.object_store))
+        self.assertEqual(5, len(self.object_store))
 
         # Iterate objects, add them to a DictObjectStore and check them
         retrieved_data_store: model.provider.DictObjectStore[model.Identifiable] = model.provider.DictObjectStore()

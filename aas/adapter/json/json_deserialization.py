@@ -149,14 +149,15 @@ class AASFromJsonDecoder(json.JSONDecoder):
         # function takes a bool parameter `failsafe`, which indicates weather to log errors and skip defective objects
         # instead of raising an Exception.
         AAS_CLASS_PARSERS: Dict[str, Callable[[Dict[str, object]], object]] = {
-            'Asset': cls._construct_asset,
             'AssetAdministrationShell': cls._construct_asset_administration_shell,
+            'Asset': cls._construct_asset,
+            'AssetInformation': cls._construct_asset_information,
+            'IdentifierKeyValuePair': cls._construct_identifier_key_value_pair,
             'View': cls._construct_view,
             'ConceptDescription': cls._construct_concept_description,
             'Qualifier': cls._construct_qualifier,
             'Formula': cls._construct_formula,
             'Submodel': cls._construct_submodel,
-            'ConceptDictionary': cls._construct_concept_dictionary,
             'Capability': cls._construct_capability,
             'Entity': cls._construct_entity,
             'BasicEvent': cls._construct_basic_event,
@@ -257,8 +258,14 @@ class AASFromJsonDecoder(json.JSONDecoder):
     def _construct_key(cls, dct: Dict[str, object], object_class=model.Key) -> model.Key:
         return object_class(type_=KEY_ELEMENTS_INVERSE[_get_ts(dct, 'type', str)],
                             id_type=KEY_TYPES_INVERSE[_get_ts(dct, 'idType', str)],
+                            value=_get_ts(dct, 'value', str))
+
+    @classmethod
+    def _construct_identifier_key_value_pair(cls, dct: Dict[str, object], object_class=model.IdentifierKeyValuePair) \
+            -> model.IdentifierKeyValuePair:
+        return object_class(key=_get_ts(dct, 'key', str),
                             value=_get_ts(dct, 'value', str),
-                            local=_get_ts(dct, 'local', bool))
+                            external_subject_id=cls._construct_reference(_get_ts(dct, 'subjectId', dict)))
 
     @classmethod
     def _construct_reference(cls, dct: Dict[str, object], object_class=model.Reference) -> model.Reference:
@@ -348,22 +355,35 @@ class AASFromJsonDecoder(json.JSONDecoder):
     # be called from the object_hook() method directly.
 
     @classmethod
-    def _construct_asset(cls, dct: Dict[str, object], object_class=model.Asset) -> model.Asset:
-        ret = object_class(kind=ASSET_KIND_INVERSE[_get_ts(dct, 'kind', str)],
-                           identification=cls._construct_identifier(_get_ts(dct, "identification", dict)))
+    def _construct_asset_information(cls, dct: Dict[str, object], object_class=model.AssetInformation)\
+            -> model.AssetInformation:
+        ret = object_class(asset_kind=ASSET_KIND_INVERSE[_get_ts(dct, 'assetKind', str)])
         cls._amend_abstract_attributes(ret, dct)
-        if 'assetIdentificationModel' in dct:
-            ret.asset_identification_model = cls._construct_aas_reference(
-                _get_ts(dct, 'assetIdentificationModel', dict), model.Submodel)
+        if 'globalAssetId' in dct:
+            ret.global_asset_id = cls._construct_reference(_get_ts(dct, 'globalAssetId', dict))
+        if 'externalAssetIds' in dct:
+            for desc_data in _get_ts(dct, "externalAssetIds", list):
+                ret.specific_asset_id.add(cls._construct_identifier_key_value_pair(desc_data,
+                                                                                   model.IdentifierKeyValuePair))
         if 'billOfMaterial' in dct:
-            ret.bill_of_material = cls._construct_aas_reference(_get_ts(dct, 'billOfMaterial', dict), model.Submodel)
+            for desc_data in _get_ts(dct, "billOfMaterial", list):
+                ret.bill_of_material.add(cls._construct_aas_reference(desc_data, model.Submodel))
+        if 'thumbnail' in dct:
+            ret.default_thumbnail = _get_ts(dct, 'thumbnail', model.File)
+        return ret
+
+    @classmethod
+    def _construct_asset(cls, dct: Dict[str, object], object_class=model.Asset) -> model.Asset:
+        ret = object_class(identification=cls._construct_identifier(_get_ts(dct, "identification", dict)))
+        cls._amend_abstract_attributes(ret, dct)
         return ret
 
     @classmethod
     def _construct_asset_administration_shell(
             cls, dct: Dict[str, object], object_class=model.AssetAdministrationShell) -> model.AssetAdministrationShell:
         ret = object_class(
-            asset=cls._construct_aas_reference(_get_ts(dct, 'asset', dict), model.Asset),
+            asset_information=cls._construct_asset_information(_get_ts(dct, 'assetInformation', dict),
+                                                               model.AssetInformation),
             identification=cls._construct_identifier(_get_ts(dct, 'identification', dict)))
         cls._amend_abstract_attributes(ret, dct)
         if not cls.stripped and 'submodels' in dct:
@@ -373,10 +393,6 @@ class AASFromJsonDecoder(json.JSONDecoder):
             for view in _get_ts(dct, 'views', list):
                 if _expect_type(view, model.View, str(ret), cls.failsafe):
                     ret.view.add(view)
-        if 'conceptDictionaries' in dct:
-            for concept_dictionary in _get_ts(dct, 'conceptDictionaries', list):
-                if _expect_type(concept_dictionary, model.ConceptDictionary, str(ret), cls.failsafe):
-                    ret.concept_dictionary.add(concept_dictionary)
         if 'security' in dct:
             ret.security = cls._construct_security(_get_ts(dct, 'security', dict))
         if 'derivedFrom' in dct:
@@ -402,7 +418,7 @@ class AASFromJsonDecoder(json.JSONDecoder):
             for dspec in _get_ts(dct, 'embeddedDataSpecifications', list):
                 dspec_ref = cls._construct_reference(_get_ts(dspec, 'dataSpecification', dict))
                 if dspec_ref.key and (dspec_ref.key[0].value ==
-                                      "http://admin-shell.io/DataSpecificationTemplates/DataSpecificationIEC61360/2/0"):
+                                      "http://admin-shell.io/DataSpecificationTemplates/DataSpecificationIEC61360/3/0"):
                     ret = cls._construct_iec61360_concept_description(
                         dct, _get_ts(dspec, 'dataSpecificationContent', dict))
         # If this is not a special ConceptDescription, just construct one of the default object_class
@@ -448,22 +464,18 @@ class AASFromJsonDecoder(json.JSONDecoder):
         return ret
 
     @classmethod
-    def _construct_concept_dictionary(cls, dct: Dict[str, object], object_class=model.ConceptDictionary)\
-            -> model.ConceptDictionary:
-        ret = object_class(_get_ts(dct, "idShort", str))
-        cls._amend_abstract_attributes(ret, dct)
-        if 'conceptDescriptions' in dct:
-            for desc_data in _get_ts(dct, "conceptDescriptions", list):
-                ret.concept_description.add(cls._construct_aas_reference(desc_data, model.ConceptDescription))
-        return ret
-
-    @classmethod
     def _construct_entity(cls, dct: Dict[str, object], object_class=model.Entity) -> model.Entity:
+        global_asset_id = None
+        if 'globalAssetId' in dct:
+            global_asset_id = cls._construct_reference(_get_ts(dct, 'globalAssetId', dict))
+        specific_asset_id = None
+        if 'externalAssetId' in dct:
+            specific_asset_id = cls._construct_identifier_key_value_pair(_get_ts(dct, 'externalAssetId', dict))
+
         ret = object_class(id_short=_get_ts(dct, "idShort", str),
-                           entity_type=ENTITY_TYPES_INVERSE[_get_ts(dct, "entityType", str)],
-                           asset=(cls._construct_aas_reference(_get_ts(dct, 'asset', dict), model.Asset)
-                                  if 'asset' in dct else None),
-                           kind=cls._get_kind(dct))
+                           entity_type = ENTITY_TYPES_INVERSE[_get_ts(dct, "entityType", str)],
+                           global_asset_id=global_asset_id,
+                           specific_asset_id=specific_asset_id)
         cls._amend_abstract_attributes(ret, dct)
         if not cls.stripped and 'statements' in dct:
             for element in _get_ts(dct, "statements", list):

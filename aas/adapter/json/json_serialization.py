@@ -51,6 +51,8 @@ class AASToJsonEncoder(json.JSONEncoder):
     def default(self, obj: object) -> object:
         if isinstance(obj, model.AssetAdministrationShell):
             return self._asset_administration_shell_to_json(obj)
+        if isinstance(obj, model.Asset):
+            return self._asset_to_json(obj)
         if isinstance(obj, model.Identifier):
             return self._identifier_to_json(obj)
         if isinstance(obj, model.AdministrativeInformation):
@@ -61,8 +63,10 @@ class AASToJsonEncoder(json.JSONEncoder):
             return self._key_to_json(obj)
         if isinstance(obj, model.ValueReferencePair):
             return self._value_reference_pair_to_json(obj)
-        if isinstance(obj, model.Asset):
-            return self._asset_to_json(obj)
+        if isinstance(obj, model.AssetInformation):
+            return self._asset_information_to_json(obj)
+        if isinstance(obj, model.IdentifierKeyValuePair):
+            return self._identifier_key_value_pair_to_json(obj)
         if isinstance(obj, model.Submodel):
             return self._submodel_to_json(obj)
         if isinstance(obj, model.Operation):
@@ -77,8 +81,6 @@ class AASToJsonEncoder(json.JSONEncoder):
             return self._entity_to_json(obj)
         if isinstance(obj, model.View):
             return self._view_to_json(obj)
-        if isinstance(obj, model.ConceptDictionary):
-            return self._concept_dictionary_to_json(obj)
         if isinstance(obj, model.ConceptDescription):
             return self._concept_description_to_json(obj)
         if isinstance(obj, model.Property):
@@ -115,7 +117,10 @@ class AASToJsonEncoder(json.JSONEncoder):
         """
         data = {}
         if isinstance(obj, model.Referable):
-            data['idShort'] = obj.id_short
+            if obj.id_short:
+                data['idShort'] = obj.id_short
+            else:
+                data['idShort'] = "NotSet"
             if obj.category:
                 data['category'] = obj.category
             if obj.description:
@@ -161,8 +166,7 @@ class AASToJsonEncoder(json.JSONEncoder):
         data = cls._abstract_classes_to_json(obj)
         data.update({'type': _generic.KEY_ELEMENTS[obj.type],
                      'idType': _generic.KEY_TYPES[obj.id_type],
-                     'value': obj.value,
-                     'local': obj.local})
+                     'value': obj.value})
         return data
 
     @classmethod
@@ -314,11 +318,40 @@ class AASToJsonEncoder(json.JSONEncoder):
         :return: dict with the serialized attributes of this object
         """
         data = cls._abstract_classes_to_json(obj)
-        data['kind'] = _generic.ASSET_KIND[obj.kind]
-        if obj.asset_identification_model:
-            data['assetIdentificationModel'] = obj.asset_identification_model
+        return data
+
+    @classmethod
+    def _identifier_key_value_pair_to_json(cls, obj: model.IdentifierKeyValuePair) -> Dict[str, object]:
+        """
+        serialization of an object from class IdentifierKeyValuePair to json
+
+        :param obj: object of class IdentifierKeyValuePair
+        :return: dict with the serialized attributes of this object
+        """
+        data = cls._abstract_classes_to_json(obj)
+        data['key'] = obj.key
+        data['value'] = obj.value
+        data['subjectId'] = obj.external_subject_id
+        return data
+
+    @classmethod
+    def _asset_information_to_json(cls, obj: model.AssetInformation) -> Dict[str, object]:
+        """
+        serialization of an object from class AssetInformation to json
+
+        :param obj: object of class AssetInformation
+        :return: dict with the serialized attributes of this object
+        """
+        data = cls._abstract_classes_to_json(obj)
+        data['assetKind'] = _generic.ASSET_KIND[obj.asset_kind]
+        if obj.global_asset_id:
+            data['globalAssetId'] = obj.global_asset_id
+        if obj.specific_asset_id:
+            data['externalAssetIds'] = list(obj.specific_asset_id)
         if obj.bill_of_material:
-            data['billOfMaterial'] = obj.bill_of_material
+            data['billOfMaterial'] = list(obj.bill_of_material)
+        if obj.default_thumbnail:
+            data['thumbnail'] = obj.default_thumbnail
         return data
 
     @classmethod
@@ -378,24 +411,11 @@ class AASToJsonEncoder(json.JSONEncoder):
             data_spec['levelType'] = [_generic.IEC61360_LEVEL_TYPES[lt] for lt in obj.level_types]
         data['embeddedDataSpecifications'] = [
             {'dataSpecification': model.Reference((
-                model.Key(model.KeyElements.GLOBAL_REFERENCE, False,
-                          "http://admin-shell.io/DataSpecificationTemplates/DataSpecificationIEC61360/2/0",
+                model.Key(model.KeyElements.GLOBAL_REFERENCE,
+                          "http://admin-shell.io/DataSpecificationTemplates/DataSpecificationIEC61360/3/0",
                           model.KeyType.IRI),)),
              'dataSpecificationContent': data_spec}
         ]
-
-    @classmethod
-    def _concept_dictionary_to_json(cls, obj: model.ConceptDictionary) -> Dict[str, object]:
-        """
-        serialization of an object from class ConceptDictionary to json
-
-        :param obj: object of class ConceptDictionary
-        :return: dict with the serialized attributes of this object
-        """
-        data = cls._abstract_classes_to_json(obj)
-        if obj.concept_description:
-            data['conceptDescriptions'] = list(obj.concept_description)
-        return data
 
     @classmethod
     def _asset_administration_shell_to_json(cls, obj: model.AssetAdministrationShell) -> Dict[str, object]:
@@ -409,13 +429,12 @@ class AASToJsonEncoder(json.JSONEncoder):
         data.update(cls._namespace_to_json(obj))
         if obj.derived_from:
             data["derivedFrom"] = obj.derived_from
-        data["asset"] = obj.asset
+        if obj.asset_information:
+            data["assetInformation"] = obj.asset_information
         if not cls.stripped and obj.submodel:
             data["submodels"] = list(obj.submodel)
         if not cls.stripped and obj.view:
             data["views"] = list(obj.view)
-        if obj.concept_dictionary:
-            data["conceptDictionaries"] = list(obj.concept_dictionary)
         if obj.security:
             data["security"] = obj.security
         return data
@@ -639,8 +658,10 @@ class AASToJsonEncoder(json.JSONEncoder):
         if not cls.stripped and obj.statement:
             data['statements'] = list(obj.statement)
         data['entityType'] = _generic.ENTITY_TYPES[obj.entity_type]
-        if obj.asset:
-            data['asset'] = obj.asset
+        if obj.global_asset_id:
+            data['globalAssetId'] = obj.global_asset_id
+        if obj.specific_asset_id:
+            data['externalAssetId'] = obj.specific_asset_id
         return data
 
     @classmethod

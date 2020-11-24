@@ -209,9 +209,6 @@ class Key:
     :ivar type: Denote which kind of entity is referenced. In case type = GlobalReference then the element is a
                 global unique id. In all other cases the key references a model element of the same or of another AAS.
                 The name of the model element is explicitly listed.
-    :ivar local: Denotes if the key references a model element of the same AAS (=true) or not (=false). In case of
-                 local = false the key may reference a model element of another AAS or an entity outside any AAS that
-                 has a global unique id.
     :ivar value: The key value, for example an IRDI if the idType=IRDI
     :ivar id_type: Type of the key value. In case of idType = idShort local shall be true. In case type=GlobalReference
                    idType shall not be IdShort.
@@ -219,7 +216,6 @@ class Key:
 
     def __init__(self,
                  type_: KeyElements,
-                 local: bool,
                  value: str,
                  id_type: KeyType):
         """
@@ -228,9 +224,6 @@ class Key:
         :param type_: Denote which kind of entity is referenced. In case type = GlobalReference then the element is a
                       global unique id. In all other cases the key references a model element of the same or of another
                       AAS. The name of the model element is explicitly listed.
-        :param local: Denotes if the key references a model element of the same AAS (=true) or not (=false). In case of
-                      local = false the key may reference a model element of another AAS or an entity outside any AAS
-                      that has a global unique id.
         :param value: The key value, for example an IRDI if the idType=IRDI
         :param id_type: Type of the key value. In case of idType = idShort local shall be true. In case
                         type=GlobalReference idType shall not be IdShort.
@@ -238,11 +231,11 @@ class Key:
         TODO: Add instruction what to do after construction
         """
         self.type: KeyElements
-        self.local: bool
+        if value == "":
+            raise ValueError("value is not allowed to be an empty string")
         self.value: str
         self.id_type: KeyType
         super().__setattr__('type', type_)
-        super().__setattr__('local', local)
         super().__setattr__('value', value)
         super().__setattr__('id_type', id_type)
 
@@ -251,7 +244,7 @@ class Key:
         raise AttributeError('Reference is immutable')
 
     def __repr__(self) -> str:
-        return "Key(local={}, id_type={}, value={})".format(self.local, self.id_type.name, self.value)
+        return "Key(id_type={}, value={})".format(self.id_type.name, self.value)
 
     def __str__(self) -> str:
         return "{}={}".format(self.id_type.name, self.value)
@@ -261,11 +254,10 @@ class Key:
             return NotImplemented
         return (self.id_type is other.id_type
                 and self.value == other.value
-                and self.local == other.local
                 and self.type == other.type)
 
     def __hash__(self):
-        return hash((self.id_type, self.value, self.local, self.type))
+        return hash((self.id_type, self.value, self.type))
 
     def get_identifier(self) -> Optional["Identifier"]:
         """
@@ -292,12 +284,11 @@ class Key:
         except StopIteration:
             key_type = KeyElements.PROPERTY
 
-        local = True  # TODO
         if isinstance(referable, Identifiable):
-            return Key(key_type, local, referable.identification.id,
+            return Key(key_type, referable.identification.id,
                        KeyType(referable.identification.id_type.value))
         else:
-            return Key(key_type, local, referable.id_short, KeyType.IDSHORT)
+            return Key(key_type, referable.id_short, KeyType.IDSHORT)
 
 
 class AdministrativeInformation:
@@ -328,6 +319,8 @@ class AdministrativeInformation:
         if version is None and revision is not None:
             raise ValueError("A revision requires a version. This means, if there is no version there is no revision "
                              "neither.")
+        if version == "":
+            raise ValueError("version is not allowed to be an empty string")
         self.version: Optional[str] = version
         self._revision: Optional[str] = revision
 
@@ -339,6 +332,8 @@ class AdministrativeInformation:
             raise ValueError("A revision requires a version. This means, if there is no version there is no revision "
                              "neither. Please set version first.")
         else:
+            if revision == "":
+                raise ValueError("revision is not allowed to be an empty string")
             self._revision = revision
 
     def __eq__(self, other) -> bool:
@@ -373,6 +368,8 @@ class Identifier:
         """
         self.id: str
         self.id_type: IdentifierType
+        if id_ == "":
+            raise ValueError("id is not allowed to be an empty string")
         super().__setattr__('id', id_)
         super().__setattr__('id_type', id_type)
 
@@ -417,8 +414,8 @@ class Referable(metaclass=abc.ABCMeta):
 
     def __init__(self):
         super().__init__()
-        self._id_short: Optional[str] = ""
-        self.category: Optional[str] = ""
+        self._id_short: str = "NotSet"
+        self._category: Optional[str] = None
         self.description: Optional[LangStringSet] = set()
         # We use a Python reference to the parent Namespace instead of a Reference Object, as specified. This allows
         # simpler and faster navigation/checks and it has no effect in the serialized data formats anyway.
@@ -444,25 +441,41 @@ class Referable(metaclass=abc.ABCMeta):
     def _get_id_short(self):
         return self._id_short
 
-    def _set_id_short(self, id_short: Optional[str]):
+    def _set_category(self, category: Optional[str]):
         """
         Check the input string
 
-        Constraint AASd-001: In case of a referable element not being an identifiable element this id is mandatory and
-        used for referring to the element in its name space.
-        Constraint AASd-002: idShort shall only feature letters, digits, underscore ('_'); starting mandatory with a
-        letter
+        Constraint AASd-100: An attribute with data type "string" is not allowed to be empty
 
-        Additionally check that the idShort is not already present in the same parent Namespace (if this object is
-        already contained in a parent Namespace).
+        :param category: The category is a value that gives further meta information w.r.t. to the class of the element.
+                         It affects the expected existence of attributes and the applicability of constraints.
+        :raises ValueError: if the constraint is not fulfilled
+        """
+        if category == "":
+            raise ValueError("category is not allowed to be an empty string")
+        self._category = category
+
+    def _get_category(self) -> Optional[str]:
+        return self._category
+
+    category = property(_get_category, _set_category)
+
+    def _set_id_short(self, id_short: str):
+        """
+        Check the input string
+
+        Constraint AASd-002: idShort of Referables shall only feature letters, digits, underscore ("_"); starting
+        mandatory with a letter. I.e. [a-zA-Z][a-zA-Z0-9_]+
+        Constraint AASd-003: idShort shall be matched case-insensitive
+        Constraint AASd-022: idShort of non-identifiable referables shall be unique in its namespace
 
         :param id_short: Identifying string of the element within its name space
         :raises ValueError: if the constraint is not fulfilled
         :raises KeyError: if the new idShort causes a name collision in the parent Namespace
         """
 
-        if id_short is None and not hasattr(self, 'identification'):
-            raise ValueError("The id_short for not identifiable elements is mandatory")
+        if id_short == "":
+            raise ValueError("id_short is not allowed to be an empty string")
         test_id_short: str = str(id_short)
         if not re.match("^[a-zA-Z0-9_]*$", test_id_short):
             raise ValueError("The id_short must contain only letters, digits and underscore")
@@ -792,7 +805,7 @@ class Identifiable(Referable, metaclass=abc.ABCMeta):
     def __init__(self):
         super().__init__()
         self.administration: Optional[AdministrativeInformation] = None
-        self.identification: Identifier = Identifier("", IdentifierType.IRDI)
+        self.identification: Identifier = Identifier("None", IdentifierType.IRDI)
 
     def __repr__(self) -> str:
         return "{}[{}]".format(self.__class__.__name__, self.identification)
@@ -1253,3 +1266,50 @@ class DataSpecificationContent(metaclass=abc.ABCMeta):
     <<abstract>>
     """
     pass
+
+
+class IdentifierKeyValuePair():
+    """
+    An IdentifierKeyValuePair describes a generic identifier as key-value pair
+
+    :ivar key: Key of the identifier
+    :ivar value: The value of the identifier with the corresponding key.
+    :ivar external_subject_id: The (external) subject the key belongs to or has meaning to.
+
+    TODO: Derive from HasSemantics
+    """
+
+    def __init__(self,
+                 key: str,
+                 value: str,
+                 external_subject_id: Reference,
+                 semantic_id: Optional[Reference] = None):
+        if key == "":
+            raise ValueError("key is not allowed to be an empty string")
+        if value == "":
+            raise ValueError("value is not allowed to be an empty string")
+        self.key: str
+        self.value: str
+        self.external_subject_id: Reference
+
+        super().__setattr__('key', key)
+        super().__setattr__('value', value)
+        super().__setattr__('external_subject_id', external_subject_id)
+
+    def __setattr__(self, key, value):
+        """Prevent modification of attributes."""
+        raise AttributeError('IdentifierKeyValuePair is immutable')
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, IdentifierKeyValuePair):
+            return NotImplemented
+        return (self.key == other.key
+                and self.value == other.value
+                and self.external_subject_id == other.external_subject_id)
+
+    def __hash__(self):
+        return hash((self.key, self.value, self.external_subject_id))
+
+    def __repr__(self) -> str:
+        return "IdentifierKeyValuePair(key={}, value={}, external_subject_id={})".format(self.key, self.value,
+                                                                                         self.external_subject_id)

@@ -30,15 +30,16 @@ class XMLSerializationTest(unittest.TestCase):
         # todo: is this a correct way to test it?
 
     def test_random_object_serialization(self) -> None:
-        asset_key = (model.Key(model.KeyElements.ASSET, True, "asset", model.KeyType.CUSTOM),)
+        asset_key = (model.Key(model.KeyElements.ASSET, "asset", model.KeyType.CUSTOM),)
         asset_reference = model.AASReference(asset_key, model.Asset)
         aas_identifier = model.Identifier("AAS1", model.IdentifierType.CUSTOM)
-        submodel_key = (model.Key(model.KeyElements.SUBMODEL, True, "SM1", model.KeyType.CUSTOM),)
+        submodel_key = (model.Key(model.KeyElements.SUBMODEL, "SM1", model.KeyType.CUSTOM),)
         submodel_identifier = submodel_key[0].get_identifier()
         assert (submodel_identifier is not None)
         submodel_reference = model.AASReference(submodel_key, model.Submodel)
         submodel = model.Submodel(submodel_identifier)
-        test_aas = model.AssetAdministrationShell(asset_reference, aas_identifier, submodel_={submodel_reference})
+        test_aas = model.AssetAdministrationShell(model.AssetInformation(global_asset_id=asset_reference),
+                                                  aas_identifier, submodel_={submodel_reference})
 
         test_data: model.DictObjectStore[model.Identifiable] = model.DictObjectStore()
         test_data.add(test_aas)
@@ -50,15 +51,16 @@ class XMLSerializationTest(unittest.TestCase):
 
 class XMLSerializationSchemaTest(unittest.TestCase):
     def test_random_object_serialization(self) -> None:
-        asset_key = (model.Key(model.KeyElements.ASSET, True, "asset", model.KeyType.CUSTOM),)
+        asset_key = (model.Key(model.KeyElements.ASSET, "asset", model.KeyType.CUSTOM),)
         asset_reference = model.AASReference(asset_key, model.Asset)
         aas_identifier = model.Identifier("AAS1", model.IdentifierType.CUSTOM)
-        submodel_key = (model.Key(model.KeyElements.SUBMODEL, True, "SM1", model.KeyType.CUSTOM),)
+        submodel_key = (model.Key(model.KeyElements.SUBMODEL, "SM1", model.KeyType.CUSTOM),)
         submodel_identifier = submodel_key[0].get_identifier()
         assert(submodel_identifier is not None)
         submodel_reference = model.AASReference(submodel_key, model.Submodel)
         submodel = model.Submodel(submodel_identifier, semantic_id=model.Reference((),))
-        test_aas = model.AssetAdministrationShell(asset_reference, aas_identifier, submodel_={submodel_reference})
+        test_aas = model.AssetAdministrationShell(model.AssetInformation(global_asset_id=asset_reference),
+                                                  aas_identifier, submodel_={submodel_reference})
 
         # serialize object to xml
         test_data: model.DictObjectStore[model.Identifiable] = model.DictObjectStore()

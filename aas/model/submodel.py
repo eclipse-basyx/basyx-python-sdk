@@ -61,7 +61,7 @@ class SubmodelElement(base.Referable, base.Qualifiable, base.HasSemantics, base.
 
         super().__init__()
         self.id_short = id_short
-        self.category: Optional[str] = category
+        self.category = category
         self.description: Optional[base.LangStringSet] = dict() if description is None else description
         self.parent: Optional[base.Namespace] = parent
         self.semantic_id: Optional[base.Reference] = semantic_id
@@ -83,7 +83,7 @@ class Submodel(base.Identifiable, base.HasSemantics, base.HasKind, base.Qualifia
     def __init__(self,
                  identification: base.Identifier,
                  submodel_element: Iterable[SubmodelElement] = (),
-                 id_short: str = "",
+                 id_short: str = "NotSet",
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
                  parent: Optional[base.Namespace] = None,
@@ -116,7 +116,7 @@ class Submodel(base.Identifiable, base.HasSemantics, base.HasKind, base.Qualifia
         self.identification: base.Identifier = identification
         self.submodel_element = base.NamespaceSet(self, submodel_element)
         self.id_short = id_short
-        self.category: Optional[str] = category
+        self.category = category
         self.description: Optional[base.LangStringSet] = dict() if description is None else description
         self.parent: Optional[base.Namespace] = parent
         self.administration: Optional[base.AdministrativeInformation] = administration
@@ -848,7 +848,8 @@ class Entity(SubmodelElement, base.Namespace):
                  id_short: str,
                  entity_type: base.EntityType,
                  statement: Iterable[SubmodelElement] = (),
-                 asset: Optional[base.AASReference["aas.Asset"]] = None,
+                 global_asset_id: Optional[base.Reference] = None,
+                 specific_asset_id: Optional[base.IdentifierKeyValuePair] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
                  parent: Optional[base.Namespace] = None,
@@ -861,7 +862,13 @@ class Entity(SubmodelElement, base.Namespace):
         :param id_short: Identifying string of the element within its name space. (from base.Referable)
         :param entity_type: Describes whether the entity is a co-managed or a self-managed entity.
         :param statement: Unordered list of statements applicable to the entity, typically with a qualified value.
-        :param asset: Reference to the asset the entity is representing.
+        :param global_asset_id: Reference to either an Asset object or a global reference to the asset the AAS is
+                                representing. This attribute is required as soon as the AAS is exchanged via partners
+                                in the life cycle of the asset. In a first phase of the life cycle the asset might not
+                                yet have a global id but already an internal identifier. The internal identifier would
+                                be modelled via “specificAssetId”.
+        :param specific_asset_id: Reference to an identifier key value pair representing a specific identifier
+                                  of the asset represented by the asset administration shell. See Constraint AASd-014
         :param category: The category is a value that gives further meta information w.r.t. to the class of the element.
                          It affects the expected existence of attributes and the applicability of constraints.
                          (from base.Referable)
@@ -879,14 +886,21 @@ class Entity(SubmodelElement, base.Namespace):
         """
 
         super().__init__(id_short, category, description, parent, semantic_id, qualifier, kind)
-        self.entity_type: base.EntityType = entity_type
         self.statement = base.NamespaceSet(self, statement)
-        if self.entity_type == base.EntityType.SELF_MANAGED_ENTITY and asset is None:
-            raise ValueError("A self-managed entity has to have an asset-reference")
-        if self.entity_type == base.EntityType.SELF_MANAGED_ENTITY:
-            self.asset: Optional[base.AASReference["aas.Asset"]] = asset
-        else:
-            self.asset = None
+        self.specific_asset_id: Optional[base.IdentifierKeyValuePair] = specific_asset_id
+        self.global_asset_id: Optional[base.Reference] = global_asset_id
+        self.entity_type = entity_type
+
+    def _get_entity_type(self):
+        return self._entity_type
+
+    def _set_entity_type(self, entity_type: base.EntityType):
+        if self.global_asset_id is None and self.specific_asset_id is None \
+                and entity_type == base.EntityType.SELF_MANAGED_ENTITY:
+            raise ValueError("A self-managed entity has to have a globalAssetId or a specificAssetId")
+        self._entity_type = entity_type
+
+    entity_type = property(_get_entity_type, _set_entity_type)
 
 
 class Event(SubmodelElement, metaclass=abc.ABCMeta):
