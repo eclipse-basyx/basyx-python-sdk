@@ -224,6 +224,8 @@ def parse_request_body(request: Request, expect_type: Type[T]) -> T:
     TODO: werkzeug documentation recommends checking the content length before retrieving the body to prevent
           running out of memory. but it doesn't state how to check the content length
           also: what would be a reasonable maximum content length? the request body isn't limited by the xml/json schema
+        In the meeting (25.11.2020) we discussed, this may refer to a reverse proxy in front of this WSGI app,
+        which should limit the maximum content length.
     """
     type_constructables_map = {
         model.AASReference: XMLConstructables.AAS_REFERENCE,
@@ -246,8 +248,8 @@ def parse_request_body(request: Request, expect_type: Type[T]) -> T:
             rv = json.loads(request.get_data(), cls=StrictStrippedAASFromJsonDecoder)
             # TODO: the following is ugly, but necessary because references aren't self-identified objects
             #  in the json schema
-            # TODO: json deserialization automatically creates AASReference[Submodel] this way, so we can't check,
-            #  whether the client posted a submodel reference or not
+            # TODO: json deserialization will always create an AASReference[Submodel], xml deserialization determines
+            #  that automatically
             if expect_type is model.AASReference:
                 rv = StrictStrippedAASFromJsonDecoder._construct_aas_reference(rv, model.Submodel)
         else:
@@ -392,8 +394,6 @@ class WSGIApp:
         aas = self._get_obj_ts(aas_identifier, model.AssetAdministrationShell)
         aas.update()
         sm_ref = parse_request_body(request, model.AASReference)
-        if sm_ref.type is not model.Submodel:
-            raise BadRequest(f"{sm_ref!r} does not reference a Submodel!")
         # to give a location header in the response we have to be able to get the submodel identifier from the reference
         try:
             submodel_identifier = sm_ref.get_identifier()
@@ -401,7 +401,6 @@ class WSGIApp:
             raise BadRequest(f"Can't resolve submodel identifier for given reference!") from e
         if sm_ref in aas.submodel:
             raise Conflict(f"{sm_ref!r} already exists!")
-        # TODO: check if reference references a non-existant submodel?
         aas.submodel.add(sm_ref)
         aas.commit()
         created_resource_url = map_adapter.build(self.get_aas_submodel_refs_specific, {
@@ -460,8 +459,6 @@ class WSGIApp:
         view = aas.view.get(view_idshort)
         if view is None:
             raise NotFound(f"No view with idShort {view_idshort} found!")
-        # TODO: is view.update() necessary here?
-        view.update()
         return response_t(Result(view))
 
     def put_aas_views_specific(self, request: Request, url_args: Dict, **_kwargs) -> Response:
