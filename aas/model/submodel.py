@@ -408,8 +408,7 @@ class File(DataElement):
     """
     A File is a :class:`~.DataElement` that represents a file via its path description.
 
-    :ivar value: | Path and name of the referenced file (without file extension). The path can be absolute or relative.
-                 | *Note:* The file extension is defined by using a qualifier of type “MimeType”.
+    :ivar value: Path and name of the referenced file (with file extension). The path can be absolute or relative.
     :ivar mime_type: Mime type of the content of the File.
     """
 
