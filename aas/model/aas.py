@@ -20,9 +20,9 @@ This module contains the following classes from an up-to-down-level:
 
 from typing import Optional, Set, Iterable, TYPE_CHECKING
 
-from . import base, security, concept
-if TYPE_CHECKING:
-    from . import submodel
+from . import base, concept
+from .security import Security
+from .submodel import Submodel
 
 
 class View(base.Referable, base.HasSemantics):
@@ -89,8 +89,8 @@ class Asset(base.Identifiable):
                  description: Optional[base.LangStringSet] = None,
                  parent: Optional[base.Namespace] = None,
                  administration: Optional[base.AdministrativeInformation] = None,
-                 asset_identification_model: Optional[base.AASReference["submodel.Submodel"]] = None,
-                 bill_of_material: Optional[base.AASReference["submodel.Submodel"]] = None):
+                 asset_identification_model: Optional[base.AASReference[Submodel]] = None,
+                 bill_of_material: Optional[base.AASReference[Submodel]] = None):
         """
         Initializer of Asset
 
@@ -117,8 +117,8 @@ class Asset(base.Identifiable):
         self.description: Optional[base.LangStringSet] = dict() if description is None else description
         self.parent: Optional[base.Namespace] = parent
         self.administration: Optional[base.AdministrativeInformation] = administration
-        self.asset_identification_model: Optional[base.AASReference["submodel.Submodel"]] = asset_identification_model
-        self.bill_of_material: Optional[base.AASReference["submodel.Submodel"]] = bill_of_material
+        self.asset_identification_model: Optional[base.AASReference[Submodel]] = asset_identification_model
+        self.bill_of_material: Optional[base.AASReference[Submodel]] = bill_of_material
 
 
 class AssetAdministrationShell(base.Identifiable, base.Namespace):
@@ -141,8 +141,8 @@ class AssetAdministrationShell(base.Identifiable, base.Namespace):
                  description: Optional[base.LangStringSet] = None,
                  parent: Optional[base.Namespace] = None,
                  administration: Optional[base.AdministrativeInformation] = None,
-                 security_: Optional[security.Security] = None,
-                 submodel_: Optional[Set[base.AASReference["submodel.Submodel"]]] = None,
+                 security: Optional[Security] = None,
+                 submodel: Optional[Set[base.AASReference[Submodel]]] = None,
                  concept_dictionary: Iterable[concept.ConceptDictionary] = (),
                  view: Iterable[View] = (),
                  derived_from: Optional[base.AASReference["AssetAdministrationShell"]] = None):
@@ -157,8 +157,8 @@ class AssetAdministrationShell(base.Identifiable, base.Namespace):
         :param description: Description or comments on the element. (from base.Referable)
         :param parent: Reference to the next referable parent element of the element. (from base.Referable)
         :param administration: Administrative information of an identifiable element. (from base.Identifiable)
-        :param security_: Definition of the security relevant aspects of the AAS.
-        :param submodel_: Unordered list of submodels to describe typically the asset of an AAS.
+        :param security: Definition of the security relevant aspects of the AAS.
+        :param submodel: Unordered list of submodels to describe typically the asset of an AAS.
         :param concept_dictionary: Unordered list of concept dictionaries. The concept dictionaries typically contain
                                    only descriptions for elements that are also used within the AAS
         :param view: Unordered list of stakeholder specific views that can group the elements of the AAS.
@@ -172,10 +172,10 @@ class AssetAdministrationShell(base.Identifiable, base.Namespace):
         self.description: Optional[base.LangStringSet] = dict() if description is None else description
         self.parent: Optional[base.Namespace] = parent
         self.administration: Optional[base.AdministrativeInformation] = administration
-        self.derived_from: Optional[base.AASReference["AssetAdministrationShell"]] = derived_from
-        self.security: Optional[security.Security] = security_
+        self.derived_from: Optional[base.AASReference[AssetAdministrationShell]] = derived_from
+        self.security: Optional[Security] = security
         self.asset: base.AASReference[Asset] = asset
-        self.submodel: Set[base.AASReference["submodel.Submodel"]] = set() if submodel_ is None else submodel_
+        self.submodel: Set[base.AASReference[Submodel]] = set() if submodel is None else submodel
         self.concept_dictionary: base.NamespaceSet[concept.ConceptDictionary] = \
             base.NamespaceSet(self, concept_dictionary)
         self.view: base.NamespaceSet[View] = base.NamespaceSet(self, view)

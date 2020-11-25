@@ -345,7 +345,7 @@ class AdministrativeInformation:
         return self.version == other.version and self._revision == other._revision
 
     def __repr__(self) -> str:
-        return "AdminstrativeInformation(version={}, revision={})".format(self.version, self.revision)
+        return "AdministrativeInformation(version={}, revision={})".format(self.version, self.revision)
 
     revision = property(_get_revision, _set_revision)
 
@@ -414,7 +414,7 @@ class Referable(metaclass=abc.ABCMeta):
                   This is used to specify where the Referable should be updated from and committed to.
                   Default is an empty string, making it use the source of its ancestor, if possible.
     """
-
+    @abc.abstractmethod
     def __init__(self):
         super().__init__()
         self._id_short: Optional[str] = ""
@@ -666,7 +666,7 @@ class AASReference(Reference, Generic[_RT]):
     """
     def __init__(self,
                  key: Tuple[Key, ...],
-                 type_: Type[_RT]):
+                 target_type: Type[_RT]):
         """
         Initializer of AASReference
 
@@ -680,7 +680,7 @@ class AASReference(Reference, Generic[_RT]):
         # TODO check keys for validity. GlobalReference and Fragment-Type keys are not allowed here
         super().__init__(key)
         self.type: Type[_RT]
-        object.__setattr__(self, 'type', type_)
+        object.__setattr__(self, 'type', target_type)
 
     def resolve(self, provider_: "provider.AbstractObjectProvider") -> _RT:
         """
@@ -788,7 +788,7 @@ class Identifiable(Referable, metaclass=abc.ABCMeta):
     :ivar administration: Administrative information of an identifiable element.
     :ivar identification: The globally unique identification of the element.
     """
-
+    @abc.abstractmethod
     def __init__(self):
         super().__init__()
         self.administration: Optional[AdministrativeInformation] = None
@@ -808,7 +808,7 @@ class HasSemantics(metaclass=abc.ABCMeta):
                        The semantic id may either reference an external global id or it may reference a referable model
                        element of kind=Type that defines the semantics of the element.
     """
-
+    @abc.abstractmethod
     def __init__(self):
         super().__init__()
         self.semantic_id: Optional[Reference] = None
@@ -823,7 +823,7 @@ class HasKind(metaclass=abc.ABCMeta):
 
     :ivar kind: Kind of the element: either type or instance. Default = Instance.
     """
-
+    @abc.abstractmethod
     def __init__(self):
         super().__init__()
         self._kind: ModelingKind = ModelingKind.INSTANCE
@@ -839,7 +839,7 @@ class Constraint(metaclass=abc.ABCMeta):
 
     << abstract >>
     """
-
+    @abc.abstractmethod
     def __init__(self):
         pass
 
@@ -852,7 +852,7 @@ class Qualifiable(metaclass=abc.ABCMeta):
 
     :ivar qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
     """
-
+    @abc.abstractmethod
     def __init__(self):
         super().__init__()
         self.qualifier: Set[Constraint] = set()
@@ -993,6 +993,7 @@ class Namespace(metaclass=abc.ABCMeta):
 
     :ivar namespace_element_sets: A list of all NamespaceSets of this Namespace
     """
+    @abc.abstractmethod
     def __init__(self) -> None:
         super().__init__()
         self.namespace_element_sets: List[NamespaceSet] = []
@@ -1007,6 +1008,20 @@ class Namespace(metaclass=abc.ABCMeta):
             if id_short in dict_:
                 return dict_.get_referable(id_short)
         raise KeyError("Referable with id_short {} not found in this namespace".format(id_short))
+
+    def remove_referable(self, id_short: str) -> None:
+        """
+        Remove a Referable from this Namespace by its id_short
+
+        :raises KeyError: If no such Referable can be found
+        """
+        for dict_ in self.namespace_element_sets:
+            if id_short in dict_:
+                return dict_.remove(id_short)
+        raise KeyError("Referable with id_short {} not found in this namespace".format(id_short))
+
+    def __iter__(self) -> Iterator[_RT]:
+        return itertools.chain.from_iterable(self.namespace_element_sets)
 
 
 class NamespaceSet(MutableSet[_RT], Generic[_RT]):
@@ -1244,12 +1259,3 @@ class OrderedNamespaceSet(NamespaceSet[_RT], MutableSequence[_RT], Generic[_RT])
         for o in self._order[i]:
             super().remove(o)
         del self._order[i]
-
-
-class DataSpecificationContent(metaclass=abc.ABCMeta):
-    """
-    Content of a DataSpecification.
-
-    <<abstract>>
-    """
-    pass

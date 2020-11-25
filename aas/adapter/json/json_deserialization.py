@@ -299,7 +299,9 @@ class AASFromJsonDecoder(json.JSONDecoder):
     @classmethod
     def _construct_operation_variable(
             cls, dct: Dict[str, object], object_class=model.OperationVariable) -> model.OperationVariable:
-        ret = object_class(value=_get_ts(dct, 'value', model.SubmodelElement))
+        # TODO: remove the following type: ignore comments when mypy supports abstract types for Type[T]
+        # see https://github.com/python/mypy/issues/5374
+        ret = object_class(value=_get_ts(dct, 'value', model.SubmodelElement))  # type: ignore
         return ret
 
     @classmethod
@@ -390,7 +392,9 @@ class AASFromJsonDecoder(json.JSONDecoder):
         cls._amend_abstract_attributes(ret, dct)
         if 'containedElements' in dct:
             for element_data in _get_ts(dct, 'containedElements', list):
-                ret.contained_element.add(cls._construct_aas_reference(element_data, model.Referable))
+                # TODO: remove the following type: ignore comments when mypy supports abstract types for Type[T]
+                # see https://github.com/python/mypy/issues/5374
+                ret.contained_element.add(cls._construct_aas_reference(element_data, model.Referable))  # type: ignore
         return ret
 
     @classmethod
@@ -519,8 +523,11 @@ class AASFromJsonDecoder(json.JSONDecoder):
 
     @classmethod
     def _construct_basic_event(cls, dct: Dict[str, object], object_class=model.BasicEvent) -> model.BasicEvent:
+        # TODO: remove the following type: ignore comments when mypy supports abstract types for Type[T]
+        # see https://github.com/python/mypy/issues/5374
         ret = object_class(id_short=_get_ts(dct, "idShort", str),
-                           observed=cls._construct_aas_reference(_get_ts(dct, 'observed', dict), model.Referable),
+                           observed=cls._construct_aas_reference(_get_ts(dct, 'observed', dict),
+                                                                 model.Referable),  # type: ignore
                            kind=cls._get_kind(dct))
         cls._amend_abstract_attributes(ret, dct)
         return ret
@@ -550,9 +557,13 @@ class AASFromJsonDecoder(json.JSONDecoder):
     @classmethod
     def _construct_relationship_element(
             cls, dct: Dict[str, object], object_class=model.RelationshipElement) -> model.RelationshipElement:
+        # TODO: remove the following type: ignore comments when mypy supports abstract types for Type[T]
+        # see https://github.com/python/mypy/issues/5374
         ret = object_class(id_short=_get_ts(dct, "idShort", str),
-                           first=cls._construct_aas_reference(_get_ts(dct, 'first', dict), model.Referable),
-                           second=cls._construct_aas_reference(_get_ts(dct, 'second', dict), model.Referable),
+                           first=cls._construct_aas_reference(_get_ts(dct, 'first', dict),
+                                                              model.Referable),  # type: ignore
+                           second=cls._construct_aas_reference(_get_ts(dct, 'second', dict),
+                                                               model.Referable),  # type: ignore
                            kind=cls._get_kind(dct))
         cls._amend_abstract_attributes(ret, dct)
         return ret
@@ -561,10 +572,12 @@ class AASFromJsonDecoder(json.JSONDecoder):
     def _construct_annotated_relationship_element(
             cls, dct: Dict[str, object], object_class=model.AnnotatedRelationshipElement)\
             -> model.AnnotatedRelationshipElement:
+        # TODO: remove the following type: ignore comments when mypy supports abstract types for Type[T]
+        # see https://github.com/python/mypy/issues/5374
         ret = object_class(
             id_short=_get_ts(dct, "idShort", str),
-            first=cls._construct_aas_reference(_get_ts(dct, 'first', dict), model.Referable),
-            second=cls._construct_aas_reference(_get_ts(dct, 'second', dict), model.Referable),
+            first=cls._construct_aas_reference(_get_ts(dct, 'first', dict), model.Referable),  # type: ignore
+            second=cls._construct_aas_reference(_get_ts(dct, 'second', dict), model.Referable),  # type: ignore
             kind=cls._get_kind(dct))
         cls._amend_abstract_attributes(ret, dct)
         if not cls.stripped and 'annotation' in dct:
