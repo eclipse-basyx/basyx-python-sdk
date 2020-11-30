@@ -132,7 +132,7 @@ class DataElement(SubmodelElement, metaclass=abc.ABCMeta):
     A data element is a :class:`~.SubmodelElement` that has a value. The type of value differs for different subtypes
     of data elements.
 
-    << abstract >>
+    <<abstract>>
     """
 
     def __init__(self,
@@ -168,11 +168,12 @@ class Property(DataElement):
     """
     A property is a :class:`DataElement` that has a single value.
 
+    **Constraint AASd-007:** if both, the value and the valueId are present then the value needs to be
+    identical to the value of the referenced coded value in valueId
+
     :ivar value_type: Data type of the value
     :ivar value: The value of the property instance.
-    :ivar value_id: | :class:`~aas.model.base.Reference` to the global unique id of a coded value.
-                    | **Constraint AASd-007:** if both, the value and the valueId are present then the value needs to be
-                       identical to the value of the referenced coded value in valueId
+    :ivar value_id: :class:`~aas.model.base.Reference` to the global unique id of a coded value
     """
 
     def __init__(self,
@@ -231,10 +232,11 @@ class MultiLanguageProperty(DataElement):
     """
     A multi language property is a :class:`~.DataElement` that has a multi language value.
 
+    *Constraint AASd-012*: if both, the value and the valueId are present then for each string in a
+    specific language the meaning must be the same as specified in valueId.
+
     :ivar value: The value of the property instance.
-    :ivar value_id: | :class:`~aas.model.base.Reference` to the global unique id of a coded value.
-                    | **Constraint AASd-012**: if both, the value and the valueId are present then for each string in a
-                      specific language the meaning must be the same as specified in valueId.
+    :ivar value_id: :class:`~aas.model.base.Reference` to the global unique id of a coded value
     """
 
     def __init__(self,
@@ -278,11 +280,12 @@ class Range(DataElement):
     """
     A range is a :class:`~.DataElement` that has a range value.
 
+    *Constraint AASd-013:* In case of a range with `kind=Instance` either the min or the max value or both
+    need to be defined
+
     :ivar value_type: Data type of the min and max
-    :ivar min_: | The minimum value of the range. If the min value is missing then the value is assumed to be negative
-                  infinite.
-                | *Constraint AASd-013:* In case of a range with `kind=Instance` either the min or the max value or both
-                  need to be defined
+    :ivar min_: The minimum value of the range. If the min value is missing then the value is assumed to be negative
+                infinite
     :ivar max_: The maximum of the range. If the max value is missing then the value is assumed to be positive infinite
     """
 
@@ -355,9 +358,9 @@ class Blob(DataElement):
     A BLOB is a :class:`~.DataElement` that represents a file that is contained with its source code in the value
     attribute.
 
-    :ivar value: | The value of the BLOB instance of a blob data element.
-                 | *Note:* In contrast to the file property the file content is stored directly as value in
-                   the Blob data element.
+    *Note:* In contrast to the file property the file content is stored directly as value in the Blob data element.
+
+    :ivar value: The value of the BLOB instance of a blob data element.
     :ivar mime_type: Mime type of the content of the BLOB. The mime type states which file extension the file has.
                      Valid values are e.g. “application/json”, “application/xls”, ”image/jpg”. The allowed values
                      are defined as in RFC2046.
@@ -499,14 +502,13 @@ class SubmodelElementCollection(SubmodelElement, base.Namespace, metaclass=abc.A
     """
     A submodel element collection is a set or list of :class:`SubmodelElements <.SubmodelElement>`.
 
-    << abstract >>
+    <<abstract>>
 
     :ivar value: Ordered or unordered list of :class:`SubmodelElements <.SubmodelElement>`
-    :ivar ordered: | If `ordered=False` then the elements in the property collection are not ordered. If `ordered=True`
-                     then the elements in the collection are ordered.
-                   | `ordered` shall not be set directly, instead one of the subclasses
-                     :class:`~.SubmodelElementCollectionOrdered` or :class:`~.SubmodelElementCollectionUnordered` shall
-                     be used.
+    :ivar ordered: If `ordered=False` then the elements in the property collection are not ordered. If `ordered=True`
+                   then the elements in the collection are ordered. `ordered` shall not be set directly, instead one of
+                   the subclasses :class:`~.SubmodelElementCollectionOrdered` or
+                   :class:`~.SubmodelElementCollectionUnordered` shall be used.
     """
 
     def __init__(self,
@@ -688,7 +690,7 @@ class AnnotatedRelationshipElement(RelationshipElement, base.Namespace):
     An annotated relationship element is a :class:`relationship element <.RelationshipElement>` that can be annotated
     with additional :class:`DataElements <.DataElement>`.
 
-    :ivar annotation: Unordered list of :class:`annotations <.DataElement>` that hold for the relationship between two
+    :ivar annotation: Unordered list of :class:`DataElements <.DataElement>` that hold for the relationship between two
                       elements
     """
 
@@ -735,10 +737,11 @@ class OperationVariable:
     """
     An operation variable is a submodel element that is used as input or output variable of an :class:`~.Operation`.
 
-    :ivar value: | Describes the needed argument for an :class:`~.Operation` via a :class:`~.SubmodelElement` of
-                   `kind=Type`.
-                 | **Constraint AASd-008:** The :class:`~.SubmodelElement` value of an operation variable shall be of
-                   `kind=Template`.
+    *Constraint AASd-008:* The :class:`~.SubmodelElement` value of an operation variable shall be of
+    `kind=Template`.
+
+    :ivar value: Describes the needed argument for an :class:`~.Operation` via a :class:`~.SubmodelElement` of
+                 `kind=Type`
     """
 
     def __init__(self,
@@ -758,10 +761,10 @@ class Operation(SubmodelElement):
     """
     An operation is a :class:`~.SubmodelElement` with input and output variables.
 
-    :ivar input_variable: List of input :class:`parameters <.OperationVariable>` of the operation
-    :ivar output_variable: List of output :class:`parameters <.OperationVariable>` of the operation
-    :ivar in_output_variable: List of :class:`parameters <.OperationVariable>` that are input and output of the
-                              operation
+    :ivar input_variable: List of input parameters (:class:`OperationVariables <.OperationVariable>`) of the operation
+    :ivar output_variable: List of output parameters (:class:`OperationVariables <.OperationVariable>`) of the operation
+    :ivar in_output_variable: List of parameters (:class:`OperationVariables <.OperationVariable>`) that are input and
+                              output of the operation
     """
     def __init__(self,
                  id_short: str,
@@ -844,12 +847,13 @@ class Entity(SubmodelElement, base.Namespace):
     """
     An entity is a :class:`~.SubmodelElement` that is used to model entities
 
+    *Constraint AASd-014:* The asset attribute must be set if :attr:`~.entity_type` is set to
+    :attr:`~.EntityType.SELF_MANAGED_ENTITY`. It is empty otherwise.
+
     :ivar entity_type: Describes whether the entity is a co-managed or a self-managed entity.
-    :ivar statement: Unordered list of :class:`statements <.SubmodelElement>` applicable to the entity, typically with
-                     a qualified value.
-    :ivar asset: | :class:`~aas.model.base.AASReference` to the asset the entity is representing.
-                 | **Constraint AASd-014:** The asset attribute must be set if entityType is set to
-                   “SelfManagedEntity”. It is empty otherwise.
+    :ivar statement: Unordered list of statements (:class:`SubmodelElements <.SubmodelElement>`) applicable to the
+                     entity, typically with a qualified value.
+    :ivar asset: :class:`~aas.model.base.AASReference` to the asset the entity is representing.
     """
 
     def __init__(self,
