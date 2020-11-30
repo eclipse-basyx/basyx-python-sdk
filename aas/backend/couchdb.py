@@ -17,9 +17,8 @@ from typing import List, Dict, Any, Optional, Iterator, Iterable, Union, Tuple
 import urllib.parse
 import logging
 import json
-import http.client
 
-import urllib3
+import urllib3  # type: ignore
 
 from . import backends
 from aas.adapter.json import json_deserialization, json_serialization
