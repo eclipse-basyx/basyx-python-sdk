@@ -124,7 +124,8 @@ class ObjectProviderMultiplexer(AbstractObjectProvider):
     retrieving :class:`~aas.model.base.Identifiable` objects from different sources.
     It implements the :class:`~.AbstractObjectProvider` interface to be used as registry itself.
 
-    :ivar registries: A list of :class:`registries <.AbstractObjectProvider>` to query when looking up an object
+    :ivar registries: A list of :class:`AbstractObjectProviders <.AbstractObjectProvider>` to query when looking up an
+                      object
     """
     def __init__(self, registries: Optional[List[AbstractObjectProvider]] = None):
         self.providers: List[AbstractObjectProvider] = registries if registries is not None else []
