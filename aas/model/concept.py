@@ -25,9 +25,11 @@ class ConceptDescription(base.Identifiable):
 
     The description of the concept should follow a standardized schema (realized as data specification template).
 
+    *Note:* Compare :attr:`~.ConceptDescription.is_case_of` to is-case-of relationship in ISO 13584-32 & IEC EN 61360
+
     :ivar is_case_of: Unordered list of global :class:`References <aas.model.base.Reference>` to external definitions
                       the concept is compatible to or was derived from.
-                      Note: Compare to is-case-of relationship in ISO 13584-32 & IEC EN 61360
+
     """
 
     def __init__(self,
