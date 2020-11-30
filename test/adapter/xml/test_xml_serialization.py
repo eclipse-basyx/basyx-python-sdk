@@ -39,7 +39,7 @@ class XMLSerializationTest(unittest.TestCase):
         submodel_reference = model.AASReference(submodel_key, model.Submodel)
         submodel = model.Submodel(submodel_identifier)
         test_aas = model.AssetAdministrationShell(model.AssetInformation(global_asset_id=asset_reference),
-                                                  aas_identifier, submodel_={submodel_reference})
+                                                  aas_identifier, submodel={submodel_reference})
 
         test_data: model.DictObjectStore[model.Identifiable] = model.DictObjectStore()
         test_data.add(test_aas)
@@ -60,8 +60,7 @@ class XMLSerializationSchemaTest(unittest.TestCase):
         submodel_reference = model.AASReference(submodel_key, model.Submodel)
         submodel = model.Submodel(submodel_identifier, semantic_id=model.Reference((),))
         test_aas = model.AssetAdministrationShell(model.AssetInformation(global_asset_id=asset_reference),
-                                                  aas_identifier, submodel_={submodel_reference})
-
+                                                  aas_identifier, submodel={submodel_reference})
         # serialize object to xml
         test_data: model.DictObjectStore[model.Identifiable] = model.DictObjectStore()
         test_data.add(test_aas)

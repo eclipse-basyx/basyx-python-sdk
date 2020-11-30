@@ -174,14 +174,14 @@ def create_example_asset_administration_shell() -> \
         asset_information=asset_information,
         identification=model.Identifier(id_='https://acplt.org/Test_AssetAdministrationShell_Mandatory',
                                         id_type=model.IdentifierType.IRI),
-        submodel_={model.AASReference((model.Key(type_=model.KeyElements.SUBMODEL,
-                                                 value='https://acplt.org/Test_Submodel_Mandatory',
-                                                 id_type=model.KeyType.IRI),),
-                                      model.Submodel),
-                   model.AASReference((model.Key(type_=model.KeyElements.SUBMODEL,
-                                                 value='https://acplt.org/Test_Submodel2_Mandatory',
-                                                 id_type=model.KeyType.IRI),),
-                                      model.Submodel)},)
+        submodel={model.AASReference((model.Key(type_=model.KeyElements.SUBMODEL,
+                                                value='https://acplt.org/Test_Submodel_Mandatory',
+                                                id_type=model.KeyType.IRI),),
+                                     model.Submodel),
+                  model.AASReference((model.Key(type_=model.KeyElements.SUBMODEL,
+                                                value='https://acplt.org/Test_Submodel2_Mandatory',
+                                                id_type=model.KeyType.IRI),),
+                                     model.Submodel)},)
     return asset_administration_shell
 
 

@@ -20,7 +20,9 @@ This module contains the following classes from an up-to-down-level:
 
 from typing import Optional, Set, Iterable
 
-from . import base, security, concept, submodel
+from . import base, concept
+from .security import Security
+from .submodel import File, Submodel
 
 
 class View(base.Referable, base.HasSemantics):
@@ -135,8 +137,8 @@ class AssetInformation():
                  asset_kind: base.AssetKind = base.AssetKind.INSTANCE,
                  global_asset_id: Optional[base.Reference] = None,
                  specific_asset_id: Optional[Set[base.IdentifierKeyValuePair]] = None,
-                 bill_of_material: Optional[Set[base.AASReference["submodel.Submodel"]]] = None,
-                 default_thumbnail: Optional[submodel.File] = None):
+                 bill_of_material: Optional[Set[base.AASReference[Submodel]]] = None,
+                 default_thumbnail: Optional[File] = None):
         """
         Initializer of Asset
 
@@ -158,9 +160,9 @@ class AssetInformation():
         self._global_asset_id: Optional[base.Reference] = global_asset_id
         self.specific_asset_id: Set[base.IdentifierKeyValuePair] = set() if specific_asset_id is None \
             else specific_asset_id
-        self.bill_of_material: Set[base.AASReference["submodel.Submodel"]] = set() if bill_of_material is None \
+        self.bill_of_material: Set[base.AASReference[Submodel]] = set() if bill_of_material is None \
             else bill_of_material
-        self.default_thumbnail: Optional[submodel.File] = default_thumbnail
+        self.default_thumbnail: Optional[File] = default_thumbnail
 
     def _get_global_asset_id(self):
         return self._global_asset_id
@@ -198,8 +200,8 @@ class AssetAdministrationShell(base.Identifiable, base.Namespace):
                  description: Optional[base.LangStringSet] = None,
                  parent: Optional[base.Namespace] = None,
                  administration: Optional[base.AdministrativeInformation] = None,
-                 security_: Optional[security.Security] = None,
-                 submodel_: Optional[Set[base.AASReference["submodel.Submodel"]]] = None,
+                 security: Optional[Security] = None,
+                 submodel: Optional[Set[base.AASReference[Submodel]]] = None,
                  view: Iterable[View] = (),
                  derived_from: Optional[base.AASReference["AssetAdministrationShell"]] = None):
         """
@@ -213,8 +215,8 @@ class AssetAdministrationShell(base.Identifiable, base.Namespace):
         :param description: Description or comments on the element. (from base.Referable)
         :param parent: Reference to the next referable parent element of the element. (from base.Referable)
         :param administration: Administrative information of an identifiable element. (from base.Identifiable)
-        :param security_: Definition of the security relevant aspects of the AAS.
-        :param submodel_: Unordered list of submodels to describe typically the asset of an AAS.
+        :param security: Definition of the security relevant aspects of the AAS.
+        :param submodel: Unordered list of submodels to describe typically the asset of an AAS.
         :param concept_dictionary: Unordered list of concept dictionaries. The concept dictionaries typically contain
                                    only descriptions for elements that are also used within the AAS
         :param view: Unordered list of stakeholder specific views that can group the elements of the AAS.
@@ -230,6 +232,6 @@ class AssetAdministrationShell(base.Identifiable, base.Namespace):
         self.parent: Optional[base.Namespace] = parent
         self.administration: Optional[base.AdministrativeInformation] = administration
         self.derived_from: Optional[base.AASReference["AssetAdministrationShell"]] = derived_from
-        self.security: Optional[security.Security] = security_
-        self.submodel: Set[base.AASReference["submodel.Submodel"]] = set() if submodel_ is None else submodel_
+        self.security: Optional[Security] = security
+        self.submodel: Set[base.AASReference[Submodel]] = set() if submodel is None else submodel
         self.view: base.NamespaceSet[View] = base.NamespaceSet(self, view)

@@ -30,7 +30,7 @@ class SubmodelElement(base.Referable, base.Qualifiable, base.HasSemantics, base.
     The property instances (kind=Instance) typically have a value. A property instance is also called
     property-value pair in certain standards.
     """
-
+    @abc.abstractmethod
     def __init__(self,
                  id_short: str,
                  category: Optional[str] = None,
@@ -133,7 +133,7 @@ class DataElement(SubmodelElement, metaclass=abc.ABCMeta):
 
     << abstract >>
     """
-
+    @abc.abstractmethod
     def __init__(self,
                  id_short: str,
                  category: Optional[str] = None,
@@ -288,8 +288,8 @@ class Range(DataElement):
     def __init__(self,
                  id_short: str,
                  value_type: base.DataTypeDef,
-                 min_: Optional[base.ValueDataType] = None,
-                 max_: Optional[base.ValueDataType] = None,
+                 min: Optional[base.ValueDataType] = None,
+                 max: Optional[base.ValueDataType] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
                  parent: Optional[base.Namespace] = None,
@@ -301,9 +301,9 @@ class Range(DataElement):
 
         :param id_short: Identifying string of the element within its name space. (from base.Referable)
         :param value_type: Data type of the min and max
-        :param min_: The minimum value of the range. If the min value is missing then the value is assumed to be
+        :param min: The minimum value of the range. If the min value is missing then the value is assumed to be
                      negative infinite.
-        :param max_: The maximum of the range. If the max value is missing then the value is assumed to be positive
+        :param max: The maximum of the range. If the max value is missing then the value is assumed to be positive
                      infinite
         :param category: The category is a value that gives further meta information w.r.t. to the class of the element.
                          It affects the expected existence of attributes and the applicability of constraints.
@@ -323,8 +323,8 @@ class Range(DataElement):
 
         super().__init__(id_short, category, description, parent, semantic_id, qualifier, kind)
         self.value_type: base.DataTypeDef = value_type
-        self._min: Optional[base.ValueDataType] = datatypes.trivial_cast(min_, value_type) if min_ is not None else None
-        self._max: Optional[base.ValueDataType] = datatypes.trivial_cast(max_, value_type) if max_ is not None else None
+        self._min: Optional[base.ValueDataType] = datatypes.trivial_cast(min, value_type) if min is not None else None
+        self._max: Optional[base.ValueDataType] = datatypes.trivial_cast(max, value_type) if max is not None else None
 
     @property
     def min(self):
@@ -506,7 +506,7 @@ class SubmodelElementCollection(SubmodelElement, base.Namespace, metaclass=abc.A
                    `ordered` shall not be set directly, instead one of the subclasses
                    `SubmodelElementCollectionOrdered` or `SubmodelElementCollectionUnordered` shall be used.
     """
-
+    @abc.abstractmethod
     def __init__(self,
                  id_short: str,
                  category: Optional[str] = None,
@@ -907,7 +907,7 @@ class Event(SubmodelElement, metaclass=abc.ABCMeta):
     """
     An event
     """
-
+    @abc.abstractmethod
     def __init__(self,
                  id_short: str,
                  category: Optional[str] = None,

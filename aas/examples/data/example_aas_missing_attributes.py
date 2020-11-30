@@ -78,8 +78,8 @@ def create_example_submodel() -> model.Submodel:
     submodel_element_range = model.Range(
         id_short='ExampleRange',
         value_type=model.datatypes.Int,
-        min_=0,
-        max_=100,
+        min=0,
+        max=100,
         category='PARAMETER',
         description={'en-us': 'Example Range object',
                      'de': 'Beispiel Range Element'},
@@ -170,8 +170,8 @@ def create_example_submodel() -> model.Submodel:
                                    parent=None),
                     model.Range(id_short="ExampleAnnotatedRange",
                                 value_type=model.datatypes.Integer,
-                                min_=1,
-                                max_=5,
+                                min=1,
+                                max=5,
                                 parent=None)
                     },
         category='PARAMETER',
@@ -372,11 +372,11 @@ def create_example_asset_administration_shell() -> \
         parent=None,
         administration=model.AdministrativeInformation(version='0.9',
                                                        revision='0'),
-        security_=None,
-        submodel_={model.AASReference((model.Key(type_=model.KeyElements.SUBMODEL,
-                                                 value='https://acplt.org/Test_Submodel_Missing',
-                                                 id_type=model.KeyType.IRI),),
-                                      model.Submodel)},
+        security=None,
+        submodel={model.AASReference((model.Key(type_=model.KeyElements.SUBMODEL,
+                                                value='https://acplt.org/Test_Submodel_Missing',
+                                                id_type=model.KeyType.IRI),),
+                                     model.Submodel)},
         view=[view, view_2],
         derived_from=None)
     return asset_administration_shell

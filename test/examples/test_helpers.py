@@ -80,8 +80,8 @@ class AASDataCheckerTest(unittest.TestCase):
         range = model.Range(
             id_short='Range1',
             value_type=model.datatypes.Int,
-            min_=100,
-            max_=200
+            min=100,
+            max=200
         )
         collection = model.SubmodelElementCollectionOrdered(
             id_short='Collection',
@@ -96,8 +96,8 @@ class AASDataCheckerTest(unittest.TestCase):
         range_expected = model.Range(
             id_short='Range1',
             value_type=model.datatypes.Int,
-            min_=100,
-            max_=200
+            min=100,
+            max=200
         )
         collection_expected = model.SubmodelElementCollectionOrdered(
             id_short='Collection',
@@ -241,10 +241,10 @@ class AASDataCheckerTest(unittest.TestCase):
                                                               id_type=model.KeyType.IRI),),
                                                    model.Asset)),
             identification=model.Identifier('test', model.IdentifierType.CUSTOM),
-            submodel_={model.AASReference((model.Key(type_=model.KeyElements.SUBMODEL,
-                                                     value='test',
-                                                     id_type=model.KeyType.IRI),),
-                                          model.Submodel)},
+            submodel={model.AASReference((model.Key(type_=model.KeyElements.SUBMODEL,
+                                                    value='test',
+                                                    id_type=model.KeyType.IRI),),
+                                         model.Submodel)},
             view=(model.View(id_short='test2'),)
             )
         checker = AASDataChecker(raise_immediately=False)

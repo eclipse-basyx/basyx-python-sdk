@@ -38,7 +38,7 @@ class JsonSerializationTest(unittest.TestCase):
         submodel_reference = model.AASReference(submodel_key, model.Submodel)
         submodel = model.Submodel(submodel_identifier)
         test_aas = model.AssetAdministrationShell(model.AssetInformation(global_asset_id=asset_reference),
-                                                  aas_identifier, submodel_={submodel_reference})
+                                                  aas_identifier, submodel={submodel_reference})
 
         # serialize object to json
         json_data = json.dumps({
@@ -63,7 +63,7 @@ class JsonSerializationSchemaTest(unittest.TestCase):
         # must be a Reference. (This seems to be a bug in the JSONSchema.)
         submodel = model.Submodel(submodel_identifier, semantic_id=model.Reference((),))
         test_aas = model.AssetAdministrationShell(model.AssetInformation(global_asset_id=asset_reference),
-                                                  aas_identifier, submodel_={submodel_reference})
+                                                  aas_identifier, submodel={submodel_reference})
 
         # serialize object to json
         json_data = json.dumps({
@@ -231,7 +231,7 @@ class JsonSerializationStrippedObjectsTest(unittest.TestCase):
         aas = model.AssetAdministrationShell(
             model.AssetInformation(global_asset_id=asset_ref),
             model.Identifier("http://acplt.org/test_aas", model.IdentifierType.IRI),
-            submodel_={submodel_ref},
+            submodel={submodel_ref},
             view=[model.View("test_view")]
         )
 
