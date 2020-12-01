@@ -40,8 +40,8 @@ class CouchDBBackend(backends.Backend):
     """
     @classmethod
     def update_object(cls,
-                      updated_object: "Referable",  # type: ignore
-                      store_object: "Referable",  # type: ignore
+                      updated_object: model.Referable,
+                      store_object: model.Referable,
                       relative_path: List[str]) -> None:
 
         if not isinstance(store_object, model.Identifiable):
@@ -61,8 +61,8 @@ class CouchDBBackend(backends.Backend):
 
     @classmethod
     def commit_object(cls,
-                      committed_object: "Referable",  # type: ignore
-                      store_object: "Referable",  # type: ignore
+                      committed_object: model.Referable,
+                      store_object: model.Referable,
                       relative_path: List[str]) -> None:
         if not isinstance(store_object, model.Identifiable):
             raise CouchDBSourceError("The given store_object is not Identifiable, therefore cannot be found "
@@ -115,7 +115,7 @@ class CouchDBBackend(backends.Backend):
         :param method: The HTTP method for the request
         :param additional_headers: Additional headers to insert into the request. The default headers include
             'connection: keep-alive', 'accept-encoding: ...', 'authorization: basic ...', 'Accept: ...'.
-        :param body: Request body for POST requests
+        :param body: Request body for POST, PUT, and PATCH requests
         :return: The parsed JSON data if the request `method` is other than 'HEAD' or the response headers for 'HEAD'
             requests
         """

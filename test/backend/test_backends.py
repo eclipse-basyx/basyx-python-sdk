@@ -7,11 +7,11 @@ from aas.model import Referable
 
 class ExampleBackend(backends.Backend):
     @classmethod
-    def commit_object(cls, committed_object: "Referable", store_object: "Referable", relative_path: List[str]) -> None:
+    def commit_object(cls, committed_object: Referable, store_object: Referable, relative_path: List[str]) -> None:
         raise NotImplementedError("This is a mock")
 
     @classmethod
-    def update_object(cls, updated_object: "Referable", store_object: "Referable", relative_path: List[str]) -> None:
+    def update_object(cls, updated_object: Referable, store_object: Referable, relative_path: List[str]) -> None:
         raise NotImplementedError("This is a mock")
 
 
