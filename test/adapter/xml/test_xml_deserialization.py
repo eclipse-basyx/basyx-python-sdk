@@ -23,11 +23,7 @@ from typing import Iterable, Type, Union
 def _xml_wrap(xml: str) -> str:
     return \
         """<?xml version="1.0" encoding="utf-8" ?>""" \
-        """<aas:aasenv xmlns:aas="http://www.admin-shell.io/aas/2/0" """ \
-        """xmlns:IEC61360="http://www.admin-shell.io/IEC61360/2/0" """ \
-        """xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" """ \
-        """xsi:schemaLocation="http://www.admin-shell.io/aas/2/0 AAS.xsd """ \
-        """http://www.admin-shell.io/IEC61360/2/0 IEC61360.xsd">""" \
+        """<aas:aasenv xmlns:aas="http://www.admin-shell.io/aas/3/0"> """ \
         + xml + """</aas:aasenv>"""
 
 
@@ -163,16 +159,19 @@ class XmlDeserializationTest(unittest.TestCase):
 
     def test_invalid_boolean(self) -> None:
         xml = _xml_wrap("""
-        <aas:conceptDescriptions>
-            <aas:conceptDescription>
-                <aas:identification idType="IRI">http://acplt.org/test_asset</aas:identification>
-                <aas:isCaseOf>
-                    <aas:keys>
-                         <aas:key idType="IRI" type="GlobalReference">http://acplt.org/test_ref</aas:key>
-                    </aas:keys>
-                </aas:isCaseOf>
-            </aas:conceptDescription>
-        </aas:conceptDescriptions>
+        <aas:submodels>
+            <aas:submodel>
+                <aas:identification idType="IRI">http://acplt.org/test_submodel</aas:identification>
+                <aas:submodelElements>
+                    <aas:submodelElement>
+                        <aas:submodelElementCollection>
+                            <aas:ordered>False</aas:ordered>
+                            <aas:idShort>collection</aas:idShort>
+                        </aas:submodelElementCollection>
+                    </aas:submodelElement>
+                </aas:submodelElements>
+            </aas:submodel>
+        </aas:submodels>
         """)
         self._assertInExceptionAndLog(xml, "False", ValueError, logging.ERROR)
 
@@ -198,11 +197,14 @@ class XmlDeserializationTest(unittest.TestCase):
         <aas:assetAdministrationShells>
             <aas:assetAdministrationShell>
                 <aas:identification idType="IRI">http://acplt.org/test_aas</aas:identification>
-                <aas:assetRef>
+                <aas:assetInformation>
+                    <aas:assetKind>Instance</aas:assetKind>
+                </aas:assetInformation>
+                <aas:derivedFrom>
                     <aas:keys>
                         <aas:key idType="IRI" type="GlobalReference">http://acplt.org/test_ref</aas:key>
                     </aas:keys>
-                </aas:assetRef>
+                </aas:derivedFrom>
             </aas:assetAdministrationShell>
         </aas:assetAdministrationShells>
         """)
@@ -229,16 +231,14 @@ class XmlDeserializationTest(unittest.TestCase):
         self._assertInExceptionAndLog(xml, "aas:invalidSubmodelElement", KeyError, logging.ERROR)
 
     def test_invalid_constraint(self) -> None:
-        # TODO: simplify this should our suggestion regarding the XML schema get accepted
-        # https://git.rwth-aachen.de/acplt/pyi40aas/-/issues/57
         xml = _xml_wrap("""
         <aas:submodels>
             <aas:submodel>
                 <aas:identification idType="IRI">http://acplt.org/test_submodel</aas:identification>
                 <aas:submodelElements/>
-                <aas:qualifier>
+                <aas:qualifiers>
                     <aas:invalidConstraint/>
-                </aas:qualifier>
+                </aas:qualifiers>
             </aas:submodel>
         </aas:submodels>
         """)
