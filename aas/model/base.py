@@ -402,6 +402,15 @@ class Referable(metaclass=abc.ABCMeta):
                     Constraint AASd-002: idShort shall only feature letters, digits, underscore ("_"); starting
                                          mandatory with a letter.
                     Constraint AASd-003: idShort shall be matched case insensitive.
+    :ivar display_name: Can be provided in several languages. If no display name is defined in the language requested
+                        by the application, then the display name is selected in the following order if available:
+                        - the preferred name in the requested language of the concept description defining the
+                          semantics of the element
+                        - If there is a default language list defined in the application, then the corresponding
+                          preferred name in the language is chosen according to this order.
+                        - the English preferred name of the concept description defining the semantics of the element
+                        - the short name of the concept description
+                        - the idShort of the element
     :ivar category: The category is a value that gives further meta information w.r.t. to the class of the element.
                     It affects the expected existence of attributes and the applicability of constraints.
     :ivar description: Description or comments on the element.
@@ -415,6 +424,7 @@ class Referable(metaclass=abc.ABCMeta):
     def __init__(self):
         super().__init__()
         self._id_short: str = "NotSet"
+        self.display_name: Optional[LangStringSet] = set()
         self._category: Optional[str] = None
         self.description: Optional[LangStringSet] = set()
         # We use a Python reference to the parent Namespace instead of a Reference Object, as specified. This allows

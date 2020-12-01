@@ -417,6 +417,10 @@ class AASFromXmlDecoder:
         """
         if isinstance(obj, model.Referable):
             category = _get_text_or_none(element.find(NS_AAS + "category"))
+            display_name = _failsafe_construct(element.find(NS_AAS + "displayName"), cls.construct_lang_string_set,
+                                               cls.failsafe)
+            if display_name is not None:
+                obj.display_name = display_name
             if category is not None:
                 obj.category = category
             description = _failsafe_construct(element.find(NS_AAS + "description"), cls.construct_lang_string_set,

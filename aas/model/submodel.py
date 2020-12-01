@@ -33,6 +33,7 @@ class SubmodelElement(base.Referable, base.Qualifiable, base.HasSemantics, base.
     @abc.abstractmethod
     def __init__(self,
                  id_short: str,
+                 display_name: Optional[base.LangStringSet] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
                  parent: Optional[base.Namespace] = None,
@@ -43,6 +44,7 @@ class SubmodelElement(base.Referable, base.Qualifiable, base.HasSemantics, base.
         Initializer of SubmodelElement
 
         :param id_short: Identifying string of the element within its name space. (from base.Referable)
+        :param display_name: Can be provided in several languages. (from base.Referable)
         :param category: The category is a value that gives further meta information w.r.t. to the class of the element.
                          It affects the expected existence of attributes and the applicability of constraints.
                          (from base.Referable)
@@ -61,6 +63,7 @@ class SubmodelElement(base.Referable, base.Qualifiable, base.HasSemantics, base.
 
         super().__init__()
         self.id_short = id_short
+        self.display_name: Optional[base.LangStringSet] = dict() if display_name is None else display_name
         self.category = category
         self.description: Optional[base.LangStringSet] = dict() if description is None else description
         self.parent: Optional[base.Namespace] = parent
@@ -84,6 +87,7 @@ class Submodel(base.Identifiable, base.HasSemantics, base.HasKind, base.Qualifia
                  identification: base.Identifier,
                  submodel_element: Iterable[SubmodelElement] = (),
                  id_short: str = "NotSet",
+                 display_name: Optional[base.LangStringSet] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
                  parent: Optional[base.Namespace] = None,
@@ -97,6 +101,7 @@ class Submodel(base.Identifiable, base.HasSemantics, base.HasKind, base.Qualifia
         :param identification: The globally unique identification of the element. (from base.Identifiable)
         :param submodel_element: Unordered list of submodel elements
         :param id_short: Identifying string of the element within its name space. (from base.Referable)
+        :param display_name: Can be provided in several languages. (from base.Referable)
         :param category: The category is a value that gives further meta information w.r.t. to the class of the element.
                          It affects the expected existence of attributes and the applicability of constraints.
                          (from base.Referable)
@@ -116,6 +121,7 @@ class Submodel(base.Identifiable, base.HasSemantics, base.HasKind, base.Qualifia
         self.identification: base.Identifier = identification
         self.submodel_element = base.NamespaceSet(self, submodel_element)
         self.id_short = id_short
+        self.display_name: Optional[base.LangStringSet] = dict() if display_name is None else display_name
         self.category = category
         self.description: Optional[base.LangStringSet] = dict() if description is None else description
         self.parent: Optional[base.Namespace] = parent
@@ -136,6 +142,7 @@ class DataElement(SubmodelElement, metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def __init__(self,
                  id_short: str,
+                 display_name: Optional[base.LangStringSet] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
                  parent: Optional[base.Namespace] = None,
@@ -146,6 +153,7 @@ class DataElement(SubmodelElement, metaclass=abc.ABCMeta):
         Initializer of DataElement
 
         :param id_short: Identifying string of the element within its name space. (from base.Referable)
+        :param display_name: Can be provided in several languages. (from base.Referable)
         :param category: The category is a value that gives further meta information w.r.t. to the class of the element.
                          It affects the expected existence of attributes and the applicability of constraints.
                          (from base.Referable)
@@ -160,7 +168,7 @@ class DataElement(SubmodelElement, metaclass=abc.ABCMeta):
         :param kind: Kind of the element: either type or instance. Default = Instance. (from base.HasKind)
         """
 
-        super().__init__(id_short, category, description, parent, semantic_id, qualifier, kind)
+        super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, kind)
 
 
 class Property(DataElement):
@@ -179,6 +187,7 @@ class Property(DataElement):
                  value_type: base.DataTypeDef,
                  value: Optional[base.ValueDataType] = None,
                  value_id: Optional[base.Reference] = None,
+                 display_name: Optional[base.LangStringSet] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
                  parent: Optional[base.Namespace] = None,
@@ -192,6 +201,7 @@ class Property(DataElement):
         :param value_type: Data type of the value
         :param value: The value of the property instance.
         :param value_id: Reference to the global unique id of a coded value.
+        :param display_name: Can be provided in several languages. (from base.Referable)
         :param category: The category is a value that gives further meta information w.r.t. to the class of the element.
                          It affects the expected existence of attributes and the applicability of constraints.
                          (from base.Referable)
@@ -208,7 +218,7 @@ class Property(DataElement):
         TODO: Add instruction what to do after construction
         """
 
-        super().__init__(id_short, category, description, parent, semantic_id, qualifier, kind)
+        super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, kind)
         self.value_type: Type[datatypes.AnyXSDType] = value_type
         self._value: Optional[base.ValueDataType] = (datatypes.trivial_cast(value, value_type)
                                                      if value is not None else None)
@@ -240,6 +250,7 @@ class MultiLanguageProperty(DataElement):
                  id_short: str,
                  value: Optional[base.LangStringSet] = None,
                  value_id: Optional[base.Reference] = None,
+                 display_name: Optional[base.LangStringSet] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
                  parent: Optional[base.Namespace] = None,
@@ -252,6 +263,7 @@ class MultiLanguageProperty(DataElement):
         :param id_short: Identifying string of the element within its name space. (from base.Referable)
         :param value: The value of the property instance.
         :param value_id: Reference to the global unique id of a coded value.
+        :param display_name: Can be provided in several languages. (from base.Referable)
         :param category: The category is a value that gives further meta information w.r.t. to the class of the element.
                          It affects the expected existence of attributes and the applicability of constraints.
                          (from base.Referable)
@@ -268,7 +280,7 @@ class MultiLanguageProperty(DataElement):
         TODO: Add instruction what to do after construction
         """
 
-        super().__init__(id_short, category, description, parent, semantic_id, qualifier, kind)
+        super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, kind)
         self.value: base.LangStringSet = dict() if value is None else value
         self.value_id: Optional[base.Reference] = value_id
 
@@ -290,6 +302,7 @@ class Range(DataElement):
                  value_type: base.DataTypeDef,
                  min: Optional[base.ValueDataType] = None,
                  max: Optional[base.ValueDataType] = None,
+                 display_name: Optional[base.LangStringSet] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
                  parent: Optional[base.Namespace] = None,
@@ -305,6 +318,7 @@ class Range(DataElement):
                      negative infinite.
         :param max: The maximum of the range. If the max value is missing then the value is assumed to be positive
                      infinite
+        :param display_name: Can be provided in several languages. (from base.Referable)
         :param category: The category is a value that gives further meta information w.r.t. to the class of the element.
                          It affects the expected existence of attributes and the applicability of constraints.
                          (from base.Referable)
@@ -321,7 +335,7 @@ class Range(DataElement):
         TODO: Add instruction what to do after construction
         """
 
-        super().__init__(id_short, category, description, parent, semantic_id, qualifier, kind)
+        super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, kind)
         self.value_type: base.DataTypeDef = value_type
         self._min: Optional[base.ValueDataType] = datatypes.trivial_cast(min, value_type) if min is not None else None
         self._max: Optional[base.ValueDataType] = datatypes.trivial_cast(max, value_type) if max is not None else None
@@ -365,6 +379,7 @@ class Blob(DataElement):
                  id_short: str,
                  mime_type: base.MimeType,
                  value: Optional[base.BlobType] = None,
+                 display_name: Optional[base.LangStringSet] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
                  parent: Optional[base.Namespace] = None,
@@ -381,6 +396,7 @@ class Blob(DataElement):
         :param mime_type: Mime type of the content of the BLOB. The mime type states which file extension the file has.
                           Valid values are e.g. “application/json”, “application/xls”, ”image/jpg”. The allowed values
                           are defined as in RFC2046.
+        :param display_name: Can be provided in several languages. (from base.Referable)
         :param category: The category is a value that gives further meta information w.r.t. to the class of the element.
                          It affects the expected existence of attributes and the applicability of constraints.
                          (from base.Referable)
@@ -397,7 +413,7 @@ class Blob(DataElement):
         TODO: Add instruction what to do after construction
         """
 
-        super().__init__(id_short, category, description, parent, semantic_id, qualifier, kind)
+        super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, kind)
         self.value: Optional[base.BlobType] = value
         self.mime_type: base.MimeType = mime_type
 
@@ -415,6 +431,7 @@ class File(DataElement):
                  id_short: str,
                  mime_type: base.MimeType,
                  value: Optional[base.PathType] = None,
+                 display_name: Optional[base.LangStringSet] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
                  parent: Optional[base.Namespace] = None,
@@ -429,6 +446,7 @@ class File(DataElement):
         :param value: Path and name of the referenced file (without file extension). The path can be absolute or
                       relative.
                       Note: The file extension is defined by using a qualifier of type “MimeType”.
+        :param display_name: Can be provided in several languages. (from base.Referable)
         :param category: The category is a value that gives further meta information w.r.t. to the class of the element.
                          It affects the expected existence of attributes and the applicability of constraints.
                          (from base.Referable)
@@ -445,7 +463,7 @@ class File(DataElement):
         TODO: Add instruction what to do after construction
         """
 
-        super().__init__(id_short, category, description, parent, semantic_id, qualifier, kind)
+        super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, kind)
         self.value: Optional[base.PathType] = value
         self.mime_type: base.MimeType = mime_type
 
@@ -462,6 +480,7 @@ class ReferenceElement(DataElement):
     def __init__(self,
                  id_short: str,
                  value: Optional[base.Reference] = None,
+                 display_name: Optional[base.LangStringSet] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
                  parent: Optional[base.Namespace] = None,
@@ -474,6 +493,7 @@ class ReferenceElement(DataElement):
         :param id_short: Identifying string of the element within its name space. (from base.Referable)
         :param value: Reference to any other referable element of the same of any other AAS or a reference to an
                       external object or entity.
+        :param display_name: Can be provided in several languages. (from base.Referable)
         :param category: The category is a value that gives further meta information w.r.t. to the class of the element.
                          It affects the expected existence of attributes and the applicability of constraints.
                          (from base.Referable)
@@ -490,7 +510,7 @@ class ReferenceElement(DataElement):
         TODO: Add instruction what to do after construction
         """
 
-        super().__init__(id_short, category, description, parent, semantic_id, qualifier, kind)
+        super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, kind)
         self.value: Optional[base.Reference] = value
 
 
@@ -509,6 +529,7 @@ class SubmodelElementCollection(SubmodelElement, base.Namespace, metaclass=abc.A
     @abc.abstractmethod
     def __init__(self,
                  id_short: str,
+                 display_name: Optional[base.LangStringSet] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
                  parent: Optional[base.Namespace] = None,
@@ -522,6 +543,7 @@ class SubmodelElementCollection(SubmodelElement, base.Namespace, metaclass=abc.A
         `SubmodelElementCollectionOrdered` or `SubmodelElementCollectionUnordered` shall be used.
 
         :param id_short: Identifying string of the element within its name space. (from base.Referable)
+        :param display_name: Can be provided in several languages. (from base.Referable)
         :param category: The category is a value that gives further meta information w.r.t. to the class of the element.
                          It affects the expected existence of attributes and the applicability of constraints.
                          (from base.Referable)
@@ -537,7 +559,7 @@ class SubmodelElementCollection(SubmodelElement, base.Namespace, metaclass=abc.A
 
         TODO: Add instruction what to do after construction
         """
-        super().__init__(id_short, category, description, parent, semantic_id, qualifier, kind)
+        super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, kind)
         self.value: base.NamespaceSet[SubmodelElement] = None  # type: ignore
 
     @property
@@ -554,6 +576,7 @@ class SubmodelElementCollectionOrdered(SubmodelElementCollection):
     def __init__(self,
                  id_short: str,
                  value: Iterable[SubmodelElement] = (),
+                 display_name: Optional[base.LangStringSet] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
                  parent: Optional[base.Namespace] = None,
@@ -565,6 +588,7 @@ class SubmodelElementCollectionOrdered(SubmodelElementCollection):
 
         :param id_short: Identifying string of the element within its name space. (from base.Referable)
         :param value: Ordered list of submodel elements.
+        :param display_name: Can be provided in several languages. (from base.Referable)
         :param category: The category is a value that gives further meta information w.r.t. to the class of the element.
                          It affects the expected existence of attributes and the applicability of constraints.
                          (from base.Referable)
@@ -581,7 +605,7 @@ class SubmodelElementCollectionOrdered(SubmodelElementCollection):
         TODO: Add instruction what to do after construction
         """
 
-        super().__init__(id_short, category, description, parent, semantic_id, qualifier, kind)
+        super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, kind)
         self.value = base.OrderedNamespaceSet(self, value)
 
     @property
@@ -597,6 +621,7 @@ class SubmodelElementCollectionUnordered(SubmodelElementCollection):
     def __init__(self,
                  id_short: str,
                  value: Iterable[SubmodelElement] = (),
+                 display_name: Optional[base.LangStringSet] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
                  parent: Optional[base.Namespace] = None,
@@ -608,6 +633,7 @@ class SubmodelElementCollectionUnordered(SubmodelElementCollection):
 
         :param id_short: Identifying string of the element within its name space. (from base.Referable)
         :param value: Unordered list of submodel elements.
+        :param display_name: Can be provided in several languages. (from base.Referable)
         :param category: The category is a value that gives further meta information w.r.t. to the class of the element.
                          It affects the expected existence of attributes and the applicability of constraints.
                          (from base.Referable)
@@ -623,7 +649,7 @@ class SubmodelElementCollectionUnordered(SubmodelElementCollection):
 
         TODO: Add instruction what to do after construction
         """
-        super().__init__(id_short, category, description, parent, semantic_id, qualifier, kind)
+        super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, kind)
         self.value = base.NamespaceSet(self, value)
 
     @property
@@ -646,6 +672,7 @@ class RelationshipElement(SubmodelElement):
                  id_short: str,
                  first: base.AASReference,
                  second: base.AASReference,
+                 display_name: Optional[base.LangStringSet] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
                  parent: Optional[base.Namespace] = None,
@@ -660,6 +687,7 @@ class RelationshipElement(SubmodelElement):
                       be of class Referable.
         :param second: Reference to the second element in the relationship taking the role of the object which have to
                        be of class Referable.
+        :param display_name: Can be provided in several languages. (from base.Referable)
         :param category: The category is a value that gives further meta information w.r.t. to the class of the element.
                          It affects the expected existence of attributes and the applicability of constraints.
                          (from base.Referable)
@@ -676,7 +704,7 @@ class RelationshipElement(SubmodelElement):
         TODO: Add instruction what to do after construction
         """
 
-        super().__init__(id_short, category, description, parent, semantic_id, qualifier, kind)
+        super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, kind)
         self.first: base.AASReference = first
         self.second: base.AASReference = second
 
@@ -693,6 +721,7 @@ class AnnotatedRelationshipElement(RelationshipElement, base.Namespace):
                  first: base.AASReference,
                  second: base.AASReference,
                  annotation: Optional[Iterable[DataElement]] = None,
+                 display_name: Optional[base.LangStringSet] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
                  parent: Optional[base.Namespace] = None,
@@ -704,6 +733,7 @@ class AnnotatedRelationshipElement(RelationshipElement, base.Namespace):
 
         :param id_short: Identifying string of the element within its name space. (from base.Referable)
         :param annotation: Unordered list of annotations that hold for the relationship between two elements
+        :param display_name: Can be provided in several languages. (from base.Referable)
         :param category: The category is a value that gives further meta information w.r.t. to the class of the element.
                          It affects the expected existence of attributes and the applicability of constraints.
                          (from base.Referable)
@@ -720,7 +750,8 @@ class AnnotatedRelationshipElement(RelationshipElement, base.Namespace):
         TODO: Add instruction what to do after construction
         """
 
-        super().__init__(id_short, first, second, category, description, parent, semantic_id, qualifier, kind)
+        super().__init__(id_short, first, second, display_name, category, description, parent, semantic_id, qualifier,
+                         kind)
         if annotation is None:
             self.annotation: base.NamespaceSet[DataElement] = base.NamespaceSet(self)
         else:
@@ -761,6 +792,7 @@ class Operation(SubmodelElement):
                  input_variable: Optional[List[OperationVariable]] = None,
                  output_variable:  Optional[List[OperationVariable]] = None,
                  in_output_variable:  Optional[List[OperationVariable]] = None,
+                 display_name: Optional[base.LangStringSet] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
                  parent: Optional[base.Namespace] = None,
@@ -774,6 +806,7 @@ class Operation(SubmodelElement):
         :param input_variable: list of input parameters of the operation
         :param output_variable: list output parameters of the operation
         :param in_output_variable: list of parameters that is input and output of the operation
+        :param display_name: Can be provided in several languages. (from base.Referable)
         :param category: The category is a value that gives further meta information w.r.t. to the class of the element.
                          It affects the expected existence of attributes and the applicability of constraints.
                          (from base.Referable)
@@ -790,7 +823,7 @@ class Operation(SubmodelElement):
         TODO: Add instruction what to do after construction
         """
 
-        super().__init__(id_short, category, description, parent, semantic_id, qualifier, kind)
+        super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, kind)
         self.input_variable = input_variable if input_variable is not None else []
         self.output_variable = output_variable if output_variable is not None else []
         self.in_output_variable = in_output_variable if in_output_variable is not None else []
@@ -804,6 +837,7 @@ class Capability(SubmodelElement):
 
     def __init__(self,
                  id_short: str,
+                 display_name: Optional[base.LangStringSet] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
                  parent: Optional[base.Namespace] = None,
@@ -814,6 +848,7 @@ class Capability(SubmodelElement):
         Initializer of Capability
 
         :param id_short: Identifying string of the element within its name space. (from base.Referable)
+        :param display_name: Can be provided in several languages. (from base.Referable)
         :param category: The category is a value that gives further meta information w.r.t. to the class of the element.
                          It affects the expected existence of attributes and the applicability of constraints.
                          (from base.Referable)
@@ -830,7 +865,7 @@ class Capability(SubmodelElement):
         TODO: Add instruction what to do after construction
         """
 
-        super().__init__(id_short, category, description, parent, semantic_id, qualifier, kind)
+        super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, kind)
 
 
 class Entity(SubmodelElement, base.Namespace):
@@ -850,6 +885,7 @@ class Entity(SubmodelElement, base.Namespace):
                  statement: Iterable[SubmodelElement] = (),
                  global_asset_id: Optional[base.Reference] = None,
                  specific_asset_id: Optional[base.IdentifierKeyValuePair] = None,
+                 display_name: Optional[base.LangStringSet] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
                  parent: Optional[base.Namespace] = None,
@@ -869,6 +905,7 @@ class Entity(SubmodelElement, base.Namespace):
                                 be modelled via “specificAssetId”.
         :param specific_asset_id: Reference to an identifier key value pair representing a specific identifier
                                   of the asset represented by the asset administration shell. See Constraint AASd-014
+        :param display_name: Can be provided in several languages. (from base.Referable)
         :param category: The category is a value that gives further meta information w.r.t. to the class of the element.
                          It affects the expected existence of attributes and the applicability of constraints.
                          (from base.Referable)
@@ -885,7 +922,7 @@ class Entity(SubmodelElement, base.Namespace):
         TODO: Add instruction what to do after construction
         """
 
-        super().__init__(id_short, category, description, parent, semantic_id, qualifier, kind)
+        super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, kind)
         self.statement = base.NamespaceSet(self, statement)
         self.specific_asset_id: Optional[base.IdentifierKeyValuePair] = specific_asset_id
         self.global_asset_id: Optional[base.Reference] = global_asset_id
@@ -910,6 +947,7 @@ class Event(SubmodelElement, metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def __init__(self,
                  id_short: str,
+                 display_name: Optional[base.LangStringSet] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
                  parent: Optional[base.Namespace] = None,
@@ -920,6 +958,7 @@ class Event(SubmodelElement, metaclass=abc.ABCMeta):
         Initializer of Event
 
         :param id_short: Identifying string of the element within its name space. (from base.Referable)
+        :param display_name: Can be provided in several languages. (from base.Referable)
         :param category: The category is a value that gives further meta information w.r.t. to the class of the element.
                          It affects the expected existence of attributes and the applicability of constraints.
                          (from base.Referable)
@@ -934,7 +973,7 @@ class Event(SubmodelElement, metaclass=abc.ABCMeta):
         :param kind: Kind of the element: either type or instance. Default = Instance. (from base.HasKind)
         """
 
-        super().__init__(id_short, category, description, parent, semantic_id, qualifier, kind)
+        super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, kind)
 
 
 class BasicEvent(Event):
@@ -947,6 +986,7 @@ class BasicEvent(Event):
     def __init__(self,
                  id_short: str,
                  observed: base.AASReference,
+                 display_name: Optional[base.LangStringSet] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
                  parent: Optional[base.Namespace] = None,
@@ -958,6 +998,7 @@ class BasicEvent(Event):
 
         :param id_short: Identifying string of the element within its name space. (from base.Referable)
         :param observed: Reference to the data or other elements that are being observed
+        :param display_name: Can be provided in several languages. (from base.Referable)
         :param category: The category is a value that gives further meta information w.r.t. to the class of the element.
                          It affects the expected existence of attributes and the applicability of constraints.
                          (from base.Referable)
@@ -974,5 +1015,5 @@ class BasicEvent(Event):
         TODO: Add instruction what to do after construction
         """
 
-        super().__init__(id_short, category, description, parent, semantic_id, qualifier, kind)
+        super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, kind)
         self.observed: base.AASReference = observed

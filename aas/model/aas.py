@@ -36,6 +36,7 @@ class View(base.Referable, base.HasSemantics):
     def __init__(self,
                  id_short: str,
                  contained_element: Optional[Set[base.AASReference]] = None,
+                 display_name: Optional[base.LangStringSet] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
                  parent: Optional[base.Namespace] = None,
@@ -45,6 +46,7 @@ class View(base.Referable, base.HasSemantics):
 
         :param id_short: Identifying string of the element within its name space. (from base.Referable)
         :param contained_element: Unordered list of references to elements of class Referable
+        :param display_name: Can be provided in several languages. (from base.Referable)
         :param category: The category is a value that gives further meta information w.r.t. to the class of the element.
                          It affects the expected existence of attributes and the applicability of constraints.
                          (from base.Referable)
@@ -60,6 +62,7 @@ class View(base.Referable, base.HasSemantics):
         super().__init__()
         self.id_short = id_short
         self.contained_element: Set[base.AASReference] = set() if contained_element is None else contained_element
+        self.display_name: Optional[base.LangStringSet] = dict() if display_name is None else display_name
         self.category = category
         self.description: Optional[base.LangStringSet] = dict() if description is None else description
         self.parent: Optional[base.Namespace] = parent
@@ -84,6 +87,7 @@ class Asset(base.Identifiable):
     def __init__(self,
                  identification: base.Identifier,
                  id_short: str = "NotSet",
+                 display_name: Optional[base.LangStringSet] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
                  parent: Optional[base.Namespace] = None,
@@ -94,6 +98,7 @@ class Asset(base.Identifiable):
         :param kind: Denotes whether the Asset is of kind "Type" or "Instance".
         :param identification: The globally unique identification of the element. (from base.Identifiable)
         :param id_short: Identifying string of the element within its name space. (from base.Referable)
+        :param display_name: Can be provided in several languages. (from base.Referable)
         :param category: The category is a value that gives further meta information w.r.t. to the class of the element.
                          It affects the expected existence of attributes and the applicability of constraints.
                          (from base.Referable)
@@ -104,6 +109,7 @@ class Asset(base.Identifiable):
         super().__init__()
         self.identification: base.Identifier = identification
         self.id_short = id_short
+        self.display_name: Optional[base.LangStringSet] = dict() if display_name is None else display_name
         self.category = category
         self.description: Optional[base.LangStringSet] = dict() if description is None else description
         self.parent: Optional[base.Namespace] = parent
@@ -196,6 +202,7 @@ class AssetAdministrationShell(base.Identifiable, base.Namespace):
                  asset_information: AssetInformation,
                  identification: base.Identifier,
                  id_short: str = "NotSet",
+                 display_name: Optional[base.LangStringSet] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
                  parent: Optional[base.Namespace] = None,
@@ -209,6 +216,7 @@ class AssetAdministrationShell(base.Identifiable, base.Namespace):
         :param asset_information: Meta information about the asset the AAS is representing.
         :param identification: The globally unique identification of the element. (from base.Identifiable)
         :param id_short: Identifying string of the element within its name space. (from base.Referable)
+        :param display_name: Can be provided in several languages. (from base.Referable)
         :param category: The category is a value that gives further meta information w.r.t. to the class of the element.
                          It affects the expected existence of attributes and the applicability of constraints.
                          (from base.Referable)
@@ -227,6 +235,7 @@ class AssetAdministrationShell(base.Identifiable, base.Namespace):
         self.identification: base.Identifier = identification
         self.asset_information: AssetInformation = asset_information
         self.id_short = id_short
+        self.display_name: Optional[base.LangStringSet] = dict() if display_name is None else display_name
         self.category = category
         self.description: Optional[base.LangStringSet] = dict() if description is None else description
         self.parent: Optional[base.Namespace] = parent

@@ -177,7 +177,7 @@ def create_example_bill_of_material_submodel() -> model.Submodel:
 
     entity = model.Entity(
         id_short='ExampleEntity',
-        entity_type=model.EntityType.CO_MANAGED_ENTITY,
+        entity_type=model.EntityType.SELF_MANAGED_ENTITY,
         statement={submodel_element_property, submodel_element_property2},
         global_asset_id=model.Reference((model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
                                                    value='http://acplt.org/TestAsset/',
@@ -205,11 +205,10 @@ def create_example_bill_of_material_submodel() -> model.Submodel:
 
     entity_2 = model.Entity(
         id_short='ExampleEntity2',
-        entity_type=model.EntityType.SELF_MANAGED_ENTITY,
+        entity_type=model.EntityType.CO_MANAGED_ENTITY,
         statement=(),
-        global_asset_id=model.Reference((model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
-                                                   value='http://acplt.org/TestAsset2/',
-                                                   id_type=model.KeyType.IRI),)),
+        global_asset_id=None,
+        specific_asset_id=None,
         category=None,
         description={'en-us': 'Legally valid designation of the natural or judicial person which is directly '
                               'responsible for the design, production, packaging and labeling of a product in '
@@ -258,6 +257,8 @@ def create_example_submodel() -> model.Submodel:
         value_id=model.Reference((model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
                                             value='http://acplt.org/ValueId/ExampleValueId',
                                             id_type=model.KeyType.IRI),)),
+        display_name={'en-us': 'ExampleProperty',
+                      'de': 'BeispielProperty'},
         category='CONSTANT',
         description={'en-us': 'Example Property object',
                      'de': 'Beispiel Property Element'},

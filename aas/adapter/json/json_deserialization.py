@@ -26,6 +26,7 @@ import base64
 import json
 import logging
 import pprint
+from builtins import dict
 from typing import Dict, Callable, TypeVar, Type, List, IO, Optional, Set
 
 from aas import model
@@ -218,6 +219,8 @@ class AASFromJsonDecoder(json.JSONDecoder):
         if isinstance(obj, model.Referable):
             if 'category' in dct:
                 obj.category = _get_ts(dct, 'category', str)
+            if 'displayName' in dct:
+                obj.display_name = cls._construct_lang_string_set(_get_ts(dct, 'displayName', list))
             if 'description' in dct:
                 obj.description = cls._construct_lang_string_set(_get_ts(dct, 'description', list))
         if isinstance(obj, model.Identifiable):

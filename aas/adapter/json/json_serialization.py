@@ -121,6 +121,8 @@ class AASToJsonEncoder(json.JSONEncoder):
                 data['idShort'] = obj.id_short
             else:
                 data['idShort'] = "NotSet"
+            if obj.display_name:
+                data['displayName'] = cls._lang_string_set_to_json(obj.display_name)
             if obj.category:
                 data['category'] = obj.category
             if obj.description:

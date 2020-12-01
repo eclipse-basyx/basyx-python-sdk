@@ -116,7 +116,7 @@ class ComplianceToolTest(unittest.TestCase):
              "-v"],
             stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         self.assertEqual(0, output.returncode)
-        self.assertNotIn('ERROR', str(output.stdout))
+        self.assertNotIn('ERROR', str(output.stderr))
         self.assertNotIn('INFO', str(output.stdout))
 
         output = subprocess.run(
@@ -124,7 +124,7 @@ class ComplianceToolTest(unittest.TestCase):
              "-v", "-v"],
             stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         self.assertEqual(0, output.returncode)
-        self.assertNotIn('ERROR', str(output.stdout))
+        self.assertNotIn('ERROR', str(output.stderr))
         self.assertIn('INFO', str(output.stdout))
 
         # test quite

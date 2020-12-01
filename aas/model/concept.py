@@ -34,6 +34,7 @@ class ConceptDescription(base.Identifiable):
                  identification: base.Identifier,
                  is_case_of: Optional[Set[base.Reference]] = None,
                  id_short: str = "NotSet",
+                 display_name: Optional[base.LangStringSet] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
                  parent: Optional[base.Namespace] = None,
@@ -46,6 +47,7 @@ class ConceptDescription(base.Identifiable):
                            was derived from.
                            Note: Compare to is-case-of relationship in ISO 13584-32 & IEC EN 61360
         :param id_short: Identifying string of the element within its name space. (from base.Referable)
+        :param display_name: Can be provided in several languages. (from base.Referable)
         :param category: The category is a value that gives further meta information w.r.t. to the class of the element.
                          It affects the expected existence of attributes and the applicability of constraints.
                          (from base.Referable)
@@ -57,6 +59,7 @@ class ConceptDescription(base.Identifiable):
         self.identification: base.Identifier = identification
         self.is_case_of: Set[base.Reference] = set() if is_case_of is None else is_case_of
         self.id_short = id_short
+        self.display_name: Optional[base.LangStringSet] = dict() if display_name is None else display_name
         self.category = category
         self.description: Optional[base.LangStringSet] = dict() if description is None else description
         self.parent: Optional[base.Namespace] = parent
@@ -107,6 +110,7 @@ class IEC61360ConceptDescription(ConceptDescription):
                  short_name: Optional[base.LangStringSet] = None,
                  is_case_of: Optional[Set[base.Reference]] = None,
                  id_short: str = "NotSet",
+                 display_name: Optional[base.LangStringSet] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
                  parent: Optional[base.Namespace] = None,
@@ -133,6 +137,7 @@ class IEC61360ConceptDescription(ConceptDescription):
                            was derived from.
                            Note: Compare to is-case-of relationship in ISO 13584-32 & IEC EN 61360
         :param id_short: Identifying string of the element within its name space. (from base.Referable)
+        :param display_name: Can be provided in several languages. (from base.Referable)
         :param category: The category is a value that gives further meta information w.r.t. to the class of the element.
                          It affects the expected existence of attributes and the applicability of constraints. (from
                          base.Referable)
@@ -149,7 +154,8 @@ class IEC61360ConceptDescription(ConceptDescription):
         :param value_id: Reference to the value (optional)
         :param level_types: Set of level types of the DataSpecificationContent (optional)
         """
-        super().__init__(identification, is_case_of, id_short, category, description, parent, administration)
+        super().__init__(identification, is_case_of, id_short, display_name, category, description, parent,
+                         administration)
         self.preferred_name: base.LangStringSet = preferred_name
         self.short_name: Optional[base.LangStringSet] = short_name
         self.data_type: Optional[IEC61360DataType] = data_type
