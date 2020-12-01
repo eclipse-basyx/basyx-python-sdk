@@ -475,14 +475,6 @@ class AASFromXmlDecoder:
         return cls.construct_aas_reference_expect_type(element, model.Submodel, **kwargs)
 
     @classmethod
-    def _construct_asset_reference(cls, element: etree.Element, **kwargs: Any) \
-            -> model.AASReference[model.Asset]:
-        """
-        Helper function. Doesn't support the object_class parameter. Overwrite construct_aas_reference instead.
-        """
-        return cls.construct_aas_reference_expect_type(element, model.Asset, **kwargs)
-
-    @classmethod
     def _construct_asset_administration_shell_reference(cls, element: etree.Element, **kwargs: Any) \
             -> model.AASReference[model.AssetAdministrationShell]:
         """
@@ -499,14 +491,6 @@ class AASFromXmlDecoder:
         # TODO: remove the following type: ignore comments when mypy supports abstract types for Type[T]
         # see https://github.com/python/mypy/issues/5374
         return cls.construct_aas_reference_expect_type(element, model.Referable, **kwargs)  # type: ignore
-
-    @classmethod
-    def _construct_concept_description_reference(cls, element: etree.Element, **kwargs: Any) \
-            -> model.AASReference[model.ConceptDescription]:
-        """
-        Helper function. Doesn't support the object_class parameter. Overwrite construct_aas_reference instead.
-        """
-        return cls.construct_aas_reference_expect_type(element, model.ConceptDescription, **kwargs)
 
     @classmethod
     def construct_key(cls, element: etree.Element, object_class=model.Key, **_kwargs: Any) \
