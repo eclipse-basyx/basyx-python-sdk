@@ -40,6 +40,7 @@ PyI40AAS requires the following Python packages to be installed for production u
 `setup.py` to be fetched automatically when installing with `pip`:
 * `python-dateutil` (BSD 3-clause License)
 * `lxml` (BSD 3-clause License, using `libxml2` under MIT License)
+* `urllib3` (MIT License)
 * `pyecma376-2` (Apache License v2.0)
 
 Optional production usage dependencies:
