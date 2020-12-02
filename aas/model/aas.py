@@ -75,7 +75,20 @@ class Asset(base.Identifiable):
     – if needed – additional domain specific (proprietary) identifiers.
 
     :ivar kind: Denotes whether the Asset is of :class:`kind <aas.model.base.AssetKind>` "Type" or "Instance".
-    :ivar asset_identification_model: A :class:`reference <aas.model.base.AASReference>` to a
+    :ivar ~.identification: The globally unique identification (:class:`~aas.model.base.Identifier`) of the element.
+                            (inherited from :class:`~aas.model.base.Identifiable`)
+    :ivar id_short: Identifying string of the element within its name space. (inherited from
+                    :class:`~aas.model.base.Referable`)
+    :ivar category: The category is a value that gives further meta information w.r.t. to the class of the element.
+                    It affects the expected existence of attributes and the applicability of constraints.
+                    (inherited from :class:`~aas.model.base.Referable`)
+    :ivar description: Description or comments on the element. (inherited from :class:`~aas.model.base.Referable`)
+    :ivar parent: Reference to the next referable parent element of the element. (inherited from
+                  :class:`~aas.model.base.Referable`)
+    :ivar administration: :class:`~aas.model.base.AdministrativeInformation` of an
+                          :class:`~.aas.model.base.Identifiable` element. (inherited from
+                          :class:`~aas.model.base.Identifiable`)
+    :ivar asset_identification_model: An :class:`~aas.model.base.AASReference` to a
                                       :class:`~aas.model.submodel.Submodel` that defines the handling of additional
                                       domain specific (proprietary) Identifiers for the asset like e.g.
                                       serial number etc
@@ -94,24 +107,6 @@ class Asset(base.Identifiable):
                  administration: Optional[base.AdministrativeInformation] = None,
                  asset_identification_model: Optional[base.AASReference["submodel.Submodel"]] = None,
                  bill_of_material: Optional[base.AASReference["submodel.Submodel"]] = None):
-        """
-        Initializer of Asset
-
-        :param kind: Denotes whether the Asset is of kind "Type" or "Instance".
-        :param identification: The globally unique identification of the element. (from base.Identifiable)
-        :param id_short: Identifying string of the element within its name space. (from base.Referable)
-        :param category: The category is a value that gives further meta information w.r.t. to the class of the element.
-                         It affects the expected existence of attributes and the applicability of constraints.
-                         (from base.Referable)
-        :param description: Description or comments on the element. (from base.Referable)
-        :param parent: Reference to the next referable parent element of the element. (from base.Referable)
-        :param administration: Administrative information of an identifiable element. (from base.Identifiable)
-        :param asset_identification_model: A reference to a Submodel that defines the handling of additional domain
-                                           specific (proprietary) Identifiers for the asset like e.g. serial number etc
-        :param bill_of_material: Bill of material of the asset represented by a submodel of the same AAS. This submodel
-                                 contains a set of entities describing the material used to compose the composite I4.0
-                                 Component.
-        """
         super().__init__()
         self.kind: base.AssetKind = kind
         self.identification: base.Identifier = identification
@@ -130,10 +125,23 @@ class AssetAdministrationShell(base.Identifiable, base.Namespace):
 
     :ivar asset: :class:`Reference <aas.model.base.AASReference>` to the :class:`~aas.model.aas.Asset` the AAS is
                  representing.
-    :ivar security: Definition of the security relevant aspects of the AAS.
-    :ivar submodel: Unordered list of :class:`submodels <aas.model.submodel.Submodel>` to describe typically the asset
-                    of an AAS.
-    :ivar concept_dictionary: Unordered list of :class:`concept dictionaries <aas.model.concept.ConceptDictionary>`.
+    :ivar ~.identification: The globally unique identification (:class:`~aas.model.base.Identifier`) of the element.
+                            (inherited from :class:`~aas.model.base.Identifiable`)
+    :ivar id_short: Identifying string of the element within its name space. (inherited from
+                    :class:`~aas.model.base.Referable`)
+    :ivar category: The category is a value that gives further meta information w.r.t. to the class of the element.
+                    It affects the expected existence of attributes and the applicability of constraints.
+                    (inherited from :class:`~aas.model.base.Referable`)
+    :ivar description: Description or comments on the element. (inherited from :class:`~aas.model.base.Referable`)
+    :ivar parent: Reference to the next referable parent element of the element. (inherited from
+                  :class:`~aas.model.base.Referable`)
+    :ivar administration: :class:`~aas.model.base.AdministrativeInformation` of an
+                          :class:`~.aas.model.base.Identifiable` element. (inherited from
+                          :class:`~aas.model.base.Identifiable`)
+    :ivar ~.security: Definition of the security relevant aspects of the AAS. (Initialization-parameter: `security_`)
+    :ivar ~.submodel: Unordered list of :class:`submodels <aas.model.submodel.Submodel>` to describe typically the asset
+                    of an AAS. (Initialization-parameter: `submodel_`)
+    :ivar concept_dictionary: Unordered list of :class:`ConceptDictionaries <aas.model.concept.ConceptDictionary>`.
                               The concept dictionaries typically contain only descriptions for elements that are also
                               used within the AAS
     :ivar view: Unordered list of stakeholder specific :class:`views <aas.model.aas.View>` that can group the elements
@@ -153,25 +161,6 @@ class AssetAdministrationShell(base.Identifiable, base.Namespace):
                  concept_dictionary: Iterable[concept.ConceptDictionary] = (),
                  view: Iterable[View] = (),
                  derived_from: Optional[base.AASReference["AssetAdministrationShell"]] = None):
-        """
-        Initializer of AssetAdministrationShell
-        :param asset: reference to the asset the AAS is representing.
-        :param identification: The globally unique identification of the element. (from base.Identifiable)
-        :param id_short: Identifying string of the element within its name space. (from base.Referable)
-        :param category: The category is a value that gives further meta information w.r.t. to the class of the element.
-                         It affects the expected existence of attributes and the applicability of constraints.
-                         (from base.Referable)
-        :param description: Description or comments on the element. (from base.Referable)
-        :param parent: Reference to the next referable parent element of the element. (from base.Referable)
-        :param administration: Administrative information of an identifiable element. (from base.Identifiable)
-        :param security_: Definition of the security relevant aspects of the AAS.
-        :param submodel_: Unordered list of submodels to describe typically the asset of an AAS.
-        :param concept_dictionary: Unordered list of concept dictionaries. The concept dictionaries typically contain
-                                   only descriptions for elements that are also used within the AAS
-        :param view: Unordered list of stakeholder specific views that can group the elements of the AAS.
-        :param derived_from: The reference to the AAS the AAS was derived from
-        """
-
         super().__init__()
         self.identification: base.Identifier = identification
         self.id_short = id_short
