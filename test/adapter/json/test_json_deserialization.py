@@ -350,7 +350,7 @@ class JsonDeserializationStrippedObjectsTest(unittest.TestCase):
             {
                 "modelType": {"name": "Entity"},
                 "idShort": "test_entity",
-                "entityType": "CoManagedEntity",
+                "entityType": "SelfManagedEntity",
                 "globalAssetId": {
                     "keys": [{
                         "idType": "IRI",

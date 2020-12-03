@@ -20,6 +20,26 @@ class EntityTest(unittest.TestCase):
         with self.assertRaises(ValueError) as cm:
             obj = model.Entity(id_short='Test', entity_type=model.EntityType.SELF_MANAGED_ENTITY, statement=())
         self.assertEqual('A self-managed entity has to have a globalAssetId or a specificAssetId', str(cm.exception))
+        with self.assertRaises(ValueError) as cm:
+            obj2 = model.Entity(id_short='Test', entity_type=model.EntityType.CO_MANAGED_ENTITY,
+                                global_asset_id=model.Reference((model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
+                                                                           value='http://acplt.org/TestAsset/',
+                                                                           id_type=model.KeyType.IRI),)),
+                                statement=())
+        self.assertEqual('A co-managed entity has to have neither a globalAssetId nor a specificAssetId',
+                         str(cm.exception))
+
+        identifier_key_value_pair = model.IdentifierKeyValuePair(key="TestKey",
+                                                                 value="TestValue",
+                                                                 external_subject_id=model.Reference((model.Key(
+                                                                     type_=model.KeyElements.GLOBAL_REFERENCE,
+                                                                     value='http://acplt.org/SpecificAssetId/',
+                                                                     id_type=model.KeyType.IRI),)))
+        with self.assertRaises(ValueError) as cm:
+            obj3 = model.Entity(id_short='Test', entity_type=model.EntityType.CO_MANAGED_ENTITY,
+                                specific_asset_id=identifier_key_value_pair, statement=())
+        self.assertEqual('A co-managed entity has to have neither a globalAssetId nor a specificAssetId',
+                         str(cm.exception))
 
 
 class PropertyTest(unittest.TestCase):

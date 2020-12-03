@@ -909,8 +909,8 @@ class Entity(SubmodelElement, base.Namespace):
     :ivar entity_type: Describes whether the entity is a co-managed or a self-managed entity.
     :ivar statement: Unordered list of statements applicable to the entity, typically with a qualified value.
     :ivar asset: Reference to the asset the entity is representing.
-                 Constraint AASd-014: The asset attribute must be set if entityType is set to “SelfManagedEntity”. It
-                 is empty otherwise.
+                 Constraint AASd-014: Either the attribute globalAssetId or specificAssetId of an Entity must be set if
+                 Entity/entityType is set to “SelfManagedEntity”. They are not existing otherwise.
     """
 
     def __init__(self,
@@ -962,15 +962,18 @@ class Entity(SubmodelElement, base.Namespace):
         self.statement = base.NamespaceSet(self, statement)
         self.specific_asset_id: Optional[base.IdentifierKeyValuePair] = specific_asset_id
         self.global_asset_id: Optional[base.Reference] = global_asset_id
+        self._entity_type: base.EntityType
         self.entity_type = entity_type
 
-    def _get_entity_type(self):
+    def _get_entity_type(self) -> base.EntityType:
         return self._entity_type
 
-    def _set_entity_type(self, entity_type: base.EntityType):
+    def _set_entity_type(self, entity_type: base.EntityType) -> None:
         if self.global_asset_id is None and self.specific_asset_id is None \
                 and entity_type == base.EntityType.SELF_MANAGED_ENTITY:
             raise ValueError("A self-managed entity has to have a globalAssetId or a specificAssetId")
+        if (self.global_asset_id or self.specific_asset_id) and entity_type == base.EntityType.CO_MANAGED_ENTITY:
+            raise ValueError("A co-managed entity has to have neither a globalAssetId nor a specificAssetId")
         self._entity_type = entity_type
 
     entity_type = property(_get_entity_type, _set_entity_type)
