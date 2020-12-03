@@ -157,6 +157,7 @@ class AASFromJsonDecoder(json.JSONDecoder):
             'View': cls._construct_view,
             'ConceptDescription': cls._construct_concept_description,
             'Qualifier': cls._construct_qualifier,
+            'Extension': cls._construct_extension,
             'Formula': cls._construct_formula,
             'Submodel': cls._construct_submodel,
             'Capability': cls._construct_capability,
@@ -238,6 +239,12 @@ class AASFromJsonDecoder(json.JSONDecoder):
                 for constraint in _get_ts(dct, 'qualifiers', list):
                     if _expect_type(constraint, model.Constraint, str(obj), cls.failsafe):
                         obj.qualifier.add(constraint)
+
+        if isinstance(obj, model.HasExtension) and not cls.stripped:
+            if 'extensions' in dct:
+                obj.extension = set()
+                for extension in _get_ts(dct, 'extensions', list):
+                    obj.extension.add(cls._construct_extension(extension))
 
     @classmethod
     def _get_kind(cls, dct: Dict[str, object]) -> model.ModelingKind:
@@ -517,6 +524,18 @@ class AASFromJsonDecoder(json.JSONDecoder):
                         logger.error(error_message, exc_info=e)
                     else:
                         raise type(e)(error_message) from e
+        return ret
+
+    @classmethod
+    def _construct_extension(cls, dct: Dict[str, object], object_class=model.Extension) -> model.Extension:
+        ret = object_class(name=_get_ts(dct, 'name', str))
+        cls._amend_abstract_attributes(ret, dct)
+        if 'valueType' in dct:
+            ret.value_type = model.datatypes.XSD_TYPE_CLASSES[_get_ts(dct, 'valueType', str)]
+        if 'value' in dct:
+            ret.value = model.datatypes.from_xsd(_get_ts(dct, 'value', str), ret.value_type)
+        if 'refersTo' in dct:
+            ret.refers_to = cls._construct_reference(_get_ts(dct, 'refersTo', dict))
         return ret
 
     @classmethod

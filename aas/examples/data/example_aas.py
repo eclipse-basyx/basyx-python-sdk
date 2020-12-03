@@ -63,6 +63,14 @@ def create_example_asset_identification_submodel() -> model.Submodel:
                                             value='http://acplt.org/ValueId/ExampleValueId',
                                             id_type=model.KeyType.IRI),)))
 
+    extension = model.Extension(
+        name='ExampleExtension',
+        value_type=model.datatypes.String,
+        value="ExampleExtensionValue",
+        refers_to=model.Reference((model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
+                                             value='http://acplt.org/RefersTo/ExampleRefersTo',
+                                             id_type=model.KeyType.IRI),)))
+
     # Property-Element conform to 'Verwaltungssschale in der Praxis' page 41 ManufacturerName:
     # https://www.plattform-i40.de/PI40/Redaktion/DE/Downloads/Publikation/2019-verwaltungsschale-in-der-praxis.html
     identification_submodel_element_manufacturer_name = model.Property(
@@ -84,7 +92,8 @@ def create_example_asset_identification_submodel() -> model.Submodel:
                                                value='0173-1#02-AAO677#002',
                                                id_type=model.KeyType.IRI),)),
         qualifier={qualifier, qualifier2},
-        kind=model.ModelingKind.INSTANCE)
+        kind=model.ModelingKind.INSTANCE,
+        extension={extension})
 
     # Property-Element conform to 'Verwaltungssschale in der Praxis' page 44 InstanceId:
     # https://www.plattform-i40.de/PI40/Redaktion/DE/Downloads/Publikation/2019-verwaltungsschale-in-der-praxis.html
@@ -224,6 +233,7 @@ def create_example_bill_of_material_submodel() -> model.Submodel:
         kind=model.ModelingKind.INSTANCE
     )
 
+    # bill of material submodel which will be included in the asset object
     # bill of material submodel which will be included in the asset object
     bill_of_material = model.Submodel(
         identification=model.Identifier(id_='http://acplt.org/Submodels/Assets/TestAsset/BillOfMaterial',

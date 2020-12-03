@@ -39,7 +39,8 @@ class SubmodelElement(base.Referable, base.Qualifiable, base.HasSemantics, base.
                  parent: Optional[base.Namespace] = None,
                  semantic_id: Optional[base.Reference] = None,
                  qualifier: Optional[Set[base.Constraint]] = None,
-                 kind: base.ModelingKind = base.ModelingKind.INSTANCE):
+                 kind: base.ModelingKind = base.ModelingKind.INSTANCE,
+                 extension: Optional[Set[base.Extension]] = None):
         """
         Initializer of SubmodelElement
 
@@ -57,6 +58,7 @@ class SubmodelElement(base.Referable, base.Qualifiable, base.HasSemantics, base.
         :param qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
                           (from base.Qualifiable)
         :param kind: Kind of the element: either type or instance. Default = Instance. (from base.HasKind)
+        :param extension: Element that can be extended by proprietary extensions. (from base.HasExtension)
 
         TODO: Add instruction what to do after construction
         """
@@ -70,6 +72,7 @@ class SubmodelElement(base.Referable, base.Qualifiable, base.HasSemantics, base.
         self.semantic_id: Optional[base.Reference] = semantic_id
         self.qualifier: Set[base.Constraint] = set() if qualifier is None else qualifier
         self._kind: base.ModelingKind = kind
+        self.extension: Set[base.Extension] = set() if extension is None else extension
 
 
 class Submodel(base.Identifiable, base.HasSemantics, base.HasKind, base.Qualifiable, base.Namespace):
@@ -94,7 +97,8 @@ class Submodel(base.Identifiable, base.HasSemantics, base.HasKind, base.Qualifia
                  administration: Optional[base.AdministrativeInformation] = None,
                  semantic_id: Optional[base.Reference] = None,
                  qualifier: Optional[Set[base.Constraint]] = None,
-                 kind: base.ModelingKind = base.ModelingKind.INSTANCE):
+                 kind: base.ModelingKind = base.ModelingKind.INSTANCE,
+                 extension: Optional[Set[base.Extension]] = None):
         """
         Initializer of Submodel
 
@@ -115,6 +119,7 @@ class Submodel(base.Identifiable, base.HasSemantics, base.HasKind, base.Qualifia
         :param qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
                           (from base.Qualifiable)
         :param kind: Kind of the element: either type or instance. Default = Instance. (from base.HasKind)
+        :param extension: Element that can be extended by proprietary extensions. (from base.HasExtension)
         """
 
         super().__init__()
@@ -129,6 +134,7 @@ class Submodel(base.Identifiable, base.HasSemantics, base.HasKind, base.Qualifia
         self.semantic_id: Optional[base.Reference] = semantic_id
         self.qualifier: Set[base.Constraint] = set() if qualifier is None else qualifier
         self._kind: base.ModelingKind = kind
+        self.extension: Set[base.Extension] = set() if extension is None else extension
 
 
 class DataElement(SubmodelElement, metaclass=abc.ABCMeta):
@@ -148,7 +154,8 @@ class DataElement(SubmodelElement, metaclass=abc.ABCMeta):
                  parent: Optional[base.Namespace] = None,
                  semantic_id: Optional[base.Reference] = None,
                  qualifier: Optional[Set[base.Constraint]] = None,
-                 kind: base.ModelingKind = base.ModelingKind.INSTANCE):
+                 kind: base.ModelingKind = base.ModelingKind.INSTANCE,
+                 extension: Optional[Set[base.Extension]] = None):
         """
         Initializer of DataElement
 
@@ -166,9 +173,10 @@ class DataElement(SubmodelElement, metaclass=abc.ABCMeta):
         :param qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
                           (from base.Qualifiable)
         :param kind: Kind of the element: either type or instance. Default = Instance. (from base.HasKind)
+        :param extension: Element that can be extended by proprietary extensions. (from base.HasExtension)
         """
 
-        super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, kind)
+        super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, kind, extension)
 
 
 class Property(DataElement):
@@ -193,7 +201,8 @@ class Property(DataElement):
                  parent: Optional[base.Namespace] = None,
                  semantic_id: Optional[base.Reference] = None,
                  qualifier: Optional[Set[base.Constraint]] = None,
-                 kind: base.ModelingKind = base.ModelingKind.INSTANCE):
+                 kind: base.ModelingKind = base.ModelingKind.INSTANCE,
+                 extension: Optional[Set[base.Extension]] = None):
         """
         Initializer of Property
 
@@ -214,11 +223,12 @@ class Property(DataElement):
         :param qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
                           (from base.Qualifiable)
         :param kind: Kind of the element: either type or instance. Default = Instance. (from base.HasKind)
+        :param extension: Element that can be extended by proprietary extensions. (from base.HasExtension)
 
         TODO: Add instruction what to do after construction
         """
 
-        super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, kind)
+        super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, kind, extension)
         self.value_type: Type[datatypes.AnyXSDType] = value_type
         self._value: Optional[base.ValueDataType] = (datatypes.trivial_cast(value, value_type)
                                                      if value is not None else None)
@@ -256,7 +266,8 @@ class MultiLanguageProperty(DataElement):
                  parent: Optional[base.Namespace] = None,
                  semantic_id: Optional[base.Reference] = None,
                  qualifier: Optional[Set[base.Constraint]] = None,
-                 kind: base.ModelingKind = base.ModelingKind.INSTANCE):
+                 kind: base.ModelingKind = base.ModelingKind.INSTANCE,
+                 extension: Optional[Set[base.Extension]] = None):
         """
         Initializer of MultiLanguageProperty
 
@@ -276,11 +287,12 @@ class MultiLanguageProperty(DataElement):
         :param qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
                           (from base.Qualifiable)
         :param kind: Kind of the element: either type or instance. Default = Instance. (from base.HasKind)
+        :param extension: Element that can be extended by proprietary extensions. (from base.HasExtension)
 
         TODO: Add instruction what to do after construction
         """
 
-        super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, kind)
+        super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, kind, extension)
         self.value: base.LangStringSet = dict() if value is None else value
         self.value_id: Optional[base.Reference] = value_id
 
@@ -308,7 +320,8 @@ class Range(DataElement):
                  parent: Optional[base.Namespace] = None,
                  semantic_id: Optional[base.Reference] = None,
                  qualifier: Optional[Set[base.Constraint]] = None,
-                 kind: base.ModelingKind = base.ModelingKind.INSTANCE):
+                 kind: base.ModelingKind = base.ModelingKind.INSTANCE,
+                 extension: Optional[Set[base.Extension]] = None):
         """
         Initializer of Range
 
@@ -331,11 +344,12 @@ class Range(DataElement):
         :param qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
                           (from base.Qualifiable)
         :param kind: Kind of the element: either type or instance. Default = Instance. (from base.HasKind)
+        :param extension: Element that can be extended by proprietary extensions. (from base.HasExtension)
 
         TODO: Add instruction what to do after construction
         """
 
-        super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, kind)
+        super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, kind, extension)
         self.value_type: base.DataTypeDef = value_type
         self._min: Optional[base.ValueDataType] = datatypes.trivial_cast(min, value_type) if min is not None else None
         self._max: Optional[base.ValueDataType] = datatypes.trivial_cast(max, value_type) if max is not None else None
@@ -385,7 +399,8 @@ class Blob(DataElement):
                  parent: Optional[base.Namespace] = None,
                  semantic_id: Optional[base.Reference] = None,
                  qualifier: Optional[Set[base.Constraint]] = None,
-                 kind: base.ModelingKind = base.ModelingKind.INSTANCE):
+                 kind: base.ModelingKind = base.ModelingKind.INSTANCE,
+                 extension: Optional[Set[base.Extension]] = None):
         """
         Initializer of Blob
 
@@ -409,11 +424,12 @@ class Blob(DataElement):
         :param qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
                           (from base.Qualifiable)
         :param kind: Kind of the element: either type or instance. Default = Instance. (from base.HasKind)
+        :param extension: Element that can be extended by proprietary extensions. (from base.HasExtension)
 
         TODO: Add instruction what to do after construction
         """
 
-        super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, kind)
+        super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, kind, extension)
         self.value: Optional[base.BlobType] = value
         self.mime_type: base.MimeType = mime_type
 
@@ -437,7 +453,8 @@ class File(DataElement):
                  parent: Optional[base.Namespace] = None,
                  semantic_id: Optional[base.Reference] = None,
                  qualifier: Optional[Set[base.Constraint]] = None,
-                 kind: base.ModelingKind = base.ModelingKind.INSTANCE):
+                 kind: base.ModelingKind = base.ModelingKind.INSTANCE,
+                 extension: Optional[Set[base.Extension]] = None):
         """
         Initializer of File
 
@@ -459,11 +476,12 @@ class File(DataElement):
         :param qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
                           (from base.Qualifiable)
         :param kind: Kind of the element: either type or instance. Default = Instance. (from base.HasKind)
+        :param extension: Element that can be extended by proprietary extensions. (from base.HasExtension)
 
         TODO: Add instruction what to do after construction
         """
 
-        super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, kind)
+        super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, kind, extension)
         self.value: Optional[base.PathType] = value
         self.mime_type: base.MimeType = mime_type
 
@@ -486,7 +504,8 @@ class ReferenceElement(DataElement):
                  parent: Optional[base.Namespace] = None,
                  semantic_id: Optional[base.Reference] = None,
                  qualifier: Optional[Set[base.Constraint]] = None,
-                 kind: base.ModelingKind = base.ModelingKind.INSTANCE):
+                 kind: base.ModelingKind = base.ModelingKind.INSTANCE,
+                 extension: Optional[Set[base.Extension]] = None):
         """
         Initializer of ReferenceElement
 
@@ -506,11 +525,12 @@ class ReferenceElement(DataElement):
         :param qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
                           (from base.Qualifiable)
         :param kind: Kind of the element: either type or instance. Default = Instance. (from base.HasKind)
+        :param extension: Element that can be extended by proprietary extensions. (from base.HasExtension)
 
         TODO: Add instruction what to do after construction
         """
 
-        super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, kind)
+        super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, kind, extension)
         self.value: Optional[base.Reference] = value
 
 
@@ -535,7 +555,8 @@ class SubmodelElementCollection(SubmodelElement, base.Namespace, metaclass=abc.A
                  parent: Optional[base.Namespace] = None,
                  semantic_id: Optional[base.Reference] = None,
                  qualifier: Optional[Set[base.Constraint]] = None,
-                 kind: base.ModelingKind = base.ModelingKind.INSTANCE):
+                 kind: base.ModelingKind = base.ModelingKind.INSTANCE,
+                 extension: Optional[Set[base.Extension]] = None):
         """
         Initializer of SubmodelElementCollection
 
@@ -556,10 +577,11 @@ class SubmodelElementCollection(SubmodelElement, base.Namespace, metaclass=abc.A
         :param qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
                           (from base.Qualifiable)
         :param kind: Kind of the element: either type or instance. Default = Instance. (from base.HasKind)
+        :param extension: Element that can be extended by proprietary extensions. (from base.HasExtension)
 
         TODO: Add instruction what to do after construction
         """
-        super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, kind)
+        super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, kind, extension)
         self.value: base.NamespaceSet[SubmodelElement] = None  # type: ignore
 
     @property
@@ -582,7 +604,8 @@ class SubmodelElementCollectionOrdered(SubmodelElementCollection):
                  parent: Optional[base.Namespace] = None,
                  semantic_id: Optional[base.Reference] = None,
                  qualifier: Optional[Set[base.Constraint]] = None,
-                 kind: base.ModelingKind = base.ModelingKind.INSTANCE):
+                 kind: base.ModelingKind = base.ModelingKind.INSTANCE,
+                 extension: Optional[Set[base.Extension]] = None):
         """
         Initializer of SubmodelElementCollection
 
@@ -601,11 +624,12 @@ class SubmodelElementCollectionOrdered(SubmodelElementCollection):
         :param qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
                           (from base.Qualifiable)
         :param kind: Kind of the element: either type or instance. Default = Instance. (from base.HasKind)
+        :param extension: Element that can be extended by proprietary extensions. (from base.HasExtension)
 
         TODO: Add instruction what to do after construction
         """
 
-        super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, kind)
+        super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, kind, extension)
         self.value = base.OrderedNamespaceSet(self, value)
 
     @property
@@ -627,7 +651,8 @@ class SubmodelElementCollectionUnordered(SubmodelElementCollection):
                  parent: Optional[base.Namespace] = None,
                  semantic_id: Optional[base.Reference] = None,
                  qualifier: Optional[Set[base.Constraint]] = None,
-                 kind: base.ModelingKind = base.ModelingKind.INSTANCE):
+                 kind: base.ModelingKind = base.ModelingKind.INSTANCE,
+                 extension: Optional[Set[base.Extension]] = None):
         """
         Initializer of SubmodelElementCollection
 
@@ -646,10 +671,11 @@ class SubmodelElementCollectionUnordered(SubmodelElementCollection):
         :param qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
                           (from base.Qualifiable)
         :param kind: Kind of the element: either type or instance. Default = Instance. (from base.HasKind)
+        :param extension: Element that can be extended by proprietary extensions. (from base.HasExtension)
 
         TODO: Add instruction what to do after construction
         """
-        super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, kind)
+        super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, kind, extension)
         self.value = base.NamespaceSet(self, value)
 
     @property
@@ -678,7 +704,8 @@ class RelationshipElement(SubmodelElement):
                  parent: Optional[base.Namespace] = None,
                  semantic_id: Optional[base.Reference] = None,
                  qualifier: Optional[Set[base.Constraint]] = None,
-                 kind: base.ModelingKind = base.ModelingKind.INSTANCE):
+                 kind: base.ModelingKind = base.ModelingKind.INSTANCE,
+                 extension: Optional[Set[base.Extension]] = None):
         """
         Initializer of RelationshipElement
 
@@ -700,11 +727,12 @@ class RelationshipElement(SubmodelElement):
         :param qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
                           (from base.Qualifiable)
         :param kind: Kind of the element: either type or instance. Default = Instance. (from base.HasKind)
+        :param extension: Element that can be extended by proprietary extensions. (from base.HasExtension)
 
         TODO: Add instruction what to do after construction
         """
 
-        super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, kind)
+        super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, kind, extension)
         self.first: base.AASReference = first
         self.second: base.AASReference = second
 
@@ -727,7 +755,8 @@ class AnnotatedRelationshipElement(RelationshipElement, base.Namespace):
                  parent: Optional[base.Namespace] = None,
                  semantic_id: Optional[base.Reference] = None,
                  qualifier: Optional[Set[base.Constraint]] = None,
-                 kind: base.ModelingKind = base.ModelingKind.INSTANCE):
+                 kind: base.ModelingKind = base.ModelingKind.INSTANCE,
+                 extension: Optional[Set[base.Extension]] = None):
         """
         Initializer of AnnotatedRelationshipElement
 
@@ -746,12 +775,13 @@ class AnnotatedRelationshipElement(RelationshipElement, base.Namespace):
         :param qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
                           (from base.Qualifiable)
         :param kind: Kind of the element: either type or instance. Default = Instance. (from base.HasKind)
+        :param extension: Element that can be extended by proprietary extensions. (from base.HasExtension)
 
         TODO: Add instruction what to do after construction
         """
 
         super().__init__(id_short, first, second, display_name, category, description, parent, semantic_id, qualifier,
-                         kind)
+                         kind, extension)
         if annotation is None:
             self.annotation: base.NamespaceSet[DataElement] = base.NamespaceSet(self)
         else:
@@ -798,7 +828,8 @@ class Operation(SubmodelElement):
                  parent: Optional[base.Namespace] = None,
                  semantic_id: Optional[base.Reference] = None,
                  qualifier: Optional[Set[base.Constraint]] = None,
-                 kind: base.ModelingKind = base.ModelingKind.INSTANCE):
+                 kind: base.ModelingKind = base.ModelingKind.INSTANCE,
+                 extension: Optional[Set[base.Extension]] = None):
         """
         Initializer of Operation
 
@@ -819,11 +850,12 @@ class Operation(SubmodelElement):
         :param qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
                           (from base.Qualifiable)
         :param kind: Kind of the element: either type or instance. Default = Instance. (from base.HasKind)
+        :param extension: Element that can be extended by proprietary extensions. (from base.HasExtension)
 
         TODO: Add instruction what to do after construction
         """
 
-        super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, kind)
+        super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, kind, extension)
         self.input_variable = input_variable if input_variable is not None else []
         self.output_variable = output_variable if output_variable is not None else []
         self.in_output_variable = in_output_variable if in_output_variable is not None else []
@@ -843,7 +875,8 @@ class Capability(SubmodelElement):
                  parent: Optional[base.Namespace] = None,
                  semantic_id: Optional[base.Reference] = None,
                  qualifier: Optional[Set[base.Constraint]] = None,
-                 kind: base.ModelingKind = base.ModelingKind.INSTANCE):
+                 kind: base.ModelingKind = base.ModelingKind.INSTANCE,
+                 extension: Optional[Set[base.Extension]] = None):
         """
         Initializer of Capability
 
@@ -861,11 +894,12 @@ class Capability(SubmodelElement):
         :param qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
                           (from base.Qualifiable)
         :param kind: Kind of the element: either type or instance. Default = Instance. (from base.HasKind)
+        :param extension: Element that can be extended by proprietary extensions. (from base.HasExtension)
 
         TODO: Add instruction what to do after construction
         """
 
-        super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, kind)
+        super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, kind, extension)
 
 
 class Entity(SubmodelElement, base.Namespace):
@@ -891,7 +925,8 @@ class Entity(SubmodelElement, base.Namespace):
                  parent: Optional[base.Namespace] = None,
                  semantic_id: Optional[base.Reference] = None,
                  qualifier: Optional[Set[base.Constraint]] = None,
-                 kind: base.ModelingKind = base.ModelingKind.INSTANCE):
+                 kind: base.ModelingKind = base.ModelingKind.INSTANCE,
+                 extension: Optional[Set[base.Extension]] = None):
         """
         Initializer of Entity
 
@@ -918,11 +953,12 @@ class Entity(SubmodelElement, base.Namespace):
         :param qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
                           (from base.Qualifiable)
         :param kind: Kind of the element: either type or instance. Default = Instance. (from base.HasKind)
+        :param extension: Element that can be extended by proprietary extensions. (from base.HasExtension)
 
         TODO: Add instruction what to do after construction
         """
 
-        super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, kind)
+        super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, kind, extension)
         self.statement = base.NamespaceSet(self, statement)
         self.specific_asset_id: Optional[base.IdentifierKeyValuePair] = specific_asset_id
         self.global_asset_id: Optional[base.Reference] = global_asset_id
@@ -953,7 +989,8 @@ class Event(SubmodelElement, metaclass=abc.ABCMeta):
                  parent: Optional[base.Namespace] = None,
                  semantic_id: Optional[base.Reference] = None,
                  qualifier: Optional[Set[base.Constraint]] = None,
-                 kind: base.ModelingKind = base.ModelingKind.INSTANCE):
+                 kind: base.ModelingKind = base.ModelingKind.INSTANCE,
+                 extension: Optional[Set[base.Extension]] = None):
         """
         Initializer of Event
 
@@ -971,9 +1008,10 @@ class Event(SubmodelElement, metaclass=abc.ABCMeta):
         :param qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
                           (from base.Qualifiable)
         :param kind: Kind of the element: either type or instance. Default = Instance. (from base.HasKind)
+        :param extension: Element that can be extended by proprietary extensions. (from base.HasExtension)
         """
 
-        super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, kind)
+        super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, kind, extension)
 
 
 class BasicEvent(Event):
@@ -992,7 +1030,8 @@ class BasicEvent(Event):
                  parent: Optional[base.Namespace] = None,
                  semantic_id: Optional[base.Reference] = None,
                  qualifier: Optional[Set[base.Constraint]] = None,
-                 kind: base.ModelingKind = base.ModelingKind.INSTANCE):
+                 kind: base.ModelingKind = base.ModelingKind.INSTANCE,
+                 extension: Optional[Set[base.Extension]] = None):
         """
         Initializer of BasicEvent
 
@@ -1011,9 +1050,10 @@ class BasicEvent(Event):
         :param qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
                           (from base.Qualifiable)
         :param kind: Kind of the element: either type or instance. Default = Instance. (from base.HasKind)
+        :param extension: Element that can be extended by proprietary extensions. (from base.HasExtension)
 
         TODO: Add instruction what to do after construction
         """
 
-        super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, kind)
+        super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, kind, extension)
         self.observed: base.AASReference = observed

@@ -192,7 +192,7 @@
 			<element maxOccurs="1" minOccurs="1" name="name" type="string"/>
 			<element maxOccurs="1" minOccurs="0" name="valueType" type="aas:dataTypeDef_t"/>
 			<element maxOccurs="1" minOccurs="0" name="value" type="aas:valueDataType_t"/>
-			<element maxOccurs="1" minOccurs="0" name="refersTo" type="aas:references_t"/>
+			<element maxOccurs="1" minOccurs="0" name="refersTo" type="aas:reference_t"/>
 		</sequence>
 	</complexType>
 	<complexType name="extensions_t">

@@ -445,6 +445,11 @@ class AASFromXmlDecoder:
             if qualifiers_elem is not None:
                 for constraint in _failsafe_construct_multiple(qualifiers_elem, cls.construct_constraint, cls.failsafe):
                     obj.qualifier.add(constraint)
+        if isinstance(obj, model.HasExtension) and not cls.stripped:
+            extension_elem = element.find(NS_AAS + "extension")
+            if extension_elem is not None:
+                for extension in _failsafe_construct_multiple(extension_elem, cls.construct_extension, cls.failsafe):
+                    obj.extension.add(extension)
 
     @classmethod
     def _construct_relationship_element_internal(cls, element: etree.Element, object_class: Type[RE], **_kwargs: Any) \
@@ -584,6 +589,23 @@ class AASFromXmlDecoder:
                                                     cls.construct_reference, cls.failsafe):
                 formula.depends_on.add(ref)
         return formula
+
+    @classmethod
+    def construct_extension(cls, element: etree.Element, object_class=model.Extension, **_kwargs: Any) \
+            -> model.Extension:
+        extension = object_class(
+            _child_text_mandatory(element, NS_AAS + "name"))
+        value_type = _get_text_or_none(element.find(NS_AAS + "valueType"))
+        if value_type is not None:
+            extension.value_type = model.datatypes.XSD_TYPE_CLASSES[value_type]
+        value = _get_text_or_none(element.find(NS_AAS + "value"))
+        if value is not None:
+            extension.value = model.datatypes.from_xsd(value, extension.value_type)
+        refers_to = _failsafe_construct(element.find(NS_AAS + "RefersTo"), cls.construct_reference, cls.failsafe)
+        if refers_to is not None:
+            extension.refers_to = refers_to
+        cls._amend_abstract_attributes(extension, element)
+        return extension
 
     @classmethod
     def construct_identifier(cls, element: etree.Element, object_class=model.Identifier, **_kwargs: Any) \

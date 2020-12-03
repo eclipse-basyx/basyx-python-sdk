@@ -103,6 +103,8 @@ class AASToJsonEncoder(json.JSONEncoder):
             return self._relationship_element_to_json(obj)
         if isinstance(obj, model.Qualifier):
             return self._qualifier_to_json(obj)
+        if isinstance(obj, model.Extension):
+            return self._extension_to_json(obj)
         if isinstance(obj, model.Formula):
             return self._formula_to_json(obj)
         return super().default(obj)
@@ -115,12 +117,13 @@ class AASToJsonEncoder(json.JSONEncoder):
         :param obj: object which must be serialized
         :return: dict with the serialized attributes of the abstract classes this object inherits from
         """
-        data = {}
+        data: Dict[str, object] = {}
+        if isinstance(obj, model.HasExtension) and not cls.stripped:
+            if obj.extension:
+                data['extensions'] = list(obj.extension)
         if isinstance(obj, model.Referable):
             if obj.id_short:
                 data['idShort'] = obj.id_short
-            else:
-                data['idShort'] = "NotSet"
             if obj.display_name:
                 data['displayName'] = cls._lang_string_set_to_json(obj.display_name)
             if obj.category:
@@ -268,6 +271,24 @@ class AASToJsonEncoder(json.JSONEncoder):
             data['valueId'] = obj.value_id
         data['valueType'] = model.datatypes.XSD_TYPE_NAMES[obj.value_type]
         data['type'] = obj.type
+        return data
+
+    @classmethod
+    def _extension_to_json(cls, obj: model.Extension) -> Dict[str, object]:
+        """
+        serialization of an object from class Extension to json
+
+        :param obj: object of class Extension
+        :return: dict with the serialized attributes of this object
+        """
+        data = cls._abstract_classes_to_json(obj)
+        if obj.value:
+            data['value'] = model.datatypes.xsd_repr(obj.value) if obj.value is not None else None
+        if obj.refers_to:
+            data['refersTo'] = obj.refers_to
+        if obj.value_type:
+            data['valueType'] = model.datatypes.XSD_TYPE_NAMES[obj.value_type]
+        data['name'] = obj.name
         return data
 
     @classmethod

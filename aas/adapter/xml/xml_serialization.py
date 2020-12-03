@@ -95,6 +95,13 @@ def abstract_classes_to_xml(tag: str, obj: object) -> etree.Element:
     :return: parent element with the serialized information from the abstract classes
     """
     elm = _generate_element(tag)
+    if isinstance(obj, model.HasExtension):
+        if obj.extension:
+            et_extension = _generate_element(NS_AAS + "extensions")
+            for extension in obj.extension:
+                if isinstance(extension, model.Extension):
+                    et_extension.append(extension_to_xml(extension, tag=NS_AAS + "extension"))
+            elm.append(et_extension)
     if isinstance(obj, model.Referable):
         elm.append(_generate_element(name=NS_AAS + "idShort", text=obj.id_short))
         if obj.display_name:
@@ -258,6 +265,27 @@ def qualifier_to_xml(obj: model.Qualifier, tag: str = NS_AAS+"qualifier") -> etr
     et_qualifier.append(_generate_element(NS_AAS + "type", text=obj.type))
     et_qualifier.append(_generate_element(NS_AAS + "valueType", text=model.datatypes.XSD_TYPE_NAMES[obj.value_type]))
     return et_qualifier
+
+
+def extension_to_xml(obj: model.Extension, tag: str = NS_AAS+"extension") -> etree.Element:
+    """
+    serialization of objects of class Extension to XML
+
+    :param obj: object of class Extension
+    :param tag: tag of the serialized ElementTree object, default is "extension"
+    :return: serialized ElementTreeObject
+    """
+    et_extension = abstract_classes_to_xml(tag, obj)
+    et_extension.append(_generate_element(NS_AAS + "name", text=obj.name))
+    if obj.value_type:
+        et_extension.append(_generate_element(NS_AAS + "valueType",
+                                              text=model.datatypes.XSD_TYPE_NAMES[obj.value_type]))
+    if obj.value:
+        et_extension.append(_value_to_xml(obj.value, obj.value_type))  # type: ignore # (value_type could be None)
+    if obj.refers_to:
+        et_extension.append(reference_to_xml(obj.refers_to, NS_AAS+"refersTo"))
+
+    return et_extension
 
 
 def value_reference_pair_to_xml(obj: model.ValueReferencePair,

@@ -40,7 +40,8 @@ class View(base.Referable, base.HasSemantics):
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
                  parent: Optional[base.Namespace] = None,
-                 semantic_id: Optional[base.Reference] = None):
+                 semantic_id: Optional[base.Reference] = None,
+                 extension: Optional[Set[base.Extension]] = None):
         """
         Initializer of View
 
@@ -56,6 +57,7 @@ class View(base.Referable, base.HasSemantics):
                             element. The semantic id may either reference an external global id or it may reference a
                             referable model element of kind=Type that defines the semantics of the element.
                             (from base.HasSemantics)
+        :param extension: Element that can be extended by proprietary extensions. (from base.HasExtension)
         TODO: Add instruction what to do after construction
         """
 
@@ -67,6 +69,7 @@ class View(base.Referable, base.HasSemantics):
         self.description: Optional[base.LangStringSet] = dict() if description is None else description
         self.parent: Optional[base.Namespace] = parent
         self.semantic_id: Optional[base.Reference] = semantic_id
+        self.extension: Set[base.Extension] = set() if extension is None else extension
 
 
 class Asset(base.Identifiable):
@@ -91,7 +94,8 @@ class Asset(base.Identifiable):
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
                  parent: Optional[base.Namespace] = None,
-                 administration: Optional[base.AdministrativeInformation] = None):
+                 administration: Optional[base.AdministrativeInformation] = None,
+                 extension: Optional[Set[base.Extension]] = None):
         """
         Initializer of Asset
 
@@ -105,6 +109,7 @@ class Asset(base.Identifiable):
         :param description: Description or comments on the element. (from base.Referable)
         :param parent: Reference to the next referable parent element of the element. (from base.Referable)
         :param administration: Administrative information of an identifiable element. (from base.Identifiable)
+        :param extension: Element that can be extended by proprietary extensions. (from base.HasExtension)
         """
         super().__init__()
         self.identification: base.Identifier = identification
@@ -114,6 +119,7 @@ class Asset(base.Identifiable):
         self.description: Optional[base.LangStringSet] = dict() if description is None else description
         self.parent: Optional[base.Namespace] = parent
         self.administration: Optional[base.AdministrativeInformation] = administration
+        self.extension: Set[base.Extension] = set() if extension is None else extension
 
 
 class AssetInformation():
@@ -210,7 +216,8 @@ class AssetAdministrationShell(base.Identifiable, base.Namespace):
                  security: Optional[Security] = None,
                  submodel: Optional[Set[base.AASReference[Submodel]]] = None,
                  view: Iterable[View] = (),
-                 derived_from: Optional[base.AASReference["AssetAdministrationShell"]] = None):
+                 derived_from: Optional[base.AASReference["AssetAdministrationShell"]] = None,
+                 extension: Optional[Set[base.Extension]] = None):
         """
         Initializer of AssetAdministrationShell
         :param asset_information: Meta information about the asset the AAS is representing.
@@ -229,6 +236,7 @@ class AssetAdministrationShell(base.Identifiable, base.Namespace):
                                    only descriptions for elements that are also used within the AAS
         :param view: Unordered list of stakeholder specific views that can group the elements of the AAS.
         :param derived_from: The reference to the AAS the AAS was derived from
+        :param extension: Element that can be extended by proprietary extensions. (from base.HasExtension)
         """
 
         super().__init__()
@@ -244,3 +252,4 @@ class AssetAdministrationShell(base.Identifiable, base.Namespace):
         self.security: Optional[Security] = security
         self.submodel: Set[base.AASReference[Submodel]] = set() if submodel is None else submodel
         self.view: base.NamespaceSet[View] = base.NamespaceSet(self, view)
+        self.extension: Set[base.Extension] = set() if extension is None else extension

@@ -608,6 +608,18 @@ class QualifierTest(unittest.TestCase):
         self.assertIsNone(qualifier.value)
 
 
+class ExtensionTest(unittest.TestCase):
+    def test_set_value(self):
+        extension = model.Extension('test', model.datatypes.Int, 2)
+        self.assertEqual(extension.value, 2)
+        extension.value = None
+        self.assertIsNone(extension.value)
+        extension2 = model.Extension('test')
+        with self.assertRaises(ValueError) as cm:
+            extension2.value = 2
+        self.assertEqual("ValueType must be set, if value is not None", str(cm.exception))
+
+
 class ValueReferencePairTest(unittest.TestCase):
     def test_set_value(self):
         pair = model.ValueReferencePair(model.datatypes.Int, 2, model.Reference((model.Key(

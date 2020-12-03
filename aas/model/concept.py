@@ -38,7 +38,8 @@ class ConceptDescription(base.Identifiable):
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
                  parent: Optional[base.Namespace] = None,
-                 administration: Optional[base.AdministrativeInformation] = None):
+                 administration: Optional[base.AdministrativeInformation] = None,
+                 extension: Optional[Set[base.Extension]] = None):
         """
         Initializer of ConceptDescription
 
@@ -54,6 +55,7 @@ class ConceptDescription(base.Identifiable):
         :param description: Description or comments on the element. (from base.Referable)
         :param parent: Reference to the next referable parent element of the element. (from base.Referable)
         :param administration: Administrative information of an identifiable element. (from base.Identifiable)
+        :param extension: Element that can be extended by proprietary extensions. (from base.HasExtension)
         """
         super().__init__()
         self.identification: base.Identifier = identification
@@ -64,6 +66,7 @@ class ConceptDescription(base.Identifiable):
         self.description: Optional[base.LangStringSet] = dict() if description is None else description
         self.parent: Optional[base.Namespace] = parent
         self.administration: Optional[base.AdministrativeInformation] = administration
+        self.extension: Set[base.Extension] = set() if extension is None else extension
 
 
 # #############################################################################
@@ -124,7 +127,7 @@ class IEC61360ConceptDescription(ConceptDescription):
                  value: Optional[base.ValueDataType] = None,
                  value_id: Optional[base.Reference] = None,
                  level_types: Set[IEC61360LevelType] = None,
-                 ):
+                 extension: Optional[Set[base.Extension]] = None):
         """
         Initializer of IEC61360ConceptDescription
 
@@ -153,9 +156,10 @@ class IEC61360ConceptDescription(ConceptDescription):
         :param value: value data type object (optional)
         :param value_id: Reference to the value (optional)
         :param level_types: Set of level types of the DataSpecificationContent (optional)
+        :param extension: Element that can be extended by proprietary extensions. (from base.HasExtension)
         """
         super().__init__(identification, is_case_of, id_short, display_name, category, description, parent,
-                         administration)
+                         administration, extension)
         self.preferred_name: base.LangStringSet = preferred_name
         self.short_name: Optional[base.LangStringSet] = short_name
         self.data_type: Optional[IEC61360DataType] = data_type
