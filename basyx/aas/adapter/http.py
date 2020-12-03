@@ -27,7 +27,7 @@ from .xml import XMLConstructables, read_aas_xml_element, xml_serialization
 from .json import StrippedAASToJsonEncoder, StrictStrippedAASFromJsonDecoder
 from ._generic import IDENTIFIER_TYPES, IDENTIFIER_TYPES_INVERSE
 
-from typing import Dict, Iterable, Optional, Tuple, Type, TypeVar, Union
+from typing import Callable, Dict, Iterable, List, Optional, Tuple, Type, TypeVar, Union
 
 
 @enum.unique
@@ -290,6 +290,35 @@ class IdentifierConverter(werkzeug.routing.UnicodeConverter):
             raise BadRequest(str(e)) from e
 
 
+def validate_id_short(id_short: str) -> bool:
+    try:
+        model.MultiLanguageProperty(id_short)
+    except ValueError:
+        return False
+    return True
+
+
+class IdShortPathConverter(werkzeug.routing.PathConverter):
+    id_short_prefix = "!"
+
+    def to_url(self, value: List[str]) -> str:
+        for id_short in value:
+            if not validate_id_short(id_short):
+                raise ValueError(f"{id_short} is not a valid id_short!")
+        return "/".join([self.id_short_prefix + id_short for id_short in value])
+
+    def to_python(self, value: str) -> List[str]:
+        id_shorts = super().to_python(value).split("/")
+        for idx, id_short in enumerate(id_shorts):
+            if not id_short.startswith(self.id_short_prefix):
+                raise werkzeug.routing.ValidationError
+            id_short = id_short[1:]
+            if not validate_id_short(id_short):
+                raise BadRequest(f"{id_short} is not a valid id_short!")
+            id_shorts[idx] = id_short
+        return id_shorts
+
+
 class WSGIApp:
     def __init__(self, object_store: model.AbstractObjectStore):
         self.object_store: model.AbstractObjectStore = object_store
@@ -318,9 +347,20 @@ class WSGIApp:
                 ]),
                 Submount("/submodels/<identifier:submodel_id>", [
                     Rule("/", methods=["GET"], endpoint=self.get_submodel),
+                    Rule("/submodelElements", methods=["GET"], endpoint=self.get_submodel_submodel_elements),
+                    Rule("/submodelElements", methods=["POST"], endpoint=self.post_submodel_submodel_elements),
+                    Rule("/<id_short_path:id_shorts>", methods=["GET"],
+                         endpoint=self.get_submodel_submodel_elements_specific_nested),
+                    Rule("/<id_short_path:id_shorts>", methods=["PUT"],
+                         endpoint=self.put_submodel_submodel_elements_specific_nested),
+                    Rule("/<id_short_path:id_shorts>", methods=["DELETE"],
+                         endpoint=self.delete_submodel_submodel_elements_specific_nested)
                 ])
             ])
-        ], converters={"identifier": IdentifierConverter}, strict_slashes=False)
+        ], converters={
+            "identifier": IdentifierConverter,
+            "id_short_path": IdShortPathConverter
+        }, strict_slashes=False)
 
     def __call__(self, environ, start_response):
         response = self.handle_request(Request(environ))
@@ -346,6 +386,33 @@ class WSGIApp:
             if sm_ref.get_identifier() == sm_identifier:
                 return sm_ref
         raise NotFound(f"No reference to submodel with {sm_identifier} found!")
+
+    @classmethod
+    def _get_nested_submodel_element(cls, namespace: model.Namespace, id_shorts: List[str]) -> model.SubmodelElement:
+        current_namespace: Union[model.Namespace, model.SubmodelElement] = namespace
+        for id_short in id_shorts:
+            current_namespace = cls._expect_namespace(current_namespace, id_short)
+            next_obj = cls._namespace_submodel_element_op(current_namespace, current_namespace.get_referable, id_short)
+            if not isinstance(next_obj, model.SubmodelElement):
+                raise werkzeug.exceptions.InternalServerError(f"{next_obj}, child of {current_namespace!r}, "
+                                                              f"is not a submodel element!")
+            current_namespace = next_obj
+        if not isinstance(current_namespace, model.SubmodelElement):
+            raise TypeError("No id_shorts specified!")
+        return current_namespace
+
+    @classmethod
+    def _expect_namespace(cls, obj: object, needle: str) -> model.Namespace:
+        if not isinstance(obj, model.Namespace):
+            raise BadRequest(f"{obj!r} is not a namespace, can't locate {needle}!")
+        return obj
+
+    @classmethod
+    def _namespace_submodel_element_op(cls, namespace: model.Namespace, op: Callable[[str], T], arg: str) -> T:
+        try:
+            return op(arg)
+        except KeyError as e:
+            raise NotFound(f"Submodel element with id_short {arg} not found in {namespace!r}") from e
 
     def handle_request(self, request: Request):
         map_adapter: MapAdapter = self.url_map.bind_to_environ(request.environ)
@@ -494,6 +561,70 @@ class WSGIApp:
         submodel = self._get_obj_ts(url_args["submodel_id"], model.Submodel)
         submodel.update()
         return response_t(Result(submodel))
+
+    def get_submodel_submodel_elements(self, request: Request, url_args: Dict, **_kwargs) -> Response:
+        response_t = get_response_type(request)
+        submodel = self._get_obj_ts(url_args["submodel_id"], model.Submodel)
+        submodel.update()
+        return response_t(Result(tuple(submodel.submodel_element)))
+
+    def post_submodel_submodel_elements(self, request: Request, url_args: Dict, map_adapter: MapAdapter) -> Response:
+        response_t = get_response_type(request)
+        submodel_identifier = url_args["submodel_id"]
+        submodel = self._get_obj_ts(submodel_identifier, model.Submodel)
+        submodel.update()
+        # TODO: remove the following type: ignore comments when mypy supports abstract types for Type[T]
+        # see https://github.com/python/mypy/issues/5374
+        submodel_element = parse_request_body(request, model.SubmodelElement)  # type: ignore
+        if submodel_element.id_short in submodel.submodel_element:
+            raise Conflict(f"Submodel element with id_short {submodel_element.id_short} already exists!")
+        submodel.submodel_element.add(submodel_element)
+        submodel.commit()
+        created_resource_url = map_adapter.build(self.get_submodel_submodel_elements_specific_nested, {
+            "submodel_id": submodel_identifier,
+            "id_shorts": [submodel_element.id_short]
+        }, force_external=True)
+        return response_t(Result(submodel_element), status=201, headers={"Location": created_resource_url})
+
+    def get_submodel_submodel_elements_specific_nested(self, request: Request, url_args: Dict, **_kwargs) -> Response:
+        response_t = get_response_type(request)
+        submodel = self._get_obj_ts(url_args["submodel_id"], model.Submodel)
+        submodel.update()
+        submodel_element = self._get_nested_submodel_element(submodel, url_args["id_shorts"])
+        return response_t(Result(submodel_element))
+
+    def put_submodel_submodel_elements_specific_nested(self, request: Request, url_args: Dict, **_kwargs) -> Response:
+        response_t = get_response_type(request)
+        submodel = self._get_obj_ts(url_args["submodel_id"], model.Submodel)
+        submodel.update()
+        submodel_element = self._get_nested_submodel_element(submodel, url_args["id_shorts"])
+        # TODO: remove the following type: ignore comments when mypy supports abstract types for Type[T]
+        # see https://github.com/python/mypy/issues/5374
+        new_submodel_element = parse_request_body(request, model.SubmodelElement)  # type: ignore
+        mismatch_error_message = f" of new submodel element {new_submodel_element} doesn't not match " \
+                                 f"the current submodel element {submodel_element}"
+        if not type(submodel_element) is type(new_submodel_element):
+            raise BadRequest("Type" + mismatch_error_message)
+        if submodel_element.id_short != new_submodel_element.id_short:
+            raise BadRequest("id_short" + mismatch_error_message)
+        submodel_element.update_from(new_submodel_element)
+        submodel_element.commit()
+        return response_t(Result(submodel_element))
+
+    def delete_submodel_submodel_elements_specific_nested(self, request: Request, url_args: Dict, **_kwargs) \
+            -> Response:
+        response_t = get_response_type(request)
+        submodel = self._get_obj_ts(url_args["submodel_id"], model.Submodel)
+        submodel.update()
+        id_shorts: List[str] = url_args["id_shorts"]
+        parent: model.Namespace = submodel
+        if len(id_shorts) > 1:
+            parent = self._expect_namespace(
+                self._get_nested_submodel_element(submodel, id_shorts[:-1]),
+                id_shorts[-1]
+            )
+        self._namespace_submodel_element_op(parent, parent.remove_referable, id_shorts[-1])
+        return response_t(Result(None))
 
 
 if __name__ == "__main__":
