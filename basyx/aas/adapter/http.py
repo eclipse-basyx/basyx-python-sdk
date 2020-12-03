@@ -256,6 +256,8 @@ def parse_request_body(request: Request, expect_type: Type[T]) -> T:
             xml_data = io.BytesIO(request.get_data())
             rv = read_aas_xml_element(xml_data, type_constructables_map[expect_type], stripped=True, failsafe=False)
     except (KeyError, ValueError, TypeError, json.JSONDecodeError, etree.XMLSyntaxError) as e:
+        while e.__cause__ is not None:
+            e = e.__cause__
         raise BadRequest(str(e)) from e
 
     assert isinstance(rv, expect_type)
