@@ -308,11 +308,11 @@ class WSGIApp:
                     Submount("/views", [
                         Rule("/", methods=["GET"], endpoint=self.get_aas_views),
                         Rule("/", methods=["POST"], endpoint=self.post_aas_views),
-                        Rule("/<string(minlength=1):view_idshort>", methods=["GET"],
+                        Rule("/<string:view_idshort>", methods=["GET"],
                              endpoint=self.get_aas_views_specific),
-                        Rule("/<string(minlength=1):view_idshort>", methods=["PUT"],
+                        Rule("/<string:view_idshort>", methods=["PUT"],
                              endpoint=self.put_aas_views_specific),
-                        Rule("/<string(minlength=1):view_idshort>", methods=["DELETE"],
+                        Rule("/<string:view_idshort>", methods=["DELETE"],
                              endpoint=self.delete_aas_views_specific)
                     ])
                 ]),
