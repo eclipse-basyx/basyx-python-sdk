@@ -444,7 +444,7 @@ class WSGIApp:
         aas.update()
         view = parse_request_body(request, model.View)
         if view.id_short in aas.view:
-            raise Conflict(f"View with idShort {view.id_short} already exists!")
+            raise Conflict(f"View with id_short {view.id_short} already exists!")
         aas.view.add(view)
         aas.commit()
         created_resource_url = map_adapter.build(self.get_aas_views_specific, {
@@ -460,7 +460,7 @@ class WSGIApp:
         view_idshort = url_args["view_idshort"]
         view = aas.view.get(view_idshort)
         if view is None:
-            raise NotFound(f"No view with idShort {view_idshort} found!")
+            raise NotFound(f"No view with id_short {view_idshort} found!")
         return response_t(Result(view))
 
     def put_aas_views_specific(self, request: Request, url_args: Dict, **_kwargs) -> Response:
@@ -470,10 +470,10 @@ class WSGIApp:
         view_idshort = url_args["view_idshort"]
         view = aas.view.get(view_idshort)
         if view is None:
-            raise NotFound(f"No view with idShort {view_idshort} found!")
+            raise NotFound(f"No view with id_short {view_idshort} found!")
         new_view = parse_request_body(request, model.View)
         if new_view.id_short != view.id_short:
-            raise BadRequest(f"idShort of new {new_view} doesn't match the old {view}")
+            raise BadRequest(f"id_short of new {new_view} doesn't match the old {view}")
         aas.view.remove(view)
         aas.view.add(new_view)
         return response_t(Result(new_view))
@@ -484,7 +484,7 @@ class WSGIApp:
         aas.update()
         view_idshort = url_args["view_idshort"]
         if view_idshort not in aas.view:
-            raise NotFound(f"No view with idShort {view_idshort} found!")
+            raise NotFound(f"No view with id_short {view_idshort} found!")
         aas.view.remove(view_idshort)
         return response_t(Result(None))
 
