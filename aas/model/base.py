@@ -616,7 +616,7 @@ class Referable(HasExtension, metaclass=abc.ABCMeta):
         :raises ValueError: if the constraint is not fulfilled
         """
         if category == "":
-            raise ValueError("category is not allowed to be an empty string")
+            raise AASConstraintViolation(100, "category is not allowed to be an empty string (Constraint AASd-100)")
         self._category = category
 
     def _get_category(self) -> Optional[str]:
