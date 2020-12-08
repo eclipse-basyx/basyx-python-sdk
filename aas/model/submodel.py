@@ -1003,9 +1003,14 @@ class Entity(SubmodelElement, base.Namespace):
     def _set_entity_type(self, entity_type: base.EntityType) -> None:
         if self.global_asset_id is None and self.specific_asset_id is None \
                 and entity_type == base.EntityType.SELF_MANAGED_ENTITY:
-            raise ValueError("A self-managed entity has to have a globalAssetId or a specificAssetId")
+            raise base.AASConstraintViolation(
+                14,
+                "A self-managed entity has to have a globalAssetId or a specificAssetId (Constraint AASd-14)"
+            )
         if (self.global_asset_id or self.specific_asset_id) and entity_type == base.EntityType.CO_MANAGED_ENTITY:
-            raise ValueError("A co-managed entity has to have neither a globalAssetId nor a specificAssetId")
+            raise base.AASConstraintViolation(
+                14,
+                "A co-managed entity has to have neither a globalAssetId nor a specificAssetId (Constraint AASd-14)")
         self._entity_type = entity_type
 
     entity_type = property(_get_entity_type, _set_entity_type)
