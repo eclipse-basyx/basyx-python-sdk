@@ -184,14 +184,11 @@ class DataElement(SubmodelElement, metaclass=abc.ABCMeta):
         """
 
         super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, kind, extension)
-        self._category: str
 
-    @property
-    def category(self):
-        return self._category
-
-    @category.setter
-    def category(self, category: str) -> None:
+    def _set_category(self, category: Optional[str]):
+        if category == "":
+            raise base.AASConstraintViolation(100,
+                                              "category is not allowed to be an empty string (Constraint AASd-100)")
         if category is None:
             self._category = None
         else:
