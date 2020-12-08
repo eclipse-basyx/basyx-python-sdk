@@ -80,18 +80,12 @@ class ConceptDescription(base.Identifiable):
         self.id_short = id_short
         self.display_name: Optional[base.LangStringSet] = dict() if display_name is None else display_name
         self._category = category if category else "PROPERTY"
-        self.category: str
         self.description: Optional[base.LangStringSet] = dict() if description is None else description
         self.parent: Optional[base.Namespace] = parent
         self.administration: Optional[base.AdministrativeInformation] = administration
         self.extension: Set[base.Extension] = set() if extension is None else extension
 
-    @property
-    def category(self):
-        return self._category
-
-    @category.setter
-    def category(self, category: str) -> None:
+    def _set_category(self, category: Optional[str]):
         if category is None:
             self._category = "PROPERTY"
         else:
