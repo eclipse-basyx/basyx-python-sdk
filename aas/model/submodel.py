@@ -832,13 +832,22 @@ class OperationVariable:
         TODO: Add instruction what to do after construction
         """
         # Constraint AASd-008: The submodel element shall be of kind=Template.
-        self.value: SubmodelElement = value
+        self.value: SubmodelElement
+        self._value: SubmodelElement = value
+
+    @property
+    def value(self):
+        return self._value
+
+    @value.setter
+    def value(self, value: SubmodelElement) -> None:
         if self.value.kind is not base.ModelingKind.TEMPLATE:
             raise base.AASConstraintViolation(
                 8,
                 "The SubmodelElement `OperationVariable.value` must have the attribute `kind==ModelingType.TEMPLATE` "
                 "(Constraint AASd-008)"
             )
+        self._value = value
 
 
 class Operation(SubmodelElement):
