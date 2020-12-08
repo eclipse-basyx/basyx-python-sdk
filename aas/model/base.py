@@ -639,12 +639,18 @@ class Referable(HasExtension, metaclass=abc.ABCMeta):
         """
 
         if id_short == "":
-            raise ValueError("id_short is not allowed to be an empty string")
+            raise AASConstraintViolation(100, "id_short is not allowed to be an empty string (Constraint AASd-100)")
         test_id_short: str = str(id_short)
         if not re.match("^[a-zA-Z0-9_]*$", test_id_short):
-            raise ValueError("The id_short must contain only letters, digits and underscore")
+            raise AASConstraintViolation(
+                2,
+                "The id_short must contain only letters, digits and underscore (Constraint AASd-002)"
+            )
         if not re.match("^([a-zA-Z].*|)$", test_id_short):
-            raise ValueError("The id_short must start with a letter")
+            raise AASConstraintViolation(
+                2,
+                "The id_short must start with a letter (Constraint AASd-002)"
+            )
 
         if self.parent is not None and id_short != self.id_short:
             for set_ in self.parent.namespace_element_sets:
