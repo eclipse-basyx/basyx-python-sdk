@@ -758,13 +758,8 @@ class AASFromXmlDecoder:
     def construct_entity(cls, element: etree.Element, object_class=model.Entity, **_kwargs: Any) -> model.Entity:
         global_asset_id = _failsafe_construct(element.find(NS_AAS + "globalAssetId"),
                                               cls.construct_reference, cls.failsafe)
-        specific_asset_id = set()
-        if not cls.stripped:
-            specific_assset_ids = element.find(NS_AAS + "specificAssetIds")
-            if specific_assset_ids is not None:
-                for id in _child_construct_multiple(specific_assset_ids, NS_AAS + "specificAssetId",
-                                                    cls.construct_identifier_key_value_pair, cls.failsafe):
-                    specific_asset_id.add(id)
+        specific_asset_id = _failsafe_construct(element.find(NS_AAS + "specificAssetId"),
+                                                cls.construct_identifier_key_value_pair, cls.failsafe)
         entity = object_class(
             id_short=_child_text_mandatory(element, NS_AAS + "idShort"),
             entity_type=_child_text_mandatory_mapped(element, NS_AAS + "entityType", ENTITY_TYPES_INVERSE),

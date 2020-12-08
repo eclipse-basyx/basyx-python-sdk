@@ -553,9 +553,10 @@ class AASDataChecker(DataChecker):
                            'globalAssetId {} must exist'.format(repr(expected_value.global_asset_id)),
                            value=object_.global_asset_id)
             else:
-                self.check(expected_value.global_asset_id is None, 'Enity {} must not have a '
-                                                                   'globalAssetId'.format(repr(object_)),
-                           value=expected_value.global_asset_id)
+                if object_.global_asset_id:
+                    self.check(expected_value.global_asset_id is None, 'Enity {} must not have a '
+                                                                       'globalAssetId'.format(repr(object_)),
+                               value=expected_value.global_asset_id)
         if object_.specific_asset_id and expected_value.specific_asset_id:
             self.check_identifier_key_value_pair(object_.specific_asset_id, expected_value.specific_asset_id)
         else:
@@ -564,9 +565,10 @@ class AASDataChecker(DataChecker):
                            'SpecificAssetId {} must exist'.format(repr(expected_value.specific_asset_id)),
                            value=object_.specific_asset_id)
             else:
-                self.check(expected_value.specific_asset_id is None, 'Enity {} must not have a '
-                                                                     'specificAssetId'.format(repr(object_)),
-                           value=expected_value.specific_asset_id)
+                if object_.specific_asset_id:
+                    self.check(expected_value.specific_asset_id is None, 'Enity {} must not have a '
+                                                                         'specificAssetId'.format(repr(object_)),
+                               value=expected_value.specific_asset_id)
         self.check_contained_element_length(object_, 'statement', model.SubmodelElement, len(expected_value.statement))
         for expected_element in expected_value.statement:
             element = object_.statement.get(expected_element.id_short)
