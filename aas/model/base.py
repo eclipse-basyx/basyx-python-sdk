@@ -202,6 +202,12 @@ class AssetKind(Enum):
     INSTANCE = 1
 
 
+LOCAL_KEY_TYPES: Set[KeyType] = {
+    KeyType.IDSHORT,
+    KeyType.FRAGMENT_ID
+}
+
+
 class Key:
     """
     A key is a reference to an element by its id.
@@ -238,6 +244,18 @@ class Key:
         super().__setattr__('type', type_)
         super().__setattr__('value', value)
         super().__setattr__('id_type', id_type)
+        if self.type is KeyElements.GLOBAL_REFERENCE and self.id_type in LOCAL_KEY_TYPES:
+            raise AASConstraintViolation(
+                80,
+                "A Key with Key.type==GLOBAL_REFERENCE must not have an id_type of LocalKeyType: (IDSHORT, FRAGMENT_ID)"
+                " (Constraint AASd-080)"
+            )
+        if self.type is KeyElements.ASSET_ADMINISTRATION_SHELL and self.id_type in LOCAL_KEY_TYPES:
+            raise AASConstraintViolation(
+                81,
+                "A Key with Key.type==ASSET_ADMINISTRATION_SHELL must not have an id_type of LocalKeyType: "
+                "(IDSHORT, FRAGMENT_ID) (Constraint AASd-081)"
+            )
 
     def __setattr__(self, key, value):
         """Prevent modification of attributes."""
