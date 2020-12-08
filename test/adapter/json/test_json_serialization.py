@@ -193,7 +193,7 @@ class JsonSerializationStrippedObjectsTest(unittest.TestCase):
         self._checkNormalAndStripped("qualifiers", operation)
 
     def test_stripped_annotated_relationship_element(self) -> None:
-        mlp = model.MultiLanguageProperty("test_multi_language_property")
+        mlp = model.MultiLanguageProperty("test_multi_language_property", category="PARAMETER")
         ref = model.AASReference(
             (model.Key(model.KeyElements.SUBMODEL, "http://acplt.org/test_ref", model.KeyType.IRI),),
             model.Submodel
@@ -208,13 +208,13 @@ class JsonSerializationStrippedObjectsTest(unittest.TestCase):
         self._checkNormalAndStripped("annotation", are)
 
     def test_stripped_entity(self) -> None:
-        mlp = model.MultiLanguageProperty("test_multi_language_property")
+        mlp = model.MultiLanguageProperty("test_multi_language_property", category="PARAMETER")
         entity = model.Entity("test_entity", model.EntityType.CO_MANAGED_ENTITY, statement=[mlp])
 
         self._checkNormalAndStripped("statements", entity)
 
     def test_stripped_submodel_element_collection(self) -> None:
-        mlp = model.MultiLanguageProperty("test_multi_language_property")
+        mlp = model.MultiLanguageProperty("test_multi_language_property", category="PARAMETER")
         sec = model.SubmodelElementCollectionOrdered("test_submodel_element_collection", value=[mlp])
 
         self._checkNormalAndStripped("value", sec)
