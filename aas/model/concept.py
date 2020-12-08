@@ -18,6 +18,23 @@ from typing import Optional, Set, Type
 from . import base, datatypes
 
 
+ALLOWED_CONCEPT_DESCRIPTION_CATEGORIES: Set[str] = {
+    "VALUE",
+    "PROPERTY",
+    "REFERENCE",
+    "DOCUMENT",
+    "CAPABILITY",
+    "RELATIONSHIP",
+    "COLLECTION",
+    "FUNCTION",
+    "EVENT",
+    "ENTITY",
+    "APPLICATION_CLASS",
+    "QUALIFIER",
+    "VIEW"
+}
+
+
 class ConceptDescription(base.Identifiable):
     """
     The semantics of a property or other elements that may have a semantic description is defined by a concept
@@ -62,7 +79,13 @@ class ConceptDescription(base.Identifiable):
         self.is_case_of: Set[base.Reference] = set() if is_case_of is None else is_case_of
         self.id_short = id_short
         self.display_name: Optional[base.LangStringSet] = dict() if display_name is None else display_name
-        self.category = category
+        self.category = category if category else "PROPERTY"
+        if self.category not in ALLOWED_CONCEPT_DESCRIPTION_CATEGORIES:
+            raise base.AASConstraintViolation(
+                51,
+                "ConceptDescription must have one of the following "
+                "categories: "+str(ALLOWED_CONCEPT_DESCRIPTION_CATEGORIES)+" (Constraint AASd-051)"
+            )
         self.description: Optional[base.LangStringSet] = dict() if description is None else description
         self.parent: Optional[base.Namespace] = parent
         self.administration: Optional[base.AdministrativeInformation] = administration
