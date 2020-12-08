@@ -361,33 +361,39 @@ class AdministrativeInformation:
 
         TODO: Add instruction what to do after construction
         """
-        if version is None and revision is not None:
-            raise ValueError("A revision requires a version. This means, if there is no version there is no revision "
-                             "neither.")
+        self._version: Optional[str]
+        self.version = version
+        self._revision: Optional[str]
+        self.revision = revision
+
+    def _get_version(self):
+        return self._version
+
+    def _set_version(self, version: str):
         if version == "":
             raise ValueError("version is not allowed to be an empty string")
-        self.version: Optional[str] = version
-        self._revision: Optional[str] = revision
+        self._version = version
+
+    version = property(_get_version, _set_version)
 
     def _get_revision(self):
         return self._revision
 
     def _set_revision(self, revision: str):
-        if self.version is None:
+        if revision == "":
+            raise ValueError("revision is not allowed to be an empty string")
+        if self.version is None and revision:
             raise ValueError("A revision requires a version. This means, if there is no version there is no revision "
                              "neither. Please set version first.")
-        else:
-            if revision == "":
-                raise ValueError("revision is not allowed to be an empty string")
-            self._revision = revision
+        self._revision = revision
+
+    revision = property(_get_revision, _set_revision)
 
     def __eq__(self, other) -> bool:
         return self.version == other.version and self._revision == other._revision
 
     def __repr__(self) -> str:
         return "AdministrativeInformation(version={}, revision={})".format(self.version, self.revision)
-
-    revision = property(_get_revision, _set_revision)
 
 
 class Identifier:
