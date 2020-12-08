@@ -79,17 +79,29 @@ class ConceptDescription(base.Identifiable):
         self.is_case_of: Set[base.Reference] = set() if is_case_of is None else is_case_of
         self.id_short = id_short
         self.display_name: Optional[base.LangStringSet] = dict() if display_name is None else display_name
-        self.category = category if category else "PROPERTY"
-        if self.category not in ALLOWED_CONCEPT_DESCRIPTION_CATEGORIES:
-            raise base.AASConstraintViolation(
-                51,
-                "ConceptDescription must have one of the following "
-                "categories: "+str(ALLOWED_CONCEPT_DESCRIPTION_CATEGORIES)+" (Constraint AASd-051)"
-            )
+        self._category = category if category else "PROPERTY"
+        self.category: str
         self.description: Optional[base.LangStringSet] = dict() if description is None else description
         self.parent: Optional[base.Namespace] = parent
         self.administration: Optional[base.AdministrativeInformation] = administration
         self.extension: Set[base.Extension] = set() if extension is None else extension
+
+    @property
+    def category(self):
+        return self._category
+
+    @category.setter
+    def category(self, category: str) -> None:
+        if category is None:
+            self._category = "PROPERTY"
+        else:
+            if category not in ALLOWED_CONCEPT_DESCRIPTION_CATEGORIES:
+                raise base.AASConstraintViolation(
+                    51,
+                    "ConceptDescription must have one of the following "
+                    "categories: " + str(ALLOWED_CONCEPT_DESCRIPTION_CATEGORIES) + " (Constraint AASd-051)"
+                )
+            self._category = category
 
 
 # #############################################################################
