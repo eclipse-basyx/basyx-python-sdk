@@ -80,7 +80,7 @@ def create_example_asset_identification_submodel() -> model.Submodel:
         value_id=model.Reference((model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
                                             value='http://acplt.org/ValueId/ExampleValueId',
                                             id_type=model.KeyType.IRI),)),
-        category=None,
+        category="PARAMETER",
         description={'en-us': 'Legally valid designation of the natural or judicial person which is directly '
                               'responsible for the design, production, packaging and labeling of a product in '
                               'respect to its being brought into circulation.',
@@ -104,7 +104,7 @@ def create_example_asset_identification_submodel() -> model.Submodel:
         value_id=model.Reference((model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
                                             value='http://acplt.org/ValueId/ExampleValueId',
                                             id_type=model.KeyType.IRI),)),
-        category=None,
+        category="PARAMETER",
         description={'en-us': 'Legally valid designation of the natural or judicial person which is directly '
                               'responsible for the design, production, packaging and labeling of a product in '
                               'respect to its being brought into circulation.',
@@ -197,7 +197,7 @@ def create_example_bill_of_material_submodel() -> model.Submodel:
                                                            model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
                                                                      value='http://acplt.org/SpecificAssetId/',
                                                                      id_type=model.KeyType.IRI),))),
-        category=None,
+        category="PARAMETER",
         description={'en-us': 'Legally valid designation of the natural or judicial person which is directly '
                               'responsible for the design, production, packaging and labeling of a product in '
                               'respect to its being brought into circulation.',
@@ -218,7 +218,7 @@ def create_example_bill_of_material_submodel() -> model.Submodel:
         statement=(),
         global_asset_id=None,
         specific_asset_id=None,
-        category=None,
+        category="PARAMETER",
         description={'en-us': 'Legally valid designation of the natural or judicial person which is directly '
                               'responsible for the design, production, packaging and labeling of a product in '
                               'respect to its being brought into circulation.',
@@ -405,11 +405,13 @@ def create_example_submodel() -> model.Submodel:
         annotation={model.Property(id_short="ExampleAnnotatedProperty",
                                    value_type=model.datatypes.String,
                                    value='exampleValue',
+                                   category="PARAMETER",
                                    parent=None),
                     model.Range(id_short="ExampleAnnotatedRange",
                                 value_type=model.datatypes.Integer,
                                 min=1,
                                 max=5,
+                                category="PARAMETER",
                                 parent=None)
                     },
         category='PARAMETER',

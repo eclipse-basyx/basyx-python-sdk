@@ -167,11 +167,13 @@ def create_example_submodel() -> model.Submodel:
         annotation={model.Property(id_short="ExampleAnnotatedProperty",
                                    value_type=model.datatypes.String,
                                    value='exampleValue',
+                                   category="PARAMETER",
                                    parent=None),
                     model.Range(id_short="ExampleAnnotatedRange",
                                 value_type=model.datatypes.Integer,
                                 min=1,
                                 max=5,
+                                category="PARAMETER",
                                 parent=None)
                     },
         category='PARAMETER',
