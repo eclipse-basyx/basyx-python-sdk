@@ -1,2 +1,46 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<aas:aasenv xmlns:aas="http://www.admin-shell.io/aas/2/0" xmlns:abac="http://www.admin-shell.io/aas/abac/2/0" xmlns:aas_common="http://www.admin-shell.io/aas_common/2/0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:IEC="http://www.admin-shell.io/IEC61360/2/0" xmlns:xs="http://www.w3.org/2001/XMLSchema"><aas:assetAdministrationShells><aas:assetAdministrationShell><aas:idShort>TestAssetAdministrationShell</aas:idShort><aas:identification idType="IRI">https://acplt.org/Test_AssetAdministrationShell</aas:identification><aas:administration><aas:revision>0</aas:revision></aas:administration><aas:assetRef><aas:keys><aas:key idType="IRI" local="false" type="Asset">https://acplt.org/Test_Asset</aas:key></aas:keys></aas:assetRef></aas:assetAdministrationShell></aas:assetAdministrationShells><aas:assets></aas:assets><aas:submodels></aas:submodels><aas:conceptDescriptions></aas:conceptDescriptions></aas:aasenv>
+<aas:aasenv xmlns:aas="http://www.admin-shell.io/aas/3/0" xmlns:abac="http://www.admin-shell.io/aas/abac/3/0" xmlns:aas_common="http://www.admin-shell.io/aas_common/3/0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:IEC="http://www.admin-shell.io/IEC61360/3/0" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+	<aas:assetAdministrationShells>
+		<aas:assetAdministrationShell>
+			<aas:idShort>TestAssetAdministrationShell</aas:idShort>
+			<aas:identification idType="IRI">https://acplt.org/Test_AssetAdministrationShell</aas:identification>
+			<aas:administration>
+				<aas:revision>0</aas:revision>
+			</aas:administration>
+			<aas:assetRef>
+				<aas:keys>
+					<aas:key idType="IRI" local="false" type="Asset">https://acplt.org/Test_Asset</aas:key>
+				</aas:keys>
+			</aas:assetRef>
+			<aas:assetInformation>
+				<aas:globalAssetId>
+				  <aas:keys>
+					<aas:key idType="IRI" type="GlobalReference">http://acplt.org/TestAsset/</aas:key>
+				  </aas:keys>
+				</aas:globalAssetId>
+				<aas:assetKind>Instance</aas:assetKind>
+				<aas:billOfMaterials>
+				  <aas:submodelRef>
+					<aas:keys>
+					  <aas:key idType="IRI" type="Submodel">http://acplt.org/Submodels/Assets/TestAsset/BillOfMaterial</aas:key>
+					</aas:keys>
+				  </aas:submodelRef>
+				</aas:billOfMaterials>
+				<aas:specificAssetIds>
+				  <aas:specificAssetId>
+					<aas:externalSubjectId>
+					  <aas:keys>
+						<aas:key idType="IRI" type="GlobalReference">http://acplt.org/SpecificAssetId/</aas:key>
+					  </aas:keys>
+					</aas:externalSubjectId>
+					<aas:key>TestKey</aas:key>
+					<aas:value>TestValue</aas:value>
+				  </aas:specificAssetId>
+				</aas:specificAssetIds>
+			</aas:assetInformation>
+		</aas:assetAdministrationShell>
+	</aas:assetAdministrationShells>
+	<aas:assets/>
+	<aas:conceptDescriptions/>
+	<aas:submodels/>
+</aas:aasenv>
