@@ -137,6 +137,13 @@ class Submodel(base.Identifiable, base.HasSemantics, base.HasKind, base.Qualifia
         self.extension: Set[base.Extension] = set() if extension is None else extension
 
 
+ALLOWED_DATA_ELEMENT_CATEGORIES: Set[str] = {
+    "CONSTANT",
+    "PARAMETER",
+    "VARIABLE"
+}
+
+
 class DataElement(SubmodelElement, metaclass=abc.ABCMeta):
     """
     A data element is a submodel element that is not further composed out of other submodel elements.
@@ -177,6 +184,25 @@ class DataElement(SubmodelElement, metaclass=abc.ABCMeta):
         """
 
         super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, kind, extension)
+        self._category: str
+
+    @property
+    def category(self):
+        return self._category
+
+    @category.setter
+    def category(self, category: str) -> None:
+        if category is None:
+            self._category = None
+        else:
+            if category not in ALLOWED_DATA_ELEMENT_CATEGORIES:
+                if not (isinstance(self, File) or isinstance(self, Blob)):
+                    raise base.AASConstraintViolation(
+                        90,
+                        "DataElement.category must be one of the following: " + str(ALLOWED_DATA_ELEMENT_CATEGORIES) +
+                        " (Constraint AASd-090)"
+                    )
+            self._category = category
 
 
 class Property(DataElement):
