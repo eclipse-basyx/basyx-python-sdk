@@ -142,18 +142,21 @@ class ReferableTest(unittest.TestCase):
         self.assertEqual("asdASd123_", test_object.id_short)
         test_object.id_short = "AAs12_"
         self.assertEqual("AAs12_", test_object.id_short)
-        with self.assertRaises(ValueError) as cm:
+        with self.assertRaises(model.AASConstraintViolation) as cm:
             test_object.id_short = "98sdsfdAS"
-        self.assertEqual("The id_short must start with a letter", str(cm.exception))
-        with self.assertRaises(ValueError) as cm:
+        self.assertEqual("The id_short must start with a letter (Constraint AASd-002)", str(cm.exception))
+        with self.assertRaises(model.AASConstraintViolation) as cm:
             test_object.id_short = "_sdsfdAS"
-        self.assertEqual("The id_short must start with a letter", str(cm.exception))
-        with self.assertRaises(ValueError) as cm:
+        self.assertEqual("The id_short must start with a letter (Constraint AASd-002)", str(cm.exception))
+        with self.assertRaises(model.AASConstraintViolation) as cm:
             test_object.id_short = "asdlujSAD8348@S"
-        self.assertEqual("The id_short must contain only letters, digits and underscore", str(cm.exception))
-        with self.assertRaises(ValueError) as cm:
+        self.assertEqual(
+            "The id_short must contain only letters, digits and underscore (Constraint AASd-002)",
+            str(cm.exception))
+        with self.assertRaises(model.AASConstraintViolation) as cm:
             test_object.id_short = ""
-        self.assertEqual("id_short is not allowed to be an empty string", str(cm.exception))
+        self.assertEqual("id_short is not allowed to be an empty string (Constraint AASd-100)",
+                         str(cm.exception))
 
     def test_representation(self):
         class DummyClass:
