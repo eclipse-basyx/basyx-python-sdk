@@ -808,8 +808,11 @@ class OperationVariable:
         # Constraint AASd-008: The submodel element shall be of kind=Template.
         self.value: SubmodelElement = value
         if self.value.kind is not base.ModelingKind.TEMPLATE:
-            raise ValueError("The SubmodelElement `OperationVariable.value` must have the attribute "
-                             "`kind==ModelingType.TEMPLATE` (Constraint AASd-008)")
+            raise base.AASConstraintViolation(
+                8,
+                "The SubmodelElement `OperationVariable.value` must have the attribute `kind==ModelingType.TEMPLATE` "
+                "(Constraint AASd-008)"
+            )
 
 
 class Operation(SubmodelElement):
