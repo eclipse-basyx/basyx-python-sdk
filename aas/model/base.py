@@ -1398,3 +1398,16 @@ class IdentifierKeyValuePair():
     def __repr__(self) -> str:
         return "IdentifierKeyValuePair(key={}, value={}, external_subject_id={})".format(self.key, self.value,
                                                                                          self.external_subject_id)
+
+
+class AASConstraintViolation(Exception):
+    """
+    An Exception to be raised if an AASd-Constraint defined in the metamodel is violated
+
+    :ivar constraint_id: The ID of the constraint that is violated
+    :ivar message: The error message of the Exception
+    """
+    def __init__(self, constraint_id: int, message: str):
+        self.constraint_id: int = constraint_id
+        self.message: str = message
+        super().__init__(self.message)
