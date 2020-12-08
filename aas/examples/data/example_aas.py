@@ -423,14 +423,32 @@ def create_example_submodel() -> model.Submodel:
         qualifier=None,
         kind=model.ModelingKind.INSTANCE)
 
+    operation_variable_property = model.Property(
+        id_short='ExampleProperty',
+        value_type=model.datatypes.String,
+        value='exampleValue',
+        value_id=model.Reference((model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
+                                            value='http://acplt.org/ValueId/ExampleValueId',
+                                            id_type=model.KeyType.IRI),)),
+        display_name={'en-us': 'ExampleProperty',
+                      'de': 'BeispielProperty'},
+        category='CONSTANT',
+        description={'en-us': 'Example Property object',
+                     'de': 'Beispiel Property Element'},
+        parent=None,
+        semantic_id=model.Reference((model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
+                                               value='http://acplt.org/Properties/ExampleProperty',
+                                               id_type=model.KeyType.IRI),)),
+        qualifier=None,
+        kind=model.ModelingKind.TEMPLATE)
     submodel_element_operation_variable_input = model.OperationVariable(
-        value=submodel_element_property)
+        value=operation_variable_property)
 
     submodel_element_operation_variable_output = model.OperationVariable(
-        value=submodel_element_property)
+        value=operation_variable_property)
 
     submodel_element_operation_variable_in_output = model.OperationVariable(
-        value=submodel_element_property)
+        value=operation_variable_property)
 
     submodel_element_operation = model.Operation(
         id_short='ExampleOperation',
