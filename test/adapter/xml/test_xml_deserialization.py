@@ -280,6 +280,7 @@ class XmlDeserializationTest(unittest.TestCase):
                             <aas:outputVariable>
                                 <aas:value>
                                     <aas:file>
+                                        <aas:kind>Template</aas:kind>
                                         <aas:idShort>test_file</aas:idShort>
                                         <aas:mimeType>application/problem+xml</aas:mimeType>
                                     </aas:file>
