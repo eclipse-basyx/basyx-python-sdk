@@ -3,12 +3,16 @@ Metamodel-Constraints
 
 Here is a quick reference of the constraints as defined in Details of the AssetAdministrationShell Part 1
 and how they are implemented in pyi40aas.
+
+
 The status information means the following:
 
 * ✅: the Constraint is enforced in the current version
 * ❌: the Constraint cannot be enforced in the current version
 * WIP: The Constraint enforcement will be implemented in the future
 
+In most cases, if a constraint violation is detected,
+an :class:`~aas.model.base.AASConstraintViolation` will be raised
 
 =========== =================================== ====== ===================================
 Constraint  Description                         Status Comment
