@@ -539,7 +539,8 @@ class WSGIApp:
         if view is None:
             raise NotFound(f"No view with id_short {view_idshort} found!")
         new_view = parse_request_body(request, model.View)
-        if new_view.id_short != view.id_short:
+        # compare id_shorts case-insensitively
+        if new_view.id_short.lower() != view.id_short.lower():
             raise BadRequest(f"id_short of new {new_view} doesn't match the old {view}")
         aas.view.remove(view)
         aas.view.add(new_view)
@@ -603,9 +604,10 @@ class WSGIApp:
         new_submodel_element = parse_request_body(request, model.SubmodelElement)  # type: ignore
         mismatch_error_message = f" of new submodel element {new_submodel_element} doesn't not match " \
                                  f"the current submodel element {submodel_element}"
-        if not type(submodel_element) is type(new_submodel_element):
+        if type(submodel_element) is not type(new_submodel_element):
             raise BadRequest("Type" + mismatch_error_message)
-        if submodel_element.id_short != new_submodel_element.id_short:
+        # compare id_shorts case-insensitively
+        if submodel_element.id_short.lower() != new_submodel_element.id_short.lower():
             raise BadRequest("id_short" + mismatch_error_message)
         submodel_element.update_from(new_submodel_element)
         submodel_element.commit()
