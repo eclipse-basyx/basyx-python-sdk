@@ -354,7 +354,26 @@ class WSGIApp:
                     Rule("/<id_short_path:id_shorts>", methods=["PUT"],
                          endpoint=self.put_submodel_submodel_elements_specific_nested),
                     Rule("/<id_short_path:id_shorts>", methods=["DELETE"],
-                         endpoint=self.delete_submodel_submodel_elements_specific_nested)
+                         endpoint=self.delete_submodel_submodel_elements_specific_nested),
+                    # TODO: remove the following type: ignore comments when mypy supports abstract types for Type[T]
+                    # see https://github.com/python/mypy/issues/5374
+                    Rule("/<id_short_path:id_shorts>/values", methods=["GET"],
+                         endpoint=self.factory_get_submodel_submodel_elements_nested_attr(
+                             model.SubmodelElementCollection, "value")),  # type: ignore
+                    Rule("/<id_short_path:id_shorts>/values", methods=["POST"],
+                         endpoint=self.factory_post_submodel_submodel_elements_nested_attr(
+                             model.SubmodelElementCollection, "value")),  # type: ignore
+                    Rule("/<id_short_path:id_shorts>/annotations", methods=["GET"],
+                         endpoint=self.factory_get_submodel_submodel_elements_nested_attr(
+                             model.AnnotatedRelationshipElement, "annotation")),
+                    Rule("/<id_short_path:id_shorts>/annotations", methods=["POST"],
+                         endpoint=self.factory_post_submodel_submodel_elements_nested_attr(
+                             model.AnnotatedRelationshipElement, "annotation",
+                             request_body_type=model.DataElement)),  # type: ignore
+                    Rule("/<id_short_path:id_shorts>/statements", methods=["GET"],
+                         endpoint=self.factory_get_submodel_submodel_elements_nested_attr(model.Entity, "statement")),
+                    Rule("/<id_short_path:id_shorts>/statements", methods=["POST"],
+                         endpoint=self.factory_post_submodel_submodel_elements_nested_attr(model.Entity, "statement"))
                 ])
             ])
         ], converters={
@@ -627,6 +646,44 @@ class WSGIApp:
             )
         self._namespace_submodel_element_op(parent, parent.remove_referable, id_shorts[-1])
         return response_t(Result(None))
+
+    # --------- SUBMODEL ROUTE FACTORIES ---------
+    def factory_get_submodel_submodel_elements_nested_attr(self, type_: Type[model.Referable], attr: str) \
+            -> Callable[[Request, Dict], Response]:
+        def route(request: Request, url_args: Dict, **_kwargs) -> Response:
+            response_t = get_response_type(request)
+            submodel = self._get_obj_ts(url_args["submodel_id"], model.Submodel)
+            submodel.update()
+            submodel_element = self._get_nested_submodel_element(submodel, url_args["id_shorts"])
+            if not isinstance(submodel_element, type_):
+                raise BadRequest(f"Submodel element {submodel_element} is not a(n) {type_.__name__}!")
+            return response_t(Result(tuple(getattr(submodel_element, attr))))
+        return route
+
+    def factory_post_submodel_submodel_elements_nested_attr(self, type_: Type[model.Referable], attr: str,
+                                                            request_body_type: Type[model.SubmodelElement]
+                                                            = model.SubmodelElement) \
+            -> Callable[[Request, Dict, MapAdapter], Response]:
+        def route(request: Request, url_args: Dict, map_adapter: MapAdapter) -> Response:
+            response_t = get_response_type(request)
+            submodel_identifier = url_args["submodel_id"]
+            submodel = self._get_obj_ts(submodel_identifier, model.Submodel)
+            submodel.update()
+            id_shorts = url_args["id_shorts"]
+            submodel_element = self._get_nested_submodel_element(submodel, id_shorts)
+            if not isinstance(submodel_element, type_):
+                raise BadRequest(f"Submodel element {submodel_element} is not a(n) {type_.__name__}!")
+            new_submodel_element = parse_request_body(request, request_body_type)
+            if new_submodel_element.id_short in getattr(submodel_element, attr):
+                raise Conflict(f"Submodel element with id_short {new_submodel_element.id_short} already exists!")
+            getattr(submodel_element, attr).add(new_submodel_element)
+            submodel_element.commit()
+            created_resource_url = map_adapter.build(self.get_submodel_submodel_elements_specific_nested, {
+                "submodel_id": submodel_identifier,
+                "id_shorts": id_shorts + [new_submodel_element.id_short]
+            }, force_external=True)
+            return response_t(Result(new_submodel_element), status=201, headers={"Location": created_resource_url})
+        return route
 
 
 if __name__ == "__main__":
