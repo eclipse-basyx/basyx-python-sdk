@@ -512,13 +512,13 @@ paths:
     parameters:
       - name: se-idShort1
         in: path
-        description: The SubmodelElement's idShort
+        description: The SubmodelElement's idShort, prefixed with an exclammation mark (!)
         required: true
         schema:
           type: string
       - name: se-idShortN
         in: path
-        description: The SubmodelElement's idShort
+        description: The SubmodelElement's idShort, prefixed with an exclammation mark (!)
         required: true
         schema:
           type: string
@@ -593,13 +593,13 @@ paths:
     parameters:
       - name: se-idShort1
         in: path
-        description: The SubmodelElement's idShort
+        description: The SubmodelElement's idShort, prefixed with an exclammation mark (!)
         required: true
         schema:
           type: string
       - name: se-idShortN
         in: path
-        description: The SubmodelElement's idShort
+        description: The SubmodelElement's idShort, prefixed with an exclammation mark (!)
         required: true
         schema:
           type: string
@@ -673,13 +673,13 @@ paths:
     parameters:
       - name: se-idShort1
         in: path
-        description: The SubmodelElement's idShort
+        description: The SubmodelElement's idShort, prefixed with an exclammation mark (!)
         required: true
         schema:
           type: string
       - name: se-idShortN
         in: path
-        description: The SubmodelElement's idShort
+        description: The SubmodelElement's idShort, prefixed with an exclammation mark (!)
         required: true
         schema:
           type: string
@@ -753,13 +753,13 @@ paths:
     parameters:
       - name: se-idShort1
         in: path
-        description: The SubmodelElement's idShort
+        description: The SubmodelElement's idShort, prefixed with an exclammation mark (!)
         required: true
         schema:
           type: string
       - name: se-idShortN
         in: path
-        description: The SubmodelElement's idShort
+        description: The SubmodelElement's idShort, prefixed with an exclammation mark (!)
         required: true
         schema:
           type: string
@@ -833,13 +833,13 @@ paths:
     parameters:
       - name: se-idShort1
         in: path
-        description: The SubmodelElement's idShort
+        description: The SubmodelElement's idShort, prefixed with an exclammation mark (!)
         required: true
         schema:
           type: string
       - name: se-idShortN
         in: path
-        description: The SubmodelElement's idShort
+        description: The SubmodelElement's idShort, prefixed with an exclammation mark (!)
         required: true
         schema:
           type: string
@@ -901,13 +901,13 @@ paths:
     parameters:
       - name: se-idShort1
         in: path
-        description: The SubmodelElement's idShort
+        description: The SubmodelElement's idShort, prefixed with an exclammation mark (!)
         required: true
         schema:
           type: string
       - name: se-idShortN
         in: path
-        description: The SubmodelElement's idShort
+        description: The SubmodelElement's idShort, prefixed with an exclammation mark (!)
         required: true
         schema:
           type: string
