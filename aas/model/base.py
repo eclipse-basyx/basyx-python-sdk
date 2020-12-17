@@ -210,6 +210,8 @@ class AssetKind(Enum):
 
     TYPE = 0
     INSTANCE = 1
+
+
 LOCAL_KEY_TYPES: Set[KeyType] = {
     KeyType.IDSHORT,
     KeyType.FRAGMENT_ID
@@ -314,8 +316,6 @@ class Key:
                                  if t in KEY_ELEMENTS_CLASSES))
         except StopIteration:
             key_type = KeyElements.PROPERTY
-
-
         if isinstance(referable, Identifiable):
             return Key(key_type, referable.identification.id,
                        KeyType(referable.identification.id_type.value))
@@ -806,9 +806,6 @@ class UnexpectedTypeError(TypeError):
         self.value = value
 
 
-
-
-
 class AASReference(Reference, Generic[_RT]):
     """
     Typed Reference to any referable :class:`Asset Administration Shell <aas.model.aas.AssetAdministrationShell>` object
@@ -951,9 +948,6 @@ class Identifiable(Referable, metaclass=abc.ABCMeta):
 
     def __repr__(self) -> str:
         return "{}[{}]".format(self.__class__.__name__, self.identification)
-
-
-
 
 
 class HasKind(metaclass=abc.ABCMeta):
@@ -1157,6 +1151,7 @@ class Namespace(metaclass=abc.ABCMeta):
             if id_short in dict_:
                 return dict_.get_referable(id_short)
         raise KeyError("Referable with id_short {} not found in this namespace".format(id_short))
+
     def remove_referable(self, id_short: str) -> None:
         """
         Remove a Referable from this Namespace by its id_short
