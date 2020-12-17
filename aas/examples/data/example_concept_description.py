@@ -36,7 +36,6 @@ def create_iec61360_concept_description() -> IEC61360ConceptDescription:
                     'en-us': "This is a DataSpecification for testing purposes"},
         short_name={'de': 'Test Spec', 'en-us': "TestSpec"},
         is_case_of={model.Reference((model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
-                                               local=False,
                                                value='http://acplt.org/ReferenceElements/ConceptDescriptionX',
                                                id_type=model.KeyType.IRI),))},
         id_short="TestSpec_01",
@@ -46,7 +45,6 @@ def create_iec61360_concept_description() -> IEC61360ConceptDescription:
         administration=model.AdministrativeInformation(version='0.9', revision='0'),
         unit="SpaceUnit",
         unit_id=model.Reference((model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
-                                           local=False,
                                            value='http://acplt.org/Units/SpaceUnit',
                                            id_type=model.KeyType.IRI),)),
         source_of_definition="http://acplt.org/DataSpec/ExampleDef",
@@ -57,14 +55,12 @@ def create_iec61360_concept_description() -> IEC61360ConceptDescription:
                 value_type=model.datatypes.String,
                 value='exampleValue',
                 value_id=model.Reference((model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
-                                                    local=False,
                                                     value='http://acplt.org/ValueId/ExampleValueId',
                                                     id_type=model.KeyType.IRI),)),),
             model.ValueReferencePair(
                 value_type=model.datatypes.String,
                 value='exampleValue2',
                 value_id=model.Reference((model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
-                                                    local=False,
                                                     value='http://acplt.org/ValueId/ExampleValueId2',
                                                     id_type=model.KeyType.IRI),)),)},
         value="TEST",
@@ -82,6 +78,6 @@ def check_example_iec61360_concept_description(checker: AASDataChecker,
 
 
 def check_full_example(checker: AASDataChecker, obj_store: model.DictObjectStore) -> None:
-    example_data: model.DictObjectStore[model.Identifiable] = model.DictObjectStore()
-    example_data.add(create_iec61360_concept_description())
-    checker.check_object_store(example_data, obj_store)
+    expected_data: model.DictObjectStore[model.Identifiable] = model.DictObjectStore()
+    expected_data.add(create_iec61360_concept_description())
+    checker.check_object_store(obj_store, expected_data)

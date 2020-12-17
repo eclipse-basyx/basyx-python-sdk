@@ -32,26 +32,12 @@ def create_full_example() -> model.DictObjectStore:
     :return: object store
     """
     obj_store: model.DictObjectStore[model.Identifiable] = model.DictObjectStore()
-    obj_store.add(create_example_asset())
     obj_store.add(create_example_submodel())
     obj_store.add(create_example_empty_submodel())
     obj_store.add(create_example_concept_description())
-    obj_store.add(create_example_asset_administration_shell(create_example_concept_dictionary()))
+    obj_store.add(create_example_asset_administration_shell())
     obj_store.add(create_example_empty_asset_administration_shell())
     return obj_store
-
-
-def create_example_asset() -> model.Asset:
-    """
-    creates an example asset where only the kind and identification attributes are set
-
-    :return: example asset
-    """
-    asset = model.Asset(
-        kind=model.AssetKind.INSTANCE,
-        identification=model.Identifier(id_='https://acplt.org/Test_Asset_Mandatory',
-                                        id_type=model.IdentifierType.IRI))
-    return asset
 
 
 def create_example_submodel() -> model.Submodel:
@@ -62,13 +48,16 @@ def create_example_submodel() -> model.Submodel:
     """
     submodel_element_property = model.Property(
         id_short='ExampleProperty',
+        category="PARAMETER",
         value_type=model.datatypes.String)
 
     submodel_element_multi_language_property = model.MultiLanguageProperty(
+        category="PARAMETER",
         id_short='ExampleMultiLanguageProperty')
 
     submodel_element_range = model.Range(
         id_short='ExampleRange',
+        category="PARAMETER",
         value_type=model.datatypes.Int)
 
     submodel_element_blob = model.Blob(
@@ -80,17 +69,16 @@ def create_example_submodel() -> model.Submodel:
         mime_type='application/pdf')
 
     submodel_element_reference_element = model.ReferenceElement(
+        category="PARAMETER",
         id_short='ExampleReferenceElement')
 
     submodel_element_relationship_element = model.RelationshipElement(
         id_short='ExampleRelationshipElement',
         first=model.AASReference((model.Key(type_=model.KeyElements.PROPERTY,
-                                            local=True,
                                             value='ExampleProperty',
                                             id_type=model.KeyType.IDSHORT),),
                                  model.Property),
         second=model.AASReference((model.Key(type_=model.KeyElements.PROPERTY,
-                                             local=True,
                                              value='ExampleProperty',
                                              id_type=model.KeyType.IDSHORT),),
                                   model.Property))
@@ -98,12 +86,10 @@ def create_example_submodel() -> model.Submodel:
     submodel_element_annotated_relationship_element = model.AnnotatedRelationshipElement(
         id_short='ExampleAnnotatedRelationshipElement',
         first=model.AASReference((model.Key(type_=model.KeyElements.PROPERTY,
-                                            local=True,
                                             value='ExampleProperty',
                                             id_type=model.KeyType.IDSHORT),),
                                  model.Property),
         second=model.AASReference((model.Key(type_=model.KeyElements.PROPERTY,
-                                             local=True,
                                              value='ExampleProperty',
                                              id_type=model.KeyType.IDSHORT),),
                                   model.Property))
@@ -117,7 +103,6 @@ def create_example_submodel() -> model.Submodel:
     submodel_element_basic_event = model.BasicEvent(
         id_short='ExampleBasicEvent',
         observed=model.AASReference((model.Key(type_=model.KeyElements.PROPERTY,
-                                               local=True,
                                                value='ExampleProperty',
                                                id_type=model.KeyType.IDSHORT),),
                                     model.Property))
@@ -175,18 +160,7 @@ def create_example_concept_description() -> model.ConceptDescription:
     return concept_description
 
 
-def create_example_concept_dictionary() -> model.ConceptDictionary:
-    """
-    creates an example concept dictionary where only the id_short attribute is set
-
-    :return: example concept dictionary
-    """
-    concept_dictionary = model.ConceptDictionary(
-        id_short='TestConceptDictionary')
-    return concept_dictionary
-
-
-def create_example_asset_administration_shell(concept_dictionary: model.ConceptDictionary) -> \
+def create_example_asset_administration_shell() -> \
         model.AssetAdministrationShell:
     """
     creates an example asset administration shell containing references to the example asset, the example submodels and
@@ -194,25 +168,24 @@ def create_example_asset_administration_shell(concept_dictionary: model.ConceptD
 
     :return: example asset administration shell
     """
+    asset_information = model.AssetInformation(
+        asset_kind=model.AssetKind.INSTANCE,
+        global_asset_id=model.Reference((model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
+                                                   value='http://acplt.org/Test_Asset_Mandatory/',
+                                                   id_type=model.KeyType.IRI),)))
+
     asset_administration_shell = model.AssetAdministrationShell(
-        asset=model.AASReference((model.Key(type_=model.KeyElements.ASSET,
-                                            local=False,
-                                            value='https://acplt.org/Test_Asset_Mandatory',
-                                            id_type=model.KeyType.IRI),),
-                                 model.Asset),
+        asset_information=asset_information,
         identification=model.Identifier(id_='https://acplt.org/Test_AssetAdministrationShell_Mandatory',
                                         id_type=model.IdentifierType.IRI),
-        submodel_={model.AASReference((model.Key(type_=model.KeyElements.SUBMODEL,
-                                                 local=False,
-                                                 value='https://acplt.org/Test_Submodel_Mandatory',
-                                                 id_type=model.KeyType.IRI),),
-                                      model.Submodel),
-                   model.AASReference((model.Key(type_=model.KeyElements.SUBMODEL,
-                                                 local=False,
-                                                 value='https://acplt.org/Test_Submodel2_Mandatory',
-                                                 id_type=model.KeyType.IRI),),
-                                      model.Submodel)},
-        concept_dictionary=[concept_dictionary])
+        submodel={model.AASReference((model.Key(type_=model.KeyElements.SUBMODEL,
+                                                value='https://acplt.org/Test_Submodel_Mandatory',
+                                                id_type=model.KeyType.IRI),),
+                                     model.Submodel),
+                  model.AASReference((model.Key(type_=model.KeyElements.SUBMODEL,
+                                                value='https://acplt.org/Test_Submodel2_Mandatory',
+                                                id_type=model.KeyType.IRI),),
+                                     model.Submodel)},)
     return asset_administration_shell
 
 
@@ -224,11 +197,7 @@ def create_example_empty_asset_administration_shell() -> model.AssetAdministrati
     :return: example asset administration shell
     """
     asset_administration_shell = model.AssetAdministrationShell(
-        asset=model.AASReference((model.Key(type_=model.KeyElements.ASSET,
-                                            local=False,
-                                            value='https://acplt.org/Test_Asset_Mandatory',
-                                            id_type=model.KeyType.IRI),),
-                                 model.Asset),
+        asset_information=model.AssetInformation(),
         identification=model.Identifier(id_='https://acplt.org/Test_AssetAdministrationShell2_Mandatory',
                                         id_type=model.IdentifierType.IRI))
     return asset_administration_shell
@@ -237,19 +206,13 @@ def create_example_empty_asset_administration_shell() -> model.AssetAdministrati
 ##############################################################################
 # check functions for checking if an given object is the same as the example #
 ##############################################################################
-def check_example_asset(checker: AASDataChecker, asset: model.Asset) -> None:
-    expected_asset = create_example_asset()
-    checker.check_asset_equal(asset, expected_asset)
-
-
 def check_example_concept_description(checker: AASDataChecker, concept_description: model.ConceptDescription) -> None:
     expected_concept_description = create_example_concept_description()
     checker.check_concept_description_equal(concept_description, expected_concept_description)
 
 
 def check_example_asset_administration_shell(checker: AASDataChecker, shell: model.AssetAdministrationShell) -> None:
-    example_cd = create_example_concept_dictionary()
-    expected_shell = create_example_asset_administration_shell(example_cd)
+    expected_shell = create_example_asset_administration_shell()
     checker.check_asset_administration_shell_equal(shell, expected_shell)
 
 
@@ -270,5 +233,5 @@ def check_example_empty_submodel(checker: AASDataChecker, submodel: model.Submod
 
 
 def check_full_example(checker: AASDataChecker, obj_store: model.DictObjectStore) -> None:
-    example_data = create_full_example()
-    checker.check_object_store(example_data, obj_store)
+    expected_data = create_full_example()
+    checker.check_object_store(obj_store, expected_data)

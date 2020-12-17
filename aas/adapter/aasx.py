@@ -29,7 +29,7 @@ import itertools
 import logging
 import os
 import re
-from typing import Dict, Tuple, IO, Union, List, Set, Optional, Iterable
+from typing import Dict, Tuple, IO, Union, List, Set, Optional, Iterable, Iterator
 
 from .xml import read_aas_xml_file, write_aas_xml_file
 from .. import model
@@ -338,13 +338,7 @@ class AASXWriter:
 
         objects_to_be_written: Set[model.Identifier] = {aas.identification}
 
-        # Add the Asset object to the objects in the AAS part
-        objects_to_be_written.add(aas.asset.get_identifier())
-
         # Add referenced ConceptDescriptions to the AAS part
-        for dictionary in aas.concept_dictionary:
-            for concept_rescription_ref in dictionary.concept_description:
-                objects_to_be_written.add(concept_rescription_ref.get_identifier())
 
         # Write submodels: Either create a split part for each of them or otherwise add them to objects_to_be_written
         aas_split_part_names: List[str] = []
@@ -674,6 +668,13 @@ class AbstractSupplementaryFileContainer(metaclass=abc.ABCMeta):
         """
         pass  # pragma: no cover
 
+    @abc.abstractmethod
+    def __iter__(self) -> Iterator[str]:
+        """
+        Return an iterator over all file names stored in this SupplementaryFileContainer.
+        """
+        pass  # pragma: no cover
+
 
 class DictSupplementaryFileContainer(AbstractSupplementaryFileContainer):
     """
@@ -723,3 +724,6 @@ class DictSupplementaryFileContainer(AbstractSupplementaryFileContainer):
 
     def __contains__(self, item: object) -> bool:
         return item in self._name_map
+
+    def __iter__(self) -> Iterator[str]:
+        return iter(self._name_map)

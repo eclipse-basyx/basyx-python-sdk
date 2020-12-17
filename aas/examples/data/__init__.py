@@ -71,10 +71,7 @@ def create_example_aas_binding() -> model.DictObjectStore:
     cd = obj_store.get_identifiable(model.Identifier('http://acplt.org/DataSpecifciations/Example/Identification',
                                                      model.IdentifierType.IRI))
     assert (isinstance(cd, model.concept.IEC61360ConceptDescription))  # make mypy happy
-    cdict = aas.concept_dictionary.get_referable("TestConceptDictionary")
-    cdict.concept_description.add(model.AASReference.from_referable(cd))
     cd2 = obj_store.get_identifiable(model.Identifier('https://acplt.org/Test_ConceptDescription_Mandatory',
                                                       model.IdentifierType.IRI))
     assert (isinstance(cd2, model.concept.ConceptDescription))  # make mypy happy
-    cdict.concept_description.add(model.AASReference.from_referable(cd2))
     return obj_store

@@ -1,5 +1,57 @@
 {
-	"assetAdministrationShells":[{"identification":{"id":"https://acplt.org/Test_AssetAdministrationShell","idType":"IRI"},"idShort":"TestAssetAdministrationShell","administration":{"revision":"0"}, "modelType":{"name":"AssetAdministrationShell"},"asset":{"keys":[{"idType":"IRI","local":false,"type":"Asset","value":"https://acplt.org/Test_Asset"}]}}],
+	"assetAdministrationShells": [
+		{
+			"identification": {
+				"id": "https://acplt.org/Test_AssetAdministrationShell",
+				"idType": "IRI"
+			},
+			"idShort": "TestAssetAdministrationShell",
+			"administration": {
+				"revision": "0"
+			},
+			"modelType": {
+				"name": "AssetAdministrationShell"
+			},
+			"assetInformation": {
+                "assetKind": "Instance",
+                "globalAssetId": {
+                    "keys": [
+                        {
+                            "type": "GlobalReference",
+                            "idType": "IRI",
+                            "value": "http://acplt.org/TestAsset/"
+                        }
+                    ]
+                },
+                "externalAssetIds": [
+                    {
+                        "key": "TestKey",
+                        "value": "TestValue",
+                        "subjectId": {
+                            "keys": [
+                                {
+                                    "type": "GlobalReference",
+                                    "idType": "IRI",
+                                    "value": "http://acplt.org/SpecificAssetId/"
+                                }
+                            ]
+                        }
+                    }
+                ],
+                "billOfMaterial": [
+                    {
+                        "keys": [
+                            {
+                                "type": "Submodel",
+                                "idType": "IRI",
+                                "value": "http://acplt.org/Submodels/Assets/TestAsset/BillOfMaterial"
+                            }
+                        ]
+                    }
+                ]
+            }
+		}
+	],
 	"assets": [],
 	"submodels": [],
 	"conceptDescriptions": []

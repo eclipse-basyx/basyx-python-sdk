@@ -47,7 +47,7 @@ class AbstractObjectProvider(metaclass=abc.ABCMeta):
         """
         Find an object in this set by its :class:`identification <aas.model.base.Identifier>`, with fallback parameter
 
-        :param identifier: :class:`~aas.model.base.Identifier` to find the object by
+        :param identifier: :class:`~aas.model.base.Identifier` of the object to return
         :param default: An object to be returned, if no object with the given
                         :class:`identification <aas.model.base.Identifier>` is found
         :return: The :class:`~aas.model.base.Identifiable` object with the given
@@ -72,7 +72,9 @@ class AbstractObjectStore(AbstractObjectProvider, MutableSet[_IT], Generic[_IT],
     This includes local object stores (like :class:`~.DictObjectStore`) and database
     :class:`Backends <aas.backend.backends.Backend>`.
     """
-    pass
+    @abc.abstractmethod
+    def __init__(self):
+        pass
 
     def update(self, other: Iterable[_IT]) -> None:
         for x in other:
@@ -85,6 +87,7 @@ class DictObjectStore(AbstractObjectStore[_IT], Generic[_IT]):
     :class:`~aas.model.base.Identifier` → :class:`~aas.model.base.Identifiable`
     """
     def __init__(self, objects: Iterable[_IT] = ()) -> None:
+        super().__init__()
         self._backend: Dict[Identifier, _IT] = {}
         for x in objects:
             self.add(x)

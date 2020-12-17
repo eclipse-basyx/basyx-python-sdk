@@ -30,7 +30,7 @@ import base64
 import datetime
 import decimal
 import re
-from typing import NamedTuple, Type, Union, Dict, Optional
+from typing import Type, Union, Dict, Optional
 
 import dateutil.relativedelta
 

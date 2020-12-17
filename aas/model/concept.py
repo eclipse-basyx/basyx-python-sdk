@@ -16,6 +16,21 @@ from enum import unique, Enum
 from typing import Optional, Set, Type
 
 from . import base, datatypes
+ALLOWED_CONCEPT_DESCRIPTION_CATEGORIES: Set[str] = {
+    "VALUE",
+    "PROPERTY",
+    "REFERENCE",
+    "DOCUMENT",
+    "CAPABILITY",
+    "RELATIONSHIP",
+    "COLLECTION",
+    "FUNCTION",
+    "EVENT",
+    "ENTITY",
+    "APPLICATION_CLASS",
+    "QUALIFIER",
+    "VIEW"
+}
 
 
 class ConceptDescription(base.Identifiable):
@@ -29,17 +44,18 @@ class ConceptDescription(base.Identifiable):
 
     :ivar is_case_of: Unordered list of global :class:`References <aas.model.base.Reference>` to external definitions
                       the concept is compatible to or was derived from.
-
     """
 
     def __init__(self,
                  identification: base.Identifier,
                  is_case_of: Optional[Set[base.Reference]] = None,
-                 id_short: str = "",
+                 id_short: str = "NotSet",
+                 display_name: Optional[base.LangStringSet] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
                  parent: Optional[base.Namespace] = None,
-                 administration: Optional[base.AdministrativeInformation] = None):
+                 administration: Optional[base.AdministrativeInformation] = None,
+                 extension: Optional[Set[base.Extension]] = None):
         """
         Initializer of ConceptDescription
 
@@ -48,61 +64,38 @@ class ConceptDescription(base.Identifiable):
                            was derived from.
                            Note: Compare to is-case-of relationship in ISO 13584-32 & IEC EN 61360
         :param id_short: Identifying string of the element within its name space. (from base.Referable)
+        :param display_name: Can be provided in several languages. (from base.Referable)
         :param category: The category is a value that gives further meta information w.r.t. to the class of the element.
                          It affects the expected existence of attributes and the applicability of constraints.
                          (from base.Referable)
         :param description: Description or comments on the element. (from base.Referable)
         :param parent: Reference to the next referable parent element of the element. (from base.Referable)
         :param administration: Administrative information of an identifiable element. (from base.Identifiable)
+        :param extension: Element that can be extended by proprietary extensions. (from base.HasExtension)
         """
         super().__init__()
         self.identification: base.Identifier = identification
         self.is_case_of: Set[base.Reference] = set() if is_case_of is None else is_case_of
         self.id_short = id_short
-        self.category: Optional[str] = category
+        self.display_name: Optional[base.LangStringSet] = dict() if display_name is None else display_name
+        self.category = category
         self.description: Optional[base.LangStringSet] = dict() if description is None else description
         self.parent: Optional[base.Namespace] = parent
         self.administration: Optional[base.AdministrativeInformation] = administration
+        self.extension: Set[base.Extension] = set() if extension is None else extension
 
 
-class ConceptDictionary(base.Referable):
-    """
-    A dictionary containing :class:`ConceptDescriptions <.ConceptDescription>`.
-
-    Typically a concept description dictionary of an AAS contains only
-    :class:`ConceptDescriptions <.ConceptDescription>` of elements used within
-    :class:`Submodels <aas.model.submodel.Submodel>` of the AAS.
-
-
-    :param concept_description: Unordered list of :class:`References <aas.model.base.Reference>` to elements of class
-                                :class:`~.ConceptDescription`
-    """
-    def __init__(self,
-                 id_short: str,
-                 category: Optional[str] = None,
-                 description: Optional[base.LangStringSet] = None,
-                 parent: Optional[base.Namespace] = None,
-                 concept_description: Optional[Set[base.AASReference[ConceptDescription]]] = None):
-        """
-        Initializer of ConceptDictionary
-
-        :param id_short: Identifying string of the element within its name space. (from base.Referable)
-        :param category: The category is a value that gives further meta information w.r.t. to the class of the element.
-                         It affects the expected existence of attributes and the applicability of constraints. (from
-                         base.Referable)
-        :param description: Description or comments on the element. (from base.Referable)
-        :param parent: Reference to the next referable parent element of the element. (from base.Referable)
-        :param concept_description: Unordered list of references to elements of class ConceptDescription
-
-        TODO: Add instruction what to do after construction
-        """
-        super().__init__()
-        self.id_short = id_short
-        self.category: Optional[str] = category
-        self.description: Optional[base.LangStringSet] = dict() if description is None else description
-        self.parent: Optional[base.Namespace] = parent
-        self.concept_description: Set[base.AASReference[ConceptDescription]] = \
-            set() if concept_description is None else concept_description
+    def _set_category(self, category: Optional[str]):
+        if category is None:
+            self._category = "PROPERTY"
+        else:
+            if category not in ALLOWED_CONCEPT_DESCRIPTION_CATEGORIES:
+                raise base.AASConstraintViolation(
+                    51,
+                    "ConceptDescription must have one of the following "
+                    "categories: " + str(ALLOWED_CONCEPT_DESCRIPTION_CATEGORIES) + " (Constraint AASd-051)"
+                )
+            self._category = category
 
 
 # #############################################################################
@@ -148,7 +141,8 @@ class IEC61360ConceptDescription(ConceptDescription):
                  definition: Optional[base.LangStringSet] = None,
                  short_name: Optional[base.LangStringSet] = None,
                  is_case_of: Optional[Set[base.Reference]] = None,
-                 id_short: str = "",
+                 id_short: str = "NotSet",
+                 display_name: Optional[base.LangStringSet] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
                  parent: Optional[base.Namespace] = None,
@@ -162,7 +156,7 @@ class IEC61360ConceptDescription(ConceptDescription):
                  value: Optional[base.ValueDataType] = None,
                  value_id: Optional[base.Reference] = None,
                  level_types: Set[IEC61360LevelType] = None,
-                 ):
+                 extension: Optional[Set[base.Extension]] = None):
         """
         Initializer of IEC61360ConceptDescription
 
@@ -175,6 +169,7 @@ class IEC61360ConceptDescription(ConceptDescription):
                            was derived from.
                            Note: Compare to is-case-of relationship in ISO 13584-32 & IEC EN 61360
         :param id_short: Identifying string of the element within its name space. (from base.Referable)
+        :param display_name: Can be provided in several languages. (from base.Referable)
         :param category: The category is a value that gives further meta information w.r.t. to the class of the element.
                          It affects the expected existence of attributes and the applicability of constraints. (from
                          base.Referable)
@@ -190,16 +185,18 @@ class IEC61360ConceptDescription(ConceptDescription):
         :param value: value data type object (optional)
         :param value_id: Reference to the value (optional)
         :param level_types: Set of level types of the DataSpecificationContent (optional)
+        :param extension: Element that can be extended by proprietary extensions. (from base.HasExtension)
         """
-        super().__init__(identification, is_case_of, id_short, category, description, parent, administration)
+        super().__init__(identification, is_case_of, id_short, display_name, category, description, parent,
+                         administration, extension)
         self.preferred_name: base.LangStringSet = preferred_name
         self.short_name: Optional[base.LangStringSet] = short_name
         self.data_type: Optional[IEC61360DataType] = data_type
         self.definition: Optional[base.LangStringSet] = definition
-        self.unit: Optional[str] = unit
+        self._unit: Optional[str] = unit
         self.unit_id: Optional[base.Reference] = unit_id
-        self.source_of_definition: Optional[str] = source_of_definition
-        self.symbol: Optional[str] = symbol
+        self._source_of_definition: Optional[str] = source_of_definition
+        self._symbol: Optional[str] = symbol
         self.value_list: Optional[base.ValueList] = value_list
         self.value_id: Optional[base.Reference] = value_id
         self.level_types: Set[IEC61360LevelType] = level_types if level_types else set()
@@ -217,3 +214,56 @@ class IEC61360ConceptDescription(ConceptDescription):
             self._value = None
         else:
             self._value = datatypes.trivial_cast(value, self.value_format)
+    def _set_unit(self, unit: Optional[str]):
+        """
+        Check the input string
+
+        Constraint AASd-100: An attribute with data type "string" is not allowed to be empty
+
+        :param unit: unit of the data object (optional)
+        :raises ValueError: if the constraint is not fulfilled
+        """
+        if unit == "":
+            raise ValueError("unit is not allowed to be an empty string")
+        self._unit = unit
+
+    def _get_unit(self):
+        return self._unit
+
+    unit = property(_get_unit, _set_unit)
+
+    def _set_source_of_definition(self, source_of_definition: Optional[str]):
+        """
+        Check the input string
+
+        Constraint AASd-100: An attribute with data type "string" is not allowed to be empty
+
+        :param source_of_definition: source of the definition (optional)
+        :raises ValueError: if the constraint is not fulfilled
+        """
+        if source_of_definition == "":
+            raise ValueError("source_of_definition is not allowed to be an empty string")
+        self._source_of_definition = source_of_definition
+
+    def _get_source_of_definition(self):
+        return self._source_of_definition
+
+    source_of_definition = property(_get_source_of_definition, _set_source_of_definition)
+
+    def _set_symbol(self, symbol: Optional[str]):
+        """
+        Check the input string
+
+        Constraint AASd-100: An attribute with data type "string" is not allowed to be empty
+
+        :param symbol: unit symbol (optional)
+        :raises ValueError: if the constraint is not fulfilled
+        """
+        if symbol == "":
+            raise ValueError("symbol is not allowed to be an empty string")
+        self._symbol = symbol
+
+    def _get_symbol(self):
+        return self._symbol
+
+    symbol = property(_get_symbol, _set_symbol)

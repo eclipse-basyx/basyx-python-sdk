@@ -233,6 +233,7 @@ class CouchDBObjectStore(model.AbstractObjectStore):
         :param url: URL to the CouchDB
         :param database: Name of the Database inside the CouchDB
         """
+        super().__init__()
         self.url: str = url
         self.database_name: str = database
 

@@ -76,7 +76,6 @@ class KeyElements(Enum):
     *Note:* SubmodelElement is abstract, i.e. if a key uses :attr:`~.KeyElements.SUBMODEL_ELEMENT`
     the reference may be a :class:`~aas.model.submodel.Property`, a
     :class:`~aas.model.submodel.SubmodelElementCollection`, an :class:`~aas.model.submodel.Operation` etc.
-
     :cvar ACCESS_PERMISSION_RULE: access permission rule
     :cvar ANNOTATED_RELATIONSHIP_ELEMENT: :class:`~aas.model.submodel.AnnotatedRelationshipElement`
     :cvar BASIC_EVENT: :class:`~aas.model.submodel.BasicEvent`
@@ -183,7 +182,6 @@ class EntityType(Enum):
 class ModelingKind(Enum):
     """
     Enumeration for denoting whether an element is a type or an instance.
-
     *Note:* An :attr:`~.ModelingKind.INSTANCE` becomes an individual entity of a template, for example a device model,
     by defining specific property values.
 
@@ -201,7 +199,6 @@ class ModelingKind(Enum):
 class AssetKind(Enum):
     """
     Enumeration for denoting whether an element is a type or an instance.
-
     *Note:* :attr:`~.AssetKind.INSTANCE` becomes an individual entity of a type, for example a device, by defining
     specific property values.
 
@@ -213,6 +210,10 @@ class AssetKind(Enum):
 
     TYPE = 0
     INSTANCE = 1
+LOCAL_KEY_TYPES: Set[KeyType] = {
+    KeyType.IDSHORT,
+    KeyType.FRAGMENT_ID
+}
 
 
 class Key:
@@ -232,7 +233,6 @@ class Key:
 
     def __init__(self,
                  type_: KeyElements,
-                 local: bool,
                  value: str,
                  id_type: KeyType):
         """
@@ -241,9 +241,7 @@ class Key:
         :param type_: Denote which kind of entity is referenced. In case type = GlobalReference then the element is a
                       global unique id. In all other cases the key references a model element of the same or of another
                       AAS. The name of the model element is explicitly listed.
-        :param local: Denotes if the key references a model element of the same AAS (=true) or not (=false). In case of
-                      local = false the key may reference a model element of another AAS or an entity outside any AAS
-                      that has a global unique id.
+
         :param value: The key value, for example an IRDI if the idType=IRDI
         :param id_type: Type of the key value. In case of idType = idShort local shall be true. In case
                         type=GlobalReference idType shall not be IdShort.
@@ -251,20 +249,32 @@ class Key:
         TODO: Add instruction what to do after construction
         """
         self.type: KeyElements
-        self.local: bool
+        if value == "":
+            raise ValueError("value is not allowed to be an empty string")
         self.value: str
         self.id_type: KeyType
         super().__setattr__('type', type_)
-        super().__setattr__('local', local)
         super().__setattr__('value', value)
         super().__setattr__('id_type', id_type)
+        if self.type is KeyElements.GLOBAL_REFERENCE and self.id_type in LOCAL_KEY_TYPES:
+            raise AASConstraintViolation(
+                80,
+                "A Key with Key.type==GLOBAL_REFERENCE must not have an id_type of LocalKeyType: (IDSHORT, FRAGMENT_ID)"
+                " (Constraint AASd-080)"
+            )
+        if self.type is KeyElements.ASSET_ADMINISTRATION_SHELL and self.id_type in LOCAL_KEY_TYPES:
+            raise AASConstraintViolation(
+                81,
+                "A Key with Key.type==ASSET_ADMINISTRATION_SHELL must not have an id_type of LocalKeyType: "
+                "(IDSHORT, FRAGMENT_ID) (Constraint AASd-081)"
+            )
 
     def __setattr__(self, key, value):
         """Prevent modification of attributes."""
         raise AttributeError('Reference is immutable')
 
     def __repr__(self) -> str:
-        return "Key(local={}, id_type={}, value={})".format(self.local, self.id_type.name, self.value)
+        return "Key(id_type={}, value={})".format(self.id_type.name, self.value)
 
     def __str__(self) -> str:
         return "{}={}".format(self.id_type.name, self.value)
@@ -274,11 +284,11 @@ class Key:
             return NotImplemented
         return (self.id_type is other.id_type
                 and self.value == other.value
-                and self.local == other.local
+
                 and self.type == other.type)
 
     def __hash__(self):
-        return hash((self.id_type, self.value, self.local, self.type))
+        return hash((self.id_type, self.value, self.type))
 
     def get_identifier(self) -> Optional["Identifier"]:
         """
@@ -305,12 +315,58 @@ class Key:
         except StopIteration:
             key_type = KeyElements.PROPERTY
 
-        local = True  # TODO
+
         if isinstance(referable, Identifiable):
-            return Key(key_type, local, referable.identification.id,
+            return Key(key_type, referable.identification.id,
                        KeyType(referable.identification.id_type.value))
         else:
-            return Key(key_type, local, referable.id_short, KeyType.IDSHORT)
+            return Key(key_type, referable.id_short, KeyType.IDSHORT)
+
+
+class Reference:
+    """
+    Reference to either a model element of the same or another AAS or to an external entity.
+
+    A reference is an ordered list of :class:`keys <.Key>`, each key referencing an element. The complete list of keys
+    may, for example, be concatenated to a path that then gives unique access to an element or entity
+
+
+    :ivar: key: Ordered list of unique reference in its name space, each key referencing an element. The complete
+                list of keys may for example be concatenated to a path that then gives unique access to an element
+                or entity.
+    :ivar: type: The type of the referenced object (additional attribute, not from the AAS Metamodel)
+    """
+
+    def __init__(self,
+                 key: Tuple[Key, ...]):
+        """
+        Initializer of Reference
+
+        :param key: Ordered list of unique reference in its name space, each key referencing an element. The complete
+                    list of keys may for example be concatenated to a path that then gives unique access to an element
+                    or entity.
+
+        TODO: Add instruction what to do after construction
+        """
+        self.key: Tuple[Key, ...]
+        super().__setattr__('key', key)
+
+    def __setattr__(self, key, value):
+        """Prevent modification of attributes."""
+        raise AttributeError('Reference is immutable')
+
+    def __repr__(self) -> str:
+        return "Reference(key={})".format(self.key)
+
+    def __hash__(self):
+        return hash(self.key)
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, Reference):
+            return NotImplemented
+        if len(self.key) != len(other.key):
+            return False
+        return all(k1 == k2 for k1, k2 in zip(self.key, other.key))
 
 
 class AdministrativeInformation:
@@ -319,7 +375,6 @@ class AdministrativeInformation:
 
     :ivar version: Version of the element.
     :ivar revision: Revision of the element.
-
     *Constraint AASd-005:* A revision requires a version. This means, if there is no version there is no revision
     either.
     """
@@ -339,36 +394,46 @@ class AdministrativeInformation:
 
         TODO: Add instruction what to do after construction
         """
-        if version is None and revision is not None:
-            raise ValueError("A revision requires a version. This means, if there is no version there is no revision "
-                             "neither.")
-        self.version: Optional[str] = version
-        self._revision: Optional[str] = revision
+        self._version: Optional[str]
+        self.version = version
+        self._revision: Optional[str]
+        self.revision = revision
+
+    def _get_version(self):
+        return self._version
+
+    def _set_version(self, version: str):
+        if version == "":
+            raise ValueError("version is not allowed to be an empty string")
+        self._version = version
+
+    version = property(_get_version, _set_version)
 
     def _get_revision(self):
         return self._revision
 
     def _set_revision(self, revision: str):
-        if self.version is None:
+        if revision == "":
+            raise ValueError("revision is not allowed to be an empty string")
+        if self.version is None and revision:
             raise ValueError("A revision requires a version. This means, if there is no version there is no revision "
                              "neither. Please set version first.")
-        else:
-            self._revision = revision
+        self._revision = revision
+
+    revision = property(_get_revision, _set_revision)
 
     def __eq__(self, other) -> bool:
         return self.version == other.version and self._revision == other._revision
 
     def __repr__(self) -> str:
-        return "AdminstrativeInformation(version={}, revision={})".format(self.version, self.revision)
-
-    revision = property(_get_revision, _set_revision)
+        return "AdministrativeInformation(version={}, revision={})".format(self.version, self.revision)
 
 
 class Identifier:
     """
     Used to uniquely identify an entity by using an identifier.
 
-    :ivar id_: Identifier of the element. Its type is defined in id_type.
+    :ivar id: Identifier of the element. Its type is defined in id_type.
     :ivar id_type: Type of the Identifier, e.g. URI, IRDI etc. The supported Identifier types are defined in
                    the :class:`~.IdentifierType` enumeration.
     """
@@ -387,6 +452,8 @@ class Identifier:
         """
         self.id: str
         self.id_type: IdentifierType
+        if id_ == "":
+            raise ValueError("id is not allowed to be an empty string")
         super().__setattr__('id', id_)
         super().__setattr__('id_type', id_type)
 
@@ -406,22 +473,102 @@ class Identifier:
         return "Identifier({}={})".format(self.id_type.name, self.id)
 
 
-class Referable(metaclass=abc.ABCMeta):
+class HasSemantics(metaclass=abc.ABCMeta):
+    """
+    Element that can have a semantic definition.
+
+    << abstract >>
+
+    :ivar semantic_id: Identifier of the semantic definition of the element. It is called semantic id of the element.
+                       The semantic id may either reference an external global id or it may reference a referable model
+                       element of kind=Type that defines the semantics of the element.
+    """
+    @abc.abstractmethod
+    def __init__(self):
+        super().__init__()
+        self.semantic_id: Optional[Reference] = None
+
+
+class Extension(HasSemantics):
+    """
+    Single extension of an element
+
+    :ivar name: An extension of the element.
+    :ivar value_type: Type of the value of the extension. Default: xsd:string
+    :ivar value: Value of the extension
+    :ivar refers_to: Reference to an element the extension refers to
+    :ivar semantic_id: The semantic_id defined in the HasSemantics class.
+    """
+
+    def __init__(self,
+                 name: str,
+                 value_type: Optional[DataTypeDef] = None,
+                 value: Optional[ValueDataType] = None,
+                 refers_to: Optional[Reference] = None,
+                 semantic_id: Optional[Reference] = None):
+        """
+        Initializer of Extension
+
+        :param name: An extension of the element.
+        :param value_type: Type of the value of the extension. Default: xsd:string
+        :param value: Value of the extension
+        :param refers_to: Reference to an element the extension refers to
+        :param semantic_id: The semantic_id defined in the HasSemantics class.
+        :raises ValueError: if the value_type is None and a value is set
+        """
+        super().__init__()
+        self.name: str = name
+        self.value_type: Optional[Type[datatypes.AnyXSDType]] = value_type
+        self._value: Optional[ValueDataType]
+        self.value = value
+        self.refers_to: Optional[Reference] = refers_to
+        self.semantic_id: Optional[Reference] = semantic_id
+
+    def __repr__(self) -> str:
+        return "Extension(name={})".format(self.name)
+
+    @property
+    def value(self):
+        return self._value
+
+    @value.setter
+    def value(self, value) -> None:
+        if value is None:
+            self._value = None
+        else:
+            if self.value_type is None:
+                raise ValueError('ValueType must be set, if value is not None')
+            self._value = datatypes.trivial_cast(value, self.value_type)
+
+
+class HasExtension(metaclass=abc.ABCMeta):
+    """
+    Element that can be extended by proprietary extensions.
+    Note: Extensions are proprietary, i.e. they do not support global interoperability.
+
+    << abstract >>
+
+    :ivar extension: An extension of the element.
+                     Constraint AASd-077: The name of an extension within HasExtensions needs to be unique.
+                     TODO: This constraint is not yet implemented, a new Class for CustomSets should be implemented
+    """
+    @abc.abstractmethod
+    def __init__(self):
+        super().__init__()
+        self.extension: Set[Extension] = set()
+
+
+class Referable(HasExtension, metaclass=abc.ABCMeta):
     """
     An element that is referable by its id_short. This id is not globally unique. This id is unique within
-    the :class:`name space <.Namespace>` of the element.
+    the name space of the element.
 
     <<abstract>>
-
     *Constraint AASd-001:* In case of a referable element not being an identifiable element the
     idShort is mandatory and used for referring to the element in its name space.
-
     *Constraint AASd-002:* idShort shall only feature letters, digits, underscore ("_"); starting
     mandatory with a letter.
-
     *Constraint AASd-003:* idShort shall be matched case insensitive.
-
-
     *Constraint AASd-004:* Add parent in case of non identifiable elements.
 
     :ivar _id_short: Identifying string of the element within its name space
@@ -429,15 +576,18 @@ class Referable(metaclass=abc.ABCMeta):
                     It affects the expected existence of attributes and the applicability of constraints.
     :ivar description: Description or comments on the element.
     :ivar parent: Reference to the next referable parent element of the element.
+
     :ivar source: Source of the object, an URI, that defines where this object's data originates from.
                   This is used to specify where the Referable should be updated from and committed to.
                   Default is an empty string, making it use the source of its ancestor, if possible.
     """
 
+    @abc.abstractmethod
     def __init__(self):
         super().__init__()
-        self._id_short: Optional[str] = ""
-        self.category: Optional[str] = ""
+        self._id_short: str = "NotSet"
+        self.display_name: Optional[LangStringSet] = set()
+        self._category: Optional[str] = None
         self.description: Optional[LangStringSet] = set()
         # We use a Python reference to the parent Namespace instead of a Reference Object, as specified. This allows
         # simpler and faster navigation/checks and it has no effect in the serialized data formats anyway.
@@ -463,30 +613,52 @@ class Referable(metaclass=abc.ABCMeta):
     def _get_id_short(self):
         return self._id_short
 
-    def _set_id_short(self, id_short: Optional[str]):
+    def _set_category(self, category: Optional[str]):
         """
         Check the input string
 
-        Constraint AASd-001: In case of a referable element not being an identifiable element this id is mandatory and
-        used for referring to the element in its name space.
-        Constraint AASd-002: idShort shall only feature letters, digits, underscore ('_'); starting mandatory with a
-        letter
+        Constraint AASd-100: An attribute with data type "string" is not allowed to be empty
 
-        Additionally check that the idShort is not already present in the same parent Namespace (if this object is
-        already contained in a parent Namespace).
+        :param category: The category is a value that gives further meta information w.r.t. to the class of the element.
+                         It affects the expected existence of attributes and the applicability of constraints.
+        :raises ValueError: if the constraint is not fulfilled
+        """
+        if category == "":
+            raise AASConstraintViolation(100, "category is not allowed to be an empty string (Constraint AASd-100)")
+        self._category = category
+
+    def _get_category(self) -> Optional[str]:
+        return self._category
+
+    category = property(_get_category, _set_category)
+
+    def _set_id_short(self, id_short: str):
+        """
+        Check the input string
+
+        Constraint AASd-002: idShort of Referables shall only feature letters, digits, underscore ("_"); starting
+        mandatory with a letter. I.e. [a-zA-Z][a-zA-Z0-9_]+
+        Constraint AASd-003: idShort shall be matched case-insensitive
+        Constraint AASd-022: idShort of non-identifiable referables shall be unique in its namespace
 
         :param id_short: Identifying string of the element within its name space
         :raises ValueError: if the constraint is not fulfilled
         :raises KeyError: if the new idShort causes a name collision in the parent Namespace
         """
 
-        if id_short is None and not hasattr(self, 'identification'):
-            raise ValueError("The id_short for not identifiable elements is mandatory")
+        if id_short == "":
+            raise AASConstraintViolation(100, "id_short is not allowed to be an empty string (Constraint AASd-100)")
         test_id_short: str = str(id_short)
         if not re.match("^[a-zA-Z0-9_]*$", test_id_short):
-            raise ValueError("The id_short must contain only letters, digits and underscore")
+            raise AASConstraintViolation(
+                2,
+                "The id_short must contain only letters, digits and underscore (Constraint AASd-002)"
+            )
         if not re.match("^([a-zA-Z].*|)$", test_id_short):
-            raise ValueError("The id_short must start with a letter")
+            raise AASConstraintViolation(
+                2,
+                "The id_short must start with a letter (Constraint AASd-002)"
+            )
 
         if self.parent is not None and id_short != self.id_short:
             for set_ in self.parent.namespace_element_sets:
@@ -634,49 +806,7 @@ class UnexpectedTypeError(TypeError):
         self.value = value
 
 
-class Reference:
-    """
-    Reference to either a model element of the same or another AAS or to an external entity.
 
-    A reference is an ordered list of :class:`keys <.Key>`, each key referencing an element. The complete list of keys
-    may, for example, be concatenated to a path that then gives unique access to an element or entity
-
-    :ivar: key: Ordered list of unique references in its name space, each key referencing an element. The complete
-                list of keys may for example be concatenated to a path that then gives unique access to an element
-                or entity.
-    :ivar: type: The type of the referenced object (additional attribute, not from the AAS Meta-model)
-    """
-
-    def __init__(self,
-                 key: Tuple[Key, ...]):
-        """
-        Initializer of Reference
-
-        :param key: Ordered list of unique reference in its name space, each key referencing an element. The complete
-                    list of keys may for example be concatenated to a path that then gives unique access to an element
-                    or entity.
-
-        TODO: Add instruction what to do after construction
-        """
-        self.key: Tuple[Key, ...]
-        super().__setattr__('key', key)
-
-    def __setattr__(self, key, value):
-        """Prevent modification of attributes."""
-        raise AttributeError('Reference is immutable')
-
-    def __repr__(self) -> str:
-        return "Reference(key={})".format(self.key)
-
-    def __hash__(self):
-        return hash(self.key)
-
-    def __eq__(self, other: object) -> bool:
-        if not isinstance(other, Reference):
-            return NotImplemented
-        if len(self.key) != len(other.key):
-            return False
-        return all(k1 == k2 for k1, k2 in zip(self.key, other.key))
 
 
 class AASReference(Reference, Generic[_RT]):
@@ -687,7 +817,7 @@ class AASReference(Reference, Generic[_RT]):
     """
     def __init__(self,
                  key: Tuple[Key, ...],
-                 type_: Type[_RT]):
+                 target_type: Type[_RT]):
         """
         Initializer of AASReference
 
@@ -701,7 +831,7 @@ class AASReference(Reference, Generic[_RT]):
         # TODO check keys for validity. GlobalReference and Fragment-Type keys are not allowed here
         super().__init__(key)
         self.type: Type[_RT]
-        object.__setattr__(self, 'type', type_)
+        object.__setattr__(self, 'type', target_type)
 
     def resolve(self, provider_: "provider.AbstractObjectProvider") -> _RT:
         """
@@ -813,30 +943,17 @@ class Identifiable(Referable, metaclass=abc.ABCMeta):
     :ivar identification: The globally unique :class:`identification <.Identifier>` of the element.
     """
 
+    @abc.abstractmethod
     def __init__(self):
         super().__init__()
         self.administration: Optional[AdministrativeInformation] = None
-        self.identification: Identifier = Identifier("", IdentifierType.IRDI)
+        self.identification: Identifier = Identifier("None", IdentifierType.IRDI)
 
     def __repr__(self) -> str:
         return "{}[{}]".format(self.__class__.__name__, self.identification)
 
 
-class HasSemantics(metaclass=abc.ABCMeta):
-    """
-    Element that can have a semantic definition.
 
-    <<abstract>>
-
-    :ivar semantic_id: Identifier of the semantic definition of the element. It is called semantic id of the element.
-                       The semantic id may either :class:`reference <.Reference>` an external global id or it may
-                       :class:`reference <.Reference>` a :class:`~.Referable` model element of kind=Type that defines
-                       the semantics of the element.
-    """
-
-    def __init__(self):
-        super().__init__()
-        self.semantic_id: Optional[Reference] = None
 
 
 class HasKind(metaclass=abc.ABCMeta):
@@ -849,6 +966,7 @@ class HasKind(metaclass=abc.ABCMeta):
     :ivar _kind: Kind of the element: either type or instance. Default = :attr:`~ModelingKind.INSTANCE`.
     """
 
+    @abc.abstractmethod
     def __init__(self):
         super().__init__()
         self._kind: ModelingKind = ModelingKind.INSTANCE
@@ -865,6 +983,7 @@ class Constraint(metaclass=abc.ABCMeta):
     << abstract >>
     """
 
+    @abc.abstractmethod
     def __init__(self):
         pass
 
@@ -879,6 +998,7 @@ class Qualifiable(metaclass=abc.ABCMeta):
                      qualifiable element.
     """
 
+    @abc.abstractmethod
     def __init__(self):
         super().__init__()
         self.qualifier: Set[Constraint] = set()
@@ -1022,6 +1142,7 @@ class Namespace(metaclass=abc.ABCMeta):
 
     :ivar namespace_element_sets: A list of all :class:`NamespaceSets <.NamespaceSet>` of this Namespace
     """
+    @abc.abstractmethod
     def __init__(self) -> None:
         super().__init__()
         self.namespace_element_sets: List[NamespaceSet] = []
@@ -1036,6 +1157,19 @@ class Namespace(metaclass=abc.ABCMeta):
             if id_short in dict_:
                 return dict_.get_referable(id_short)
         raise KeyError("Referable with id_short {} not found in this namespace".format(id_short))
+    def remove_referable(self, id_short: str) -> None:
+        """
+        Remove a Referable from this Namespace by its id_short
+
+        :raises KeyError: If no such Referable can be found
+        """
+        for dict_ in self.namespace_element_sets:
+            if id_short in dict_:
+                return dict_.remove(id_short)
+        raise KeyError("Referable with id_short {} not found in this namespace".format(id_short))
+
+    def __iter__(self) -> Iterator[_RT]:
+        return itertools.chain.from_iterable(self.namespace_element_sets)
 
 
 class NamespaceSet(MutableSet[_RT], Generic[_RT]):
@@ -1291,10 +1425,60 @@ class OrderedNamespaceSet(NamespaceSet[_RT], MutableSequence[_RT], Generic[_RT])
         del self._order[i]
 
 
-class DataSpecificationContent(metaclass=abc.ABCMeta):
+class IdentifierKeyValuePair():
     """
-    Content of a DataSpecification.
+    An IdentifierKeyValuePair describes a generic identifier as key-value pair
 
-    <<abstract>>
+    :ivar key: Key of the identifier
+    :ivar value: The value of the identifier with the corresponding key.
+    :ivar external_subject_id: The (external) subject the key belongs to or has meaning to.
+
+    TODO: Derive from HasSemantics
     """
-    pass
+    def __init__(self,
+                 key: str,
+                 value: str,
+                 external_subject_id: Reference,
+                 semantic_id: Optional[Reference] = None):
+        if key == "":
+            raise ValueError("key is not allowed to be an empty string")
+        if value == "":
+            raise ValueError("value is not allowed to be an empty string")
+        self.key: str
+        self.value: str
+        self.external_subject_id: Reference
+
+        super().__setattr__('key', key)
+        super().__setattr__('value', value)
+        super().__setattr__('external_subject_id', external_subject_id)
+
+    def __setattr__(self, key, value):
+        """Prevent modification of attributes."""
+        raise AttributeError('IdentifierKeyValuePair is immutable')
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, IdentifierKeyValuePair):
+            return NotImplemented
+        return (self.key == other.key
+                and self.value == other.value
+                and self.external_subject_id == other.external_subject_id)
+
+    def __hash__(self):
+        return hash((self.key, self.value, self.external_subject_id))
+
+    def __repr__(self) -> str:
+        return "IdentifierKeyValuePair(key={}, value={}, external_subject_id={})".format(self.key, self.value,
+                                                                                         self.external_subject_id)
+
+
+class AASConstraintViolation(Exception):
+    """
+    An Exception to be raised if an AASd-Constraint defined in the metamodel is violated
+
+    :ivar constraint_id: The ID of the constraint that is violated
+    :ivar message: The error message of the Exception
+    """
+    def __init__(self, constraint_id: int, message: str):
+        self.constraint_id: int = constraint_id
+        self.message: str = message
+        super().__init__(self.message)
