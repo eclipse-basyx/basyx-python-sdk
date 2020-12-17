@@ -309,51 +309,6 @@ class Key:
             return Key(key_type, referable.id_short, KeyType.IDSHORT)
 
 
-class Reference:
-    """
-    Reference to either a model element of the same or another AAs or to an external entity.
-
-    A reference is an ordered list of keys, each key referencing an element. The complete list of keys may for
-    example be concatenated to a path that then gives unique access to an element or entity
-
-    :ivar: key: Ordered list of unique reference in its name space, each key referencing an element. The complete
-                list of keys may for example be concatenated to a path that then gives unique access to an element
-                or entity.
-    :ivar: type: The type of the referenced object (additional attribute, not from the AAS Metamodel)
-    """
-
-    def __init__(self,
-                 key: Tuple[Key, ...]):
-        """
-        Initializer of Reference
-
-        :param key: Ordered list of unique reference in its name space, each key referencing an element. The complete
-                    list of keys may for example be concatenated to a path that then gives unique access to an element
-                    or entity.
-
-        TODO: Add instruction what to do after construction
-        """
-        self.key: Tuple[Key, ...]
-        super().__setattr__('key', key)
-
-    def __setattr__(self, key, value):
-        """Prevent modification of attributes."""
-        raise AttributeError('Reference is immutable')
-
-    def __repr__(self) -> str:
-        return "Reference(key={})".format(self.key)
-
-    def __hash__(self):
-        return hash(self.key)
-
-    def __eq__(self, other: object) -> bool:
-        if not isinstance(other, Reference):
-            return NotImplemented
-        if len(self.key) != len(other.key):
-            return False
-        return all(k1 == k2 for k1, k2 in zip(self.key, other.key))
-
-
 class AdministrativeInformation:
     """
     Administrative meta-information for an element like version information.
@@ -456,74 +411,6 @@ class Identifier:
 
     def __repr__(self) -> str:
         return "Identifier({}={})".format(self.id_type.name, self.id)
-
-
-class HasSemantics(metaclass=abc.ABCMeta):
-    """
-    Element that can have a semantic definition.
-
-    << abstract >>
-
-    :ivar semantic_id: Identifier of the semantic definition of the element. It is called semantic id of the element.
-                       The semantic id may either reference an external global id or it may reference a referable model
-                       element of kind=Type that defines the semantics of the element.
-    """
-    @abc.abstractmethod
-    def __init__(self):
-        super().__init__()
-        self.semantic_id: Optional[Reference] = None
-
-
-class Extension(HasSemantics):
-    """
-    Single extension of an element
-
-    :ivar name: An extension of the element.
-    :ivar value_type: Type of the value of the extension. Default: xsd:string
-    :ivar value: Value of the extension
-    :ivar refers_to: Reference to an element the extension refers to
-    :ivar semantic_id: The semantic_id defined in the HasSemantics class.
-    """
-
-    def __init__(self,
-                 name: str,
-                 value_type: Optional[DataTypeDef] = None,
-                 value: Optional[ValueDataType] = None,
-                 refers_to: Optional[Reference] = None,
-                 semantic_id: Optional[Reference] = None):
-        """
-        Initializer of Extension
-
-        :param name: An extension of the element.
-        :param value_type: Type of the value of the extension. Default: xsd:string
-        :param value: Value of the extension
-        :param refers_to: Reference to an element the extension refers to
-        :param semantic_id: The semantic_id defined in the HasSemantics class.
-        :raises ValueError: if the value_type is None and a value is set
-        """
-        super().__init__()
-        self.name: str = name
-        self.value_type: Optional[Type[datatypes.AnyXSDType]] = value_type
-        self._value: Optional[ValueDataType]
-        self.value = value
-        self.refers_to: Optional[Reference] = refers_to
-        self.semantic_id: Optional[Reference] = semantic_id
-
-    def __repr__(self) -> str:
-        return "Extension(name={})".format(self.name)
-
-    @property
-    def value(self):
-        return self._value
-
-    @value.setter
-    def value(self, value) -> None:
-        if value is None:
-            self._value = None
-        else:
-            if self.value_type is None:
-                raise ValueError('ValueType must be set, if value is not None')
-            self._value = datatypes.trivial_cast(value, self.value_type)
 
 
 class HasExtension(metaclass=abc.ABCMeta):
@@ -796,6 +683,51 @@ class UnexpectedTypeError(TypeError):
         self.value = value
 
 
+class Reference:
+    """
+    Reference to either a model element of the same or another AAs or to an external entity.
+
+    A reference is an ordered list of keys, each key referencing an element. The complete list of keys may for
+    example be concatenated to a path that then gives unique access to an element or entity
+
+    :ivar: key: Ordered list of unique reference in its name space, each key referencing an element. The complete
+                list of keys may for example be concatenated to a path that then gives unique access to an element
+                or entity.
+    :ivar: type: The type of the referenced object (additional attribute, not from the AAS Metamodel)
+    """
+
+    def __init__(self,
+                 key: Tuple[Key, ...]):
+        """
+        Initializer of Reference
+
+        :param key: Ordered list of unique reference in its name space, each key referencing an element. The complete
+                    list of keys may for example be concatenated to a path that then gives unique access to an element
+                    or entity.
+
+        TODO: Add instruction what to do after construction
+        """
+        self.key: Tuple[Key, ...]
+        super().__setattr__('key', key)
+
+    def __setattr__(self, key, value):
+        """Prevent modification of attributes."""
+        raise AttributeError('Reference is immutable')
+
+    def __repr__(self) -> str:
+        return "Reference(key={})".format(self.key)
+
+    def __hash__(self):
+        return hash(self.key)
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, Reference):
+            return NotImplemented
+        if len(self.key) != len(other.key):
+            return False
+        return all(k1 == k2 for k1, k2 in zip(self.key, other.key))
+
+
 class AASReference(Reference, Generic[_RT]):
     """
     Typed Reference to any referable Asset Administration Shell object.
@@ -934,6 +866,74 @@ class Identifiable(Referable, metaclass=abc.ABCMeta):
 
     def __repr__(self) -> str:
         return "{}[{}]".format(self.__class__.__name__, self.identification)
+
+
+class HasSemantics(metaclass=abc.ABCMeta):
+    """
+    Element that can have a semantic definition.
+
+    << abstract >>
+
+    :ivar semantic_id: Identifier of the semantic definition of the element. It is called semantic id of the element.
+                       The semantic id may either reference an external global id or it may reference a referable model
+                       element of kind=Type that defines the semantics of the element.
+    """
+    @abc.abstractmethod
+    def __init__(self):
+        super().__init__()
+        self.semantic_id: Optional[Reference] = None
+
+
+class Extension(HasSemantics):
+    """
+    Single extension of an element
+
+    :ivar name: An extension of the element.
+    :ivar value_type: Type of the value of the extension. Default: xsd:string
+    :ivar value: Value of the extension
+    :ivar refers_to: Reference to an element the extension refers to
+    :ivar semantic_id: The semantic_id defined in the HasSemantics class.
+    """
+
+    def __init__(self,
+                 name: str,
+                 value_type: Optional[DataTypeDef] = None,
+                 value: Optional[ValueDataType] = None,
+                 refers_to: Optional[Reference] = None,
+                 semantic_id: Optional[Reference] = None):
+        """
+        Initializer of Extension
+
+        :param name: An extension of the element.
+        :param value_type: Type of the value of the extension. Default: xsd:string
+        :param value: Value of the extension
+        :param refers_to: Reference to an element the extension refers to
+        :param semantic_id: The semantic_id defined in the HasSemantics class.
+        :raises ValueError: if the value_type is None and a value is set
+        """
+        super().__init__()
+        self.name: str = name
+        self.value_type: Optional[Type[datatypes.AnyXSDType]] = value_type
+        self._value: Optional[ValueDataType]
+        self.value = value
+        self.refers_to: Optional[Reference] = refers_to
+        self.semantic_id: Optional[Reference] = semantic_id
+
+    def __repr__(self) -> str:
+        return "Extension(name={})".format(self.name)
+
+    @property
+    def value(self):
+        return self._value
+
+    @value.setter
+    def value(self, value) -> None:
+        if value is None:
+            self._value = None
+        else:
+            if self.value_type is None:
+                raise ValueError('ValueType must be set, if value is not None')
+            self._value = datatypes.trivial_cast(value, self.value_type)
 
 
 class HasKind(metaclass=abc.ABCMeta):
