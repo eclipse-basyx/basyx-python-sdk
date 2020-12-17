@@ -127,7 +127,6 @@ class Asset(base.Identifiable):
         :param extension: Element that can be extended by proprietary extensions. (from base.HasExtension)
         """
         super().__init__()
-        self.kind: base.AssetKind = kind
         self.identification: base.Identifier = identification
         self.id_short = id_short
         self.display_name: Optional[base.LangStringSet] = dict() if display_name is None else display_name
