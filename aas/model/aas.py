@@ -78,7 +78,7 @@ class Asset(base.Identifiable):
     An Asset describes meta data of an asset that is represented by an AAS
 
     The asset may either represent an asset type or an asset instance. The asset has a globally unique identifier plus
-    – if needed – additional domain specific (proprietary) identifiers.    
+    – if needed – additional domain specific (proprietary) identifiers.
     :ivar ~.identification: The globally unique identification (:class:`~aas.model.base.Identifier`) of the element.
                             (inherited from :class:`~aas.model.base.Identifiable`)
     :ivar id_short: Identifying string of the element within its name space. (inherited from
