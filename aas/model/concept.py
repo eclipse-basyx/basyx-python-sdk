@@ -84,7 +84,6 @@ class ConceptDescription(base.Identifiable):
         self.administration: Optional[base.AdministrativeInformation] = administration
         self.extension: Set[base.Extension] = set() if extension is None else extension
 
-
     def _set_category(self, category: Optional[str]):
         if category is None:
             self._category = "PROPERTY"
@@ -214,6 +213,7 @@ class IEC61360ConceptDescription(ConceptDescription):
             self._value = None
         else:
             self._value = datatypes.trivial_cast(value, self.value_format)
+
     def _set_unit(self, unit: Optional[str]):
         """
         Check the input string
