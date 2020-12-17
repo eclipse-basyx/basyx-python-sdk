@@ -322,9 +322,6 @@ class Key:
             return Key(key_type, referable.id_short, KeyType.IDSHORT)
 
 
-
-
-
 class AdministrativeInformation:
     """
     Administrative meta-information for an element like version information.
@@ -427,9 +424,6 @@ class Identifier:
 
     def __repr__(self) -> str:
         return "Identifier({}={})".format(self.id_type.name, self.id)
-
-
-
 
 
 class HasExtension(metaclass=abc.ABCMeta):
@@ -694,6 +688,8 @@ class UnexpectedTypeError(TypeError):
     def __init__(self, value: Referable, *args):
         super().__init__(*args)
         self.value = value
+
+
 class Reference:
     """
     Reference to either a model element of the same or another AAs or to an external entity.
@@ -880,6 +876,8 @@ class Identifiable(Referable, metaclass=abc.ABCMeta):
 
     def __repr__(self) -> str:
         return "{}[{}]".format(self.__class__.__name__, self.identification)
+
+
 class HasSemantics(metaclass=abc.ABCMeta):
     """
     Element that can have a semantic definition.
