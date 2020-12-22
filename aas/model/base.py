@@ -76,6 +76,7 @@ class KeyElements(Enum):
     *Note:* SubmodelElement is abstract, i.e. if a key uses :attr:`~.KeyElements.SUBMODEL_ELEMENT`
     the reference may be a :class:`~aas.model.submodel.Property`, a
     :class:`~aas.model.submodel.SubmodelElementCollection`, an :class:`~aas.model.submodel.Operation` etc.
+
     :cvar ACCESS_PERMISSION_RULE: access permission rule
     :cvar ANNOTATED_RELATIONSHIP_ELEMENT: :class:`~aas.model.submodel.AnnotatedRelationshipElement`
     :cvar BASIC_EVENT: :class:`~aas.model.submodel.BasicEvent`
@@ -182,6 +183,7 @@ class EntityType(Enum):
 class ModelingKind(Enum):
     """
     Enumeration for denoting whether an element is a type or an instance.
+
     *Note:* An :attr:`~.ModelingKind.INSTANCE` becomes an individual entity of a template, for example a device model,
     by defining specific property values.
 
@@ -199,6 +201,7 @@ class ModelingKind(Enum):
 class AssetKind(Enum):
     """
     Enumeration for denoting whether an element is a type or an instance.
+
     *Note:* :attr:`~.AssetKind.INSTANCE` becomes an individual entity of a type, for example a device, by defining
     specific property values.
 
@@ -222,14 +225,17 @@ class Key:
     """
     A key is a reference to an element by its id.
 
+    *Constraint AASd-080:* A Key with :attr:`~.type` == :attr:`~.KeyElements.GLOBAL_REFERENCE` must not have an
+    :attr:`~.id_type` of LocalKeyType: (:attr:`~.KeyElements.IDSHORT`, :attr:`~.KeyElements.FRAGMENT_ID`)
+
+    *Constraint AASd-081:* A Key with :attr:`~.type` == :attr:`~.KeyElements.ASSET_ADMINISTRATION_SHELL` must not have
+    an :attr:`~.id_type` of LocalKeyType: (:attr:`~.KeyElements.IDSHORT`, :attr:`~.KeyElements.FRAGMENT_ID`)
+
     :ivar type_: Denote which kind of entity is referenced. In case type = :attr:`~.KeyElements.GLOBAL_REFERENCE` then
                 the element is a global unique id. In all other cases the key references a model element of the same or
                 of another AAS. The name of the model element is explicitly listed.
-    :ivar local: Denotes if the key references a model element of the same AAS (=true) or not (=false). In case of
-                 local = false the key may reference a model element of another AAS or an entity outside any AAS that
-                 has a global unique id.
     :ivar value: The key value, for example an IRDI if the idType = :attr:`~.KeyType.IRDI`
-    :ivar id_type: Type of the key value. In case of idType = idShort local shall be true. In case type =
+    :ivar id_type: Type of the key value. In case type =
                    :attr:`~.KeyElements.GLOBAL_REFERENCE` idType shall not be IdShort.
     """
 
@@ -238,15 +244,6 @@ class Key:
                  value: str,
                  id_type: KeyType):
         """
-        Initializer of Key
-
-        :param type_: Denote which kind of entity is referenced. In case type = GlobalReference then the element is a
-                      global unique id. In all other cases the key references a model element of the same or of another
-                      AAS. The name of the model element is explicitly listed.
-        :param value: The key value, for example an IRDI if the idType=IRDI
-        :param id_type: Type of the key value. In case of idType = idShort local shall be true. In case
-                        type=GlobalReference idType shall not be IdShort.
-
         TODO: Add instruction what to do after construction
         """
         self.type: KeyElements
@@ -304,6 +301,9 @@ class Key:
     def from_referable(referable: "Referable") -> "Key":
         """
         Construct a key for a given :class:`~.Referable` (or :class:`~.Identifiable`) object
+
+        :param referable: :class:`~.Referable` or :class:`~.Identifiable` object
+        :returns: :class:`~.Key`
         """
         # Get the `type` by finding the first class from the base classes list (via inspect.getmro), that is contained
         # in KEY_ELEMENTS_CLASSES
@@ -326,10 +326,11 @@ class AdministrativeInformation:
     """
     Administrative meta-information for an element like version information.
 
-    :ivar version: Version of the element.
-    :ivar revision: Revision of the element.
     *Constraint AASd-005:* A revision requires a version. This means, if there is no version there is no revision
     either.
+
+    :ivar version: Version of the element.
+    :ivar revision: Revision of the element.
     """
 
     def __init__(self,
@@ -386,7 +387,7 @@ class Identifier:
     """
     Used to uniquely identify an entity by using an identifier.
 
-    :ivar id: Identifier of the element. Its type is defined in id_type.
+    :ivar ~.id: Identifier of the element. Its type is defined in id_type. (*Initialized as:* `id_`)
     :ivar id_type: Type of the Identifier, e.g. URI, IRDI etc. The supported Identifier types are defined in
                    the :class:`~.IdentifierType` enumeration.
     """
@@ -395,12 +396,6 @@ class Identifier:
                  id_: str,
                  id_type: IdentifierType):
         """
-        Initializer of Identifier
-
-        :param id_: Identifier of the element. Its type is defined in id_type.
-        :param id_type: Type of the Identifier, e.g. URI, IRDI etc. The supported Identifier types are defined in the
-                        enumeration "IdentifierType".
-
         TODO: Add instruction what to do after construction
         """
         self.id: str
@@ -431,11 +426,12 @@ class HasExtension(metaclass=abc.ABCMeta):
     Element that can be extended by proprietary extensions.
     Note: Extensions are proprietary, i.e. they do not support global interoperability.
 
-    << abstract >>
+    <<abstract>>
+
+    *Constraint AASd-077:* The name of an extension within HasExtensions needs to be unique.
+    TODO: This constraint is not yet implemented, a new Class for CustomSets should be implemented
 
     :ivar extension: An extension of the element.
-                     Constraint AASd-077: The name of an extension within HasExtensions needs to be unique.
-                     TODO: This constraint is not yet implemented, a new Class for CustomSets should be implemented
     """
     @abc.abstractmethod
     def __init__(self):
@@ -449,16 +445,20 @@ class Referable(HasExtension, metaclass=abc.ABCMeta):
     the name space of the element.
 
     <<abstract>>
+
     *Constraint AASd-001:* In case of a referable element not being an identifiable element the
     idShort is mandatory and used for referring to the element in its name space.
+
     *Constraint AASd-002:* idShort shall only feature letters, digits, underscore ("_"); starting
     mandatory with a letter.
+
     *Constraint AASd-003:* idShort shall be matched case insensitive.
+
     *Constraint AASd-004:* Add parent in case of non identifiable elements.
 
     :ivar _id_short: Identifying string of the element within its name space
-    :ivar category: The category is a value that gives further meta information w.r.t. to the class of the element.
-                    It affects the expected existence of attributes and the applicability of constraints.
+    :ivar ~.category: The category is a value that gives further meta information w.r.t. to the class of the element.
+                      It affects the expected existence of attributes and the applicability of constraints.
     :ivar description: Description or comments on the element.
     :ivar parent: Reference to the next referable parent element of the element.
 
@@ -706,12 +706,6 @@ class Reference:
     def __init__(self,
                  key: Tuple[Key, ...]):
         """
-        Initializer of Reference
-
-        :param key: Ordered list of unique reference in its name space, each key referencing an element. The complete
-                    list of keys may for example be concatenated to a path that then gives unique access to an element
-                    or entity.
-
         TODO: Add instruction what to do after construction
         """
         self.key: Tuple[Key, ...]
@@ -739,19 +733,18 @@ class AASReference(Reference, Generic[_RT]):
     """
     Typed Reference to any referable :class:`Asset Administration Shell <aas.model.aas.AssetAdministrationShell>` object
 
-    This is a special construct of the implementation to allow typed references and dereferencing.
+    This is a special construct of the implementation to allow typed references and de-referencing.
+
+    :ivar key: Ordered list of unique :class:`Keys <.Key>` in its name space, each key referencing an element.
+               The complete list of keys may for example be concatenated to a path that then gives unique access to an
+               element or entity.
+    :ivar ~.type: The type of the referenced object (additional parameter, not from the AAS Metamodel)
+                  *Initialization parameter:* `target_type`
     """
     def __init__(self,
                  key: Tuple[Key, ...],
                  target_type: Type[_RT]):
         """
-        Initializer of AASReference
-
-        :param key: Ordered list of unique reference in its name space, each key referencing an element. The complete
-                    list of keys may for example be concatenated to a path that then gives unique access to an element
-                    or entity.
-        :param: type_: The type of the referenced object (additional parameter, not from the AAS Metamodel)
-
         TODO: Add instruction what to do after construction
         """
         # TODO check keys for validity. GlobalReference and Fragment-Type keys are not allowed here
@@ -763,6 +756,7 @@ class AASReference(Reference, Generic[_RT]):
         """
         Follow the reference and retrieve the :class:`~aas.model.base.Referable` object it points to
 
+        :param provider_: :class:`~aas.model.provider.AbstractObjectProvider`
         :return: The referenced object (or a proxy object for it)
         :raises IndexError: If the list of keys is empty
         :raises TypeError: If one of the intermediate objects on the path is not a :class:`~aas.model.base.Namespace`
@@ -813,6 +807,7 @@ class AASReference(Reference, Generic[_RT]):
         Retrieve the :class:`~aas.model.base.Identifier` of the :class:`~aas.model.base.Identifiable` object, which is
         referenced or in which the referenced :class:`~aas.model.base.Referable` is contained.
 
+        :returns: :class:`~.Identifier`
         :raises ValueError: If this Reference does not include a Key with global :class:`~aas.model.base.KeyType`
                             (IRDI, IRI, CUSTOM)
         """
@@ -837,6 +832,8 @@ class AASReference(Reference, Generic[_RT]):
         or is a child-, grand-child-, etc. object of an Identifiable object. Additionally, the object must be an
         instance of a known :class:`~aas.model.base.Referable` type.
 
+        :param referable: :class:`~aas.model.base.Referable` object to construct the :class:`~.AASReference` from
+        :returns: Constructed :class:`~.AASReference`
         :raises ValueError: If no :class:`~aas.model.base.Identifiable` object is found while traversing the object's
                 ancestors
         """
@@ -882,7 +879,7 @@ class HasSemantics(metaclass=abc.ABCMeta):
     """
     Element that can have a semantic definition.
 
-    << abstract >>
+    <<abstract>>
 
     :ivar semantic_id: Identifier of the semantic definition of the element. It is called semantic id of the element.
                        The semantic id may either reference an external global id or it may reference a referable model
@@ -899,10 +896,10 @@ class Extension(HasSemantics):
     Single extension of an element
 
     :ivar name: An extension of the element.
-    :ivar value_type: Type of the value of the extension. Default: xsd:string
-    :ivar value: Value of the extension
-    :ivar refers_to: Reference to an element the extension refers to
-    :ivar semantic_id: The semantic_id defined in the HasSemantics class.
+    :ivar value_type: Type (:class:`~.DataTypeDef`) of the value of the extension. Default: xsd:string
+    :ivar value: Value (class:`~.ValueDataType`) of the extension
+    :ivar refers_to: :class:`~.Reference` to an element the extension refers to
+    :ivar semantic_id: The semantic_id defined in the :class:`~.HasSemantics` class.
     """
 
     def __init__(self,
@@ -969,7 +966,7 @@ class Constraint(metaclass=abc.ABCMeta):
     """
     A constraint is used to further qualify an element.
 
-    << abstract >>
+    <<abstract>>
     """
     @abc.abstractmethod
     def __init__(self):
@@ -1005,13 +1002,6 @@ class Formula(Constraint):
     def __init__(self,
                  depends_on: Optional[Set[Reference]] = None):
         """
-        Initializer of Formula
-
-        :param depends_on: Unordered of references to referable or even external global elements that are used in the
-                           logical expression. The value of the referenced elements needs to be accessible so that
-                           it can be evaluated in the formula to true or false in the corresponding logical expression
-                           it is used in.
-
         TODO: Add instruction what to do after construction
         """
         super().__init__()
@@ -1039,14 +1029,6 @@ class Qualifier(Constraint, HasSemantics):
                  value_id: Optional[Reference] = None,
                  semantic_id: Optional[Reference] = None):
         """
-        Initializer of Qualifier
-
-        :param type_: The type of the qualifier that is applied to the element.
-        :param value_type: Data type of the qualifier value
-        :param value: The value of the qualifier.
-        :param value_id: Reference to the global unique id of a coded value.
-        :param semantic_id: The semantic_id defined in the HasSemantics class.
-
         TODO: Add instruction what to do after construction
         """
         super().__init__()
@@ -1075,10 +1057,11 @@ class ValueReferencePair:
     """
     A value reference pair within a value list. Each value has a global unique id defining its semantic.
 
-    << Data Type >>
+    <<DataType>>
 
     :ivar value: The value of the referenced concept definition of the value in value_id
     :ivar value_id: Global unique id of the value.
+    :ivar value_type: XSD datatype of the value (this is not compliant to the DotAAS meta model)
     """
 
     def __init__(self,
@@ -1086,12 +1069,6 @@ class ValueReferencePair:
                  value: ValueDataType,
                  value_id: Reference):
         """
-        Initializer of ValueReferencePair
-
-        :param value: The value of the referenced concept definition of the value in value_id
-        :param value_id: Global unique id of the value.
-        :param value_type: XSD datatype of the value (this is not compliant to the DotAAS meta model)
-
         TODO: Add instruction what to do after construction
         """
         self.value_type: Type[datatypes.AnyXSDType] = value_type
@@ -1123,6 +1100,8 @@ class Namespace(metaclass=abc.ABCMeta):
     Abstract baseclass for all objects which form a Namespace to hold :class:`~.Referable` objects and resolve them by
     their id_short.
 
+    <<abstract>>
+
     A Namespace can contain multiple :class:`NamespaceSets <.NamespaceSet>`, which contain :class:`~.Referable` objects
     of different types. However, the id_short of each object must be unique across all
     :class:`NamespaceSets <.NamespaceSet>` of one Namespace.
@@ -1138,6 +1117,8 @@ class Namespace(metaclass=abc.ABCMeta):
         """
         Find a :class:`~.Referable` in this Namespaces by its id_short
 
+        :param id_short: id_short
+        :returns: :class:`~.Referable`
         :raises KeyError: If no such :class:`~.Referable` can be found
         """
         for dict_ in self.namespace_element_sets:
@@ -1149,6 +1130,7 @@ class Namespace(metaclass=abc.ABCMeta):
         """
         Remove a Referable from this Namespace by its id_short
 
+        :param id_short: id_short
         :raises KeyError: If no such Referable can be found
         """
         for dict_ in self.namespace_element_sets:
@@ -1264,6 +1246,7 @@ class NamespaceSet(MutableSet[_RT], Generic[_RT]):
         """
         Find an object in this set by its id_short
 
+        :param key: id_short of the object to find
         :raises KeyError: If no such object can be found
         """
         return self._backend[key]
