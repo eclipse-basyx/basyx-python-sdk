@@ -429,7 +429,6 @@ class JsonDeserializationStrippedObjectsTest(unittest.TestCase):
                     "idShort": "test_view"
                 }]
             }"""
-        print(data)
         # check if JSON with submodels and views can be parsed successfully
         aas = json.loads(data, cls=StrictAASFromJsonDecoder)
         self.assertIsInstance(aas, model.AssetAdministrationShell)

@@ -437,6 +437,7 @@ class AASDataChecker(DataChecker):
 
         :param object_list: List which could contain more objects than the search_list has
         :param search_list: List which should be searched
+        :param type_: type of objects which should be find
         :return: Set of objects that are in object_list but not in search_list
         """
         found_elements = set()
@@ -681,7 +682,7 @@ class AASDataChecker(DataChecker):
                 self.check_identifier_key_value_pair(pair, expected_pair)  # type: ignore
 
         found_elements = self._find_extra_object(object_.specific_asset_id, expected_value.specific_asset_id,
-                                                 type(model.IdentifierKeyValuePair))
+                                                 model.IdentifierKeyValuePair)
         self.check(found_elements == set(), 'AssetInformation {} must not have extra '
                                             'specificAssetIds'.format(repr(object_)),
                    value=found_elements)
@@ -694,7 +695,7 @@ class AASDataChecker(DataChecker):
                 self._check_reference_equal(ref, expected_ref)  # type: ignore
 
         found_elements = self._find_extra_object(object_.bill_of_material, expected_value.bill_of_material,
-                                                 type(model.AASReference))
+                                                 model.AASReference)
         self.check(found_elements == set(), 'AssetInformation {} must not have extra '
                                             'references'.format(repr(object_)),
                    value=found_elements)
@@ -742,7 +743,7 @@ class AASDataChecker(DataChecker):
             if self.check(ref is not None, 'Submodel Reference {} must exist'.format(repr(expected_ref))):
                 self._check_reference_equal(ref, expected_ref)  # type: ignore
 
-        found_elements = self._find_extra_object(object_.submodel, expected_value.submodel, type(model.AASReference))
+        found_elements = self._find_extra_object(object_.submodel, expected_value.submodel, model.AASReference)
         self.check(found_elements == set(), 'Asset Administration Shell {} must not have extra submodel '
                                             'references'.format(repr(object_)),
                    value=found_elements)
@@ -787,7 +788,7 @@ class AASDataChecker(DataChecker):
                 self._check_reference_equal(ref, expected_ref)  # type: ignore
 
         found_elements = self._find_extra_object(object_.contained_element, expected_value.contained_element,
-                                                 type(model.AASReference))
+                                                 model.AASReference)
         self.check(found_elements == set(), 'View Reference {} must not have extra '
                                             'submodel element references'.format(repr(object_)),
                    value=found_elements)
@@ -810,7 +811,7 @@ class AASDataChecker(DataChecker):
                 self._check_reference_equal(ref, expected_ref)  # type: ignore
 
         found_elements = self._find_extra_object(object_.is_case_of, expected_value.is_case_of,
-                                                 type(model.AASReference))
+                                                 model.AASReference)
         self.check(found_elements == set(), 'Concept Description Reference {} must not have extra '
                                             'is case of references'.format(repr(object_)),
                    value=found_elements)
@@ -871,15 +872,12 @@ class AASDataChecker(DataChecker):
         self.check(found_elements == set(), 'ValueReferenceList must not have extra ValueReferencePairs',
                    value=found_elements)
 
-    def check_object_store(self, obj_store_1: model.DictObjectStore,
-                           obj_store_2: model.DictObjectStore, list_identifier: str = '2'):
+    def check_object_store(self, obj_store_1: model.DictObjectStore, obj_store_2: model.DictObjectStore):
         """
         Checks if the given object stores are equal
 
         :param obj_store_1: Given object store to check
         :param obj_store_2: expected object store
-        :param list_identifier: optional string for naming the list in the second object store. Standard is xxx list 2
-                                e.g asset list 2
         :return:
         """
         # separate different kind of objects
@@ -1012,8 +1010,8 @@ class AASDataChecker(DataChecker):
                 count = count + 1
         kwargs['count'] = count
         return self.check(count == length,
-                          "Attribut {} of {} must contain {} {}s".format(attribute_name, repr(object_),
-                                                                         length, class_name.__name__),
+                          "Attribute {} of {} must contain {} {}s".format(attribute_name, repr(object_),
+                                                                          length, class_name.__name__),
                           **kwargs)
 
     def check_is_instance(self, object_: object, class_name: Type, **kwargs) -> bool:

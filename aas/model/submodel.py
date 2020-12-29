@@ -58,7 +58,7 @@ class SubmodelElement(base.Referable, base.Qualifiable, base.HasSemantics, base.
         :param qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
                           (from base.Qualifiable)
         :param kind: Kind of the element: either type or instance. Default = Instance. (from base.HasKind)
-        :param extension: Element that can be extended by proprietary extensions. (from base.HasExtension)
+        :param extension: An extension of the element. (from base.HasExtension)
 
         TODO: Add instruction what to do after construction
         """
@@ -119,7 +119,7 @@ class Submodel(base.Identifiable, base.HasSemantics, base.HasKind, base.Qualifia
         :param qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
                           (from base.Qualifiable)
         :param kind: Kind of the element: either type or instance. Default = Instance. (from base.HasKind)
-        :param extension: Element that can be extended by proprietary extensions. (from base.HasExtension)
+        :param extension: An extension of the element. (from base.HasExtension)
         """
 
         super().__init__()
@@ -180,7 +180,7 @@ class DataElement(SubmodelElement, metaclass=abc.ABCMeta):
         :param qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
                           (from base.Qualifiable)
         :param kind: Kind of the element: either type or instance. Default = Instance. (from base.HasKind)
-        :param extension: Element that can be extended by proprietary extensions. (from base.HasExtension)
+        :param extension: An extension of the element. (from base.HasExtension)
         """
 
         super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, kind, extension)
@@ -188,7 +188,7 @@ class DataElement(SubmodelElement, metaclass=abc.ABCMeta):
     def _set_category(self, category: Optional[str]):
         if category == "":
             raise base.AASConstraintViolation(100,
-                                              "category is not allowed to be an empty string (Constraint AASd-100)")
+                                              "category is not allowed to be an empty string")
         if category is None:
             self._category = None
         else:
@@ -196,9 +196,7 @@ class DataElement(SubmodelElement, metaclass=abc.ABCMeta):
                 if not (isinstance(self, File) or isinstance(self, Blob)):
                     raise base.AASConstraintViolation(
                         90,
-                        "DataElement.category must be one of the following: " + str(ALLOWED_DATA_ELEMENT_CATEGORIES) +
-                        " (Constraint AASd-090)"
-                    )
+                        "DataElement.category must be one of the following: " + str(ALLOWED_DATA_ELEMENT_CATEGORIES))
             self._category = category
 
 
@@ -246,7 +244,7 @@ class Property(DataElement):
         :param qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
                           (from base.Qualifiable)
         :param kind: Kind of the element: either type or instance. Default = Instance. (from base.HasKind)
-        :param extension: Element that can be extended by proprietary extensions. (from base.HasExtension)
+        :param extension: An extension of the element. (from base.HasExtension)
 
         TODO: Add instruction what to do after construction
         """
@@ -310,7 +308,7 @@ class MultiLanguageProperty(DataElement):
         :param qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
                           (from base.Qualifiable)
         :param kind: Kind of the element: either type or instance. Default = Instance. (from base.HasKind)
-        :param extension: Element that can be extended by proprietary extensions. (from base.HasExtension)
+        :param extension: An extension of the element. (from base.HasExtension)
 
         TODO: Add instruction what to do after construction
         """
@@ -367,7 +365,7 @@ class Range(DataElement):
         :param qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
                           (from base.Qualifiable)
         :param kind: Kind of the element: either type or instance. Default = Instance. (from base.HasKind)
-        :param extension: Element that can be extended by proprietary extensions. (from base.HasExtension)
+        :param extension: An extension of the element. (from base.HasExtension)
 
         TODO: Add instruction what to do after construction
         """
@@ -447,7 +445,7 @@ class Blob(DataElement):
         :param qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
                           (from base.Qualifiable)
         :param kind: Kind of the element: either type or instance. Default = Instance. (from base.HasKind)
-        :param extension: Element that can be extended by proprietary extensions. (from base.HasExtension)
+        :param extension: An extension of the element. (from base.HasExtension)
 
         TODO: Add instruction what to do after construction
         """
@@ -499,7 +497,7 @@ class File(DataElement):
         :param qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
                           (from base.Qualifiable)
         :param kind: Kind of the element: either type or instance. Default = Instance. (from base.HasKind)
-        :param extension: Element that can be extended by proprietary extensions. (from base.HasExtension)
+        :param extension: An extension of the element. (from base.HasExtension)
 
         TODO: Add instruction what to do after construction
         """
@@ -548,7 +546,7 @@ class ReferenceElement(DataElement):
         :param qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
                           (from base.Qualifiable)
         :param kind: Kind of the element: either type or instance. Default = Instance. (from base.HasKind)
-        :param extension: Element that can be extended by proprietary extensions. (from base.HasExtension)
+        :param extension: An extension of the element. (from base.HasExtension)
 
         TODO: Add instruction what to do after construction
         """
@@ -600,7 +598,7 @@ class SubmodelElementCollection(SubmodelElement, base.Namespace, metaclass=abc.A
         :param qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
                           (from base.Qualifiable)
         :param kind: Kind of the element: either type or instance. Default = Instance. (from base.HasKind)
-        :param extension: Element that can be extended by proprietary extensions. (from base.HasExtension)
+        :param extension: An extension of the element. (from base.HasExtension)
 
         TODO: Add instruction what to do after construction
         """
@@ -647,7 +645,7 @@ class SubmodelElementCollectionOrdered(SubmodelElementCollection):
         :param qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
                           (from base.Qualifiable)
         :param kind: Kind of the element: either type or instance. Default = Instance. (from base.HasKind)
-        :param extension: Element that can be extended by proprietary extensions. (from base.HasExtension)
+        :param extension: An extension of the element. (from base.HasExtension)
 
         TODO: Add instruction what to do after construction
         """
@@ -694,7 +692,7 @@ class SubmodelElementCollectionUnordered(SubmodelElementCollection):
         :param qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
                           (from base.Qualifiable)
         :param kind: Kind of the element: either type or instance. Default = Instance. (from base.HasKind)
-        :param extension: Element that can be extended by proprietary extensions. (from base.HasExtension)
+        :param extension: An extension of the element. (from base.HasExtension)
 
         TODO: Add instruction what to do after construction
         """
@@ -750,7 +748,7 @@ class RelationshipElement(SubmodelElement):
         :param qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
                           (from base.Qualifiable)
         :param kind: Kind of the element: either type or instance. Default = Instance. (from base.HasKind)
-        :param extension: Element that can be extended by proprietary extensions. (from base.HasExtension)
+        :param extension: An extension of the element. (from base.HasExtension)
 
         TODO: Add instruction what to do after construction
         """
@@ -798,7 +796,7 @@ class AnnotatedRelationshipElement(RelationshipElement, base.Namespace):
         :param qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
                           (from base.Qualifiable)
         :param kind: Kind of the element: either type or instance. Default = Instance. (from base.HasKind)
-        :param extension: Element that can be extended by proprietary extensions. (from base.HasExtension)
+        :param extension: An extension of the element. (from base.HasExtension)
 
         TODO: Add instruction what to do after construction
         """
@@ -829,8 +827,8 @@ class OperationVariable:
         TODO: Add instruction what to do after construction
         """
         # Constraint AASd-008: The submodel element shall be of kind=Template.
-        self.value: SubmodelElement
-        self._value: SubmodelElement = value
+        self._value: SubmodelElement
+        self.value = value
 
     @property
     def value(self):
@@ -841,8 +839,7 @@ class OperationVariable:
         if self.value.kind is not base.ModelingKind.TEMPLATE:
             raise base.AASConstraintViolation(
                 8,
-                "The SubmodelElement `OperationVariable.value` must have the attribute `kind==ModelingType.TEMPLATE` "
-                "(Constraint AASd-008)"
+                "The SubmodelElement `OperationVariable.value` must have the attribute `kind==ModelingType.TEMPLATE`"
             )
         self._value = value
 
@@ -888,7 +885,7 @@ class Operation(SubmodelElement):
         :param qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
                           (from base.Qualifiable)
         :param kind: Kind of the element: either type or instance. Default = Instance. (from base.HasKind)
-        :param extension: Element that can be extended by proprietary extensions. (from base.HasExtension)
+        :param extension: An extension of the element. (from base.HasExtension)
 
         TODO: Add instruction what to do after construction
         """
@@ -932,7 +929,7 @@ class Capability(SubmodelElement):
         :param qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
                           (from base.Qualifiable)
         :param kind: Kind of the element: either type or instance. Default = Instance. (from base.HasKind)
-        :param extension: Element that can be extended by proprietary extensions. (from base.HasExtension)
+        :param extension: An extension of the element. (from base.HasExtension)
 
         TODO: Add instruction what to do after construction
         """
@@ -991,7 +988,7 @@ class Entity(SubmodelElement, base.Namespace):
         :param qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
                           (from base.Qualifiable)
         :param kind: Kind of the element: either type or instance. Default = Instance. (from base.HasKind)
-        :param extension: Element that can be extended by proprietary extensions. (from base.HasExtension)
+        :param extension: An extension of the element. (from base.HasExtension)
 
         TODO: Add instruction what to do after construction
         """
@@ -1011,12 +1008,12 @@ class Entity(SubmodelElement, base.Namespace):
                 and entity_type == base.EntityType.SELF_MANAGED_ENTITY:
             raise base.AASConstraintViolation(
                 14,
-                "A self-managed entity has to have a globalAssetId or a specificAssetId (Constraint AASd-14)"
+                "A self-managed entity has to have a globalAssetId or a specificAssetId"
             )
         if (self.global_asset_id or self.specific_asset_id) and entity_type == base.EntityType.CO_MANAGED_ENTITY:
             raise base.AASConstraintViolation(
                 14,
-                "A co-managed entity has to have neither a globalAssetId nor a specificAssetId (Constraint AASd-14)")
+                "A co-managed entity has to have neither a globalAssetId nor a specificAssetId")
         self._entity_type = entity_type
 
     entity_type = property(_get_entity_type, _set_entity_type)
@@ -1054,7 +1051,7 @@ class Event(SubmodelElement, metaclass=abc.ABCMeta):
         :param qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
                           (from base.Qualifiable)
         :param kind: Kind of the element: either type or instance. Default = Instance. (from base.HasKind)
-        :param extension: Element that can be extended by proprietary extensions. (from base.HasExtension)
+        :param extension: An extension of the element. (from base.HasExtension)
         """
 
         super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, kind, extension)
@@ -1096,7 +1093,7 @@ class BasicEvent(Event):
         :param qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
                           (from base.Qualifiable)
         :param kind: Kind of the element: either type or instance. Default = Instance. (from base.HasKind)
-        :param extension: Element that can be extended by proprietary extensions. (from base.HasExtension)
+        :param extension: An extension of the element. (from base.HasExtension)
 
         TODO: Add instruction what to do after construction
         """

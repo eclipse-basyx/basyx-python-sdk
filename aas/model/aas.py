@@ -20,7 +20,7 @@ This module contains the following classes from an up-to-down-level:
 
 from typing import Optional, Set, Iterable
 
-from . import base, concept
+from . import base
 from .security import Security
 from .submodel import File, Submodel
 
@@ -57,7 +57,7 @@ class View(base.Referable, base.HasSemantics):
                             element. The semantic id may either reference an external global id or it may reference a
                             referable model element of kind=Type that defines the semantics of the element.
                             (from base.HasSemantics)
-        :param extension: Element that can be extended by proprietary extensions. (from base.HasExtension)
+        :param extension: An extension of the element. (from base.HasExtension)
         TODO: Add instruction what to do after construction
         """
 
@@ -109,7 +109,7 @@ class Asset(base.Identifiable):
         :param description: Description or comments on the element. (from base.Referable)
         :param parent: Reference to the next referable parent element of the element. (from base.Referable)
         :param administration: Administrative information of an identifiable element. (from base.Identifiable)
-        :param extension: Element that can be extended by proprietary extensions. (from base.HasExtension)
+        :param extension: An extension of the element. (from base.HasExtension)
         """
         super().__init__()
         self.identification: base.Identifier = identification
@@ -122,7 +122,7 @@ class Asset(base.Identifiable):
         self.extension: Set[base.Extension] = set() if extension is None else extension
 
 
-class AssetInformation():
+class AssetInformation:
     """
     In AssetInformation identifying meta data of the asset that is represented by an AAS is defined.
 
@@ -236,7 +236,7 @@ class AssetAdministrationShell(base.Identifiable, base.Namespace):
                                    only descriptions for elements that are also used within the AAS
         :param view: Unordered list of stakeholder specific views that can group the elements of the AAS.
         :param derived_from: The reference to the AAS the AAS was derived from
-        :param extension: Element that can be extended by proprietary extensions. (from base.HasExtension)
+        :param extension: An extension of the element. (from base.HasExtension)
         """
 
         super().__init__()

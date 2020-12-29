@@ -1210,6 +1210,7 @@ class XMLConstructables(enum.Enum):
     BLOB = enum.auto()
     CAPABILITY = enum.auto()
     ENTITY = enum.auto()
+    EXTENSION = enum.auto()
     FILE = enum.auto()
     MULTI_LANGUAGE_PROPERTY = enum.auto()
     OPERATION = enum.auto()
@@ -1284,6 +1285,8 @@ def read_aas_xml_element(file: IO, construct: XMLConstructables, failsafe: bool 
         constructor = decoder_.construct_capability
     elif construct == XMLConstructables.ENTITY:
         constructor = decoder_.construct_entity
+    elif construct == XMLConstructables.EXTENSION:
+        constructor = decoder_.construct_extension
     elif construct == XMLConstructables.FILE:
         constructor = decoder_.construct_file
     elif construct == XMLConstructables.MULTI_LANGUAGE_PROPERTY:

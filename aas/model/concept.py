@@ -72,7 +72,7 @@ class ConceptDescription(base.Identifiable):
         :param description: Description or comments on the element. (from base.Referable)
         :param parent: Reference to the next referable parent element of the element. (from base.Referable)
         :param administration: Administrative information of an identifiable element. (from base.Identifiable)
-        :param extension: Element that can be extended by proprietary extensions. (from base.HasExtension)
+        :param extension: An extension of the element. (from base.HasExtension)
         """
         super().__init__()
         self.identification: base.Identifier = identification
@@ -93,7 +93,7 @@ class ConceptDescription(base.Identifiable):
                 raise base.AASConstraintViolation(
                     51,
                     "ConceptDescription must have one of the following "
-                    "categories: " + str(ALLOWED_CONCEPT_DESCRIPTION_CATEGORIES) + " (Constraint AASd-051)"
+                    "categories: " + str(ALLOWED_CONCEPT_DESCRIPTION_CATEGORIES)
                 )
             self._category = category
 
@@ -185,7 +185,7 @@ class IEC61360ConceptDescription(ConceptDescription):
         :param value: value data type object (optional)
         :param value_id: Reference to the value (optional)
         :param level_types: Set of level types of the DataSpecificationContent (optional)
-        :param extension: Element that can be extended by proprietary extensions. (from base.HasExtension)
+        :param extension: An extension of the element. (from base.HasExtension)
         """
         super().__init__(identification, is_case_of, id_short, display_name, category, description, parent,
                          administration, extension)

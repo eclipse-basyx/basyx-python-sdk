@@ -248,13 +248,12 @@ class Key:
             raise AASConstraintViolation(
                 80,
                 "A Key with Key.type==GLOBAL_REFERENCE must not have an id_type of LocalKeyType: (IDSHORT, FRAGMENT_ID)"
-                " (Constraint AASd-080)"
             )
         if self.type is KeyElements.ASSET_ADMINISTRATION_SHELL and self.id_type in LOCAL_KEY_TYPES:
             raise AASConstraintViolation(
                 81,
                 "A Key with Key.type==ASSET_ADMINISTRATION_SHELL must not have an id_type of LocalKeyType: "
-                "(IDSHORT, FRAGMENT_ID) (Constraint AASd-081)"
+                "(IDSHORT, FRAGMENT_ID)"
             )
 
     def __setattr__(self, key, value):
@@ -503,7 +502,7 @@ class Referable(HasExtension, metaclass=abc.ABCMeta):
         :raises ValueError: if the constraint is not fulfilled
         """
         if category == "":
-            raise AASConstraintViolation(100, "category is not allowed to be an empty string (Constraint AASd-100)")
+            raise AASConstraintViolation(100, "category is not allowed to be an empty string")
         self._category = category
 
     def _get_category(self) -> Optional[str]:
@@ -526,17 +525,17 @@ class Referable(HasExtension, metaclass=abc.ABCMeta):
         """
 
         if id_short == "":
-            raise AASConstraintViolation(100, "id_short is not allowed to be an empty string (Constraint AASd-100)")
+            raise AASConstraintViolation(100, "id_short is not allowed to be an empty string")
         test_id_short: str = str(id_short)
         if not re.match("^[a-zA-Z0-9_]*$", test_id_short):
             raise AASConstraintViolation(
                 2,
-                "The id_short must contain only letters, digits and underscore (Constraint AASd-002)"
+                "The id_short must contain only letters, digits and underscore"
             )
         if not re.match("^([a-zA-Z].*|)$", test_id_short):
             raise AASConstraintViolation(
                 2,
-                "The id_short must start with a letter (Constraint AASd-002)"
+                "The id_short must start with a letter"
             )
 
         if self.parent is not None and id_short != self.id_short:
@@ -1383,7 +1382,7 @@ class OrderedNamespaceSet(NamespaceSet[_RT], MutableSequence[_RT], Generic[_RT])
         del self._order[i]
 
 
-class IdentifierKeyValuePair():
+class IdentifierKeyValuePair:
     """
     An IdentifierKeyValuePair describes a generic identifier as key-value pair
 
@@ -1439,5 +1438,5 @@ class AASConstraintViolation(Exception):
     """
     def __init__(self, constraint_id: int, message: str):
         self.constraint_id: int = constraint_id
-        self.message: str = message
+        self.message: str = message + "(Constraint AASd-" + str(constraint_id) + ")"
         super().__init__(self.message)
