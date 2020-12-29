@@ -2841,7 +2841,7 @@
                             {
                                 "type": "GlobalReference",
                                 "idType": "IRI",
-                                "value": "http://admin-shell.io/DataSpecificationTemplates/DataSpecificationIEC61360/3/0"
+                                "value": "http://admin-shell.io/DataSpecificationTemplates/DataSpecificationIEC61360/2/0"
                             }
                         ]
                     },
