@@ -47,7 +47,7 @@ class SubmodelElement(base.Referable, base.Qualifiable, base.HasSemantics, base.
                      (from :class:`~aas.model.base.Qualifiable`)
     :ivar kind: Kind of the element: Either `TYPE` or `INSTANCE`. Default is `INSTANCE`. (inherited from
                 :class:`aas.model.base.HasKind`)
-    :ivar extension: Element that can be extended by proprietary extensions. (inherited from
+    :ivar extension: An extension of the element. (inherited from
                      :class:`aas.model.base.HasExtension`)
     """
     @abc.abstractmethod
@@ -107,7 +107,7 @@ class Submodel(base.Identifiable, base.HasSemantics, base.HasKind, base.Qualifia
                      (from :class:`~aas.model.base.Qualifiable`)
     :ivar kind: Kind of the element: Either `TYPE` or `INSTANCE`. Default is `INSTANCE`. (inherited from
                 :class:`aas.model.base.HasKind`)
-    :ivar extension: Element that can be extended by proprietary extensions. (inherited from
+    :ivar extension: An extension of the element. (inherited from
                      :class:`aas.model.base.HasExtension`)
     """
 
@@ -172,7 +172,7 @@ class DataElement(SubmodelElement, metaclass=abc.ABCMeta):
                      (from :class:`~aas.model.base.Qualifiable`)
     :ivar kind: Kind of the element: Either `TYPE` or `INSTANCE`. Default is `INSTANCE`. (inherited from
                 :class:`aas.model.base.HasKind`)
-    :ivar extension: Element that can be extended by proprietary extensions. (inherited from
+    :ivar extension: An extension of the element. (inherited from
                      :class:`aas.model.base.HasExtension`)
     """
     @abc.abstractmethod
@@ -230,7 +230,7 @@ class Property(DataElement):
                      (from :class:`~aas.model.base.Qualifiable`)
     :ivar kind: Kind of the element: Either `TYPE` or `INSTANCE`. Default is `INSTANCE`. (inherited from
                 :class:`aas.model.base.HasKind`)
-    :ivar extension: Element that can be extended by proprietary extensions. (inherited from
+    :ivar extension: An extension of the element. (inherited from
                      :class:`aas.model.base.HasExtension`)
     """
 
@@ -295,7 +295,7 @@ class MultiLanguageProperty(DataElement):
                      (from :class:`~aas.model.base.Qualifiable`)
     :ivar kind: Kind of the element: Either `TYPE` or `INSTANCE`. Default is `INSTANCE`. (inherited from
                 :class:`aas.model.base.HasKind`)
-    :ivar extension: Element that can be extended by proprietary extensions. (inherited from
+    :ivar extension: An extension of the element. (inherited from
                      :class:`aas.model.base.HasExtension`)
     """
 
@@ -348,7 +348,7 @@ class Range(DataElement):
                      (from :class:`~aas.model.base.Qualifiable`)
     :ivar kind: Kind of the element: Either `TYPE` or `INSTANCE`. Default is `INSTANCE`. (inherited from
                 :class:`aas.model.base.HasKind`)
-    :ivar extension: Element that can be extended by proprietary extensions. (inherited from
+    :ivar extension: An extension of the element. (inherited from
                      :class:`aas.model.base.HasExtension`)
     """
 
@@ -425,7 +425,7 @@ class Blob(DataElement):
                      (from :class:`~aas.model.base.Qualifiable`)
     :ivar kind: Kind of the element: Either `TYPE` or `INSTANCE`. Default is `INSTANCE`. (inherited from
                 :class:`aas.model.base.HasKind`)
-    :ivar extension: Element that can be extended by proprietary extensions. (inherited from
+    :ivar extension: An extension of the element. (inherited from
                      :class:`aas.model.base.HasExtension`)
     """
 
@@ -473,7 +473,7 @@ class File(DataElement):
                      (from :class:`~aas.model.base.Qualifiable`)
     :ivar kind: Kind of the element: Either `TYPE` or `INSTANCE`. Default is `INSTANCE`. (inherited from
                 :class:`aas.model.base.HasKind`)
-    :ivar extension: Element that can be extended by proprietary extensions. (inherited from
+    :ivar extension: An extension of the element. (inherited from
                      :class:`aas.model.base.HasExtension`)
     """
 
@@ -522,7 +522,7 @@ class ReferenceElement(DataElement):
                      (from :class:`~aas.model.base.Qualifiable`)
     :ivar kind: Kind of the element: Either `TYPE` or `INSTANCE`. Default is `INSTANCE`. (inherited from
                 :class:`aas.model.base.HasKind`)
-    :ivar extension: Element that can be extended by proprietary extensions. (inherited from
+    :ivar extension: An extension of the element. (inherited from
                      :class:`aas.model.base.HasExtension`)
     """
 
@@ -569,7 +569,7 @@ class SubmodelElementCollection(SubmodelElement, base.Namespace, metaclass=abc.A
                      (from :class:`~aas.model.base.Qualifiable`)
     :ivar kind: Kind of the element: Either `TYPE` or `INSTANCE`. Default is `INSTANCE`. (inherited from
                 :class:`aas.model.base.HasKind`)
-    :ivar extension: Element that can be extended by proprietary extensions. (inherited from
+    :ivar extension: An extension of the element. (inherited from
                      :class:`aas.model.base.HasExtension`)
     """
     @abc.abstractmethod
@@ -617,7 +617,7 @@ class SubmodelElementCollectionOrdered(SubmodelElementCollection):
                      (from :class:`~aas.model.base.Qualifiable`)
     :ivar kind: Kind of the element: Either `TYPE` or `INSTANCE`. Default is `INSTANCE`. (inherited from
                 :class:`aas.model.base.HasKind`)
-    :ivar extension: Element that can be extended by proprietary extensions. (inherited from
+    :ivar extension: An extension of the element. (inherited from
                      :class:`aas.model.base.HasExtension`)
     """
 
@@ -685,7 +685,7 @@ class SubmodelElementCollectionUnordered(SubmodelElementCollection):
                      (from :class:`~aas.model.base.Qualifiable`)
     :ivar kind: Kind of the element: Either `TYPE` or `INSTANCE`. Default is `INSTANCE`. (inherited from
                 :class:`aas.model.base.HasKind`)
-    :ivar extension: Element that can be extended by proprietary extensions. (inherited from
+    :ivar extension: An extension of the element. (inherited from
                      :class:`aas.model.base.HasExtension`)
     """
 
@@ -736,7 +736,7 @@ class RelationshipElement(SubmodelElement):
                      (from :class:`~aas.model.base.Qualifiable`)
     :ivar kind: Kind of the element: Either `TYPE` or `INSTANCE`. Default is `INSTANCE`. (inherited from
                 :class:`aas.model.base.HasKind`)
-    :ivar extension: Element that can be extended by proprietary extensions. (inherited from
+    :ivar extension: An extension of the element. (inherited from
                      :class:`aas.model.base.HasExtension`)
     """
 
@@ -811,7 +811,7 @@ class AnnotatedRelationshipElement(RelationshipElement, base.Namespace):
                      (from :class:`~aas.model.base.Qualifiable`)
     :ivar kind: Kind of the element: Either `TYPE` or `INSTANCE`. Default is `INSTANCE`. (inherited from
                 :class:`aas.model.base.HasKind`)
-    :ivar extension: Element that can be extended by proprietary extensions. (inherited from
+    :ivar extension: An extension of the element. (inherited from
                      :class:`aas.model.base.HasExtension`)
     """
 
@@ -900,7 +900,7 @@ class Operation(SubmodelElement):
                      (from :class:`~aas.model.base.Qualifiable`)
     :ivar kind: Kind of the element: Either `TYPE` or `INSTANCE`. Default is `INSTANCE`. (inherited from
                 :class:`aas.model.base.HasKind`)
-    :ivar extension: Element that can be extended by proprietary extensions. (inherited from
+    :ivar extension: An extension of the element. (inherited from
                      :class:`aas.model.base.HasExtension`)
     """
     def __init__(self,
@@ -947,7 +947,7 @@ class Capability(SubmodelElement):
                      (from :class:`~aas.model.base.Qualifiable`)
     :ivar kind: Kind of the element: Either `TYPE` or `INSTANCE`. Default is `INSTANCE`. (inherited from
                 :class:`aas.model.base.HasKind`)
-    :ivar extension: Element that can be extended by proprietary extensions. (inherited from
+    :ivar extension: An extension of the element. (inherited from
                      :class:`aas.model.base.HasExtension`)
     """
 
@@ -1004,7 +1004,7 @@ class Entity(SubmodelElement, base.Namespace):
                      (from :class:`~aas.model.base.Qualifiable`)
     :ivar kind: Kind of the element: Either `TYPE` or `INSTANCE`. Default is `INSTANCE`. (inherited from
                 :class:`aas.model.base.HasKind`)
-    :ivar extension: Element that can be extended by proprietary extensions. (inherited from
+    :ivar extension: An extension of the element. (inherited from
                      :class:`aas.model.base.HasExtension`)
     """
 
@@ -1074,7 +1074,7 @@ class Event(SubmodelElement, metaclass=abc.ABCMeta):
                      (from :class:`~aas.model.base.Qualifiable`)
     :ivar kind: Kind of the element: Either `TYPE` or `INSTANCE`. Default is `INSTANCE`. (inherited from
                 :class:`aas.model.base.HasKind`)
-    :ivar extension: Element that can be extended by proprietary extensions. (inherited from
+    :ivar extension: An extension of the element. (inherited from
                      :class:`aas.model.base.HasExtension`)
     """
     @abc.abstractmethod
@@ -1113,7 +1113,7 @@ class BasicEvent(Event):
                      (from :class:`~aas.model.base.Qualifiable`)
     :ivar kind: Kind of the element: Either `TYPE` or `INSTANCE`. Default is `INSTANCE`. (inherited from
                 :class:`aas.model.base.HasKind`)
-    :ivar extension: Element that can be extended by proprietary extensions. (inherited from
+    :ivar extension: An extension of the element. (inherited from
                      :class:`aas.model.base.HasExtension`)
     """
 

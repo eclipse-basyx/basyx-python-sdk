@@ -46,7 +46,7 @@ class View(base.Referable, base.HasSemantics):
                        element. The semantic id may either reference an external global id or it may reference a
                        referable model element of kind=Type that defines the semantics of the element.
                        (inherited from from :class:`~aas.model.base.HasSemantics`)
-    :ivar extension: Element that can be extended by proprietary extensions.
+    :ivar extension: An extension of the element.
                      (from :class:`~aas.model.base.HasExtensions`)
     """
     def __init__(self,
@@ -94,7 +94,7 @@ class Asset(base.Identifiable):
     :ivar administration: :class:`~aas.model.base.AdministrativeInformation` of an
                           :class:`~.aas.model.base.Identifiable` element. (inherited from
                           :class:`~aas.model.base.Identifiable`)
-    :ivar extension: Element that can be extended by proprietary extensions.
+    :ivar extension: An extension of the element.
                      (from :class:`~aas.model.base.HasExtensions`)
     """
 
@@ -202,7 +202,7 @@ class AssetAdministrationShell(base.Identifiable, base.Namespace):
     :ivar view: Unordered list of stakeholder specific :class:`views <aas.model.aas.View>` that can group the elements
                 of the AAS.
     :ivar derived_from: The :class:`reference <aas.model.base.AASReference>` to the AAS the AAs was derived from
-    :ivar extension: Element that can be extended by proprietary extensions.
+    :ivar extension: An extension of the element.
                      (from :class:`~aas.model.base.HasExtensions`)
     """
     def __init__(self,

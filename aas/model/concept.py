@@ -59,7 +59,7 @@ class ConceptDescription(base.Identifiable):
                   :class:`~aas.model.base.Referable`)
     :ivar administration: Administrative information of an identifiable element. (inherited from
                           :class:`~aas.model.base.Identifiable`)
-    :ivar extension: Element that can be extended by proprietary extensions. (from
+    :ivar extension: An extension of the element. (from
                      :class:`~aas.model.base.HasExtension`)
 """
 
@@ -181,7 +181,7 @@ class IEC61360ConceptDescription(ConceptDescription):
     :ivar value: Optional value data type object
     :ivar value_id: Optional reference to the value
     :ivar level_types: Optional set of level types of the DataSpecificationContent
-    :ivar extension: Element that can be extended by proprietary extensions. (from
+    :ivar extension: An extension of the element. (from
                      :class:`~aas.model.base.HasExtension`)
     """
     def __init__(self,
