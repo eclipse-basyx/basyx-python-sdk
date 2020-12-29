@@ -633,25 +633,6 @@ class SubmodelElementCollectionOrdered(SubmodelElementCollection):
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE,
                  extension: Optional[Set[base.Extension]] = None):
         """
-        Initializer of SubmodelElementCollection
-
-        :param id_short: Identifying string of the element within its name space. (from base.Referable)
-        :param value: Ordered list of submodel elements.
-        :param display_name: Can be provided in several languages. (from base.Referable)
-        :param category: The category is a value that gives further meta information w.r.t. to the class of the element.
-                         It affects the expected existence of attributes and the applicability of constraints.
-                         (from base.Referable)
-        :param description: Description or comments on the element. (from base.Referable)
-        :param parent: Reference to the next referable parent element of the element. (from base.Referable)
-        :param semantic_id: Identifier of the semantic definition of the element. It is called semantic id of the
-                            element. The semantic id may either reference an external global id or it may reference a
-                            referable model element of kind=Type that defines the semantics of the element.
-                            (from base.HasSemantics)
-        :param qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
-                          (from base.Qualifiable)
-        :param kind: Kind of the element: either type or instance. Default = Instance. (from base.HasKind)
-        :param extension: Element that can be extended by proprietary extensions. (from base.HasExtension)
-
         TODO: Add instruction what to do after construction
         """
 
@@ -753,28 +734,6 @@ class RelationshipElement(SubmodelElement):
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE,
                  extension: Optional[Set[base.Extension]] = None):
         """
-        Initializer of RelationshipElement
-
-        :param id_short: Identifying string of the element within its name space. (from base.Referable)
-        :param first: Reference to the first element in the relationship taking the role of the subject which have to
-                      be of class Referable.
-        :param second: Reference to the second element in the relationship taking the role of the object which have to
-                       be of class Referable.
-        :param display_name: Can be provided in several languages. (from base.Referable)
-        :param category: The category is a value that gives further meta information w.r.t. to the class of the element.
-                         It affects the expected existence of attributes and the applicability of constraints.
-                         (from base.Referable)
-        :param description: Description or comments on the element. (from base.Referable)
-        :param parent: Reference to the next referable parent element of the element. (from base.Referable)
-        :param semantic_id: Identifier of the semantic definition of the element. It is called semantic id of the
-                            element. The semantic id may either reference an external global id or it may reference a
-                            referable model element of kind=Type that defines the semantics of the element.
-                            (from base.HasSemantics)
-        :param qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
-                          (from base.Qualifiable)
-        :param kind: Kind of the element: either type or instance. Default = Instance. (from base.HasKind)
-        :param extension: Element that can be extended by proprietary extensions. (from base.HasExtension)
-
         TODO: Add instruction what to do after construction
         """
 
@@ -852,10 +811,6 @@ class OperationVariable:
     def __init__(self,
                  value: SubmodelElement):
         """
-        Initializer of OperationVariable
-
-        :param value: Describes the needed argument for an operation via a submodel element of kind=Type.
-
         TODO: Add instruction what to do after construction
         """
         # Constraint AASd-008: The submodel element shall be of kind=Template.
