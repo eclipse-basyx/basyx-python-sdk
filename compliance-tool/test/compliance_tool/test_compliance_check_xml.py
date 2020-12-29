@@ -159,7 +159,6 @@ class ComplianceToolXmlTest(unittest.TestCase):
         self.assertEqual(Status.SUCCESS, manager.steps[1].status)
         self.assertEqual(Status.SUCCESS, manager.steps[2].status)
         self.assertEqual(Status.SUCCESS, manager.steps[3].status)
-        print(manager.format_step(4, 1))
         self.assertEqual(Status.SUCCESS, manager.steps[4].status)
 
         manager.steps = []
