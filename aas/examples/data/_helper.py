@@ -449,8 +449,8 @@ class AASDataChecker(DataChecker):
                         if object_list_element == search_list_element:
                             found = True
                             break
-                    if found is False:
-                        found_elements.add(object_list_element)
+                if found is False:
+                    found_elements.add(object_list_element)
         return found_elements
 
     def _find_extra_elements_by_attribute(self, object_list: Union[Set, List], search_list: Union[Set, List],

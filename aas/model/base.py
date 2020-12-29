@@ -1438,5 +1438,5 @@ class AASConstraintViolation(Exception):
     """
     def __init__(self, constraint_id: int, message: str):
         self.constraint_id: int = constraint_id
-        self.message: str = message + "(Constraint AASd-" + str(constraint_id) + ")"
+        self.message: str = message + " (Constraint AASd-" + str(constraint_id).zfill(3) + ")"
         super().__init__(self.message)

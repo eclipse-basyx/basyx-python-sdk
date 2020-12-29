@@ -830,18 +830,18 @@ class OperationVariable:
         self._value: SubmodelElement
         self.value = value
 
-    @property
-    def value(self):
+    def _get_value(self):
         return self._value
 
-    @value.setter
-    def value(self, value: SubmodelElement) -> None:
-        if self.value.kind is not base.ModelingKind.TEMPLATE:
+    def _set_value(self, value: SubmodelElement) -> None:
+        if value.kind is not base.ModelingKind.TEMPLATE:
             raise base.AASConstraintViolation(
                 8,
                 "The SubmodelElement `OperationVariable.value` must have the attribute `kind==ModelingType.TEMPLATE`"
             )
         self._value = value
+
+    value = property(_get_value, _set_value)
 
 
 class Operation(SubmodelElement):
