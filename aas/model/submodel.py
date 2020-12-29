@@ -50,7 +50,6 @@ class SubmodelElement(base.Referable, base.Qualifiable, base.HasSemantics, base.
     :ivar extension: Element that can be extended by proprietary extensions. (inherited from
                      :class:`aas.model.base.HasExtension`)
     """
-
     @abc.abstractmethod
     def __init__(self,
                  id_short: str,
@@ -176,7 +175,6 @@ class DataElement(SubmodelElement, metaclass=abc.ABCMeta):
     :ivar extension: Element that can be extended by proprietary extensions. (inherited from
                      :class:`aas.model.base.HasExtension`)
     """
-
     @abc.abstractmethod
     def __init__(self,
                  id_short: str,
@@ -193,7 +191,7 @@ class DataElement(SubmodelElement, metaclass=abc.ABCMeta):
     def _set_category(self, category: Optional[str]):
         if category == "":
             raise base.AASConstraintViolation(100,
-                                              "category is not allowed to be an empty string (Constraint AASd-100)")
+                                              "category is not allowed to be an empty string")
         if category is None:
             self._category = None
         else:
@@ -201,9 +199,7 @@ class DataElement(SubmodelElement, metaclass=abc.ABCMeta):
                 if not (isinstance(self, File) or isinstance(self, Blob)):
                     raise base.AASConstraintViolation(
                         90,
-                        "DataElement.category must be one of the following: " + str(ALLOWED_DATA_ELEMENT_CATEGORIES) +
-                        " (Constraint AASd-090)"
-                    )
+                        "DataElement.category must be one of the following: " + str(ALLOWED_DATA_ELEMENT_CATEGORIES))
             self._category = category
 
 
@@ -316,26 +312,6 @@ class MultiLanguageProperty(DataElement):
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE,
                  extension: Optional[Set[base.Extension]] = None):
         """
-        Initializer of MultiLanguageProperty
-
-        :param id_short: Identifying string of the element within its name space. (from base.Referable)
-        :param value: The value of the property instance.
-        :param value_id: Reference to the global unique id of a coded value.
-        :param display_name: Can be provided in several languages. (from base.Referable)
-        :param category: The category is a value that gives further meta information w.r.t. to the class of the element.
-                         It affects the expected existence of attributes and the applicability of constraints.
-                         (from base.Referable)
-        :param description: Description or comments on the element. (from base.Referable)
-        :param parent: Reference to the next referable parent element of the element. (from base.Referable)
-        :param semantic_id: Identifier of the semantic definition of the element. It is called semantic id of the
-                            element. The semantic id may either reference an external global id or it may reference a
-                            referable model element of kind=Type that defines the semantics of the element.
-                           (from base.HasSemantics)
-        :param qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
-                          (from base.Qualifiable)
-        :param kind: Kind of the element: either type or instance. Default = Instance. (from base.HasKind)
-        :param extension: Element that can be extended by proprietary extensions. (from base.HasExtension)
-
         TODO: Add instruction what to do after construction
         """
 
@@ -596,7 +572,6 @@ class SubmodelElementCollection(SubmodelElement, base.Namespace, metaclass=abc.A
     :ivar extension: Element that can be extended by proprietary extensions. (inherited from
                      :class:`aas.model.base.HasExtension`)
     """
-
     @abc.abstractmethod
     def __init__(self,
                  id_short: str,
@@ -609,27 +584,6 @@ class SubmodelElementCollection(SubmodelElement, base.Namespace, metaclass=abc.A
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE,
                  extension: Optional[Set[base.Extension]] = None):
         """
-        Initializer of SubmodelElementCollection
-
-        This class is abstract and should not used for instances; instead one of the subclasses
-        `SubmodelElementCollectionOrdered` or `SubmodelElementCollectionUnordered` shall be used.
-
-        :param id_short: Identifying string of the element within its name space. (from base.Referable)
-        :param display_name: Can be provided in several languages. (from base.Referable)
-        :param category: The category is a value that gives further meta information w.r.t. to the class of the element.
-                         It affects the expected existence of attributes and the applicability of constraints.
-                         (from base.Referable)
-        :param description: Description or comments on the element. (from base.Referable)
-        :param parent: Reference to the next referable parent element of the element. (from base.Referable)
-        :param semantic_id: Identifier of the semantic definition of the element. It is called semantic id of the
-                            element. The semantic id may either reference an external global id or it may reference a
-                            referable model element of kind=Type that defines the semantics of the element.
-                            (from base.HasSemantics)
-        :param qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
-                          (from base.Qualifiable)
-        :param kind: Kind of the element: either type or instance. Default = Instance. (from base.HasKind)
-        :param extension: Element that can be extended by proprietary extensions. (from base.HasExtension)
-
         TODO: Add instruction what to do after construction
         """
         super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, kind, extension)
@@ -679,6 +633,25 @@ class SubmodelElementCollectionOrdered(SubmodelElementCollection):
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE,
                  extension: Optional[Set[base.Extension]] = None):
         """
+        Initializer of SubmodelElementCollection
+
+        :param id_short: Identifying string of the element within its name space. (from base.Referable)
+        :param value: Ordered list of submodel elements.
+        :param display_name: Can be provided in several languages. (from base.Referable)
+        :param category: The category is a value that gives further meta information w.r.t. to the class of the element.
+                         It affects the expected existence of attributes and the applicability of constraints.
+                         (from base.Referable)
+        :param description: Description or comments on the element. (from base.Referable)
+        :param parent: Reference to the next referable parent element of the element. (from base.Referable)
+        :param semantic_id: Identifier of the semantic definition of the element. It is called semantic id of the
+                            element. The semantic id may either reference an external global id or it may reference a
+                            referable model element of kind=Type that defines the semantics of the element.
+                            (from base.HasSemantics)
+        :param qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
+                          (from base.Qualifiable)
+        :param kind: Kind of the element: either type or instance. Default = Instance. (from base.HasKind)
+        :param extension: Element that can be extended by proprietary extensions. (from base.HasExtension)
+
         TODO: Add instruction what to do after construction
         """
 
@@ -886,22 +859,20 @@ class OperationVariable:
         TODO: Add instruction what to do after construction
         """
         # Constraint AASd-008: The submodel element shall be of kind=Template.
-        self.value: SubmodelElement
-        self._value: SubmodelElement = value
+        self._value: SubmodelElement
+        self.value = value
 
-    @property
-    def value(self):
+    def _get_value(self):
         return self._value
 
-    @value.setter
-    def value(self, value: SubmodelElement) -> None:
-        if self.value.kind is not base.ModelingKind.TEMPLATE:
+    def _set_value(self, value: SubmodelElement) -> None:
+        if value.kind is not base.ModelingKind.TEMPLATE:
             raise base.AASConstraintViolation(
                 8,
-                "The SubmodelElement `OperationVariable.value` must have the attribute `kind==ModelingType.TEMPLATE` "
-                "(Constraint AASd-008)"
+                "The SubmodelElement `OperationVariable.value` must have the attribute `kind==ModelingType.TEMPLATE`"
             )
         self._value = value
+    value = property(_get_value, _set_value)
 
 
 class Operation(SubmodelElement):
@@ -959,7 +930,6 @@ class Capability(SubmodelElement):
     """
     A capability is the implementation-independent description of the potential of an asset to achieve a certain effect
     in the physical or virtual world
-
     :ivar id_short: Identifying string of the element within its name space. (inherited from
                     :class:`~aas.model.base.Referable`)
     :ivar display_name: Can be provided in several languages. (inherited from :class:`~aas.model.base.Referable`)
@@ -1085,7 +1055,6 @@ class Entity(SubmodelElement, base.Namespace):
 class Event(SubmodelElement, metaclass=abc.ABCMeta):
     """
     An event
-
     <<abstract>>
 
     :ivar id_short: Identifying string of the element within its name space. (inherited from
@@ -1108,7 +1077,6 @@ class Event(SubmodelElement, metaclass=abc.ABCMeta):
     :ivar extension: Element that can be extended by proprietary extensions. (inherited from
                      :class:`aas.model.base.HasExtension`)
     """
-
     @abc.abstractmethod
     def __init__(self,
                  id_short: str,
@@ -1161,26 +1129,7 @@ class BasicEvent(Event):
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE,
                  extension: Optional[Set[base.Extension]] = None):
         """
-        Initializer of BasicEvent
-
-        :param id_short: Identifying string of the element within its name space. (from base.Referable)
-        :param observed: Reference to the data or other elements that are being observed
-        :param display_name: Can be provided in several languages. (from base.Referable)
-        :param category: The category is a value that gives further meta information w.r.t. to the class of the element.
-                         It affects the expected existence of attributes and the applicability of constraints.
-                         (from base.Referable)
-        :param description: Description or comments on the element. (from base.Referable)
-        :param parent: Reference to the next referable parent element of the element. (from base.Referable)
-        :param semantic_id: Identifier of the semantic definition of the element. It is called semantic id of the
-                            element. The semantic id may either reference an external global id or it may reference a
-                            referable model element of kind=Type that defines the semantics of the element.
-                            (from base.HasSemantics)
-        :param qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
-                          (from base.Qualifiable)
-        :param kind: Kind of the element: either type or instance. Default = Instance. (from base.HasKind)
-        :param extension: Element that can be extended by proprietary extensions. (from base.HasExtension)
-
-        TODO: Add instruction what to do after construction
+       TODO: Add instruction what to do after construction
         """
 
         super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, kind, extension)

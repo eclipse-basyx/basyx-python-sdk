@@ -20,7 +20,7 @@ This module contains the following classes from an up-to-down-level:
 
 from typing import Optional, Set, Iterable
 
-from . import base, concept
+from . import base
 from .security import Security
 from .submodel import File, Submodel
 
@@ -99,7 +99,6 @@ class Asset(base.Identifiable):
     """
 
     def __init__(self,
-
                  identification: base.Identifier,
                  id_short: str = "NotSet",
                  display_name: Optional[base.LangStringSet] = None,
@@ -108,6 +107,7 @@ class Asset(base.Identifiable):
                  parent: Optional[base.Namespace] = None,
                  administration: Optional[base.AdministrativeInformation] = None,
                  extension: Optional[Set[base.Extension]] = None):
+
         super().__init__()
         self.identification: base.Identifier = identification
         self.id_short = id_short
@@ -119,7 +119,7 @@ class Asset(base.Identifiable):
         self.extension: Set[base.Extension] = set() if extension is None else extension
 
 
-class AssetInformation():
+class AssetInformation:
     """
     In AssetInformation identifying meta data of the asset that is represented by an AAS is defined.
 

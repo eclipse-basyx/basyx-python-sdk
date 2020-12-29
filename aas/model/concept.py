@@ -16,6 +16,8 @@ from enum import unique, Enum
 from typing import Optional, Set, Type
 
 from . import base, datatypes
+
+
 ALLOWED_CONCEPT_DESCRIPTION_CATEGORIES: Set[str] = {
     "VALUE",
     "PROPERTY",
@@ -90,7 +92,7 @@ class ConceptDescription(base.Identifiable):
                 raise base.AASConstraintViolation(
                     51,
                     "ConceptDescription must have one of the following "
-                    "categories: " + str(ALLOWED_CONCEPT_DESCRIPTION_CATEGORIES) + " (Constraint AASd-051)"
+                    "categories: " + str(ALLOWED_CONCEPT_DESCRIPTION_CATEGORIES)
                 )
             self._category = category
 

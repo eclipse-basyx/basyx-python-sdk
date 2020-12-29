@@ -435,7 +435,7 @@ class AASToJsonEncoder(json.JSONEncoder):
         data['embeddedDataSpecifications'] = [
             {'dataSpecification': model.Reference((
                 model.Key(model.KeyElements.GLOBAL_REFERENCE,
-                          "http://admin-shell.io/DataSpecificationTemplates/DataSpecificationIEC61360/3/0",
+                          "http://admin-shell.io/DataSpecificationTemplates/DataSpecificationIEC61360/2/0",
                           model.KeyType.IRI),)),
              'dataSpecificationContent': data_spec}
         ]

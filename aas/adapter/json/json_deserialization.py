@@ -26,7 +26,6 @@ import base64
 import json
 import logging
 import pprint
-from builtins import dict
 from typing import Dict, Callable, TypeVar, Type, List, IO, Optional, Set
 
 from aas import model
@@ -432,7 +431,7 @@ class AASFromJsonDecoder(json.JSONDecoder):
             for dspec in _get_ts(dct, 'embeddedDataSpecifications', list):
                 dspec_ref = cls._construct_reference(_get_ts(dspec, 'dataSpecification', dict))
                 if dspec_ref.key and (dspec_ref.key[0].value ==
-                                      "http://admin-shell.io/DataSpecificationTemplates/DataSpecificationIEC61360/3/0"):
+                                      "http://admin-shell.io/DataSpecificationTemplates/DataSpecificationIEC61360/2/0"):
                     ret = cls._construct_iec61360_concept_description(
                         dct, _get_ts(dspec, 'dataSpecificationContent', dict))
         # If this is not a special ConceptDescription, just construct one of the default object_class
