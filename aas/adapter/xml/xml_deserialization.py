@@ -1110,7 +1110,7 @@ class AASFromXmlDecoder:
                 dspec_ref = _failsafe_construct(dspec.find(NS_AAS + "dataSpecification"), cls.construct_reference,
                                                 cls.failsafe)
                 if dspec_ref is not None and len(dspec_ref.key) > 0 and dspec_ref.key[0].value == \
-                        "http://admin-shell.io/DataSpecificationTemplates/DataSpecificationIEC61360/3/0":
+                        "http://admin-shell.io/DataSpecificationTemplates/DataSpecificationIEC61360/2/0":
                     cd = _failsafe_construct(dspec_content.find(NS_AAS + "dataSpecificationIEC61360"),
                                              cls.construct_iec61360_concept_description, cls.failsafe,
                                              identifier=identifier)

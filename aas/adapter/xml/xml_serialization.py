@@ -420,7 +420,7 @@ def concept_description_to_xml(obj: model.ConceptDescription,
         et_concept_description.append(et_embedded_data_specification)
         et_embedded_data_specification.append(reference_to_xml(model.Reference(tuple([model.Key(
             model.KeyElements.GLOBAL_REFERENCE,
-            "http://admin-shell.io/DataSpecificationTemplates/DataSpecificationIEC61360/3/0",
+            "http://admin-shell.io/DataSpecificationTemplates/DataSpecificationIEC61360/2/0",
             model.KeyType.IRI
         )])), NS_AAS+"dataSpecification"))
     if obj.is_case_of:

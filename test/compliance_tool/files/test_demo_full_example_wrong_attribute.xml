@@ -260,7 +260,7 @@
         </aas:dataSpecificationContent>
         <aas:dataSpecification>
           <aas:keys>
-            <aas:key idType="IRI" type="GlobalReference">http://admin-shell.io/DataSpecificationTemplates/DataSpecificationIEC61360/3/0</aas:key>
+            <aas:key idType="IRI" type="GlobalReference">http://admin-shell.io/DataSpecificationTemplates/DataSpecificationIEC61360/2/0</aas:key>
           </aas:keys>
         </aas:dataSpecification>
       </aas:embeddedDataSpecification>
