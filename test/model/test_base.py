@@ -278,6 +278,7 @@ class ModelNamespaceTest(unittest.TestCase):
         self.prop1 = model.Property("Prop1", model.datatypes.Int)
         self.prop2 = model.Property("Prop2", model.datatypes.Int)
         self.prop1alt = model.Property("Prop1", model.datatypes.Int)
+        self.prop1alt2 = model.Property("ProP1", model.datatypes.Int)
         self.namespace = self._namespace_class()
 
     def test_NamespaceSet(self) -> None:
@@ -292,6 +293,11 @@ class ModelNamespaceTest(unittest.TestCase):
         with self.assertRaises(KeyError) as cm:
             self.namespace.set1.add(self.prop1alt)
         self.assertEqual('"Referable with id_short \'Prop1\' is already present in this set of objects"',
+                         str(cm.exception))
+
+        with self.assertRaises(KeyError) as cm:
+            self.namespace.set1.add(self.prop1alt2)
+        self.assertEqual('"Referable with id_short \'ProP1\' is already present in this set of objects"',
                          str(cm.exception))
 
         with self.assertRaises(KeyError) as cm:

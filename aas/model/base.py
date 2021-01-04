@@ -1182,9 +1182,9 @@ class NamespaceSet(MutableSet[_RT], Generic[_RT]):
 
     def __contains__(self, x: object) -> bool:
         if isinstance(x, str):
-            return x in self._backend
+            return x.upper() in self._backend
         elif isinstance(x, Referable):
-            return self._backend.get(x.id_short) is x
+            return self._backend.get(x.id_short.upper()) is x
         else:
             return False
 
@@ -1196,7 +1196,7 @@ class NamespaceSet(MutableSet[_RT], Generic[_RT]):
 
     def add(self, value: _RT):
         for set_ in self.parent.namespace_element_sets:
-            if value.id_short in set_:
+            if value.id_short.upper() in set_:
                 raise KeyError("Referable with id_short '{}' is already present in {}"
                                .format(value.id_short,
                                        "this set of objects"
@@ -1205,17 +1205,17 @@ class NamespaceSet(MutableSet[_RT], Generic[_RT]):
             raise ValueError("Object has already a parent, but it must not be part of two namespaces.")
             # TODO remove from current parent instead (allow moving)?
         value.parent = self.parent
-        self._backend[value.id_short] = value
+        self._backend[value.id_short.upper()] = value
 
     def remove(self, item: Union[str, _RT]):
         if isinstance(item, str):
-            del self._backend[item]
+            del self._backend[item.upper()]
         else:
-            item_in_dict = self._backend[item.id_short]
+            item_in_dict = self._backend[item.id_short.upper()]
             if item_in_dict is not item:
                 raise KeyError("Item not found in NamespaceDict (other item with same id_short exists)")
             item.parent = None
-            del self._backend[item.id_short]
+            del self._backend[item.id_short.upper()]
 
     def discard(self, x: _RT) -> None:
         if x not in self:
@@ -1232,15 +1232,19 @@ class NamespaceSet(MutableSet[_RT], Generic[_RT]):
             value.parent = None
         self._backend.clear()
 
-    def get_referable(self, key) -> _RT:
+    def get_referable(self, id_short: str) -> _RT:
         """
         Find an object in this set by its id_short
 
         :raises KeyError: If no such object can be found
         """
-        return self._backend[key]
+        try:
+            self._backend[id_short.upper()]
+        except KeyError:
+            self._backend[id_short]
+        return self._backend[id_short.upper()]
 
-    def get(self, key, default: Optional[_RT] = None) -> Optional[_RT]:
+    def get(self, id_short: str, default: Optional[_RT] = None) -> Optional[_RT]:
         """
         Find an object in this set by its id_short, with fallback parameter
 
@@ -1248,7 +1252,7 @@ class NamespaceSet(MutableSet[_RT], Generic[_RT]):
         :return: The Referable object with the given id_short in the set. Otherwise the `default` object or None, if
                  none is given.
         """
-        return self._backend.get(key, default)
+        return self._backend.get(id_short.upper(), default)
 
     def update_nss_from(self, other: "NamespaceSet"):
         """
@@ -1262,7 +1266,7 @@ class NamespaceSet(MutableSet[_RT], Generic[_RT]):
         referables_to_remove: List[Referable] = []  # objects to remove from self
         for other_referable in other:
             try:
-                referable = self._backend[other_referable.id_short]
+                referable = self._backend[other_referable.id_short.upper()]
                 if type(referable) is type(other_referable):
                     # referable is the same as other referable
                     referable.update_from(other_referable, update_source=True)
@@ -1270,7 +1274,7 @@ class NamespaceSet(MutableSet[_RT], Generic[_RT]):
                 # other referable is not in NamespaceSet
                 referables_to_add.append(other_referable)
         for id_short, referable in self._backend.items():
-            if not other.get(id_short):
+            if not other.get(id_short.upper()):
                 # referable does not exist in the other NamespaceSet
                 referables_to_remove.append(referable)
         for referable_to_add in referables_to_add:
