@@ -76,15 +76,6 @@
                         {
                             "type": "Submodel",
                             "idType": "IRI",
-                            "value": "http://acplt.org/Submodels/Assets/TestAsset/BillOfMaterial"
-                        }
-                    ]
-                },
-                {
-                    "keys": [
-                        {
-                            "type": "Submodel",
-                            "idType": "IRI",
                             "value": "http://acplt.org/Submodels/Assets/TestAsset/Identification"
                         }
                     ]
@@ -95,6 +86,15 @@
                             "type": "Submodel",
                             "idType": "IRI",
                             "value": "https://acplt.org/Test_Submodel"
+                        }
+                    ]
+                },
+                {
+                    "keys": [
+                        {
+                            "type": "Submodel",
+                            "idType": "IRI",
+                            "value": "http://acplt.org/Submodels/Assets/TestAsset/BillOfMaterial"
                         }
                     ]
                 }
@@ -127,7 +127,7 @@
                         {
                             "type": "Submodel",
                             "idType": "IRI",
-                            "value": "https://acplt.org/Test_Submodel2_Mandatory"
+                            "value": "https://acplt.org/Test_Submodel_Mandatory"
                         }
                     ]
                 },
@@ -136,7 +136,7 @@
                         {
                             "type": "Submodel",
                             "idType": "IRI",
-                            "value": "https://acplt.org/Test_Submodel_Mandatory"
+                            "value": "https://acplt.org/Test_Submodel2_Mandatory"
                         }
                     ]
                 }
@@ -553,29 +553,6 @@
                                     }
                                 ]
                             },
-                            "qualifiers": [
-                                {
-                                    "modelType": {
-                                        "name": "Formula"
-                                    }
-                                },
-                                {
-                                    "modelType": {
-                                        "name": "Formula"
-                                    },
-                                    "dependsOn": [
-                                        {
-                                            "keys": [
-                                                {
-                                                    "type": "GlobalReference",
-                                                    "idType": "IRI",
-                                                    "value": "http://acplt.org/ValueId/ExampleValueId"
-                                                }
-                                            ]
-                                        }
-                                    ]
-                                }
-                            ],
                             "value": "exampleValue",
                             "valueId": {
                                 "keys": [
@@ -764,6 +741,15 @@
                     },
                     "annotation": [
                         {
+                            "idShort": "ExampleAnnotatedProperty",
+                            "category": "PARAMETER",
+                            "modelType": {
+                                "name": "Property"
+                            },
+                            "value": "exampleValue",
+                            "valueType": "string"
+                        },
+                        {
                             "idShort": "ExampleAnnotatedRange",
                             "category": "PARAMETER",
                             "modelType": {
@@ -772,15 +758,6 @@
                             "valueType": "integer",
                             "min": "1",
                             "max": "5"
-                        },
-                        {
-                            "idShort": "ExampleAnnotatedProperty",
-                            "category": "PARAMETER",
-                            "modelType": {
-                                "name": "Property"
-                            },
-                            "value": "exampleValue",
-                            "valueType": "string"
                         }
                     ]
                 },
@@ -2922,8 +2899,8 @@
                         },
                         "value": "TEST",
                         "levelType": [
-                            "Min",
-                            "Max"
+                            "Max",
+                            "Min"
                         ]
                     }
                 }

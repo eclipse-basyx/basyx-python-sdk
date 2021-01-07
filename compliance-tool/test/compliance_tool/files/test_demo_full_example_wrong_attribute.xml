@@ -2,7 +2,7 @@
 <aas:aasenv xmlns:aas="http://www.admin-shell.io/aas/3/0" xmlns:abac="http://www.admin-shell.io/aas/abac/3/0" xmlns:aas_common="http://www.admin-shell.io/aas_common/3/0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:IEC="http://www.admin-shell.io/IEC61360/3/0" xmlns:xs="http://www.w3.org/2001/XMLSchema">
   <aas:assetAdministrationShells>
     <aas:assetAdministrationShell>
-      <aas:idShort>TestAssetAdministrationShell</aas:idShort>
+      <aas:idShort>TestAssetAdministrationShell123</aas:idShort>
       <aas:description>
         <aas:langString lang="en-us">An Example Asset Administration Shell for the test application</aas:langString>
         <aas:langString lang="de">Ein Beispiel-Verwaltungsschale für eine Test-Anwendung</aas:langString>
@@ -11,7 +11,7 @@
         <aas:revision>0</aas:revision>
         <aas:version>0.9</aas:version>
       </aas:administration>
-      <aas:identification idType="IRI">https://acplt.org/Test_AssetAdministrationShell123</aas:identification>
+      <aas:identification idType="IRI">https://acplt.org/Test_AssetAdministrationShell</aas:identification>
       <aas:derivedFrom>
         <aas:keys>
           <aas:key idType="IRI" type="AssetAdministrationShell">https://acplt.org/TestAssetAdministrationShell2</aas:key>
@@ -20,17 +20,17 @@
       <aas:submodelRefs>
         <aas:submodelRef>
           <aas:keys>
-            <aas:key idType="IRI" type="Submodel">http://acplt.org/Submodels/Assets/TestAsset/Identification</aas:key>
-          </aas:keys>
-        </aas:submodelRef>
-        <aas:submodelRef>
-          <aas:keys>
             <aas:key idType="IRI" type="Submodel">https://acplt.org/Test_Submodel</aas:key>
           </aas:keys>
         </aas:submodelRef>
         <aas:submodelRef>
           <aas:keys>
             <aas:key idType="IRI" type="Submodel">http://acplt.org/Submodels/Assets/TestAsset/BillOfMaterial</aas:key>
+          </aas:keys>
+        </aas:submodelRef>
+        <aas:submodelRef>
+          <aas:keys>
+            <aas:key idType="IRI" type="Submodel">http://acplt.org/Submodels/Assets/TestAsset/Identification</aas:key>
           </aas:keys>
         </aas:submodelRef>
       </aas:submodelRefs>
@@ -254,8 +254,8 @@
               </IEC:valueReferencePair>
             </IEC:valueList>
             <IEC:value>TEST</IEC:value>
-            <IEC:levelType>Min</IEC:levelType>
             <IEC:levelType>Max</IEC:levelType>
+            <IEC:levelType>Min</IEC:levelType>
           </aas:dataSpecificationIEC61360>
         </aas:dataSpecificationContent>
         <aas:dataSpecification>
@@ -433,18 +433,6 @@
                       <aas:key idType="IRI" type="GlobalReference">http://acplt.org/Properties/ExampleProperty</aas:key>
                     </aas:keys>
                   </aas:semanticId>
-                  <aas:qualifiers>
-                    <aas:formula>
-                      <aas:dependsOnRefs>
-                        <aas:reference>
-                          <aas:keys>
-                            <aas:key idType="IRI" type="GlobalReference">http://acplt.org/ValueId/ExampleValueId</aas:key>
-                          </aas:keys>
-                        </aas:reference>
-                      </aas:dependsOnRefs>
-                    </aas:formula>
-                    <aas:formula/>
-                  </aas:qualifiers>
                   <aas:valueId>
                     <aas:keys>
                       <aas:key idType="IRI" type="GlobalReference">http://acplt.org/ValueId/ExampleValueId</aas:key>
@@ -570,15 +558,6 @@
             </aas:second>
             <aas:annotations>
               <aas:dataElement>
-                <aas:property>
-                  <aas:idShort>ExampleAnnotatedProperty</aas:idShort>
-                  <aas:category>PARAMETER</aas:category>
-                  <aas:kind>Instance</aas:kind>
-                  <aas:value>exampleValue</aas:value>
-                  <aas:valueType>string</aas:valueType>
-                </aas:property>
-              </aas:dataElement>
-              <aas:dataElement>
                 <aas:range>
                   <aas:idShort>ExampleAnnotatedRange</aas:idShort>
                   <aas:category>PARAMETER</aas:category>
@@ -587,6 +566,15 @@
                   <aas:min>1</aas:min>
                   <aas:valueType>integer</aas:valueType>
                 </aas:range>
+              </aas:dataElement>
+              <aas:dataElement>
+                <aas:property>
+                  <aas:idShort>ExampleAnnotatedProperty</aas:idShort>
+                  <aas:category>PARAMETER</aas:category>
+                  <aas:kind>Instance</aas:kind>
+                  <aas:value>exampleValue</aas:value>
+                  <aas:valueType>string</aas:valueType>
+                </aas:property>
               </aas:dataElement>
             </aas:annotations>
           </aas:annotatedRelationshipElement>

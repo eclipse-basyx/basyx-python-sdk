@@ -20,17 +20,17 @@
       <aas:submodelRefs>
         <aas:submodelRef>
           <aas:keys>
-            <aas:key idType="IRI" type="Submodel">http://acplt.org/Submodels/Assets/TestAsset/Identification</aas:key>
-          </aas:keys>
-        </aas:submodelRef>
-        <aas:submodelRef>
-          <aas:keys>
             <aas:key idType="IRI" type="Submodel">https://acplt.org/Test_Submodel</aas:key>
           </aas:keys>
         </aas:submodelRef>
         <aas:submodelRef>
           <aas:keys>
             <aas:key idType="IRI" type="Submodel">http://acplt.org/Submodels/Assets/TestAsset/BillOfMaterial</aas:key>
+          </aas:keys>
+        </aas:submodelRef>
+        <aas:submodelRef>
+          <aas:keys>
+            <aas:key idType="IRI" type="Submodel">http://acplt.org/Submodels/Assets/TestAsset/Identification</aas:key>
           </aas:keys>
         </aas:submodelRef>
       </aas:submodelRefs>
@@ -254,8 +254,8 @@
               </IEC:valueReferencePair>
             </IEC:valueList>
             <IEC:value>TEST</IEC:value>
-            <IEC:levelType>Min</IEC:levelType>
             <IEC:levelType>Max</IEC:levelType>
+            <IEC:levelType>Min</IEC:levelType>
           </aas:dataSpecificationIEC61360>
         </aas:dataSpecificationContent>
         <aas:dataSpecification>
@@ -433,18 +433,6 @@
                       <aas:key idType="IRI" type="GlobalReference">http://acplt.org/Properties/ExampleProperty</aas:key>
                     </aas:keys>
                   </aas:semanticId>
-                  <aas:qualifiers>
-                    <aas:formula>
-                      <aas:dependsOnRefs>
-                        <aas:reference>
-                          <aas:keys>
-                            <aas:key idType="IRI" type="GlobalReference">http://acplt.org/ValueId/ExampleValueId</aas:key>
-                          </aas:keys>
-                        </aas:reference>
-                      </aas:dependsOnRefs>
-                    </aas:formula>
-                    <aas:formula/>
-                  </aas:qualifiers>
                   <aas:valueId>
                     <aas:keys>
                       <aas:key idType="IRI" type="GlobalReference">http://acplt.org/ValueId/ExampleValueId</aas:key>
@@ -570,15 +558,6 @@
             </aas:second>
             <aas:annotations>
               <aas:dataElement>
-                <aas:property>
-                  <aas:idShort>ExampleAnnotatedProperty</aas:idShort>
-                  <aas:category>PARAMETER</aas:category>
-                  <aas:kind>Instance</aas:kind>
-                  <aas:value>exampleValue</aas:value>
-                  <aas:valueType>string</aas:valueType>
-                </aas:property>
-              </aas:dataElement>
-              <aas:dataElement>
                 <aas:range>
                   <aas:idShort>ExampleAnnotatedRange</aas:idShort>
                   <aas:category>PARAMETER</aas:category>
@@ -587,6 +566,15 @@
                   <aas:min>1</aas:min>
                   <aas:valueType>integer</aas:valueType>
                 </aas:range>
+              </aas:dataElement>
+              <aas:dataElement>
+                <aas:property>
+                  <aas:idShort>ExampleAnnotatedProperty</aas:idShort>
+                  <aas:category>PARAMETER</aas:category>
+                  <aas:kind>Instance</aas:kind>
+                  <aas:value>exampleValue</aas:value>
+                  <aas:valueType>string</aas:valueType>
+                </aas:property>
               </aas:dataElement>
             </aas:annotations>
           </aas:annotatedRelationshipElement>
