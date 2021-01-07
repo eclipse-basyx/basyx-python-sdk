@@ -182,11 +182,12 @@ class JsonSerializationStrippedObjectsTest(unittest.TestCase):
 
     def test_stripped_qualifiable(self) -> None:
         qualifier = model.Qualifier("test_qualifier", str)
+        qualifier2 = model.Qualifier("test_qualifier2", str)
         operation = model.Operation("test_operation", qualifier={qualifier})
         submodel = model.Submodel(
             model.Identifier("http://acplt.org/test_submodel", model.IdentifierType.IRI),
             submodel_element=[operation],
-            qualifier={qualifier}
+            qualifier={qualifier2}
         )
 
         self._checkNormalAndStripped({"submodelElements", "qualifiers"}, submodel)

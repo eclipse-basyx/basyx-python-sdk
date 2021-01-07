@@ -36,9 +36,9 @@ class SubmodelElement(base.Referable, base.Qualifiable, base.HasSemantics, base.
                  display_name: Optional[base.LangStringSet] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
-                 parent: Optional[base.Namespace] = None,
+                 parent: Optional[base.UniqueIdShortNamespace] = None,
                  semantic_id: Optional[base.Reference] = None,
-                 qualifier: Optional[Set[base.Constraint]] = None,
+                 qualifier: Iterable[base.Constraint] = (),
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE,
                  extension: Optional[Set[base.Extension]] = None):
         """
@@ -68,14 +68,14 @@ class SubmodelElement(base.Referable, base.Qualifiable, base.HasSemantics, base.
         self.display_name: Optional[base.LangStringSet] = dict() if display_name is None else display_name
         self.category = category
         self.description: Optional[base.LangStringSet] = dict() if description is None else description
-        self.parent: Optional[base.Namespace] = parent
+        self.parent: Optional[base.UniqueIdShortNamespace] = parent
         self.semantic_id: Optional[base.Reference] = semantic_id
-        self.qualifier: Set[base.Constraint] = set() if qualifier is None else qualifier
+        self.qualifier = base.NamespaceSet(self, [("type", True)], qualifier)
         self._kind: base.ModelingKind = kind
         self.extension: Set[base.Extension] = set() if extension is None else extension
 
 
-class Submodel(base.Identifiable, base.HasSemantics, base.HasKind, base.Qualifiable, base.Namespace):
+class Submodel(base.Identifiable, base.HasSemantics, base.HasKind, base.Qualifiable, base.UniqueIdShortNamespace):
     """
     A Submodel defines a specific aspect of the asset represented by the AAS.
 
@@ -93,10 +93,10 @@ class Submodel(base.Identifiable, base.HasSemantics, base.HasKind, base.Qualifia
                  display_name: Optional[base.LangStringSet] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
-                 parent: Optional[base.Namespace] = None,
+                 parent: Optional[base.UniqueIdShortNamespace] = None,
                  administration: Optional[base.AdministrativeInformation] = None,
                  semantic_id: Optional[base.Reference] = None,
-                 qualifier: Optional[Set[base.Constraint]] = None,
+                 qualifier: Iterable[base.Constraint] = (),
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE,
                  extension: Optional[Set[base.Extension]] = None):
         """
@@ -124,15 +124,15 @@ class Submodel(base.Identifiable, base.HasSemantics, base.HasKind, base.Qualifia
 
         super().__init__()
         self.identification: base.Identifier = identification
-        self.submodel_element = base.NamespaceSet(self, submodel_element)
+        self.submodel_element = base.NamespaceSet(self, [("id_short", True)], submodel_element)
         self.id_short = id_short
         self.display_name: Optional[base.LangStringSet] = dict() if display_name is None else display_name
         self.category = category
         self.description: Optional[base.LangStringSet] = dict() if description is None else description
-        self.parent: Optional[base.Namespace] = parent
+        self.parent: Optional[base.UniqueIdShortNamespace] = parent
         self.administration: Optional[base.AdministrativeInformation] = administration
         self.semantic_id: Optional[base.Reference] = semantic_id
-        self.qualifier: Set[base.Constraint] = set() if qualifier is None else qualifier
+        self.qualifier = base.NamespaceSet(self, [("type", True)], qualifier)
         self._kind: base.ModelingKind = kind
         self.extension: Set[base.Extension] = set() if extension is None else extension
 
@@ -158,9 +158,9 @@ class DataElement(SubmodelElement, metaclass=abc.ABCMeta):
                  display_name: Optional[base.LangStringSet] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
-                 parent: Optional[base.Namespace] = None,
+                 parent: Optional[base.UniqueIdShortNamespace] = None,
                  semantic_id: Optional[base.Reference] = None,
-                 qualifier: Optional[Set[base.Constraint]] = None,
+                 qualifier: Iterable[base.Constraint] = (),
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE,
                  extension: Optional[Set[base.Extension]] = None):
         """
@@ -219,9 +219,9 @@ class Property(DataElement):
                  display_name: Optional[base.LangStringSet] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
-                 parent: Optional[base.Namespace] = None,
+                 parent: Optional[base.UniqueIdShortNamespace] = None,
                  semantic_id: Optional[base.Reference] = None,
-                 qualifier: Optional[Set[base.Constraint]] = None,
+                 qualifier: Iterable[base.Constraint] = (),
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE,
                  extension: Optional[Set[base.Extension]] = None):
         """
@@ -284,9 +284,9 @@ class MultiLanguageProperty(DataElement):
                  display_name: Optional[base.LangStringSet] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
-                 parent: Optional[base.Namespace] = None,
+                 parent: Optional[base.UniqueIdShortNamespace] = None,
                  semantic_id: Optional[base.Reference] = None,
-                 qualifier: Optional[Set[base.Constraint]] = None,
+                 qualifier: Iterable[base.Constraint] = (),
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE,
                  extension: Optional[Set[base.Extension]] = None):
         """
@@ -338,9 +338,9 @@ class Range(DataElement):
                  display_name: Optional[base.LangStringSet] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
-                 parent: Optional[base.Namespace] = None,
+                 parent: Optional[base.UniqueIdShortNamespace] = None,
                  semantic_id: Optional[base.Reference] = None,
-                 qualifier: Optional[Set[base.Constraint]] = None,
+                 qualifier: Iterable[base.Constraint] = (),
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE,
                  extension: Optional[Set[base.Extension]] = None):
         """
@@ -417,9 +417,9 @@ class Blob(DataElement):
                  display_name: Optional[base.LangStringSet] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
-                 parent: Optional[base.Namespace] = None,
+                 parent: Optional[base.UniqueIdShortNamespace] = None,
                  semantic_id: Optional[base.Reference] = None,
-                 qualifier: Optional[Set[base.Constraint]] = None,
+                 qualifier: Iterable[base.Constraint] = (),
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE,
                  extension: Optional[Set[base.Extension]] = None):
         """
@@ -471,9 +471,9 @@ class File(DataElement):
                  display_name: Optional[base.LangStringSet] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
-                 parent: Optional[base.Namespace] = None,
+                 parent: Optional[base.UniqueIdShortNamespace] = None,
                  semantic_id: Optional[base.Reference] = None,
-                 qualifier: Optional[Set[base.Constraint]] = None,
+                 qualifier: Iterable[base.Constraint] = (),
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE,
                  extension: Optional[Set[base.Extension]] = None):
         """
@@ -522,9 +522,9 @@ class ReferenceElement(DataElement):
                  display_name: Optional[base.LangStringSet] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
-                 parent: Optional[base.Namespace] = None,
+                 parent: Optional[base.UniqueIdShortNamespace] = None,
                  semantic_id: Optional[base.Reference] = None,
-                 qualifier: Optional[Set[base.Constraint]] = None,
+                 qualifier: Iterable[base.Constraint] = (),
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE,
                  extension: Optional[Set[base.Extension]] = None):
         """
@@ -555,7 +555,7 @@ class ReferenceElement(DataElement):
         self.value: Optional[base.Reference] = value
 
 
-class SubmodelElementCollection(SubmodelElement, base.Namespace, metaclass=abc.ABCMeta):
+class SubmodelElementCollection(SubmodelElement, base.UniqueIdShortNamespace, metaclass=abc.ABCMeta):
     """
     A submodel element collection is a set or list of submodel elements.
 
@@ -573,9 +573,9 @@ class SubmodelElementCollection(SubmodelElement, base.Namespace, metaclass=abc.A
                  display_name: Optional[base.LangStringSet] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
-                 parent: Optional[base.Namespace] = None,
+                 parent: Optional[base.UniqueIdShortNamespace] = None,
                  semantic_id: Optional[base.Reference] = None,
-                 qualifier: Optional[Set[base.Constraint]] = None,
+                 qualifier: Iterable[base.Constraint] = (),
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE,
                  extension: Optional[Set[base.Extension]] = None):
         """
@@ -622,9 +622,9 @@ class SubmodelElementCollectionOrdered(SubmodelElementCollection):
                  display_name: Optional[base.LangStringSet] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
-                 parent: Optional[base.Namespace] = None,
+                 parent: Optional[base.UniqueIdShortNamespace] = None,
                  semantic_id: Optional[base.Reference] = None,
-                 qualifier: Optional[Set[base.Constraint]] = None,
+                 qualifier: Iterable[base.Constraint] = (),
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE,
                  extension: Optional[Set[base.Extension]] = None):
         """
@@ -651,7 +651,7 @@ class SubmodelElementCollectionOrdered(SubmodelElementCollection):
         """
 
         super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, kind, extension)
-        self.value = base.OrderedNamespaceSet(self, value)
+        self.value = base.OrderedNamespaceSet(self, [("id_short", True)], value)
 
     @property
     def ordered(self):
@@ -669,9 +669,9 @@ class SubmodelElementCollectionUnordered(SubmodelElementCollection):
                  display_name: Optional[base.LangStringSet] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
-                 parent: Optional[base.Namespace] = None,
+                 parent: Optional[base.UniqueIdShortNamespace] = None,
                  semantic_id: Optional[base.Reference] = None,
-                 qualifier: Optional[Set[base.Constraint]] = None,
+                 qualifier: Iterable[base.Constraint] = (),
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE,
                  extension: Optional[Set[base.Extension]] = None):
         """
@@ -697,7 +697,7 @@ class SubmodelElementCollectionUnordered(SubmodelElementCollection):
         TODO: Add instruction what to do after construction
         """
         super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, kind, extension)
-        self.value = base.NamespaceSet(self, value)
+        self.value = base.NamespaceSet(self, [("id_short", True)], value)
 
     @property
     def ordered(self):
@@ -722,9 +722,9 @@ class RelationshipElement(SubmodelElement):
                  display_name: Optional[base.LangStringSet] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
-                 parent: Optional[base.Namespace] = None,
+                 parent: Optional[base.UniqueIdShortNamespace] = None,
                  semantic_id: Optional[base.Reference] = None,
-                 qualifier: Optional[Set[base.Constraint]] = None,
+                 qualifier: Iterable[base.Constraint] = (),
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE,
                  extension: Optional[Set[base.Extension]] = None):
         """
@@ -758,7 +758,7 @@ class RelationshipElement(SubmodelElement):
         self.second: base.AASReference = second
 
 
-class AnnotatedRelationshipElement(RelationshipElement, base.Namespace):
+class AnnotatedRelationshipElement(RelationshipElement, base.UniqueIdShortNamespace):
     """
     An annotated relationship element is a relationship element that can be annotated with additional data elements.
 
@@ -773,9 +773,9 @@ class AnnotatedRelationshipElement(RelationshipElement, base.Namespace):
                  display_name: Optional[base.LangStringSet] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
-                 parent: Optional[base.Namespace] = None,
+                 parent: Optional[base.UniqueIdShortNamespace] = None,
                  semantic_id: Optional[base.Reference] = None,
-                 qualifier: Optional[Set[base.Constraint]] = None,
+                 qualifier: Iterable[base.Constraint] = (),
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE,
                  extension: Optional[Set[base.Extension]] = None):
         """
@@ -803,10 +803,11 @@ class AnnotatedRelationshipElement(RelationshipElement, base.Namespace):
 
         super().__init__(id_short, first, second, display_name, category, description, parent, semantic_id, qualifier,
                          kind, extension)
+        self.annotation: base.NamespaceSet[DataElement]
         if annotation is None:
-            self.annotation: base.NamespaceSet[DataElement] = base.NamespaceSet(self)
+            self.annotation = base.NamespaceSet(self, [("id_short", True)])
         else:
-            self.annotation = base.NamespaceSet(self, annotation)
+            self.annotation = base.NamespaceSet(self, [("id_short", True)], annotation)
 
 
 class OperationVariable:
@@ -860,9 +861,9 @@ class Operation(SubmodelElement):
                  display_name: Optional[base.LangStringSet] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
-                 parent: Optional[base.Namespace] = None,
+                 parent: Optional[base.UniqueIdShortNamespace] = None,
                  semantic_id: Optional[base.Reference] = None,
-                 qualifier: Optional[Set[base.Constraint]] = None,
+                 qualifier: Iterable[base.Constraint] = (),
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE,
                  extension: Optional[Set[base.Extension]] = None):
         """
@@ -907,9 +908,9 @@ class Capability(SubmodelElement):
                  display_name: Optional[base.LangStringSet] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
-                 parent: Optional[base.Namespace] = None,
+                 parent: Optional[base.UniqueIdShortNamespace] = None,
                  semantic_id: Optional[base.Reference] = None,
-                 qualifier: Optional[Set[base.Constraint]] = None,
+                 qualifier: Iterable[base.Constraint] = (),
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE,
                  extension: Optional[Set[base.Extension]] = None):
         """
@@ -937,7 +938,7 @@ class Capability(SubmodelElement):
         super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, kind, extension)
 
 
-class Entity(SubmodelElement, base.Namespace):
+class Entity(SubmodelElement, base.UniqueIdShortNamespace):
     """
     An entity is a submodel element that is used to model entities
 
@@ -957,9 +958,9 @@ class Entity(SubmodelElement, base.Namespace):
                  display_name: Optional[base.LangStringSet] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
-                 parent: Optional[base.Namespace] = None,
+                 parent: Optional[base.UniqueIdShortNamespace] = None,
                  semantic_id: Optional[base.Reference] = None,
-                 qualifier: Optional[Set[base.Constraint]] = None,
+                 qualifier: Iterable[base.Constraint] = (),
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE,
                  extension: Optional[Set[base.Extension]] = None):
         """
@@ -994,7 +995,7 @@ class Entity(SubmodelElement, base.Namespace):
         """
 
         super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, kind, extension)
-        self.statement = base.NamespaceSet(self, statement)
+        self.statement = base.NamespaceSet(self, [("id_short", True)], statement)
         self.specific_asset_id: Optional[base.IdentifierKeyValuePair] = specific_asset_id
         self.global_asset_id: Optional[base.Reference] = global_asset_id
         self._entity_type: base.EntityType
@@ -1029,9 +1030,9 @@ class Event(SubmodelElement, metaclass=abc.ABCMeta):
                  display_name: Optional[base.LangStringSet] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
-                 parent: Optional[base.Namespace] = None,
+                 parent: Optional[base.UniqueIdShortNamespace] = None,
                  semantic_id: Optional[base.Reference] = None,
-                 qualifier: Optional[Set[base.Constraint]] = None,
+                 qualifier: Iterable[base.Constraint] = (),
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE,
                  extension: Optional[Set[base.Extension]] = None):
         """
@@ -1070,9 +1071,9 @@ class BasicEvent(Event):
                  display_name: Optional[base.LangStringSet] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
-                 parent: Optional[base.Namespace] = None,
+                 parent: Optional[base.UniqueIdShortNamespace] = None,
                  semantic_id: Optional[base.Reference] = None,
-                 qualifier: Optional[Set[base.Constraint]] = None,
+                 qualifier: Iterable[base.Constraint] = (),
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE,
                  extension: Optional[Set[base.Extension]] = None):
         """

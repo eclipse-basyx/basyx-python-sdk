@@ -469,7 +469,7 @@ class Referable(HasExtension, metaclass=abc.ABCMeta):
         self.description: Optional[LangStringSet] = set()
         # We use a Python reference to the parent Namespace instead of a Reference Object, as specified. This allows
         # simpler and faster navigation/checks and it has no effect in the serialized data formats anyway.
-        self.parent: Optional[Namespace] = None
+        self.parent: Optional[UniqueIdShortNamespace] = None
         self.source: str = ""
 
     def __repr__(self) -> str:
@@ -523,7 +523,8 @@ class Referable(HasExtension, metaclass=abc.ABCMeta):
         :raises ValueError: if the constraint is not fulfilled
         :raises KeyError: if the new idShort causes a name collision in the parent Namespace
         """
-
+        if id_short == self.id_short:
+            return
         if id_short == "":
             raise AASConstraintViolation(100, "id_short is not allowed to be an empty string")
         test_id_short: str = str(id_short)
@@ -538,13 +539,19 @@ class Referable(HasExtension, metaclass=abc.ABCMeta):
                 "The id_short must start with a letter"
             )
 
-        if self.parent is not None and id_short != self.id_short:
+        if self.parent is not None:
             for set_ in self.parent.namespace_element_sets:
-                if id_short in set_:
-                    raise KeyError("Referable with id_short '{}' is already present in the parent Namespace"
+                if ("id_short", id_short) in set_:
+                    raise KeyError("Object with id_short '{}' is already present in the parent Namespace"
                                    .format(id_short))
-
-        self._id_short = id_short
+            for set_ in self.parent.namespace_element_sets:
+                if self in set_:
+                    set_.discard(self)
+                    self._id_short = id_short
+                    set_.add(self)
+                    break
+        else:
+            self._id_short = id_short
 
     def update(self,
                max_age: float = 0,
@@ -585,7 +592,7 @@ class Referable(HasExtension, metaclass=abc.ABCMeta):
 
         if recursive:
             # update all the children who have their own source
-            if isinstance(self, Namespace):
+            if isinstance(self, UniqueIdShortNamespace):
                 for namespace_set in self.namespace_element_sets:
                     for referable in namespace_set:
                         referable.update(max_age, recursive=True, _indirect_source=False)
@@ -660,7 +667,7 @@ class Referable(HasExtension, metaclass=abc.ABCMeta):
                                                             store_object=self,
                                                             relative_path=[])
 
-        if isinstance(self, Namespace):
+        if isinstance(self, UniqueIdShortNamespace):
             for namespace_set in self.namespace_element_sets:
                 for referable in namespace_set:
                     referable._direct_source_commit()
@@ -669,6 +676,7 @@ class Referable(HasExtension, metaclass=abc.ABCMeta):
 
 
 _RT = TypeVar('_RT', bound=Referable)
+_NSO = TypeVar('_NSO', bound=Union[Referable, "Constraint", "HasSemantics"])
 
 
 class UnexpectedTypeError(TypeError):
@@ -786,7 +794,7 @@ class AASReference(Reference, Generic[_RT]):
 
         # Now, follow path, given by remaining keys, recursively
         for key in self.key[last_identifier_index+1:]:
-            if not isinstance(item, Namespace):
+            if not isinstance(item, UniqueIdShortNamespace):
                 raise TypeError("Object retrieved at {} is not a Namespace".format(" / ".join(resolved_keys)))
             try:
                 item = item.get_referable(key.value)
@@ -881,6 +889,7 @@ class HasSemantics(metaclass=abc.ABCMeta):
     def __init__(self):
         super().__init__()
         self.semantic_id: Optional[Reference] = None
+        self.parent: Optional[Any] = None
 
 
 class Extension(HasSemantics):
@@ -967,42 +976,51 @@ class Constraint(metaclass=abc.ABCMeta):
 
 class Qualifiable(metaclass=abc.ABCMeta):
     """
-    The value of a qualifiable element may be further qualified by one or more qualifiers or complex formulas.
+    Abstract baseclass for all objects which form a Namespace to hold Qualifiable objects and resolve them by their
+    type.
 
-    << abstract >>
+    A Namespace can contain multiple NamespaceSets, which contain Qualifiable objects of different types. However, the
+    type of each object must be unique across all NamespaceSets of one Namespace.
 
-    :ivar qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
+    :ivar namespace_element_sets: A list of all NamespaceSets of this Namespace
     """
     @abc.abstractmethod
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
-        self.qualifier: Set[Constraint] = set()
+        self.namespace_element_sets: List[NamespaceSet] = []
+        self.qualifier: NamespaceSet[Constraint]
 
-
-class Formula(Constraint):
-    """
-    A formula is used to describe constraints by a logical expression.
-
-    :ivar depends_on: Unordered list of references to referable or even external global elements that are used in the
-                      logical expression. The value of the referenced elements needs to be accessible so that
-                      it can be evaluated in the formula to true or false in the corresponding logical expression
-                      it is used in.
-    """
-
-    def __init__(self,
-                 depends_on: Optional[Set[Reference]] = None):
+    def get_qualifier_by_type(self, qualifier_type: QualifierType) -> "Qualifier":
         """
-        Initializer of Formula
+        Find a Qualifiable in this Namespaces by its type
 
-        :param depends_on: Unordered of references to referable or even external global elements that are used in the
-                           logical expression. The value of the referenced elements needs to be accessible so that
-                           it can be evaluated in the formula to true or false in the corresponding logical expression
-                           it is used in.
-
-        TODO: Add instruction what to do after construction
+        :raises KeyError: If no such Referable can be found
         """
-        super().__init__()
-        self.depends_on: Set[Reference] = set() if depends_on is None else depends_on
+        object_ = None
+        for ns_set in self.namespace_element_sets:
+            try:
+                object_ = ns_set.get_object_by_attribute("type", qualifier_type)
+                break
+            except KeyError:
+                continue
+        if object_:
+            return object_
+        raise KeyError("Constraint with type {} not found in this namespace".format(qualifier_type))
+
+    def remove_qualifier_by_type(self, qualifier_type: QualifierType) -> None:
+        """
+        Remove a Qualifiable from this Namespace by its type
+
+        :raises KeyError: If no such Referable can be found
+        """
+        for dict_ in self.namespace_element_sets:
+            if "type" in dict_:
+                for dict_2 in dict_:
+                    return dict_2.remove(qualifier_type)
+        raise KeyError("Constraint with type {} not found in this namespace".format(qualifier_type))
+
+    def __iter__(self) -> Iterator[_NSO]:
+        return itertools.chain.from_iterable(self.namespace_element_sets)
 
 
 class Qualifier(Constraint, HasSemantics):
@@ -1041,6 +1059,7 @@ class Qualifier(Constraint, HasSemantics):
         self._value: Optional[ValueDataType] = datatypes.trivial_cast(value, value_type) if value is not None else None
         self.value_id: Optional[Reference] = value_id
         self.semantic_id: Optional[Reference] = semantic_id
+        self.parent: Optional[Qualifiable] = None  # type: ignore
 
     def __repr__(self) -> str:
         return "Qualifier(type={})".format(self.type)
@@ -1104,7 +1123,55 @@ class ValueReferencePair:
 ValueList = Set[ValueReferencePair]
 
 
-class Namespace(metaclass=abc.ABCMeta):
+class UniqueSemanticNamespace(metaclass=abc.ABCMeta):
+    """
+    Abstract baseclass for all objects which form a Namespace to hold HasSemantics objects and resolve them by their
+    semantic_id.
+
+    A Namespace can contain multiple NamespaceSets, which contain HasSemantics objects of different types. However, the
+    semantic_id of each object must be unique across all NamespaceSets of one Namespace.
+
+    :ivar namespace_element_sets: A list of all NamespaceSets of this Namespace
+    """
+    @abc.abstractmethod
+    def __init__(self) -> None:
+        super().__init__()
+        self.namespace_element_sets: List[NamespaceSet] = []
+
+    def get_object_by_semantic_id(self, semantic_id: Reference) -> HasSemantics:
+        """
+        Find an object in this Namespaces by its semantic_id
+
+        :raises KeyError: If no such object can be found
+        """
+        object_ = None
+        for ns_set in self.namespace_element_sets:
+            try:
+                object_ = ns_set.get_object_by_attribute("semantic_id", semantic_id)
+                break
+            except KeyError:
+                continue
+        if object_:
+            return object_
+        raise KeyError("Object with semantic_id {} not found in this namespace".format(semantic_id))
+
+    def remove_object_by_semantic_id(self, semantic_id: Reference) -> None:
+        """
+        Remove an object from this Namespace by its semantic_id
+
+        :raises KeyError: If no such object can be found
+        """
+        for dict_ in self.namespace_element_sets:
+            if "semantic_id" in dict_:
+                for dict_2 in dict_:
+                    return dict_2.remove(semantic_id)
+        raise KeyError("Object with semantic_id {} not found in this namespace".format(semantic_id))
+
+    def __iter__(self) -> Iterator[_NSO]:
+        return itertools.chain.from_iterable(self.namespace_element_sets)
+
+
+class UniqueIdShortNamespace(metaclass=abc.ABCMeta):
     """
     Abstract baseclass for all objects which form a Namespace to hold Referable objects and resolve them by their
     id_short.
@@ -1114,6 +1181,7 @@ class Namespace(metaclass=abc.ABCMeta):
 
     :ivar namespace_element_sets: A list of all NamespaceSets of this Namespace
     """
+
     @abc.abstractmethod
     def __init__(self) -> None:
         super().__init__()
@@ -1125,9 +1193,15 @@ class Namespace(metaclass=abc.ABCMeta):
 
         :raises KeyError: If no such Referable can be found
         """
-        for dict_ in self.namespace_element_sets:
-            if id_short in dict_:
-                return dict_.get_referable(id_short)
+        object_ = None
+        for ns_set in self.namespace_element_sets:
+            try:
+                object_ = ns_set.get_object_by_attribute("id_short", id_short)
+                break
+            except KeyError:
+                continue
+        if object_:
+            return object_
         raise KeyError("Referable with id_short {} not found in this namespace".format(id_short))
 
     def remove_referable(self, id_short: str) -> None:
@@ -1137,28 +1211,33 @@ class Namespace(metaclass=abc.ABCMeta):
         :raises KeyError: If no such Referable can be found
         """
         for dict_ in self.namespace_element_sets:
-            if id_short in dict_:
-                return dict_.remove(id_short)
+            if "id_short" in dict_:
+                for dict_2 in dict_:
+                    return dict_2.remove(id_short)
         raise KeyError("Referable with id_short {} not found in this namespace".format(id_short))
 
-    def __iter__(self) -> Iterator[_RT]:
+    def __iter__(self) -> Iterator[_NSO]:
         return itertools.chain.from_iterable(self.namespace_element_sets)
 
 
-class NamespaceSet(MutableSet[_RT], Generic[_RT]):
-    """
-    Helper class for storing Referable objects of a given type in a Namespace and find them by their id_short.
+ATTRIBUTE_TYPES = Union[str, Reference, QualifierType]
 
-    This class behaves much like a set of Referable objects of a defined type, but uses a dict internally to rapidly
-    find those objects by their id_short. Additionally, it manages the `parent` attribute of the stored Referables and
-    ensures the uniqueness of their id_short within the Namespace.
+
+class NamespaceSet(MutableSet[_NSO], Generic[_NSO]):
+    """
+    Helper class for storing AAS objects of a given type in a Namespace and find them by their unique attribute.
+
+    This class behaves much like a set of AAS objects of a defined type, but uses dicts internally to rapidly
+    find those objects by their unique attribute. Additionally, it manages the `parent` attribute of the stored
+    AAS objects and ensures the uniqueness of their attribute within the Namespace.
 
     Use `add()`, `remove()`, `pop()`, `discard()`, `clear()`, `len()`, `x in` checks and iteration  just like on a
-    normal set of Referables. To get a referable by its id_short, use `get_referable()` or `get()` (the latter one
+    normal set of AAS objects. To get an AAS object by its attribute, use `get_object()` or `get()` (the latter one
     allows a default argument and returns None instead of raising a KeyError). As a bonus, the `x in` check supports
-    checking for existence of id_short *or* a concrete Referable object.
+    checking for existence of attribute *or* a concrete AAS object.
     """
-    def __init__(self, parent: Namespace, items: Iterable[_RT] = ()) -> None:
+    def __init__(self, parent: Union[UniqueSemanticNamespace, UniqueIdShortNamespace, Qualifiable],
+                 attribute_names: List[Tuple[str, bool]], items: Iterable[_NSO] = ()) -> None:
         """
         Initialize a new NamespaceSet.
 
@@ -1166,12 +1245,16 @@ class NamespaceSet(MutableSet[_RT], Generic[_RT]):
         Namespace.
 
         :param parent: The Namespace this set belongs to
-        :param items: A given list of Referable items to be added to the set
-        :raises KeyError: When `items` contains multiple objects with same id_short
+        :attribute_names: List of attribute names, for which objects should be unique in the set. The bool flag
+                          indicates if the attribute should be matched case-sensitive (true) or case-insensitive (false)
+        :param items: A given list of AAS items to be added to the set
+        :raises KeyError: When `items` contains multiple objects with same unique attribute
         """
         self.parent = parent
         parent.namespace_element_sets.append(self)
-        self._backend: Dict[str, _RT] = {}
+        self._backend: Dict[str, Tuple[Dict[ATTRIBUTE_TYPES, _NSO], bool]] = {}
+        for name, case_sensitive in attribute_names:
+            self._backend[name] = ({}, case_sensitive)
         try:
             for i in items:
                 self.add(i)
@@ -1180,80 +1263,101 @@ class NamespaceSet(MutableSet[_RT], Generic[_RT]):
             self.clear()
             raise
 
-    def __contains__(self, x: object) -> bool:
-        if isinstance(x, str):
-            return x.upper() in self._backend
-        elif isinstance(x, Referable):
-            return self._backend.get(x.id_short.upper()) is x
+    def __contains__(self, x: Union[Tuple[str, ATTRIBUTE_TYPES], object]) -> bool:
+        if isinstance(x, tuple):
+            backend, case_sensitive = self._backend[x[0]]
+            if case_sensitive:
+                return x[1] in backend
+            else:
+                return x[1].upper() in backend
         else:
-            return False
+            attr_name = next(iter(self._backend))
+            return self._backend[attr_name][0].get(
+                getattr(x, attr_name) if self._backend[attr_name][1]
+                else getattr(x, attr_name).upper()) is x
 
     def __len__(self) -> int:
-        return len(self._backend)
+        (backend, case_sensitive) = self._backend[next(iter(self._backend))]
+        return len(backend)
 
-    def __iter__(self) -> Iterator[_RT]:
-        return iter(self._backend.values())
+    def __iter__(self) -> Iterator[_NSO]:
+        return iter(self._backend[next(iter(self._backend))][0].values())
 
-    def add(self, value: _RT):
+    def add(self, value: _NSO):
         for set_ in self.parent.namespace_element_sets:
-            if value.id_short.upper() in set_:
-                raise KeyError("Referable with id_short '{}' is already present in {}"
-                               .format(value.id_short,
-                                       "this set of objects"
-                                       if set_ is self else "another set in the same namespace"))
+            for attr_name, (backend, case_sensitive) in set_._backend.items():
+                if hasattr(value, attr_name):
+                    if (getattr(value, attr_name) if case_sensitive else getattr(value, attr_name).upper()) \
+                            in backend:
+                        raise KeyError("Object with attribute (name='{}', value='{}') is already present in {}"
+                                       .format(attr_name, str(getattr(value, attr_name)),
+                                               "this set of objects"
+                                               if set_ is self else "another set in the same namespace"))
         if value.parent is not None and value.parent is not self.parent:
             raise ValueError("Object has already a parent, but it must not be part of two namespaces.")
             # TODO remove from current parent instead (allow moving)?
         value.parent = self.parent
-        self._backend[value.id_short.upper()] = value
+        for attr_name, (backend, case_sensitive) in self._backend.items():
+            backend[(getattr(value, attr_name) if case_sensitive else
+                     getattr(value, attr_name).upper())] = value
 
-    def remove(self, item: Union[str, _RT]):
-        if isinstance(item, str):
-            del self._backend[item.upper()]
-        else:
-            item_in_dict = self._backend[item.id_short.upper()]
-            if item_in_dict is not item:
-                raise KeyError("Item not found in NamespaceDict (other item with same id_short exists)")
-            item.parent = None
-            del self._backend[item.id_short.upper()]
+    def remove(self, item: Union[Tuple[str, ATTRIBUTE_TYPES], _NSO]):
+        if isinstance(item, tuple):
+            item = self.get_object_by_attribute(item[0], item[1])
+        item_found = False
+        for attr_name, (backend, case_sensitive) in self._backend.items():
+            item_in_dict = backend[(getattr(item, attr_name) if case_sensitive
+                                    else getattr(item, attr_name).upper())]
+            if item_in_dict is item:
+                item_found = True
+                continue
+        if not item_found:
+            raise KeyError("Object not found in NamespaceDict")
+        item.parent = None
+        for attr_name, (backend, case_sensitive) in self._backend.items():
+            del backend[(getattr(item, attr_name) if case_sensitive
+                         else getattr(item, attr_name).upper())]
 
-    def discard(self, x: _RT) -> None:
+    def discard(self, x: _NSO) -> None:
         if x not in self:
             return
         self.remove(x)
 
-    def pop(self) -> _RT:
-        _, value = self._backend.popitem()
+    def pop(self) -> _NSO:
+        _, value = self._backend[next(iter(self._backend))][0].popitem()
         value.parent = None
         return value
 
     def clear(self) -> None:
-        for value in self._backend.values():
-            value.parent = None
-        self._backend.clear()
+        for attr_name, (backend, case_sensitive) in self._backend.items():
+            for value in backend.values():
+                value.parent = None
+        for attr_name, (backend, case_sensitive) in self._backend.items():
+            backend.clear()
 
-    def get_referable(self, id_short: str) -> _RT:
+    def get_object_by_attribute(self, attribute_name: str, attribute_value: ATTRIBUTE_TYPES) -> _NSO:
         """
-        Find an object in this set by its id_short
+        Find an object in this set by its unique attribute
 
         :raises KeyError: If no such object can be found
         """
-        try:
-            self._backend[id_short.upper()]
-        except KeyError:
-            self._backend[id_short]
-        return self._backend[id_short.upper()]
+        backend, case_sensitive = self._backend[attribute_name]
+        return backend[attribute_value if case_sensitive else attribute_value.upper()]  # type: ignore
 
-    def get(self, id_short: str, default: Optional[_RT] = None) -> Optional[_RT]:
+    def get(self, attribute_name: str, attribute_value: str, default: Optional[_NSO] = None) -> Optional[_NSO]:
         """
-        Find an object in this set by its id_short, with fallback parameter
+        Find an object in this set by its attribute, with fallback parameter
 
-        :param default: An object to be returned, if no object with the given id_short is found
-        :return: The Referable object with the given id_short in the set. Otherwise the `default` object or None, if
+        :param attribute_name: name of the attribute to search for
+        :param attribute_value: value of the attribute to search for
+        :param default: An object to be returned, if no object with the given attribute is found
+        :return: The AAS object with the given attribute in the set. Otherwise the `default` object or None, if
                  none is given.
         """
-        return self._backend.get(id_short.upper(), default)
+        backend, case_sensitive = self._backend[attribute_name]
+        return backend.get(attribute_value if case_sensitive else attribute_value.upper(), default)
 
+    # Todo: Implement function including tests
     def update_nss_from(self, other: "NamespaceSet"):
         """
         Update a NamespaceSet from a given NamespaceSet.
@@ -1262,36 +1366,47 @@ class NamespaceSet(MutableSet[_RT], Generic[_RT]):
 
         :param other: The NamespaceSet to update from
         """
-        referables_to_add: List[Referable] = []  # objects from the other nss to add to self
-        referables_to_remove: List[Referable] = []  # objects to remove from self
-        for other_referable in other:
+        objects_to_add: List[_NSO] = []  # objects from the other nss to add to self
+        objects_to_remove: List[_NSO] = []  # objects to remove from self
+        for other_object in other:
             try:
-                referable = self._backend[other_referable.id_short.upper()]
-                if type(referable) is type(other_referable):
-                    # referable is the same as other referable
-                    referable.update_from(other_referable, update_source=True)
+                if isinstance(other_object, Referable):
+                    backend, case_sensitive = self._backend["id_short"]
+                    referable = backend[other_object.id_short if case_sensitive else other_object.id_short.upper()]
+                    referable.update_from(other_object, update_source=True)
+                elif isinstance(other_object, Qualifier):
+                    backend, case_sensitive = self._backend["type"]
+                    qualifier = backend[other_object.type if case_sensitive else other_object.type.upper()]
+                    # qualifier.update_from(other_object, update_source=True)
+                else:
+                    raise TypeError("Type not implemented")
             except KeyError:
-                # other referable is not in NamespaceSet
-                referables_to_add.append(other_referable)
-        for id_short, referable in self._backend.items():
-            if not other.get(id_short.upper()):
-                # referable does not exist in the other NamespaceSet
-                referables_to_remove.append(referable)
-        for referable_to_add in referables_to_add:
-            other.remove(referable_to_add)
-            self.add(referable_to_add)  # type: ignore
-        for referable_to_remove in referables_to_remove:
-            self.remove(referable_to_remove)  # type: ignore
+                # other object is not in NamespaceSet
+                objects_to_add.append(other_object)
+        for attr_name, (backend, case_sensitive) in self._backend.items():
+            for attr_name_other, (backend_other, case_sensitive_other) in other._backend.items():
+                if attr_name is attr_name_other:
+                    for item in backend.values():
+                        if not backend_other.get(getattr(item, attr_name) if case_sensitive else
+                                                 getattr(item, attr_name).upper()):
+                            # referable does not exist in the other NamespaceSet
+                            objects_to_remove.append(item)
+        for object_to_add in objects_to_add:
+            other.remove(object_to_add)
+            self.add(object_to_add)  # type: ignore
+        for object_to_remove in objects_to_remove:
+            self.remove(object_to_remove)  # type: ignore
 
 
-class OrderedNamespaceSet(NamespaceSet[_RT], MutableSequence[_RT], Generic[_RT]):
+class OrderedNamespaceSet(NamespaceSet[_NSO], MutableSequence[_NSO], Generic[_NSO]):
     """
     A specialized version of NamespaceSet, that keeps track of the order of the stored Referable objects.
 
     Additionally to the MutableSet interface of NamespaceSet, this class provides a set-like interface (actually it
     is derived from MutableSequence). However, we don't permit duplicate entries in the ordered list of objects.
     """
-    def __init__(self, parent: Namespace, items: Iterable[_RT] = ()) -> None:
+    def __init__(self, parent: Union[UniqueSemanticNamespace, UniqueIdShortNamespace, Qualifiable],
+                 attribute_names: List[Tuple[str, bool]], items: Iterable[_NSO] = ()) -> None:
         """
         Initialize a new OrderedNamespaceSet.
 
@@ -1299,26 +1414,28 @@ class OrderedNamespaceSet(NamespaceSet[_RT], MutableSequence[_RT], Generic[_RT])
         Namespace.
 
         :param parent: The Namespace this set belongs to
+        :attribute_names: Dict of attribute names, for which objects should be unique in the set. The bool flag
+                          indicates if the attribute should be matched case-sensitive (true) or case-insensitive (false)
         :param items: A given list of Referable items to be added to the set
         :raises KeyError: When `items` contains multiple objects with same id_short
         """
-        self._order: List[_RT] = []
-        super().__init__(parent, items)
+        self._order: List[_NSO] = []
+        super().__init__(parent, attribute_names, items)
 
-    def __iter__(self) -> Iterator[_RT]:
+    def __iter__(self) -> Iterator[_NSO]:
         return iter(self._order)
 
-    def add(self, value: _RT):
+    def add(self, value: _NSO):
         super().add(value)
         self._order.append(value)
 
-    def remove(self, item: Union[str, _RT]):
-        if isinstance(item, str):
-            item = self.get_referable(item)
+    def remove(self, item: Union[Tuple[str, ATTRIBUTE_TYPES], _NSO]):
+        if isinstance(item, tuple):
+            item = self.get_object_by_attribute(item[0], item[1])
         super().remove(item)
         self._order.remove(item)
 
-    def pop(self, i: Optional[int] = None):
+    def pop(self, i: Optional[int] = None) -> _NSO:
         if i is None:
             value = super().pop()
             self._order.remove(value)
@@ -1331,24 +1448,24 @@ class OrderedNamespaceSet(NamespaceSet[_RT], MutableSequence[_RT], Generic[_RT])
         super().clear()
         self._order.clear()
 
-    def insert(self, index: int, object_: _RT) -> None:
+    def insert(self, index: int, object_: _NSO) -> None:
         super().add(object_)
         self._order.insert(index, object_)
 
     @overload
-    def __getitem__(self, i: int) -> _RT: ...
+    def __getitem__(self, i: int) -> _NSO: ...
 
     @overload
-    def __getitem__(self, s: slice) -> MutableSequence[_RT]: ...
+    def __getitem__(self, s: slice) -> MutableSequence[_NSO]: ...
 
-    def __getitem__(self, s: Union[int, slice]) -> Union[_RT, MutableSequence[_RT]]:
+    def __getitem__(self, s: Union[int, slice]) -> Union[_NSO, MutableSequence[_NSO]]:
         return self._order[s]
 
     @overload
-    def __setitem__(self, i: int, o: _RT) -> None: ...
+    def __setitem__(self, i: int, o: _NSO) -> None: ...
 
     @overload
-    def __setitem__(self, s: slice, o: Iterable[_RT]) -> None: ...
+    def __setitem__(self, s: slice, o: Iterable[_NSO]) -> None: ...
 
     def __setitem__(self, s, o) -> None:
         if isinstance(s, int):
@@ -1393,15 +1510,15 @@ class IdentifierKeyValuePair:
     :ivar key: Key of the identifier
     :ivar value: The value of the identifier with the corresponding key.
     :ivar external_subject_id: The (external) subject the key belongs to or has meaning to.
-
-    TODO: Derive from HasSemantics
+    :ivar semantic_id: The semantic_id defined in the HasSemantics class.
     """
-
+    # TODO make IdentifierKeyValuePair derive from HasSemantics
     def __init__(self,
                  key: str,
                  value: str,
                  external_subject_id: Reference,
                  semantic_id: Optional[Reference] = None):
+        super().__init__()
         if key == "":
             raise ValueError("key is not allowed to be an empty string")
         if value == "":

@@ -129,8 +129,6 @@ def abstract_classes_to_xml(tag: str, obj: object) -> etree.Element:
         if obj.qualifier:
             et_qualifier = _generate_element(NS_AAS + "qualifiers")
             for qualifier in obj.qualifier:
-                if isinstance(qualifier, model.Formula):
-                    et_qualifier.append(formula_to_xml(qualifier, tag=NS_AAS+"formula"))
                 if isinstance(qualifier, model.Qualifier):
                     et_qualifier.append(qualifier_to_xml(qualifier, tag=NS_AAS+"qualifier"))
             elm.append(et_qualifier)
@@ -230,23 +228,6 @@ def reference_to_xml(obj: model.Reference, tag: str = NS_AAS+"reference") -> etr
                                                      "type": _generic.KEY_ELEMENTS[aas_key.type]}))
     et_reference.append(et_keys)
     return et_reference
-
-
-def formula_to_xml(obj: model.Formula, tag: str = NS_AAS+"formula") -> etree.Element:
-    """
-    serialization of objects of class Formula to XML
-
-    :param obj: object of class Formula
-    :param tag: tag of the ElementTree object, default is "formula"
-    :return: serialized ElementTree object
-    """
-    et_formula = abstract_classes_to_xml(tag, obj)
-    if obj.depends_on:
-        et_depends_on = _generate_element(name=NS_AAS + "dependsOnRefs", text=None)
-        for aas_reference in obj.depends_on:
-            et_depends_on.append(reference_to_xml(aas_reference, NS_AAS+"reference"))
-        et_formula.append(et_depends_on)
-    return et_formula
 
 
 def qualifier_to_xml(obj: model.Qualifier, tag: str = NS_AAS+"qualifier") -> etree.Element:

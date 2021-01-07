@@ -157,7 +157,6 @@ class AASFromJsonDecoder(json.JSONDecoder):
             'ConceptDescription': cls._construct_concept_description,
             'Qualifier': cls._construct_qualifier,
             'Extension': cls._construct_extension,
-            'Formula': cls._construct_formula,
             'Submodel': cls._construct_submodel,
             'Capability': cls._construct_capability,
             'Entity': cls._construct_entity,
@@ -505,24 +504,6 @@ class AASFromJsonDecoder(json.JSONDecoder):
             ret.value = model.datatypes.from_xsd(_get_ts(dct, 'value', str), ret.value_type)
         if 'valueId' in dct:
             ret.value_id = cls._construct_reference(_get_ts(dct, 'valueId', dict))
-        return ret
-
-    @classmethod
-    def _construct_formula(cls, dct: Dict[str, object], object_class=model.Formula) -> model.Formula:
-        ret = object_class()
-        cls._amend_abstract_attributes(ret, dct)
-        if 'dependsOn' in dct:
-            for dependency_data in _get_ts(dct, 'dependsOn', list):
-                try:
-                    ret.depends_on.add(cls._construct_reference(dependency_data))
-                except (KeyError, TypeError) as e:
-                    error_message = \
-                        "Error while trying to convert JSON object into dependency Reference for {}: {} >>> {}".format(
-                            ret, e, pprint.pformat(dct, depth=2, width=2 ** 14, compact=True))
-                    if cls.failsafe:
-                        logger.error(error_message, exc_info=e)
-                    else:
-                        raise type(e)(error_message) from e
         return ret
 
     @classmethod

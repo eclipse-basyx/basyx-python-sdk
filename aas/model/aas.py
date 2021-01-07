@@ -39,7 +39,7 @@ class View(base.Referable, base.HasSemantics):
                  display_name: Optional[base.LangStringSet] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
-                 parent: Optional[base.Namespace] = None,
+                 parent: Optional[base.UniqueIdShortNamespace] = None,
                  semantic_id: Optional[base.Reference] = None,
                  extension: Optional[Set[base.Extension]] = None):
         """
@@ -67,7 +67,7 @@ class View(base.Referable, base.HasSemantics):
         self.display_name: Optional[base.LangStringSet] = dict() if display_name is None else display_name
         self.category = category
         self.description: Optional[base.LangStringSet] = dict() if description is None else description
-        self.parent: Optional[base.Namespace] = parent
+        self.parent: Optional[base.UniqueIdShortNamespace] = parent
         self.semantic_id: Optional[base.Reference] = semantic_id
         self.extension: Set[base.Extension] = set() if extension is None else extension
 
@@ -93,7 +93,7 @@ class Asset(base.Identifiable):
                  display_name: Optional[base.LangStringSet] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
-                 parent: Optional[base.Namespace] = None,
+                 parent: Optional[base.UniqueIdShortNamespace] = None,
                  administration: Optional[base.AdministrativeInformation] = None,
                  extension: Optional[Set[base.Extension]] = None):
         """
@@ -117,7 +117,7 @@ class Asset(base.Identifiable):
         self.display_name: Optional[base.LangStringSet] = dict() if display_name is None else display_name
         self.category = category
         self.description: Optional[base.LangStringSet] = dict() if description is None else description
-        self.parent: Optional[base.Namespace] = parent
+        self.parent: Optional[base.UniqueIdShortNamespace] = parent
         self.administration: Optional[base.AdministrativeInformation] = administration
         self.extension: Set[base.Extension] = set() if extension is None else extension
 
@@ -192,7 +192,7 @@ class AssetInformation:
                                              str(self.bill_of_material), str(self.default_thumbnail))
 
 
-class AssetAdministrationShell(base.Identifiable, base.Namespace):
+class AssetAdministrationShell(base.Identifiable, base.UniqueIdShortNamespace):
     """
     An Asset Administration Shell
 
@@ -211,7 +211,7 @@ class AssetAdministrationShell(base.Identifiable, base.Namespace):
                  display_name: Optional[base.LangStringSet] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
-                 parent: Optional[base.Namespace] = None,
+                 parent: Optional[base.UniqueIdShortNamespace] = None,
                  administration: Optional[base.AdministrativeInformation] = None,
                  security: Optional[Security] = None,
                  submodel: Optional[Set[base.AASReference[Submodel]]] = None,
@@ -246,10 +246,10 @@ class AssetAdministrationShell(base.Identifiable, base.Namespace):
         self.display_name: Optional[base.LangStringSet] = dict() if display_name is None else display_name
         self.category = category
         self.description: Optional[base.LangStringSet] = dict() if description is None else description
-        self.parent: Optional[base.Namespace] = parent
+        self.parent: Optional[base.UniqueIdShortNamespace] = parent
         self.administration: Optional[base.AdministrativeInformation] = administration
         self.derived_from: Optional[base.AASReference["AssetAdministrationShell"]] = derived_from
         self.security: Optional[Security] = security
         self.submodel: Set[base.AASReference[Submodel]] = set() if submodel is None else submodel
-        self.view: base.NamespaceSet[View] = base.NamespaceSet(self, view)
+        self.view: base.NamespaceSet[View] = base.NamespaceSet(self, [("id_short", True)], view)
         self.extension: Set[base.Extension] = set() if extension is None else extension

@@ -581,16 +581,6 @@ class AASFromXmlDecoder:
         return qualifier
 
     @classmethod
-    def construct_formula(cls, element: etree.Element, object_class=model.Formula, **_kwargs: Any) -> model.Formula:
-        formula = object_class()
-        depends_on_refs = element.find(NS_AAS + "dependsOnRefs")
-        if depends_on_refs is not None:
-            for ref in _failsafe_construct_multiple(depends_on_refs.findall(NS_AAS + "reference"),
-                                                    cls.construct_reference, cls.failsafe):
-                formula.depends_on.add(ref)
-        return formula
-
-    @classmethod
     def construct_extension(cls, element: etree.Element, object_class=model.Extension, **_kwargs: Any) \
             -> model.Extension:
         extension = object_class(
@@ -683,7 +673,6 @@ class AASFromXmlDecoder:
         Overwrite construct_formula or construct_qualifier instead.
         """
         constraints: Dict[str, Callable[..., model.Constraint]] = {NS_AAS + k: v for k, v in {
-            "formula": cls.construct_formula,
             "qualifier": cls.construct_qualifier
         }.items()}
         if element.tag not in constraints:
@@ -1265,8 +1254,6 @@ def read_aas_xml_element(file: IO, construct: XMLConstructables, failsafe: bool 
         constructor = decoder_.construct_administrative_information
     elif construct == XMLConstructables.QUALIFIER:
         constructor = decoder_.construct_qualifier
-    elif construct == XMLConstructables.FORMULA:
-        constructor = decoder_.construct_formula
     elif construct == XMLConstructables.IDENTIFIER:
         constructor = decoder_.construct_identifier
     elif construct == XMLConstructables.SECURITY:

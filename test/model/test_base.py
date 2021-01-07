@@ -12,6 +12,7 @@
 import unittest
 from unittest import mock
 from typing import Optional, List
+from collections import OrderedDict
 
 from aas import model
 from aas.backend import backends
@@ -70,7 +71,7 @@ class ExampleReferable(model.Referable):
         super().__init__()
 
 
-class ExampleRefereableWithNamespace(model.Referable, model.Namespace):
+class ExampleRefereableWithNamespace(model.Referable, model.UniqueIdShortNamespace):
     def __init__(self):
         super().__init__()
 
@@ -118,7 +119,8 @@ def generate_example_referable_tree() -> model.Referable:
         referable = ExampleRefereableWithNamespace()
         referable.id_short = id_short
         if child:
-            namespace_set = model.NamespaceSet(parent=referable, items=[child])
+            namespace_set = model.NamespaceSet(parent=referable, attribute_names=[("id_short", True)],
+                                               items=[child])
         return referable
 
     example_grandchild = generate_example_referable_with_namespace("exampleGrandchild")
@@ -264,45 +266,93 @@ class ReferableTest(unittest.TestCase):
         ])
 
 
-class ExampleNamespace(model.Namespace):
+class ExampleNamespaceReferable(model.UniqueIdShortNamespace, model.UniqueSemanticNamespace):
     def __init__(self, values=()):
         super().__init__()
-        self.set1 = model.NamespaceSet(self, values)
-        self.set2 = model.NamespaceSet(self)
+        self.set1 = model.NamespaceSet(self, [("id_short", False), ("semantic_id", True)])
+        self.set2 = model.NamespaceSet(self, [("id_short", False)], values)
+
+
+class ExampleNamespaceQualifier(model.Qualifiable):
+    def __init__(self, values=()):
+        super().__init__()
+        self.set1 = model.NamespaceSet(self, [("type", False)], values)
 
 
 class ModelNamespaceTest(unittest.TestCase):
-    _namespace_class = ExampleNamespace
+    _namespace_class = ExampleNamespaceReferable
+    _namespace_class_qualifier = ExampleNamespaceQualifier
 
     def setUp(self):
-        self.prop1 = model.Property("Prop1", model.datatypes.Int)
-        self.prop2 = model.Property("Prop2", model.datatypes.Int)
+        self.propSemanticID = model.Reference((model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
+                                                         value='http://acplt.org/Test1',
+                                                         id_type=model.KeyType.IRI),))
+        self.propSemanticID2 = model.Reference((model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
+                                                          value='http://acplt.org/Test2',
+                                                          id_type=model.KeyType.IRI),))
+        self.propSemanticID3 = model.Reference((model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
+                                                          value='http://acplt.org/Test3',
+                                                          id_type=model.KeyType.IRI),))
+        self.prop1 = model.Property("Prop1", model.datatypes.Int, semantic_id=self.propSemanticID)
+        self.prop2 = model.Property("Prop2", model.datatypes.Int, semantic_id=self.propSemanticID)
+        self.prop3 = model.Property("Prop2", model.datatypes.Int, semantic_id=self.propSemanticID2)
+        self.prop4 = model.Property("Prop3", model.datatypes.Int, semantic_id=self.propSemanticID)
+        self.prop5 = model.Property("Prop3", model.datatypes.Int, semantic_id=self.propSemanticID2)
+        self.prop6 = model.Property("Prop4", model.datatypes.Int, semantic_id=self.propSemanticID2)
+        self.prop7 = model.Property("Prop2", model.datatypes.Int, semantic_id=self.propSemanticID3)
+        self.prop8 = model.Property("ProP2", model.datatypes.Int, semantic_id=self.propSemanticID3)
         self.prop1alt = model.Property("Prop1", model.datatypes.Int)
-        self.prop1alt2 = model.Property("ProP1", model.datatypes.Int)
+        self.qualifier1 = model.Qualifier("type1", model.datatypes.Int, 1)
+        self.qualifier2 = model.Qualifier("type2", model.datatypes.Int, 1)
+        self.qualifier1alt = model.Qualifier("type1", model.datatypes.Int, 1)
         self.namespace = self._namespace_class()
+        self.namespace3 = self._namespace_class_qualifier()
 
     def test_NamespaceSet(self) -> None:
         self.namespace.set1.add(self.prop1)
-        self.namespace.set1.add(self.prop2)
-        self.assertEqual(2, len(self.namespace.set1))
-        self.assertIs(self.prop1, self.namespace.set1.get("Prop1"))
+        self.assertEqual(1, len(self.namespace.set1))
+        with self.assertRaises(KeyError) as cm:
+            self.namespace.set1.add(self.prop2)
+        self.assertEqual('"Object with attribute (name=\'semantic_id\', value=\'Reference(key=(Key(id_type=IRI, '
+                         'value=http://acplt.org/Test1),))\') is already present in this set of objects"',
+                         str(cm.exception))
+        self.namespace.set2.add(self.prop5)
+        self.namespace.set2.add(self.prop6)
+        self.assertEqual(2, len(self.namespace.set2))
+        with self.assertRaises(KeyError) as cm:
+            self.namespace.set2.add(self.prop1)
+        self.assertEqual('"Object with attribute (name=\'id_short\', value=\'Prop1\') is already present in another '
+                         'set in the same namespace"',
+                         str(cm.exception))
+        with self.assertRaises(KeyError) as cm:
+            self.namespace.set2.add(self.prop4)
+        self.assertEqual('"Object with attribute (name=\'semantic_id\', value=\'Reference(key=(Key(id_type=IRI, '
+                         'value=http://acplt.org/Test1),))\') is already present in another set in the same namespace"',
+                         str(cm.exception))
+
+        self.assertIs(self.prop1, self.namespace.set1.get("id_short", "Prop1"))
         self.assertIn(self.prop1, self.namespace.set1)
         self.assertNotIn(self.prop1alt, self.namespace.set1)
         self.assertIs(self.namespace, self.prop1.parent)
 
+        self.assertIs(self.prop5, self.namespace.set2.get("id_short", "Prop3"))
+
         with self.assertRaises(KeyError) as cm:
             self.namespace.set1.add(self.prop1alt)
-        self.assertEqual('"Referable with id_short \'Prop1\' is already present in this set of objects"',
+        self.assertEqual('"Object with attribute (name=\'id_short\', value=\'Prop1\') is already present in this set of'
+                         ' objects"',
                          str(cm.exception))
 
+        self.namespace.set1.add(self.prop3)
         with self.assertRaises(KeyError) as cm:
-            self.namespace.set1.add(self.prop1alt2)
-        self.assertEqual('"Referable with id_short \'ProP1\' is already present in this set of objects"',
+            self.namespace.set1.add(self.prop7)
+        self.assertEqual('"Object with attribute (name=\'id_short\', value=\'Prop2\') is already present in this set '
+                         'of objects"',
                          str(cm.exception))
-
         with self.assertRaises(KeyError) as cm:
-            self.namespace.set2.add(self.prop2)
-        self.assertEqual('"Referable with id_short \'Prop2\' is already present in another set in the same namespace"',
+            self.namespace.set1.add(self.prop8)
+        self.assertEqual('"Object with attribute (name=\'id_short\', value=\'ProP2\') is already present in this set '
+                         'of objects"',
                          str(cm.exception))
 
         namespace2 = self._namespace_class()
@@ -310,28 +360,48 @@ class ModelNamespaceTest(unittest.TestCase):
             namespace2.set1.add(self.prop1)
         self.assertIn('has already a parent', str(cm2.exception))
 
+        self.assertEqual(2, len(self.namespace.set1))
         self.namespace.set1.remove(self.prop1)
         self.assertEqual(1, len(self.namespace.set1))
         self.assertIsNone(self.prop1.parent)
-        self.namespace.set2.add(self.prop1alt)
+        self.namespace.set1.add(self.prop1)
+        self.assertEqual(2, len(self.namespace.set1))
+        self.namespace.set1.remove(("id_short", self.prop1.id_short))
+        self.assertEqual(1, len(self.namespace.set1))
+        self.assertIsNone(self.prop1.parent)
 
-        self.assertIs(self.prop2, self.namespace.set1.pop())
-        self.assertEqual(0, len(self.namespace.set1))
+        self.assertEqual(2, len(self.namespace.set2))
+        self.assertIs(self.prop6, self.namespace.set2.pop())
+        self.assertEqual(1, len(self.namespace.set2))
+        self.namespace.set2.add(self.prop1alt)
 
         self.namespace.set2.clear()
         self.assertIsNone(self.prop1alt.parent)
         self.assertEqual(0, len(self.namespace.set2))
 
+        self.assertEqual(1, len(self.namespace.set1))
         self.namespace.set1.add(self.prop1)
+        self.assertEqual(2, len(self.namespace.set1))
         self.namespace.set1.discard(self.prop1)
-        self.assertEqual(0, len(self.namespace.set1))
+        self.assertEqual(1, len(self.namespace.set1))
         self.assertIsNone(self.prop1.parent)
         self.namespace.set1.discard(self.prop1)
 
+        self.namespace3.set1.add(self.qualifier1)
+        self.assertEqual(1, len(self.namespace3.set1))
+        self.namespace3.set1.add(self.qualifier2)
+        self.assertEqual(2, len(self.namespace3.set1))
+        with self.assertRaises(KeyError) as cm:
+            self.namespace3.set1.add(self.qualifier1alt)
+        self.assertEqual('"Object with attribute (name=\'type\', value=\'type1\') is already present in this set '
+                         'of objects"',
+                         str(cm.exception))
+
     def test_Namespace(self) -> None:
         with self.assertRaises(KeyError) as cm:
-            namespace_test = ExampleNamespace([self.prop1, self.prop2, self.prop1alt])
-        self.assertEqual('"Referable with id_short \'Prop1\' is already present in this set of objects"',
+            namespace_test = ExampleNamespaceReferable([self.prop1, self.prop2, self.prop1alt])
+        self.assertEqual('"Object with attribute (name=\'id_short\', value=\'Prop1\') is already present in this set '
+                         'of objects"',
                          str(cm.exception))
         self.assertIsNone(self.prop1.parent)
 
@@ -339,14 +409,24 @@ class ModelNamespaceTest(unittest.TestCase):
         self.assertIs(self.prop2, namespace.get_referable("Prop2"))
         with self.assertRaises(KeyError) as cm:
             namespace.get_referable("Prop3")
-        self.assertEqual("'Referable with id_short Prop3 not found in this namespace'", str(cm.exception))
+        self.assertEqual("'Referable with id_short Prop3 not found in this namespace'",
+                         str(cm.exception))
 
     def test_renaming(self) -> None:
-        self.namespace.set1.add(self.prop1)
-        self.namespace.set1.add(self.prop2)
+        self.namespace.set2.add(self.prop1)
+        self.namespace.set2.add(self.prop2)
+        self.assertIs(self.prop1, self.namespace.get_referable("Prop1"))
+        self.assertIs(self.prop2, self.namespace.get_referable("Prop2"))
 
         self.prop1.id_short = "Prop3"
         self.assertEqual("Prop3", self.prop1.id_short)
+        self.assertEqual(2, len(self.namespace.set2))
+        with self.assertRaises(KeyError) as cm:
+            self.assertIs(self.prop1, self.namespace.get_referable("Prop1"))
+        self.assertEqual("'Referable with id_short Prop1 not found in this namespace'",
+                         str(cm.exception))
+        self.assertIs(self.prop2, self.namespace.get_referable("Prop2"))
+        self.assertIs(self.prop1, self.namespace.get_referable("Prop3"))
 
         with self.assertRaises(KeyError) as cm:
             self.prop1.id_short = "Prop2"
@@ -359,33 +439,33 @@ class ModelNamespaceTest(unittest.TestCase):
         namespace1 = self._namespace_class()
         prop1 = model.Property("Prop1", model.datatypes.Int, 1)
         prop2 = model.Property("Prop2", model.datatypes.Int, 0)
-        namespace1.set1.add(prop1)
-        namespace1.set1.add(prop2)
+        namespace1.set2.add(prop1)
+        namespace1.set2.add(prop2)
         namespace2 = self._namespace_class()
-        namespace2.set1.add(model.Property("Prop1", model.datatypes.Int, 0))
-        namespace2.set1.add(model.Property("Prop3", model.datatypes.Int, 2))
-        namespace1.set1.update_nss_from(namespace2.set1)
+        namespace2.set2.add(model.Property("Prop1", model.datatypes.Int, 0))
+        namespace2.set2.add(model.Property("Prop3", model.datatypes.Int, 2))
+        namespace1.set2.update_nss_from(namespace2.set2)
         # Check that Prop1 got updated correctly
         self.assertIs(namespace1.get_referable("Prop1"), prop1)
         self.assertEqual(prop1.value, 0)
         self.assertIs(namespace1.get_referable("Prop1").parent, namespace1)
         # Check that Prop3 got added correctly
-        prop3_new = namespace1.set1.get_referable("Prop3")
+        prop3_new = namespace1.set2.get_object_by_attribute("id_short", "Prop3")
         self.assertIs(prop3_new.parent, namespace1)
         assert(isinstance(prop3_new, model.Property))
         self.assertEqual(prop3_new.value, 2)
         # Check that Prop2 got removed correctly
-        self.assertNotIn("Prop2", namespace1.set1)
+        self.assertNotIn(("id_short", "Prop2"), namespace1.set2)
         with self.assertRaises(KeyError):
             namespace1.get_referable("Prop2")
         self.assertIsNone(prop2.parent)
 
 
-class ExampleOrderedNamespace(model.Namespace):
+class ExampleOrderedNamespace(model.UniqueIdShortNamespace, model.UniqueSemanticNamespace):
     def __init__(self, values=()):
         super().__init__()
-        self.set1 = model.OrderedNamespaceSet(self, values)
-        self.set2 = model.OrderedNamespaceSet(self)
+        self.set1 = model.OrderedNamespaceSet(self, [("id_short", False), ("semantic_id", True)])
+        self.set2 = model.OrderedNamespaceSet(self, [("id_short", False)], values)
 
 
 class ModelOrderedNamespaceTest(ModelNamespaceTest):
@@ -394,37 +474,46 @@ class ModelOrderedNamespaceTest(ModelNamespaceTest):
     def test_OrderedNamespace(self) -> None:
         # Tests from ModelNamespaceTest are inherited, but with ExampleOrderedNamespace instead of ExampleNamespace
         # So, we only need to test order-related things here
-        self.namespace.set1.add(self.prop1)
-        self.namespace.set1.insert(0, self.prop2)
+        self.namespace.set2.add(self.prop1)
+        self.assertEqual(1, len(self.namespace.set2))
+        self.namespace.set2.insert(0, self.prop2)
+        self.assertEqual(2, len(self.namespace.set2))
         with self.assertRaises(KeyError) as cm:
-            self.namespace.set2.insert(0, self.prop1alt)
-        self.assertEqual('"Referable with id_short \'Prop1\' is already present in another set in the same namespace"',
+            self.namespace.set1.insert(0, self.prop1alt)
+        self.assertEqual('"Object with attribute (name=\'id_short\', value=\'Prop1\') is already present in another '
+                         'set in the same namespace"',
                          str(cm.exception))
-        self.assertEqual((self.prop2, self.prop1), tuple(self.namespace.set1))
-        self.assertEqual(self.prop1, self.namespace.set1[1])
+        self.assertEqual((self.prop2, self.prop1), tuple(self.namespace.set2))
+        self.assertEqual(self.prop1, self.namespace.set2[1])
 
         with self.assertRaises(KeyError) as cm:
-            self.namespace.set1[1] = self.prop2
-        self.assertEqual('"Referable with id_short \'Prop2\' is already present in this set of objects"',
+            self.namespace.set2[1] = self.prop2
+        self.assertEqual('"Object with attribute (name=\'id_short\', value=\'Prop2\') is already present in this '
+                         'set of objects"',
                          str(cm.exception))
         prop3 = model.Property("Prop3", model.datatypes.Int)
-        self.namespace.set1[1] = prop3
-        self.assertEqual(2, len(self.namespace.set1))
+        self.assertEqual(2, len(self.namespace.set2))
+        self.namespace.set2[1] = prop3
+        self.assertEqual(2, len(self.namespace.set2))
         self.assertIsNone(self.prop1.parent)
         self.assertIs(self.namespace, prop3.parent)
-        self.assertEqual((self.prop2, prop3), tuple(self.namespace.set1))
+        self.assertEqual((self.prop2, prop3), tuple(self.namespace.set2))
 
-        del self.namespace.set1[0]
+        del self.namespace.set2[0]
         self.assertIsNone(self.prop2.parent)
-        self.assertEqual(1, len(self.namespace.set1))
+        self.assertEqual(1, len(self.namespace.set2))
 
         namespace2 = ExampleOrderedNamespace()
-        namespace2.set1.add(self.prop1)
-        namespace2.set1.get_referable('Prop1')
-        namespace2.set1.remove('Prop1')
+        namespace2.set2.add(self.prop1)
+        namespace2.set2.add(self.prop5)
+        self.assertEqual(2, len(namespace2.set2))
+        self.assertIs(self.prop1, namespace2.set2.get("id_short", "Prop1"))
+        namespace2.set2.remove(("id_short", "Prop1"))
+        self.assertEqual(1, len(namespace2.set2))
         with self.assertRaises(KeyError) as cm:
-            namespace2.set1.get_referable('Prop1')
-        self.assertEqual("'Prop1'", str(cm.exception))
+            namespace2.get_referable("Prop1")
+        self.assertEqual("'Referable with id_short Prop1 not found in this namespace'",
+                         str(cm.exception))
 
 
 class AASReferenceTest(unittest.TestCase):
@@ -580,11 +669,11 @@ class AASReferenceTest(unittest.TestCase):
                 super().__init__()
                 self.id_short = id_short
 
-        class DummyIdentifyableNamespace(model.Identifiable, model.Namespace):
+        class DummyIdentifyableNamespace(model.Identifiable, model.UniqueIdShortNamespace):
             def __init__(self, identification: model.Identifier):
                 super().__init__()
                 self.identification = identification
-                self.things: model.NamespaceSet = model.NamespaceSet(self)
+                self.things: model.NamespaceSet = model.NamespaceSet(self, [("id_short", True)])
 
         thing = DummyThing("thing")
         identifable_thing = DummyIdentifyableNamespace(model.Identifier("urn:x-test:thing", model.IdentifierType.IRI))

@@ -54,7 +54,7 @@ class ConceptDescription(base.Identifiable):
                  display_name: Optional[base.LangStringSet] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
-                 parent: Optional[base.Namespace] = None,
+                 parent: Optional[base.UniqueIdShortNamespace] = None,
                  administration: Optional[base.AdministrativeInformation] = None,
                  extension: Optional[Set[base.Extension]] = None):
         """
@@ -81,7 +81,7 @@ class ConceptDescription(base.Identifiable):
         self.display_name: Optional[base.LangStringSet] = dict() if display_name is None else display_name
         self.category = category
         self.description: Optional[base.LangStringSet] = dict() if description is None else description
-        self.parent: Optional[base.Namespace] = parent
+        self.parent: Optional[base.UniqueIdShortNamespace] = parent
         self.administration: Optional[base.AdministrativeInformation] = administration
         self.extension: Set[base.Extension] = set() if extension is None else extension
 
@@ -145,7 +145,7 @@ class IEC61360ConceptDescription(ConceptDescription):
                  display_name: Optional[base.LangStringSet] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
-                 parent: Optional[base.Namespace] = None,
+                 parent: Optional[base.UniqueIdShortNamespace] = None,
                  administration: base.AdministrativeInformation = None,
                  unit: Optional[str] = None,
                  unit_id: Optional[base.Reference] = None,
