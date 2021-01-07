@@ -196,7 +196,8 @@ class DataElement(SubmodelElement, metaclass=abc.ABCMeta):
                 if not (isinstance(self, File) or isinstance(self, Blob)):
                     raise base.AASConstraintViolation(
                         90,
-                        "DataElement.category must be one of the following: ".join(ALLOWED_DATA_ELEMENT_CATEGORIES))
+                        "DataElement.category must be one of the following: " +
+                        ", ".join(ALLOWED_DATA_ELEMENT_CATEGORIES))
             self._category = category
 
 
