@@ -700,7 +700,6 @@ class Reference:
     :ivar: key: Ordered list of unique reference in its name space, each key referencing an element. The complete
                 list of keys may for example be concatenated to a path that then gives unique access to an element
                 or entity.
-    :ivar: type: The type of the referenced object (additional attribute, not from the AAS Metamodel)
     """
 
     def __init__(self,
