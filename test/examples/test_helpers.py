@@ -67,7 +67,7 @@ class AASDataCheckerTest(unittest.TestCase):
         self.assertEqual(2, sum(1 for _ in checker.failed_checks))
         self.assertEqual(9, sum(1 for _ in checker.successful_checks))
         checker_iterator = iter(checker.failed_checks)
-        self.assertEqual("FAIL: Attribut qualifier of Property[Prop1] must contain 1 Constraints (count=0)",
+        self.assertEqual("FAIL: Attribute qualifier of Property[Prop1] must contain 1 Constraints (count=0)",
                          repr(next(checker_iterator)))
         self.assertEqual("FAIL: ConstraintQualifier(type=test) must exist ()", repr(next(checker_iterator)))
 
@@ -132,7 +132,7 @@ class AASDataCheckerTest(unittest.TestCase):
         checker.check_submodel_collection_equal(collection, collection_expected)
         self.assertEqual(2, sum(1 for _ in checker.failed_checks))
         checker_iterator = iter(checker.failed_checks)
-        self.assertEqual("FAIL: Attribut value of SubmodelElementCollectionUnordered[Collection] must contain 1 "
+        self.assertEqual("FAIL: Attribute value of SubmodelElementCollectionUnordered[Collection] must contain 1 "
                          "SubmodelElements (count=0)",
                          repr(next(checker_iterator)))
         self.assertEqual("FAIL: Submodel ElementProperty[Collection / Prop1] must exist ()",
@@ -202,7 +202,7 @@ class AASDataCheckerTest(unittest.TestCase):
         checker.check_annotated_relationship_element_equal(rel1, rel2)
         self.assertEqual(2, sum(1 for _ in checker.failed_checks))
         checker_iterator = iter(checker.failed_checks)
-        self.assertEqual("FAIL: Attribut annotation of AnnotatedRelationshipElement[test] must contain 1 DataElements "
+        self.assertEqual("FAIL: Attribute annotation of AnnotatedRelationshipElement[test] must contain 1 DataElements "
                          "(count=0)",
                          repr(next(checker_iterator)))
         self.assertEqual("FAIL: Annotation Property[test / ExampleAnnotatedProperty] must exist ()",
@@ -223,7 +223,7 @@ class AASDataCheckerTest(unittest.TestCase):
         checker.check_submodel_equal(submodel, submodel_expected)
         self.assertEqual(2, sum(1 for _ in checker.failed_checks))
         checker_iterator = iter(checker.failed_checks)
-        self.assertEqual("FAIL: Attribut submodel_element of Submodel[Identifier(CUSTOM=test)] must contain 1 "
+        self.assertEqual("FAIL: Attribute submodel_element of Submodel[Identifier(CUSTOM=test)] must contain 1 "
                          "SubmodelElements (count=0)",
                          repr(next(checker_iterator)))
         self.assertEqual("FAIL: Submodel ElementProperty[Identifier(CUSTOM=test) / Prop1] must exist ()",
@@ -251,10 +251,10 @@ class AASDataCheckerTest(unittest.TestCase):
         checker.check_asset_administration_shell_equal(shell, shell_expected)
         self.assertEqual(4, sum(1 for _ in checker.failed_checks))
         checker_iterator = iter(checker.failed_checks)
-        self.assertEqual("FAIL: Attribut submodel of AssetAdministrationShell[Identifier(CUSTOM=test)] must contain 1 "
+        self.assertEqual("FAIL: Attribute submodel of AssetAdministrationShell[Identifier(CUSTOM=test)] must contain 1 "
                          "AASReferences (count=0)",
                          repr(next(checker_iterator)))
-        self.assertEqual("FAIL: Attribut view of AssetAdministrationShell[Identifier(CUSTOM=test)] must contain 1 "
+        self.assertEqual("FAIL: Attribute view of AssetAdministrationShell[Identifier(CUSTOM=test)] must contain 1 "
                          "Views (count=0)",
                          repr(next(checker_iterator)))
         self.assertEqual("FAIL: Submodel Reference AASReference(type=Submodel, key=(Key(id_type=IRI, "
@@ -275,7 +275,7 @@ class AASDataCheckerTest(unittest.TestCase):
         checker.check_view_equal(view, view_expected)
         self.assertEqual(2, sum(1 for _ in checker.failed_checks))
         checker_iterator = iter(checker.failed_checks)
-        self.assertEqual("FAIL: Attribut contained_element of View[test] must contain 1 AASReferences (count=0)",
+        self.assertEqual("FAIL: Attribute contained_element of View[test] must contain 1 AASReferences (count=0)",
                          repr(next(checker_iterator)))
         self.assertEqual("FAIL: View Reference AASReference(type=Property, key=(Key(id_type=IRI, "
                          "value=test),)) must exist ()",
@@ -293,7 +293,7 @@ class AASDataCheckerTest(unittest.TestCase):
         checker.check_concept_description_equal(cd, cd_expected)
         self.assertEqual(2, sum(1 for _ in checker.failed_checks))
         checker_iterator = iter(checker.failed_checks)
-        self.assertEqual("FAIL: Attribut is_case_of of ConceptDescription[Identifier(CUSTOM=test)] must contain "
+        self.assertEqual("FAIL: Attribute is_case_of of ConceptDescription[Identifier(CUSTOM=test)] must contain "
                          "1 References (count=0)",
                          repr(next(checker_iterator)))
         self.assertEqual("FAIL: Concept Description Reference Reference(key=(Key(id_type=IRI, "

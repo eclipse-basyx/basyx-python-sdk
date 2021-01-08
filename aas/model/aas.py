@@ -20,7 +20,7 @@ This module contains the following classes from an up-to-down-level:
 
 from typing import Optional, Set, Iterable
 
-from . import base, concept
+from . import base
 from .security import Security
 from .submodel import File, Submodel
 
@@ -46,7 +46,7 @@ class View(base.Referable, base.HasSemantics):
                        element. The semantic id may either reference an external global id or it may reference a
                        referable model element of kind=Type that defines the semantics of the element.
                        (inherited from from :class:`~aas.model.base.HasSemantics`)
-    :ivar extension: Element that can be extended by proprietary extensions.
+    :ivar extension: An extension of the element.
                      (from :class:`~aas.model.base.HasExtensions`)
     """
     def __init__(self,
@@ -94,12 +94,11 @@ class Asset(base.Identifiable):
     :ivar administration: :class:`~aas.model.base.AdministrativeInformation` of an
                           :class:`~.aas.model.base.Identifiable` element. (inherited from
                           :class:`~aas.model.base.Identifiable`)
-    :ivar extension: Element that can be extended by proprietary extensions.
+    :ivar extension: An extension of the element.
                      (from :class:`~aas.model.base.HasExtensions`)
     """
 
     def __init__(self,
-
                  identification: base.Identifier,
                  id_short: str = "NotSet",
                  display_name: Optional[base.LangStringSet] = None,
@@ -108,6 +107,7 @@ class Asset(base.Identifiable):
                  parent: Optional[base.Namespace] = None,
                  administration: Optional[base.AdministrativeInformation] = None,
                  extension: Optional[Set[base.Extension]] = None):
+
         super().__init__()
         self.identification: base.Identifier = identification
         self.id_short = id_short
@@ -119,7 +119,7 @@ class Asset(base.Identifiable):
         self.extension: Set[base.Extension] = set() if extension is None else extension
 
 
-class AssetInformation():
+class AssetInformation:
     """
     In AssetInformation identifying meta data of the asset that is represented by an AAS is defined.
 
@@ -202,7 +202,7 @@ class AssetAdministrationShell(base.Identifiable, base.Namespace):
     :ivar view: Unordered list of stakeholder specific :class:`views <aas.model.aas.View>` that can group the elements
                 of the AAS.
     :ivar derived_from: The :class:`reference <aas.model.base.AASReference>` to the AAS the AAs was derived from
-    :ivar extension: Element that can be extended by proprietary extensions.
+    :ivar extension: An extension of the element.
                      (from :class:`~aas.model.base.HasExtensions`)
     """
     def __init__(self,

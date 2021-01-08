@@ -19,8 +19,8 @@ class EntityTest(unittest.TestCase):
     def test_set_entity(self):
         with self.assertRaises(model.AASConstraintViolation) as cm:
             obj = model.Entity(id_short='Test', entity_type=model.EntityType.SELF_MANAGED_ENTITY, statement=())
-        self.assertEqual(
-            'A self-managed entity has to have a globalAssetId or a specificAssetId (Constraint AASd-14)',
+        self.assertIn(
+            'A self-managed entity has to have a globalAssetId or a specificAssetId',
             str(cm.exception)
         )
         with self.assertRaises(model.AASConstraintViolation) as cm:
@@ -29,8 +29,8 @@ class EntityTest(unittest.TestCase):
                                                                            value='http://acplt.org/TestAsset/',
                                                                            id_type=model.KeyType.IRI),)),
                                 statement=())
-        self.assertEqual(
-            'A co-managed entity has to have neither a globalAssetId nor a specificAssetId (Constraint AASd-14)',
+        self.assertIn(
+            'A co-managed entity has to have neither a globalAssetId nor a specificAssetId',
             str(cm.exception)
         )
 
@@ -43,8 +43,8 @@ class EntityTest(unittest.TestCase):
         with self.assertRaises(model.AASConstraintViolation) as cm:
             obj3 = model.Entity(id_short='Test', entity_type=model.EntityType.CO_MANAGED_ENTITY,
                                 specific_asset_id=identifier_key_value_pair, statement=())
-        self.assertEqual(
-            'A co-managed entity has to have neither a globalAssetId nor a specificAssetId (Constraint AASd-14)',
+        self.assertIn(
+            'A co-managed entity has to have neither a globalAssetId nor a specificAssetId',
             str(cm.exception))
 
 

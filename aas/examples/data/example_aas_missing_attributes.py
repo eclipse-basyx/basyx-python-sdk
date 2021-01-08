@@ -339,8 +339,7 @@ def create_example_concept_description() -> model.ConceptDescription:
     return concept_description
 
 
-def create_example_asset_administration_shell() -> \
-        model.AssetAdministrationShell:
+def create_example_asset_administration_shell() -> model.AssetAdministrationShell:
     """
     creates an example asset administration shell containing references to the example asset and example submodel
 
