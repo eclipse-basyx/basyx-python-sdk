@@ -1,7 +1,8 @@
 adapter.xml - XML serialization and deserialization
 ===================================================
 
-todo: Add ToC here
+.. automodule:: aas.adapter.xml.__init__
+      :members:
 
 adapter.xml.xml_serialization - Serialization from AAS-objects to XML
 #####################################################################

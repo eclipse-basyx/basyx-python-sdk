@@ -1,7 +1,8 @@
 adapter: Adapter of AAS-objects from and to different file-formats
 ==================================================================
 
-todo: add some text here
+.. automodule:: aas.adapter.__init__
+      :members:
 
 .. toctree::
    :maxdepth: 2
