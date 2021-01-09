@@ -95,7 +95,7 @@ class Asset(base.Identifiable):
                           :class:`~.aas.model.base.Identifiable` element. (inherited from
                           :class:`~aas.model.base.Identifiable`)
     :ivar extension: An extension of the element.
-                     (from :class:`~aas.model.base.HasExtensions`)
+                     (from :class:`~aas.model.base.HasExtension`)
     """
 
     def __init__(self,
