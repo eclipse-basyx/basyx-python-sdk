@@ -885,12 +885,13 @@ class Capability(SubmodelElement):
     """
     A capability is the implementation-independent description of the potential of an asset to achieve a certain effect
     in the physical or virtual world
+
     :ivar id_short: Identifying string of the element within its name space. (inherited from
                     :class:`~aas.model.base.Referable`)
     :ivar display_name: Can be provided in several languages. (inherited from :class:`~aas.model.base.Referable`)
     :ivar category: The category is a value that gives further meta information w.r.t. to the class of the element.
-                     It affects the expected existence of attributes and the applicability of constraints.
-                     (inherited from :class:`~aas.model.base.Referable`)
+                    It affects the expected existence of attributes and the applicability of constraints.
+                    (inherited from :class:`~aas.model.base.Referable`)
     :ivar description: Description or comments on the element. (inherited from :class:`~aas.model.base.Referable`)
     :ivar parent: Reference to the next referable parent element of the element. (inherited from
                   :class:`~aas.model.base.Referable`)
