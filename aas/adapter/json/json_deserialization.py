@@ -9,12 +9,16 @@
 # "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
 # specific language governing permissions and limitations under the License.
 """
+.. _adapter.json.json_deserialization:
+
 Module for deserializing Asset Administration Shell data from the official JSON format
 
-The module provides custom JSONDecoder classes `AASFromJsonDecoder` and `StrictAASFromJsonDecoder` to be used with
-the Python standard `json` module. They contain a custom `object_hook` function to detect encoded AAS objects within the
-JSON data and convert them to PyI40AAS objects while parsing. Additionally, there's the `read_json_aas_file()` function,
-that takes a complete AAS JSON file, reads its contents and returns the contained AAS objects as DictObjectStore.
+The module provides custom JSONDecoder classes :class:`~.AASFromJsonDecoder` and :class:`~.StrictAASFromJsonDecoder` to
+be used with the Python standard `json` module. They contain a custom
+:meth:`~aas.adapter.json.json_deserialization.AASFromJsonDecoder.object_hook` function
+to detect encoded AAS objects within the JSON data and convert them to PyI40AAS objects while parsing. Additionally,
+there's the :meth:`~aas.adapter.json.json_deserialization.read_aas_json_file` function, that takes a complete AAS JSON
+file, reads its contents and returns the contained AAS objects as :class:`~aas.model.provider.DictObjectStore`.
 
 This job is performed in a bottom-up approach: The `object_hook()` method gets called for every parsed JSON object
 (as dict) and checks for existence of the `modelType` attribute. If it is present, the `AAS_CLASS_PARSERS` dict defines,
@@ -96,8 +100,12 @@ class AASFromJsonDecoder(json.JSONDecoder):
     Custom JSONDecoder class to use the `json` module for deserializing Asset Administration Shell data from the
     official JSON format
 
-    The class contains a custom `object_hook` function to detect encoded AAS objects within the JSON data and convert
-    them to PyI40AAS objects while parsing. Typical usage:
+    The class contains a custom :meth:`~.AASFromJsonDecoder.object_hook` function to detect encoded AAS objects within
+    the JSON data and convert them to PyI40AAS objects while parsing.
+
+    Typical usage:
+
+    .. code-block:: python
 
         data = json.loads(json_string, cls=AASFromJsonDecoder)
 
@@ -114,6 +122,8 @@ class AASFromJsonDecoder(json.JSONDecoder):
     tasks, (nearly) all the constructor methods take a parameter `object_type` defaulting to the normal PyI40AAS object
     class, that can be overridden in a derived function:
 
+    .. code-block:: python
+
         class EnhancedAsset(model.Asset):
             pass
 
@@ -122,11 +132,12 @@ class AASFromJsonDecoder(json.JSONDecoder):
             def _construct_asset(cls, dct):
                 return super()._construct_asset(dct, object_class=EnhancedAsset)
 
-    :cvar failsafe: If True (the default), don't raise Exceptions for missing attributes and wrong types, but instead
+
+    :cvar failsafe: If `True` (the default), don't raise Exceptions for missing attributes and wrong types, but instead
                     skip defective objects and use logger to output warnings. Use StrictAASFromJsonDecoder for a
                     non-failsafe version.
-    :cvar stripped: If True, the JSON objects will be parsed in a stripped manner, excluding some attributes.
-                    Defaults to False.
+    :cvar stripped: If `True`, the JSON objects will be parsed in a stripped manner, excluding some attributes.
+                    Defaults to `False`.
                     See https://git.rwth-aachen.de/acplt/pyi40aas/-/issues/91
     """
     failsafe = True
@@ -713,7 +724,7 @@ class StrictAASFromJsonDecoder(AASFromJsonDecoder):
     A strict version of the AASFromJsonDecoder class for deserializing Asset Administration Shell data from the
     official JSON format
 
-    This version has set failsafe = False, which will lead to Exceptions raised for every missing attribute or wrong
+    This version has set `failsafe = False`, which will lead to Exceptions raised for every missing attribute or wrong
     object type.
     """
     failsafe = False
@@ -764,19 +775,20 @@ def read_aas_json_file_into(object_store: model.AbstractObjectStore, file: IO, r
     Read an Asset Administration Shell JSON file according to 'Details of the Asset Administration Shell', chapter 5.5
     into a given object store.
 
-    :param object_store: The object store in which the identifiable objects should be stored
+    :param object_store: The :class:`ObjectStore <aas.model.provider.AbstractObjectStore>` in which the identifiable
+                         objects should be stored
     :param file: A file-like object to read the JSON-serialized data from
     :param replace_existing: Whether to replace existing objects with the same identifier in the object store or not
     :param ignore_existing: Whether to ignore existing objects (e.g. log a message) or raise an error.
-                            This parameter is ignored if replace_existing is True.
-    :param failsafe: If true, the document is parsed in a failsafe way: missing attributes and elements are logged
+                            This parameter is ignored if replace_existing is `True`.
+    :param failsafe: If `True`, the document is parsed in a failsafe way: Missing attributes and elements are logged
                      instead of causing exceptions. Defect objects are skipped.
                      This parameter is ignored if a decoder class is specified.
-    :param stripped: If true, stripped JSON objects are parsed.
+    :param stripped: If `True`, stripped JSON objects are parsed.
                      See https://git.rwth-aachen.de/acplt/pyi40aas/-/issues/91
                      This parameter is ignored if a decoder class is specified.
     :param decoder: The decoder class used to decode the JSON objects
-    :return: A set of identifiers that were added to object_store
+    :return: A set of :class:`Identifiers <aas.model.base.Identifier>` that were added to object_store
     """
     ret: Set[model.Identifier] = set()
     decoder_ = _select_decoder(failsafe, stripped, decoder)
@@ -834,12 +846,13 @@ def read_aas_json_file_into(object_store: model.AbstractObjectStore, file: IO, r
 
 def read_aas_json_file(file: IO, **kwargs) -> model.DictObjectStore[model.Identifiable]:
     """
-    A wrapper of read_aas_json_file_into(), that reads all objects in an empty DictObjectStore. This function supports
-    the same keyword arguments as read_aas_json_file_into().
+    A wrapper of :meth:`~aas.adapter.json.json_deserialization.read_aas_json_file_into`, that reads all objects in an
+    empty :class:`~aas.model.provider.DictObjectStore`. This function supports the same keyword arguments as
+    :meth:`~aas.adapter.json.json_deserialization.read_aas_json_file_into`.
 
     :param file: A filename or file-like object to read the JSON-serialized data from
-    :param kwargs: Keyword arguments passed to read_aas_json_file_into()
-    :return: A DictObjectStore containing all AAS objects from the JSON file
+    :param kwargs: Keyword arguments passed to :meth:`~aas.adapter.json.json_deserialization.read_aas_json_file_into`
+    :return: A :class:`~aas.model.provider.DictObjectStore` containing all AAS objects from the JSON file
     """
     object_store: model.DictObjectStore[model.Identifiable] = model.DictObjectStore()
     read_aas_json_file_into(object_store, file, **kwargs)
