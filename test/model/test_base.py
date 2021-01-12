@@ -17,6 +17,7 @@ from collections import OrderedDict
 from aas import model
 from aas.backend import backends
 from aas.model import Identifier, Identifiable
+from aas.examples.data import example_aas
 
 
 class KeyTest(unittest.TestCase):
@@ -264,6 +265,30 @@ class ReferableTest(unittest.TestCase):
                       store_object=example_grandchild,
                       relative_path=[])
         ])
+
+    def test_update_from(self):
+        example_submodel = example_aas.create_example_submodel()
+        example_relel = example_submodel.get_referable('ExampleRelationshipElement')
+
+        other_submodel = example_aas.create_example_submodel()
+        other_relel = other_submodel.get_referable('ExampleRelationshipElement')
+
+        other_submodel.category = "NewCat"
+        other_relel.category = "NewRelElCat"
+
+        # Test basic functionality
+        example_submodel.update_from(other_submodel)
+        self.assertEqual("NewCat", example_submodel.category)
+        self.assertEqual("NewRelElCat", example_relel.category)
+
+        # Test source update
+        example_relel.source = "scheme:OldRelElSource"
+        other_submodel.source = "scheme:NewSource"
+        other_relel.source = "scheme:NewRelElSource"
+
+        example_submodel.update_from(other_submodel, update_source=True)
+        self.assertEqual("scheme:NewSource", example_submodel.source)
+        self.assertEqual("scheme:OldRelElSource", example_relel.source)
 
 
 class ExampleNamespaceReferable(model.UniqueIdShortNamespace, model.UniqueSemanticNamespace):

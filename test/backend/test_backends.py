@@ -1,21 +1,29 @@
-from unittest import mock
+from typing import List
 import unittest
 
 from aas.backend import backends
+from aas.model import Referable
+
+
+class ExampleBackend(backends.Backend):
+    @classmethod
+    def commit_object(cls, committed_object: Referable, store_object: Referable, relative_path: List[str]) -> None:
+        raise NotImplementedError("This is a mock")
+
+    @classmethod
+    def update_object(cls, updated_object: Referable, store_object: Referable, relative_path: List[str]) -> None:
+        raise NotImplementedError("This is a mock")
 
 
 class BackendsTest(unittest.TestCase):
     def test_backend_store(self):
-        with mock.patch("aas.backend.backends.Backend") as mock_backend:
-            backends.register_backend("mockScheme", mock_backend)
-            self.assertEqual(backends.get_backend("mockScheme:x-test:test_backend"), mock_backend)
+        backends.register_backend("mockScheme", ExampleBackend)
+        self.assertIs(backends.get_backend("mockScheme:x-test:test_backend"), ExampleBackend)
 
-            backends._backends_map = {}
-            backends.register_backend("<this is totally a valid uri>", mock_backend)
-            with self.assertRaises(ValueError) as cm:
-                backends.get_backend("<this is totally a valid uri>")
-            self.assertEqual("<this is totally a valid uri> is not a valid URL with URI scheme.", str(cm.exception))
+        backends.register_backend("<this is totally a valid uri>", ExampleBackend)
+        with self.assertRaises(ValueError) as cm:
+            backends.get_backend("<this is totally a valid uri>")
+        self.assertEqual("<this is totally a valid uri> is not a valid URL with URI scheme.", str(cm.exception))
 
-
-if __name__ == '__main__':
-    unittest.main()
+        with self.assertRaises(backends.UnknownBackendException):
+            backends.get_backend("some-unkown-scheme://example.com")
