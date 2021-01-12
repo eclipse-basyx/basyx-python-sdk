@@ -95,3 +95,6 @@ class SubmodelElementCollectionTest(unittest.TestCase):
                          'value=http://acplt.org/Test1),))\') is already present in this set of objects"',
                          str(cm.exception))
         collection.value.add(property4)
+        self.assertIs(property1, collection.get_referable("test1"))
+        self.assertIs(property1, collection.get_object_by_semantic_id(propSemanticID1))
+        self.assertIs(property4, collection.get_object_by_semantic_id(propSemanticID2))
