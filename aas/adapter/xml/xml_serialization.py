@@ -731,7 +731,8 @@ def submodel_element_collection_to_xml(obj: model.SubmodelElementCollection,
     """
     et_submodel_element_collection = abstract_classes_to_xml(tag, obj)
     # todo: remove wrapping submodelElement-tag, in accordance to future schema
-    et_submodel_element_collection.append(_generate_element(NS_AAS + "allowDuplicates", text="false"))
+    et_submodel_element_collection.append(_generate_element(NS_AAS + "allowDuplicates",
+                                                            text=boolean_to_xml(obj.allow_duplicates)))
     et_submodel_element_collection.append(_generate_element(NS_AAS + "ordered", text=boolean_to_xml(obj.ordered)))
     et_value = _generate_element(NS_AAS + "value")
     if obj.value:

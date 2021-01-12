@@ -261,7 +261,7 @@ def create_example_submodel() -> model.Submodel:
         qualifier=(),
         kind=model.ModelingKind.INSTANCE)
 
-    submodel_element_submodel_element_collection_ordered = model.SubmodelElementCollectionOrdered(
+    submodel_element_submodel_element_collection_ordered = model.SubmodelElementCollectionOrderedUniqueSemanticId(
         id_short='ExampleSubmodelCollectionOrdered',
         value=(submodel_element_property,
                submodel_element_multi_language_property,
@@ -277,7 +277,7 @@ def create_example_submodel() -> model.Submodel:
         qualifier=(),
         kind=model.ModelingKind.INSTANCE)
 
-    submodel_element_submodel_element_collection_unordered = model.SubmodelElementCollectionUnordered(
+    submodel_element_submodel_element_collection_unordered = model.SubmodelElementCollectionUnorderedUniqueSemanticId(
         id_short='ExampleSubmodelCollectionUnordered',
         value=(submodel_element_blob,
                submodel_element_file,

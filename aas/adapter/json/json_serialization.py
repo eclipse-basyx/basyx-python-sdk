@@ -584,6 +584,7 @@ class AASToJsonEncoder(json.JSONEncoder):
         if not cls.stripped and obj.value:
             data['value'] = list(obj.value)
         data['ordered'] = obj.ordered
+        data['allowDuplicates'] = obj.allow_duplicates
         return data
 
     @classmethod

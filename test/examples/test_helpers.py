@@ -161,6 +161,10 @@ class AASDataCheckerTest(unittest.TestCase):
             def ordered(self):
                 return True
 
+            @property
+            def allow_duplicates(self):
+                return True
+
         dummy_submodel_element_collection = DummySubmodelElementCollection('test')
         submodel = model.Submodel(identification=model.Identifier('test', model.IdentifierType.CUSTOM))
         submodel.submodel_element.add(dummy_submodel_element_collection)

@@ -603,17 +603,17 @@ class AASFromJsonDecoder(json.JSONDecoder):
     @classmethod
     def _construct_submodel_element_collection(
             cls,
-            dct: Dict[str, object],
-            object_class_ordered=model.SubmodelElementCollectionOrdered,
-            object_class_unordered=model.SubmodelElementCollectionUnordered)\
+            dct: Dict[str, object])\
             -> model.SubmodelElementCollection:
         ret: model.SubmodelElementCollection
+        ordered = False
+        allowDuplicates = False
         if 'ordered' in dct and _get_ts(dct, 'ordered', bool):
-            ret = object_class_ordered(
-                id_short=_get_ts(dct, "idShort", str), kind=cls._get_kind(dct))
-        else:
-            ret = object_class_unordered(
-                id_short=_get_ts(dct, "idShort", str), kind=cls._get_kind(dct))
+            ordered = _get_ts(dct, "ordered", bool)
+        if 'allowDuplicates' in dct and _get_ts(dct, 'allowDuplicates', bool):
+            allowDuplicates = _get_ts(dct, "allowDuplicates", bool)
+        ret = model.submodel_element_collection_factory(id_short=_get_ts(dct, "idShort", str), kind=cls._get_kind(dct),
+                                                        ordered=ordered, allow_duplicates=allowDuplicates)
         cls._amend_abstract_attributes(ret, dct)
         if not cls.stripped and 'value' in dct:
             for element in _get_ts(dct, "value", list):

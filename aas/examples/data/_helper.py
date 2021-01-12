@@ -295,9 +295,11 @@ class AASDataChecker(DataChecker):
         :return:
         """
         self._check_abstract_attributes_submodel_element_equal(object_, expected_value)
-        if isinstance(object_, model.SubmodelElementCollectionUnordered):
+        if isinstance(object_, model.SubmodelElementCollectionUnordered) or \
+                isinstance(object_, model.SubmodelElementCollectionUnorderedUniqueSemanticId):
             self._check_submodel_collection_unordered_equal(object_, expected_value)  # type: ignore
-        elif isinstance(object_, model.SubmodelElementCollectionOrdered):
+        elif isinstance(object_, model.SubmodelElementCollectionOrdered) or \
+                isinstance(object_, model.SubmodelElementCollectionOrderedUniqueSemanticId):
             self._check_submodel_collection_ordered_equal(object_, expected_value)  # type: ignore
         else:
             raise AttributeError('Submodel Element collection class not implemented')

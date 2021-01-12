@@ -567,6 +567,13 @@ class SubmodelElementCollection(SubmodelElement, base.UniqueIdShortNamespace, me
                    the elements in the collection are ordered.
                    `ordered` shall not be set directly, instead one of the subclasses
                    `SubmodelElementCollectionOrdered` or `SubmodelElementCollectionUnordered` shall be used.
+    :ivar allow_duplicates: If allowDuplicates=true, then it is allowed that the collection contains several elements
+                            with the same semantics (i.e. the same semanticId).
+                            If allowDuplicates=false, then it is not allowed that the collection contains several
+                            elements with the same semantics (i.e. the same semanticId).
+                            `allow_duplicates` shall not be set directly, instead one of the subclasses
+                            `SubmodelElementCollectionUniqueSemanticId` or `SubmodelElementCollectionUniqueSemanticId`
+                            shall be used.
     """
     @abc.abstractmethod
     def __init__(self,
@@ -611,6 +618,11 @@ class SubmodelElementCollection(SubmodelElement, base.UniqueIdShortNamespace, me
     def ordered(self):
         pass
 
+    @property
+    @abc.abstractmethod
+    def allow_duplicates(self):
+        pass
+
 
 class SubmodelElementCollectionOrdered(SubmodelElementCollection):
     """
@@ -651,12 +663,68 @@ class SubmodelElementCollectionOrdered(SubmodelElementCollection):
         TODO: Add instruction what to do after construction
         """
 
-        super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, kind, extension)
-        self.value = base.OrderedNamespaceSet(self, [("id_short", True)], value)
+        super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, kind,
+                         extension)
+        self.value = base.OrderedNamespaceSet(self, [("id_short", False)], value)
 
     @property
     def ordered(self):
         return True
+
+    @property
+    def allow_duplicates(self):
+        return True
+
+
+class SubmodelElementCollectionOrderedUniqueSemanticId(SubmodelElementCollection, base.UniqueSemanticNamespace):
+    """
+    A SubmodelElementCollectionOrdered is an ordered list of submodel elements where semanticIds are unique.
+    """
+
+    def __init__(self,
+                 id_short: str,
+                 value: Iterable[SubmodelElement] = (),
+                 display_name: Optional[base.LangStringSet] = None,
+                 category: Optional[str] = None,
+                 description: Optional[base.LangStringSet] = None,
+                 parent: Optional[base.UniqueIdShortNamespace] = None,
+                 semantic_id: Optional[base.Reference] = None,
+                 qualifier: Iterable[base.Constraint] = (),
+                 kind: base.ModelingKind = base.ModelingKind.INSTANCE,
+                 extension: Optional[Set[base.Extension]] = None):
+        """
+        Initializer of SubmodelElementCollection
+
+        :param id_short: Identifying string of the element within its name space. (from base.Referable)
+        :param value: Ordered list of submodel elements.
+        :param display_name: Can be provided in several languages. (from base.Referable)
+        :param category: The category is a value that gives further meta information w.r.t. to the class of the element.
+                         It affects the expected existence of attributes and the applicability of constraints.
+                         (from base.Referable)
+        :param description: Description or comments on the element. (from base.Referable)
+        :param parent: Reference to the next referable parent element of the element. (from base.Referable)
+        :param semantic_id: Identifier of the semantic definition of the element. It is called semantic id of the
+                            element. The semantic id may either reference an external global id or it may reference a
+                            referable model element of kind=Type that defines the semantics of the element.
+                            (from base.HasSemantics)
+        :param qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
+                          (from base.Qualifiable)
+        :param kind: Kind of the element: either type or instance. Default = Instance. (from base.HasKind)
+        :param extension: An extension of the element. (from base.HasExtension)
+
+        TODO: Add instruction what to do after construction
+        """
+
+        super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, kind, extension)
+        self.value = base.OrderedNamespaceSet(self, [("id_short", False), ("semantic_id", True)], value)
+
+    @property
+    def ordered(self):
+        return True
+
+    @property
+    def allow_duplicates(self):
+        return False
 
 
 class SubmodelElementCollectionUnordered(SubmodelElementCollection):
@@ -698,11 +766,122 @@ class SubmodelElementCollectionUnordered(SubmodelElementCollection):
         TODO: Add instruction what to do after construction
         """
         super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, kind, extension)
-        self.value = base.NamespaceSet(self, [("id_short", True)], value)
+        self.value = base.NamespaceSet(self, [("id_short", False)], value)
 
     @property
     def ordered(self):
         return False
+
+    @property
+    def allow_duplicates(self):
+        return True
+
+
+class SubmodelElementCollectionUnorderedUniqueSemanticId(SubmodelElementCollection, base.UniqueSemanticNamespace):
+    """
+    A SubmodelElementCollectionOrdered is an unordered list of submodel elements where semanticIds are unique.
+    """
+
+    def __init__(self,
+                 id_short: str,
+                 value: Iterable[SubmodelElement] = (),
+                 display_name: Optional[base.LangStringSet] = None,
+                 category: Optional[str] = None,
+                 description: Optional[base.LangStringSet] = None,
+                 parent: Optional[base.UniqueIdShortNamespace] = None,
+                 semantic_id: Optional[base.Reference] = None,
+                 qualifier: Iterable[base.Constraint] = (),
+                 kind: base.ModelingKind = base.ModelingKind.INSTANCE,
+                 extension: Optional[Set[base.Extension]] = None):
+        """
+        Initializer of SubmodelElementCollection
+
+        :param id_short: Identifying string of the element within its name space. (from base.Referable)
+        :param value: Unordered list of submodel elements.
+        :param display_name: Can be provided in several languages. (from base.Referable)
+        :param category: The category is a value that gives further meta information w.r.t. to the class of the element.
+                         It affects the expected existence of attributes and the applicability of constraints.
+                         (from base.Referable)
+        :param description: Description or comments on the element. (from base.Referable)
+        :param parent: Reference to the next referable parent element of the element. (from base.Referable)
+        :param semantic_id: Identifier of the semantic definition of the element. It is called semantic id of the
+                            element. The semantic id may either reference an external global id or it may reference a
+                            referable model element of kind=Type that defines the semantics of the element.
+                            (from base.HasSemantics)
+        :param qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
+                          (from base.Qualifiable)
+        :param kind: Kind of the element: either type or instance. Default = Instance. (from base.HasKind)
+        :param extension: An extension of the element. (from base.HasExtension)
+
+        TODO: Add instruction what to do after construction
+        """
+        super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, kind, extension)
+        self.value = base.NamespaceSet(self, [("id_short", False), ("semantic_id", True)], value)
+
+    @property
+    def ordered(self):
+        return False
+
+    @property
+    def allow_duplicates(self):
+        return False
+
+
+def submodel_element_collection_factory(id_short: str,
+                                        value: Iterable[SubmodelElement] = (),
+                                        display_name: Optional[base.LangStringSet] = None,
+                                        category: Optional[str] = None,
+                                        description: Optional[base.LangStringSet] = None,
+                                        parent: Optional[base.UniqueIdShortNamespace] = None,
+                                        semantic_id: Optional[base.Reference] = None,
+                                        qualifier: Iterable[base.Constraint] = (),
+                                        kind: base.ModelingKind = base.ModelingKind.INSTANCE,
+                                        extension: Optional[Set[base.Extension]] = None,
+                                        allow_duplicates: bool = False,
+                                        ordered: bool = False):
+    """
+        A factory to create a SubmodelElementCollection based on the parameter dublicates_allowed and ordered.
+
+        Initializer of SubmodelElementCollection
+        :param id_short: Identifying string of the element within its name space. (from base.Referable)
+        :param value: Ordered or unordered list of submodel elements.
+        :param display_name: Can be provided in several languages. (from base.Referable)
+        :param category: The category is a value that gives further meta information w.r.t. to the class of the element.
+                         It affects the expected existence of attributes and the applicability of constraints.
+                         (from base.Referable)
+        :param description: Description or comments on the element. (from base.Referable)
+        :param parent: Reference to the next referable parent element of the element. (from base.Referable)
+        :param semantic_id: Identifier of the semantic definition of the element. It is called semantic id of the
+                            element. The semantic id may either reference an external global id or it may reference a
+                            referable model element of kind=Type that defines the semantics of the element.
+                            (from base.HasSemantics)
+        :param qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
+                          (from base.Qualifiable)
+        :param kind: Kind of the element: either type or instance. Default = Instance. (from base.HasKind)
+        :param extension: An extension of the element. (from base.HasExtension)
+        :param ordered: If ordered=false then the elements in the property collection are not ordered. If ordered=true
+                        then the elements in the collection are ordered.
+        :param allow_duplicates: If allowDuplicates=true, then it is allowed that the collection contains several
+                                 elements with the same semantics (i.e. the same semanticId).
+                                 If allowDuplicates=false, then it is not allowed that the collection contains several
+                                 elements with the same semantics (i.e. the same semanticId).
+    """
+    if ordered:
+        if allow_duplicates:
+            return SubmodelElementCollectionOrdered(id_short, value, display_name, category, description, parent,
+                                                    semantic_id, qualifier, kind, extension)
+        else:
+            return SubmodelElementCollectionOrderedUniqueSemanticId(id_short, value, display_name, category,
+                                                                    description, parent, semantic_id, qualifier,
+                                                                    kind, extension)
+    else:
+        if allow_duplicates:
+            return SubmodelElementCollectionUnordered(id_short, value, display_name, category, description, parent,
+                                                      semantic_id, qualifier, kind, extension)
+        else:
+            return SubmodelElementCollectionUnorderedUniqueSemanticId(id_short, value, display_name, category,
+                                                                      description, parent, semantic_id, qualifier,
+                                                                      kind, extension)
 
 
 class RelationshipElement(SubmodelElement):

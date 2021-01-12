@@ -871,14 +871,14 @@ class AASFromXmlDecoder:
 
     @classmethod
     def construct_submodel_element_collection(cls, element: etree.Element,
-                                              object_class_ordered=model.SubmodelElementCollectionOrdered,
-                                              object_class_unordered=model.SubmodelElementCollectionUnordered,
                                               **_kwargs: Any) -> model.SubmodelElementCollection:
         ordered = _str_to_bool(_child_text_mandatory(element, NS_AAS + "ordered"))
-        collection_type = object_class_ordered if ordered else object_class_unordered
-        collection = collection_type(
+        allow_duplicates = _str_to_bool(_child_text_mandatory(element, NS_AAS + "allowDuplicates"))
+        collection = model.submodel_element_collection_factory(
             _child_text_mandatory(element, NS_AAS + "idShort"),
-            kind=_get_modeling_kind(element)
+            kind=_get_modeling_kind(element),
+            allow_duplicates=allow_duplicates,
+            ordered=ordered
         )
         if not cls.stripped:
             value = _get_child_mandatory(element, NS_AAS + "value")

@@ -473,6 +473,7 @@ class XmlDeserializationStrippedObjectsTest(unittest.TestCase):
         xml = """
         <aas:submodelElementCollection xmlns:aas="http://www.admin-shell.io/aas/3/0">
             <aas:idShort>test_collection</aas:idShort>
+            <aas:allowDuplicates>true</aas:allowDuplicates>
             <aas:ordered>false</aas:ordered>
         </aas:submodelElementCollection>
         """

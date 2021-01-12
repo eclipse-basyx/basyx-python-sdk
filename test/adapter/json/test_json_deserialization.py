@@ -384,6 +384,7 @@ class JsonDeserializationStrippedObjectsTest(unittest.TestCase):
                 "modelType": {"name": "SubmodelElementCollection"},
                 "idShort": "test_submodel_element_collection",
                 "ordered": false,
+                "allowDuplicates": true,
                 "value": [{
                     "modelType": {"name": "MultiLanguageProperty"},
                     "idShort": "test_multi_language_property"
