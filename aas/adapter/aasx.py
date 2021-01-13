@@ -349,7 +349,7 @@ class AASXWriter:
                 raise
             if not isinstance(aas, model.AssetAdministrationShell):
                 raise TypeError(f"Identifier {aas_id} does not belong to an AssetAdminstrationShell object but to "
-                                 f"{aas!r}")
+                                f"{aas!r}")
 
             # Add the Asset object to the data part
             objects_to_be_written.add(aas)
