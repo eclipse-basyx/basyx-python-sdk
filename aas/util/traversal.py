@@ -48,6 +48,6 @@ def walk_semantic_ids_recursive(root: model.Referable) -> Iterator[model.Referen
         for qualifier in root.qualifier:
             if isinstance(qualifier, model.Qualifier) and qualifier.semantic_id is not None:
                 yield qualifier.semantic_id
-    if isinstance(root, model.Namespace):
+    if isinstance(root, model.UniqueIdShortNamespace):
         for element in root:  # iterates Referable objects in Namespace
             yield from walk_semantic_ids_recursive(element)
