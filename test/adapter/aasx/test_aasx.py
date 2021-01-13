@@ -84,6 +84,7 @@ class AASXWriterTest(unittest.TestCase):
                 # warnings
                 with warnings.catch_warnings(record=True) as w:
                     with aasx.AASXWriter(filename) as writer:
+                        # TODO test writing multiple AAS
                         writer.write_aas(model.Identifier(id_='https://acplt.org/Test_AssetAdministrationShell',
                                                           id_type=model.IdentifierType.IRI),
                                          data, files, write_json=write_json)
@@ -118,32 +119,5 @@ class AASXWriterTest(unittest.TestCase):
                 new_files.write_file("/TestFile.pdf", file_content)
                 self.assertEqual(hashlib.sha1(file_content.getvalue()).hexdigest(),
                                  "78450a66f59d74c073bf6858db340090ea72a8b1")
-
-                os.unlink(filename)
-
-    def test_writing_reading_objects_single_part(self) -> None:
-        # Create example data and file_store
-        data = example_aas_mandatory_attributes.create_full_example()
-        files = aasx.DictSupplementaryFileContainer()
-
-        # Write AASX file
-        for write_json in (False, True):
-            with self.subTest(write_json=write_json):
-                fd, filename = tempfile.mkstemp(suffix=".aasx")
-                os.close(fd)
-                with aasx.AASXWriter(filename) as writer:
-                    writer.write_aas_objects('/aasx/aasx.{}'.format('json' if write_json else 'xml'),
-                                             [obj.identification for obj in data],
-                                             data, files, write_json)
-
-                # Read AASX file
-                new_data: model.DictObjectStore[model.Identifiable] = model.DictObjectStore()
-                new_files = aasx.DictSupplementaryFileContainer()
-                with aasx.AASXReader(filename) as reader:
-                    reader.read_into(new_data, new_files)
-
-                # Check AAS objects
-                checker = _helper.AASDataChecker(raise_immediately=True)
-                example_aas_mandatory_attributes.check_full_example(checker, new_data)
 
                 os.unlink(filename)
