@@ -9,6 +9,8 @@
 # "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
 # specific language governing permissions and limitations under the License.
 """
+.. _adapter.aasx:
+
 Functionality for reading and writing AASX files according to "Details of the Asset Administration Shell Part 1 V2.0",
 section 7.
 
@@ -16,10 +18,12 @@ The AASX file format is built upon the Open Packaging Conventions (OPC; ECMA 376
 for low level OPC reading and writing. It currently supports all required features except for embedded digital
 signatures.
 
-Writing and reading of AASX packages is performed through the AASXReader and AASXWriter classes. Each instance of these
-classes wraps an existing AASX file resp. a file to be created and allows to read/write the included AAS objects
-into/form object stores. For handling of embedded supplementary files, this module provides the
-`AbstractSupplementaryFileContainer` class interface and the `DictSupplementaryFileContainer` implementation.
+Writing and reading of AASX packages is performed through the :class:`~.AASXReader` and :class:`~.AASXWriter` classes.
+Each instance of these classes wraps an existing AASX file resp. a file to be created and allows to read/write the
+included AAS objects into/form :class:`ObjectStores <aas.model.provider.AbstractObjectStore>`.
+For handling of embedded supplementary files, this module provides the
+:class:`~.AbstractSupplementaryFileContainer` class
+interface and the :class:`~.DictSupplementaryFileContainer` implementation.
 """
 
 import abc
@@ -51,11 +55,14 @@ class AASXReader:
 
     Basic usage:
 
+    .. code-block:: python
+
         objects = DictObjectStore()
         files = DictSupplementaryFileContainer()
         with AASXReader("filename.aasx") as reader:
             meta_data = reader.get_core_properties()
             reader.read_into(objects, files)
+
     """
     def __init__(self, file: Union[os.PathLike, str, IO]):
         """
@@ -91,6 +98,8 @@ class AASXReader:
         The thumbnail image file is read into memory and returned as bytes object. You may use some python image library
         for further processing or conversion, e.g. `pillow`:
 
+        .. code-block:: python
+
             import io
             from PIL import Image
             thumbnail = Image.open(io.BytesIO(reader.get_thumbnail()))
@@ -109,7 +118,8 @@ class AASXReader:
                   file_store: "AbstractSupplementaryFileContainer",
                   override_existing: bool = False) -> Set[model.Identifier]:
         """
-        Read the contents of the AASX package and add them into a given ObjectStore
+        Read the contents of the AASX package and add them into a given
+        :class:`ObjectStore <aas.model.provider.AbstractObjectStore>`
 
         This function does the main job of reading the AASX file's contents. It traverses the relationships within the
         package to find AAS JSON or XML parts, parses them and adds the contained AAS objects into the provided
@@ -118,11 +128,15 @@ class AASXReader:
         updated with the absolute name of the supplementary file to allow for robust resolution the file within the
         `file_store` later.
 
-        :param object_store: An ObjectStore to add the AAS objects from the AASX file to
-        :param file_store: A SupplementaryFileContainer to add the embedded supplementary files to
-        :param override_existing: If True, existing objects in the object store are overridden with objects from the
-            AASX that have the same Identifer. Default behavior is to skip those objects from the AASX.
-        :return: A set of the Identifiers of all Identifiable objects parsed from the AASX file
+        :param object_store: An :class:`ObjectStore <aas.model.provider.AbstractObjectStore>` to add the AAS objects
+                             from the AASX file to
+        :param file_store: A :class:`SupplementaryFileContainer <.AbstractSupplementaryFileContainer>` to add the
+                           embedded supplementary files to
+        :param override_existing: If `True`, existing objects in the object store are overridden with objects from the
+            AASX that have the same :class:`~aas.model.base.Identifier`. Default behavior is to skip those objects from
+            the AASX.
+        :return: A set of the :class:`Identifiers <aas.model.base.Identifier>` of all
+                 :class:`~aas.model.base.Identifiable` objects parsed from the AASX file
         """
         # Find AASX-Origin part
         core_rels = self.reader.get_related_parts_by_type()
@@ -253,6 +267,8 @@ class AASXWriter:
 
     Basic usage:
 
+    .. code-block:: python
+
         # object_store and file_store are expected to be given (e.g. some storage backend or previously created data)
         cp = OPCCoreProperties()
         cp.creator = "ACPLT"
@@ -267,8 +283,9 @@ class AASXWriter:
                              file_store)
             writer.write_core_properties(cp)
 
-    Attention: The AASXWriter must always be closed using the close() method or its context manager functionality (as
-    shown above). Otherwise the resulting AASX file will lack important data structures and will not be readable.
+    **Attention:** The AASXWriter must always be closed using the :meth:`~.AASXWriter.close` method or its context
+    manager functionality (as shown above). Otherwise the resulting AASX file will lack important data structures
+    and will not be readable.
     """
     AASX_ORIGIN_PART_NAME = "/aasx/aasx-origin"
 
@@ -572,13 +589,18 @@ class NameFriendlyfier:
         According to section 7.6 of "Details of the Asset Administration Shell", all non-alphanumerical characters are
         replaced with underscores. We also replace all non-ASCII characters to generate valid URIs as the result.
         If this replacement results in a collision with a previously generated friendly name of this NameFriendlifier,
-        a number is appended with underscore to the friendly name. Example
+        a number is appended with underscore to the friendly name.
 
-            >>> friendlyfier = NameFriendlyfier()
-            >>> friendlyfier.get_friendly_name(model.Identifier("http://example.com/AAS-a", model.IdentifierType.IRI))
-            "http___example_com_AAS_a"
-            >>> friendlyfier.get_friendly_name(model.Identifier("http://example.com/AAS+a", model.IdentifierType.IRI))
-            "http___example_com_AAS_a_1"
+        Example:
+
+        .. code-block:: python
+
+            friendlyfier = NameFriendlyfier()
+            friendlyfier.get_friendly_name(model.Identifier("http://example.com/AAS-a", model.IdentifierType.IRI))
+             > "http___example_com_AAS_a"
+
+            friendlyfier.get_friendly_name(model.Identifier("http://example.com/AAS+a", model.IdentifierType.IRI))
+             >  "http___example_com_AAS_a_1"
 
         """
         # friendlify name
