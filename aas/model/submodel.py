@@ -556,7 +556,7 @@ class ReferenceElement(DataElement):
         self.value: Optional[base.Reference] = value
 
 
-class SubmodelElementCollection(SubmodelElement, base.UniqueIdShortNamespace, metaclass=abc.ABCMeta):
+class SubmodelElementCollection(SubmodelElement, metaclass=abc.ABCMeta):
     """
     A submodel element collection is a set or list of submodel elements.
 
@@ -624,7 +624,7 @@ class SubmodelElementCollection(SubmodelElement, base.UniqueIdShortNamespace, me
         pass
 
 
-class SubmodelElementCollectionOrdered(SubmodelElementCollection):
+class SubmodelElementCollectionOrdered(SubmodelElementCollection, base.UniqueIdShortNamespace):
     """
     A SubmodelElementCollectionOrdered is an ordered list of submodel elements.
     """
@@ -676,7 +676,7 @@ class SubmodelElementCollectionOrdered(SubmodelElementCollection):
         return True
 
 
-class SubmodelElementCollectionOrderedUniqueSemanticId(SubmodelElementCollection, base.UniqueSemanticNamespace):
+class SubmodelElementCollectionOrderedUniqueSemanticId(SubmodelElementCollection, base.UniqueIdShortSemanticNamespace):
     """
     A SubmodelElementCollectionOrdered is an ordered list of submodel elements where semanticIds are unique.
     """
@@ -727,7 +727,7 @@ class SubmodelElementCollectionOrderedUniqueSemanticId(SubmodelElementCollection
         return False
 
 
-class SubmodelElementCollectionUnordered(SubmodelElementCollection):
+class SubmodelElementCollectionUnordered(SubmodelElementCollection, base.UniqueIdShortNamespace):
     """
     A SubmodelElementCollectionOrdered is an unordered list of submodel elements.
     """
@@ -777,7 +777,8 @@ class SubmodelElementCollectionUnordered(SubmodelElementCollection):
         return True
 
 
-class SubmodelElementCollectionUnorderedUniqueSemanticId(SubmodelElementCollection, base.UniqueSemanticNamespace):
+class SubmodelElementCollectionUnorderedUniqueSemanticId(SubmodelElementCollection,
+                                                         base.UniqueIdShortSemanticNamespace):
     """
     A SubmodelElementCollectionOrdered is an unordered list of submodel elements where semanticIds are unique.
     """

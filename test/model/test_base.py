@@ -291,7 +291,7 @@ class ReferableTest(unittest.TestCase):
         self.assertEqual("scheme:OldRelElSource", example_relel.source)
 
 
-class ExampleNamespaceReferable(model.UniqueIdShortNamespace, model.UniqueSemanticNamespace):
+class ExampleNamespaceReferable(model.UniqueIdShortSemanticNamespace):
     def __init__(self, values=()):
         super().__init__()
         self.set1 = model.NamespaceSet(self, [("id_short", False), ("semantic_id", True)])
@@ -486,7 +486,7 @@ class ModelNamespaceTest(unittest.TestCase):
         self.assertIsNone(prop2.parent)
 
 
-class ExampleOrderedNamespace(model.UniqueIdShortNamespace, model.UniqueSemanticNamespace):
+class ExampleOrderedNamespace(model.UniqueIdShortSemanticNamespace):
     def __init__(self, values=()):
         super().__init__()
         self.set1 = model.OrderedNamespaceSet(self, [("id_short", False), ("semantic_id", True)])
