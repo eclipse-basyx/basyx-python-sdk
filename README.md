@@ -3,14 +3,14 @@
 
 The PyI40AAS project aims to provide an implementation of the Asset Administration Shell (AAS) for Industry 4.0 Systems, compliant
 with the meta model and interface specification provided in
-[the document “Details of the Asset Administration Shell” (v2.0.1)](https://www.plattform-i40.de/PI40/Redaktion/DE/Downloads/Publikation/Details-of-the-Asset-Administration-Shell-Part1.html).
+[the document “Details of the Asset Administration Shell - Part 1” (v3.0RC01)](https://www.plattform-i40.de/PI40/Redaktion/DE/Downloads/Publikation/Details_of_the_Asset_Administration_Shell_Part1_V3.html).
 
 
 ## Features
 
-* Modelling of AASs as Python objects (according to DotAAS sec. 4)
-* (De-)serialization of AAS objects into/from JSON and XML (according to DotAAS sec. 5) 
-* Reading and writing of AASX package files (according to DotAAS sec. 7)
+* Modelling of AASs as Python objects (according to DotAAS sec. 4 and 5)
+* (De-)serialization of AAS objects into/from JSON and XML (according to DotAAS sec. 7) 
+* Reading and writing of AASX package files (according to DotAAS sec. 6)
 * Storing of AAS objects in CouchDB
 * Compliance checking of AAS XML and JSON files
 
