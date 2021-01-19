@@ -414,19 +414,47 @@ class Identifier:
 
 class HasExtension(metaclass=abc.ABCMeta):
     """
-    Element that can be extended by proprietary extensions.
-    Note: Extensions are proprietary, i.e. they do not support global interoperability.
+    Abstract baseclass for all objects which form a Namespace to hold Extension objects and resolve them by their
+    name.
 
-    << abstract >>
+    A Namespace can contain multiple NamespaceSets, which contain Extension objects of different types. However, the
+    name of each object must be unique across all NamespaceSets of one Namespace.
 
-    :ivar extension: An extension of the element.
-                     Constraint AASd-077: The name of an extension within HasExtensions needs to be unique.
-                     TODO: This constraint is not yet implemented, a new Class for CustomSets should be implemented
+    :ivar namespace_element_sets: A list of all NamespaceSets of this Namespace
     """
     @abc.abstractmethod
-    def __init__(self):
-        super().__init__()
-        self.extension: Set[Extension] = set()
+    def __init__(self) -> None:
+        self.namespace_element_sets: List[NamespaceSet] = []
+        self.extension: NamespaceSet[Extension]
+
+    def get_extension_by_name(self, name: str) -> "Extension":
+        """
+        Find a Extension in this Namespaces by its name
+
+        :raises KeyError: If no such Extension can be found
+        """
+        object_ = None
+        for ns_set in self.namespace_element_sets:
+            try:
+                object_ = ns_set.get_object_by_attribute("name", name)
+                break
+            except KeyError:
+                continue
+        if object_:
+            return object_
+        raise KeyError("Extension with name {} not found in this namespace".format(name))
+
+    def remove_extension_by_type(self, name: str) -> None:
+        """
+        Remove a Extension from this Namespace by its name
+
+        :raises KeyError: If no such Extension can be found
+        """
+        for dict_ in self.namespace_element_sets:
+            if "type" in dict_:
+                for dict_2 in dict_:
+                    return dict_2.remove(name)
+        raise KeyError("Extension with name {} not found in this namespace".format(name))
 
 
 class Referable(HasExtension, metaclass=abc.ABCMeta):
@@ -1235,7 +1263,7 @@ class NamespaceSet(MutableSet[_NSO], Generic[_NSO]):
     allows a default argument and returns None instead of raising a KeyError). As a bonus, the `x in` check supports
     checking for existence of attribute *or* a concrete AAS object.
     """
-    def __init__(self, parent: Union[UniqueIdShortNamespace, UniqueSemanticIdNamespace, Qualifiable],
+    def __init__(self, parent: Union[UniqueIdShortNamespace, UniqueSemanticIdNamespace, Qualifiable, HasExtension],
                  attribute_names: List[Tuple[str, bool]], items: Iterable[_NSO] = ()) -> None:
         """
         Initialize a new NamespaceSet.
@@ -1373,7 +1401,11 @@ class NamespaceSet(MutableSet[_NSO], Generic[_NSO]):
                 elif isinstance(other_object, Qualifier):
                     backend, case_sensitive = self._backend["type"]
                     qualifier = backend[other_object.type if case_sensitive else other_object.type.upper()]
-                    # qualifier.update_from(other_object, update_source=True)
+                    # qualifier.update_from(other_object, update_source=True) # TODO: What should happend here?
+                elif isinstance(other_object, Extension):
+                    backend, case_sensitive = self._backend["name"]
+                    extension = backend[other_object.name if case_sensitive else other_object.name.upper()]
+                    # extension.update_from(other_object, update_source=True) # TODO: What should happend here?
                 else:
                     raise TypeError("Type not implemented")
             except KeyError:
@@ -1400,7 +1432,7 @@ class OrderedNamespaceSet(NamespaceSet[_NSO], MutableSequence[_NSO], Generic[_NS
     Additionally to the MutableSet interface of NamespaceSet, this class provides a set-like interface (actually it
     is derived from MutableSequence). However, we don't permit duplicate entries in the ordered list of objects.
     """
-    def __init__(self, parent: Union[UniqueIdShortNamespace, UniqueSemanticIdNamespace, Qualifiable],
+    def __init__(self, parent: Union[UniqueIdShortNamespace, UniqueSemanticIdNamespace, Qualifiable, HasExtension],
                  attribute_names: List[Tuple[str, bool]], items: Iterable[_NSO] = ()) -> None:
         """
         Initialize a new OrderedNamespaceSet.

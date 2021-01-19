@@ -13,7 +13,7 @@ This module contains the classes `ConceptDescription` and `ConceptDictionary` fr
 specialized ConceptDescriptions like `IEC61360ConceptDescription`.
 """
 from enum import unique, Enum
-from typing import Optional, Set, Type
+from typing import Optional, Set, Type, Iterable
 
 from . import base, datatypes
 
@@ -56,7 +56,7 @@ class ConceptDescription(base.Identifiable):
                  description: Optional[base.LangStringSet] = None,
                  parent: Optional[base.UniqueIdShortNamespace] = None,
                  administration: Optional[base.AdministrativeInformation] = None,
-                 extension: Optional[Set[base.Extension]] = None):
+                 extension: Iterable[base.Extension] = ()):
         """
         Initializer of ConceptDescription
 
@@ -83,7 +83,7 @@ class ConceptDescription(base.Identifiable):
         self.description: Optional[base.LangStringSet] = dict() if description is None else description
         self.parent: Optional[base.UniqueIdShortNamespace] = parent
         self.administration: Optional[base.AdministrativeInformation] = administration
-        self.extension: Set[base.Extension] = set() if extension is None else extension
+        self.extension = base.NamespaceSet(self, [("name", True)], extension)
 
     def _set_category(self, category: Optional[str]):
         if category is None:
@@ -156,7 +156,7 @@ class IEC61360ConceptDescription(ConceptDescription):
                  value: Optional[base.ValueDataType] = None,
                  value_id: Optional[base.Reference] = None,
                  level_types: Set[IEC61360LevelType] = None,
-                 extension: Optional[Set[base.Extension]] = None):
+                 extension: Iterable[base.Extension] = ()):
         """
         Initializer of IEC61360ConceptDescription
 

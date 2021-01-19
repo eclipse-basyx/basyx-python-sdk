@@ -40,7 +40,7 @@ class SubmodelElement(base.Referable, base.Qualifiable, base.HasSemantics, base.
                  semantic_id: Optional[base.Reference] = None,
                  qualifier: Iterable[base.Constraint] = (),
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE,
-                 extension: Optional[Set[base.Extension]] = None):
+                 extension: Iterable[base.Extension] = ()):
         """
         Initializer of SubmodelElement
 
@@ -72,7 +72,7 @@ class SubmodelElement(base.Referable, base.Qualifiable, base.HasSemantics, base.
         self.semantic_id: Optional[base.Reference] = semantic_id
         self.qualifier = base.NamespaceSet(self, [("type", True)], qualifier)
         self._kind: base.ModelingKind = kind
-        self.extension: Set[base.Extension] = set() if extension is None else extension
+        self.extension = base.NamespaceSet(self, [("name", True)], extension)
 
 
 class Submodel(base.Identifiable, base.HasSemantics, base.HasKind, base.Qualifiable, base.UniqueIdShortNamespace):
@@ -98,7 +98,7 @@ class Submodel(base.Identifiable, base.HasSemantics, base.HasKind, base.Qualifia
                  semantic_id: Optional[base.Reference] = None,
                  qualifier: Iterable[base.Constraint] = (),
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE,
-                 extension: Optional[Set[base.Extension]] = None):
+                 extension: Iterable[base.Extension] = ()):
         """
         Initializer of Submodel
 
@@ -134,7 +134,7 @@ class Submodel(base.Identifiable, base.HasSemantics, base.HasKind, base.Qualifia
         self.semantic_id: Optional[base.Reference] = semantic_id
         self.qualifier = base.NamespaceSet(self, [("type", True)], qualifier)
         self._kind: base.ModelingKind = kind
-        self.extension: Set[base.Extension] = set() if extension is None else extension
+        self.extension = base.NamespaceSet(self, [("name", True)], extension)
 
 
 ALLOWED_DATA_ELEMENT_CATEGORIES: Set[str] = {
@@ -162,7 +162,7 @@ class DataElement(SubmodelElement, metaclass=abc.ABCMeta):
                  semantic_id: Optional[base.Reference] = None,
                  qualifier: Iterable[base.Constraint] = (),
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE,
-                 extension: Optional[Set[base.Extension]] = None):
+                 extension: Iterable[base.Extension] = ()):
         """
         Initializer of DataElement
 
@@ -224,7 +224,7 @@ class Property(DataElement):
                  semantic_id: Optional[base.Reference] = None,
                  qualifier: Iterable[base.Constraint] = (),
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE,
-                 extension: Optional[Set[base.Extension]] = None):
+                 extension: Iterable[base.Extension] = ()):
         """
         Initializer of Property
 
@@ -289,7 +289,7 @@ class MultiLanguageProperty(DataElement):
                  semantic_id: Optional[base.Reference] = None,
                  qualifier: Iterable[base.Constraint] = (),
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE,
-                 extension: Optional[Set[base.Extension]] = None):
+                 extension: Iterable[base.Extension] = ()):
         """
         Initializer of MultiLanguageProperty
 
@@ -343,7 +343,7 @@ class Range(DataElement):
                  semantic_id: Optional[base.Reference] = None,
                  qualifier: Iterable[base.Constraint] = (),
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE,
-                 extension: Optional[Set[base.Extension]] = None):
+                 extension: Iterable[base.Extension] = ()):
         """
         Initializer of Range
 
@@ -422,7 +422,7 @@ class Blob(DataElement):
                  semantic_id: Optional[base.Reference] = None,
                  qualifier: Iterable[base.Constraint] = (),
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE,
-                 extension: Optional[Set[base.Extension]] = None):
+                 extension: Iterable[base.Extension] = ()):
         """
         Initializer of Blob
 
@@ -476,7 +476,7 @@ class File(DataElement):
                  semantic_id: Optional[base.Reference] = None,
                  qualifier: Iterable[base.Constraint] = (),
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE,
-                 extension: Optional[Set[base.Extension]] = None):
+                 extension: Iterable[base.Extension] = ()):
         """
         Initializer of File
 
@@ -527,7 +527,7 @@ class ReferenceElement(DataElement):
                  semantic_id: Optional[base.Reference] = None,
                  qualifier: Iterable[base.Constraint] = (),
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE,
-                 extension: Optional[Set[base.Extension]] = None):
+                 extension: Iterable[base.Extension] = ()):
         """
         Initializer of ReferenceElement
 
@@ -585,7 +585,7 @@ class SubmodelElementCollection(SubmodelElement, metaclass=abc.ABCMeta):
                  semantic_id: Optional[base.Reference] = None,
                  qualifier: Iterable[base.Constraint] = (),
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE,
-                 extension: Optional[Set[base.Extension]] = None):
+                 extension: Iterable[base.Extension] = ()):
         """
         Initializer of SubmodelElementCollection
 
@@ -639,7 +639,7 @@ class SubmodelElementCollectionOrdered(SubmodelElementCollection, base.UniqueIdS
                  semantic_id: Optional[base.Reference] = None,
                  qualifier: Iterable[base.Constraint] = (),
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE,
-                 extension: Optional[Set[base.Extension]] = None):
+                 extension: Iterable[base.Extension] = ()):
         """
         Initializer of SubmodelElementCollection
 
@@ -693,7 +693,7 @@ class SubmodelElementCollectionOrderedUniqueSemanticId(SubmodelElementCollection
                  semantic_id: Optional[base.Reference] = None,
                  qualifier: Iterable[base.Constraint] = (),
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE,
-                 extension: Optional[Set[base.Extension]] = None):
+                 extension: Iterable[base.Extension] = ()):
         """
         Initializer of SubmodelElementCollection
 
@@ -741,7 +741,7 @@ class SubmodelElementCollectionUnordered(SubmodelElementCollection, base.UniqueI
                  semantic_id: Optional[base.Reference] = None,
                  qualifier: Iterable[base.Constraint] = (),
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE,
-                 extension: Optional[Set[base.Extension]] = None):
+                 extension: Iterable[base.Extension] = ()):
         """
         Initializer of SubmodelElementCollection
 
@@ -793,7 +793,7 @@ class SubmodelElementCollectionUnorderedUniqueSemanticId(SubmodelElementCollecti
                  semantic_id: Optional[base.Reference] = None,
                  qualifier: Iterable[base.Constraint] = (),
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE,
-                 extension: Optional[Set[base.Extension]] = None):
+                 extension: Iterable[base.Extension] = ()):
         """
         Initializer of SubmodelElementCollection
 
@@ -834,7 +834,7 @@ def submodel_element_collection_factory(id_short: str,
                                         semantic_id: Optional[base.Reference] = None,
                                         qualifier: Iterable[base.Constraint] = (),
                                         kind: base.ModelingKind = base.ModelingKind.INSTANCE,
-                                        extension: Optional[Set[base.Extension]] = None,
+                                        extension: Iterable[base.Extension] = (),
                                         allow_duplicates: bool = False,
                                         ordered: bool = False):
     """
@@ -904,7 +904,7 @@ class RelationshipElement(SubmodelElement):
                  semantic_id: Optional[base.Reference] = None,
                  qualifier: Iterable[base.Constraint] = (),
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE,
-                 extension: Optional[Set[base.Extension]] = None):
+                 extension: Iterable[base.Extension] = ()):
         """
         Initializer of RelationshipElement
 
@@ -955,7 +955,7 @@ class AnnotatedRelationshipElement(RelationshipElement, base.UniqueIdShortNamesp
                  semantic_id: Optional[base.Reference] = None,
                  qualifier: Iterable[base.Constraint] = (),
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE,
-                 extension: Optional[Set[base.Extension]] = None):
+                 extension: Iterable[base.Extension] = ()):
         """
         Initializer of AnnotatedRelationshipElement
 
@@ -1043,7 +1043,7 @@ class Operation(SubmodelElement):
                  semantic_id: Optional[base.Reference] = None,
                  qualifier: Iterable[base.Constraint] = (),
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE,
-                 extension: Optional[Set[base.Extension]] = None):
+                 extension: Iterable[base.Extension] = ()):
         """
         Initializer of Operation
 
@@ -1090,7 +1090,7 @@ class Capability(SubmodelElement):
                  semantic_id: Optional[base.Reference] = None,
                  qualifier: Iterable[base.Constraint] = (),
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE,
-                 extension: Optional[Set[base.Extension]] = None):
+                 extension: Iterable[base.Extension] = ()):
         """
         Initializer of Capability
 
@@ -1140,7 +1140,7 @@ class Entity(SubmodelElement, base.UniqueIdShortNamespace):
                  semantic_id: Optional[base.Reference] = None,
                  qualifier: Iterable[base.Constraint] = (),
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE,
-                 extension: Optional[Set[base.Extension]] = None):
+                 extension: Iterable[base.Extension] = ()):
         """
         Initializer of Entity
 
@@ -1212,7 +1212,7 @@ class Event(SubmodelElement, metaclass=abc.ABCMeta):
                  semantic_id: Optional[base.Reference] = None,
                  qualifier: Iterable[base.Constraint] = (),
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE,
-                 extension: Optional[Set[base.Extension]] = None):
+                 extension: Iterable[base.Extension] = ()):
         """
         Initializer of Event
 
@@ -1253,7 +1253,7 @@ class BasicEvent(Event):
                  semantic_id: Optional[base.Reference] = None,
                  qualifier: Iterable[base.Constraint] = (),
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE,
-                 extension: Optional[Set[base.Extension]] = None):
+                 extension: Iterable[base.Extension] = ()):
         """
         Initializer of BasicEvent
 

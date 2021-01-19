@@ -240,7 +240,6 @@ class AASFromJsonDecoder(json.JSONDecoder):
 
         if isinstance(obj, model.HasExtension) and not cls.stripped:
             if 'extensions' in dct:
-                obj.extension = set()
                 for extension in _get_ts(dct, 'extensions', list):
                     obj.extension.add(cls._construct_extension(extension))
 
