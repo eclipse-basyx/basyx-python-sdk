@@ -626,7 +626,7 @@ class SubmodelElementCollection(SubmodelElement, metaclass=abc.ABCMeta):
 
 class SubmodelElementCollectionOrdered(SubmodelElementCollection, base.UniqueIdShortNamespace):
     """
-    A SubmodelElementCollectionOrdered is an ordered list of submodel elements.
+    A SubmodelElementCollectionOrdered is an ordered list of submodel elements where id_shorts are unique.
     """
 
     def __init__(self,
@@ -676,9 +676,11 @@ class SubmodelElementCollectionOrdered(SubmodelElementCollection, base.UniqueIdS
         return True
 
 
-class SubmodelElementCollectionOrderedUniqueSemanticId(SubmodelElementCollection, base.UniqueIdShortSemanticNamespace):
+class SubmodelElementCollectionOrderedUniqueSemanticId(SubmodelElementCollectionOrdered,
+                                                       base.UniqueSemanticIdNamespace):
     """
-    A SubmodelElementCollectionOrdered is an ordered list of submodel elements where semanticIds are unique.
+    A SubmodelElementCollectionOrderedUniqueSemanticId is an ordered list of submodel elements where id_shorts and
+    semantic_ids are unique.
     """
 
     def __init__(self,
@@ -715,12 +717,9 @@ class SubmodelElementCollectionOrderedUniqueSemanticId(SubmodelElementCollection
         TODO: Add instruction what to do after construction
         """
 
-        super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, kind, extension)
+        super().__init__(id_short, (), display_name, category, description, parent, semantic_id, qualifier, kind,
+                         extension)
         self.value = base.OrderedNamespaceSet(self, [("id_short", False), ("semantic_id", True)], value)
-
-    @property
-    def ordered(self):
-        return True
 
     @property
     def allow_duplicates(self):
@@ -729,7 +728,7 @@ class SubmodelElementCollectionOrderedUniqueSemanticId(SubmodelElementCollection
 
 class SubmodelElementCollectionUnordered(SubmodelElementCollection, base.UniqueIdShortNamespace):
     """
-    A SubmodelElementCollectionOrdered is an unordered list of submodel elements.
+    A SubmodelElementCollectionOrdered is an unordered list of submodel elements where id_shorts are unique.
     """
 
     def __init__(self,
@@ -777,10 +776,11 @@ class SubmodelElementCollectionUnordered(SubmodelElementCollection, base.UniqueI
         return True
 
 
-class SubmodelElementCollectionUnorderedUniqueSemanticId(SubmodelElementCollection,
-                                                         base.UniqueIdShortSemanticNamespace):
+class SubmodelElementCollectionUnorderedUniqueSemanticId(SubmodelElementCollectionUnordered,
+                                                         base.UniqueSemanticIdNamespace):
     """
-    A SubmodelElementCollectionOrdered is an unordered list of submodel elements where semanticIds are unique.
+    A SubmodelElementCollectionOrdered is an unordered list of submodel elements where where id_shorts and
+    semanticIds are unique.
     """
 
     def __init__(self,
@@ -816,12 +816,9 @@ class SubmodelElementCollectionUnorderedUniqueSemanticId(SubmodelElementCollecti
 
         TODO: Add instruction what to do after construction
         """
-        super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, kind, extension)
+        super().__init__(id_short, (), display_name, category, description, parent, semantic_id, qualifier, kind,
+                         extension)
         self.value = base.NamespaceSet(self, [("id_short", False), ("semantic_id", True)], value)
-
-    @property
-    def ordered(self):
-        return False
 
     @property
     def allow_duplicates(self):

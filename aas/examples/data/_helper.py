@@ -186,7 +186,7 @@ class AASDataChecker(DataChecker):
         self.check_contained_element_length(object_, 'qualifier', model.Constraint, len(expected_object.qualifier))
         for expected_element in expected_object.qualifier:
             element = self._find_element_by_attribute(expected_element, list(object_.qualifier), 'type')
-            if self.check(element is not None, 'Constraint{} must exist'.format(repr(expected_element))):
+            if self.check(element is not None, 'Constraint {} must exist'.format(repr(expected_element))):
                 if isinstance(element, model.Qualifier):
                     self._check_qualifier_equal(element, expected_element)  # type: ignore
                 else:
@@ -320,7 +320,7 @@ class AASDataChecker(DataChecker):
                     element = object_.get_referable(expected_element.id_short)
                     self._check_submodel_element(element, expected_element)  # type: ignore
                 except KeyError:
-                    self.check(False, 'Submodel Element{} must exist'.format(repr(expected_element)))
+                    self.check(False, 'Submodel Element {} must exist'.format(repr(expected_element)))
 
         found_elements = self._find_extra_elements_by_id_short(object_.value, expected_value.value)
         self.check(found_elements == set(), 'Submodel Collection {} must not have extra elements'.format(repr(object_)),
@@ -578,7 +578,7 @@ class AASDataChecker(DataChecker):
         self.check_contained_element_length(object_, 'statement', model.SubmodelElement, len(expected_value.statement))
         for expected_element in expected_value.statement:
             element = object_.get_referable(expected_element.id_short)
-            self.check(element is not None, 'Entity{} must exist'.format(repr(expected_element)))
+            self.check(element is not None, 'Entity {} must exist'.format(repr(expected_element)))
 
         found_elements = self._find_extra_elements_by_id_short(object_.statement, expected_value.statement)
         self.check(found_elements == set(), 'Enity {} must not have extra statements'.format(repr(object_)),
@@ -625,7 +625,7 @@ class AASDataChecker(DataChecker):
                 element = object_.get_referable(expected_element.id_short)
                 self._check_submodel_element(element, expected_element)  # type: ignore
             except KeyError:
-                self.check(False, 'Submodel Element{} must exist'.format(repr(expected_element)))
+                self.check(False, 'Submodel Element {} must exist'.format(repr(expected_element)))
 
         found_elements = self._find_extra_elements_by_id_short(object_.submodel_element,
                                                                expected_value.submodel_element)

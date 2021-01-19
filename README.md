@@ -8,9 +8,10 @@ with the meta model and interface specification provided in
 
 ## Features
 
-* Modelling of AASs as Python objects (according to DotAAS sec. 4 and 5)
-* (De-)serialization of AAS objects into/from JSON and XML (according to DotAAS sec. 7) 
+* Modelling of AASs as Python objects (according to DotAAS sec. 4)
+* Security extension of the metamodel is currently not implemented (according to DotAAS sec. 5)
 * Reading and writing of AASX package files (according to DotAAS sec. 6)
+* (De-)serialization of AAS objects into/from JSON and XML (according to DotAAS sec. 7) 
 * Storing of AAS objects in CouchDB
 * Compliance checking of AAS XML and JSON files
 

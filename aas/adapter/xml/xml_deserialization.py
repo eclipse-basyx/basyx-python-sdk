@@ -1189,7 +1189,6 @@ class XMLConstructables(enum.Enum):
     AAS_REFERENCE = enum.auto()
     ADMINISTRATIVE_INFORMATION = enum.auto()
     QUALIFIER = enum.auto()
-    FORMULA = enum.auto()
     IDENTIFIER = enum.auto()
     SECURITY = enum.auto()
     VIEW = enum.auto()

@@ -69,7 +69,7 @@ class AASDataCheckerTest(unittest.TestCase):
         checker_iterator = checker.failed_checks
         self.assertEqual("FAIL: Attribute qualifier of Property[Prop1] must contain 1 Constraints (count=0)",
                          repr(next(checker_iterator)))
-        self.assertEqual("FAIL: ConstraintQualifier(type=test) must exist ()", repr(next(checker_iterator)))
+        self.assertEqual("FAIL: Constraint Qualifier(type=test) must exist ()", repr(next(checker_iterator)))
 
     def test_submodel_element_collection_ordered_checker(self):
         property = model.Property(
@@ -135,7 +135,7 @@ class AASDataCheckerTest(unittest.TestCase):
         self.assertEqual("FAIL: Attribute value of SubmodelElementCollectionUnordered[Collection] must contain 1 "
                          "SubmodelElements (count=0)",
                          repr(next(checker_iterator)))
-        self.assertEqual("FAIL: Submodel ElementProperty[Collection / Prop1] must exist ()",
+        self.assertEqual("FAIL: Submodel Element Property[Collection / Prop1] must exist ()",
                          repr(next(checker_iterator)))
 
     def test_not_implemented(self):
@@ -230,7 +230,7 @@ class AASDataCheckerTest(unittest.TestCase):
         self.assertEqual("FAIL: Attribute submodel_element of Submodel[Identifier(CUSTOM=test)] must contain 1 "
                          "SubmodelElements (count=0)",
                          repr(next(checker_iterator)))
-        self.assertEqual("FAIL: Submodel ElementProperty[Identifier(CUSTOM=test) / Prop1] must exist ()",
+        self.assertEqual("FAIL: Submodel Element Property[Identifier(CUSTOM=test) / Prop1] must exist ()",
                          repr(next(checker_iterator)))
 
     def test_asset_administration_shell_checker(self):
