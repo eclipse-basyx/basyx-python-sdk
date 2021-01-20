@@ -290,6 +290,19 @@ class ReferableTest(unittest.TestCase):
         self.assertEqual("scheme:NewSource", example_submodel.source)
         self.assertEqual("scheme:OldRelElSource", example_relel.source)
 
+    def test_update_commit_qualifier(self):
+        submodel = model.Submodel(model.Identifier("https://acplt.org/Test_Submodel", model.IdentifierType.IRI))
+        submodel.update()
+        qualifier = model.Qualifier("test", model.datatypes.String)
+        submodel.qualifier.add(qualifier)
+        submodel.commit()
+        self.assertEqual(next(iter(submodel.qualifier)), qualifier)
+        submodel.get_qualifier_by_type("test")
+        submodel.remove_qualifier_by_type("test")
+        with self.assertRaises(StopIteration):
+            next(iter(submodel.qualifier))
+        submodel.commit()
+
 
 class ExampleNamespaceReferable(model.UniqueIdShortNamespace, model.UniqueSemanticIdNamespace):
     def __init__(self, values=()):
