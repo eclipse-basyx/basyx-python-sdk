@@ -485,6 +485,14 @@ class ModelNamespaceTest(unittest.TestCase):
             namespace1.get_referable("Prop2")
         self.assertIsNone(prop2.parent)
 
+    def test_qualifiable_id_short_namespace(self) -> None:
+        prop1 = model.Property("Prop1", model.datatypes.Int, 1)
+        qualifier1 = model.Qualifier("Qualifier1", model.datatypes.Int, 2)
+        submodel_element_collection = model.SubmodelElementCollectionUnordered("test_SMC", [prop1],
+                                                                               qualifier=[qualifier1])
+        self.assertIs(submodel_element_collection.get_referable("Prop1"), prop1)
+        self.assertIs(submodel_element_collection.get_qualifier_by_type("Qualifier1"), qualifier1)
+
 
 class ExampleOrderedNamespace(model.UniqueIdShortNamespace, model.UniqueSemanticIdNamespace):
     def __init__(self, values=()):
