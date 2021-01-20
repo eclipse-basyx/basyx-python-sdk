@@ -622,6 +622,8 @@ class Referable(HasExtension, metaclass=abc.ABCMeta):
             # update all the children who have their own source
             if isinstance(self, UniqueIdShortNamespace):
                 for namespace_set in self.namespace_element_sets:
+                    if "id_short" not in namespace_set.get_attribute_name_list():
+                        continue
                     for referable in namespace_set:
                         referable.update(max_age, recursive=True, _indirect_source=False)
 
@@ -697,6 +699,8 @@ class Referable(HasExtension, metaclass=abc.ABCMeta):
 
         if isinstance(self, UniqueIdShortNamespace):
             for namespace_set in self.namespace_element_sets:
+                if "id_short" not in namespace_set.get_attribute_name_list():
+                    continue
                 for referable in namespace_set:
                     referable._direct_source_commit()
 
@@ -1198,7 +1202,7 @@ class UniqueIdShortNamespace(metaclass=abc.ABCMeta):
             if len(namespace_set) == 0:
                 namespace_set_list.append(namespace_set)
                 continue
-            if isinstance(next(iter(namespace_set)), Referable):
+            if "id_short" in namespace_set.get_attribute_name_list():
                 namespace_set_list.append(namespace_set)
         return itertools.chain.from_iterable(namespace_set_list)
 
@@ -1293,6 +1297,9 @@ class NamespaceSet(MutableSet[_NSO], Generic[_NSO]):
     @staticmethod
     def _get_attribute(x: object, attr_name: str, case_sensitive: bool):
         return getattr(x, attr_name) if case_sensitive else getattr(x, attr_name).upper()
+
+    def get_attribute_name_list(self) -> List[str]:
+        return list(self._backend.keys())
 
     def __contains__(self, x: Union[Tuple[str, ATTRIBUTE_TYPES], object]) -> bool:
         if isinstance(x, tuple):
