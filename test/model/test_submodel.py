@@ -80,7 +80,9 @@ class SubmodelElementCollectionTest(unittest.TestCase):
         property3 = model.Property('test2', model.datatypes.Int, 2, semantic_id=propSemanticID1)
         property4 = model.Property('test2', model.datatypes.Int, 2, semantic_id=propSemanticID2)
 
-        collection = model.submodel_element_collection_factory("TestSM", allow_duplicates=False, ordered=False)
+        collection = model.SubmodelElementCollection.submodel_element_collection_factory("TestSM",
+                                                                                         allow_duplicates=False,
+                                                                                         ordered=False)
         collection.value.add(property1)
         self.assertIn(property1, collection.value)
         with self.assertRaises(KeyError) as cm:
