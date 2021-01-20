@@ -874,7 +874,7 @@ class AASFromXmlDecoder:
                                               **_kwargs: Any) -> model.SubmodelElementCollection:
         ordered = _str_to_bool(_child_text_mandatory(element, NS_AAS + "ordered"))
         allow_duplicates = _str_to_bool(_child_text_mandatory(element, NS_AAS + "allowDuplicates"))
-        collection = model.SubmodelElementCollection.submodel_element_collection_factory(
+        collection = model.SubmodelElementCollection.create(
             _child_text_mandatory(element, NS_AAS + "idShort"),
             kind=_get_modeling_kind(element),
             allow_duplicates=allow_duplicates,

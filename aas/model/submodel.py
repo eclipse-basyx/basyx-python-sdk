@@ -624,18 +624,18 @@ class SubmodelElementCollection(SubmodelElement, metaclass=abc.ABCMeta):
         pass
 
     @staticmethod
-    def submodel_element_collection_factory(id_short: str,
-                                            value: Iterable[SubmodelElement] = (),
-                                            display_name: Optional[base.LangStringSet] = None,
-                                            category: Optional[str] = None,
-                                            description: Optional[base.LangStringSet] = None,
-                                            parent: Optional[base.UniqueIdShortNamespace] = None,
-                                            semantic_id: Optional[base.Reference] = None,
-                                            qualifier: Iterable[base.Constraint] = (),
-                                            kind: base.ModelingKind = base.ModelingKind.INSTANCE,
-                                            extension: Iterable[base.Extension] = (),
-                                            allow_duplicates: bool = False,
-                                            ordered: bool = False):
+    def create(id_short: str,
+               value: Iterable[SubmodelElement] = (),
+               display_name: Optional[base.LangStringSet] = None,
+               category: Optional[str] = None,
+               description: Optional[base.LangStringSet] = None,
+               parent: Optional[base.UniqueIdShortNamespace] = None,
+               semantic_id: Optional[base.Reference] = None,
+               qualifier: Iterable[base.Constraint] = (),
+               kind: base.ModelingKind = base.ModelingKind.INSTANCE,
+               extension: Iterable[base.Extension] = (),
+               allow_duplicates: bool = False,
+               ordered: bool = False):
         """
             A factory to create a SubmodelElementCollection based on the parameter dublicates_allowed and ordered.
 
