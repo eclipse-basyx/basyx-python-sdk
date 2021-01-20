@@ -9,12 +9,13 @@
 # "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
 # specific language governing permissions and limitations under the License.
 """
-This module generates identifiers.
+This module generates :class:`identifiers <aas.model.base.Identifier>`.
 
-Generate [identifier]:  -> Try:
-Abstract                -> AbstractIdentifierGenerator
-UUID                    -> UUIDGenerator
-IRI                     -> NamespaceIRIGenerator
+To Generate [identifier]:  -> Try:
+
+- Abstract                -> :class:`~.AbstractIdentifierGenerator`
+- UUID                    -> :class:`~.UUIDGenerator`
+- IRI                     -> :class:`NamespaceIRIGenerator`
 """
 
 import abc
