@@ -444,16 +444,15 @@ class HasExtension(metaclass=abc.ABCMeta):
             return object_
         raise KeyError("Extension with name {} not found in this namespace".format(name))
 
-    def remove_extension_by_type(self, name: str) -> None:
+    def remove_extension_by_name(self, name: str) -> None:
         """
         Remove a Extension from this Namespace by its name
 
         :raises KeyError: If no such Extension can be found
         """
-        for dict_ in self.namespace_element_sets:
-            if "type" in dict_:
-                for dict_2 in dict_:
-                    return dict_2.remove(name)
+        for ns_set in self.namespace_element_sets:
+            if "name" in ns_set.get_attribute_name_list():
+                return ns_set.remove(("name", name))
         raise KeyError("Extension with name {} not found in this namespace".format(name))
 
 
@@ -1045,10 +1044,9 @@ class Qualifiable(metaclass=abc.ABCMeta):
 
         :raises KeyError: If no such Qualifier can be found
         """
-        for dict_ in self.namespace_element_sets:
-            if "type" in dict_:
-                for dict_2 in dict_:
-                    return dict_2.remove(qualifier_type)
+        for ns_set in self.namespace_element_sets:
+            if "type" in ns_set.get_attribute_name_list():
+                return ns_set.remove(("type", qualifier_type))
         raise KeyError("Qualifier with type {} not found in this namespace".format(qualifier_type))
 
 
@@ -1190,10 +1188,9 @@ class UniqueIdShortNamespace(metaclass=abc.ABCMeta):
 
         :raises KeyError: If no such Referable can be found
         """
-        for dict_ in self.namespace_element_sets:
-            if "id_short" in dict_:
-                for dict_2 in dict_:
-                    return dict_2.remove(id_short)
+        for ns_set in self.namespace_element_sets:
+            if "id_short" in ns_set.get_attribute_name_list():
+                return ns_set.remove(("id_short", id_short))
         raise KeyError("Referable with id_short {} not found in this namespace".format(id_short))
 
     def __iter__(self) -> Iterator[Referable]:
@@ -1244,10 +1241,9 @@ class UniqueSemanticIdNamespace(metaclass=abc.ABCMeta):
 
         :raises KeyError: If no such HasSemantics can be found
         """
-        for dict_ in self.namespace_element_sets:
-            if "semantic_id" in dict_:
-                for dict_2 in dict_:
-                    return dict_2.remove(semantic_id)
+        for ns_set in self.namespace_element_sets:
+            if "semantic_id" in ns_set.get_attribute_name_list():
+                return ns_set.remove(("semantic_id", semantic_id))
         raise KeyError("HasSemantics with semantic_id {} not found in this namespace".format(semantic_id))
 
 
