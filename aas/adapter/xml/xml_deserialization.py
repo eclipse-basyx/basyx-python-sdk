@@ -28,13 +28,16 @@ default decoder class and provide an own decoder.
 
 In failsafe mode errors regarding missing attributes and elements or invalid values are caught and logged.
 In non-failsafe mode any error would abort parsing.
-Error handling is done only by _failsafe_construct() in this module. Nearly all constructor functions are called
-by other constructor functions via _failsafe_construct(), so an error chain is constructed in the error case,
+Error handling is done only by `_failsafe_construct()` in this module. Nearly all constructor functions are called
+by other constructor functions via `_failsafe_construct()`, so an error chain is constructed in the error case,
 which allows printing stacktrace-like error messages like the following in the error case (in failsafe mode of course):
 
-KeyError: aas:identification on line 252 has no attribute with name idType!
- -> Failed to construct aas:identification on line 252 using construct_identifier!
- -> Failed to construct aas:conceptDescription on line 247 using construct_concept_description!
+
+.. code-block:: python
+
+    KeyError: aas:identification on line 252 has no attribute with name idType!
+        -> Failed to construct aas:identification on line 252 using construct_identifier!
+        -> Failed to construct aas:conceptDescription on line 247 using construct_concept_description!
 
 
 Unlike the JSON deserialization, parsing is done top-down. Elements with a specific tag are searched on the level
