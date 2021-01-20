@@ -1,7 +1,7 @@
 aas.backend - Storing and Retrieving of AAS-objects in Backends
 ===============================================================
 
-todo: Add some text
+.. automodule:: aas.backend.__init__
 
 .. toctree::
    :maxdepth: 2
