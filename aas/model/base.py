@@ -919,8 +919,29 @@ class HasSemantics(metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def __init__(self):
         super().__init__()
-        self.semantic_id: Optional[Reference] = None
         self.parent: Optional[Any] = None
+        self._semantic_id: Optional[Reference] = None
+        self.semantic_id: Optional[Reference] = None
+
+    @property
+    def semantic_id(self):
+        return self._semantic_id
+
+    @semantic_id.setter
+    def semantic_id(self, semantic_id: Optional[Reference]) -> None:
+        if self.parent is not None:
+            for set_ in self.parent.namespace_element_sets:
+                if ("semantic_id", semantic_id) in set_:
+                    raise KeyError("Object with semantic_id '{}' is already present in the parent Namespace"
+                                   .format(semantic_id))
+            for set_ in self.parent.namespace_element_sets:
+                if self in set_:
+                    set_.discard(self)
+                    self._semantic_id = semantic_id
+                    set_.add(self)
+                    break
+        else:
+            self._semantic_id = semantic_id
 
 
 class Extension(HasSemantics):
@@ -951,6 +972,8 @@ class Extension(HasSemantics):
         :raises ValueError: if the value_type is None and a value is set
         """
         super().__init__()
+        self.parent: Optional[HasExtension] = None
+        self._name: str
         self.name: str = name
         self.value_type: Optional[Type[datatypes.AnyXSDType]] = value_type
         self._value: Optional[ValueDataType]
@@ -973,6 +996,26 @@ class Extension(HasSemantics):
             if self.value_type is None:
                 raise ValueError('ValueType must be set, if value is not None')
             self._value = datatypes.trivial_cast(value, self.value_type)
+
+    @property
+    def name(self):
+        return self._name
+
+    @name.setter
+    def name(self, name: str) -> None:
+        if self.parent is not None:
+            for set_ in self.parent.namespace_element_sets:
+                if ("name", name) in set_:
+                    raise KeyError("Object with name '{}' is already present in the parent Namespace"
+                                   .format(name))
+            for set_ in self.parent.namespace_element_sets:
+                if self in set_:
+                    set_.discard(self)
+                    self._name = name
+                    set_.add(self)
+                    break
+        else:
+            self._name = name
 
 
 class HasKind(metaclass=abc.ABCMeta):
@@ -1081,12 +1124,13 @@ class Qualifier(Constraint, HasSemantics):
         TODO: Add instruction what to do after construction
         """
         super().__init__()
+        self.parent: Optional[Qualifiable] = None  # type: ignore
+        self._type: QualifierType
         self.type: QualifierType = type_
         self.value_type: Type[datatypes.AnyXSDType] = value_type
         self._value: Optional[ValueDataType] = datatypes.trivial_cast(value, value_type) if value is not None else None
         self.value_id: Optional[Reference] = value_id
         self.semantic_id: Optional[Reference] = semantic_id
-        self.parent: Optional[Qualifiable] = None  # type: ignore
 
     def __repr__(self) -> str:
         return "Qualifier(type={})".format(self.type)
@@ -1101,6 +1145,26 @@ class Qualifier(Constraint, HasSemantics):
             self._value = None
         else:
             self._value = datatypes.trivial_cast(value, self.value_type)
+
+    @property
+    def type(self):
+        return self._type
+
+    @type.setter
+    def type(self, type_: QualifierType) -> None:
+        if self.parent is not None:
+            for set_ in self.parent.namespace_element_sets:
+                if ("type", type_) in set_:
+                    raise KeyError("Object with type '{}' is already present in the parent Namespace"
+                                   .format(type_))
+            for set_ in self.parent.namespace_element_sets:
+                if self in set_:
+                    set_.discard(self)
+                    self._type = type_
+                    set_.add(self)
+                    break
+        else:
+            self._type = type_
 
 
 class ValueReferencePair:
@@ -1218,7 +1282,7 @@ class UniqueSemanticIdNamespace(metaclass=abc.ABCMeta):
     def __init__(self) -> None:
         self.namespace_element_sets: List[NamespaceSet] = []
 
-    def get_object_by_semantic_id(self, semantic_id: Reference) -> Referable:
+    def get_object_by_semantic_id(self, semantic_id: Reference) -> HasSemantics:
         """
         Find an HasSemantics in this Namespaces by its semantic_id
 
