@@ -571,12 +571,14 @@ class Referable(HasExtension, metaclass=abc.ABCMeta):
                 if ("id_short", id_short) in set_:
                     raise KeyError("Object with id_short '{}' is already present in the parent Namespace"
                                    .format(id_short))
+            set_add_list: List[NamespaceSet] = []
             for set_ in self.parent.namespace_element_sets:
                 if self in set_:
+                    set_add_list.append(set_)
                     set_.discard(self)
-                    self._id_short = id_short
-                    set_.add(self)
-                    break
+            self._id_short = id_short
+            for set_ in set_add_list:
+                set_.add(self)
         else:
             self._id_short = id_short
 
@@ -934,12 +936,14 @@ class HasSemantics(metaclass=abc.ABCMeta):
                 if ("semantic_id", semantic_id) in set_:
                     raise KeyError("Object with semantic_id '{}' is already present in the parent Namespace"
                                    .format(semantic_id))
+            set_add_list: List[NamespaceSet] = []
             for set_ in self.parent.namespace_element_sets:
                 if self in set_:
+                    set_add_list.append(set_)
                     set_.discard(self)
-                    self._semantic_id = semantic_id
-                    set_.add(self)
-                    break
+            self._semantic_id = semantic_id
+            for set_ in set_add_list:
+                set_.add(self)
         else:
             self._semantic_id = semantic_id
 
@@ -1008,12 +1012,14 @@ class Extension(HasSemantics):
                 if ("name", name) in set_:
                     raise KeyError("Object with name '{}' is already present in the parent Namespace"
                                    .format(name))
+            set_add_list: List[NamespaceSet] = []
             for set_ in self.parent.namespace_element_sets:
                 if self in set_:
+                    set_add_list.append(set_)
                     set_.discard(self)
-                    self._name = name
-                    set_.add(self)
-                    break
+            self._name = name
+            for set_ in set_add_list:
+                set_.add(self)
         else:
             self._name = name
 
@@ -1157,12 +1163,14 @@ class Qualifier(Constraint, HasSemantics):
                 if ("type", type_) in set_:
                     raise KeyError("Object with type '{}' is already present in the parent Namespace"
                                    .format(type_))
+            set_add_list: List[NamespaceSet] = []
             for set_ in self.parent.namespace_element_sets:
                 if self in set_:
+                    set_add_list.append(set_)
                     set_.discard(self)
-                    self._type = type_
-                    set_.add(self)
-                    break
+            self._type = type_
+            for set_ in set_add_list:
+                set_.add(self)
         else:
             self._type = type_
 
