@@ -280,6 +280,8 @@ class ReferableTest(unittest.TestCase):
         example_submodel.update_from(other_submodel)
         self.assertEqual("NewCat", example_submodel.category)
         self.assertEqual("NewRelElCat", example_relel.category)
+        # References to Referable objects shall remain stable
+        self.assertIs(example_relel, example_submodel.get_referable('ExampleRelationshipElement'))
 
         # Test source update
         example_relel.source = "scheme:OldRelElSource"
