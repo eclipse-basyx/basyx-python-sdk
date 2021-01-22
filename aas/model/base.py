@@ -559,7 +559,8 @@ class Referable(metaclass=abc.ABCMeta):
             if isinstance(var, NamespaceSet):
                 # update the elements of the NameSpaceSet
                 vars(self)[name].update_nss_from(var)
-            vars(self)[name] = var  # that variable is not a NameSpaceSet, so it isn't Referable
+            else:
+                vars(self)[name] = var  # that variable is not a NameSpaceSet, so it isn't Referable
 
     def commit(self) -> None:
         """
