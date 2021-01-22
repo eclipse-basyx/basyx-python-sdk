@@ -1083,78 +1083,6 @@ components:
               type: array
               items:
                 $ref: "#/components/schemas/Constraint"
-    Referable:
-      type: object
-      properties:
-        idShort:
-          type: string
-        category:
-          type: string
-        description:
-          type: array
-          items:
-            $ref: "#/components/schemas/LangString"
-        parent:
-          $ref: "#/components/schemas/Reference"
-        modelType:
-          $ref: "#/components/schemas/ModelType"
-      required:
-        - idShort
-        - modelType
-    Identifiable:
-      allOf:
-        - $ref: "#/components/schemas/Referable"
-        - properties:
-            identification:
-              $ref: "#/components/schemas/Identifier"
-            administration:
-              $ref: "#/components/schemas/AdministrativeInformation"
-          required:
-            - identification
-    Qualifiable:
-      type: object
-      properties:
-        qualifiers:
-          type: array
-          items:
-            $ref: "#/components/schemas/Constraint"
-    HasSemantics:
-      type: object
-      properties:
-        semanticId:
-          $ref: "#/components/schemas/Reference"
-    HasDataSpecification:
-      type: object
-      properties:
-        embeddedDataSpecifications:
-          type: array
-          items:
-            $ref: "#/components/schemas/EmbeddedDataSpecification"
-    AssetAdministrationShell:
-      allOf:
-        - $ref: "#/components/schemas/Identifiable"
-        - $ref: "#/components/schemas/HasDataSpecification"
-        - properties:
-            derivedFrom:
-              $ref: "#/components/schemas/Reference"
-            asset:
-              $ref: "#/components/schemas/Reference"
-            submodels:
-              type: array
-              items:
-                $ref: "#/components/schemas/Reference"
-            views:
-              type: array
-              items:
-                $ref: "#/components/schemas/View"
-            conceptDictionaries:
-              type: array
-              items:
-                $ref: "#/components/schemas/ConceptDictionary"
-            security:
-              $ref: "#/components/schemas/Security"
-          required:
-            - asset
     StrippedAssetAdministrationShell:
       allOf:
         - $ref: "#/components/schemas/AssetAdministrationShell"
@@ -1165,13 +1093,161 @@ components:
               not: {}
             conceptDictionaries:
               not: {}
+    StrippedSubmodel:
+      allOf:
+        - $ref: "#/components/schemas/Submodel"
+        - properties:
+            submodelElements:
+              not: {}
+            qualifiers:
+              not: {}
+    StrippedSubmodelElement:
+      allOf:
+        - $ref: "#/components/schemas/SubmodelElement"
+        - properties:
+            qualifiers:
+              not: {}
+    Referable:
+      allOf:
+        - $ref: '#/components/schemas/HasExtensions'
+        - properties:
+            idShort:
+              type: string
+            category:
+              type: string
+            displayName:
+              type: string
+            description:
+              type: array
+              items:
+                $ref: '#/components/schemas/LangString'
+            modelType:
+              $ref: '#/components/schemas/ModelType'
+          required:
+            - modelType
+    Identifiable:
+      allOf:
+        - $ref: '#/components/schemas/Referable'
+        - properties:
+            identification:
+              $ref: '#/components/schemas/Identifier'
+            administration:
+              $ref: '#/components/schemas/AdministrativeInformation'
+          required:
+            - identification
+    Qualifiable:
+      type: object
+      properties:
+        qualifiers:
+          type: array
+          items:
+            $ref: '#/components/schemas/Constraint'
+    HasSemantics:
+      type: object
+      properties:
+        semanticId:
+          $ref: '#/components/schemas/Reference'
+    HasDataSpecification:
+      type: object
+      properties:
+        embeddedDataSpecifications:
+          type: array
+          items:
+            $ref: '#/components/schemas/EmbeddedDataSpecification'
+    HasExtensions:
+      type: object
+      properties:
+        extensions:
+          type: array
+          items:
+            $ref: '#/components/schemas/Extension'
+    Extension:
+      allOf:
+        - $ref: '#/components/schemas/HasSemantics'
+        - properties:
+            name:
+              type: string
+            valueType:
+              type: string
+              enum:
+                - anyUri
+                - base64Binary
+                - boolean
+                - date
+                - dateTime
+                - dateTimeStamp
+                - decimal
+                - integer
+                - long
+                - int
+                - short
+                - byte
+                - nonNegativeInteger
+                - positiveInteger
+                - unsignedLong
+                - unsignedInt
+                - unsignedShort
+                - unsignedByte
+                - nonPositiveInteger
+                - negativeInteger
+                - double
+                - duration
+                - dayTimeDuration
+                - yearMonthDuration
+                - float
+                - gDay
+                - gMonth
+                - gMonthDay
+                - gYear
+                - gYearMonth
+                - hexBinary
+                - NOTATION
+                - QName
+                - string
+                - normalizedString
+                - token
+                - language
+                - Name
+                - NCName
+                - ENTITY
+                - ID
+                - IDREF
+                - NMTOKEN
+                - time
+            value:
+              type: string
+            refersTo:
+              $ref: '#/components/schemas/Reference'
+          required:
+            - name
+    AssetAdministrationShell:
+      allOf:
+        - $ref: '#/components/schemas/Identifiable'
+        - $ref: '#/components/schemas/HasDataSpecification'
+        - properties:
+            derivedFrom:
+              $ref: '#/components/schemas/Reference'
+            assetInformation:
+              $ref: '#/components/schemas/AssetInformation'
+            submodels:
+              type: array
+              items:
+                $ref: '#/components/schemas/Reference'
+            views:
+              type: array
+              items:
+                $ref: '#/components/schemas/View'
+            security:
+              $ref: '#/components/schemas/Security'
+          required:
+            - assetInformation
     Identifier:
       type: object
       properties:
         id:
           type: string
         idType:
-          $ref: "#/components/schemas/KeyType"
+          $ref: '#/components/schemas/KeyType'
       required:
         - id
         - idType
@@ -1206,25 +1282,22 @@ components:
         keys:
           type: array
           items:
-            $ref: "#/components/schemas/Key"
+            $ref: '#/components/schemas/Key'
       required:
         - keys
     Key:
       type: object
       properties:
         type:
-          $ref: "#/components/schemas/KeyElements"
+          $ref: '#/components/schemas/KeyElements'
         idType:
-          $ref: "#/components/schemas/KeyType"
+          $ref: '#/components/schemas/KeyType'
         value:
           type: string
-        local:
-          type: boolean
       required:
         - type
         - idType
         - value
-        - local
     KeyElements:
       type: string
       enum:
@@ -1237,7 +1310,6 @@ components:
         - BasicEvent
         - Blob
         - Capability
-        - ConceptDictionary
         - DataElement
         - File
         - Entity
@@ -1265,7 +1337,6 @@ components:
         - BasicEvent
         - Blob
         - Capability
-        - ConceptDictionary
         - DataElement
         - File
         - Entity
@@ -1288,23 +1359,23 @@ components:
       type: object
       properties:
         name:
-          $ref: "#/components/schemas/ModelTypes"
+          $ref: '#/components/schemas/ModelTypes'
       required:
         - name
     EmbeddedDataSpecification:
       type: object
       properties:
         dataSpecification:
-          $ref: "#/components/schemas/Reference"
+          $ref: '#/components/schemas/Reference'
         dataSpecificationContent:
-          $ref: "#/components/schemas/DataSpecificationContent"
+          $ref: '#/components/schemas/DataSpecificationContent'
       required:
         - dataSpecification
         - dataSpecificationContent
     DataSpecificationContent:
       oneOf:
-        - $ref: "#/components/schemas/DataSpecificationIEC61360Content"
-        - $ref: "#/components/schemas/DataSpecificationPhysicalUnitContent"
+        - $ref: '#/components/schemas/DataSpecificationIEC61360Content'
+        - $ref: '#/components/schemas/DataSpecificationPhysicalUnitContent'
     DataSpecificationPhysicalUnitContent:
       type: object
       properties:
@@ -1315,7 +1386,7 @@ components:
         definition:
           type: array
           items:
-            $ref: "#/components/schemas/LangString"
+            $ref: '#/components/schemas/LangString'
         siNotation:
           type: string
         siName:
@@ -1342,7 +1413,7 @@ components:
         - definition
     DataSpecificationIEC61360Content:
       allOf:
-        - $ref: "#/components/schemas/ValueObject"
+        - $ref: '#/components/schemas/ValueObject'
         - type: object
           properties:
             dataType:
@@ -1365,15 +1436,15 @@ components:
             definition:
               type: array
               items:
-                $ref: "#/components/schemas/LangString"
+                $ref: '#/components/schemas/LangString'
             preferredName:
               type: array
               items:
-                $ref: "#/components/schemas/LangString"
+                $ref: '#/components/schemas/LangString'
             shortName:
               type: array
               items:
-                $ref: "#/components/schemas/LangString"
+                $ref: '#/components/schemas/LangString'
             sourceOfDefinition:
               type: string
             symbol:
@@ -1381,15 +1452,15 @@ components:
             unit:
               type: string
             unitId:
-              $ref: "#/components/schemas/Reference"
+              $ref: '#/components/schemas/Reference'
             valueFormat:
               type: string
             valueList:
-              $ref: "#/components/schemas/ValueList"
+              $ref: '#/components/schemas/ValueList'
             levelType:
               type: array
               items:
-                $ref: "#/components/schemas/LevelType"
+                $ref: '#/components/schemas/LevelType'
           required:
             - preferredName
     LevelType:
@@ -1406,19 +1477,19 @@ components:
           type: array
           minItems: 1
           items:
-            $ref: "#/components/schemas/ValueReferencePairType"
+            $ref: '#/components/schemas/ValueReferencePairType'
       required:
         - valueReferencePairTypes
     ValueReferencePairType:
       allOf:
-        - $ref: "#/components/schemas/ValueObject"
+        - $ref: '#/components/schemas/ValueObject'
     ValueObject:
       type: object
       properties:
         value:
           type: string
         valueId:
-          $ref: "#/components/schemas/Reference"
+          $ref: '#/components/schemas/Reference'
         valueType:
           type: string
           enum:
@@ -1468,17 +1539,41 @@ components:
             - time
     Asset:
       allOf:
-        - $ref: "#/components/schemas/Identifiable"
-        - $ref: "#/components/schemas/HasDataSpecification"
+        - $ref: '#/components/schemas/Identifiable'
+        - $ref: '#/components/schemas/HasDataSpecification'
+    AssetInformation:
+      allOf:
         - properties:
-            kind:
-              $ref: "#/components/schemas/AssetKind"
-            assetIdentificationModel:
-              $ref: "#/components/schemas/Reference"
+            assetKind:
+              $ref: '#/components/schemas/AssetKind'
+            globalAssetId:
+              $ref: '#/components/schemas/Reference'
+            externalAssetIds:
+              type: array
+              items:
+                $ref: '#/components/schemas/IdentifierKeyValuePair'
             billOfMaterial:
-              $ref: "#/components/schemas/Reference"
+              type: array
+              items:
+                $ref: '#/components/schemas/Reference'
+            thumbnail:
+              $ref: '#/components/schemas/File'
           required:
-            - kind
+            - assetKind
+    IdentifierKeyValuePair:
+      allOf:
+        - $ref: '#/components/schemas/HasSemantics'
+        - properties:
+            key:
+              type: string
+            value:
+              type: string
+            subjectId:
+              $ref: '#/components/schemas/Reference'
+          required:
+            - key
+            - value
+            - subjectId
     AssetKind:
       type: string
       enum:
@@ -1491,92 +1586,82 @@ components:
         - Instance
     Submodel:
       allOf:
-        - $ref: "#/components/schemas/Identifiable"
-        - $ref: "#/components/schemas/HasDataSpecification"
-        - $ref: "#/components/schemas/Qualifiable"
-        - $ref: "#/components/schemas/HasSemantics"
+        - $ref: '#/components/schemas/Identifiable'
+        - $ref: '#/components/schemas/HasDataSpecification'
+        - $ref: '#/components/schemas/Qualifiable'
+        - $ref: '#/components/schemas/HasSemantics'
         - properties:
             kind:
-              $ref: "#/components/schemas/ModelingKind"
+              $ref: '#/components/schemas/ModelingKind'
             submodelElements:
               type: array
               items:
-                $ref: "#/components/schemas/SubmodelElement"
-    StrippedSubmodel:
-      allOf:
-        - $ref: "#/components/schemas/Submodel"
-        - properties:
-            submodelElements:
-              not: {}
-            qualifiers:
-              not: {}
+                $ref: '#/components/schemas/SubmodelElement'
     Constraint:
       type: object
       properties:
         modelType:
-          $ref: "#/components/schemas/ModelType"
+          $ref: '#/components/schemas/ModelType'
       required:
         - modelType
     Operation:
       allOf:
-        - $ref: "#/components/schemas/SubmodelElement"
+        - $ref: '#/components/schemas/SubmodelElement'
         - properties:
             inputVariable:
               type: array
               items:
-                $ref: "#/components/schemas/OperationVariable"
+                $ref: '#/components/schemas/OperationVariable'
             outputVariable:
               type: array
               items:
-                $ref: "#/components/schemas/OperationVariable"
+                $ref: '#/components/schemas/OperationVariable'
             inoutputVariable:
               type: array
               items:
-                $ref: "#/components/schemas/OperationVariable"
+                $ref: '#/components/schemas/OperationVariable'
     OperationVariable:
       type: object
       properties:
         value:
           oneOf:
-            - $ref: "#/components/schemas/Blob"
-            - $ref: "#/components/schemas/File"
-            - $ref: "#/components/schemas/Capability"
-            - $ref: "#/components/schemas/Entity"
-            - $ref: "#/components/schemas/Event"
-            - $ref: "#/components/schemas/BasicEvent"
-            - $ref: "#/components/schemas/MultiLanguageProperty"
-            - $ref: "#/components/schemas/Operation"
-            - $ref: "#/components/schemas/Property"
-            - $ref: "#/components/schemas/Range"
-            - $ref: "#/components/schemas/ReferenceElement"
-            - $ref: "#/components/schemas/RelationshipElement"
-            - $ref: "#/components/schemas/SubmodelElementCollection"
+            - $ref: '#/components/schemas/Blob'
+            - $ref: '#/components/schemas/File'
+            - $ref: '#/components/schemas/Capability'
+            - $ref: '#/components/schemas/Entity'
+            - $ref: '#/components/schemas/Event'
+            - $ref: '#/components/schemas/BasicEvent'
+            - $ref: '#/components/schemas/MultiLanguageProperty'
+            - $ref: '#/components/schemas/Operation'
+            - $ref: '#/components/schemas/Property'
+            - $ref: '#/components/schemas/Range'
+            - $ref: '#/components/schemas/ReferenceElement'
+            - $ref: '#/components/schemas/RelationshipElement'
+            - $ref: '#/components/schemas/SubmodelElementCollection'
       required:
         - value
     SubmodelElement:
       allOf:
-        - $ref: "#/components/schemas/Referable"
-        - $ref: "#/components/schemas/HasDataSpecification"
-        - $ref: "#/components/schemas/HasSemantics"
-        - $ref: "#/components/schemas/Qualifiable"
+        - $ref: '#/components/schemas/Referable'
+        - $ref: '#/components/schemas/HasDataSpecification'
+        - $ref: '#/components/schemas/HasSemantics'
+        - $ref: '#/components/schemas/Qualifiable'
         - properties:
             kind:
-              $ref: "#/components/schemas/ModelingKind"
-    StrippedSubmodelElement:
-      allOf:
-        - $ref: "#/components/schemas/SubmodelElement"
-        - properties:
-            qualifiers:
-              not: {}
+              $ref: '#/components/schemas/ModelingKind'
+            idShort:
+              type: string
+          required:
+            - idShort
     Event:
       allOf:
-        - $ref: "#/components/schemas/SubmodelElement"
+        - $ref: '#/components/schemas/SubmodelElement'
     BasicEvent:
       allOf:
-        - $ref: "#/components/schemas/Event"
+        - $ref: '#/components/schemas/Event'
         - properties:
             observed:
-              $ref: "#/components/schemas/Reference"
+              $ref: '#/components/schemas/Reference'
           required:
             - observed
     EntityType:
@@ -1586,56 +1671,49 @@ components:
         - SelfManagedEntity
     Entity:
       allOf:
-        - $ref: "#/components/schemas/SubmodelElement"
+        - $ref: '#/components/schemas/SubmodelElement'
         - properties:
             statements:
               type: array
               items:
-                $ref: "#/components/schemas/SubmodelElement"
+                $ref: '#/components/schemas/SubmodelElement'
             entityType:
-              $ref: "#/components/schemas/EntityType"
-            asset:
-              $ref: "#/components/schemas/Reference"
+              $ref: '#/components/schemas/EntityType'
+            globalAssetId:
+              $ref: '#/components/schemas/Reference'
+            specificAssetIds:
+              $ref: '#/components/schemas/IdentifierKeyValuePair'
           required:
             - entityType
     View:
       allOf:
-        - $ref: "#/components/schemas/Referable"
-        - $ref: "#/components/schemas/HasDataSpecification"
-        - $ref: "#/components/schemas/HasSemantics"
+        - $ref: '#/components/schemas/Referable'
+        - $ref: '#/components/schemas/HasDataSpecification'
+        - $ref: '#/components/schemas/HasSemantics'
         - properties:
             containedElements:
               type: array
               items:
-                $ref: "#/components/schemas/Reference"
-    ConceptDictionary:
-      allOf:
-        - $ref: "#/components/schemas/Referable"
-        - $ref: "#/components/schemas/HasDataSpecification"
-        - properties:
-            conceptDescriptions:
-              type: array
-              items:
-                $ref: "#/components/schemas/Reference"
+                $ref: '#/components/schemas/Reference'
     ConceptDescription:
       allOf:
-        - $ref: "#/components/schemas/Identifiable"
-        - $ref: "#/components/schemas/HasDataSpecification"
+        - $ref: '#/components/schemas/Identifiable'
+        - $ref: '#/components/schemas/HasDataSpecification'
         - properties:
             isCaseOf:
               type: array
               items:
-                $ref: "#/components/schemas/Reference"
+                $ref: '#/components/schemas/Reference'
     Capability:
       allOf:
-        - $ref: "#/components/schemas/SubmodelElement"
+        - $ref: '#/components/schemas/SubmodelElement'
     Property:
       allOf:
-        - $ref: "#/components/schemas/SubmodelElement"
-        - $ref: "#/components/schemas/ValueObject"
+        - $ref: '#/components/schemas/SubmodelElement'
+        - $ref: '#/components/schemas/ValueObject'
     Range:
       allOf:
-        - $ref: "#/components/schemas/SubmodelElement"
+        - $ref: '#/components/schemas/SubmodelElement'
         - properties:
             valueType:
               type: string
@@ -1692,17 +1770,17 @@ components:
             - valueType
     MultiLanguageProperty:
       allOf:
-        - $ref: "#/components/schemas/SubmodelElement"
+        - $ref: '#/components/schemas/SubmodelElement'
         - properties:
             value:
               type: array
               items:
-                $ref: "#/components/schemas/LangString"
+                $ref: '#/components/schemas/LangString'
             valueId:
-              $ref: "#/components/schemas/Reference"
+              $ref: '#/components/schemas/Reference'
     File:
       allOf:
-        - $ref: "#/components/schemas/SubmodelElement"
+        - $ref: '#/components/schemas/SubmodelElement'
         - properties:
             value:
               type: string
@@ -1712,7 +1790,7 @@ components:
             - mimeType
     Blob:
       allOf:
-        - $ref: "#/components/schemas/SubmodelElement"
+        - $ref: '#/components/schemas/SubmodelElement'
         - properties:
             value:
               type: string
@@ -1722,65 +1800,65 @@ components:
             - mimeType
     ReferenceElement:
       allOf:
-        - $ref: "#/components/schemas/SubmodelElement"
+        - $ref: '#/components/schemas/SubmodelElement'
         - properties:
             value:
-              $ref: "#/components/schemas/Reference"
+              $ref: '#/components/schemas/Reference'
     SubmodelElementCollection:
       allOf:
-        - $ref: "#/components/schemas/SubmodelElement"
+        - $ref: '#/components/schemas/SubmodelElement'
         - properties:
             value:
               type: array
               items:
                 oneOf:
-                  - $ref: "#/components/schemas/Blob"
-                  - $ref: "#/components/schemas/File"
-                  - $ref: "#/components/schemas/Capability"
-                  - $ref: "#/components/schemas/Entity"
-                  - $ref: "#/components/schemas/Event"
-                  - $ref: "#/components/schemas/BasicEvent"
-                  - $ref: "#/components/schemas/MultiLanguageProperty"
-                  - $ref: "#/components/schemas/Operation"
-                  - $ref: "#/components/schemas/Property"
-                  - $ref: "#/components/schemas/Range"
-                  - $ref: "#/components/schemas/ReferenceElement"
-                  - $ref: "#/components/schemas/RelationshipElement"
-                  - $ref: "#/components/schemas/SubmodelElementCollection"
+                  - $ref: '#/components/schemas/Blob'
+                  - $ref: '#/components/schemas/File'
+                  - $ref: '#/components/schemas/Capability'
+                  - $ref: '#/components/schemas/Entity'
+                  - $ref: '#/components/schemas/Event'
+                  - $ref: '#/components/schemas/BasicEvent'
+                  - $ref: '#/components/schemas/MultiLanguageProperty'
+                  - $ref: '#/components/schemas/Operation'
+                  - $ref: '#/components/schemas/Property'
+                  - $ref: '#/components/schemas/Range'
+                  - $ref: '#/components/schemas/ReferenceElement'
+                  - $ref: '#/components/schemas/RelationshipElement'
+                  - $ref: '#/components/schemas/SubmodelElementCollection'
             allowDuplicates:
               type: boolean
             ordered:
               type: boolean
     RelationshipElement:
       allOf:
-        - $ref: "#/components/schemas/SubmodelElement"
+        - $ref: '#/components/schemas/SubmodelElement'
         - properties:
             first:
-              $ref: "#/components/schemas/Reference"
+              $ref: '#/components/schemas/Reference'
             second:
-              $ref: "#/components/schemas/Reference"
+              $ref: '#/components/schemas/Reference'
           required:
             - first
             - second
     AnnotatedRelationshipElement:
       allOf:
-        - $ref: "#/components/schemas/RelationshipElement"
+        - $ref: '#/components/schemas/RelationshipElement'
         - properties:
             annotation:
               type: array
               items:
                 oneOf:
-                  - $ref: "#/components/schemas/Blob"
-                  - $ref: "#/components/schemas/File"
-                  - $ref: "#/components/schemas/MultiLanguageProperty"
-                  - $ref: "#/components/schemas/Property"
-                  - $ref: "#/components/schemas/Range"
-                  - $ref: "#/components/schemas/ReferenceElement"
+                  - $ref: '#/components/schemas/Blob'
+                  - $ref: '#/components/schemas/File'
+                  - $ref: '#/components/schemas/MultiLanguageProperty'
+                  - $ref: '#/components/schemas/Property'
+                  - $ref: '#/components/schemas/Range'
+                  - $ref: '#/components/schemas/ReferenceElement'
     Qualifier:
       allOf:
-        - $ref: "#/components/schemas/Constraint"
-        - $ref: "#/components/schemas/HasSemantics"
-        - $ref: "#/components/schemas/ValueObject"
+        - $ref: '#/components/schemas/Constraint'
+        - $ref: '#/components/schemas/HasSemantics'
+        - $ref: '#/components/schemas/ValueObject'
         - properties:
             type:
               type: string
@@ -1788,53 +1866,53 @@ components:
             - type
     Formula:
       allOf:
-        - $ref: "#/components/schemas/Constraint"
+        - $ref: '#/components/schemas/Constraint'
         - properties:
             dependsOn:
               type: array
               items:
-                $ref: "#/components/schemas/Reference"
+                $ref: '#/components/schemas/Reference'
     Security:
       type: object
       properties:
         accessControlPolicyPoints:
-          $ref: "#/components/schemas/AccessControlPolicyPoints"
+          $ref: '#/components/schemas/AccessControlPolicyPoints'
         certificate:
           type: array
           items:
             oneOf:
-              - $ref: "#/components/schemas/BlobCertificate"
+              - $ref: '#/components/schemas/BlobCertificate'
         requiredCertificateExtension:
           type: array
           items:
-            $ref: "#/components/schemas/Reference"
+            $ref: '#/components/schemas/Reference'
       required:
         - accessControlPolicyPoints
     Certificate:
       type: object
     BlobCertificate:
       allOf:
-        - $ref: "#/components/schemas/Certificate"
+        - $ref: '#/components/schemas/Certificate'
         - properties:
             blobCertificate:
-              $ref: "#/components/schemas/Blob"
+              $ref: '#/components/schemas/Blob'
             containedExtension:
               type: array
               items:
-                $ref: "#/components/schemas/Reference"
+                $ref: '#/components/schemas/Reference'
             lastCertificate:
               type: boolean
     AccessControlPolicyPoints:
       type: object
       properties:
         policyAdministrationPoint:
-          $ref: "#/components/schemas/PolicyAdministrationPoint"
+          $ref: '#/components/schemas/PolicyAdministrationPoint'
         policyDecisionPoint:
-          $ref: "#/components/schemas/PolicyDecisionPoint"
+          $ref: '#/components/schemas/PolicyDecisionPoint'
         policyEnforcementPoint:
-          $ref: "#/components/schemas/PolicyEnforcementPoint"
+          $ref: '#/components/schemas/PolicyEnforcementPoint'
         policyInformationPoints:
-          $ref: "#/components/schemas/PolicyInformationPoints"
+          $ref: '#/components/schemas/PolicyInformationPoints'
       required:
         - policyAdministrationPoint
         - policyDecisionPoint
@@ -1843,7 +1921,7 @@ components:
       type: object
       properties:
         localAccessControl:
-          $ref: "#/components/schemas/AccessControl"
+          $ref: '#/components/schemas/AccessControl'
         externalAccessControl:
           type: boolean
       required:
@@ -1854,7 +1932,7 @@ components:
         internalInformationPoint:
           type: array
           items:
-            $ref: "#/components/schemas/Reference"
+            $ref: '#/components/schemas/Reference'
         externalInformationPoint:
           type: boolean
       required:
@@ -1877,35 +1955,35 @@ components:
       type: object
       properties:
         selectableSubjectAttributes:
-          $ref: "#/components/schemas/Reference"
+          $ref: '#/components/schemas/Reference'
         defaultSubjectAttributes:
-          $ref: "#/components/schemas/Reference"
+          $ref: '#/components/schemas/Reference'
         selectablePermissions:
-          $ref: "#/components/schemas/Reference"
+          $ref: '#/components/schemas/Reference'
         defaultPermissions:
-          $ref: "#/components/schemas/Reference"
+          $ref: '#/components/schemas/Reference'
         selectableEnvironmentAttributes:
-          $ref: "#/components/schemas/Reference"
+          $ref: '#/components/schemas/Reference'
         defaultEnvironmentAttributes:
-          $ref: "#/components/schemas/Reference"
+          $ref: '#/components/schemas/Reference'
         accessPermissionRule:
           type: array
           items:
-            $ref: "#/components/schemas/AccessPermissionRule"
+            $ref: '#/components/schemas/AccessPermissionRule'
     AccessPermissionRule:
       allOf:
-        - $ref: "#/components/schemas/Referable"
-        - $ref: "#/components/schemas/Qualifiable"
+        - $ref: '#/components/schemas/Referable'
+        - $ref: '#/components/schemas/Qualifiable'
         - properties:
             targetSubjectAttributes:
               type: array
               items:
-                $ref: "#/components/schemas/SubjectAttributes"
+                $ref: '#/components/schemas/SubjectAttributes'
               minItems: 1
             permissionsPerObject:
               type: array
               items:
-                $ref: "#/components/schemas/PermissionsPerObject"
+                $ref: '#/components/schemas/PermissionsPerObject'
           required:
             - targetSubjectAttributes
     SubjectAttributes:
@@ -1914,32 +1992,32 @@ components:
         subjectAttributes:
           type: array
           items:
-            $ref: "#/components/schemas/Reference"
+            $ref: '#/components/schemas/Reference'
           minItems: 1
     PermissionsPerObject:
       type: object
       properties:
         object:
-          $ref: "#/components/schemas/Reference"
+          $ref: '#/components/schemas/Reference'
         targetObjectAttributes:
-          $ref: "#/components/schemas/ObjectAttributes"
+          $ref: '#/components/schemas/ObjectAttributes'
         permission:
           type: array
           items:
-            $ref: "#/components/schemas/Permission"
+            $ref: '#/components/schemas/Permission'
     ObjectAttributes:
       type: object
       properties:
         objectAttribute:
           type: array
           items:
-            $ref: "#/components/schemas/Property"
+            $ref: '#/components/schemas/Property'
           minItems: 1
     Permission:
       type: object
       properties:
         permission:
-          $ref: "#/components/schemas/Reference"
+          $ref: '#/components/schemas/Reference'
         kindOfPermission:
           type: string
           enum:
