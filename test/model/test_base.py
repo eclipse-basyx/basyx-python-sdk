@@ -292,9 +292,11 @@ class ReferableTest(unittest.TestCase):
         other_submodel.source = "scheme:NewSource"
         other_relel.source = "scheme:NewRelElSource"
 
-        example_submodel.update_from(other_submodel, update_source=True)
-        self.assertEqual("scheme:NewSource", example_submodel.source)
-        self.assertEqual("scheme:OldRelElSource", example_relel.source)
+        example_submodel.update_from(other_submodel)
+        # Sources of the object itself should not be updated by default
+        self.assertEqual("", example_submodel.source)
+        # Sources of embedded objects should always be updated
+        self.assertEqual("scheme:NewRelElSource", example_relel.source)
 
 
 class ExampleNamespace(model.Namespace):
