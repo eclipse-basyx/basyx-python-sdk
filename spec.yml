@@ -4,14 +4,22 @@ info:
   title: PyI40AAS REST API
   description: "REST API Specification for the [PyI40AAS framework](https://git.rwth-aachen.de/acplt/pyi40aas).  
   
-
-  Any identifier variables are encoded as follows `{identifierType}:URIencode(URIencode({identifier}))`, e.g. `IRI:http:%252F%252Facplt.org%252Fasset`.  
   
+  The git repository of this document is available [here](https://git.rwth-aachen.de/leon.moeller/pyi40aas-oas).  
+
+
+  ---
+
+  **General:**
+
+
+  Any identifier/identification objects are encoded as follows `{identifierType}:URIencode(URIencode({identifier}))`, e.g. `IRI:http:%252F%252Facplt.org%252Fasset`.  
+
 
   This specification contains one exemplary `PATCH` route. In the future there should be a `PATCH` route for every `PUT` route, where it makes sense.
-  
 
-  In our implementation the AAS Interface will be available at `/aas/{identifier}` and the Submodel Interface will be available at `/submodel/{identifier}`."
+
+  In our implementation the AAS Interface is available at `/aas/{identifier}` and the Submodel Interface at `/submodel/{identifier}`."
   contact:
     name: "Michael Thies, Torben Miny, Leon Möller"
   license:
