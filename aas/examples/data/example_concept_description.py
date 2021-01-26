@@ -9,7 +9,7 @@
 # "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
 # specific language governing permissions and limitations under the License.
 """
-Module for creation of an example concept description
+Module for creation of an example :class:`~aas.model.concept.ConceptDescription`
 """
 import logging
 
@@ -22,7 +22,7 @@ logger = logging.getLogger(__name__)
 
 def create_iec61360_concept_description() -> IEC61360ConceptDescription:
     """
-    Creates a ConceptDescription after the IEC61360 standard
+    Creates a :class:`~aas.model.concept.ConceptDescription` after the IEC61360 standard
 
     :return: Example concept description
     """
