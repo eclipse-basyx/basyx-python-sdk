@@ -11,6 +11,7 @@ Welcome to PyI40AAS's documentation!
    :maxdepth: 2
    :caption: Contents:
 
+   tutorials/index
    model/index
    adapter/index
    backend/index
