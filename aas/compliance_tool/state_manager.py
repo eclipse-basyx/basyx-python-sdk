@@ -9,7 +9,8 @@
 # "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
 # specific language governing permissions and limitations under the License.
 """
-This module defines a State Manager to store LogRecords for single steps in a compliance check of the compliance tool
+This module defines a :class:`~.ComplianceToolStateManager` to store `logging.LogRecords` for single steps in a
+compliance check of the compliance tool
 """
 import logging
 import enum
@@ -20,6 +21,14 @@ from aas.examples.data._helper import DataChecker
 
 @enum.unique
 class Status(enum.IntEnum):
+    """
+    Possible Status States:
+
+    :cvar SUCCESS:
+    :cvar SUCCESS_WITH_WARNINGS:
+    :cvar FAILED:
+    :cvar NOT_EXECUTED:
+    """
     SUCCESS = 0
     SUCCESS_WITH_WARNINGS = 1
     FAILED = 2
@@ -28,11 +37,11 @@ class Status(enum.IntEnum):
 
 class Step:
     """
-    A step represents a single test stage in a test protocol of a ComplianceToolStateManager
+    A step represents a single test stage in a test protocol of a :class:`~.ComplianceToolStateManager`
 
     :ivar name: Name of the step
-    :ivar status: status of the step from type Status
-    :ivar log_list: list of LogRecords which belong to this step
+    :ivar status: Status of the step from type Status
+    :ivar log_list: List of `logging.LogRecords` which belong to this step
     """
     def __init__(self, name: str, status: Status, log_list: List[logging.LogRecord]):
         self.name = name
@@ -42,21 +51,23 @@ class Step:
 
 class ComplianceToolStateManager(logging.Handler):
     """
-    "A ComplianceToolStateManager is used to create a report of a compliance check, divided into single Steps with
-    status and log. The manager provides methods to:
-    - add a new step
-    - set the step status
-    - set the step status from log
-    - add logs to a step by hand
-    - add logs to a step from a data checker
-    - be used as a logging.Handler which adds logs to the current step
+    A ComplianceToolStateManager is used to create a report of a compliance check, divided into single
+    :class:`Steps <.Step>` with status and log. The manager provides methods to:
 
-    example of a ComplianceTest for a schema check
-    Step 1: 'Open file'
-    Step 2: 'Read file and check if it is conform to the json syntax'
-    Step 3: 'Validate file against official json schema'
+        - Add a new step
+        - Set the step status
+        - Set the step status from log
+        - Add logs to a step by hand
+        - Add logs to a step from a data checker
+        - Be used as a `logging.Handler` which adds logs to the current step
 
-    :ivar steps: List of steps
+    Example of a ComplianceTest for a schema check:
+
+        * Step 1: `Open file`
+        * Step 2: `Read file and check if it is conform to the json syntax`
+        * Step 3: `Validate file against official json schema`
+
+    :ivar steps: List of :class:`Steps <.Step>`
     """
     def __init__(self):
         """
@@ -85,17 +96,18 @@ class ComplianceToolStateManager(logging.Handler):
 
     def add_step(self, name: str) -> None:
         """
-        Adding a new step to the manager with a given name, status = NOT_EXECUTED and an empty list of records
+        Adding a new :class:`~.Step` to the manager with a given name, status = NOT_EXECUTED and an empty list of
+        records
 
-        :param name: Name of the step
+        :param name: Name of the :class:`~.Step`
         """
         self.steps.append(Step(name, Status.NOT_EXECUTED, []))
 
     def add_log_record(self, record: logging.LogRecord) -> None:
         """
-        Adds a LogRecord to the log list of the acutal step
+        Adds a `logging.LogRecord` to the log list of the actual :class:`~.Step`
 
-        :param record: LogRecord which should be added to the current step
+        :param record: `logging.LogRecord` which should be added to the current :class:`~.Step`
         """
         self.steps[-1].log_list.append(record)
 
@@ -115,11 +127,14 @@ class ComplianceToolStateManager(logging.Handler):
 
     def add_log_records_from_data_checker(self, data_checker: DataChecker) -> None:
         """
-        Sets the status of the current step and convert the checks to LogRecords and adds these to the current step
+        Sets the status of the current :class:`~.Step` and convert the checks to `logging.LogRecords` and adds these to
+        the current :class:`~.Step`
 
-        step: FAILED if the DataChecker consist at least one failed check otherwise SUCCESS
+        :class:`~.Step`: FAILED if the :class:`~aas.examples.data._helper.DataChecker` consist at least one failed
+        check otherwise SUCCESS
 
-        :param data_checker: DataChecker which checks should be added to the current step
+        :param data_checker: :class:`~aas.examples.data._helper.DataChecker` which checks should be added to the
+            current :class:`~.Step`
         """
         self.steps[-1].status = Status.SUCCESS if not any(True for _ in data_checker.failed_checks) else Status.FAILED
         for check in data_checker.checks:
@@ -138,22 +153,24 @@ class ComplianceToolStateManager(logging.Handler):
 
     def get_error_logs_from_step(self, index: int) -> List[logging.LogRecord]:
         """
-        Returns a list of LogRecords of a step where the log level is logging.ERROR or logging.WARNING
+        Returns a list of `logging.LogRecords` of a step where the log level is `logging.ERROR` or `logging.WARNING`
 
-        :param index: step index in the step list of the manager
-        :return: List of LogRecords with log levell logging.ERROR or logging.WARNING
+        :param index: Step index in the Step list of the manager
+        :return: List of LogRecords with log level logging.ERROR or logging.WARNING
         """
         return [x for x in self.steps[index].log_list if x.levelno >= logging.WARNING]
 
     def format_step(self, index: int, verbose_level: int = 0) -> str:
         """
-        Creates a string for the step containing the status, the step name and the LogRecords if wanted
+        Creates a string for the step containing the status, the step name and the `logging.LogRecords` if wanted
 
-        :param index:  step index in the step list of the manager
+        :param index:  Step index in the step list of the manager
         :param verbose_level: Decision which kind of LogRecords should be in the string
-                              0: No LogRecords
-                              1: Only LogRecords with log level >= logging.WARNING
-                              2: All LogRecords
+
+                                - 0: No LogRecords
+                                - 1: Only LogRecords with log level >= logging.WARNING
+                                - 2: All LogRecords
+
         :return: formatted string of the step
         """
         STEP_STATUS: Dict[Status, str] = {
@@ -177,12 +194,15 @@ class ComplianceToolStateManager(logging.Handler):
 
     def format_state_manager(self, verbose_level: int = 0) -> str:
         """
-        Creates a report with all executed steps: containing the status, the step name and the LogRecords if wanted
+        Creates a report with all executed steps: Containing the status, the step name and the `logging.LogRecords` if
+        wanted
 
         :param verbose_level: Decision which kind of LogRecords should be in the string
-                              0: No LogRecords
-                              1: Only LogRecords with log level >= logging.WARNING
-                              2: All LogRecords
+
+                                - 0: No LogRecords
+                                - 1: Only LogRecords with log level >= logging.WARNING
+                                - 2: All LogRecords
+
         :return: formatted report
         """
         string = 'Compliance Test executed:\n'
@@ -191,8 +211,8 @@ class ComplianceToolStateManager(logging.Handler):
 
     def emit(self, record: logging.LogRecord):
         """
-        logging.Handler function for adding LogRecords from a logger to the current step
+        `logging.Handler` function for adding `logging.LogRecords` from a `logger` to the current :class:`~.Step`
 
-        :param record: LogRecord which should be added
+        :param record: `logging.LogRecord` which should be added
         """
         self.steps[-1].log_list.append(record)
