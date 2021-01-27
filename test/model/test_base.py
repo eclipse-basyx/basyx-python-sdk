@@ -282,7 +282,7 @@ class ReferableTest(unittest.TestCase):
         self.assertEqual("NewRelElCat", example_relel.category)
         # References to Referable objects shall remain stable
         self.assertIs(example_relel, example_submodel.get_referable('ExampleRelationshipElement'))
-        self.assertIs(example_relel, example_submodel.submodel_element.get('ExampleRelationshipElement'))
+        self.assertIs(example_relel, example_submodel.submodel_element.get("id_short", 'ExampleRelationshipElement'))
         # Check Namespace & parent consistency
         self.assertIs(example_submodel.namespace_element_sets[0], example_submodel.submodel_element)
         self.assertIs(example_relel.parent, example_submodel)
