@@ -280,15 +280,23 @@ class ReferableTest(unittest.TestCase):
         example_submodel.update_from(other_submodel)
         self.assertEqual("NewCat", example_submodel.category)
         self.assertEqual("NewRelElCat", example_relel.category)
+        # References to Referable objects shall remain stable
+        self.assertIs(example_relel, example_submodel.get_referable('ExampleRelationshipElement'))
+        self.assertIs(example_relel, example_submodel.submodel_element.get('ExampleRelationshipElement'))
+        # Check Namespace & parent consistency
+        self.assertIs(example_submodel.namespace_element_sets[0], example_submodel.submodel_element)
+        self.assertIs(example_relel.parent, example_submodel)
 
         # Test source update
         example_relel.source = "scheme:OldRelElSource"
         other_submodel.source = "scheme:NewSource"
         other_relel.source = "scheme:NewRelElSource"
 
-        example_submodel.update_from(other_submodel, update_source=True)
-        self.assertEqual("scheme:NewSource", example_submodel.source)
-        self.assertEqual("scheme:OldRelElSource", example_relel.source)
+        example_submodel.update_from(other_submodel)
+        # Sources of the object itself should not be updated by default
+        self.assertEqual("", example_submodel.source)
+        # Sources of embedded objects should always be updated
+        self.assertEqual("scheme:NewRelElSource", example_relel.source)
 
 
 class ExampleNamespace(model.Namespace):

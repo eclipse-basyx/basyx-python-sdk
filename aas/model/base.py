@@ -553,13 +553,14 @@ class Referable(metaclass=abc.ABCMeta):
                               recursively
         """
         for name, var in vars(other).items():
-            # do not update the parent or source (depending on update_source parameter)
-            if name == "parent" or name == "source" and not update_source:
+            # do not update the parent, namespace_element_sets or source (depending on update_source parameter)
+            if name in ("parent", "namespace_element_sets") or name == "source" and not update_source:
                 continue
             if isinstance(var, NamespaceSet):
                 # update the elements of the NameSpaceSet
                 vars(self)[name].update_nss_from(var)
-            vars(self)[name] = var  # that variable is not a NameSpaceSet, so it isn't Referable
+            else:
+                vars(self)[name] = var  # that variable is not a NameSpaceSet, so it isn't Referable
 
     def commit(self) -> None:
         """
