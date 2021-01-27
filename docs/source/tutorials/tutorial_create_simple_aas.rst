@@ -6,7 +6,7 @@ Tutorial: Create a Simple AAS
 Tutorial for the creation of an simple Asset Administration Shell, containing an Asset reference and a Submodel
 reference
 
-Import all PyI40AAS classes from model package
+To begin, import all PyI40AAS classes from model package
 
 .. code-block:: python
 

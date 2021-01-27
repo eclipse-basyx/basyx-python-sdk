@@ -66,7 +66,7 @@ See `tutorial_dynamic_model.py` for more information on that topic.
 
     aashell.update()
 
-:class:`~aas.adapter.json.json_serialization.AASToJsonEncoder` from the is a custom JSONEncoder class for serializing
+:class:`~aas.adapter.json.json_serialization.AASToJsonEncoder` is a custom JSONEncoder class for serializing
 Asset Administration Shell data into the official JSON format according to
 'Details of the Asset Administration Shell', chapter 5.5, using Python's built-in JSON library. When provided to the
 the `json.dump()` and `json.dumps()` methods, these methods are enabled to correctly handle AAS objects within the
