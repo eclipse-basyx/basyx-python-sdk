@@ -474,7 +474,13 @@ class Referable(metaclass=abc.ABCMeta):
                 if id_short in set_:
                     raise KeyError("Referable with id_short '{}' is already present in the parent Namespace"
                                    .format(id_short))
-
+            for set_ in self.parent.namespace_element_sets:
+                if self in set_:
+                    set_.discard(self)
+                    self._id_short = id_short
+                    set_.add(self)
+                    break
+        # Redundant to the line above. However this way, we make sure that we really update the _id_short
         self._id_short = id_short
 
     def update(self,
