@@ -1,7 +1,10 @@
 aas.compliance_tool - Tool for Creating and Checking JSON, XML and AASX Files' compliance
 =========================================================================================
 
-todo: add some text here
+.. argparse::
+    :module: aas.compliance_tool.cli
+    :func: parse_cli_arguments
+    :prog: cli
 
 .. toctree::
    :maxdepth: 2
