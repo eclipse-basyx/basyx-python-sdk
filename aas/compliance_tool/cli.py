@@ -32,7 +32,10 @@ from aas.examples.data import create_example, create_example_aas_binding, TEST_P
 from aas.compliance_tool.state_manager import ComplianceToolStateManager, Status
 
 
-def main():
+def parse_cli_arguments() -> argparse.ArgumentParser:
+    """
+    This function returns the argument-parser for the cli
+    """
     parser = argparse.ArgumentParser(
         prog='compliance_tool',
         description='Compliance tool for creating and checking json and xml files in compliance with "Details of the '
@@ -84,7 +87,11 @@ def main():
     group.add_argument('--xml', help="Use AAS xml format when checking or creating files", action='store_true')
     parser.add_argument('-l', '--logfile', help="Log file to be created in addition to output to stdout", default=None)
     parser.add_argument('--aasx', help="Create or read AASX files", action='store_true')
+    return parser
 
+
+def main():
+    parser = parse_cli_arguments()
     args = parser.parse_args()
 
     # Todo try to find out in which format the file is if not --json or --xml
