@@ -15,15 +15,15 @@ from aas import model
 # add Submodels to the AAS. The Submodels can contain SubmodelElements.
 #
 # Step by Step Guide:
-# step 1: create a simple Asset Administration Shell, containing a reference to the Asset
-# step 2: create a simple Submodel
-# step 3: create a simple Property and add it to the Submodel
+# Step 1: create a simple Asset Administration Shell, containing a reference to the Asset
+# Step 2: create a simple Submodel
+# Step 3: create a simple Property and add it to the Submodel
 
 
 ##########################################################################################
 # Step 1: Create a Simple Asset Administration Shell Containing a Reference to the Asset #
 ##########################################################################################
-# step 1.1: create the AssetInformation object
+# Step 1.1: create the AssetInformation object
 asset_information = model.AssetInformation(
     asset_kind=model.AssetKind.INSTANCE,
     global_asset_id=model.Reference(
@@ -44,16 +44,16 @@ aas = model.AssetAdministrationShell(
 
 
 #############################################################
-# step 2: Create a Simple Submodel Without SubmodelElements #
+# Step 2: Create a Simple Submodel Without SubmodelElements #
 #############################################################
 
-# step 2.1: create the Submodel object
+# Step 2.1: create the Submodel object
 identifier = model.Identifier('https://acplt.org/Simple_Submodel', model.IdentifierType.IRI)
 submodel = model.Submodel(
     identification=identifier
 )
 
-# step 2.2: create a reference to that Submodel and add it to the Asset Administration Shell's `submodel` set
+# Step 2.2: create a reference to that Submodel and add it to the Asset Administration Shell's `submodel` set
 aas.submodel.add(model.AASReference.from_referable(submodel))
 
 
@@ -71,10 +71,10 @@ aas = model.AssetAdministrationShell(
 
 
 ###############################################################
-# step 3: Create a Simple Property and Add it to the Submodel #
+# Step 3: Create a Simple Property and Add it to the Submodel #
 ###############################################################
 
-# step 3.1: create a global reference to a semantic description of the Property
+# Step 3.1: create a global reference to a semantic description of the Property
 # A global reference consist of one key which points to the address where the semantic description is stored
 semantic_reference = model.Reference(
     (model.Key(
@@ -84,7 +84,7 @@ semantic_reference = model.Reference(
     ),)
 )
 
-# step 3.2: create the simple Property
+# Step 3.2: create the simple Property
 property_ = model.Property(
     id_short='ExampleProperty',  # Identifying string of the element within the Submodel namespace
     value_type=model.datatypes.String,  # Data type of the value
@@ -92,7 +92,7 @@ property_ = model.Property(
     semantic_id=semantic_reference  # set the semantic reference
 )
 
-# step 3.3: add the Property to the Submodel
+# Step 3.3: add the Property to the Submodel
 submodel.submodel_element.add(property_)
 
 

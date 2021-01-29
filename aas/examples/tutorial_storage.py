@@ -13,10 +13,10 @@ objects by identification and resolving references.
 # `AssetAdministrationShell.submodel` set, etc.
 #
 # Step by Step Guide:
-# step 1: creating Asset, Submodel and Asset Administration Shell objects
-# step 2: storing the data in an ObjectStore for easier handling
-# step 3: retrieving objects from the store by their identifier
-# step 4: using the ObjectStore to resolve a reference
+# Step 1: creating Asset, Submodel and Asset Administration Shell objects
+# Step 2: storing the data in an ObjectStore for easier handling
+# Step 3: retrieving objects from the store by their identifier
+# Step 4: using the ObjectStore to resolve a reference
 
 
 from aas import model
@@ -64,10 +64,10 @@ aas = AssetAdministrationShell(
 
 
 ##################################################################
-# step 2: Storing the Data in an ObjectStore for Easier Handling #
+# Step 2: Storing the Data in an ObjectStore for Easier Handling #
 ##################################################################
 
-# step 2.1: create an ObjectStore for identifiable objects
+# Step 2.1: create an ObjectStore for identifiable objects
 #
 # In this tutorial, we use a `DictObjectStore`, which is a simple in-memory store: It just keeps track of the Python
 # objects using a dict.
@@ -84,7 +84,7 @@ obj_store.add(aas)
 
 
 #################################################################
-# step 3: Retrieving Objects From the Store by Their Identifier #
+# Step 3: Retrieving Objects From the Store by Their Identifier #
 #################################################################
 
 tmp_submodel = obj_store.get_identifiable(
@@ -94,7 +94,7 @@ assert(submodel is tmp_submodel)
 
 
 ########################################################
-# step 4: Using the ObjectStore to Resolve a Reference #
+# Step 4: Using the ObjectStore to Resolve a Reference #
 ########################################################
 
 # The `aas` object already contains a reference to the submodel.
