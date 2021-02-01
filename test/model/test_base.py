@@ -467,13 +467,12 @@ class ModelNamespaceTest(unittest.TestCase):
         self.prop1.id_short = "Prop3"
         self.assertEqual("Prop3", self.prop1.id_short)
         self.assertEqual(2, len(self.namespace.set2))
+        self.assertIs(self.prop1, self.namespace.get_referable("Prop3"))
         with self.assertRaises(KeyError) as cm:
-            self.assertIs(self.prop1, self.namespace.get_referable("Prop1"))
+            self.namespace.get_referable('Prop1')
         self.assertEqual("'Referable with id_short Prop1 not found in this namespace'",
                          str(cm.exception))
         self.assertIs(self.prop2, self.namespace.get_referable("Prop2"))
-        self.assertIs(self.prop1, self.namespace.get_referable("Prop3"))
-
         with self.assertRaises(KeyError) as cm:
             self.prop1.id_short = "Prop2"
         self.assertIn("already present", str(cm.exception))

@@ -571,6 +571,7 @@ class Referable(HasExtension, metaclass=abc.ABCMeta):
                 if ("id_short", id_short) in set_:
                     raise KeyError("Object with id_short '{}' is already present in the parent Namespace"
                                    .format(id_short))
+
             set_add_list: List[NamespaceSet] = []
             for set_ in self.parent.namespace_element_sets:
                 if self in set_:
@@ -579,8 +580,8 @@ class Referable(HasExtension, metaclass=abc.ABCMeta):
             self._id_short = id_short
             for set_ in set_add_list:
                 set_.add(self)
-        else:
-            self._id_short = id_short
+        # Redundant to the line above. However this way, we make sure that we really update the _id_short
+        self._id_short = id_short
 
     def update(self,
                max_age: float = 0,
@@ -945,8 +946,8 @@ class HasSemantics(metaclass=abc.ABCMeta):
             self._semantic_id = semantic_id
             for set_ in set_add_list:
                 set_.add(self)
-        else:
-            self._semantic_id = semantic_id
+        # Redundant to the line above. However this way, we make sure that we really update the _semantic_id
+        self._semantic_id = semantic_id
 
 
 class Extension(HasSemantics):
@@ -1021,8 +1022,8 @@ class Extension(HasSemantics):
             self._name = name
             for set_ in set_add_list:
                 set_.add(self)
-        else:
-            self._name = name
+        # Redundant to the line above. However this way, we make sure that we really update the _name
+        self._name = name
 
 
 class HasKind(metaclass=abc.ABCMeta):
@@ -1172,8 +1173,8 @@ class Qualifier(Constraint, HasSemantics):
             self._type = type_
             for set_ in set_add_list:
                 set_.add(self)
-        else:
-            self._type = type_
+        # Redundant to the line above. However this way, we make sure that we really update the _type
+        self._type = type_
 
 
 class ValueReferencePair:
