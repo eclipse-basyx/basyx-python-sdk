@@ -440,6 +440,8 @@ class AASFromXmlDecoder:
             # TODO: simplify this should our suggestion regarding the XML schema get accepted
             # https://git.rwth-aachen.de/acplt/pyi40aas/-/issues/57
             for constraint in element.findall(NS_AAS + "qualifier"):
+                if len(constraint) == 0:
+                    continue
                 if len(constraint) > 1:
                     logger.warning(f"{_element_pretty_identifier(constraint)} has more than one constraint, "
                                    "using the first one...")
