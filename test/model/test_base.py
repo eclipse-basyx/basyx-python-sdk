@@ -376,6 +376,9 @@ class ModelNamespaceTest(unittest.TestCase):
 
         self.prop1.id_short = "Prop3"
         self.assertEqual("Prop3", self.prop1.id_short)
+        self.assertIs(self.prop1, self.namespace.get_referable('Prop3'))
+        with self.assertRaises(KeyError):
+            self.namespace.get_referable('Prop1')
 
         with self.assertRaises(KeyError) as cm:
             self.prop1.id_short = "Prop2"
