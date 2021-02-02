@@ -28,7 +28,10 @@ The PyI40AAS project provides the `aas` Python package with 5 submodules:
 
 ## License
 
-The PyI40AAS project is provided under the terms of the Apache License (Version 2.0).
+The PyI40AAS project is dual-licensed under the terms of the Eclipse Public License - v 2.0 and the
+Apache License Version 2.0. Choose either of the two licenses that better suits your needs.
+
+SPDX-License-Identifier: EPL-2.0 OR Apache-2.0
 
 For more information, especially considering the licenses of included third-party works, please consult the `NOTICE`
 file.
