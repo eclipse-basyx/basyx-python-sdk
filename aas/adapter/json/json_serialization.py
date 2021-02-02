@@ -119,8 +119,6 @@ class AASToJsonEncoder(json.JSONEncoder):
             return self._qualifier_to_json(obj)
         if isinstance(obj, model.Extension):
             return self._extension_to_json(obj)
-        if isinstance(obj, model.Formula):
-            return self._formula_to_json(obj)
         return super().default(obj)
 
     @classmethod
@@ -236,7 +234,7 @@ class AASToJsonEncoder(json.JSONEncoder):
         :param obj: object of class Constraint
         :return: dict with the serialized attributes of this object
         """
-        CONSTRAINT_CLASSES = [model.Qualifier, model.Formula]
+        CONSTRAINT_CLASSES = [model.Qualifier]
         try:
             const_type = next(iter(t for t in inspect.getmro(type(obj)) if t in CONSTRAINT_CLASSES))
         except StopIteration as e:
@@ -253,20 +251,6 @@ class AASToJsonEncoder(json.JSONEncoder):
         :return: dict with the serialized attributes of this object
         """
         data = cls._abstract_classes_to_json(obj)
-        return data
-
-    @classmethod
-    def _formula_to_json(cls, obj: model.Formula) -> Dict[str, object]:
-        """
-        serialization of an object from class Formula to json
-
-        :param obj: object of class Formula
-        :return: dict with the serialized attributes of this object
-        """
-        data = cls._abstract_classes_to_json(obj)
-        data.update(cls._constraint_to_json(obj))
-        if obj.depends_on:
-            data['dependsOn'] = list(obj.depends_on)
         return data
 
     @classmethod
@@ -614,6 +598,7 @@ class AASToJsonEncoder(json.JSONEncoder):
         if not cls.stripped and obj.value:
             data['value'] = list(obj.value)
         data['ordered'] = obj.ordered
+        data['allowDuplicates'] = obj.allow_duplicates
         return data
 
     @classmethod

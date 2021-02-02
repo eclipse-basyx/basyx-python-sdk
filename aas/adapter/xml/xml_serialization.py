@@ -10,11 +10,9 @@
 # specific language governing permissions and limitations under the License.
 """
 .. _adapter.xml.xml_serialization:
-
 Module for serializing Asset Administration Shell data to the official XML format
 
 How to use:
-
 - For generating an XML-File from a :class:`~aas.model.provider.AbstractObjectStore`, check out the function
   :meth:`~aas.adapter.xml.xml_serialization.write_aas_xml_file`.
 - For serializing any object to an XML fragment, that fits the XML specification from 'Details of the
@@ -133,8 +131,7 @@ def abstract_classes_to_xml(tag: str, obj: object) -> etree.Element:
         if obj.qualifier:
             et_qualifier = _generate_element(NS_AAS + "qualifiers")
             for qualifier in obj.qualifier:
-                if isinstance(qualifier, model.Formula):
-                    et_qualifier.append(formula_to_xml(qualifier, tag=NS_AAS+"formula"))
+
                 if isinstance(qualifier, model.Qualifier):
                     et_qualifier.append(qualifier_to_xml(qualifier, tag=NS_AAS+"qualifier"))
             elm.append(et_qualifier)
@@ -234,23 +231,6 @@ def reference_to_xml(obj: model.Reference, tag: str = NS_AAS+"reference") -> etr
                                                      "type": _generic.KEY_ELEMENTS[aas_key.type]}))
     et_reference.append(et_keys)
     return et_reference
-
-
-def formula_to_xml(obj: model.Formula, tag: str = NS_AAS+"formula") -> etree.Element:
-    """
-    Serialization of objects of class :class:`~aas.model.base.Formula` to XML
-
-    :param obj: Object of class :class:`~aas.model.base.Formula`
-    :param tag: Namespace+Tag of the ElementTree object. Default is "aas:formula"
-    :return: Serialized ElementTree object
-    """
-    et_formula = abstract_classes_to_xml(tag, obj)
-    if obj.depends_on:
-        et_depends_on = _generate_element(name=NS_AAS + "dependsOnRefs", text=None)
-        for aas_reference in obj.depends_on:
-            et_depends_on.append(reference_to_xml(aas_reference, NS_AAS+"reference"))
-        et_formula.append(et_depends_on)
-    return et_formula
 
 
 def qualifier_to_xml(obj: model.Qualifier, tag: str = NS_AAS+"qualifier") -> etree.Element:
@@ -754,7 +734,8 @@ def submodel_element_collection_to_xml(obj: model.SubmodelElementCollection,
     """
     et_submodel_element_collection = abstract_classes_to_xml(tag, obj)
     # todo: remove wrapping submodelElement-tag, in accordance to future schema
-    et_submodel_element_collection.append(_generate_element(NS_AAS + "allowDuplicates", text="false"))
+    et_submodel_element_collection.append(_generate_element(NS_AAS + "allowDuplicates",
+                                                            text=boolean_to_xml(obj.allow_duplicates)))
     et_submodel_element_collection.append(_generate_element(NS_AAS + "ordered", text=boolean_to_xml(obj.ordered)))
     et_value = _generate_element(NS_AAS + "value")
     if obj.value:

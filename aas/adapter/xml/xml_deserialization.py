@@ -590,16 +590,6 @@ class AASFromXmlDecoder:
         return qualifier
 
     @classmethod
-    def construct_formula(cls, element: etree.Element, object_class=model.Formula, **_kwargs: Any) -> model.Formula:
-        formula = object_class()
-        depends_on_refs = element.find(NS_AAS + "dependsOnRefs")
-        if depends_on_refs is not None:
-            for ref in _failsafe_construct_multiple(depends_on_refs.findall(NS_AAS + "reference"),
-                                                    cls.construct_reference, cls.failsafe):
-                formula.depends_on.add(ref)
-        return formula
-
-    @classmethod
     def construct_extension(cls, element: etree.Element, object_class=model.Extension, **_kwargs: Any) \
             -> model.Extension:
         extension = object_class(
@@ -692,7 +682,6 @@ class AASFromXmlDecoder:
         Overwrite construct_formula or construct_qualifier instead.
         """
         constraints: Dict[str, Callable[..., model.Constraint]] = {NS_AAS + k: v for k, v in {
-            "formula": cls.construct_formula,
             "qualifier": cls.construct_qualifier
         }.items()}
         if element.tag not in constraints:
@@ -891,14 +880,14 @@ class AASFromXmlDecoder:
 
     @classmethod
     def construct_submodel_element_collection(cls, element: etree.Element,
-                                              object_class_ordered=model.SubmodelElementCollectionOrdered,
-                                              object_class_unordered=model.SubmodelElementCollectionUnordered,
                                               **_kwargs: Any) -> model.SubmodelElementCollection:
         ordered = _str_to_bool(_child_text_mandatory(element, NS_AAS + "ordered"))
-        collection_type = object_class_ordered if ordered else object_class_unordered
-        collection = collection_type(
+        allow_duplicates = _str_to_bool(_child_text_mandatory(element, NS_AAS + "allowDuplicates"))
+        collection = model.SubmodelElementCollection.create(
             _child_text_mandatory(element, NS_AAS + "idShort"),
-            kind=_get_modeling_kind(element)
+            kind=_get_modeling_kind(element),
+            allow_duplicates=allow_duplicates,
+            ordered=ordered
         )
         if not cls.stripped:
             value = _get_child_mandatory(element, NS_AAS + "value")
@@ -1209,7 +1198,6 @@ class XMLConstructables(enum.Enum):
     AAS_REFERENCE = enum.auto()
     ADMINISTRATIVE_INFORMATION = enum.auto()
     QUALIFIER = enum.auto()
-    FORMULA = enum.auto()
     IDENTIFIER = enum.auto()
     SECURITY = enum.auto()
     VIEW = enum.auto()
@@ -1274,8 +1262,6 @@ def read_aas_xml_element(file: IO, construct: XMLConstructables, failsafe: bool 
         constructor = decoder_.construct_administrative_information
     elif construct == XMLConstructables.QUALIFIER:
         constructor = decoder_.construct_qualifier
-    elif construct == XMLConstructables.FORMULA:
-        constructor = decoder_.construct_formula
     elif construct == XMLConstructables.IDENTIFIER:
         constructor = decoder_.construct_identifier
     elif construct == XMLConstructables.SECURITY:

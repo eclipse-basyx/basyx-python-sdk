@@ -8,43 +8,18 @@
 # Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an
 # "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
 # specific language governing permissions and limitations under the License.
-import base64
-import configparser
-import copy
-import os
 import unittest
 import unittest.mock
-import urllib.request
 import urllib.error
 
-from aas.backend import backends, couchdb
+from aas.backend import couchdb
 from aas.examples.data.example_aas import *
 
+from test._helper.test_helpers import TEST_CONFIG, COUCHDB_OKAY, COUCHDB_ERROR
 
-TEST_CONFIG = configparser.ConfigParser()
-TEST_CONFIG.read((os.path.join(os.path.dirname(__file__), "..", "test_config.default.ini"),
-                  os.path.join(os.path.dirname(__file__), "..", "test_config.ini")))
 
 source_core: str = "couchdb://" + TEST_CONFIG["couchdb"]["url"].lstrip("http://") + "/" + \
                    TEST_CONFIG["couchdb"]["database"] + "/"
-
-
-# Check if CouchDB database is available. Otherwise, skip tests.
-try:
-    request = urllib.request.Request(
-        "{}/{}".format(TEST_CONFIG['couchdb']['url'], TEST_CONFIG['couchdb']['database']),
-        headers={
-            'Authorization': 'Basic %s' % base64.b64encode(
-                ('%s:%s' % (TEST_CONFIG['couchdb']['user'], TEST_CONFIG['couchdb']['password']))
-                .encode('ascii')).decode("ascii")
-            },
-        method='HEAD')
-    urllib.request.urlopen(request)
-    COUCHDB_OKAY = True
-    COUCHDB_ERROR = None
-except urllib.error.URLError as e:
-    COUCHDB_OKAY = False
-    COUCHDB_ERROR = e
 
 
 class CouchDBBackendOfflineMethodsTest(unittest.TestCase):
@@ -83,7 +58,6 @@ class CouchDBBackendTest(unittest.TestCase):
         couchdb.register_credentials(TEST_CONFIG["couchdb"]["url"],
                                      TEST_CONFIG["couchdb"]["user"],
                                      TEST_CONFIG["couchdb"]["password"])
-        backends.register_backend("couchdb", couchdb.CouchDBBackend)
         self.object_store.check_database()
 
     def tearDown(self) -> None:

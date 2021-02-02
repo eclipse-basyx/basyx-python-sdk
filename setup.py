@@ -47,6 +47,7 @@ setuptools.setup(
     install_requires=[
         'python-dateutil>=2.8,<3',
         'lxml>=4.2,<5',
+        'urllib3>=1.26<2.0',
         'pyecma376-2>=0.2.4',
     ]
 )

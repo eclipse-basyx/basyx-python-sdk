@@ -65,3 +65,36 @@ class RangeTest(unittest.TestCase):
         self.assertIsNone(range.min)
         range.max = None
         self.assertIsNone(range.max)
+
+
+class SubmodelElementCollectionTest(unittest.TestCase):
+    def test_submodel_element_collection_unordered_unique_semantic_id(self):
+        propSemanticID1 = model.Reference((model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
+                                                     value='http://acplt.org/Test1',
+                                                     id_type=model.KeyType.IRI),))
+        propSemanticID2 = model.Reference((model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
+                                                     value='http://acplt.org/Test2',
+                                                     id_type=model.KeyType.IRI),))
+        property1 = model.Property('test1', model.datatypes.Int, 2, semantic_id=propSemanticID1)
+        property2 = model.Property('test1', model.datatypes.Int, 2, semantic_id=propSemanticID2)
+        property3 = model.Property('test2', model.datatypes.Int, 2, semantic_id=propSemanticID1)
+        property4 = model.Property('test2', model.datatypes.Int, 2, semantic_id=propSemanticID2)
+
+        collection = model.SubmodelElementCollection.create("TestSM", allow_duplicates=False, ordered=False)
+        collection.value.add(property1)
+        self.assertIn(property1, collection.value)
+        with self.assertRaises(KeyError) as cm:
+            collection.value.add(property2)
+        self.assertEqual('"Object with attribute (name=\'id_short\', value=\'test1\') is already present in this set '
+                         'of objects"',
+                         str(cm.exception))
+
+        with self.assertRaises(KeyError) as cm:
+            collection.value.add(property3)
+        self.assertEqual('"Object with attribute (name=\'semantic_id\', value=\'Reference(key=(Key(id_type=IRI, '
+                         'value=http://acplt.org/Test1),))\') is already present in this set of objects"',
+                         str(cm.exception))
+        collection.value.add(property4)
+        self.assertIs(property1, collection.get_referable("test1"))
+        self.assertIs(property1, collection.get_object_by_semantic_id(propSemanticID1))
+        self.assertIs(property4, collection.get_object_by_semantic_id(propSemanticID2))

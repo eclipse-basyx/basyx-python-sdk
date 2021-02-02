@@ -76,7 +76,7 @@ def create_example_submodel() -> model.Submodel:
                                                value='http://acplt.org/MultiLanguageProperties/'
                                                      'ExampleMultiLanguageProperty',
                                                id_type=model.KeyType.IRI),)),
-        qualifier=None,
+        qualifier=(),
         kind=model.ModelingKind.INSTANCE)
 
     submodel_element_range = model.Range(
@@ -91,7 +91,7 @@ def create_example_submodel() -> model.Submodel:
         semantic_id=model.Reference((model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
                                                value='http://acplt.org/Ranges/ExampleRange',
                                                id_type=model.KeyType.IRI),)),
-        qualifier=None,
+        qualifier=(),
         kind=model.ModelingKind.INSTANCE)
 
     submodel_element_blob = model.Blob(
@@ -105,7 +105,7 @@ def create_example_submodel() -> model.Submodel:
         semantic_id=model.Reference((model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
                                                value='http://acplt.org/Blobs/ExampleBlob',
                                                id_type=model.KeyType.IRI),)),
-        qualifier=None,
+        qualifier=(),
         kind=model.ModelingKind.INSTANCE)
 
     submodel_element_file = model.File(
@@ -119,7 +119,7 @@ def create_example_submodel() -> model.Submodel:
         semantic_id=model.Reference((model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
                                                value='http://acplt.org/Files/ExampleFile',
                                                id_type=model.KeyType.IRI),)),
-        qualifier=None,
+        qualifier=(),
         kind=model.ModelingKind.INSTANCE)
 
     submodel_element_reference_element = model.ReferenceElement(
@@ -134,7 +134,7 @@ def create_example_submodel() -> model.Submodel:
         semantic_id=model.Reference((model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
                                                value='http://acplt.org/ReferenceElements/ExampleReferenceElement',
                                                id_type=model.KeyType.IRI),)),
-        qualifier=None,
+        qualifier=(),
         kind=model.ModelingKind.INSTANCE)
 
     submodel_element_relationship_element = model.RelationshipElement(
@@ -155,7 +155,7 @@ def create_example_submodel() -> model.Submodel:
                                                value='http://acplt.org/RelationshipElements/'
                                                      'ExampleRelationshipElement',
                                                id_type=model.KeyType.IRI),)),
-        qualifier=None,
+        qualifier=(),
         kind=model.ModelingKind.INSTANCE)
 
     submodel_element_annotated_relationship_element = model.AnnotatedRelationshipElement(
@@ -188,7 +188,7 @@ def create_example_submodel() -> model.Submodel:
                                                value='http://acplt.org/RelationshipElements/'
                                                      'ExampleAnnotatedRelationshipElement',
                                                id_type=model.KeyType.IRI),)),
-        qualifier=None,
+        qualifier=(),
         kind=model.ModelingKind.INSTANCE)
 
     operation_variable_property = model.Property(
@@ -207,7 +207,7 @@ def create_example_submodel() -> model.Submodel:
         semantic_id=model.Reference((model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
                                                value='http://acplt.org/Properties/ExampleProperty',
                                                id_type=model.KeyType.IRI),)),
-        qualifier=None,
+        qualifier=(),
         kind=model.ModelingKind.TEMPLATE)
 
     submodel_element_operation_variable_input = model.OperationVariable(
@@ -232,7 +232,7 @@ def create_example_submodel() -> model.Submodel:
                                                value='http://acplt.org/Operations/'
                                                      'ExampleOperation',
                                                id_type=model.KeyType.IRI),)),
-        qualifier=None,
+        qualifier=(),
         kind=model.ModelingKind.INSTANCE)
 
     submodel_element_capability = model.Capability(
@@ -245,7 +245,7 @@ def create_example_submodel() -> model.Submodel:
                                                value='http://acplt.org/Capabilities/'
                                                      'ExampleCapability',
                                                id_type=model.KeyType.IRI),)),
-        qualifier=None,
+        qualifier=(),
         kind=model.ModelingKind.INSTANCE)
 
     submodel_element_basic_event = model.BasicEvent(
@@ -262,10 +262,10 @@ def create_example_submodel() -> model.Submodel:
                                                value='http://acplt.org/Events/'
                                                      'ExampleBasicEvent',
                                                id_type=model.KeyType.IRI),)),
-        qualifier=None,
+        qualifier=(),
         kind=model.ModelingKind.INSTANCE)
 
-    submodel_element_submodel_element_collection_ordered = model.SubmodelElementCollectionOrdered(
+    submodel_element_submodel_element_collection_ordered = model.SubmodelElementCollectionOrderedUniqueSemanticId(
         id_short='ExampleSubmodelCollectionOrdered',
         value=(submodel_element_property,
                submodel_element_multi_language_property,
@@ -278,10 +278,10 @@ def create_example_submodel() -> model.Submodel:
                                                value='http://acplt.org/SubmodelElementCollections/'
                                                      'ExampleSubmodelElementCollectionOrdered',
                                                id_type=model.KeyType.IRI),)),
-        qualifier=None,
+        qualifier=(),
         kind=model.ModelingKind.INSTANCE)
 
-    submodel_element_submodel_element_collection_unordered = model.SubmodelElementCollectionUnordered(
+    submodel_element_submodel_element_collection_unordered = model.SubmodelElementCollectionUnorderedUniqueSemanticId(
         id_short='ExampleSubmodelCollectionUnordered',
         value=(submodel_element_blob,
                submodel_element_file,
@@ -294,7 +294,7 @@ def create_example_submodel() -> model.Submodel:
                                                value='http://acplt.org/SubmodelElementCollections/'
                                                      'ExampleSubmodelElementCollectionUnordered',
                                                id_type=model.KeyType.IRI),)),
-        qualifier=None,
+        qualifier=(),
         kind=model.ModelingKind.INSTANCE)
 
     submodel = model.Submodel(
@@ -318,7 +318,7 @@ def create_example_submodel() -> model.Submodel:
                                                value='http://acplt.org/SubmodelTemplates/'
                                                      'ExampleSubmodel',
                                                id_type=model.KeyType.IRI),)),
-        qualifier=None,
+        qualifier=(),
         kind=model.ModelingKind.INSTANCE)
     return submodel
 
@@ -370,7 +370,7 @@ def create_example_asset_administration_shell() -> model.AssetAdministrationShel
         semantic_id=model.Reference((model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
                                                value='http://acplt.org/Files/ExampleThumbnail',
                                                id_type=model.KeyType.IRI),)),
-        qualifier=None,
+        qualifier=(),
         kind=model.ModelingKind.INSTANCE)
 
     asset_information = model.AssetInformation(

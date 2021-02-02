@@ -20,17 +20,17 @@
       <aas:submodelRefs>
         <aas:submodelRef>
           <aas:keys>
+            <aas:key idType="IRI" type="Submodel">http://acplt.org/Submodels/Assets/TestAsset/BillOfMaterial</aas:key>
+          </aas:keys>
+        </aas:submodelRef>
+        <aas:submodelRef>
+          <aas:keys>
             <aas:key idType="IRI" type="Submodel">http://acplt.org/Submodels/Assets/TestAsset/Identification</aas:key>
           </aas:keys>
         </aas:submodelRef>
         <aas:submodelRef>
           <aas:keys>
             <aas:key idType="IRI" type="Submodel">https://acplt.org/Test_Submodel</aas:key>
-          </aas:keys>
-        </aas:submodelRef>
-        <aas:submodelRef>
-          <aas:keys>
-            <aas:key idType="IRI" type="Submodel">http://acplt.org/Submodels/Assets/TestAsset/BillOfMaterial</aas:key>
           </aas:keys>
         </aas:submodelRef>
       </aas:submodelRefs>
@@ -323,8 +323,8 @@
                     <aas:key idType="IRI" type="GlobalReference">http://acplt.org/ValueId/ExampleValueId</aas:key>
                   </aas:keys>
                 </aas:valueId>
-                <aas:value>50</aas:value>
-                <aas:type>http://acplt.org/Qualifier/ExampleQualifier2</aas:type>
+                <aas:value>100</aas:value>
+                <aas:type>http://acplt.org/Qualifier/ExampleQualifier</aas:type>
                 <aas:valueType>int</aas:valueType>
               </aas:qualifier>
               <aas:qualifier>
@@ -333,8 +333,8 @@
                     <aas:key idType="IRI" type="GlobalReference">http://acplt.org/ValueId/ExampleValueId</aas:key>
                   </aas:keys>
                 </aas:valueId>
-                <aas:value>100</aas:value>
-                <aas:type>http://acplt.org/Qualifier/ExampleQualifier</aas:type>
+                <aas:value>50</aas:value>
+                <aas:type>http://acplt.org/Qualifier/ExampleQualifier2</aas:type>
                 <aas:valueType>int</aas:valueType>
               </aas:qualifier>
             </aas:qualifiers>
@@ -421,41 +421,6 @@
             <aas:statements>
               <aas:submodelElement>
                 <aas:property>
-                  <aas:idShort>ExampleProperty</aas:idShort>
-                  <aas:category>CONSTANT</aas:category>
-                  <aas:description>
-                    <aas:langString lang="en-us">Example Property object</aas:langString>
-                    <aas:langString lang="de">Beispiel Property Element</aas:langString>
-                  </aas:description>
-                  <aas:kind>Instance</aas:kind>
-                  <aas:semanticId>
-                    <aas:keys>
-                      <aas:key idType="IRI" type="GlobalReference">http://acplt.org/Properties/ExampleProperty</aas:key>
-                    </aas:keys>
-                  </aas:semanticId>
-                  <aas:qualifiers>
-                    <aas:formula>
-                      <aas:dependsOnRefs>
-                        <aas:reference>
-                          <aas:keys>
-                            <aas:key idType="IRI" type="GlobalReference">http://acplt.org/ValueId/ExampleValueId</aas:key>
-                          </aas:keys>
-                        </aas:reference>
-                      </aas:dependsOnRefs>
-                    </aas:formula>
-                    <aas:formula/>
-                  </aas:qualifiers>
-                  <aas:valueId>
-                    <aas:keys>
-                      <aas:key idType="IRI" type="GlobalReference">http://acplt.org/ValueId/ExampleValueId</aas:key>
-                    </aas:keys>
-                  </aas:valueId>
-                  <aas:value>exampleValue</aas:value>
-                  <aas:valueType>string</aas:valueType>
-                </aas:property>
-              </aas:submodelElement>
-              <aas:submodelElement>
-                <aas:property>
                   <aas:idShort>ExampleProperty2</aas:idShort>
                   <aas:category>CONSTANT</aas:category>
                   <aas:description>
@@ -474,6 +439,29 @@
                     </aas:keys>
                   </aas:valueId>
                   <aas:value>exampleValue2</aas:value>
+                  <aas:valueType>string</aas:valueType>
+                </aas:property>
+              </aas:submodelElement>
+              <aas:submodelElement>
+                <aas:property>
+                  <aas:idShort>ExampleProperty</aas:idShort>
+                  <aas:category>CONSTANT</aas:category>
+                  <aas:description>
+                    <aas:langString lang="en-us">Example Property object</aas:langString>
+                    <aas:langString lang="de">Beispiel Property Element</aas:langString>
+                  </aas:description>
+                  <aas:kind>Instance</aas:kind>
+                  <aas:semanticId>
+                    <aas:keys>
+                      <aas:key idType="IRI" type="GlobalReference">http://acplt.org/Properties/ExampleProperty</aas:key>
+                    </aas:keys>
+                  </aas:semanticId>
+                  <aas:valueId>
+                    <aas:keys>
+                      <aas:key idType="IRI" type="GlobalReference">http://acplt.org/ValueId/ExampleValueId</aas:key>
+                    </aas:keys>
+                  </aas:valueId>
+                  <aas:value>exampleValue</aas:value>
                   <aas:valueType>string</aas:valueType>
                 </aas:property>
               </aas:submodelElement>
@@ -570,15 +558,6 @@
             </aas:second>
             <aas:annotations>
               <aas:dataElement>
-                <aas:property>
-                  <aas:idShort>ExampleAnnotatedProperty</aas:idShort>
-                  <aas:category>PARAMETER</aas:category>
-                  <aas:kind>Instance</aas:kind>
-                  <aas:value>exampleValue</aas:value>
-                  <aas:valueType>string</aas:valueType>
-                </aas:property>
-              </aas:dataElement>
-              <aas:dataElement>
                 <aas:range>
                   <aas:idShort>ExampleAnnotatedRange</aas:idShort>
                   <aas:category>PARAMETER</aas:category>
@@ -587,6 +566,15 @@
                   <aas:min>1</aas:min>
                   <aas:valueType>integer</aas:valueType>
                 </aas:range>
+              </aas:dataElement>
+              <aas:dataElement>
+                <aas:property>
+                  <aas:idShort>ExampleAnnotatedProperty</aas:idShort>
+                  <aas:category>PARAMETER</aas:category>
+                  <aas:kind>Instance</aas:kind>
+                  <aas:value>exampleValue</aas:value>
+                  <aas:valueType>string</aas:valueType>
+                </aas:property>
               </aas:dataElement>
             </aas:annotations>
           </aas:annotatedRelationshipElement>
@@ -745,7 +733,7 @@
                 <aas:key idType="IRI" type="GlobalReference">http://acplt.org/SubmodelElementCollections/ExampleSubmodelElementCollectionOrdered</aas:key>
               </aas:keys>
             </aas:semanticId>
-            <aas:allowDuplicates>false</aas:allowDuplicates>
+            <aas:allowDuplicates>true</aas:allowDuplicates>
             <aas:ordered>true</aas:ordered>
             <aas:value>
               <aas:submodelElement>
@@ -836,7 +824,7 @@
                 <aas:key idType="IRI" type="GlobalReference">http://acplt.org/SubmodelElementCollections/ExampleSubmodelElementCollectionUnordered</aas:key>
               </aas:keys>
             </aas:semanticId>
-            <aas:allowDuplicates>false</aas:allowDuplicates>
+            <aas:allowDuplicates>true</aas:allowDuplicates>
             <aas:ordered>false</aas:ordered>
             <aas:value>
               <aas:submodelElement>
@@ -984,7 +972,7 @@
           <aas:submodelElementCollection>
             <aas:idShort>ExampleSubmodelCollectionOrdered</aas:idShort>
             <aas:kind>Instance</aas:kind>
-            <aas:allowDuplicates>false</aas:allowDuplicates>
+            <aas:allowDuplicates>true</aas:allowDuplicates>
             <aas:ordered>true</aas:ordered>
             <aas:value>
               <aas:submodelElement>
@@ -1017,7 +1005,7 @@
           <aas:submodelElementCollection>
             <aas:idShort>ExampleSubmodelCollectionUnordered</aas:idShort>
             <aas:kind>Instance</aas:kind>
-            <aas:allowDuplicates>false</aas:allowDuplicates>
+            <aas:allowDuplicates>true</aas:allowDuplicates>
             <aas:ordered>false</aas:ordered>
             <aas:value>
               <aas:submodelElement>
@@ -1049,7 +1037,7 @@
           <aas:submodelElementCollection>
             <aas:idShort>ExampleSubmodelCollectionUnordered2</aas:idShort>
             <aas:kind>Instance</aas:kind>
-            <aas:allowDuplicates>false</aas:allowDuplicates>
+            <aas:allowDuplicates>true</aas:allowDuplicates>
             <aas:ordered>false</aas:ordered>
             <aas:value/>
           </aas:submodelElementCollection>
@@ -1132,6 +1120,15 @@
             </aas:second>
             <aas:annotations>
               <aas:dataElement>
+                <aas:property>
+                  <aas:idShort>ExampleAnnotatedProperty</aas:idShort>
+                  <aas:category>PARAMETER</aas:category>
+                  <aas:kind>Instance</aas:kind>
+                  <aas:value>exampleValue</aas:value>
+                  <aas:valueType>string</aas:valueType>
+                </aas:property>
+              </aas:dataElement>
+              <aas:dataElement>
                 <aas:range>
                   <aas:idShort>ExampleAnnotatedRange</aas:idShort>
                   <aas:category>PARAMETER</aas:category>
@@ -1140,15 +1137,6 @@
                   <aas:min>1</aas:min>
                   <aas:valueType>integer</aas:valueType>
                 </aas:range>
-              </aas:dataElement>
-              <aas:dataElement>
-                <aas:property>
-                  <aas:idShort>ExampleAnnotatedProperty</aas:idShort>
-                  <aas:category>PARAMETER</aas:category>
-                  <aas:kind>Instance</aas:kind>
-                  <aas:value>exampleValue</aas:value>
-                  <aas:valueType>string</aas:valueType>
-                </aas:property>
               </aas:dataElement>
             </aas:annotations>
           </aas:annotatedRelationshipElement>
@@ -1650,7 +1638,7 @@
                 <aas:key idType="IRI" type="GlobalReference">http://acplt.org/SubmodelElementCollections/ExampleSubmodelElementCollectionOrdered</aas:key>
               </aas:keys>
             </aas:semanticId>
-            <aas:allowDuplicates>false</aas:allowDuplicates>
+            <aas:allowDuplicates>true</aas:allowDuplicates>
             <aas:ordered>true</aas:ordered>
             <aas:value>
               <aas:submodelElement>
@@ -1739,7 +1727,7 @@
                 <aas:key idType="IRI" type="GlobalReference">http://acplt.org/SubmodelElementCollections/ExampleSubmodelElementCollectionUnordered</aas:key>
               </aas:keys>
             </aas:semanticId>
-            <aas:allowDuplicates>false</aas:allowDuplicates>
+            <aas:allowDuplicates>true</aas:allowDuplicates>
             <aas:ordered>false</aas:ordered>
             <aas:value>
               <aas:submodelElement>
@@ -1810,7 +1798,7 @@
                 <aas:key idType="IRI" type="GlobalReference">http://acplt.org/SubmodelElementCollections/ExampleSubmodelElementCollectionUnordered</aas:key>
               </aas:keys>
             </aas:semanticId>
-            <aas:allowDuplicates>false</aas:allowDuplicates>
+            <aas:allowDuplicates>true</aas:allowDuplicates>
             <aas:ordered>false</aas:ordered>
             <aas:value/>
           </aas:submodelElementCollection>

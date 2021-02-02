@@ -26,8 +26,6 @@ submodel.py
     Meta-model of the submodels and events.
 """
 
-from typing import Dict
-
 from .aas import *
 from .security import *
 from .base import *

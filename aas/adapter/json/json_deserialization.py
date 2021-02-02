@@ -168,7 +168,6 @@ class AASFromJsonDecoder(json.JSONDecoder):
             'ConceptDescription': cls._construct_concept_description,
             'Qualifier': cls._construct_qualifier,
             'Extension': cls._construct_extension,
-            'Formula': cls._construct_formula,
             'Submodel': cls._construct_submodel,
             'Capability': cls._construct_capability,
             'Entity': cls._construct_entity,
@@ -252,7 +251,6 @@ class AASFromJsonDecoder(json.JSONDecoder):
 
         if isinstance(obj, model.HasExtension) and not cls.stripped:
             if 'extensions' in dct:
-                obj.extension = set()
                 for extension in _get_ts(dct, 'extensions', list):
                     obj.extension.add(cls._construct_extension(extension))
 
@@ -519,24 +517,6 @@ class AASFromJsonDecoder(json.JSONDecoder):
         return ret
 
     @classmethod
-    def _construct_formula(cls, dct: Dict[str, object], object_class=model.Formula) -> model.Formula:
-        ret = object_class()
-        cls._amend_abstract_attributes(ret, dct)
-        if 'dependsOn' in dct:
-            for dependency_data in _get_ts(dct, 'dependsOn', list):
-                try:
-                    ret.depends_on.add(cls._construct_reference(dependency_data))
-                except (KeyError, TypeError) as e:
-                    error_message = \
-                        "Error while trying to convert JSON object into dependency Reference for {}: {} >>> {}".format(
-                            ret, e, pprint.pformat(dct, depth=2, width=2 ** 14, compact=True))
-                    if cls.failsafe:
-                        logger.error(error_message, exc_info=e)
-                    else:
-                        raise type(e)(error_message) from e
-        return ret
-
-    @classmethod
     def _construct_extension(cls, dct: Dict[str, object], object_class=model.Extension) -> model.Extension:
         ret = object_class(name=_get_ts(dct, 'name', str))
         cls._amend_abstract_attributes(ret, dct)
@@ -633,17 +613,19 @@ class AASFromJsonDecoder(json.JSONDecoder):
     @classmethod
     def _construct_submodel_element_collection(
             cls,
-            dct: Dict[str, object],
-            object_class_ordered=model.SubmodelElementCollectionOrdered,
-            object_class_unordered=model.SubmodelElementCollectionUnordered)\
+            dct: Dict[str, object])\
             -> model.SubmodelElementCollection:
         ret: model.SubmodelElementCollection
-        if 'ordered' in dct and _get_ts(dct, 'ordered', bool):
-            ret = object_class_ordered(
-                id_short=_get_ts(dct, "idShort", str), kind=cls._get_kind(dct))
-        else:
-            ret = object_class_unordered(
-                id_short=_get_ts(dct, "idShort", str), kind=cls._get_kind(dct))
+        ordered = False
+        allow_duplicates = False
+        if 'ordered' in dct:
+            ordered = _get_ts(dct, "ordered", bool)
+        if 'allowDuplicates' in dct:
+            allow_duplicates = _get_ts(dct, "allowDuplicates", bool)
+        ret = model.SubmodelElementCollection.create(id_short=_get_ts(dct, "idShort", str),
+                                                     kind=cls._get_kind(dct),
+                                                     ordered=ordered,
+                                                     allow_duplicates=allow_duplicates)
         cls._amend_abstract_attributes(ret, dct)
         if not cls.stripped and 'value' in dct:
             for element in _get_ts(dct, "value", list):

@@ -13,7 +13,7 @@ This module contains the class :class:`~.ConceptDescription` from the AAS meta m
 as well as specialized :class:`ConceptDescriptions <.ConceptDescription>` like :class:`~.IEC61360ConceptDescription`.
 """
 from enum import unique, Enum
-from typing import Optional, Set, Type
+from typing import Optional, Set, Type, Iterable
 
 from . import base, datatypes
 
@@ -70,9 +70,10 @@ class ConceptDescription(base.Identifiable):
                  display_name: Optional[base.LangStringSet] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
-                 parent: Optional[base.Namespace] = None,
+                 parent: Optional[base.UniqueIdShortNamespace] = None,
                  administration: Optional[base.AdministrativeInformation] = None,
-                 extension: Optional[Set[base.Extension]] = None):
+                 extension: Iterable[base.Extension] = ()):
+
         super().__init__()
         self.identification: base.Identifier = identification
         self.is_case_of: Set[base.Reference] = set() if is_case_of is None else is_case_of
@@ -80,9 +81,9 @@ class ConceptDescription(base.Identifiable):
         self.display_name: Optional[base.LangStringSet] = dict() if display_name is None else display_name
         self.category = category
         self.description: Optional[base.LangStringSet] = dict() if description is None else description
-        self.parent: Optional[base.Namespace] = parent
+        self.parent: Optional[base.UniqueIdShortNamespace] = parent
         self.administration: Optional[base.AdministrativeInformation] = administration
-        self.extension: Set[base.Extension] = set() if extension is None else extension
+        self.extension = base.NamespaceSet(self, [("name", True)], extension)
 
     def _set_category(self, category: Optional[str]):
         if category is None:
@@ -195,7 +196,7 @@ class IEC61360ConceptDescription(ConceptDescription):
                  display_name: Optional[base.LangStringSet] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
-                 parent: Optional[base.Namespace] = None,
+                 parent: Optional[base.UniqueIdShortNamespace] = None,
                  administration: base.AdministrativeInformation = None,
                  unit: Optional[str] = None,
                  unit_id: Optional[base.Reference] = None,
@@ -206,7 +207,8 @@ class IEC61360ConceptDescription(ConceptDescription):
                  value: Optional[base.ValueDataType] = None,
                  value_id: Optional[base.Reference] = None,
                  level_types: Set[IEC61360LevelType] = None,
-                 extension: Optional[Set[base.Extension]] = None):
+                 extension: Iterable[base.Extension] = ()):
+
         super().__init__(identification, is_case_of, id_short, display_name, category, description, parent,
                          administration, extension)
         self.preferred_name: base.LangStringSet = preferred_name

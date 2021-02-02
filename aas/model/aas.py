@@ -25,7 +25,7 @@ from .security import Security
 from .submodel import File, Submodel
 
 
-class View(base.Referable, base.HasSemantics):
+class View(base.Referable, base.UniqueIdShortNamespace, base.HasSemantics):
     """
     A view is a collection of referable elements w.r.t. to a specific viewpoint of one or more stakeholders.
 
@@ -55,10 +55,11 @@ class View(base.Referable, base.HasSemantics):
                  display_name: Optional[base.LangStringSet] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
-                 parent: Optional[base.Namespace] = None,
+                 parent: Optional[base.UniqueIdShortNamespace] = None,
                  semantic_id: Optional[base.Reference] = None,
-                 extension: Optional[Set[base.Extension]] = None):
+                 extension: Iterable[base.Extension] = ()):
         """
+
         TODO: Add instruction what to do after construction
         """
 
@@ -68,9 +69,9 @@ class View(base.Referable, base.HasSemantics):
         self.display_name: Optional[base.LangStringSet] = dict() if display_name is None else display_name
         self.category = category
         self.description: Optional[base.LangStringSet] = dict() if description is None else description
-        self.parent: Optional[base.Namespace] = parent
+        self.parent: Optional[base.UniqueIdShortNamespace] = parent
         self.semantic_id: Optional[base.Reference] = semantic_id
-        self.extension: Set[base.Extension] = set() if extension is None else extension
+        self.extension = base.NamespaceSet(self, [("name", True)], extension)
 
 
 class Asset(base.Identifiable):
@@ -104,9 +105,9 @@ class Asset(base.Identifiable):
                  display_name: Optional[base.LangStringSet] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
-                 parent: Optional[base.Namespace] = None,
+                 parent: Optional[base.UniqueIdShortNamespace] = None,
                  administration: Optional[base.AdministrativeInformation] = None,
-                 extension: Optional[Set[base.Extension]] = None):
+                 extension: Iterable[base.Extension] = ()):
 
         super().__init__()
         self.identification: base.Identifier = identification
@@ -114,9 +115,9 @@ class Asset(base.Identifiable):
         self.display_name: Optional[base.LangStringSet] = dict() if display_name is None else display_name
         self.category = category
         self.description: Optional[base.LangStringSet] = dict() if description is None else description
-        self.parent: Optional[base.Namespace] = parent
+        self.parent: Optional[base.UniqueIdShortNamespace] = parent
         self.administration: Optional[base.AdministrativeInformation] = administration
-        self.extension: Set[base.Extension] = set() if extension is None else extension
+        self.extension = base.NamespaceSet(self, [("name", True)], extension)
 
 
 class AssetInformation:
@@ -152,6 +153,7 @@ class AssetInformation:
                  specific_asset_id: Optional[Set[base.IdentifierKeyValuePair]] = None,
                  bill_of_material: Optional[Set[base.AASReference[Submodel]]] = None,
                  default_thumbnail: Optional[File] = None):
+
         super().__init__()
         self.asset_kind: base.AssetKind = asset_kind
         self._global_asset_id: Optional[base.Reference] = global_asset_id
@@ -177,7 +179,7 @@ class AssetInformation:
                                              str(self.bill_of_material), str(self.default_thumbnail))
 
 
-class AssetAdministrationShell(base.Identifiable, base.Namespace):
+class AssetAdministrationShell(base.Identifiable, base.UniqueIdShortNamespace):
     """
     An Asset Administration Shell
 
@@ -212,13 +214,13 @@ class AssetAdministrationShell(base.Identifiable, base.Namespace):
                  display_name: Optional[base.LangStringSet] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
-                 parent: Optional[base.Namespace] = None,
+                 parent: Optional[base.UniqueIdShortNamespace] = None,
                  administration: Optional[base.AdministrativeInformation] = None,
                  security: Optional[Security] = None,
                  submodel: Optional[Set[base.AASReference[Submodel]]] = None,
                  view: Iterable[View] = (),
                  derived_from: Optional[base.AASReference["AssetAdministrationShell"]] = None,
-                 extension: Optional[Set[base.Extension]] = None):
+                 extension: Iterable[base.Extension] = ()):
         super().__init__()
         self.identification: base.Identifier = identification
         self.asset_information: AssetInformation = asset_information
@@ -226,10 +228,10 @@ class AssetAdministrationShell(base.Identifiable, base.Namespace):
         self.display_name: Optional[base.LangStringSet] = dict() if display_name is None else display_name
         self.category = category
         self.description: Optional[base.LangStringSet] = dict() if description is None else description
-        self.parent: Optional[base.Namespace] = parent
+        self.parent: Optional[base.UniqueIdShortNamespace] = parent
         self.administration: Optional[base.AdministrativeInformation] = administration
         self.derived_from: Optional[base.AASReference["AssetAdministrationShell"]] = derived_from
         self.security: Optional[Security] = security
         self.submodel: Set[base.AASReference[Submodel]] = set() if submodel is None else submodel
-        self.view: base.NamespaceSet[View] = base.NamespaceSet(self, view)
-        self.extension: Set[base.Extension] = set() if extension is None else extension
+        self.view: base.NamespaceSet[View] = base.NamespaceSet(self, [("id_short", True)], view)
+        self.extension = base.NamespaceSet(self, [("name", True)], extension)

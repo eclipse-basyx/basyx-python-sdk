@@ -73,9 +73,10 @@ aas = AssetAdministrationShell(
 # objects using a dict.
 # This may not be a suitable solution, if you need to manage large numbers of objects or objects must kept in a
 # persistent memory (i.e. on hard disk). In this case, you may chose the `CouchDBObjectStore` from
-# `aas.adapter.couchdb` to use a CouchDB database server as persistent storage. Both ObjectStore implementations provide
-# the same interface. Therefore, all the methods shown in this tutorial, can be realized with a CouchDBObjectStore as
-# well.
+# `aas.backends.couchdb` to use a CouchDB database server as persistent storage. Both ObjectStore implementations
+# provide the same interface. In addition, the CouchDBObjectStores allows synchronizing the local object with the
+# database via a Backend and the update()/commit() mechanism. See the `tutorial_backend_couchdb.py` for more
+# information.
 obj_store: model.DictObjectStore[model.Identifiable] = model.DictObjectStore()
 
 # step 2.2: add submodel and asset administration shell to store

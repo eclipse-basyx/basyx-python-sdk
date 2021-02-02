@@ -29,7 +29,6 @@ class SubmodelElement(base.Referable, base.Qualifiable, base.HasSemantics, base.
     they do not have a value. The property type (`kind=Type`) is also called data element type in some standards.
     The property instances (`kind=Instance`) typically have a value. A property instance is also called
     property-value pair in certain standards.
-
     :ivar id_short: Identifying string of the element within its name space. (inherited from
                     :class:`~aas.model.base.Referable`)
     :ivar display_name: Can be provided in several languages. (inherited from :class:`~aas.model.base.Referable`)
@@ -56,12 +55,14 @@ class SubmodelElement(base.Referable, base.Qualifiable, base.HasSemantics, base.
                  display_name: Optional[base.LangStringSet] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
-                 parent: Optional[base.Namespace] = None,
+                 parent: Optional[base.UniqueIdShortNamespace] = None,
                  semantic_id: Optional[base.Reference] = None,
-                 qualifier: Optional[Set[base.Constraint]] = None,
+                 qualifier: Iterable[base.Constraint] = (),
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE,
-                 extension: Optional[Set[base.Extension]] = None):
+                 extension: Iterable[base.Extension] = ()):
         """
+
+
         TODO: Add instruction what to do after construction
         """
 
@@ -70,14 +71,14 @@ class SubmodelElement(base.Referable, base.Qualifiable, base.HasSemantics, base.
         self.display_name: Optional[base.LangStringSet] = dict() if display_name is None else display_name
         self.category = category
         self.description: Optional[base.LangStringSet] = dict() if description is None else description
-        self.parent: Optional[base.Namespace] = parent
+        self.parent: Optional[base.UniqueIdShortNamespace] = parent
         self.semantic_id: Optional[base.Reference] = semantic_id
-        self.qualifier: Set[base.Constraint] = set() if qualifier is None else qualifier
+        self.qualifier = base.NamespaceSet(self, [("type", True)], qualifier)
         self._kind: base.ModelingKind = kind
-        self.extension: Set[base.Extension] = set() if extension is None else extension
+        self.extension = base.NamespaceSet(self, [("name", True)], extension)
 
 
-class Submodel(base.Identifiable, base.HasSemantics, base.HasKind, base.Qualifiable, base.Namespace):
+class Submodel(base.Identifiable, base.HasSemantics, base.HasKind, base.Qualifiable, base.UniqueIdShortNamespace):
     """
     A Submodel defines a specific aspect of the asset represented by the AAS.
 
@@ -118,25 +119,25 @@ class Submodel(base.Identifiable, base.HasSemantics, base.HasKind, base.Qualifia
                  display_name: Optional[base.LangStringSet] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
-                 parent: Optional[base.Namespace] = None,
+                 parent: Optional[base.UniqueIdShortNamespace] = None,
                  administration: Optional[base.AdministrativeInformation] = None,
                  semantic_id: Optional[base.Reference] = None,
-                 qualifier: Optional[Set[base.Constraint]] = None,
+                 qualifier: Iterable[base.Constraint] = (),
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE,
-                 extension: Optional[Set[base.Extension]] = None):
+                 extension: Iterable[base.Extension] = ()):
         super().__init__()
         self.identification: base.Identifier = identification
-        self.submodel_element = base.NamespaceSet(self, submodel_element)
+        self.submodel_element = base.NamespaceSet(self, [("id_short", True)], submodel_element)
         self.id_short = id_short
         self.display_name: Optional[base.LangStringSet] = dict() if display_name is None else display_name
         self.category = category
         self.description: Optional[base.LangStringSet] = dict() if description is None else description
-        self.parent: Optional[base.Namespace] = parent
+        self.parent: Optional[base.UniqueIdShortNamespace] = parent
         self.administration: Optional[base.AdministrativeInformation] = administration
         self.semantic_id: Optional[base.Reference] = semantic_id
-        self.qualifier: Set[base.Constraint] = set() if qualifier is None else qualifier
+        self.qualifier = base.NamespaceSet(self, [("type", True)], qualifier)
         self._kind: base.ModelingKind = kind
-        self.extension: Set[base.Extension] = set() if extension is None else extension
+        self.extension = base.NamespaceSet(self, [("name", True)], extension)
 
 
 ALLOWED_DATA_ELEMENT_CATEGORIES: Set[str] = {
@@ -181,11 +182,11 @@ class DataElement(SubmodelElement, metaclass=abc.ABCMeta):
                  display_name: Optional[base.LangStringSet] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
-                 parent: Optional[base.Namespace] = None,
+                 parent: Optional[base.UniqueIdShortNamespace] = None,
                  semantic_id: Optional[base.Reference] = None,
-                 qualifier: Optional[Set[base.Constraint]] = None,
+                 qualifier: Iterable[base.Constraint] = (),
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE,
-                 extension: Optional[Set[base.Extension]] = None):
+                 extension: Iterable[base.Extension] = ()):
         super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, kind, extension)
 
     def _set_category(self, category: Optional[str]):
@@ -199,7 +200,8 @@ class DataElement(SubmodelElement, metaclass=abc.ABCMeta):
                 if not (isinstance(self, File) or isinstance(self, Blob)):
                     raise base.AASConstraintViolation(
                         90,
-                        "DataElement.category must be one of the following: " + str(ALLOWED_DATA_ELEMENT_CATEGORIES))
+                        "DataElement.category must be one of the following: " +
+                        ", ".join(ALLOWED_DATA_ELEMENT_CATEGORIES))
             self._category = category
 
 
@@ -242,12 +244,14 @@ class Property(DataElement):
                  display_name: Optional[base.LangStringSet] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
-                 parent: Optional[base.Namespace] = None,
+                 parent: Optional[base.UniqueIdShortNamespace] = None,
                  semantic_id: Optional[base.Reference] = None,
-                 qualifier: Optional[Set[base.Constraint]] = None,
+                 qualifier: Iterable[base.Constraint] = (),
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE,
-                 extension: Optional[Set[base.Extension]] = None):
+                 extension: Iterable[base.Extension] = ()):
         """
+
+
         TODO: Add instruction what to do after construction
         """
 
@@ -306,12 +310,14 @@ class MultiLanguageProperty(DataElement):
                  display_name: Optional[base.LangStringSet] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
-                 parent: Optional[base.Namespace] = None,
+                 parent: Optional[base.UniqueIdShortNamespace] = None,
                  semantic_id: Optional[base.Reference] = None,
-                 qualifier: Optional[Set[base.Constraint]] = None,
+                 qualifier: Iterable[base.Constraint] = (),
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE,
-                 extension: Optional[Set[base.Extension]] = None):
+                 extension: Iterable[base.Extension] = ()):
         """
+
+
         TODO: Add instruction what to do after construction
         """
 
@@ -360,12 +366,14 @@ class Range(DataElement):
                  display_name: Optional[base.LangStringSet] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
-                 parent: Optional[base.Namespace] = None,
+                 parent: Optional[base.UniqueIdShortNamespace] = None,
                  semantic_id: Optional[base.Reference] = None,
-                 qualifier: Optional[Set[base.Constraint]] = None,
+                 qualifier: Iterable[base.Constraint] = (),
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE,
-                 extension: Optional[Set[base.Extension]] = None):
+                 extension: Iterable[base.Extension] = ()):
         """
+
+
         TODO: Add instruction what to do after construction
         """
 
@@ -436,12 +444,14 @@ class Blob(DataElement):
                  display_name: Optional[base.LangStringSet] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
-                 parent: Optional[base.Namespace] = None,
+                 parent: Optional[base.UniqueIdShortNamespace] = None,
                  semantic_id: Optional[base.Reference] = None,
-                 qualifier: Optional[Set[base.Constraint]] = None,
+                 qualifier: Iterable[base.Constraint] = (),
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE,
-                 extension: Optional[Set[base.Extension]] = None):
+                 extension: Iterable[base.Extension] = ()):
         """
+
+
         TODO: Add instruction what to do after construction
         """
 
@@ -484,12 +494,14 @@ class File(DataElement):
                  display_name: Optional[base.LangStringSet] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
-                 parent: Optional[base.Namespace] = None,
+                 parent: Optional[base.UniqueIdShortNamespace] = None,
                  semantic_id: Optional[base.Reference] = None,
-                 qualifier: Optional[Set[base.Constraint]] = None,
+                 qualifier: Iterable[base.Constraint] = (),
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE,
-                 extension: Optional[Set[base.Extension]] = None):
+                 extension: Iterable[base.Extension] = ()):
         """
+
+
         TODO: Add instruction what to do after construction
         """
 
@@ -532,12 +544,14 @@ class ReferenceElement(DataElement):
                  display_name: Optional[base.LangStringSet] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
-                 parent: Optional[base.Namespace] = None,
+                 parent: Optional[base.UniqueIdShortNamespace] = None,
                  semantic_id: Optional[base.Reference] = None,
-                 qualifier: Optional[Set[base.Constraint]] = None,
+                 qualifier: Iterable[base.Constraint] = (),
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE,
-                 extension: Optional[Set[base.Extension]] = None):
+                 extension: Iterable[base.Extension] = ()):
         """
+
+
         TODO: Add instruction what to do after construction
         """
 
@@ -545,7 +559,7 @@ class ReferenceElement(DataElement):
         self.value: Optional[base.Reference] = value
 
 
-class SubmodelElementCollection(SubmodelElement, base.Namespace, metaclass=abc.ABCMeta):
+class SubmodelElementCollection(SubmodelElement, metaclass=abc.ABCMeta):
     """
     A submodel element collection is a set or list of :class:`SubmodelElements <.SubmodelElement>`.
 
@@ -578,12 +592,14 @@ class SubmodelElementCollection(SubmodelElement, base.Namespace, metaclass=abc.A
                  display_name: Optional[base.LangStringSet] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
-                 parent: Optional[base.Namespace] = None,
+                 parent: Optional[base.UniqueIdShortNamespace] = None,
                  semantic_id: Optional[base.Reference] = None,
-                 qualifier: Optional[Set[base.Constraint]] = None,
+                 qualifier: Iterable[base.Constraint] = (),
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE,
-                 extension: Optional[Set[base.Extension]] = None):
+                 extension: Iterable[base.Extension] = ()):
         """
+
+
         TODO: Add instruction what to do after construction
         """
         super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, kind, extension)
@@ -594,8 +610,70 @@ class SubmodelElementCollection(SubmodelElement, base.Namespace, metaclass=abc.A
     def ordered(self):
         pass
 
+    @property
+    @abc.abstractmethod
+    def allow_duplicates(self):
+        pass
 
-class SubmodelElementCollectionOrdered(SubmodelElementCollection):
+    @staticmethod
+    def create(id_short: str,
+               value: Iterable[SubmodelElement] = (),
+               display_name: Optional[base.LangStringSet] = None,
+               category: Optional[str] = None,
+               description: Optional[base.LangStringSet] = None,
+               parent: Optional[base.UniqueIdShortNamespace] = None,
+               semantic_id: Optional[base.Reference] = None,
+               qualifier: Iterable[base.Constraint] = (),
+               kind: base.ModelingKind = base.ModelingKind.INSTANCE,
+               extension: Iterable[base.Extension] = (),
+               allow_duplicates: bool = False,
+               ordered: bool = False):
+        """
+            A factory to create a SubmodelElementCollection based on the parameter dublicates_allowed and ordered.
+
+            Initializer of SubmodelElementCollection
+            :param id_short: Identifying string of the element within its name space. (from base.Referable)
+            :param value: Ordered or unordered list of submodel elements.
+            :param display_name: Can be provided in several languages. (from base.Referable)
+            :param category: The category is a value that gives further meta information w.r.t. to the class of the
+                             element. It affects the expected existence of attributes and the applicability of
+                             constraints. (from base.Referable)
+            :param description: Description or comments on the element. (from base.Referable)
+            :param parent: Reference to the next referable parent element of the element. (from base.Referable)
+            :param semantic_id: Identifier of the semantic definition of the element. It is called semantic id of the
+                                element. The semantic id may either reference an external global id or it may reference
+                                a referable model element of kind=Type that defines the semantics of the element.
+                                (from base.HasSemantics)
+            :param qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable
+                              element. (from base.Qualifiable)
+            :param kind: Kind of the element: either type or instance. Default = Instance. (from base.HasKind)
+            :param extension: An extension of the element. (from base.HasExtension)
+            :param ordered: If ordered=false then the elements in the property collection are not ordered. If
+                            ordered=true then the elements in the collection are ordered.
+            :param allow_duplicates: If allowDuplicates=true, then it is allowed that the collection contains several
+                                     elements with the same semantics (i.e. the same semanticId).
+                                     If allowDuplicates=false, then it is not allowed that the collection contains
+                                     several elements with the same semantics (i.e. the same semanticId).
+        """
+        if ordered:
+            if allow_duplicates:
+                return SubmodelElementCollectionOrdered(id_short, value, display_name, category, description, parent,
+                                                        semantic_id, qualifier, kind, extension)
+            else:
+                return SubmodelElementCollectionOrderedUniqueSemanticId(id_short, value, display_name, category,
+                                                                        description, parent, semantic_id, qualifier,
+                                                                        kind, extension)
+        else:
+            if allow_duplicates:
+                return SubmodelElementCollectionUnordered(id_short, value, display_name, category, description, parent,
+                                                          semantic_id, qualifier, kind, extension)
+            else:
+                return SubmodelElementCollectionUnorderedUniqueSemanticId(id_short, value, display_name, category,
+                                                                          description, parent, semantic_id, qualifier,
+                                                                          kind, extension)
+
+
+class SubmodelElementCollectionOrdered(SubmodelElementCollection, base.UniqueIdShortNamespace):
     """
     A SubmodelElementCollectionOrdered is an ordered list of :class:`SubmodelElements <.SubmodelElement>`
 
@@ -627,47 +705,32 @@ class SubmodelElementCollectionOrdered(SubmodelElementCollection):
                  display_name: Optional[base.LangStringSet] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
-                 parent: Optional[base.Namespace] = None,
+                 parent: Optional[base.UniqueIdShortNamespace] = None,
                  semantic_id: Optional[base.Reference] = None,
-                 qualifier: Optional[Set[base.Constraint]] = None,
+                 qualifier: Iterable[base.Constraint] = (),
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE,
-                 extension: Optional[Set[base.Extension]] = None):
+                 extension: Iterable[base.Extension] = ()):
         """
         TODO: Add instruction what to do after construction
         """
-
-        super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, kind, extension)
-        self.value = base.OrderedNamespaceSet(self, value)
+        super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, kind,
+                         extension)
+        self.value = base.OrderedNamespaceSet(self, [("id_short", False)], value)
 
     @property
     def ordered(self):
         return True
 
+    @property
+    def allow_duplicates(self):
+        return True
 
-class SubmodelElementCollectionUnordered(SubmodelElementCollection):
+
+class SubmodelElementCollectionOrderedUniqueSemanticId(SubmodelElementCollectionOrdered,
+                                                       base.UniqueSemanticIdNamespace):
     """
-    A SubmodelElementCollectionOrdered is an unordered list of :class:`SubmodelElements <.SubmodelElement>`
-
-    :ivar id_short: Identifying string of the element within its name space. (inherited from
-                    :class:`~aas.model.base.Referable`)
-    :ivar value: Ordered or unordered list of :class:`SubmodelElements <.SubmodelElement>`
-    :ivar display_name: Can be provided in several languages. (inherited from :class:`~aas.model.base.Referable`)
-    :ivar category: The category is a value that gives further meta information w.r.t. to the class of the element.
-                     It affects the expected existence of attributes and the applicability of constraints.
-                     (inherited from :class:`~aas.model.base.Referable`)
-    :ivar description: Description or comments on the element. (inherited from :class:`~aas.model.base.Referable`)
-    :ivar parent: Reference to the next referable parent element of the element. (inherited from
-                  :class:`~aas.model.base.Referable`)
-    :ivar semantic_id: Identifier of the semantic definition of the element. It is called semantic id of the
-                       element. The semantic id may either reference an external global id or it may reference a
-                       referable model element of kind=Type that defines the semantics of the element.
-                       (inherited from :class:`~aas.model.base.HasSemantics`)
-    :ivar qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
-                     (from :class:`~aas.model.base.Qualifiable`)
-    :ivar kind: Kind of the element: Either `TYPE` or `INSTANCE`. Default is `INSTANCE`. (inherited from
-                :class:`aas.model.base.HasKind`)
-    :ivar extension: An extension of the element. (inherited from
-                     :class:`aas.model.base.HasExtension`)
+    A SubmodelElementCollectionOrderedUniqueSemanticId is an ordered list of submodel elements where id_shorts and
+    semantic_ids are unique.
     """
 
     def __init__(self,
@@ -676,19 +739,103 @@ class SubmodelElementCollectionUnordered(SubmodelElementCollection):
                  display_name: Optional[base.LangStringSet] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
-                 parent: Optional[base.Namespace] = None,
+                 parent: Optional[base.UniqueIdShortNamespace] = None,
                  semantic_id: Optional[base.Reference] = None,
-                 qualifier: Optional[Set[base.Constraint]] = None,
+                 qualifier: Iterable[base.Constraint] = (),
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE,
-                 extension: Optional[Set[base.Extension]] = None):
+                 extension: Iterable[base.Extension] = ()):
         """
         TODO: Add instruction what to do after construction
         """
+
+        super().__init__(id_short, (), display_name, category, description, parent, semantic_id, qualifier, kind,
+                         extension)
+        self.value = base.OrderedNamespaceSet(self, [("id_short", False), ("semantic_id", True)], value)
+
+    @property
+    def allow_duplicates(self):
+        return False
+
+
+class SubmodelElementCollectionUnordered(SubmodelElementCollection, base.UniqueIdShortNamespace):
+    """
+    A SubmodelElementCollectionOrdered is an unordered list of submodel elements where id_shorts are unique.
+    """
+
+    def __init__(self,
+                 id_short: str,
+                 value: Iterable[SubmodelElement] = (),
+                 display_name: Optional[base.LangStringSet] = None,
+                 category: Optional[str] = None,
+                 description: Optional[base.LangStringSet] = None,
+                 parent: Optional[base.UniqueIdShortNamespace] = None,
+                 semantic_id: Optional[base.Reference] = None,
+                 qualifier: Iterable[base.Constraint] = (),
+                 kind: base.ModelingKind = base.ModelingKind.INSTANCE,
+                 extension: Iterable[base.Extension] = ()):
+        """
+
+
+        TODO: Add instruction what to do after construction
+        """
         super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, kind, extension)
-        self.value = base.NamespaceSet(self, value)
+        self.value = base.NamespaceSet(self, [("id_short", False)], value)
 
     @property
     def ordered(self):
+        return False
+
+    @property
+    def allow_duplicates(self):
+        return True
+
+
+class SubmodelElementCollectionUnorderedUniqueSemanticId(SubmodelElementCollectionUnordered,
+                                                         base.UniqueSemanticIdNamespace):
+    """
+    A SubmodelElementCollectionOrdered is an unordered list of submodel elements where where id_shorts and
+    semanticIds are unique.
+    """
+
+    def __init__(self,
+                 id_short: str,
+                 value: Iterable[SubmodelElement] = (),
+                 display_name: Optional[base.LangStringSet] = None,
+                 category: Optional[str] = None,
+                 description: Optional[base.LangStringSet] = None,
+                 parent: Optional[base.UniqueIdShortNamespace] = None,
+                 semantic_id: Optional[base.Reference] = None,
+                 qualifier: Iterable[base.Constraint] = (),
+                 kind: base.ModelingKind = base.ModelingKind.INSTANCE,
+                 extension: Iterable[base.Extension] = ()):
+        """
+        Initializer of SubmodelElementCollection
+
+        :param id_short: Identifying string of the element within its name space. (from base.Referable)
+        :param value: Unordered list of submodel elements.
+        :param display_name: Can be provided in several languages. (from base.Referable)
+        :param category: The category is a value that gives further meta information w.r.t. to the class of the element.
+                         It affects the expected existence of attributes and the applicability of constraints.
+                         (from base.Referable)
+        :param description: Description or comments on the element. (from base.Referable)
+        :param parent: Reference to the next referable parent element of the element. (from base.Referable)
+        :param semantic_id: Identifier of the semantic definition of the element. It is called semantic id of the
+                            element. The semantic id may either reference an external global id or it may reference a
+                            referable model element of kind=Type that defines the semantics of the element.
+                            (from base.HasSemantics)
+        :param qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
+                          (from base.Qualifiable)
+        :param kind: Kind of the element: either type or instance. Default = Instance. (from base.HasKind)
+        :param extension: An extension of the element. (from base.HasExtension)
+
+        TODO: Add instruction what to do after construction
+        """
+        super().__init__(id_short, (), display_name, category, description, parent, semantic_id, qualifier, kind,
+                         extension)
+        self.value = base.NamespaceSet(self, [("id_short", False), ("semantic_id", True)], value)
+
+    @property
+    def allow_duplicates(self):
         return False
 
 
@@ -728,11 +875,11 @@ class RelationshipElement(SubmodelElement):
                  display_name: Optional[base.LangStringSet] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
-                 parent: Optional[base.Namespace] = None,
+                 parent: Optional[base.UniqueIdShortNamespace] = None,
                  semantic_id: Optional[base.Reference] = None,
-                 qualifier: Optional[Set[base.Constraint]] = None,
+                 qualifier: Iterable[base.Constraint] = (),
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE,
-                 extension: Optional[Set[base.Extension]] = None):
+                 extension: Iterable[base.Extension] = ()):
         """
         TODO: Add instruction what to do after construction
         """
@@ -742,7 +889,7 @@ class RelationshipElement(SubmodelElement):
         self.second: base.AASReference = second
 
 
-class AnnotatedRelationshipElement(RelationshipElement, base.Namespace):
+class AnnotatedRelationshipElement(RelationshipElement, base.UniqueIdShortNamespace):
     """
     An annotated relationship element is a :class:`~.RelationshipElement` that can be annotated
     with additional :class:`DataElements <.DataElement>`.
@@ -782,21 +929,22 @@ class AnnotatedRelationshipElement(RelationshipElement, base.Namespace):
                  display_name: Optional[base.LangStringSet] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
-                 parent: Optional[base.Namespace] = None,
+                 parent: Optional[base.UniqueIdShortNamespace] = None,
                  semantic_id: Optional[base.Reference] = None,
-                 qualifier: Optional[Set[base.Constraint]] = None,
+                 qualifier: Iterable[base.Constraint] = (),
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE,
-                 extension: Optional[Set[base.Extension]] = None):
+                 extension: Iterable[base.Extension] = ()):
         """
         TODO: Add instruction what to do after construction
         """
 
         super().__init__(id_short, first, second, display_name, category, description, parent, semantic_id, qualifier,
                          kind, extension)
+        self.annotation: base.NamespaceSet[DataElement]
         if annotation is None:
-            self.annotation: base.NamespaceSet[DataElement] = base.NamespaceSet(self)
+            self.annotation = base.NamespaceSet(self, [("id_short", True)])
         else:
-            self.annotation = base.NamespaceSet(self, annotation)
+            self.annotation = base.NamespaceSet(self, [("id_short", True)], annotation)
 
 
 class OperationVariable:
@@ -827,6 +975,7 @@ class OperationVariable:
                 "The SubmodelElement `OperationVariable.value` must have the attribute `kind==ModelingType.TEMPLATE`"
             )
         self._value = value
+
     value = property(_get_value, _set_value)
 
 
@@ -866,11 +1015,11 @@ class Operation(SubmodelElement):
                  display_name: Optional[base.LangStringSet] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
-                 parent: Optional[base.Namespace] = None,
+                 parent: Optional[base.UniqueIdShortNamespace] = None,
                  semantic_id: Optional[base.Reference] = None,
-                 qualifier: Optional[Set[base.Constraint]] = None,
+                 qualifier: Iterable[base.Constraint] = (),
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE,
-                 extension: Optional[Set[base.Extension]] = None):
+                 extension: Iterable[base.Extension] = ()):
         """
         TODO: Add instruction what to do after construction
         """
@@ -885,7 +1034,6 @@ class Capability(SubmodelElement):
     """
     A capability is the implementation-independent description of the potential of an asset to achieve a certain effect
     in the physical or virtual world
-
     :ivar id_short: Identifying string of the element within its name space. (inherited from
                     :class:`~aas.model.base.Referable`)
     :ivar display_name: Can be provided in several languages. (inherited from :class:`~aas.model.base.Referable`)
@@ -912,11 +1060,11 @@ class Capability(SubmodelElement):
                  display_name: Optional[base.LangStringSet] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
-                 parent: Optional[base.Namespace] = None,
+                 parent: Optional[base.UniqueIdShortNamespace] = None,
                  semantic_id: Optional[base.Reference] = None,
-                 qualifier: Optional[Set[base.Constraint]] = None,
+                 qualifier: Iterable[base.Constraint] = (),
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE,
-                 extension: Optional[Set[base.Extension]] = None):
+                 extension: Iterable[base.Extension] = ()):
         """
         TODO: Add instruction what to do after construction
         """
@@ -924,7 +1072,7 @@ class Capability(SubmodelElement):
         super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, kind, extension)
 
 
-class Entity(SubmodelElement, base.Namespace):
+class Entity(SubmodelElement, base.UniqueIdShortNamespace):
     """
     An entity is a :class:`~.SubmodelElement` that is used to model entities
 
@@ -973,17 +1121,16 @@ class Entity(SubmodelElement, base.Namespace):
                  display_name: Optional[base.LangStringSet] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
-                 parent: Optional[base.Namespace] = None,
+                 parent: Optional[base.UniqueIdShortNamespace] = None,
                  semantic_id: Optional[base.Reference] = None,
-                 qualifier: Optional[Set[base.Constraint]] = None,
+                 qualifier: Iterable[base.Constraint] = (),
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE,
-                 extension: Optional[Set[base.Extension]] = None):
+                 extension: Iterable[base.Extension] = ()):
         """
         TODO: Add instruction what to do after construction
         """
-
         super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, kind, extension)
-        self.statement = base.NamespaceSet(self, statement)
+        self.statement = base.NamespaceSet(self, [("id_short", True)], statement)
         self.specific_asset_id: Optional[base.IdentifierKeyValuePair] = specific_asset_id
         self.global_asset_id: Optional[base.Reference] = global_asset_id
         self._entity_type: base.EntityType
@@ -997,12 +1144,12 @@ class Entity(SubmodelElement, base.Namespace):
                 and entity_type == base.EntityType.SELF_MANAGED_ENTITY:
             raise base.AASConstraintViolation(
                 14,
-                "A self-managed entity has to have a globalAssetId or a specificAssetId (Constraint AASd-14)"
+                "A self-managed entity has to have a globalAssetId or a specificAssetId"
             )
         if (self.global_asset_id or self.specific_asset_id) and entity_type == base.EntityType.CO_MANAGED_ENTITY:
             raise base.AASConstraintViolation(
                 14,
-                "A co-managed entity has to have neither a globalAssetId nor a specificAssetId (Constraint AASd-14)")
+                "A co-managed entity has to have neither a globalAssetId nor a specificAssetId")
         self._entity_type = entity_type
 
     entity_type = property(_get_entity_type, _set_entity_type)
@@ -1039,11 +1186,11 @@ class Event(SubmodelElement, metaclass=abc.ABCMeta):
                  display_name: Optional[base.LangStringSet] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
-                 parent: Optional[base.Namespace] = None,
+                 parent: Optional[base.UniqueIdShortNamespace] = None,
                  semantic_id: Optional[base.Reference] = None,
-                 qualifier: Optional[Set[base.Constraint]] = None,
+                 qualifier: Iterable[base.Constraint] = (),
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE,
-                 extension: Optional[Set[base.Extension]] = None):
+                 extension: Iterable[base.Extension] = ()):
         super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, kind, extension)
 
 
@@ -1079,13 +1226,13 @@ class BasicEvent(Event):
                  display_name: Optional[base.LangStringSet] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
-                 parent: Optional[base.Namespace] = None,
+                 parent: Optional[base.UniqueIdShortNamespace] = None,
                  semantic_id: Optional[base.Reference] = None,
-                 qualifier: Optional[Set[base.Constraint]] = None,
+                 qualifier: Iterable[base.Constraint] = (),
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE,
-                 extension: Optional[Set[base.Extension]] = None):
+                 extension: Iterable[base.Extension] = ()):
         """
-       TODO: Add instruction what to do after construction
+        TODO: Add instruction what to do after construction
         """
 
         super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, kind, extension)
