@@ -76,6 +76,7 @@ class KeyElements(Enum):
     *Note:* SubmodelElement is abstract, i.e. if a key uses :attr:`~.KeyElements.SUBMODEL_ELEMENT`
     the reference may be a :class:`~aas.model.submodel.Property`, a
     :class:`~aas.model.submodel.SubmodelElementCollection`, an :class:`~aas.model.submodel.Operation` etc.
+
     :cvar ACCESS_PERMISSION_RULE: access permission rule
     :cvar ANNOTATED_RELATIONSHIP_ELEMENT: :class:`~aas.model.submodel.AnnotatedRelationshipElement`
     :cvar BASIC_EVENT: :class:`~aas.model.submodel.BasicEvent`
