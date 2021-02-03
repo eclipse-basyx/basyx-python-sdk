@@ -10,9 +10,11 @@
 # specific language governing permissions and limitations under the License.
 """
 .. _adapter.xml.xml_serialization:
+
 Module for serializing Asset Administration Shell data to the official XML format
 
 How to use:
+
 - For generating an XML-File from a :class:`~aas.model.provider.AbstractObjectStore`, check out the function
   :meth:`~aas.adapter.xml.xml_serialization.write_aas_xml_file`.
 - For serializing any object to an XML fragment, that fits the XML specification from 'Details of the
