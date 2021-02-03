@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<schema elementFormDefault="qualified" targetNamespace="http://www.admin-shell.io/IEC61360/2/0" xmlns="http://www.w3.org/2001/XMLSchema"
-xmlns:IEC61360="http://www.admin-shell.io/IEC61360/2/0">
+<schema elementFormDefault="qualified" targetNamespace="http://www.admin-shell.io/IEC61360/3/0" xmlns="http://www.w3.org/2001/XMLSchema" xmlns:IEC61360="http://www.admin-shell.io/IEC61360/3/0">
 	<attributeGroup name="keyTypes">
 		<attribute name="identifierType" use="optional">
 			<simpleType>
@@ -22,32 +21,17 @@ xmlns:IEC61360="http://www.admin-shell.io/IEC61360/2/0">
 	<complexType name="code_t"/>
 	<complexType name="dataSpecificationIEC61630_t">
 		<choice minOccurs="1" maxOccurs="unbounded">
-			<element maxOccurs="1" minOccurs="1" name="preferredName"
-type="IEC61360:langStringSet_t" />
-			<element maxOccurs="1" minOccurs="0" name="shortName"
-type="IEC61360:langStringSet_t" />
-			<element maxOccurs="1" minOccurs="0" name="unit" type="string"
-/>
-			<element maxOccurs="1" minOccurs="0" name="unitId"
-type="IEC61360:reference_t" />
-			<element maxOccurs="1" minOccurs="0" name="sourceOfDefinition"
-type="string" />
-			<element maxOccurs="1" minOccurs="0" name="symbol" type="string"
-/>
-			<element maxOccurs="1" minOccurs="0" name="dataType"
-type="IEC61360:dataTypeIEC61360_t"/>
-			<element maxOccurs="1" minOccurs="0" name="definition"
-type="IEC61360:langStringSet_t"/>
-			<element maxOccurs="1" minOccurs="0" name="valueFormat"
-type="string"/>
-			<element maxOccurs="1" minOccurs="0" name="valueList"
-type="IEC61360:valueList_t" />
-			<element maxOccurs="1" minOccurs="0" name="value"
-type="IEC61360:valueDataType_t" />
-			<element maxOccurs="1" minOccurs="0" name="valueId"
-type="IEC61360:reference_t"/>
-			<element maxOccurs="unbounded" minOccurs="0" name="levelType"
-type="IEC61360:levelType_t"/>
+            <element maxOccurs="1" minOccurs="1" name="preferredName" type="IEC61360:langStringSet_t" />
+            <element maxOccurs="1" minOccurs="0" name="shortName" type="IEC61360:langStringSet_t" />
+            <element maxOccurs="1" minOccurs="0" name="unit" type="string" />
+            <element maxOccurs="1" minOccurs="0" name="unitId" type="IEC61360:reference_t" />
+            <element maxOccurs="1" minOccurs="0" name="sourceOfDefinition" type="string" />
+            <element maxOccurs="1" minOccurs="0" name="symbol" type="string" />
+            <element maxOccurs="1" minOccurs="0" name="dataType" type="IEC61360:dataTypeIEC61360_t"/>
+			<element maxOccurs="1" minOccurs="0" name="definition" type="IEC61360:langStringSet_t"/>			<element maxOccurs="1" minOccurs="0" name="valueFormat" type="string"/>
+            <element maxOccurs="1" minOccurs="0" name="valueList" type="IEC61360:valueList_t" />
+            <element maxOccurs="1" minOccurs="0" name="value" type="IEC61360:valueDataType_t" />
+            <element maxOccurs="1" minOccurs="0" name="valueId" type="IEC61360:reference_t"/>			<element maxOccurs="unbounded" minOccurs="0" name="levelType" type="IEC61360:levelType_t"/>
 		</choice>
 	</complexType>
 	<complexType name="key_t">
@@ -113,8 +97,7 @@ type="IEC61360:levelType_t"/>
 	</complexType>
 	<complexType name="langStringSet_t">
 		<sequence>
-			<element maxOccurs="unbounded" minOccurs="1" name="langString"
-type="IEC61360:langString_t"/>
+			<element maxOccurs="unbounded" minOccurs="1" name="langString" type="IEC61360:langString_t"/>
 		</sequence>
 	</complexType>
 	<complexType name="reference_t">
@@ -124,13 +107,12 @@ type="IEC61360:langString_t"/>
 	</complexType>
 	<complexType name="valueDataType_t">
 		<simpleContent>
-			<extension base="anySimpleType"/>
+			<extension base="anySimpleType"></extension>
 		</simpleContent>
 	</complexType>
 	<complexType name="valueList_t">
 		<sequence>
-			<element maxOccurs="unbounded" minOccurs="1"
-name="valueReferencePair" type="IEC61360:valueReferencePair_t"/>
+			<element maxOccurs="unbounded" minOccurs="1" name="valueReferencePair" type="IEC61360:valueReferencePair_t"/>
 		</sequence>
 	</complexType>
 	<complexType name="valueReferencePair_t">

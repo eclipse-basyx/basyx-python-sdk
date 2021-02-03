@@ -32,7 +32,6 @@ import aas.adapter.xml
 # For more details, take a look at `tutorial_create_simple_aas.py`
 
 asset = model.Asset(
-    kind=model.AssetKind.INSTANCE,
     identification=model.Identifier('https://acplt.org/Simple_Asset', model.IdentifierType.IRI)
 )
 submodel = model.Submodel(
@@ -45,7 +44,6 @@ submodel = model.Submodel(
             semantic_id=model.Reference(
                 (model.Key(
                     type_=model.KeyElements.GLOBAL_REFERENCE,
-                    local=False,
                     value='http://acplt.org/Properties/SimpleProperty',
                     id_type=model.KeyType.IRI
                 ),)
@@ -54,7 +52,7 @@ submodel = model.Submodel(
 )
 aashell = model.AssetAdministrationShell(
     identification=model.Identifier('https://acplt.org/Simple_AAS', model.IdentifierType.IRI),
-    asset=model.AASReference.from_referable(asset),
+    asset_information=model.AssetInformation(global_asset_id=model.AASReference.from_referable(asset)),
     submodel={model.AASReference.from_referable(submodel)}
 )
 
@@ -75,7 +73,7 @@ aashell.update()
 # dumped data structure.
 aashell_json_string = json.dumps(aashell, cls=aas.adapter.json.AASToJsonEncoder)
 
-property_json_string = json.dumps(submodel.submodel_element.get_referable('ExampleProperty'),
+property_json_string = json.dumps(submodel.submodel_element.get_object_by_attribute("id_short", 'ExampleProperty'),
                                   cls=aas.adapter.json.AASToJsonEncoder)
 
 # Using this technique, we can also serialize Python dict and list data structures with nested AAS objects:

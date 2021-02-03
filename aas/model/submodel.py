@@ -33,16 +33,19 @@ class SubmodelElement(base.Referable, base.Qualifiable, base.HasSemantics, base.
     @abc.abstractmethod
     def __init__(self,
                  id_short: str,
+                 display_name: Optional[base.LangStringSet] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
-                 parent: Optional[base.Namespace] = None,
+                 parent: Optional[base.UniqueIdShortNamespace] = None,
                  semantic_id: Optional[base.Reference] = None,
-                 qualifier: Optional[Set[base.Constraint]] = None,
-                 kind: base.ModelingKind = base.ModelingKind.INSTANCE):
+                 qualifier: Iterable[base.Constraint] = (),
+                 kind: base.ModelingKind = base.ModelingKind.INSTANCE,
+                 extension: Iterable[base.Extension] = ()):
         """
         Initializer of SubmodelElement
 
         :param id_short: Identifying string of the element within its name space. (from base.Referable)
+        :param display_name: Can be provided in several languages. (from base.Referable)
         :param category: The category is a value that gives further meta information w.r.t. to the class of the element.
                          It affects the expected existence of attributes and the applicability of constraints.
                          (from base.Referable)
@@ -55,21 +58,24 @@ class SubmodelElement(base.Referable, base.Qualifiable, base.HasSemantics, base.
         :param qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
                           (from base.Qualifiable)
         :param kind: Kind of the element: either type or instance. Default = Instance. (from base.HasKind)
+        :param extension: An extension of the element. (from base.HasExtension)
 
         TODO: Add instruction what to do after construction
         """
 
         super().__init__()
         self.id_short = id_short
-        self.category: Optional[str] = category
+        self.display_name: Optional[base.LangStringSet] = dict() if display_name is None else display_name
+        self.category = category
         self.description: Optional[base.LangStringSet] = dict() if description is None else description
-        self.parent: Optional[base.Namespace] = parent
+        self.parent: Optional[base.UniqueIdShortNamespace] = parent
         self.semantic_id: Optional[base.Reference] = semantic_id
-        self.qualifier: Set[base.Constraint] = set() if qualifier is None else qualifier
+        self.qualifier = base.NamespaceSet(self, [("type", True)], qualifier)
         self._kind: base.ModelingKind = kind
+        self.extension = base.NamespaceSet(self, [("name", True)], extension)
 
 
-class Submodel(base.Identifiable, base.HasSemantics, base.HasKind, base.Qualifiable, base.Namespace):
+class Submodel(base.Identifiable, base.HasSemantics, base.HasKind, base.Qualifiable, base.UniqueIdShortNamespace):
     """
     A Submodel defines a specific aspect of the asset represented by the AAS.
 
@@ -83,20 +89,23 @@ class Submodel(base.Identifiable, base.HasSemantics, base.HasKind, base.Qualifia
     def __init__(self,
                  identification: base.Identifier,
                  submodel_element: Iterable[SubmodelElement] = (),
-                 id_short: str = "",
+                 id_short: str = "NotSet",
+                 display_name: Optional[base.LangStringSet] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
-                 parent: Optional[base.Namespace] = None,
+                 parent: Optional[base.UniqueIdShortNamespace] = None,
                  administration: Optional[base.AdministrativeInformation] = None,
                  semantic_id: Optional[base.Reference] = None,
-                 qualifier: Optional[Set[base.Constraint]] = None,
-                 kind: base.ModelingKind = base.ModelingKind.INSTANCE):
+                 qualifier: Iterable[base.Constraint] = (),
+                 kind: base.ModelingKind = base.ModelingKind.INSTANCE,
+                 extension: Iterable[base.Extension] = ()):
         """
         Initializer of Submodel
 
         :param identification: The globally unique identification of the element. (from base.Identifiable)
         :param submodel_element: Unordered list of submodel elements
         :param id_short: Identifying string of the element within its name space. (from base.Referable)
+        :param display_name: Can be provided in several languages. (from base.Referable)
         :param category: The category is a value that gives further meta information w.r.t. to the class of the element.
                          It affects the expected existence of attributes and the applicability of constraints.
                          (from base.Referable)
@@ -110,19 +119,29 @@ class Submodel(base.Identifiable, base.HasSemantics, base.HasKind, base.Qualifia
         :param qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
                           (from base.Qualifiable)
         :param kind: Kind of the element: either type or instance. Default = Instance. (from base.HasKind)
+        :param extension: An extension of the element. (from base.HasExtension)
         """
 
         super().__init__()
         self.identification: base.Identifier = identification
-        self.submodel_element = base.NamespaceSet(self, submodel_element)
+        self.submodel_element = base.NamespaceSet(self, [("id_short", True)], submodel_element)
         self.id_short = id_short
-        self.category: Optional[str] = category
+        self.display_name: Optional[base.LangStringSet] = dict() if display_name is None else display_name
+        self.category = category
         self.description: Optional[base.LangStringSet] = dict() if description is None else description
-        self.parent: Optional[base.Namespace] = parent
+        self.parent: Optional[base.UniqueIdShortNamespace] = parent
         self.administration: Optional[base.AdministrativeInformation] = administration
         self.semantic_id: Optional[base.Reference] = semantic_id
-        self.qualifier: Set[base.Constraint] = set() if qualifier is None else qualifier
+        self.qualifier = base.NamespaceSet(self, [("type", True)], qualifier)
         self._kind: base.ModelingKind = kind
+        self.extension = base.NamespaceSet(self, [("name", True)], extension)
+
+
+ALLOWED_DATA_ELEMENT_CATEGORIES: Set[str] = {
+    "CONSTANT",
+    "PARAMETER",
+    "VARIABLE"
+}
 
 
 class DataElement(SubmodelElement, metaclass=abc.ABCMeta):
@@ -136,16 +155,19 @@ class DataElement(SubmodelElement, metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def __init__(self,
                  id_short: str,
+                 display_name: Optional[base.LangStringSet] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
-                 parent: Optional[base.Namespace] = None,
+                 parent: Optional[base.UniqueIdShortNamespace] = None,
                  semantic_id: Optional[base.Reference] = None,
-                 qualifier: Optional[Set[base.Constraint]] = None,
-                 kind: base.ModelingKind = base.ModelingKind.INSTANCE):
+                 qualifier: Iterable[base.Constraint] = (),
+                 kind: base.ModelingKind = base.ModelingKind.INSTANCE,
+                 extension: Iterable[base.Extension] = ()):
         """
         Initializer of DataElement
 
         :param id_short: Identifying string of the element within its name space. (from base.Referable)
+        :param display_name: Can be provided in several languages. (from base.Referable)
         :param category: The category is a value that gives further meta information w.r.t. to the class of the element.
                          It affects the expected existence of attributes and the applicability of constraints.
                          (from base.Referable)
@@ -158,9 +180,25 @@ class DataElement(SubmodelElement, metaclass=abc.ABCMeta):
         :param qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
                           (from base.Qualifiable)
         :param kind: Kind of the element: either type or instance. Default = Instance. (from base.HasKind)
+        :param extension: An extension of the element. (from base.HasExtension)
         """
 
-        super().__init__(id_short, category, description, parent, semantic_id, qualifier, kind)
+        super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, kind, extension)
+
+    def _set_category(self, category: Optional[str]):
+        if category == "":
+            raise base.AASConstraintViolation(100,
+                                              "category is not allowed to be an empty string")
+        if category is None:
+            self._category = None
+        else:
+            if category not in ALLOWED_DATA_ELEMENT_CATEGORIES:
+                if not (isinstance(self, File) or isinstance(self, Blob)):
+                    raise base.AASConstraintViolation(
+                        90,
+                        "DataElement.category must be one of the following: " +
+                        ", ".join(ALLOWED_DATA_ELEMENT_CATEGORIES))
+            self._category = category
 
 
 class Property(DataElement):
@@ -179,12 +217,14 @@ class Property(DataElement):
                  value_type: base.DataTypeDef,
                  value: Optional[base.ValueDataType] = None,
                  value_id: Optional[base.Reference] = None,
+                 display_name: Optional[base.LangStringSet] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
-                 parent: Optional[base.Namespace] = None,
+                 parent: Optional[base.UniqueIdShortNamespace] = None,
                  semantic_id: Optional[base.Reference] = None,
-                 qualifier: Optional[Set[base.Constraint]] = None,
-                 kind: base.ModelingKind = base.ModelingKind.INSTANCE):
+                 qualifier: Iterable[base.Constraint] = (),
+                 kind: base.ModelingKind = base.ModelingKind.INSTANCE,
+                 extension: Iterable[base.Extension] = ()):
         """
         Initializer of Property
 
@@ -192,6 +232,7 @@ class Property(DataElement):
         :param value_type: Data type of the value
         :param value: The value of the property instance.
         :param value_id: Reference to the global unique id of a coded value.
+        :param display_name: Can be provided in several languages. (from base.Referable)
         :param category: The category is a value that gives further meta information w.r.t. to the class of the element.
                          It affects the expected existence of attributes and the applicability of constraints.
                          (from base.Referable)
@@ -204,11 +245,12 @@ class Property(DataElement):
         :param qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
                           (from base.Qualifiable)
         :param kind: Kind of the element: either type or instance. Default = Instance. (from base.HasKind)
+        :param extension: An extension of the element. (from base.HasExtension)
 
         TODO: Add instruction what to do after construction
         """
 
-        super().__init__(id_short, category, description, parent, semantic_id, qualifier, kind)
+        super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, kind, extension)
         self.value_type: Type[datatypes.AnyXSDType] = value_type
         self._value: Optional[base.ValueDataType] = (datatypes.trivial_cast(value, value_type)
                                                      if value is not None else None)
@@ -240,18 +282,21 @@ class MultiLanguageProperty(DataElement):
                  id_short: str,
                  value: Optional[base.LangStringSet] = None,
                  value_id: Optional[base.Reference] = None,
+                 display_name: Optional[base.LangStringSet] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
-                 parent: Optional[base.Namespace] = None,
+                 parent: Optional[base.UniqueIdShortNamespace] = None,
                  semantic_id: Optional[base.Reference] = None,
-                 qualifier: Optional[Set[base.Constraint]] = None,
-                 kind: base.ModelingKind = base.ModelingKind.INSTANCE):
+                 qualifier: Iterable[base.Constraint] = (),
+                 kind: base.ModelingKind = base.ModelingKind.INSTANCE,
+                 extension: Iterable[base.Extension] = ()):
         """
         Initializer of MultiLanguageProperty
 
         :param id_short: Identifying string of the element within its name space. (from base.Referable)
         :param value: The value of the property instance.
         :param value_id: Reference to the global unique id of a coded value.
+        :param display_name: Can be provided in several languages. (from base.Referable)
         :param category: The category is a value that gives further meta information w.r.t. to the class of the element.
                          It affects the expected existence of attributes and the applicability of constraints.
                          (from base.Referable)
@@ -264,11 +309,12 @@ class MultiLanguageProperty(DataElement):
         :param qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
                           (from base.Qualifiable)
         :param kind: Kind of the element: either type or instance. Default = Instance. (from base.HasKind)
+        :param extension: An extension of the element. (from base.HasExtension)
 
         TODO: Add instruction what to do after construction
         """
 
-        super().__init__(id_short, category, description, parent, semantic_id, qualifier, kind)
+        super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, kind, extension)
         self.value: base.LangStringSet = dict() if value is None else value
         self.value_id: Optional[base.Reference] = value_id
 
@@ -290,12 +336,14 @@ class Range(DataElement):
                  value_type: base.DataTypeDef,
                  min: Optional[base.ValueDataType] = None,
                  max: Optional[base.ValueDataType] = None,
+                 display_name: Optional[base.LangStringSet] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
-                 parent: Optional[base.Namespace] = None,
+                 parent: Optional[base.UniqueIdShortNamespace] = None,
                  semantic_id: Optional[base.Reference] = None,
-                 qualifier: Optional[Set[base.Constraint]] = None,
-                 kind: base.ModelingKind = base.ModelingKind.INSTANCE):
+                 qualifier: Iterable[base.Constraint] = (),
+                 kind: base.ModelingKind = base.ModelingKind.INSTANCE,
+                 extension: Iterable[base.Extension] = ()):
         """
         Initializer of Range
 
@@ -305,6 +353,7 @@ class Range(DataElement):
                      negative infinite.
         :param max: The maximum of the range. If the max value is missing then the value is assumed to be positive
                      infinite
+        :param display_name: Can be provided in several languages. (from base.Referable)
         :param category: The category is a value that gives further meta information w.r.t. to the class of the element.
                          It affects the expected existence of attributes and the applicability of constraints.
                          (from base.Referable)
@@ -317,11 +366,12 @@ class Range(DataElement):
         :param qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
                           (from base.Qualifiable)
         :param kind: Kind of the element: either type or instance. Default = Instance. (from base.HasKind)
+        :param extension: An extension of the element. (from base.HasExtension)
 
         TODO: Add instruction what to do after construction
         """
 
-        super().__init__(id_short, category, description, parent, semantic_id, qualifier, kind)
+        super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, kind, extension)
         self.value_type: base.DataTypeDef = value_type
         self._min: Optional[base.ValueDataType] = datatypes.trivial_cast(min, value_type) if min is not None else None
         self._max: Optional[base.ValueDataType] = datatypes.trivial_cast(max, value_type) if max is not None else None
@@ -365,12 +415,14 @@ class Blob(DataElement):
                  id_short: str,
                  mime_type: base.MimeType,
                  value: Optional[base.BlobType] = None,
+                 display_name: Optional[base.LangStringSet] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
-                 parent: Optional[base.Namespace] = None,
+                 parent: Optional[base.UniqueIdShortNamespace] = None,
                  semantic_id: Optional[base.Reference] = None,
-                 qualifier: Optional[Set[base.Constraint]] = None,
-                 kind: base.ModelingKind = base.ModelingKind.INSTANCE):
+                 qualifier: Iterable[base.Constraint] = (),
+                 kind: base.ModelingKind = base.ModelingKind.INSTANCE,
+                 extension: Iterable[base.Extension] = ()):
         """
         Initializer of Blob
 
@@ -381,6 +433,7 @@ class Blob(DataElement):
         :param mime_type: Mime type of the content of the BLOB. The mime type states which file extension the file has.
                           Valid values are e.g. “application/json”, “application/xls”, ”image/jpg”. The allowed values
                           are defined as in RFC2046.
+        :param display_name: Can be provided in several languages. (from base.Referable)
         :param category: The category is a value that gives further meta information w.r.t. to the class of the element.
                          It affects the expected existence of attributes and the applicability of constraints.
                          (from base.Referable)
@@ -393,11 +446,12 @@ class Blob(DataElement):
         :param qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
                           (from base.Qualifiable)
         :param kind: Kind of the element: either type or instance. Default = Instance. (from base.HasKind)
+        :param extension: An extension of the element. (from base.HasExtension)
 
         TODO: Add instruction what to do after construction
         """
 
-        super().__init__(id_short, category, description, parent, semantic_id, qualifier, kind)
+        super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, kind, extension)
         self.value: Optional[base.BlobType] = value
         self.mime_type: base.MimeType = mime_type
 
@@ -415,12 +469,14 @@ class File(DataElement):
                  id_short: str,
                  mime_type: base.MimeType,
                  value: Optional[base.PathType] = None,
+                 display_name: Optional[base.LangStringSet] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
-                 parent: Optional[base.Namespace] = None,
+                 parent: Optional[base.UniqueIdShortNamespace] = None,
                  semantic_id: Optional[base.Reference] = None,
-                 qualifier: Optional[Set[base.Constraint]] = None,
-                 kind: base.ModelingKind = base.ModelingKind.INSTANCE):
+                 qualifier: Iterable[base.Constraint] = (),
+                 kind: base.ModelingKind = base.ModelingKind.INSTANCE,
+                 extension: Iterable[base.Extension] = ()):
         """
         Initializer of File
 
@@ -429,6 +485,7 @@ class File(DataElement):
         :param value: Path and name of the referenced file (without file extension). The path can be absolute or
                       relative.
                       Note: The file extension is defined by using a qualifier of type “MimeType”.
+        :param display_name: Can be provided in several languages. (from base.Referable)
         :param category: The category is a value that gives further meta information w.r.t. to the class of the element.
                          It affects the expected existence of attributes and the applicability of constraints.
                          (from base.Referable)
@@ -441,11 +498,12 @@ class File(DataElement):
         :param qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
                           (from base.Qualifiable)
         :param kind: Kind of the element: either type or instance. Default = Instance. (from base.HasKind)
+        :param extension: An extension of the element. (from base.HasExtension)
 
         TODO: Add instruction what to do after construction
         """
 
-        super().__init__(id_short, category, description, parent, semantic_id, qualifier, kind)
+        super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, kind, extension)
         self.value: Optional[base.PathType] = value
         self.mime_type: base.MimeType = mime_type
 
@@ -462,18 +520,21 @@ class ReferenceElement(DataElement):
     def __init__(self,
                  id_short: str,
                  value: Optional[base.Reference] = None,
+                 display_name: Optional[base.LangStringSet] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
-                 parent: Optional[base.Namespace] = None,
+                 parent: Optional[base.UniqueIdShortNamespace] = None,
                  semantic_id: Optional[base.Reference] = None,
-                 qualifier: Optional[Set[base.Constraint]] = None,
-                 kind: base.ModelingKind = base.ModelingKind.INSTANCE):
+                 qualifier: Iterable[base.Constraint] = (),
+                 kind: base.ModelingKind = base.ModelingKind.INSTANCE,
+                 extension: Iterable[base.Extension] = ()):
         """
         Initializer of ReferenceElement
 
         :param id_short: Identifying string of the element within its name space. (from base.Referable)
         :param value: Reference to any other referable element of the same of any other AAS or a reference to an
                       external object or entity.
+        :param display_name: Can be provided in several languages. (from base.Referable)
         :param category: The category is a value that gives further meta information w.r.t. to the class of the element.
                          It affects the expected existence of attributes and the applicability of constraints.
                          (from base.Referable)
@@ -486,15 +547,16 @@ class ReferenceElement(DataElement):
         :param qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
                           (from base.Qualifiable)
         :param kind: Kind of the element: either type or instance. Default = Instance. (from base.HasKind)
+        :param extension: An extension of the element. (from base.HasExtension)
 
         TODO: Add instruction what to do after construction
         """
 
-        super().__init__(id_short, category, description, parent, semantic_id, qualifier, kind)
+        super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, kind, extension)
         self.value: Optional[base.Reference] = value
 
 
-class SubmodelElementCollection(SubmodelElement, base.Namespace, metaclass=abc.ABCMeta):
+class SubmodelElementCollection(SubmodelElement, metaclass=abc.ABCMeta):
     """
     A submodel element collection is a set or list of submodel elements.
 
@@ -505,16 +567,25 @@ class SubmodelElementCollection(SubmodelElement, base.Namespace, metaclass=abc.A
                    the elements in the collection are ordered.
                    `ordered` shall not be set directly, instead one of the subclasses
                    `SubmodelElementCollectionOrdered` or `SubmodelElementCollectionUnordered` shall be used.
+    :ivar allow_duplicates: If allowDuplicates=true, then it is allowed that the collection contains several elements
+                            with the same semantics (i.e. the same semanticId).
+                            If allowDuplicates=false, then it is not allowed that the collection contains several
+                            elements with the same semantics (i.e. the same semanticId).
+                            `allow_duplicates` shall not be set directly, instead one of the subclasses
+                            `SubmodelElementCollectionUniqueSemanticId` or `SubmodelElementCollectionUniqueSemanticId`
+                            shall be used.
     """
     @abc.abstractmethod
     def __init__(self,
                  id_short: str,
+                 display_name: Optional[base.LangStringSet] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
-                 parent: Optional[base.Namespace] = None,
+                 parent: Optional[base.UniqueIdShortNamespace] = None,
                  semantic_id: Optional[base.Reference] = None,
-                 qualifier: Optional[Set[base.Constraint]] = None,
-                 kind: base.ModelingKind = base.ModelingKind.INSTANCE):
+                 qualifier: Iterable[base.Constraint] = (),
+                 kind: base.ModelingKind = base.ModelingKind.INSTANCE,
+                 extension: Iterable[base.Extension] = ()):
         """
         Initializer of SubmodelElementCollection
 
@@ -522,6 +593,7 @@ class SubmodelElementCollection(SubmodelElement, base.Namespace, metaclass=abc.A
         `SubmodelElementCollectionOrdered` or `SubmodelElementCollectionUnordered` shall be used.
 
         :param id_short: Identifying string of the element within its name space. (from base.Referable)
+        :param display_name: Can be provided in several languages. (from base.Referable)
         :param category: The category is a value that gives further meta information w.r.t. to the class of the element.
                          It affects the expected existence of attributes and the applicability of constraints.
                          (from base.Referable)
@@ -534,10 +606,11 @@ class SubmodelElementCollection(SubmodelElement, base.Namespace, metaclass=abc.A
         :param qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
                           (from base.Qualifiable)
         :param kind: Kind of the element: either type or instance. Default = Instance. (from base.HasKind)
+        :param extension: An extension of the element. (from base.HasExtension)
 
         TODO: Add instruction what to do after construction
         """
-        super().__init__(id_short, category, description, parent, semantic_id, qualifier, kind)
+        super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, kind, extension)
         self.value: base.NamespaceSet[SubmodelElement] = None  # type: ignore
 
     @property
@@ -545,26 +618,91 @@ class SubmodelElementCollection(SubmodelElement, base.Namespace, metaclass=abc.A
     def ordered(self):
         pass
 
+    @property
+    @abc.abstractmethod
+    def allow_duplicates(self):
+        pass
 
-class SubmodelElementCollectionOrdered(SubmodelElementCollection):
+    @staticmethod
+    def create(id_short: str,
+               value: Iterable[SubmodelElement] = (),
+               display_name: Optional[base.LangStringSet] = None,
+               category: Optional[str] = None,
+               description: Optional[base.LangStringSet] = None,
+               parent: Optional[base.UniqueIdShortNamespace] = None,
+               semantic_id: Optional[base.Reference] = None,
+               qualifier: Iterable[base.Constraint] = (),
+               kind: base.ModelingKind = base.ModelingKind.INSTANCE,
+               extension: Iterable[base.Extension] = (),
+               allow_duplicates: bool = False,
+               ordered: bool = False):
+        """
+            A factory to create a SubmodelElementCollection based on the parameter dublicates_allowed and ordered.
+
+            Initializer of SubmodelElementCollection
+            :param id_short: Identifying string of the element within its name space. (from base.Referable)
+            :param value: Ordered or unordered list of submodel elements.
+            :param display_name: Can be provided in several languages. (from base.Referable)
+            :param category: The category is a value that gives further meta information w.r.t. to the class of the
+                             element. It affects the expected existence of attributes and the applicability of
+                             constraints. (from base.Referable)
+            :param description: Description or comments on the element. (from base.Referable)
+            :param parent: Reference to the next referable parent element of the element. (from base.Referable)
+            :param semantic_id: Identifier of the semantic definition of the element. It is called semantic id of the
+                                element. The semantic id may either reference an external global id or it may reference
+                                a referable model element of kind=Type that defines the semantics of the element.
+                                (from base.HasSemantics)
+            :param qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable
+                              element. (from base.Qualifiable)
+            :param kind: Kind of the element: either type or instance. Default = Instance. (from base.HasKind)
+            :param extension: An extension of the element. (from base.HasExtension)
+            :param ordered: If ordered=false then the elements in the property collection are not ordered. If
+                            ordered=true then the elements in the collection are ordered.
+            :param allow_duplicates: If allowDuplicates=true, then it is allowed that the collection contains several
+                                     elements with the same semantics (i.e. the same semanticId).
+                                     If allowDuplicates=false, then it is not allowed that the collection contains
+                                     several elements with the same semantics (i.e. the same semanticId).
+        """
+        if ordered:
+            if allow_duplicates:
+                return SubmodelElementCollectionOrdered(id_short, value, display_name, category, description, parent,
+                                                        semantic_id, qualifier, kind, extension)
+            else:
+                return SubmodelElementCollectionOrderedUniqueSemanticId(id_short, value, display_name, category,
+                                                                        description, parent, semantic_id, qualifier,
+                                                                        kind, extension)
+        else:
+            if allow_duplicates:
+                return SubmodelElementCollectionUnordered(id_short, value, display_name, category, description, parent,
+                                                          semantic_id, qualifier, kind, extension)
+            else:
+                return SubmodelElementCollectionUnorderedUniqueSemanticId(id_short, value, display_name, category,
+                                                                          description, parent, semantic_id, qualifier,
+                                                                          kind, extension)
+
+
+class SubmodelElementCollectionOrdered(SubmodelElementCollection, base.UniqueIdShortNamespace):
     """
-    A SubmodelElementCollectionOrdered is an ordered list of submodel elements.
+    A SubmodelElementCollectionOrdered is an ordered list of submodel elements where id_shorts are unique.
     """
 
     def __init__(self,
                  id_short: str,
                  value: Iterable[SubmodelElement] = (),
+                 display_name: Optional[base.LangStringSet] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
-                 parent: Optional[base.Namespace] = None,
+                 parent: Optional[base.UniqueIdShortNamespace] = None,
                  semantic_id: Optional[base.Reference] = None,
-                 qualifier: Optional[Set[base.Constraint]] = None,
-                 kind: base.ModelingKind = base.ModelingKind.INSTANCE):
+                 qualifier: Iterable[base.Constraint] = (),
+                 kind: base.ModelingKind = base.ModelingKind.INSTANCE,
+                 extension: Iterable[base.Extension] = ()):
         """
         Initializer of SubmodelElementCollection
 
         :param id_short: Identifying string of the element within its name space. (from base.Referable)
         :param value: Ordered list of submodel elements.
+        :param display_name: Can be provided in several languages. (from base.Referable)
         :param category: The category is a value that gives further meta information w.r.t. to the class of the element.
                          It affects the expected existence of attributes and the applicability of constraints.
                          (from base.Referable)
@@ -577,37 +715,48 @@ class SubmodelElementCollectionOrdered(SubmodelElementCollection):
         :param qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
                           (from base.Qualifiable)
         :param kind: Kind of the element: either type or instance. Default = Instance. (from base.HasKind)
+        :param extension: An extension of the element. (from base.HasExtension)
 
         TODO: Add instruction what to do after construction
         """
 
-        super().__init__(id_short, category, description, parent, semantic_id, qualifier, kind)
-        self.value = base.OrderedNamespaceSet(self, value)
+        super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, kind,
+                         extension)
+        self.value = base.OrderedNamespaceSet(self, [("id_short", False)], value)
 
     @property
     def ordered(self):
         return True
 
+    @property
+    def allow_duplicates(self):
+        return True
 
-class SubmodelElementCollectionUnordered(SubmodelElementCollection):
+
+class SubmodelElementCollectionOrderedUniqueSemanticId(SubmodelElementCollectionOrdered,
+                                                       base.UniqueSemanticIdNamespace):
     """
-    A SubmodelElementCollectionOrdered is an unordered list of submodel elements.
+    A SubmodelElementCollectionOrderedUniqueSemanticId is an ordered list of submodel elements where id_shorts and
+    semantic_ids are unique.
     """
 
     def __init__(self,
                  id_short: str,
                  value: Iterable[SubmodelElement] = (),
+                 display_name: Optional[base.LangStringSet] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
-                 parent: Optional[base.Namespace] = None,
+                 parent: Optional[base.UniqueIdShortNamespace] = None,
                  semantic_id: Optional[base.Reference] = None,
-                 qualifier: Optional[Set[base.Constraint]] = None,
-                 kind: base.ModelingKind = base.ModelingKind.INSTANCE):
+                 qualifier: Iterable[base.Constraint] = (),
+                 kind: base.ModelingKind = base.ModelingKind.INSTANCE,
+                 extension: Iterable[base.Extension] = ()):
         """
         Initializer of SubmodelElementCollection
 
         :param id_short: Identifying string of the element within its name space. (from base.Referable)
-        :param value: Unordered list of submodel elements.
+        :param value: Ordered list of submodel elements.
+        :param display_name: Can be provided in several languages. (from base.Referable)
         :param category: The category is a value that gives further meta information w.r.t. to the class of the element.
                          It affects the expected existence of attributes and the applicability of constraints.
                          (from base.Referable)
@@ -620,14 +769,116 @@ class SubmodelElementCollectionUnordered(SubmodelElementCollection):
         :param qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
                           (from base.Qualifiable)
         :param kind: Kind of the element: either type or instance. Default = Instance. (from base.HasKind)
+        :param extension: An extension of the element. (from base.HasExtension)
 
         TODO: Add instruction what to do after construction
         """
-        super().__init__(id_short, category, description, parent, semantic_id, qualifier, kind)
-        self.value = base.NamespaceSet(self, value)
+
+        super().__init__(id_short, (), display_name, category, description, parent, semantic_id, qualifier, kind,
+                         extension)
+        self.value = base.OrderedNamespaceSet(self, [("id_short", False), ("semantic_id", True)], value)
+
+    @property
+    def allow_duplicates(self):
+        return False
+
+
+class SubmodelElementCollectionUnordered(SubmodelElementCollection, base.UniqueIdShortNamespace):
+    """
+    A SubmodelElementCollectionOrdered is an unordered list of submodel elements where id_shorts are unique.
+    """
+
+    def __init__(self,
+                 id_short: str,
+                 value: Iterable[SubmodelElement] = (),
+                 display_name: Optional[base.LangStringSet] = None,
+                 category: Optional[str] = None,
+                 description: Optional[base.LangStringSet] = None,
+                 parent: Optional[base.UniqueIdShortNamespace] = None,
+                 semantic_id: Optional[base.Reference] = None,
+                 qualifier: Iterable[base.Constraint] = (),
+                 kind: base.ModelingKind = base.ModelingKind.INSTANCE,
+                 extension: Iterable[base.Extension] = ()):
+        """
+        Initializer of SubmodelElementCollection
+
+        :param id_short: Identifying string of the element within its name space. (from base.Referable)
+        :param value: Unordered list of submodel elements.
+        :param display_name: Can be provided in several languages. (from base.Referable)
+        :param category: The category is a value that gives further meta information w.r.t. to the class of the element.
+                         It affects the expected existence of attributes and the applicability of constraints.
+                         (from base.Referable)
+        :param description: Description or comments on the element. (from base.Referable)
+        :param parent: Reference to the next referable parent element of the element. (from base.Referable)
+        :param semantic_id: Identifier of the semantic definition of the element. It is called semantic id of the
+                            element. The semantic id may either reference an external global id or it may reference a
+                            referable model element of kind=Type that defines the semantics of the element.
+                            (from base.HasSemantics)
+        :param qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
+                          (from base.Qualifiable)
+        :param kind: Kind of the element: either type or instance. Default = Instance. (from base.HasKind)
+        :param extension: An extension of the element. (from base.HasExtension)
+
+        TODO: Add instruction what to do after construction
+        """
+        super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, kind, extension)
+        self.value = base.NamespaceSet(self, [("id_short", False)], value)
 
     @property
     def ordered(self):
+        return False
+
+    @property
+    def allow_duplicates(self):
+        return True
+
+
+class SubmodelElementCollectionUnorderedUniqueSemanticId(SubmodelElementCollectionUnordered,
+                                                         base.UniqueSemanticIdNamespace):
+    """
+    A SubmodelElementCollectionOrdered is an unordered list of submodel elements where where id_shorts and
+    semanticIds are unique.
+    """
+
+    def __init__(self,
+                 id_short: str,
+                 value: Iterable[SubmodelElement] = (),
+                 display_name: Optional[base.LangStringSet] = None,
+                 category: Optional[str] = None,
+                 description: Optional[base.LangStringSet] = None,
+                 parent: Optional[base.UniqueIdShortNamespace] = None,
+                 semantic_id: Optional[base.Reference] = None,
+                 qualifier: Iterable[base.Constraint] = (),
+                 kind: base.ModelingKind = base.ModelingKind.INSTANCE,
+                 extension: Iterable[base.Extension] = ()):
+        """
+        Initializer of SubmodelElementCollection
+
+        :param id_short: Identifying string of the element within its name space. (from base.Referable)
+        :param value: Unordered list of submodel elements.
+        :param display_name: Can be provided in several languages. (from base.Referable)
+        :param category: The category is a value that gives further meta information w.r.t. to the class of the element.
+                         It affects the expected existence of attributes and the applicability of constraints.
+                         (from base.Referable)
+        :param description: Description or comments on the element. (from base.Referable)
+        :param parent: Reference to the next referable parent element of the element. (from base.Referable)
+        :param semantic_id: Identifier of the semantic definition of the element. It is called semantic id of the
+                            element. The semantic id may either reference an external global id or it may reference a
+                            referable model element of kind=Type that defines the semantics of the element.
+                            (from base.HasSemantics)
+        :param qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
+                          (from base.Qualifiable)
+        :param kind: Kind of the element: either type or instance. Default = Instance. (from base.HasKind)
+        :param extension: An extension of the element. (from base.HasExtension)
+
+        TODO: Add instruction what to do after construction
+        """
+        super().__init__(id_short, (), display_name, category, description, parent, semantic_id, qualifier, kind,
+                         extension)
+        self.value = base.NamespaceSet(self, [("id_short", False), ("semantic_id", True)], value)
+
+    @property
+    def allow_duplicates(self):
         return False
 
 
@@ -646,12 +897,14 @@ class RelationshipElement(SubmodelElement):
                  id_short: str,
                  first: base.AASReference,
                  second: base.AASReference,
+                 display_name: Optional[base.LangStringSet] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
-                 parent: Optional[base.Namespace] = None,
+                 parent: Optional[base.UniqueIdShortNamespace] = None,
                  semantic_id: Optional[base.Reference] = None,
-                 qualifier: Optional[Set[base.Constraint]] = None,
-                 kind: base.ModelingKind = base.ModelingKind.INSTANCE):
+                 qualifier: Iterable[base.Constraint] = (),
+                 kind: base.ModelingKind = base.ModelingKind.INSTANCE,
+                 extension: Iterable[base.Extension] = ()):
         """
         Initializer of RelationshipElement
 
@@ -660,6 +913,7 @@ class RelationshipElement(SubmodelElement):
                       be of class Referable.
         :param second: Reference to the second element in the relationship taking the role of the object which have to
                        be of class Referable.
+        :param display_name: Can be provided in several languages. (from base.Referable)
         :param category: The category is a value that gives further meta information w.r.t. to the class of the element.
                          It affects the expected existence of attributes and the applicability of constraints.
                          (from base.Referable)
@@ -672,16 +926,17 @@ class RelationshipElement(SubmodelElement):
         :param qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
                           (from base.Qualifiable)
         :param kind: Kind of the element: either type or instance. Default = Instance. (from base.HasKind)
+        :param extension: An extension of the element. (from base.HasExtension)
 
         TODO: Add instruction what to do after construction
         """
 
-        super().__init__(id_short, category, description, parent, semantic_id, qualifier, kind)
+        super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, kind, extension)
         self.first: base.AASReference = first
         self.second: base.AASReference = second
 
 
-class AnnotatedRelationshipElement(RelationshipElement, base.Namespace):
+class AnnotatedRelationshipElement(RelationshipElement, base.UniqueIdShortNamespace):
     """
     An annotated relationship element is a relationship element that can be annotated with additional data elements.
 
@@ -693,17 +948,20 @@ class AnnotatedRelationshipElement(RelationshipElement, base.Namespace):
                  first: base.AASReference,
                  second: base.AASReference,
                  annotation: Optional[Iterable[DataElement]] = None,
+                 display_name: Optional[base.LangStringSet] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
-                 parent: Optional[base.Namespace] = None,
+                 parent: Optional[base.UniqueIdShortNamespace] = None,
                  semantic_id: Optional[base.Reference] = None,
-                 qualifier: Optional[Set[base.Constraint]] = None,
-                 kind: base.ModelingKind = base.ModelingKind.INSTANCE):
+                 qualifier: Iterable[base.Constraint] = (),
+                 kind: base.ModelingKind = base.ModelingKind.INSTANCE,
+                 extension: Iterable[base.Extension] = ()):
         """
         Initializer of AnnotatedRelationshipElement
 
         :param id_short: Identifying string of the element within its name space. (from base.Referable)
         :param annotation: Unordered list of annotations that hold for the relationship between two elements
+        :param display_name: Can be provided in several languages. (from base.Referable)
         :param category: The category is a value that gives further meta information w.r.t. to the class of the element.
                          It affects the expected existence of attributes and the applicability of constraints.
                          (from base.Referable)
@@ -716,15 +974,18 @@ class AnnotatedRelationshipElement(RelationshipElement, base.Namespace):
         :param qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
                           (from base.Qualifiable)
         :param kind: Kind of the element: either type or instance. Default = Instance. (from base.HasKind)
+        :param extension: An extension of the element. (from base.HasExtension)
 
         TODO: Add instruction what to do after construction
         """
 
-        super().__init__(id_short, first, second, category, description, parent, semantic_id, qualifier, kind)
+        super().__init__(id_short, first, second, display_name, category, description, parent, semantic_id, qualifier,
+                         kind, extension)
+        self.annotation: base.NamespaceSet[DataElement]
         if annotation is None:
-            self.annotation: base.NamespaceSet[DataElement] = base.NamespaceSet(self)
+            self.annotation = base.NamespaceSet(self, [("id_short", True)])
         else:
-            self.annotation = base.NamespaceSet(self, annotation)
+            self.annotation = base.NamespaceSet(self, [("id_short", True)], annotation)
 
 
 class OperationVariable:
@@ -745,7 +1006,21 @@ class OperationVariable:
         TODO: Add instruction what to do after construction
         """
         # Constraint AASd-008: The submodel element shall be of kind=Template.
-        self.value: SubmodelElement = value  # TODO check the kind of the object in value
+        self._value: SubmodelElement
+        self.value = value
+
+    def _get_value(self):
+        return self._value
+
+    def _set_value(self, value: SubmodelElement) -> None:
+        if value.kind is not base.ModelingKind.TEMPLATE:
+            raise base.AASConstraintViolation(
+                8,
+                "The SubmodelElement `OperationVariable.value` must have the attribute `kind==ModelingType.TEMPLATE`"
+            )
+        self._value = value
+
+    value = property(_get_value, _set_value)
 
 
 class Operation(SubmodelElement):
@@ -761,12 +1036,14 @@ class Operation(SubmodelElement):
                  input_variable: Optional[List[OperationVariable]] = None,
                  output_variable:  Optional[List[OperationVariable]] = None,
                  in_output_variable:  Optional[List[OperationVariable]] = None,
+                 display_name: Optional[base.LangStringSet] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
-                 parent: Optional[base.Namespace] = None,
+                 parent: Optional[base.UniqueIdShortNamespace] = None,
                  semantic_id: Optional[base.Reference] = None,
-                 qualifier: Optional[Set[base.Constraint]] = None,
-                 kind: base.ModelingKind = base.ModelingKind.INSTANCE):
+                 qualifier: Iterable[base.Constraint] = (),
+                 kind: base.ModelingKind = base.ModelingKind.INSTANCE,
+                 extension: Iterable[base.Extension] = ()):
         """
         Initializer of Operation
 
@@ -774,6 +1051,7 @@ class Operation(SubmodelElement):
         :param input_variable: list of input parameters of the operation
         :param output_variable: list output parameters of the operation
         :param in_output_variable: list of parameters that is input and output of the operation
+        :param display_name: Can be provided in several languages. (from base.Referable)
         :param category: The category is a value that gives further meta information w.r.t. to the class of the element.
                          It affects the expected existence of attributes and the applicability of constraints.
                          (from base.Referable)
@@ -786,11 +1064,12 @@ class Operation(SubmodelElement):
         :param qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
                           (from base.Qualifiable)
         :param kind: Kind of the element: either type or instance. Default = Instance. (from base.HasKind)
+        :param extension: An extension of the element. (from base.HasExtension)
 
         TODO: Add instruction what to do after construction
         """
 
-        super().__init__(id_short, category, description, parent, semantic_id, qualifier, kind)
+        super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, kind, extension)
         self.input_variable = input_variable if input_variable is not None else []
         self.output_variable = output_variable if output_variable is not None else []
         self.in_output_variable = in_output_variable if in_output_variable is not None else []
@@ -804,16 +1083,19 @@ class Capability(SubmodelElement):
 
     def __init__(self,
                  id_short: str,
+                 display_name: Optional[base.LangStringSet] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
-                 parent: Optional[base.Namespace] = None,
+                 parent: Optional[base.UniqueIdShortNamespace] = None,
                  semantic_id: Optional[base.Reference] = None,
-                 qualifier: Optional[Set[base.Constraint]] = None,
-                 kind: base.ModelingKind = base.ModelingKind.INSTANCE):
+                 qualifier: Iterable[base.Constraint] = (),
+                 kind: base.ModelingKind = base.ModelingKind.INSTANCE,
+                 extension: Iterable[base.Extension] = ()):
         """
         Initializer of Capability
 
         :param id_short: Identifying string of the element within its name space. (from base.Referable)
+        :param display_name: Can be provided in several languages. (from base.Referable)
         :param category: The category is a value that gives further meta information w.r.t. to the class of the element.
                          It affects the expected existence of attributes and the applicability of constraints.
                          (from base.Referable)
@@ -826,42 +1108,53 @@ class Capability(SubmodelElement):
         :param qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
                           (from base.Qualifiable)
         :param kind: Kind of the element: either type or instance. Default = Instance. (from base.HasKind)
+        :param extension: An extension of the element. (from base.HasExtension)
 
         TODO: Add instruction what to do after construction
         """
 
-        super().__init__(id_short, category, description, parent, semantic_id, qualifier, kind)
+        super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, kind, extension)
 
 
-class Entity(SubmodelElement, base.Namespace):
+class Entity(SubmodelElement, base.UniqueIdShortNamespace):
     """
     An entity is a submodel element that is used to model entities
 
     :ivar entity_type: Describes whether the entity is a co-managed or a self-managed entity.
     :ivar statement: Unordered list of statements applicable to the entity, typically with a qualified value.
     :ivar asset: Reference to the asset the entity is representing.
-                 Constraint AASd-014: The asset attribute must be set if entityType is set to “SelfManagedEntity”. It
-                 is empty otherwise.
+                 Constraint AASd-014: Either the attribute globalAssetId or specificAssetId of an Entity must be set if
+                 Entity/entityType is set to “SelfManagedEntity”. They are not existing otherwise.
     """
 
     def __init__(self,
                  id_short: str,
                  entity_type: base.EntityType,
                  statement: Iterable[SubmodelElement] = (),
-                 asset: Optional[base.AASReference["aas.Asset"]] = None,
+                 global_asset_id: Optional[base.Reference] = None,
+                 specific_asset_id: Optional[base.IdentifierKeyValuePair] = None,
+                 display_name: Optional[base.LangStringSet] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
-                 parent: Optional[base.Namespace] = None,
+                 parent: Optional[base.UniqueIdShortNamespace] = None,
                  semantic_id: Optional[base.Reference] = None,
-                 qualifier: Optional[Set[base.Constraint]] = None,
-                 kind: base.ModelingKind = base.ModelingKind.INSTANCE):
+                 qualifier: Iterable[base.Constraint] = (),
+                 kind: base.ModelingKind = base.ModelingKind.INSTANCE,
+                 extension: Iterable[base.Extension] = ()):
         """
         Initializer of Entity
 
         :param id_short: Identifying string of the element within its name space. (from base.Referable)
         :param entity_type: Describes whether the entity is a co-managed or a self-managed entity.
         :param statement: Unordered list of statements applicable to the entity, typically with a qualified value.
-        :param asset: Reference to the asset the entity is representing.
+        :param global_asset_id: Reference to either an Asset object or a global reference to the asset the AAS is
+                                representing. This attribute is required as soon as the AAS is exchanged via partners
+                                in the life cycle of the asset. In a first phase of the life cycle the asset might not
+                                yet have a global id but already an internal identifier. The internal identifier would
+                                be modelled via “specificAssetId”.
+        :param specific_asset_id: Reference to an identifier key value pair representing a specific identifier
+                                  of the asset represented by the asset administration shell. See Constraint AASd-014
+        :param display_name: Can be provided in several languages. (from base.Referable)
         :param category: The category is a value that gives further meta information w.r.t. to the class of the element.
                          It affects the expected existence of attributes and the applicability of constraints.
                          (from base.Referable)
@@ -874,19 +1167,35 @@ class Entity(SubmodelElement, base.Namespace):
         :param qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
                           (from base.Qualifiable)
         :param kind: Kind of the element: either type or instance. Default = Instance. (from base.HasKind)
+        :param extension: An extension of the element. (from base.HasExtension)
 
         TODO: Add instruction what to do after construction
         """
 
-        super().__init__(id_short, category, description, parent, semantic_id, qualifier, kind)
-        self.entity_type: base.EntityType = entity_type
-        self.statement = base.NamespaceSet(self, statement)
-        if self.entity_type == base.EntityType.SELF_MANAGED_ENTITY and asset is None:
-            raise ValueError("A self-managed entity has to have an asset-reference")
-        if self.entity_type == base.EntityType.SELF_MANAGED_ENTITY:
-            self.asset: Optional[base.AASReference["aas.Asset"]] = asset
-        else:
-            self.asset = None
+        super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, kind, extension)
+        self.statement = base.NamespaceSet(self, [("id_short", True)], statement)
+        self.specific_asset_id: Optional[base.IdentifierKeyValuePair] = specific_asset_id
+        self.global_asset_id: Optional[base.Reference] = global_asset_id
+        self._entity_type: base.EntityType
+        self.entity_type = entity_type
+
+    def _get_entity_type(self) -> base.EntityType:
+        return self._entity_type
+
+    def _set_entity_type(self, entity_type: base.EntityType) -> None:
+        if self.global_asset_id is None and self.specific_asset_id is None \
+                and entity_type == base.EntityType.SELF_MANAGED_ENTITY:
+            raise base.AASConstraintViolation(
+                14,
+                "A self-managed entity has to have a globalAssetId or a specificAssetId"
+            )
+        if (self.global_asset_id or self.specific_asset_id) and entity_type == base.EntityType.CO_MANAGED_ENTITY:
+            raise base.AASConstraintViolation(
+                14,
+                "A co-managed entity has to have neither a globalAssetId nor a specificAssetId")
+        self._entity_type = entity_type
+
+    entity_type = property(_get_entity_type, _set_entity_type)
 
 
 class Event(SubmodelElement, metaclass=abc.ABCMeta):
@@ -896,16 +1205,19 @@ class Event(SubmodelElement, metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def __init__(self,
                  id_short: str,
+                 display_name: Optional[base.LangStringSet] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
-                 parent: Optional[base.Namespace] = None,
+                 parent: Optional[base.UniqueIdShortNamespace] = None,
                  semantic_id: Optional[base.Reference] = None,
-                 qualifier: Optional[Set[base.Constraint]] = None,
-                 kind: base.ModelingKind = base.ModelingKind.INSTANCE):
+                 qualifier: Iterable[base.Constraint] = (),
+                 kind: base.ModelingKind = base.ModelingKind.INSTANCE,
+                 extension: Iterable[base.Extension] = ()):
         """
         Initializer of Event
 
         :param id_short: Identifying string of the element within its name space. (from base.Referable)
+        :param display_name: Can be provided in several languages. (from base.Referable)
         :param category: The category is a value that gives further meta information w.r.t. to the class of the element.
                          It affects the expected existence of attributes and the applicability of constraints.
                          (from base.Referable)
@@ -918,9 +1230,10 @@ class Event(SubmodelElement, metaclass=abc.ABCMeta):
         :param qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
                           (from base.Qualifiable)
         :param kind: Kind of the element: either type or instance. Default = Instance. (from base.HasKind)
+        :param extension: An extension of the element. (from base.HasExtension)
         """
 
-        super().__init__(id_short, category, description, parent, semantic_id, qualifier, kind)
+        super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, kind, extension)
 
 
 class BasicEvent(Event):
@@ -933,17 +1246,20 @@ class BasicEvent(Event):
     def __init__(self,
                  id_short: str,
                  observed: base.AASReference,
+                 display_name: Optional[base.LangStringSet] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
-                 parent: Optional[base.Namespace] = None,
+                 parent: Optional[base.UniqueIdShortNamespace] = None,
                  semantic_id: Optional[base.Reference] = None,
-                 qualifier: Optional[Set[base.Constraint]] = None,
-                 kind: base.ModelingKind = base.ModelingKind.INSTANCE):
+                 qualifier: Iterable[base.Constraint] = (),
+                 kind: base.ModelingKind = base.ModelingKind.INSTANCE,
+                 extension: Iterable[base.Extension] = ()):
         """
         Initializer of BasicEvent
 
         :param id_short: Identifying string of the element within its name space. (from base.Referable)
         :param observed: Reference to the data or other elements that are being observed
+        :param display_name: Can be provided in several languages. (from base.Referable)
         :param category: The category is a value that gives further meta information w.r.t. to the class of the element.
                          It affects the expected existence of attributes and the applicability of constraints.
                          (from base.Referable)
@@ -956,9 +1272,10 @@ class BasicEvent(Event):
         :param qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
                           (from base.Qualifiable)
         :param kind: Kind of the element: either type or instance. Default = Instance. (from base.HasKind)
+        :param extension: An extension of the element. (from base.HasExtension)
 
         TODO: Add instruction what to do after construction
         """
 
-        super().__init__(id_short, category, description, parent, semantic_id, qualifier, kind)
+        super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, kind, extension)
         self.observed: base.AASReference = observed

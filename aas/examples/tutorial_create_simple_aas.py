@@ -15,83 +15,76 @@ from aas import model
 # add Submodels to the AAS. The Submodels can contain SubmodelElements.
 #
 # Step by Step Guide:
-# step 1: create a simple Asset object
-# step 2: create a simple Asset Administration Shell, containing a reference to the Asset
-# step 3: create a simple Submodel
-# step 4: create a simple Property and add it to the Submodel
+# step 1: create a simple Asset Administration Shell, containing a reference to the Asset
+# step 2: create a simple Submodel
+# step 3: create a simple Property and add it to the Submodel
 
 
-#################################
-# Step 1: Create a Simple Asset #
-#################################
-
-# step 1.1: create an identifier for the Asset
-# Here we use an IRI identifier
-identifier = model.Identifier(id_='https://acplt.org/Simple_Asset',
-                              id_type=model.IdentifierType.IRI)
-
-# step 1.2: create the Asset object
-asset = model.Asset(
-    kind=model.AssetKind.INSTANCE,  # define that the Asset is of kind instance
-    identification=identifier  # set identifier
+##########################################################################################
+# Step 1: Create a Simple Asset Administration Shell Containing a Reference to the Asset #
+##########################################################################################
+# step 1.1: create the AssetInformation object
+asset_information = model.AssetInformation(
+    asset_kind=model.AssetKind.INSTANCE,
+    global_asset_id=model.Reference(
+        (model.Key(
+            type_=model.KeyElements.GLOBAL_REFERENCE,
+            value='http://acplt.org/Simple_Asset',
+            id_type=model.KeyType.IRI
+        ),)
+    )
 )
 
-
-##########################################################################################
-# Step 2: Create a Simple Asset Administration Shell Containing a Reference to the Asset #
-##########################################################################################
-
-# step 2.1: create the Asset Administration Shell
+# step 1.2: create the Asset Administration Shell
 identifier = model.Identifier('https://acplt.org/Simple_AAS', model.IdentifierType.IRI)
 aas = model.AssetAdministrationShell(
     identification=identifier,  # set identifier
-    asset=model.AASReference.from_referable(asset)  # generate a Reference object to the Asset (using its identifier)
+    asset_information=asset_information
 )
 
 
 #############################################################
-# step 3: Create a Simple Submodel Without SubmodelElements #
+# step 2: Create a Simple Submodel Without SubmodelElements #
 #############################################################
 
-# step 3.1: create the Submodel object
+# step 2.1: create the Submodel object
 identifier = model.Identifier('https://acplt.org/Simple_Submodel', model.IdentifierType.IRI)
 submodel = model.Submodel(
     identification=identifier
 )
 
-# step 3.2: create a reference to that Submodel and add it to the Asset Administration Shell's `submodel` set
+# step 2.2: create a reference to that Submodel and add it to the Asset Administration Shell's `submodel` set
 aas.submodel.add(model.AASReference.from_referable(submodel))
 
 
 # ===============================================================
-# ALTERNATIVE: step 2 and 3 can alternatively be done in one step
+# ALTERNATIVE: step 1 and 2 can alternatively be done in one step
 # In this version, the Submodel reference is passed to the Asset Administration Shell's constructor.
 submodel = model.Submodel(
     identification=model.Identifier('https://acplt.org/Simple_Submodel', model.IdentifierType.IRI)
 )
 aas = model.AssetAdministrationShell(
     identification=model.Identifier('https://acplt.org/Simple_AAS', model.IdentifierType.IRI),
-    asset=model.AASReference.from_referable(asset),
+    asset_information=asset_information,
     submodel={model.AASReference.from_referable(submodel)}
 )
 
 
 ###############################################################
-# step 4: Create a Simple Property and Add it to the Submodel #
+# step 3: Create a Simple Property and Add it to the Submodel #
 ###############################################################
 
-# step 4.1: create a global reference to a semantic description of the Property
+# step 3.1: create a global reference to a semantic description of the Property
 # A global reference consist of one key which points to the address where the semantic description is stored
 semantic_reference = model.Reference(
     (model.Key(
         type_=model.KeyElements.GLOBAL_REFERENCE,
-        local=False,
         value='http://acplt.org/Properties/SimpleProperty',
         id_type=model.KeyType.IRI
     ),)
 )
 
-# step 4.2: create the simple Property
+# step 3.2: create the simple Property
 property_ = model.Property(
     id_short='ExampleProperty',  # Identifying string of the element within the Submodel namespace
     value_type=model.datatypes.String,  # Data type of the value
@@ -99,12 +92,12 @@ property_ = model.Property(
     semantic_id=semantic_reference  # set the semantic reference
 )
 
-# step 4.3: add the Property to the Submodel
+# step 3.3: add the Property to the Submodel
 submodel.submodel_element.add(property_)
 
 
 # =====================================================================
-# ALTERNATIVE: step 3 and 4 can also be combined in a single statement:
+# ALTERNATIVE: step 2 and 3 can also be combined in a single statement:
 # Again, we pass the Property to the Submodel's constructor instead of adding it afterwards.
 submodel = model.Submodel(
     identification=model.Identifier('https://acplt.org/Simple_Submodel', model.IdentifierType.IRI),
@@ -116,7 +109,6 @@ submodel = model.Submodel(
             semantic_id=model.Reference(
                 (model.Key(
                     type_=model.KeyElements.GLOBAL_REFERENCE,
-                    local=False,
                     value='http://acplt.org/Properties/SimpleProperty',
                     id_type=model.KeyType.IRI
                 ),)

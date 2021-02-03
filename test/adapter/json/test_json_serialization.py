@@ -29,15 +29,16 @@ class JsonSerializationTest(unittest.TestCase):
         json_data = json.dumps(test_object, cls=AASToJsonEncoder)
 
     def test_random_object_serialization(self) -> None:
-        asset_key = (model.Key(model.KeyElements.ASSET, True, "asset", model.KeyType.CUSTOM),)
+        asset_key = (model.Key(model.KeyElements.ASSET, "asset", model.KeyType.CUSTOM),)
         asset_reference = model.AASReference(asset_key, model.Asset)
         aas_identifier = model.Identifier("AAS1", model.IdentifierType.CUSTOM)
-        submodel_key = (model.Key(model.KeyElements.SUBMODEL, True, "SM1", model.KeyType.CUSTOM),)
+        submodel_key = (model.Key(model.KeyElements.SUBMODEL, "SM1", model.KeyType.CUSTOM),)
         submodel_identifier = submodel_key[0].get_identifier()
         assert(submodel_identifier is not None)
         submodel_reference = model.AASReference(submodel_key, model.Submodel)
         submodel = model.Submodel(submodel_identifier)
-        test_aas = model.AssetAdministrationShell(asset_reference, aas_identifier, submodel={submodel_reference})
+        test_aas = model.AssetAdministrationShell(model.AssetInformation(global_asset_id=asset_reference),
+                                                  aas_identifier, submodel={submodel_reference})
 
         # serialize object to json
         json_data = json.dumps({
@@ -51,17 +52,18 @@ class JsonSerializationTest(unittest.TestCase):
 
 class JsonSerializationSchemaTest(unittest.TestCase):
     def test_random_object_serialization(self) -> None:
-        asset_key = (model.Key(model.KeyElements.ASSET, True, "asset", model.KeyType.CUSTOM),)
+        asset_key = (model.Key(model.KeyElements.ASSET, "asset", model.KeyType.CUSTOM),)
         asset_reference = model.AASReference(asset_key, model.Asset)
         aas_identifier = model.Identifier("AAS1", model.IdentifierType.CUSTOM)
-        submodel_key = (model.Key(model.KeyElements.SUBMODEL, True, "SM1", model.KeyType.CUSTOM),)
+        submodel_key = (model.Key(model.KeyElements.SUBMODEL, "SM1", model.KeyType.CUSTOM),)
         submodel_identifier = submodel_key[0].get_identifier()
         assert(submodel_identifier is not None)
         submodel_reference = model.AASReference(submodel_key, model.Submodel)
         # The JSONSchema expects every object with HasSemnatics (like Submodels) to have a `semanticId` Reference, which
         # must be a Reference. (This seems to be a bug in the JSONSchema.)
         submodel = model.Submodel(submodel_identifier, semantic_id=model.Reference((),))
-        test_aas = model.AssetAdministrationShell(asset_reference, aas_identifier, submodel={submodel_reference})
+        test_aas = model.AssetAdministrationShell(model.AssetInformation(global_asset_id=asset_reference),
+                                                  aas_identifier, submodel={submodel_reference})
 
         # serialize object to json
         json_data = json.dumps({
@@ -180,20 +182,21 @@ class JsonSerializationStrippedObjectsTest(unittest.TestCase):
 
     def test_stripped_qualifiable(self) -> None:
         qualifier = model.Qualifier("test_qualifier", str)
+        qualifier2 = model.Qualifier("test_qualifier2", str)
         operation = model.Operation("test_operation", qualifier={qualifier})
         submodel = model.Submodel(
             model.Identifier("http://acplt.org/test_submodel", model.IdentifierType.IRI),
             submodel_element=[operation],
-            qualifier={qualifier}
+            qualifier={qualifier2}
         )
 
         self._checkNormalAndStripped({"submodelElements", "qualifiers"}, submodel)
         self._checkNormalAndStripped("qualifiers", operation)
 
     def test_stripped_annotated_relationship_element(self) -> None:
-        mlp = model.MultiLanguageProperty("test_multi_language_property")
+        mlp = model.MultiLanguageProperty("test_multi_language_property", category="PARAMETER")
         ref = model.AASReference(
-            (model.Key(model.KeyElements.SUBMODEL, False, "http://acplt.org/test_ref", model.KeyType.IRI),),
+            (model.Key(model.KeyElements.SUBMODEL, "http://acplt.org/test_ref", model.KeyType.IRI),),
             model.Submodel
         )
         are = model.AnnotatedRelationshipElement(
@@ -206,28 +209,28 @@ class JsonSerializationStrippedObjectsTest(unittest.TestCase):
         self._checkNormalAndStripped("annotation", are)
 
     def test_stripped_entity(self) -> None:
-        mlp = model.MultiLanguageProperty("test_multi_language_property")
+        mlp = model.MultiLanguageProperty("test_multi_language_property", category="PARAMETER")
         entity = model.Entity("test_entity", model.EntityType.CO_MANAGED_ENTITY, statement=[mlp])
 
         self._checkNormalAndStripped("statements", entity)
 
     def test_stripped_submodel_element_collection(self) -> None:
-        mlp = model.MultiLanguageProperty("test_multi_language_property")
+        mlp = model.MultiLanguageProperty("test_multi_language_property", category="PARAMETER")
         sec = model.SubmodelElementCollectionOrdered("test_submodel_element_collection", value=[mlp])
 
         self._checkNormalAndStripped("value", sec)
 
     def test_stripped_asset_administration_shell(self) -> None:
         asset_ref = model.AASReference(
-            (model.Key(model.KeyElements.ASSET, False, "http://acplt.org/test_ref", model.KeyType.IRI),),
+            (model.Key(model.KeyElements.ASSET, "http://acplt.org/test_ref", model.KeyType.IRI),),
             model.Asset
         )
         submodel_ref = model.AASReference(
-            (model.Key(model.KeyElements.SUBMODEL, False, "http://acplt.org/test_ref", model.KeyType.IRI),),
+            (model.Key(model.KeyElements.SUBMODEL, "http://acplt.org/test_ref", model.KeyType.IRI),),
             model.Submodel
         )
         aas = model.AssetAdministrationShell(
-            asset_ref,
+            model.AssetInformation(global_asset_id=asset_ref),
             model.Identifier("http://acplt.org/test_aas", model.IdentifierType.IRI),
             submodel={submodel_ref},
             view=[model.View("test_view")]

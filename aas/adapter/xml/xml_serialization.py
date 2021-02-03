@@ -31,17 +31,17 @@ from .. import _generic
 # ##############################################################
 
 # Namespace definition
-NS_AAS = "{http://www.admin-shell.io/aas/2/0}"
-NS_ABAC = "{http://www.admin-shell.io/aas/abac/2/0}"
-NS_AAS_COMMON = "{http://www.admin-shell.io/aas_common/2/0}"
+NS_AAS = "{http://www.admin-shell.io/aas/3/0}"
+NS_ABAC = "{http://www.admin-shell.io/aas/abac/3/0}"
+NS_AAS_COMMON = "{http://www.admin-shell.io/aas_common/3/0}"
 NS_XSI = "{http://www.w3.org/2001/XMLSchema-instance}"
 NS_XS = "{http://www.w3.org/2001/XMLSchema}"
-NS_IEC = "{http://www.admin-shell.io/IEC61360/2/0}"
-NS_MAP = {"aas": "http://www.admin-shell.io/aas/2/0",
-          "abac": "http://www.admin-shell.io/aas/abac/2/0",
-          "aas_common": "http://www.admin-shell.io/aas_common/2/0",
+NS_IEC = "{http://www.admin-shell.io/IEC61360/3/0}"
+NS_MAP = {"aas": "http://www.admin-shell.io/aas/3/0",
+          "abac": "http://www.admin-shell.io/aas/abac/3/0",
+          "aas_common": "http://www.admin-shell.io/aas_common/3/0",
           "xsi": "http://www.w3.org/2001/XMLSchema-instance",
-          "IEC": "http://www.admin-shell.io/IEC61360/2/0",
+          "IEC": "http://www.admin-shell.io/IEC61360/3/0",
           "xs": "http://www.w3.org/2001/XMLSchema"}
 
 
@@ -95,18 +95,27 @@ def abstract_classes_to_xml(tag: str, obj: object) -> etree.Element:
     :return: parent element with the serialized information from the abstract classes
     """
     elm = _generate_element(tag)
+    if isinstance(obj, model.HasExtension):
+        if obj.extension:
+            et_extension = _generate_element(NS_AAS + "extensions")
+            for extension in obj.extension:
+                if isinstance(extension, model.Extension):
+                    et_extension.append(extension_to_xml(extension, tag=NS_AAS + "extension"))
+            elm.append(et_extension)
     if isinstance(obj, model.Referable):
         elm.append(_generate_element(name=NS_AAS + "idShort", text=obj.id_short))
+        if obj.display_name:
+            elm.append(lang_string_set_to_xml(obj.display_name, tag=NS_AAS + "displayName"))
         if obj.category:
             elm.append(_generate_element(name=NS_AAS + "category", text=obj.category))
         if obj.description:
             elm.append(lang_string_set_to_xml(obj.description, tag=NS_AAS + "description"))
     if isinstance(obj, model.Identifiable):
+        if obj.administration:
+            elm.append(administrative_information_to_xml(obj.administration))
         elm.append(_generate_element(name=NS_AAS + "identification",
                                      text=obj.identification.id,
                                      attributes={"idType": _generic.IDENTIFIER_TYPES[obj.identification.id_type]}))
-        if obj.administration:
-            elm.append(administrative_information_to_xml(obj.administration))
     if isinstance(obj, model.HasKind):
         if obj.kind is model.ModelingKind.TEMPLATE:
             elm.append(_generate_element(name=NS_AAS + "kind", text="Template"))
@@ -118,13 +127,11 @@ def abstract_classes_to_xml(tag: str, obj: object) -> etree.Element:
             elm.append(reference_to_xml(obj.semantic_id, tag=NS_AAS+"semanticId"))
     if isinstance(obj, model.Qualifiable):
         if obj.qualifier:
+            et_qualifier = _generate_element(NS_AAS + "qualifiers")
             for qualifier in obj.qualifier:
-                et_qualifier = _generate_element(NS_AAS+"qualifier")
                 if isinstance(qualifier, model.Qualifier):
                     et_qualifier.append(qualifier_to_xml(qualifier, tag=NS_AAS+"qualifier"))
-                if isinstance(qualifier, model.Formula):
-                    et_qualifier.append(formula_to_xml(qualifier, tag=NS_AAS+"formula"))
-                elm.append(et_qualifier)
+            elm.append(et_qualifier)
     return elm
 
 
@@ -176,10 +183,10 @@ def administrative_information_to_xml(obj: model.AdministrativeInformation,
     :return: serialized ElementTree object
     """
     et_administration = _generate_element(tag)
+    if obj.revision:
+        et_administration.append(_generate_element(name=NS_AAS + "revision", text=obj.revision))
     if obj.version:
         et_administration.append(_generate_element(name=NS_AAS + "version", text=obj.version))
-        if obj.revision:
-            et_administration.append(_generate_element(name=NS_AAS + "revision", text=obj.revision))
     return et_administration
 
 
@@ -218,27 +225,9 @@ def reference_to_xml(obj: model.Reference, tag: str = NS_AAS+"reference") -> etr
         et_keys.append(_generate_element(name=NS_AAS + "key",
                                          text=aas_key.value,
                                          attributes={"idType": _generic.KEY_TYPES[aas_key.id_type],
-                                                     "local": boolean_to_xml(aas_key.local),
                                                      "type": _generic.KEY_ELEMENTS[aas_key.type]}))
     et_reference.append(et_keys)
     return et_reference
-
-
-def formula_to_xml(obj: model.Formula, tag: str = NS_AAS+"formula") -> etree.Element:
-    """
-    serialization of objects of class Formula to XML
-
-    :param obj: object of class Formula
-    :param tag: tag of the ElementTree object, default is "formula"
-    :return: serialized ElementTree object
-    """
-    et_formula = abstract_classes_to_xml(tag, obj)
-    if obj.depends_on:
-        et_depends_on = _generate_element(name=NS_AAS + "dependsOnRefs", text=None)
-        for aas_reference in obj.depends_on:
-            et_depends_on.append(reference_to_xml(aas_reference, NS_AAS+"reference"))
-        et_formula.append(et_depends_on)
-    return et_formula
 
 
 def qualifier_to_xml(obj: model.Qualifier, tag: str = NS_AAS+"qualifier") -> etree.Element:
@@ -250,13 +239,34 @@ def qualifier_to_xml(obj: model.Qualifier, tag: str = NS_AAS+"qualifier") -> etr
     :return: serialized ElementTreeObject
     """
     et_qualifier = abstract_classes_to_xml(tag, obj)
-    et_qualifier.append(_generate_element(NS_AAS + "type", text=obj.type))
-    et_qualifier.append(_generate_element(NS_AAS + "valueType", text=model.datatypes.XSD_TYPE_NAMES[obj.value_type]))
     if obj.value_id:
         et_qualifier.append(reference_to_xml(obj.value_id, NS_AAS+"valueId"))
     if obj.value:
         et_qualifier.append(_value_to_xml(obj.value, obj.value_type))
+    et_qualifier.append(_generate_element(NS_AAS + "type", text=obj.type))
+    et_qualifier.append(_generate_element(NS_AAS + "valueType", text=model.datatypes.XSD_TYPE_NAMES[obj.value_type]))
     return et_qualifier
+
+
+def extension_to_xml(obj: model.Extension, tag: str = NS_AAS+"extension") -> etree.Element:
+    """
+    serialization of objects of class Extension to XML
+
+    :param obj: object of class Extension
+    :param tag: tag of the serialized ElementTree object, default is "extension"
+    :return: serialized ElementTreeObject
+    """
+    et_extension = abstract_classes_to_xml(tag, obj)
+    et_extension.append(_generate_element(NS_AAS + "name", text=obj.name))
+    if obj.value_type:
+        et_extension.append(_generate_element(NS_AAS + "valueType",
+                                              text=model.datatypes.XSD_TYPE_NAMES[obj.value_type]))
+    if obj.value:
+        et_extension.append(_value_to_xml(obj.value, obj.value_type))  # type: ignore # (value_type could be None)
+    if obj.refers_to:
+        et_extension.append(reference_to_xml(obj.refers_to, NS_AAS+"refersTo"))
+
+    return et_extension
 
 
 def value_reference_pair_to_xml(obj: model.ValueReferencePair,
@@ -325,12 +335,52 @@ def asset_to_xml(obj: model.Asset, tag: str = NS_AAS+"asset") -> etree.Element:
     :return: serialized ElementTree object
     """
     et_asset = abstract_classes_to_xml(tag, obj)
-    if obj.asset_identification_model:
-        et_asset.append(reference_to_xml(obj.asset_identification_model, NS_AAS+"assetIdentificationModelRef"))
-    if obj.bill_of_material:
-        et_asset.append(reference_to_xml(obj.bill_of_material, NS_AAS+"billOfMaterialRef"))
-    et_asset.append(_generate_element(name=NS_AAS + "kind", text=_generic.ASSET_KIND[obj.kind]))
     return et_asset
+
+
+def identifier_key_value_pair_to_xml(obj: model.IdentifierKeyValuePair, tag: str = NS_AAS+"identifierKeyValuePair") \
+        -> etree.Element:
+    """
+    serialization of objects of class IdentifierKeyValuePair to XML
+
+    :param obj: object of class IdentifierKeyValuePair
+    :param tag: namespace+tag of the ElementTree object. default is "identifierKeyValuePair"
+    :return: serialized ElementTree object
+    """
+    et_asset_information = abstract_classes_to_xml(tag, obj)
+    et_asset_information.append(reference_to_xml(obj.external_subject_id, NS_AAS + "externalSubjectId"))
+    et_asset_information.append(_generate_element(name=NS_AAS + "key", text=obj.key))
+    et_asset_information.append(_generate_element(name=NS_AAS + "value", text=obj.value))
+
+    return et_asset_information
+
+
+def asset_information_to_xml(obj: model.AssetInformation, tag: str = NS_AAS+"assetInformation") -> etree.Element:
+    """
+    serialization of objects of class AssetInformation to XML
+
+    :param obj: object of class AssetInformation
+    :param tag: namespace+tag of the ElementTree object. default is "assetInformation"
+    :return: serialized ElementTree object
+    """
+    et_asset_information = abstract_classes_to_xml(tag, obj)
+    if obj.default_thumbnail:
+        et_asset_information.append(file_to_xml(obj.default_thumbnail, NS_AAS+"defaultThumbNail"))
+    if obj.global_asset_id:
+        et_asset_information.append(reference_to_xml(obj.global_asset_id, NS_AAS + "globalAssetId"))
+    et_asset_information.append(_generate_element(name=NS_AAS + "assetKind", text=_generic.ASSET_KIND[obj.asset_kind]))
+    et_ref = _generate_element(name=NS_AAS + "billOfMaterials")
+    if obj.bill_of_material:
+        for ref in obj.bill_of_material:
+            et_ref.append(reference_to_xml(ref, NS_AAS+"submodelRef"))
+    et_asset_information.append(et_ref)
+    et_specific_asset_id = _generate_element(name=NS_AAS + "specificAssetIds")
+    if obj.specific_asset_id:
+        for specific_asset_id in obj.specific_asset_id:
+            et_specific_asset_id.append(identifier_key_value_pair_to_xml(specific_asset_id, NS_AAS+"specificAssetId"))
+    et_asset_information.append(et_specific_asset_id)
+
+    return et_asset_information
 
 
 def concept_description_to_xml(obj: model.ConceptDescription,
@@ -351,7 +401,6 @@ def concept_description_to_xml(obj: model.ConceptDescription,
         et_concept_description.append(et_embedded_data_specification)
         et_embedded_data_specification.append(reference_to_xml(model.Reference(tuple([model.Key(
             model.KeyElements.GLOBAL_REFERENCE,
-            False,
             "http://admin-shell.io/DataSpecificationTemplates/DataSpecificationIEC61360/2/0",
             model.KeyType.IRI
         )])), NS_AAS+"dataSpecification"))
@@ -405,7 +454,6 @@ def _iec61360_concept_description_to_xml(obj: model.concept.IEC61360ConceptDescr
             et_keys.append(_generate_element(name=NS_IEC + "key",
                                              text=aas_key.value,
                                              attributes={"idType": _generic.KEY_TYPES[aas_key.id_type],
-                                                         "local": boolean_to_xml(aas_key.local),
                                                          "type": _generic.KEY_ELEMENTS[aas_key.type]}))
         et_reference.append(et_keys)
         return et_reference
@@ -468,24 +516,6 @@ def _iec61360_concept_description_to_xml(obj: model.concept.IEC61360ConceptDescr
     return et_iec
 
 
-def concept_dictionary_to_xml(obj: model.ConceptDictionary,
-                              tag: str = NS_AAS+"conceptDictionary") -> etree.Element:
-    """
-    serialization of objects of class ConceptDictionary to XML
-
-    :param obj: object of class ConceptDictionary
-    :param tag: tag of the ElementTree object. default is "conceptDictionary"
-    :return: serialized ElementTree object
-    """
-    et_concept_dictionary = abstract_classes_to_xml(tag, obj)
-    et_concept_descriptions_refs = _generate_element(NS_AAS + "conceptDescriptionRefs")
-    if obj.concept_description:
-        for reference in obj.concept_description:
-            et_concept_descriptions_refs.append(reference_to_xml(reference, NS_AAS+"conceptDescriptionRef"))
-    et_concept_dictionary.append(et_concept_descriptions_refs)
-    return et_concept_dictionary
-
-
 def asset_administration_shell_to_xml(obj: model.AssetAdministrationShell,
                                       tag: str = NS_AAS+"assetAdministrationShell") -> etree.Element:
     """
@@ -496,27 +526,21 @@ def asset_administration_shell_to_xml(obj: model.AssetAdministrationShell,
     :return: serialized ElementTree object
     """
     et_aas = abstract_classes_to_xml(tag, obj)
+    if obj.security:
+        et_aas.append(security_to_xml(obj.security, tag=NS_ABAC + "security"))
     if obj.derived_from:
         et_aas.append(reference_to_xml(obj.derived_from, tag=NS_AAS+"derivedFrom"))
-    et_aas.append(reference_to_xml(obj.asset, tag=NS_AAS+"assetRef"))
     if obj.submodel:
         et_submodels = _generate_element(NS_AAS + "submodelRefs")
         for reference in obj.submodel:
             et_submodels.append(reference_to_xml(reference, tag=NS_AAS+"submodelRef"))
         et_aas.append(et_submodels)
+    et_aas.append(asset_information_to_xml(obj.asset_information, tag=NS_AAS + "assetInformation"))
     if obj.view:
         et_views = _generate_element(NS_AAS + "views")
         for view in obj.view:
             et_views.append(view_to_xml(view, NS_AAS+"view"))
         et_aas.append(et_views)
-    if obj.concept_dictionary:
-        et_concept_dictionaries = _generate_element(NS_AAS + "conceptDictionaries")
-        for concept_dictionary in obj.concept_dictionary:
-            et_concept_dictionaries.append(concept_dictionary_to_xml(concept_dictionary,
-                                                                     NS_AAS+"conceptDictionary"))
-        et_aas.append(et_concept_dictionaries)
-    if obj.security:
-        et_aas.append(security_to_xml(obj.security, tag=NS_ABAC+"security"))
     return et_aas
 
 
@@ -601,11 +625,11 @@ def property_to_xml(obj: model.Property,
     :return: serialized ElementTree object
     """
     et_property = abstract_classes_to_xml(tag, obj)
-    et_property.append(_generate_element(NS_AAS + "valueType", text=model.datatypes.XSD_TYPE_NAMES[obj.value_type]))
-    if obj.value:
-        et_property.append(_value_to_xml(obj.value, obj.value_type))
     if obj.value_id:
         et_property.append(reference_to_xml(obj.value_id, NS_AAS + "valueId"))
+    if obj.value:
+        et_property.append(_value_to_xml(obj.value, obj.value_type))
+    et_property.append(_generate_element(NS_AAS + "valueType", text=model.datatypes.XSD_TYPE_NAMES[obj.value_type]))
     return et_property
 
 
@@ -636,12 +660,12 @@ def range_to_xml(obj: model.Range,
     :return: serialized ElementTree object
     """
     et_range = abstract_classes_to_xml(tag, obj)
+    if obj.max is not None:
+        et_range.append(_value_to_xml(obj.max, obj.value_type, tag=NS_AAS + "max"))
+    if obj.min is not None:
+        et_range.append(_value_to_xml(obj.min, obj.value_type, tag=NS_AAS + "min"))
     et_range.append(_generate_element(name=NS_AAS + "valueType",
                                       text=model.datatypes.XSD_TYPE_NAMES[obj.value_type]))
-    if obj.min is not None:
-        et_range.append(_value_to_xml(obj.min, obj.value_type, tag=NS_AAS+"min"))
-    if obj.max is not None:
-        et_range.append(_value_to_xml(obj.max, obj.value_type, tag=NS_AAS+"max"))
     return et_range
 
 
@@ -673,9 +697,9 @@ def file_to_xml(obj: model.File,
     :return: serialized ElementTree object
     """
     et_file = abstract_classes_to_xml(tag, obj)
-    et_file.append(_generate_element(NS_AAS + "mimeType", text=obj.mime_type))
     if obj.value:
         et_file.append(_generate_element(NS_AAS + "value", text=obj.value))
+    et_file.append(_generate_element(NS_AAS + "mimeType", text=obj.mime_type))
     return et_file
 
 
@@ -707,6 +731,9 @@ def submodel_element_collection_to_xml(obj: model.SubmodelElementCollection,
     """
     et_submodel_element_collection = abstract_classes_to_xml(tag, obj)
     # todo: remove wrapping submodelElement-tag, in accordance to future schema
+    et_submodel_element_collection.append(_generate_element(NS_AAS + "allowDuplicates",
+                                                            text=boolean_to_xml(obj.allow_duplicates)))
+    et_submodel_element_collection.append(_generate_element(NS_AAS + "ordered", text=boolean_to_xml(obj.ordered)))
     et_value = _generate_element(NS_AAS + "value")
     if obj.value:
         for submodel_element in obj.value:
@@ -714,8 +741,6 @@ def submodel_element_collection_to_xml(obj: model.SubmodelElementCollection,
             et_submodel_element.append(submodel_element_to_xml(submodel_element))
             et_value.append(et_submodel_element)
     et_submodel_element_collection.append(et_value)
-    et_submodel_element_collection.append(_generate_element(NS_AAS + "ordered", text=boolean_to_xml(obj.ordered)))
-    et_submodel_element_collection.append(_generate_element(NS_AAS + "allowDuplicates", text="false"))
     return et_submodel_element_collection
 
 
@@ -780,15 +805,15 @@ def operation_to_xml(obj: model.Operation,
     :return: serialized ElementTree object
     """
     et_operation = abstract_classes_to_xml(tag, obj)
+    if obj.in_output_variable:
+        for in_out_ov in obj.in_output_variable:
+            et_operation.append(operation_variable_to_xml(in_out_ov, NS_AAS+"inoutputVariable"))
     if obj.input_variable:
         for input_ov in obj.input_variable:
             et_operation.append(operation_variable_to_xml(input_ov, NS_AAS+"inputVariable"))
     if obj.output_variable:
         for output_ov in obj.output_variable:
             et_operation.append(operation_variable_to_xml(output_ov, NS_AAS+"outputVariable"))
-    if obj.in_output_variable:
-        for in_out_ov in obj.in_output_variable:
-            et_operation.append(operation_variable_to_xml(in_out_ov, NS_AAS+"inoutputVariable"))
     return et_operation
 
 
@@ -815,16 +840,18 @@ def entity_to_xml(obj: model.Entity,
     """
     # todo: remove wrapping submodelElement, in accordance to future schemas
     et_entity = abstract_classes_to_xml(tag, obj)
+    if obj.global_asset_id:
+        et_entity.append(reference_to_xml(obj.global_asset_id, NS_AAS + "globalAssetId"))
+    if obj.specific_asset_id:
+        et_entity.append(identifier_key_value_pair_to_xml(obj.specific_asset_id, NS_AAS+"specificAssetId"))
+    et_entity.append(_generate_element(NS_AAS + "entityType", text=_generic.ENTITY_TYPES[obj.entity_type]))
     et_statements = _generate_element(NS_AAS + "statements")
     for statement in obj.statement:
         # todo: remove the <submodelElement> once the proposed changes get accepted
-        et_submodel_element = _generate_element(NS_AAS+"submodelElement")
+        et_submodel_element = _generate_element(NS_AAS + "submodelElement")
         et_submodel_element.append(submodel_element_to_xml(statement))
         et_statements.append(et_submodel_element)
     et_entity.append(et_statements)
-    et_entity.append(_generate_element(NS_AAS + "entityType", text=_generic.ENTITY_TYPES[obj.entity_type]))
-    if obj.asset:
-        et_entity.append(reference_to_xml(obj.asset, NS_AAS+"assetRef"))
     return et_entity
 
 
@@ -882,14 +909,14 @@ def write_aas_xml_file(file: IO,
     et_assets = _generate_element(NS_AAS + "assets")
     for ass_obj in assets:
         et_assets.append(asset_to_xml(ass_obj))
-    et_submodels = etree.Element(NS_AAS + "submodels")
-    for sub_obj in submodels:
-        et_submodels.append(submodel_to_xml(sub_obj))
     et_concept_descriptions = etree.Element(NS_AAS + "conceptDescriptions")
     for con_obj in concept_descriptions:
         et_concept_descriptions.append(concept_description_to_xml(con_obj))
-    root.insert(0, et_concept_descriptions)
+    et_submodels = etree.Element(NS_AAS + "submodels")
+    for sub_obj in submodels:
+        et_submodels.append(submodel_to_xml(sub_obj))
     root.insert(0, et_submodels)
+    root.insert(0, et_concept_descriptions)
     root.insert(0, et_assets)
     root.insert(0, et_asset_administration_shells)
 

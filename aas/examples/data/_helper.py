@@ -13,7 +13,7 @@ Helper classes for checking two objects for completeness and correctness and rep
 """
 import logging
 import pprint
-from typing import List, NamedTuple, Iterator, Dict, Any, Type, Optional, Union, Set, Iterable
+from typing import List, NamedTuple, Iterator, Dict, Any, Type, Union, Set, Iterable
 
 from ... import model
 
@@ -185,15 +185,15 @@ class AASDataChecker(DataChecker):
         """
         self.check_contained_element_length(object_, 'qualifier', model.Constraint, len(expected_object.qualifier))
         for expected_element in expected_object.qualifier:
-            element = self._find_element_by_attribute(expected_element, object_.qualifier, 'type')
-            if self.check(element is not None, 'Constraint{} must exist'.format(repr(expected_element))):
-                if isinstance(element, model.Formula):
-                    self._check_formula_equal(element, expected_element)  # type: ignore
-                elif isinstance(element, model.Qualifier):
+            element = self._find_element_by_attribute(expected_element, list(object_.qualifier), 'type')
+            if self.check(element is not None, 'Constraint {} must exist'.format(repr(expected_element))):
+                if isinstance(element, model.Qualifier):
                     self._check_qualifier_equal(element, expected_element)  # type: ignore
                 else:
                     raise TypeError('Constraint class not implemented')
-        found_elements = self._find_extra_elements_by_attribute(object_.qualifier, expected_object.qualifier, 'type')
+
+        found_elements = self._find_extra_elements_by_attribute(list(object_.qualifier),
+                                                                list(expected_object.qualifier), 'type')
         self.check(found_elements == set(), 'Qualifiable Element {} must not have extra elements'.format(repr(object_)),
                    value=found_elements)
 
@@ -313,9 +313,12 @@ class AASDataChecker(DataChecker):
         """
         self.check_contained_element_length(object_, 'value', model.SubmodelElement, len(expected_value.value))
         for expected_element in expected_value.value:
-            element = object_.value.get(expected_element.id_short)
-            if self.check(element is not None, 'Submodel Element{} must exist'.format(repr(expected_element))):
-                self._check_submodel_element(element, expected_element)  # type: ignore
+            if isinstance(expected_element, model.Referable):
+                try:
+                    element = object_.get_referable(expected_element.id_short)
+                    self._check_submodel_element(element, expected_element)  # type: ignore
+                except KeyError:
+                    self.check(False, 'Submodel Element {} must exist'.format(repr(expected_element)))
 
         found_elements = self._find_extra_elements_by_id_short(object_.value, expected_value.value)
         self.check(found_elements == set(), 'Submodel Collection {} must not have extra elements'.format(repr(object_)),
@@ -363,10 +366,10 @@ class AASDataChecker(DataChecker):
         self.check_contained_element_length(object_, 'annotation', model.DataElement,
                                             len(expected_value.annotation))
         for expected_data_element in expected_value.annotation:
-            self.check(
-                object_.annotation.get(expected_data_element.id_short) is not None,
-                'Annotation {} must exist'.format(repr(expected_data_element))
-            )
+            try:
+                object_.get_referable(expected_data_element.id_short)
+            except KeyError:
+                self.check(False, 'Annotation {} must exist'.format(repr(expected_data_element)))
 
         found_elements = self._find_extra_elements_by_id_short(object_.annotation, expected_value.annotation)
         self.check(found_elements == set(), 'Annotated Reference {} must not have extra '
@@ -381,7 +384,7 @@ class AASDataChecker(DataChecker):
         :param expected_value: expected Reference object
         :return:
         """
-        self.check(object_ == expected_value, "Reference{} must be == {}".format(repr(object_), repr(expected_value)))
+        self.check(object_ == expected_value, "{} must be == {}".format(repr(object_), repr(expected_value)))
 
     def _find_reference(self, object_: model.Reference, search_list: Union[Set, List]) -> Union[model.Reference, None]:
         """
@@ -390,6 +393,20 @@ class AASDataChecker(DataChecker):
         :param object_: Given reference which should be find in list
         :param search_list: List in which the given reference should be find
         :return: the searched reference if found else none
+        """
+        for element in search_list:
+            if object_ == element:
+                return element
+        return None
+
+    def _find_identifier_key_value_pair(self, object_: model.IdentifierKeyValuePair, search_list: Union[Set, List]) \
+            -> Union[model.IdentifierKeyValuePair, None]:
+        """
+        Find a IdentifierKeyValuePair in an list
+
+        :param object_: Given IdentifierKeyValuePair which should be find in list
+        :param search_list: List in which the given IdentifierKeyValuePair should be find
+        :return: the searched IdentifierKeyValuePair if found else none
         """
         for element in search_list:
             if object_ == element:
@@ -416,24 +433,27 @@ class AASDataChecker(DataChecker):
                     return element
         return None
 
-    def _find_extra_reference(self, object_list: Iterable[model.Reference],
-                              search_list: Iterable[model.Reference]) -> Set[model.Reference]:
+    def _find_extra_object(self, object_list: Iterable, search_list: Iterable,
+                           type_) -> Union[Set, None]:
         """
-        Find extra reference that are in object_list but noch in search_list
+        Find extra object that are in object_list but noch in search_list
 
-        :param object_list: List which could contain more references than the search_list has
+        :param object_list: List which could contain more objects than the search_list has
         :param search_list: List which should be searched
-        :return: Set of references that are in object_list but not in search_list
+        :param type_: type of objects which should be find
+        :return: Set of objects that are in object_list but not in search_list
         """
         found_elements = set()
         for object_list_element in object_list:
-            found = False
-            for search_list_element in search_list:
-                if object_list_element == search_list_element:
-                    found = True
-                    break
-            if found is False:
-                found_elements.add(object_list_element)
+            if isinstance(object_list_element, type_):
+                found = False
+                for search_list_element in search_list:
+                    if isinstance(search_list_element, type_):
+                        if object_list_element == search_list_element:
+                            found = True
+                            break
+                if found is False:
+                    found_elements.add(object_list_element)
         return found_elements
 
     def _find_extra_elements_by_attribute(self, object_list: Union[Set, List], search_list: Union[Set, List],
@@ -471,7 +491,7 @@ class AASDataChecker(DataChecker):
         """
         found_elements = set()
         for object_list_element in object_list:
-            element = search_list.get(object_list_element.id_short)
+            element = search_list.get("id_short", object_list_element.id_short)
             if element is None:
                 found_elements.add(object_list_element)
         return found_elements
@@ -529,11 +549,34 @@ class AASDataChecker(DataChecker):
         """
         self._check_abstract_attributes_submodel_element_equal(object_, expected_value)
         self.check_attribute_equal(object_, 'entity_type', expected_value.entity_type)
-        self.check_attribute_equal(object_, 'asset', expected_value.asset)
+        if object_.global_asset_id and expected_value.global_asset_id:
+            self._check_reference_equal(object_.global_asset_id, expected_value.global_asset_id)
+        else:
+            if expected_value.global_asset_id:
+                self.check(expected_value.global_asset_id is not None,
+                           'globalAssetId {} must exist'.format(repr(expected_value.global_asset_id)),
+                           value=object_.global_asset_id)
+            else:
+                if object_.global_asset_id:
+                    self.check(expected_value.global_asset_id is None, 'Enity {} must not have a '
+                                                                       'globalAssetId'.format(repr(object_)),
+                               value=expected_value.global_asset_id)
+        if object_.specific_asset_id and expected_value.specific_asset_id:
+            self.check_identifier_key_value_pair(object_.specific_asset_id, expected_value.specific_asset_id)
+        else:
+            if expected_value.specific_asset_id:
+                self.check(expected_value.specific_asset_id is not None,
+                           'SpecificAssetId {} must exist'.format(repr(expected_value.specific_asset_id)),
+                           value=object_.specific_asset_id)
+            else:
+                if object_.specific_asset_id:
+                    self.check(expected_value.specific_asset_id is None, 'Enity {} must not have a '
+                                                                         'specificAssetId'.format(repr(object_)),
+                               value=expected_value.specific_asset_id)
         self.check_contained_element_length(object_, 'statement', model.SubmodelElement, len(expected_value.statement))
         for expected_element in expected_value.statement:
-            element = object_.statement.get(expected_element.id_short)
-            self.check(element is not None, 'Entity{} must exist'.format(repr(expected_element)))
+            element = object_.get_referable(expected_element.id_short)
+            self.check(element is not None, 'Entity {} must exist'.format(repr(expected_element)))
 
         found_elements = self._find_extra_elements_by_id_short(object_.statement, expected_value.statement)
         self.check(found_elements == set(), 'Enity {} must not have extra statements'.format(repr(object_)),
@@ -576,9 +619,11 @@ class AASDataChecker(DataChecker):
         self.check_contained_element_length(object_, 'submodel_element', model.SubmodelElement,
                                             len(expected_value.submodel_element))
         for expected_element in expected_value.submodel_element:
-            element = object_.submodel_element.get(expected_element.id_short)
-            if self.check(element is not None, 'Submodel Element{} must exist'.format(repr(expected_element))):
+            try:
+                element = object_.get_referable(expected_element.id_short)
                 self._check_submodel_element(element, expected_element)  # type: ignore
+            except KeyError:
+                self.check(False, 'Submodel Element {} must exist'.format(repr(expected_element)))
 
         found_elements = self._find_extra_elements_by_id_short(object_.submodel_element,
                                                                expected_value.submodel_element)
@@ -598,31 +643,66 @@ class AASDataChecker(DataChecker):
         self.check_attribute_equal(object_, 'value', expected_value.value)
         self.check_attribute_equal(object_, 'value_id', expected_value.value_id)
 
-    def _check_formula_equal(self, object_: model.Formula, expected_value: model.Formula):
+    def check_identifier_key_value_pair(self, object_: model.IdentifierKeyValuePair,
+                                        expected_value: model.IdentifierKeyValuePair):
         """
-        Checks if the given Formula objects are equal
+        Checks if the given IdentifierKeyValuePair objects are equal
 
-        :param object_: Given Formula object to check
-        :param expected_value: expected Formula object
+        :param object_: Given IdentifierKeyValuePair object to check
+        :param expected_value: expected IdentifierKeyValuePair object
         :return:
         """
-        for expected_ref in expected_value.depends_on:
-            ref = self._find_reference(expected_ref, object_.depends_on)
-            if self.check(ref is not None, 'Reference {} must exist'.format(repr(expected_ref))):
+        self.check_attribute_equal(object_, "key", expected_value.key)
+        self.check_attribute_equal(object_, "value", expected_value.value)
+        self.check_attribute_equal(object_, "external_subject_id", expected_value.external_subject_id)
+
+    def check_asset_information_equal(self, object_: model.AssetInformation, expected_value: model.AssetInformation):
+        """
+        Checks if the given AssetInformation objects are equal
+
+        :param object_: Given AssetInformation object to check
+        :param expected_value: expected AssetInformation object
+        :return:
+        """
+        self.check_attribute_equal(object_, 'asset_kind', expected_value.asset_kind)
+        self._check_reference_equal(object_.global_asset_id, expected_value.global_asset_id)
+        self.check_contained_element_length(object_, 'specific_asset_id', model.IdentifierKeyValuePair,
+                                            len(expected_value.specific_asset_id))
+        for expected_pair in expected_value.specific_asset_id:
+            pair = self._find_identifier_key_value_pair(expected_pair, object_.specific_asset_id)
+            if self.check(pair is not None, 'IdentifierValueKeyPair {} must exist'.format(repr(expected_pair))):
+                self.check_identifier_key_value_pair(pair, expected_pair)  # type: ignore
+
+        found_elements = self._find_extra_object(object_.specific_asset_id, expected_value.specific_asset_id,
+                                                 model.IdentifierKeyValuePair)
+        self.check(found_elements == set(), 'AssetInformation {} must not have extra '
+                                            'specificAssetIds'.format(repr(object_)),
+                   value=found_elements)
+
+        self.check_contained_element_length(object_, 'bill_of_material', model.AASReference,
+                                            len(expected_value.bill_of_material))
+        for expected_ref in expected_value.bill_of_material:
+            ref = self._find_reference(expected_ref, object_.bill_of_material)
+            if self.check(ref is not None, 'AAS Reference {} must exist'.format(repr(expected_ref))):
                 self._check_reference_equal(ref, expected_ref)  # type: ignore
 
-    def check_asset_equal(self, object_: model.Asset, expected_value: model.Asset):
-        """
-        Checks if the given Asset objects are equal
+        found_elements = self._find_extra_object(object_.bill_of_material, expected_value.bill_of_material,
+                                                 model.AASReference)
+        self.check(found_elements == set(), 'AssetInformation {} must not have extra '
+                                            'references'.format(repr(object_)),
+                   value=found_elements)
 
-        :param object_: Given Asset object to check
-        :param expected_value: expected Asset object
-        :return:
-        """
-        self._check_identifiable_equal(object_, expected_value)
-        self.check_attribute_equal(object_, 'kind', expected_value.kind)
-        self.check_attribute_equal(object_, 'asset_identification_model', expected_value.asset_identification_model)
-        self.check_attribute_equal(object_, 'bill_of_material', expected_value.bill_of_material)
+        if object_.default_thumbnail and expected_value.default_thumbnail:
+            self.check_file_equal(object_.default_thumbnail, expected_value.default_thumbnail)
+        else:
+            if object_.default_thumbnail:
+                self.check(expected_value.default_thumbnail is not None,
+                           'Thumbnail object {} must exist'.format(repr(object_.default_thumbnail)),
+                           value=expected_value.default_thumbnail)
+            else:
+                self.check(expected_value.default_thumbnail is None, 'Asset Administration Shell {} must not have a '
+                                                                     'Thumbnail object'.format(repr(object_)),
+                           value=expected_value.default_thumbnail)
 
     def check_asset_administration_shell_equal(self, object_: model.AssetAdministrationShell,
                                                expected_value: model.AssetAdministrationShell):
@@ -634,66 +714,45 @@ class AASDataChecker(DataChecker):
         :return:
         """
         self._check_identifiable_equal(object_, expected_value)
-        self.check_attribute_equal(object_, 'asset', expected_value.asset)
-        self.check_security_equal(object_.security, expected_value.security)
+        self.check_asset_information_equal(object_.asset_information, expected_value.asset_information)
+        if object_.security and expected_value.security:
+            self.check_security_equal(object_.security, expected_value.security)
+        else:
+            if expected_value.security:
+                self.check(expected_value.security is not None,
+                           'Security object {} must exist'.format(repr(expected_value.security)),
+                           value=object_.security)
+            else:
+                self.check(expected_value.security is None, 'Asset Administration Shell {} must not have a security '
+                                                            'object'.format(repr(expected_value)),
+                           value=object_.security)
+
         self.check_attribute_equal(object_, 'derived_from', expected_value.derived_from)
         self.check_contained_element_length(object_, 'submodel', model.AASReference, len(expected_value.submodel))
-        self.check_contained_element_length(object_, 'concept_dictionary', model.ConceptDictionary,
-                                            len(expected_value.concept_dictionary))
         self.check_contained_element_length(object_, 'view', model.View, len(expected_value.view))
         for expected_ref in expected_value.submodel:
             ref = self._find_reference(expected_ref, object_.submodel)
             if self.check(ref is not None, 'Submodel Reference {} must exist'.format(repr(expected_ref))):
                 self._check_reference_equal(ref, expected_ref)  # type: ignore
 
-        found_elements = self._find_extra_reference(object_.submodel, expected_value.submodel)
+        found_elements = self._find_extra_object(object_.submodel, expected_value.submodel, model.AASReference)
         self.check(found_elements == set(), 'Asset Administration Shell {} must not have extra submodel '
                                             'references'.format(repr(object_)),
                    value=found_elements)
 
-        for expected_element in expected_value.concept_dictionary:
-            element = object_.concept_dictionary.get(expected_element.id_short)
-            if self.check(element is not None, 'Concept Dictionary {} must exist'.format(repr(expected_element))):
-                self.check_concept_dictionary_equal(element, expected_element)  # type: ignore
-
-        found_elements = self._find_extra_elements_by_id_short(object_.concept_dictionary,
-                                                               expected_value.concept_dictionary)
-        self.check(found_elements == set(), 'Asset Administration Shell {} must not have extra '
-                                            'concept dictionaries'.format(repr(object_)), value=found_elements)
-
         for expected_view in expected_value.view:
-            view = object_.view.get(expected_view.id_short)
-            if self.check(view is not None, 'View {} must exist'.format(repr(expected_view))):
+            try:
+                view = object_.get_referable(expected_view.id_short)
                 self.check_view_equal(view, expected_view)  # type: ignore
+            except KeyError:
+                self.check(False, 'View {} must exist'.format(repr(expected_view)))
 
         found_elements = self._find_extra_elements_by_id_short(object_.view, expected_value.view)
         self.check(found_elements == set(), 'Asset Administration Shell {} must not have extra '
                                             'views'.format(repr(object_)), value=found_elements)
 
-    def check_concept_dictionary_equal(self, object_: model.ConceptDictionary,
-                                       expected_value: model.ConceptDictionary):
-        """
-        Checks if the given ConceptDictionary objects are equal
-
-        :param object_: Given ConceptDictionary object to check
-        :param expected_value: expected ConceptDictionary object
-        :return:
-        """
-        self._check_referable_equal(object_, expected_value)
-        self.check_contained_element_length(object_, 'concept_description', model.AASReference,
-                                            len(expected_value.concept_description))
-        for expected_ref in expected_value.concept_description:
-            ref = self._find_reference(expected_ref, object_.concept_description)
-            if self.check(ref is not None, 'Concept Description Reference {} must exist'.format(repr(expected_ref))):
-                self._check_reference_equal(ref, expected_ref)  # type: ignore
-
-        found_elements = self._find_extra_reference(object_.concept_description, expected_value.concept_description)
-        self.check(found_elements == set(), 'Concept Dictionary {} must not have extra '
-                                            'concept description references'.format(repr(object_)),
-                   value=found_elements)
-
-    def check_security_equal(self, object_: Optional[model.Security],
-                             expected_value: Optional[model.Security]):
+    def check_security_equal(self, object_: model.Security,
+                             expected_value: model.Security):
         """
         Checks if the given Security objects are equal
 
@@ -722,7 +781,8 @@ class AASDataChecker(DataChecker):
             if self.check(ref is not None, 'View Reference {} must exist'.format(repr(expected_ref))):
                 self._check_reference_equal(ref, expected_ref)  # type: ignore
 
-        found_elements = self._find_extra_reference(object_.contained_element, expected_value.contained_element)
+        found_elements = self._find_extra_object(object_.contained_element, expected_value.contained_element,
+                                                 model.AASReference)
         self.check(found_elements == set(), 'View Reference {} must not have extra '
                                             'submodel element references'.format(repr(object_)),
                    value=found_elements)
@@ -744,7 +804,8 @@ class AASDataChecker(DataChecker):
             if self.check(ref is not None, 'Concept Description Reference {} must exist'.format(repr(expected_ref))):
                 self._check_reference_equal(ref, expected_ref)  # type: ignore
 
-        found_elements = self._find_extra_reference(object_.is_case_of, expected_value.is_case_of)
+        found_elements = self._find_extra_object(object_.is_case_of, expected_value.is_case_of,
+                                                 model.AASReference)
         self.check(found_elements == set(), 'Concept Description Reference {} must not have extra '
                                             'is case of references'.format(repr(object_)),
                    value=found_elements)
@@ -805,15 +866,12 @@ class AASDataChecker(DataChecker):
         self.check(found_elements == set(), 'ValueReferenceList must not have extra ValueReferencePairs',
                    value=found_elements)
 
-    def check_object_store(self, obj_store_1: model.DictObjectStore,
-                           obj_store_2: model.DictObjectStore, list_identifier: str = '2'):
+    def check_object_store(self, obj_store_1: model.DictObjectStore, obj_store_2: model.DictObjectStore):
         """
         Checks if the given object stores are equal
 
         :param obj_store_1: Given object store to check
         :param obj_store_2: expected object store
-        :param list_identifier: optional string for naming the list in the second object store. Standard is xxx list 2
-                                e.g asset list 2
         :return:
         """
         # separate different kind of objects
@@ -946,7 +1004,8 @@ class AASDataChecker(DataChecker):
                 count = count + 1
         kwargs['count'] = count
         return self.check(count == length,
-                          "{} must contain {} {}s".format(repr(object_), length, class_name.__name__),
+                          "Attribute {} of {} must contain {} {}s".format(attribute_name, repr(object_),
+                                                                          length, class_name.__name__),
                           **kwargs)
 
     def check_is_instance(self, object_: object, class_name: Type, **kwargs) -> bool:

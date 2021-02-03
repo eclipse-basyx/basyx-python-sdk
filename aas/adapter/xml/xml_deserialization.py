@@ -91,7 +91,7 @@ def _element_pretty_identifier(element: etree.Element) -> str:
 
     If the prefix is known, the namespace in the element tag is replaced by the prefix.
     If additionally also the sourceline is known, is is added as a suffix to name.
-    For example, instead of "{http://www.admin-shell.io/aas/2/0}assetAdministrationShell" this function would return
+    For example, instead of "{http://www.admin-shell.io/aas/3/0}assetAdministrationShell" this function would return
     "aas:assetAdministrationShell on line $line", if both, prefix and sourceline, are known.
 
     :param element: The xml element.
@@ -417,6 +417,10 @@ class AASFromXmlDecoder:
         """
         if isinstance(obj, model.Referable):
             category = _get_text_or_none(element.find(NS_AAS + "category"))
+            display_name = _failsafe_construct(element.find(NS_AAS + "displayName"), cls.construct_lang_string_set,
+                                               cls.failsafe)
+            if display_name is not None:
+                obj.display_name = display_name
             if category is not None:
                 obj.category = category
             description = _failsafe_construct(element.find(NS_AAS + "description"), cls.construct_lang_string_set,
@@ -437,17 +441,15 @@ class AASFromXmlDecoder:
             if semantic_id is not None:
                 obj.semantic_id = semantic_id
         if isinstance(obj, model.Qualifiable) and not cls.stripped:
-            # TODO: simplify this should our suggestion regarding the XML schema get accepted
-            # https://git.rwth-aachen.de/acplt/pyi40aas/-/issues/57
-            for constraint in element.findall(NS_AAS + "qualifier"):
-                if len(constraint) == 0:
-                    continue
-                if len(constraint) > 1:
-                    logger.warning(f"{_element_pretty_identifier(constraint)} has more than one constraint, "
-                                   "using the first one...")
-                constructed = _failsafe_construct(constraint[0], cls.construct_constraint, cls.failsafe)
-                if constructed is not None:
-                    obj.qualifier.add(constructed)
+            qualifiers_elem = element.find(NS_AAS + "qualifiers")
+            if qualifiers_elem is not None and len(qualifiers_elem) > 0:
+                for constraint in _failsafe_construct_multiple(qualifiers_elem, cls.construct_constraint, cls.failsafe):
+                    obj.qualifier.add(constraint)
+        if isinstance(obj, model.HasExtension) and not cls.stripped:
+            extension_elem = element.find(NS_AAS + "extension")
+            if extension_elem is not None:
+                for extension in _failsafe_construct_multiple(extension_elem, cls.construct_extension, cls.failsafe):
+                    obj.extension.add(extension)
 
     @classmethod
     def _construct_relationship_element_internal(cls, element: etree.Element, object_class: Type[RE], **_kwargs: Any) \
@@ -482,14 +484,6 @@ class AASFromXmlDecoder:
         return cls.construct_aas_reference_expect_type(element, model.Submodel, **kwargs)
 
     @classmethod
-    def _construct_asset_reference(cls, element: etree.Element, **kwargs: Any) \
-            -> model.AASReference[model.Asset]:
-        """
-        Helper function. Doesn't support the object_class parameter. Overwrite construct_aas_reference instead.
-        """
-        return cls.construct_aas_reference_expect_type(element, model.Asset, **kwargs)
-
-    @classmethod
     def _construct_asset_administration_shell_reference(cls, element: etree.Element, **kwargs: Any) \
             -> model.AASReference[model.AssetAdministrationShell]:
         """
@@ -508,19 +502,10 @@ class AASFromXmlDecoder:
         return cls.construct_aas_reference_expect_type(element, model.Referable, **kwargs)  # type: ignore
 
     @classmethod
-    def _construct_concept_description_reference(cls, element: etree.Element, **kwargs: Any) \
-            -> model.AASReference[model.ConceptDescription]:
-        """
-        Helper function. Doesn't support the object_class parameter. Overwrite construct_aas_reference instead.
-        """
-        return cls.construct_aas_reference_expect_type(element, model.ConceptDescription, **kwargs)
-
-    @classmethod
     def construct_key(cls, element: etree.Element, object_class=model.Key, **_kwargs: Any) \
             -> model.Key:
         return object_class(
             _get_attrib_mandatory_mapped(element, "type", KEY_ELEMENTS_INVERSE),
-            _str_to_bool(_get_attrib_mandatory(element, "local")),
             _get_text_mandatory(element),
             _get_attrib_mandatory_mapped(element, "idType", KEY_TYPES_INVERSE)
         )
@@ -564,8 +549,8 @@ class AASFromXmlDecoder:
     def construct_administrative_information(cls, element: etree.Element, object_class=model.AdministrativeInformation,
                                              **_kwargs: Any) -> model.AdministrativeInformation:
         return object_class(
-            _get_text_or_none(element.find(NS_AAS + "version")),
-            _get_text_or_none(element.find(NS_AAS + "revision"))
+            revision=_get_text_or_none(element.find(NS_AAS + "revision")),
+            version=_get_text_or_none(element.find(NS_AAS + "version"))
         )
 
     @classmethod
@@ -596,14 +581,21 @@ class AASFromXmlDecoder:
         return qualifier
 
     @classmethod
-    def construct_formula(cls, element: etree.Element, object_class=model.Formula, **_kwargs: Any) -> model.Formula:
-        formula = object_class()
-        depends_on_refs = element.find(NS_AAS + "dependsOnRefs")
-        if depends_on_refs is not None:
-            for ref in _failsafe_construct_multiple(depends_on_refs.findall(NS_AAS + "reference"),
-                                                    cls.construct_reference, cls.failsafe):
-                formula.depends_on.add(ref)
-        return formula
+    def construct_extension(cls, element: etree.Element, object_class=model.Extension, **_kwargs: Any) \
+            -> model.Extension:
+        extension = object_class(
+            _child_text_mandatory(element, NS_AAS + "name"))
+        value_type = _get_text_or_none(element.find(NS_AAS + "valueType"))
+        if value_type is not None:
+            extension.value_type = model.datatypes.XSD_TYPE_CLASSES[value_type]
+        value = _get_text_or_none(element.find(NS_AAS + "value"))
+        if value is not None:
+            extension.value = model.datatypes.from_xsd(value, extension.value_type)
+        refers_to = _failsafe_construct(element.find(NS_AAS + "RefersTo"), cls.construct_reference, cls.failsafe)
+        if refers_to is not None:
+            extension.refers_to = refers_to
+        cls._amend_abstract_attributes(extension, element)
+        return extension
 
     @classmethod
     def construct_identifier(cls, element: etree.Element, object_class=model.Identifier, **_kwargs: Any) \
@@ -630,18 +622,6 @@ class AASFromXmlDecoder:
                 view.contained_element.add(ref)
         cls._amend_abstract_attributes(view, element)
         return view
-
-    @classmethod
-    def construct_concept_dictionary(cls, element: etree.Element, object_class=model.ConceptDictionary,
-                                     **_kwargs: Any) -> model.ConceptDictionary:
-        concept_dictionary = object_class(_child_text_mandatory(element, NS_AAS + "idShort"))
-        concept_description = element.find(NS_AAS + "conceptDescriptionRefs")
-        if concept_description is not None:
-            for ref in _failsafe_construct_multiple(concept_description.findall(NS_AAS + "conceptDescriptionRef"),
-                                                    cls._construct_concept_description_reference, cls.failsafe):
-                concept_dictionary.concept_description.add(ref)
-        cls._amend_abstract_attributes(concept_dictionary, element)
-        return concept_dictionary
 
     @classmethod
     def construct_submodel_element(cls, element: etree.Element, **kwargs: Any) -> model.SubmodelElement:
@@ -693,7 +673,6 @@ class AASFromXmlDecoder:
         Overwrite construct_formula or construct_qualifier instead.
         """
         constraints: Dict[str, Callable[..., model.Constraint]] = {NS_AAS + k: v for k, v in {
-            "formula": cls.construct_formula,
             "qualifier": cls.construct_qualifier
         }.items()}
         if element.tag not in constraints:
@@ -766,13 +745,16 @@ class AASFromXmlDecoder:
 
     @classmethod
     def construct_entity(cls, element: etree.Element, object_class=model.Entity, **_kwargs: Any) -> model.Entity:
+        global_asset_id = _failsafe_construct(element.find(NS_AAS + "globalAssetId"),
+                                              cls.construct_reference, cls.failsafe)
+        specific_asset_id = _failsafe_construct(element.find(NS_AAS + "specificAssetId"),
+                                                cls.construct_identifier_key_value_pair, cls.failsafe)
         entity = object_class(
-            _child_text_mandatory(element, NS_AAS + "idShort"),
-            _child_text_mandatory_mapped(element, NS_AAS + "entityType", ENTITY_TYPES_INVERSE),
-            # pass the asset to the constructor, because self managed entities need asset references
-            asset=_failsafe_construct(element.find(NS_AAS + "assetRef"), cls._construct_asset_reference, cls.failsafe),
-            kind=_get_modeling_kind(element)
-        )
+            id_short=_child_text_mandatory(element, NS_AAS + "idShort"),
+            entity_type=_child_text_mandatory_mapped(element, NS_AAS + "entityType", ENTITY_TYPES_INVERSE),
+            global_asset_id=global_asset_id,
+            specific_asset_id=specific_asset_id)
+
         if not cls.stripped:
             # TODO: remove wrapping submodelElement, in accordance to future schemas
             # https://git.rwth-aachen.de/acplt/pyi40aas/-/issues/57
@@ -889,14 +871,14 @@ class AASFromXmlDecoder:
 
     @classmethod
     def construct_submodel_element_collection(cls, element: etree.Element,
-                                              object_class_ordered=model.SubmodelElementCollectionOrdered,
-                                              object_class_unordered=model.SubmodelElementCollectionUnordered,
                                               **_kwargs: Any) -> model.SubmodelElementCollection:
         ordered = _str_to_bool(_child_text_mandatory(element, NS_AAS + "ordered"))
-        collection_type = object_class_ordered if ordered else object_class_unordered
-        collection = collection_type(
+        allow_duplicates = _str_to_bool(_child_text_mandatory(element, NS_AAS + "allowDuplicates"))
+        collection = model.SubmodelElementCollection.create(
             _child_text_mandatory(element, NS_AAS + "idShort"),
-            kind=_get_modeling_kind(element)
+            kind=_get_modeling_kind(element),
+            allow_duplicates=allow_duplicates,
+            ordered=ordered
         )
         if not cls.stripped:
             value = _get_child_mandatory(element, NS_AAS + "value")
@@ -918,8 +900,9 @@ class AASFromXmlDecoder:
     def construct_asset_administration_shell(cls, element: etree.Element, object_class=model.AssetAdministrationShell,
                                              **_kwargs: Any) -> model.AssetAdministrationShell:
         aas = object_class(
-            _child_construct_mandatory(element, NS_AAS + "assetRef", cls._construct_asset_reference),
-            _child_construct_mandatory(element, NS_AAS + "identification", cls.construct_identifier)
+            identification=_child_construct_mandatory(element, NS_AAS + "identification", cls.construct_identifier),
+            asset_information=_child_construct_mandatory(element, NS_AAS + "assetInformation",
+                                                         cls.construct_asset_information)
         )
         security = _failsafe_construct(element.find(NS_ABAC + "security"), cls.construct_security, cls.failsafe)
         if security is not None:
@@ -934,11 +917,6 @@ class AASFromXmlDecoder:
             if views is not None:
                 for view in _child_construct_multiple(views, NS_AAS + "view", cls.construct_view, cls.failsafe):
                     aas.view.add(view)
-        concept_dictionaries = element.find(NS_AAS + "conceptDictionaries")
-        if concept_dictionaries is not None:
-            for cd in _child_construct_multiple(concept_dictionaries, NS_AAS + "conceptDictionary",
-                                                cls.construct_concept_dictionary, cls.failsafe):
-                aas.concept_dictionary.add(cd)
         derived_from = _failsafe_construct(element.find(NS_AAS + "derivedFrom"),
                                            cls._construct_asset_administration_shell_reference, cls.failsafe)
         if derived_from is not None:
@@ -949,19 +927,48 @@ class AASFromXmlDecoder:
     @classmethod
     def construct_asset(cls, element: etree.Element, object_class=model.Asset, **_kwargs: Any) -> model.Asset:
         asset = object_class(
-            _child_text_mandatory_mapped(element, NS_AAS + "kind", ASSET_KIND_INVERSE),
             _child_construct_mandatory(element, NS_AAS + "identification", cls.construct_identifier)
         )
-        asset_identification_model = _failsafe_construct(element.find(NS_AAS + "assetIdentificationModelRef"),
-                                                         cls._construct_submodel_reference, cls.failsafe)
-        if asset_identification_model is not None:
-            asset.asset_identification_model = asset_identification_model
-        bill_of_material = _failsafe_construct(element.find(NS_AAS + "billOfMaterialRef"),
-                                               cls._construct_submodel_reference, cls.failsafe)
-        if bill_of_material is not None:
-            asset.bill_of_material = bill_of_material
         cls._amend_abstract_attributes(asset, element)
         return asset
+
+    @classmethod
+    def construct_identifier_key_value_pair(cls, element: etree.Element, object_class=model.IdentifierKeyValuePair,
+                                            **_kwargs: Any) -> model.IdentifierKeyValuePair:
+        return object_class(
+            external_subject_id=_child_construct_mandatory(element, NS_AAS + "externalSubjectId",
+                                                           cls.construct_reference, namespace=NS_AAS),
+            key=_get_text_or_none(element.find(NS_AAS + "key")),
+            value=_get_text_or_none(element.find(NS_AAS + "value"))
+        )
+
+    @classmethod
+    def construct_asset_information(cls, element: etree.Element, object_class=model.AssetInformation, **_kwargs: Any) \
+            -> model.AssetInformation:
+        asset_information = object_class(
+            _child_text_mandatory_mapped(element, NS_AAS + "assetKind", ASSET_KIND_INVERSE),
+        )
+        global_asset_id = _failsafe_construct(element.find(NS_AAS + "globalAssetId"),
+                                              cls.construct_reference, cls.failsafe)
+        if global_asset_id is not None:
+            asset_information.global_asset_id = global_asset_id
+        specific_assset_ids = element.find(NS_AAS + "specificAssetIds")
+        if specific_assset_ids is not None:
+            for id in _child_construct_multiple(specific_assset_ids, NS_AAS + "specificAssetId",
+                                                cls.construct_identifier_key_value_pair, cls.failsafe):
+                asset_information.specific_asset_id.add(id)
+        bill_of_materials = element.find(NS_AAS + "billOfMaterials")
+        if bill_of_materials is not None:
+            for submodel_ref in _child_construct_multiple(bill_of_materials, NS_AAS + "submodelRef",
+                                                          cls._construct_submodel_reference, cls.failsafe):
+                asset_information.bill_of_material.add(submodel_ref)
+        thumbnail = _failsafe_construct(element.find(NS_AAS + "defaultThumbNail"),
+                                        cls.construct_file, cls.failsafe)
+        if thumbnail is not None:
+            asset_information.default_thumbnail = thumbnail
+
+        cls._amend_abstract_attributes(asset_information, element)
+        return asset_information
 
     @classmethod
     def construct_submodel(cls, element: etree.Element, object_class=model.Submodel, **_kwargs: Any) \
@@ -1182,17 +1189,16 @@ class XMLConstructables(enum.Enum):
     AAS_REFERENCE = enum.auto()
     ADMINISTRATIVE_INFORMATION = enum.auto()
     QUALIFIER = enum.auto()
-    FORMULA = enum.auto()
     IDENTIFIER = enum.auto()
     SECURITY = enum.auto()
     VIEW = enum.auto()
-    CONCEPT_DICTIONARY = enum.auto()
     OPERATION_VARIABLE = enum.auto()
     ANNOTATED_RELATIONSHIP_ELEMENT = enum.auto()
     BASIC_EVENT = enum.auto()
     BLOB = enum.auto()
     CAPABILITY = enum.auto()
     ENTITY = enum.auto()
+    EXTENSION = enum.auto()
     FILE = enum.auto()
     MULTI_LANGUAGE_PROPERTY = enum.auto()
     OPERATION = enum.auto()
@@ -1203,6 +1209,8 @@ class XMLConstructables(enum.Enum):
     SUBMODEL_ELEMENT_COLLECTION = enum.auto()
     ASSET_ADMINISTRATION_SHELL = enum.auto()
     ASSET = enum.auto()
+    ASSET_INFORMATION = enum.auto()
+    IDENTIFIER_KEY_VALUE_PAIR = enum.auto()
     SUBMODEL = enum.auto()
     VALUE_REFERENCE_PAIR = enum.auto()
     IEC61360_CONCEPT_DESCRIPTION = enum.auto()
@@ -1245,16 +1253,12 @@ def read_aas_xml_element(file: IO, construct: XMLConstructables, failsafe: bool 
         constructor = decoder_.construct_administrative_information
     elif construct == XMLConstructables.QUALIFIER:
         constructor = decoder_.construct_qualifier
-    elif construct == XMLConstructables.FORMULA:
-        constructor = decoder_.construct_formula
     elif construct == XMLConstructables.IDENTIFIER:
         constructor = decoder_.construct_identifier
     elif construct == XMLConstructables.SECURITY:
         constructor = decoder_.construct_security
     elif construct == XMLConstructables.VIEW:
         constructor = decoder_.construct_view
-    elif construct == XMLConstructables.CONCEPT_DICTIONARY:
-        constructor = decoder_.construct_concept_dictionary
     elif construct == XMLConstructables.OPERATION_VARIABLE:
         constructor = decoder_.construct_operation_variable
     elif construct == XMLConstructables.ANNOTATED_RELATIONSHIP_ELEMENT:
@@ -1267,6 +1271,8 @@ def read_aas_xml_element(file: IO, construct: XMLConstructables, failsafe: bool 
         constructor = decoder_.construct_capability
     elif construct == XMLConstructables.ENTITY:
         constructor = decoder_.construct_entity
+    elif construct == XMLConstructables.EXTENSION:
+        constructor = decoder_.construct_extension
     elif construct == XMLConstructables.FILE:
         constructor = decoder_.construct_file
     elif construct == XMLConstructables.MULTI_LANGUAGE_PROPERTY:
@@ -1287,6 +1293,10 @@ def read_aas_xml_element(file: IO, construct: XMLConstructables, failsafe: bool 
         constructor = decoder_.construct_asset_administration_shell
     elif construct == XMLConstructables.ASSET:
         constructor = decoder_.construct_asset
+    elif construct == XMLConstructables.ASSET_INFORMATION:
+        constructor = decoder_.construct_asset_information
+    elif construct == XMLConstructables.IDENTIFIER_KEY_VALUE_PAIR:
+        constructor = decoder_.construct_identifier_key_value_pair
     elif construct == XMLConstructables.SUBMODEL:
         constructor = decoder_.construct_submodel
     elif construct == XMLConstructables.VALUE_REFERENCE_PAIR:
@@ -1344,8 +1354,8 @@ def read_aas_xml_file_into(object_store: model.AbstractObjectStore[model.Identif
     element_constructors: Dict[str, Callable[..., model.Identifiable]] = {
         "assetAdministrationShell": decoder_.construct_asset_administration_shell,
         "asset": decoder_.construct_asset,
-        "submodel": decoder_.construct_submodel,
-        "conceptDescription": decoder_.construct_concept_description
+        "conceptDescription": decoder_.construct_concept_description,
+        "submodel": decoder_.construct_submodel
     }
 
     element_constructors = {NS_AAS + k: v for k, v in element_constructors.items()}

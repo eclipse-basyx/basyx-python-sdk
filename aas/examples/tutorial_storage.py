@@ -20,7 +20,7 @@ objects by identification and resolving references.
 
 
 from aas import model
-from aas.model import Asset, AssetAdministrationShell, Submodel
+from aas.model import AssetInformation, AssetAdministrationShell, Submodel
 
 
 ###########################################################################
@@ -29,10 +29,17 @@ from aas.model import Asset, AssetAdministrationShell, Submodel
 
 # For more details, take a look at `tutorial_create_simple_aas.py`
 
-asset = Asset(
-    kind=model.AssetKind.INSTANCE,
-    identification=model.Identifier('https://acplt.org/Simple_Asset', model.IdentifierType.IRI)
+asset_information = AssetInformation(
+    asset_kind=model.AssetKind.INSTANCE,
+    global_asset_id=model.Reference(
+        (model.Key(
+            type_=model.KeyElements.GLOBAL_REFERENCE,
+            value='http://acplt.org/Simple_Asset',
+            id_type=model.KeyType.IRI
+        ),)
+    )
 )
+
 prop = model.Property(
     id_short='ExampleProperty',
     value_type=model.datatypes.String,
@@ -40,7 +47,6 @@ prop = model.Property(
     semantic_id=model.Reference(
         (model.Key(
             type_=model.KeyElements.GLOBAL_REFERENCE,
-            local=False,
             value='http://acplt.org/Properties/SimpleProperty',
             id_type=model.KeyType.IRI
         ),)
@@ -52,7 +58,7 @@ submodel = Submodel(
 )
 aas = AssetAdministrationShell(
     identification=model.Identifier('https://acplt.org/Simple_AAS', model.IdentifierType.IRI),
-    asset=model.AASReference.from_referable(asset),
+    asset_information=asset_information,
     submodel={model.AASReference.from_referable(submodel)}
 )
 
@@ -73,8 +79,7 @@ aas = AssetAdministrationShell(
 # information.
 obj_store: model.DictObjectStore[model.Identifiable] = model.DictObjectStore()
 
-# step 2.2: add asset, submodel and asset administration shell to store
-obj_store.add(asset)
+# step 2.2: add submodel and asset administration shell to store
 obj_store.add(submodel)
 obj_store.add(aas)
 
@@ -107,12 +112,10 @@ assert(submodel is tmp_submodel)
 property_reference = model.AASReference(
     (model.Key(
         type_=model.KeyElements.SUBMODEL,
-        local=True,
         value='https://acplt.org/Simple_Submodel',
         id_type=model.KeyType.IRI),
      model.Key(
          type_=model.KeyElements.PROPERTY,
-         local=True,
          value='ExampleProperty',
          id_type=model.KeyType.IDSHORT),
      ),
