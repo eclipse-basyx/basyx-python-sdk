@@ -442,7 +442,7 @@ class AASFromXmlDecoder:
                 obj.semantic_id = semantic_id
         if isinstance(obj, model.Qualifiable) and not cls.stripped:
             qualifiers_elem = element.find(NS_AAS + "qualifiers")
-            if qualifiers_elem is not None:
+            if qualifiers_elem is not None and len(qualifiers_elem) > 0:
                 for constraint in _failsafe_construct_multiple(qualifiers_elem, cls.construct_constraint, cls.failsafe):
                     obj.qualifier.add(constraint)
         if isinstance(obj, model.HasExtension) and not cls.stripped:
