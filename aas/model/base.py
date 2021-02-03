@@ -1082,7 +1082,7 @@ class Qualifiable(metaclass=abc.ABCMeta):
     def __init__(self):
         super().__init__()
         self.namespace_element_sets: List[NamespaceSet] = []
-        self.qualifier: Set[Constraint] = set()
+        self.qualifier: NamespaceSet[Constraint]
 
     def get_qualifier_by_type(self, qualifier_type: QualifierType) -> "Qualifier":
         """
