@@ -381,10 +381,10 @@ def create_example_submodel() -> model.Submodel:
         description={'en-us': 'Example RelationshipElement object',
                      'de': 'Beispiel RelationshipElement Element'},
         parent=None,
-        semantic_id=model.Reference((model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
-                                               value='http://acplt.org/RelationshipElements/'
-                                                     'ExampleRelationshipElement',
-                                               id_type=model.KeyType.IRI),)),
+        semantic_id=model.AASReference((model.Key(type_=model.KeyElements.CONCEPT_DESCRIPTION,
+                                                  value='https://acplt.org/Test_ConceptDescription',
+                                                  id_type=model.KeyType.IRI),),
+                                       model.ConceptDescription),
         qualifier=(),
         kind=model.ModelingKind.INSTANCE)
 
