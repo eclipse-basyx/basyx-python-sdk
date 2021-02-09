@@ -35,7 +35,7 @@ def walk_submodel(collection: Union[model.Submodel, model.SubmodelElementCollect
 def walk_semantic_ids_recursive(root: model.Referable) -> Iterator[model.Reference]:
     """
     Traverse an AAS object hierarchy (e.g. an AAS with its views or a Submodel with all recursively contained
-    SubmodelElemnts) recursively and return all non-empty (!= None) semanticIds.
+    SubmodelElements) recursively and return all non-empty (!= None) semanticIds.
 
     This is a generator function, yielding all the semanticIds. No Referable objects should be added, removed or
     moved to/from/in the AAS object hierarchy while iterating, as this could result in undefined behaviour.
