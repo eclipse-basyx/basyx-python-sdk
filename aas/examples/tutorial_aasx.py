@@ -67,7 +67,8 @@ file_store = aasx.DictSupplementaryFileContainer()
 # named file with different contents exists. The final name is returned.
 #
 # In addition, we need to specify the MIME type of the file, which is later used in the metadata of the AASX package.
-# (This is actually a )
+# (This is actually a requirement of the underlying Open Packaging Conventions (ECMA376-2) format, which imposes the
+# specification of the MIME type ("content type") of every single file within the package.)
 
 with open(Path(__file__).parent / 'data' / 'TestFile.pdf', 'rb') as f:
     actual_file_name = file_store.add_file("/aasx/suppl/MyExampleFile.pdf", f, "application/pdf")
