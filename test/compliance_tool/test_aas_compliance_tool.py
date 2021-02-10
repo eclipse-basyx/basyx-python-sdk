@@ -301,23 +301,46 @@ class ComplianceToolTest(unittest.TestCase):
 
         os.unlink(filename)
 
-    def test_aasx_deseralization(self) -> None:
+    def test_aasx_deseralization_xml(self) -> None:
         file_path = os.path.join(os.path.dirname(aas.compliance_tool.__file__), 'cli.py')
         test_file_path = os.path.join(os.path.dirname(__file__), 'files')
 
         output: subprocess.CompletedProcess = subprocess.run(
-            [sys.executable, file_path, "d", os.path.join(test_file_path, "test_demo_full_example.aasx"), "--xml",
+            [sys.executable, file_path, "d", os.path.join(test_file_path, "test_demo_full_example_xml.aasx"), "--xml",
              "--aasx"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         self.assertEqual(0, output.returncode)
         self.assertIn('SUCCESS:      Open file', str(output.stdout))
         self.assertIn('SUCCESS:      Read file', str(output.stdout))
 
-    def test_aasx_example(self) -> None:
+    def test_aasx_example_xml(self) -> None:
         file_path = os.path.join(os.path.dirname(aas.compliance_tool.__file__), 'cli.py')
         test_file_path = os.path.join(os.path.dirname(__file__), 'files')
 
         output: subprocess.CompletedProcess = subprocess.run(
-            [sys.executable, file_path, "e", os.path.join(test_file_path, "test_demo_full_example.aasx"), "--xml",
+            [sys.executable, file_path, "e", os.path.join(test_file_path, "test_demo_full_example_xml.aasx"), "--xml",
+             "--aasx"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        self.assertEqual(0, output.returncode)
+        self.assertIn('SUCCESS:      Open file', str(output.stdout))
+        self.assertIn('SUCCESS:      Read file', str(output.stdout))
+        # self.assertIn('SUCCESS:      Check if data is equal to example data', str(output.stdout))
+
+    def test_aasx_deseralization_json(self) -> None:
+        file_path = os.path.join(os.path.dirname(aas.compliance_tool.__file__), 'cli.py')
+        test_file_path = os.path.join(os.path.dirname(__file__), 'files')
+
+        output: subprocess.CompletedProcess = subprocess.run(
+            [sys.executable, file_path, "d", os.path.join(test_file_path, "test_demo_full_example_json.aasx"), "--json",
+             "--aasx"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        self.assertEqual(0, output.returncode)
+        self.assertIn('SUCCESS:      Open file', str(output.stdout))
+        self.assertIn('SUCCESS:      Read file', str(output.stdout))
+
+    def test_aasx_example_json(self) -> None:
+        file_path = os.path.join(os.path.dirname(aas.compliance_tool.__file__), 'cli.py')
+        test_file_path = os.path.join(os.path.dirname(__file__), 'files')
+
+        output: subprocess.CompletedProcess = subprocess.run(
+            [sys.executable, file_path, "e", os.path.join(test_file_path, "test_demo_full_example_json.aasx"), "--json",
              "--aasx"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         self.assertEqual(0, output.returncode)
         self.assertIn('SUCCESS:      Open file', str(output.stdout))
@@ -329,8 +352,8 @@ class ComplianceToolTest(unittest.TestCase):
         test_file_path = os.path.join(os.path.dirname(__file__), 'files')
 
         output: subprocess.CompletedProcess = subprocess.run(
-            [sys.executable, file_path, "f", os.path.join(test_file_path, "test_demo_full_example.aasx"),
-             os.path.join(test_file_path, "test_demo_full_example.aasx"), "--xml", "--aasx"],
+            [sys.executable, file_path, "f", os.path.join(test_file_path, "test_demo_full_example_xml.aasx"),
+             os.path.join(test_file_path, "test_demo_full_example_xml.aasx"), "--xml", "--aasx"],
             stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         self.assertEqual(0, output.returncode)
         self.assertIn('SUCCESS:      Open first file', str(output.stdout))
