@@ -11,5 +11,5 @@
 # notice (in case the first line is a shebang).
 
 while read -rd $'\0' year file; do
-    sed -i "1,2s/^\(# Copyright \)[[:digit:]]\{4,\}/\1$year/" "$file"
+    sed -i "1,2s/^\(# Copyright (c) \)[[:digit:]]\{4,\}/\1$year/" "$file"
 done < <(git ls-files -z "$@" | xargs -0I{} git log -1 -z --format="%ad {}" --date="format:%Y" "{}")

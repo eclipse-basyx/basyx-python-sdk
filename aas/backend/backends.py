@@ -1,13 +1,10 @@
-# Copyright 2020 PyI40AAS Contributors
+# Copyright (c) 2020 PyI40AAS Contributors
 #
-# Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
-# the License. You may obtain a copy of the License at
+# This program and the accompanying materials are made available under the terms of the Eclipse Public License v. 2.0
+# which is available at https://www.eclipse.org/legal/epl-2.0, or the Apache License, Version 2.0 which is available
+# at https://www.apache.org/licenses/LICENSE-2.0.
 #
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an
-# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
-# specific language governing permissions and limitations under the License.
+# SPDX-License-Identifier: EPL-2.0 OR Apache-2.0
 """
 This module provides a registry and and abstract base class for Backends. A backend is a class that allows to
 synchronize Referable AAS objects or their included data with external data sources such as a remote API or a local
