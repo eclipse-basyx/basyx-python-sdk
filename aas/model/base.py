@@ -322,12 +322,12 @@ class Key:
 class AdministrativeInformation:
     """
     Administrative meta-information for an element like version information.
+
     *Constraint AASd-005:* A revision requires a version. This means, if there is no version there is no revision
     either.
 
     :ivar version: Version of the element.
     :ivar revision: Revision of the element.
-
     """
 
     def __init__(self,
@@ -428,9 +428,11 @@ class HasExtension(metaclass=abc.ABCMeta):
     <<abstract>>
 
     *Constraint AASd-077:* The name of an extension within HasExtensions needs to be unique.
+
     TODO: This constraint is not yet implemented, a new Class for CustomSets should be implemented
 
-    :ivar extension: An extension of the element.
+    :ivar namespace_element_sets: List of :class:`NamespaceSets <aas.model.base.NamespaceSet>`
+    :ivar extension: A :class:`~.NamespaceSet` of :class:`Extensions <.Extension>` of the element.
     """
     @abc.abstractmethod
     def __init__(self) -> None:
@@ -439,9 +441,9 @@ class HasExtension(metaclass=abc.ABCMeta):
 
     def get_extension_by_name(self, name: str) -> "Extension":
         """
-        Find a Extension in this Namespaces by its name
+        Find an :class:`~.Extension` in this namespace by its name
 
-        :raises KeyError: If no such Extension can be found
+        :raises KeyError: If no such :class:`~.Extension` can be found
         """
         object_ = None
         for ns_set in self.namespace_element_sets:
@@ -456,9 +458,9 @@ class HasExtension(metaclass=abc.ABCMeta):
 
     def remove_extension_by_name(self, name: str) -> None:
         """
-        Remove a Extension from this Namespace by its name
+        Remove an :class:`~.Extension` from this namespace by its name
 
-        :raises KeyError: If no such Extension can be found
+        :raises KeyError: If no such :class:`~.Extension` can be found
         """
         for ns_set in self.namespace_element_sets:
             if "name" in ns_set.get_attribute_name_list():
@@ -969,7 +971,7 @@ class Extension(HasSemantics):
 
     :ivar name: An extension of the element.
     :ivar value_type: Type (:class:`~.DataTypeDef`) of the value of the extension. Default: xsd:string
-    :ivar value: Value (class:`~.ValueDataType`) of the extension
+    :ivar value: Value (:class:`~.ValueDataType`) of the extension
     :ivar refers_to: :class:`~.Reference` to an element the extension refers to
     :ivar semantic_id: The semantic_id defined in the :class:`~.HasSemantics` class.
     """
@@ -1071,12 +1073,12 @@ class Constraint(metaclass=abc.ABCMeta):
 
 class Qualifiable(metaclass=abc.ABCMeta):
     """
-    Abstract baseclass for all objects which form a Namespace to hold Qualifier objects and resolve them by their
-    type.
+    Abstract baseclass for all objects which form a Namespace to hold :class:`~.Qualifier` objects and resolve them by
+    their type.
 
     <<abstract>>
 
-    :ivar namespace_element_sets: A list of all NamespaceSets of this Namespace
+    :ivar namespace_element_sets: A list of all :class:`NamespaceSets <.NamespaceSet>` of this Namespace
     """
     @abc.abstractmethod
     def __init__(self):
@@ -1086,9 +1088,9 @@ class Qualifiable(metaclass=abc.ABCMeta):
 
     def get_qualifier_by_type(self, qualifier_type: QualifierType) -> "Qualifier":
         """
-        Find a Qualifier in this Namespaces by its type
+        Find a :class:`~.Qualifier` in this Namespaces by its type
 
-        :raises KeyError: If no such Qualifier can be found
+        :raises KeyError: If no such :class:`~.Qualifier` can be found
         """
         object_ = None
         for ns_set in self.namespace_element_sets:
@@ -1103,9 +1105,9 @@ class Qualifiable(metaclass=abc.ABCMeta):
 
     def remove_qualifier_by_type(self, qualifier_type: QualifierType) -> None:
         """
-        Remove a Qualifier from this Namespace by its type
+        Remove a :class:`~.Qualifier` from this Namespace by its type
 
-        :raises KeyError: If no such Qualifier can be found
+        :raises KeyError: If no such :class:`~.Qualifier` can be found
         """
         for ns_set in self.namespace_element_sets:
             if "type" in ns_set.get_attribute_name_list():
@@ -1120,9 +1122,9 @@ class Qualifier(Constraint, HasSemantics):
     *Constraint AASd-006:* if both, the value and the valueId are present, then the value needs to be
     identical to the value of the referenced coded value in Qualifier/valueId.
 
-    :ivar type: The type (`aas.model.base.QualifierType`) of the qualifier that is applied to the element.
-    :ivar value_type: Data type (`aas.model.base.DataTypeDef`) of the qualifier value
-    :ivar value: The value (`aas.model.base.ValueDataType`) of the qualifier.
+    :ivar type: The type (:class:`~.QualifierType`) of the qualifier that is applied to the element.
+    :ivar value_type: Data type (:class:`~.DataTypeDef`) of the qualifier value
+    :ivar value: The value (:class:`~.ValueDataType`) of the qualifier.
     :ivar value_id: :class:`~.Reference` to the global unique id of a coded value.
     :ivar semantic_id: The semantic_id defined in :class:`~.HasSemantics`.
     """
@@ -1342,6 +1344,17 @@ class NamespaceSet(MutableSet[_NSO], Generic[_NSO]):
     normal set of AAS objects. To get an AAS object by its attribute, use `get_object()` or `get()` (the latter one
     allows a default argument and returns None instead of raising a KeyError). As a bonus, the `x in` check supports
     checking for existence of attribute *or* a concrete AAS object.
+
+    :ivar parent: The Namespace this set belongs to
+
+    To initialize, use the following parameters:
+
+    :param parent: The Namespace this set belongs to
+    :param attribute_names: List of attribute names, for which objects should be unique in the set. The bool flag
+        indicates if the attribute should be matched case-sensitive (true) or case-insensitive (false)
+    :param items: A given list of AAS items to be added to the set
+
+    :raises KeyError: When `items` contains multiple objects with same unique attribute
     """
     def __init__(self, parent: Union[UniqueIdShortNamespace, UniqueSemanticIdNamespace, Qualifiable, HasExtension],
                  attribute_names: List[Tuple[str, bool]], items: Iterable[_NSO] = ()) -> None:
@@ -1623,7 +1636,7 @@ class IdentifierKeyValuePair:
     :ivar value: The value of the identifier with the corresponding key.
     :ivar external_subject_id: The (external) subject the key belongs to or has meaning to.
 
-    :ivar semantic_id: The semantic_id defined in the HasSemantics class.
+    :ivar semantic_id: The semantic_id defined in the :class:`~.HasSemantics` class.
     """
 
     # TODO make IdentifierKeyValuePair derive from HasSemantics
@@ -1666,7 +1679,8 @@ class IdentifierKeyValuePair:
 
 class AASConstraintViolation(Exception):
     """
-    An Exception to be raised if an AASd-Constraint defined in the metamodel is violated
+    An Exception to be raised if an AASd-Constraint defined in the metamodel (Details of the Asset Administration Shell)
+    is violated
 
     :ivar constraint_id: The ID of the constraint that is violated
     :ivar message: The error message of the Exception
