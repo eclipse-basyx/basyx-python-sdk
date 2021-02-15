@@ -307,7 +307,6 @@ class AASXWriter:
         self._properties_part: Optional[str] = None
         # names and hashes of all supplementary file parts that have already been written
         self._supplementary_part_names: Dict[str, Optional[bytes]] = {}
-        self._aas_name_friendlyfier = NameFriendlyfier()
 
         # Open OPC package writer
         self.writer = pyecma376_2.ZipPackageWriter(file)
@@ -318,72 +317,95 @@ class AASXWriter:
         p.close()
 
     def write_aas(self,
-                  aas_id: model.Identifier,
+                  aas_ids: Union[model.Identifier, Iterable[model.Identifier]],
                   object_store: model.AbstractObjectStore,
                   file_store: "AbstractSupplementaryFileContainer",
-                  write_json: bool = False,
-                  submodel_split_parts: bool = True) -> None:
+                  write_json: bool = False) -> None:
         """
-        Convenience method to add an Asset Administration Shell with all included and referenced objects to the AASX
-        package according to the part name conventions from DotAAS.
+        Convenience method to write one or more Asset Administration Shells with all included and referenced objects to
+        the AASX package according to the part name conventions from DotAAS.
 
-        This method takes the AAS's Identifier (as `aas_id`) to retrieve it from the given object_store. References to
-        the Asset, ConceptDescriptions and Submodels are also resolved using the object_store. All of these objects are
-        written to aas-spec parts in the AASX package, follwing the conventions presented in "Details of the Asset
-        Administration Shell". For each Submodel, a aas-spec-split part is used. Supplementary files which are
-        referenced by a File object in any of the Submodels, are also added to the AASX package.
+        This method takes the AASs' Identifiers (as `aas_ids`) to retrieve the AASs from the given object_store.
+        References to Submodels and ConceptDescriptions (via semanticId attributes) are also resolved using the
+        `object_store`. All of these objects are written to an aas-spec part `/aasx/data.xml` or `/aasx/data.json` in
+        the AASX package, compliant to the convention presented in "Details of the Asset Administration Shell".
+        Supplementary files which are referenced by a File object in any of the Submodels are also added to the AASX
+        package.
 
-        Internally, this method uses `write_aas_objects()` to write the individual AASX parts for the AAS and each
-        submodel.
+        This method uses `write_all_aas_objects()` to write the AASX part.
 
-        :param aas_id: Identifier of the AAS to be added to the AASX file
+        .. attention:
+
+            This method **must only be used once** on a single AASX package. Otherwise, the `/aasx/data.json`
+            (or `...xml`) part would be written twice to the package, hiding the first part and possibly causing
+            problems when reading the package.
+
+            To write multiple Asset Administration Shells to a single AASX package file, call this method once, passing
+            a list of AAS Identifiers to the `aas_ids` parameter.
+
+        :param aas_ids: Identifier or Iterable of Identifers of the AAS(s) to be written to the AASX file
         :param object_store: ObjectStore to retrieve the Identifiable AAS objects (AAS, Asset, ConceptDescriptions and
             Submodels) from
         :param file_store: SupplementaryFileContainer to retrieve supplementary files from, which are referenced by File
             objects
         :param write_json:  If True, JSON parts are created for the AAS and each submodel in the AASX package file
             instead of XML parts. Defaults to False.
-        :param submodel_split_parts: If True (default), submodels are written to separate AASX parts instead of being
-            included in the AAS part with in the AASX package.
+        :raises KeyError: If one of the AAS could not be retrieved from the object store (unresolvable Submodels and
+            ConceptDescriptions are skipped, logging a warning/info message)
+        :raises TypeError: If one of the given AAS ids does not resolve to an AAS (but another Identifiable object)
         """
-        aas_friendly_name = self._aas_name_friendlyfier.get_friendly_name(aas_id)
-        aas_part_name = "/aasx/{0}/{0}.aas.{1}".format(aas_friendly_name, "json" if write_json else "xml")
+        if isinstance(aas_ids, model.Identifier):
+            aas_ids = (aas_ids,)
 
-        aas = object_store.get_identifiable(aas_id)
-        if not isinstance(aas, model.AssetAdministrationShell):
-            raise ValueError(f"Identifier does not belong to an AssetAdminstrationShell object but to {aas!r}")
+        objects_to_be_written: model.DictObjectStore[model.Identifiable] = model.DictObjectStore()
+        for aas_id in aas_ids:
+            try:
+                aas = object_store.get_identifiable(aas_id)
+            # TODO add failsafe mode
+            except KeyError:
+                raise
+            if not isinstance(aas, model.AssetAdministrationShell):
+                raise TypeError(f"Identifier {aas_id} does not belong to an AssetAdminstrationShell object but to "
+                                f"{aas!r}")
 
-        objects_to_be_written: Set[model.Identifier] = {aas.identification}
+            # Add the Asset object to the data part
+            objects_to_be_written.add(aas)
 
-        # Add referenced ConceptDescriptions to the AAS part
-
-        # Write submodels: Either create a split part for each of them or otherwise add them to objects_to_be_written
-        aas_split_part_names: List[str] = []
-        if submodel_split_parts:
-            # Create a AAS split part for each (available) submodel of the AAS
-            aas_friendlyfier = NameFriendlyfier()
+            # Add referenced Submodels to the data part
             for submodel_ref in aas.submodel:
-                submodel_identification = submodel_ref.get_identifier()
-                submodel_friendly_name = aas_friendlyfier.get_friendly_name(submodel_identification)
-                submodel_part_name = "/aasx/{0}/{1}/{1}.submodel.{2}".format(aas_friendly_name, submodel_friendly_name,
-                                                                             "json" if write_json else "xml")
-                self.write_aas_objects(submodel_part_name, [submodel_identification], object_store, file_store,
-                                       write_json, split_part=True)
-                aas_split_part_names.append(submodel_part_name)
-        else:
-            for submodel_ref in aas.submodel:
-                objects_to_be_written.add(submodel_ref.get_identifier())
+                try:
+                    submodel = submodel_ref.resolve(object_store)
+                except KeyError:
+                    logger.warning("Could not find submodel %s. Skipping it.", str(submodel_ref))
+                    continue
+                objects_to_be_written.add(submodel)
 
-        # Write AAS part
-        logger.debug("Writing AAS {} to part {} in AASX package ...".format(aas.identification, aas_part_name))
-        self.write_aas_objects(aas_part_name, objects_to_be_written, object_store, file_store, write_json,
-                               split_part=False,
-                               additional_relationships=(pyecma376_2.OPCRelationship("r{}".format(i),
-                                                                                     RELATIONSHIP_TYPE_AAS_SPEC_SPLIT,
-                                                                                     submodel_part_name,
-                                                                                     pyecma376_2.OPCTargetMode.INTERNAL)
-                                                         for i, submodel_part_name in enumerate(aas_split_part_names)))
+        # Traverse object tree and check if semanticIds are referencing to existing ConceptDescriptions in the
+        # ObjectStore
+        concept_descriptions: List[model.ConceptDescription] = []
+        for identifiable in objects_to_be_written:
+            for semantic_id in traversal.walk_semantic_ids_recursive(identifiable):
+                if not isinstance(semantic_id, model.AASReference) or semantic_id.type is not model.ConceptDescription:
+                    logger.info("semanticId %s does not reference a ConceptDescription.", str(semantic_id))
+                    continue
+                try:
+                    cd = semantic_id.resolve(object_store)
+                except KeyError:
+                    logger.info("ConceptDescription for semantidId %s not found in object store.", str(semantic_id))
+                    continue
+                except model.UnexpectedTypeError as e:
+                    logger.error("semantidId %s resolves to %s, which is not a ConceptDescription",
+                                 str(semantic_id), e.value)
+                    continue
+                concept_descriptions.append(cd)
+        objects_to_be_written.update(concept_descriptions)
 
+        # Write AAS data part
+        self.write_all_aas_objects("/aasx/data.{}".format("json" if write_json else "xml"),
+                                   objects_to_be_written, file_store, write_json)
+
+    # TODO remove `method` parameter in future version.
+    #   Not actually required since you can always create a local dict
     def write_aas_objects(self,
                           part_name: str,
                           object_ids: Iterable[model.Identifier],
@@ -393,33 +415,26 @@ class AASXWriter:
                           split_part: bool = False,
                           additional_relationships: Iterable[pyecma376_2.OPCRelationship] = ()) -> None:
         """
-        Write a defined list of AAS objects to an XML or JSON part in the AASX package and append the referenced
-        supplementary files to the package.
+        A thin wrapper around :meth:`write_all_aas_objects` to ensure downwards compatibility
 
-        This method takes the AAS's Identifier (as `aas_id`) to retrieve it from the given object_store. If the list
-        of written objects includes Submodel objects, Supplementary files which are referenced by File objects within
-        those submodels, are also added to the AASX package.
+        This method takes a list of Identifiers (as `object_ids`) to retrieve the identified objects from the given
+        object_store. It then uses :meth:`write_all_aas_objects` to write the objects and any referenced supplementary
+        files from the `file_store` to the AASX package.
 
-        You must make sure to call this method only once per unique `part_name` on a single package instance.
+        .. attention:
 
-        :param part_name: Name of the Part within the AASX package to write the files to. Must be a valid ECMA376-2
-            part name and unique within the package. The extension of the part should match the data format (i.e.
-            '.json' if `write_json` else '.xml').
+            You must make sure to call this method or `write_all_aas_object` only once per unique `part_name` on a
+            single package instance.
+
         :param object_ids: A list of identifiers of the objects to be written to the AASX package. Only these
             Identifiable objects (and included Referable objects) are written to the package.
-        :param object_store: The objects store to retrieve the Identifable objects from
-        :param file_store: The SupplementaryFileContainer to retrieve supplementary files from (if there are any `File`
-            objects within the written objects.
-        :param write_json: If True, the part is written as a JSON file instead of an XML file. Defaults to False.
-        :param split_part: If True, no aas-spec relationship is added from the aasx-origin to this part. You must make
-            sure to reference it via a aas-spec-split relationship from another aas-spec part
-        :param additional_relationships: Optional OPC/ECMA376 relationships which should originate at the AAS object
-            part to be written, in addition to the aas-suppl relationships which are created automatically.
+        :param object_store: The objects store to retrieve the Identifiable objects from
+
+        All other parameters are unaltered passed to the equally named parameters of :meth:`write_all_aas_objects`.
         """
         logger.debug("Writing AASX part {} with AAS objects ...".format(part_name))
 
         objects: model.DictObjectStore[model.Identifiable] = model.DictObjectStore()
-        supplementary_files: List[str] = []
 
         # Retrieve objects and scan for referenced supplementary files
         for identifier in object_ids:
@@ -429,6 +444,48 @@ class AASXWriter:
                 logger.error("Could not find object {} in ObjectStore".format(identifier))
                 continue
             objects.add(the_object)
+
+        self.write_all_aas_objects(part_name, objects, file_store, write_json, split_part, additional_relationships)
+
+    # TODO remove `split_part` parameter in future version.
+    #   Not required anymore since changes from DotAAS version 2.0.1 to 3.0RC01
+    def write_all_aas_objects(self,
+                              part_name: str,
+                              objects: model.AbstractObjectStore[model.Identifiable],
+                              file_store: "AbstractSupplementaryFileContainer",
+                              write_json: bool = False,
+                              split_part: bool = False,
+                              additional_relationships: Iterable[pyecma376_2.OPCRelationship] = ()) -> None:
+        """
+        Write all AAS objects in a given ObjectStore to an XML or JSON part in the AASX package and add the referenced
+        supplementary files to the package.
+
+        This method takes an ObjectStore and writes all contained objects into an "aas_env" part in the AASX package. If
+        the ObjectStore includes Submodel objects, supplementary files which are referenced by File objects
+        within those Submodels, are fetched from the `file_store` and added to the AASX package.
+
+        .. attention:
+
+            You must make sure to call this method only once per unique `part_name` on a single package instance.
+
+        :param part_name: Name of the Part within the AASX package to write the files to. Must be a valid ECMA376-2
+            part name and unique within the package. The extension of the part should match the data format (i.e.
+            '.json' if `write_json` else '.xml').
+        :param objects: The objects to be written to the AASX package. Only these Identifiable objects (and included
+            Referable objects) are written to the package.
+        :param file_store: The SupplementaryFileContainer to retrieve supplementary files from (if there are any `File`
+            objects within the written objects.
+        :param write_json: If True, the part is written as a JSON file instead of an XML file. Defaults to False.
+        :param split_part: If True, no aas-spec relationship is added from the aasx-origin to this part. You must make
+            sure to reference it via a aas-spec-split relationship from another aas-spec part
+        :param additional_relationships: Optional OPC/ECMA376 relationships which should originate at the AAS object
+            part to be written, in addition to the aas-suppl relationships which are created automatically.
+        """
+        logger.debug("Writing AASX part {} with AAS objects ...".format(part_name))
+        supplementary_files: List[str] = []
+
+        # Retrieve objects and scan for referenced supplementary files
+        for the_object in objects:
             if isinstance(the_object, model.Submodel):
                 for element in traversal.walk_submodel(the_object):
                     if isinstance(element, model.File):
@@ -444,6 +501,7 @@ class AASXWriter:
             self._aas_part_names.append(part_name)
 
         # Write part
+        # TODO allow writing xml *and* JSON part
         with self.writer.open_part(part_name, "application/json" if write_json else "application/xml") as p:
             if write_json:
                 write_aas_json_file(io.TextIOWrapper(p, encoding='utf-8'), objects)
@@ -571,6 +629,8 @@ class AASXWriter:
         self.writer.write_relationships(package_relationships)
 
 
+# TODO remove in future version.
+#   Not required anymore since changes from DotAAS version 2.0.1 to 3.0RC01
 class NameFriendlyfier:
     """
     A simple helper class to create unique "AAS friendly names" according to DotAAS, section 7.6.
@@ -586,6 +646,7 @@ class NameFriendlyfier:
         """
         Generate a friendly name from an AAS identifier.
 
+        TODO: This information is outdated. The whole class is no longer needed.
         According to section 7.6 of "Details of the Asset Administration Shell", all non-alphanumerical characters are
         replaced with underscores. We also replace all non-ASCII characters to generate valid URIs as the result.
         If this replacement results in a collision with a previously generated friendly name of this NameFriendlifier,

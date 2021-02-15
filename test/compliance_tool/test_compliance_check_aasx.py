@@ -30,18 +30,24 @@ class ComplianceToolAASXTest(unittest.TestCase):
         # Todo add more tests for checking wrong aasx files
 
         manager.steps = []
-        file_path_5 = os.path.join(script_dir, 'files/test_demo_full_example.aasx')
+        file_path_5 = os.path.join(script_dir, 'files/test_demo_full_example_xml.aasx')
         compliance_tool.check_deserialization(file_path_5, manager)
         self.assertEqual(2, len(manager.steps))
         self.assertEqual(Status.SUCCESS, manager.steps[0].status)
         self.assertEqual(Status.SUCCESS, manager.steps[1].status)
 
-    @unittest.expectedFailure
+        manager.steps = []
+        file_path_5 = os.path.join(script_dir, 'files/test_demo_full_example_json.aasx')
+        compliance_tool.check_deserialization(file_path_5, manager)
+        self.assertEqual(2, len(manager.steps))
+        self.assertEqual(Status.SUCCESS, manager.steps[0].status)
+        self.assertEqual(Status.SUCCESS, manager.steps[1].status)
+
     def test_check_aas_example(self) -> None:
         manager = ComplianceToolStateManager()
         script_dir = os.path.dirname(__file__)
 
-        file_path_2 = os.path.join(script_dir, 'files/test_demo_full_example.aasx')
+        file_path_2 = os.path.join(script_dir, 'files/test_demo_full_example_xml.aasx')
         compliance_tool.check_aas_example(file_path_2, manager)
         self.assertEqual(4, len(manager.steps))
         self.assertEqual(Status.SUCCESS, manager.steps[0].status)
@@ -50,7 +56,7 @@ class ComplianceToolAASXTest(unittest.TestCase):
         self.assertEqual(Status.SUCCESS, manager.steps[3].status)
 
         manager.steps = []
-        file_path_3 = os.path.join(script_dir, 'files/test_demo_full_example2.aasx')
+        file_path_3 = os.path.join(script_dir, 'files/test_demo_full_example_json.aasx')
         compliance_tool.check_aas_example(file_path_3, manager)
         self.assertEqual(4, len(manager.steps))
         self.assertEqual(Status.SUCCESS, manager.steps[0].status)
@@ -59,7 +65,7 @@ class ComplianceToolAASXTest(unittest.TestCase):
         self.assertEqual(Status.SUCCESS, manager.steps[3].status)
 
         manager.steps = []
-        file_path_4 = os.path.join(script_dir, 'files/test_demo_full_example_wrong_attribute.aasx')
+        file_path_4 = os.path.join(script_dir, 'files/test_demo_full_example_xml_wrong_attribute.aasx')
         compliance_tool.check_aas_example(file_path_4, manager)
         self.assertEqual(4, len(manager.steps))
         self.assertEqual(Status.SUCCESS, manager.steps[0].status)
@@ -70,12 +76,11 @@ class ComplianceToolAASXTest(unittest.TestCase):
                       manager.format_step(2, verbose_level=1))
         self.assertEqual(Status.NOT_EXECUTED, manager.steps[3].status)
 
-    @unittest.expectedFailure
     def test_check_aasx_files_equivalence(self) -> None:
         manager = ComplianceToolStateManager()
         script_dir = os.path.dirname(__file__)
 
-        file_path_1 = os.path.join(script_dir, 'files/test_demo_full_example.aasx')
+        file_path_1 = os.path.join(script_dir, 'files/test_demo_full_example_xml.aasx')
         file_path_2 = os.path.join(script_dir, 'files/test_empty.aasx')
         compliance_tool.check_aasx_files_equivalence(file_path_1, file_path_2, manager)
         self.assertEqual(6, len(manager.steps))
@@ -97,8 +102,8 @@ class ComplianceToolAASXTest(unittest.TestCase):
         self.assertEqual(Status.NOT_EXECUTED, manager.steps[5].status)
 
         manager.steps = []
-        file_path_3 = os.path.join(script_dir, 'files/test_demo_full_example.aasx')
-        file_path_4 = os.path.join(script_dir, 'files/test_demo_full_example.aasx')
+        file_path_3 = os.path.join(script_dir, 'files/test_demo_full_example_xml.aasx')
+        file_path_4 = os.path.join(script_dir, 'files/test_demo_full_example_json.aasx')
         compliance_tool.check_aasx_files_equivalence(file_path_3, file_path_4, manager)
         self.assertEqual(6, len(manager.steps))
         self.assertEqual(Status.SUCCESS, manager.steps[0].status)
@@ -109,8 +114,8 @@ class ComplianceToolAASXTest(unittest.TestCase):
         self.assertEqual(Status.SUCCESS, manager.steps[5].status)
 
         manager.steps = []
-        file_path_3 = os.path.join(script_dir, 'files/test_demo_full_example.aasx')
-        file_path_4 = os.path.join(script_dir, 'files/test_demo_full_example_wrong_attribute.aasx')
+        file_path_3 = os.path.join(script_dir, 'files/test_demo_full_example_xml.aasx')
+        file_path_4 = os.path.join(script_dir, 'files/test_demo_full_example_xml_wrong_attribute.aasx')
         compliance_tool.check_aasx_files_equivalence(file_path_3, file_path_4, manager)
         self.assertEqual(6, len(manager.steps))
         self.assertEqual(Status.SUCCESS, manager.steps[0].status)

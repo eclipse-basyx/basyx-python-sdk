@@ -76,15 +76,6 @@
                         {
                             "type": "Submodel",
                             "idType": "IRI",
-                            "value": "https://acplt.org/Test_Submodel"
-                        }
-                    ]
-                },
-                {
-                    "keys": [
-                        {
-                            "type": "Submodel",
-                            "idType": "IRI",
                             "value": "http://acplt.org/Submodels/Assets/TestAsset/BillOfMaterial"
                         }
                     ]
@@ -95,6 +86,15 @@
                             "type": "Submodel",
                             "idType": "IRI",
                             "value": "http://acplt.org/Submodels/Assets/TestAsset/Identification"
+                        }
+                    ]
+                },
+                {
+                    "keys": [
+                        {
+                            "type": "Submodel",
+                            "idType": "IRI",
+                            "value": "https://acplt.org/Test_Submodel"
                         }
                     ]
                 }
@@ -127,7 +127,7 @@
                         {
                             "type": "Submodel",
                             "idType": "IRI",
-                            "value": "https://acplt.org/Test_Submodel_Mandatory"
+                            "value": "https://acplt.org/Test_Submodel2_Mandatory"
                         }
                     ]
                 },
@@ -136,7 +136,7 @@
                         {
                             "type": "Submodel",
                             "idType": "IRI",
-                            "value": "https://acplt.org/Test_Submodel2_Mandatory"
+                            "value": "https://acplt.org/Test_Submodel_Mandatory"
                         }
                     ]
                 }
@@ -351,23 +351,6 @@
                             "modelType": {
                                 "name": "Qualifier"
                             },
-                            "value": "50",
-                            "valueId": {
-                                "keys": [
-                                    {
-                                        "type": "GlobalReference",
-                                        "idType": "IRI",
-                                        "value": "http://acplt.org/ValueId/ExampleValueId"
-                                    }
-                                ]
-                            },
-                            "valueType": "int",
-                            "type": "http://acplt.org/Qualifier/ExampleQualifier2"
-                        },
-                        {
-                            "modelType": {
-                                "name": "Qualifier"
-                            },
                             "value": "100",
                             "valueId": {
                                 "keys": [
@@ -380,6 +363,23 @@
                             },
                             "valueType": "int",
                             "type": "http://acplt.org/Qualifier/ExampleQualifier"
+                        },
+                        {
+                            "modelType": {
+                                "name": "Qualifier"
+                            },
+                            "value": "50",
+                            "valueId": {
+                                "keys": [
+                                    {
+                                        "type": "GlobalReference",
+                                        "idType": "IRI",
+                                        "value": "http://acplt.org/ValueId/ExampleValueId"
+                                    }
+                                ]
+                            },
+                            "valueType": "int",
+                            "type": "http://acplt.org/Qualifier/ExampleQualifier2"
                         }
                     ],
                     "value": "ACPLT",
@@ -492,43 +492,6 @@
                     },
                     "statements": [
                         {
-                            "idShort": "ExampleProperty",
-                            "category": "CONSTANT",
-                            "description": [
-                                {
-                                    "language": "en-us",
-                                    "text": "Example Property object"
-                                },
-                                {
-                                    "language": "de",
-                                    "text": "Beispiel Property Element"
-                                }
-                            ],
-                            "modelType": {
-                                "name": "Property"
-                            },
-                            "semanticId": {
-                                "keys": [
-                                    {
-                                        "type": "GlobalReference",
-                                        "idType": "IRI",
-                                        "value": "http://acplt.org/Properties/ExampleProperty"
-                                    }
-                                ]
-                            },
-                            "value": "exampleValue",
-                            "valueId": {
-                                "keys": [
-                                    {
-                                        "type": "GlobalReference",
-                                        "idType": "IRI",
-                                        "value": "http://acplt.org/ValueId/ExampleValueId"
-                                    }
-                                ]
-                            },
-                            "valueType": "string"
-                        },
-                        {
                             "idShort": "ExampleProperty2",
                             "category": "CONSTANT",
                             "description": [
@@ -554,6 +517,43 @@
                                 ]
                             },
                             "value": "exampleValue2",
+                            "valueId": {
+                                "keys": [
+                                    {
+                                        "type": "GlobalReference",
+                                        "idType": "IRI",
+                                        "value": "http://acplt.org/ValueId/ExampleValueId"
+                                    }
+                                ]
+                            },
+                            "valueType": "string"
+                        },
+                        {
+                            "idShort": "ExampleProperty",
+                            "category": "CONSTANT",
+                            "description": [
+                                {
+                                    "language": "en-us",
+                                    "text": "Example Property object"
+                                },
+                                {
+                                    "language": "de",
+                                    "text": "Beispiel Property Element"
+                                }
+                            ],
+                            "modelType": {
+                                "name": "Property"
+                            },
+                            "semanticId": {
+                                "keys": [
+                                    {
+                                        "type": "GlobalReference",
+                                        "idType": "IRI",
+                                        "value": "http://acplt.org/Properties/ExampleProperty"
+                                    }
+                                ]
+                            },
+                            "value": "exampleValue",
                             "valueId": {
                                 "keys": [
                                     {
@@ -671,9 +671,9 @@
                     "semanticId": {
                         "keys": [
                             {
-                                "type": "GlobalReference",
+                                "type": "ConceptDescription",
                                 "idType": "IRI",
-                                "value": "http://acplt.org/RelationshipElements/ExampleRelationshipElement"
+                                "value": "https://acplt.org/Test_ConceptDescription"
                             }
                         ]
                     },
@@ -741,6 +741,15 @@
                     },
                     "annotation": [
                         {
+                            "idShort": "ExampleAnnotatedProperty",
+                            "category": "PARAMETER",
+                            "modelType": {
+                                "name": "Property"
+                            },
+                            "value": "exampleValue",
+                            "valueType": "string"
+                        },
+                        {
                             "idShort": "ExampleAnnotatedRange",
                             "category": "PARAMETER",
                             "modelType": {
@@ -749,15 +758,6 @@
                             "valueType": "integer",
                             "min": "1",
                             "max": "5"
-                        },
-                        {
-                            "idShort": "ExampleAnnotatedProperty",
-                            "category": "PARAMETER",
-                            "modelType": {
-                                "name": "Property"
-                            },
-                            "value": "exampleValue",
-                            "valueType": "string"
                         }
                     ]
                 },
@@ -1601,15 +1601,6 @@
                     },
                     "annotation": [
                         {
-                            "idShort": "ExampleAnnotatedProperty",
-                            "category": "PARAMETER",
-                            "modelType": {
-                                "name": "Property"
-                            },
-                            "value": "exampleValue",
-                            "valueType": "string"
-                        },
-                        {
                             "idShort": "ExampleAnnotatedRange",
                             "category": "PARAMETER",
                             "modelType": {
@@ -1618,6 +1609,15 @@
                             "valueType": "integer",
                             "min": "1",
                             "max": "5"
+                        },
+                        {
+                            "idShort": "ExampleAnnotatedProperty",
+                            "category": "PARAMETER",
+                            "modelType": {
+                                "name": "Property"
+                            },
+                            "value": "exampleValue",
+                            "valueType": "string"
                         }
                     ]
                 },
@@ -2909,8 +2909,8 @@
                         },
                         "value": "TEST",
                         "levelType": [
-                            "Min",
-                            "Max"
+                            "Max",
+                            "Min"
                         ]
                     }
                 }
