@@ -113,14 +113,13 @@ with open('Simple_Submodel.xml', 'w', encoding='utf-8') as f:
 
 For further examples and tutorials, check out the `aas.examples`-package. Here is a quick overview:
 
-* `aas.examples.tutorial_create_simple_aas`: Create an Asset Administration Shell, including an Asset object and a 
-  Submodel
+* `aas.examples.tutorial_create_simple_aas`: Creating an Asset Administration Shell with all required objects via Python
+  code
 * `aas.examples.tutorial_storage`: Manage a larger number of Asset Administration Shells in an ObjectStore and resolve
   references
-* `aas.examples.tutorial_serialization_deserialization`: Use the JSON and XML serialization/deserialization for
-  single objects or full standard-compliant files 
-* `aas.examples.tutorial_dynamic_model`: Create a submodel with elements that are dynamically updated from a custom data
-  source
+* `aas.examples.tutorial_serialization_deserialization`: Export or import AAS objects to/from JSON and XML documents
+* `aas.examples.tutorial_aasx`: Export or import AAS objects with auxiliary files to/from AASX package files
+* `aas.examples.tutorial_backend_couchdb`: Store, manage and update AAS objects in a CouchDB database
 
 
 ### Compliance Tool
