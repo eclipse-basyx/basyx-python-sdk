@@ -14,7 +14,7 @@ with open("README.md", "r", encoding='utf-8') as fh:
 
 setuptools.setup(
     name="pyi40aas",
-    version="0.2.1",
+    version="0.2.2",
     author="Chair of Process Control Engineering, RWTH Aachen",
     author_email="m.thies@plt.rwth-aachen.de",
     description="An implementation of the Asset Administration Shell for Industry 4.0 systems",
