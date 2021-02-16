@@ -12,7 +12,7 @@ compliant with the meta model and interface specification provided in
 * Security extension of the metamodel is currently not implemented (according to DotAAS sec. 5)
 * Reading and writing of AASX package files (according to DotAAS sec. 6)
 * (De-)serialization of AAS objects into/from JSON and XML (according to DotAAS sec. 7) 
-* Storing of AAS objects in CouchDB, Backend infrastructure of easy expansion 
+* Storing of AAS objects in CouchDB, Backend infrastructure for easy expansion 
 * Compliance checking of AAS XML and JSON files
 
 
