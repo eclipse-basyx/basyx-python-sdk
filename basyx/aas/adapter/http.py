@@ -407,8 +407,9 @@ class WSGIApp:
         raise NotFound(f"No reference to submodel with {sm_identifier} found!")
 
     @classmethod
-    def _get_nested_submodel_element(cls, namespace: model.Namespace, id_shorts: List[str]) -> model.SubmodelElement:
-        current_namespace: Union[model.Namespace, model.SubmodelElement] = namespace
+    def _get_nested_submodel_element(cls, namespace: model.UniqueIdShortNamespace, id_shorts: List[str]) \
+            -> model.SubmodelElement:
+        current_namespace: Union[model.UniqueIdShortNamespace, model.SubmodelElement] = namespace
         for id_short in id_shorts:
             current_namespace = cls._expect_namespace(current_namespace, id_short)
             next_obj = cls._namespace_submodel_element_op(current_namespace, current_namespace.get_referable, id_short)
@@ -421,13 +422,14 @@ class WSGIApp:
         return current_namespace
 
     @classmethod
-    def _expect_namespace(cls, obj: object, needle: str) -> model.Namespace:
-        if not isinstance(obj, model.Namespace):
+    def _expect_namespace(cls, obj: object, needle: str) -> model.UniqueIdShortNamespace:
+        if not isinstance(obj, model.UniqueIdShortNamespace):
             raise BadRequest(f"{obj!r} is not a namespace, can't locate {needle}!")
         return obj
 
     @classmethod
-    def _namespace_submodel_element_op(cls, namespace: model.Namespace, op: Callable[[str], T], arg: str) -> T:
+    def _namespace_submodel_element_op(cls, namespace: model.UniqueIdShortNamespace, op: Callable[[str], T], arg: str) \
+            -> T:
         try:
             return op(arg)
         except KeyError as e:
@@ -544,7 +546,7 @@ class WSGIApp:
         aas = self._get_obj_ts(url_args["aas_id"], model.AssetAdministrationShell)
         aas.update()
         view_idshort = url_args["view_idshort"]
-        view = aas.view.get(view_idshort)
+        view = aas.view.get("id_short", view_idshort)
         if view is None:
             raise NotFound(f"No view with id_short {view_idshort} found!")
         return response_t(Result(view))
@@ -554,7 +556,7 @@ class WSGIApp:
         aas = self._get_obj_ts(url_args["aas_id"], model.AssetAdministrationShell)
         aas.update()
         view_idshort = url_args["view_idshort"]
-        view = aas.view.get(view_idshort)
+        view = aas.view.get("id_short", view_idshort)
         if view is None:
             raise NotFound(f"No view with id_short {view_idshort} found!")
         new_view = parse_request_body(request, model.View)
@@ -638,7 +640,7 @@ class WSGIApp:
         submodel = self._get_obj_ts(url_args["submodel_id"], model.Submodel)
         submodel.update()
         id_shorts: List[str] = url_args["id_shorts"]
-        parent: model.Namespace = submodel
+        parent: model.UniqueIdShortNamespace = submodel
         if len(id_shorts) > 1:
             parent = self._expect_namespace(
                 self._get_nested_submodel_element(submodel, id_shorts[:-1]),
