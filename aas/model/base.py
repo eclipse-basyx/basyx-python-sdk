@@ -925,7 +925,6 @@ class HasSemantics(metaclass=abc.ABCMeta):
         super().__init__()
         self.parent: Optional[Any] = None
         self._semantic_id: Optional[Reference] = None
-        self.semantic_id: Optional[Reference] = None
 
     @property
     def semantic_id(self):
