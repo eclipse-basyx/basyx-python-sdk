@@ -16,6 +16,11 @@ base.py
     Basic structures of the model, including all abstract classes and enumerations. This provides inheritance for the
     higher level structures.
 
+concept.py
+    :class:`~aas.model.concept.ConceptDescription` from the AAS meta model
+    as well as specialized :class:`ConceptDescriptions <aas.model.concept.ConceptDescription>` like
+    :class:`~aas.model.concept.IEC61360ConceptDescription`
+
 provider.py
     Providers for AAS objects, in order to store and retrieve identifiable objects by their Identifier.
 
