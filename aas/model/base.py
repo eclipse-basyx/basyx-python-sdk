@@ -489,7 +489,8 @@ class Referable(HasExtension, metaclass=abc.ABCMeta):
     :ivar ~.category: The category is a value that gives further meta information w.r.t. to the class of the element.
                       It affects the expected existence of attributes and the applicability of constraints.
     :ivar description: Description or comments on the element.
-    :ivar parent: Reference to the next referable parent element of the element.
+    :ivar parent: Reference (in form of a :class:`~.UniqueIdShortNamespace`) to the next referable parent element
+        of the element.
 
     :ivar source: Source of the object, an URI, that defines where this object's data originates from.
                   This is used to specify where the Referable should be updated from and committed to.
