@@ -9,7 +9,10 @@
 # "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
 # specific language governing permissions and limitations under the License.
 """
-Todo: Add module docstring
+This module adds the functionality of storing and retrieving :class:`~aas.model.base.Identifiable` objects in a CouchDB.
+
+The :class:`~.CouchDBBackend` takes care of updating and committing objects from and to the CouchDB, while the
+:class:`~CouchDBObjectStore` handles adding, deleting and otherwise managing the AAS objects in a specific CouchDB.
 """
 import threading
 import weakref
