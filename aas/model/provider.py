@@ -31,12 +31,12 @@ class AbstractObjectProvider(metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def get_identifiable(self, identifier: Identifier) -> Identifiable:
         """
-        Find an :class:`~aas.model.base.Identifiable` by its id_short
+        Find an :class:`~aas.model.base.Identifiable` by its :class:`~aas.model.base.Identifier`
 
         This may include looking up the object's endpoint in a registry and fetching it from an HTTP server or a
         database.
 
-        :param identifier:
+        :param identifier: :class:`~aas.model.base.Identifier` that identifies the :class:`~aas.model.base.Identifiable`
         :return: The :class:`~aas.model.base.Identifiable` object (or a proxy object for a remote
                  :class:`~aas.model.base.Identifiable` object)
         :raises KeyError: If no such :class:`~.aas.model.base.Referable` can be found
