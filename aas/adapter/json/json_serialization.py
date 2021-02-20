@@ -13,15 +13,18 @@
 
 Module for serializing Asset Administration Shell objects to the official JSON format
 
-The module provides an custom JSONEncoder class :class:`~.AASToJsonEncoder` to be used with the Python standard `json`
-module. It contains a custom :meth:`~.AASToJsonEncoder.default` function which converts PyI40AAS objects to simple
-python types for an automatic JSON serialization. Additionally, there's the
-:meth:`~.write_aas_json_file` function, that takes a complete
-:class:`ObjectStore <aas.model.provider.AbstractObjectStore>` and writes all
-contained AAS objects into a JSON file.
+The module provides an custom JSONEncoder classes :class:`~.AASToJsonEncoder` and :class:`~.AASToJsonEncoderStripped`
+to be used with the Python standard `json` module. While the former serializes objects as defined in the specification,
+the latter serializes stripped objects, excluding some attributes
+(see https://git.rwth-aachen.de/acplt/pyi40aas/-/issues/91).
+Each class contains a custom :meth:`~.AASToJsonEncoder.default` function which converts PyI40AAS objects to simple
+python types for an automatic JSON serialization.
+To simplify the usage of this module, the :meth:`~.write_aas_json_file` and :meth:`~.object_store_to_json` are provided.
+The former is used to serialize a given :class:`~aas.model.provider.AbstractObjectStore` to a file, while the latter
+serializes the object store to a string and returns it.
 
-This job is performed in an iterative approach: The :meth:`~.AASToJsonEncoder.default` function gets called for every
-object and checks if an object is an PyI40AAS object. In this case, it calls a special function for the respective
+The serialization is performed in an iterative approach: The :meth:`~.AASToJsonEncoder.default` function gets called for
+every object and checks if an object is an PyI40AAS object. In this case, it calls a special function for the respective
 PyI40AAS class which converts the object (but not the contained objects) into a simple Python dict, which is
 serializable. Any contained  PyI40AAS objects are included into the dict as they are to be converted later on.
 The special helper function :meth:`~.AASToJsonEncoder._abstract_classes_to_json` is called by most of the conversion

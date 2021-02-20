@@ -14,13 +14,18 @@
 Module for deserializing Asset Administration Shell data from the official JSON format
 
 The module provides custom JSONDecoder classes :class:`~.AASFromJsonDecoder` and :class:`~.StrictAASFromJsonDecoder` to
-be used with the Python standard `json` module. They contain a custom
-:meth:`~aas.adapter.json.json_deserialization.AASFromJsonDecoder.object_hook` function
+be used with the Python standard `json` module.
+Furthermore it provides two classes for parsing stripped JSON objects, which are used in the http adapter
+(see https://git.rwth-aachen.de/acplt/pyi40aas/-/issues/91).
+The classes contain a custom :meth:`~aas.adapter.json.json_deserialization.AASFromJsonDecoder.object_hook` function
 to detect encoded AAS objects within the JSON data and convert them to PyI40AAS objects while parsing. Additionally,
-there's the :meth:`~aas.adapter.json.json_deserialization.read_aas_json_file` function, that takes a complete AAS JSON
-file, reads its contents and returns the contained AAS objects as :class:`~aas.model.provider.DictObjectStore`.
+there's the :meth:`~aas.adapter.json.json_deserialization.read_aas_json_file_into` function, that takes a complete
+AAS JSON file, reads its contents and stores the objects in the provided
+:class:`~aas.model.provider.AbstractObjectStore`. :meth:`~aas.adapter.json.json_deserialization.read_aas_json_file` is
+a wrapper for this function. Instead of storing the objects in a given :class:`~aas.model.provider.AbstractObjectStore`,
+it returns a :class:`~aas.model.provider.DictObjectStore` containing parsed objects.
 
-This job is performed in a bottom-up approach: The `object_hook()` method gets called for every parsed JSON object
+The deserialization is performed in a bottom-up approach: The `object_hook()` method gets called for every parsed JSON object
 (as dict) and checks for existence of the `modelType` attribute. If it is present, the `AAS_CLASS_PARSERS` dict defines,
 which of the constructor methods of the class is to be used for converting the dict into an object. Embedded
 objects that should have a `modelType` themselves are expected to be converted already. Other embedded objects are
