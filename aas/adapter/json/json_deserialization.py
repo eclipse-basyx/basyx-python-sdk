@@ -25,9 +25,9 @@ AAS JSON file, reads its contents and stores the objects in the provided
 a wrapper for this function. Instead of storing the objects in a given :class:`~aas.model.provider.AbstractObjectStore`,
 it returns a :class:`~aas.model.provider.DictObjectStore` containing parsed objects.
 
-The deserialization is performed in a bottom-up approach: The `object_hook()` method gets called for every parsed JSON object
-(as dict) and checks for existence of the `modelType` attribute. If it is present, the `AAS_CLASS_PARSERS` dict defines,
-which of the constructor methods of the class is to be used for converting the dict into an object. Embedded
+The deserialization is performed in a bottom-up approach: The `object_hook()` method gets called for every parsed JSON
+object (as dict) and checks for existence of the `modelType` attribute. If it is present, the `AAS_CLASS_PARSERS` dict
+defines, which of the constructor methods of the class is to be used for converting the dict into an object. Embedded
 objects that should have a `modelType` themselves are expected to be converted already. Other embedded objects are
 converted using a number of helper constructor methods.
 """
