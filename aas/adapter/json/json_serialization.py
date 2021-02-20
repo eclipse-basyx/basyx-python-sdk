@@ -769,8 +769,8 @@ def object_store_to_json(data: model.AbstractObjectStore, stripped: bool = False
     :param stripped: If true, objects are serialized to stripped json objects.
                      See https://git.rwth-aachen.de/acplt/pyi40aas/-/issues/91
                      This parameter is ignored if an encoder class is specified.
-    :param encoder: The encoder class used to encoder the JSON objects
-    :param kwargs: Additional keyword arguments to be passed to `json.dump()`
+    :param encoder: The encoder class used to encode the JSON objects
+    :param kwargs: Additional keyword arguments to be passed to `json.dumps()`
     """
     encoder_ = _select_encoder(stripped, encoder)
     # serialize object to json
@@ -789,8 +789,8 @@ def write_aas_json_file(file: IO, data: model.AbstractObjectStore, stripped: boo
     :param stripped: If `True`, objects are serialized to stripped json objects.
                      See https://git.rwth-aachen.de/acplt/pyi40aas/-/issues/91
                      This parameter is ignored if an encoder class is specified.
-    :param encoder: The encoder class used to encoder the JSON objects
-    :param kwargs: Additional keyword arguments to be passed to `json.dumps()`
+    :param encoder: The encoder class used to encode the JSON objects
+    :param kwargs: Additional keyword arguments to be passed to `json.dump()`
     """
     encoder_ = _select_encoder(stripped, encoder)
     # serialize object to json
