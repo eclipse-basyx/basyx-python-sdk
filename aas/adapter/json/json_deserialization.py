@@ -15,8 +15,10 @@ Module for deserializing Asset Administration Shell data from the official JSON 
 
 The module provides custom JSONDecoder classes :class:`~.AASFromJsonDecoder` and :class:`~.StrictAASFromJsonDecoder` to
 be used with the Python standard `json` module.
-Furthermore it provides two classes for parsing stripped JSON objects, which are used in the http adapter
-(see https://git.rwth-aachen.de/acplt/pyi40aas/-/issues/91).
+
+Furthermore it provides two classes :class:`~aas.adapter.json.json_deserialization.StrippedAASFromJsonDecoder` and
+:class:`~aas.adapter.json.json_deserialization.StrictStrippedAASFromJsonDecoder` for parsing stripped JSON objects,
+which are used in the http adapter (see https://git.rwth-aachen.de/acplt/pyi40aas/-/issues/91).
 The classes contain a custom :meth:`~aas.adapter.json.json_deserialization.AASFromJsonDecoder.object_hook` function
 to detect encoded AAS objects within the JSON data and convert them to PyI40AAS objects while parsing. Additionally,
 there's the :meth:`~aas.adapter.json.json_deserialization.read_aas_json_file_into` function, that takes a complete
