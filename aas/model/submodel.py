@@ -990,7 +990,7 @@ class AnnotatedRelationshipElement(RelationshipElement, base.UniqueIdShortNamesp
 
 class OperationVariable:
     """
-    An operation variable is a submodel element that is used as input or output variable of an operation.
+    An operation variable is part of an operation that is used to define an input or output variable of that operation.
 
     *Constraint AASd-008:* The submodel element value of an operation variable shall be of kind=Template.
 
