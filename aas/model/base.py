@@ -727,7 +727,7 @@ _NSO = TypeVar('_NSO', bound=Union[Referable, "Constraint", "HasSemantics"])
 
 class UnexpectedTypeError(TypeError):
     """
-    Exception to be raised by :meth:`aas.model.base.Reference.resolve` if the retrieved object has not the expected
+    Exception to be raised by :meth:`aas.model.base.AASReference.resolve` if the retrieved object has not the expected
     type.
 
     :ivar value: The object of unexpected type
