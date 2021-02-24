@@ -39,7 +39,7 @@ class AbstractObjectProvider(metaclass=abc.ABCMeta):
         :param identifier: :class:`~aas.model.base.Identifier` that identifies the :class:`~aas.model.base.Identifiable`
         :return: The :class:`~aas.model.base.Identifiable` object (or a proxy object for a remote
                  :class:`~aas.model.base.Identifiable` object)
-        :raises KeyError: If no such :class:`~.aas.model.base.Referable` can be found
+        :raises KeyError: If no such :class:`~.aas.model.base.Identifiable` can be found
         """
         pass
 
