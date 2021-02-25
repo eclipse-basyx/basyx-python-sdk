@@ -73,7 +73,7 @@ class AbstractObjectStore(AbstractObjectProvider, MutableSet[_IT], Generic[_IT],
     :class:`Backends <aas.backend.backends.Backend>`.
 
     The AbstractObjectStore inherits from the `MutableSet` abstract collections class and therefore implements all the
-    functions of this class. 
+    functions of this class.
     """
     @abc.abstractmethod
     def __init__(self):
