@@ -71,6 +71,9 @@ class AbstractObjectStore(AbstractObjectProvider, MutableSet[_IT], Generic[_IT],
     :class:`~aas.model.base.Identifier` – allow to add and delete objects (i.e. behave like a Python set).
     This includes local object stores (like :class:`~.DictObjectStore`) and database
     :class:`Backends <aas.backend.backends.Backend>`.
+
+    The AbstractObjectStore inherits from the `MutableSet` abstract collections class and therefore implements all the
+    functions of this class. 
     """
     @abc.abstractmethod
     def __init__(self):
