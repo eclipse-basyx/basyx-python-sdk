@@ -181,8 +181,6 @@ def aas_object_to_xml(obj: object) -> etree.Element:
     # TODO: xml serialization needs a constraint_to_xml() function
     if isinstance(obj, model.Qualifier):
         return xml_serialization.qualifier_to_xml(obj)
-    if isinstance(obj, model.Formula):
-        return xml_serialization.formula_to_xml(obj)
     if isinstance(obj, model.SubmodelElement):
         return xml_serialization.submodel_element_to_xml(obj)
     raise TypeError(f"Serializing {type(obj).__name__} to XML is not supported!")
@@ -230,7 +228,7 @@ def parse_request_body(request: Request, expect_type: Type[T]) -> T:
     type_constructables_map = {
         model.AASReference: XMLConstructables.AAS_REFERENCE,
         model.View: XMLConstructables.VIEW,
-        model.Constraint: XMLConstructables.CONSTRAINT,
+        model.Qualifier: XMLConstructables.QUALIFIER,
         model.SubmodelElement: XMLConstructables.SUBMODEL_ELEMENT
     }
 
