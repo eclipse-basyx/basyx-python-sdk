@@ -553,21 +553,26 @@ class WSGIApp:
             raise NotFound(f"No view with id_short {view_idshort} found!")
         return response_t(Result(view))
 
-    def put_aas_views_specific(self, request: Request, url_args: Dict, **_kwargs) -> Response:
+    def put_aas_views_specific(self, request: Request, url_args: Dict, map_adapter: MapAdapter) -> Response:
         response_t = get_response_type(request)
-        aas = self._get_obj_ts(url_args["aas_id"], model.AssetAdministrationShell)
+        aas_identifier = url_args["aas_id"]
+        aas = self._get_obj_ts(aas_identifier, model.AssetAdministrationShell)
         aas.update()
         view_idshort = url_args["view_idshort"]
         view = aas.view.get("id_short", view_idshort)
         if view is None:
             raise NotFound(f"No view with id_short {view_idshort} found!")
         new_view = parse_request_body(request, model.View)
-        # compare id_shorts case-insensitively
-        if new_view.id_short.lower() != view.id_short.lower():
-            raise BadRequest(f"id_short of new {new_view} doesn't match the old {view}")
-        aas.view.remove(view)
-        aas.view.add(new_view)
-        return response_t(Result(new_view))
+        # TODO: raise conflict if the following fails
+        view.update_from(new_view)
+        view.commit()
+        if view_idshort.upper() != view.id_short.upper():
+            created_resource_url = map_adapter.build(self.put_aas_views_specific, {
+                "aas_id": aas_identifier,
+                "view_idshort": view.id_short
+            }, force_external=True)
+            return response_t(Result(view), status=201, headers={"Location": created_resource_url})
+        return response_t(Result(view))
 
     def delete_aas_views_specific(self, request: Request, url_args: Dict, **_kwargs) -> Response:
         response_t = get_response_type(request)
@@ -617,23 +622,30 @@ class WSGIApp:
         submodel_element = self._get_nested_submodel_element(submodel, url_args["id_shorts"])
         return response_t(Result(submodel_element))
 
-    def put_submodel_submodel_elements_specific_nested(self, request: Request, url_args: Dict, **_kwargs) -> Response:
+    def put_submodel_submodel_elements_specific_nested(self, request: Request, url_args: Dict,
+                                                       map_adapter: MapAdapter) -> Response:
         response_t = get_response_type(request)
-        submodel = self._get_obj_ts(url_args["submodel_id"], model.Submodel)
+        submodel_identifier = url_args["submodel_id"]
+        submodel = self._get_obj_ts(submodel_identifier, model.Submodel)
         submodel.update()
-        submodel_element = self._get_nested_submodel_element(submodel, url_args["id_shorts"])
+        id_short_path = url_args["id_shorts"]
+        submodel_element = self._get_nested_submodel_element(submodel, id_short_path)
+        current_id_short = submodel_element.id_short
         # TODO: remove the following type: ignore comments when mypy supports abstract types for Type[T]
         # see https://github.com/python/mypy/issues/5374
         new_submodel_element = parse_request_body(request, model.SubmodelElement)  # type: ignore
-        mismatch_error_message = f" of new submodel element {new_submodel_element} doesn't not match " \
-                                 f"the current submodel element {submodel_element}"
         if type(submodel_element) is not type(new_submodel_element):
-            raise UnprocessableEntity("Type" + mismatch_error_message)
-        # compare id_shorts case-insensitively
-        if submodel_element.id_short.lower() != new_submodel_element.id_short.lower():
-            raise UnprocessableEntity("id_short" + mismatch_error_message)
+            raise UnprocessableEntity(f"Type of new submodel element {new_submodel_element} doesn't not match "
+                                      f"the current submodel element {submodel_element}")
+        # TODO: raise conflict if the following fails
         submodel_element.update_from(new_submodel_element)
         submodel_element.commit()
+        if new_submodel_element.id_short.upper() != current_id_short.upper():
+            created_resource_url = map_adapter.build(self.put_submodel_submodel_elements_specific_nested, {
+                "submodel_id": submodel_identifier,
+                "id_shorts": id_short_path[:-1] + [submodel_element.id_short]
+            }, force_external=True)
+            return response_t(Result(submodel_element), status=201, headers={"Location": created_resource_url})
         return response_t(Result(submodel_element))
 
     def delete_submodel_submodel_elements_specific_nested(self, request: Request, url_args: Dict, **_kwargs) \
