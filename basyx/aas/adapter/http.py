@@ -375,7 +375,24 @@ class WSGIApp:
                         Rule("/statements", methods=["POST"],
                              endpoint=self.factory_post_submodel_submodel_elements_nested_attr(model.Entity,
                                                                                                "statement")),
-                    ])
+                        Rule("/constraints", methods=["GET"], endpoint=self.get_submodel_submodel_element_constraints),
+                        Rule("/constraints", methods=["POST"],
+                             endpoint=self.post_submodel_submodel_element_constraints),
+                        Rule("/constraints/<path:qualifier_type>", methods=["GET"],
+                             endpoint=self.get_submodel_submodel_element_constraints),
+                        Rule("/constraints/<path:qualifier_type>", methods=["PUT"],
+                             endpoint=self.put_submodel_submodel_element_constraints),
+                        Rule("/constraints/<path:qualifier_type>", methods=["DELETE"],
+                             endpoint=self.delete_submodel_submodel_element_constraints),
+                    ]),
+                    Rule("/constraints", methods=["GET"], endpoint=self.get_submodel_submodel_element_constraints),
+                    Rule("/constraints", methods=["POST"], endpoint=self.post_submodel_submodel_element_constraints),
+                    Rule("/constraints/<path:qualifier_type>", methods=["GET"],
+                         endpoint=self.get_submodel_submodel_element_constraints),
+                    Rule("/constraints/<path:qualifier_type>", methods=["PUT"],
+                         endpoint=self.put_submodel_submodel_element_constraints),
+                    Rule("/constraints/<path:qualifier_type>", methods=["DELETE"],
+                         endpoint=self.delete_submodel_submodel_element_constraints)
                 ])
             ])
         ], converters={
@@ -420,8 +437,16 @@ class WSGIApp:
                                                               f"is not a submodel element!")
             current_namespace = next_obj
         if not isinstance(current_namespace, model.SubmodelElement):
-            raise TypeError("No id_shorts specified!")
+            raise ValueError("No id_shorts specified!")
         return current_namespace
+
+    @classmethod
+    def _get_submodel_or_nested_submodel_element(cls, submodel: model.Submodel, id_shorts: List[str]) \
+            -> Union[model.Submodel, model.SubmodelElement]:
+        try:
+            return cls._get_nested_submodel_element(submodel, id_shorts)
+        except ValueError:
+            return submodel
 
     @classmethod
     def _expect_namespace(cls, obj: object, needle: str) -> model.UniqueIdShortNamespace:
@@ -661,6 +686,89 @@ class WSGIApp:
                 id_shorts[-1]
             )
         self._namespace_submodel_element_op(parent, parent.remove_referable, id_shorts[-1])
+        return response_t(Result(None))
+
+    def get_submodel_submodel_element_constraints(self, request: Request, url_args: Dict, **_kwargs) \
+            -> Response:
+        response_t = get_response_type(request)
+        submodel = self._get_obj_ts(url_args["submodel_id"], model.Submodel)
+        submodel.update()
+        sm_or_se = self._get_submodel_or_nested_submodel_element(submodel, url_args.get("id_shorts", []))
+        qualifier_type = url_args.get("qualifier_type")
+        if qualifier_type is None:
+            return response_t(Result(tuple(sm_or_se.qualifier)))
+        try:
+            return response_t(Result(sm_or_se.get_qualifier_by_type(qualifier_type)))
+        except KeyError:
+            raise NotFound(f"No constraint with type {qualifier_type} found in {sm_or_se}")
+
+    def post_submodel_submodel_element_constraints(self, request: Request, url_args: Dict, map_adapter: MapAdapter) \
+            -> Response:
+        response_t = get_response_type(request)
+        submodel_identifier = url_args["submodel_id"]
+        submodel = self._get_obj_ts(submodel_identifier, model.Submodel)
+        submodel.update()
+        id_shorts: List[str] = url_args.get("id_shorts", [])
+        sm_or_se = self._get_submodel_or_nested_submodel_element(submodel, id_shorts)
+        qualifier = parse_request_body(request, model.Qualifier)
+        if ("type", qualifier.type) in sm_or_se.qualifier:
+            raise Conflict(f"Qualifier with type {qualifier.type} already exists!")
+        sm_or_se.qualifier.add(qualifier)
+        sm_or_se.commit()
+        created_resource_url = map_adapter.build(self.get_submodel_submodel_element_constraints, {
+            "submodel_id": submodel_identifier,
+            "id_shorts": id_shorts if len(id_shorts) != 0 else None,
+            "qualifier_type": qualifier.type
+        }, force_external=True)
+        return response_t(Result(qualifier), status=201, headers={"Location": created_resource_url})
+
+    def put_submodel_submodel_element_constraints(self, request: Request, url_args: Dict, map_adapter: MapAdapter) \
+            -> Response:
+        response_t = get_response_type(request)
+        submodel_identifier = url_args["submodel_id"]
+        submodel = self._get_obj_ts(submodel_identifier, model.Submodel)
+        submodel.update()
+        id_shorts: List[str] = url_args.get("id_shorts", [])
+        sm_or_se = self._get_submodel_or_nested_submodel_element(submodel, id_shorts)
+        new_qualifier = parse_request_body(request, model.Qualifier)
+        qualifier_type = url_args["qualifier_type"]
+        try:
+            qualifier = sm_or_se.get_qualifier_by_type(qualifier_type)
+        except KeyError:
+            raise NotFound(f"No constraint with type {qualifier_type} found in {sm_or_se}")
+        if type(qualifier) is not type(new_qualifier):
+            raise UnprocessableEntity(f"Type of new qualifier {new_qualifier} doesn't not match "
+                                      f"the current submodel element {qualifier}")
+        qualifier_type_changed = qualifier_type != new_qualifier.type
+        # TODO: have to pass a tuple to __contains__ here. can't this be simplified?
+        if qualifier_type_changed and ("type", new_qualifier.type) in sm_or_se.qualifier:
+            raise Conflict(f"A qualifier of type {new_qualifier.type} already exists for {sm_or_se}")
+        sm_or_se.remove_qualifier_by_type(qualifier.type)
+        sm_or_se.qualifier.add(new_qualifier)
+        sm_or_se.commit()
+        if qualifier_type_changed:
+            created_resource_url = map_adapter.build(self.get_submodel_submodel_element_constraints, {
+                "submodel_id": submodel_identifier,
+                "id_shorts": id_shorts if len(id_shorts) != 0 else None,
+                "qualifier_type": new_qualifier.type
+            }, force_external=True)
+            return response_t(Result(new_qualifier), status=201, headers={"Location": created_resource_url})
+        return response_t(Result(new_qualifier))
+
+    def delete_submodel_submodel_element_constraints(self, request: Request, url_args: Dict, **_kwargs) \
+            -> Response:
+        response_t = get_response_type(request)
+        submodel_identifier = url_args["submodel_id"]
+        submodel = self._get_obj_ts(submodel_identifier, model.Submodel)
+        submodel.update()
+        id_shorts: List[str] = url_args.get("id_shorts", [])
+        sm_or_se = self._get_submodel_or_nested_submodel_element(submodel, id_shorts)
+        qualifier_type = url_args["qualifier_type"]
+        try:
+            sm_or_se.remove_qualifier_by_type(qualifier_type)
+        except KeyError:
+            raise NotFound(f"No constraint with type {qualifier_type} found in {sm_or_se}")
+        sm_or_se.commit()
         return response_t(Result(None))
 
     # --------- SUBMODEL ROUTE FACTORIES ---------
