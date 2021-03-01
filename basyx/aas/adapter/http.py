@@ -349,31 +349,35 @@ class WSGIApp:
                     Rule("/", methods=["GET"], endpoint=self.get_submodel),
                     Rule("/submodelElements", methods=["GET"], endpoint=self.get_submodel_submodel_elements),
                     Rule("/submodelElements", methods=["POST"], endpoint=self.post_submodel_submodel_elements),
-                    Rule("/<id_short_path:id_shorts>", methods=["GET"],
-                         endpoint=self.get_submodel_submodel_elements_specific_nested),
-                    Rule("/<id_short_path:id_shorts>", methods=["PUT"],
-                         endpoint=self.put_submodel_submodel_elements_specific_nested),
-                    Rule("/<id_short_path:id_shorts>", methods=["DELETE"],
-                         endpoint=self.delete_submodel_submodel_elements_specific_nested),
-                    # TODO: remove the following type: ignore comments when mypy supports abstract types for Type[T]
-                    # see https://github.com/python/mypy/issues/5374
-                    Rule("/<id_short_path:id_shorts>/values", methods=["GET"],
-                         endpoint=self.factory_get_submodel_submodel_elements_nested_attr(
-                             model.SubmodelElementCollection, "value")),  # type: ignore
-                    Rule("/<id_short_path:id_shorts>/values", methods=["POST"],
-                         endpoint=self.factory_post_submodel_submodel_elements_nested_attr(
-                             model.SubmodelElementCollection, "value")),  # type: ignore
-                    Rule("/<id_short_path:id_shorts>/annotations", methods=["GET"],
-                         endpoint=self.factory_get_submodel_submodel_elements_nested_attr(
-                             model.AnnotatedRelationshipElement, "annotation")),
-                    Rule("/<id_short_path:id_shorts>/annotations", methods=["POST"],
-                         endpoint=self.factory_post_submodel_submodel_elements_nested_attr(
-                             model.AnnotatedRelationshipElement, "annotation",
-                             request_body_type=model.DataElement)),  # type: ignore
-                    Rule("/<id_short_path:id_shorts>/statements", methods=["GET"],
-                         endpoint=self.factory_get_submodel_submodel_elements_nested_attr(model.Entity, "statement")),
-                    Rule("/<id_short_path:id_shorts>/statements", methods=["POST"],
-                         endpoint=self.factory_post_submodel_submodel_elements_nested_attr(model.Entity, "statement"))
+                    Submount("/<id_short_path:id_shorts>", [
+                        Rule("/", methods=["GET"],
+                             endpoint=self.get_submodel_submodel_elements_specific_nested),
+                        Rule("/", methods=["PUT"],
+                             endpoint=self.put_submodel_submodel_elements_specific_nested),
+                        Rule("/", methods=["DELETE"],
+                             endpoint=self.delete_submodel_submodel_elements_specific_nested),
+                        # TODO: remove the following type: ignore comments when mypy supports abstract types for Type[T]
+                        # see https://github.com/python/mypy/issues/5374
+                        Rule("/values", methods=["GET"],
+                             endpoint=self.factory_get_submodel_submodel_elements_nested_attr(
+                                 model.SubmodelElementCollection, "value")),  # type: ignore
+                        Rule("/values", methods=["POST"],
+                             endpoint=self.factory_post_submodel_submodel_elements_nested_attr(
+                                 model.SubmodelElementCollection, "value")),  # type: ignore
+                        Rule("/annotations", methods=["GET"],
+                             endpoint=self.factory_get_submodel_submodel_elements_nested_attr(
+                                 model.AnnotatedRelationshipElement, "annotation")),
+                        Rule("/annotations", methods=["POST"],
+                             endpoint=self.factory_post_submodel_submodel_elements_nested_attr(
+                                 model.AnnotatedRelationshipElement, "annotation",
+                                 request_body_type=model.DataElement)),  # type: ignore
+                        Rule("/statements", methods=["GET"],
+                             endpoint=self.factory_get_submodel_submodel_elements_nested_attr(model.Entity,
+                                                                                              "statement")),
+                        Rule("/statements", methods=["POST"],
+                             endpoint=self.factory_post_submodel_submodel_elements_nested_attr(model.Entity,
+                                                                                               "statement")),
+                    ])
                 ])
             ])
         ], converters={
