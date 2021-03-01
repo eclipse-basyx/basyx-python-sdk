@@ -18,7 +18,7 @@ from lxml import etree  # type: ignore
 import werkzeug.exceptions
 import werkzeug.routing
 import werkzeug.urls
-from werkzeug.exceptions import BadRequest, Conflict, NotFound
+from werkzeug.exceptions import BadRequest, Conflict, NotFound, UnprocessableEntity
 from werkzeug.routing import MapAdapter, Rule, Submount
 from werkzeug.wrappers import Request, Response
 
@@ -258,7 +258,7 @@ def parse_request_body(request: Request, expect_type: Type[T]) -> T:
     except (KeyError, ValueError, TypeError, json.JSONDecodeError, etree.XMLSyntaxError) as e:
         while e.__cause__ is not None:
             e = e.__cause__
-        raise BadRequest(str(e)) from e
+        raise UnprocessableEntity(str(e)) from e
 
     assert isinstance(rv, expect_type)
     return rv
@@ -488,7 +488,7 @@ class WSGIApp:
         try:
             submodel_identifier = sm_ref.get_identifier()
         except ValueError as e:
-            raise BadRequest(f"Can't resolve submodel identifier for given reference!") from e
+            raise UnprocessableEntity(f"Can't resolve submodel identifier for given reference!") from e
         if sm_ref in aas.submodel:
             raise Conflict(f"{sm_ref!r} already exists!")
         aas.submodel.add(sm_ref)
@@ -626,10 +626,10 @@ class WSGIApp:
         mismatch_error_message = f" of new submodel element {new_submodel_element} doesn't not match " \
                                  f"the current submodel element {submodel_element}"
         if type(submodel_element) is not type(new_submodel_element):
-            raise BadRequest("Type" + mismatch_error_message)
+            raise UnprocessableEntity("Type" + mismatch_error_message)
         # compare id_shorts case-insensitively
         if submodel_element.id_short.lower() != new_submodel_element.id_short.lower():
-            raise BadRequest("id_short" + mismatch_error_message)
+            raise UnprocessableEntity("id_short" + mismatch_error_message)
         submodel_element.update_from(new_submodel_element)
         submodel_element.commit()
         return response_t(Result(submodel_element))
@@ -658,7 +658,7 @@ class WSGIApp:
             submodel.update()
             submodel_element = self._get_nested_submodel_element(submodel, url_args["id_shorts"])
             if not isinstance(submodel_element, type_):
-                raise BadRequest(f"Submodel element {submodel_element} is not a(n) {type_.__name__}!")
+                raise UnprocessableEntity(f"Submodel element {submodel_element} is not a(n) {type_.__name__}!")
             return response_t(Result(tuple(getattr(submodel_element, attr))))
         return route
 
@@ -674,7 +674,7 @@ class WSGIApp:
             id_shorts = url_args["id_shorts"]
             submodel_element = self._get_nested_submodel_element(submodel, id_shorts)
             if not isinstance(submodel_element, type_):
-                raise BadRequest(f"Submodel element {submodel_element} is not a(n) {type_.__name__}!")
+                raise UnprocessableEntity(f"Submodel element {submodel_element} is not a(n) {type_.__name__}!")
             new_submodel_element = parse_request_body(request, request_body_type)
             if new_submodel_element.id_short in getattr(submodel_element, attr):
                 raise Conflict(f"Submodel element with id_short {new_submodel_element.id_short} already exists!")
