@@ -267,14 +267,31 @@ paths:
             "application/json":
               schema:
                 $ref: "#/components/schemas/ViewResult"
-        "400":
-          description: idShort of new View does not match the old one
+        "201":
+          description: Success (idShort changed)
           content:
             "application/json":
               schema:
                 $ref: "#/components/schemas/ViewResult"
+          headers:
+            Location:
+              description: The new URL of the View
+              schema:
+                type: string
         "404":
           description: AssetAdministrationShell or View not found
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/ViewResult"
+        "409":
+          description: idShort changed and new idShort already exists
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/ViewResult"
+        "422":
+          description: Request body is not a valid View
           content:
             "application/json":
               schema:
@@ -298,8 +315,31 @@ paths:
             "application/json":
               schema:
                 $ref: "#/components/schemas/ViewResult"
+        "201":
+          description: Success (idShort changed)
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/ViewResult"
+          headers:
+            Location:
+              description: The new URL of the View
+              schema:
+                type: string
         "404":
           description: AssetAdministrationShell or View not found
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/ViewResult"
+        "409":
+          description: idShort changed and new idShort already exists
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/ViewResult"
+        "422":
+          description: Request body is not a valid View
           content:
             "application/json":
               schema:
@@ -447,14 +487,31 @@ paths:
             "application/json":
               schema:
                 $ref: "#/components/schemas/ConstraintResult"
-        "400":
-          description: type of new Qualifier does not match the old one
+        "201":
+          description: Success (type changed)
           content:
             "application/json":
               schema:
                 $ref: "#/components/schemas/ConstraintResult"
+          headers:
+            Location:
+              description: The new URL of the Qualifier
+              schema:
+                type: string
         "404":
           description: Submodel or Constraint not found
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/ConstraintResult"
+        "409":
+          description: type changed and new type already exists
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/ConstraintResult"
+        "422":
+          description: Request body is not a valid Qualifier
           content:
             "application/json":
               schema:
@@ -583,14 +640,31 @@ paths:
             "application/json":
               schema:
                 $ref: "#/components/schemas/SubmodelElementResult"
-        "400":
-          description: type or idShort of new SubmodelElement does not match the old one
+        "201":
+          description: Success (idShort changed)
           content:
             "application/json":
               schema:
                 $ref: "#/components/schemas/SubmodelElementResult"
+          headers:
+            Location:
+              description: The new URL of the SubmodelElement
+              schema:
+                type: string
         "404":
           description: Submodel or any SubmodelElement referred by idShort-path not found
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/SubmodelElementResult"
+        "409":
+          description: idShort changed and new idShort already exists
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/SubmodelElementResult"
+        "422":
+          description: Request body is not a valid SubmodelElement **or** the type of the new SubmodelElement differs from the existing one
           content:
             "application/json":
               schema:
@@ -972,14 +1046,31 @@ paths:
             "application/json":
               schema:
                 $ref: "#/components/schemas/ConstraintResult"
-        "400":
-          description: type of new Qualifier does not match the old one
+        "201":
+          description: Success (type changed)
           content:
             "application/json":
               schema:
                 $ref: "#/components/schemas/ConstraintResult"
+          headers:
+            Location:
+              description: The new URL of the Qualifier
+              schema:
+                type: string
         "404":
           description: Submodel, Qualifier or any SubmodelElement referred by idShort-path not found
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/ConstraintResult"
+        "409":
+          description: type changed and new type already exists
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/ConstraintResult"
+        "422":
+          description: Request body is not a valid Qualifier
           content:
             "application/json":
               schema:
