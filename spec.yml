@@ -516,17 +516,11 @@ paths:
                 $ref: "#/components/schemas/SubmodelElementResult"
       tags:
         - Submodel Interface
-  "/{se-idShort1}/.../{se-idShortN}":
+  "/{idShort-path}":
     parameters:
-      - name: se-idShort1
+      - name: idShort-path
         in: path
-        description: The SubmodelElement's idShort, prefixed with an exclammation mark (!)
-        required: true
-        schema:
-          type: string
-      - name: se-idShortN
-        in: path
-        description: The SubmodelElement's idShort, prefixed with an exclammation mark (!)
+        description: A /-separated concatenation of !-prefixed idShorts
         required: true
         schema:
           type: string
@@ -541,7 +535,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/SubmodelElementListResult"
         "404":
-          description: Submodel or any SubmodelElement referred to by idShort[1-N] not found
+          description: Submodel or any SubmodelElement referred by idShort-path not found
           content:
             "application/json":
               schema:
@@ -572,7 +566,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/SubmodelElementResult"
         "404":
-          description: Submodel or any SubmodelElement referred to by idShort[1-N] not found
+          description: Submodel or any SubmodelElement referred by idShort-path not found
           content:
             "application/json":
               schema:
@@ -590,24 +584,18 @@ paths:
               schema:
                 $ref: "#/components/schemas/BaseResult"
         "404":
-          description: Submodel or any SubmodelElement referred to by idShort[1-N] not found
+          description: Submodel or any SubmodelElement referred by idShort-path not found
           content:
             "application/json":
               schema:
                 $ref: "#/components/schemas/BaseResult"
       tags:
         - Submodel Interface
-  "/{se-idShort1}/.../{se-idShortN}/value":
+  "/{idShort-path}/value":
     parameters:
-      - name: se-idShort1
+      - name: idShort-path
         in: path
-        description: The SubmodelElement's idShort, prefixed with an exclammation mark (!)
-        required: true
-        schema:
-          type: string
-      - name: se-idShortN
-        in: path
-        description: The SubmodelElement's idShort, prefixed with an exclammation mark (!)
+        description: A /-separated concatenation of !-prefixed idShorts
         required: true
         schema:
           type: string
@@ -628,7 +616,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/SubmodelElementListResult"
         "404":
-          description: Submodel or any SubmodelElement referred to by idShort[1-N] not found
+          description: Submodel or any SubmodelElement referred by idShort-path not found
           content:
             "application/json":
               schema:
@@ -664,7 +652,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/SubmodelElementResult"
         "404":
-          description: Submodel or any SubmodelElement referred to by idShort[1-N] not found
+          description: Submodel or any SubmodelElement referred by idShort-path not found
           content:
             "application/json":
               schema:
@@ -677,17 +665,11 @@ paths:
                 $ref: "#/components/schemas/SubmodelElementResult"
       tags:
         - Submodel Interface
-  "/{se-idShort1}/.../{se-idShortN}/annotation":
+  "/{idShort-path}/annotation":
     parameters:
-      - name: se-idShort1
+      - name: idShort-path
         in: path
-        description: The SubmodelElement's idShort, prefixed with an exclammation mark (!)
-        required: true
-        schema:
-          type: string
-      - name: se-idShortN
-        in: path
-        description: The SubmodelElement's idShort, prefixed with an exclammation mark (!)
+        description: A /-separated concatenation of !-prefixed idShorts
         required: true
         schema:
           type: string
@@ -708,7 +690,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/SubmodelElementListResult"
         "404":
-          description: Submodel or any SubmodelElement referred to by idShort[1-N] not found
+          description: Submodel or any SubmodelElement referred by idShort-path not found
           content:
             "application/json":
               schema:
@@ -744,7 +726,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/SubmodelElementResult"
         "404":
-          description: Submodel or any SubmodelElement referred by idShort[1-N] not found
+          description: Submodel or any SubmodelElement referred by idShort-path not found
           content:
             "application/json":
               schema:
@@ -757,17 +739,11 @@ paths:
                 $ref: "#/components/schemas/SubmodelElementResult"
       tags:
         - Submodel Interface
-  "/{se-idShort1}/.../{se-idShortN}/statement":
+  "/{idShort-path}/statement":
     parameters:
-      - name: se-idShort1
+      - name: idShort-path
         in: path
-        description: The SubmodelElement's idShort, prefixed with an exclammation mark (!)
-        required: true
-        schema:
-          type: string
-      - name: se-idShortN
-        in: path
-        description: The SubmodelElement's idShort, prefixed with an exclammation mark (!)
+        description: A /-separated concatenation of !-prefixed idShorts
         required: true
         schema:
           type: string
@@ -788,7 +764,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/SubmodelElementListResult"
         "404":
-          description: Submodel or any SubmodelElement referred by idShort[1-N] not found
+          description: Submodel or any SubmodelElement referred by idShort-path not found
           content:
             "application/json":
               schema:
@@ -824,7 +800,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/SubmodelElementResult"
         "404":
-          description: Submodel or any SubmodelElement referred by idShort[1-N] not found
+          description: Submodel or any SubmodelElement referred by idShort-path not found
           content:
             "application/json":
               schema:
@@ -837,17 +813,11 @@ paths:
                 $ref: "#/components/schemas/SubmodelElementResult"
       tags:
         - Submodel Interface
-  "/{se-idShort1}/.../{se-idShortN}/constraints":
+  "/{idShort-path}/constraints":
     parameters:
-      - name: se-idShort1
+      - name: idShort-path
         in: path
-        description: The SubmodelElement's idShort, prefixed with an exclammation mark (!)
-        required: true
-        schema:
-          type: string
-      - name: se-idShortN
-        in: path
-        description: The SubmodelElement's idShort, prefixed with an exclammation mark (!)
+        description: A /-separated concatenation of !-prefixed idShorts
         required: true
         schema:
           type: string
@@ -862,7 +832,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/ConstraintListResult"
         "404":
-          description: Submodel or any SubmodelElement referred to by idShort[1-N] not found
+          description: Submodel or any SubmodelElement referred by idShort-path not found
           content:
             "application/json":
               schema:
@@ -892,7 +862,7 @@ paths:
               schema:
                 type: string
         "404":
-          description: Submodel or any SubmodelElement referred to by idShort[1-N] not found
+          description: Submodel or any SubmodelElement referred by idShort-path not found
           content:
             "application/json":
               schema:
@@ -905,17 +875,11 @@ paths:
                 $ref: "#/components/schemas/ConstraintResult"
       tags:
         - Submodel Interface
-  "/{se-idShort1}/.../{se-idShortN}/constraints/{qualifier-type}":
+  "/{idShort-path}/constraints/{qualifier-type}":
     parameters:
-      - name: se-idShort1
+      - name: idShort-path
         in: path
-        description: The SubmodelElement's idShort, prefixed with an exclammation mark (!)
-        required: true
-        schema:
-          type: string
-      - name: se-idShortN
-        in: path
-        description: The SubmodelElement's idShort, prefixed with an exclammation mark (!)
+        description: A /-separated concatenation of !-prefixed idShorts
         required: true
         schema:
           type: string
@@ -936,7 +900,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/ConstraintResult"
         "404":
-          description: Submodel, Qualifier or any SubmodelElement referred to by idShort[1-N] not found
+          description: Submodel, Qualifier or any SubmodelElement referred by idShort-path not found
           content:
             "application/json":
               schema:
@@ -967,7 +931,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/ConstraintResult"
         "404":
-          description: Submodel, Qualifier or any SubmodelElement referred to by idShort[1-N] not found
+          description: Submodel, Qualifier or any SubmodelElement referred by idShort-path not found
           content:
             "application/json":
               schema:
@@ -985,7 +949,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/BaseResult"
         "404":
-          description: Submodel, Qualifier or any SubmodelElement referred to by idShort[1-N] not found
+          description: Submodel, Qualifier or any SubmodelElement referred by idShort-path not found
           content:
             "application/json":
               schema:
