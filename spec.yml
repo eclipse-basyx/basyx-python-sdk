@@ -111,6 +111,12 @@ paths:
             "application/json":
               schema:
                 $ref: "#/components/schemas/ReferenceResult"
+        "422":
+          description: Request body is not a Reference or not resolvable
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/ReferenceResult"
       tags:
         - Asset Administration Shell Interface
   "/submodels/{submodel-identifier}":
@@ -206,6 +212,12 @@ paths:
                 $ref: "#/components/schemas/ViewResult"
         "409":
           description: View with same idShort already exists
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/ViewResult"
+        "422":
+          description: Request body is not a valid View
           content:
             "application/json":
               schema:
@@ -384,6 +396,12 @@ paths:
             "application/json":
               schema:
                 $ref: "#/components/schemas/ConstraintResult"
+        "422":
+          description: Request body is not a valid Qualifier
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/ConstraintResult"
       tags:
         - Submodel Interface
   "/constraints/{qualifier-type}":
@@ -510,6 +528,12 @@ paths:
                 $ref: "#/components/schemas/SubmodelElementResult"
         "409":
           description: SubmodelElement with same idShort already exists
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/SubmodelElementResult"
+        "422":
+          description: Request body is not a valid SubmodelElement
           content:
             "application/json":
               schema:
@@ -663,6 +687,12 @@ paths:
             "application/json":
               schema:
                 $ref: "#/components/schemas/SubmodelElementResult"
+        "422":
+          description: Request body is not a valid SubmodelElement
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/SubmodelElementResult"
       tags:
         - Submodel Interface
   "/{idShort-path}/annotation":
@@ -733,6 +763,12 @@ paths:
                 $ref: "#/components/schemas/SubmodelElementResult"
         "409":
           description: SubmodelElement with given idShort already exists
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/SubmodelElementResult"
+        "422":
+          description: Request body is not a valid SubmodelElement
           content:
             "application/json":
               schema:
@@ -811,6 +847,12 @@ paths:
             "application/json":
               schema:
                 $ref: "#/components/schemas/SubmodelElementResult"
+        "422":
+          description: Request body is not a valid SubmodelElement
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/SubmodelElementResult"
       tags:
         - Submodel Interface
   "/{idShort-path}/constraints":
@@ -869,6 +911,12 @@ paths:
                 $ref: "#/components/schemas/ConstraintResult"
         "409":
           description: "When trying to add a qualifier: Qualifier with specified type already exists"
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/ConstraintResult"
+        "422":
+          description: Request body is not a valid Qualifier
           content:
             "application/json":
               schema:
