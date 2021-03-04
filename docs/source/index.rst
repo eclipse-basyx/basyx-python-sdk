@@ -18,7 +18,6 @@ Welcome to PyI40AAS's documentation!
    examples/index
    compliance_tool/index
    util/index
-   constraints
 
 
 Indices and tables
