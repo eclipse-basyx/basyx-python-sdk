@@ -15,11 +15,12 @@ this module using their pythonized: Duration, DateTime, GMonthDay, String, Integ
 meant to be used directly for data values in the context of Asset Administration Shells.
 
 There are three conversion functions for useage in PyI40AAS' model and adapters:
-* `xsd_repr()` serializes any XSD type from this module into it's lexical representation
-* `from_xsd()` parses an XSD type from its lexical representation (its required to name the type for unambiguous
-  conversion)
-* `trivial_cast()` type-cast a python value into an XSD type, if this is trivially possible. Meant for fixing the type
-  of Properties' values automatically, esp. for literal values.
+
+* :meth:`~aas.model.datatypes.xsd_repr` serializes any XSD type from this module into it's lexical representation
+* :meth:`~aas.model.datatypes.from_xsd` parses an XSD type from its lexical representation (its required to name the
+  type for unambiguous conversion)
+* :meth:`~aas.model.datatypes.trivial_cast` type-cast a python value into an XSD type, if this is trivially possible.
+  Meant for fixing the type of Properties' values automatically, esp. for literal values.
 """
 import base64
 import datetime
