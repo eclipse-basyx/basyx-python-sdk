@@ -6,6 +6,8 @@
 #
 # SPDX-License-Identifier: EPL-2.0 OR Apache-2.0
 """
+.. _adapter.aasx:
+
 Functionality for reading and writing AASX files according to "Details of the Asset Administration Shell Part 1 V2.0",
 section 7.
 
@@ -13,10 +15,12 @@ The AASX file format is built upon the Open Packaging Conventions (OPC; ECMA 376
 for low level OPC reading and writing. It currently supports all required features except for embedded digital
 signatures.
 
-Writing and reading of AASX packages is performed through the AASXReader and AASXWriter classes. Each instance of these
-classes wraps an existing AASX file resp. a file to be created and allows to read/write the included AAS objects
-into/form object stores. For handling of embedded supplementary files, this module provides the
-`AbstractSupplementaryFileContainer` class interface and the `DictSupplementaryFileContainer` implementation.
+Writing and reading of AASX packages is performed through the :class:`~.AASXReader` and :class:`~.AASXWriter` classes.
+Each instance of these classes wraps an existing AASX file resp. a file to be created and allows to read/write the
+included AAS objects into/form :class:`ObjectStores <aas.model.provider.AbstractObjectStore>`.
+For handling of embedded supplementary files, this module provides the
+:class:`~.AbstractSupplementaryFileContainer` class
+interface and the :class:`~.DictSupplementaryFileContainer` implementation.
 """
 
 import abc
@@ -47,6 +51,8 @@ class AASXReader:
     An AASXReader wraps an existing AASX package file to allow reading its contents and metadata.
 
     Basic usage:
+
+    .. code-block:: python
 
         objects = DictObjectStore()
         files = DictSupplementaryFileContainer()
@@ -88,6 +94,8 @@ class AASXReader:
         The thumbnail image file is read into memory and returned as bytes object. You may use some python image library
         for further processing or conversion, e.g. `pillow`:
 
+        .. code-block:: python
+
             import io
             from PIL import Image
             thumbnail = Image.open(io.BytesIO(reader.get_thumbnail()))
@@ -106,20 +114,27 @@ class AASXReader:
                   file_store: "AbstractSupplementaryFileContainer",
                   override_existing: bool = False) -> Set[model.Identifier]:
         """
-        Read the contents of the AASX package and add them into a given ObjectStore
+        Read the contents of the AASX package and add them into a given
+        :class:`ObjectStore <aas.model.provider.AbstractObjectStore>`
 
         This function does the main job of reading the AASX file's contents. It traverses the relationships within the
         package to find AAS JSON or XML parts, parses them and adds the contained AAS objects into the provided
-        `object_store`. While doing so, it searches all parsed Submodels for File objects to extract the supplementary
-        files. The referenced supplementary files are added to the given `file_store` and the File objects' values are
-        updated with the absolute name of the supplementary file to allow for robust resolution the file within the
+        `object_store`. While doing so, it searches all parsed :class:`Submodels <aas.model.submodel.Submodel>` for
+        :class:`~aas.model.submodel.File` objects to extract the supplementary
+        files. The referenced supplementary files are added to the given `file_store` and the
+        :class:`~aas.model.submodel.File` objects' values are updated with the absolute name of the supplementary file
+        to allow for robust resolution the file within the
         `file_store` later.
 
-        :param object_store: An ObjectStore to add the AAS objects from the AASX file to
-        :param file_store: A SupplementaryFileContainer to add the embedded supplementary files to
-        :param override_existing: If True, existing objects in the object store are overridden with objects from the
-            AASX that have the same Identifer. Default behavior is to skip those objects from the AASX.
-        :return: A set of the Identifiers of all Identifiable objects parsed from the AASX file
+        :param object_store: An :class:`ObjectStore <aas.model.provider.AbstractObjectStore>` to add the AAS objects
+                             from the AASX file to
+        :param file_store: A :class:`SupplementaryFileContainer <.AbstractSupplementaryFileContainer>` to add the
+                           embedded supplementary files to
+        :param override_existing: If `True`, existing objects in the object store are overridden with objects from the
+            AASX that have the same :class:`~aas.model.base.Identifier`. Default behavior is to skip those objects from
+            the AASX.
+        :return: A set of the :class:`Identifiers <aas.model.base.Identifier>` of all
+                 :class:`~aas.model.base.Identifiable` objects parsed from the AASX file
         """
         # Find AASX-Origin part
         core_rels = self.reader.get_related_parts_by_type()
@@ -160,7 +175,7 @@ class AASXReader:
                             read_identifiables: Set[model.Identifier],
                             override_existing: bool) -> None:
         """
-        Helper function for `read_into()` to read and process the contents of an AAS-spec part of the AASX file.
+        Helper function for :meth:`read_into()` to read and process the contents of an AAS-spec part of the AASX file.
 
         This method primarily checks for duplicate objects. It uses `_parse_aas_parse()` to do the actual parsing and
         `_collect_supplementary_files()` for supplementary file processing of non-duplicate objects.
@@ -250,6 +265,8 @@ class AASXWriter:
 
     Basic usage:
 
+    .. code-block:: python
+
         # object_store and file_store are expected to be given (e.g. some storage backend or previously created data)
         cp = OPCCoreProperties()
         cp.creator = "ACPLT"
@@ -264,8 +281,9 @@ class AASXWriter:
                              file_store)
             writer.write_core_properties(cp)
 
-    Attention: The AASXWriter must always be closed using the close() method or its context manager functionality (as
-    shown above). Otherwise the resulting AASX file will lack important data structures and will not be readable.
+    **Attention:** The AASXWriter must always be closed using the :meth:`~.AASXWriter.close` method or its context
+    manager functionality (as shown above). Otherwise the resulting AASX file will lack important data structures
+    and will not be readable.
     """
     AASX_ORIGIN_PART_NAME = "/aasx/aasx-origin"
 
@@ -304,26 +322,31 @@ class AASXWriter:
                   write_json: bool = False,
                   submodel_split_parts: bool = True) -> None:
         """
-        Convenience method to add an Asset Administration Shell with all included and referenced objects to the AASX
-        package according to the part name conventions from DotAAS.
+        Convenience method to add an :class:`~aas.model.aas.AssetAdministrationShell` with all included and referenced
+        objects to the AASX package according to the part name conventions from DotAAS.
 
-        This method takes the AAS's Identifier (as `aas_id`) to retrieve it from the given object_store. References to
-        the Asset, ConceptDescriptions and Submodels are also resolved using the object_store. All of these objects are
-        written to aas-spec parts in the AASX package, follwing the conventions presented in "Details of the Asset
+        This method takes the AAS's :class:`~aas.model.base.Identifier` (as `aas_id`) to retrieve it from the given
+        object_store. :class:`References <~aas.model.base.Reference>` to
+        the :class:`~aas.model.aas.Asset`, :class:`ConceptDescriptions <aas.model.concept.ConceptDescription>` and
+        :class:`Submodels <aas.model.submodel.Submodel>` are also resolved using the object_store. All of these objects
+        are written to aas-spec parts in the AASX package, following the conventions presented in "Details of the Asset
         Administration Shell". For each Submodel, a aas-spec-split part is used. Supplementary files which are
         referenced by a File object in any of the Submodels, are also added to the AASX package.
 
-        Internally, this method uses `write_aas_objects()` to write the individual AASX parts for the AAS and each
-        submodel.
+        Internally, this method uses :meth:`aas.adapter.aasx.AASXWriter.write_aas_objects` to write the individual AASX
+        parts for the AAS and each submodel.
 
-        :param aas_id: Identifier of the AAS to be added to the AASX file
-        :param object_store: ObjectStore to retrieve the Identifiable AAS objects (AAS, Asset, ConceptDescriptions and
-            Submodels) from
-        :param file_store: SupplementaryFileContainer to retrieve supplementary files from, which are referenced by File
-            objects
-        :param write_json:  If True, JSON parts are created for the AAS and each submodel in the AASX package file
-            instead of XML parts. Defaults to False.
-        :param submodel_split_parts: If True (default), submodels are written to separate AASX parts instead of being
+        :param aas_id: :class:`~aas.model.base.Identifier` of the :class:`~aas.model.aas.AssetAdministrationShell` to
+            be added to the AASX file
+        :param object_store: :class:`ObjectStore <aas.model.provider.AbstractObjectStore>` to retrieve the
+            :class:`~aas.model.base.Identifiable` AAS objects (:class:`~aas.model.aas.AssetAdministrationShell`,
+            :class:`~aas.model.aas.Asset`, :class:`~aas.model.concept.ConceptDescription` and
+            :class:`~aas.model.submodel.Submodel`) from
+        :param file_store: :class:`SupplementaryFileContainer <aas.adapter.aasx.AbstractSupplementaryFileContainer>` to
+            retrieve supplementary files from, which are referenced by :class:`~aas.model.submodel.File` objects
+        :param write_json:  If `True`, JSON parts are created for the AAS and each submodel in the AASX package file
+            instead of XML parts. Defaults to `False`.
+        :param submodel_split_parts: If `True` (default), submodels are written to separate AASX parts instead of being
             included in the AAS part with in the AASX package.
         """
         aas_friendly_name = self._aas_name_friendlyfier.get_friendly_name(aas_id)
@@ -382,8 +405,10 @@ class AASXWriter:
         Write a defined list of AAS objects to an XML or JSON part in the AASX package and append the referenced
         supplementary files to the package.
 
-        This method takes the AAS's Identifier (as `aas_id`) to retrieve it from the given object_store. If the list
-        of written objects includes Submodel objects, Supplementary files which are referenced by File objects within
+        This method takes the AAS's :class:`~aas.model.base.Identifier` (as `aas_id`) to retrieve it from the given
+        object_store. If the list
+        of written objects includes :class:`aas.model.submodel.Submodel` objects, Supplementary files which are
+        referenced by :class:`~aas.model.submodel.File` objects within
         those submodels, are also added to the AASX package.
 
         You must make sure to call this method only once per unique `part_name` on a single package instance.
@@ -391,13 +416,15 @@ class AASXWriter:
         :param part_name: Name of the Part within the AASX package to write the files to. Must be a valid ECMA376-2
             part name and unique within the package. The extension of the part should match the data format (i.e.
             '.json' if `write_json` else '.xml').
-        :param object_ids: A list of identifiers of the objects to be written to the AASX package. Only these
-            Identifiable objects (and included Referable objects) are written to the package.
-        :param object_store: The objects store to retrieve the Identifable objects from
-        :param file_store: The SupplementaryFileContainer to retrieve supplementary files from (if there are any `File`
+        :param object_ids: A list of :class:`Identifiers <aas.model.base.Identifier>` of the objects to be written to
+            the AASX package. Only these :class:`~aas.model.base.Identifiable` objects (and included
+            :class:`~aas.model.base.Referable` objects) are written to the package.
+        :param object_store: The objects store to retrieve the :class:`~aas.model.base.Identifiable` objects from
+        :param file_store: The :class:`SupplementaryFileContainer <aas.adapter.aasx.AbstractSupplementaryFileContainer>`
+            to retrieve supplementary files from (if there are any :class:`~aas.model.submodel.File`
             objects within the written objects.
-        :param write_json: If True, the part is written as a JSON file instead of an XML file. Defaults to False.
-        :param split_part: If True, no aas-spec relationship is added from the aasx-origin to this part. You must make
+        :param write_json: If `True`, the part is written as a JSON file instead of an XML file. Defaults to `False`.
+        :param split_part: If `True`, no aas-spec relationship is added from the aasx-origin to this part. You must make
             sure to reference it via a aas-spec-split relationship from another aas-spec part
         :param additional_relationships: Optional OPC/ECMA376 relationships which should originate at the AAS object
             part to be written, in addition to the aas-suppl relationships which are created automatically.
@@ -473,7 +500,8 @@ class AASXWriter:
         """
         Write OPC Core Properties (meta data) to the AASX package file.
 
-        Attention: This method may only be called once for each AASXWriter!
+        .. Attention::
+            This method may only be called once for each AASXWriter!
 
         :param core_properties: The OPCCoreProperties object with the meta data to be written to the package file
         """
@@ -488,7 +516,8 @@ class AASXWriter:
         """
         Write an image file as thumbnail image to the AASX package.
 
-        Attention: This method may only be called once for each AASXWriter!
+        .. Attention::
+            This method may only be called once for each AASXWriter!
 
         :param name: The OPC part name of the thumbnail part. Should not contain '/' or URI-encoded '/' or '\'.
         :param data: The image file's binary contents to be written
@@ -575,13 +604,18 @@ class NameFriendlyfier:
         According to section 7.6 of "Details of the Asset Administration Shell", all non-alphanumerical characters are
         replaced with underscores. We also replace all non-ASCII characters to generate valid URIs as the result.
         If this replacement results in a collision with a previously generated friendly name of this NameFriendlifier,
-        a number is appended with underscore to the friendly name. Example
+        a number is appended with underscore to the friendly name.
 
-            >>> friendlyfier = NameFriendlyfier()
-            >>> friendlyfier.get_friendly_name(model.Identifier("http://example.com/AAS-a", model.IdentifierType.IRI))
-            "http___example_com_AAS_a"
-            >>> friendlyfier.get_friendly_name(model.Identifier("http://example.com/AAS+a", model.IdentifierType.IRI))
-            "http___example_com_AAS_a_1"
+        Example:
+
+        .. code-block:: python
+
+            friendlyfier = NameFriendlyfier()
+            friendlyfier.get_friendly_name(model.Identifier("http://example.com/AAS-a", model.IdentifierType.IRI))
+             > "http___example_com_AAS_a"
+
+            friendlyfier.get_friendly_name(model.Identifier("http://example.com/AAS+a", model.IdentifierType.IRI))
+             >  "http___example_com_AAS_a_1"
 
         """
         # friendlify name
@@ -603,8 +637,8 @@ class AbstractSupplementaryFileContainer(metaclass=abc.ABCMeta):
     Abstract interface for containers of supplementary files for AASs.
 
     Supplementary files may be PDF files or other binary or textual files, referenced in a File object of an AAS by
-    their name. They are used to provide associated documents without embedding their contents (as Blob object) in the
-    AAS.
+    their name. They are used to provide associated documents without embedding their contents (as
+    :class:`~aas.model.submodel.Blob` object) in the AAS.
 
     A SupplementaryFileContainer keeps track of the name and content_type (MIME type) for each file. Additionally it
     allows to resolve name conflicts by comparing the files' contents and providing an alternative name for a dissimilar
