@@ -76,6 +76,15 @@
                         {
                             "type": "Submodel",
                             "idType": "IRI",
+                            "value": "https://acplt.org/Test_Submodel"
+                        }
+                    ]
+                },
+                {
+                    "keys": [
+                        {
+                            "type": "Submodel",
+                            "idType": "IRI",
                             "value": "http://acplt.org/Submodels/Assets/TestAsset/BillOfMaterial"
                         }
                     ]
@@ -86,15 +95,6 @@
                             "type": "Submodel",
                             "idType": "IRI",
                             "value": "http://acplt.org/Submodels/Assets/TestAsset/Identification"
-                        }
-                    ]
-                },
-                {
-                    "keys": [
-                        {
-                            "type": "Submodel",
-                            "idType": "IRI",
-                            "value": "https://acplt.org/Test_Submodel"
                         }
                     ]
                 }
@@ -351,23 +351,6 @@
                             "modelType": {
                                 "name": "Qualifier"
                             },
-                            "value": "100",
-                            "valueId": {
-                                "keys": [
-                                    {
-                                        "type": "GlobalReference",
-                                        "idType": "IRI",
-                                        "value": "http://acplt.org/ValueId/ExampleValueId"
-                                    }
-                                ]
-                            },
-                            "valueType": "int",
-                            "type": "http://acplt.org/Qualifier/ExampleQualifier"
-                        },
-                        {
-                            "modelType": {
-                                "name": "Qualifier"
-                            },
                             "value": "50",
                             "valueId": {
                                 "keys": [
@@ -380,6 +363,23 @@
                             },
                             "valueType": "int",
                             "type": "http://acplt.org/Qualifier/ExampleQualifier2"
+                        },
+                        {
+                            "modelType": {
+                                "name": "Qualifier"
+                            },
+                            "value": "100",
+                            "valueId": {
+                                "keys": [
+                                    {
+                                        "type": "GlobalReference",
+                                        "idType": "IRI",
+                                        "value": "http://acplt.org/ValueId/ExampleValueId"
+                                    }
+                                ]
+                            },
+                            "valueType": "int",
+                            "type": "http://acplt.org/Qualifier/ExampleQualifier"
                         }
                     ],
                     "value": "ACPLT",
@@ -1087,7 +1087,7 @@
                                 },
                                 {
                                     "language": "de",
-                                    "text": "Beispiel MulitLanguageProperty Element"
+                                    "text": "Beispiel MultiLanguageProperty Element"
                                 }
                             ],
                             "modelType": {
@@ -1243,7 +1243,7 @@
                             "description": [
                                 {
                                     "language": "en-us",
-                                    "text": "Details of the Asset Administration Shell\u2014An example for an external file reference"
+                                    "text": "Details of the Asset Administration Shell \u2014 An example for an external file reference"
                                 },
                                 {
                                     "language": "de",
