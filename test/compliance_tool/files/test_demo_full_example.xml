@@ -67,12 +67,12 @@
       <aas:submodelRefs>
         <aas:submodelRef>
           <aas:keys>
-            <aas:key idType="IRI" type="Submodel">https://acplt.org/Test_Submodel_Mandatory</aas:key>
+            <aas:key idType="IRI" type="Submodel">https://acplt.org/Test_Submodel2_Mandatory</aas:key>
           </aas:keys>
         </aas:submodelRef>
         <aas:submodelRef>
           <aas:keys>
-            <aas:key idType="IRI" type="Submodel">https://acplt.org/Test_Submodel2_Mandatory</aas:key>
+            <aas:key idType="IRI" type="Submodel">https://acplt.org/Test_Submodel_Mandatory</aas:key>
           </aas:keys>
         </aas:submodelRef>
       </aas:submodelRefs>
@@ -769,7 +769,7 @@
                   <aas:category>CONSTANT</aas:category>
                   <aas:description>
                     <aas:langString lang="en-us">Example MultiLanguageProperty object</aas:langString>
-                    <aas:langString lang="de">Beispiel MulitLanguageProperty Element</aas:langString>
+                    <aas:langString lang="de">Beispiel MultiLanguageProperty Element</aas:langString>
                   </aas:description>
                   <aas:kind>Instance</aas:kind>
                   <aas:semanticId>
@@ -868,7 +868,7 @@
                   <aas:idShort>ExampleFileURI</aas:idShort>
                   <aas:category>CONSTANT</aas:category>
                   <aas:description>
-                    <aas:langString lang="en-us">Details of the Asset Administration Shell—An example for an external file reference</aas:langString>
+                    <aas:langString lang="en-us">Details of the Asset Administration Shell — An example for an external file reference</aas:langString>
                     <aas:langString lang="de">Details of the Asset Administration Shell – Ein Beispiel für eine extern referenzierte Datei</aas:langString>
                   </aas:description>
                   <aas:kind>Instance</aas:kind>
@@ -1120,15 +1120,6 @@
             </aas:second>
             <aas:annotations>
               <aas:dataElement>
-                <aas:property>
-                  <aas:idShort>ExampleAnnotatedProperty</aas:idShort>
-                  <aas:category>PARAMETER</aas:category>
-                  <aas:kind>Instance</aas:kind>
-                  <aas:value>exampleValue</aas:value>
-                  <aas:valueType>string</aas:valueType>
-                </aas:property>
-              </aas:dataElement>
-              <aas:dataElement>
                 <aas:range>
                   <aas:idShort>ExampleAnnotatedRange</aas:idShort>
                   <aas:category>PARAMETER</aas:category>
@@ -1137,6 +1128,15 @@
                   <aas:min>1</aas:min>
                   <aas:valueType>integer</aas:valueType>
                 </aas:range>
+              </aas:dataElement>
+              <aas:dataElement>
+                <aas:property>
+                  <aas:idShort>ExampleAnnotatedProperty</aas:idShort>
+                  <aas:category>PARAMETER</aas:category>
+                  <aas:kind>Instance</aas:kind>
+                  <aas:value>exampleValue</aas:value>
+                  <aas:valueType>string</aas:valueType>
+                </aas:property>
               </aas:dataElement>
             </aas:annotations>
           </aas:annotatedRelationshipElement>

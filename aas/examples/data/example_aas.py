@@ -284,7 +284,7 @@ def create_example_submodel() -> model.Submodel:
                                             id_type=model.KeyType.IRI),)),
         category='CONSTANT',
         description={'en-us': 'Example MultiLanguageProperty object',
-                     'de': 'Beispiel MulitLanguageProperty Element'},
+                     'de': 'Beispiel MultiLanguageProperty Element'},
         parent=None,
         semantic_id=model.Reference((model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
                                                value='http://acplt.org/MultiLanguageProperties/'
@@ -342,7 +342,7 @@ def create_example_submodel() -> model.Submodel:
         value='https://www.plattform-i40.de/PI40/Redaktion/DE/Downloads/Publikation/Details-of-the-Asset-'
               'Administration-Shell-Part1.pdf?__blob=publicationFile&v=5',
         category='CONSTANT',
-        description={'en-us': 'Details of the Asset Administration Shell—An example for an external file reference',
+        description={'en-us': 'Details of the Asset Administration Shell — An example for an external file reference',
                      'de': 'Details of the Asset Administration Shell – Ein Beispiel für eine extern referenzierte '
                            'Datei'},
         parent=None,
