@@ -6,12 +6,15 @@
 #
 # SPDX-License-Identifier: EPL-2.0 OR Apache-2.0
 """
-Module for the creation of an object store with an example asset administration shell, related asset and example
-submodels and a concept dictionary containing an example concept description. All objects only contain mandatory
+Module for the creation of an :class:`ObjectStore <aas.model.provider.DictObjectStore>` with an example
+:class:`~aas.model.aas.AssetAdministrationShell`, related :class:`~aas.model.aas.Asset` and example
+:class:`Submodels <aas.model.submodel.Submodel>` and a :class:`~aas.model.concept.ConceptDictionary` containing an
+example :class:`~aas.model.concept.ConceptDescription`. All objects only contain mandatory
 attributes.
 
-To get this object store use the function 'create_full_example'. If you want to get single example objects or want to
-get more information use the other functions.
+To get this object store use the function
+:meth:`~aas.examples.data.example_aas_mandatory_attributes.create_full_example`. If you want to get single example
+objects or want to get more information use the other functions.
 """
 import logging
 
@@ -23,10 +26,11 @@ logger = logging.getLogger(__name__)
 
 def create_full_example() -> model.DictObjectStore:
     """
-    creates an object store which is filled with an example asset, submodel, concept description and asset
-    administration shell using the function of this module
+    Creates an :class:`~.aas.model.provider.DictObjectStore` which is filled with an example
+    :class:`~aas.model.aas.Asset`, :class:`~aas.model.submodel.Submodel`, :class:`~aas.model.concept.ConceptDescription`
+    and :class:`~aas.model.aas.AssetAdministrationShell` using the functions of this module
 
-    :return: object store
+    :return: :class:`~aas.model.provider.DictObjectStore`
     """
     obj_store: model.DictObjectStore[model.Identifiable] = model.DictObjectStore()
     obj_store.add(create_example_asset())
@@ -40,9 +44,9 @@ def create_full_example() -> model.DictObjectStore:
 
 def create_example_asset() -> model.Asset:
     """
-    creates an example asset where only the kind and identification attributes are set
+    Creates an example :class:`~aas.model.aas.Asset` where only the `kind` and `identification` attributes are set
 
-    :return: example asset
+    :return: example Asset
     """
     asset = model.Asset(
         kind=model.AssetKind.INSTANCE,
@@ -53,7 +57,8 @@ def create_example_asset() -> model.Asset:
 
 def create_example_submodel() -> model.Submodel:
     """
-    creates an example submodel containing all kind of SubmodelElement objects where only mandatory attributes are set
+    Creates an example :class:`~aas.model.submodel.Submodel` containing all kind of
+    :class:`~aas.model.submodel.SubmodelElement` objects where only mandatory attributes are set
 
     :return: example submodel
     """
@@ -151,7 +156,7 @@ def create_example_submodel() -> model.Submodel:
 
 def create_example_empty_submodel() -> model.Submodel:
     """
-    creates an example empty submodel where only the identification attribute is set
+    Creates an example empty :class:`~aas.model.submodel.Submodel` where only the identification attribute is set
 
     :return: example submodel
     """
@@ -162,7 +167,7 @@ def create_example_empty_submodel() -> model.Submodel:
 
 def create_example_concept_description() -> model.ConceptDescription:
     """
-    creates an example concept description where only the identification attribute is set
+    Creates an example :class:`~aas.model.concept.ConceptDescription` where only the identification attribute is set
 
     :return: example concept description
     """
@@ -174,7 +179,7 @@ def create_example_concept_description() -> model.ConceptDescription:
 
 def create_example_concept_dictionary() -> model.ConceptDictionary:
     """
-    creates an example concept dictionary where only the id_short attribute is set
+    creates an example :class:`~aas.model.concept.ConceptDictionary` where only the `id_short` attribute is set
 
     :return: example concept dictionary
     """
@@ -186,8 +191,9 @@ def create_example_concept_dictionary() -> model.ConceptDictionary:
 def create_example_asset_administration_shell(concept_dictionary: model.ConceptDictionary) -> \
         model.AssetAdministrationShell:
     """
-    creates an example asset administration shell containing references to the example asset, the example submodels and
-    including the example concept dictionary
+    Creates an example :class:`~aas.model.aas.AssetAdministrationShell` containing references to the example
+    :class:`~aas.model.aas.Asset`, the example :class:`Submodels <aas.model.submodel.Submodel>` and
+    including the example :class:`~aas.model.concept.ConceptDictionary`
 
     :return: example asset administration shell
     """
@@ -215,7 +221,8 @@ def create_example_asset_administration_shell(concept_dictionary: model.ConceptD
 
 def create_example_empty_asset_administration_shell() -> model.AssetAdministrationShell:
     """
-    creates an example empty asset administration shell where only the reference to the asset and the identification
+    Creates an example empty :class:`~aas.model.aas.AssetAdministrationShell` where only the reference to the
+    :class:`~aas.model.aas.Asset` and the identification
     attribute is set
 
     :return: example asset administration shell

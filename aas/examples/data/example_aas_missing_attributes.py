@@ -6,8 +6,8 @@
 #
 # SPDX-License-Identifier: EPL-2.0 OR Apache-2.0
 """
-Module for the creation of a object store with missing object attribute combination for testing the serialization
-
+Module for the creation of an :class:`ObjectStore <aas.model.provider.DictObjectStore>` with missing object attribute
+combination for testing the serialization
 """
 import logging
 
@@ -19,10 +19,13 @@ logger = logging.getLogger(__name__)
 
 def create_full_example() -> model.DictObjectStore:
     """
-    creates an object store containing an example asset identification submodel, an example asset, an example submodel,
-    an example concept description and an example asset administration shell
+    Creates an :class:`~aas.model.provider.DictObjectStore` containing an example asset identification
+    :class:`~aas.model.submodel.Submodel`, an example :class:`~aas.model.aas.Asset`, an example
+    :class:`~aas.model.submodel.Submodel`,
+    an example :class:`~aas.model.concept.ConceptDescription` and an example
+    :class:`~aas.model.aas.AssetAdministrationShell`
 
-    :return: object store
+    :return: :class:`aas.model.provider.DictObjectStore`
     """
     obj_store: model.DictObjectStore[model.Identifiable] = model.DictObjectStore()
     obj_store.add(create_example_asset())
@@ -34,7 +37,7 @@ def create_full_example() -> model.DictObjectStore:
 
 def create_example_asset() -> model.Asset:
     """
-    creates an example asset which holds references to the example asset identification submodel
+    Creates an example :class:`~aas.model.aas.Asset` which holds references to the example asset identification submodel
 
     :return: example asset
     """
@@ -55,7 +58,8 @@ def create_example_asset() -> model.Asset:
 
 def create_example_submodel() -> model.Submodel:
     """
-    creates an example submodel containing all kind of SubmodelElement objects
+    Creates an example :class:`~aas.model.submodel.Submodel` containing all kind of
+    :class:`~aas.model.submodel.SubmodelElement`  objects
 
     :return: example submodel
     """
@@ -339,7 +343,7 @@ def create_example_submodel() -> model.Submodel:
 
 def create_example_concept_description() -> model.ConceptDescription:
     """
-    creates an example concept description
+    Creates an example :class:`~aas.model.concept.ConceptDescription`
 
     :return: example concept description
     """
@@ -359,7 +363,8 @@ def create_example_concept_description() -> model.ConceptDescription:
 
 def create_example_concept_dictionary() -> model.ConceptDictionary:
     """
-    creates an example concept dictionary containing an reference to the example concept description
+    Creates an example :class:`~aas.model.concept.ConceptDictionary` containing an :class:`~aas.model.base.AASReference`
+    to the example :class:`~aas.model.concept.ConceptDescription`
 
     :return: example concept dictionary
     """
@@ -380,7 +385,8 @@ def create_example_concept_dictionary() -> model.ConceptDictionary:
 def create_example_asset_administration_shell(concept_dictionary: model.ConceptDictionary) -> \
         model.AssetAdministrationShell:
     """
-    creates an example asset administration shell containing references to the example asset and example submodel
+    Creates an example :class:`~aas.model.aas.AssetAdministrationShell` containing references to the example
+    :class:`~aas.model.Asset` and example :class:`~aas.model.submodel.Submodel`
 
     :return: example asset administration shell
     """

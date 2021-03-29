@@ -6,9 +6,9 @@
 #
 # SPDX-License-Identifier: EPL-2.0 OR Apache-2.0
 """
-Module for the creation of an example submodel template containing all kind of submodel elements where the kind is
-always TEMPLATE.
-
+Module for the creation of an example :class:`~aas.model.submodel.Submodel` template containing all kind of
+:class:`SubmodelElements <aas.model.submodel.SubmodelElement>` where the kind is
+always `TEMPLATE`.
 """
 import logging
 
@@ -20,8 +20,9 @@ logger = logging.getLogger(__name__)
 
 def create_example_submodel_template() -> model.Submodel:
     """
-    creates an example submodel template containing all kind of SubmodelElement objects where the kind is always
-    TEMPLATE
+    Creates an example :class:`~aas.model.submodel.Submodel` template containing all kind of
+    :class:`~aas.model.submodel.SubmodelElement` objects where the kind is always
+    `TEMPLATE`
 
     :return: example submodel
     """
