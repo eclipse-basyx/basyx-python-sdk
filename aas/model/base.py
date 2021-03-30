@@ -192,9 +192,9 @@ class AssetKind(Enum):
 
     :cvar TYPE: hardware or software element which specifies the common attributes shared by all instances of the type
     :cvar INSTANCE: concrete, clearly identifiable component of a certain type,
-                    Note: It becomes an individual entity of a type, for example a device, by defining specific
-                          property values.
-                    Note: In an object oriented view, an instance denotes an object of a class (of a type)
+                    *Note:* It becomes an individual entity of a type, for example a device, by defining specific
+                    property values.
+                    *Note:* In an object oriented view, an instance denotes an object of a class (of a type)
     """
 
     TYPE = 0
