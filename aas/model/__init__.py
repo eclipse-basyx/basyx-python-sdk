@@ -1,6 +1,6 @@
 """
 This package contains a python implementation of the meta-model of the AssetAdministrationShell.
-The model is divided into 5 modules, splitting it where it in sensible parts. However, all classes (except for the
+The model is divided into 5 modules, splitting it in sensible parts. However, all classes (except for the
 specialized Concept Descriptions) are imported into this top-level package, for simple imports like
 
 .. code-block:: python
