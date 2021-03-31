@@ -740,7 +740,7 @@ class AASReference(Reference, Generic[_RT]):
     @staticmethod
     def from_referable(referable: Referable) -> "AASReference":
         """
-        Construct a :class:`~.AASReference` to a given :class:`~.Referable` AAS object
+        Construct an :class:`~.AASReference` to a given :class:`~.Referable` AAS object
 
         This requires that the :class:`~.Referable` object is :class:`~.Identifiable` itself or is a
         child-, grand-child-, etc. object of an
@@ -775,7 +775,7 @@ class Identifiable(Referable, metaclass=abc.ABCMeta):
     <<abstract>>
 
     :ivar administration: :class:`~.AdministrativeInformation` of an identifiable element.
-    :ivar identification: The globally unique identification of the element.
+    :ivar ~.identification: The globally unique identification of the element.
     """
     @abc.abstractmethod
     def __init__(self):
@@ -873,7 +873,7 @@ class Qualifier(Constraint, HasSemantics):
     A qualifier is a type-value pair that makes additional statements w.r.t. the value of the element.
 
     **Constraint AASd-006:** if both, the value and the valueId are present then the value needs to be
-     identical to the value of the referenced coded value in Qualifier/valueId.
+    identical to the value of the referenced coded value in Qualifier/valueId.
 
     :ivar type: The type of the qualifier that is applied to the element.
     :ivar value_type: Data type of the qualifier value
