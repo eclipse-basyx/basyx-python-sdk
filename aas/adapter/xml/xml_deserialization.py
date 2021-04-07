@@ -9,12 +9,18 @@
 # "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
 # specific language governing permissions and limitations under the License.
 """
+.. _adapter.xml.xml_deserialization:
+
 Module for deserializing Asset Administration Shell data from the official XML format
 
 This module provides the following functions for parsing XML documents:
-- read_aas_xml_element() constructs a single object from an XML document containing a single element
-- read_aas_xml_file_into() constructs all elements of an XML document and stores them in a given object store
-- read_aas_xml_file() constructs all elements of an XML document and returns them in a DictObjectStore
+
+- :meth:`~aas.adapter.xml.xml_deserialization.read_aas_xml_element` constructs a single object from an XML document
+  containing a single element
+- :meth:`~aas.adapter.xml.xml_deserialization.read_aas_xml_file_into` constructs all elements of an XML document and
+  stores them in a given :class:`ObjectStore <aas.model.provider.AbstractObjectStore>`
+- :meth:`~aas.adapter.xml.xml_deserialization.read_aas_xml_file` constructs all elements of an XML document and returns
+  them in a :class:`~aas.model.provider.DictObjectStore`
 
 These functions take a decoder class as keyword argument, which allows parsing in failsafe (default) or non-failsafe
 mode. Parsing stripped elements - used in the HTTP adapter - is also possible. It is also possible to subclass the
@@ -22,13 +28,16 @@ default decoder class and provide an own decoder.
 
 In failsafe mode errors regarding missing attributes and elements or invalid values are caught and logged.
 In non-failsafe mode any error would abort parsing.
-Error handling is done only by _failsafe_construct() in this module. Nearly all constructor functions are called
-by other constructor functions via _failsafe_construct(), so an error chain is constructed in the error case,
+Error handling is done only by `_failsafe_construct()` in this module. Nearly all constructor functions are called
+by other constructor functions via `_failsafe_construct()`, so an error chain is constructed in the error case,
 which allows printing stacktrace-like error messages like the following in the error case (in failsafe mode of course):
 
-KeyError: aas:identification on line 252 has no attribute with name idType!
- -> Failed to construct aas:identification on line 252 using construct_identifier!
- -> Failed to construct aas:conceptDescription on line 247 using construct_concept_description!
+
+.. code-block:: python
+
+    KeyError: aas:identification on line 252 has no attribute with name idType!
+        -> Failed to construct aas:identification on line 252 using construct_identifier!
+        -> Failed to construct aas:conceptDescription on line 247 using construct_concept_description!
 
 
 Unlike the JSON deserialization, parsing is done top-down. Elements with a specific tag are searched on the level
@@ -1229,7 +1238,7 @@ def read_aas_xml_element(file: IO, construct: XMLConstructables, failsafe: bool 
     is no surrounding aasenv element.
 
     :param file: A filename or file-like object to read the XML-serialized data from
-    :param construct: A member of the enum XML_CONSTRUCTABLES, specifying which type to construct.
+    :param construct: A member of the enum :class:`~.XML_CONSTRUCTABLES`, specifying which type to construct.
     :param failsafe: If true, the document is parsed in a failsafe way: missing attributes and elements are logged
                      instead of causing exceptions. Defect objects are skipped.
                      This parameter is ignored if a decoder class is specified.
@@ -1330,22 +1339,23 @@ def read_aas_xml_file_into(object_store: model.AbstractObjectStore[model.Identif
                            **parser_kwargs: Any) -> Set[model.Identifier]:
     """
     Read an Asset Administration Shell XML file according to 'Details of the Asset Administration Shell', chapter 5.4
-    into a given object store.
+    into a given :class:`ObjectStore <aas.model.provider.AbstractObjectStore>`.
 
-    :param object_store: The object store in which the identifiable objects should be stored
+    :param object_store: The :class:`ObjectStore <aas.model.provider.AbstractObjectStore>` in which the
+                         :class:`~aas.model.base.Identifiable` objects should be stored
     :param file: A filename or file-like object to read the XML-serialized data from
     :param replace_existing: Whether to replace existing objects with the same identifier in the object store or not
     :param ignore_existing: Whether to ignore existing objects (e.g. log a message) or raise an error.
                             This parameter is ignored if replace_existing is True.
-    :param failsafe: If true, the document is parsed in a failsafe way: missing attributes and elements are logged
+    :param failsafe: If `True`, the document is parsed in a failsafe way: missing attributes and elements are logged
                      instead of causing exceptions. Defect objects are skipped.
                      This parameter is ignored if a decoder class is specified.
-    :param stripped: If true, stripped XML elements are parsed.
+    :param stripped: If `True`, stripped XML elements are parsed.
                      See https://git.rwth-aachen.de/acplt/pyi40aas/-/issues/91
                      This parameter is ignored if a decoder class is specified.
     :param decoder: The decoder class used to decode the XML elements
     :param parser_kwargs: Keyword arguments passed to the XMLParser constructor
-    :return: A set of identifiers that were added to object_store
+    :return: A set of :class:`Identifiers <aas.model.base.Identifier>` that were added to object_store
     """
     ret: Set[model.Identifier] = set()
 
@@ -1399,12 +1409,13 @@ def read_aas_xml_file_into(object_store: model.AbstractObjectStore[model.Identif
 
 def read_aas_xml_file(file: IO, **kwargs: Any) -> model.DictObjectStore[model.Identifiable]:
     """
-    A wrapper of read_aas_xml_file_into(), that reads all objects in an empty DictObjectStore. This function supports
-    the same keyword arguments as read_aas_xml_file_into().
+    A wrapper of :meth:`~aas.adapter.xml.xml_deserialization.read_aas_xml_file_into`, that reads all objects in an
+    empty :class:`~aas.model.provider.DictObjectStore`. This function supports
+    the same keyword arguments as :meth:`~aas.adapter.xml.xml_deserialization.read_aas_xml_file_into`.
 
     :param file: A filename or file-like object to read the XML-serialized data from
-    :param kwargs: Keyword arguments passed to read_aas_xml_file_into()
-    :return: A DictObjectStore containing all AAS objects from the XML file
+    :param kwargs: Keyword arguments passed to :meth:`~aas.adapter.xml.xml_deserialization.read_aas_xml_file_into`
+    :return: A :class:`~aas.model.provider.DictObjectStore` containing all AAS objects from the XML file
     """
     object_store: model.DictObjectStore[model.Identifiable] = model.DictObjectStore()
     read_aas_xml_file_into(object_store, file, **kwargs)

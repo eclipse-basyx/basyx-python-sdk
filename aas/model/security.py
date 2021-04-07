@@ -9,7 +9,7 @@
 # "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
 # specific language governing permissions and limitations under the License.
 """
-This module contains the security aspects of the AAS metamodel. Currently, the security model is not ready yet, so this
+This module contains the security aspects of the AAS meta model. Currently, the security model is not ready yet, so this
 module doesn't do anything.
 """
 

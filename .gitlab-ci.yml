@@ -63,9 +63,43 @@ static_analysis:
     - pycodestyle --count --max-line-length 120 aas test
 
 
+# Create Sphinx documentation
+docs:
+  stage: package
+  dependencies: []
+  only: [branches, tags, merge_requests]
+  inherit:
+    variables: ["PIP_CACHE_DIR"]
+ 
+  script:
+    - pip install --cache-dir="$PIP_CACHE_DIR" -r requirements.txt
+    - cd docs 
+    - sphinx-build source/ build/
+
+  artifacts:
+    paths:
+      - docs/build
+
+
+# Publish Sphinx documentation from master branch to GitLab pages
+pages:
+  stage: deploy
+  dependencies:
+    - docs
+  script:
+    # TODO maybe use https://gitlab.com/ostrokach/gitlab-versioned-pages for multiple versions?
+    - mv -r docs/build public
+  artifacts:
+    paths:
+      - public
+  only:
+    - master
+
+
 # Use setup.py to build a source distribution package
 package:
   stage: package
+  dependencies: []
 
   script:
     - python setup.py sdist
@@ -78,6 +112,8 @@ package:
 # Publish package to PyPI for every vX.X.X tag
 publish:
   stage: deploy
+  dependencies:
+    - package
   only:
     - /^v\d+(\.\d+)*$/
   except:

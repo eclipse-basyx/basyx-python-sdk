@@ -13,9 +13,9 @@ The main module of the AAS meta-model. It is used to define the class structures
 AssetAdministrationShell and Asset.
 
 This module contains the following classes from an up-to-down-level:
- - AssetAdministrationShell
- - Asset
- - View
+ - :class:`~.AssetAdministrationShell`
+ - :class:`~.AssetInformation`
+ - :class:`~.View`
 """
 
 from typing import Optional, Set, Iterable
@@ -31,7 +31,23 @@ class View(base.Referable, base.UniqueIdShortNamespace, base.HasSemantics):
 
     todo: what does this exactly?
 
-    :ivar contained_element: Unordered list of references to elements of class Referable
+    :ivar id_short: Identifying string of the element within its name space. (inherited from
+                    :class:`~aas.model.base.Referable`)
+    :ivar contained_element: Unordered list of :class:`AASReferences <aas.model.base.AASReference>` to elements
+                             of class :class:`~aas.model.base.Referable`
+    :ivar display_name: Can be provided in several languages. (inherited from :class:`~aas.model.base.Referable`)
+    :ivar category: The category is a value that gives further meta information w.r.t. to the class of the element.
+                    It affects the expected existence of attributes and the applicability of constraints.
+                    (inherited from :class:`~aas.model.base.Referable`)
+    :ivar description: Description or comments on the element. (inherited from :class:`~aas.model.base.Referable`)
+    :ivar parent: Reference to the next referable parent element of the element. (inherited from
+                  :class:`~aas.model.base.Referable`)
+    :ivar semantic_id: Identifier of the semantic definition of the element. It is called semantic id of the
+                       element. The semantic id may either reference an external global id or it may reference a
+                       referable model element of kind=Type that defines the semantics of the element.
+                       (inherited from from :class:`~aas.model.base.HasSemantics`)
+    :ivar extension: An extension of the element.
+                     (from :class:`~aas.model.base.HasExtensions`)
     """
     def __init__(self,
                  id_short: str,
@@ -43,21 +59,7 @@ class View(base.Referable, base.UniqueIdShortNamespace, base.HasSemantics):
                  semantic_id: Optional[base.Reference] = None,
                  extension: Iterable[base.Extension] = ()):
         """
-        Initializer of View
 
-        :param id_short: Identifying string of the element within its name space. (from base.Referable)
-        :param contained_element: Unordered list of references to elements of class Referable
-        :param display_name: Can be provided in several languages. (from base.Referable)
-        :param category: The category is a value that gives further meta information w.r.t. to the class of the element.
-                         It affects the expected existence of attributes and the applicability of constraints.
-                         (from base.Referable)
-        :param description: Description or comments on the element. (from base.Referable)
-        :param parent: Reference to the next referable parent element of the element. (from base.Referable)
-        :param semantic_id: Identifier of the semantic definition of the element. It is called semantic id of the
-                            element. The semantic id may either reference an external global id or it may reference a
-                            referable model element of kind=Type that defines the semantics of the element.
-                            (from base.HasSemantics)
-        :param extension: An extension of the element. (from base.HasExtension)
         TODO: Add instruction what to do after construction
         """
 
@@ -79,12 +81,22 @@ class Asset(base.Identifiable):
     The asset may either represent an asset type or an asset instance. The asset has a globally unique identifier plus
     – if needed – additional domain specific (proprietary) identifiers.
 
-    :ivar kind: Denotes whether the Asset is of kind "Type" or "Instance".
-    :ivar asset_identification_model: A reference to a Submodel that defines the handling of additional domain
-                                      specific (proprietary) Identifiers for the asset like e.g. serial number etc
-    :ivar bill_of_material: Bill of material of the asset represented by a submodel of the same AAS. This submodel
-                            contains a set of entities describing the material used to compose the composite I4.0
-                            Component.
+    :ivar ~.identification: The globally unique identification (:class:`~aas.model.base.Identifier`) of the element.
+                            (inherited from :class:`~aas.model.base.Identifiable`)
+    :ivar id_short: Identifying string of the element within its name space. (inherited from
+                    :class:`~aas.model.base.Referable`)
+    :ivar display_name: Can be provided in several languages. (inherited from :class:`~aas.model.base.Referable`)
+    :ivar category: The category is a value that gives further meta information w.r.t. to the class of the element.
+                    It affects the expected existence of attributes and the applicability of constraints.
+                    (inherited from :class:`~aas.model.base.Referable`)
+    :ivar description: Description or comments on the element. (inherited from :class:`~aas.model.base.Referable`)
+    :ivar parent: Reference to the next referable parent element of the element. (inherited from
+                  :class:`~aas.model.base.Referable`)
+    :ivar administration: :class:`~aas.model.base.AdministrativeInformation` of an
+                          :class:`~.aas.model.base.Identifiable` element. (inherited from
+                          :class:`~aas.model.base.Identifiable`)
+    :ivar extension: An extension of the element.
+                     (from :class:`~aas.model.base.HasExtension`)
     """
 
     def __init__(self,
@@ -96,21 +108,7 @@ class Asset(base.Identifiable):
                  parent: Optional[base.UniqueIdShortNamespace] = None,
                  administration: Optional[base.AdministrativeInformation] = None,
                  extension: Iterable[base.Extension] = ()):
-        """
-        Initializer of Asset
 
-        :param kind: Denotes whether the Asset is of kind "Type" or "Instance".
-        :param identification: The globally unique identification of the element. (from base.Identifiable)
-        :param id_short: Identifying string of the element within its name space. (from base.Referable)
-        :param display_name: Can be provided in several languages. (from base.Referable)
-        :param category: The category is a value that gives further meta information w.r.t. to the class of the element.
-                         It affects the expected existence of attributes and the applicability of constraints.
-                         (from base.Referable)
-        :param description: Description or comments on the element. (from base.Referable)
-        :param parent: Reference to the next referable parent element of the element. (from base.Referable)
-        :param administration: Administrative information of an identifiable element. (from base.Identifiable)
-        :param extension: An extension of the element. (from base.HasExtension)
-        """
         super().__init__()
         self.identification: base.Identifier = identification
         self.id_short = id_short
@@ -131,15 +129,19 @@ class AssetInformation:
     identifiers. However, to support the corner case of very first phase of lifecycle where a stabilised/constant
     global asset identifier does not already exist, the corresponding attribute “globalAssetId” is optional.
 
-    :ivar asset_kind Denotes whether the Asset is of kind "Type" or "Instance".
-    :ivar global_asset_id: Reference to either an Asset object or a global reference to the asset the AAS is
-                           representing. This attribute is required as soon as the AAS is exchanged via partners in the
+    :ivar asset_kind: Denotes whether the Asset is of :class:`~aas.model.base.AssetKind` "TYPE" or "INSTANCE".
+                      Default is "INSTANCE".
+    :ivar global_asset_id: :class:`~aas.model.base.Reference` to either an Asset object or a global reference to the
+                           asset the AAS is representing.
+                           This attribute is required as soon as the AAS is exchanged via partners in the
                            life cycle of the asset. In a first phase of the life cycle the asset might not yet have a
                            global id but already an internal identifier. The internal identifier would be modelled via
-                           “specificAssetId”.
-    :ivar specific_asset_id: Additional domain specific specific, typically proprietary Identifier for the asset like
+                           :attr:`~.specificAssetId`.
+    :ivar specific_asset_id: Additional domain specific, typically proprietary Identifier (Set of
+                             :class:`IdentifierKeyValuePairs <aas.model.base.IdentifierKeyValuePair>` for the asset like
                              e.g. serial number etc.
-    :ivar bill_of_material: Bill of material of the asset represented by a submodel of the same AAS. This submodel
+    :ivar bill_of_material: :class:`~aas.model.base.AASReference` to a :class:`~aas.model.submodel.Submodel`
+                            representing the Bill of material of the asset. This :class:`~aas.model.submodel.Submodel`
                             contains a set of entities describing the material used to compose the composite I4.0
                             Component.
     :ivar default_thumbnail: Thumbnail of the asset represented by the asset administration shell. Used as default.
@@ -151,22 +153,7 @@ class AssetInformation:
                  specific_asset_id: Optional[Set[base.IdentifierKeyValuePair]] = None,
                  bill_of_material: Optional[Set[base.AASReference[Submodel]]] = None,
                  default_thumbnail: Optional[File] = None):
-        """
-        Initializer of Asset
 
-        :param asset_kind: Denotes whether the Asset is of kind "Type" or "Instance".
-        :param global_asset_id: Reference to either an Asset object or a global reference to the asset the AAS is
-                                representing. This attribute is required as soon as the AAS is exchanged via partners
-                                in the life cycle of the asset. In a first phase of the life cycle the asset might not
-                                yet have a global id but already an internal identifier. The internal identifier would
-                                be modelled via “specificAssetId”.
-        :param specific_asset_id: Additional domain specific specific, typically proprietary Identifier for the asset
-                                  like e.g. serial number etc.
-        :param bill_of_material: Bill of material of the asset represented by a submodel of the same AAS. This submodel
-                                 contains a set of entities describing the material used to compose the composite I4.0
-                                 Component.
-        :param default_thumbnail: Thumbnail of the asset represented by the asset administration shell. Used as default.
-        """
         super().__init__()
         self.asset_kind: base.AssetKind = asset_kind
         self._global_asset_id: Optional[base.Reference] = global_asset_id
@@ -196,13 +183,29 @@ class AssetAdministrationShell(base.Identifiable, base.UniqueIdShortNamespace):
     """
     An Asset Administration Shell
 
-    :ivar asset_information: Meta information about the asset the AAS is representing.
-    :ivar security: Definition of the security relevant aspects of the AAS.
-    :ivar submodel: Unordered list of submodels to describe typically the asset of an AAS.
-    :ivar concept_dictionary: Unordered list of concept dictionaries. The concept dictionaries typically contain only
-                              descriptions for elements that are also used within the AAS
-    :ivar view: Unordered list of stakeholder specific views that can group the elements of the AAS.
-    :ivar derived_from: The reference to the AAS the AAs was derived from
+    :ivar asset_information: :class:`~.AssetInformation` of the asset this AssetAdministrationShell is representing
+    :ivar ~.identification: The globally unique identification (:class:`~aas.model.base.Identifier`) of the element.
+                            (inherited from :class:`~aas.model.base.Identifiable`)
+    :ivar id_short: Identifying string of the element within its name space. (inherited from
+                    :class:`~aas.model.base.Referable`)
+    :ivar display_name: Can be provided in several languages. (inherited from :class:`~aas.model.base.Referable`)
+    :ivar category: The category is a value that gives further meta information w.r.t. to the class of the element.
+                    It affects the expected existence of attributes and the applicability of constraints.
+                    (inherited from :class:`~aas.model.base.Referable`)
+    :ivar description: Description or comments on the element. (inherited from :class:`~aas.model.base.Referable`)
+    :ivar parent: Reference to the next referable parent element of the element. (inherited from
+                  :class:`~aas.model.base.Referable`)
+    :ivar administration: :class:`~aas.model.base.AdministrativeInformation` of an
+                          :class:`~.aas.model.base.Identifiable` element. (inherited from
+                          :class:`~aas.model.base.Identifiable`)
+    :ivar ~.security: Definition of the security relevant aspects of the AAS. (Initialization-parameter: `security_`)
+    :ivar ~.submodel: Unordered list of :class:`submodels <aas.model.submodel.Submodel>` to describe typically the asset
+                    of an AAS. (Initialization-parameter: `submodel_`)
+    :ivar view: Unordered list of stakeholder specific :class:`views <aas.model.aas.View>` that can group the elements
+                of the AAS.
+    :ivar derived_from: The :class:`reference <aas.model.base.AASReference>` to the AAS the AAs was derived from
+    :ivar extension: An extension of the element.
+                     (from :class:`~aas.model.base.HasExtensions`)
     """
     def __init__(self,
                  asset_information: AssetInformation,
@@ -218,27 +221,6 @@ class AssetAdministrationShell(base.Identifiable, base.UniqueIdShortNamespace):
                  view: Iterable[View] = (),
                  derived_from: Optional[base.AASReference["AssetAdministrationShell"]] = None,
                  extension: Iterable[base.Extension] = ()):
-        """
-        Initializer of AssetAdministrationShell
-        :param asset_information: Meta information about the asset the AAS is representing.
-        :param identification: The globally unique identification of the element. (from base.Identifiable)
-        :param id_short: Identifying string of the element within its name space. (from base.Referable)
-        :param display_name: Can be provided in several languages. (from base.Referable)
-        :param category: The category is a value that gives further meta information w.r.t. to the class of the element.
-                         It affects the expected existence of attributes and the applicability of constraints.
-                         (from base.Referable)
-        :param description: Description or comments on the element. (from base.Referable)
-        :param parent: Reference to the next referable parent element of the element. (from base.Referable)
-        :param administration: Administrative information of an identifiable element. (from base.Identifiable)
-        :param security: Definition of the security relevant aspects of the AAS.
-        :param submodel: Unordered list of submodels to describe typically the asset of an AAS.
-        :param concept_dictionary: Unordered list of concept dictionaries. The concept dictionaries typically contain
-                                   only descriptions for elements that are also used within the AAS
-        :param view: Unordered list of stakeholder specific views that can group the elements of the AAS.
-        :param derived_from: The reference to the AAS the AAS was derived from
-        :param extension: An extension of the element. (from base.HasExtension)
-        """
-
         super().__init__()
         self.identification: base.Identifier = identification
         self.asset_information: AssetInformation = asset_information

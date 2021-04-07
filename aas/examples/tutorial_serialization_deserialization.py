@@ -18,10 +18,10 @@ import aas.adapter.xml
 # restore the AAS objects as Python objects.
 #
 # Step by Step Guide:
-# step 1: creating Asset, Submodel and Asset Administration Shell objects
-# step 2: serializing single objects to JSON
-# step 3: parsing single objects or custom data structures from JSON
-# step 4: writing multiple identifiable objects to a (standard-compliant) JSON/XML file
+# Step 1: creating Asset, Submodel and Asset Administration Shell objects
+# Step 2: serializing single objects to JSON
+# Step 3: parsing single objects or custom data structures from JSON
+# Step 4: writing multiple identifiable objects to a (standard-compliant) JSON/XML file
 # Step 5: reading the serialized aas objects from JSON/XML files
 
 

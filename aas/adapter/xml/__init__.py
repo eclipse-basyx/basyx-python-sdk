@@ -1,11 +1,13 @@
 """
+.. _adapter.xml.__init__:
+
 This package contains functionality for serialization and deserialization of PyI40AAS objects into/from XML.
 
-xml_serialization:
-    The module offers a function to write an ObjectStore to a given file.
+:ref:`xml_serialization <adapter.xml.xml_serialization>`: The module offers a function to write an
+:class:`ObjectStore <aas.model.provider.AbstractObjectStore>` to a given file.
 
-xml_deserialization.py
-    The module offers a function to create an ObjectStore from a given xml document.
+:ref:`xml_deserialization <adapter.xml.xml_deserialization>`: The module offers a function to create an
+:class:`ObjectStore <aas.model.provider.AbstractObjectStore>` from a given xml document.
 """
 import os.path
 

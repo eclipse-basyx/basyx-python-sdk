@@ -9,8 +9,8 @@
 # "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
 # specific language governing permissions and limitations under the License.
 """
-This module contains the classes `ConceptDescription` and `ConceptDictionary` from the AAS meta model as well as
-specialized ConceptDescriptions like `IEC61360ConceptDescription`.
+This module contains the class :class:`~.ConceptDescription` from the AAS meta model
+as well as specialized :class:`ConceptDescriptions <.ConceptDescription>` like :class:`~.IEC61360ConceptDescription`.
 """
 from enum import unique, Enum
 from typing import Optional, Set, Type, Iterable
@@ -42,10 +42,26 @@ class ConceptDescription(base.Identifiable):
 
     The description of the concept should follow a standardized schema (realized as data specification template).
 
-    :ivar is_case_of: Unordered list of global references to external definitions the concept is compatible to or was
-                      derived from.
-                      Note: Compare to is-case-of relationship in ISO 13584-32 & IEC EN 61360
-    """
+    *Note:* Compare :attr:`~.ConceptDescription.is_case_of` to is-case-of relationship in ISO 13584-32 & IEC EN 61360
+
+    :ivar ~.identification: The globally unique identification of the element. (inherited from
+                            :class:`~aas.model.base.Identifiable`)
+    :ivar is_case_of: Unordered list of global :class:`References <aas.model.base.Reference>` to external definitions
+                      the concept is compatible to or was derived from.
+    :ivar id_short: Identifying string of the element within its name space. (inherited from
+                    :class:`~aas.model.base.Referable`)
+    :ivar display_name: Can be provided in several languages. (inherited from :class:`~aas.model.base.Referable`)
+    :ivar category: The category is a value that gives further meta information w.r.t. to the class of the element.
+                    It affects the expected existence of attributes and the applicability of constraints.
+                    (inherited from :class:`~aas.model.base.Referable`)
+    :ivar description: Description or comments on the element. (inherited from :class:`~aas.model.base.Referable`)
+    :ivar parent: Reference to the next referable parent element of the element. (inherited from
+                  :class:`~aas.model.base.Referable`)
+    :ivar administration: Administrative information of an identifiable element. (inherited from
+                          :class:`~aas.model.base.Identifiable`)
+    :ivar extension: An extension of the element. (from
+                     :class:`~aas.model.base.HasExtension`)
+"""
 
     def __init__(self,
                  identification: base.Identifier,
@@ -57,23 +73,7 @@ class ConceptDescription(base.Identifiable):
                  parent: Optional[base.UniqueIdShortNamespace] = None,
                  administration: Optional[base.AdministrativeInformation] = None,
                  extension: Iterable[base.Extension] = ()):
-        """
-        Initializer of ConceptDescription
 
-        :param identification: The globally unique identification of the element. (from base.Identifiable)
-        :param is_case_of: Unordered list of global references to external definitions the concept is compatible to or
-                           was derived from.
-                           Note: Compare to is-case-of relationship in ISO 13584-32 & IEC EN 61360
-        :param id_short: Identifying string of the element within its name space. (from base.Referable)
-        :param display_name: Can be provided in several languages. (from base.Referable)
-        :param category: The category is a value that gives further meta information w.r.t. to the class of the element.
-                         It affects the expected existence of attributes and the applicability of constraints.
-                         (from base.Referable)
-        :param description: Description or comments on the element. (from base.Referable)
-        :param parent: Reference to the next referable parent element of the element. (from base.Referable)
-        :param administration: Administrative information of an identifiable element. (from base.Identifiable)
-        :param extension: An extension of the element. (from base.HasExtension)
-        """
         super().__init__()
         self.identification: base.Identifier = identification
         self.is_case_of: Set[base.Reference] = set() if is_case_of is None else is_case_of
@@ -103,7 +103,21 @@ class ConceptDescription(base.Identifiable):
 @unique
 class IEC61360DataType(Enum):
     """
-    Data types for data_type in DataSpecificationIEC61360
+    Data types for data_type in :class:`DataSpecificationIEC61360 <.IEC61360ConceptDescription>`
+    The data types are:
+
+    :cvar DATE:
+    :cvar STRING:
+    :cvar STRING_TRANSLATABLE:
+    :cvar REAL_MEASURE:
+    :cvar REAL_COUNT:
+    :cvar REAL_CURRENCY:
+    :cvar BOOLEAN:
+    :cvar URL:
+    :cvar RATIONAL:
+    :cvar RATIONAL_MEASURE:
+    :cvar TIME:
+    :cvar TIMESTAMP:
     """
     DATE = 0
     STRING = 1
@@ -122,7 +136,13 @@ class IEC61360DataType(Enum):
 @unique
 class IEC61360LevelType(Enum):
     """
-    Level types for the level_type in DataSpecificationIEC61360
+    Level types for the level_type in :class:`DataSpecificationIEC61360 <.IEC61360ConceptDescription>`
+    The level types are:
+
+    :cvar MIN:
+    :cvar MAX:
+    :cvar NOM:
+    :cvar TYP:
     """
     MIN = 0
     MAX = 1
@@ -132,7 +152,38 @@ class IEC61360LevelType(Enum):
 
 class IEC61360ConceptDescription(ConceptDescription):
     """
-    A specialized ConceptDescription to define concepts according to IEC61360
+    A specialized :class:`~.ConceptDescription` to define concepts according to IEC61360
+
+    :ivar preferred_name: Preferred name of the data object
+    :ivar short_name: Short name of the data object
+    :ivar data_type: Data type of the data object
+    :ivar definition: Definition of the data object
+    :ivar ~.identification: The globally unique identification of the element. (inherited from
+                            :class:`~aas.model.base.Identifiable`)
+    :ivar is_case_of: Unordered list of global :class:`References <aas.model.base.Reference>` to external definitions
+                      the concept is compatible to or was derived from.
+    :ivar id_short: Identifying string of the element within its name space. (inherited from
+                    :class:`~aas.model.base.Referable`)
+    :ivar display_name: Can be provided in several languages. (inherited from :class:`~aas.model.base.Referable`)
+    :ivar category: The category is a value that gives further meta information w.r.t. to the class of the element.
+                    It affects the expected existence of attributes and the applicability of constraints.
+                    (inherited from :class:`~aas.model.base.Referable`)
+    :ivar description: Description or comments on the element. (inherited from :class:`~aas.model.base.Referable`)
+    :ivar parent: Reference to the next referable parent element of the element. (inherited from
+                  :class:`~aas.model.base.Referable`)
+    :ivar administration: Administrative information of an identifiable element. (inherited from
+                          :class:`~aas.model.base.Identifiable`)
+    :ivar unit: Optional unit of the data object
+    :ivar unit_id: Optional reference to a unit id
+    :ivar source_of_definition: Optional source of the definition
+    :ivar symbol: Optional unit symbol
+    :ivar value_format: Optional format of the values
+    :ivar value_list: Optional list of values
+    :ivar value: Optional value data type object
+    :ivar value_id: Optional reference to the value
+    :ivar level_types: Optional set of level types of the DataSpecificationContent
+    :ivar extension: An extension of the element. (from
+                     :class:`~aas.model.base.HasExtension`)
     """
     def __init__(self,
                  identification: base.Identifier,
@@ -157,36 +208,7 @@ class IEC61360ConceptDescription(ConceptDescription):
                  value_id: Optional[base.Reference] = None,
                  level_types: Set[IEC61360LevelType] = None,
                  extension: Iterable[base.Extension] = ()):
-        """
-        Initializer of IEC61360ConceptDescription
 
-        :param identification: The globally unique identification of the element. (from base.Identifiable)
-        :param preferred_name: preferred of the data object
-        :param short_name: short name of the data object
-        :param data_type: data type of the data object
-        :param definition: definition of the data object
-        :param is_case_of: Unordered list of global references to external definitions the concept is compatible to or
-                           was derived from.
-                           Note: Compare to is-case-of relationship in ISO 13584-32 & IEC EN 61360
-        :param id_short: Identifying string of the element within its name space. (from base.Referable)
-        :param display_name: Can be provided in several languages. (from base.Referable)
-        :param category: The category is a value that gives further meta information w.r.t. to the class of the element.
-                         It affects the expected existence of attributes and the applicability of constraints. (from
-                         base.Referable)
-        :param description: Description or comments on the element. (from base.Referable)
-        :param parent: Reference to the next referable parent element of the element. (from base.Referable)
-        :param administration: Administrative information of an identifiable element. (from base.Identifiable)
-        :param unit: unit of the data object (optional)
-        :param unit_id: reference to a unit id (optional)
-        :param source_of_definition: source of the definition (optional)
-        :param symbol: unit symbol (optional)
-        :param value_format: format of the values (optional)
-        :param value_list: list of values (optional)
-        :param value: value data type object (optional)
-        :param value_id: Reference to the value (optional)
-        :param level_types: Set of level types of the DataSpecificationContent (optional)
-        :param extension: An extension of the element. (from base.HasExtension)
-        """
         super().__init__(identification, is_case_of, id_short, display_name, category, description, parent,
                          administration, extension)
         self.preferred_name: base.LangStringSet = preferred_name

@@ -9,19 +9,26 @@
 # "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
 # specific language governing permissions and limitations under the License.
 """
+.. _adapter.json.json_serialization:
+
 Module for serializing Asset Administration Shell objects to the official JSON format
 
-The module provides an custom JSONEncoder class `AASToJsonEncoder` to be used with the Python standard `json` module.
-It contains a custom `default` function which converts PyI40AAS objects to simple python types for an automatic
-JSON serialization. Additionally, there's the `write_aas_json_file()` function, that takes a complete ObjectStore and
-writes all contained AAS objects into a JSON file.
+The module provides an custom JSONEncoder classes :class:`~.AASToJsonEncoder` and :class:`~.AASToJsonEncoderStripped`
+to be used with the Python standard `json` module. While the former serializes objects as defined in the specification,
+the latter serializes stripped objects, excluding some attributes
+(see https://git.rwth-aachen.de/acplt/pyi40aas/-/issues/91).
+Each class contains a custom :meth:`~.AASToJsonEncoder.default` function which converts PyI40AAS objects to simple
+python types for an automatic JSON serialization.
+To simplify the usage of this module, the :meth:`~.write_aas_json_file` and :meth:`~.object_store_to_json` are provided.
+The former is used to serialize a given :class:`~aas.model.provider.AbstractObjectStore` to a file, while the latter
+serializes the object store to a string and returns it.
 
-This job is performed in an iterative approach: The `default()` function gets called for every object and checks if an
-object is an PyI40AAS object. In this case, it calls a special function for the respective PyI40AAS class which converts
-the object (but not the contained objects) into a simple Python dict, which is serializable. Any contained
-PyI40AAS objects are included into the dict as they are to be converted later on. The special helper function
-`abstract_classes_to_json()` is called by most of the conversion functions to handle all the attributes of abstract base
-classes.
+The serialization is performed in an iterative approach: The :meth:`~.AASToJsonEncoder.default` function gets called for
+every object and checks if an object is an PyI40AAS object. In this case, it calls a special function for the respective
+PyI40AAS class which converts the object (but not the contained objects) into a simple Python dict, which is
+serializable. Any contained  PyI40AAS objects are included into the dict as they are to be converted later on.
+The special helper function :meth:`~.AASToJsonEncoder._abstract_classes_to_json` is called by most of the conversion
+functions to handle all the attributes of abstract base classes.
 """
 import base64
 import inspect
@@ -34,11 +41,15 @@ from .. import _generic
 
 class AASToJsonEncoder(json.JSONEncoder):
     """
-    Custom JSONDecoder class to use the `json` module for serializing Asset Administration Shell data into the
+    Custom JSON Encoder class to use the `json` module for serializing Asset Administration Shell data into the
     official JSON format
 
-    The class overrides the `default()` method to transform PyI40AAS objects into dicts that may be serialized by the
-    standard encode method. Typical usage:
+    The class overrides the :meth:`~.AASToJsonEncoder.default` method to transform PyI40AAS objects into dicts that may
+    be serialized by the standard encode method.
+
+    Typical usage:
+
+    .. code-block:: python
 
         json_string = json.dumps(data, cls=AASToJsonEncoder)
 
@@ -49,6 +60,12 @@ class AASToJsonEncoder(json.JSONEncoder):
     stripped = False
 
     def default(self, obj: object) -> object:
+        """
+        The overwritten `default` method for `json.JSONEncoder`
+
+        :param obj: The object to serialize to json
+        :return: The serialized object
+        """
         if isinstance(obj, model.AssetAdministrationShell):
             return self._asset_administration_shell_to_json(obj)
         if isinstance(obj, model.Asset):
@@ -747,13 +764,13 @@ def object_store_to_json(data: model.AbstractObjectStore, stripped: bool = False
     Create a json serialization of a set of AAS objects according to 'Details of the Asset Administration Shell',
     chapter 5.5
 
-    :param data: ObjectStore which contains different objects of the AAS meta model which should be serialized to a
-                 JSON file
-    :param stripped: If true, objects are serialized to stripped json objects..
+    :param data: :class:`ObjectStore <aas.model.provider.AbstractObjectStore>` which contains different objects of the
+                 AAS meta model which should be serialized to a JSON file
+    :param stripped: If true, objects are serialized to stripped json objects.
                      See https://git.rwth-aachen.de/acplt/pyi40aas/-/issues/91
                      This parameter is ignored if an encoder class is specified.
-    :param encoder: The encoder class used to encoder the JSON objects
-    :param kwargs: Additional keyword arguments to be passed to json.dump()
+    :param encoder: The encoder class used to encode the JSON objects
+    :param kwargs: Additional keyword arguments to be passed to `json.dumps()`
     """
     encoder_ = _select_encoder(stripped, encoder)
     # serialize object to json
@@ -767,13 +784,13 @@ def write_aas_json_file(file: IO, data: model.AbstractObjectStore, stripped: boo
     Administration Shell', chapter 5.5
 
     :param file: A file-like object to write the JSON-serialized data to
-    :param data: ObjectStore which contains different objects of the AAS meta model which should be serialized to a
-                 JSON file
-    :param stripped: If true, objects are serialized to stripped json objects..
+    :param data: :class:`ObjectStore <aas.model.provider.AbstractObjectStore>` which contains different objects of the
+                 AAS meta model which should be serialized to a JSON file
+    :param stripped: If `True`, objects are serialized to stripped json objects.
                      See https://git.rwth-aachen.de/acplt/pyi40aas/-/issues/91
                      This parameter is ignored if an encoder class is specified.
-    :param encoder: The encoder class used to encoder the JSON objects
-    :param kwargs: Additional keyword arguments to be passed to json.dumps()
+    :param encoder: The encoder class used to encode the JSON objects
+    :param kwargs: Additional keyword arguments to be passed to `json.dump()`
     """
     encoder_ = _select_encoder(stripped, encoder)
     # serialize object to json

@@ -9,15 +9,19 @@
 # "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
 # specific language governing permissions and limitations under the License.
 """
-Todo: Add module docstring
+This module adds the functionality of storing and retrieving :class:`~aas.model.base.Identifiable` objects in a CouchDB.
+
+The :class:`~.CouchDBBackend` takes care of updating and committing objects from and to the CouchDB, while the
+:class:`~CouchDBObjectStore` handles adding, deleting and otherwise managing the AAS objects in a specific CouchDB.
 """
 import threading
 import weakref
 from typing import List, Dict, Any, Optional, Iterator, Iterable, Union, Tuple
 import urllib.parse
+import urllib.request
+import urllib.error
 import logging
 import json
-
 import urllib3  # type: ignore
 
 from . import backends
@@ -26,8 +30,6 @@ from aas import model
 
 
 logger = logging.getLogger(__name__)
-
-
 _http_pool_manager = urllib3.PoolManager()
 
 
@@ -35,8 +37,8 @@ class CouchDBBackend(backends.Backend):
     """
     This Backend stores each Identifiable object as a single JSON document in the configured CouchDB database. Each
     document's id is build from the object's identifier using the pattern {idtype}-{idvalue}; the document's contents
-    comprise a single property "data", containing the JSON serialization of the PyI40AAS object. The aas.adapter.json
-    package is used for serialization and deserialization of objects.
+    comprise a single property "data", containing the JSON serialization of the PyI40AAS object. The
+    :ref:`adapter.json <adapter.json.__init__>` package is used for serialization and deserialization of objects.
     """
     @classmethod
     def update_object(cls,
@@ -48,6 +50,7 @@ class CouchDBBackend(backends.Backend):
             raise CouchDBSourceError("The given store_object is not Identifiable, therefore cannot be found "
                                      "in the CouchDB")
         url = CouchDBBackend._parse_source(store_object.source)
+
         try:
             data = CouchDBBackend.do_request(url)
         except CouchDBServerError as e:
@@ -74,6 +77,7 @@ class CouchDBBackend(backends.Backend):
 
         data = json.dumps({'data': store_object, "_rev": get_couchdb_revision(url)},
                           cls=json_serialization.AASToJsonEncoder)
+
         try:
             response = CouchDBBackend.do_request(
                 url, method='PUT', additional_headers={'Content-type': 'application/json'}, body=data.encode('utf-8'))
@@ -126,7 +130,6 @@ class CouchDBBackend(backends.Backend):
                                        basic_auth="{}:{}".format(*auth) if auth else None)
         headers['Accept'] = 'application/json'
         headers.update(additional_headers)
-
         try:
             response = _http_pool_manager.request(method, url, headers=headers, body=body)
         except (urllib3.exceptions.TimeoutError, urllib3.exceptions.SSLError, urllib3.exceptions.ProtocolError) as e:
@@ -229,7 +232,8 @@ def delete_couchdb_revision(url: str):
 
 class CouchDBObjectStore(model.AbstractObjectStore):
     """
-    An ObjectStore implementation for Identifiable PyI40AAS objects backed by a CouchDB database server.
+    An :class:`ObjectStore <aas.model.provider.AbstractObjectStore>` implementation for
+    :class:`~aas.model.base.Identifiable` PyI40AAS objects backed by a CouchDB database server.
 
     All methods of the `CouchDBObjectStore` are blocking, i.e. they stop the current thread's execution until they
     receive a response from the CouchDB server (or encounter a timeout). However, the `CouchDBObjectStore` objects are
@@ -262,6 +266,7 @@ class CouchDBObjectStore(model.AbstractObjectStore):
         :param create: If True and the database does not exist, try to create it
         :raises CouchDBError: If error occur during the request to the CouchDB server (see `_do_request()` for details)
         """
+
         try:
             CouchDBBackend.do_request("{}/{}".format(self.url, self.database_name), 'HEAD')
         except CouchDBServerError as e:
@@ -279,10 +284,11 @@ class CouchDBObjectStore(model.AbstractObjectStore):
 
     def get_identifiable(self, identifier: Union[str, model.Identifier]) -> model.Identifiable:
         """
-        Retrieve an AAS object from the CouchDB by its Identifier
+        Retrieve an AAS object from the CouchDB by its :class:`~aas.model.base.Identifier`
 
-        If the identifier is a string, it is assumed that the string is a correct couchdb-ID-string (according to the
-        internal conversion rules, see CouchDBObjectStore._transform_id() )
+        If the :class:`~aas.model.base.Identifier` is a string, it is assumed that the string is a correct
+        couchdb-ID-string (according to the internal conversion rules, see
+        `CouchDBObjectStore._transform_id()`)
 
         :raises KeyError: If no such object is stored in the database
         :raises CouchDBError: If error occur during the request to the CouchDB server (see `_do_request()` for details)
@@ -291,6 +297,7 @@ class CouchDBObjectStore(model.AbstractObjectStore):
             identifier = self._transform_id(identifier, False)
 
         # Create and issue HTTP request (raises HTTPError on status != 200)
+
         try:
             data = CouchDBBackend.do_request(
                 "{}/{}/{}".format(self.url, self.database_name, urllib.parse.quote(identifier, safe='')))
@@ -334,6 +341,7 @@ class CouchDBObjectStore(model.AbstractObjectStore):
         data = json.dumps({'data': x}, cls=json_serialization.AASToJsonEncoder)
 
         # Create and issue HTTP request (raises HTTPError on status != 200)
+
         try:
             response = CouchDBBackend.do_request(
                 "{}/{}/{}".format(self.url, self.database_name, self._transform_id(x.identification)),
@@ -353,7 +361,7 @@ class CouchDBObjectStore(model.AbstractObjectStore):
 
     def discard(self, x: model.Identifiable, safe_delete=False) -> None:
         """
-        Delete an Identifiable AAS object from the CouchDB database
+        Delete an :class:`~aas.model.base.Identifiable` AAS object from the CouchDB database
 
         :param x: The object to be deleted
         :param safe_delete: If True, only delete the object if it has not been modified in the database in comparison to
@@ -385,7 +393,6 @@ class CouchDBObjectStore(model.AbstractObjectStore):
                     raise KeyError("No AAS object with id {} exists in CouchDB database".format(x.identification))\
                         from e
                 raise
-
         try:
             CouchDBBackend.do_request(
                 "{}/{}/{}?rev={}".format(self.url, self.database_name, self._transform_id(x.identification), rev),
@@ -421,6 +428,7 @@ class CouchDBObjectStore(model.AbstractObjectStore):
         else:
             return False
         logger.debug("Checking existence of object with id %s in database ...", repr(x))
+
         try:
             CouchDBBackend.do_request(
                 "{}/{}/{}".format(self.url, self.database_name, self._transform_id(identifier)), 'HEAD')

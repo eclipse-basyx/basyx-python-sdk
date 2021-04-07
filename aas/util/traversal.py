@@ -20,9 +20,12 @@ from .. import model
 def walk_submodel(collection: Union[model.Submodel, model.SubmodelElementCollection]) \
         -> Iterator[model.SubmodelElement]:
     """
-    Traverse the SubmodelElements in a Submodel or a SubmodelElementCollection recursively in post-order tree-traversal.
+    Traverse the :class:`SubmodelElements <aas.model.submodel.SubmodelElement>` in a
+    :class:`~aas.model.submodel.Submodel` or a :class:`~aas.model.submodel.SubmodelElementCollection` recursively in
+    post-order tree-traversal.
 
-    This is a generator function, yielding all the SubmodelElements. No SubmodelElements should be added, removed or
+    This is a generator function, yielding all the :class:`SubmodelElements <aas.model.submodel.SubmodelElement>`.
+    No :class:`SubmodelElements <aas.model.submodel.SubmodelElement>` should be added, removed or
     moved while iterating, as this could result in undefined behaviour.
     """
     elements = collection.submodel_element if isinstance(collection, model.Submodel) else collection.value
@@ -34,11 +37,14 @@ def walk_submodel(collection: Union[model.Submodel, model.SubmodelElementCollect
 
 def walk_semantic_ids_recursive(root: model.Referable) -> Iterator[model.Reference]:
     """
-    Traverse an AAS object hierarchy (e.g. an AAS with its views or a Submodel with all recursively contained
-    SubmodelElements) recursively and return all non-empty (!= None) semanticIds.
+    Traverse an AAS object hierarchy (e.g. an AAS with its :class:`Views <aas.model.aas.View>` or a
+    :class:`~aas.model.submodel.Submodel` with all recursively contained
+    :class:`SubmodelElements <aas.model.submodel.SubmodelElements>`) recursively and return all non-empty (!= None)
+    semanticIds.
 
-    This is a generator function, yielding all the semanticIds. No Referable objects should be added, removed or
-    moved to/from/in the AAS object hierarchy while iterating, as this could result in undefined behaviour.
+    This is a generator function, yielding all the semanticIds. No :class:`~aas.model.base.Referable` objects should be
+    added, removed or moved to/from/in the AAS object hierarchy while iterating, as this could result in undefined
+    behaviour.
     """
     if isinstance(root, model.HasSemantics):
         if root.semantic_id is not None:

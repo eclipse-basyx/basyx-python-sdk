@@ -24,11 +24,31 @@ class SubmodelElement(base.Referable, base.Qualifiable, base.HasSemantics, base.
     """
     A submodel element is an element suitable for the description and differentiation of assets.
 
-    NOTE: The concept of type and instance applies to submodel elements. Properties are special submodel elements.
-    The property types are defined in dictionaries (like the IEC Common Data Dictionary or eCl@ss),
-    they do not have a value. The property type (kind=Type) is also called data element type in some standards.
-    The property instances (kind=Instance) typically have a value. A property instance is also called
+    *Note:* The concept of type and instance applies to submodel elements. :class:`Properties <.Property>` are special
+    submodel elements. The property types are defined in dictionaries (like the IEC Common Data Dictionary or eCl\\@ss),
+    they do not have a value. The property type (`kind=Type`) is also called data element type in some standards.
+    The property instances (`kind=Instance`) typically have a value. A property instance is also called
     property-value pair in certain standards.
+
+    :ivar id_short: Identifying string of the element within its name space. (inherited from
+                    :class:`~aas.model.base.Referable`)
+    :ivar display_name: Can be provided in several languages. (inherited from :class:`~aas.model.base.Referable`)
+    :ivar category: The category is a value that gives further meta information w.r.t. to the class of the element.
+                     It affects the expected existence of attributes and the applicability of constraints.
+                     (inherited from :class:`~aas.model.base.Referable`)
+    :ivar description: Description or comments on the element. (inherited from :class:`~aas.model.base.Referable`)
+    :ivar parent: Reference to the next referable parent element of the element. (inherited from
+                  :class:`~aas.model.base.Referable`)
+    :ivar semantic_id: Identifier of the semantic definition of the element. It is called semantic id of the
+                       element. The semantic id may either reference an external global id or it may reference a
+                       referable model element of kind=Type that defines the semantics of the element.
+                       (inherited from :class:`~aas.model.base.HasSemantics`)
+    :ivar qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
+                     (from :class:`~aas.model.base.Qualifiable`)
+    :ivar kind: Kind of the element: Either `TYPE` or `INSTANCE`. Default is `INSTANCE`. (inherited from
+                :class:`aas.model.base.HasKind`)
+    :ivar extension: An extension of the element. (inherited from
+                     :class:`aas.model.base.HasExtension`)
     """
     @abc.abstractmethod
     def __init__(self,
@@ -42,23 +62,7 @@ class SubmodelElement(base.Referable, base.Qualifiable, base.HasSemantics, base.
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE,
                  extension: Iterable[base.Extension] = ()):
         """
-        Initializer of SubmodelElement
 
-        :param id_short: Identifying string of the element within its name space. (from base.Referable)
-        :param display_name: Can be provided in several languages. (from base.Referable)
-        :param category: The category is a value that gives further meta information w.r.t. to the class of the element.
-                         It affects the expected existence of attributes and the applicability of constraints.
-                         (from base.Referable)
-        :param description: Description or comments on the element. (from base.Referable)
-        :param parent: Reference to the next referable parent element of the element. (from base.Referable)
-        :param semantic_id: Identifier of the semantic definition of the element. It is called semantic id of the
-                            element. The semantic id may either reference an external global id or it may reference a
-                            referable model element of kind=Type that defines the semantics of the element.
-                            (from base.HasSemantics)
-        :param qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
-                          (from base.Qualifiable)
-        :param kind: Kind of the element: either type or instance. Default = Instance. (from base.HasKind)
-        :param extension: An extension of the element. (from base.HasExtension)
 
         TODO: Add instruction what to do after construction
         """
@@ -81,9 +85,32 @@ class Submodel(base.Identifiable, base.HasSemantics, base.HasKind, base.Qualifia
 
     A submodel is used to structure the virtual representation and technical functionality of an Administration Shell
     into distinguishable parts. Each submodel refers to a well-defined domain or subject matter. Submodels can become
-    standardized and thus become submodels types. Submodels can have different life-cycles.
+    standardized and thus become submodel types. Submodels can have different life-cycles.
 
-    :ivar submodel_element: Unordered list of submodel elements
+    :ivar ~.identification: The globally unique identification of the element.
+                            (inherited from :class:`~aas.model.base.Identifiable`)
+    :ivar submodel_element: Unordered list of :class:`SubmodelElements <.SubmodelElement>`
+    :ivar id_short: Identifying string of the element within its name space. (inherited from
+                    :class:`~aas.model.base.Referable`)
+    :ivar display_name: Can be provided in several languages. (inherited from :class:`~aas.model.base.Referable`)
+    :ivar category: The category is a value that gives further meta information w.r.t. to the class of the element.
+                     It affects the expected existence of attributes and the applicability of constraints.
+                     (inherited from :class:`~aas.model.base.Referable`)
+    :ivar description: Description or comments on the element. (inherited from :class:`~aas.model.base.Referable`)
+    :ivar parent: Reference to the next referable parent element of the element. (inherited from
+                  :class:`~aas.model.base.Referable`)
+    :ivar administration: Administrative information of an identifiable element. (inherited from
+                          :class:`~aas.model.base.Identifiable`)
+    :ivar semantic_id: Identifier of the semantic definition of the element. It is called semantic id of the
+                       element. The semantic id may either reference an external global id or it may reference a
+                       referable model element of kind=Type that defines the semantics of the element.
+                       (inherited from :class:`~aas.model.base.HasSemantics`)
+    :ivar qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
+                     (from :class:`~aas.model.base.Qualifiable`)
+    :ivar kind: Kind of the element: Either `TYPE` or `INSTANCE`. Default is `INSTANCE`. (inherited from
+                :class:`aas.model.base.HasKind`)
+    :ivar extension: An extension of the element. (inherited from
+                     :class:`aas.model.base.HasExtension`)
     """
 
     def __init__(self,
@@ -99,29 +126,6 @@ class Submodel(base.Identifiable, base.HasSemantics, base.HasKind, base.Qualifia
                  qualifier: Iterable[base.Constraint] = (),
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE,
                  extension: Iterable[base.Extension] = ()):
-        """
-        Initializer of Submodel
-
-        :param identification: The globally unique identification of the element. (from base.Identifiable)
-        :param submodel_element: Unordered list of submodel elements
-        :param id_short: Identifying string of the element within its name space. (from base.Referable)
-        :param display_name: Can be provided in several languages. (from base.Referable)
-        :param category: The category is a value that gives further meta information w.r.t. to the class of the element.
-                         It affects the expected existence of attributes and the applicability of constraints.
-                         (from base.Referable)
-        :param description: Description or comments on the element. (from base.Referable)
-        :param parent: Reference to the next referable parent element of the element. (from base.Referable)
-        :param administration: Administrative information of an identifiable element. (from base.Identifiable)
-        :param semantic_id: Identifier of the semantic definition of the element. It is called semantic id of the
-                            element. The semantic id may either reference an external global id or it may reference a
-                            referable model element of kind=Type that defines the semantics of the element.
-                            (from base.HasSemantics)
-        :param qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
-                          (from base.Qualifiable)
-        :param kind: Kind of the element: either type or instance. Default = Instance. (from base.HasKind)
-        :param extension: An extension of the element. (from base.HasExtension)
-        """
-
         super().__init__()
         self.identification: base.Identifier = identification
         self.submodel_element = base.NamespaceSet(self, [("id_short", True)], submodel_element)
@@ -146,11 +150,32 @@ ALLOWED_DATA_ELEMENT_CATEGORIES: Set[str] = {
 
 class DataElement(SubmodelElement, metaclass=abc.ABCMeta):
     """
-    A data element is a submodel element that is not further composed out of other submodel elements.
-    A data element is a submodel element that has a value. The type of value differs for different subtypes
+    A data element is a :class:`~.SubmodelElement` that is not further composed out of other
+    :class:`SubmodelElements <.SubmodelElement>`.
+    A data element is a :class:`~.SubmodelElement` that has a value. The type of value differs for different subtypes
     of data elements.
 
-    << abstract >>
+    <<abstract>>
+
+    :ivar id_short: Identifying string of the element within its name space. (inherited from
+                    :class:`~aas.model.base.Referable`)
+    :ivar display_name: Can be provided in several languages. (inherited from :class:`~aas.model.base.Referable`)
+    :ivar category: The category is a value that gives further meta information w.r.t. to the class of the element.
+                     It affects the expected existence of attributes and the applicability of constraints.
+                     (inherited from :class:`~aas.model.base.Referable`)
+    :ivar description: Description or comments on the element. (inherited from :class:`~aas.model.base.Referable`)
+    :ivar parent: Reference to the next referable parent element of the element. (inherited from
+                  :class:`~aas.model.base.Referable`)
+    :ivar semantic_id: Identifier of the semantic definition of the element. It is called semantic id of the
+                       element. The semantic id may either reference an external global id or it may reference a
+                       referable model element of kind=Type that defines the semantics of the element.
+                       (inherited from :class:`~aas.model.base.HasSemantics`)
+    :ivar qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
+                     (from :class:`~aas.model.base.Qualifiable`)
+    :ivar kind: Kind of the element: Either `TYPE` or `INSTANCE`. Default is `INSTANCE`. (inherited from
+                :class:`aas.model.base.HasKind`)
+    :ivar extension: An extension of the element. (inherited from
+                     :class:`aas.model.base.HasExtension`)
     """
     @abc.abstractmethod
     def __init__(self,
@@ -163,26 +188,6 @@ class DataElement(SubmodelElement, metaclass=abc.ABCMeta):
                  qualifier: Iterable[base.Constraint] = (),
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE,
                  extension: Iterable[base.Extension] = ()):
-        """
-        Initializer of DataElement
-
-        :param id_short: Identifying string of the element within its name space. (from base.Referable)
-        :param display_name: Can be provided in several languages. (from base.Referable)
-        :param category: The category is a value that gives further meta information w.r.t. to the class of the element.
-                         It affects the expected existence of attributes and the applicability of constraints.
-                         (from base.Referable)
-        :param description: Description or comments on the element. (from base.Referable)
-        :param parent: Reference to the next referable parent element of the element. (from base.Referable)
-        :param semantic_id: Identifier of the semantic definition of the element. It is called semantic id of the
-                            element. The semantic id may either reference an external global id or it may reference a
-                            referable model element of kind=Type that defines the semantics of the element.
-                            (from base.HasSemantics)
-        :param qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
-                          (from base.Qualifiable)
-        :param kind: Kind of the element: either type or instance. Default = Instance. (from base.HasKind)
-        :param extension: An extension of the element. (from base.HasExtension)
-        """
-
         super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, kind, extension)
 
     def _set_category(self, category: Optional[str]):
@@ -203,13 +208,33 @@ class DataElement(SubmodelElement, metaclass=abc.ABCMeta):
 
 class Property(DataElement):
     """
-    A property is a data element that has a single value.
+    A property is a :class:`DataElement` that has a single value.
 
+    *Constraint AASd-007:* if both, the value and the valueId are present then the value needs to be
+    identical to the value of the referenced coded value in valueId
+
+    :ivar id_short: Identifying string of the element within its name space. (inherited from
+                    :class:`~aas.model.base.Referable`)
     :ivar value_type: Data type of the value
     :ivar value: The value of the property instance.
-    :ivar value_id: Reference to the global unique id of a coded value.
-                    Constraint AASd-007: if both, the value and the valueId are present then the value needs to be
-                                         identical to the value of the referenced coded value in valueId
+    :ivar value_id: :class:`~aas.model.base.Reference` to the global unique id of a coded value
+    :ivar display_name: Can be provided in several languages. (inherited from :class:`~aas.model.base.Referable`)
+    :ivar category: The category is a value that gives further meta information w.r.t. to the class of the element.
+                     It affects the expected existence of attributes and the applicability of constraints.
+                     (inherited from :class:`~aas.model.base.Referable`)
+    :ivar description: Description or comments on the element. (inherited from :class:`~aas.model.base.Referable`)
+    :ivar parent: Reference to the next referable parent element of the element. (inherited from
+                  :class:`~aas.model.base.Referable`)
+    :ivar semantic_id: Identifier of the semantic definition of the element. It is called semantic id of the
+                       element. The semantic id may either reference an external global id or it may reference a
+                       referable model element of kind=Type that defines the semantics of the element.
+                       (inherited from :class:`~aas.model.base.HasSemantics`)
+    :ivar qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
+                     (from :class:`~aas.model.base.Qualifiable`)
+    :ivar kind: Kind of the element: Either `TYPE` or `INSTANCE`. Default is `INSTANCE`. (inherited from
+                :class:`aas.model.base.HasKind`)
+    :ivar extension: An extension of the element. (inherited from
+                     :class:`aas.model.base.HasExtension`)
     """
 
     def __init__(self,
@@ -226,26 +251,7 @@ class Property(DataElement):
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE,
                  extension: Iterable[base.Extension] = ()):
         """
-        Initializer of Property
 
-        :param id_short: Identifying string of the element within its name space. (from base.Referable)
-        :param value_type: Data type of the value
-        :param value: The value of the property instance.
-        :param value_id: Reference to the global unique id of a coded value.
-        :param display_name: Can be provided in several languages. (from base.Referable)
-        :param category: The category is a value that gives further meta information w.r.t. to the class of the element.
-                         It affects the expected existence of attributes and the applicability of constraints.
-                         (from base.Referable)
-        :param description: Description or comments on the element. (from base.Referable)
-        :param parent: Reference to the next referable parent element of the element. (from base.Referable)
-        :param semantic_id: Identifier of the semantic definition of the element. It is called semantic id of the
-                            element. The semantic id may either reference an external global id or it may reference a
-                            referable model element of kind=Type that defines the semantics of the element.
-                            (from base.HasSemantics)
-        :param qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
-                          (from base.Qualifiable)
-        :param kind: Kind of the element: either type or instance. Default = Instance. (from base.HasKind)
-        :param extension: An extension of the element. (from base.HasExtension)
 
         TODO: Add instruction what to do after construction
         """
@@ -270,12 +276,32 @@ class Property(DataElement):
 
 class MultiLanguageProperty(DataElement):
     """
-    A property is a data element that has a multi language value.
+    A multi language property is a :class:`~.DataElement` that has a multi language value.
 
+    *Constraint AASd-012*: if both, the value and the valueId are present then for each string in a
+    specific language the meaning must be the same as specified in valueId.
+
+    :ivar id_short: Identifying string of the element within its name space. (inherited from
+                    :class:`~aas.model.base.Referable`)
     :ivar value: The value of the property instance.
-    :ivar value_id: Reference to the global unique id of a coded value.
-                    Constraint AASd-012: if both, the value and the valueId are present then for each string in a
-                                         specific language the meaning must be the same as specified in valueId.
+    :ivar value_id: :class:`~aas.model.base.Reference` to the global unique id of a coded value
+    :ivar display_name: Can be provided in several languages. (inherited from :class:`~aas.model.base.Referable`)
+    :ivar category: The category is a value that gives further meta information w.r.t. to the class of the element.
+                     It affects the expected existence of attributes and the applicability of constraints.
+                     (inherited from :class:`~aas.model.base.Referable`)
+    :ivar description: Description or comments on the element. (inherited from :class:`~aas.model.base.Referable`)
+    :ivar parent: Reference to the next referable parent element of the element. (inherited from
+                  :class:`~aas.model.base.Referable`)
+    :ivar semantic_id: Identifier of the semantic definition of the element. It is called semantic id of the
+                       element. The semantic id may either reference an external global id or it may reference a
+                       referable model element of kind=Type that defines the semantics of the element.
+                       (inherited from :class:`~aas.model.base.HasSemantics`)
+    :ivar qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
+                     (from :class:`~aas.model.base.Qualifiable`)
+    :ivar kind: Kind of the element: Either `TYPE` or `INSTANCE`. Default is `INSTANCE`. (inherited from
+                :class:`aas.model.base.HasKind`)
+    :ivar extension: An extension of the element. (inherited from
+                     :class:`aas.model.base.HasExtension`)
     """
 
     def __init__(self,
@@ -291,25 +317,7 @@ class MultiLanguageProperty(DataElement):
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE,
                  extension: Iterable[base.Extension] = ()):
         """
-        Initializer of MultiLanguageProperty
 
-        :param id_short: Identifying string of the element within its name space. (from base.Referable)
-        :param value: The value of the property instance.
-        :param value_id: Reference to the global unique id of a coded value.
-        :param display_name: Can be provided in several languages. (from base.Referable)
-        :param category: The category is a value that gives further meta information w.r.t. to the class of the element.
-                         It affects the expected existence of attributes and the applicability of constraints.
-                         (from base.Referable)
-        :param description: Description or comments on the element. (from base.Referable)
-        :param parent: Reference to the next referable parent element of the element. (from base.Referable)
-        :param semantic_id: Identifier of the semantic definition of the element. It is called semantic id of the
-                            element. The semantic id may either reference an external global id or it may reference a
-                            referable model element of kind=Type that defines the semantics of the element.
-                           (from base.HasSemantics)
-        :param qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
-                          (from base.Qualifiable)
-        :param kind: Kind of the element: either type or instance. Default = Instance. (from base.HasKind)
-        :param extension: An extension of the element. (from base.HasExtension)
 
         TODO: Add instruction what to do after construction
         """
@@ -321,14 +329,34 @@ class MultiLanguageProperty(DataElement):
 
 class Range(DataElement):
     """
-    A property is a data element that has a multi language value.
+    A range is a :class:`~.DataElement` that has a range value.
 
+    *Constraint AASd-013:* In case of a range with `kind=Instance` either the min or the max value or both
+    need to be defined
+
+    :ivar id_short: Identifying string of the element within its name space. (inherited from
+                    :class:`~aas.model.base.Referable`)
     :ivar value_type: Data type of the min and max
     :ivar min: The minimum value of the range. If the min value is missing then the value is assumed to be negative
-                infinite.
-                Constraint AASd-013: In case of a range with kind=Instance either the min or the max value or both need
-                                     to be defined
+               infinite
     :ivar max: The maximum of the range. If the max value is missing then the value is assumed to be positive infinite
+    :ivar display_name: Can be provided in several languages. (inherited from :class:`~aas.model.base.Referable`)
+    :ivar category: The category is a value that gives further meta information w.r.t. to the class of the element.
+                     It affects the expected existence of attributes and the applicability of constraints.
+                     (inherited from :class:`~aas.model.base.Referable`)
+    :ivar description: Description or comments on the element. (inherited from :class:`~aas.model.base.Referable`)
+    :ivar parent: Reference to the next referable parent element of the element. (inherited from
+                  :class:`~aas.model.base.Referable`)
+    :ivar semantic_id: Identifier of the semantic definition of the element. It is called semantic id of the
+                       element. The semantic id may either reference an external global id or it may reference a
+                       referable model element of kind=Type that defines the semantics of the element.
+                       (inherited from :class:`~aas.model.base.HasSemantics`)
+    :ivar qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
+                     (from :class:`~aas.model.base.Qualifiable`)
+    :ivar kind: Kind of the element: Either `TYPE` or `INSTANCE`. Default is `INSTANCE`. (inherited from
+                :class:`aas.model.base.HasKind`)
+    :ivar extension: An extension of the element. (inherited from
+                     :class:`aas.model.base.HasExtension`)
     """
 
     def __init__(self,
@@ -345,28 +373,7 @@ class Range(DataElement):
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE,
                  extension: Iterable[base.Extension] = ()):
         """
-        Initializer of Range
 
-        :param id_short: Identifying string of the element within its name space. (from base.Referable)
-        :param value_type: Data type of the min and max
-        :param min: The minimum value of the range. If the min value is missing then the value is assumed to be
-                     negative infinite.
-        :param max: The maximum of the range. If the max value is missing then the value is assumed to be positive
-                     infinite
-        :param display_name: Can be provided in several languages. (from base.Referable)
-        :param category: The category is a value that gives further meta information w.r.t. to the class of the element.
-                         It affects the expected existence of attributes and the applicability of constraints.
-                         (from base.Referable)
-        :param description: Description or comments on the element. (from base.Referable)
-        :param parent: Reference to the next referable parent element of the element. (from base.Referable)
-        :param semantic_id: Identifier of the semantic definition of the element. It is called semantic id of the
-                            element. The semantic id may either reference an external global id or it may reference a
-                            referable model element of kind=Type that defines the semantics of the element.
-                            (from base.HasSemantics)
-        :param qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
-                          (from base.Qualifiable)
-        :param kind: Kind of the element: either type or instance. Default = Instance. (from base.HasKind)
-        :param extension: An extension of the element. (from base.HasExtension)
 
         TODO: Add instruction what to do after construction
         """
@@ -401,14 +408,34 @@ class Range(DataElement):
 
 class Blob(DataElement):
     """
-    A BLOB is a data element that represents a file that is contained with its source code in the value attribute.
+    A BLOB is a :class:`~.DataElement` that represents a file that is contained with its source code in the value
+    attribute.
 
-    :ivar value: The value of the BLOB instance of a blob data element.
-                 Note: In contrast to the file property the file content is stored directly as value in
-                 the Blob data element.
+    *Note:* In contrast to the file property the file content is stored directly as value in the Blob data element.
+
+    :ivar id_short: Identifying string of the element within its name space. (inherited from
+                    :class:`~aas.model.base.Referable`)
     :ivar mime_type: Mime type of the content of the BLOB. The mime type states which file extension the file has.
                      Valid values are e.g. “application/json”, “application/xls”, ”image/jpg”. The allowed values
                      are defined as in RFC2046.
+    :ivar value: The value of the BLOB instance of a blob data element.
+    :ivar display_name: Can be provided in several languages. (inherited from :class:`~aas.model.base.Referable`)
+    :ivar category: The category is a value that gives further meta information w.r.t. to the class of the element.
+                     It affects the expected existence of attributes and the applicability of constraints.
+                     (inherited from :class:`~aas.model.base.Referable`)
+    :ivar description: Description or comments on the element. (inherited from :class:`~aas.model.base.Referable`)
+    :ivar parent: Reference to the next referable parent element of the element. (inherited from
+                  :class:`~aas.model.base.Referable`)
+    :ivar semantic_id: Identifier of the semantic definition of the element. It is called semantic id of the
+                       element. The semantic id may either reference an external global id or it may reference a
+                       referable model element of kind=Type that defines the semantics of the element.
+                       (inherited from :class:`~aas.model.base.HasSemantics`)
+    :ivar qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
+                     (from :class:`~aas.model.base.Qualifiable`)
+    :ivar kind: Kind of the element: Either `TYPE` or `INSTANCE`. Default is `INSTANCE`. (inherited from
+                :class:`aas.model.base.HasKind`)
+    :ivar extension: An extension of the element. (inherited from
+                     :class:`aas.model.base.HasExtension`)
     """
 
     def __init__(self,
@@ -424,29 +451,7 @@ class Blob(DataElement):
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE,
                  extension: Iterable[base.Extension] = ()):
         """
-        Initializer of Blob
 
-        :param id_short: Identifying string of the element within its name space. (from base.Referable)
-        :param value: The value of the BLOB instance of a blob data element.
-                      Note: In contrast to the file property the file content is stored directly as value in the Blob
-                            data element.
-        :param mime_type: Mime type of the content of the BLOB. The mime type states which file extension the file has.
-                          Valid values are e.g. “application/json”, “application/xls”, ”image/jpg”. The allowed values
-                          are defined as in RFC2046.
-        :param display_name: Can be provided in several languages. (from base.Referable)
-        :param category: The category is a value that gives further meta information w.r.t. to the class of the element.
-                         It affects the expected existence of attributes and the applicability of constraints.
-                         (from base.Referable)
-        :param description: Description or comments on the element. (from base.Referable)
-        :param parent: Reference to the next referable parent element of the element. (from base.Referable)
-        :param semantic_id: Identifier of the semantic definition of the element. It is called semantic id of the
-                            element. The semantic id may either reference an external global id or it may reference a
-                            referable model element of kind=Type that defines the semantics of the element.
-                            (from base.HasSemantics)
-        :param qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
-                          (from base.Qualifiable)
-        :param kind: Kind of the element: either type or instance. Default = Instance. (from base.HasKind)
-        :param extension: An extension of the element. (from base.HasExtension)
 
         TODO: Add instruction what to do after construction
         """
@@ -458,11 +463,29 @@ class Blob(DataElement):
 
 class File(DataElement):
     """
-    A File is a data element that represents a file via its path description.
+    A File is a :class:`~.DataElement` that represents a file via its path description.
 
-    :ivar value: Path and name of the referenced file (without file extension). The path can be absolute or relative.
-                 Note: The file extension is defined by using a qualifier of type “MimeType”.
+    :ivar id_short: Identifying string of the element within its name space. (inherited from
+                    :class:`~aas.model.base.Referable`)
     :ivar mime_type: Mime type of the content of the File.
+    :ivar value: Path and name of the referenced file (with file extension). The path can be absolute or relative.
+    :ivar display_name: Can be provided in several languages. (inherited from :class:`~aas.model.base.Referable`)
+    :ivar category: The category is a value that gives further meta information w.r.t. to the class of the element.
+                     It affects the expected existence of attributes and the applicability of constraints.
+                     (inherited from :class:`~aas.model.base.Referable`)
+    :ivar description: Description or comments on the element. (inherited from :class:`~aas.model.base.Referable`)
+    :ivar parent: Reference to the next referable parent element of the element. (inherited from
+                  :class:`~aas.model.base.Referable`)
+    :ivar semantic_id: Identifier of the semantic definition of the element. It is called semantic id of the
+                       element. The semantic id may either reference an external global id or it may reference a
+                       referable model element of kind=Type that defines the semantics of the element.
+                       (inherited from :class:`~aas.model.base.HasSemantics`)
+    :ivar qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
+                     (from :class:`~aas.model.base.Qualifiable`)
+    :ivar kind: Kind of the element: Either `TYPE` or `INSTANCE`. Default is `INSTANCE`. (inherited from
+                :class:`aas.model.base.HasKind`)
+    :ivar extension: An extension of the element. (inherited from
+                     :class:`aas.model.base.HasExtension`)
     """
 
     def __init__(self,
@@ -478,27 +501,7 @@ class File(DataElement):
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE,
                  extension: Iterable[base.Extension] = ()):
         """
-        Initializer of File
 
-        :param id_short: Identifying string of the element within its name space. (from base.Referable)
-        :param mime_type: Mime type of the content of the File.
-        :param value: Path and name of the referenced file (without file extension). The path can be absolute or
-                      relative.
-                      Note: The file extension is defined by using a qualifier of type “MimeType”.
-        :param display_name: Can be provided in several languages. (from base.Referable)
-        :param category: The category is a value that gives further meta information w.r.t. to the class of the element.
-                         It affects the expected existence of attributes and the applicability of constraints.
-                         (from base.Referable)
-        :param description: Description or comments on the element. (from base.Referable)
-        :param parent: Reference to the next referable parent element of the element. (from base.Referable)
-        :param semantic_id: Identifier of the semantic definition of the element. It is called semantic id of the
-                            element. The semantic id may either reference an external global id or it may reference a
-                            referable model element of kind=Type that defines the semantics of the element.
-                            (from base.HasSemantics)
-        :param qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
-                          (from base.Qualifiable)
-        :param kind: Kind of the element: either type or instance. Default = Instance. (from base.HasKind)
-        :param extension: An extension of the element. (from base.HasExtension)
 
         TODO: Add instruction what to do after construction
         """
@@ -510,11 +513,30 @@ class File(DataElement):
 
 class ReferenceElement(DataElement):
     """
-    A reference element is a data element that defines a reference to another element within the same or another AAS
-    or a reference to an external object or entity.
+    A reference element is a :class:`DataElement` that defines a :class:`~aas.model.base.Reference` to another element
+    within the same or another AAS or a :class:`~aas.model.base.Reference` to an external object or entity.
 
-    :ivar value: Reference to any other referable element of the same of any other AAS
-                 or a reference to an external object or entity.
+    :ivar id_short: Identifying string of the element within its name space. (inherited from
+                    :class:`~aas.model.base.Referable`)
+    :ivar value: :class:`~aas.model.base.Reference` to any other :class:`~aas.model.base.Referable` element of the same
+                 or any other AAS or a :class:`~aas.model.base.Reference` to an external object or entity.
+    :ivar display_name: Can be provided in several languages. (inherited from :class:`~aas.model.base.Referable`)
+    :ivar category: The category is a value that gives further meta information w.r.t. to the class of the element.
+                     It affects the expected existence of attributes and the applicability of constraints.
+                     (inherited from :class:`~aas.model.base.Referable`)
+    :ivar description: Description or comments on the element. (inherited from :class:`~aas.model.base.Referable`)
+    :ivar parent: Reference to the next referable parent element of the element. (inherited from
+                  :class:`~aas.model.base.Referable`)
+    :ivar semantic_id: Identifier of the semantic definition of the element. It is called semantic id of the
+                       element. The semantic id may either reference an external global id or it may reference a
+                       referable model element of kind=Type that defines the semantics of the element.
+                       (inherited from :class:`~aas.model.base.HasSemantics`)
+    :ivar qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
+                     (from :class:`~aas.model.base.Qualifiable`)
+    :ivar kind: Kind of the element: Either `TYPE` or `INSTANCE`. Default is `INSTANCE`. (inherited from
+                :class:`aas.model.base.HasKind`)
+    :ivar extension: An extension of the element. (inherited from
+                     :class:`aas.model.base.HasExtension`)
     """
 
     def __init__(self,
@@ -529,25 +551,7 @@ class ReferenceElement(DataElement):
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE,
                  extension: Iterable[base.Extension] = ()):
         """
-        Initializer of ReferenceElement
 
-        :param id_short: Identifying string of the element within its name space. (from base.Referable)
-        :param value: Reference to any other referable element of the same of any other AAS or a reference to an
-                      external object or entity.
-        :param display_name: Can be provided in several languages. (from base.Referable)
-        :param category: The category is a value that gives further meta information w.r.t. to the class of the element.
-                         It affects the expected existence of attributes and the applicability of constraints.
-                         (from base.Referable)
-        :param description: Description or comments on the element. (from base.Referable)
-        :param parent: Reference to the next referable parent element of the element. (from base.Referable)
-        :param semantic_id: Identifier of the semantic definition of the element. It is called semantic id of the
-                            element. The semantic id may either reference an external global id or it may reference a
-                            referable model element of kind=Type that defines the semantics of the element.
-                            (from base.HasSemantics)
-        :param qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
-                          (from base.Qualifiable)
-        :param kind: Kind of the element: either type or instance. Default = Instance. (from base.HasKind)
-        :param extension: An extension of the element. (from base.HasExtension)
 
         TODO: Add instruction what to do after construction
         """
@@ -558,22 +562,30 @@ class ReferenceElement(DataElement):
 
 class SubmodelElementCollection(SubmodelElement, metaclass=abc.ABCMeta):
     """
-    A submodel element collection is a set or list of submodel elements.
+    A submodel element collection is a set or list of :class:`SubmodelElements <.SubmodelElement>`.
 
-    << abstract >>
+    <<abstract>>
 
-    :ivar value: Ordered or unordered list of submodel elements
-    :ivar ordered: If ordered=false then the elements in the property collection are not ordered. If ordered=true then
-                   the elements in the collection are ordered.
-                   `ordered` shall not be set directly, instead one of the subclasses
-                   `SubmodelElementCollectionOrdered` or `SubmodelElementCollectionUnordered` shall be used.
-    :ivar allow_duplicates: If allowDuplicates=true, then it is allowed that the collection contains several elements
-                            with the same semantics (i.e. the same semanticId).
-                            If allowDuplicates=false, then it is not allowed that the collection contains several
-                            elements with the same semantics (i.e. the same semanticId).
-                            `allow_duplicates` shall not be set directly, instead one of the subclasses
-                            `SubmodelElementCollectionUniqueSemanticId` or `SubmodelElementCollectionUniqueSemanticId`
-                            shall be used.
+    :ivar value: Ordered or unordered list of :class:`SubmodelElements <.SubmodelElement>`
+    :ivar id_short: Identifying string of the element within its name space. (inherited from
+                    :class:`~aas.model.base.Referable`)
+    :ivar display_name: Can be provided in several languages. (inherited from :class:`~aas.model.base.Referable`)
+    :ivar category: The category is a value that gives further meta information w.r.t. to the class of the element.
+                     It affects the expected existence of attributes and the applicability of constraints.
+                     (inherited from :class:`~aas.model.base.Referable`)
+    :ivar description: Description or comments on the element. (inherited from :class:`~aas.model.base.Referable`)
+    :ivar parent: Reference to the next referable parent element of the element. (inherited from
+                  :class:`~aas.model.base.Referable`)
+    :ivar semantic_id: Identifier of the semantic definition of the element. It is called semantic id of the
+                       element. The semantic id may either reference an external global id or it may reference a
+                       referable model element of kind=Type that defines the semantics of the element.
+                       (inherited from :class:`~aas.model.base.HasSemantics`)
+    :ivar qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
+                     (from :class:`~aas.model.base.Qualifiable`)
+    :ivar kind: Kind of the element: Either `TYPE` or `INSTANCE`. Default is `INSTANCE`. (inherited from
+                :class:`aas.model.base.HasKind`)
+    :ivar extension: An extension of the element. (inherited from
+                     :class:`aas.model.base.HasExtension`)
     """
     @abc.abstractmethod
     def __init__(self,
@@ -587,27 +599,6 @@ class SubmodelElementCollection(SubmodelElement, metaclass=abc.ABCMeta):
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE,
                  extension: Iterable[base.Extension] = ()):
         """
-        Initializer of SubmodelElementCollection
-
-        This class is abstract and should not used for instances; instead one of the subclasses
-        `SubmodelElementCollectionOrdered` or `SubmodelElementCollectionUnordered` shall be used.
-
-        :param id_short: Identifying string of the element within its name space. (from base.Referable)
-        :param display_name: Can be provided in several languages. (from base.Referable)
-        :param category: The category is a value that gives further meta information w.r.t. to the class of the element.
-                         It affects the expected existence of attributes and the applicability of constraints.
-                         (from base.Referable)
-        :param description: Description or comments on the element. (from base.Referable)
-        :param parent: Reference to the next referable parent element of the element. (from base.Referable)
-        :param semantic_id: Identifier of the semantic definition of the element. It is called semantic id of the
-                            element. The semantic id may either reference an external global id or it may reference a
-                            referable model element of kind=Type that defines the semantics of the element.
-                            (from base.HasSemantics)
-        :param qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
-                          (from base.Qualifiable)
-        :param kind: Kind of the element: either type or instance. Default = Instance. (from base.HasKind)
-        :param extension: An extension of the element. (from base.HasExtension)
-
         TODO: Add instruction what to do after construction
         """
         super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, kind, extension)
@@ -637,31 +628,30 @@ class SubmodelElementCollection(SubmodelElement, metaclass=abc.ABCMeta):
                allow_duplicates: bool = False,
                ordered: bool = False):
         """
-            A factory to create a SubmodelElementCollection based on the parameter dublicates_allowed and ordered.
+        A factory to create a SubmodelElementCollection based on the parameter dublicates_allowed and ordered.
 
-            Initializer of SubmodelElementCollection
-            :param id_short: Identifying string of the element within its name space. (from base.Referable)
-            :param value: Ordered or unordered list of submodel elements.
-            :param display_name: Can be provided in several languages. (from base.Referable)
-            :param category: The category is a value that gives further meta information w.r.t. to the class of the
-                             element. It affects the expected existence of attributes and the applicability of
-                             constraints. (from base.Referable)
-            :param description: Description or comments on the element. (from base.Referable)
-            :param parent: Reference to the next referable parent element of the element. (from base.Referable)
-            :param semantic_id: Identifier of the semantic definition of the element. It is called semantic id of the
-                                element. The semantic id may either reference an external global id or it may reference
-                                a referable model element of kind=Type that defines the semantics of the element.
-                                (from base.HasSemantics)
-            :param qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable
-                              element. (from base.Qualifiable)
-            :param kind: Kind of the element: either type or instance. Default = Instance. (from base.HasKind)
-            :param extension: An extension of the element. (from base.HasExtension)
-            :param ordered: If ordered=false then the elements in the property collection are not ordered. If
-                            ordered=true then the elements in the collection are ordered.
-            :param allow_duplicates: If allowDuplicates=true, then it is allowed that the collection contains several
-                                     elements with the same semantics (i.e. the same semanticId).
-                                     If allowDuplicates=false, then it is not allowed that the collection contains
-                                     several elements with the same semantics (i.e. the same semanticId).
+        :param id_short: Identifying string of the element within its name space. (from base.Referable)
+        :param value: Ordered or unordered list of submodel elements.
+        :param display_name: Can be provided in several languages. (from base.Referable)
+        :param category: The category is a value that gives further meta information w.r.t. to the class of the
+                         element. It affects the expected existence of attributes and the applicability of
+                         constraints. (from base.Referable)
+        :param description: Description or comments on the element. (from base.Referable)
+        :param parent: Reference to the next referable parent element of the element. (from base.Referable)
+        :param semantic_id: Identifier of the semantic definition of the element. It is called semantic id of the
+                            element. The semantic id may either reference an external global id or it may reference
+                            a referable model element of kind=Type that defines the semantics of the element.
+                            (from base.HasSemantics)
+        :param qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable
+                          element. (from base.Qualifiable)
+        :param kind: Kind of the element: either type or instance. Default = Instance. (from base.HasKind)
+        :param extension: An extension of the element. (from base.HasExtension)
+        :param ordered: If ordered=false then the elements in the property collection are not ordered. If
+                        ordered=true then the elements in the collection are ordered.
+        :param allow_duplicates: If allowDuplicates=true, then it is allowed that the collection contains several
+                                 elements with the same semantics (i.e. the same semanticId).
+                                 If allowDuplicates=false, then it is not allowed that the collection contains
+                                 several elements with the same semantics (i.e. the same semanticId).
         """
         if ordered:
             if allow_duplicates:
@@ -683,9 +673,29 @@ class SubmodelElementCollection(SubmodelElement, metaclass=abc.ABCMeta):
 
 class SubmodelElementCollectionOrdered(SubmodelElementCollection, base.UniqueIdShortNamespace):
     """
-    A SubmodelElementCollectionOrdered is an ordered list of submodel elements where id_shorts are unique.
-    """
+    A SubmodelElementCollectionOrdered is an ordered list of :class:`SubmodelElements <.SubmodelElement>`
 
+    :ivar id_short: Identifying string of the element within its name space. (inherited from
+                    :class:`~aas.model.base.Referable`)
+    :ivar value: Ordered or unordered list of :class:`SubmodelElements <.SubmodelElement>`
+    :ivar display_name: Can be provided in several languages. (inherited from :class:`~aas.model.base.Referable`)
+    :ivar category: The category is a value that gives further meta information w.r.t. to the class of the element.
+                     It affects the expected existence of attributes and the applicability of constraints.
+                     (inherited from :class:`~aas.model.base.Referable`)
+    :ivar description: Description or comments on the element. (inherited from :class:`~aas.model.base.Referable`)
+    :ivar parent: Reference to the next referable parent element of the element. (inherited from
+                  :class:`~aas.model.base.Referable`)
+    :ivar semantic_id: Identifier of the semantic definition of the element. It is called semantic id of the
+                       element. The semantic id may either reference an external global id or it may reference a
+                       referable model element of kind=Type that defines the semantics of the element.
+                       (inherited from :class:`~aas.model.base.HasSemantics`)
+    :ivar qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
+                     (from :class:`~aas.model.base.Qualifiable`)
+    :ivar kind: Kind of the element: Either `TYPE` or `INSTANCE`. Default is `INSTANCE`. (inherited from
+                :class:`aas.model.base.HasKind`)
+    :ivar extension: An extension of the element. (inherited from
+                     :class:`aas.model.base.HasExtension`)
+    """
     def __init__(self,
                  id_short: str,
                  value: Iterable[SubmodelElement] = (),
@@ -698,28 +708,8 @@ class SubmodelElementCollectionOrdered(SubmodelElementCollection, base.UniqueIdS
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE,
                  extension: Iterable[base.Extension] = ()):
         """
-        Initializer of SubmodelElementCollection
-
-        :param id_short: Identifying string of the element within its name space. (from base.Referable)
-        :param value: Ordered list of submodel elements.
-        :param display_name: Can be provided in several languages. (from base.Referable)
-        :param category: The category is a value that gives further meta information w.r.t. to the class of the element.
-                         It affects the expected existence of attributes and the applicability of constraints.
-                         (from base.Referable)
-        :param description: Description or comments on the element. (from base.Referable)
-        :param parent: Reference to the next referable parent element of the element. (from base.Referable)
-        :param semantic_id: Identifier of the semantic definition of the element. It is called semantic id of the
-                            element. The semantic id may either reference an external global id or it may reference a
-                            referable model element of kind=Type that defines the semantics of the element.
-                            (from base.HasSemantics)
-        :param qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
-                          (from base.Qualifiable)
-        :param kind: Kind of the element: either type or instance. Default = Instance. (from base.HasKind)
-        :param extension: An extension of the element. (from base.HasExtension)
-
         TODO: Add instruction what to do after construction
         """
-
         super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, kind,
                          extension)
         self.value = base.OrderedNamespaceSet(self, [("id_short", False)], value)
@@ -738,6 +728,27 @@ class SubmodelElementCollectionOrderedUniqueSemanticId(SubmodelElementCollection
     """
     A SubmodelElementCollectionOrderedUniqueSemanticId is an ordered list of submodel elements where id_shorts and
     semantic_ids are unique.
+
+    :ivar id_short: Identifying string of the element within its name space. (inherited from
+                    :class:`~aas.model.base.Referable`)
+    :ivar value: Ordered or unordered list of :class:`SubmodelElements <.SubmodelElement>`
+    :ivar display_name: Can be provided in several languages. (inherited from :class:`~aas.model.base.Referable`)
+    :ivar category: The category is a value that gives further meta information w.r.t. to the class of the element.
+                     It affects the expected existence of attributes and the applicability of constraints.
+                     (inherited from :class:`~aas.model.base.Referable`)
+    :ivar description: Description or comments on the element. (inherited from :class:`~aas.model.base.Referable`)
+    :ivar parent: Reference to the next referable parent element of the element. (inherited from
+                  :class:`~aas.model.base.Referable`)
+    :ivar semantic_id: Identifier of the semantic definition of the element. It is called semantic id of the
+                       element. The semantic id may either reference an external global id or it may reference a
+                       referable model element of kind=Type that defines the semantics of the element.
+                       (inherited from :class:`~aas.model.base.HasSemantics`)
+    :ivar qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
+                     (from :class:`~aas.model.base.Qualifiable`)
+    :ivar kind: Kind of the element: Either `TYPE` or `INSTANCE`. Default is `INSTANCE`. (inherited from
+                :class:`aas.model.base.HasKind`)
+    :ivar extension: An extension of the element. (inherited from
+                     :class:`aas.model.base.HasExtension`)
     """
 
     def __init__(self,
@@ -752,25 +763,6 @@ class SubmodelElementCollectionOrderedUniqueSemanticId(SubmodelElementCollection
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE,
                  extension: Iterable[base.Extension] = ()):
         """
-        Initializer of SubmodelElementCollection
-
-        :param id_short: Identifying string of the element within its name space. (from base.Referable)
-        :param value: Ordered list of submodel elements.
-        :param display_name: Can be provided in several languages. (from base.Referable)
-        :param category: The category is a value that gives further meta information w.r.t. to the class of the element.
-                         It affects the expected existence of attributes and the applicability of constraints.
-                         (from base.Referable)
-        :param description: Description or comments on the element. (from base.Referable)
-        :param parent: Reference to the next referable parent element of the element. (from base.Referable)
-        :param semantic_id: Identifier of the semantic definition of the element. It is called semantic id of the
-                            element. The semantic id may either reference an external global id or it may reference a
-                            referable model element of kind=Type that defines the semantics of the element.
-                            (from base.HasSemantics)
-        :param qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
-                          (from base.Qualifiable)
-        :param kind: Kind of the element: either type or instance. Default = Instance. (from base.HasKind)
-        :param extension: An extension of the element. (from base.HasExtension)
-
         TODO: Add instruction what to do after construction
         """
 
@@ -786,6 +778,27 @@ class SubmodelElementCollectionOrderedUniqueSemanticId(SubmodelElementCollection
 class SubmodelElementCollectionUnordered(SubmodelElementCollection, base.UniqueIdShortNamespace):
     """
     A SubmodelElementCollectionOrdered is an unordered list of submodel elements where id_shorts are unique.
+
+    :ivar id_short: Identifying string of the element within its name space. (inherited from
+                    :class:`~aas.model.base.Referable`)
+    :ivar value: Ordered or unordered list of :class:`SubmodelElements <.SubmodelElement>`
+    :ivar display_name: Can be provided in several languages. (inherited from :class:`~aas.model.base.Referable`)
+    :ivar category: The category is a value that gives further meta information w.r.t. to the class of the element.
+                     It affects the expected existence of attributes and the applicability of constraints.
+                     (inherited from :class:`~aas.model.base.Referable`)
+    :ivar description: Description or comments on the element. (inherited from :class:`~aas.model.base.Referable`)
+    :ivar parent: Reference to the next referable parent element of the element. (inherited from
+                  :class:`~aas.model.base.Referable`)
+    :ivar semantic_id: Identifier of the semantic definition of the element. It is called semantic id of the
+                       element. The semantic id may either reference an external global id or it may reference a
+                       referable model element of kind=Type that defines the semantics of the element.
+                       (inherited from :class:`~aas.model.base.HasSemantics`)
+    :ivar qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
+                     (from :class:`~aas.model.base.Qualifiable`)
+    :ivar kind: Kind of the element: Either `TYPE` or `INSTANCE`. Default is `INSTANCE`. (inherited from
+                :class:`aas.model.base.HasKind`)
+    :ivar extension: An extension of the element. (inherited from
+                     :class:`aas.model.base.HasExtension`)
     """
 
     def __init__(self,
@@ -800,24 +813,7 @@ class SubmodelElementCollectionUnordered(SubmodelElementCollection, base.UniqueI
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE,
                  extension: Iterable[base.Extension] = ()):
         """
-        Initializer of SubmodelElementCollection
 
-        :param id_short: Identifying string of the element within its name space. (from base.Referable)
-        :param value: Unordered list of submodel elements.
-        :param display_name: Can be provided in several languages. (from base.Referable)
-        :param category: The category is a value that gives further meta information w.r.t. to the class of the element.
-                         It affects the expected existence of attributes and the applicability of constraints.
-                         (from base.Referable)
-        :param description: Description or comments on the element. (from base.Referable)
-        :param parent: Reference to the next referable parent element of the element. (from base.Referable)
-        :param semantic_id: Identifier of the semantic definition of the element. It is called semantic id of the
-                            element. The semantic id may either reference an external global id or it may reference a
-                            referable model element of kind=Type that defines the semantics of the element.
-                            (from base.HasSemantics)
-        :param qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
-                          (from base.Qualifiable)
-        :param kind: Kind of the element: either type or instance. Default = Instance. (from base.HasKind)
-        :param extension: An extension of the element. (from base.HasExtension)
 
         TODO: Add instruction what to do after construction
         """
@@ -838,6 +834,27 @@ class SubmodelElementCollectionUnorderedUniqueSemanticId(SubmodelElementCollecti
     """
     A SubmodelElementCollectionOrdered is an unordered list of submodel elements where where id_shorts and
     semanticIds are unique.
+
+    :ivar id_short: Identifying string of the element within its name space. (inherited from
+                    :class:`~aas.model.base.Referable`)
+    :ivar value: Ordered or unordered list of :class:`SubmodelElements <.SubmodelElement>`
+    :ivar display_name: Can be provided in several languages. (inherited from :class:`~aas.model.base.Referable`)
+    :ivar category: The category is a value that gives further meta information w.r.t. to the class of the element.
+                     It affects the expected existence of attributes and the applicability of constraints.
+                     (inherited from :class:`~aas.model.base.Referable`)
+    :ivar description: Description or comments on the element. (inherited from :class:`~aas.model.base.Referable`)
+    :ivar parent: Reference to the next referable parent element of the element. (inherited from
+                  :class:`~aas.model.base.Referable`)
+    :ivar semantic_id: Identifier of the semantic definition of the element. It is called semantic id of the
+                       element. The semantic id may either reference an external global id or it may reference a
+                       referable model element of kind=Type that defines the semantics of the element.
+                       (inherited from :class:`~aas.model.base.HasSemantics`)
+    :ivar qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
+                     (from :class:`~aas.model.base.Qualifiable`)
+    :ivar kind: Kind of the element: Either `TYPE` or `INSTANCE`. Default is `INSTANCE`. (inherited from
+                :class:`aas.model.base.HasKind`)
+    :ivar extension: An extension of the element. (inherited from
+                     :class:`aas.model.base.HasExtension`)
     """
 
     def __init__(self,
@@ -852,25 +869,6 @@ class SubmodelElementCollectionUnorderedUniqueSemanticId(SubmodelElementCollecti
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE,
                  extension: Iterable[base.Extension] = ()):
         """
-        Initializer of SubmodelElementCollection
-
-        :param id_short: Identifying string of the element within its name space. (from base.Referable)
-        :param value: Unordered list of submodel elements.
-        :param display_name: Can be provided in several languages. (from base.Referable)
-        :param category: The category is a value that gives further meta information w.r.t. to the class of the element.
-                         It affects the expected existence of attributes and the applicability of constraints.
-                         (from base.Referable)
-        :param description: Description or comments on the element. (from base.Referable)
-        :param parent: Reference to the next referable parent element of the element. (from base.Referable)
-        :param semantic_id: Identifier of the semantic definition of the element. It is called semantic id of the
-                            element. The semantic id may either reference an external global id or it may reference a
-                            referable model element of kind=Type that defines the semantics of the element.
-                            (from base.HasSemantics)
-        :param qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
-                          (from base.Qualifiable)
-        :param kind: Kind of the element: either type or instance. Default = Instance. (from base.HasKind)
-        :param extension: An extension of the element. (from base.HasExtension)
-
         TODO: Add instruction what to do after construction
         """
         super().__init__(id_short, (), display_name, category, description, parent, semantic_id, qualifier, kind,
@@ -884,13 +882,31 @@ class SubmodelElementCollectionUnorderedUniqueSemanticId(SubmodelElementCollecti
 
 class RelationshipElement(SubmodelElement):
     """
-    A relationship element is used to define a relationship between two referable elements.
+    A relationship element is used to define a relationship between two :class:`~aas.model.base.Referable` elements.
 
-    :ivar first: Reference to the first element in the relationship taking the role of the subject which have to be of
-                 class Referable.
-
-    :ivar second: Reference to the second element in the relationship taking the role of the object which have to be of
-                 class Referable.
+    :ivar id_short: Identifying string of the element within its name space. (inherited from
+                    :class:`~aas.model.base.Referable`)
+    :ivar first: Reference to the first element in the relationship taking the role of the subject which have to
+                 be of class Referable. (inherited from :class:`~.RelationshipElement`)
+    :ivar second: Reference to the second element in the relationship taking the role of the object which have to
+                  be of class Referable. (inherited from :class:`~.RelationshipElement`)
+    :ivar display_name: Can be provided in several languages. (inherited from :class:`~aas.model.base.Referable`)
+    :ivar category: The category is a value that gives further meta information w.r.t. to the class of the element.
+                     It affects the expected existence of attributes and the applicability of constraints.
+                     (inherited from :class:`~aas.model.base.Referable`)
+    :ivar description: Description or comments on the element. (inherited from :class:`~aas.model.base.Referable`)
+    :ivar parent: Reference to the next referable parent element of the element. (inherited from
+                  :class:`~aas.model.base.Referable`)
+    :ivar semantic_id: Identifier of the semantic definition of the element. It is called semantic id of the
+                       element. The semantic id may either reference an external global id or it may reference a
+                       referable model element of kind=Type that defines the semantics of the element.
+                       (inherited from :class:`~aas.model.base.HasSemantics`)
+    :ivar qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
+                     (from :class:`~aas.model.base.Qualifiable`)
+    :ivar kind: Kind of the element: Either `TYPE` or `INSTANCE`. Default is `INSTANCE`. (inherited from
+                :class:`aas.model.base.HasKind`)
+    :ivar extension: An extension of the element. (inherited from
+                     :class:`aas.model.base.HasExtension`)
     """
 
     def __init__(self,
@@ -906,28 +922,6 @@ class RelationshipElement(SubmodelElement):
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE,
                  extension: Iterable[base.Extension] = ()):
         """
-        Initializer of RelationshipElement
-
-        :param id_short: Identifying string of the element within its name space. (from base.Referable)
-        :param first: Reference to the first element in the relationship taking the role of the subject which have to
-                      be of class Referable.
-        :param second: Reference to the second element in the relationship taking the role of the object which have to
-                       be of class Referable.
-        :param display_name: Can be provided in several languages. (from base.Referable)
-        :param category: The category is a value that gives further meta information w.r.t. to the class of the element.
-                         It affects the expected existence of attributes and the applicability of constraints.
-                         (from base.Referable)
-        :param description: Description or comments on the element. (from base.Referable)
-        :param parent: Reference to the next referable parent element of the element. (from base.Referable)
-        :param semantic_id: Identifier of the semantic definition of the element. It is called semantic id of the
-                            element. The semantic id may either reference an external global id or it may reference a
-                            referable model element of kind=Type that defines the semantics of the element.
-                            (from base.HasSemantics)
-        :param qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
-                          (from base.Qualifiable)
-        :param kind: Kind of the element: either type or instance. Default = Instance. (from base.HasKind)
-        :param extension: An extension of the element. (from base.HasExtension)
-
         TODO: Add instruction what to do after construction
         """
 
@@ -938,9 +932,34 @@ class RelationshipElement(SubmodelElement):
 
 class AnnotatedRelationshipElement(RelationshipElement, base.UniqueIdShortNamespace):
     """
-    An annotated relationship element is a relationship element that can be annotated with additional data elements.
+    An annotated relationship element is a :class:`~.RelationshipElement` that can be annotated
+    with additional :class:`DataElements <.DataElement>`.
 
-    :ivar annotation: Unordered list of annotations that hold for the relationship between to elements
+    :ivar id_short: Identifying string of the element within its name space. (inherited from
+                    :class:`~aas.model.base.Referable`)
+    :ivar first: Reference to the first element in the relationship taking the role of the subject which have to
+                 be of class Referable. (inherited from :class:`~.RelationshipElement`)
+    :ivar second: Reference to the second element in the relationship taking the role of the object which have to
+                  be of class Referable. (inherited from :class:`~.RelationshipElement`)
+    :ivar annotation: Unordered list of :class:`DataElements <.DataElement>` that hold for the relationship between two
+                      elements
+    :ivar display_name: Can be provided in several languages. (inherited from :class:`~aas.model.base.Referable`)
+    :ivar category: The category is a value that gives further meta information w.r.t. to the class of the element.
+                     It affects the expected existence of attributes and the applicability of constraints.
+                     (inherited from :class:`~aas.model.base.Referable`)
+    :ivar description: Description or comments on the element. (inherited from :class:`~aas.model.base.Referable`)
+    :ivar parent: Reference to the next referable parent element of the element. (inherited from
+                  :class:`~aas.model.base.Referable`)
+    :ivar semantic_id: Identifier of the semantic definition of the element. It is called semantic id of the
+                       element. The semantic id may either reference an external global id or it may reference a
+                       referable model element of kind=Type that defines the semantics of the element.
+                       (inherited from :class:`~aas.model.base.HasSemantics`)
+    :ivar qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
+                     (from :class:`~aas.model.base.Qualifiable`)
+    :ivar kind: Kind of the element: Either `TYPE` or `INSTANCE`. Default is `INSTANCE`. (inherited from
+                :class:`aas.model.base.HasKind`)
+    :ivar extension: An extension of the element. (inherited from
+                     :class:`aas.model.base.HasExtension`)
     """
 
     def __init__(self,
@@ -957,25 +976,6 @@ class AnnotatedRelationshipElement(RelationshipElement, base.UniqueIdShortNamesp
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE,
                  extension: Iterable[base.Extension] = ()):
         """
-        Initializer of AnnotatedRelationshipElement
-
-        :param id_short: Identifying string of the element within its name space. (from base.Referable)
-        :param annotation: Unordered list of annotations that hold for the relationship between two elements
-        :param display_name: Can be provided in several languages. (from base.Referable)
-        :param category: The category is a value that gives further meta information w.r.t. to the class of the element.
-                         It affects the expected existence of attributes and the applicability of constraints.
-                         (from base.Referable)
-        :param description: Description or comments on the element. (from base.Referable)
-        :param parent: Reference to the next referable parent element of the element. (from base.Referable)
-        :param semantic_id: Identifier of the semantic definition of the element. It is called semantic id of the
-                            element. The semantic id may either reference an external global id or it may reference a
-                            referable model element of kind=Type that defines the semantics of the element.
-                            (from base.HasSemantics)
-        :param qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
-                          (from base.Qualifiable)
-        :param kind: Kind of the element: either type or instance. Default = Instance. (from base.HasKind)
-        :param extension: An extension of the element. (from base.HasExtension)
-
         TODO: Add instruction what to do after construction
         """
 
@@ -990,19 +990,16 @@ class AnnotatedRelationshipElement(RelationshipElement, base.UniqueIdShortNamesp
 
 class OperationVariable:
     """
-    An operation variable is a submodel element that is used as input or output variable of an operation.
+    An operation variable is part of an operation that is used to define an input or output variable of that operation.
 
-    :ivar value: Describes the needed argument for an operation via a submodel element of kind=Type.
-                 Constraint AASd-008: The submodel element value of an operation variable shall be of kind=Template.
+    *Constraint AASd-008:* The submodel element value of an operation variable shall be of kind=Template.
+
+    :ivar value: Describes the needed argument for an operation via a :class:`~.SubmodelElement` of `kind=TYPE`.
     """
 
     def __init__(self,
                  value: SubmodelElement):
         """
-        Initializer of OperationVariable
-
-        :param value: Describes the needed argument for an operation via a submodel element of kind=Type.
-
         TODO: Add instruction what to do after construction
         """
         # Constraint AASd-008: The submodel element shall be of kind=Template.
@@ -1025,11 +1022,31 @@ class OperationVariable:
 
 class Operation(SubmodelElement):
     """
-    An operation is a submodel element with input and output variables.
+    An operation is a :class:`~.SubmodelElement` with input and output variables.
 
-    :ivar input_variable: list of input parameters of the operation
-    :ivar output_variable: of output parameters of the operation
-    :ivar in_output_variable: of parameters that are input and output of the operation
+    :ivar id_short: Identifying string of the element within its name space. (inherited from
+                    :class:`~aas.model.base.Referable`)
+    :ivar input_variable: List of input parameters (:class:`OperationVariables <.OperationVariable>`) of the operation
+    :ivar output_variable: List of output parameters (:class:`OperationVariables <.OperationVariable>`) of the operation
+    :ivar in_output_variable: List of parameters (:class:`OperationVariables <.OperationVariable>`) that are input and
+                              output of the operation
+    :ivar display_name: Can be provided in several languages. (inherited from :class:`~aas.model.base.Referable`)
+    :ivar category: The category is a value that gives further meta information w.r.t. to the class of the element.
+                     It affects the expected existence of attributes and the applicability of constraints.
+                     (inherited from :class:`~aas.model.base.Referable`)
+    :ivar description: Description or comments on the element. (inherited from :class:`~aas.model.base.Referable`)
+    :ivar parent: Reference to the next referable parent element of the element. (inherited from
+                  :class:`~aas.model.base.Referable`)
+    :ivar semantic_id: Identifier of the semantic definition of the element. It is called semantic id of the
+                       element. The semantic id may either reference an external global id or it may reference a
+                       referable model element of kind=Type that defines the semantics of the element.
+                       (inherited from :class:`~aas.model.base.HasSemantics`)
+    :ivar qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
+                     (from :class:`~aas.model.base.Qualifiable`)
+    :ivar kind: Kind of the element: Either `TYPE` or `INSTANCE`. Default is `INSTANCE`. (inherited from
+                :class:`aas.model.base.HasKind`)
+    :ivar extension: An extension of the element. (inherited from
+                     :class:`aas.model.base.HasExtension`)
     """
     def __init__(self,
                  id_short: str,
@@ -1045,27 +1062,6 @@ class Operation(SubmodelElement):
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE,
                  extension: Iterable[base.Extension] = ()):
         """
-        Initializer of Operation
-
-        :param id_short: Identifying string of the element within its name space. (from base.Referable)
-        :param input_variable: list of input parameters of the operation
-        :param output_variable: list output parameters of the operation
-        :param in_output_variable: list of parameters that is input and output of the operation
-        :param display_name: Can be provided in several languages. (from base.Referable)
-        :param category: The category is a value that gives further meta information w.r.t. to the class of the element.
-                         It affects the expected existence of attributes and the applicability of constraints.
-                         (from base.Referable)
-        :param description: Description or comments on the element. (from base.Referable)
-        :param parent: Reference to the next referable parent element of the element. (from base.Referable)
-        :param semantic_id: Identifier of the semantic definition of the element. It is called semantic id of the
-                            element. The semantic id may either reference an external global id or it may reference a
-                            referable model element of kind=Type that defines the semantics of the element.
-                            (from base.HasSemantics)
-        :param qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
-                          (from base.Qualifiable)
-        :param kind: Kind of the element: either type or instance. Default = Instance. (from base.HasKind)
-        :param extension: An extension of the element. (from base.HasExtension)
-
         TODO: Add instruction what to do after construction
         """
 
@@ -1079,6 +1075,26 @@ class Capability(SubmodelElement):
     """
     A capability is the implementation-independent description of the potential of an asset to achieve a certain effect
     in the physical or virtual world
+
+    :ivar id_short: Identifying string of the element within its name space. (inherited from
+                    :class:`~aas.model.base.Referable`)
+    :ivar display_name: Can be provided in several languages. (inherited from :class:`~aas.model.base.Referable`)
+    :ivar category: The category is a value that gives further meta information w.r.t. to the class of the element.
+                    It affects the expected existence of attributes and the applicability of constraints.
+                    (inherited from :class:`~aas.model.base.Referable`)
+    :ivar description: Description or comments on the element. (inherited from :class:`~aas.model.base.Referable`)
+    :ivar parent: Reference to the next referable parent element of the element. (inherited from
+                  :class:`~aas.model.base.Referable`)
+    :ivar semantic_id: Identifier of the semantic definition of the element. It is called semantic id of the
+                       element. The semantic id may either reference an external global id or it may reference a
+                       referable model element of kind=Type that defines the semantics of the element.
+                       (inherited from :class:`~aas.model.base.HasSemantics`)
+    :ivar qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
+                     (from :class:`~aas.model.base.Qualifiable`)
+    :ivar kind: Kind of the element: Either `TYPE` or `INSTANCE`. Default is `INSTANCE`. (inherited from
+                :class:`aas.model.base.HasKind`)
+    :ivar extension: An extension of the element. (inherited from
+                     :class:`aas.model.base.HasExtension`)
     """
 
     def __init__(self,
@@ -1092,24 +1108,6 @@ class Capability(SubmodelElement):
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE,
                  extension: Iterable[base.Extension] = ()):
         """
-        Initializer of Capability
-
-        :param id_short: Identifying string of the element within its name space. (from base.Referable)
-        :param display_name: Can be provided in several languages. (from base.Referable)
-        :param category: The category is a value that gives further meta information w.r.t. to the class of the element.
-                         It affects the expected existence of attributes and the applicability of constraints.
-                         (from base.Referable)
-        :param description: Description or comments on the element. (from base.Referable)
-        :param parent: Reference to the next referable parent element of the element. (from base.Referable)
-        :param semantic_id: Identifier of the semantic definition of the element. It is called semantic id of the
-                            element. The semantic id may either reference an external global id or it may reference a
-                            referable model element of kind=Type that defines the semantics of the element.
-                            (from base.HasSemantics)
-        :param qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
-                          (from base.Qualifiable)
-        :param kind: Kind of the element: either type or instance. Default = Instance. (from base.HasKind)
-        :param extension: An extension of the element. (from base.HasExtension)
-
         TODO: Add instruction what to do after construction
         """
 
@@ -1118,13 +1116,42 @@ class Capability(SubmodelElement):
 
 class Entity(SubmodelElement, base.UniqueIdShortNamespace):
     """
-    An entity is a submodel element that is used to model entities
+    An entity is a :class:`~.SubmodelElement` that is used to model entities
 
+    *Constraint AASd-014:* The asset attribute must be set if :attr:`~.entity_type` is set to
+    :attr:`~.EntityType.SELF_MANAGED_ENTITY`. It is empty otherwise.
+
+    :ivar id_short: Identifying string of the element within its name space. (inherited from
+                    :class:`~aas.model.base.Referable`)
     :ivar entity_type: Describes whether the entity is a co-managed or a self-managed entity.
-    :ivar statement: Unordered list of statements applicable to the entity, typically with a qualified value.
-    :ivar asset: Reference to the asset the entity is representing.
-                 Constraint AASd-014: Either the attribute globalAssetId or specificAssetId of an Entity must be set if
-                 Entity/entityType is set to “SelfManagedEntity”. They are not existing otherwise.
+    :ivar statement: Unordered list of statements (:class:`SubmodelElements <.SubmodelElement>`) applicable to the
+                     entity, typically with a qualified value.
+    :ivar global_asset_id: :class:`~aas.model.base.Reference` to either an Asset object or a global reference to the
+                           asset the AAS is
+                           representing. This attribute is required as soon as the AAS is exchanged via partners
+                           in the life cycle of the asset. In a first phase of the life cycle the asset might not
+                           yet have a global id but already an internal identifier. The internal identifier would
+                           be modelled via “specificAssetId”.
+    :ivar specific_asset_id: :class:`~aas.model.base.Reference` to an identifier key value pair representing a specific
+                             identifier
+                             of the asset represented by the asset administration shell. See Constraint AASd-014
+    :ivar display_name: Can be provided in several languages. (inherited from :class:`~aas.model.base.Referable`)
+    :ivar category: The category is a value that gives further meta information w.r.t. to the class of the element.
+                     It affects the expected existence of attributes and the applicability of constraints.
+                     (inherited from :class:`~aas.model.base.Referable`)
+    :ivar description: Description or comments on the element. (inherited from :class:`~aas.model.base.Referable`)
+    :ivar parent: Reference to the next referable parent element of the element. (inherited from
+                  :class:`~aas.model.base.Referable`)
+    :ivar semantic_id: Identifier of the semantic definition of the element. It is called semantic id of the
+                       element. The semantic id may either reference an external global id or it may reference a
+                       referable model element of kind=Type that defines the semantics of the element.
+                       (inherited from :class:`~aas.model.base.HasSemantics`)
+    :ivar qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
+                     (from :class:`~aas.model.base.Qualifiable`)
+    :ivar kind: Kind of the element: Either `TYPE` or `INSTANCE`. Default is `INSTANCE`. (inherited from
+                :class:`aas.model.base.HasKind`)
+    :ivar extension: An extension of the element. (inherited from
+                     :class:`aas.model.base.HasExtension`)
     """
 
     def __init__(self,
@@ -1142,36 +1169,8 @@ class Entity(SubmodelElement, base.UniqueIdShortNamespace):
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE,
                  extension: Iterable[base.Extension] = ()):
         """
-        Initializer of Entity
-
-        :param id_short: Identifying string of the element within its name space. (from base.Referable)
-        :param entity_type: Describes whether the entity is a co-managed or a self-managed entity.
-        :param statement: Unordered list of statements applicable to the entity, typically with a qualified value.
-        :param global_asset_id: Reference to either an Asset object or a global reference to the asset the AAS is
-                                representing. This attribute is required as soon as the AAS is exchanged via partners
-                                in the life cycle of the asset. In a first phase of the life cycle the asset might not
-                                yet have a global id but already an internal identifier. The internal identifier would
-                                be modelled via “specificAssetId”.
-        :param specific_asset_id: Reference to an identifier key value pair representing a specific identifier
-                                  of the asset represented by the asset administration shell. See Constraint AASd-014
-        :param display_name: Can be provided in several languages. (from base.Referable)
-        :param category: The category is a value that gives further meta information w.r.t. to the class of the element.
-                         It affects the expected existence of attributes and the applicability of constraints.
-                         (from base.Referable)
-        :param description: Description or comments on the element. (from base.Referable)
-        :param parent: Reference to the next referable parent element of the element. (from base.Referable)
-        :param semantic_id: Identifier of the semantic definition of the element. It is called semantic id of the
-                            element. The semantic id may either reference an external global id or it may reference a
-                            referable model element of kind=Type that defines the semantics of the element.
-                            (from base.HasSemantics)
-        :param qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
-                          (from base.Qualifiable)
-        :param kind: Kind of the element: either type or instance. Default = Instance. (from base.HasKind)
-        :param extension: An extension of the element. (from base.HasExtension)
-
         TODO: Add instruction what to do after construction
         """
-
         super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, kind, extension)
         self.statement = base.NamespaceSet(self, [("id_short", True)], statement)
         self.specific_asset_id: Optional[base.IdentifierKeyValuePair] = specific_asset_id
@@ -1201,6 +1200,27 @@ class Entity(SubmodelElement, base.UniqueIdShortNamespace):
 class Event(SubmodelElement, metaclass=abc.ABCMeta):
     """
     An event
+    <<abstract>>
+
+    :ivar id_short: Identifying string of the element within its name space. (inherited from
+                    :class:`~aas.model.base.Referable`)
+    :ivar display_name: Can be provided in several languages. (inherited from :class:`~aas.model.base.Referable`)
+    :ivar category: The category is a value that gives further meta information w.r.t. to the class of the element.
+                     It affects the expected existence of attributes and the applicability of constraints.
+                     (inherited from :class:`~aas.model.base.Referable`)
+    :ivar description: Description or comments on the element. (inherited from :class:`~aas.model.base.Referable`)
+    :ivar parent: Reference to the next referable parent element of the element. (inherited from
+                  :class:`~aas.model.base.Referable`)
+    :ivar semantic_id: Identifier of the semantic definition of the element. It is called semantic id of the
+                       element. The semantic id may either reference an external global id or it may reference a
+                       referable model element of kind=Type that defines the semantics of the element.
+                       (inherited from :class:`~aas.model.base.HasSemantics`)
+    :ivar qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
+                     (from :class:`~aas.model.base.Qualifiable`)
+    :ivar kind: Kind of the element: Either `TYPE` or `INSTANCE`. Default is `INSTANCE`. (inherited from
+                :class:`aas.model.base.HasKind`)
+    :ivar extension: An extension of the element. (inherited from
+                     :class:`aas.model.base.HasExtension`)
     """
     @abc.abstractmethod
     def __init__(self,
@@ -1213,26 +1233,6 @@ class Event(SubmodelElement, metaclass=abc.ABCMeta):
                  qualifier: Iterable[base.Constraint] = (),
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE,
                  extension: Iterable[base.Extension] = ()):
-        """
-        Initializer of Event
-
-        :param id_short: Identifying string of the element within its name space. (from base.Referable)
-        :param display_name: Can be provided in several languages. (from base.Referable)
-        :param category: The category is a value that gives further meta information w.r.t. to the class of the element.
-                         It affects the expected existence of attributes and the applicability of constraints.
-                         (from base.Referable)
-        :param description: Description or comments on the element. (from base.Referable)
-        :param parent: Reference to the next referable parent element of the element. (from base.Referable)
-        :param semantic_id: Identifier of the semantic definition of the element. It is called semantic id of the
-                            element. The semantic id may either reference an external global id or it may reference a
-                            referable model element of kind=Type that defines the semantics of the element.
-                            (from base.HasSemantics)
-        :param qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
-                          (from base.Qualifiable)
-        :param kind: Kind of the element: either type or instance. Default = Instance. (from base.HasKind)
-        :param extension: An extension of the element. (from base.HasExtension)
-        """
-
         super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, kind, extension)
 
 
@@ -1240,7 +1240,26 @@ class BasicEvent(Event):
     """
     An event
 
-    :ivar observed: Reference to the data or other elements that are being observed
+    :ivar id_short: Identifying string of the element within its name space. (inherited from
+                    :class:`~aas.model.base.Referable`)
+    :ivar observed: :class:`~aas.model.base.AASReference` to the data or other elements that are being observed
+    :ivar display_name: Can be provided in several languages. (inherited from :class:`~aas.model.base.Referable`)
+    :ivar category: The category is a value that gives further meta information w.r.t. to the class of the element.
+                     It affects the expected existence of attributes and the applicability of constraints.
+                     (inherited from :class:`~aas.model.base.Referable`)
+    :ivar description: Description or comments on the element. (inherited from :class:`~aas.model.base.Referable`)
+    :ivar parent: Reference to the next referable parent element of the element. (inherited from
+                  :class:`~aas.model.base.Referable`)
+    :ivar semantic_id: Identifier of the semantic definition of the element. It is called semantic id of the
+                       element. The semantic id may either reference an external global id or it may reference a
+                       referable model element of kind=Type that defines the semantics of the element.
+                       (inherited from :class:`~aas.model.base.HasSemantics`)
+    :ivar qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
+                     (from :class:`~aas.model.base.Qualifiable`)
+    :ivar kind: Kind of the element: Either `TYPE` or `INSTANCE`. Default is `INSTANCE`. (inherited from
+                :class:`aas.model.base.HasKind`)
+    :ivar extension: An extension of the element. (inherited from
+                     :class:`aas.model.base.HasExtension`)
     """
 
     def __init__(self,
@@ -1255,25 +1274,6 @@ class BasicEvent(Event):
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE,
                  extension: Iterable[base.Extension] = ()):
         """
-        Initializer of BasicEvent
-
-        :param id_short: Identifying string of the element within its name space. (from base.Referable)
-        :param observed: Reference to the data or other elements that are being observed
-        :param display_name: Can be provided in several languages. (from base.Referable)
-        :param category: The category is a value that gives further meta information w.r.t. to the class of the element.
-                         It affects the expected existence of attributes and the applicability of constraints.
-                         (from base.Referable)
-        :param description: Description or comments on the element. (from base.Referable)
-        :param parent: Reference to the next referable parent element of the element. (from base.Referable)
-        :param semantic_id: Identifier of the semantic definition of the element. It is called semantic id of the
-                            element. The semantic id may either reference an external global id or it may reference a
-                            referable model element of kind=Type that defines the semantics of the element.
-                            (from base.HasSemantics)
-        :param qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
-                          (from base.Qualifiable)
-        :param kind: Kind of the element: either type or instance. Default = Instance. (from base.HasKind)
-        :param extension: An extension of the element. (from base.HasExtension)
-
         TODO: Add instruction what to do after construction
         """
 

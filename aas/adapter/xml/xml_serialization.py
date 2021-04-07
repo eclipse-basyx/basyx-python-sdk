@@ -9,13 +9,17 @@
 # "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
 # specific language governing permissions and limitations under the License.
 """
+.. _adapter.xml.xml_serialization:
+
 Module for serializing Asset Administration Shell data to the official XML format
 
 How to use:
-- For generating an XML-File from a model.registry.AbstractObjectStore, check out the function "write_aas_xml_file".
+
+- For generating an XML-File from a :class:`~aas.model.provider.AbstractObjectStore`, check out the function
+  :meth:`~aas.adapter.xml.xml_serialization.write_aas_xml_file`.
 - For serializing any object to an XML fragment, that fits the XML specification from 'Details of the
   Asset Administration Shell', chapter 5.4, check out `<your_object_class_name_here>_to_xml()`. These functions return
-  an xml.etree.ElementTree.Element object to be serialized into XML.
+  an :class:`xml.etree.ElementTree.Element` object to be serialized into XML.
 """
 
 from lxml import etree  # type: ignore
@@ -67,10 +71,10 @@ def _generate_element(name: str,
 
 def boolean_to_xml(obj: bool) -> str:
     """
-    serialize a boolean to XML
+    Serialize a boolean to XML
 
-    :param obj: boolean
-    :return: string in the XML accepted form
+    :param obj: Boolean (`True`, `False`)
+    :return: String in the XML accepted form (`'true'`, `'false'`)
     """
     if obj:
         return "true"
@@ -90,9 +94,9 @@ def abstract_classes_to_xml(tag: str, obj: object) -> etree.Element:
     If the object obj is inheriting from any abstract AAS class, this function adds all the serialized information of
     those abstract classes to the generated element.
 
-    :param tag: tag of the element
-    :param obj: an object of the AAS
-    :return: parent element with the serialized information from the abstract classes
+    :param tag: Tag of the element
+    :param obj: An object of the AAS
+    :return: Parent element with the serialized information from the abstract classes
     """
     elm = _generate_element(tag)
     if isinstance(obj, model.HasExtension):
@@ -129,6 +133,7 @@ def abstract_classes_to_xml(tag: str, obj: object) -> etree.Element:
         if obj.qualifier:
             et_qualifier = _generate_element(NS_AAS + "qualifiers")
             for qualifier in obj.qualifier:
+
                 if isinstance(qualifier, model.Qualifier):
                     et_qualifier.append(qualifier_to_xml(qualifier, tag=NS_AAS+"qualifier"))
             elm.append(et_qualifier)
@@ -159,11 +164,11 @@ def _value_to_xml(value: model.ValueDataType,
 
 def lang_string_set_to_xml(obj: model.LangStringSet, tag: str) -> etree.Element:
     """
-    serialization of objects of class LangStringSet to XML
+    Serialization of objects of class :class:`~aas.model.base.LangStringSet` to XML
 
-    :param obj: object of class LangStringSet
-    :param tag: tag name of the returned XML element (incl. namespace)
-    :return: serialized ElementTree object
+    :param obj: Object of class :class:`~aas.model.base.LangStringSet`
+    :param tag: Namespace+Tag name of the returned XML element.
+    :return: Serialized ElementTree object
     """
     et_lss = _generate_element(name=tag)
     for language in obj:
@@ -176,11 +181,11 @@ def lang_string_set_to_xml(obj: model.LangStringSet, tag: str) -> etree.Element:
 def administrative_information_to_xml(obj: model.AdministrativeInformation,
                                       tag: str = NS_AAS+"administration") -> etree.Element:
     """
-    serialization of objects of class AdministrativeInformation to XML
+    Serialization of objects of class :class:`~aas.model.base.AdministrativeInformation` to XML
 
-    :param obj: object of class AdministrativeInformation
-    :param tag: tag of the serialized element. default is "administration"
-    :return: serialized ElementTree object
+    :param obj: Object of class :class:`~aas.model.base.AdministrativeInformation`
+    :param tag: Namespace+Tag of the serialized element. Default is "aas:administration"
+    :return: Serialized ElementTree object
     """
     et_administration = _generate_element(tag)
     if obj.revision:
@@ -192,10 +197,10 @@ def administrative_information_to_xml(obj: model.AdministrativeInformation,
 
 def data_element_to_xml(obj: model.DataElement) -> etree.Element:
     """
-    serialization of objects of class DataElement to XML
+    Serialization of objects of class :class:`~aas.model.submodel.DataElement` to XML
 
-    :param obj: Object of class DataElement
-    :return: serialized ElementTree element
+    :param obj: Object of class :class:`~aas.model.submodel.DataElement`
+    :return: Serialized ElementTree element
     """
     if isinstance(obj, model.MultiLanguageProperty):
         return multi_language_property_to_xml(obj)
@@ -213,11 +218,11 @@ def data_element_to_xml(obj: model.DataElement) -> etree.Element:
 
 def reference_to_xml(obj: model.Reference, tag: str = NS_AAS+"reference") -> etree.Element:
     """
-    serialization of objects of class Reference to XML
+    Serialization of objects of class :class:`~aas.model.base.Reference` to XML
 
-    :param obj: object of class Reference
-    :param tag: tag of the returned element
-    :return: serialized ElementTree
+    :param obj: Object of class :class:`~aas.model.base.Reference`
+    :param tag: Namespace+Tag of the returned element. Default is "aas:reference"
+    :return: Serialized ElementTree
     """
     et_reference = _generate_element(tag)
     et_keys = _generate_element(name=NS_AAS + "keys")
@@ -232,11 +237,11 @@ def reference_to_xml(obj: model.Reference, tag: str = NS_AAS+"reference") -> etr
 
 def qualifier_to_xml(obj: model.Qualifier, tag: str = NS_AAS+"qualifier") -> etree.Element:
     """
-    serialization of objects of class Qualifier to XML
+    Serialization of objects of class :class:`~aas.model.base.Qualifier` to XML
 
-    :param obj: object of class Qualifier
-    :param tag: tag of the serialized ElementTree object, default is "qualifier"
-    :return: serialized ElementTreeObject
+    :param obj: Object of class :class:`~aas.model.base.Qualifier`
+    :param tag: Namespace+Tag of the serialized ElementTree object. Default is "aas:qualifier"
+    :return: Serialized ElementTreeObject
     """
     et_qualifier = abstract_classes_to_xml(tag, obj)
     if obj.value_id:
@@ -250,11 +255,11 @@ def qualifier_to_xml(obj: model.Qualifier, tag: str = NS_AAS+"qualifier") -> etr
 
 def extension_to_xml(obj: model.Extension, tag: str = NS_AAS+"extension") -> etree.Element:
     """
-    serialization of objects of class Extension to XML
+    Serialization of objects of class :class:`~aas.model.base.Extension` to XML
 
-    :param obj: object of class Extension
-    :param tag: tag of the serialized ElementTree object, default is "extension"
-    :return: serialized ElementTreeObject
+    :param obj: Object of class :class:`~aas.model.base.Extension`
+    :param tag: Namespace+Tag of the serialized ElementTree object. Default is "aas:extension"
+    :return: Serialized ElementTreeObject
     """
     et_extension = abstract_classes_to_xml(tag, obj)
     et_extension.append(_generate_element(NS_AAS + "name", text=obj.name))
@@ -272,14 +277,14 @@ def extension_to_xml(obj: model.Extension, tag: str = NS_AAS+"extension") -> etr
 def value_reference_pair_to_xml(obj: model.ValueReferencePair,
                                 tag: str = NS_AAS+"valueReferencePair") -> etree.Element:
     """
-    serialization of objects of class ValueReferencePair to XML
+    Serialization of objects of class :class:`~aas.model.base.ValueReferencePair` to XML
 
     todo: couldn't find it in the official schema, so guessing how to implement serialization
           check namespace, tag and correct serialization
 
-    :param obj: object of class ValueReferencePair
-    :param tag: tag of the serialized element, default is "valueReferencePair"
-    :return: serialized ElementTree object
+    :param obj: Object of class :class:`~aas.model.base.ValueReferencePair`
+    :param tag: Namespace+Tag of the serialized element. Default is "aas:valueReferencePair"
+    :return: Serialized ElementTree object
     """
     et_vrp = _generate_element(tag)
     et_vrp.append(_value_to_xml(obj.value, obj.value_type))
@@ -290,13 +295,13 @@ def value_reference_pair_to_xml(obj: model.ValueReferencePair,
 def value_list_to_xml(obj: model.ValueList,
                       tag: str = NS_AAS+"valueList") -> etree.Element:
     """
-    serialization of objects of class ValueList to XML
+    Serialization of objects of class :class:`~aas.model.base.ValueList` to XML
 
     todo: couldn't find it in the official schema, so guessing how to implement serialization
 
-    :param obj: object of class ValueList
-    :param tag: tag of the serialized element, default is "valueList"
-    :return: serialized ElementTree object
+    :param obj: Object of class :class:`~aas.model.base.ValueList`
+    :param tag: Namespace+Tag of the serialized element. Default is "aas:valueList"
+    :return: Serialized ElementTree object
     """
     et_value_list = _generate_element(tag)
     for aas_reference_pair in obj:
@@ -311,11 +316,11 @@ def value_list_to_xml(obj: model.ValueList,
 
 def view_to_xml(obj: model.View, tag: str = NS_AAS+"view") -> etree.Element:
     """
-    serialization of objects of class View to XML
+    Serialization of objects of class :class:`~aas.model.aas.View` to XML
 
-    :param obj: object of class View
-    :param tag: namespace+tag of the ElementTree object. default is "view"
-    :return: serialized ElementTree object
+    :param obj: object of class :class:`~aas.model.aas.View`
+    :param tag: Namespace+Tag of the ElementTree object. Default is "aas:view"
+    :return: Serialized ElementTree object
     """
     et_view = abstract_classes_to_xml(tag, obj)
     et_contained_elements = _generate_element(name=NS_AAS + "containedElements")
@@ -328,11 +333,11 @@ def view_to_xml(obj: model.View, tag: str = NS_AAS+"view") -> etree.Element:
 
 def asset_to_xml(obj: model.Asset, tag: str = NS_AAS+"asset") -> etree.Element:
     """
-    serialization of objects of class Asset to XML
+    Serialization of objects of class :class:`~aas.model.aas.Asset` to XML
 
-    :param obj: object of class Asset
-    :param tag: namespace+tag of the ElementTree object. default is "asset"
-    :return: serialized ElementTree object
+    :param obj: Object of class :class:`~aas.model.aas.Asset`
+    :param tag: Namespace+Tag of the ElementTree object. Default is "aas:asset"
+    :return: Serialized ElementTree object
     """
     et_asset = abstract_classes_to_xml(tag, obj)
     return et_asset
@@ -341,11 +346,11 @@ def asset_to_xml(obj: model.Asset, tag: str = NS_AAS+"asset") -> etree.Element:
 def identifier_key_value_pair_to_xml(obj: model.IdentifierKeyValuePair, tag: str = NS_AAS+"identifierKeyValuePair") \
         -> etree.Element:
     """
-    serialization of objects of class IdentifierKeyValuePair to XML
+    Serialization of objects of class :class:`~aas.model.base.IdentifierKeyValuePair` to XML
 
-    :param obj: object of class IdentifierKeyValuePair
-    :param tag: namespace+tag of the ElementTree object. default is "identifierKeyValuePair"
-    :return: serialized ElementTree object
+    :param obj: Object of class :class:`~aas.model.base.IdentifierKeyValuePair`
+    :param tag: Namespace+Tag of the ElementTree object. Default is "aas:identifierKeyValuePair"
+    :return: Serialized ElementTree object
     """
     et_asset_information = abstract_classes_to_xml(tag, obj)
     et_asset_information.append(reference_to_xml(obj.external_subject_id, NS_AAS + "externalSubjectId"))
@@ -357,11 +362,11 @@ def identifier_key_value_pair_to_xml(obj: model.IdentifierKeyValuePair, tag: str
 
 def asset_information_to_xml(obj: model.AssetInformation, tag: str = NS_AAS+"assetInformation") -> etree.Element:
     """
-    serialization of objects of class AssetInformation to XML
+    Serialization of objects of class :class:`~aas.model.aas.AssetInformation` to XML
 
-    :param obj: object of class AssetInformation
-    :param tag: namespace+tag of the ElementTree object. default is "assetInformation"
-    :return: serialized ElementTree object
+    :param obj: Object of class :class:`~aas.model.aas.AssetInformation`
+    :param tag: Namespace+Tag of the ElementTree object. Default is "aas:assetInformation"
+    :return: Serialized ElementTree object
     """
     et_asset_information = abstract_classes_to_xml(tag, obj)
     if obj.default_thumbnail:
@@ -386,11 +391,11 @@ def asset_information_to_xml(obj: model.AssetInformation, tag: str = NS_AAS+"ass
 def concept_description_to_xml(obj: model.ConceptDescription,
                                tag: str = NS_AAS+"conceptDescription") -> etree.Element:
     """
-    serialization of objects of class ConceptDescription to XML
+    Serialization of objects of class :class:`~aas.model.concept.ConceptDescription` to XML
 
-    :param obj: object of class ConceptDescription
-    :param tag: tag of the ElementTree object. default is "conceptDescription"
-    :return: serialized ElementTree object
+    :param obj: Object of class :class:`~aas.model.concept.ConceptDescription`
+    :param tag: Namespace+Tag of the ElementTree object. Default is "aas:conceptDescription"
+    :return: Serialized ElementTree object
     """
     et_concept_description = abstract_classes_to_xml(tag, obj)
     if isinstance(obj, model.concept.IEC61360ConceptDescription):
@@ -519,11 +524,11 @@ def _iec61360_concept_description_to_xml(obj: model.concept.IEC61360ConceptDescr
 def asset_administration_shell_to_xml(obj: model.AssetAdministrationShell,
                                       tag: str = NS_AAS+"assetAdministrationShell") -> etree.Element:
     """
-    serialization of objects of class AssetAdministrationShell to XML
+    Serialization of objects of class :class:`~aas.model.aas.AssetAdministrationShell` to XML
 
-    :param obj: object of class AssetAdministrationShell
-    :param tag: tag of the ElementTree object. default is "assetAdministrationShell"
-    :return: serialized ElementTree object
+    :param obj: Object of class :class:`~aas.model.aas.AssetAdministrationShell`
+    :param tag: Namespace+Tag of the ElementTree object. Default is "aas:assetAdministrationShell"
+    :return: Serialized ElementTree object
     """
     et_aas = abstract_classes_to_xml(tag, obj)
     if obj.security:
@@ -552,13 +557,13 @@ def asset_administration_shell_to_xml(obj: model.AssetAdministrationShell,
 def security_to_xml(obj: model.Security,
                     tag: str = NS_ABAC+"security") -> etree.Element:
     """
-    serialization of objects of class Security to XML
+    Serialization of objects of class :class:`~aas.model.security.Security` to XML
 
     todo: This is not yet implemented
 
-    :param obj: object of class Security
-    :param tag: tag of the serialized element (optional). Default is "security"
-    :return: serialized ElementTree object
+    :param obj: Object of class :class:`~aas.model.security.Security`
+    :param tag: Namespace+Tag of the serialized element (optional). Default is "aas:security"
+    :return: Serialized ElementTree object
     """
     return abstract_classes_to_xml(tag, obj)
 
@@ -570,10 +575,10 @@ def security_to_xml(obj: model.Security,
 
 def submodel_element_to_xml(obj: model.SubmodelElement) -> etree.Element:
     """
-    serialization of objects of class SubmodelElement to XML
+    Serialization of objects of class :class:`~aas.model.submodel.SubmodelElement` to XML
 
-    :param obj: object of class SubmodelElement
-    :return: serialized ElementTree object
+    :param obj: Object of class :class:`~aas.model.submodel.SubmodelElement`
+    :return: Serialized ElementTree object
     """
     if isinstance(obj, model.DataElement):
         return data_element_to_xml(obj)
@@ -596,11 +601,11 @@ def submodel_element_to_xml(obj: model.SubmodelElement) -> etree.Element:
 def submodel_to_xml(obj: model.Submodel,
                     tag: str = NS_AAS+"submodel") -> etree.Element:
     """
-    serialization of objects of class Submodel to XML
+    Serialization of objects of class :class:`~aas.model.submodel.Submodel` to XML
 
-    :param obj: object of class Submodel
-    :param tag: tag of the serialized element (optional). Default is "submodel"
-    :return: serialized ElementTree object
+    :param obj: Object of class :class:`~aas.model.submodel.Submodel`
+    :param tag: Namespace+Tag of the serialized element (optional). Default is "aas:submodel"
+    :return: Serialized ElementTree object
     """
     et_submodel = abstract_classes_to_xml(tag, obj)
     et_submodel_elements = _generate_element(NS_AAS + "submodelElements")
@@ -618,11 +623,11 @@ def submodel_to_xml(obj: model.Submodel,
 def property_to_xml(obj: model.Property,
                     tag: str = NS_AAS+"property") -> etree.Element:
     """
-    serialization of objects of class Property to XML
+    Serialization of objects of class :class:`~aas.model.submodel.Property` to XML
 
-    :param obj: object of class Property
-    :param tag: tag of the serialized element (optional), default is "property"
-    :return: serialized ElementTree object
+    :param obj: Object of class :class:`~aas.model.submodel.Property`
+    :param tag: Namespace+Tag of the serialized element (optional). Default is "aas:property"
+    :return: Serialized ElementTree object
     """
     et_property = abstract_classes_to_xml(tag, obj)
     if obj.value_id:
@@ -636,11 +641,11 @@ def property_to_xml(obj: model.Property,
 def multi_language_property_to_xml(obj: model.MultiLanguageProperty,
                                    tag: str = NS_AAS+"multiLanguageProperty") -> etree.Element:
     """
-    serialization of objects of class MultiLanguageProperty to XML
+    Serialization of objects of class :class:`~aas.model.submodel.MultiLanguageProperty` to XML
 
-    :param obj: object of class MultiLanguageProperty
-    :param tag: tag of the serialized element (optional), default is "multiLanguageProperty"
-    :return: serialized ElementTree object
+    :param obj: Object of class :class:`~aas.model.submodel.MultiLanguageProperty`
+    :param tag: Namespace+Tag of the serialized element (optional). Default is "aas:multiLanguageProperty"
+    :return: Serialized ElementTree object
     """
     et_multi_language_property = abstract_classes_to_xml(tag, obj)
     if obj.value_id:
@@ -653,11 +658,11 @@ def multi_language_property_to_xml(obj: model.MultiLanguageProperty,
 def range_to_xml(obj: model.Range,
                  tag: str = NS_AAS+"range") -> etree.Element:
     """
-    serialization of objects of class Range to XML
+    Serialization of objects of class :class:`~aas.model.submodel.Range` to XML
 
-    :param obj: object of class Range
-    :param tag: namespace+tag of the serialized element (optional), default is "range
-    :return: serialized ElementTree object
+    :param obj: Object of class :class:`~aas.model.submodel.Range`
+    :param tag: Namespace+Tag of the serialized element (optional). Default is "aas:range"
+    :return: Serialized ElementTree object
     """
     et_range = abstract_classes_to_xml(tag, obj)
     if obj.max is not None:
@@ -672,11 +677,11 @@ def range_to_xml(obj: model.Range,
 def blob_to_xml(obj: model.Blob,
                 tag: str = NS_AAS+"blob") -> etree.Element:
     """
-    serialization of objects of class Blob to XML
+    Serialization of objects of class :class:`~aas.model.submodel.Blob` to XML
 
-    :param obj: object of class Blob
-    :param tag: tag of the serialized element, default is "blob"
-    :return: serialized ElementTree object
+    :param obj: Object of class :class:`~aas.model.submodel.Blob`
+    :param tag: Namespace+Tag of the serialized element. Default is "blob"
+    :return: Serialized ElementTree object
     """
     et_blob = abstract_classes_to_xml(tag, obj)
     et_value = etree.Element(NS_AAS + "value")
@@ -690,11 +695,11 @@ def blob_to_xml(obj: model.Blob,
 def file_to_xml(obj: model.File,
                 tag: str = NS_AAS+"file") -> etree.Element:
     """
-    serialization of objects of class File to XML
+    Serialization of objects of class :class:`~aas.model.submodel.File` to XML
 
-    :param obj: object of class File
-    :param tag: tag of the serialized element, default is "file"
-    :return: serialized ElementTree object
+    :param obj: Object of class :class:`~aas.model.submodel.File`
+    :param tag: Namespace+Tag of the serialized element. Default is "aas:file"
+    :return: Serialized ElementTree object
     """
     et_file = abstract_classes_to_xml(tag, obj)
     if obj.value:
@@ -706,11 +711,11 @@ def file_to_xml(obj: model.File,
 def reference_element_to_xml(obj: model.ReferenceElement,
                              tag: str = NS_AAS+"referenceElement") -> etree.Element:
     """
-    serialization of objects of class ReferenceElement to XMl
+    Serialization of objects of class :class:`~aas.model.submodel.ReferenceElement` to XMl
 
-    :param obj: object of class ReferenceElement
-    :param tag: namespace+tag of the serialized element (optional), default is "referenceElement"
-    :return: serialized ElementTree object
+    :param obj: Object of class :class:`~aas.model.submodel.ReferenceElement`
+    :param tag: Namespace+Tag of the serialized element (optional). Default is "aas:referenceElement"
+    :return: Serialized ElementTree object
     """
     et_reference_element = abstract_classes_to_xml(tag, obj)
     if obj.value:
@@ -721,13 +726,13 @@ def reference_element_to_xml(obj: model.ReferenceElement,
 def submodel_element_collection_to_xml(obj: model.SubmodelElementCollection,
                                        tag: str = NS_AAS+"submodelElementCollection") -> etree.Element:
     """
-    serialization of objects of class SubmodelElementCollection to XML
+    Serialization of objects of class :class:`~aas.model.submodel.SubmodelElementCollection` to XML
 
     Note that we do not have parameter "allowDuplicates" in out implementation
 
-    :param obj: object of class SubmodelElementCollection
-    :param tag: namespace+tag of the serialized element (optional), default is "submodelElementCollection"
-    :return: serialized ElementTree object
+    :param obj: Object of class :class:`~aas.model.submodel.SubmodelElementCollection`
+    :param tag: Namespace+Tag of the serialized element (optional). Default is "aas:submodelElementCollection"
+    :return: Serialized ElementTree object
     """
     et_submodel_element_collection = abstract_classes_to_xml(tag, obj)
     # todo: remove wrapping submodelElement-tag, in accordance to future schema
@@ -747,11 +752,11 @@ def submodel_element_collection_to_xml(obj: model.SubmodelElementCollection,
 def relationship_element_to_xml(obj: model.RelationshipElement,
                                 tag: str = NS_AAS+"relationshipElement") -> etree.Element:
     """
-    serialization of objects of class RelationshipElement to XML
+    Serialization of objects of class :class:`~aas.model.submodel.RelationshipElement` to XML
 
-    :param obj: object of class RelationshipElement
-    :param tag: tag of the serialized element (optional), default is "relationshipElement"
-    :return: serialized ELementTree object
+    :param obj: Object of class :class:`~aas.model.submodel.RelationshipElement`
+    :param tag: Namespace+Tag of the serialized element (optional). Default is "aas:relationshipElement"
+    :return: Serialized ELementTree object
     """
     et_relationship_element = abstract_classes_to_xml(tag, obj)
     et_relationship_element.append(reference_to_xml(obj.first, NS_AAS+"first"))
@@ -762,11 +767,11 @@ def relationship_element_to_xml(obj: model.RelationshipElement,
 def annotated_relationship_element_to_xml(obj: model.AnnotatedRelationshipElement,
                                           tag: str = NS_AAS+"annotatedRelationshipElement") -> etree.Element:
     """
-    serialization of objects of class AnnotatedRelationshipElement to XML
+    Serialization of objects of class :class:`~aas.model.submodel.AnnotatedRelationshipElement` to XML
 
-    :param obj: object of class AnnotatedRelationshipElement
-    :param tag: tag of the serialized element (optional), default is "annotatedRelationshipElement
-    :return: serialized ElementTree object
+    :param obj: Object of class :class:`~aas.model.submodel.AnnotatedRelationshipElement`
+    :param tag: Namespace+Tag of the serialized element (optional): Default is "aas:annotatedRelationshipElement"
+    :return: Serialized ElementTree object
     """
     et_annotated_relationship_element = relationship_element_to_xml(obj, tag)
     et_annotations = _generate_element(name=NS_AAS+"annotations")
@@ -782,11 +787,11 @@ def annotated_relationship_element_to_xml(obj: model.AnnotatedRelationshipElemen
 def operation_variable_to_xml(obj: model.OperationVariable,
                               tag: str = NS_AAS+"operationVariable") -> etree.Element:
     """
-    serialization of objects of class OperationVariable to XML
+    Serialization of objects of class :class:`~aas.model.submodel.OperationVariable` to XML
 
-    :param obj: object of class OperationVariable
-    :param tag: tag of the serialized element (optional), default is "operationVariable"
-    :return: serialized ElementTree object
+    :param obj: Object of class :class:`~aas.model.submodel.OperationVariable`
+    :param tag: Namespace+Tag of the serialized element (optional). Default is "aas:operationVariable"
+    :return: Serialized ElementTree object
     """
     et_operation_variable = _generate_element(tag)
     et_value = _generate_element(NS_AAS+"value")
@@ -798,11 +803,11 @@ def operation_variable_to_xml(obj: model.OperationVariable,
 def operation_to_xml(obj: model.Operation,
                      tag: str = NS_AAS+"operation") -> etree.Element:
     """
-    serialization of objects of class Operation to XML
+    Serialization of objects of class :class:`~aas.model.submodel.Operation` to XML
 
-    :param obj: object of class Operation
-    :param tag: namespace+tag of the serialized element (optional), default is "operation"
-    :return: serialized ElementTree object
+    :param obj: Object of class :class:`~aas.model.submodel.Operation`
+    :param tag: Namespace+Tag of the serialized element (optional). Default is "aas:operation"
+    :return: Serialized ElementTree object
     """
     et_operation = abstract_classes_to_xml(tag, obj)
     if obj.in_output_variable:
@@ -820,11 +825,11 @@ def operation_to_xml(obj: model.Operation,
 def capability_to_xml(obj: model.Capability,
                       tag: str = NS_AAS+"capability") -> etree.Element:
     """
-    serialization of objects of class Capability to XML
+    Serialization of objects of class :class:`~aas.model.submodel.Capability` to XML
 
-    :param obj: object of class Capability
-    :param tag: tag of the serialized element, default is "capability"
-    :return: serialized ElementTree object
+    :param obj: Object of class :class:`~aas.model.submodel.Capability`
+    :param tag: Namespace+Tag of the serialized element, default is "aas:capability"
+    :return: Serialized ElementTree object
     """
     return abstract_classes_to_xml(tag, obj)
 
@@ -832,11 +837,11 @@ def capability_to_xml(obj: model.Capability,
 def entity_to_xml(obj: model.Entity,
                   tag: str = NS_AAS+"entity") -> etree.Element:
     """
-    serialization of objects of class Entity to XML
+    Serialization of objects of class :class:`~aas.model.submodel.Entity` to XML
 
-    :param obj: object of class Entity
-    :param tag: tag of the serialized element (optional), default is "entity"
-    :return: serialized ElementTree object
+    :param obj: Object of class :class:`~aas.model.submodel.Entity`
+    :param tag: Namespace+Tag of the serialized element (optional). Default is "aas:entity"
+    :return: Serialized ElementTree object
     """
     # todo: remove wrapping submodelElement, in accordance to future schemas
     et_entity = abstract_classes_to_xml(tag, obj)
@@ -858,11 +863,11 @@ def entity_to_xml(obj: model.Entity,
 def basic_event_to_xml(obj: model.BasicEvent,
                        tag: str = NS_AAS+"basicEvent") -> etree.Element:
     """
-    serialization of objects of class BasicEvent to XML
+    Serialization of objects of class :class:`~aas.model.submodel.BasicEvent` to XML
 
-    :param obj: object of class BasicEvent
-    :param tag: tag of the serialized element (optional), default is "basicEvent"
-    :return: serialized ElementTree object
+    :param obj: Object of class :class:`~aas.model.submodel.BasicEvent`
+    :param tag: Namespace+Tag of the serialized element (optional). Default is "aas.basicEvent"
+    :return: Serialized ElementTree object
     """
     et_basic_event = abstract_classes_to_xml(tag, obj)
     et_basic_event.append(reference_to_xml(obj.observed, NS_AAS+"observed"))
@@ -882,9 +887,9 @@ def write_aas_xml_file(file: IO,
     Administration Shell', chapter 5.4
 
     :param file: A file-like object to write the XML-serialized data to
-    :param data: ObjectStore which contains different objects of the AAS meta model which should be serialized to an
-                 XML file
-    :param kwargs: Additional keyword arguments to be passed to tree.write()
+    :param data: :class:`ObjectStore <aas.model.provider.AbstractObjectStore>` which contains different objects of the
+                 AAS meta model which should be serialized to an XML file
+    :param kwargs: Additional keyword arguments to be passed to `tree.write()`
     """
     # separate different kind of objects
     assets = []
