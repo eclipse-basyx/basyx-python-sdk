@@ -316,7 +316,7 @@ def create_example_submodel() -> model.Submodel:
     submodel_element_blob = model.Blob(
         id_short='ExampleBlob',
         mime_type='application/pdf',
-        value=bytearray(b'\x01\x02\x03\x04\x05'),
+        value=bytes(b'\x01\x02\x03\x04\x05'),
         category='PARAMETER',
         description={'en-us': 'Example Blob object',
                      'de': 'Beispiel Blob Element'},
