@@ -1111,7 +1111,11 @@ class Qualifiable(metaclass=abc.ABCMeta):
         """
         for ns_set in self.namespace_element_sets:
             if "type" in ns_set.get_attribute_name_list():
-                return ns_set.remove(("type", qualifier_type))
+                try:
+                    ns_set.remove(("type", qualifier_type))
+                    return
+                except KeyError:
+                    continue
         raise KeyError("Qualifier with type {} not found in this namespace".format(qualifier_type))
 
 
@@ -1272,7 +1276,11 @@ class UniqueIdShortNamespace(metaclass=abc.ABCMeta):
         """
         for ns_set in self.namespace_element_sets:
             if "id_short" in ns_set.get_attribute_name_list():
-                return ns_set.remove(("id_short", id_short))
+                try:
+                    ns_set.remove(("id_short", id_short))
+                    return
+                except KeyError:
+                    continue
         raise KeyError("Referable with id_short {} not found in this namespace".format(id_short))
 
     def __iter__(self) -> Iterator[Referable]:
@@ -1325,7 +1333,11 @@ class UniqueSemanticIdNamespace(metaclass=abc.ABCMeta):
         """
         for ns_set in self.namespace_element_sets:
             if "semantic_id" in ns_set.get_attribute_name_list():
-                return ns_set.remove(("semantic_id", semantic_id))
+                try:
+                    ns_set.remove(("semantic_id", semantic_id))
+                    return
+                except KeyError:
+                    continue
         raise KeyError("HasSemantics with semantic_id {} not found in this namespace".format(semantic_id))
 
 
