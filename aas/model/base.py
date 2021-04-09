@@ -420,7 +420,58 @@ class Identifier:
         return "Identifier({}={})".format(self.id_type.name, self.id)
 
 
-class HasExtension(metaclass=abc.ABCMeta):
+_NSO = TypeVar('_NSO', bound=Union["Referable", "Constraint", "HasSemantics", "HasExtension"])
+
+
+class Namespace(metaclass=abc.ABCMeta):
+    """
+    Abstract baseclass for all objects which form a Namespace to hold  objects and resolve them by their
+    specific attribute.
+
+    <<abstract>>
+
+    :ivar namespace_element_sets: List of :class:`NamespaceSets <aas.model.base.NamespaceSet>`
+    """
+    @abc.abstractmethod
+    def __init__(self) -> None:
+        self.namespace_element_sets: List[NamespaceSet] = []
+
+    def _get_object(self, object_type: type, attribute_name: str, attribute) -> _NSO:
+        """
+        Find an :class:`~._NSO` in this namespace by its attribute
+
+        :raises KeyError: If no such :class:`~._NSO` can be found
+        """
+        object_ = None
+        for ns_set in self.namespace_element_sets:
+            try:
+                object_ = ns_set.get_object_by_attribute(attribute_name, attribute)
+                break
+            except KeyError:
+                continue
+        if object_:
+            return object_
+        raise KeyError(f"{object_type.__name__} with {attribute_name} {attribute} not found in this "
+                       f"namespace")
+
+    def _remove_object(self, object_type: type, attribute_name: str, attribute) -> None:
+        """
+        Remove an :class:`~.Extension` from this namespace by its name
+
+        :raises KeyError: If no such :class:`~.Extension` can be found
+        """
+        for ns_set in self.namespace_element_sets:
+            if attribute_name in ns_set.get_attribute_name_list():
+                try:
+                    ns_set.remove((attribute_name, attribute))
+                    return
+                except KeyError:
+                    continue
+        raise KeyError(f"{object_type.__name__} with {attribute_name} {attribute} not found in this "
+                       f"namespace")
+
+
+class HasExtension(Namespace, metaclass=abc.ABCMeta):
     """
     Abstract baseclass for all objects which form a Namespace to hold Extension objects and resolve them by their
     name.
@@ -433,6 +484,8 @@ class HasExtension(metaclass=abc.ABCMeta):
 
     :ivar namespace_element_sets: List of :class:`NamespaceSets <aas.model.base.NamespaceSet>`
     :ivar extension: A :class:`~.NamespaceSet` of :class:`Extensions <.Extension>` of the element.
+    :ivar _MEMBER_OBJ_TYPE: :class:`_NSO <aas.model.base.Namespace>`
+    :ivar _ATTRIBUTE_NAME: Specific attribute name <aas.model.base.Namespace>`.
     """
     @abc.abstractmethod
     def __init__(self) -> None:
@@ -445,16 +498,7 @@ class HasExtension(metaclass=abc.ABCMeta):
 
         :raises KeyError: If no such :class:`~.Extension` can be found
         """
-        object_ = None
-        for ns_set in self.namespace_element_sets:
-            try:
-                object_ = ns_set.get_object_by_attribute("name", name)
-                break
-            except KeyError:
-                continue
-        if object_:
-            return object_
-        raise KeyError("Extension with name {} not found in this namespace".format(name))
+        return super()._get_object(HasExtension, "name", name)
 
     def remove_extension_by_name(self, name: str) -> None:
         """
@@ -462,10 +506,7 @@ class HasExtension(metaclass=abc.ABCMeta):
 
         :raises KeyError: If no such :class:`~.Extension` can be found
         """
-        for ns_set in self.namespace_element_sets:
-            if "name" in ns_set.get_attribute_name_list():
-                return ns_set.remove(("name", name))
-        raise KeyError("Extension with name {} not found in this namespace".format(name))
+        return super()._remove_object(HasExtension, "name", name)
 
 
 class Referable(HasExtension, metaclass=abc.ABCMeta):
@@ -722,7 +763,6 @@ class Referable(HasExtension, metaclass=abc.ABCMeta):
 
 
 _RT = TypeVar('_RT', bound=Referable)
-_NSO = TypeVar('_NSO', bound=Union[Referable, "Constraint", "HasSemantics"])
 
 
 class UnexpectedTypeError(TypeError):
@@ -1071,7 +1111,7 @@ class Constraint(metaclass=abc.ABCMeta):
         pass
 
 
-class Qualifiable(metaclass=abc.ABCMeta):
+class Qualifiable(Namespace, metaclass=abc.ABCMeta):
     """
     Abstract baseclass for all objects which form a Namespace to hold :class:`~.Qualifier` objects and resolve them by
     their type.
@@ -1092,16 +1132,7 @@ class Qualifiable(metaclass=abc.ABCMeta):
 
         :raises KeyError: If no such :class:`~.Qualifier` can be found
         """
-        object_ = None
-        for ns_set in self.namespace_element_sets:
-            try:
-                object_ = ns_set.get_object_by_attribute("type", qualifier_type)
-                break
-            except KeyError:
-                continue
-        if object_:
-            return object_
-        raise KeyError("Qualifier with type {} not found in this namespace".format(qualifier_type))
+        return super()._get_object(Qualifiable, "type", qualifier_type)
 
     def remove_qualifier_by_type(self, qualifier_type: QualifierType) -> None:
         """
@@ -1109,14 +1140,7 @@ class Qualifiable(metaclass=abc.ABCMeta):
 
         :raises KeyError: If no such :class:`~.Qualifier` can be found
         """
-        for ns_set in self.namespace_element_sets:
-            if "type" in ns_set.get_attribute_name_list():
-                try:
-                    ns_set.remove(("type", qualifier_type))
-                    return
-                except KeyError:
-                    continue
-        raise KeyError("Qualifier with type {} not found in this namespace".format(qualifier_type))
+        return super()._remove_object(Qualifiable, "type", qualifier_type)
 
 
 class Qualifier(Constraint, HasSemantics):
@@ -1232,7 +1256,7 @@ class ValueReferencePair:
 ValueList = Set[ValueReferencePair]
 
 
-class UniqueIdShortNamespace(metaclass=abc.ABCMeta):
+class UniqueIdShortNamespace(Namespace, metaclass=abc.ABCMeta):
     """
     Abstract baseclass for all objects which form a Namespace to hold Referable objects and resolve them by their
     id_short.
@@ -1256,16 +1280,7 @@ class UniqueIdShortNamespace(metaclass=abc.ABCMeta):
         :returns: :class:`~.Referable`
         :raises KeyError: If no such :class:`~.Referable` can be found
         """
-        object_ = None
-        for ns_set in self.namespace_element_sets:
-            try:
-                object_ = ns_set.get_object_by_attribute("id_short", id_short)
-                break
-            except KeyError:
-                continue
-        if object_:
-            return object_
-        raise KeyError("Referable with id_short {} not found in this namespace".format(id_short))
+        return super()._get_object(Referable, "id_short", id_short)
 
     def remove_referable(self, id_short: str) -> None:
         """
@@ -1274,14 +1289,7 @@ class UniqueIdShortNamespace(metaclass=abc.ABCMeta):
         :param id_short: id_short
         :raises KeyError: If no such Referable can be found
         """
-        for ns_set in self.namespace_element_sets:
-            if "id_short" in ns_set.get_attribute_name_list():
-                try:
-                    ns_set.remove(("id_short", id_short))
-                    return
-                except KeyError:
-                    continue
-        raise KeyError("Referable with id_short {} not found in this namespace".format(id_short))
+        return super()._remove_object(Referable, "id_short", id_short)
 
     def __iter__(self) -> Iterator[Referable]:
         namespace_set_list: List[NamespaceSet] = []
@@ -1294,7 +1302,7 @@ class UniqueIdShortNamespace(metaclass=abc.ABCMeta):
         return itertools.chain.from_iterable(namespace_set_list)
 
 
-class UniqueSemanticIdNamespace(metaclass=abc.ABCMeta):
+class UniqueSemanticIdNamespace(Namespace, metaclass=abc.ABCMeta):
     """
     Abstract baseclass for all objects which form a Namespace to hold HasSemantics objects and resolve them by their
     their semantic_id.
@@ -1314,16 +1322,7 @@ class UniqueSemanticIdNamespace(metaclass=abc.ABCMeta):
 
         :raises KeyError: If no such HasSemantics can be found
         """
-        object_ = None
-        for ns_set in self.namespace_element_sets:
-            try:
-                object_ = ns_set.get_object_by_attribute("semantic_id", semantic_id)
-                break
-            except KeyError:
-                continue
-        if object_:
-            return object_
-        raise KeyError("HasSemantics with semantic_id {} not found in this namespace".format(semantic_id))
+        return super()._get_object(HasSemantics, "semantic_id", semantic_id)
 
     def remove_object_by_semantic_id(self, semantic_id: Reference) -> None:
         """
@@ -1331,14 +1330,7 @@ class UniqueSemanticIdNamespace(metaclass=abc.ABCMeta):
 
         :raises KeyError: If no such HasSemantics can be found
         """
-        for ns_set in self.namespace_element_sets:
-            if "semantic_id" in ns_set.get_attribute_name_list():
-                try:
-                    ns_set.remove(("semantic_id", semantic_id))
-                    return
-                except KeyError:
-                    continue
-        raise KeyError("HasSemantics with semantic_id {} not found in this namespace".format(semantic_id))
+        return super()._remove_object(HasSemantics, "semantic_id", semantic_id)
 
 
 ATTRIBUTE_TYPES = Union[str, Reference, QualifierType]
