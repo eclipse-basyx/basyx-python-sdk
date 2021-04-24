@@ -142,17 +142,30 @@ def check_aas_example(file_path: str, state_manager: ComplianceToolStateManager)
     cp.title = "Test Title"
 
     checker2 = DataChecker(raise_immediately=False)
-    assert (isinstance(cp_new.created, datetime.datetime))
-    duration = cp_new.created - cp.created
-    checker2.check(duration.microseconds < 20, "created must be {}".format(cp.created), created=cp_new.created)
+    try:
+        assert(isinstance(cp_new.created, datetime.datetime))
+        checker2.check(isinstance(cp_new.created, datetime.datetime), "core property created must be of type datetime",
+                       created=type(cp_new.created))
+        duration = cp_new.created - cp.created
+        checker2.check(duration.microseconds < 20, "created must be {}".format(cp.created), created=cp_new.created)
+    except AssertionError:
+        checker2.check(isinstance(cp_new.created, datetime.datetime), "core property created must be of type datetime",
+                       created=type(cp_new.created))
+
     checker2.check(cp_new.creator == cp.creator, "creator must be {}".format(cp.creator), creator=cp_new.creator)
     checker2.check(cp_new.description == cp.description, "description must be {}".format(cp.description),
                    description=cp_new.description)
     checker2.check(cp_new.lastModifiedBy == cp.lastModifiedBy, "lastModifiedBy must be {}".format(cp.lastModifiedBy),
                    lastModifiedBy=cp_new.lastModifiedBy)
-    assert (isinstance(cp_new.modified, datetime.datetime))
-    duration = cp_new.modified - cp.modified
-    checker2.check(duration.microseconds < 20, "modified must be {}".format(cp.modified), modified=cp_new.modified)
+    try:
+        assert(isinstance(cp_new.modified, datetime.datetime))
+        checker2.check(isinstance(cp_new.modified, datetime.datetime), "modified bust be of type datetime",
+                       modified=type(cp_new.modified))
+        duration = cp_new.modified - cp.modified
+        checker2.check(duration.microseconds < 20, "modified must be {}".format(cp.modified), modified=cp_new.modified)
+    except AssertionError:
+        checker2.check(isinstance(cp_new.modified, datetime.datetime), "modified bust be of type datetime",
+                       modified=type(cp_new.modified))
     checker2.check(cp_new.revision == cp.revision, "revision must be {}".format(cp.revision), revision=cp_new.revision)
     checker2.check(cp_new.version == cp.version, "version must be {}".format(cp.version), version=cp_new.version)
     checker2.check(cp_new.title == cp.title, "title must be {}".format(cp.title), title=cp_new.title)
