@@ -152,6 +152,9 @@ class ReferableTest(unittest.TestCase):
         with self.assertRaises(ValueError) as cm:
             test_object.id_short = None
         self.assertEqual("The id_short for not identifiable elements is mandatory", str(cm.exception))
+        with self.assertRaises(ValueError) as cm:
+            test_object.id_short = "abc\n"
+        self.assertEqual("The id_short must contain only letters, digits and underscore", str(cm.exception))
 
     def test_id_short_constraint_aasd_001(self):
         test_object = ExampleIdentifiable()
