@@ -160,6 +160,11 @@ class ReferableTest(unittest.TestCase):
             test_object.id_short = ""
         self.assertEqual("id_short is not allowed to be an empty string (Constraint AASd-100)",
                          str(cm.exception))
+        with self.assertRaises(model.AASConstraintViolation) as cm:
+            test_object.id_short = "abc\n"
+        self.assertEqual(
+            "The id_short must contain only letters, digits and underscore (Constraint AASd-002)",
+            str(cm.exception))
 
     def test_representation(self):
         class DummyClass:
