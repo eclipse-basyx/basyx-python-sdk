@@ -38,13 +38,13 @@ paths:
           content:
             "application/json":
               schema:
-                $ref: "#/components/schemas/AASResult"
+                $ref: "#/components/schemas/AssetAdministrationShellResult"
         "404":
           description: AssetAdministrationShell not found
           content:
             "application/json":
               schema:
-                $ref: "#/components/schemas/AASResult"
+                $ref: "#/components/schemas/BaseResult"
       tags:
         - Asset Administration Shell Interface
   "/submodels/":
@@ -63,7 +63,7 @@ paths:
           content:
             "application/json":
               schema:
-                $ref: "#/components/schemas/ReferenceListResult"
+                $ref: "#/components/schemas/BaseResult"
       tags:
         - Asset Administration Shell Interface
     post:
@@ -93,19 +93,19 @@ paths:
           content:
             "application/json":
               schema:
-                $ref: "#/components/schemas/ReferenceResult"
+                $ref: "#/components/schemas/BaseResult"
         "409":
           description: Submodel-Reference already exists
           content:
             "application/json":
               schema:
-                $ref: "#/components/schemas/ReferenceResult"
+                $ref: "#/components/schemas/BaseResult"
         "422":
           description: Request body is not a Reference or not resolvable
           content:
             "application/json":
               schema:
-                $ref: "#/components/schemas/ReferenceResult"
+                $ref: "#/components/schemas/BaseResult"
       tags:
         - Asset Administration Shell Interface
   "/submodels/{submodel-identifier}/":
@@ -131,7 +131,7 @@ paths:
           content:
             "application/json":
               schema:
-                $ref: "#/components/schemas/ReferenceResult"
+                $ref: "#/components/schemas/BaseResult"
       tags:
         - Asset Administration Shell Interface
     delete:
@@ -168,7 +168,7 @@ paths:
           content:
             "application/json":
               schema:
-                $ref: "#/components/schemas/ViewListResult"
+                $ref: "#/components/schemas/BaseResult"
       tags:
         - Asset Administration Shell Interface
     post:
@@ -198,19 +198,19 @@ paths:
           content:
             "application/json":
               schema:
-                $ref: "#/components/schemas/ViewResult"
+                $ref: "#/components/schemas/BaseResult"
         "409":
           description: View with same idShort already exists
           content:
             "application/json":
               schema:
-                $ref: "#/components/schemas/ViewResult"
+                $ref: "#/components/schemas/BaseResult"
         "422":
           description: Request body is not a valid View
           content:
             "application/json":
               schema:
-                $ref: "#/components/schemas/ViewResult"
+                $ref: "#/components/schemas/BaseResult"
       tags:
         - Asset Administration Shell Interface
   "/views/{view-idShort}/":
@@ -236,7 +236,7 @@ paths:
           content:
             "application/json":
               schema:
-                $ref: "#/components/schemas/ViewResult"
+                $ref: "#/components/schemas/BaseResult"
       tags:
         - Asset Administration Shell Interface
     put:
@@ -272,19 +272,19 @@ paths:
           content:
             "application/json":
               schema:
-                $ref: "#/components/schemas/ViewResult"
+                $ref: "#/components/schemas/BaseResult"
         "409":
           description: idShort changed and new idShort already exists
           content:
             "application/json":
               schema:
-                $ref: "#/components/schemas/ViewResult"
+                $ref: "#/components/schemas/BaseResult"
         "422":
           description: Request body is not a valid View
           content:
             "application/json":
               schema:
-                $ref: "#/components/schemas/ViewResult"
+                $ref: "#/components/schemas/BaseResult"
       tags:
         - Asset Administration Shell Interface
     delete:
@@ -312,11 +312,9 @@ components:
       properties:
         success:
           type: boolean
-          readOnly: true
         error:
           type: object
           nullable: true
-          readOnly: true
           properties:
             type:
               enum:
@@ -334,20 +332,22 @@ components:
               type: string
         data:
           nullable: true
-          readOnly: true
-          type: object
-    AASResult:
+    AssetAdministrationShellResult:
       allOf:
         - $ref: "#/components/schemas/BaseResult"
         - properties:
             data:
               $ref: "#/components/schemas/StrippedAssetAdministrationShell"
+            error:
+              nullable: true
     ReferenceResult:
       allOf:
         - $ref: "#/components/schemas/BaseResult"
         - properties:
             data:
               $ref: "#/components/schemas/Reference"
+            error:
+              nullable: true
     ReferenceListResult:
       allOf:
         - $ref: "#/components/schemas/BaseResult"
@@ -356,12 +356,16 @@ components:
               type: array
               items:
                 $ref: "#/components/schemas/Reference"
+            error:
+              nullable: true
     ViewResult:
       allOf:
         - $ref: "#/components/schemas/BaseResult"
         - properties:
             data:
               $ref: "#/components/schemas/View"
+            error:
+              nullable: true
     ViewListResult:
       allOf:
         - $ref: "#/components/schemas/BaseResult"
@@ -370,18 +374,24 @@ components:
               type: array
               items:
                 $ref: "#/components/schemas/View"
+            error:
+              nullable: true
     SubmodelResult:
       allOf:
         - $ref: "#/components/schemas/BaseResult"
         - properties:
             data:
               $ref: "#/components/schemas/StrippedSubmodel"
+            error:
+              nullable: true
     SubmodelElementResult:
       allOf:
         - $ref: "#/components/schemas/BaseResult"
         - properties:
             data:
               $ref: "#/components/schemas/StrippedSubmodelElement"
+            error:
+              nullable: true
     SubmodelElementListResult:
       allOf:
         - $ref: "#/components/schemas/BaseResult"
@@ -390,12 +400,16 @@ components:
               type: array
               items:
                 $ref: "#/components/schemas/StrippedSubmodelElement"
+            error:
+              nullable: true
     ConstraintResult:
       allOf:
         - $ref: "#/components/schemas/BaseResult"
         - properties:
             data:
               $ref: "#/components/schemas/Constraint"
+            error:
+              nullable: true
     ConstraintListResult:
       allOf:
         - $ref: "#/components/schemas/BaseResult"
@@ -404,6 +418,8 @@ components:
               type: array
               items:
                 $ref: "#/components/schemas/Constraint"
+            error:
+              nullable: true
     StrippedAssetAdministrationShell:
       allOf:
         - $ref: "#/components/schemas/AssetAdministrationShell"

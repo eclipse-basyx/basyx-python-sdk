@@ -44,7 +44,7 @@ paths:
           content:
             "application/json":
               schema:
-                $ref: "#/components/schemas/SubmodelResult"
+                $ref: "#/components/schemas/BaseResult"
       tags:
         - Submodel Interface
   "/constraints/":
@@ -63,7 +63,7 @@ paths:
           content:
             "application/json":
               schema:
-                $ref: "#/components/schemas/ConstraintListResult"
+                $ref: "#/components/schemas/BaseResult"
       tags:
         - Submodel Interface
     post:
@@ -93,19 +93,19 @@ paths:
           content:
             "application/json":
               schema:
-                $ref: "#/components/schemas/ConstraintResult"
+                $ref: "#/components/schemas/BaseResult"
         "409":
           description: "When trying to add a qualifier: Qualifier with same type already exists"
           content:
             "application/json":
               schema:
-                $ref: "#/components/schemas/ConstraintResult"
+                $ref: "#/components/schemas/BaseResult"
         "422":
           description: Request body is not a valid Qualifier
           content:
             "application/json":
               schema:
-                $ref: "#/components/schemas/ConstraintResult"
+                $ref: "#/components/schemas/BaseResult"
       tags:
         - Submodel Interface
   "/constraints/{qualifier-type}/":
@@ -131,7 +131,7 @@ paths:
           content:
             "application/json":
               schema:
-                $ref: "#/components/schemas/ConstraintResult"
+                $ref: "#/components/schemas/BaseResult"
       tags:
         - Submodel Interface
     put:
@@ -167,19 +167,19 @@ paths:
           content:
             "application/json":
               schema:
-                $ref: "#/components/schemas/ConstraintResult"
+                $ref: "#/components/schemas/BaseResult"
         "409":
           description: type changed and new type already exists
           content:
             "application/json":
               schema:
-                $ref: "#/components/schemas/ConstraintResult"
+                $ref: "#/components/schemas/BaseResult"
         "422":
           description: Request body is not a valid Qualifier
           content:
             "application/json":
               schema:
-                $ref: "#/components/schemas/ConstraintResult"
+                $ref: "#/components/schemas/BaseResult"
       tags:
         - Submodel Interface
     delete:
@@ -216,7 +216,7 @@ paths:
           content:
             "application/json":
               schema:
-                $ref: "#/components/schemas/SubmodelElementListResult"
+                $ref: "#/components/schemas/BaseResult"
       tags:
         - Submodel Interface
     post:
@@ -246,19 +246,19 @@ paths:
           content:
             "application/json":
               schema:
-                $ref: "#/components/schemas/SubmodelElementResult"
+                $ref: "#/components/schemas/BaseResult"
         "409":
           description: SubmodelElement with same idShort already exists
           content:
             "application/json":
               schema:
-                $ref: "#/components/schemas/SubmodelElementResult"
+                $ref: "#/components/schemas/BaseResult"
         "422":
           description: Request body is not a valid SubmodelElement
           content:
             "application/json":
               schema:
-                $ref: "#/components/schemas/SubmodelElementResult"
+                $ref: "#/components/schemas/BaseResult"
       tags:
         - Submodel Interface
   "/{idShort-path}/":
@@ -284,7 +284,7 @@ paths:
           content:
             "application/json":
               schema:
-                $ref: "#/components/schemas/SubmodelElementListResult"
+                $ref: "#/components/schemas/BaseResult"
       tags:
         - Submodel Interface
     put:
@@ -320,19 +320,19 @@ paths:
           content:
             "application/json":
               schema:
-                $ref: "#/components/schemas/SubmodelElementResult"
+                $ref: "#/components/schemas/BaseResult"
         "409":
           description: idShort changed and new idShort already exists
           content:
             "application/json":
               schema:
-                $ref: "#/components/schemas/SubmodelElementResult"
+                $ref: "#/components/schemas/BaseResult"
         "422":
           description: Request body is not a valid SubmodelElement **or** the type of the new SubmodelElement differs from the existing one
           content:
             "application/json":
               schema:
-                $ref: "#/components/schemas/SubmodelElementResult"
+                $ref: "#/components/schemas/BaseResult"
       tags:
         - Submodel Interface
     delete:
@@ -370,19 +370,19 @@ paths:
           content:
             "application/json":
               schema:
-                $ref: "#/components/schemas/SubmodelElementListResult"
+                $ref: "#/components/schemas/BaseResult"
         "400":
           description: SubmodelElement exists, but is not a SubmodelElementCollection, so /value is not possible
           content:
             "application/json":
               schema:
-                $ref: "#/components/schemas/SubmodelElementListResult"
+                $ref: "#/components/schemas/BaseResult"
         "404":
           description: Submodel or any SubmodelElement referred by idShort-path not found
           content:
             "application/json":
               schema:
-                $ref: "#/components/schemas/SubmodelElementListResult"
+                $ref: "#/components/schemas/BaseResult"
       tags:
         - Submodel Interface
     post:
@@ -412,25 +412,25 @@ paths:
           content:
             "application/json":
               schema:
-                $ref: "#/components/schemas/SubmodelElementResult"
+                $ref: "#/components/schemas/BaseResult"
         "404":
           description: Submodel or any SubmodelElement referred by idShort-path not found
           content:
             "application/json":
               schema:
-                $ref: "#/components/schemas/SubmodelElementResult"
+                $ref: "#/components/schemas/BaseResult"
         "409":
           description: SubmodelElement with same idShort already exists
           content:
             "application/json":
               schema:
-                $ref: "#/components/schemas/SubmodelElementResult"
+                $ref: "#/components/schemas/BaseResult"
         "422":
           description: Request body is not a valid SubmodelElement
           content:
             "application/json":
               schema:
-                $ref: "#/components/schemas/SubmodelElementResult"
+                $ref: "#/components/schemas/BaseResult"
       tags:
         - Submodel Interface
   "/{idShort-path}/annotation/":
@@ -456,13 +456,13 @@ paths:
           content:
             "application/json":
               schema:
-                $ref: "#/components/schemas/SubmodelElementListResult"
+                $ref: "#/components/schemas/BaseResult"
         "404":
           description: Submodel or any SubmodelElement referred by idShort-path not found
           content:
             "application/json":
               schema:
-                $ref: "#/components/schemas/SubmodelElementListResult"
+                $ref: "#/components/schemas/BaseResult"
       tags:
         - Submodel Interface
     post:
@@ -492,25 +492,25 @@ paths:
           content:
             "application/json":
               schema:
-                $ref: "#/components/schemas/SubmodelElementResult"
+                $ref: "#/components/schemas/BaseResult"
         "404":
           description: Submodel or any SubmodelElement referred by idShort-path not found
           content:
             "application/json":
               schema:
-                $ref: "#/components/schemas/SubmodelElementResult"
+                $ref: "#/components/schemas/BaseResult"
         "409":
           description: SubmodelElement with given idShort already exists
           content:
             "application/json":
               schema:
-                $ref: "#/components/schemas/SubmodelElementResult"
+                $ref: "#/components/schemas/BaseResult"
         "422":
           description: Request body is not a valid SubmodelElement
           content:
             "application/json":
               schema:
-                $ref: "#/components/schemas/SubmodelElementResult"
+                $ref: "#/components/schemas/BaseResult"
       tags:
         - Submodel Interface
   "/{idShort-path}/statement/":
@@ -536,13 +536,13 @@ paths:
           content:
             "application/json":
               schema:
-                $ref: "#/components/schemas/SubmodelElementListResult"
+                $ref: "#/components/schemas/BaseResult"
         "404":
           description: Submodel or any SubmodelElement referred by idShort-path not found
           content:
             "application/json":
               schema:
-                $ref: "#/components/schemas/SubmodelElementListResult"
+                $ref: "#/components/schemas/BaseResult"
       tags:
         - Submodel Interface
     post:
@@ -572,25 +572,25 @@ paths:
           content:
             "application/json":
               schema:
-                $ref: "#/components/schemas/SubmodelElementResult"
+                $ref: "#/components/schemas/BaseResult"
         "404":
           description: Submodel or any SubmodelElement referred by idShort-path not found
           content:
             "application/json":
               schema:
-                $ref: "#/components/schemas/SubmodelElementResult"
+                $ref: "#/components/schemas/BaseResult"
         "409":
           description: SubmodelElement with same idShort already exists
           content:
             "application/json":
               schema:
-                $ref: "#/components/schemas/SubmodelElementResult"
+                $ref: "#/components/schemas/BaseResult"
         "422":
           description: Request body is not a valid SubmodelElement
           content:
             "application/json":
               schema:
-                $ref: "#/components/schemas/SubmodelElementResult"
+                $ref: "#/components/schemas/BaseResult"
       tags:
         - Submodel Interface
   "/{idShort-path}/constraints/":
@@ -616,7 +616,7 @@ paths:
           content:
             "application/json":
               schema:
-                $ref: "#/components/schemas/ConstraintListResult"
+                $ref: "#/components/schemas/BaseResult"
       tags:
         - Submodel Interface
     post:
@@ -646,19 +646,19 @@ paths:
           content:
             "application/json":
               schema:
-                $ref: "#/components/schemas/ConstraintResult"
+                $ref: "#/components/schemas/BaseResult"
         "409":
           description: "When trying to add a qualifier: Qualifier with specified type already exists"
           content:
             "application/json":
               schema:
-                $ref: "#/components/schemas/ConstraintResult"
+                $ref: "#/components/schemas/BaseResult"
         "422":
           description: Request body is not a valid Qualifier
           content:
             "application/json":
               schema:
-                $ref: "#/components/schemas/ConstraintResult"
+                $ref: "#/components/schemas/BaseResult"
       tags:
         - Submodel Interface
   "/{idShort-path}/constraints/{qualifier-type}/":
@@ -690,7 +690,7 @@ paths:
           content:
             "application/json":
               schema:
-                $ref: "#/components/schemas/ConstraintResult"
+                $ref: "#/components/schemas/BaseResult"
       tags:
         - Submodel Interface
     put:
@@ -726,19 +726,19 @@ paths:
           content:
             "application/json":
               schema:
-                $ref: "#/components/schemas/ConstraintResult"
+                $ref: "#/components/schemas/BaseResult"
         "409":
           description: type changed and new type already exists
           content:
             "application/json":
               schema:
-                $ref: "#/components/schemas/ConstraintResult"
+                $ref: "#/components/schemas/BaseResult"
         "422":
           description: Request body is not a valid Qualifier
           content:
             "application/json":
               schema:
-                $ref: "#/components/schemas/ConstraintResult"
+                $ref: "#/components/schemas/BaseResult"
       tags:
         - Submodel Interface
     delete:
@@ -766,11 +766,9 @@ components:
       properties:
         success:
           type: boolean
-          readOnly: true
         error:
           type: object
           nullable: true
-          readOnly: true
           properties:
             type:
               enum:
@@ -788,20 +786,22 @@ components:
               type: string
         data:
           nullable: true
-          readOnly: true
-          type: object
-    AASResult:
+    AssetAdministrationShellResult:
       allOf:
         - $ref: "#/components/schemas/BaseResult"
         - properties:
             data:
               $ref: "#/components/schemas/StrippedAssetAdministrationShell"
+            error:
+              nullable: true
     ReferenceResult:
       allOf:
         - $ref: "#/components/schemas/BaseResult"
         - properties:
             data:
               $ref: "#/components/schemas/Reference"
+            error:
+              nullable: true
     ReferenceListResult:
       allOf:
         - $ref: "#/components/schemas/BaseResult"
@@ -810,12 +810,16 @@ components:
               type: array
               items:
                 $ref: "#/components/schemas/Reference"
+            error:
+              nullable: true
     ViewResult:
       allOf:
         - $ref: "#/components/schemas/BaseResult"
         - properties:
             data:
               $ref: "#/components/schemas/View"
+            error:
+              nullable: true
     ViewListResult:
       allOf:
         - $ref: "#/components/schemas/BaseResult"
@@ -824,18 +828,24 @@ components:
               type: array
               items:
                 $ref: "#/components/schemas/View"
+            error:
+              nullable: true
     SubmodelResult:
       allOf:
         - $ref: "#/components/schemas/BaseResult"
         - properties:
             data:
               $ref: "#/components/schemas/StrippedSubmodel"
+            error:
+              nullable: true
     SubmodelElementResult:
       allOf:
         - $ref: "#/components/schemas/BaseResult"
         - properties:
             data:
               $ref: "#/components/schemas/StrippedSubmodelElement"
+            error:
+              nullable: true
     SubmodelElementListResult:
       allOf:
         - $ref: "#/components/schemas/BaseResult"
@@ -844,12 +854,16 @@ components:
               type: array
               items:
                 $ref: "#/components/schemas/StrippedSubmodelElement"
+            error:
+              nullable: true
     ConstraintResult:
       allOf:
         - $ref: "#/components/schemas/BaseResult"
         - properties:
             data:
               $ref: "#/components/schemas/Constraint"
+            error:
+              nullable: true
     ConstraintListResult:
       allOf:
         - $ref: "#/components/schemas/BaseResult"
@@ -858,6 +872,8 @@ components:
               type: array
               items:
                 $ref: "#/components/schemas/Constraint"
+            error:
+              nullable: true
     StrippedAssetAdministrationShell:
       allOf:
         - $ref: "#/components/schemas/AssetAdministrationShell"
