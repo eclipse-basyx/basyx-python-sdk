@@ -266,7 +266,8 @@ def parse_request_body(request: Request, expect_type: Type[T]) -> T:
             as e:
         raise UnprocessableEntity(str(e)) from e
 
-    assert isinstance(rv, expect_type)
+    if not isinstance(rv, expect_type):
+        raise UnprocessableEntity(f"Object {rv!r} is not of type {expect_type.__name__}!")
     return rv
 
 
