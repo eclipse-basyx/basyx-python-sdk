@@ -558,7 +558,7 @@ class WSGIApp:
         aas = self._get_obj_ts(aas_identifier, model.AssetAdministrationShell)
         aas.update()
         view = parse_request_body(request, model.View)
-        if view.id_short in aas.view:
+        if ("id_short", view.id_short) in aas.view:
             raise Conflict(f"View with id_short {view.id_short} already exists!")
         aas.view.add(view)
         aas.commit()
@@ -604,7 +604,7 @@ class WSGIApp:
         aas = self._get_obj_ts(url_args["aas_id"], model.AssetAdministrationShell)
         aas.update()
         view_idshort = url_args["view_idshort"]
-        if view_idshort not in aas.view:
+        if ("id_short", view_idshort) not in aas.view:
             raise NotFound(f"No view with id_short {view_idshort} found!")
         aas.view.remove(view_idshort)
         return response_t(Result(None))
@@ -630,7 +630,7 @@ class WSGIApp:
         # TODO: remove the following type: ignore comments when mypy supports abstract types for Type[T]
         # see https://github.com/python/mypy/issues/5374
         submodel_element = parse_request_body(request, model.SubmodelElement)  # type: ignore
-        if submodel_element.id_short in submodel.submodel_element:
+        if ("id_short", submodel_element.id_short) in submodel.submodel_element:
             raise Conflict(f"Submodel element with id_short {submodel_element.id_short} already exists!")
         submodel.submodel_element.add(submodel_element)
         submodel.commit()
@@ -740,7 +740,6 @@ class WSGIApp:
             raise UnprocessableEntity(f"Type of new qualifier {new_qualifier} doesn't not match "
                                       f"the current submodel element {qualifier}")
         qualifier_type_changed = qualifier_type != new_qualifier.type
-        # TODO: have to pass a tuple to __contains__ here. can't this be simplified?
         if qualifier_type_changed and ("type", new_qualifier.type) in sm_or_se.qualifier:
             raise Conflict(f"A qualifier of type {new_qualifier.type} already exists for {sm_or_se}")
         sm_or_se.remove_qualifier_by_type(qualifier.type)
@@ -798,7 +797,7 @@ class WSGIApp:
             if not isinstance(submodel_element, type_):
                 raise UnprocessableEntity(f"Submodel element {submodel_element} is not a(n) {type_.__name__}!")
             new_submodel_element = parse_request_body(request, request_body_type)
-            if new_submodel_element.id_short in getattr(submodel_element, attr):
+            if ("id_short", new_submodel_element.id_short) in getattr(submodel_element, attr):
                 raise Conflict(f"Submodel element with id_short {new_submodel_element.id_short} already exists!")
             getattr(submodel_element, attr).add(new_submodel_element)
             submodel_element.commit()
