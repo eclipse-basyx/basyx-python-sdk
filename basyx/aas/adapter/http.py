@@ -253,11 +253,17 @@ def parse_request_body(request: Request, expect_type: Type[T]) -> T:
             if expect_type is model.AASReference:
                 rv = StrictStrippedAASFromJsonDecoder._construct_aas_reference(rv, model.Submodel)
         else:
-            xml_data = io.BytesIO(request.get_data())
-            rv = read_aas_xml_element(xml_data, type_constructables_map[expect_type], stripped=True, failsafe=False)
-    except (KeyError, ValueError, TypeError, json.JSONDecodeError, etree.XMLSyntaxError) as e:
-        while e.__cause__ is not None:
-            e = e.__cause__
+            try:
+                xml_data = io.BytesIO(request.get_data())
+                rv = read_aas_xml_element(xml_data, type_constructables_map[expect_type], stripped=True, failsafe=False)
+            except (KeyError, ValueError) as e:
+                # xml deserialization creates an error chain. since we only return one error, return the root cause
+                f = e
+                while f.__cause__ is not None:
+                    f = f.__cause__
+                raise f from e
+    except (KeyError, ValueError, TypeError, json.JSONDecodeError, etree.XMLSyntaxError, model.AASConstraintViolation) \
+            as e:
         raise UnprocessableEntity(str(e)) from e
 
     assert isinstance(rv, expect_type)
