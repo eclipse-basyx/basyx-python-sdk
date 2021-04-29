@@ -327,26 +327,26 @@ class WSGIApp:
                     Submount("/submodels", [
                         Rule("/", methods=["GET"], endpoint=self.get_aas_submodel_refs),
                         Rule("/", methods=["POST"], endpoint=self.post_aas_submodel_refs),
-                        Rule("/<identifier:sm_id>", methods=["GET"],
+                        Rule("/<identifier:sm_id>/", methods=["GET"],
                              endpoint=self.get_aas_submodel_refs_specific),
-                        Rule("/<identifier:sm_id>", methods=["DELETE"],
+                        Rule("/<identifier:sm_id>/", methods=["DELETE"],
                              endpoint=self.delete_aas_submodel_refs_specific)
                     ]),
                     Submount("/views", [
                         Rule("/", methods=["GET"], endpoint=self.get_aas_views),
                         Rule("/", methods=["POST"], endpoint=self.post_aas_views),
-                        Rule("/<string:view_idshort>", methods=["GET"],
+                        Rule("/<string:view_idshort>/", methods=["GET"],
                              endpoint=self.get_aas_views_specific),
-                        Rule("/<string:view_idshort>", methods=["PUT"],
+                        Rule("/<string:view_idshort>/", methods=["PUT"],
                              endpoint=self.put_aas_views_specific),
-                        Rule("/<string:view_idshort>", methods=["DELETE"],
+                        Rule("/<string:view_idshort>/", methods=["DELETE"],
                              endpoint=self.delete_aas_views_specific)
                     ])
                 ]),
                 Submount("/submodels/<identifier:submodel_id>", [
                     Rule("/", methods=["GET"], endpoint=self.get_submodel),
-                    Rule("/submodelElements", methods=["GET"], endpoint=self.get_submodel_submodel_elements),
-                    Rule("/submodelElements", methods=["POST"], endpoint=self.post_submodel_submodel_elements),
+                    Rule("/submodelElements/", methods=["GET"], endpoint=self.get_submodel_submodel_elements),
+                    Rule("/submodelElements/", methods=["POST"], endpoint=self.post_submodel_submodel_elements),
                     Submount("/<id_short_path:id_shorts>", [
                         Rule("/", methods=["GET"],
                              endpoint=self.get_submodel_submodel_elements_specific_nested),
@@ -356,49 +356,52 @@ class WSGIApp:
                              endpoint=self.delete_submodel_submodel_elements_specific_nested),
                         # TODO: remove the following type: ignore comments when mypy supports abstract types for Type[T]
                         # see https://github.com/python/mypy/issues/5374
-                        Rule("/values", methods=["GET"],
+                        Rule("/values/", methods=["GET"],
                              endpoint=self.factory_get_submodel_submodel_elements_nested_attr(
                                  model.SubmodelElementCollection, "value")),  # type: ignore
-                        Rule("/values", methods=["POST"],
+                        Rule("/values/", methods=["POST"],
                              endpoint=self.factory_post_submodel_submodel_elements_nested_attr(
                                  model.SubmodelElementCollection, "value")),  # type: ignore
-                        Rule("/annotations", methods=["GET"],
+                        Rule("/annotations/", methods=["GET"],
                              endpoint=self.factory_get_submodel_submodel_elements_nested_attr(
                                  model.AnnotatedRelationshipElement, "annotation")),
-                        Rule("/annotations", methods=["POST"],
+                        Rule("/annotations/", methods=["POST"],
                              endpoint=self.factory_post_submodel_submodel_elements_nested_attr(
                                  model.AnnotatedRelationshipElement, "annotation",
                                  request_body_type=model.DataElement)),  # type: ignore
-                        Rule("/statements", methods=["GET"],
+                        Rule("/statements/", methods=["GET"],
                              endpoint=self.factory_get_submodel_submodel_elements_nested_attr(model.Entity,
                                                                                               "statement")),
-                        Rule("/statements", methods=["POST"],
+                        Rule("/statements/", methods=["POST"],
                              endpoint=self.factory_post_submodel_submodel_elements_nested_attr(model.Entity,
                                                                                                "statement")),
-                        Rule("/constraints", methods=["GET"], endpoint=self.get_submodel_submodel_element_constraints),
-                        Rule("/constraints", methods=["POST"],
-                             endpoint=self.post_submodel_submodel_element_constraints),
-                        Rule("/constraints/<path:qualifier_type>", methods=["GET"],
-                             endpoint=self.get_submodel_submodel_element_constraints),
-                        Rule("/constraints/<path:qualifier_type>", methods=["PUT"],
-                             endpoint=self.put_submodel_submodel_element_constraints),
-                        Rule("/constraints/<path:qualifier_type>", methods=["DELETE"],
-                             endpoint=self.delete_submodel_submodel_element_constraints),
+                        Submount("/constraints", [
+                            Rule("/", methods=["GET"], endpoint=self.get_submodel_submodel_element_constraints),
+                            Rule("/", methods=["POST"], endpoint=self.post_submodel_submodel_element_constraints),
+                            Rule("/<path:qualifier_type>/", methods=["GET"],
+                                 endpoint=self.get_submodel_submodel_element_constraints),
+                            Rule("/<path:qualifier_type>/", methods=["PUT"],
+                                 endpoint=self.put_submodel_submodel_element_constraints),
+                            Rule("/<path:qualifier_type>/", methods=["DELETE"],
+                                 endpoint=self.delete_submodel_submodel_element_constraints),
+                        ])
                     ]),
-                    Rule("/constraints", methods=["GET"], endpoint=self.get_submodel_submodel_element_constraints),
-                    Rule("/constraints", methods=["POST"], endpoint=self.post_submodel_submodel_element_constraints),
-                    Rule("/constraints/<path:qualifier_type>", methods=["GET"],
-                         endpoint=self.get_submodel_submodel_element_constraints),
-                    Rule("/constraints/<path:qualifier_type>", methods=["PUT"],
-                         endpoint=self.put_submodel_submodel_element_constraints),
-                    Rule("/constraints/<path:qualifier_type>", methods=["DELETE"],
-                         endpoint=self.delete_submodel_submodel_element_constraints)
+                    Submount("/constraints", [
+                        Rule("/", methods=["GET"], endpoint=self.get_submodel_submodel_element_constraints),
+                        Rule("/", methods=["POST"], endpoint=self.post_submodel_submodel_element_constraints),
+                        Rule("/<path:qualifier_type>/", methods=["GET"],
+                             endpoint=self.get_submodel_submodel_element_constraints),
+                        Rule("/<path:qualifier_type>/", methods=["PUT"],
+                             endpoint=self.put_submodel_submodel_element_constraints),
+                        Rule("/<path:qualifier_type>/", methods=["DELETE"],
+                             endpoint=self.delete_submodel_submodel_element_constraints),
+                    ])
                 ])
             ])
         ], converters={
             "identifier": IdentifierConverter,
             "id_short_path": IdShortPathConverter
-        }, strict_slashes=False)
+        })
 
     def __call__(self, environ, start_response):
         response = self.handle_request(Request(environ))
@@ -465,18 +468,6 @@ class WSGIApp:
     def handle_request(self, request: Request):
         map_adapter: MapAdapter = self.url_map.bind_to_environ(request.environ)
         try:
-            # redirect requests with a trailing slash to the path without trailing slash
-            # if the path without trailing slash exists.
-            # if not, map_adapter.match() will raise NotFound() in both cases
-            if request.path != "/" and request.path.endswith("/"):
-                map_adapter.match(request.path[:-1], request.method)
-                # from werkzeug's internal routing redirection
-                raise werkzeug.routing.RequestRedirect(
-                    map_adapter.make_redirect_url(
-                        werkzeug.urls.url_quote(request.path[:-1], map_adapter.map.charset, safe="/:|+"),
-                        map_adapter.query_args
-                    )
-                )
             endpoint, values = map_adapter.match()
             if endpoint is None:
                 raise werkzeug.exceptions.NotImplemented("This route is not yet implemented.")

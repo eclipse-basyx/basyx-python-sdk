@@ -47,7 +47,7 @@ paths:
                 $ref: "#/components/schemas/SubmodelResult"
       tags:
         - Submodel Interface
-  "/constraints":
+  "/constraints/":
     get:
       summary: Returns all Constraints of the current Submodel
       operationId: ReadSubmodelConstraints
@@ -108,7 +108,7 @@ paths:
                 $ref: "#/components/schemas/ConstraintResult"
       tags:
         - Submodel Interface
-  "/constraints/{qualifier-type}":
+  "/constraints/{qualifier-type}/":
     parameters:
       - name: qualifier-type
         in: path
@@ -200,7 +200,7 @@ paths:
                 $ref: "#/components/schemas/BaseResult"
       tags:
         - Submodel Interface
-  "/submodelElements":
+  "/submodelElements/":
     get:
       summary: Returns all SubmodelElements of the current Submodel
       operationId: ReadSubmodelSubmodelElements
@@ -261,7 +261,7 @@ paths:
                 $ref: "#/components/schemas/SubmodelElementResult"
       tags:
         - Submodel Interface
-  "/{idShort-path}":
+  "/{idShort-path}/":
     parameters:
       - name: idShort-path
         in: path
@@ -353,7 +353,7 @@ paths:
                 $ref: "#/components/schemas/BaseResult"
       tags:
         - Submodel Interface
-  "/{idShort-path}/value":
+  "/{idShort-path}/value/":
     parameters:
       - name: idShort-path
         in: path
@@ -433,7 +433,7 @@ paths:
                 $ref: "#/components/schemas/SubmodelElementResult"
       tags:
         - Submodel Interface
-  "/{idShort-path}/annotation":
+  "/{idShort-path}/annotation/":
     parameters:
       - name: idShort-path
         in: path
@@ -513,7 +513,7 @@ paths:
                 $ref: "#/components/schemas/SubmodelElementResult"
       tags:
         - Submodel Interface
-  "/{idShort-path}/statement":
+  "/{idShort-path}/statement/":
     parameters:
       - name: idShort-path
         in: path
@@ -593,7 +593,7 @@ paths:
                 $ref: "#/components/schemas/SubmodelElementResult"
       tags:
         - Submodel Interface
-  "/{idShort-path}/constraints":
+  "/{idShort-path}/constraints/":
     parameters:
       - name: idShort-path
         in: path
@@ -661,7 +661,7 @@ paths:
                 $ref: "#/components/schemas/ConstraintResult"
       tags:
         - Submodel Interface
-  "/{idShort-path}/constraints/{qualifier-type}":
+  "/{idShort-path}/constraints/{qualifier-type}/":
     parameters:
       - name: idShort-path
         in: path

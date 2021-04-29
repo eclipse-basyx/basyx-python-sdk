@@ -47,7 +47,7 @@ paths:
                 $ref: "#/components/schemas/AASResult"
       tags:
         - Asset Administration Shell Interface
-  "/submodels":
+  "/submodels/":
     get:
       summary: Returns all Submodel-References of the AssetAdministrationShell
       operationId: ReadAASSubmodelReferences
@@ -108,7 +108,7 @@ paths:
                 $ref: "#/components/schemas/ReferenceResult"
       tags:
         - Asset Administration Shell Interface
-  "/submodels/{submodel-identifier}":
+  "/submodels/{submodel-identifier}/":
     parameters:
       - name: submodel-identifier
         in: path
@@ -152,7 +152,7 @@ paths:
                 $ref: "#/components/schemas/BaseResult"
       tags:
         - Asset Administration Shell Interface
-  "/views":
+  "/views/":
     get:
       summary: Returns all Views of the AssetAdministrationShell
       operationId: ReadAASViews
@@ -213,7 +213,7 @@ paths:
                 $ref: "#/components/schemas/ViewResult"
       tags:
         - Asset Administration Shell Interface
-  "/views/{view-idShort}":
+  "/views/{view-idShort}/":
     parameters:
       - name: view-idShort
         in: path
