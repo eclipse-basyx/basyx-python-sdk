@@ -192,6 +192,8 @@ def get_response_type(request: Request) -> Type[APIResponse]:
         "application/xml": XmlResponse,
         "text/xml": XmlResponseAlt
     }
+    if len(request.accept_mimetypes) == 0:
+        return JsonResponse
     mime_type = request.accept_mimetypes.best_match(response_types)
     if mime_type is None:
         raise werkzeug.exceptions.NotAcceptable(f"This server supports the following content types: "
