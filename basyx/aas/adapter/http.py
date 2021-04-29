@@ -258,7 +258,7 @@ def parse_request_body(request: Request, expect_type: Type[T]) -> T:
                 rv = read_aas_xml_element(xml_data, type_constructables_map[expect_type], stripped=True, failsafe=False)
             except (KeyError, ValueError) as e:
                 # xml deserialization creates an error chain. since we only return one error, return the root cause
-                f = e
+                f: BaseException = e
                 while f.__cause__ is not None:
                     f = f.__cause__
                 raise f from e
