@@ -287,54 +287,6 @@ paths:
                 $ref: "#/components/schemas/ViewResult"
       tags:
         - Asset Administration Shell Interface
-    patch:
-      summary: Updates a specific View of the AssetAdministrationShell by only providing properties that should be changed
-      operationId: PatchAASView
-      requestBody:
-        description: The (partial) View used to update the existing View
-        required: true
-        content:
-          "application/json":
-            schema:
-              $ref: "#/components/schemas/View"
-      responses:
-        "200":
-          description: Success
-          content:
-            "application/json":
-              schema:
-                $ref: "#/components/schemas/ViewResult"
-        "201":
-          description: Success (idShort changed)
-          content:
-            "application/json":
-              schema:
-                $ref: "#/components/schemas/ViewResult"
-          headers:
-            Location:
-              description: The new URL of the View
-              schema:
-                type: string
-        "404":
-          description: AssetAdministrationShell or View not found
-          content:
-            "application/json":
-              schema:
-                $ref: "#/components/schemas/ViewResult"
-        "409":
-          description: idShort changed and new idShort already exists
-          content:
-            "application/json":
-              schema:
-                $ref: "#/components/schemas/ViewResult"
-        "422":
-          description: Request body is not a valid View
-          content:
-            "application/json":
-              schema:
-                $ref: "#/components/schemas/ViewResult"
-      tags:
-        - Asset Administration Shell Interface
     delete:
       summary: Deletes a specific View from the Asset Administration Shell
       operationId: DeleteAASView
