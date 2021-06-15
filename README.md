@@ -1,27 +1,29 @@
 
 # PyI40AAS – Python Industry 4.0 Asset Administration Shell
 
-The PyI40AAS project aims to provide an implementation of the Asset Administration Shell (AAS) for Industry 4.0 Systems, compliant
-with the meta model and interface specification provided in
+The PyI40AAS project aims to provide an implementation of the Asset Administration Shell (AAS) for Industry 4.0 Systems,
+compliant with the meta model and interface specification provided in
 [the document “Details of the Asset Administration Shell” (v2.0.1)](https://www.plattform-i40.de/PI40/Redaktion/DE/Downloads/Publikation/Details-of-the-Asset-Administration-Shell-Part1.html).
 
 
 ## Features
 
 * Modelling of AASs as Python objects (according to DotAAS sec. 4)
-* (De-)serialization of AAS objects into/from JSON and XML (according to DotAAS sec. 5) 
-* Reading and writing of AASX package files (according to DotAAS sec. 7)
-* Storing of AAS objects in CouchDB
+    * **except for**: Security extension of the metamodel (according to DotAAS sec. 5), *HasDataSpecification*
+* Reading and writing of AASX package files (according to DotAAS sec. 6)
+* (De-)serialization of AAS objects into/from JSON and XML (according to DotAAS sec. 7) 
+* Storing of AAS objects in CouchDB, Backend infrastructure for easy expansion 
 * Compliance checking of AAS XML and JSON files
 
 
 ### Project Structure
 
-The PyI40AAS project provides the `aas` Python package with 5 submodules:
+The PyI40AAS project provides the `aas` Python package with 6 submodules:
 
 * `aas.model`: The AAS metamodel implemented in python
-* `aas.adapter`: Adapters for various file formats and storage backends
-* `aas.compliance_tools`: Compliance checker for AAS files
+* `aas.adapter`: Adapters for various file formats 
+* `aas.backend`: Backend infrastructure for storing and retrieving AAS objects
+* `aas.compliance_tool`: Compliance checker for AAS files
 * `aas.util`: Provides utilities
 * `aas.examples`: Example data and tutorials
 
@@ -41,10 +43,10 @@ file.
 
 PyI40AAS requires the following Python packages to be installed for production usage. These dependencies are listed in
 `setup.py` to be fetched automatically when installing with `pip`:
-* `python-dateutil` (BSD 3-clause License)
 * `lxml` (BSD 3-clause License, using `libxml2` under MIT License)
-* `urllib3` (MIT License)
+* `python-dateutil` (BSD 3-clause License)
 * `pyecma376-2` (Apache License v2.0)
+* `urllib3` (MIT License)
 
 Optional production usage dependencies:
 * For using the Compliance Tool to validate JSON files against the JSON Schema: `jsonschema` and its
@@ -61,7 +63,7 @@ Development/testing/example dependencies (see `requirements.txt`):
 
 For production usage and building applications with PyI40AAS, we recommended installation from PyPI:
 
-```python
+```bash
 pip install pyi40aas
 ```
 
@@ -113,13 +115,16 @@ with open('Simple_Submodel.xml', 'w', encoding='utf-8') as f:
 
 For further examples and tutorials, check out the `aas.examples`-package. Here is a quick overview:
 
-* `aas.examples.tutorial_create_simple_aas`: Creating an Asset Administration Shell with all required objects via Python
-  code
+* `aas.examples.tutorial_create_simple_aas`: Create an Asset Administration Shell, including an Asset object and a 
+  Submodel
 * `aas.examples.tutorial_storage`: Manage a larger number of Asset Administration Shells in an ObjectStore and resolve
   references
-* `aas.examples.tutorial_serialization_deserialization`: Export or import AAS objects to/from JSON and XML documents
-* `aas.examples.tutorial_aasx`: Export or import AAS objects with auxiliary files to/from AASX package files
-* `aas.examples.tutorial_backend_couchdb`: Store, manage and update AAS objects in a CouchDB database
+* `aas.examples.tutorial_serialization_deserialization`: Use the JSON and XML serialization/deserialization for
+  single objects or full standard-compliant files 
+* `aas.examples.tutorial_aasx`: Export Asset Administration Shells with related objects and auxiliary files to AASX 
+  package files
+* `aas.examples.tutorial_backend_couchdb`: Use the *Backends* interface (`update()/commit()` methods) to manage and
+  retrieve AAS objects in a CouchDB document database 
 
 
 ### Compliance Tool
