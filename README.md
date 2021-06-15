@@ -9,7 +9,7 @@ compliant with the meta model and interface specification provided in
 ## Features
 
 * Modelling of AASs as Python objects (according to DotAAS sec. 4)
-* Security extension of the metamodel is currently not implemented (according to DotAAS sec. 5)
+    * **except for**: Security extension of the metamodel (according to DotAAS sec. 5), *HasDataSpecification*
 * Reading and writing of AASX package files (according to DotAAS sec. 6)
 * (De-)serialization of AAS objects into/from JSON and XML (according to DotAAS sec. 7) 
 * Storing of AAS objects in CouchDB, Backend infrastructure for easy expansion 
@@ -122,7 +122,9 @@ For further examples and tutorials, check out the `aas.examples`-package. Here i
 * `aas.examples.tutorial_serialization_deserialization`: Use the JSON and XML serialization/deserialization for
   single objects or full standard-compliant files 
 * `aas.examples.tutorial_aasx`: Export Asset Administration Shells with related objects and auxiliary files to AASX 
-package files
+  package files
+* `aas.examples.tutorial_backend_couchdb`: Use the *Backends* interface (`update()/commit()` methods) to manage and
+  retrieve AAS objects in a CouchDB document database 
 
 
 ### Compliance Tool
