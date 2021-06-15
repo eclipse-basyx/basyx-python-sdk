@@ -6,13 +6,17 @@
 #
 # SPDX-License-Identifier: EPL-2.0 OR Apache-2.0
 """
+.. _adapter.xml.xml_serialization:
+
 Module for serializing Asset Administration Shell data to the official XML format
 
 How to use:
-- For generating an XML-File from a model.registry.AbstractObjectStore, check out the function "write_aas_xml_file".
+
+- For generating an XML-File from a :class:`~aas.model.provider.AbstractObjectStore`, check out the function
+  :meth:`~aas.adapter.xml.xml_serialization.write_aas_xml_file`.
 - For serializing any object to an XML fragment, that fits the XML specification from 'Details of the
   Asset Administration Shell', chapter 5.4, check out `<your_object_class_name_here>_to_xml()`. These functions return
-  an xml.etree.ElementTree.Element object to be serialized into XML.
+  an :class:`xml.etree.ElementTree.Element` object to be serialized into XML.
 """
 
 from lxml import etree  # type: ignore
@@ -852,9 +856,9 @@ def write_aas_xml_file(file: IO,
     Administration Shell', chapter 5.4
 
     :param file: A file-like object to write the XML-serialized data to
-    :param data: ObjectStore which contains different objects of the AAS meta model which should be serialized to an
-                 XML file
-    :param kwargs: Additional keyword arguments to be passed to tree.write()
+    :param data: :class:`ObjectStore <aas.model.provider.AbstractObjectStore>` which contains different objects of the
+                 AAS meta model which should be serialized to an XML file
+    :param kwargs: Additional keyword arguments to be passed to `tree.write()`
     """
     # separate different kind of objects
     assets = []

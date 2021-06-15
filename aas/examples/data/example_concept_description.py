@@ -6,7 +6,7 @@
 #
 # SPDX-License-Identifier: EPL-2.0 OR Apache-2.0
 """
-Module for creation of an example concept description
+Module for creation of an example :class:`~aas.model.concept.ConceptDescription`
 """
 import logging
 
@@ -19,7 +19,7 @@ logger = logging.getLogger(__name__)
 
 def create_iec61360_concept_description() -> IEC61360ConceptDescription:
     """
-    Creates a ConceptDescription after the IEC61360 standard
+    Creates a :class:`~aas.model.concept.ConceptDescription` after the IEC61360 standard
 
     :return: Example concept description
     """
