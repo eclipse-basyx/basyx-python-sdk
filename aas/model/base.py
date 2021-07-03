@@ -1396,7 +1396,10 @@ class NamespaceSet(MutableSet[_NSO], Generic[_NSO]):
         return list(self._backend.keys())
 
     def contains_id(self, attribute_name: str, identifier: ATTRIBUTE_TYPES) -> bool:
-        backend, case_sensitive = self._backend[attribute_name]
+        try:
+            backend, case_sensitive = self._backend[attribute_name]
+        except KeyError:
+            return False
         # if the identifier is not a string we ignore the case sensitivity
         if case_sensitive or not isinstance(identifier, str):
             return identifier in backend
@@ -1404,7 +1407,10 @@ class NamespaceSet(MutableSet[_NSO], Generic[_NSO]):
 
     def __contains__(self, obj: object) -> bool:
         attr_name = next(iter(self._backend))
-        attr_value = self._get_attribute(obj, attr_name, self._backend[attr_name][1])
+        try:
+            attr_value = self._get_attribute(obj, attr_name, self._backend[attr_name][1])
+        except AttributeError:
+            return False
         return self._backend[attr_name][0].get(attr_value) is obj
 
     def __len__(self) -> int:
