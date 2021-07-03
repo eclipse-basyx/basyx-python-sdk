@@ -505,7 +505,7 @@ class ModelNamespaceTest(unittest.TestCase):
         assert(isinstance(prop3_new, model.Property))
         self.assertEqual(prop3_new.value, 2)
         # Check that Prop2 got removed correctly
-        self.assertNotIn(("id_short", "Prop2"), namespace1.set2)
+        self.assertFalse(namespace1.set2.contains_id("id_short", "Prop2"))
         with self.assertRaises(KeyError):
             namespace1.get_referable("Prop2")
         self.assertIsNone(prop2.parent)

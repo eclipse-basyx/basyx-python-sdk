@@ -619,7 +619,7 @@ class Referable(HasExtension, metaclass=abc.ABCMeta):
 
         if self.parent is not None:
             for set_ in self.parent.namespace_element_sets:
-                if ("id_short", id_short) in set_:
+                if set_.contains_id("id_short", id_short):
                     raise KeyError("Object with id_short '{}' is already present in the parent Namespace"
                                    .format(id_short))
 
@@ -990,7 +990,7 @@ class HasSemantics(metaclass=abc.ABCMeta):
     def semantic_id(self, semantic_id: Optional[Reference]) -> None:
         if self.parent is not None:
             for set_ in self.parent.namespace_element_sets:
-                if ("semantic_id", semantic_id) in set_:
+                if set_.contains_id("semantic_id", semantic_id):
                     raise KeyError("Object with semantic_id '{}' is already present in the parent Namespace"
                                    .format(semantic_id))
             set_add_list: List[NamespaceSet] = []
@@ -1066,7 +1066,7 @@ class Extension(HasSemantics):
     def name(self, name: str) -> None:
         if self.parent is not None:
             for set_ in self.parent.namespace_element_sets:
-                if ("name", name) in set_:
+                if set_.contains_id("name", name):
                     raise KeyError("Object with name '{}' is already present in the parent Namespace"
                                    .format(name))
             set_add_list: List[NamespaceSet] = []
@@ -1197,7 +1197,7 @@ class Qualifier(Constraint, HasSemantics):
     def type(self, type_: QualifierType) -> None:
         if self.parent is not None:
             for set_ in self.parent.namespace_element_sets:
-                if ("type", type_) in set_:
+                if set_.contains_id("type", type_):
                     raise KeyError("Object with type '{}' is already present in the parent Namespace"
                                    .format(type_))
             set_add_list: List[NamespaceSet] = []
@@ -1395,16 +1395,17 @@ class NamespaceSet(MutableSet[_NSO], Generic[_NSO]):
     def get_attribute_name_list(self) -> List[str]:
         return list(self._backend.keys())
 
-    def __contains__(self, x: Union[Tuple[str, ATTRIBUTE_TYPES], object]) -> bool:
-        if isinstance(x, tuple):
-            backend, case_sensitive = self._backend[x[0]]
-            if case_sensitive or not isinstance(x[1], str):
-                return x[1] in backend
-            else:
-                return x[1].upper() in backend
-        else:
-            attr_name = next(iter(self._backend))
-            return self._backend[attr_name][0].get(self._get_attribute(x, attr_name, self._backend[attr_name][1])) is x
+    def contains_id(self, attribute_name: str, identifier: ATTRIBUTE_TYPES) -> bool:
+        backend, case_sensitive = self._backend[attribute_name]
+        # if the identifier is not a string we ignore the case sensitivity
+        if case_sensitive or not isinstance(identifier, str):
+            return identifier in backend
+        return identifier.upper() in backend
+
+    def __contains__(self, obj: object) -> bool:
+        attr_name = next(iter(self._backend))
+        attr_value = self._get_attribute(obj, attr_name, self._backend[attr_name][1])
+        return self._backend[attr_name][0].get(attr_value) is obj
 
     def __len__(self) -> int:
         return len(self._backend[next(iter(self._backend))][0])
