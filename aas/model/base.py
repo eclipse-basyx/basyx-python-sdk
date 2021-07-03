@@ -1389,7 +1389,8 @@ class NamespaceSet(MutableSet[_NSO], Generic[_NSO]):
 
     @staticmethod
     def _get_attribute(x: object, attr_name: str, case_sensitive: bool):
-        return getattr(x, attr_name) if case_sensitive else getattr(x, attr_name).upper()
+        attr_value = getattr(x, attr_name)
+        return attr_value if case_sensitive or not isinstance(attr_value, str) else attr_value.upper()
 
     def get_attribute_name_list(self) -> List[str]:
         return list(self._backend.keys())
@@ -1397,7 +1398,7 @@ class NamespaceSet(MutableSet[_NSO], Generic[_NSO]):
     def __contains__(self, x: Union[Tuple[str, ATTRIBUTE_TYPES], object]) -> bool:
         if isinstance(x, tuple):
             backend, case_sensitive = self._backend[x[0]]
-            if case_sensitive:
+            if case_sensitive or not isinstance(x[1], str):
                 return x[1] in backend
             else:
                 return x[1].upper() in backend
