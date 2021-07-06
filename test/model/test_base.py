@@ -421,7 +421,7 @@ class ModelNamespaceTest(unittest.TestCase):
         self.assertIsNone(self.prop1.parent)
         self.namespace.set1.add(self.prop1)
         self.assertEqual(2, len(self.namespace.set1))
-        self.namespace.set1.remove(("id_short", self.prop1.id_short))
+        self.namespace.set1.remove_by_id("id_short", self.prop1.id_short)
         self.assertEqual(1, len(self.namespace.set1))
         self.assertIsNone(self.prop1.parent)
 

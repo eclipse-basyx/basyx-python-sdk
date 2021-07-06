@@ -463,7 +463,7 @@ class Namespace(metaclass=abc.ABCMeta):
         for ns_set in self.namespace_element_sets:
             if attribute_name in ns_set.get_attribute_name_list():
                 try:
-                    ns_set.remove((attribute_name, attribute))
+                    ns_set.remove_by_id(attribute_name, attribute)
                     return
                 except KeyError:
                     continue
@@ -1435,9 +1435,11 @@ class NamespaceSet(MutableSet[_NSO], Generic[_NSO]):
         for attr_name, (backend, case_sensitive) in self._backend.items():
             backend[self._get_attribute(value, attr_name, case_sensitive)] = value
 
-    def remove(self, item: Union[Tuple[str, ATTRIBUTE_TYPES], _NSO]):
-        if isinstance(item, tuple):
-            item = self.get_object_by_attribute(item[0], item[1])
+    def remove_by_id(self, attribute_name: str, identifier: ATTRIBUTE_TYPES) -> None:
+        item = self.get_object_by_attribute(attribute_name, identifier)
+        self.remove(item)
+
+    def remove(self, item: _NSO) -> None:
         item_found = False
         for attr_name, (backend, case_sensitive) in self._backend.items():
             item_in_dict = backend[self._get_attribute(item, attr_name, case_sensitive)]
