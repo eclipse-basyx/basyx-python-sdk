@@ -300,7 +300,7 @@ class IdentifierConverter(werkzeug.routing.UnicodeConverter):
 def validate_id_short(id_short: str) -> bool:
     try:
         model.MultiLanguageProperty(id_short)
-    except ValueError:
+    except model.AASConstraintViolation:
         return False
     return True
 
