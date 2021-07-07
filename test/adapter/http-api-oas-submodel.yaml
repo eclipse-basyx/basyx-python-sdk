@@ -279,6 +279,12 @@ paths:
             "application/json":
               schema:
                 $ref: "#/components/schemas/SubmodelElementListResult"
+        "400":
+          description: Invalid idShort
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/BaseResult"
         "404":
           description: Submodel or any SubmodelElement referred by idShort-path not found
           content:
@@ -315,6 +321,12 @@ paths:
               description: The new URL of the SubmodelElement
               schema:
                 type: string
+        "400":
+          description: Invalid idShort
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/BaseResult"
         "404":
           description: Submodel or any SubmodelElement referred by idShort-path not found
           content:
@@ -341,6 +353,12 @@ paths:
       responses:
         "200":
           description: Success
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/BaseResult"
+        "400":
+          description: Invalid idShort
           content:
             "application/json":
               schema:
@@ -372,7 +390,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/BaseResult"
         "400":
-          description: SubmodelElement exists, but is not a SubmodelElementCollection, so /value is not possible
+          description: Invalid idShort or SubmodelElement exists, but is not a SubmodelElementCollection, so /value is not possible
           content:
             "application/json":
               schema:
@@ -408,7 +426,7 @@ paths:
               schema:
                 type: string
         "400":
-          description: SubmodelElement exists, but is not a SubmodelElementCollection, so /value is not possible
+          description: Invalid idShort or SubmodelElement exists, but is not a SubmodelElementCollection, so /value is not possible
           content:
             "application/json":
               schema:
@@ -452,7 +470,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/SubmodelElementListResult"
         "400":
-          description: SubmodelElement exists, but is not an AnnotatedRelationshipElement, so /annotation is not possible
+          description: Invalid idShort or SubmodelElement exists, but is not an AnnotatedRelationshipElement, so /annotation is not possible
           content:
             "application/json":
               schema:
@@ -488,7 +506,7 @@ paths:
               schema:
                 type: string
         "400":
-          description: SubmodelElement exists, but is not an AnnotatedRelationshipElement, so /annotation is not possible
+          description: Invalid idShort or SubmodelElement exists, but is not an AnnotatedRelationshipElement, so /annotation is not possible
           content:
             "application/json":
               schema:
@@ -532,7 +550,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/SubmodelElementListResult"
         "400":
-          description: SubmodelElement exists, but is not an Entity, so /statement is not possible.
+          description: Invalid idShort or SubmodelElement exists, but is not an Entity, so /statement is not possible.
           content:
             "application/json":
               schema:
@@ -568,7 +586,7 @@ paths:
               schema:
                 type: string
         "400":
-          description: SubmodelElement exists, but is not an Entity, so /statement is not possible
+          description: Invalid idShort or SubmodelElement exists, but is not an Entity, so /statement is not possible
           content:
             "application/json":
               schema:
@@ -611,6 +629,12 @@ paths:
             "application/json":
               schema:
                 $ref: "#/components/schemas/ConstraintListResult"
+        "400":
+          description: Invalid idShort
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/BaseResult"
         "404":
           description: Submodel or any SubmodelElement referred by idShort-path not found
           content:
@@ -641,6 +665,12 @@ paths:
               description: The URL of the created Constraint
               schema:
                 type: string
+        "400":
+          description: Invalid idShort
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/BaseResult"
         "404":
           description: Submodel or any SubmodelElement referred by idShort-path not found
           content:
@@ -685,6 +715,12 @@ paths:
             "application/json":
               schema:
                 $ref: "#/components/schemas/ConstraintResult"
+        "400":
+          description: Invalid idShort
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/BaseResult"
         "404":
           description: Submodel, Qualifier or any SubmodelElement referred by idShort-path not found
           content:
@@ -721,6 +757,12 @@ paths:
               description: The new URL of the Qualifier
               schema:
                 type: string
+        "400":
+          description: Invalid idShort
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/BaseResult"
         "404":
           description: Submodel, Qualifier or any SubmodelElement referred by idShort-path not found
           content:
@@ -747,6 +789,12 @@ paths:
       responses:
         "200":
           description: Success
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/BaseResult"
+        "400":
+          description: Invalid idShort
           content:
             "application/json":
               schema:
