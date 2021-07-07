@@ -606,7 +606,7 @@ class WSGIApp:
         view_idshort = url_args["view_idshort"]
         if ("id_short", view_idshort) not in aas.view:
             raise NotFound(f"No view with id_short {view_idshort} found!")
-        aas.view.remove(view_idshort)
+        aas.view.remove(("id_short", view_idshort))
         return response_t(Result(None))
 
     # --------- SUBMODEL ROUTES ---------
