@@ -88,6 +88,13 @@ paths:
               description: The URL of the created Constraint
               schema:
                 type: string
+          links:
+            ReadSubmodelQualifierByType:
+              $ref: "#/components/links/ReadSubmodelQualifierByType"
+            UpdateSubmodelQualifierByType:
+              $ref: "#/components/links/UpdateSubmodelQualifierByType"
+            DeleteSubmodelQualifierByType:
+              $ref: "#/components/links/DeleteSubmodelQualifierByType"
         "404":
           description: Submodel not found
           content:
@@ -126,6 +133,13 @@ paths:
             "application/json":
               schema:
                 $ref: "#/components/schemas/ConstraintResult"
+          links:
+            ReadSubmodelQualifierByType:
+              $ref: "#/components/links/ReadSubmodelQualifierByType"
+            UpdateSubmodelQualifierByType:
+              $ref: "#/components/links/UpdateSubmodelQualifierByType"
+            DeleteSubmodelQualifierByType:
+              $ref: "#/components/links/DeleteSubmodelQualifierByType"
         "404":
           description: Submodel or Constraint not found
           content:
@@ -151,6 +165,13 @@ paths:
             "application/json":
               schema:
                 $ref: "#/components/schemas/ConstraintResult"
+          links:
+            ReadSubmodelQualifierByType:
+              $ref: "#/components/links/ReadSubmodelQualifierByType"
+            UpdateSubmodelQualifierByType:
+              $ref: "#/components/links/UpdateSubmodelQualifierByType"
+            DeleteSubmodelQualifierByType:
+              $ref: "#/components/links/DeleteSubmodelQualifierByType"
         "201":
           description: Success (type changed)
           content:
@@ -162,6 +183,13 @@ paths:
               description: The new URL of the Qualifier
               schema:
                 type: string
+          links:
+            ReadSubmodelQualifierByType:
+              $ref: "#/components/links/ReadSubmodelQualifierByType"
+            UpdateSubmodelQualifierByType:
+              $ref: "#/components/links/UpdateSubmodelQualifierByType"
+            DeleteSubmodelQualifierByType:
+              $ref: "#/components/links/DeleteSubmodelQualifierByType"
         "404":
           description: Submodel or Constraint not found
           content:
@@ -241,6 +269,13 @@ paths:
               description: The URL of the created SubmodelElement
               schema:
                 type: string
+          links:
+            ReadSubmodelSubmodelElementByIdShortAfterPost:
+              $ref: "#/components/links/ReadSubmodelSubmodelElementByIdShortAfterPost"
+            UpdateSubmodelSubmodelElementByIdShortAfterPost:
+              $ref: "#/components/links/UpdateSubmodelSubmodelElementByIdShortAfterPost"
+            DeleteSubmodelSubmodelElementByIdShortAfterPost:
+              $ref: "#/components/links/DeleteSubmodelSubmodelElementByIdShortAfterPost"
         "404":
           description: Submodel not found
           content:
@@ -425,6 +460,13 @@ paths:
               description: The URL of the created SubmodelElement
               schema:
                 type: string
+          links:
+            ReadSubmodelSubmodelElementByIdShortAfterPostWithPath:
+              $ref: "#/components/links/ReadSubmodelSubmodelElementByIdShortAfterPostWithPath"
+            UpdateSubmodelSubmodelElementByIdShortAfterPostWithPath:
+              $ref: "#/components/links/UpdateSubmodelSubmodelElementByIdShortAfterPostWithPath"
+            DeleteSubmodelSubmodelElementByIdShortAfterPostWithPath:
+              $ref: "#/components/links/DeleteSubmodelSubmodelElementByIdShortAfterPostWithPath"
         "400":
           description: Invalid idShort or SubmodelElement exists, but is not a SubmodelElementCollection, so /value is not possible
           content:
@@ -505,6 +547,13 @@ paths:
               description: The URL of the created SubmodelElement
               schema:
                 type: string
+          links:
+            ReadSubmodelSubmodelElementByIdShortAfterPostWithPath:
+              $ref: "#/components/links/ReadSubmodelSubmodelElementByIdShortAfterPostWithPath"
+            UpdateSubmodelSubmodelElementByIdShortAfterPostWithPath:
+              $ref: "#/components/links/UpdateSubmodelSubmodelElementByIdShortAfterPostWithPath"
+            DeleteSubmodelSubmodelElementByIdShortAfterPostWithPath:
+              $ref: "#/components/links/DeleteSubmodelSubmodelElementByIdShortAfterPostWithPath"
         "400":
           description: Invalid idShort or SubmodelElement exists, but is not an AnnotatedRelationshipElement, so /annotation is not possible
           content:
@@ -585,6 +634,13 @@ paths:
               description: The URL of the created SubmodelElement
               schema:
                 type: string
+          links:
+            ReadSubmodelSubmodelElementByIdShortAfterPostWithPath:
+              $ref: "#/components/links/ReadSubmodelSubmodelElementByIdShortAfterPostWithPath"
+            UpdateSubmodelSubmodelElementByIdShortAfterPostWithPath:
+              $ref: "#/components/links/UpdateSubmodelSubmodelElementByIdShortAfterPostWithPath"
+            DeleteSubmodelSubmodelElementByIdShortAfterPostWithPath:
+              $ref: "#/components/links/DeleteSubmodelSubmodelElementByIdShortAfterPostWithPath"
         "400":
           description: Invalid idShort or SubmodelElement exists, but is not an Entity, so /statement is not possible
           content:
@@ -665,6 +721,13 @@ paths:
               description: The URL of the created Constraint
               schema:
                 type: string
+          links:
+            ReadSubmodelSubmodelElementQualifierByType:
+              $ref: "#/components/links/ReadSubmodelSubmodelElementQualifierByType"
+            UpdateSubmodelSubmodelElementQualifierByType:
+              $ref: "#/components/links/UpdateSubmodelSubmodelElementQualifierByType"
+            DeleteSubmodelSubmodelElementQualifierByType:
+              $ref: "#/components/links/DeleteSubmodelSubmodelElementQualifierByType"
         "400":
           description: Invalid idShort
           content:
@@ -715,6 +778,13 @@ paths:
             "application/json":
               schema:
                 $ref: "#/components/schemas/ConstraintResult"
+          links:
+            ReadSubmodelSubmodelElementQualifierByType:
+              $ref: "#/components/links/ReadSubmodelSubmodelElementQualifierByType"
+            UpdateSubmodelSubmodelElementQualifierByType:
+              $ref: "#/components/links/UpdateSubmodelSubmodelElementQualifierByType"
+            DeleteSubmodelSubmodelElementQualifierByType:
+              $ref: "#/components/links/DeleteSubmodelSubmodelElementQualifierByType"
         "400":
           description: Invalid idShort
           content:
@@ -746,6 +816,13 @@ paths:
             "application/json":
               schema:
                 $ref: "#/components/schemas/ConstraintResult"
+          links:
+            ReadSubmodelSubmodelElementQualifierByType:
+              $ref: "#/components/links/ReadSubmodelSubmodelElementQualifierByType"
+            UpdateSubmodelSubmodelElementQualifierByType:
+              $ref: "#/components/links/UpdateSubmodelSubmodelElementQualifierByType"
+            DeleteSubmodelSubmodelElementQualifierByType:
+              $ref: "#/components/links/DeleteSubmodelSubmodelElementQualifierByType"
         "201":
           description: Success (type changed)
           content:
@@ -757,6 +834,13 @@ paths:
               description: The new URL of the Qualifier
               schema:
                 type: string
+          links:
+            ReadSubmodelSubmodelElementQualifierByType:
+              $ref: "#/components/links/ReadSubmodelSubmodelElementQualifierByType"
+            UpdateSubmodelSubmodelElementQualifierByType:
+              $ref: "#/components/links/UpdateSubmodelSubmodelElementQualifierByType"
+            DeleteSubmodelSubmodelElementQualifierByType:
+              $ref: "#/components/links/DeleteSubmodelSubmodelElementQualifierByType"
         "400":
           description: Invalid idShort
           content:
@@ -808,6 +892,70 @@ paths:
       tags:
         - Submodel Interface
 components:
+  links:
+    ReadSubmodelQualifierByType:
+      description: The `type` of the returned Qualifier can be used to read the Qualifier.
+      operationId: ReadSubmodelConstraint
+      parameters:
+        qualifier-type: "$response.body#/data/type"
+    UpdateSubmodelQualifierByType:
+      description: The `type` of the returned Qualifier can be used to update the Qualifier.
+      operationId: UpdateSubmodelConstraint
+      parameters:
+        qualifier-type: "$response.body#/data/type"
+    DeleteSubmodelQualifierByType:
+      description: The `type` of the returned Qualifier can be used to delete the Qualifier.
+      operationId: DeleteSubmodelConstraint
+      parameters:
+        qualifier-type: "$response.body#/data/type"
+    ReadSubmodelSubmodelElementByIdShortAfterPost:
+      description: The `idShort` of the returned SubmodelElement can be used to read the SubmodelElement.
+      operationId: ReadSubmodelSubmodelElement
+      parameters:
+        idShort-path: "!{$response.body#/data/idShort}"
+    UpdateSubmodelSubmodelElementByIdShortAfterPost:
+      description: The `idShort` of the returned SubmodelElement can be used to update the SubmodelElement.
+      operationId: UpdateSubmodelSubmodelElement
+      parameters:
+        idShort-path: "!{$response.body#/data/idShort}"
+    DeleteSubmodelSubmodelElementByIdShortAfterPost:
+      description: The `idShort` of the returned SubmodelElement can be used to delete the SubmodelElement.
+      operationId: DeleteSubmodelSubmodelElement
+      parameters:
+        idShort-path: "!{$response.body#/data/idShort}"
+    ReadSubmodelSubmodelElementByIdShortAfterPostWithPath:
+      description: The `idShort` of the returned SubmodelElement can be used to read the SubmodelElement.
+      operationId: ReadSubmodelSubmodelElement
+      parameters:
+        idShort-path: "{$request.path.idShort-path}/!{$response.body#/data/idShort}"
+    UpdateSubmodelSubmodelElementByIdShortAfterPostWithPath:
+      description: The `idShort` of the returned SubmodelElement can be used to update the SubmodelElement.
+      operationId: UpdateSubmodelSubmodelElement
+      parameters:
+        idShort-path: "{$request.path.idShort-path}/!{$response.body#/data/idShort}"
+    DeleteSubmodelSubmodelElementByIdShortAfterPostWithPath:
+      description: The `idShort` of the returned SubmodelElement can be used to delete the SubmodelElement.
+      operationId: DeleteSubmodelSubmodelElement
+      parameters:
+        idShort-path: "{$request.path.idShort-path}/!{$response.body#/data/idShort}"
+    ReadSubmodelSubmodelElementQualifierByType:
+      description: The `type` of the returned Qualifier can be used to read the Qualifier.
+      operationId: ReadSubmodelSubmodelElementConstraint
+      parameters:
+        idShort-path: "$request.path.idShort-path"
+        qualifier-type: "$response.body#/type"
+    UpdateSubmodelSubmodelElementQualifierByType:
+      description: The `type` of the returned Qualifier can be used to update the Qualifier.
+      operationId: UpdateSubmodelSubmodelElementConstraint
+      parameters:
+        idShort-path: "$request.path.idShort-path"
+        qualifier-type: "$response.body#/type"
+    DeleteSubmodelSubmodelElementQualifierByType:
+      description: The `type` of the returned Qualifier can be used to delete the Qualifier.
+      operationId: DeleteSubmodelSubmodelElementConstraint
+      parameters:
+        idShort-path: "$request.path.idShort-path"
+        qualifier-type: "$response.body#/type"
   schemas:
     BaseResult:
       type: object

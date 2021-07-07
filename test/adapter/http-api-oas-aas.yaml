@@ -205,6 +205,13 @@ paths:
               description: The URL of the created View
               schema:
                 type: string
+          links:
+            ReadAASViewByIdShort:
+              $ref: "#/components/links/UpdateAASViewByIdShort"
+            UpdateAASViewByIdShort:
+              $ref: "#/components/links/UpdateAASViewByIdShort"
+            DeleteAASViewByIdShort:
+              $ref: "#/components/links/DeleteAASViewByIdShort"
         "404":
           description: AssetAdministrationShell not found
           content:
@@ -243,6 +250,13 @@ paths:
             "application/json":
               schema:
                 $ref: "#/components/schemas/ViewResult"
+          links:
+            ReadAASViewByIdShort:
+              $ref: "#/components/links/ReadAASViewByIdShort"
+            UpdateAASViewByIdShort:
+              $ref: "#/components/links/UpdateAASViewByIdShort"
+            DeleteAASViewByIdShort:
+              $ref: "#/components/links/DeleteAASViewByIdShort"
         "404":
           description: AssetAdministrationShell or View not found
           content:
@@ -268,6 +282,13 @@ paths:
             "application/json":
               schema:
                 $ref: "#/components/schemas/ViewResult"
+          links:
+            ReadAASViewByIdShort:
+              $ref: "#/components/links/ReadAASViewByIdShort"
+            UpdateAASViewByIdShort:
+              $ref: "#/components/links/UpdateAASViewByIdShort"
+            DeleteAASViewByIdShort:
+              $ref: "#/components/links/DeleteAASViewByIdShort"
         "201":
           description: Success (idShort changed)
           content:
@@ -279,6 +300,11 @@ paths:
               description: The new URL of the View
               schema:
                 type: string
+          links:
+            ReadAASViewByIdShort:
+              $ref: "#/components/links/ReadAASViewByIdShort"
+            DeleteAASViewByIdShort:
+              $ref: "#/components/links/DeleteAASViewByIdShort"
         "404":
           description: AssetAdministrationShell or View not found
           content:
@@ -318,6 +344,22 @@ paths:
       tags:
         - Asset Administration Shell Interface
 components:
+  links:
+    ReadAASViewByIdShort:
+      description: The `idShort` of the returned View can be used to read the View.
+      operationId: ReadAASView
+      parameters:
+        view-idShort: "$response.body#/data/idShort"
+    UpdateAASViewByIdShort:
+      description: The `idShort` of the returned View can be used to update the View.
+      operationId: UpdateAASView
+      parameters:
+        view-idShort: "$response.body#/data/idShort"
+    DeleteAASViewByIdShort:
+      description: The `idShort` of the returned View can be used to delete the View.
+      operationId: DeleteAASView
+      parameters:
+        view-idShort: "$response.body#/data/idShort"
   schemas:
     BaseResult:
       type: object
