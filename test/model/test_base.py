@@ -322,6 +322,8 @@ class ExampleNamespaceReferable(model.UniqueIdShortNamespace, model.UniqueSemant
         super().__init__()
         self.set1 = model.NamespaceSet(self, [("id_short", False), ("semantic_id", True)])
         self.set2 = model.NamespaceSet(self, [("id_short", False)], values)
+        self.set3 = model.NamespaceSet(self, [("name", True)])
+        self.set4 = model.NamespaceSet(self, [("type", True)])
 
 
 class ExampleNamespaceQualifier(model.Qualifiable):
@@ -356,6 +358,8 @@ class ModelNamespaceTest(unittest.TestCase):
         self.qualifier1 = model.Qualifier("type1", model.datatypes.Int, 1)
         self.qualifier2 = model.Qualifier("type2", model.datatypes.Int, 1)
         self.qualifier1alt = model.Qualifier("type1", model.datatypes.Int, 1)
+        self.extension1 = model.Extension("Ext1", model.datatypes.Int, 1)
+        self.extension2 = model.Extension("Ext2", model.datatypes.Int, 1)
         self.namespace = self._namespace_class()
         self.namespace3 = self._namespace_class_qualifier()
 
@@ -417,7 +421,7 @@ class ModelNamespaceTest(unittest.TestCase):
         self.assertIsNone(self.prop1.parent)
         self.namespace.set1.add(self.prop1)
         self.assertEqual(2, len(self.namespace.set1))
-        self.namespace.set1.remove(("id_short", self.prop1.id_short))
+        self.namespace.set1.remove_by_id("id_short", self.prop1.id_short)
         self.assertEqual(1, len(self.namespace.set1))
         self.assertIsNone(self.prop1.parent)
 
@@ -482,6 +486,22 @@ class ModelNamespaceTest(unittest.TestCase):
             self.prop1.id_short = "Prop2"
         self.assertIn("already present", str(cm.exception))
 
+        self.namespace.set3.add(self.extension1)
+        self.namespace.set3.add(self.extension2)
+        with self.assertRaises(KeyError) as cm:
+            self.extension1.name = "Ext2"
+        self.assertIn("already present", str(cm.exception))
+        self.extension1.name = "Ext3"
+        self.assertEqual(self.extension1.name, "Ext3")
+
+        self.namespace.set4.add(self.qualifier1)
+        self.namespace.set4.add(self.qualifier2)
+        with self.assertRaises(KeyError) as cm:
+            self.qualifier1.type = "type2"
+        self.assertIn("already present", str(cm.exception))
+        self.qualifier1.type = "type3"
+        self.assertEqual(self.qualifier1.type, "type3")
+
     def test_Namespaceset_update_from(self) -> None:
         # Prop1 is getting its value updated by namespace2.set1
         # Prop2 is getting deleted since it does not exist in namespace2.set1
@@ -505,7 +525,7 @@ class ModelNamespaceTest(unittest.TestCase):
         assert(isinstance(prop3_new, model.Property))
         self.assertEqual(prop3_new.value, 2)
         # Check that Prop2 got removed correctly
-        self.assertNotIn(("id_short", "Prop2"), namespace1.set2)
+        self.assertFalse(namespace1.set2.contains_id("id_short", "Prop2"))
         with self.assertRaises(KeyError):
             namespace1.get_referable("Prop2")
         self.assertIsNone(prop2.parent)
@@ -524,6 +544,8 @@ class ExampleOrderedNamespace(model.UniqueIdShortNamespace, model.UniqueSemantic
         super().__init__()
         self.set1 = model.OrderedNamespaceSet(self, [("id_short", False), ("semantic_id", True)])
         self.set2 = model.OrderedNamespaceSet(self, [("id_short", False)], values)
+        self.set3 = model.NamespaceSet(self, [("name", True)])
+        self.set4 = model.NamespaceSet(self, [("type", True)])
 
 
 class ModelOrderedNamespaceTest(ModelNamespaceTest):
