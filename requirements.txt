@@ -5,3 +5,5 @@ types-python-dateutil
 pyecma376-2>=0.2.4
 urllib3>=1.26,<2.0
 Werkzeug>=1.0.1,<2
+schemathesis~=3.7
+hypothesis~=6.13

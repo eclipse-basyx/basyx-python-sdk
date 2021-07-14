@@ -19,6 +19,7 @@
 /.coverage
 /htmlcov/
 /docs/build/
+/.hypothesis/
 
 # customized config files
 /test/test_config.ini
