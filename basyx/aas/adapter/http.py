@@ -11,6 +11,7 @@
 
 
 import abc
+import datetime
 import enum
 import io
 import json
@@ -24,83 +25,89 @@ from werkzeug.wrappers import Request, Response
 
 from aas import model
 from .xml import XMLConstructables, read_aas_xml_element, xml_serialization
-from .json import StrippedAASToJsonEncoder, StrictStrippedAASFromJsonDecoder
+from .json import AASToJsonEncoder, StrictAASFromJsonDecoder, StrictStrippedAASFromJsonDecoder
 from ._generic import IDENTIFIER_TYPES, IDENTIFIER_TYPES_INVERSE
 
-from typing import Callable, Dict, Iterable, List, Optional, Tuple, Type, TypeVar, Union
+from typing import Callable, Dict, List, Optional, Type, TypeVar, Union
+
+
+# TODO: support the path/reference/etc. parameter
 
 
 @enum.unique
-class ErrorType(enum.Enum):
-    UNSPECIFIED = enum.auto()
-    DEBUG = enum.auto()
-    INFORMATION = enum.auto()
+class MessageType(enum.Enum):
+    UNDEFINED = enum.auto()
+    INFO = enum.auto()
     WARNING = enum.auto()
     ERROR = enum.auto()
-    FATAL = enum.auto()
     EXCEPTION = enum.auto()
 
     def __str__(self):
         return self.name.capitalize()
 
 
-class Error:
-    def __init__(self, code: str, text: str, type_: ErrorType = ErrorType.UNSPECIFIED):
-        self.type = type_
+class Message:
+    def __init__(self, code: str, text: str, type_: MessageType = MessageType.UNDEFINED,
+                 timestamp: Optional[datetime.datetime] = None):
         self.code = code
         self.text = text
-
-
-ResultData = Union[object, Tuple[object, ...]]
+        self.messageType = type_
+        self.timestamp = timestamp if timestamp is not None else datetime.datetime.utcnow()
 
 
 class Result:
-    def __init__(self, data: Optional[Union[ResultData, Error]]):
-        # the following is True when data is None, which is the expected behavior
-        self.success: bool = not isinstance(data, Error)
-        self.data: Optional[ResultData] = None
-        self.error: Optional[Error] = None
-        if isinstance(data, Error):
-            self.error = data
-        else:
-            self.data = data
+    def __init__(self, success: bool, messages: Optional[List[Message]] = None):
+        if messages is None:
+            messages = []
+        self.success: bool = success
+        self.messages: List[Message] = messages
 
 
-class ResultToJsonEncoder(StrippedAASToJsonEncoder):
+class ResultToJsonEncoder(AASToJsonEncoder):
     @classmethod
     def _result_to_json(cls, result: Result) -> Dict[str, object]:
         return {
             "success": result.success,
-            "error": result.error,
-            "data": result.data
+            "messages": result.messages
         }
 
     @classmethod
-    def _error_to_json(cls, error: Error) -> Dict[str, object]:
+    def _message_to_json(cls, message: Message) -> Dict[str, object]:
         return {
-            "type": error.type,
-            "code": error.code,
-            "text": error.text
+            "messageType": message.messageType,
+            "text": message.text,
+            "code": message.code,
+            "timestamp": message.timestamp.isoformat()
         }
 
     def default(self, obj: object) -> object:
         if isinstance(obj, Result):
             return self._result_to_json(obj)
-        if isinstance(obj, Error):
-            return self._error_to_json(obj)
-        if isinstance(obj, ErrorType):
+        if isinstance(obj, Message):
+            return self._message_to_json(obj)
+        if isinstance(obj, MessageType):
             return str(obj)
         return super().default(obj)
 
 
+class StrippedResultToJsonEncoder(ResultToJsonEncoder):
+    stripped = True
+
+
+ResponseData = Union[Result, object, List[object]]
+
+
 class APIResponse(abc.ABC, Response):
     @abc.abstractmethod
-    def __init__(self, result: Result, *args, **kwargs):
+    def __init__(self, obj: Optional[ResponseData] = None, stripped: bool = False, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.data = self.serialize(result)
+        if obj is None:
+            self.status_code = 204
+        else:
+            self.data = self.serialize(obj, stripped)
 
     @abc.abstractmethod
-    def serialize(self, result: Result) -> str:
+    def serialize(self, obj: ResponseData, stripped: bool) -> str:
         pass
 
 
@@ -108,18 +115,33 @@ class JsonResponse(APIResponse):
     def __init__(self, *args, content_type="application/json", **kwargs):
         super().__init__(*args, **kwargs, content_type=content_type)
 
-    def serialize(self, result: Result) -> str:
-        return json.dumps(result, cls=ResultToJsonEncoder, separators=(",", ":"))
+    def serialize(self, obj: ResponseData, stripped: bool) -> str:
+        return json.dumps(obj, cls=StrippedResultToJsonEncoder if stripped else ResultToJsonEncoder,
+                          separators=(",", ":"))
 
 
 class XmlResponse(APIResponse):
     def __init__(self, *args, content_type="application/xml", **kwargs):
         super().__init__(*args, **kwargs, content_type=content_type)
 
-    def serialize(self, result: Result) -> str:
-        result_elem = result_to_xml(result, nsmap=xml_serialization.NS_MAP)
-        etree.cleanup_namespaces(result_elem)
-        return etree.tostring(result_elem, xml_declaration=True, encoding="utf-8")
+    def serialize(self, obj: ResponseData, stripped: bool) -> str:
+        # TODO: xml serialization doesn't support stripped objects
+        if isinstance(obj, Result):
+            response_elem = result_to_xml(obj, nsmap=xml_serialization.NS_MAP)
+            etree.cleanup_namespaces(response_elem)
+        else:
+            if isinstance(obj, list):
+                response_elem = etree.Element("list", nsmap=xml_serialization.NS_MAP)
+                for obj in obj:
+                    response_elem.append(aas_object_to_xml(obj))
+                etree.cleanup_namespaces(response_elem)
+            else:
+                # dirty hack to be able to use the namespace prefixes defined in xml_serialization.NS_MAP
+                parent = etree.Element("parent", nsmap=xml_serialization.NS_MAP)
+                response_elem = aas_object_to_xml(obj)
+                parent.append(response_elem)
+                etree.cleanup_namespaces(parent)
+        return etree.tostring(response_elem, xml_declaration=True, encoding="utf-8")
 
 
 class XmlResponseAlt(XmlResponse):
@@ -131,51 +153,41 @@ def result_to_xml(result: Result, **kwargs) -> etree.Element:
     result_elem = etree.Element("result", **kwargs)
     success_elem = etree.Element("success")
     success_elem.text = xml_serialization.boolean_to_xml(result.success)
-    if result.error is None:
-        error_elem = etree.Element("error")
-    else:
-        error_elem = error_to_xml(result.error)
-    data_elem = etree.Element("data")
-    if result.data is not None:
-        for element in result_data_to_xml(result.data):
-            data_elem.append(element)
+    messages_elem = etree.Element("messages")
+    for message in result.messages:
+        messages_elem.append(message_to_xml(message))
+
     result_elem.append(success_elem)
-    result_elem.append(error_elem)
-    result_elem.append(data_elem)
+    result_elem.append(messages_elem)
     return result_elem
 
 
-def error_to_xml(error: Error) -> etree.Element:
-    error_elem = etree.Element("error")
-    type_elem = etree.Element("type")
-    type_elem.text = str(error.type)
-    code_elem = etree.Element("code")
-    code_elem.text = error.code
+def message_to_xml(message: Message) -> etree.Element:
+    message_elem = etree.Element("message")
+    message_type_elem = etree.Element("messageType")
+    message_type_elem.text = str(message.messageType)
     text_elem = etree.Element("text")
-    text_elem.text = error.text
-    error_elem.append(type_elem)
-    error_elem.append(code_elem)
-    error_elem.append(text_elem)
-    return error_elem
+    text_elem.text = message.text
+    code_elem = etree.Element("code")
+    code_elem.text = message.code
+    timestamp_elem = etree.Element("timestamp")
+    timestamp_elem.text = message.timestamp.isoformat()
 
-
-def result_data_to_xml(data: ResultData) -> Iterable[etree.Element]:
-    # for xml we can just append multiple elements to the data element
-    # so multiple elements will be handled the same as a single element
-    if not isinstance(data, tuple):
-        data = (data,)
-    for obj in data:
-        yield aas_object_to_xml(obj)
+    message_elem.append(message_type_elem)
+    message_elem.append(text_elem)
+    message_elem.append(code_elem)
+    message_elem.append(timestamp_elem)
+    return message_elem
 
 
 def aas_object_to_xml(obj: object) -> etree.Element:
     # TODO: a similar function should be implemented in the xml serialization
     if isinstance(obj, model.AssetAdministrationShell):
         return xml_serialization.asset_administration_shell_to_xml(obj)
+    if isinstance(obj, model.AssetInformation):
+        return xml_serialization.asset_information_to_xml(obj)
     if isinstance(obj, model.Reference):
         return xml_serialization.reference_to_xml(obj)
-    if isinstance(obj, model.View):
-        return xml_serialization.view_to_xml(obj)
     if isinstance(obj, model.Submodel):
         return xml_serialization.submodel_to_xml(obj)
     # TODO: xml serialization needs a constraint_to_xml() function
@@ -208,12 +220,16 @@ def http_exception_to_response(exception: werkzeug.exceptions.HTTPException, res
     if location is not None:
         headers.append(("Location", location))
     if exception.code and exception.code >= 400:
-        error = Error(type(exception).__name__, exception.description if exception.description is not None else "",
-                      ErrorType.ERROR)
-        result = Result(error)
+        message = Message(type(exception).__name__, exception.description if exception.description is not None else "",
+                          MessageType.ERROR)
+        result = Result(False, [message])
     else:
-        result = Result(None)
+        result = Result(False)
     return response_type(result, status=exception.code, headers=headers)
+
+
+def is_stripped_request(request: Request) -> bool:
+    return request.args.get("level") == "core"
 
 
 T = TypeVar("T")
@@ -228,6 +244,8 @@ def parse_request_body(request: Request, expect_type: Type[T]) -> T:
         which should limit the maximum content length.
     """
     type_constructables_map = {
+        model.AssetAdministrationShell: XMLConstructables.ASSET_ADMINISTRATION_SHELL,
+        model.AssetInformation: XMLConstructables.ASSET_INFORMATION,
         model.AASReference: XMLConstructables.AAS_REFERENCE,
         model.View: XMLConstructables.VIEW,
         model.Qualifier: XMLConstructables.QUALIFIER,
@@ -245,17 +263,22 @@ def parse_request_body(request: Request, expect_type: Type[T]) -> T:
 
     try:
         if request.mimetype == "application/json":
-            rv = json.loads(request.get_data(), cls=StrictStrippedAASFromJsonDecoder)
+            decoder: Type[StrictAASFromJsonDecoder] = StrictStrippedAASFromJsonDecoder if is_stripped_request(request) \
+                                                      else StrictAASFromJsonDecoder
+            rv = json.loads(request.get_data(), cls=decoder)
             # TODO: the following is ugly, but necessary because references aren't self-identified objects
             #  in the json schema
             # TODO: json deserialization will always create an AASReference[Submodel], xml deserialization determines
             #  that automatically
             if expect_type is model.AASReference:
-                rv = StrictStrippedAASFromJsonDecoder._construct_aas_reference(rv, model.Submodel)
+                rv = decoder._construct_aas_reference(rv, model.Submodel)
+            elif expect_type is model.AssetInformation:
+                rv = decoder._construct_asset_information(rv, model.AssetInformation)
         else:
             try:
                 xml_data = io.BytesIO(request.get_data())
-                rv = read_aas_xml_element(xml_data, type_constructables_map[expect_type], stripped=True, failsafe=False)
+                rv = read_aas_xml_element(xml_data, type_constructables_map[expect_type],
+                                          stripped=is_stripped_request(request), failsafe=False)
             except (KeyError, ValueError) as e:
                 # xml deserialization creates an error chain. since we only return one error, return the root cause
                 f: BaseException = e
@@ -331,25 +354,17 @@ class WSGIApp:
         self.object_store: model.AbstractObjectStore = object_store
         self.url_map = werkzeug.routing.Map([
             Submount("/api/v1", [
-                Submount("/aas/<identifier:aas_id>", [
+                Submount("/aas/<identifier:aas_id>/aas", [
                     Rule("/", methods=["GET"], endpoint=self.get_aas),
+                    Rule("/", methods=["PUT"], endpoint=self.put_aas),
+                    Rule("/assetInformation", methods=["GET"], endpoint=self.get_aas_asset_information),
+                    Rule("/assetInformation", methods=["PUT"], endpoint=self.put_aas_asset_information),
                     Submount("/submodels", [
                         Rule("/", methods=["GET"], endpoint=self.get_aas_submodel_refs),
-                        Rule("/", methods=["POST"], endpoint=self.post_aas_submodel_refs),
-                        Rule("/<identifier:sm_id>/", methods=["GET"],
-                             endpoint=self.get_aas_submodel_refs_specific),
+                        Rule("/<identifier:sm_id>/", methods=["PUT"],
+                             endpoint=self.put_aas_submodel_refs),
                         Rule("/<identifier:sm_id>/", methods=["DELETE"],
                              endpoint=self.delete_aas_submodel_refs_specific)
-                    ]),
-                    Submount("/views", [
-                        Rule("/", methods=["GET"], endpoint=self.get_aas_views),
-                        Rule("/", methods=["POST"], endpoint=self.post_aas_views),
-                        Rule("/<string:view_idshort>/", methods=["GET"],
-                             endpoint=self.get_aas_views_specific),
-                        Rule("/<string:view_idshort>/", methods=["PUT"],
-                             endpoint=self.put_aas_views_specific),
-                        Rule("/<string:view_idshort>/", methods=["DELETE"],
-                             endpoint=self.delete_aas_views_specific)
                     ])
                 ]),
                 Submount("/submodels/<identifier:submodel_id>", [
@@ -497,41 +512,48 @@ class WSGIApp:
         response_t = get_response_type(request)
         aas = self._get_obj_ts(url_args["aas_id"], model.AssetAdministrationShell)
         aas.update()
-        return response_t(Result(aas))
+        return response_t(aas, stripped=is_stripped_request(request))
+
+    def put_aas(self, request: Request, url_args: Dict, **_kwargs) -> Response:
+        response_t = get_response_type(request)
+        aas = self._get_obj_ts(url_args["aas_id"], model.AssetAdministrationShell)
+        aas.update()
+        aas_new = parse_request_body(request, model.AssetAdministrationShell)
+        aas.update_from(aas_new)
+        aas.commit()
+        return response_t()
+
+    def get_aas_asset_information(self, request: Request, url_args: Dict, **_kwargs) -> Response:
+        response_t = get_response_type(request)
+        aas = self._get_obj_ts(url_args["aas_id"], model.AssetAdministrationShell)
+        aas.update()
+        return response_t(aas.asset_information)
+
+    def put_aas_asset_information(self, request: Request, url_args: Dict, **_kwargs) -> Response:
+        response_t = get_response_type(request)
+        aas = self._get_obj_ts(url_args["aas_id"], model.AssetAdministrationShell)
+        aas.update()
+        aas.asset_information = parse_request_body(request, model.AssetInformation)
+        aas.commit()
+        return response_t()
 
     def get_aas_submodel_refs(self, request: Request, url_args: Dict, **_kwargs) -> Response:
         response_t = get_response_type(request)
         aas = self._get_obj_ts(url_args["aas_id"], model.AssetAdministrationShell)
         aas.update()
-        return response_t(Result(tuple(aas.submodel)))
+        return response_t(list(aas.submodel))
 
-    def post_aas_submodel_refs(self, request: Request, url_args: Dict, map_adapter: MapAdapter) -> Response:
+    def put_aas_submodel_refs(self, request: Request, url_args: Dict, **_kwargs) -> Response:
         response_t = get_response_type(request)
         aas_identifier = url_args["aas_id"]
         aas = self._get_obj_ts(aas_identifier, model.AssetAdministrationShell)
         aas.update()
         sm_ref = parse_request_body(request, model.AASReference)
-        # to give a location header in the response we have to be able to get the submodel identifier from the reference
-        try:
-            submodel_identifier = sm_ref.get_identifier()
-        except ValueError as e:
-            raise UnprocessableEntity(f"Can't resolve submodel identifier for given reference!") from e
         if sm_ref in aas.submodel:
             raise Conflict(f"{sm_ref!r} already exists!")
         aas.submodel.add(sm_ref)
         aas.commit()
-        created_resource_url = map_adapter.build(self.get_aas_submodel_refs_specific, {
-            "aas_id": aas_identifier,
-            "sm_id": submodel_identifier
-        }, force_external=True)
-        return response_t(Result(sm_ref), status=201, headers={"Location": created_resource_url})
-
-    def get_aas_submodel_refs_specific(self, request: Request, url_args: Dict, **_kwargs) -> Response:
-        response_t = get_response_type(request)
-        aas = self._get_obj_ts(url_args["aas_id"], model.AssetAdministrationShell)
-        aas.update()
-        sm_ref = self._get_aas_submodel_reference_by_submodel_identifier(aas, url_args["sm_id"])
-        return response_t(Result(sm_ref))
+        return response_t(sm_ref, status=201)
 
     def delete_aas_submodel_refs_specific(self, request: Request, url_args: Dict, **_kwargs) -> Response:
         response_t = get_response_type(request)
@@ -544,70 +566,7 @@ class WSGIApp:
         # in an InternalServerError
         aas.submodel.remove(sm_ref)
         aas.commit()
-        return response_t(Result(None))
-
-    def get_aas_views(self, request: Request, url_args: Dict, **_kwargs) -> Response:
-        response_t = get_response_type(request)
-        aas = self._get_obj_ts(url_args["aas_id"], model.AssetAdministrationShell)
-        aas.update()
-        return response_t(Result(tuple(aas.view)))
-
-    def post_aas_views(self, request: Request, url_args: Dict, map_adapter: MapAdapter) -> Response:
-        response_t = get_response_type(request)
-        aas_identifier = url_args["aas_id"]
-        aas = self._get_obj_ts(aas_identifier, model.AssetAdministrationShell)
-        aas.update()
-        view = parse_request_body(request, model.View)
-        if aas.view.contains_id("id_short", view.id_short):
-            raise Conflict(f"View with id_short {view.id_short} already exists!")
-        aas.view.add(view)
-        aas.commit()
-        created_resource_url = map_adapter.build(self.get_aas_views_specific, {
-            "aas_id": aas_identifier,
-            "view_idshort": view.id_short
-        }, force_external=True)
-        return response_t(Result(view), status=201, headers={"Location": created_resource_url})
-
-    def get_aas_views_specific(self, request: Request, url_args: Dict, **_kwargs) -> Response:
-        response_t = get_response_type(request)
-        aas = self._get_obj_ts(url_args["aas_id"], model.AssetAdministrationShell)
-        aas.update()
-        view_idshort = url_args["view_idshort"]
-        view = aas.view.get("id_short", view_idshort)
-        if view is None:
-            raise NotFound(f"No view with id_short {view_idshort} found!")
-        return response_t(Result(view))
-
-    def put_aas_views_specific(self, request: Request, url_args: Dict, map_adapter: MapAdapter) -> Response:
-        response_t = get_response_type(request)
-        aas_identifier = url_args["aas_id"]
-        aas = self._get_obj_ts(aas_identifier, model.AssetAdministrationShell)
-        aas.update()
-        view_idshort = url_args["view_idshort"]
-        view = aas.view.get("id_short", view_idshort)
-        if view is None:
-            raise NotFound(f"No view with id_short {view_idshort} found!")
-        new_view = parse_request_body(request, model.View)
-        # TODO: raise conflict if the following fails
-        view.update_from(new_view)
-        view.commit()
-        if view_idshort.upper() != view.id_short.upper():
-            created_resource_url = map_adapter.build(self.put_aas_views_specific, {
-                "aas_id": aas_identifier,
-                "view_idshort": view.id_short
-            }, force_external=True)
-            return response_t(Result(view), status=201, headers={"Location": created_resource_url})
-        return response_t(Result(view))
-
-    def delete_aas_views_specific(self, request: Request, url_args: Dict, **_kwargs) -> Response:
-        response_t = get_response_type(request)
-        aas = self._get_obj_ts(url_args["aas_id"], model.AssetAdministrationShell)
-        aas.update()
-        view_idshort = url_args["view_idshort"]
-        if not aas.view.contains_id("id_short", view_idshort):
-            raise NotFound(f"No view with id_short {view_idshort} found!")
-        aas.view.remove_by_id("id_short", view_idshort)
-        return response_t(Result(None))
+        return response_t()
 
     # --------- SUBMODEL ROUTES ---------
     def get_submodel(self, request: Request, url_args: Dict, **_kwargs) -> Response:
