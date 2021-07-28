@@ -11,6 +11,8 @@
 
 
 import abc
+import base64
+import binascii
 import datetime
 import enum
 import io
@@ -294,58 +296,50 @@ def parse_request_body(request: Request, expect_type: Type[T]) -> T:
     return rv
 
 
-def identifier_uri_encode(id_: model.Identifier) -> str:
-    return IDENTIFIER_TYPES[id_.id_type] + ":" + werkzeug.urls.url_quote(id_.id, safe="")
-
-
-def identifier_uri_decode(id_str: str) -> model.Identifier:
-    try:
-        id_type_str, id_ = id_str.split(":", 1)
-    except ValueError:
-        raise ValueError(f"Identifier '{id_str}' is not of format 'ID_TYPE:ID'")
-    id_type = IDENTIFIER_TYPES_INVERSE.get(id_type_str)
-    if id_type is None:
-        raise ValueError(f"IdentifierType '{id_type_str}' is invalid")
-    return model.Identifier(werkzeug.urls.url_unquote(id_), id_type)
-
-
 class IdentifierConverter(werkzeug.routing.UnicodeConverter):
+    encoding = "utf-8"
+
     def to_url(self, value: model.Identifier) -> str:
-        return super().to_url(identifier_uri_encode(value))
+        return super().to_url(base64.urlsafe_b64encode((IDENTIFIER_TYPES[value.id_type] + ":" + value.id)
+                                                       .encode(self.encoding)))
 
     def to_python(self, value: str) -> model.Identifier:
+        value = super().to_python(value)
         try:
-            return identifier_uri_decode(super().to_python(value))
-        except ValueError as e:
-            raise BadRequest(str(e)) from e
+            decoded = base64.urlsafe_b64decode(super().to_python(value)).decode(self.encoding)
+        except binascii.Error:
+            raise BadRequest(f"Encoded identifier {value} is invalid base64url!")
+        except UnicodeDecodeError:
+            raise BadRequest(f"Encoded base64url value is not a valid utf-8 string!")
+        id_type_str, id_ = decoded.split(":", 1)
+        try:
+            return model.Identifier(id_, IDENTIFIER_TYPES_INVERSE[id_type_str])
+        except KeyError:
+            raise BadRequest(f"{id_type_str} is not a valid identifier type!")
 
 
-def validate_id_short(id_short: str) -> bool:
-    try:
-        model.MultiLanguageProperty(id_short)
-    except model.AASConstraintViolation:
-        return False
-    return True
+class IdShortPathConverter(werkzeug.routing.UnicodeConverter):
+    id_short_sep = "."
 
-
-class IdShortPathConverter(werkzeug.routing.PathConverter):
-    id_short_prefix = "!"
+    @classmethod
+    def validate_id_short(cls, id_short: str) -> bool:
+        try:
+            model.MultiLanguageProperty(id_short)
+        except model.AASConstraintViolation:
+            return False
+        return True
 
     def to_url(self, value: List[str]) -> str:
         for id_short in value:
-            if not validate_id_short(id_short):
+            if not self.validate_id_short(id_short):
                 raise ValueError(f"{id_short} is not a valid id_short!")
-        return "/".join([self.id_short_prefix + id_short for id_short in value])
+        return super().to_url(".".join(id_short for id_short in value))
 
     def to_python(self, value: str) -> List[str]:
-        id_shorts = super().to_python(value).split("/")
-        for idx, id_short in enumerate(id_shorts):
-            if not id_short.startswith(self.id_short_prefix):
-                raise werkzeug.routing.ValidationError
-            id_short = id_short[1:]
-            if not validate_id_short(id_short):
+        id_shorts = super().to_python(value).split(self.id_short_sep)
+        for id_short in id_shorts:
+            if not self.validate_id_short(id_short):
                 raise BadRequest(f"{id_short} is not a valid id_short!")
-            id_shorts[idx] = id_short
         return id_shorts
 
 
