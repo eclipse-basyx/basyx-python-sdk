@@ -348,7 +348,7 @@ class WSGIApp:
         self.object_store: model.AbstractObjectStore = object_store
         self.url_map = werkzeug.routing.Map([
             Submount("/api/v1", [
-                Submount("/aas/<identifier:aas_id>/aas", [
+                Submount("/shells/<identifier:aas_id>/aas", [
                     Rule("/", methods=["GET"], endpoint=self.get_aas),
                     Rule("/", methods=["PUT"], endpoint=self.put_aas),
                     Rule("/assetInformation", methods=["GET"], endpoint=self.get_aas_asset_information),
@@ -361,38 +361,50 @@ class WSGIApp:
                              endpoint=self.delete_aas_submodel_refs_specific)
                     ])
                 ]),
-                Submount("/submodels/<identifier:submodel_id>", [
+                Submount("/submodels/<identifier:submodel_id>/submodel", [
                     Rule("/", methods=["GET"], endpoint=self.get_submodel),
-                    Rule("/submodelElements/", methods=["GET"], endpoint=self.get_submodel_submodel_elements),
-                    Rule("/submodelElements/", methods=["POST"], endpoint=self.post_submodel_submodel_elements),
-                    Submount("/<id_short_path:id_shorts>", [
-                        Rule("/", methods=["GET"],
-                             endpoint=self.get_submodel_submodel_elements_specific_nested),
-                        Rule("/", methods=["PUT"],
-                             endpoint=self.put_submodel_submodel_elements_specific_nested),
-                        Rule("/", methods=["DELETE"],
-                             endpoint=self.delete_submodel_submodel_elements_specific_nested),
-                        # TODO: remove the following type: ignore comments when mypy supports abstract types for Type[T]
-                        # see https://github.com/python/mypy/issues/5374
-                        Rule("/values/", methods=["GET"],
-                             endpoint=self.factory_get_submodel_submodel_elements_nested_attr(
-                                 model.SubmodelElementCollection, "value")),  # type: ignore
-                        Rule("/values/", methods=["POST"],
-                             endpoint=self.factory_post_submodel_submodel_elements_nested_attr(
-                                 model.SubmodelElementCollection, "value")),  # type: ignore
-                        Rule("/annotations/", methods=["GET"],
-                             endpoint=self.factory_get_submodel_submodel_elements_nested_attr(
-                                 model.AnnotatedRelationshipElement, "annotation")),
-                        Rule("/annotations/", methods=["POST"],
-                             endpoint=self.factory_post_submodel_submodel_elements_nested_attr(
-                                 model.AnnotatedRelationshipElement, "annotation",
-                                 request_body_type=model.DataElement)),  # type: ignore
-                        Rule("/statements/", methods=["GET"],
-                             endpoint=self.factory_get_submodel_submodel_elements_nested_attr(model.Entity,
-                                                                                              "statement")),
-                        Rule("/statements/", methods=["POST"],
-                             endpoint=self.factory_post_submodel_submodel_elements_nested_attr(model.Entity,
-                                                                                               "statement")),
+                    Rule("/", methods=["PUT"], endpoint=self.put_submodel),
+                    Submount("/submodelElements", [
+                        Rule("/", methods=["GET"], endpoint=self.get_submodel_submodel_elements),
+                        Submount("/<id_short_path:id_shorts>", [
+                            Rule("/", methods=["GET"],
+                                 endpoint=self.get_submodel_submodel_elements_id_short_path),
+                            Rule("/", methods=["PUT"],
+                                 endpoint=self.put_submodel_submodel_elements_id_short_path),
+                            Rule("/", methods=["DELETE"],
+                                 endpoint=self.delete_submodel_submodel_elements_id_short_path),
+                            # TODO: remove the following type: ignore comments when mypy supports abstract types for Type[T]
+                            # see https://github.com/python/mypy/issues/5374
+                            Rule("/values/", methods=["GET"],
+                                 endpoint=self.factory_get_submodel_submodel_elements_nested_attr(
+                                     model.SubmodelElementCollection, "value")),  # type: ignore
+                            Rule("/values/", methods=["POST"],
+                                 endpoint=self.factory_post_submodel_submodel_elements_nested_attr(
+                                     model.SubmodelElementCollection, "value")),  # type: ignore
+                            Rule("/annotations/", methods=["GET"],
+                                 endpoint=self.factory_get_submodel_submodel_elements_nested_attr(
+                                     model.AnnotatedRelationshipElement, "annotation")),
+                            Rule("/annotations/", methods=["POST"],
+                                 endpoint=self.factory_post_submodel_submodel_elements_nested_attr(
+                                     model.AnnotatedRelationshipElement, "annotation",
+                                     request_body_type=model.DataElement)),  # type: ignore
+                            Rule("/statements/", methods=["GET"],
+                                 endpoint=self.factory_get_submodel_submodel_elements_nested_attr(model.Entity,
+                                                                                                  "statement")),
+                            Rule("/statements/", methods=["POST"],
+                                 endpoint=self.factory_post_submodel_submodel_elements_nested_attr(model.Entity,
+                                                                                                   "statement")),
+                            Submount("/constraints", [
+                                Rule("/", methods=["GET"], endpoint=self.get_submodel_submodel_element_constraints),
+                                Rule("/", methods=["POST"], endpoint=self.post_submodel_submodel_element_constraints),
+                                Rule("/<path:qualifier_type>/", methods=["GET"],
+                                     endpoint=self.get_submodel_submodel_element_constraints),
+                                Rule("/<path:qualifier_type>/", methods=["PUT"],
+                                     endpoint=self.put_submodel_submodel_element_constraints),
+                                Rule("/<path:qualifier_type>/", methods=["DELETE"],
+                                     endpoint=self.delete_submodel_submodel_element_constraints),
+                            ])
+                        ]),
                         Submount("/constraints", [
                             Rule("/", methods=["GET"], endpoint=self.get_submodel_submodel_element_constraints),
                             Rule("/", methods=["POST"], endpoint=self.post_submodel_submodel_element_constraints),
@@ -403,16 +415,6 @@ class WSGIApp:
                             Rule("/<path:qualifier_type>/", methods=["DELETE"],
                                  endpoint=self.delete_submodel_submodel_element_constraints),
                         ])
-                    ]),
-                    Submount("/constraints", [
-                        Rule("/", methods=["GET"], endpoint=self.get_submodel_submodel_element_constraints),
-                        Rule("/", methods=["POST"], endpoint=self.post_submodel_submodel_element_constraints),
-                        Rule("/<path:qualifier_type>/", methods=["GET"],
-                             endpoint=self.get_submodel_submodel_element_constraints),
-                        Rule("/<path:qualifier_type>/", methods=["PUT"],
-                             endpoint=self.put_submodel_submodel_element_constraints),
-                        Rule("/<path:qualifier_type>/", methods=["DELETE"],
-                             endpoint=self.delete_submodel_submodel_element_constraints),
                     ])
                 ])
             ])
@@ -512,8 +514,7 @@ class WSGIApp:
         response_t = get_response_type(request)
         aas = self._get_obj_ts(url_args["aas_id"], model.AssetAdministrationShell)
         aas.update()
-        aas_new = parse_request_body(request, model.AssetAdministrationShell)
-        aas.update_from(aas_new)
+        aas.update_from(parse_request_body(request, model.AssetAdministrationShell))
         aas.commit()
         return response_t()
 
@@ -564,82 +565,71 @@ class WSGIApp:
 
     # --------- SUBMODEL ROUTES ---------
     def get_submodel(self, request: Request, url_args: Dict, **_kwargs) -> Response:
+        # TODO: support content, extent parameters
         response_t = get_response_type(request)
         submodel = self._get_obj_ts(url_args["submodel_id"], model.Submodel)
         submodel.update()
-        return response_t(Result(submodel))
+        return response_t(submodel, stripped=is_stripped_request(request))
+
+    def put_submodel(self, request: Request, url_args: Dict, **_kwargs) -> Response:
+        response_t = get_response_type(request)
+        submodel = self._get_obj_ts(url_args["submodel_id"], model.Submodel)
+        submodel.update()
+        submodel.update_from(parse_request_body(request, model.Submodel))
+        submodel.commit()
+        return response_t()
 
     def get_submodel_submodel_elements(self, request: Request, url_args: Dict, **_kwargs) -> Response:
+        # TODO: support content, extent, semanticId, parentPath parameters
         response_t = get_response_type(request)
         submodel = self._get_obj_ts(url_args["submodel_id"], model.Submodel)
         submodel.update()
-        return response_t(Result(tuple(submodel.submodel_element)))
+        return response_t(list(submodel.submodel_element))
 
-    def post_submodel_submodel_elements(self, request: Request, url_args: Dict, map_adapter: MapAdapter) -> Response:
-        response_t = get_response_type(request)
-        submodel_identifier = url_args["submodel_id"]
-        submodel = self._get_obj_ts(submodel_identifier, model.Submodel)
-        submodel.update()
-        # TODO: remove the following type: ignore comments when mypy supports abstract types for Type[T]
-        # see https://github.com/python/mypy/issues/5374
-        submodel_element = parse_request_body(request, model.SubmodelElement)  # type: ignore
-        if submodel.submodel_element.contains_id("id_short", submodel_element.id_short):
-            raise Conflict(f"Submodel element with id_short {submodel_element.id_short} already exists!")
-        submodel.submodel_element.add(submodel_element)
-        submodel.commit()
-        created_resource_url = map_adapter.build(self.get_submodel_submodel_elements_specific_nested, {
-            "submodel_id": submodel_identifier,
-            "id_shorts": [submodel_element.id_short]
-        }, force_external=True)
-        return response_t(Result(submodel_element), status=201, headers={"Location": created_resource_url})
-
-    def get_submodel_submodel_elements_specific_nested(self, request: Request, url_args: Dict, **_kwargs) -> Response:
+    def get_submodel_submodel_elements_id_short_path(self, request: Request, url_args: Dict, **_kwargs) -> Response:
+        # TODO: support content, extent parameters
         response_t = get_response_type(request)
         submodel = self._get_obj_ts(url_args["submodel_id"], model.Submodel)
         submodel.update()
         submodel_element = self._get_nested_submodel_element(submodel, url_args["id_shorts"])
-        return response_t(Result(submodel_element))
+        return response_t(submodel_element, stripped=is_stripped_request(request))
 
-    def put_submodel_submodel_elements_specific_nested(self, request: Request, url_args: Dict,
-                                                       map_adapter: MapAdapter) -> Response:
+    def put_submodel_submodel_elements_id_short_path(self, request: Request, url_args: Dict, **_kwargs) -> Response:
+        # TODO: support content parameter
         response_t = get_response_type(request)
         submodel_identifier = url_args["submodel_id"]
         submodel = self._get_obj_ts(submodel_identifier, model.Submodel)
         submodel.update()
         id_short_path = url_args["id_shorts"]
-        submodel_element = self._get_nested_submodel_element(submodel, id_short_path)
-        current_id_short = submodel_element.id_short
-        # TODO: remove the following type: ignore comments when mypy supports abstract types for Type[T]
-        # see https://github.com/python/mypy/issues/5374
-        new_submodel_element = parse_request_body(request, model.SubmodelElement)  # type: ignore
-        if type(submodel_element) is not type(new_submodel_element):
-            raise UnprocessableEntity(f"Type of new submodel element {new_submodel_element} doesn't not match "
-                                      f"the current submodel element {submodel_element}")
-        # TODO: raise conflict if the following fails
-        submodel_element.update_from(new_submodel_element)
+        parent = self._expect_namespace(
+            self._get_nested_submodel_element(submodel, url_args["id_shorts"][:-1]),
+            id_short_path[-1]
+        )
+        try:
+            submodel_element = parent.get_referable(id_short_path[-1])
+        except KeyError:
+            # TODO: add new submodel element here, currently impossible
+            raise NotImplementedError("Adding submodel elements is currently unsupported!")
+            # return response_t(new_submodel_element, status=201)
+        # TODO: what if only data elements are allowed as children?
+        submodel_element.update_from(parse_request_body(request, model.SubmodelElement))
         submodel_element.commit()
-        if new_submodel_element.id_short.upper() != current_id_short.upper():
-            created_resource_url = map_adapter.build(self.put_submodel_submodel_elements_specific_nested, {
-                "submodel_id": submodel_identifier,
-                "id_shorts": id_short_path[:-1] + [submodel_element.id_short]
-            }, force_external=True)
-            return response_t(Result(submodel_element), status=201, headers={"Location": created_resource_url})
-        return response_t(Result(submodel_element))
+        return response_t()
 
-    def delete_submodel_submodel_elements_specific_nested(self, request: Request, url_args: Dict, **_kwargs) \
+    def delete_submodel_submodel_elements_id_short_path(self, request: Request, url_args: Dict, **_kwargs) \
             -> Response:
         response_t = get_response_type(request)
         submodel = self._get_obj_ts(url_args["submodel_id"], model.Submodel)
         submodel.update()
-        id_shorts: List[str] = url_args["id_shorts"]
+        id_short_path: List[str] = url_args["id_shorts"]
         parent: model.UniqueIdShortNamespace = submodel
-        if len(id_shorts) > 1:
+        if len(id_short_path) > 1:
             parent = self._expect_namespace(
-                self._get_nested_submodel_element(submodel, id_shorts[:-1]),
-                id_shorts[-1]
+                self._get_nested_submodel_element(submodel, id_short_path[:-1]),
+                id_short_path[-1]
             )
-        self._namespace_submodel_element_op(parent, parent.remove_referable, id_shorts[-1])
-        return response_t(Result(None))
+        self._namespace_submodel_element_op(parent, parent.remove_referable, id_short_path[-1])
+        return response_t()
 
     def get_submodel_submodel_element_constraints(self, request: Request, url_args: Dict, **_kwargs) \
             -> Response:
