@@ -420,7 +420,7 @@ class Identifier:
         return "Identifier({}={})".format(self.id_type.name, self.id)
 
 
-_NSO = TypeVar('_NSO', bound=Union["Referable", "Constraint", "HasSemantics", "HasExtension"])
+_NSO = TypeVar('_NSO', bound=Union["Referable", "Constraint", "HasSemantics", "Extension"])
 
 
 class Namespace(metaclass=abc.ABCMeta):
@@ -442,23 +442,18 @@ class Namespace(metaclass=abc.ABCMeta):
 
         :raises KeyError: If no such :class:`~._NSO` can be found
         """
-        object_ = None
         for ns_set in self.namespace_element_sets:
             try:
-                object_ = ns_set.get_object_by_attribute(attribute_name, attribute)
-                break
+                return ns_set.get_object_by_attribute(attribute_name, attribute)
             except KeyError:
                 continue
-        if object_:
-            return object_
-        raise KeyError(f"{object_type.__name__} with {attribute_name} {attribute} not found in this "
-                       f"namespace")
+        raise KeyError(f"{object_type.__name__} with {attribute_name} {attribute} not found in this namespace")
 
     def _remove_object(self, object_type: type, attribute_name: str, attribute) -> None:
         """
-        Remove an :class:`~.Extension` from this namespace by its name
+        Remove an :class:`~.NSO` from this namespace by its attribute
 
-        :raises KeyError: If no such :class:`~.Extension` can be found
+        :raises KeyError: If no such :class:`~.NSO` can be found
         """
         for ns_set in self.namespace_element_sets:
             if attribute_name in ns_set.get_attribute_name_list():
@@ -467,8 +462,7 @@ class Namespace(metaclass=abc.ABCMeta):
                     return
                 except KeyError:
                     continue
-        raise KeyError(f"{object_type.__name__} with {attribute_name} {attribute} not found in this "
-                       f"namespace")
+        raise KeyError(f"{object_type.__name__} with {attribute_name} {attribute} not found in this namespace")
 
 
 class HasExtension(Namespace, metaclass=abc.ABCMeta):
@@ -979,6 +973,8 @@ class HasSemantics(metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def __init__(self):
         super().__init__()
+        # TODO: parent can be any `Namespace`, unfortunately this definition would be incompatible with the definition
+        #  of Referable.parent as `UniqueIdShortNamespace`
         self.parent: Optional[Any] = None
         self._semantic_id: Optional[Reference] = None
 
@@ -989,10 +985,11 @@ class HasSemantics(metaclass=abc.ABCMeta):
     @semantic_id.setter
     def semantic_id(self, semantic_id: Optional[Reference]) -> None:
         if self.parent is not None:
-            for set_ in self.parent.namespace_element_sets:
-                if set_.contains_id("semantic_id", semantic_id):
-                    raise KeyError("Object with semantic_id '{}' is already present in the parent Namespace"
-                                   .format(semantic_id))
+            if semantic_id is not None:
+                for set_ in self.parent.namespace_element_sets:
+                    if set_.contains_id("semantic_id", semantic_id):
+                        raise KeyError("Object with semantic_id '{}' is already present in the parent Namespace"
+                                       .format(semantic_id))
             set_add_list: List[NamespaceSet] = []
             for set_ in self.parent.namespace_element_sets:
                 if self in set_:
@@ -1128,7 +1125,7 @@ class Qualifiable(Namespace, metaclass=abc.ABCMeta):
 
     def get_qualifier_by_type(self, qualifier_type: QualifierType) -> "Qualifier":
         """
-        Find a :class:`~.Qualifier` in this Namespaces by its type
+        Find a :class:`~.Qualifier` in this Namespace by its type
 
         :raises KeyError: If no such :class:`~.Qualifier` can be found
         """
@@ -1167,7 +1164,7 @@ class Qualifier(Constraint, HasSemantics):
         TODO: Add instruction what to do after construction
         """
         super().__init__()
-        self.parent: Optional[Qualifiable] = None  # type: ignore
+        self.parent: Optional[Qualifiable] = None
         self._type: QualifierType
         self.type: QualifierType = type_
         self.value_type: Type[datatypes.AnyXSDType] = value_type
@@ -1274,7 +1271,7 @@ class UniqueIdShortNamespace(Namespace, metaclass=abc.ABCMeta):
 
     def get_referable(self, id_short: str) -> Referable:
         """
-        Find a :class:`~.Referable` in this Namespaces by its id_short
+        Find a :class:`~.Referable` in this Namespace by its id_short
 
         :param id_short: id_short
         :returns: :class:`~.Referable`
