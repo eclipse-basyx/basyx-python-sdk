@@ -303,17 +303,46 @@ class ReferableTest(unittest.TestCase):
         # Sources of embedded objects should always be updated
         self.assertEqual("scheme:NewRelElSource", example_relel.source)
 
-    def test_update_commit_qualifier(self):
+    def test_update_commit_qualifier_extension_semantic_id(self):
         submodel = model.Submodel(model.Identifier("https://acplt.org/Test_Submodel", model.IdentifierType.IRI))
         submodel.update()
         qualifier = model.Qualifier("test", model.datatypes.String)
-        submodel.qualifier.add(qualifier)
+        extension = model.Extension("test")
+        collection = model.SubmodelElementCollection.create("test")
+        semantic_id = model.Reference((model.Key(model.KeyElements.GLOBAL_REFERENCE, "test", model.KeyType.IRI),))
+        property = model.MultiLanguageProperty("test", semantic_id=semantic_id)
+
+        collection.add_referable(property)
+        submodel.add_qualifier(qualifier)
+        submodel.add_extension(extension)
+        submodel.add_referable(collection)
         submodel.commit()
+
         self.assertEqual(next(iter(submodel.qualifier)), qualifier)
+        self.assertEqual(next(iter(submodel.extension)), extension)
+        self.assertEqual(next(iter(submodel.submodel_element)), collection)
+        self.assertEqual(next(iter(collection.value)), property)
+
         submodel.get_qualifier_by_type("test")
+        submodel.get_extension_by_name("test")
+        collection_ = submodel.get_referable("test")
+        self.assertIsInstance(collection_, model.SubmodelElementCollectionUnorderedUniqueSemanticId)
+        assert isinstance(collection_, model.SubmodelElementCollectionUnorderedUniqueSemanticId)
+        collection_.get_object_by_semantic_id(semantic_id)
+
         submodel.remove_qualifier_by_type("test")
+        submodel.remove_extension_by_name("test")
+        submodel.remove_referable("test")
+        collection_.remove_object_by_semantic_id(semantic_id)
+
         with self.assertRaises(StopIteration):
             next(iter(submodel.qualifier))
+        with self.assertRaises(StopIteration):
+            next(iter(submodel.extension))
+        with self.assertRaises(StopIteration):
+            next(iter(submodel.submodel_element))
+        with self.assertRaises(StopIteration):
+            next(iter(collection_.value))
         submodel.commit()
 
 

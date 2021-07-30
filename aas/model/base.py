@@ -449,6 +449,19 @@ class Namespace(metaclass=abc.ABCMeta):
                 continue
         raise KeyError(f"{object_type.__name__} with {attribute_name} {attribute} not found in this namespace")
 
+    def _add_object(self, attribute_name: str, obj: _NSO) -> None:
+        """
+        Add an :class:`~._NSO` to this namespace by its attribute
+
+        :raises KeyError: If no such :class:`~._NSO` can be found
+        """
+        for ns_set in self.namespace_element_sets:
+            if attribute_name not in ns_set.get_attribute_name_list():
+                continue
+            ns_set.add(obj)
+            return
+        raise ValueError(f"{obj!r} can't be added to this namespace")
+
     def _remove_object(self, object_type: type, attribute_name: str, attribute) -> None:
         """
         Remove an :class:`~.NSO` from this namespace by its attribute
@@ -493,6 +506,16 @@ class HasExtension(Namespace, metaclass=abc.ABCMeta):
         :raises KeyError: If no such :class:`~.Extension` can be found
         """
         return super()._get_object(HasExtension, "name", name)
+
+    def add_extension(self, extension: "Extension") -> None:
+        """
+        Add a :class:`~.Extension` to this Namespace
+
+        :param extension: The :class:`~.Extension` to add
+        :raises KeyError: If a :class:`~.Extension` with the same name is already present in this namespace
+        :raises ValueError: If the given :class:`~.Extension` already has a parent namespace
+        """
+        return super()._add_object("name", extension)
 
     def remove_extension_by_name(self, name: str) -> None:
         """
@@ -1131,6 +1154,16 @@ class Qualifiable(Namespace, metaclass=abc.ABCMeta):
         """
         return super()._get_object(Qualifiable, "type", qualifier_type)
 
+    def add_qualifier(self, qualifier: "Qualifier") -> None:
+        """
+        Add a :class:`~.Qualifier` to this Namespace
+
+        :param qualifier: The :class:`~.Qualifier` to add
+        :raises KeyError: If a qualifier with the same type is already present in this namespace
+        :raises ValueError: If the passed object already has a parent namespace
+        """
+        return super()._add_object("type", qualifier)
+
     def remove_qualifier_by_type(self, qualifier_type: QualifierType) -> None:
         """
         Remove a :class:`~.Qualifier` from this Namespace by its type
@@ -1278,6 +1311,16 @@ class UniqueIdShortNamespace(Namespace, metaclass=abc.ABCMeta):
         :raises KeyError: If no such :class:`~.Referable` can be found
         """
         return super()._get_object(Referable, "id_short", id_short)
+
+    def add_referable(self, referable: Referable) -> None:
+        """
+        Add a :class:`~.Referable` to this Namespace
+
+        :param referable: The :class:`~.Referable` to add
+        :raises KeyError: If a :class:`~.Referable` with the same name is already present in this namespace
+        :raises ValueError: If the given :class:`~.Referable` already has a parent namespace
+        """
+        return super()._add_object("id_short", referable)
 
     def remove_referable(self, id_short: str) -> None:
         """
