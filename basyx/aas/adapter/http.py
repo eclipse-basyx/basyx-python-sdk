@@ -605,14 +605,16 @@ class WSGIApp:
             self._get_nested_submodel_element(submodel, url_args["id_shorts"][:-1]),
             id_short_path[-1]
         )
+        # TODO: remove the following type: ignore comment when mypy supports abstract types for Type[T]
+        # see https://github.com/python/mypy/issues/5374
+        new_submodel_element = HTTPApiDecoder.request_body(request, model.SubmodelElement)  # type: ignore
         try:
             submodel_element = parent.get_referable(id_short_path[-1])
         except KeyError:
-            # TODO: add new submodel element here, currently impossible
-            raise NotImplementedError("Adding submodel elements is currently unsupported!")
-            # return response_t(new_submodel_element, status=201)
-        # TODO: what if only data elements are allowed as children?
-        submodel_element.update_from(parse_request_body(request, model.SubmodelElement))
+            parent.add_referable(new_submodel_element)
+            new_submodel_element.commit()
+            return response_t(new_submodel_element, status=201)
+        submodel_element.update_from(new_submodel_element)
         submodel_element.commit()
         return response_t()
 
