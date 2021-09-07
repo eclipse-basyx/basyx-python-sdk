@@ -641,9 +641,9 @@ class WSGIApp:
         sm_or_se = self._get_submodel_or_nested_submodel_element(submodel, url_args.get("id_shorts", []))
         qualifier_type = url_args.get("qualifier_type")
         if qualifier_type is None:
-            return response_t(Result(tuple(sm_or_se.qualifier)))
+            return response_t(list(sm_or_se.qualifier))
         try:
-            return response_t(Result(sm_or_se.get_qualifier_by_type(qualifier_type)))
+            return response_t(sm_or_se.get_qualifier_by_type(qualifier_type))
         except KeyError:
             raise NotFound(f"No constraint with type {qualifier_type} found in {sm_or_se}")
 
@@ -665,7 +665,7 @@ class WSGIApp:
             "id_shorts": id_shorts if len(id_shorts) != 0 else None,
             "qualifier_type": qualifier.type
         }, force_external=True)
-        return response_t(Result(qualifier), status=201, headers={"Location": created_resource_url})
+        return response_t(qualifier, status=201, headers={"Location": created_resource_url})
 
     def put_submodel_submodel_element_constraints(self, request: Request, url_args: Dict, map_adapter: MapAdapter) \
             -> Response:
@@ -696,8 +696,8 @@ class WSGIApp:
                 "id_shorts": id_shorts if len(id_shorts) != 0 else None,
                 "qualifier_type": new_qualifier.type
             }, force_external=True)
-            return response_t(Result(new_qualifier), status=201, headers={"Location": created_resource_url})
-        return response_t(Result(new_qualifier))
+            return response_t(new_qualifier, status=201, headers={"Location": created_resource_url})
+        return response_t(new_qualifier)
 
     def delete_submodel_submodel_element_constraints(self, request: Request, url_args: Dict, **_kwargs) \
             -> Response:
