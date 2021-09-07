@@ -30,7 +30,7 @@ from .xml import XMLConstructables, read_aas_xml_element, xml_serialization
 from .json import AASToJsonEncoder, StrictAASFromJsonDecoder, StrictStrippedAASFromJsonDecoder
 from ._generic import IDENTIFIER_TYPES, IDENTIFIER_TYPES_INVERSE
 
-from typing import Callable, Dict, List, Optional, Type, TypeVar, Union
+from typing import Callable, Dict, Iterator, List, Optional, Type, TypeVar, Union
 
 
 # TODO: support the path/reference/etc. parameter
@@ -237,63 +237,105 @@ def is_stripped_request(request: Request) -> bool:
 T = TypeVar("T")
 
 
-def parse_request_body(request: Request, expect_type: Type[T]) -> T:
-    """
-    TODO: werkzeug documentation recommends checking the content length before retrieving the body to prevent
-          running out of memory. but it doesn't state how to check the content length
-          also: what would be a reasonable maximum content length? the request body isn't limited by the xml/json schema
-        In the meeting (25.11.2020) we discussed, this may refer to a reverse proxy in front of this WSGI app,
-        which should limit the maximum content length.
-    """
+class HTTPApiDecoder:
+    # these are the types we can construct (well, only the ones we need)
     type_constructables_map = {
         model.AssetAdministrationShell: XMLConstructables.ASSET_ADMINISTRATION_SHELL,
         model.AssetInformation: XMLConstructables.ASSET_INFORMATION,
         model.AASReference: XMLConstructables.AAS_REFERENCE,
-        model.View: XMLConstructables.VIEW,
+        model.IdentifierKeyValuePair: XMLConstructables.IDENTIFIER_KEY_VALUE_PAIR,
         model.Qualifier: XMLConstructables.QUALIFIER,
         model.SubmodelElement: XMLConstructables.SUBMODEL_ELEMENT
     }
 
-    if expect_type not in type_constructables_map:
-        raise TypeError(f"Parsing {expect_type} is not supported!")
+    @classmethod
+    def check_type_supportance(cls, type_: type):
+        if type_ not in cls.type_constructables_map:
+            raise TypeError(f"Parsing {type_} is not supported!")
 
-    valid_content_types = ("application/json", "application/xml", "text/xml")
+    @classmethod
+    def assert_type(cls, obj: object, type_: Type[T]) -> T:
+        if not isinstance(obj, type_):
+            raise UnprocessableEntity(f"Object {obj!r} is not of type {type_.__name__}!")
+        return obj
 
-    if request.mimetype not in valid_content_types:
-        raise werkzeug.exceptions.UnsupportedMediaType(f"Invalid content-type: {request.mimetype}! Supported types: "
-                                                       + ", ".join(valid_content_types))
-
-    try:
-        if request.mimetype == "application/json":
-            decoder: Type[StrictAASFromJsonDecoder] = StrictStrippedAASFromJsonDecoder if is_stripped_request(request) \
-                                                      else StrictAASFromJsonDecoder
-            rv = json.loads(request.get_data(), cls=decoder)
+    @classmethod
+    def json_list(cls, data: Union[str, bytes], expect_type: Type[T], stripped: bool, expect_single: bool) -> List[T]:
+        cls.check_type_supportance(expect_type)
+        decoder: Type[StrictAASFromJsonDecoder] = StrictStrippedAASFromJsonDecoder if stripped \
+            else StrictAASFromJsonDecoder
+        try:
+            parsed = json.loads(data, cls=decoder)
+            if not isinstance(parsed, list):
+                if not expect_single:
+                    raise UnprocessableEntity(f"Expected List[{expect_type.__name__}], got {parsed!r}!")
+                parsed = [parsed]
+            elif expect_single:
+                raise UnprocessableEntity(f"Expected a single object of type {expect_type.__name__}, got {parsed!r}!")
             # TODO: the following is ugly, but necessary because references aren't self-identified objects
             #  in the json schema
             # TODO: json deserialization will always create an AASReference[Submodel], xml deserialization determines
             #  that automatically
+            constructor: Optional[Callable[..., T]] = None
+            args = []
             if expect_type is model.AASReference:
-                rv = decoder._construct_aas_reference(rv, model.Submodel)
+                constructor = decoder._construct_aas_reference  # type: ignore
+                args.append(model.Submodel)
             elif expect_type is model.AssetInformation:
-                rv = decoder._construct_asset_information(rv, model.AssetInformation)
-        else:
-            try:
-                xml_data = io.BytesIO(request.get_data())
-                rv = read_aas_xml_element(xml_data, type_constructables_map[expect_type],
-                                          stripped=is_stripped_request(request), failsafe=False)
-            except (KeyError, ValueError) as e:
-                # xml deserialization creates an error chain. since we only return one error, return the root cause
-                f: BaseException = e
-                while f.__cause__ is not None:
-                    f = f.__cause__
-                raise f from e
-    except (KeyError, ValueError, TypeError, json.JSONDecodeError, etree.XMLSyntaxError, model.AASConstraintViolation) \
-            as e:
-        raise UnprocessableEntity(str(e)) from e
+                constructor = decoder._construct_asset_information  # type: ignore
+            elif expect_type is model.IdentifierKeyValuePair:
+                constructor = decoder._construct_identifier_key_value_pair  # type: ignore
 
-    if not isinstance(rv, expect_type):
-        raise UnprocessableEntity(f"Object {rv!r} is not of type {expect_type.__name__}!")
-    return rv
+            if constructor is not None:
+                # construct elements that aren't self-identified
+                return [constructor(obj, *args) for obj in parsed]
+
+        except (KeyError, ValueError, TypeError, json.JSONDecodeError, model.AASConstraintViolation) as e:
+            raise UnprocessableEntity(str(e)) from e
+
+        return [cls.assert_type(obj, expect_type) for obj in parsed]
+
+    @classmethod
+    def json(cls, data: Union[str, bytes], expect_type: Type[T], stripped: bool) -> T:
+        return cls.json_list(data, expect_type, stripped, True)[0]
+
+    @classmethod
+    def xml(cls, data: bytes, expect_type: Type[T], stripped: bool) -> T:
+        cls.check_type_supportance(expect_type)
+        try:
+            xml_data = io.BytesIO(data)
+            rv = read_aas_xml_element(xml_data, cls.type_constructables_map[expect_type],
+                                      stripped=stripped, failsafe=False)
+        except (KeyError, ValueError) as e:
+            # xml deserialization creates an error chain. since we only return one error, return the root cause
+            f: BaseException = e
+            while f.__cause__ is not None:
+                f = f.__cause__
+            raise UnprocessableEntity(str(f)) from e
+        except (etree.XMLSyntaxError, model.AASConstraintViolation) as e:
+            raise UnprocessableEntity(str(e)) from e
+        return cls.assert_type(rv, expect_type)
+
+    @classmethod
+    def request_body(cls, request: Request, expect_type: Type[T], stripped: bool) -> T:
+        """
+        TODO: werkzeug documentation recommends checking the content length before retrieving the body to prevent
+              running out of memory. but it doesn't state how to check the content length
+              also: what would be a reasonable maximum content length? the request body isn't limited by the xml/json
+              schema
+            In the meeting (25.11.2020) we discussed, this may refer to a reverse proxy in front of this WSGI app,
+            which should limit the maximum content length.
+        """
+        valid_content_types = ("application/json", "application/xml", "text/xml")
+
+        if request.mimetype not in valid_content_types:
+            raise werkzeug.exceptions.UnsupportedMediaType(
+                f"Invalid content-type: {request.mimetype}! Supported types: "
+                + ", ".join(valid_content_types))
+
+        if request.mimetype == "application/json":
+            return cls.json(request.get_data(), expect_type, stripped)
+        return cls.xml(request.get_data(), expect_type, stripped)
 
 
 class IdentifierConverter(werkzeug.routing.UnicodeConverter):
@@ -348,72 +390,70 @@ class WSGIApp:
         self.object_store: model.AbstractObjectStore = object_store
         self.url_map = werkzeug.routing.Map([
             Submount("/api/v1", [
-                Submount("/shells/<identifier:aas_id>/aas", [
-                    Rule("/", methods=["GET"], endpoint=self.get_aas),
-                    Rule("/", methods=["PUT"], endpoint=self.put_aas),
-                    Rule("/assetInformation", methods=["GET"], endpoint=self.get_aas_asset_information),
-                    Rule("/assetInformation", methods=["PUT"], endpoint=self.put_aas_asset_information),
-                    Submount("/submodels", [
-                        Rule("/", methods=["GET"], endpoint=self.get_aas_submodel_refs),
-                        Rule("/<identifier:sm_id>/", methods=["PUT"],
-                             endpoint=self.put_aas_submodel_refs),
-                        Rule("/<identifier:sm_id>/", methods=["DELETE"],
-                             endpoint=self.delete_aas_submodel_refs_specific)
+                Submount("/shells", [
+                    Rule("/", methods=["GET"], endpoint=self.get_aas_all),
+                    Submount("/<identifier:aas_id>", [
+                        Rule("/", methods=["GET"], endpoint=self.get_aas),
+                        Rule("/", methods=["PUT"], endpoint=self.put_aas),
+                        Rule("/", methods=["DELETE"], endpoint=self.delete_aas),
+                        Submount("/aas", [
+                            Rule("/", methods=["GET"], endpoint=self.get_aas),
+                            Rule("/", methods=["PUT"], endpoint=self.put_aas),
+                            Rule("/assetInformation", methods=["GET"], endpoint=self.get_aas_asset_information),
+                            Rule("/assetInformation", methods=["PUT"], endpoint=self.put_aas_asset_information),
+                            Submount("/submodels", [
+                                Rule("/", methods=["GET"], endpoint=self.get_aas_submodel_refs),
+                                Rule("/<identifier:sm_id>/", methods=["PUT"],
+                                     endpoint=self.put_aas_submodel_refs),
+                                Rule("/<identifier:sm_id>/", methods=["DELETE"],
+                                     endpoint=self.delete_aas_submodel_refs_specific)
+                            ])
+                        ])
                     ])
                 ]),
-                Submount("/submodels/<identifier:submodel_id>/submodel", [
-                    Rule("/", methods=["GET"], endpoint=self.get_submodel),
-                    Rule("/", methods=["PUT"], endpoint=self.put_submodel),
-                    Submount("/submodelElements", [
-                        Rule("/", methods=["GET"], endpoint=self.get_submodel_submodel_elements),
-                        Submount("/<id_short_path:id_shorts>", [
-                            Rule("/", methods=["GET"],
-                                 endpoint=self.get_submodel_submodel_elements_id_short_path),
-                            Rule("/", methods=["PUT"],
-                                 endpoint=self.put_submodel_submodel_elements_id_short_path),
-                            Rule("/", methods=["DELETE"],
-                                 endpoint=self.delete_submodel_submodel_elements_id_short_path),
-                            # TODO: remove the following type: ignore comments when mypy supports abstract types for Type[T]
-                            # see https://github.com/python/mypy/issues/5374
-                            Rule("/values/", methods=["GET"],
-                                 endpoint=self.factory_get_submodel_submodel_elements_nested_attr(
-                                     model.SubmodelElementCollection, "value")),  # type: ignore
-                            Rule("/values/", methods=["POST"],
-                                 endpoint=self.factory_post_submodel_submodel_elements_nested_attr(
-                                     model.SubmodelElementCollection, "value")),  # type: ignore
-                            Rule("/annotations/", methods=["GET"],
-                                 endpoint=self.factory_get_submodel_submodel_elements_nested_attr(
-                                     model.AnnotatedRelationshipElement, "annotation")),
-                            Rule("/annotations/", methods=["POST"],
-                                 endpoint=self.factory_post_submodel_submodel_elements_nested_attr(
-                                     model.AnnotatedRelationshipElement, "annotation",
-                                     request_body_type=model.DataElement)),  # type: ignore
-                            Rule("/statements/", methods=["GET"],
-                                 endpoint=self.factory_get_submodel_submodel_elements_nested_attr(model.Entity,
-                                                                                                  "statement")),
-                            Rule("/statements/", methods=["POST"],
-                                 endpoint=self.factory_post_submodel_submodel_elements_nested_attr(model.Entity,
-                                                                                                   "statement")),
-                            Submount("/constraints", [
-                                Rule("/", methods=["GET"], endpoint=self.get_submodel_submodel_element_constraints),
-                                Rule("/", methods=["POST"], endpoint=self.post_submodel_submodel_element_constraints),
-                                Rule("/<path:qualifier_type>/", methods=["GET"],
-                                     endpoint=self.get_submodel_submodel_element_constraints),
-                                Rule("/<path:qualifier_type>/", methods=["PUT"],
-                                     endpoint=self.put_submodel_submodel_element_constraints),
-                                Rule("/<path:qualifier_type>/", methods=["DELETE"],
-                                     endpoint=self.delete_submodel_submodel_element_constraints),
+                Submount("/submodels", [
+                    Rule("/", methods=["GET"], endpoint=self.get_submodel_all),
+                    Submount("/<identifier:submodel_id>", [
+                        Rule("/", methods=["GET"], endpoint=self.get_submodel),
+                        Rule("/", methods=["PUT"], endpoint=self.put_submodel),
+                        Rule("/", methods=["DELETE"], endpoint=self.delete_submodel),
+                        Submount("/submodel", [
+                            Rule("/", methods=["GET"], endpoint=self.get_submodel),
+                            Rule("/", methods=["PUT"], endpoint=self.put_submodel),
+                            Submount("/submodelElements", [
+                                Rule("/", methods=["GET"], endpoint=self.get_submodel_submodel_elements),
+                                Submount("/<id_short_path:id_shorts>", [
+                                    Rule("/", methods=["GET"],
+                                         endpoint=self.get_submodel_submodel_elements_id_short_path),
+                                    Rule("/", methods=["PUT"],
+                                         endpoint=self.put_submodel_submodel_elements_id_short_path),
+                                    Rule("/", methods=["DELETE"],
+                                         endpoint=self.delete_submodel_submodel_elements_id_short_path),
+                                    Submount("/constraints", [
+                                        Rule("/", methods=["GET"],
+                                             endpoint=self.get_submodel_submodel_element_constraints),
+                                        Rule("/", methods=["POST"],
+                                             endpoint=self.post_submodel_submodel_element_constraints),
+                                        Rule("/<path:qualifier_type>/", methods=["GET"],
+                                             endpoint=self.get_submodel_submodel_element_constraints),
+                                        Rule("/<path:qualifier_type>/", methods=["PUT"],
+                                             endpoint=self.put_submodel_submodel_element_constraints),
+                                        Rule("/<path:qualifier_type>/", methods=["DELETE"],
+                                             endpoint=self.delete_submodel_submodel_element_constraints),
+                                    ])
+                                ]),
+                                Submount("/constraints", [
+                                    Rule("/", methods=["GET"], endpoint=self.get_submodel_submodel_element_constraints),
+                                    Rule("/", methods=["POST"],
+                                         endpoint=self.post_submodel_submodel_element_constraints),
+                                    Rule("/<path:qualifier_type>/", methods=["GET"],
+                                         endpoint=self.get_submodel_submodel_element_constraints),
+                                    Rule("/<path:qualifier_type>/", methods=["PUT"],
+                                         endpoint=self.put_submodel_submodel_element_constraints),
+                                    Rule("/<path:qualifier_type>/", methods=["DELETE"],
+                                         endpoint=self.delete_submodel_submodel_element_constraints),
+                                ])
                             ])
-                        ]),
-                        Submount("/constraints", [
-                            Rule("/", methods=["GET"], endpoint=self.get_submodel_submodel_element_constraints),
-                            Rule("/", methods=["POST"], endpoint=self.post_submodel_submodel_element_constraints),
-                            Rule("/<path:qualifier_type>/", methods=["GET"],
-                                 endpoint=self.get_submodel_submodel_element_constraints),
-                            Rule("/<path:qualifier_type>/", methods=["PUT"],
-                                 endpoint=self.put_submodel_submodel_element_constraints),
-                            Rule("/<path:qualifier_type>/", methods=["DELETE"],
-                                 endpoint=self.delete_submodel_submodel_element_constraints),
                         ])
                     ])
                 ])
@@ -432,6 +472,11 @@ class WSGIApp:
         if not isinstance(identifiable, type_):
             raise NotFound(f"No {type_.__name__} with {identifier} found!")
         return identifiable
+
+    def _get_all_obj_of_type(self, type_: Type[model.provider._IT]) -> Iterator[model.provider._IT]:
+        for obj in self.object_store:
+            if isinstance(obj, type_):
+                yield obj
 
     def _resolve_reference(self, reference: model.AASReference[model.base._RT]) -> model.base._RT:
         try:
@@ -503,18 +548,39 @@ class WSGIApp:
             except werkzeug.exceptions.NotAcceptable as e:
                 return e
 
+    # ------ AAS REPO ROUTES -------
+    def get_aas_all(self, request: Request, url_args: Dict, **_kwargs) -> Response:
+        response_t = get_response_type(request)
+        aas: Iterator[model.AssetAdministrationShell] = self._get_all_obj_of_type(model.AssetAdministrationShell)
+        id_short = request.args.get("idShort")
+        if id_short is not None:
+            aas = filter(lambda shell: shell.id_short == id_short, aas)
+        asset_ids = request.args.get("assetIds")
+        if asset_ids is not None:
+            kv_pairs = HTTPApiDecoder.json_list(asset_ids, model.IdentifierKeyValuePair, False, False)
+            # TODO: it's currently unclear how to filter with these IdentifierKeyValuePairs
+        return response_t(list(aas))
+
+    def delete_aas(self, request: Request, url_args: Dict, **_kwargs) -> Response:
+        response_t = get_response_type(request)
+        self.object_store.remove(self._get_obj_ts(url_args["aas_id"], model.AssetAdministrationShell))
+        return response_t()
+
     # --------- AAS ROUTES ---------
     def get_aas(self, request: Request, url_args: Dict, **_kwargs) -> Response:
+        # TODO: support content parameter
         response_t = get_response_type(request)
         aas = self._get_obj_ts(url_args["aas_id"], model.AssetAdministrationShell)
         aas.update()
         return response_t(aas, stripped=is_stripped_request(request))
 
     def put_aas(self, request: Request, url_args: Dict, **_kwargs) -> Response:
+        # TODO: support content parameter
         response_t = get_response_type(request)
         aas = self._get_obj_ts(url_args["aas_id"], model.AssetAdministrationShell)
         aas.update()
-        aas.update_from(parse_request_body(request, model.AssetAdministrationShell))
+        aas.update_from(HTTPApiDecoder.request_body(request, model.AssetAdministrationShell,
+                                                    is_stripped_request(request)))
         aas.commit()
         return response_t()
 
@@ -528,7 +594,7 @@ class WSGIApp:
         response_t = get_response_type(request)
         aas = self._get_obj_ts(url_args["aas_id"], model.AssetAdministrationShell)
         aas.update()
-        aas.asset_information = parse_request_body(request, model.AssetInformation)
+        aas.asset_information = HTTPApiDecoder.request_body(request, model.AssetInformation, False)
         aas.commit()
         return response_t()
 
@@ -543,7 +609,7 @@ class WSGIApp:
         aas_identifier = url_args["aas_id"]
         aas = self._get_obj_ts(aas_identifier, model.AssetAdministrationShell)
         aas.update()
-        sm_ref = parse_request_body(request, model.AASReference)
+        sm_ref = HTTPApiDecoder.request_body(request, model.AASReference, is_stripped_request(request))
         if sm_ref in aas.submodel:
             raise Conflict(f"{sm_ref!r} already exists!")
         aas.submodel.add(sm_ref)
@@ -563,6 +629,22 @@ class WSGIApp:
         aas.commit()
         return response_t()
 
+    # ------ SUBMODEL REPO ROUTES -------
+    def get_submodel_all(self, request: Request, url_args: Dict, **_kwargs) -> Response:
+        response_t = get_response_type(request)
+        submodels: Iterator[model.Submodel] = self._get_all_obj_of_type(model.Submodel)
+        id_short = request.args.get("idShort")
+        if id_short is not None:
+            submodels = filter(lambda sm: sm.id_short == id_short, submodels)
+        # TODO: filter by semantic id
+        # semantic_id = request.args.get("semanticId")
+        return response_t(list(submodels))
+
+    def delete_submodel(self, request: Request, url_args: Dict, **_kwargs) -> Response:
+        response_t = get_response_type(request)
+        self.object_store.remove(self._get_obj_ts(url_args["aas_id"], model.Submodel))
+        return response_t()
+
     # --------- SUBMODEL ROUTES ---------
     def get_submodel(self, request: Request, url_args: Dict, **_kwargs) -> Response:
         # TODO: support content, extent parameters
@@ -575,12 +657,13 @@ class WSGIApp:
         response_t = get_response_type(request)
         submodel = self._get_obj_ts(url_args["submodel_id"], model.Submodel)
         submodel.update()
-        submodel.update_from(parse_request_body(request, model.Submodel))
+        submodel.update_from(HTTPApiDecoder.request_body(request, model.Submodel, is_stripped_request(request)))
         submodel.commit()
         return response_t()
 
     def get_submodel_submodel_elements(self, request: Request, url_args: Dict, **_kwargs) -> Response:
-        # TODO: support content, extent, semanticId, parentPath parameters
+        # TODO: the parentPath parameter is unnecessary for this route and should be removed from the spec
+        # TODO: support content, extent, semanticId parameters
         response_t = get_response_type(request)
         submodel = self._get_obj_ts(url_args["submodel_id"], model.Submodel)
         submodel.update()
@@ -595,7 +678,7 @@ class WSGIApp:
         return response_t(submodel_element, stripped=is_stripped_request(request))
 
     def put_submodel_submodel_elements_id_short_path(self, request: Request, url_args: Dict, **_kwargs) -> Response:
-        # TODO: support content parameter
+        # TODO: support content, extent parameter
         response_t = get_response_type(request)
         submodel_identifier = url_args["submodel_id"]
         submodel = self._get_obj_ts(submodel_identifier, model.Submodel)
@@ -655,7 +738,7 @@ class WSGIApp:
         submodel.update()
         id_shorts: List[str] = url_args.get("id_shorts", [])
         sm_or_se = self._get_submodel_or_nested_submodel_element(submodel, id_shorts)
-        qualifier = parse_request_body(request, model.Qualifier)
+        qualifier = HTTPApiDecoder.request_body(request, model.Qualifier, is_stripped_request(request))
         if sm_or_se.qualifier.contains_id("type", qualifier.type):
             raise Conflict(f"Qualifier with type {qualifier.type} already exists!")
         sm_or_se.qualifier.add(qualifier)
@@ -675,7 +758,7 @@ class WSGIApp:
         submodel.update()
         id_shorts: List[str] = url_args.get("id_shorts", [])
         sm_or_se = self._get_submodel_or_nested_submodel_element(submodel, id_shorts)
-        new_qualifier = parse_request_body(request, model.Qualifier)
+        new_qualifier = HTTPApiDecoder.request_body(request, model.Qualifier, is_stripped_request(request))
         qualifier_type = url_args["qualifier_type"]
         try:
             qualifier = sm_or_se.get_qualifier_by_type(qualifier_type)
@@ -713,45 +796,7 @@ class WSGIApp:
         except KeyError:
             raise NotFound(f"No constraint with type {qualifier_type} found in {sm_or_se}")
         sm_or_se.commit()
-        return response_t(Result(None))
-
-    # --------- SUBMODEL ROUTE FACTORIES ---------
-    def factory_get_submodel_submodel_elements_nested_attr(self, type_: Type[model.Referable], attr: str) \
-            -> Callable[[Request, Dict], Response]:
-        def route(request: Request, url_args: Dict, **_kwargs) -> Response:
-            response_t = get_response_type(request)
-            submodel = self._get_obj_ts(url_args["submodel_id"], model.Submodel)
-            submodel.update()
-            submodel_element = self._get_nested_submodel_element(submodel, url_args["id_shorts"])
-            if not isinstance(submodel_element, type_):
-                raise UnprocessableEntity(f"Submodel element {submodel_element} is not a(n) {type_.__name__}!")
-            return response_t(Result(tuple(getattr(submodel_element, attr))))
-        return route
-
-    def factory_post_submodel_submodel_elements_nested_attr(self, type_: Type[model.Referable], attr: str,
-                                                            request_body_type: Type[model.SubmodelElement]
-                                                            = model.SubmodelElement) \
-            -> Callable[[Request, Dict, MapAdapter], Response]:
-        def route(request: Request, url_args: Dict, map_adapter: MapAdapter) -> Response:
-            response_t = get_response_type(request)
-            submodel_identifier = url_args["submodel_id"]
-            submodel = self._get_obj_ts(submodel_identifier, model.Submodel)
-            submodel.update()
-            id_shorts = url_args["id_shorts"]
-            submodel_element = self._get_nested_submodel_element(submodel, id_shorts)
-            if not isinstance(submodel_element, type_):
-                raise UnprocessableEntity(f"Submodel element {submodel_element} is not a(n) {type_.__name__}!")
-            new_submodel_element = parse_request_body(request, request_body_type)
-            if getattr(submodel_element, attr).contains_id("id_short", new_submodel_element.id_short):
-                raise Conflict(f"Submodel element with id_short {new_submodel_element.id_short} already exists!")
-            getattr(submodel_element, attr).add(new_submodel_element)
-            submodel_element.commit()
-            created_resource_url = map_adapter.build(self.get_submodel_submodel_elements_specific_nested, {
-                "submodel_id": submodel_identifier,
-                "id_shorts": id_shorts + [new_submodel_element.id_short]
-            }, force_external=True)
-            return response_t(Result(new_submodel_element), status=201, headers={"Location": created_resource_url})
-        return route
+        return response_t()
 
 
 if __name__ == "__main__":
