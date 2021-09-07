@@ -768,6 +768,8 @@ class SubmodelElementCollectionOrderedUniqueSemanticId(SubmodelElementCollection
 
         super().__init__(id_short, (), display_name, category, description, parent, semantic_id, qualifier, kind,
                          extension)
+        # super().__init__() adds an unused NamespaceSet
+        self.namespace_element_sets.pop()
         self.value = base.OrderedNamespaceSet(self, [("id_short", False), ("semantic_id", True)], value)
 
     @property
@@ -873,6 +875,8 @@ class SubmodelElementCollectionUnorderedUniqueSemanticId(SubmodelElementCollecti
         """
         super().__init__(id_short, (), display_name, category, description, parent, semantic_id, qualifier, kind,
                          extension)
+        # super().__init__() adds an unused NamespaceSet
+        self.namespace_element_sets.pop()
         self.value = base.NamespaceSet(self, [("id_short", False), ("semantic_id", True)], value)
 
     @property
