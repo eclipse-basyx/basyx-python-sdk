@@ -333,7 +333,7 @@ class IdShortPathConverter(werkzeug.routing.UnicodeConverter):
         for id_short in value:
             if not self.validate_id_short(id_short):
                 raise ValueError(f"{id_short} is not a valid id_short!")
-        return super().to_url(".".join(id_short for id_short in value))
+        return super().to_url(self.id_short_sep.join(id_short for id_short in value))
 
     def to_python(self, value: str) -> List[str]:
         id_shorts = super().to_python(value).split(self.id_short_sep)
