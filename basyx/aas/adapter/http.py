@@ -690,7 +690,8 @@ class WSGIApp:
         )
         # TODO: remove the following type: ignore comment when mypy supports abstract types for Type[T]
         # see https://github.com/python/mypy/issues/5374
-        new_submodel_element = HTTPApiDecoder.request_body(request, model.SubmodelElement)  # type: ignore
+        new_submodel_element = HTTPApiDecoder.request_body(request, model.SubmodelElement,
+                                                           is_stripped_request(request))  # type: ignore
         try:
             submodel_element = parent.get_referable(id_short_path[-1])
         except KeyError:
