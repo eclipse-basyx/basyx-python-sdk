@@ -245,6 +245,7 @@ class HTTPApiDecoder:
         model.AASReference: XMLConstructables.AAS_REFERENCE,
         model.IdentifierKeyValuePair: XMLConstructables.IDENTIFIER_KEY_VALUE_PAIR,
         model.Qualifier: XMLConstructables.QUALIFIER,
+        model.Submodel: XMLConstructables.SUBMODEL,
         model.SubmodelElement: XMLConstructables.SUBMODEL_ELEMENT
     }
 
@@ -338,6 +339,35 @@ class HTTPApiDecoder:
         return cls.xml(request.get_data(), expect_type, stripped)
 
 
+class Base64UrlJsonConverter(werkzeug.routing.UnicodeConverter):
+    encoding = "utf-8"
+
+    def __init__(self, url_map, t: str):
+        super().__init__(url_map)
+        self.type: type
+        if t == "AASReference":
+            self.type = model.AASReference
+        else:
+            raise ValueError(f"invalid value t={t}")
+
+    def to_url(self, value: object) -> str:
+        return super().to_url(base64.urlsafe_b64encode(json.dumps(value, cls=AASToJsonEncoder).encode(self.encoding)))
+
+    def to_python(self, value: str) -> object:
+        value = super().to_python(value)
+        try:
+            decoded = base64.urlsafe_b64decode(super().to_python(value)).decode(self.encoding)
+        except binascii.Error:
+            raise BadRequest(f"Encoded json object {value} is invalid base64url!")
+        except UnicodeDecodeError:
+            raise BadRequest(f"Encoded base64url value is not a valid utf-8 string!")
+
+        try:
+            return HTTPApiDecoder.json(decoded, self.type, False)
+        except json.JSONDecodeError:
+            raise BadRequest(f"{decoded} is not a valid json string!")
+
+
 class IdentifierConverter(werkzeug.routing.UnicodeConverter):
     encoding = "utf-8"
 
@@ -392,6 +422,7 @@ class WSGIApp:
             Submount("/api/v1", [
                 Submount("/shells", [
                     Rule("/", methods=["GET"], endpoint=self.get_aas_all),
+                    Rule("/", methods=["POST"], endpoint=self.post_aas),
                     Submount("/<identifier:aas_id>", [
                         Rule("/", methods=["GET"], endpoint=self.get_aas),
                         Rule("/", methods=["PUT"], endpoint=self.put_aas),
@@ -399,13 +430,12 @@ class WSGIApp:
                         Submount("/aas", [
                             Rule("/", methods=["GET"], endpoint=self.get_aas),
                             Rule("/", methods=["PUT"], endpoint=self.put_aas),
-                            Rule("/assetInformation", methods=["GET"], endpoint=self.get_aas_asset_information),
-                            Rule("/assetInformation", methods=["PUT"], endpoint=self.put_aas_asset_information),
+                            Rule("/asset-information", methods=["GET"], endpoint=self.get_aas_asset_information),
+                            Rule("/asset-information", methods=["PUT"], endpoint=self.put_aas_asset_information),
                             Submount("/submodels", [
                                 Rule("/", methods=["GET"], endpoint=self.get_aas_submodel_refs),
-                                Rule("/<identifier:sm_id>/", methods=["PUT"],
-                                     endpoint=self.put_aas_submodel_refs),
-                                Rule("/<identifier:sm_id>/", methods=["DELETE"],
+                                Rule("/", methods=["POST"], endpoint=self.post_aas_submodel_refs),
+                                Rule("/<base64url_json(t=AASReference):submodel_ref>/", methods=["DELETE"],
                                      endpoint=self.delete_aas_submodel_refs_specific)
                             ])
                         ])
@@ -413,6 +443,7 @@ class WSGIApp:
                 ]),
                 Submount("/submodels", [
                     Rule("/", methods=["GET"], endpoint=self.get_submodel_all),
+                    Rule("/", methods=["POST"], endpoint=self.post_submodel),
                     Submount("/<identifier:submodel_id>", [
                         Rule("/", methods=["GET"], endpoint=self.get_submodel),
                         Rule("/", methods=["PUT"], endpoint=self.put_submodel),
@@ -420,11 +451,15 @@ class WSGIApp:
                         Submount("/submodel", [
                             Rule("/", methods=["GET"], endpoint=self.get_submodel),
                             Rule("/", methods=["PUT"], endpoint=self.put_submodel),
-                            Submount("/submodelElements", [
+                            Submount("/submodel-elements", [
                                 Rule("/", methods=["GET"], endpoint=self.get_submodel_submodel_elements),
+                                Rule("/", methods=["POST"],
+                                     endpoint=self.post_submodel_submodel_elements_id_short_path),
                                 Submount("/<id_short_path:id_shorts>", [
                                     Rule("/", methods=["GET"],
                                          endpoint=self.get_submodel_submodel_elements_id_short_path),
+                                    Rule("/", methods=["POST"],
+                                         endpoint=self.post_submodel_submodel_elements_id_short_path),
                                     Rule("/", methods=["PUT"],
                                          endpoint=self.put_submodel_submodel_elements_id_short_path),
                                     Rule("/", methods=["DELETE"],
@@ -442,17 +477,17 @@ class WSGIApp:
                                              endpoint=self.delete_submodel_submodel_element_constraints),
                                     ])
                                 ]),
-                                Submount("/constraints", [
-                                    Rule("/", methods=["GET"], endpoint=self.get_submodel_submodel_element_constraints),
-                                    Rule("/", methods=["POST"],
-                                         endpoint=self.post_submodel_submodel_element_constraints),
-                                    Rule("/<path:qualifier_type>/", methods=["GET"],
-                                         endpoint=self.get_submodel_submodel_element_constraints),
-                                    Rule("/<path:qualifier_type>/", methods=["PUT"],
-                                         endpoint=self.put_submodel_submodel_element_constraints),
-                                    Rule("/<path:qualifier_type>/", methods=["DELETE"],
-                                         endpoint=self.delete_submodel_submodel_element_constraints),
-                                ])
+                            ]),
+                            Submount("/constraints", [
+                                Rule("/", methods=["GET"], endpoint=self.get_submodel_submodel_element_constraints),
+                                Rule("/", methods=["POST"],
+                                     endpoint=self.post_submodel_submodel_element_constraints),
+                                Rule("/<path:qualifier_type>/", methods=["GET"],
+                                     endpoint=self.get_submodel_submodel_element_constraints),
+                                Rule("/<path:qualifier_type>/", methods=["PUT"],
+                                     endpoint=self.put_submodel_submodel_element_constraints),
+                                Rule("/<path:qualifier_type>/", methods=["DELETE"],
+                                     endpoint=self.delete_submodel_submodel_element_constraints),
                             ])
                         ])
                     ])
@@ -460,7 +495,8 @@ class WSGIApp:
             ])
         ], converters={
             "identifier": IdentifierConverter,
-            "id_short_path": IdShortPathConverter
+            "id_short_path": IdShortPathConverter,
+            "base64url_json": Base64UrlJsonConverter
         })
 
     def __call__(self, environ, start_response):
@@ -483,15 +519,6 @@ class WSGIApp:
             return reference.resolve(self.object_store)
         except (KeyError, TypeError, model.UnexpectedTypeError) as e:
             raise werkzeug.exceptions.InternalServerError(str(e)) from e
-
-    @classmethod
-    def _get_aas_submodel_reference_by_submodel_identifier(cls, aas: model.AssetAdministrationShell,
-                                                           sm_identifier: model.Identifier) \
-            -> model.AASReference[model.Submodel]:
-        for sm_ref in aas.submodel:
-            if sm_ref.get_identifier() == sm_identifier:
-                return sm_ref
-        raise NotFound(f"No reference to submodel with {sm_identifier} found!")
 
     @classmethod
     def _get_nested_submodel_element(cls, namespace: model.UniqueIdShortNamespace, id_shorts: List[str]) \
@@ -561,6 +588,19 @@ class WSGIApp:
             # TODO: it's currently unclear how to filter with these IdentifierKeyValuePairs
         return response_t(list(aas))
 
+    def post_aas(self, request: Request, url_args: Dict, map_adapter: MapAdapter) -> Response:
+        response_t = get_response_type(request)
+        aas = HTTPApiDecoder.request_body(request, model.AssetAdministrationShell, False)
+        try:
+            self.object_store.add(aas)
+        except KeyError as e:
+            raise Conflict(f"AssetAdministrationShell with Identifier {aas.identification} already exists!") from e
+        aas.commit()
+        created_resource_url = map_adapter.build(self.get_aas, {
+            "aas_id": aas.identification
+        }, force_external=True)
+        return response_t(aas, status=201, headers={"Location": created_resource_url})
+
     def delete_aas(self, request: Request, url_args: Dict, **_kwargs) -> Response:
         response_t = get_response_type(request)
         self.object_store.remove(self._get_obj_ts(url_args["aas_id"], model.AssetAdministrationShell))
@@ -604,12 +644,12 @@ class WSGIApp:
         aas.update()
         return response_t(list(aas.submodel))
 
-    def put_aas_submodel_refs(self, request: Request, url_args: Dict, **_kwargs) -> Response:
+    def post_aas_submodel_refs(self, request: Request, url_args: Dict, **_kwargs) -> Response:
         response_t = get_response_type(request)
         aas_identifier = url_args["aas_id"]
         aas = self._get_obj_ts(aas_identifier, model.AssetAdministrationShell)
         aas.update()
-        sm_ref = HTTPApiDecoder.request_body(request, model.AASReference, is_stripped_request(request))
+        sm_ref = HTTPApiDecoder.request_body(request, model.AASReference, False)
         if sm_ref in aas.submodel:
             raise Conflict(f"{sm_ref!r} already exists!")
         aas.submodel.add(sm_ref)
@@ -620,14 +660,12 @@ class WSGIApp:
         response_t = get_response_type(request)
         aas = self._get_obj_ts(url_args["aas_id"], model.AssetAdministrationShell)
         aas.update()
-        sm_ref = self._get_aas_submodel_reference_by_submodel_identifier(aas, url_args["sm_id"])
-        # use remove(sm_ref) because it raises a KeyError if sm_ref is not present
-        # sm_ref must be present because _get_aas_submodel_reference_by_submodel_identifier() found it there
-        # so if sm_ref is not in aas.submodel, this implementation is bugged and the raised KeyError will result
-        # in an InternalServerError
-        aas.submodel.remove(sm_ref)
-        aas.commit()
-        return response_t()
+        for sm_ref in aas.submodel:
+            if sm_ref == url_args["submodel_ref"]:
+                aas.submodel.remove(sm_ref)
+                aas.commit()
+                return response_t()
+        raise NotFound(f"The AAS {aas!r} doesn't have the reference {url_args['submodel_ref']!r}!")
 
     # ------ SUBMODEL REPO ROUTES -------
     def get_submodel_all(self, request: Request, url_args: Dict, **_kwargs) -> Response:
@@ -639,6 +677,19 @@ class WSGIApp:
         # TODO: filter by semantic id
         # semantic_id = request.args.get("semanticId")
         return response_t(list(submodels))
+
+    def post_submodel(self, request: Request, url_args: Dict, map_adapter: MapAdapter) -> Response:
+        response_t = get_response_type(request)
+        submodel = HTTPApiDecoder.request_body(request, model.Submodel, is_stripped_request(request))
+        try:
+            self.object_store.add(submodel)
+        except KeyError as e:
+            raise Conflict(f"Submodel with Identifier {submodel.identification} already exists!") from e
+        submodel.commit()
+        created_resource_url = map_adapter.build(self.get_submodel, {
+            "submodel_id": submodel.identification
+        }, force_external=True)
+        return response_t(submodel, status=201, headers={"Location": created_resource_url})
 
     def delete_submodel(self, request: Request, url_args: Dict, **_kwargs) -> Response:
         response_t = get_response_type(request)
@@ -677,27 +728,42 @@ class WSGIApp:
         submodel_element = self._get_nested_submodel_element(submodel, url_args["id_shorts"])
         return response_t(submodel_element, stripped=is_stripped_request(request))
 
+    def post_submodel_submodel_elements_id_short_path(self, request: Request, url_args: Dict, map_adapter: MapAdapter):
+        # TODO: support content, extent parameter
+        response_t = get_response_type(request)
+        submodel_identifier = url_args["submodel_id"]
+        submodel = self._get_obj_ts(submodel_identifier, model.Submodel)
+        submodel.update()
+        id_short_path = url_args.get("id_shorts", [])
+        parent = self._get_submodel_or_nested_submodel_element(submodel, id_short_path)
+        if not isinstance(parent, model.UniqueIdShortNamespace):
+            raise BadRequest(f"{parent!r} is not a namespace, can't add child submodel element!")
+        # TODO: remove the following type: ignore comment when mypy supports abstract types for Type[T]
+        # see https://github.com/python/mypy/issues/5374
+        new_submodel_element = HTTPApiDecoder.request_body(request, model.SubmodelElement,
+                                                           is_stripped_request(request))  # type: ignore
+        try:
+            parent.add_referable(new_submodel_element)
+        except KeyError:
+            raise Conflict(f"SubmodelElement with idShort {new_submodel_element.id_short} already exists "
+                           f"within {parent}!")
+        created_resource_url = map_adapter.build(self.get_submodel_submodel_elements_id_short_path, {
+            "submodel_id": submodel.identification,
+            "id_shorts": id_short_path + [new_submodel_element.id_short]
+        }, force_external=True)
+        return response_t(new_submodel_element, status=201, headers={"Location": created_resource_url})
+
     def put_submodel_submodel_elements_id_short_path(self, request: Request, url_args: Dict, **_kwargs) -> Response:
         # TODO: support content, extent parameter
         response_t = get_response_type(request)
         submodel_identifier = url_args["submodel_id"]
         submodel = self._get_obj_ts(submodel_identifier, model.Submodel)
         submodel.update()
-        id_short_path = url_args["id_shorts"]
-        parent = self._expect_namespace(
-            self._get_nested_submodel_element(submodel, url_args["id_shorts"][:-1]),
-            id_short_path[-1]
-        )
+        submodel_element = self._get_nested_submodel_element(submodel, url_args["id_shorts"])
         # TODO: remove the following type: ignore comment when mypy supports abstract types for Type[T]
         # see https://github.com/python/mypy/issues/5374
         new_submodel_element = HTTPApiDecoder.request_body(request, model.SubmodelElement,
                                                            is_stripped_request(request))  # type: ignore
-        try:
-            submodel_element = parent.get_referable(id_short_path[-1])
-        except KeyError:
-            parent.add_referable(new_submodel_element)
-            new_submodel_element.commit()
-            return response_t(new_submodel_element, status=201)
         submodel_element.update_from(new_submodel_element)
         submodel_element.commit()
         return response_t()
