@@ -18,22 +18,19 @@ import aas.adapter.xml
 # restore the AAS objects as Python objects.
 #
 # Step by Step Guide:
-# Step 1: creating Asset, Submodel and Asset Administration Shell objects
+# Step 1: creating Submodel and Asset Administration Shell objects
 # Step 2: serializing single objects to JSON
 # Step 3: parsing single objects or custom data structures from JSON
 # Step 4: writing multiple identifiable objects to a (standard-compliant) JSON/XML file
 # Step 5: reading the serialized aas objects from JSON/XML files
 
 
-###########################################################################
-# Step 1: Creating Asset, Submodel and Asset Administration Shell Objects #
-###########################################################################
+####################################################################
+# Step 1: Creating Submodel and Asset Administration Shell Objects #
+####################################################################
 
 # For more details, take a look at `tutorial_create_simple_aas.py`
 
-asset = model.Asset(
-    identification=model.Identifier('https://acplt.org/Simple_Asset', model.IdentifierType.IRI)
-)
 submodel = model.Submodel(
     identification=model.Identifier('https://acplt.org/Simple_Submodel', model.IdentifierType.IRI),
     submodel_element={
@@ -52,7 +49,7 @@ submodel = model.Submodel(
 )
 aashell = model.AssetAdministrationShell(
     identification=model.Identifier('https://acplt.org/Simple_AAS', model.IdentifierType.IRI),
-    asset_information=model.AssetInformation(global_asset_id=model.AASReference.from_referable(asset)),
+    asset_information=model.AssetInformation(),
     submodel={model.AASReference.from_referable(submodel)}
 )
 
@@ -105,12 +102,10 @@ submodel_and_aas = json.loads(json_string, cls=aas.adapter.json.AASFromJsonDecod
 # step 4.1: creating an ObjectStore containing the objects to be serialized
 # For more information, take a look into `tutorial_storage.py`
 obj_store: model.DictObjectStore[model.Identifiable] = model.DictObjectStore()
-obj_store.add(asset)
 obj_store.add(submodel)
 obj_store.add(aashell)
 
 # step 4.2: Again, make sure that the data is up to date
-asset.update()
 submodel.update()
 aashell.update()
 

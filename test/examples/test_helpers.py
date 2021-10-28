@@ -232,15 +232,15 @@ class AASDataCheckerTest(unittest.TestCase):
 
     def test_asset_administration_shell_checker(self):
         shell = model.AssetAdministrationShell(asset_information=model.AssetInformation(
-            global_asset_id=model.AASReference((model.Key(type_=model.KeyElements.ASSET, value='test',
-                                                          id_type=model.KeyType.IRI),),
-                                               model.Asset)),
+            global_asset_id=model.Reference((model.Key(type_=model.KeyElements.GLOBAL_REFERENCE, value='test',
+                                                       id_type=model.KeyType.IRI),),
+                                            )),
                                                identification=model.Identifier('test', model.IdentifierType.CUSTOM))
         shell_expected = model.AssetAdministrationShell(
             asset_information=model.AssetInformation(
-                global_asset_id=model.AASReference((model.Key(type_=model.KeyElements.ASSET, value='test',
-                                                              id_type=model.KeyType.IRI),),
-                                                   model.Asset)),
+                global_asset_id=model.Reference((model.Key(type_=model.KeyElements.GLOBAL_REFERENCE, value='test',
+                                                           id_type=model.KeyType.IRI),),
+                                                )),
             identification=model.Identifier('test', model.IdentifierType.CUSTOM),
             submodel={model.AASReference((model.Key(type_=model.KeyElements.SUBMODEL,
                                                     value='test',

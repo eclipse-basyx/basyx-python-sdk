@@ -2,7 +2,7 @@
 # This work is licensed under a Creative Commons CCZero 1.0 Universal License.
 # See http://creativecommons.org/publicdomain/zero/1.0/ for more information.
 """
-Tutorial for the creation of an simple Asset Administration Shell, containing an Asset reference and a Submodel
+Tutorial for the creation of an simple Asset Administration Shell, containing an AssetInformation object and a Submodel
 reference
 """
 
@@ -10,19 +10,19 @@ reference
 from aas import model
 
 # In this tutorial, you'll get a step by step guide on how to create an Asset Administration Shell (AAS) and all
-# required objects within. First, you need an asset for which you want to create an AAS, represented by an Asset object.
-# After that, an Asset Administration Shell can be created, containing a reference to that Asset. Then, it's possible to
-# add Submodels to the AAS. The Submodels can contain SubmodelElements.
+# required objects within. First, you need an AssetInformation object for which you want to create an AAS. After that,
+# an Asset Administration Shell can be created. Then, it's possible to add Submodels to the AAS. The Submodels can
+# contain SubmodelElements.
 #
 # Step by Step Guide:
-# Step 1: create a simple Asset Administration Shell, containing a reference to the Asset
+# Step 1: create a simple Asset Administration Shell, containing an AssetInformation object
 # Step 2: create a simple Submodel
 # Step 3: create a simple Property and add it to the Submodel
 
 
-##########################################################################################
-# Step 1: Create a Simple Asset Administration Shell Containing a Reference to the Asset #
-##########################################################################################
+############################################################################################
+# Step 1: Create a Simple Asset Administration Shell Containing an AssetInformation object #
+############################################################################################
 # Step 1.1: create the AssetInformation object
 asset_information = model.AssetInformation(
     asset_kind=model.AssetKind.INSTANCE,

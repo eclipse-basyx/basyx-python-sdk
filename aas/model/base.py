@@ -60,7 +60,6 @@ class KeyElements(Enum):
 
     **IdentifiableElements starting from 0**
 
-    :cvar ASSET: :class:`~aas.model.aas.Asset`
     :cvar ASSET_ADMINISTRATION_SHELL: :class:`~aas.model.aas.AssetAdministrationShell`
     :cvar CONCEPT_DESCRIPTION: :class:`~aas.model.concept.ConceptDescription`
     :cvar SUBMODEL: :class:`~aas.model.submodel.Submodel`
@@ -103,7 +102,8 @@ class KeyElements(Enum):
     """
 
     # IdentifiableElements starting from 0
-    ASSET = 0
+    # keep _ASSET = 0 as a protected enum member here, so 0 isn't reused in the enum by a future identifiable
+    _ASSET = 0
     ASSET_ADMINISTRATION_SHELL = 1
     CONCEPT_DESCRIPTION = 2
     SUBMODEL = 3
@@ -168,8 +168,7 @@ class EntityType(Enum):
                              of a self-managed entity
     :cvar SELF_MANAGED_ENTITY: Self-managed entities have their own
                                :class:`AAS <aas.model.aas.AssetAdministrationShell>`, but can be part of the bill of
-                               material of a composite self-managed entity. The :class:`~aas.model.aas.Asset` of an
-                               I4.0-component is a self-managed entity per definition.
+                               material of a composite self-managed entity.
     """
 
     CO_MANAGED_ENTITY = 0

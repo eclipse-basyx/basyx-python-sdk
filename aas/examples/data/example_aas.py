@@ -7,8 +7,7 @@
 # SPDX-License-Identifier: EPL-2.0 OR Apache-2.0
 """
 Module for the creation of an :class:`ObjectStore <aas.model.provider.DictObjectStore>` with an example asset
-administration shell, related asset and example
-submodels and a concept dictionary containing an example concept description
+administration shell and example submodels and a concept dictionary containing an example concept description
 
 To get this object store use the function :meth:`~aas.examples.data.example_aas.create_full_example`.
 If you want to get single example objects or want to get more information use the other functions.
@@ -23,9 +22,9 @@ logger = logging.getLogger(__name__)
 
 def create_full_example() -> model.DictObjectStore:
     """
-    Creates an object store which is filled with an example :class:`~aas.model.aas.Asset`,
-    :class:`~aas.model.submodel.Submodel`, :class:`~aas.model.concept.ConceptDescription` and
-    :class:`~aas.model.aas.AssetAdministrationShell` using the functions of this module
+    Creates an object store which is filled with an example :class:`~aas.model.submodel.Submodel`,
+    :class:`~aas.model.concept.ConceptDescription` and :class:`~aas.model.aas.AssetAdministrationShell`
+    using the functions of this module
 
     :return: :class:`~aas.model.provider.DictObjectStore`
     """
@@ -40,9 +39,8 @@ def create_full_example() -> model.DictObjectStore:
 
 def create_example_asset_identification_submodel() -> model.Submodel:
     """
-    Creates a :class:`~aas.model.submodel.Submodel` for the identification of the example :class:`~aas.model.aas.Asset`
-    containing two :class:`~aas.model.submodel.Property` elements according to
-    'Verwaltungssschale in der Praxis'
+    Creates a :class:`~aas.model.submodel.Submodel` containing two :class:`~aas.model.submodel.Property` elements
+    according to 'Verwaltungssschale in der Praxis'
     https://www.plattform-i40.de/PI40/Redaktion/DE/Downloads/Publikation/2019-verwaltungsschale-in-der-praxis.html
 
     :return: example asset identification submodel
@@ -141,9 +139,8 @@ def create_example_asset_identification_submodel() -> model.Submodel:
 
 def create_example_bill_of_material_submodel() -> model.Submodel:
     """
-    creates a :class:`~aas.model.submodel.Submodel` for the bill of material of the example
-    :class:`~aas.model.aas.Asset` containing two entities one co-managed and one
-    self-managed
+    creates a :class:`~aas.model.submodel.Submodel` for the bill of material containing two entities one
+    co-managed and one self-managed
 
     :return: example bill of material submodel
     """
@@ -230,7 +227,6 @@ def create_example_bill_of_material_submodel() -> model.Submodel:
         kind=model.ModelingKind.INSTANCE
     )
 
-    # bill of material submodel which will be included in the asset object
     # bill of material submodel which will be included in the asset object
     bill_of_material = model.Submodel(
         identification=model.Identifier(id_='http://acplt.org/Submodels/Assets/TestAsset/BillOfMaterial',
@@ -582,8 +578,7 @@ def create_example_asset_administration_shell() -> \
         model.AssetAdministrationShell:
     """
     Creates an :class:`~aas.model.aas.AssetAdministrationShell` with references to an example
-    :class:`~aas.model.aas.Asset` and :class:`~aas.model.submodel.Submodel` and includes a given
-    :class:`~aas.model.concept.ConceptDictionary`
+    :class:`~aas.model.submodel.Submodel` and a given :class:`~aas.model.concept.ConceptDictionary`
 
     :return: example :class:`~aas.model.aas.AssetAdministrationShell`
     """

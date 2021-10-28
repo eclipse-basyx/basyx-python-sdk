@@ -7,7 +7,7 @@
 # SPDX-License-Identifier: EPL-2.0 OR Apache-2.0
 """
 The main module of the AAS meta-model. It is used to define the class structures of high level elements such as
-AssetAdministrationShell and Asset.
+AssetAdministrationShell.
 
 This module contains the following classes from an up-to-down-level:
  - :class:`~.AssetAdministrationShell`
@@ -68,52 +68,6 @@ class View(base.Referable, base.UniqueIdShortNamespace, base.HasSemantics):
         self.description: Optional[base.LangStringSet] = dict() if description is None else description
         self.parent: Optional[base.UniqueIdShortNamespace] = parent
         self.semantic_id: Optional[base.Reference] = semantic_id
-        self.extension = base.NamespaceSet(self, [("name", True)], extension)
-
-
-class Asset(base.Identifiable):
-    """
-    An Asset describes meta data of an asset that is represented by an AAS
-
-    The asset may either represent an asset type or an asset instance. The asset has a globally unique identifier plus
-    – if needed – additional domain specific (proprietary) identifiers.
-
-    :ivar ~.identification: The globally unique identification (:class:`~aas.model.base.Identifier`) of the element.
-                            (inherited from :class:`~aas.model.base.Identifiable`)
-    :ivar id_short: Identifying string of the element within its name space. (inherited from
-                    :class:`~aas.model.base.Referable`)
-    :ivar display_name: Can be provided in several languages. (inherited from :class:`~aas.model.base.Referable`)
-    :ivar category: The category is a value that gives further meta information w.r.t. to the class of the element.
-                    It affects the expected existence of attributes and the applicability of constraints.
-                    (inherited from :class:`~aas.model.base.Referable`)
-    :ivar description: Description or comments on the element. (inherited from :class:`~aas.model.base.Referable`)
-    :ivar parent: Reference to the next referable parent element of the element. (inherited from
-                  :class:`~aas.model.base.Referable`)
-    :ivar administration: :class:`~aas.model.base.AdministrativeInformation` of an
-                          :class:`~.aas.model.base.Identifiable` element. (inherited from
-                          :class:`~aas.model.base.Identifiable`)
-    :ivar extension: An extension of the element.
-                     (from :class:`~aas.model.base.HasExtension`)
-    """
-
-    def __init__(self,
-                 identification: base.Identifier,
-                 id_short: str = "NotSet",
-                 display_name: Optional[base.LangStringSet] = None,
-                 category: Optional[str] = None,
-                 description: Optional[base.LangStringSet] = None,
-                 parent: Optional[base.UniqueIdShortNamespace] = None,
-                 administration: Optional[base.AdministrativeInformation] = None,
-                 extension: Iterable[base.Extension] = ()):
-
-        super().__init__()
-        self.identification: base.Identifier = identification
-        self.id_short = id_short
-        self.display_name: Optional[base.LangStringSet] = dict() if display_name is None else display_name
-        self.category = category
-        self.description: Optional[base.LangStringSet] = dict() if description is None else description
-        self.parent: Optional[base.UniqueIdShortNamespace] = parent
-        self.administration: Optional[base.AdministrativeInformation] = administration
         self.extension = base.NamespaceSet(self, [("name", True)], extension)
 
 

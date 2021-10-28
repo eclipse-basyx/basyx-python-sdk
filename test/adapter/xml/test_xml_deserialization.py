@@ -69,31 +69,31 @@ class XmlDeserializationTest(unittest.TestCase):
 
     def test_invalid_element_in_list(self) -> None:
         xml = _xml_wrap("""
-        <aas:assets>
+        <aas:submodels>
             <aas:invalidElement/>
-        </aas:assets>
+        </aas:submodels>
         """)
-        self._assertInExceptionAndLog(xml, ["aas:invalidElement", "aas:assets"], KeyError, logging.WARNING)
+        self._assertInExceptionAndLog(xml, ["aas:invalidElement", "aas:submodels"], KeyError, logging.WARNING)
 
     def test_missing_identification_attribute(self) -> None:
         xml = _xml_wrap("""
-        <aas:assets>
-            <aas:asset>
+        <aas:submodels>
+            <aas:submodel>
                 <aas:identification>http://acplt.org/test_asset</aas:identification>
-                <aas:kind>Instance</aas:kind>
-            </aas:asset>
-        </aas:assets>
+                <aas:submodelElements/>
+            </aas:submodel>
+        </aas:submodels>
         """)
         self._assertInExceptionAndLog(xml, "idType", KeyError, logging.ERROR)
 
     def test_invalid_identification_attribute_value(self) -> None:
         xml = _xml_wrap("""
-        <aas:assets>
-            <aas:asset>
+        <aas:submodels>
+            <aas:submodel>
                 <aas:identification idType="invalid">http://acplt.org/test_asset</aas:identification>
-                <aas:kind>Instance</aas:kind>
-            </aas:asset>
-        </aas:assets>
+                <aas:submodelElements/>
+            </aas:submodel>
+        </aas:submodels>
         """)
         self._assertInExceptionAndLog(xml, ["idType", "invalid"], ValueError, logging.ERROR)
 
@@ -103,11 +103,6 @@ class XmlDeserializationTest(unittest.TestCase):
             <aas:assetAdministrationShell>
                 <aas:identification idType="IRI">http://acplt.org/test_aas</aas:identification>
                 <aas:assetInformation>
-                    <aas:globalAssetId>
-                        <aas:keys>
-                            <aas:key idType="IRI" type="Asset">http://acplt.org/asset_ref</aas:key>
-                        </aas:keys>
-                    </aas:globalAssetId>
                 </aas:assetInformation>
             </aas:assetAdministrationShell>
         </aas:assetAdministrationShells>
@@ -120,11 +115,6 @@ class XmlDeserializationTest(unittest.TestCase):
             <aas:assetAdministrationShell>
                 <aas:identification idType="IRI">http://acplt.org/test_aas</aas:identification>
                 <aas:assetInformation>
-                    <aas:globalAssetId>
-                        <aas:keys>
-                            <aas:key idType="IRI" type="Asset">http://acplt.org/asset_ref</aas:key>
-                        </aas:keys>
-                    </aas:globalAssetId>
                     <aas:assetKind></aas:assetKind>
                 </aas:assetInformation>
             </aas:assetAdministrationShell>
@@ -138,11 +128,6 @@ class XmlDeserializationTest(unittest.TestCase):
             <aas:assetAdministrationShell>
                 <aas:identification idType="IRI">http://acplt.org/test_aas</aas:identification>
                 <aas:assetInformation>
-                    <aas:globalAssetId>
-                        <aas:keys>
-                            <aas:key idType="IRI" type="Asset">http://acplt.org/asset_ref</aas:key>
-                        </aas:keys>
-                    </aas:globalAssetId>
                     <aas:assetKind>invalidKind</aas:assetKind>
                 </aas:assetInformation>
             </aas:assetAdministrationShell>
@@ -301,11 +286,6 @@ class XmlDeserializationTest(unittest.TestCase):
                 <aas:idShort>NotSet</aas:idShort>
                 <aas:assetInformation>
                     <aas:assetKind>Instance</aas:assetKind>
-                    <aas:globalAssetId>
-                        <aas:keys>
-                            <aas:key idType="IRI" type="Asset">http://acplt.org/asset_ref</aas:key>
-                        </aas:keys>
-                    </aas:globalAssetId>
                 </aas:assetInformation>
             </aas:assetAdministrationShell>
         </aas:assetAdministrationShells>
@@ -485,11 +465,6 @@ class XmlDeserializationStrippedObjectsTest(unittest.TestCase):
             <aas:identification idType="IRI">http://acplt.org/test_aas</aas:identification>
             <aas:assetInformation>
                 <aas:assetKind>Instance</aas:assetKind>
-                <aas:globalAssetId>
-                    <aas:keys>
-                        <aas:key idType="IRI" type="Asset">http://acplt.org/test_ref</aas:key>
-                    </aas:keys>
-                </aas:globalAssetId>
             </aas:assetInformation>
             <aas:submodelRefs>
                 <aas:submodelRef>

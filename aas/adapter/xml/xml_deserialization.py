@@ -931,14 +931,6 @@ class AASFromXmlDecoder:
         return aas
 
     @classmethod
-    def construct_asset(cls, element: etree.Element, object_class=model.Asset, **_kwargs: Any) -> model.Asset:
-        asset = object_class(
-            _child_construct_mandatory(element, NS_AAS + "identification", cls.construct_identifier)
-        )
-        cls._amend_abstract_attributes(asset, element)
-        return asset
-
-    @classmethod
     def construct_identifier_key_value_pair(cls, element: etree.Element, object_class=model.IdentifierKeyValuePair,
                                             **_kwargs: Any) -> model.IdentifierKeyValuePair:
         return object_class(
@@ -1214,7 +1206,6 @@ class XMLConstructables(enum.Enum):
     RELATIONSHIP_ELEMENT = enum.auto()
     SUBMODEL_ELEMENT_COLLECTION = enum.auto()
     ASSET_ADMINISTRATION_SHELL = enum.auto()
-    ASSET = enum.auto()
     ASSET_INFORMATION = enum.auto()
     IDENTIFIER_KEY_VALUE_PAIR = enum.auto()
     SUBMODEL = enum.auto()
@@ -1297,8 +1288,6 @@ def read_aas_xml_element(file: IO, construct: XMLConstructables, failsafe: bool 
         constructor = decoder_.construct_submodel_element_collection
     elif construct == XMLConstructables.ASSET_ADMINISTRATION_SHELL:
         constructor = decoder_.construct_asset_administration_shell
-    elif construct == XMLConstructables.ASSET:
-        constructor = decoder_.construct_asset
     elif construct == XMLConstructables.ASSET_INFORMATION:
         constructor = decoder_.construct_asset_information
     elif construct == XMLConstructables.IDENTIFIER_KEY_VALUE_PAIR:
@@ -1360,7 +1349,6 @@ def read_aas_xml_file_into(object_store: model.AbstractObjectStore[model.Identif
 
     element_constructors: Dict[str, Callable[..., model.Identifiable]] = {
         "assetAdministrationShell": decoder_.construct_asset_administration_shell,
-        "asset": decoder_.construct_asset,
         "conceptDescription": decoder_.construct_concept_description,
         "submodel": decoder_.construct_submodel
     }

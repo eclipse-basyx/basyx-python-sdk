@@ -65,8 +65,6 @@ class AASToJsonEncoder(json.JSONEncoder):
         """
         if isinstance(obj, model.AssetAdministrationShell):
             return self._asset_administration_shell_to_json(obj)
-        if isinstance(obj, model.Asset):
-            return self._asset_to_json(obj)
         if isinstance(obj, model.Identifier):
             return self._identifier_to_json(obj)
         if isinstance(obj, model.AdministrativeInformation):
@@ -328,17 +326,6 @@ class AASToJsonEncoder(json.JSONEncoder):
         data = cls._abstract_classes_to_json(obj)
         if obj.contained_element:
             data['containedElements'] = list(obj.contained_element)
-        return data
-
-    @classmethod
-    def _asset_to_json(cls, obj: model.Asset) -> Dict[str, object]:
-        """
-        serialization of an object from class Asset to json
-
-        :param obj: object of class Asset
-        :return: dict with the serialized attributes of this object
-        """
-        data = cls._abstract_classes_to_json(obj)
         return data
 
     @classmethod
@@ -733,13 +720,10 @@ def _select_encoder(stripped: bool, encoder: Optional[Type[AASToJsonEncoder]] = 
 
 def _create_dict(data: model.AbstractObjectStore) -> dict:
     # separate different kind of objects
-    assets = []
     asset_administration_shells = []
     submodels = []
     concept_descriptions = []
     for obj in data:
-        if isinstance(obj, model.Asset):
-            assets.append(obj)
         if isinstance(obj, model.AssetAdministrationShell):
             asset_administration_shells.append(obj)
         elif isinstance(obj, model.Submodel):
@@ -749,7 +733,6 @@ def _create_dict(data: model.AbstractObjectStore) -> dict:
     dict_ = {
         'assetAdministrationShells': asset_administration_shells,
         'submodels': submodels,
-        'assets': assets,
         'conceptDescriptions': concept_descriptions,
     }
     return dict_

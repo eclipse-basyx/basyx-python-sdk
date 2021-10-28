@@ -13,7 +13,7 @@ objects by identification and resolving references.
 # `AssetAdministrationShell.submodel` set, etc.
 #
 # Step by Step Guide:
-# Step 1: creating Asset, Submodel and Asset Administration Shell objects
+# Step 1: creating AssetInformation, Submodel and Asset Administration Shell objects
 # Step 2: storing the data in an ObjectStore for easier handling
 # Step 3: retrieving objects from the store by their identifier
 # Step 4: using the ObjectStore to resolve a reference
@@ -23,9 +23,9 @@ from aas import model
 from aas.model import AssetInformation, AssetAdministrationShell, Submodel
 
 
-###########################################################################
-# Step 1: Creating Asset, Submodel and Asset Administration Shell objects #
-###########################################################################
+######################################################################################
+# Step 1: Creating AssetInformation, Submodel and Asset Administration Shell objects #
+######################################################################################
 
 # For more details, take a look at `tutorial_create_simple_aas.py`
 

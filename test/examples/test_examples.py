@@ -53,8 +53,8 @@ class ExampleAASTest(unittest.TestCase):
 
         failed_shell = model.AssetAdministrationShell(
             asset_information=model.AssetInformation(global_asset_id=model.AASReference(
-                (model.Key(type_=model.KeyElements.ASSET, value='test', id_type=model.KeyType.IRI),),
-                model.Asset)),
+                (model.Key(type_=model.KeyElements.GLOBAL_REFERENCE, value='test', id_type=model.KeyType.IRI),),
+                model.Submodel)),
             identification=model.Identifier('test', model.IdentifierType.CUSTOM)
         )
         obj_store.add(failed_shell)

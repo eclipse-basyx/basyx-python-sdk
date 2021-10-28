@@ -7,11 +7,6 @@
 			<aas:administration>
 				<aas:revision>0</aas:revision>
 			</aas:administration>
-			<aas:assetRef>
-				<aas:keys>
-					<aas:key idType="IRI" local="false" type="Asset">https://acplt.org/Test_Asset</aas:key>
-				</aas:keys>
-			</aas:assetRef>
 			<aas:assetInformation>
 				<aas:globalAssetId>
 				  <aas:keys>
@@ -40,7 +35,6 @@
 			</aas:assetInformation>
 		</aas:assetAdministrationShell>
 	</aas:assetAdministrationShells>
-	<aas:assets/>
 	<aas:conceptDescriptions/>
 	<aas:submodels/>
 </aas:aasenv>

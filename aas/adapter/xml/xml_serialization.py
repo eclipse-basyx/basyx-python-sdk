@@ -328,18 +328,6 @@ def view_to_xml(obj: model.View, tag: str = NS_AAS+"view") -> etree.Element:
     return et_view
 
 
-def asset_to_xml(obj: model.Asset, tag: str = NS_AAS+"asset") -> etree.Element:
-    """
-    Serialization of objects of class :class:`~aas.model.aas.Asset` to XML
-
-    :param obj: Object of class :class:`~aas.model.aas.Asset`
-    :param tag: Namespace+Tag of the ElementTree object. Default is "aas:asset"
-    :return: Serialized ElementTree object
-    """
-    et_asset = abstract_classes_to_xml(tag, obj)
-    return et_asset
-
-
 def identifier_key_value_pair_to_xml(obj: model.IdentifierKeyValuePair, tag: str = NS_AAS+"identifierKeyValuePair") \
         -> etree.Element:
     """
@@ -889,13 +877,10 @@ def write_aas_xml_file(file: IO,
     :param kwargs: Additional keyword arguments to be passed to `tree.write()`
     """
     # separate different kind of objects
-    assets = []
     asset_administration_shells = []
     submodels = []
     concept_descriptions = []
     for obj in data:
-        if isinstance(obj, model.Asset):
-            assets.append(obj)
         if isinstance(obj, model.AssetAdministrationShell):
             asset_administration_shells.append(obj)
         elif isinstance(obj, model.Submodel):
@@ -908,9 +893,6 @@ def write_aas_xml_file(file: IO,
     et_asset_administration_shells = etree.Element(NS_AAS + "assetAdministrationShells")
     for aas_obj in asset_administration_shells:
         et_asset_administration_shells.append(asset_administration_shell_to_xml(aas_obj))
-    et_assets = _generate_element(NS_AAS + "assets")
-    for ass_obj in assets:
-        et_assets.append(asset_to_xml(ass_obj))
     et_concept_descriptions = etree.Element(NS_AAS + "conceptDescriptions")
     for con_obj in concept_descriptions:
         et_concept_descriptions.append(concept_description_to_xml(con_obj))
@@ -919,7 +901,6 @@ def write_aas_xml_file(file: IO,
         et_submodels.append(submodel_to_xml(sub_obj))
     root.insert(0, et_submodels)
     root.insert(0, et_concept_descriptions)
-    root.insert(0, et_assets)
     root.insert(0, et_asset_administration_shells)
 
     tree = etree.ElementTree(root)

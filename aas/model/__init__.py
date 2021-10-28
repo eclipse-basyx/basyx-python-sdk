@@ -5,12 +5,12 @@ specialized Concept Descriptions) are imported into this top-level package, for 
 
 .. code-block:: python
 
-    from aas.model import AssetAdministrationShell, Asset, Submodel, Property
+    from aas.model import AssetAdministrationShell, Submodel, Property
 
 The different modules are:
 
 aas.py
-    The main module, implementing high-level structures, such as AssetAdministrationShell, Asset and ConceptDictionary.
+    The main module, implementing high-level structures, such as AssetAdministrationShell and ConceptDictionary.
 
 base.py
     Basic structures of the model, including all abstract classes and enumerations. This provides inheritance for the
@@ -42,7 +42,6 @@ from . import datatypes
 # A mapping of PyI40AAS implementation classes to the corresponding `KeyElements` enum members for all classes that are
 # covered by this enum.
 KEY_ELEMENTS_CLASSES: Dict[Type[Referable], KeyElements] = {
-    Asset: KeyElements.ASSET,
     AssetAdministrationShell: KeyElements.ASSET_ADMINISTRATION_SHELL,
     ConceptDescription: KeyElements.CONCEPT_DESCRIPTION,
     Submodel: KeyElements.SUBMODEL,

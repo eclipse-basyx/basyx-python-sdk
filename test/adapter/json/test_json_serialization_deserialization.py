@@ -20,8 +20,8 @@ from aas.examples.data._helper import AASDataChecker
 
 class JsonSerializationDeserializationTest(unittest.TestCase):
     def test_random_object_serialization_deserialization(self) -> None:
-        asset_key = (model.Key(model.KeyElements.ASSET, "asset", model.KeyType.CUSTOM),)
-        asset_reference = model.AASReference(asset_key, model.Asset)
+        asset_key = (model.Key(model.KeyElements.GLOBAL_REFERENCE, "test", model.KeyType.CUSTOM),)
+        asset_reference = model.Reference(asset_key)
         aas_identifier = model.Identifier("AAS1", model.IdentifierType.CUSTOM)
         submodel_key = (model.Key(model.KeyElements.SUBMODEL, "SM1", model.KeyType.CUSTOM),)
         submodel_identifier = submodel_key[0].get_identifier()

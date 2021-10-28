@@ -3,7 +3,7 @@
   "title": "AssetAdministrationShellEnvironment",
   "$id": "http://www.admin-shell.io/schema/json/V3.0RC01",
   "type": "object",
-  "required": ["assetAdministrationShells", "submodels", "assets", "conceptDescriptions"],
+  "required": ["assetAdministrationShells", "submodels", "conceptDescriptions"],
   "properties": {
     "assetAdministrationShells": {
       "type": "array",
@@ -15,12 +15,6 @@
       "type": "array",
       "items": {
         "$ref": "#/definitions/Submodel"
-      }
-    },
-    "assets": {
-      "type": "array",
-      "items": {
-        "$ref": "#/definitions/Asset"
       }
     },
     "conceptDescriptions": {
@@ -281,7 +275,6 @@
     "KeyElements": {
       "type": "string",
       "enum": [
-        "Asset",
 		"AssetAdministrationShell",
 		"ConceptDescription",
 		"Submodel",
@@ -310,7 +303,6 @@
 	"ModelTypes": {
       "type": "string",
       "enum": [
-        "Asset",
 		"AssetAdministrationShell",
 		"ConceptDescription",
 		"Submodel",
@@ -565,12 +557,6 @@
 		  ]}
 	  }
 	},
-    "Asset": {
-	  "allOf": [
-	    { "$ref": "#/definitions/Identifiable" },
-		  { "$ref": "#/definitions/HasDataSpecification" }
-	  ]
-    },
     "AssetInformation": {
     "allOf": [
         { "properties": {

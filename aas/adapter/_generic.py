@@ -22,7 +22,6 @@ ASSET_KIND: Dict[model.AssetKind, str] = {
     model.AssetKind.INSTANCE: 'Instance'}
 
 KEY_ELEMENTS: Dict[model.KeyElements, str] = {
-    model.KeyElements.ASSET: 'Asset',
     model.KeyElements.ASSET_ADMINISTRATION_SHELL: 'AssetAdministrationShell',
     model.KeyElements.CONCEPT_DESCRIPTION: 'ConceptDescription',
     model.KeyElements.SUBMODEL: 'Submodel',

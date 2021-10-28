@@ -54,7 +54,6 @@
 						<restriction base="string">
 							<enumeration value="AccessPermissionRule"/>
 							<enumeration value="AnnotatedRelationshipElement"/>
-							<enumeration value="Asset"/>
 							<enumeration value="AssetAdministrationShell"/>
 							<enumeration value="BasicEvent"/>
 							<enumeration value="Blob"/>

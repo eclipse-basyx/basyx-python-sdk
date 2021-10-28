@@ -128,13 +128,13 @@ class AASFromJsonDecoder(json.JSONDecoder):
 
     .. code-block:: python
 
-        class EnhancedAsset(model.Asset):
+        class EnhancedSubmodel(model.Submodel):
             pass
 
-        class EnhancedAASDecoder(AASFromJsonDecoder):
+        class EnhancedAASDecoder(StrictAASFromJsonDecoder):
             @classmethod
-            def _construct_asset(cls, dct):
-                return super()._construct_asset(dct, object_class=EnhancedAsset)
+            def _construct_submodel(cls, dct, object_class=EnhancedSubmodel):
+                return super()._construct_submodel(dct, object_class=object_class)
 
 
     :cvar failsafe: If `True` (the default), don't raise Exceptions for missing attributes and wrong types, but instead
@@ -165,7 +165,6 @@ class AASFromJsonDecoder(json.JSONDecoder):
         # instead of raising an Exception.
         AAS_CLASS_PARSERS: Dict[str, Callable[[Dict[str, object]], object]] = {
             'AssetAdministrationShell': cls._construct_asset_administration_shell,
-            'Asset': cls._construct_asset,
             'AssetInformation': cls._construct_asset_information,
             'IdentifierKeyValuePair': cls._construct_identifier_key_value_pair,
             'View': cls._construct_view,
@@ -394,12 +393,6 @@ class AASFromJsonDecoder(json.JSONDecoder):
                 ret.bill_of_material.add(cls._construct_aas_reference(desc_data, model.Submodel))
         if 'thumbnail' in dct:
             ret.default_thumbnail = _get_ts(dct, 'thumbnail', model.File)
-        return ret
-
-    @classmethod
-    def _construct_asset(cls, dct: Dict[str, object], object_class=model.Asset) -> model.Asset:
-        ret = object_class(identification=cls._construct_identifier(_get_ts(dct, "identification", dict)))
-        cls._amend_abstract_attributes(ret, dct)
         return ret
 
     @classmethod
@@ -783,7 +776,6 @@ def read_aas_json_file_into(object_store: model.AbstractObjectStore, file: IO, r
     data = json.load(file, cls=decoder_)
 
     for name, expected_type in (('assetAdministrationShells', model.AssetAdministrationShell),
-                                ('assets', model.Asset),
                                 ('submodels', model.Submodel),
                                 ('conceptDescriptions', model.ConceptDescription)):
         try:

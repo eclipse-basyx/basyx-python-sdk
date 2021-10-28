@@ -351,8 +351,7 @@ class AASXWriter:
             :class:`Identifiers <aas.model.base.Identifier>` of the AAS(s) to be written to the AASX file
         :param object_store: :class:`ObjectStore <aas.model.provider.AbstractObjectStore>` to retrieve the
             :class:`~aas.model.base.Identifiable` AAS objects (:class:`~aas.model.aas.AssetAdministrationShell`,
-            :class:`~aas.model.aas.Asset`, :class:`~aas.model.concept.ConceptDescription` and
-            :class:`~aas.model.submodel.Submodel`) from
+            :class:`~aas.model.concept.ConceptDescription` and :class:`~aas.model.submodel.Submodel`) from
         :param file_store: :class:`SupplementaryFileContainer <~.AbstractSupplementaryFileContainer>` to retrieve
             supplementary files from, which are referenced by :class:`~aas.model.submodel.File` objects
         :param write_json:  If `True`, JSON parts are created for the AAS and each :class:`~aas.model.submodel.Submodel`
@@ -378,7 +377,7 @@ class AASXWriter:
                 raise TypeError(f"Identifier {aas_id} does not belong to an AssetAdminstrationShell object but to "
                                 f"{aas!r}")
 
-            # Add the Asset object to the data part
+            # Add the AssetAdministrationShell object to the data part
             objects_to_be_written.add(aas)
 
             # Add referenced Submodels to the data part

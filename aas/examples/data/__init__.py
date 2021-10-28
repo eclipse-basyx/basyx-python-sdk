@@ -2,15 +2,15 @@
 This package contains functions for the creation of different example AAS objects.
 
 example_ass.py
-    Module for the creation of example asset administration shell, related asset, example submodels and a concept
+    Module for the creation of example asset administration shell, example submodels and a concept
     dictionary containing an example concept description
 
 example_aas_mandatory_attributes.py
-    Module for the creation of an example asset administration shell, related asset, example submodels and a concept
+    Module for the creation of an example asset administration shell, example submodels and a concept
     dictionary containing an example concept description. All objects only contain mandatory attributes.
 
 example_aas_missing_attributes.py
-    Module for the creation of an example asset administration shell, related asset, example submodels and a concept
+    Module for the creation of an example asset administration shell, example submodels and a concept
     dictionary containing an example concept description. All objects contain missing object attribute combination.
 
 example_concept_description.py
@@ -48,7 +48,7 @@ def create_example() -> model.DictObjectStore:
 def create_example_aas_binding() -> model.DictObjectStore:
     """
     creates an object store which is filled with example assets, submodels, concept descriptions and asset
-    administration shells using the functionality of this package where each asset, submodel and concept description is
+    administration shells using the functionality of this package where each submodel and concept description is
     at least referred by one asset administration shell
 
     :return: object store

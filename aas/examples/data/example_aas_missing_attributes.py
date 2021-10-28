@@ -19,9 +19,7 @@ logger = logging.getLogger(__name__)
 
 def create_full_example() -> model.DictObjectStore:
     """
-    Creates an :class:`~aas.model.provider.DictObjectStore` containing an example asset identification
-    :class:`~aas.model.submodel.Submodel`, an example :class:`~aas.model.aas.Asset`, an example
-    :class:`~aas.model.submodel.Submodel`,
+    Creates an :class:`~aas.model.provider.DictObjectStore` containing an example :class:`~aas.model.submodel.Submodel`,
     an example :class:`~aas.model.concept.ConceptDescription` and an example
     :class:`~aas.model.aas.AssetAdministrationShell`
 
@@ -342,8 +340,8 @@ def create_example_concept_description() -> model.ConceptDescription:
 
 def create_example_asset_administration_shell() -> model.AssetAdministrationShell:
     """
-    Creates an example :class:`~aas.model.aas.AssetAdministrationShell` containing references to the example
-    :class:`~aas.model.Asset` and example :class:`~aas.model.submodel.Submodel`
+    Creates an example :class:`~aas.model.aas.AssetAdministrationShell` containing a reference to an example
+    :class:`~aas.model.submodel.Submodel`
 
     :return: example asset administration shell
     """

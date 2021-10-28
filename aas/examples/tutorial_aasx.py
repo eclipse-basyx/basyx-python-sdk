@@ -92,15 +92,15 @@ submodel.submodel_element.add(
 # Step 2: Writing AAS objects and auxiliary files to an AASX package #
 ######################################################################
 
-# After setting everything up in Step 1, writing the AAS, including the Submdel and Asset objects and the auxiliary
-# file to an AASX package is simple.
+# After setting everything up in Step 1, writing the AAS, including the Submodel objects and the auxiliary file
+# to an AASX package is simple.
 
 # Open an AASXWriter with the destination file name and use it as a context handler, to make sure it is properly closed
 # after doing the modifications:
 with aasx.AASXWriter("MyAASXPackage.aasx") as writer:
     # Write the AAS and everything belonging to it to the AASX package
-    # The `write_aas()` method will automatically fetch the AAS object with the given identification, the referenced
-    # Asset object and all referenced Submodel objects from the ObjectStore. It will also scan every object for
+    # The `write_aas()` method will automatically fetch the AAS object with the given identification
+    # and all referenced Submodel objects from the ObjectStore. It will also scan every object for
     # semanticIds referencing ConceptDescription, fetch them from the ObjectStore, and scan all sbmodels for `File`
     # objects and fetch the referenced auxiliary files from the SupplementaryFileContainer.
     # In order to add more than one AAS to the package, we can simply add more Identifiers to the `aas_ids` list.

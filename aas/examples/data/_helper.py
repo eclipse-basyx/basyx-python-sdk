@@ -872,14 +872,11 @@ class AASDataChecker(DataChecker):
         :return:
         """
         # separate different kind of objects
-        asset_list_1 = []
         submodel_list_1 = []
         concept_description_list_1 = []
         shell_list_1 = []
         for obj in obj_store_1:
-            if isinstance(obj, model.Asset):
-                asset_list_1.append(obj)
-            elif isinstance(obj, model.AssetAdministrationShell):
+            if isinstance(obj, model.AssetAdministrationShell):
                 shell_list_1.append(obj)
             elif isinstance(obj, model.Submodel):
                 submodel_list_1.append(obj)
@@ -889,14 +886,11 @@ class AASDataChecker(DataChecker):
                 raise KeyError('Check for {} not implemented'.format(obj))
 
         # separate different kind of objects
-        asset_list_2 = []
         submodel_list_2 = []
         concept_description_list_2 = []
         shell_list_2 = []
         for obj in obj_store_2:
-            if isinstance(obj, model.Asset):
-                asset_list_2.append(obj)
-            elif isinstance(obj, model.AssetAdministrationShell):
+            if isinstance(obj, model.AssetAdministrationShell):
                 shell_list_2.append(obj)
             elif isinstance(obj, model.Submodel):
                 submodel_list_2.append(obj)
@@ -904,15 +898,6 @@ class AASDataChecker(DataChecker):
                 concept_description_list_2.append(obj)
             else:
                 raise KeyError('Check for {} not implemented'.format(obj))
-
-        for asset_2 in asset_list_2:
-            asset_1 = obj_store_1.get(asset_2.identification)
-            if self.check(asset_1 is not None, 'Asset {} must exist in given asset list'.format(asset_2)):
-                self.check_asset_equal(asset_1, asset_2)  # type: ignore
-
-        found_elements = self._find_extra_elements_by_attribute(asset_list_1, asset_list_2, 'identification')
-        self.check(found_elements == set(), 'Given asset list must not have extra assets',
-                   value=found_elements)
 
         for shell_2 in shell_list_2:
             shell_1 = obj_store_1.get(shell_2.identification)

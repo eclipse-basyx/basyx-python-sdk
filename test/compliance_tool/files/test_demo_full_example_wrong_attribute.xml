@@ -168,7 +168,6 @@
       </aas:views>
     </aas:assetAdministrationShell>
   </aas:assetAdministrationShells>
-  <aas:assets/>
   <aas:conceptDescriptions>
     <aas:conceptDescription>
       <aas:idShort>TestConceptDescription</aas:idShort>
