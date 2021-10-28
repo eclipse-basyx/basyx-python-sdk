@@ -128,7 +128,12 @@ For further examples and tutorials, check out the `aas.examples`-package. Here i
 package files
 
 
-### Compliance Tool
+## Documentation
+
+In addition to the examples above, a detailed documentation for the current branch is available [here](https://git.rwth-aachen.de/acplt/pyi40aas/-/jobs/artifacts/improve/V30RC02/file/docs/build/index.html?job=docs).
+
+
+## Compliance Tool
 
 The PyI40AAS project contains a compliance tool for testing xml and json files is provided in the 
 `aas.compliance_tool`-package. Following functionalities are supported:
