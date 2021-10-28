@@ -61,11 +61,7 @@ class XmlDeserializationTest(unittest.TestCase):
             _xml_wrap("<aas:submodels><aas:submodel/>")
         )
         for s in xml:
-            bytes_io = io.BytesIO(s.encode("utf-8"))
-            with self.assertRaises(etree.XMLSyntaxError):
-                read_aas_xml_file(bytes_io, failsafe=False)
-            with self.assertLogs(logging.getLogger(), level=logging.ERROR):
-                read_aas_xml_file(bytes_io, failsafe=True)
+            self._assertInExceptionAndLog(s, [], etree.XMLSyntaxError, logging.ERROR)
 
     def test_invalid_list_name(self) -> None:
         xml = _xml_wrap("<aas:invalidList></aas:invalidList>")

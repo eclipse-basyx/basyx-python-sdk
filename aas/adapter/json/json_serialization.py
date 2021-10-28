@@ -742,9 +742,9 @@ def _create_dict(data: model.AbstractObjectStore) -> dict:
             assets.append(obj)
         if isinstance(obj, model.AssetAdministrationShell):
             asset_administration_shells.append(obj)
-        if isinstance(obj, model.Submodel):
+        elif isinstance(obj, model.Submodel):
             submodels.append(obj)
-        if isinstance(obj, model.ConceptDescription):
+        elif isinstance(obj, model.ConceptDescription):
             concept_descriptions.append(obj)
     dict_ = {
         'assetAdministrationShells': asset_administration_shells,

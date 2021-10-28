@@ -30,7 +30,7 @@ by other constructor functions via `_failsafe_construct()`, so an error chain is
 which allows printing stacktrace-like error messages like the following in the error case (in failsafe mode of course):
 
 
-.. code-block:: python
+.. code-block::
 
     KeyError: aas:identification on line 252 has no attribute with name idType!
         -> Failed to construct aas:identification on line 252 using construct_identifier!
