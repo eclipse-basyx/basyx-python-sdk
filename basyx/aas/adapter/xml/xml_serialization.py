@@ -870,9 +870,9 @@ def write_aas_xml_file(file: IO,
             assets.append(obj)
         if isinstance(obj, model.AssetAdministrationShell):
             asset_administration_shells.append(obj)
-        if isinstance(obj, model.Submodel):
+        elif isinstance(obj, model.Submodel):
             submodels.append(obj)
-        if isinstance(obj, model.ConceptDescription):
+        elif isinstance(obj, model.ConceptDescription):
             concept_descriptions.append(obj)
 
     # serialize objects to XML
