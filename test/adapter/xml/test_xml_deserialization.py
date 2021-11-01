@@ -203,7 +203,7 @@ class XmlDeserializationTest(unittest.TestCase):
         """)
         with self.assertLogs(logging.getLogger(), level=logging.WARNING) as context:
             read_aas_xml_file(io.BytesIO(xml.encode("utf-8")), failsafe=False)
-        for s in ("GLOBAL_REFERENCE", "IRI=http://acplt.org/test_ref", "Asset"):
+        for s in ("GLOBAL_REFERENCE", "IRI=http://acplt.org/test_ref", "AssetAdministrationShell"):
             self.assertIn(s, context.output[0])
 
     def test_invalid_submodel_element(self) -> None:
