@@ -228,8 +228,7 @@ class JsonSerializationStrippedObjectsTest(unittest.TestCase):
         aas = model.AssetAdministrationShell(
             model.AssetInformation(global_asset_id=asset_ref),
             model.Identifier("http://acplt.org/test_aas", model.IdentifierType.IRI),
-            submodel={submodel_ref},
-            view=[model.View("test_view")]
+            submodel={submodel_ref}
         )
 
-        self._checkNormalAndStripped({"submodels", "views"}, aas)
+        self._checkNormalAndStripped({"submodels"}, aas)

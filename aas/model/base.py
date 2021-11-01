@@ -92,7 +92,6 @@ class KeyElements(Enum):
     :cvar RELATIONSHIP_ELEMENT: :class:`~aas.model.submodel.RelationshipElement`
     :cvar SUBMODEL_ELEMENT: :class:`~aas.model.submodel.SubmodelElement`
     :cvar SUBMODEL_ELEMENT_COLLECTION: :class:`~aas.model.submodel.SubmodelElementCollection`
-    :cvar VIEW: :class:`~aas.model.aas.View`
 
     **KeyElements starting from 2000**
 
@@ -127,7 +126,8 @@ class KeyElements(Enum):
     RELATIONSHIP_ELEMENT = 1015
     SUBMODEL_ELEMENT = 1016
     SUBMODEL_ELEMENT_COLLECTION = 1017
-    VIEW = 1018
+    # keep _VIEW = 1018 as a protected enum member here, so 1018 isn't reused in the enum by a future referable
+    _VIEW = 1018
 
     # KeyElements starting from 2000
     GLOBAL_REFERENCE = 2000

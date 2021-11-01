@@ -167,7 +167,6 @@ class AASFromJsonDecoder(json.JSONDecoder):
             'AssetAdministrationShell': cls._construct_asset_administration_shell,
             'AssetInformation': cls._construct_asset_information,
             'IdentifierKeyValuePair': cls._construct_identifier_key_value_pair,
-            'View': cls._construct_view,
             'ConceptDescription': cls._construct_concept_description,
             'Qualifier': cls._construct_qualifier,
             'Extension': cls._construct_extension,
@@ -406,26 +405,11 @@ class AASFromJsonDecoder(json.JSONDecoder):
         if not cls.stripped and 'submodels' in dct:
             for sm_data in _get_ts(dct, 'submodels', list):
                 ret.submodel.add(cls._construct_aas_reference(sm_data, model.Submodel))
-        if not cls.stripped and 'views' in dct:
-            for view in _get_ts(dct, 'views', list):
-                if _expect_type(view, model.View, str(ret), cls.failsafe):
-                    ret.view.add(view)
         if 'security' in dct:
             ret.security = cls._construct_security(_get_ts(dct, 'security', dict))
         if 'derivedFrom' in dct:
             ret.derived_from = cls._construct_aas_reference(_get_ts(dct, 'derivedFrom', dict),
                                                             model.AssetAdministrationShell)
-        return ret
-
-    @classmethod
-    def _construct_view(cls, dct: Dict[str, object], object_class=model.View) -> model.View:
-        ret = object_class(_get_ts(dct, 'idShort', str))
-        cls._amend_abstract_attributes(ret, dct)
-        if 'containedElements' in dct:
-            for element_data in _get_ts(dct, 'containedElements', list):
-                # TODO: remove the following type: ignore comments when mypy supports abstract types for Type[T]
-                # see https://github.com/python/mypy/issues/5374
-                ret.contained_element.add(cls._construct_aas_reference(element_data, model.Referable))  # type: ignore
         return ret
 
     @classmethod

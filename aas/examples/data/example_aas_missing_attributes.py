@@ -345,14 +345,6 @@ def create_example_asset_administration_shell() -> model.AssetAdministrationShel
 
     :return: example asset administration shell
     """
-    view = model.View(
-        id_short='ExampleView',
-        contained_element={model.AASReference((model.Key(type_=model.KeyElements.SUBMODEL,
-                                                         value='https://acplt.org/Test_Submodel_Missing',
-                                                         id_type=model.KeyType.IRI),),
-                                              model.Submodel)})
-    view_2 = model.View(
-        id_short='ExampleView2')
 
     submodel_element_file = model.File(
         id_short='ThumbnailFile',
@@ -397,7 +389,6 @@ def create_example_asset_administration_shell() -> model.AssetAdministrationShel
                                                 value='https://acplt.org/Test_Submodel_Missing',
                                                 id_type=model.KeyType.IRI),),
                                      model.Submodel)},
-        view=[view, view_2],
         derived_from=None)
     return asset_administration_shell
 

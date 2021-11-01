@@ -619,17 +619,6 @@ class AASFromXmlDecoder:
         return object_class()
 
     @classmethod
-    def construct_view(cls, element: etree.Element, object_class=model.View, **_kwargs: Any) -> model.View:
-        view = object_class(_child_text_mandatory(element, NS_AAS + "idShort"))
-        contained_elements = element.find(NS_AAS + "containedElements")
-        if contained_elements is not None:
-            for ref in _failsafe_construct_multiple(contained_elements.findall(NS_AAS + "containedElementRef"),
-                                                    cls._construct_referable_reference, cls.failsafe):
-                view.contained_element.add(ref)
-        cls._amend_abstract_attributes(view, element)
-        return view
-
-    @classmethod
     def construct_submodel_element(cls, element: etree.Element, **kwargs: Any) -> model.SubmodelElement:
         """
         This function doesn't support the object_class parameter.
@@ -919,10 +908,6 @@ class AASFromXmlDecoder:
                 for ref in _child_construct_multiple(submodels, NS_AAS + "submodelRef",
                                                      cls._construct_submodel_reference, cls.failsafe):
                     aas.submodel.add(ref)
-            views = element.find(NS_AAS + "views")
-            if views is not None:
-                for view in _child_construct_multiple(views, NS_AAS + "view", cls.construct_view, cls.failsafe):
-                    aas.view.add(view)
         derived_from = _failsafe_construct(element.find(NS_AAS + "derivedFrom"),
                                            cls._construct_asset_administration_shell_reference, cls.failsafe)
         if derived_from is not None:
@@ -1189,7 +1174,6 @@ class XMLConstructables(enum.Enum):
     QUALIFIER = enum.auto()
     IDENTIFIER = enum.auto()
     SECURITY = enum.auto()
-    VIEW = enum.auto()
     OPERATION_VARIABLE = enum.auto()
     ANNOTATED_RELATIONSHIP_ELEMENT = enum.auto()
     BASIC_EVENT = enum.auto()
@@ -1254,8 +1238,6 @@ def read_aas_xml_element(file: IO, construct: XMLConstructables, failsafe: bool 
         constructor = decoder_.construct_identifier
     elif construct == XMLConstructables.SECURITY:
         constructor = decoder_.construct_security
-    elif construct == XMLConstructables.VIEW:
-        constructor = decoder_.construct_view
     elif construct == XMLConstructables.OPERATION_VARIABLE:
         constructor = decoder_.construct_operation_variable
     elif construct == XMLConstructables.ANNOTATED_RELATIONSHIP_ELEMENT:

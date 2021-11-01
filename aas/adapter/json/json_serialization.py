@@ -91,8 +91,6 @@ class AASToJsonEncoder(json.JSONEncoder):
             return self._basic_event_to_json(obj)
         if isinstance(obj, model.Entity):
             return self._entity_to_json(obj)
-        if isinstance(obj, model.View):
-            return self._view_to_json(obj)
         if isinstance(obj, model.ConceptDescription):
             return self._concept_description_to_json(obj)
         if isinstance(obj, model.Property):
@@ -316,19 +314,6 @@ class AASToJsonEncoder(json.JSONEncoder):
     # ############################################################
 
     @classmethod
-    def _view_to_json(cls, obj: model.View) -> Dict[str, object]:
-        """
-        serialization of an object from class View to json
-
-        :param obj: object of class View
-        :return: dict with the serialized attributes of this object
-        """
-        data = cls._abstract_classes_to_json(obj)
-        if obj.contained_element:
-            data['containedElements'] = list(obj.contained_element)
-        return data
-
-    @classmethod
     def _identifier_key_value_pair_to_json(cls, obj: model.IdentifierKeyValuePair) -> Dict[str, object]:
         """
         serialization of an object from class IdentifierKeyValuePair to json
@@ -441,8 +426,6 @@ class AASToJsonEncoder(json.JSONEncoder):
             data["assetInformation"] = obj.asset_information
         if not cls.stripped and obj.submodel:
             data["submodels"] = list(obj.submodel)
-        if not cls.stripped and obj.view:
-            data["views"] = list(obj.view)
         if obj.security:
             data["security"] = obj.security
         return data

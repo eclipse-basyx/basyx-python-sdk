@@ -75,7 +75,6 @@
 							<enumeration value="Submodel"/>
 							<enumeration value="SubmodelElement"/>
 							<enumeration value="SubmodelElementCollection"/>
-							<enumeration value="View"/>
 						</restriction>
 					</simpleType>
 				</attribute>

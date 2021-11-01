@@ -42,7 +42,6 @@ KEY_ELEMENTS: Dict[model.KeyElements, str] = {
     model.KeyElements.RELATIONSHIP_ELEMENT: 'RelationshipElement',
     model.KeyElements.SUBMODEL_ELEMENT: 'SubmodelElement',
     model.KeyElements.SUBMODEL_ELEMENT_COLLECTION: 'SubmodelElementCollection',
-    model.KeyElements.VIEW: 'View',
     model.KeyElements.GLOBAL_REFERENCE: 'GlobalReference',
     model.KeyElements.FRAGMENT_REFERENCE: 'FragmentReference'}
 

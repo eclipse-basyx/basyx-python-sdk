@@ -245,40 +245,16 @@ class AASDataCheckerTest(unittest.TestCase):
             submodel={model.AASReference((model.Key(type_=model.KeyElements.SUBMODEL,
                                                     value='test',
                                                     id_type=model.KeyType.IRI),),
-                                         model.Submodel)},
-            view=(model.View(id_short='test2'),)
+                                         model.Submodel)}
             )
         checker = AASDataChecker(raise_immediately=False)
         checker.check_asset_administration_shell_equal(shell, shell_expected)
-        self.assertEqual(4, sum(1 for _ in checker.failed_checks))
+        self.assertEqual(2, sum(1 for _ in checker.failed_checks))
         checker_iterator = checker.failed_checks
         self.assertEqual("FAIL: Attribute submodel of AssetAdministrationShell[Identifier(CUSTOM=test)] must contain 1 "
                          "AASReferences (count=0)",
                          repr(next(checker_iterator)))
-        self.assertEqual("FAIL: Attribute view of AssetAdministrationShell[Identifier(CUSTOM=test)] must contain 1 "
-                         "Views (count=0)",
-                         repr(next(checker_iterator)))
         self.assertEqual("FAIL: Submodel Reference AASReference(type=Submodel, key=(Key(id_type=IRI, "
-                         "value=test),)) must exist ()",
-                         repr(next(checker_iterator)))
-        self.assertEqual("FAIL: View View[Identifier(CUSTOM=test) / test2] must exist ()",
-                         repr(next(checker_iterator)))
-
-    def test_view_checker(self):
-        view = model.View(id_short='test')
-        view_expected = model.View(id_short='test',
-                                   contained_element={model.AASReference((model.Key(
-                                       type_=model.KeyElements.PROPERTY,
-                                       value='test',
-                                       id_type=model.KeyType.IRI),),
-                                       model.Property)})
-        checker = AASDataChecker(raise_immediately=False)
-        checker.check_view_equal(view, view_expected)
-        self.assertEqual(2, sum(1 for _ in checker.failed_checks))
-        checker_iterator = checker.failed_checks
-        self.assertEqual("FAIL: Attribute contained_element of View[test] must contain 1 AASReferences (count=0)",
-                         repr(next(checker_iterator)))
-        self.assertEqual("FAIL: View Reference AASReference(type=Property, key=(Key(id_type=IRI, "
                          "value=test),)) must exist ()",
                          repr(next(checker_iterator)))
 

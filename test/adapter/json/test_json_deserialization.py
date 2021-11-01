@@ -409,22 +409,16 @@ class JsonDeserializationStrippedObjectsTest(unittest.TestCase):
                         "type": "Submodel",
                         "value": "http://acplt.org/test_submodel"
                     }]
-                }],
-                "views": [{
-                    "modelType": {"name": "View"},
-                    "idShort": "test_view"
                 }]
             }"""
-        # check if JSON with submodels and views can be parsed successfully
+        # check if JSON with submodels can be parsed successfully
         aas = json.loads(data, cls=StrictAASFromJsonDecoder)
         self.assertIsInstance(aas, model.AssetAdministrationShell)
         assert isinstance(aas, model.AssetAdministrationShell)
         self.assertEqual(len(aas.submodel), 1)
-        self.assertEqual(len(aas.view), 1)
 
-        # check if submodels and views are ignored in stripped mode
+        # check if submodels are ignored in stripped mode
         aas = json.loads(data, cls=StrictStrippedAASFromJsonDecoder)
         self.assertIsInstance(aas, model.AssetAdministrationShell)
         assert isinstance(aas, model.AssetAdministrationShell)
         self.assertEqual(len(aas.submodel), 0)
-        self.assertEqual(len(aas.view), 0)

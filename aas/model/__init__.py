@@ -45,7 +45,6 @@ KEY_ELEMENTS_CLASSES: Dict[Type[Referable], KeyElements] = {
     AssetAdministrationShell: KeyElements.ASSET_ADMINISTRATION_SHELL,
     ConceptDescription: KeyElements.CONCEPT_DESCRIPTION,
     Submodel: KeyElements.SUBMODEL,
-    View: KeyElements.VIEW,
     Entity: KeyElements.ENTITY,
     BasicEvent: KeyElements.BASIC_EVENT,
     Event: KeyElements.EVENT,

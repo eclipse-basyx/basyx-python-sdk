@@ -243,31 +243,6 @@
                         }
                     ]
                 }
-            ],
-            "views": [
-                {
-                    "idShort": "ExampleView",
-                    "modelType": {
-                        "name": "View"
-                    },
-                    "containedElements": [
-                        {
-                            "keys": [
-                                {
-                                    "type": "Submodel",
-                                    "idType": "IRI",
-                                    "value": "https://acplt.org/Test_Submodel_Missing"
-                                }
-                            ]
-                        }
-                    ]
-                },
-                {
-                    "idShort": "ExampleView2",
-                    "modelType": {
-                        "name": "View"
-                    }
-                }
             ]
         }
     ],

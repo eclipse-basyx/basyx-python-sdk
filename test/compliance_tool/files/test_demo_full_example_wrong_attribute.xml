@@ -150,22 +150,6 @@
           </aas:specificAssetId>
         </aas:specificAssetIds>
       </aas:assetInformation>
-      <aas:views>
-        <aas:view>
-          <aas:idShort>ExampleView</aas:idShort>
-          <aas:containedElements>
-            <aas:containedElementRef>
-              <aas:keys>
-                <aas:key idType="IRI" type="Submodel">https://acplt.org/Test_Submodel_Missing</aas:key>
-              </aas:keys>
-            </aas:containedElementRef>
-          </aas:containedElements>
-        </aas:view>
-        <aas:view>
-          <aas:idShort>ExampleView2</aas:idShort>
-          <aas:containedElements/>
-        </aas:view>
-      </aas:views>
     </aas:assetAdministrationShell>
   </aas:assetAdministrationShells>
   <aas:conceptDescriptions>

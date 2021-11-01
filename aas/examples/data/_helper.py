@@ -726,7 +726,6 @@ class AASDataChecker(DataChecker):
 
         self.check_attribute_equal(object_, 'derived_from', expected_value.derived_from)
         self.check_contained_element_length(object_, 'submodel', model.AASReference, len(expected_value.submodel))
-        self.check_contained_element_length(object_, 'view', model.View, len(expected_value.view))
         for expected_ref in expected_value.submodel:
             ref = self._find_reference(expected_ref, object_.submodel)
             if self.check(ref is not None, 'Submodel Reference {} must exist'.format(repr(expected_ref))):
@@ -736,17 +735,6 @@ class AASDataChecker(DataChecker):
         self.check(found_elements == set(), 'Asset Administration Shell {} must not have extra submodel '
                                             'references'.format(repr(object_)),
                    value=found_elements)
-
-        for expected_view in expected_value.view:
-            try:
-                view = object_.get_referable(expected_view.id_short)
-                self.check_view_equal(view, expected_view)  # type: ignore
-            except KeyError:
-                self.check(False, 'View {} must exist'.format(repr(expected_view)))
-
-        found_elements = self._find_extra_elements_by_id_short(object_.view, expected_value.view)
-        self.check(found_elements == set(), 'Asset Administration Shell {} must not have extra '
-                                            'views'.format(repr(object_)), value=found_elements)
 
     def check_security_equal(self, object_: model.Security,
                              expected_value: model.Security):
@@ -759,30 +747,6 @@ class AASDataChecker(DataChecker):
         """
         # TODO: if security is specified
         pass
-
-    def check_view_equal(self, object_: model.View, expected_value: model.View):
-        """
-        Checks if the given View objects are equal
-
-        :param object_: Given View object to check
-        :param expected_value: expected View object
-        :return:
-        """
-        self._check_referable_equal(object_, expected_value)
-        self._check_has_semantics_equal(object_, expected_value)
-        self.check_contained_element_length(object_, 'contained_element', model.AASReference,
-                                            len(expected_value.contained_element))
-
-        for expected_ref in expected_value.contained_element:
-            ref = self._find_reference(expected_ref, object_.contained_element)
-            if self.check(ref is not None, 'View Reference {} must exist'.format(repr(expected_ref))):
-                self._check_reference_equal(ref, expected_ref)  # type: ignore
-
-        found_elements = self._find_extra_object(object_.contained_element, expected_value.contained_element,
-                                                 model.AASReference)
-        self.check(found_elements == set(), 'View Reference {} must not have extra '
-                                            'submodel element references'.format(repr(object_)),
-                   value=found_elements)
 
     def check_concept_description_equal(self, object_: model.ConceptDescription,
                                         expected_value: model.ConceptDescription):

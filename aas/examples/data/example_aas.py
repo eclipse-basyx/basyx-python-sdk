@@ -626,7 +626,6 @@ def create_example_asset_administration_shell() -> \
                                                 id_type=model.KeyType.IRI),),
                                      model.Submodel),
                   },
-        view=[],
         derived_from=model.AASReference((model.Key(type_=model.KeyElements.ASSET_ADMINISTRATION_SHELL,
                                                    value='https://acplt.org/TestAssetAdministrationShell2',
                                                    id_type=model.KeyType.IRI),),

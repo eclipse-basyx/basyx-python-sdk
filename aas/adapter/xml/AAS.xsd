@@ -52,7 +52,6 @@
 			<element maxOccurs="1" minOccurs="0" name="derivedFrom" type="aas:reference_t"/>
 			<element maxOccurs="1" minOccurs="0" name="submodelRefs" type="aas:submodelRefs_t"/>
 			<element maxOccurs="1" minOccurs="1" name="assetInformation" type="aas:assetInformation_t"/>
-			<element maxOccurs="1" minOccurs="0" name="views" type="aas:views_t"/>
 		</sequence>
 	</complexType>
 	<complexType name="assetAdministrationShells_t">
@@ -284,7 +283,6 @@
 							<enumeration value="Submodel"/>
 							<enumeration value="SubmodelElement"/>
 							<enumeration value="SubmodelElementCollection"/>
-							<enumeration value="View"/>
 						</restriction>
 					</simpleType>
 				</attribute>
@@ -470,19 +468,6 @@
 		<simpleContent>
 			<extension base="anySimpleType"/>
 		</simpleContent>
-	</complexType>
-	<complexType name="view_t">
-		<sequence>
-			<group ref="aas:referable"/>
-			<group ref="aas:hasSemantics"/>
-			<group ref="aas:hasDataSpecification"/>
-			<element name="containedElements" type="aas:containedElements_t"/>
-		</sequence>
-	</complexType>
-	<complexType name="views_t">
-		<sequence>
-			<element maxOccurs="unbounded" minOccurs="0" name="view" type="aas:view_t"/>
-		</sequence>
 	</complexType>
 	<element name="aasenv" type="aas:aasenv_t"/>
 	<element name="key" type="aas:key_t"/>

@@ -12,7 +12,6 @@ AssetAdministrationShell.
 This module contains the following classes from an up-to-down-level:
  - :class:`~.AssetAdministrationShell`
  - :class:`~.AssetInformation`
- - :class:`~.View`
 """
 
 from typing import Optional, Set, Iterable
@@ -20,55 +19,6 @@ from typing import Optional, Set, Iterable
 from . import base
 from .security import Security
 from .submodel import File, Submodel
-
-
-class View(base.Referable, base.UniqueIdShortNamespace, base.HasSemantics):
-    """
-    A view is a collection of referable elements w.r.t. to a specific viewpoint of one or more stakeholders.
-
-    todo: what does this exactly?
-
-    :ivar id_short: Identifying string of the element within its name space. (inherited from
-                    :class:`~aas.model.base.Referable`)
-    :ivar contained_element: Unordered list of :class:`AASReferences <aas.model.base.AASReference>` to elements
-                             of class :class:`~aas.model.base.Referable`
-    :ivar display_name: Can be provided in several languages. (inherited from :class:`~aas.model.base.Referable`)
-    :ivar category: The category is a value that gives further meta information w.r.t. to the class of the element.
-                    It affects the expected existence of attributes and the applicability of constraints.
-                    (inherited from :class:`~aas.model.base.Referable`)
-    :ivar description: Description or comments on the element. (inherited from :class:`~aas.model.base.Referable`)
-    :ivar parent: Reference to the next referable parent element of the element. (inherited from
-                  :class:`~aas.model.base.Referable`)
-    :ivar semantic_id: Identifier of the semantic definition of the element. It is called semantic id of the
-                       element. The semantic id may either reference an external global id or it may reference a
-                       referable model element of kind=Type that defines the semantics of the element.
-                       (inherited from from :class:`~aas.model.base.HasSemantics`)
-    :ivar extension: An extension of the element.
-                     (from :class:`~aas.model.base.HasExtensions`)
-    """
-    def __init__(self,
-                 id_short: str,
-                 contained_element: Optional[Set[base.AASReference]] = None,
-                 display_name: Optional[base.LangStringSet] = None,
-                 category: Optional[str] = None,
-                 description: Optional[base.LangStringSet] = None,
-                 parent: Optional[base.UniqueIdShortNamespace] = None,
-                 semantic_id: Optional[base.Reference] = None,
-                 extension: Iterable[base.Extension] = ()):
-        """
-
-        TODO: Add instruction what to do after construction
-        """
-
-        super().__init__()
-        self.id_short = id_short
-        self.contained_element: Set[base.AASReference] = set() if contained_element is None else contained_element
-        self.display_name: Optional[base.LangStringSet] = dict() if display_name is None else display_name
-        self.category = category
-        self.description: Optional[base.LangStringSet] = dict() if description is None else description
-        self.parent: Optional[base.UniqueIdShortNamespace] = parent
-        self.semantic_id: Optional[base.Reference] = semantic_id
-        self.extension = base.NamespaceSet(self, [("name", True)], extension)
 
 
 class AssetInformation:
@@ -152,8 +102,6 @@ class AssetAdministrationShell(base.Identifiable, base.UniqueIdShortNamespace):
     :ivar ~.security: Definition of the security relevant aspects of the AAS. (Initialization-parameter: `security_`)
     :ivar ~.submodel: Unordered list of :class:`submodels <aas.model.submodel.Submodel>` to describe typically the asset
                     of an AAS. (Initialization-parameter: `submodel_`)
-    :ivar view: Unordered list of stakeholder specific :class:`views <aas.model.aas.View>` that can group the elements
-                of the AAS.
     :ivar derived_from: The :class:`reference <aas.model.base.AASReference>` to the AAS the AAs was derived from
     :ivar extension: An extension of the element.
                      (from :class:`~aas.model.base.HasExtensions`)
@@ -169,7 +117,6 @@ class AssetAdministrationShell(base.Identifiable, base.UniqueIdShortNamespace):
                  administration: Optional[base.AdministrativeInformation] = None,
                  security: Optional[Security] = None,
                  submodel: Optional[Set[base.AASReference[Submodel]]] = None,
-                 view: Iterable[View] = (),
                  derived_from: Optional[base.AASReference["AssetAdministrationShell"]] = None,
                  extension: Iterable[base.Extension] = ()):
         super().__init__()
@@ -184,5 +131,4 @@ class AssetAdministrationShell(base.Identifiable, base.UniqueIdShortNamespace):
         self.derived_from: Optional[base.AASReference["AssetAdministrationShell"]] = derived_from
         self.security: Optional[Security] = security
         self.submodel: Set[base.AASReference[Submodel]] = set() if submodel is None else submodel
-        self.view: base.NamespaceSet[View] = base.NamespaceSet(self, [("id_short", True)], view)
         self.extension = base.NamespaceSet(self, [("name", True)], extension)

@@ -473,29 +473,22 @@ class XmlDeserializationStrippedObjectsTest(unittest.TestCase):
                     </aas:keys>
                 </aas:submodelRef>
             </aas:submodelRefs>
-            <aas:views>
-                <aas:view>
-                    <aas:idShort>test_view</aas:idShort>
-                </aas:view>
-            </aas:views>
         </aas:assetAdministrationShell>
         """
         bytes_io = io.BytesIO(xml.encode("utf-8"))
 
-        # check if XML with submodelRef and views can be parsed successfully
+        # check if XML with submodelRef can be parsed successfully
         aas = read_aas_xml_element(bytes_io, XMLConstructables.ASSET_ADMINISTRATION_SHELL, failsafe=False)
         self.assertIsInstance(aas, model.AssetAdministrationShell)
         assert isinstance(aas, model.AssetAdministrationShell)
         self.assertEqual(len(aas.submodel), 1)
-        self.assertEqual(len(aas.view), 1)
 
-        # check if submodelRef and views are ignored in stripped mode
+        # check if submodelRef is ignored in stripped mode
         aas = read_aas_xml_element(bytes_io, XMLConstructables.ASSET_ADMINISTRATION_SHELL, failsafe=False,
                                    stripped=True)
         self.assertIsInstance(aas, model.AssetAdministrationShell)
         assert isinstance(aas, model.AssetAdministrationShell)
         self.assertEqual(len(aas.submodel), 0)
-        self.assertEqual(len(aas.view), 0)
 
 
 class XmlDeserializationDerivingTest(unittest.TestCase):

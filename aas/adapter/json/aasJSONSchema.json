@@ -192,12 +192,6 @@
                 "$ref": "#/definitions/Reference"
               }
             },
-            "views": {
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/View"
-              }
-            },
             "security": {
               "$ref": "#/definitions/Security"
             }
@@ -295,7 +289,6 @@
 		"RelationshipElement",
 		"SubmodelElement",
 		"SubmodelElementCollection",
-		"View",
         "GlobalReference",
 		"FragmentReference"
       ]
@@ -323,7 +316,6 @@
 		"RelationshipElement",
 		"SubmodelElement",
 		"SubmodelElementCollection",
-		"View",
         "GlobalReference",
 		"FragmentReference",
 		"Constraint",
@@ -749,22 +741,6 @@
             }
           },
 		  "required": [ "entityType" ]
-	    }
-	  ]
-    },
-    "View": {
-	  "allOf": [
-	    { "$ref": "#/definitions/Referable" },
-		{ "$ref": "#/definitions/HasDataSpecification" },
-		{ "$ref": "#/definitions/HasSemantics" },
-        { "properties": {
-			"containedElements": {
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/Reference"
-              }
-            }
-          }
 	    }
 	  ]
     },

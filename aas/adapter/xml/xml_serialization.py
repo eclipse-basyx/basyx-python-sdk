@@ -311,23 +311,6 @@ def value_list_to_xml(obj: model.ValueList,
 # ##############################################################
 
 
-def view_to_xml(obj: model.View, tag: str = NS_AAS+"view") -> etree.Element:
-    """
-    Serialization of objects of class :class:`~aas.model.aas.View` to XML
-
-    :param obj: object of class :class:`~aas.model.aas.View`
-    :param tag: Namespace+Tag of the ElementTree object. Default is "aas:view"
-    :return: Serialized ElementTree object
-    """
-    et_view = abstract_classes_to_xml(tag, obj)
-    et_contained_elements = _generate_element(name=NS_AAS + "containedElements")
-    if obj.contained_element:
-        for contained_element in obj.contained_element:
-            et_contained_elements.append(reference_to_xml(contained_element, NS_AAS+"containedElementRef"))
-    et_view.append(et_contained_elements)
-    return et_view
-
-
 def identifier_key_value_pair_to_xml(obj: model.IdentifierKeyValuePair, tag: str = NS_AAS+"identifierKeyValuePair") \
         -> etree.Element:
     """
@@ -526,11 +509,6 @@ def asset_administration_shell_to_xml(obj: model.AssetAdministrationShell,
             et_submodels.append(reference_to_xml(reference, tag=NS_AAS+"submodelRef"))
         et_aas.append(et_submodels)
     et_aas.append(asset_information_to_xml(obj.asset_information, tag=NS_AAS + "assetInformation"))
-    if obj.view:
-        et_views = _generate_element(NS_AAS + "views")
-        for view in obj.view:
-            et_views.append(view_to_xml(view, NS_AAS+"view"))
-        et_aas.append(et_views)
     return et_aas
 
 
