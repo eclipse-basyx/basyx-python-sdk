@@ -25,17 +25,17 @@
       <aas:submodelRefs>
         <aas:submodelRef>
           <aas:keys>
-            <aas:key idType="IRI" local="false" type="Submodel">https://acplt.org/Test_Submodel</aas:key>
+            <aas:key idType="IRI" local="true" type="Submodel">https://acplt.org/Test_Submodel</aas:key>
           </aas:keys>
         </aas:submodelRef>
         <aas:submodelRef>
           <aas:keys>
-            <aas:key idType="IRI" local="false" type="Submodel">http://acplt.org/Submodels/Assets/TestAsset/BillOfMaterial</aas:key>
+            <aas:key idType="IRI" local="true" type="Submodel">http://acplt.org/Submodels/Assets/TestAsset/BillOfMaterial</aas:key>
           </aas:keys>
         </aas:submodelRef>
         <aas:submodelRef>
           <aas:keys>
-            <aas:key idType="IRI" local="false" type="Submodel">http://acplt.org/Submodels/Assets/TestAsset/Identification</aas:key>
+            <aas:key idType="IRI" local="true" type="Submodel">http://acplt.org/Submodels/Assets/TestAsset/Identification</aas:key>
           </aas:keys>
         </aas:submodelRef>
       </aas:submodelRefs>
@@ -67,12 +67,12 @@
       <aas:submodelRefs>
         <aas:submodelRef>
           <aas:keys>
-            <aas:key idType="IRI" local="false" type="Submodel">https://acplt.org/Test_Submodel2_Mandatory</aas:key>
+            <aas:key idType="IRI" local="true" type="Submodel">https://acplt.org/Test_Submodel2_Mandatory</aas:key>
           </aas:keys>
         </aas:submodelRef>
         <aas:submodelRef>
           <aas:keys>
-            <aas:key idType="IRI" local="false" type="Submodel">https://acplt.org/Test_Submodel_Mandatory</aas:key>
+            <aas:key idType="IRI" local="true" type="Submodel">https://acplt.org/Test_Submodel_Mandatory</aas:key>
           </aas:keys>
         </aas:submodelRef>
       </aas:submodelRefs>
@@ -111,7 +111,7 @@
       <aas:submodelRefs>
         <aas:submodelRef>
           <aas:keys>
-            <aas:key idType="IRI" local="false" type="Submodel">https://acplt.org/Test_Submodel_Missing</aas:key>
+            <aas:key idType="IRI" local="true" type="Submodel">https://acplt.org/Test_Submodel_Missing</aas:key>
           </aas:keys>
         </aas:submodelRef>
       </aas:submodelRefs>
