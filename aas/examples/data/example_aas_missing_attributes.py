@@ -417,7 +417,7 @@ def create_example_asset_administration_shell(concept_dictionary: model.ConceptD
                                                        revision='0'),
         security=None,
         submodel={model.AASReference((model.Key(type_=model.KeyElements.SUBMODEL,
-                                                local=False,
+                                                local=True,
                                                 value='https://acplt.org/Test_Submodel_Missing',
                                                 id_type=model.KeyType.IRI),),
                                      model.Submodel)},
