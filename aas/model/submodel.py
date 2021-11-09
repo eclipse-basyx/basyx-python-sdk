@@ -503,7 +503,7 @@ class SubmodelElementCollection(SubmodelElement, base.Namespace, metaclass=abc.A
 
     @property
     @abc.abstractmethod
-    def ordered(self):
+    def ordered(self) -> bool:
         pass
 
 
@@ -547,7 +547,7 @@ class SubmodelElementCollectionOrdered(SubmodelElementCollection):
         self.value = base.OrderedNamespaceSet(self, value)
 
     @property
-    def ordered(self):
+    def ordered(self) -> bool:
         return True
 
 
@@ -590,7 +590,7 @@ class SubmodelElementCollectionUnordered(SubmodelElementCollection):
         self.value = base.NamespaceSet(self, value)
 
     @property
-    def ordered(self):
+    def ordered(self) -> bool:
         return False
 
 
