@@ -30,7 +30,7 @@ class View(base.Referable, base.HasSemantics):
     todo: what does this exactly?
 
     :ivar id_short: Identifying string of the element within its name space.
-        (inherted from :class:`~aas.model.base.Referable`)
+        (inherited from :class:`~aas.model.base.Referable`)
     :ivar contained_element: Unordered list of :class:`References <aas.model.base.Reference>` to elements of class
         :class:`~aas.model.base.Referable`
     :ivar category: The category is a value that gives further meta information w.r.t. to the class of the element.
@@ -74,7 +74,7 @@ class Asset(base.Identifiable):
     :ivar ~.identification: The globally unique identification of the element.
         (inherited from :class:`~aas.model.base.Identifiable`)
     :ivar id_short: Identifying string of the element within its name space.
-        (inherted from :class:`~aas.model.base.Referable`)
+        (inherited from :class:`~aas.model.base.Referable`)
     :ivar category: The category is a value that gives further meta information w.r.t. to the class of the element.
                      It affects the expected existence of attributes and the applicability of constraints.
                      (inherited from :class:`~aas.model.base.Referable`)
@@ -122,7 +122,7 @@ class AssetAdministrationShell(base.Identifiable, base.Namespace):
     :ivar ~.identification: The globally unique identification of the element.
         (inherited from :class:`~aas.model.base.Identifiable`)
     :ivar id_short: Identifying string of the element within its name space.
-        (inherted from :class:`~aas.model.base.Referable`)
+        (inherited from :class:`~aas.model.base.Referable`)
     :ivar category: The category is a value that gives further meta information w.r.t. to the class of the element.
                      It affects the expected existence of attributes and the applicability of constraints.
                      (inherited from :class:`~aas.model.base.Referable`)

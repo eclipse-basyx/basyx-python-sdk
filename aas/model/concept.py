@@ -28,7 +28,7 @@ class ConceptDescription(base.Identifiable):
         the concept is compatible to or was derived from.
         *Note:* Compare to is-case-of relationship in ISO 13584-32 & IEC EN 61360
     :ivar id_short: Identifying string of the element within its name space.
-        (inherted from :class:`~aas.model.base.Referable`)
+        (inherited from :class:`~aas.model.base.Referable`)
     :ivar category: The category is a value that gives further meta information w.r.t. to the class of the element.
                      It affects the expected existence of attributes and the applicability of constraints.
                      (inherited from :class:`~aas.model.base.Referable`)
@@ -65,7 +65,7 @@ class ConceptDictionary(base.Referable):
     submodels of the AAS.
 
     :ivar id_short: Identifying string of the element within its name space.
-        (inherted from :class:`~aas.model.base.Referable`)
+        (inherited from :class:`~aas.model.base.Referable`)
     :ivar category: The category is a value that gives further meta information w.r.t. to the class of the element.
                      It affects the expected existence of attributes and the applicability of constraints.
                      (inherited from :class:`~aas.model.base.Referable`)
@@ -139,7 +139,7 @@ class IEC61360ConceptDescription(ConceptDescription):
         the concept is compatible to or was derived from.
         *Note:* Compare to is-case-of relationship in ISO 13584-32 & IEC EN 61360
     :ivar id_short: Identifying string of the element within its name space.
-        (inherted from :class:`~aas.model.base.Referable`)
+        (inherited from :class:`~aas.model.base.Referable`)
     :ivar category: The category is a value that gives further meta information w.r.t. to the class of the element.
                      It affects the expected existence of attributes and the applicability of constraints.
                      (inherited from :class:`~aas.model.base.Referable`)
