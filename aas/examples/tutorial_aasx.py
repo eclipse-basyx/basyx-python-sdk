@@ -3,12 +3,12 @@
 # See http://creativecommons.org/publicdomain/zero/1.0/ for more information.
 """
 Tutorial for exporting Asset Administration Shells with related objects and auxiliary files to AASX package files, using
-the aas.adapter.aasx module from PyI40AAS.
+the aas.adapter.aasx module from the Eclipse BaSyx Python SDK.
 
 .. warning:
-    This tutorial is only valid for the 0.2.x branch of PyI40AAS. With version 3.0 of *Details of the Asset
-    Administration Shell* (i.e. version 0.3.x of PyI40AAS) some specifications of AASX files will change, resulting in
-    changes of the `AASXWriter` interface.
+    This tutorial is only valid for the current main branch of the Eclipse BaSyx Python SDK. With version 3.0 of
+    *Details of the Asset Administration Shell* some specifications of AASX files will change, resulting in changes of
+    the `AASXWriter` interface.
 """
 import datetime
 from pathlib import Path  # Used for easier handling of auxiliary file's local path

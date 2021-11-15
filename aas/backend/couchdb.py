@@ -1,4 +1,4 @@
-# Copyright (c) 2020 PyI40AAS Contributors
+# Copyright (c) 2020 the Eclipse BaSyx Authors
 #
 # This program and the accompanying materials are made available under the terms of the Eclipse Public License v. 2.0
 # which is available at https://www.eclipse.org/legal/epl-2.0, or the Apache License, Version 2.0 which is available
@@ -35,7 +35,7 @@ class CouchDBBackend(backends.Backend):
     """
     This Backend stores each Identifiable object as a single JSON document in the configured CouchDB database. Each
     document's id is build from the object's identifier using the pattern {idtype}-{idvalue}; the document's contents
-    comprise a single property "data", containing the JSON serialization of the PyI40AAS object. The
+    comprise a single property "data", containing the JSON serialization of the BaSyx Python SDK object. The
     :ref:`adapter.json <adapter.json.__init__>` package is used for serialization and deserialization of objects.
     """
     @classmethod
@@ -231,7 +231,7 @@ def delete_couchdb_revision(url: str):
 
 class CouchDBObjectStore(model.AbstractObjectStore):
     """
-    An ObjectStore implementation for :class:`~aas.model.base.Identifiable` PyI40AAS objects backed by a CouchDB
+    An ObjectStore implementation for :class:`~aas.model.base.Identifiable` BaSyx Python SDK objects backed by a CouchDB
     database server.
 
     All methods of the `CouchDBObjectStore` are blocking, i.e. they stop the current thread's execution until they

@@ -7,7 +7,7 @@ objects by identification and resolving references.
 """
 
 # For managing a larger number of Identifiable AAS objects (AssetAdministrationShells, Assets, Submodels,
-# ConceptDescriptions), the PyI40AAS library provides the `ObjectStore` functionality. This tutorial shows the basic
+# ConceptDescriptions), the BaSyx Python SDK provides the `ObjectStore` functionality. This tutorial shows the basic
 # features of an ObjectStore and how to use them. This includes usage of the built-in `resolve()` method of Reference
 # objects, which can be used to easily get the Submodel objects, which are referenced by the
 # `AssetAdministrationShell.submodel` set, etc.

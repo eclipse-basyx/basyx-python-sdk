@@ -1,8 +1,8 @@
-# basyx-python-sdk
+# Eclipse BaSyx Python SDK
 
 (formerly known as PyI40AAS – Python Industry 4.0 Asset Administration Shell)
 
-The PyI40AAS project aims to provide an implementation of the Asset Administration Shell (AAS) for Industry 4.0 Systems,
+The Eclipse BaSyx Python project aims to provide an implementation of the Asset Administration Shell (AAS) for Industry 4.0 Systems,
 compliant with the meta model and interface specification provided in
 [the document “Details of the Asset Administration Shell” (v2.0.1)](https://www.plattform-i40.de/PI40/Redaktion/DE/Downloads/Publikation/Details-of-the-Asset-Administration-Shell-Part1.html).
 
@@ -19,7 +19,7 @@ compliant with the meta model and interface specification provided in
 
 ### Project Structure
 
-The PyI40AAS project provides the `aas` Python package with 6 submodules:
+The BaSyx Python SDK project provides the `aas` Python package with 6 submodules:
 
 * `aas.model`: The AAS metamodel implemented in python
 * `aas.adapter`: Adapters for various file formats 
@@ -31,7 +31,7 @@ The PyI40AAS project provides the `aas` Python package with 6 submodules:
 
 ## License
 
-The PyI40AAS project is dual-licensed under the terms of the Eclipse Public License - v 2.0 and the
+The BaSyx Python SDK project is dual-licensed under the terms of the Eclipse Public License - v 2.0 and the
 Apache License Version 2.0. Choose either of the two licenses that better suits your needs.
 
 SPDX-License-Identifier: EPL-2.0 OR Apache-2.0
@@ -42,7 +42,7 @@ file.
 
 ## Dependencies
 
-PyI40AAS requires the following Python packages to be installed for production usage. These dependencies are listed in
+The BaSyx Python SDK requires the following Python packages to be installed for production usage. These dependencies are listed in
 `setup.py` to be fetched automatically when installing with `pip`:
 * `lxml` (BSD 3-clause License, using `libxml2` under MIT License)
 * `python-dateutil` (BSD 3-clause License)
@@ -62,20 +62,17 @@ Development/testing/example dependencies (see `requirements.txt`):
 
 ### Installation
 
-For production usage and building applications with PyI40AAS, we recommended installation from PyPI:
-
-```bash
-pip install pyi40aas
-```
+TBD
 
 
 ### Example
 
-The following code example shows how to create a `Submodel` with a `Property` serialize it into an XML file using PyI40AAS:
+The following code example shows how to create a `Submodel` with a `Property` serialize it into an XML file using the
+Eclipse BaSyx Python SDK:
 
 Create a `Submodel`:
 ```python
-from aas import model  # Import all PYI40AAS classes from the model package
+from aas import model  # Import all BaSyx Python SDK classes from the model package
 
 identifier = model.Identifier('https://acplt.org/Simple_Submodel', model.IdentifierType.IRI)
 submodel = model.Submodel(identification=identifier)
@@ -130,7 +127,7 @@ For further examples and tutorials, check out the `aas.examples`-package. Here i
 
 ### Compliance Tool
 
-The PyI40AAS project contains a compliance tool for testing xml and json files is provided in the 
+The Eclipse BaSyx Python SDK project contains a compliance tool for testing xml and json files is provided in the 
 `aas.compliance_tool`-package. Following functionalities are supported:
 
 * create an xml or json file compliant to the official schema containing example Asset Administration Shell elements
@@ -149,7 +146,7 @@ For further usage information consider the `aas.compliance_tool`-package or invo
 
 ## Contributing
 
-If you plan contributing code to the PyI40AAS project, please get in touch with us via E-Mail first: m.thies@plt.rwth-aachen.de
+TBD
 
 
 ### Codestyle and Testing

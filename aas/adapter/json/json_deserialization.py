@@ -1,4 +1,4 @@
-# Copyright (c) 2020 PyI40AAS Contributors
+# Copyright (c) 2020 the Eclipse BaSyx Authors
 #
 # This program and the accompanying materials are made available under the terms of the Eclipse Public License v. 2.0
 # which is available at https://www.eclipse.org/legal/epl-2.0, or the Apache License, Version 2.0 which is available
@@ -17,9 +17,9 @@ Furthermore it provides two classes :class:`~aas.adapter.json.json_deserializati
 :class:`~aas.adapter.json.json_deserialization.StrictStrippedAASFromJsonDecoder` for parsing stripped JSON objects,
 which are used in the http adapter (see https://git.rwth-aachen.de/acplt/pyi40aas/-/issues/91).
 The classes contain a custom :meth:`~aas.adapter.json.json_deserialization.AASFromJsonDecoder.object_hook` function
-to detect encoded AAS objects within the JSON data and convert them to PyI40AAS objects while parsing. Additionally,
-there's the :meth:`~aas.adapter.json.json_deserialization.read_aas_json_file_into` function, that takes a complete
-AAS JSON file, reads its contents and stores the objects in the provided
+to detect encoded AAS objects within the JSON data and convert them to BaSyx Python SDK objects while parsing.
+Additionally, there's the :meth:`~aas.adapter.json.json_deserialization.read_aas_json_file_into` function, that takes a
+complete AAS JSON file, reads its contents and stores the objects in the provided
 :class:`~aas.model.provider.AbstractObjectStore`. :meth:`~aas.adapter.json.json_deserialization.read_aas_json_file` is
 a wrapper for this function. Instead of storing the objects in a given :class:`~aas.model.provider.AbstractObjectStore`,
 it returns a :class:`~aas.model.provider.DictObjectStore` containing parsed objects.
@@ -105,7 +105,7 @@ class AASFromJsonDecoder(json.JSONDecoder):
     official JSON format
 
     The class contains a custom :meth:`~.AASFromJsonDecoder.object_hook` function to detect encoded AAS objects within
-    the JSON data and convert them to PyI40AAS objects while parsing.
+    the JSON data and convert them to BaSyx Python SDK objects while parsing.
 
     Typical usage:
 
@@ -114,17 +114,17 @@ class AASFromJsonDecoder(json.JSONDecoder):
         data = json.loads(json_string, cls=AASFromJsonDecoder)
 
     The `object_hook` function uses a set of `_construct_*()` methods, one for each
-    AAS object type to transform the JSON objects in to PyI40AAS objects. These constructor methods are divided into two
-    parts: "Helper Constructor Methods", that are used to construct PyI40AAS types without a `modelType` attribute as
-    embedded objects within other PyI40AAS objects, and "Direct Constructor Methods" for PyI40AAS type
-    *with* `modelType` attribute. The former are called from other constructor methods or utility methods based on
-    the expected type of an attribute, the latter are called directly from the `object_hook()` function based on
-    the `modelType` attribute.
+    AAS object type to transform the JSON objects in to BaSyx Python SDK objects. These constructor methods are divided
+    into two parts: "Helper Constructor Methods", that are used to construct AAS object types without a `modelType`
+    attribute as embedded objects within other AAS objects, and "Direct Constructor Methods" for AAS object types *with*
+    `modelType` attribute. The former are called from other constructor methods or utility methods based on the expected
+    type of an attribute, the latter are called directly from the `object_hook()` function based on the `modelType`
+    attribute.
 
     This class may be subclassed to override some of the constructor functions, e.g. to construct objects of specialized
-    subclasses of the PyI40AAS object classes instead of these normal classes from the `model` package. To simplify this
-    tasks, (nearly) all the constructor methods take a parameter `object_type` defaulting to the normal PyI40AAS object
-    class, that can be overridden in a derived function:
+    subclasses of the BaSyx Python SDK object classes instead of these normal classes from the `model` package. To
+    simplify this tasks, (nearly) all the constructor methods take a parameter `object_type` defaulting to the normal
+    BaSyx Python SDK object class, that can be overridden in a derived function:
 
     .. code-block:: python
 
@@ -201,7 +201,7 @@ class AASFromJsonDecoder(json.JSONDecoder):
             logger.error("Found JSON object with modelType=\"%s\", which is not a known AAS class", model_type)
             return dct
 
-        # Use constructor function to transform JSON representation into PyI40AAS model object
+        # Use constructor function to transform JSON representation into BaSyx Python SDK model object
         try:
             return AAS_CLASS_PARSERS[model_type](dct)
         except (KeyError, TypeError) as e:

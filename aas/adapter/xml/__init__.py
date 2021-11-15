@@ -1,7 +1,7 @@
 """
 .. _adapter.xml.__init__:
 
-This package contains functionality for serialization and deserialization of PyI40AAS objects into/from XML.
+This package contains functionality for serialization and deserialization of BaSyx Python SDK objects into/from XML.
 
 :ref:`xml_serialization <adapter.xml.xml_serialization>`: The module offers a function to write an
 :class:`ObjectStore <aas.model.provider.AbstractObjectStore>` to a given file.

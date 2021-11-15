@@ -42,8 +42,8 @@ from .provider import *
 from .concept import ConceptDescription, ConceptDictionary, IEC61360ConceptDescription
 from . import datatypes
 
-# A mapping of PyI40AAS implementation classes to the corresponding `KeyElements` enum members for all classes that are
-# covered by this enum.
+# A mapping of BaSyx Python SDK implementation classes to the corresponding `KeyElements` enum members for all classes
+# that are covered by this enum.
 KEY_ELEMENTS_CLASSES: Dict[Type[Referable], KeyElements] = {
     Asset: KeyElements.ASSET,
     AssetAdministrationShell: KeyElements.ASSET_ADMINISTRATION_SHELL,

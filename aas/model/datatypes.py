@@ -1,4 +1,4 @@
-# Copyright (c) 2020 PyI40AAS Contributors
+# Copyright (c) 2020 the Eclipse BaSyx Authors
 #
 # This program and the accompanying materials are made available under the terms of the Eclipse Public License v. 2.0
 # which is available at https://www.eclipse.org/legal/epl-2.0, or the Apache License, Version 2.0 which is available
@@ -14,7 +14,7 @@ datatypes. All types from this type hierarchy (except for `token` and its descen
 this module using their pythonized: Duration, DateTime, GMonthDay, String, Integer, Decimal, Short …. These types are
 meant to be used directly for data values in the context of Asset Administration Shells.
 
-There are three conversion functions for useage in PyI40AAS' model and adapters:
+There are three conversion functions for usage in BaSyx Python SDK's model and adapters:
 
 * :meth:`~aas.model.datatypes.xsd_repr` serializes any XSD type from this module into it's lexical representation
 * :meth:`~aas.model.datatypes.from_xsd` parses an XSD type from its lexical representation (its required to name the

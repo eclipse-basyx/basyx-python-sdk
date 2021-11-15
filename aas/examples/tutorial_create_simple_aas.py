@@ -6,7 +6,7 @@ Tutorial for the creation of an simple Asset Administration Shell, containing an
 reference
 """
 
-# Import all PyI40AAS classes from model package
+# Import all Eclipse BaSyx Python SDK classes from model package
 from aas import model
 
 # In this tutorial, you'll get a step by step guide on how to create an Asset Administration Shell (AAS) and all

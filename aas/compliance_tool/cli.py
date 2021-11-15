@@ -1,4 +1,4 @@
-# Copyright (c) 2020 PyI40AAS Contributors
+# Copyright (c) 2020 the Eclipse BaSyx Authors
 #
 # This program and the accompanying materials are made available under the terms of the Eclipse Public License v. 2.0
 # which is available at https://www.eclipse.org/legal/epl-2.0, or the Apache License, Version 2.0 which is available
@@ -119,9 +119,9 @@ def main():
                     # Create OPC/AASX core properties
                     cp = pyecma376_2.OPCCoreProperties()
                     cp.created = datetime.datetime(2020, 1, 1, 0, 0, 0)
-                    cp.creator = "PyI40AAS Testing Framework"
+                    cp.creator = "Eclipse BaSyx Python Testing Framework"
                     cp.description = "Test_Description"
-                    cp.lastModifiedBy = "PyI40AAS Testing Framework Compliance Tool"
+                    cp.lastModifiedBy = "Eclipse BaSyx Python Testing Framework Compliance Tool"
                     cp.modified = datetime.datetime(2020, 1, 1, 0, 0, 1)
                     cp.revision = "1.0"
                     cp.version = "2.0.1"

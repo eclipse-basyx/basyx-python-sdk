@@ -28,7 +28,7 @@ import aas.backend.couchdb
 #      "type": "user"}
 #
 # Afterwards you can add the new user to the set of "Members" of your new database (via the "Permissions" section in the
-# user interface). Alternatively, you can use the admin credentials with PyI40AAS (see below).
+# user interface). Alternatively, you can use the admin credentials with the BaSyx Python SDK (see below).
 
 # Step by Step Guide:
 # step 1: connecting to a CouchDB server
@@ -43,7 +43,7 @@ import aas.backend.couchdb
 # Well, actually, connections to the CouchDB server are created by the CouchDB backend, as required. However, we need
 # to provide the login credentials to the server for this to work.
 #
-# Here, we take the test configuration to work with PyI40AAS development environments. You should replace these with
+# Here, we take the test configuration to work with BaSyx development environments. You should replace these with
 # the url of your CouchDB server (typically http://localhost:5984), the name of the empty database, and the name and
 # password of a CouchDB user account which is "member" of this database (see above). Alternatively, you can provide
 # your CouchDB server's admin credentials.

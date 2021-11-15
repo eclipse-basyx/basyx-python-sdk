@@ -13,8 +13,8 @@ import aas.adapter.json
 import aas.adapter.xml
 
 # 'Details of the Asset Administration Shell' specifies multiple official serialization formats for AAS data. In this
-# tutorial, we show, how the PyI40AAS library can be used to serialize AAS objects into JSON or XML and to create
-# JSON/XML files according to the standardized format. It is also demonstrated, how these files can be parsed to
+# tutorial, we show, how the Eclipse BaSyx Python library can be used to serialize AAS objects into JSON or XML and to
+# create JSON/XML files according to the standardized format. It is also demonstrated, how these files can be parsed to
 # restore the AAS objects as Python objects.
 #
 # Step by Step Guide:
@@ -91,7 +91,7 @@ json_string = json.dumps({'the_submodel': submodel,
 
 # JSON deserialization works in a similar way to JSON serialization: The `aas.adapter.json` module provides a
 # JSONDecoder class, called `AASFromJSONDecoder` which can be passed to `json.load()` or `json.loads()` to ensure that
-# AAS objects contained in the JSON data are transformed into their PyI40AAS Python object representation instead of
+# AAS objects contained in the JSON data are transformed into their BaSyx Python SDK object representation instead of
 # simple Python dicts:
 submodel_and_aas = json.loads(json_string, cls=aas.adapter.json.AASFromJsonDecoder)
 

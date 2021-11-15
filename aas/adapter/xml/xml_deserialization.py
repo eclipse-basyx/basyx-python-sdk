@@ -1,4 +1,4 @@
-# Copyright (c) 2020 PyI40AAS Contributors
+# Copyright (c) 2020 the Eclipse BaSyx Authors
 #
 # This program and the accompanying materials are made available under the terms of the Eclipse Public License v. 2.0
 # which is available at https://www.eclipse.org/legal/epl-2.0, or the Apache License, Version 2.0 which is available
@@ -311,7 +311,7 @@ def _failsafe_construct_mandatory(element: etree.Element, constructor: Callable[
     constructed = _failsafe_construct(element, constructor, False, **kwargs)
     if constructed is None:
         raise TypeError("The result of a non-failsafe _failsafe_construct() call was None! "
-                        "This is a bug in the PyI40AAS XML deserialization, please report it!")
+                        "This is a bug in the Eclipse BaSyx Python SDK XML deserialization, please report it!")
     return constructed
 
 

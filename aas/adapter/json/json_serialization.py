@@ -1,4 +1,4 @@
-# Copyright (c) 2020 PyI40AAS Contributors
+# Copyright (c) 2020 the Eclipse BaSyx Authors
 #
 # This program and the accompanying materials are made available under the terms of the Eclipse Public License v. 2.0
 # which is available at https://www.eclipse.org/legal/epl-2.0, or the Apache License, Version 2.0 which is available
@@ -14,19 +14,19 @@ The module provides an custom JSONEncoder classes :class:`~.AASToJsonEncoder` an
 to be used with the Python standard `json` module. While the former serializes objects as defined in the specification,
 the latter serializes stripped objects, excluding some attributes
 (see https://git.rwth-aachen.de/acplt/pyi40aas/-/issues/91).
-Each class contains a custom :meth:`~.AASToJsonEncoder.default` function which converts PyI40AAS objects to simple
-python types for an automatic JSON serialization.
+Each class contains a custom :meth:`~.AASToJsonEncoder.default` function which converts BaSyx Python SDK objects to
+simple python types for an automatic JSON serialization.
 To simplify the usage of this module, the :meth:`~aas.adapter.json.json_serialization.write_aas_json_file` and
 :meth:`~aas.adapter.json.json_serialization.object_store_to_json` are provided.
 The former is used to serialize a given :class:`~aas.model.provider.AbstractObjectStore` to a file, while the latter
 serializes the object store to a string and returns it.
 
 The serialization is performed in an iterative approach: The :meth:`~.AASToJsonEncoder.default` function gets called for
-every object and checks if an object is an PyI40AAS object. In this case, it calls a special function for the respective
-PyI40AAS class which converts the object (but not the contained objects) into a simple Python dict, which is
-serializable. Any contained  PyI40AAS objects are included into the dict as they are to be converted later on.
-The special helper function :meth:`~.AASToJsonEncoder._abstract_classes_to_json` is called by most of the conversion
-functions to handle all the attributes of abstract base classes.
+every object and checks if an object is an BaSyx Python SDK object. In this case, it calls a special function for the
+respective BaSyx Python SDK class which converts the object (but not the contained objects) into a simple Python dict,
+which is serializable. Any contained  BaSyx Python SDK objects are included into the dict as they are to be converted
+later on. The special helper function :meth:`~.AASToJsonEncoder._abstract_classes_to_json` is called by most of the
+conversion functions to handle all the attributes of abstract base classes.
 """
 import base64
 import inspect
@@ -42,8 +42,8 @@ class AASToJsonEncoder(json.JSONEncoder):
     Custom JSONDecoder class to use the `json` module for serializing Asset Administration Shell data into the
     official JSON format
 
-    The class overrides the `default()` method to transform PyI40AAS objects into dicts that may be serialized by the
-    standard encode method.
+    The class overrides the `default()` method to transform BaSyx Python SDK objects into dicts that may be serialized
+    by the standard encode method.
 
     Typical usage:
 
