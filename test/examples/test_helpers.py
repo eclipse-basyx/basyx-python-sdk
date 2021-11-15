@@ -7,9 +7,9 @@
 # SPDX-License-Identifier: EPL-2.0 OR Apache-2.0
 import unittest
 
-from aas.examples.data._helper import DataChecker, AASDataChecker
-from aas import model
-from aas.model.concept import IEC61360DataType
+from basyx.aas.examples.data._helper import DataChecker, AASDataChecker
+from basyx.aas import model
+from basyx.aas.model.concept import IEC61360DataType
 
 
 class DataCheckerTest(unittest.TestCase):

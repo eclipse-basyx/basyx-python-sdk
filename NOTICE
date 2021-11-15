@@ -35,4 +35,5 @@ at https://www.plattform-i40.de/PI40/Redaktion/DE/Downloads/Publikation/Details-
 under the terms of the Creative Commons Attribution-NoDerivs 3.0 Germany License (CC BY-ND 3.0 DE)
 https://creativecommons.org/licenses/by-nd/3.0/de/deed.en
 
-These files are located at `aas/adapter/json/aasJSONSchema.json` and `aas/adapter/xml/{AAS,AAS_ABAC,IEC61360}.xsd`.
+These files are located at `basyx/aas/adapter/json/aasJSONSchema.json` and
+`basyx/aas/adapter/xml/{AAS,AAS_ABAC,IEC61360}.xsd`.

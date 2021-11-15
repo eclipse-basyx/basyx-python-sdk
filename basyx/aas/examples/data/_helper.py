@@ -8,7 +8,6 @@
 """
 Helper classes for checking two objects for completeness and correctness and reporting the check results.
 """
-import logging
 import pprint
 from typing import List, NamedTuple, Iterator, Dict, Any, Type, Optional, Union, Set, Iterable
 

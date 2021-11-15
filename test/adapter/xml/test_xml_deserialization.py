@@ -10,9 +10,9 @@ import io
 import logging
 import unittest
 
-from aas import model
-from aas.adapter.xml import StrictAASFromXmlDecoder, XMLConstructables, read_aas_xml_file, read_aas_xml_file_into, \
-    read_aas_xml_element
+from basyx.aas import model
+from basyx.aas.adapter.xml import StrictAASFromXmlDecoder, XMLConstructables, read_aas_xml_file, \
+    read_aas_xml_file_into, read_aas_xml_element
 from lxml import etree  # type: ignore
 from typing import Iterable, Type, Union
 

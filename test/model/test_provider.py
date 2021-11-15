@@ -8,7 +8,7 @@
 
 import unittest
 
-from aas import model
+from basyx.aas import model
 
 
 class ProvidersTest(unittest.TestCase):

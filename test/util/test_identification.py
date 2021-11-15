@@ -8,8 +8,8 @@
 
 import unittest
 
-from aas.util.identification import *
-from aas import model
+from basyx.aas.util.identification import *
+from basyx.aas import model
 
 
 class IdentifierGeneratorTest(unittest.TestCase):

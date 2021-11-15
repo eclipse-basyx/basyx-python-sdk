@@ -9,12 +9,12 @@
 import io
 import unittest
 
-from aas import model
-from aas.adapter.xml import write_aas_xml_file, read_aas_xml_file
+from basyx.aas import model
+from basyx.aas.adapter.xml import write_aas_xml_file, read_aas_xml_file
 
-from aas.examples.data import example_aas_missing_attributes, example_submodel_template, \
-    example_aas_mandatory_attributes, example_aas, example_concept_description, create_example
-from aas.examples.data._helper import AASDataChecker
+from basyx.aas.examples.data import example_concept_description, example_aas_missing_attributes, example_aas, \
+    example_aas_mandatory_attributes, example_submodel_template, create_example
+from basyx.aas.examples.data._helper import AASDataChecker
 
 
 def _serialize_and_deserialize(data: model.DictObjectStore) -> model.DictObjectStore:

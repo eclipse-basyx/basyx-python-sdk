@@ -8,9 +8,9 @@ and XML files.
 
 import json
 
-from aas import model
-import aas.adapter.json
-import aas.adapter.xml
+from basyx.aas import model
+import basyx.aas.adapter.json
+import basyx.aas.adapter.xml
 
 # 'Details of the Asset Administration Shell' specifies multiple official serialization formats for AAS data. In this
 # tutorial, we show, how the Eclipse BaSyx Python library can be used to serialize AAS objects into JSON or XML and to
@@ -40,7 +40,7 @@ submodel = model.Submodel(
     submodel_element={
         model.Property(
             id_short='ExampleProperty',
-            value_type=model.datatypes.String,
+            value_type=basyx.aas.model.datatypes.String,
             value='exampleValue',
             semantic_id=model.Reference(
                 (model.Key(
@@ -73,16 +73,16 @@ aashell.update()
 # 'Details of the Asset Administration Shell', chapter 5.5, using Python's built-in JSON library. When provided to the
 # the `json.dump()` and `json.dumps()` methods, these methods are enabled to correctly handle AAS objects within the
 # dumped data structure.
-aashell_json_string = json.dumps(aashell, cls=aas.adapter.json.AASToJsonEncoder)
+aashell_json_string = json.dumps(aashell, cls=basyx.aas.adapter.json.AASToJsonEncoder)
 
 property_json_string = json.dumps(submodel.submodel_element.get_referable('ExampleProperty'),
-                                  cls=aas.adapter.json.AASToJsonEncoder)
+                                  cls=basyx.aas.adapter.json.AASToJsonEncoder)
 
 # Using this technique, we can also serialize Python dict and list data structures with nested AAS objects:
 json_string = json.dumps({'the_submodel': submodel,
                           'the_aas': aashell
                           },
-                         cls=aas.adapter.json.AASToJsonEncoder)
+                         cls=basyx.aas.adapter.json.AASToJsonEncoder)
 
 
 ######################################################################
@@ -93,7 +93,7 @@ json_string = json.dumps({'the_submodel': submodel,
 # JSONDecoder class, called `AASFromJSONDecoder` which can be passed to `json.load()` or `json.loads()` to ensure that
 # AAS objects contained in the JSON data are transformed into their BaSyx Python SDK object representation instead of
 # simple Python dicts:
-submodel_and_aas = json.loads(json_string, cls=aas.adapter.json.AASFromJsonDecoder)
+submodel_and_aas = json.loads(json_string, cls=basyx.aas.adapter.json.AASFromJsonDecoder)
 
 # Alternatively, one can use the `StrictAASFromJsonDecoder` which works in just the same way, but enforces the format
 # specification more strictly. While `AASFromJSONDecoder` will tolerate some semantic errors by simple skipping the
@@ -119,7 +119,7 @@ aashell.update()
 # step 4.3: writing the contents of the ObjectStore to a JSON file
 # Heads up! It is important to open the file in text-mode with utf-8 encoding!
 with open('data.json', 'w', encoding='utf-8') as json_file:
-    aas.adapter.json.write_aas_json_file(json_file, obj_store)
+    basyx.aas.adapter.json.write_aas_json_file(json_file, obj_store)
 
 # We can pass the additional keyword argument `indent=4` to `write_aas_json_file()` to format the JSON file in a more
 # human-readable (but much more space-consuming) manner.
@@ -128,7 +128,7 @@ with open('data.json', 'w', encoding='utf-8') as json_file:
 # Heads up! For writing XML files -- in contrast to writing JSON --, the file must be opened in binary mode! The XML
 # writer will handle character encoding internally.
 with open('data.xml', 'wb') as xml_file:
-    aas.adapter.xml.write_aas_xml_file(xml_file, obj_store)
+    basyx.aas.adapter.xml.write_aas_xml_file(xml_file, obj_store)
 
 
 ##################################################################
@@ -139,7 +139,7 @@ with open('data.xml', 'wb') as xml_file:
 # Heads up! It is important to open the file in text-mode with utf-8 encoding! Using 'utf-8-sig' is recommended to
 # handle unicode Byte Order Marks (BOM) correctly.
 with open('data.json', encoding='utf-8-sig') as json_file:
-    json_file_data = aas.adapter.json.read_aas_json_file(json_file)
+    json_file_data = basyx.aas.adapter.json.read_aas_json_file(json_file)
 
 # By passing the `failsafe=False` argument to `read_aas_json_file()`, we can switch to the `StrictAASFromJsonDecoder`
 # (see step 3) for a stricter error reporting.
@@ -148,7 +148,7 @@ with open('data.json', encoding='utf-8-sig') as json_file:
 # Heads up! For reading XML files -- in contrast to reading JSON --, the file must be opened in binary mode! The XML
 # writer will handle character encoding internally.
 with open('data.xml', 'rb') as xml_file:
-    xml_file_data = aas.adapter.xml.read_aas_xml_file(xml_file)
+    xml_file_data = basyx.aas.adapter.xml.read_aas_xml_file(xml_file)
 
 # Again, we can use `failsafe=False` for switching on stricter error reporting in the parser.
 

@@ -10,13 +10,13 @@ import io
 import unittest
 import json
 
-from aas import model
-from aas.adapter.json import AASToJsonEncoder, StrippedAASToJsonEncoder, write_aas_json_file, JSON_SCHEMA_FILE
+from basyx.aas import model
+from basyx.aas.adapter.json import AASToJsonEncoder, StrippedAASToJsonEncoder, write_aas_json_file, JSON_SCHEMA_FILE
 from jsonschema import validate  # type: ignore
 from typing import Set, Union
 
-from aas.examples.data import example_aas_missing_attributes, example_submodel_template, \
-    example_aas_mandatory_attributes, example_aas, create_example, example_concept_description
+from basyx.aas.examples.data import example_concept_description, example_aas_missing_attributes, example_aas, \
+    example_aas_mandatory_attributes, example_submodel_template, create_example
 
 
 class JsonSerializationTest(unittest.TestCase):
@@ -57,7 +57,7 @@ class JsonSerializationSchemaTest(unittest.TestCase):
         submodel_reference = model.AASReference(submodel_key, model.Submodel)
         # The JSONSchema expects every object with HasSemnatics (like Submodels) to have a `semanticId` Reference, which
         # must be a Reference. (This seems to be a bug in the JSONSchema.)
-        submodel = model.Submodel(submodel_identifier, semantic_id=model.Reference((),))
+        submodel = model.Submodel(submodel_identifier, semantic_id=model.Reference((), ))
         test_aas = model.AssetAdministrationShell(asset_reference, aas_identifier, submodel={submodel_reference})
 
         # serialize object to json

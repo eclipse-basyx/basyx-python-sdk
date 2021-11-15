@@ -13,7 +13,7 @@ import logging
 import enum
 import pprint
 from typing import List, Dict
-from aas.examples.data._helper import DataChecker
+from basyx.aas.examples.data._helper import DataChecker
 
 
 @enum.unique

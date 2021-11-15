@@ -24,10 +24,10 @@ setuptools.setup(
     packages=setuptools.find_packages(exclude=["test", "test.*"]),
     zip_safe=False,
     package_data={
-        "aas": ["py.typed"],
-        "aas.adapter.json": ["aasJSONSchema.json"],
-        "aas.adapter.xml": ["AAS.xsd", "AAS_ABAC.xsd", "IEC61360.xsd"],
-        "aas.examples.data": ["TestFile.pdf"],
+        "basyx": ["py.typed"],
+        "basyx.aas.adapter.json": ["aasJSONSchema.json"],
+        "basyx.aas.adapter.xml": ["AAS.xsd", "AAS_ABAC.xsd", "IEC61360.xsd"],
+        "basyx.aas.examples.data": ["TestFile.pdf"],
     },
     classifiers=[
         "Programming Language :: Python :: 3",
@@ -38,7 +38,7 @@ setuptools.setup(
     ],
     entry_points={
         'console_scripts': [
-            "aas_compliance_check = aas.compliance_tool.cli:main"
+            "aas_compliance_check = basyx.aas.compliance_tool.cli:main"
         ]
     },
     python_requires='>=3.6',

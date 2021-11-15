@@ -33,7 +33,7 @@ import inspect
 from typing import List, Dict, IO, Optional, Type
 import json
 
-from aas import model
+from basyx.aas import model
 from .. import _generic
 
 

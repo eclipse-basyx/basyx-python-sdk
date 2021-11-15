@@ -12,8 +12,8 @@ source.
 from configparser import ConfigParser
 from pathlib import Path
 
-import aas.examples.data.example_aas
-import aas.backend.couchdb
+import basyx.aas.examples.data.example_aas
+import basyx.aas.backend.couchdb
 
 # To execute this tutorial, you'll need a running CouchDB server, including an empty database and a user account with
 # access to that database.
@@ -48,8 +48,8 @@ import aas.backend.couchdb
 # password of a CouchDB user account which is "member" of this database (see above). Alternatively, you can provide
 # your CouchDB server's admin credentials.
 config = ConfigParser()
-config.read([Path(__file__).parent.parent.parent / 'test' / 'test_config.default.ini',
-             Path(__file__).parent.parent.parent / 'test' / 'test_config.ini'])
+config.read([Path(__file__).parent.parent.parent.parent / 'test' / 'test_config.default.ini',
+             Path(__file__).parent.parent.parent.parent / 'test' / 'test_config.ini'])
 
 couchdb_url = config['couchdb']['url']
 couchdb_database = config['couchdb']['database']
@@ -60,10 +60,10 @@ couchdb_password = config['couchdb']['password']
 # Provide the login credentials to the CouchDB backend.
 # These credetials are used, whenever communication with this CouchDB server is required (either via the
 # CouchDBObjectStore or via the update()/commit() backend.
-aas.backend.couchdb.register_credentials(couchdb_url, couchdb_user, couchdb_password)
+basyx.aas.backend.couchdb.register_credentials(couchdb_url, couchdb_user, couchdb_password)
 
 # Now, we create a CouchDBObjectStore as an interface for managing the objects in the CouchDB server.
-object_store = aas.backend.couchdb.CouchDBObjectStore(couchdb_url, couchdb_database)
+object_store = basyx.aas.backend.couchdb.CouchDBObjectStore(couchdb_url, couchdb_database)
 
 
 #####################################################
@@ -71,8 +71,8 @@ object_store = aas.backend.couchdb.CouchDBObjectStore(couchdb_url, couchdb_datab
 #####################################################
 
 # Create some example objects
-example_submodel1 = aas.examples.data.example_aas.create_example_asset_identification_submodel()
-example_submodel2 = aas.examples.data.example_aas.create_example_bill_of_material_submodel()
+example_submodel1 = basyx.aas.examples.data.example_aas.create_example_asset_identification_submodel()
+example_submodel2 = basyx.aas.examples.data.example_aas.create_example_bill_of_material_submodel()
 
 # The CouchDBObjectStore behaves just like other ObjectStore implementations (see `tutorial_storage.py`). The objects
 # are transferred to the CouchDB immediately. Additionally, the `source` attribute is set automatically, so update() and
@@ -96,7 +96,7 @@ example_submodel1.update()
 
 # Make some changes to a Property within the submodel
 prop = example_submodel1.get_referable('ManufacturerName')
-assert(isinstance(prop, aas.model.Property))
+assert(isinstance(prop, basyx.aas.model.Property))
 
 prop.value = "RWTH Aachen"
 

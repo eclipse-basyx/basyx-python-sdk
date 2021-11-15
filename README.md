@@ -19,14 +19,14 @@ compliant with the meta model and interface specification provided in
 
 ### Project Structure
 
-The BaSyx Python SDK project provides the `aas` Python package with 6 submodules:
+The BaSyx Python SDK project provides the `basax.aas` Python package with 6 submodules:
 
-* `aas.model`: The AAS metamodel implemented in python
-* `aas.adapter`: Adapters for various file formats 
-* `aas.backend`: Backend infrastructure for storing and retrieving AAS objects
-* `aas.compliance_tool`: Compliance checker for AAS files
-* `aas.util`: Provides utilities
-* `aas.examples`: Example data and tutorials
+* `basyx.aas.model`: The AAS metamodel implemented in python
+* `basyx.aas.adapter`: Adapters for various file formats 
+* `basyx.aas.backend`: Backend infrastructure for storing and retrieving AAS objects
+* `basyx.aas.compliance_tool`: Compliance checker for AAS files
+* `basyx.aas.util`: Provides utilities
+* `basyx.aas.examples`: Example data and tutorials
 
 
 ## License
@@ -72,7 +72,7 @@ Eclipse BaSyx Python SDK:
 
 Create a `Submodel`:
 ```python
-from aas import model  # Import all BaSyx Python SDK classes from the model package
+from basyx.aas import model  # Import all BaSyx Python SDK classes from the model package
 
 identifier = model.Identifier('https://acplt.org/Simple_Submodel', model.IdentifierType.IRI)
 submodel = model.Submodel(identification=identifier)
@@ -100,7 +100,7 @@ submodel.submodel_element.add(property)
 
 Serialize the `Submodel` to XML:
 ```python
-from aas.adapter.xml import write_aas_xml_file
+from basyx.aas.adapter import write_aas_xml_file
 
 data: model.DictObjectStore[model.Identifiable] = model.DictObjectStore()
 data.add(submodel)

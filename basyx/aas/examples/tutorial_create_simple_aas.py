@@ -7,7 +7,7 @@ reference
 """
 
 # Import all Eclipse BaSyx Python SDK classes from model package
-from aas import model
+from basyx.aas import model
 
 # In this tutorial, you'll get a step by step guide on how to create an Asset Administration Shell (AAS) and all
 # required objects within. First, you need an asset for which you want to create an AAS, represented by an Asset object.

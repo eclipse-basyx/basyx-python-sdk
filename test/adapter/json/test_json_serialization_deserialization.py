@@ -10,12 +10,12 @@ import io
 import json
 import unittest
 
-from aas import model
-from aas.adapter.json import AASToJsonEncoder, write_aas_json_file, read_aas_json_file
+from basyx.aas import model
+from basyx.aas.adapter.json import AASToJsonEncoder, write_aas_json_file, read_aas_json_file
 
-from aas.examples.data import example_aas_missing_attributes, example_submodel_template, \
-    example_aas_mandatory_attributes, example_aas, example_concept_description, create_example
-from aas.examples.data._helper import AASDataChecker
+from basyx.aas.examples.data import example_concept_description, example_aas_missing_attributes, example_aas, \
+    example_aas_mandatory_attributes, example_submodel_template, create_example
+from basyx.aas.examples.data._helper import AASDataChecker
 
 
 class JsonSerializationDeserializationTest(unittest.TestCase):

@@ -16,9 +16,9 @@ import io
 import json
 import logging
 import unittest
-from aas.adapter.json import AASFromJsonDecoder, StrictAASFromJsonDecoder, StrictStrippedAASFromJsonDecoder, \
+from basyx.aas.adapter.json import AASFromJsonDecoder, StrictAASFromJsonDecoder, StrictStrippedAASFromJsonDecoder, \
     read_aas_json_file, read_aas_json_file_into
-from aas import model
+from basyx.aas import model
 
 
 class JsonDeserializationTest(unittest.TestCase):

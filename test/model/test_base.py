@@ -10,10 +10,10 @@ import unittest
 from unittest import mock
 from typing import Optional, List
 
-from aas import model
-from aas.backend import backends
-from aas.model import Identifier, Identifiable
-from aas.examples.data import example_aas
+from basyx.aas import model
+from basyx.aas.backend import backends
+from basyx.aas.model import Identifier, Identifiable
+from basyx.aas.examples.data import example_aas
 
 
 class KeyTest(unittest.TestCase):

@@ -11,7 +11,7 @@ import unittest
 
 import dateutil
 
-from aas import model
+from basyx.aas import model
 
 
 class TestIntTypes(unittest.TestCase):

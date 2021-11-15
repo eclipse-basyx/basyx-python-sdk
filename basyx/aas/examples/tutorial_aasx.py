@@ -14,8 +14,8 @@ import datetime
 from pathlib import Path  # Used for easier handling of auxiliary file's local path
 
 import pyecma376_2  # The base library for Open Packaging Specifications. We will use the OPCCoreProperties class.
-from aas import model
-from aas.adapter import aasx
+from basyx.aas import model
+from basyx.aas.adapter import aasx
 
 # step 1: Setting up an SupplementaryFileContainer and AAS & submodel with File objects
 # step 2: Writing AAS objects and auxiliary files to an AASX package

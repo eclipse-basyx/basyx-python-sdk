@@ -5,13 +5,12 @@
 # at https://www.apache.org/licenses/LICENSE-2.0.
 #
 # SPDX-License-Identifier: EPL-2.0 OR Apache-2.0
-import re
 import unittest
 
-from aas.examples.data import example_aas, example_aas_mandatory_attributes, example_aas_missing_attributes, \
+from basyx.aas.examples.data import example_aas, example_aas_mandatory_attributes, example_aas_missing_attributes, \
     example_concept_description, example_submodel_template
-from aas.examples.data._helper import AASDataChecker
-from aas import model
+from basyx.aas.examples.data._helper import AASDataChecker
+from basyx.aas import model
 
 
 class ExampleAASTest(unittest.TestCase):

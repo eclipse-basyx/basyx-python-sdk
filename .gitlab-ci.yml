@@ -46,7 +46,7 @@ test:
   # Add source directory to PYTHONPATH to allow testing our CLI scripts, which import our modules
   - export PYTHONPATH=".:$PYTHONPATH"
   # Run tests
-  - coverage run --source aas --branch -m xmlrunner -o testreports
+  - coverage run --source basyx --branch -m xmlrunner -o testreports
   # Report test coverage
   - coverage report -m
 
@@ -67,8 +67,8 @@ static_analysis:
     - pip install --cache-dir="$PIP_CACHE_DIR" mypy pycodestyle
     - pip install --cache-dir="$PIP_CACHE_DIR" -r requirements.txt
     # Check typing und code style
-    - mypy aas test
-    - pycodestyle --count --max-line-length 120 aas test
+    - mypy basyx test
+    - pycodestyle --count --max-line-length 120 basyx test
 
 
 # Use setup.py to build a source distribution package

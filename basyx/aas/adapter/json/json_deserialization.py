@@ -36,7 +36,7 @@ import logging
 import pprint
 from typing import Dict, Callable, TypeVar, Type, List, IO, Optional, Set
 
-from aas import model
+from basyx.aas import model
 from .._generic import MODELING_KIND_INVERSE, ASSET_KIND_INVERSE, KEY_ELEMENTS_INVERSE, KEY_TYPES_INVERSE,\
     IDENTIFIER_TYPES_INVERSE, ENTITY_TYPES_INVERSE, IEC61360_DATA_TYPES_INVERSE, IEC61360_LEVEL_TYPES_INVERSE,\
     KEY_ELEMENTS_CLASSES_INVERSE

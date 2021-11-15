@@ -18,15 +18,14 @@ import logging
 
 import pyecma376_2
 
-from aas import model
-from aas.adapter import aasx
-from aas.adapter.xml import write_aas_xml_file
-from aas.compliance_tool import compliance_check_json as compliance_tool_json
-from aas.compliance_tool import compliance_check_xml as compliance_tool_xml
-from aas.compliance_tool import compliance_check_aasx as compliance_tool_aasx
-from aas.adapter.json import write_aas_json_file
-from aas.examples.data import create_example, create_example_aas_binding, TEST_PDF_FILE
-from aas.compliance_tool.state_manager import ComplianceToolStateManager, Status
+from basyx.aas import model
+from basyx.aas.adapter import aasx
+from basyx.aas.adapter.xml import write_aas_xml_file
+from basyx.aas.compliance_tool import compliance_check_xml as compliance_tool_xml, \
+    compliance_check_json as compliance_tool_json, compliance_check_aasx as compliance_tool_aasx
+from basyx.aas.adapter.json import write_aas_json_file
+from basyx.aas.examples.data import create_example, create_example_aas_binding, TEST_PDF_FILE
+from basyx.aas.compliance_tool.state_manager import ComplianceToolStateManager, Status
 
 
 def parse_cli_arguments() -> argparse.ArgumentParser:
