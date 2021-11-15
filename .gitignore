@@ -1,13 +1,23 @@
+# Python caching
 **/__pycache__/
 *.pyc
-/.idea/
 /.mypy_cache/
+
+# Typical virtualenv dir
+/venv/
+
+# IDE settings
+/.idea/
+
+# Python distribution artifacts
 /build/
 /dist/
 /*.egg-info/
-/venv/
-/.coverage
-/htmlcov/
 /docs/build/
 
+# Coverage artifacts
+/.coverage
+/htmlcov/
+
+# customized config files
 /test/test_config.ini
