@@ -1,4 +1,4 @@
-# Copyright (c) 2020 PyI40AAS Contributors
+# Copyright (c) 2020 the Eclipse BaSyx Authors
 #
 # This program and the accompanying materials are made available under the terms of the Eclipse Public License v. 2.0
 # which is available at https://www.eclipse.org/legal/epl-2.0, or the Apache License, Version 2.0 which is available
@@ -279,9 +279,9 @@ class ComplianceToolTest(unittest.TestCase):
         self.assertIsInstance(new_cp.created, datetime.datetime)
         self.assertAlmostEqual(new_cp.created, datetime.datetime(2020, 1, 1, 0, 0, 0),
                                delta=datetime.timedelta(milliseconds=20))
-        self.assertEqual(new_cp.creator, "PyI40AAS Testing Framework")
+        self.assertEqual(new_cp.creator, "Eclipse BaSyx Python Testing Framework")
         self.assertEqual(new_cp.description, "Test_Description")
-        self.assertEqual(new_cp.lastModifiedBy, "PyI40AAS Testing Framework Compliance Tool")
+        self.assertEqual(new_cp.lastModifiedBy, "Eclipse BaSyx Python Testing Framework Compliance Tool")
         assert (isinstance(new_cp.modified, datetime.datetime))
         self.assertAlmostEqual(new_cp.modified, datetime.datetime(2020, 1, 1, 0, 0, 1),
                                delta=datetime.timedelta(milliseconds=20))
