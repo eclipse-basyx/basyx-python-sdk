@@ -1,0 +1,36 @@
+PyI40AAS -- Python implementation of the Industry 4.0 Asset Administration Shell
+================================================================================
+
+Copyright 2019-2021 Chair of Process Control Engineering, RWTH Aachen University
+
+This project includes software developed at
+Chair of Process Control Engineering, RWTH Aachen University (https://www.plt.rwth-aachen.de/).
+
+
+Declared Project Licenses
+-------------------------
+This artifacts of this project are made available under the terms of:
+
+  * the Eclipse Public License v2.0
+    https://www.eclipse.org/legal/epl-2.0
+    SPDX-License-Identifier: EPL-2.0
+
+  or
+
+  * the Apache License, Version 2.0
+    https://www.apache.org/licenses/LICENSE-2.0
+    SPDX-License-Identifier: Apache-2.0
+
+
+Third-party Work in this Repository
+-----------------------------------
+This project includes XSD and JSON Schema files, developed at
+Plattform Industrie 4.0, Bundesministerium für Wirtschaft und Energie (https://www.plattform-i40.de)
+
+Published in "Details of the Asset Administration Shell – Part 1"
+at https://www.plattform-i40.de/PI40/Redaktion/DE/Downloads/Publikation/Details-of-the-Asset-Administration-Shell-Part1.html
+
+under the terms of the Creative Commons Attribution-NoDerivs 3.0 Germany License (CC BY-ND 3.0 DE)
+https://creativecommons.org/licenses/by-nd/3.0/de/deed.en
+
+These files are located at `aas/adapter/json/aasJSONSchema.json` and `aas/adapter/xml/{AAS,AAS_ABAC,IEC61360}.xsd`.

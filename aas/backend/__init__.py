@@ -1,0 +1,7 @@
+"""
+This module implements a standardized way of integrating data from existing systems into AAS objects. To achieve this,
+the abstract :class:`~aas.backend.backends.Backend` class implements the classmethods
+:meth:`~aas.backend.backends.Backend.update_object` and :meth:`~aas.backend.backends.Backend.commit_object`, which every
+implementation of a backend needs to overwrite. For a tutorial on how to implement a backend, see
+:ref:`this tutorial <tutorial_backend_couchdb>`
+"""

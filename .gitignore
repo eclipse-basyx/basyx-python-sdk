@@ -1,0 +1,13 @@
+**/__pycache__/
+*.pyc
+/.idea/
+/.mypy_cache/
+/build/
+/dist/
+/*.egg-info/
+/venv/
+/.coverage
+/htmlcov/
+/docs/build/
+
+/test/test_config.ini
