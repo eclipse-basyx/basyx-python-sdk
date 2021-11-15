@@ -13,22 +13,20 @@ import sys
 import unittest
 import io
 
-import pyecma376_2
-
-import aas.compliance_tool
 import tempfile
 
-from aas import model
-from aas.adapter import aasx
-from aas.adapter.json import read_aas_json_file, JSON_SCHEMA_FILE
-from aas.adapter.xml import read_aas_xml_file, XML_SCHEMA_FILE
-from aas.examples.data import create_example, create_example_aas_binding
-from aas.examples.data._helper import AASDataChecker
+import basyx.aas.compliance_tool
+from basyx.aas import model
+from basyx.aas.adapter import aasx
+from basyx.aas.adapter.json import read_aas_json_file
+from basyx.aas.adapter.xml import read_aas_xml_file
+from basyx.aas.examples.data import create_example
+from basyx.aas.examples.data._helper import AASDataChecker
 
 
 class ComplianceToolTest(unittest.TestCase):
     def test_parse_args(self) -> None:
-        file_path = os.path.join(os.path.dirname(aas.compliance_tool.__file__), 'cli.py')
+        file_path = os.path.join(os.path.dirname(basyx.aas.compliance_tool.__file__), 'cli.py')
         test_file_path = os.path.join(os.path.dirname(__file__), 'files')
 
         # test schema check
@@ -142,7 +140,7 @@ class ComplianceToolTest(unittest.TestCase):
         # todo: add test for correct logfile
 
     def test_json_create_example(self) -> None:
-        file_path = os.path.join(os.path.dirname(aas.compliance_tool.__file__), 'cli.py')
+        file_path = os.path.join(os.path.dirname(basyx.aas.compliance_tool.__file__), 'cli.py')
 
         file, filename = tempfile.mkstemp(suffix=".json")
         os.close(file)
@@ -161,7 +159,7 @@ class ComplianceToolTest(unittest.TestCase):
         os.unlink(filename)
 
     def test_json_deserialization(self) -> None:
-        file_path = os.path.join(os.path.dirname(aas.compliance_tool.__file__), 'cli.py')
+        file_path = os.path.join(os.path.dirname(basyx.aas.compliance_tool.__file__), 'cli.py')
         test_file_path = os.path.join(os.path.dirname(__file__), 'files')
 
         output: subprocess.CompletedProcess = subprocess.run(
@@ -172,7 +170,7 @@ class ComplianceToolTest(unittest.TestCase):
         self.assertIn('SUCCESS:      Read file and check if it is deserializable', str(output.stdout))
 
     def test_json_example(self) -> None:
-        file_path = os.path.join(os.path.dirname(aas.compliance_tool.__file__), 'cli.py')
+        file_path = os.path.join(os.path.dirname(basyx.aas.compliance_tool.__file__), 'cli.py')
         test_file_path = os.path.join(os.path.dirname(__file__), 'files')
 
         output: subprocess.CompletedProcess = subprocess.run(
@@ -184,7 +182,7 @@ class ComplianceToolTest(unittest.TestCase):
         self.assertIn('SUCCESS:      Check if data is equal to example data', str(output.stdout))
 
     def test_json_file(self) -> None:
-        file_path = os.path.join(os.path.dirname(aas.compliance_tool.__file__), 'cli.py')
+        file_path = os.path.join(os.path.dirname(basyx.aas.compliance_tool.__file__), 'cli.py')
         test_file_path = os.path.join(os.path.dirname(__file__), 'files')
 
         output: subprocess.CompletedProcess = subprocess.run(
@@ -199,7 +197,7 @@ class ComplianceToolTest(unittest.TestCase):
         self.assertIn('SUCCESS:      Check if data in files are equal', str(output.stdout))
 
     def test_xml_create_example(self) -> None:
-        file_path = os.path.join(os.path.dirname(aas.compliance_tool.__file__), 'cli.py')
+        file_path = os.path.join(os.path.dirname(basyx.aas.compliance_tool.__file__), 'cli.py')
 
         file, filename = tempfile.mkstemp(suffix=".xml")
         os.close(file)
@@ -218,7 +216,7 @@ class ComplianceToolTest(unittest.TestCase):
         os.unlink(filename)
 
     def test_xml_deseralization(self) -> None:
-        file_path = os.path.join(os.path.dirname(aas.compliance_tool.__file__), 'cli.py')
+        file_path = os.path.join(os.path.dirname(basyx.aas.compliance_tool.__file__), 'cli.py')
         test_file_path = os.path.join(os.path.dirname(__file__), 'files')
 
         output: subprocess.CompletedProcess = subprocess.run(
@@ -229,7 +227,7 @@ class ComplianceToolTest(unittest.TestCase):
         self.assertIn('SUCCESS:      Read file and check if it is deserializable', str(output.stdout))
 
     def test_xml_example(self) -> None:
-        file_path = os.path.join(os.path.dirname(aas.compliance_tool.__file__), 'cli.py')
+        file_path = os.path.join(os.path.dirname(basyx.aas.compliance_tool.__file__), 'cli.py')
         test_file_path = os.path.join(os.path.dirname(__file__), 'files')
 
         output: subprocess.CompletedProcess = subprocess.run(
@@ -241,7 +239,7 @@ class ComplianceToolTest(unittest.TestCase):
         self.assertIn('SUCCESS:      Check if data is equal to example data', str(output.stdout))
 
     def test_xml_file(self) -> None:
-        file_path = os.path.join(os.path.dirname(aas.compliance_tool.__file__), 'cli.py')
+        file_path = os.path.join(os.path.dirname(basyx.aas.compliance_tool.__file__), 'cli.py')
         test_file_path = os.path.join(os.path.dirname(__file__), 'files')
 
         output: subprocess.CompletedProcess = subprocess.run(
@@ -256,7 +254,7 @@ class ComplianceToolTest(unittest.TestCase):
         self.assertIn('SUCCESS:      Check if data in files are equal', str(output.stdout))
 
     def test_aasx_create_example(self) -> None:
-        file_path = os.path.join(os.path.dirname(aas.compliance_tool.__file__), 'cli.py')
+        file_path = os.path.join(os.path.dirname(basyx.aas.compliance_tool.__file__), 'cli.py')
 
         file, filename = tempfile.mkstemp(suffix=".aasx")
         os.close(file)
@@ -299,7 +297,7 @@ class ComplianceToolTest(unittest.TestCase):
         os.unlink(filename)
 
     def test_aasx_deseralization(self) -> None:
-        file_path = os.path.join(os.path.dirname(aas.compliance_tool.__file__), 'cli.py')
+        file_path = os.path.join(os.path.dirname(basyx.aas.compliance_tool.__file__), 'cli.py')
         test_file_path = os.path.join(os.path.dirname(__file__), 'files')
 
         output: subprocess.CompletedProcess = subprocess.run(
@@ -310,7 +308,7 @@ class ComplianceToolTest(unittest.TestCase):
         self.assertIn('SUCCESS:      Read file', str(output.stdout))
 
     def test_aasx_example(self) -> None:
-        file_path = os.path.join(os.path.dirname(aas.compliance_tool.__file__), 'cli.py')
+        file_path = os.path.join(os.path.dirname(basyx.aas.compliance_tool.__file__), 'cli.py')
         test_file_path = os.path.join(os.path.dirname(__file__), 'files')
 
         output: subprocess.CompletedProcess = subprocess.run(
@@ -322,7 +320,7 @@ class ComplianceToolTest(unittest.TestCase):
         # self.assertIn('SUCCESS:      Check if data is equal to example data', str(output.stdout))
 
     def test_aasx_file(self) -> None:
-        file_path = os.path.join(os.path.dirname(aas.compliance_tool.__file__), 'cli.py')
+        file_path = os.path.join(os.path.dirname(basyx.aas.compliance_tool.__file__), 'cli.py')
         test_file_path = os.path.join(os.path.dirname(__file__), 'files')
 
         output: subprocess.CompletedProcess = subprocess.run(
@@ -337,7 +335,7 @@ class ComplianceToolTest(unittest.TestCase):
         self.assertIn('SUCCESS:      Check if data in files are equal', str(output.stdout))
 
     def test_logfile(self) -> None:
-        file_path = os.path.join(os.path.dirname(aas.compliance_tool.__file__), 'cli.py')
+        file_path = os.path.join(os.path.dirname(basyx.aas.compliance_tool.__file__), 'cli.py')
         test_file_path = os.path.join(os.path.dirname(__file__), 'files')
 
         file, filename = tempfile.mkstemp(suffix=".json")
