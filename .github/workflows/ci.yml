@@ -12,6 +12,16 @@ jobs:
     strategy:
       matrix:
         python-version: ["3.6", "3.8", "3.10"]
+    env:
+      COUCHDB_ADMIN_PASSWORD: "yo0Quai3"
+    services:
+      couchdb:
+        image: couchdb:2.3
+        ports:
+          - 5984:5984
+        env:
+          COUCHDB_USER: "admin"
+          COUCHDB_PASSWORD: ${{ env.COUCHDB_ADMIN_PASSWORD }}
 
     steps:
     - uses: actions/checkout@v2
@@ -24,6 +34,9 @@ jobs:
         python -m pip install --upgrade pip
         pip install coverage
         pip install -r requirements.txt
+    - name: Setup test config and CouchDB database server
+      run: |
+        python test/_helper/setup_testdb.py -u "admin" -p "$COUCHDB_ADMIN_PASSWORD"
     - name: Test with coverage + unittest
       # Add source directory to PYTHONPATH to allow testing our CLI scripts, which import our modules
       run: |
