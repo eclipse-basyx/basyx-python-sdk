@@ -16,7 +16,7 @@ jobs:
       COUCHDB_ADMIN_PASSWORD: "yo0Quai3"
     services:
       couchdb:
-        image: couchdb:2.3
+        image: couchdb:3
         ports:
           - 5984:5984
         env:
