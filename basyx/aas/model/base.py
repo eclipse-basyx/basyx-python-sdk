@@ -325,6 +325,8 @@ class AdministrativeInformation:
             self._revision = revision
 
     def __eq__(self, other) -> bool:
+        if not isinstance(other, AdministrativeInformation):
+            return NotImplemented
         return self.version == other.version and self._revision == other._revision
 
     def __repr__(self) -> str:
