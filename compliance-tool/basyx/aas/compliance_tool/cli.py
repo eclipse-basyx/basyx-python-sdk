@@ -53,7 +53,7 @@ def parse_cli_arguments() -> argparse.ArgumentParser:
                     'xml (--xml).\n'
                     'All features except "schema" support reading/writing AASX packages instead of plain XML or JSON '
                     'files via the --aasx option.\n\n'
-                    'Additionally, the tool offers some extra features for more convenient usage:\n'
+                    'Additionally, the tool offers some extra features for more convenient usage:\n\n'
                     'a. Different levels of verbosity:\n'
                     '   Default output is just the status for each step performed. With -v or --verbose, additional '
                     'information in case of status = FAILED will be provided. With one more -v or --verbose, additional'
