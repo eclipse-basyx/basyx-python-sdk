@@ -1,5 +1,5 @@
 aas.model.concept - ConceptDescription and Dictionary
 =====================================================
 
-.. automodule:: aas.model.concept
+.. automodule:: basyx.aas.model.concept
       :members:

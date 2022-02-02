@@ -1,7 +1,7 @@
 aas.util - Provide helpful utilities
 ====================================
 
-.. automodule:: aas.util.__init__
+.. automodule:: basyx.aas.util.__init__
       :members:
 
 .. toctree::

@@ -2,7 +2,7 @@ aas.compliance_tool - Tool for Creating and Checking JSON, XML and AASX Files' c
 =========================================================================================
 
 .. argparse::
-    :module: aas.compliance_tool.cli
+    :module: basyx.aas.compliance_tool.cli
     :func: parse_cli_arguments
     :prog: cli
 

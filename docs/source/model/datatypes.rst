@@ -1,5 +1,5 @@
 aas.model.datatypes - Native Python Datatypes for Simple XSD-types
 ==================================================================
 
-.. automodule:: aas.model.datatypes
+.. automodule:: basyx.aas.model.datatypes
       :members:
