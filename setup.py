@@ -38,7 +38,7 @@ setuptools.setup(
     ],
     entry_points={
         'console_scripts': [
-            "aas_compliance_check = basyx.aas.compliance_tool.cli:main"
+            "aas-compliance-check = basyx.aas.compliance_tool.cli:main"
         ]
     },
     python_requires='>=3.6',

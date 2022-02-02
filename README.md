@@ -145,10 +145,10 @@ Shell elements
 * check if two given xml, json or aasx files contain the same Asset Administration Shell elements in any order 
 
 Invoking should work with either `python -m aas.compliance_tool.cli` or (when installed correctly and PATH is set 
-correctly) with `aas_compliance_check` on the command line.
+correctly) with `aas-compliance-check` on the command line.
 
 For further usage information consider the `aas.compliance_tool`-package or invoke with 
-`python -m aas.compliance_tool.cli --help` respectively `aas_compliance_check --help`.
+`python -m aas.compliance_tool.cli --help` respectively `aas-compliance-check --help`.
 
 ## Development
 
