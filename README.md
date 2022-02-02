@@ -145,10 +145,7 @@ correctly) with `aas_compliance_check` on the command line.
 For further usage information consider the `aas.compliance_tool`-package or invoke with 
 `python -m aas.compliance_tool.cli --help` respectively `aas_compliance_check --help`.
 
-## Contributing
-
-TBD
-
+## Development
 
 ### Codestyle and Testing
 
@@ -175,8 +172,3 @@ pip install coverage
 coverage run --source aas --branch -m unittest
 coverage report -m
 ```
-
-
-### Contribute Code/Patches
-
-TBD
