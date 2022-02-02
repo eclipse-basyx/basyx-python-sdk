@@ -20,7 +20,7 @@ setuptools.setup(
                 "systems",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/eclipse-basyx/basyx-java-sdk",
+    url="https://github.com/eclipse-basyx/basyx-python-sdk",
     packages=setuptools.find_packages(exclude=["test", "test.*"]),
     zip_safe=False,
     package_data={
