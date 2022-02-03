@@ -63,7 +63,17 @@ Development/testing/example dependencies (see `requirements.txt`):
 
 ### Installation
 
-TBD
+Eclipse BaSyx Python SDK can be installed from PyPI, the Python Package Index, just as nearly every other Python package:
+```bash
+pip install basyx-python-sdk
+``` 
+
+For working with the current development version, you can also install the package directly from GitHub, using Pip's Git feature:
+```bash
+pip install git+https://github.com/eclipse-basyx/basyx-python-sdk.git@main
+```
+
+You may want to use a Python's `venv` or a similar tool to install BaSyx Python SDK and its dependencies only in a project-specific local environment. 
 
 
 ### Example
@@ -112,18 +122,13 @@ with open('Simple_Submodel.xml', 'w', encoding='utf-8') as f:
 
 ### Examples and Tutorials
 
-For further examples and tutorials, check out the `aas.examples`-package. Here is a quick overview:
+For further examples and tutorials, check out the `basyx.aas.examples`-package. Here is a quick overview:
 
-* `aas.examples.tutorial_create_simple_aas`: Create an Asset Administration Shell, including an Asset object and a 
-  Submodel
-* `aas.examples.tutorial_storage`: Manage a larger number of Asset Administration Shells in an ObjectStore and resolve
-  references
-* `aas.examples.tutorial_serialization_deserialization`: Use the JSON and XML serialization/deserialization for
-  single objects or full standard-compliant files 
-* `aas.examples.tutorial_aasx`: Export Asset Administration Shells with related objects and auxiliary files to AASX 
-  package files
-* `aas.examples.tutorial_backend_couchdb`: Use the *Backends* interface (`update()/commit()` methods) to manage and
-  retrieve AAS objects in a CouchDB document database 
+* [`tutorial_create_simple_aas`](./basyx/aas/examples/tutorial_create_simple_aas.py): Create an Asset Administration Shell, including an Asset object and a Submodel
+* [`tutorial_storage`](./basyx/aas/examples/tutorial_storage.py): Manage a larger number of Asset Administration Shells in an ObjectStore and resolve references
+* [`tutorial_serialization_deserialization`](./basyx/aas/examples/tutorial_serialization_deserialization.py): Use the JSON and XML serialization/deserialization for single objects or full standard-compliant files
+* [`tutorial_aasx`](./basyx/aas/examples/tutorial_aasx.py): Export Asset Administration Shells with related objects and auxiliary files to AASX package files
+* [`tutorial_backend_couchdb`](./basyx/aas/examples/tutorial_backend_couchdb.py): Use the *Backends* interface (`update()/commit()` methods) to manage and retrieve AAS objects in a CouchDB document database
 
 
 ### Compliance Tool
@@ -140,15 +145,12 @@ Shell elements
 * check if two given xml, json or aasx files contain the same Asset Administration Shell elements in any order 
 
 Invoking should work with either `python -m aas.compliance_tool.cli` or (when installed correctly and PATH is set 
-correctly) with `aas_compliance_check` on the command line.
+correctly) with `aas-compliance-check` on the command line.
 
 For further usage information consider the `aas.compliance_tool`-package or invoke with 
-`python -m aas.compliance_tool.cli --help` respectively `aas_compliance_check --help`.
+`python -m aas.compliance_tool.cli --help` respectively `aas-compliance-check --help`.
 
-## Contributing
-
-TBD
-
+## Development
 
 ### Codestyle and Testing
 
@@ -175,8 +177,3 @@ pip install coverage
 coverage run --source aas --branch -m unittest
 coverage report -m
 ```
-
-
-### Contribute Code/Patches
-
-TBD

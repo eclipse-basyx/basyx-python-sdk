@@ -20,7 +20,7 @@ setuptools.setup(
                 "systems",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/eclipse-basyx/basyx-java-sdk",
+    url="https://github.com/eclipse-basyx/basyx-python-sdk",
     packages=setuptools.find_packages(exclude=["test", "test.*"]),
     zip_safe=False,
     package_data={
@@ -38,7 +38,7 @@ setuptools.setup(
     ],
     entry_points={
         'console_scripts': [
-            "aas_compliance_check = basyx.aas.compliance_tool.cli:main"
+            "aas-compliance-check = basyx.aas.compliance_tool.cli:main"
         ]
     },
     python_requires='>=3.6',

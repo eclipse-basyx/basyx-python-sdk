@@ -1,5 +1,5 @@
 aas.model.aas - High-level structures
 =====================================
 
-.. automodule:: aas.model.aas
+.. automodule:: basyx.aas.model.aas
       :members:

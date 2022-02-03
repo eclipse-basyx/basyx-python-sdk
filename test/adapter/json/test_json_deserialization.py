@@ -33,7 +33,7 @@ class JsonDeserializationTest(unittest.TestCase):
             read_aas_json_file(io.StringIO(data), failsafe=False)
         with self.assertLogs(logging.getLogger(), level=logging.WARNING) as cm:
             read_aas_json_file(io.StringIO(data), failsafe=True)
-        self.assertIn("submodels", cm.output[0])
+        self.assertIn("submodels", cm.output[0])  # type: ignore
 
     def test_file_format_wrong_list(self) -> None:
         data = """
@@ -58,8 +58,8 @@ class JsonDeserializationTest(unittest.TestCase):
             read_aas_json_file(io.StringIO(data), failsafe=False)
         with self.assertLogs(logging.getLogger(), level=logging.WARNING) as cm:
             read_aas_json_file(io.StringIO(data), failsafe=True)
-        self.assertIn("submodels", cm.output[0])
-        self.assertIn("Asset", cm.output[0])
+        self.assertIn("submodels", cm.output[0])  # type: ignore
+        self.assertIn("Asset", cm.output[0])  # type: ignore
 
     def test_file_format_unknown_object(self) -> None:
         data = """
@@ -75,8 +75,8 @@ class JsonDeserializationTest(unittest.TestCase):
             read_aas_json_file(io.StringIO(data), failsafe=False)
         with self.assertLogs(logging.getLogger(), level=logging.WARNING) as cm:
             read_aas_json_file(io.StringIO(data), failsafe=True)
-        self.assertIn("submodels", cm.output[0])
-        self.assertIn("'foo'", cm.output[0])
+        self.assertIn("submodels", cm.output[0])  # type: ignore
+        self.assertIn("'foo'", cm.output[0])  # type: ignore
 
     def test_broken_asset(self) -> None:
         data = """
@@ -103,7 +103,7 @@ class JsonDeserializationTest(unittest.TestCase):
         # In failsafe mode, we should get a log entry and the first Asset entry should be returned as untouched dict
         with self.assertLogs(logging.getLogger(), level=logging.WARNING) as cm:
             parsed_data = json.loads(data, cls=AASFromJsonDecoder)
-        self.assertIn("identification", cm.output[0])
+        self.assertIn("identification", cm.output[0])  # type: ignore
         self.assertIsInstance(parsed_data, list)
         self.assertEqual(3, len(parsed_data))
 
@@ -142,15 +142,15 @@ class JsonDeserializationTest(unittest.TestCase):
         with self.assertLogs(logging.getLogger(), level=logging.WARNING) as cm:
             with self.assertRaisesRegex(TypeError, r"SubmodelElement.*Asset"):
                 json.loads(data, cls=StrictAASFromJsonDecoder)
-        self.assertIn("modelType", cm.output[0])
+        self.assertIn("modelType", cm.output[0])  # type: ignore
 
         # In failsafe mode, we should get a log entries for the broken object and the wrong type of the first two
         #   submodelElements
         with self.assertLogs(logging.getLogger(), level=logging.WARNING) as cm:
             parsed_data = json.loads(data, cls=AASFromJsonDecoder)
-        self.assertGreaterEqual(len(cm.output), 3)
-        self.assertIn("SubmodelElement", cm.output[1])
-        self.assertIn("SubmodelElement", cm.output[2])
+        self.assertGreaterEqual(len(cm.output), 3)  # type: ignore
+        self.assertIn("SubmodelElement", cm.output[1])  # type: ignore
+        self.assertIn("SubmodelElement", cm.output[2])  # type: ignore
 
         self.assertIsInstance(parsed_data[0], model.Submodel)
         self.assertEqual(1, len(parsed_data[0].submodel_element))
@@ -183,7 +183,7 @@ class JsonDeserializationTest(unittest.TestCase):
         string_io = io.StringIO(data)
         with self.assertLogs(logging.getLogger(), level=logging.ERROR) as cm:
             read_aas_json_file(string_io, failsafe=True)
-        self.assertIn("duplicate identifier", cm.output[0])
+        self.assertIn("duplicate identifier", cm.output[0])  # type: ignore
         string_io.seek(0)
         with self.assertRaisesRegex(KeyError, r"duplicate identifier"):
             read_aas_json_file(string_io, failsafe=False)
@@ -224,7 +224,7 @@ class JsonDeserializationTest(unittest.TestCase):
         with self.assertLogs(logging.getLogger(), level=logging.INFO) as log_ctx:
             identifiers = read_aas_json_file_into(object_store, string_io, replace_existing=False, ignore_existing=True)
         self.assertEqual(len(identifiers), 0)
-        self.assertIn("already exists in the object store", log_ctx.output[0])
+        self.assertIn("already exists in the object store", log_ctx.output[0])  # type: ignore
         submodel = object_store.pop()
         self.assertIsInstance(submodel, model.Submodel)
         self.assertEqual(submodel.id_short, "test123")

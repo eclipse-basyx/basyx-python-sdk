@@ -1,7 +1,7 @@
 adapter: Adapter of AAS-objects from and to different file-formats
 ==================================================================
 
-.. automodule:: aas.adapter.__init__
+.. automodule:: basyx.aas.adapter.__init__
       :members:
 
 .. toctree::
