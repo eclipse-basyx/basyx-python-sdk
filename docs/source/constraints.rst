@@ -2,7 +2,7 @@ Metamodel-Constraints
 =====================
 
 Here is a quick reference of the constraints as defined in Details of the AssetAdministrationShell Part 1
-and how they are implemented in pyi40aas.
+and how they are implemented in the Eclipse BaSyx Python SDK.
 
 
 The status information means the following:
