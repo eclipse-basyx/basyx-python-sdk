@@ -1,5 +1,5 @@
 aas.util.identification - Generate Identifiers
 ==============================================
 
-.. automodule:: aas.util.identification
+.. automodule:: basyx.aas.util.identification
       :members:

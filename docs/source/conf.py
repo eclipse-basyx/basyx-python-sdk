@@ -14,17 +14,15 @@ import os
 import sys
 import datetime
 
-import sphinx_rtd_theme
-
 
 sys.path.insert(0, os.path.abspath('../..'))
 
 
 # -- Project information -----------------------------------------------------
 
-project = 'PyI40AAS'
-copyright = str(datetime.datetime.now().year) + ', Chair of Process Control Engineering, RWTH Aachen'
-author = 'Chair of Process Control Engineering, RWTH Aachen'
+project = 'Eclipse BaSyx Python SDK'
+copyright = str(datetime.datetime.now().year) + ', the Eclipse BaSyx Authors'
+author = 'The Eclipse BaSyx Authors'
 
 # The full version, including alpha/beta/rc tags
 release = '0.2.0'
@@ -62,4 +60,4 @@ html_theme = 'sphinx_rtd_theme'
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = ['_static']
+html_static_path = []

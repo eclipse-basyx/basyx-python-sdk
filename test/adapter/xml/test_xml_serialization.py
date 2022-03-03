@@ -1,4 +1,4 @@
-# Copyright (c) 2020 PyI40AAS Contributors
+# Copyright (c) 2020 the Eclipse BaSyx Authors
 #
 # This program and the accompanying materials are made available under the terms of the Eclipse Public License v. 2.0
 # which is available at https://www.eclipse.org/legal/epl-2.0, or the Apache License, Version 2.0 which is available
@@ -10,11 +10,11 @@ import unittest
 
 from lxml import etree  # type: ignore
 
-from aas import model
-from aas.adapter.xml import write_aas_xml_file, xml_serialization, XML_SCHEMA_FILE
+from basyx.aas import model
+from basyx.aas.adapter.xml import write_aas_xml_file, xml_serialization, XML_SCHEMA_FILE
 
-from aas.examples.data import example_aas_missing_attributes, example_submodel_template, \
-    example_aas_mandatory_attributes, example_aas, example_concept_description
+from basyx.aas.examples.data import example_concept_description, example_aas_missing_attributes, example_aas, \
+    example_submodel_template, example_aas_mandatory_attributes
 
 
 class XMLSerializationTest(unittest.TestCase):

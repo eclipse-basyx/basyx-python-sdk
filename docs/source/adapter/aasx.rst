@@ -1,5 +1,5 @@
 adapter.aasx - Read and write AASX-files
 ========================================
 
-.. automodule:: aas.adapter.aasx
+.. automodule:: basyx.aas.adapter.aasx
       :members:

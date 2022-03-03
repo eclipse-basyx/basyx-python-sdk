@@ -1,4 +1,4 @@
-# Copyright (c) 2020 PyI40AAS Contributors
+# Copyright (c) 2020 the Eclipse BaSyx Authors
 #
 # This program and the accompanying materials are made available under the terms of the Eclipse Public License v. 2.0
 # which is available at https://www.eclipse.org/legal/epl-2.0, or the Apache License, Version 2.0 which is available
@@ -11,10 +11,10 @@ from unittest import mock
 from typing import Optional, List
 from collections import OrderedDict
 
-from aas import model
-from aas.backend import backends
-from aas.model import Identifier, Identifiable
-from aas.examples.data import example_aas
+from basyx.aas import model
+from basyx.aas.backend import backends
+from basyx.aas.model import Identifier, Identifiable
+from basyx.aas.examples.data import example_aas
 
 
 class KeyTest(unittest.TestCase):

@@ -1,4 +1,4 @@
-# Copyright (c) 2020 PyI40AAS Contributors
+# Copyright (c) 2020 the Eclipse BaSyx Authors
 #
 # This program and the accompanying materials are made available under the terms of the Eclipse Public License v. 2.0
 # which is available at https://www.eclipse.org/legal/epl-2.0, or the Apache License, Version 2.0 which is available
@@ -9,8 +9,8 @@ import unittest
 import unittest.mock
 import urllib.error
 
-from aas.backend import couchdb
-from aas.examples.data.example_aas import *
+from basyx.aas.backend import couchdb
+from basyx.aas.examples.data.example_aas import *
 
 from test._helper.test_helpers import TEST_CONFIG, COUCHDB_OKAY, COUCHDB_ERROR
 
@@ -155,7 +155,7 @@ class CouchDBBackendTest(unittest.TestCase):
 
         # Simulate a concurrent modification (Commit submodel, while preventing that the couchdb revision store is
         # updated)
-        with unittest.mock.patch("aas.backend.couchdb.set_couchdb_revision"):
+        with unittest.mock.patch("basyx.aas.backend.couchdb.set_couchdb_revision"):
             retrieved_submodel.commit()
 
         # Committing changes to the retrieved object should now raise a conflict error

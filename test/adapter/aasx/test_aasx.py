@@ -1,4 +1,4 @@
-# Copyright (c) 2020 PyI40AAS Contributors
+# Copyright (c) 2020 the Eclipse BaSyx Authors
 #
 # This program and the accompanying materials are made available under the terms of the Eclipse Public License v. 2.0
 # which is available at https://www.eclipse.org/legal/epl-2.0, or the Apache License, Version 2.0 which is available
@@ -14,9 +14,9 @@ import unittest
 import warnings
 
 import pyecma376_2
-from aas import model
-from aas.adapter import aasx
-from aas.examples.data import example_aas, _helper, example_aas_mandatory_attributes
+from basyx.aas import model
+from basyx.aas.adapter import aasx
+from basyx.aas.examples.data import example_aas, example_aas_mandatory_attributes, _helper
 
 
 class TestAASXUtils(unittest.TestCase):
@@ -68,7 +68,7 @@ class AASXWriterTest(unittest.TestCase):
         # Create OPC/AASX core properties
         cp = pyecma376_2.OPCCoreProperties()
         cp.created = datetime.datetime.now()
-        cp.creator = "PyI40AAS Testing Framework"
+        cp.creator = "Eclipse BaSyx Python Testing Framework"
 
         # Write AASX file
         for write_json in (False, True):
@@ -107,7 +107,7 @@ class AASXWriterTest(unittest.TestCase):
                 self.assertIsInstance(new_cp.created, datetime.datetime)
                 assert(isinstance(new_cp.created, datetime.datetime))  # to make mypy happy
                 self.assertAlmostEqual(new_cp.created, cp.created, delta=datetime.timedelta(milliseconds=20))
-                self.assertEqual(new_cp.creator, "PyI40AAS Testing Framework")
+                self.assertEqual(new_cp.creator, "Eclipse BaSyx Python Testing Framework")
                 self.assertIsNone(new_cp.lastModifiedBy)
 
                 # Check files

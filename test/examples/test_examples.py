@@ -1,17 +1,16 @@
-# Copyright (c) 2020 PyI40AAS Contributors
+# Copyright (c) 2020 the Eclipse BaSyx Authors
 #
 # This program and the accompanying materials are made available under the terms of the Eclipse Public License v. 2.0
 # which is available at https://www.eclipse.org/legal/epl-2.0, or the Apache License, Version 2.0 which is available
 # at https://www.apache.org/licenses/LICENSE-2.0.
 #
 # SPDX-License-Identifier: EPL-2.0 OR Apache-2.0
-import re
 import unittest
 
-from aas.examples.data import example_aas, example_aas_mandatory_attributes, example_aas_missing_attributes, \
+from basyx.aas.examples.data import example_aas, example_aas_mandatory_attributes, example_aas_missing_attributes, \
     example_concept_description, example_submodel_template
-from aas.examples.data._helper import AASDataChecker
-from aas import model
+from basyx.aas.examples.data._helper import AASDataChecker
+from basyx.aas import model
 
 
 class ExampleAASTest(unittest.TestCase):

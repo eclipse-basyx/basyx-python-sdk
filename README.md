@@ -1,15 +1,16 @@
+# Eclipse BaSyx Python SDK
 
-# PyI40AAS – Python Industry 4.0 Asset Administration Shell
+(formerly known as PyI40AAS – Python Industry 4.0 Asset Administration Shell)
 
-The PyI40AAS project aims to provide an implementation of the Asset Administration Shell (AAS) for Industry 4.0 Systems, compliant
-with the meta model and interface specification provided in
+The Eclipse BaSyx Python project focuses on providing a Python implementation of the Asset Administration Shell (AAS) for Industry 4.0 Systems,
+compliant with the meta model and interface specification provided in
 [the document “Details of the Asset Administration Shell - Part 1” (v3.0RC01)](https://www.plattform-i40.de/PI40/Redaktion/DE/Downloads/Publikation/Details_of_the_Asset_Administration_Shell_Part1_V3.html).
-
+It currently adheres to version 3.0RC01 of the specification.
 
 ## Features
 
 * Modelling of AASs as Python objects (according to DotAAS sec. 4)
-* Security extension of the metamodel is currently not implemented (according to DotAAS sec. 5)
+    * **except for**: Security extension of the metamodel (according to DotAAS sec. 5), *HasDataSpecification*
 * Reading and writing of AASX package files (according to DotAAS sec. 6)
 * (De-)serialization of AAS objects into/from JSON and XML (according to DotAAS sec. 7) 
 * Storing of AAS objects in CouchDB, Backend infrastructure for easy expansion 
@@ -18,19 +19,19 @@ with the meta model and interface specification provided in
 
 ### Project Structure
 
-The PyI40AAS project provides the `aas` Python package with 6 submodules:
+The BaSyx Python SDK project provides the `basax.aas` Python package with 6 submodules:
 
-* `aas.model`: The AAS metamodel implemented in python
-* `aas.adapter`: Adapters for various file formats 
-* `aas.backend`: Backend infrastructure for storing and retrieving AAS objects
-* `aas.compliance_tool`: Compliance checker for AAS files
-* `aas.util`: Provides utilities
-* `aas.examples`: Example data and tutorials
+* `basyx.aas.model`: The AAS metamodel implemented in python
+* `basyx.aas.adapter`: Adapters for various file formats 
+* `basyx.aas.backend`: Backend infrastructure for storing and retrieving AAS objects
+* `basyx.aas.compliance_tool`: Compliance checker for AAS files
+* `basyx.aas.util`: Provides utilities
+* `basyx.aas.examples`: Example data and tutorials
 
 
 ## License
 
-The PyI40AAS project is dual-licensed under the terms of the Eclipse Public License - v 2.0 and the
+The BaSyx Python SDK project is dual-licensed under the terms of the Eclipse Public License - v 2.0 and the
 Apache License Version 2.0. Choose either of the two licenses that better suits your needs.
 
 SPDX-License-Identifier: EPL-2.0 OR Apache-2.0
@@ -41,7 +42,7 @@ file.
 
 ## Dependencies
 
-PyI40AAS requires the following Python packages to be installed for production usage. These dependencies are listed in
+The BaSyx Python SDK requires the following Python packages to be installed for production usage. These dependencies are listed in
 `setup.py` to be fetched automatically when installing with `pip`:
 * `lxml` (BSD 3-clause License, using `libxml2` under MIT License)
 * `python-dateutil` (BSD 3-clause License)
@@ -64,20 +65,27 @@ Development/testing/documentation/example dependencies (see `requirements.txt`):
 
 ### Installation
 
-For production usage and building applications with PyI40AAS, we recommended installation from PyPI:
-
+Eclipse BaSyx Python SDK can be installed from PyPI, the Python Package Index, just as nearly every other Python package:
 ```bash
-pip install pyi40aas
+pip install basyx-python-sdk
+``` 
+
+For working with the current development version, you can also install the package directly from GitHub, using Pip's Git feature:
+```bash
+pip install git+https://github.com/eclipse-basyx/basyx-python-sdk.git@main
 ```
+
+You may want to use a Python's `venv` or a similar tool to install BaSyx Python SDK and its dependencies only in a project-specific local environment. 
 
 
 ### Example
 
-The following code example shows how to create a `Submodel` with a `Property` serialize it into an XML file using PyI40AAS:
+The following code example shows how to create a `Submodel` with a `Property` serialize it into an XML file using the
+Eclipse BaSyx Python SDK:
 
 Create a `Submodel`:
 ```python
-from aas import model  # Import all PYI40AAS classes from the model package
+from basyx.aas import model  # Import all BaSyx Python SDK classes from the model package
 
 identifier = model.Identifier('https://acplt.org/Simple_Submodel', model.IdentifierType.IRI)
 submodel = model.Submodel(identification=identifier)
@@ -105,7 +113,7 @@ submodel.submodel_element.add(property)
 
 Serialize the `Submodel` to XML:
 ```python
-from aas.adapter.xml import write_aas_xml_file
+from basyx.aas.adapter import write_aas_xml_file
 
 data: model.DictObjectStore[model.Identifiable] = model.DictObjectStore()
 data.add(submodel)
@@ -116,16 +124,13 @@ with open('Simple_Submodel.xml', 'w', encoding='utf-8') as f:
 
 ### Examples and Tutorials
 
-For further examples and tutorials, check out the `aas.examples`-package. Here is a quick overview:
+For further examples and tutorials, check out the `basyx.aas.examples`-package. Here is a quick overview:
 
-* `aas.examples.tutorial_create_simple_aas`: Create an Asset Administration Shell, including an Asset object and a 
-  Submodel
-* `aas.examples.tutorial_storage`: Manage a larger number of Asset Administration Shells in an ObjectStore and resolve
-  references
-* `aas.examples.tutorial_serialization_deserialization`: Use the JSON and XML serialization/deserialization for
-  single objects or full standard-compliant files 
-* `aas.examples.tutorial_aasx`: Export Asset Administration Shells with related objects and auxiliary files to AASX 
-package files
+* [`tutorial_create_simple_aas`](./basyx/aas/examples/tutorial_create_simple_aas.py): Create an Asset Administration Shell, including an Asset object and a Submodel
+* [`tutorial_storage`](./basyx/aas/examples/tutorial_storage.py): Manage a larger number of Asset Administration Shells in an ObjectStore and resolve references
+* [`tutorial_serialization_deserialization`](./basyx/aas/examples/tutorial_serialization_deserialization.py): Use the JSON and XML serialization/deserialization for single objects or full standard-compliant files
+* [`tutorial_aasx`](./basyx/aas/examples/tutorial_aasx.py): Export Asset Administration Shells with related objects and auxiliary files to AASX package files
+* [`tutorial_backend_couchdb`](./basyx/aas/examples/tutorial_backend_couchdb.py): Use the *Backends* interface (`update()/commit()` methods) to manage and retrieve AAS objects in a CouchDB document database
 
 
 ## Documentation
@@ -135,7 +140,7 @@ In addition to the examples above, a detailed documentation for the current bran
 
 ## Compliance Tool
 
-The PyI40AAS project contains a compliance tool for testing xml and json files is provided in the 
+The Eclipse BaSyx Python SDK project contains a compliance tool for testing xml and json files is provided in the 
 `aas.compliance_tool`-package. Following functionalities are supported:
 
 * create an xml or json file compliant to the official schema containing example Asset Administration Shell elements
@@ -147,15 +152,12 @@ Shell elements
 * check if two given xml, json or aasx files contain the same Asset Administration Shell elements in any order 
 
 Invoking should work with either `python -m aas.compliance_tool.cli` or (when installed correctly and PATH is set 
-correctly) with `aas_compliance_check` on the command line.
+correctly) with `aas-compliance-check` on the command line.
 
 For further usage information consider the `aas.compliance_tool`-package or invoke with 
-`python -m aas.compliance_tool.cli --help` respectively `aas_compliance_check --help`.
+`python -m aas.compliance_tool.cli --help` respectively `aas-compliance-check --help`.
 
-## Contributing
-
-If you plan contributing code to the PyI40AAS project, please get in touch with us via E-Mail first: m.thies@plt.rwth-aachen.de
-
+## Development
 
 ### Codestyle and Testing
 
@@ -182,8 +184,3 @@ pip install coverage
 coverage run --source aas --branch -m unittest
 coverage report -m
 ```
-
-
-### Contribute Code/Patches
-
-TBD

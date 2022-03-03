@@ -1,5 +1,5 @@
-Tutorials for working with pyI40aas
-===================================
+Tutorials for working with the Eclipse BaSyx Python SDK
+=======================================================
 
 
 .. toctree::

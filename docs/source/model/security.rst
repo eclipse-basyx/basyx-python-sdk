@@ -1,5 +1,5 @@
 aas.model.security - Security model of the AAS (currently not existing)
 =======================================================================
 
-.. automodule:: aas.model.security
+.. automodule:: basyx.aas.model.security
       :members:

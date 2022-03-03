@@ -1,4 +1,4 @@
-# Copyright (c) 2020 PyI40AAS Contributors
+# Copyright (c) 2020 the Eclipse BaSyx Authors
 #
 # This program and the accompanying materials are made available under the terms of the Eclipse Public License v. 2.0
 # which is available at https://www.eclipse.org/legal/epl-2.0, or the Apache License, Version 2.0 which is available
@@ -10,9 +10,9 @@ import io
 import logging
 import unittest
 
-from aas import model
-from aas.adapter.xml import StrictAASFromXmlDecoder, XMLConstructables, read_aas_xml_file, read_aas_xml_file_into, \
-    read_aas_xml_element
+from basyx.aas import model
+from basyx.aas.adapter.xml import StrictAASFromXmlDecoder, XMLConstructables, read_aas_xml_file, \
+    read_aas_xml_file_into, read_aas_xml_element
 from lxml import etree  # type: ignore
 from typing import Iterable, Type, Union
 
@@ -51,7 +51,7 @@ class XmlDeserializationTest(unittest.TestCase):
             read_aas_xml_file(bytes_io, failsafe=False)
         cause = _root_cause(err_ctx.exception)
         for s in strings:
-            self.assertIn(s, log_ctx.output[0])
+            self.assertIn(s, log_ctx.output[0])  # type: ignore
             self.assertIn(s, str(cause))
 
     def test_malformed_xml(self) -> None:
@@ -189,7 +189,7 @@ class XmlDeserializationTest(unittest.TestCase):
         with self.assertLogs(logging.getLogger(), level=logging.WARNING) as context:
             read_aas_xml_file(io.BytesIO(xml.encode("utf-8")), failsafe=False)
         for s in ("GLOBAL_REFERENCE", "IRI=http://acplt.org/test_ref", "AssetAdministrationShell"):
-            self.assertIn(s, context.output[0])
+            self.assertIn(s, context.output[0])  # type: ignore
 
     def test_invalid_submodel_element(self) -> None:
         # TODO: simplify this should our suggestion regarding the XML schema get accepted
@@ -276,7 +276,7 @@ class XmlDeserializationTest(unittest.TestCase):
         """)
         with self.assertLogs(logging.getLogger(), level=logging.WARNING) as context:
             read_aas_xml_file(io.BytesIO(xml.encode("utf-8")), failsafe=False)
-        self.assertIn("aas:value", context.output[0])
+        self.assertIn("aas:value", context.output[0])  # type: ignore
 
     def test_duplicate_identifier(self) -> None:
         xml = _xml_wrap("""
@@ -330,7 +330,7 @@ class XmlDeserializationTest(unittest.TestCase):
         with self.assertLogs(logging.getLogger(), level=logging.INFO) as log_ctx:
             identifiers = read_aas_xml_file_into(object_store, bytes_io, replace_existing=False, ignore_existing=True)
         self.assertEqual(len(identifiers), 0)
-        self.assertIn("already exists in the object store", log_ctx.output[0])
+        self.assertIn("already exists in the object store", log_ctx.output[0])  # type: ignore
         submodel = object_store.pop()
         self.assertIsInstance(submodel, model.Submodel)
         self.assertEqual(submodel.id_short, "test123")

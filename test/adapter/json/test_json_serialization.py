@@ -1,4 +1,4 @@
-# Copyright (c) 2020 PyI40AAS Contributors
+# Copyright (c) 2020 the Eclipse BaSyx Authors
 #
 # This program and the accompanying materials are made available under the terms of the Eclipse Public License v. 2.0
 # which is available at https://www.eclipse.org/legal/epl-2.0, or the Apache License, Version 2.0 which is available
@@ -10,13 +10,13 @@ import io
 import unittest
 import json
 
-from aas import model
-from aas.adapter.json import AASToJsonEncoder, StrippedAASToJsonEncoder, write_aas_json_file, JSON_SCHEMA_FILE
+from basyx.aas import model
+from basyx.aas.adapter.json import AASToJsonEncoder, StrippedAASToJsonEncoder, write_aas_json_file, JSON_SCHEMA_FILE
 from jsonschema import validate  # type: ignore
 from typing import Set, Union
 
-from aas.examples.data import example_aas_missing_attributes, example_submodel_template, \
-    example_aas_mandatory_attributes, example_aas, create_example, example_concept_description
+from basyx.aas.examples.data import example_concept_description, example_aas_missing_attributes, example_aas, \
+    example_aas_mandatory_attributes, example_submodel_template, create_example
 
 
 class JsonSerializationTest(unittest.TestCase):
@@ -58,7 +58,7 @@ class JsonSerializationSchemaTest(unittest.TestCase):
         submodel_reference = model.AASReference(submodel_key, model.Submodel)
         # The JSONSchema expects every object with HasSemnatics (like Submodels) to have a `semanticId` Reference, which
         # must be a Reference. (This seems to be a bug in the JSONSchema.)
-        submodel = model.Submodel(submodel_identifier, semantic_id=model.Reference((),))
+        submodel = model.Submodel(submodel_identifier, semantic_id=model.Reference((), ))
         test_aas = model.AssetAdministrationShell(model.AssetInformation(global_asset_id=asset_reference),
                                                   aas_identifier, submodel={submodel_reference})
 

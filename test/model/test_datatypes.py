@@ -1,4 +1,4 @@
-# Copyright (c) 2020 PyI40AAS Contributors
+# Copyright (c) 2020 the Eclipse BaSyx Authors
 #
 # This program and the accompanying materials are made available under the terms of the Eclipse Public License v. 2.0
 # which is available at https://www.eclipse.org/legal/epl-2.0, or the Apache License, Version 2.0 which is available
@@ -11,7 +11,7 @@ import unittest
 
 import dateutil
 
-from aas import model
+from basyx.aas import model
 
 
 class TestIntTypes(unittest.TestCase):
