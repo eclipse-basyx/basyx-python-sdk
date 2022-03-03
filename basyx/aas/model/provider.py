@@ -28,7 +28,7 @@ class AbstractObjectProvider(metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def get_identifiable(self, identifier: Identifier) -> Identifiable:
         """
-        Find an :class:`~aas.model.base.Identifiable` by its `id_short` attribute
+        Find an :class:`~aas.model.base.Identifiable` by its :class:`~aas.model.base.Identifier`
 
         This may include looking up the object's endpoint in a registry and fetching it from an HTTP server or a
         database.
