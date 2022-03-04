@@ -20,11 +20,15 @@ All functions reports any issues using the given :class:`~aas.compliance_tool.st
 by adding new steps and associated LogRecords
 """
 import datetime
+import json
 import logging
 from typing import Optional, Tuple
+import io
+from lxml import etree  # type: ignore
 
 import pyecma376_2
 
+from . import compliance_check_json, compliance_check_xml
 from .. import model
 from ..adapter import aasx
 from ..examples.data import example_aas, create_example_aas_binding
@@ -88,6 +92,70 @@ def check_deserialization(file_path: str, state_manager: ComplianceToolStateMana
         reader.close()
 
     return obj_store, files, new_cp
+
+
+def check_schema(file_path: str, state_manager: ComplianceToolStateManager) -> None:
+    """
+    Checks a given file against the official json schema and reports any issues using the given
+    :class:`~aas.compliance_tool.state_manager.ComplianceToolStateManager`
+
+    Opens the file and checks if the data inside is stored in XML or JSON. Then calls the respective compliance tool
+    schema check
+    """
+    logger = logging.getLogger('compliance_check')
+    logger.addHandler(state_manager)
+    logger.propagate = False
+    logger.setLevel(logging.INFO)
+
+    # create handler to get logger info
+    logger_deserialization = logging.getLogger(aasx.__name__)
+    logger_deserialization.addHandler(state_manager)
+    logger_deserialization.propagate = False
+    logger_deserialization.setLevel(logging.INFO)
+
+    state_manager.add_step('Open file')
+    try:
+        # open given file
+        reader = aasx.AASXReader(file_path)
+        state_manager.set_step_status_from_log()
+    except ValueError as error:
+        logger.error(error)
+        state_manager.set_step_status_from_log()
+        state_manager.add_step('Read file')
+        state_manager.set_step_status(Status.NOT_EXECUTED)
+        return
+
+    try:
+        # read given file (Find XML and JSON parts)
+        state_manager.add_step('Read file')
+        core_rels = reader.reader.get_related_parts_by_type()
+        try:
+            aasx_origin_part = core_rels[aasx.RELATIONSHIP_TYPE_AASX_ORIGIN][0]
+        except IndexError as e:
+            raise ValueError("Not a valid AASX file: aasx-origin Relationship is missing.") from e
+        state_manager.set_step_status(Status.SUCCESS)
+        k: int = 0  # Counting variable
+        for aas_part in reader.reader.get_related_parts_by_type(aasx_origin_part)[
+                aasx.RELATIONSHIP_TYPE_AAS_SPEC]:
+            content_type = reader.reader.get_content_type(aas_part)
+            extension = aas_part.split("/")[-1].split(".")[-1]
+            with reader.reader.open_part(aas_part) as p:
+                if content_type.split(";")[0] in (
+                        "text/xml", "application/xml") or content_type == "" and extension == "xml":
+                    logger.debug("Parsing AAS objects from XML stream in OPC part {} ...".format(aas_part))
+                    compliance_check_xml._check_schema(p, state_manager)
+                elif content_type.split(";")[0] in ("text/json", "application/json") \
+                        or content_type == "" and extension == "json":
+                    logger.debug("Parsing AAS objects from JSON stream in OPC part {} ...".format(aas_part))
+                    compliance_check_json._check_schema(io.TextIOWrapper(p, encoding='utf-8-sig'), state_manager)
+                else:
+                    raise ValueError("Could not determine part format of AASX part {} (Content Type: {}, extension: {}"
+                                     .format(aas_part, content_type, extension))
+    except ValueError as error:
+        logger.error(error)
+        state_manager.set_step_status(Status.FAILED)
+    finally:
+        reader.close()
 
 
 def check_aas_example(file_path: str, state_manager: ComplianceToolStateManager) -> None:
