@@ -54,6 +54,7 @@ def check_schema(file_path: str, state_manager: ComplianceToolStateManager) -> N
     try:
         # open given file
         file_to_be_checked = open(file_path, 'rb')
+        state_manager.set_step_status(Status.SUCCESS)
     except IOError as error:
         state_manager.set_step_status(Status.FAILED)
         logger.error(error)
@@ -62,20 +63,31 @@ def check_schema(file_path: str, state_manager: ComplianceToolStateManager) -> N
         state_manager.add_step('Validate file against official xml schema')
         state_manager.set_step_status(Status.NOT_EXECUTED)
         return
+    return _check_schema(file_to_be_checked, state_manager)
+
+
+def _check_schema(file_to_be_checked, state_manager):
+    logger = logging.getLogger('compliance_check')
+    logger.addHandler(state_manager)
+    logger.propagate = False
+    logger.setLevel(logging.INFO)
+
+    state_manager.add_step('Read file and check if it is conform to the xml syntax')
     try:
-        with file_to_be_checked:
-            state_manager.set_step_status(Status.SUCCESS)
-            # read given file and check if it is conform to the xml syntax
-            state_manager.add_step('Read file and check if it is conform to the xml syntax')
-            parser = etree.XMLParser(remove_blank_text=True, remove_comments=True)
-            etree.parse(file_to_be_checked, parser)
-            state_manager.set_step_status(Status.SUCCESS)
+        # read given file and check if it is conform to the xml syntax
+        parser = etree.XMLParser(remove_blank_text=True, remove_comments=True)
+        etree.parse(file_to_be_checked, parser)
+        state_manager.set_step_status(Status.SUCCESS)
     except etree.XMLSyntaxError as error:
         state_manager.set_step_status(Status.FAILED)
         logger.error(error)
         state_manager.add_step('Validate file against official xml schema')
         state_manager.set_step_status(Status.NOT_EXECUTED)
+        file_to_be_checked.close()
         return
+    except Exception:
+        file_to_be_checked.close()
+        raise
 
     # load aas xml schema
     aas_xml_schema = etree.XMLSchema(file=XML_SCHEMA_FILE)
@@ -84,7 +96,8 @@ def check_schema(file_path: str, state_manager: ComplianceToolStateManager) -> N
     state_manager.add_step('Validate file against official xml schema')
     # validate given file against schema
     try:
-        with open(file_path, 'rb') as file_to_be_checked:
+        file_to_be_checked.seek(0)  # Reset reading file offset (cursor) to the beginning of the file
+        with file_to_be_checked:
             etree.parse(file_to_be_checked, parser=parser)
     except etree.ParseError as error:
         state_manager.set_step_status(Status.FAILED)
