@@ -20,7 +20,6 @@ All functions reports any issues using the given :class:`~aas.compliance_tool.st
 by adding new steps and associated LogRecords
 """
 import datetime
-import json
 import logging
 from typing import Optional, Tuple
 import io
