@@ -130,3 +130,29 @@ class ComplianceToolAASXTest(unittest.TestCase):
                       '[Identifier(IRI=https://acplt.org/Test_AssetAdministrationShell)] must be ==',
                       manager.format_step(4, verbose_level=1))
         self.assertEqual(Status.NOT_EXECUTED, manager.steps[5].status)
+
+    def test_check_schema(self):
+        manager = ComplianceToolStateManager()
+        script_dir = os.path.dirname(__file__)
+
+        file_path_2 = os.path.join(script_dir, 'files/test_demo_full_example.aasx')
+        compliance_tool.check_schema(file_path_2, manager)
+        self.assertEqual(10, len(manager.steps))
+        for i in range(10):
+            self.assertEqual(Status.SUCCESS, manager.steps[i].status)
+
+        manager.steps = []
+        file_path_3 = os.path.join(script_dir, 'files/test_demo_full_example2.aasx')
+        compliance_tool.check_schema(file_path_3, manager)
+        self.assertEqual(4, len(manager.steps))
+        self.assertEqual(Status.SUCCESS, manager.steps[0].status)
+        self.assertEqual(Status.SUCCESS, manager.steps[1].status)
+        self.assertEqual(Status.SUCCESS, manager.steps[2].status)
+        self.assertEqual(Status.SUCCESS, manager.steps[3].status)
+
+        manager.steps = []
+        file_path_4 = os.path.join(script_dir, 'files/test_demo_full_example_wrong_attribute.aasx')
+        compliance_tool.check_schema(file_path_4, manager)
+        self.assertEqual(10, len(manager.steps))
+        for i in range(10):
+            self.assertEqual(Status.SUCCESS, manager.steps[i].status)
