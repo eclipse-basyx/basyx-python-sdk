@@ -37,17 +37,6 @@
                             ]
                         }
                     }
-                ],
-                "billOfMaterial": [
-                    {
-                        "keys": [
-                            {
-                                "type": "Submodel",
-                                "idType": "IRI",
-                                "value": "http://acplt.org/Submodels/Assets/TestAsset/BillOfMaterial"
-                            }
-                        ]
-                    }
                 ]
             }
 		}
