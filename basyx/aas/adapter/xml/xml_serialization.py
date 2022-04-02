@@ -342,11 +342,6 @@ def asset_information_to_xml(obj: model.AssetInformation, tag: str = NS_AAS+"ass
     if obj.global_asset_id:
         et_asset_information.append(reference_to_xml(obj.global_asset_id, NS_AAS + "globalAssetId"))
     et_asset_information.append(_generate_element(name=NS_AAS + "assetKind", text=_generic.ASSET_KIND[obj.asset_kind]))
-    et_ref = _generate_element(name=NS_AAS + "billOfMaterials")
-    if obj.bill_of_material:
-        for ref in obj.bill_of_material:
-            et_ref.append(reference_to_xml(ref, NS_AAS+"submodelRef"))
-    et_asset_information.append(et_ref)
     et_specific_asset_id = _generate_element(name=NS_AAS + "specificAssetIds")
     if obj.specific_asset_id:
         for specific_asset_id in obj.specific_asset_id:

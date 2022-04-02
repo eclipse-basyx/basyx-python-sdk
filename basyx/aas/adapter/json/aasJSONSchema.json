@@ -564,12 +564,6 @@
                 "$ref": "#/definitions/IdentifierKeyValuePair"
               }
             },
-      "billOfMaterial": {
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/Reference"
-              }
-            },
       "thumbnail":{
               "$ref": "#/definitions/File"
             }

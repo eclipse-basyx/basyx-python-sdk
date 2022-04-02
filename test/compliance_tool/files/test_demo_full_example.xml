@@ -41,13 +41,6 @@
           </aas:keys>
         </aas:globalAssetId>
         <aas:assetKind>Instance</aas:assetKind>
-        <aas:billOfMaterials>
-          <aas:submodelRef>
-            <aas:keys>
-              <aas:key idType="IRI" type="Submodel">http://acplt.org/Submodels/Assets/TestAsset/BillOfMaterial</aas:key>
-            </aas:keys>
-          </aas:submodelRef>
-        </aas:billOfMaterials>
         <aas:specificAssetIds>
           <aas:specificAssetId>
             <aas:externalSubjectId>
@@ -83,7 +76,6 @@
           </aas:keys>
         </aas:globalAssetId>
         <aas:assetKind>Instance</aas:assetKind>
-        <aas:billOfMaterials/>
         <aas:specificAssetIds/>
       </aas:assetInformation>
     </aas:assetAdministrationShell>
@@ -92,7 +84,6 @@
       <aas:identification idType="IRI">https://acplt.org/Test_AssetAdministrationShell2_Mandatory</aas:identification>
       <aas:assetInformation>
         <aas:assetKind>Instance</aas:assetKind>
-        <aas:billOfMaterials/>
         <aas:specificAssetIds/>
       </aas:assetInformation>
     </aas:assetAdministrationShell>
@@ -137,7 +128,6 @@
           </aas:keys>
         </aas:globalAssetId>
         <aas:assetKind>Instance</aas:assetKind>
-        <aas:billOfMaterials/>
         <aas:specificAssetIds>
           <aas:specificAssetId>
             <aas:externalSubjectId>

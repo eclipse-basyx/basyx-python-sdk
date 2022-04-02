@@ -41,10 +41,6 @@ class AssetInformation:
     :ivar specific_asset_id: Additional domain specific, typically proprietary Identifier (Set of
                              :class:`IdentifierKeyValuePairs <aas.model.base.IdentifierKeyValuePair>` for the asset like
                              e.g. serial number etc.
-    :ivar bill_of_material: :class:`~aas.model.base.AASReference` to a :class:`~aas.model.submodel.Submodel`
-                            representing the Bill of material of the asset. This :class:`~aas.model.submodel.Submodel`
-                            contains a set of entities describing the material used to compose the composite I4.0
-                            Component.
     :ivar default_thumbnail: Thumbnail of the asset represented by the asset administration shell. Used as default.
     """
 
@@ -52,7 +48,6 @@ class AssetInformation:
                  asset_kind: base.AssetKind = base.AssetKind.INSTANCE,
                  global_asset_id: Optional[base.Reference] = None,
                  specific_asset_id: Optional[Set[base.IdentifierKeyValuePair]] = None,
-                 bill_of_material: Optional[Set[base.AASReference[Submodel]]] = None,
                  default_thumbnail: Optional[File] = None):
 
         super().__init__()
@@ -60,8 +55,6 @@ class AssetInformation:
         self._global_asset_id: Optional[base.Reference] = global_asset_id
         self.specific_asset_id: Set[base.IdentifierKeyValuePair] = set() if specific_asset_id is None \
             else specific_asset_id
-        self.bill_of_material: Set[base.AASReference[Submodel]] = set() if bill_of_material is None \
-            else bill_of_material
         self.default_thumbnail: Optional[File] = default_thumbnail
 
     def _get_global_asset_id(self):
@@ -75,9 +68,8 @@ class AssetInformation:
     global_asset_id = property(_get_global_asset_id, _set_global_asset_id)
 
     def __repr__(self) -> str:
-        return "AssetInformation(assetKind={}, globalAssetId={}, specificAssetId={}, billOfMaterial={}, " \
-               "defaultThumbNail={})".format(self.asset_kind, self._global_asset_id, str(self.specific_asset_id),
-                                             str(self.bill_of_material), str(self.default_thumbnail))
+        return "AssetInformation(assetKind={}, globalAssetId={}, specificAssetId={}, defaultThumbNail={})".format(
+            self.asset_kind, self._global_asset_id, str(self.specific_asset_id), str(self.default_thumbnail))
 
 
 class AssetAdministrationShell(base.Identifiable, base.UniqueIdShortNamespace):

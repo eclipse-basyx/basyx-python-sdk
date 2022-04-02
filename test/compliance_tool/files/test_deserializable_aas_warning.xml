@@ -14,13 +14,6 @@
 				  </aas:keys>
 				</aas:globalAssetId>
 				<aas:assetKind>Instance</aas:assetKind>
-				<aas:billOfMaterials>
-				  <aas:submodelRef>
-					<aas:keys>
-					  <aas:key idType="IRI" type="Submodel">http://acplt.org/Submodels/Assets/TestAsset/BillOfMaterial</aas:key>
-					</aas:keys>
-				  </aas:submodelRef>
-				</aas:billOfMaterials>
 				<aas:specificAssetIds>
 				  <aas:specificAssetId>
 					<aas:externalSubjectId>

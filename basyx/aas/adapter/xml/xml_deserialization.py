@@ -940,11 +940,6 @@ class AASFromXmlDecoder:
             for id in _child_construct_multiple(specific_assset_ids, NS_AAS + "specificAssetId",
                                                 cls.construct_identifier_key_value_pair, cls.failsafe):
                 asset_information.specific_asset_id.add(id)
-        bill_of_materials = element.find(NS_AAS + "billOfMaterials")
-        if bill_of_materials is not None:
-            for submodel_ref in _child_construct_multiple(bill_of_materials, NS_AAS + "submodelRef",
-                                                          cls._construct_submodel_reference, cls.failsafe):
-                asset_information.bill_of_material.add(submodel_ref)
         thumbnail = _failsafe_construct(element.find(NS_AAS + "defaultThumbNail"),
                                         cls.construct_file, cls.failsafe)
         if thumbnail is not None:

@@ -389,9 +389,6 @@ class AASFromJsonDecoder(json.JSONDecoder):
             for desc_data in _get_ts(dct, "externalAssetIds", list):
                 ret.specific_asset_id.add(cls._construct_identifier_key_value_pair(desc_data,
                                                                                    model.IdentifierKeyValuePair))
-        if 'billOfMaterial' in dct:
-            for desc_data in _get_ts(dct, "billOfMaterial", list):
-                ret.bill_of_material.add(cls._construct_aas_reference(desc_data, model.Submodel))
         if 'thumbnail' in dct:
             ret.default_thumbnail = _get_ts(dct, 'thumbnail', model.File)
         return ret

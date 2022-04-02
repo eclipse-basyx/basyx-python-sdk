@@ -370,7 +370,6 @@ def create_example_asset_administration_shell() -> model.AssetAdministrationShel
                                                             model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
                                                                       value='http://acplt.org/SpecificAssetId/',
                                                                       id_type=model.KeyType.IRI),)))},
-        bill_of_material=None,
         default_thumbnail=submodel_element_file)
 
     asset_administration_shell = model.AssetAdministrationShell(

@@ -64,7 +64,6 @@
 			<element maxOccurs="1" minOccurs="0" name="defaultThumbNail" type="aas:file_t"/>
 			<element maxOccurs="1" minOccurs="0" name="globalAssetId" type="aas:reference_t"/>
 			<element maxOccurs="1" minOccurs="1" name="assetKind" type="aas:assetKind_t"/>
-			<element maxOccurs="1" minOccurs="0" name="billOfMaterials" type="aas:submodelRefs_t"/>
 			<element maxOccurs="1" minOccurs="0" name="specificAssetIds" type="aas:specificAssetIds_t"/>
 		</sequence>
 	</complexType>

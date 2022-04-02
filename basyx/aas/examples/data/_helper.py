@@ -675,19 +675,6 @@ class AASDataChecker(DataChecker):
                                             'specificAssetIds'.format(repr(object_)),
                    value=found_elements)
 
-        self.check_contained_element_length(object_, 'bill_of_material', model.AASReference,
-                                            len(expected_value.bill_of_material))
-        for expected_ref in expected_value.bill_of_material:
-            ref = self._find_reference(expected_ref, object_.bill_of_material)
-            if self.check(ref is not None, 'AAS Reference {} must exist'.format(repr(expected_ref))):
-                self._check_reference_equal(ref, expected_ref)  # type: ignore
-
-        found_elements = self._find_extra_object(object_.bill_of_material, expected_value.bill_of_material,
-                                                 model.AASReference)
-        self.check(found_elements == set(), 'AssetInformation {} must not have extra '
-                                            'references'.format(repr(object_)),
-                   value=found_elements)
-
         if object_.default_thumbnail and expected_value.default_thumbnail:
             self.check_file_equal(object_.default_thumbnail, expected_value.default_thumbnail)
         else:

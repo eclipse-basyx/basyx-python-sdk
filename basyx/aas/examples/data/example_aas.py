@@ -595,11 +595,6 @@ def create_example_asset_administration_shell() -> \
                                                             model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
                                                                       value='http://acplt.org/SpecificAssetId/',
                                                                       id_type=model.KeyType.IRI),))), },
-        bill_of_material={model.AASReference((model.Key(type_=model.KeyElements.SUBMODEL,
-                                                        value='http://acplt.org/Submodels/Assets/'
-                                                              'TestAsset/BillOfMaterial',
-                                                        id_type=model.KeyType.IRI),),
-                                             model.Submodel), },
         default_thumbnail=None)
 
     asset_administration_shell = model.AssetAdministrationShell(
