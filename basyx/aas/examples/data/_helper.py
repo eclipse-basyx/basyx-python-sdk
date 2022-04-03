@@ -698,17 +698,6 @@ class AASDataChecker(DataChecker):
         """
         self._check_identifiable_equal(object_, expected_value)
         self.check_asset_information_equal(object_.asset_information, expected_value.asset_information)
-        if object_.security and expected_value.security:
-            self.check_security_equal(object_.security, expected_value.security)
-        else:
-            if expected_value.security:
-                self.check(expected_value.security is not None,
-                           'Security object {} must exist'.format(repr(expected_value.security)),
-                           value=object_.security)
-            else:
-                self.check(expected_value.security is None, 'Asset Administration Shell {} must not have a security '
-                                                            'object'.format(repr(expected_value)),
-                           value=object_.security)
 
         self.check_attribute_equal(object_, 'derived_from', expected_value.derived_from)
         self.check_contained_element_length(object_, 'submodel', model.AASReference, len(expected_value.submodel))
@@ -721,18 +710,6 @@ class AASDataChecker(DataChecker):
         self.check(found_elements == set(), 'Asset Administration Shell {} must not have extra submodel '
                                             'references'.format(repr(object_)),
                    value=found_elements)
-
-    def check_security_equal(self, object_: model.Security,
-                             expected_value: model.Security):
-        """
-        Checks if the given Security objects are equal
-
-        :param object_: Given Security object to check
-        :param expected_value: expected Security object
-        :return:
-        """
-        # TODO: if security is specified
-        pass
 
     def check_concept_description_equal(self, object_: model.ConceptDescription,
                                         expected_value: model.ConceptDescription):

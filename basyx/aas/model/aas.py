@@ -17,7 +17,6 @@ This module contains the following classes from an up-to-down-level:
 from typing import Optional, Set, Iterable
 
 from . import base
-from .security import Security
 from .submodel import File, Submodel
 
 
@@ -91,7 +90,6 @@ class AssetAdministrationShell(base.Identifiable, base.UniqueIdShortNamespace):
     :ivar administration: :class:`~aas.model.base.AdministrativeInformation` of an
                           :class:`~.aas.model.base.Identifiable` element. (inherited from
                           :class:`~aas.model.base.Identifiable`)
-    :ivar ~.security: Definition of the security relevant aspects of the AAS. (Initialization-parameter: `security_`)
     :ivar ~.submodel: Unordered list of :class:`submodels <aas.model.submodel.Submodel>` to describe typically the asset
                     of an AAS. (Initialization-parameter: `submodel_`)
     :ivar derived_from: The :class:`reference <aas.model.base.AASReference>` to the AAS the AAs was derived from
@@ -107,7 +105,6 @@ class AssetAdministrationShell(base.Identifiable, base.UniqueIdShortNamespace):
                  description: Optional[base.LangStringSet] = None,
                  parent: Optional[base.UniqueIdShortNamespace] = None,
                  administration: Optional[base.AdministrativeInformation] = None,
-                 security: Optional[Security] = None,
                  submodel: Optional[Set[base.AASReference[Submodel]]] = None,
                  derived_from: Optional[base.AASReference["AssetAdministrationShell"]] = None,
                  extension: Iterable[base.Extension] = ()):
@@ -121,6 +118,5 @@ class AssetAdministrationShell(base.Identifiable, base.UniqueIdShortNamespace):
         self.parent: Optional[base.UniqueIdShortNamespace] = parent
         self.administration: Optional[base.AdministrativeInformation] = administration
         self.derived_from: Optional[base.AASReference["AssetAdministrationShell"]] = derived_from
-        self.security: Optional[Security] = security
         self.submodel: Set[base.AASReference[Submodel]] = set() if submodel is None else submodel
         self.extension = base.NamespaceSet(self, [("name", True)], extension)

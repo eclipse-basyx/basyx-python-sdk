@@ -899,9 +899,6 @@ class AASFromXmlDecoder:
             asset_information=_child_construct_mandatory(element, NS_AAS + "assetInformation",
                                                          cls.construct_asset_information)
         )
-        security = _failsafe_construct(element.find(NS_ABAC + "security"), cls.construct_security, cls.failsafe)
-        if security is not None:
-            aas.security = security
         if not cls.stripped:
             submodels = element.find(NS_AAS + "submodelRefs")
             if submodels is not None:

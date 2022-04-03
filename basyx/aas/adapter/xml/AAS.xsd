@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<schema elementFormDefault="qualified" targetNamespace="http://www.admin-shell.io/aas/3/0" xmlns="http://www.w3.org/2001/XMLSchema" xmlns:aas="http://www.admin-shell.io/aas/3/0" xmlns:abac="http://www.admin-shell.io/aas/abac/3/0" xmlns:IEC61360="http://www.admin-shell.io/IEC61360/3/0" xmlns:Q1="http://www.admin-shell.io/aas/3/0">
+<schema elementFormDefault="qualified" targetNamespace="http://www.admin-shell.io/aas/3/0" xmlns="http://www.w3.org/2001/XMLSchema" xmlns:aas="http://www.admin-shell.io/aas/3/0" xmlns:IEC61360="http://www.admin-shell.io/IEC61360/3/0" xmlns:Q1="http://www.admin-shell.io/aas/3/0">
 
-	<import namespace="http://www.admin-shell.io/aas/abac/3/0" schemaLocation="AAS_ABAC.xsd"/>
 	<import namespace="http://www.admin-shell.io/IEC61360/3/0" schemaLocation="IEC61360.xsd"/>
 	
 	<attributeGroup name="keyTypes">
@@ -48,7 +47,6 @@
 		<sequence>
 			<group ref="aas:identifiable"/>
 			<group ref="aas:hasDataSpecification"/>
-			<element maxOccurs="1" minOccurs="0" name="security" type="abac:security_t"/>
 			<element maxOccurs="1" minOccurs="0" name="derivedFrom" type="aas:reference_t"/>
 			<element maxOccurs="1" minOccurs="0" name="submodelRefs" type="aas:submodelRefs_t"/>
 			<element maxOccurs="1" minOccurs="1" name="assetInformation" type="aas:assetInformation_t"/>

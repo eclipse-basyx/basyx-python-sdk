@@ -424,8 +424,6 @@ class AASToJsonEncoder(json.JSONEncoder):
             data["assetInformation"] = obj.asset_information
         if not cls.stripped and obj.submodel:
             data["submodels"] = list(obj.submodel)
-        if obj.security:
-            data["security"] = obj.security
         return data
 
     # #################################################################

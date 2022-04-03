@@ -494,8 +494,6 @@ def asset_administration_shell_to_xml(obj: model.AssetAdministrationShell,
     :return: Serialized ElementTree object
     """
     et_aas = abstract_classes_to_xml(tag, obj)
-    if obj.security:
-        et_aas.append(security_to_xml(obj.security, tag=NS_ABAC + "security"))
     if obj.derived_from:
         et_aas.append(reference_to_xml(obj.derived_from, tag=NS_AAS+"derivedFrom"))
     if obj.submodel:

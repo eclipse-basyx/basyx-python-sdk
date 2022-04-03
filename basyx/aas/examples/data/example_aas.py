@@ -608,7 +608,6 @@ def create_example_asset_administration_shell() -> \
         parent=None,
         administration=model.AdministrativeInformation(version='0.9',
                                                        revision='0'),
-        security=None,
         submodel={model.AASReference((model.Key(type_=model.KeyElements.SUBMODEL,
                                                 value='https://acplt.org/Test_Submodel',
                                                 id_type=model.KeyType.IRI),),

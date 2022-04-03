@@ -191,9 +191,6 @@
               "items": {
                 "$ref": "#/definitions/Reference"
               }
-            },
-            "security": {
-              "$ref": "#/definitions/Security"
             }
           },
 		  "required": [ "assetInformation" ]

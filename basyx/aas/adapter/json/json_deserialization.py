@@ -404,8 +404,6 @@ class AASFromJsonDecoder(json.JSONDecoder):
         if not cls.stripped and 'submodels' in dct:
             for sm_data in _get_ts(dct, 'submodels', list):
                 ret.submodel.add(cls._construct_aas_reference(sm_data, model.Submodel))
-        if 'security' in dct:
-            ret.security = cls._construct_security(_get_ts(dct, 'security', dict))
         if 'derivedFrom' in dct:
             ret.derived_from = cls._construct_aas_reference(_get_ts(dct, 'derivedFrom', dict),
                                                             model.AssetAdministrationShell)
