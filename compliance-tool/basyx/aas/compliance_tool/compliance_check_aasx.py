@@ -133,7 +133,6 @@ def check_schema(file_path: str, state_manager: ComplianceToolStateManager) -> N
         except IndexError as e:
             raise ValueError("Not a valid AASX file: aasx-origin Relationship is missing.") from e
         state_manager.set_step_status(Status.SUCCESS)
-        k: int = 0  # Counting variable
         for aas_part in reader.reader.get_related_parts_by_type(aasx_origin_part)[
                 aasx.RELATIONSHIP_TYPE_AAS_SPEC]:
             content_type = reader.reader.get_content_type(aas_part)
@@ -143,7 +142,7 @@ def check_schema(file_path: str, state_manager: ComplianceToolStateManager) -> N
                         "text/xml", "application/xml") or content_type == "" and extension == "xml":
                     logger.debug("Parsing AAS objects from XML stream in OPC part {} ...".format(aas_part))
                     compliance_check_xml._check_schema(p, state_manager)
-                elif content_type.split(";")[0] in ("text/json", "application/json") \
+                elif content_type.split(";")[0] == "application/json" \
                         or content_type == "" and extension == "json":
                     logger.debug("Parsing AAS objects from JSON stream in OPC part {} ...".format(aas_part))
                     compliance_check_json._check_schema(io.TextIOWrapper(p, encoding='utf-8-sig'), state_manager)

@@ -132,7 +132,7 @@ class ComplianceToolAASXTest(unittest.TestCase):
                       manager.format_step(4, verbose_level=1))
         self.assertEqual(Status.NOT_EXECUTED, manager.steps[5].status)
 
-    @unittest.skipIf(sys.version.startswith("3.6"), "The XML schema check fails for Python 3.6")
+    @unittest.skipIf((3, 6) <= sys.version_info < (3, 7), "The XML schema check fails for Python 3.6")
     def test_check_schema(self):
         manager = ComplianceToolStateManager()
         script_dir = os.path.dirname(__file__)
@@ -147,10 +147,8 @@ class ComplianceToolAASXTest(unittest.TestCase):
         file_path_3 = os.path.join(script_dir, 'files/test_demo_full_example2.aasx')
         compliance_tool.check_schema(file_path_3, manager)
         self.assertEqual(4, len(manager.steps))
-        self.assertEqual(Status.SUCCESS, manager.steps[0].status)
-        self.assertEqual(Status.SUCCESS, manager.steps[1].status)
-        self.assertEqual(Status.SUCCESS, manager.steps[2].status)
-        self.assertEqual(Status.SUCCESS, manager.steps[3].status)
+        for i in range(4):
+            self.assertEqual(Status.SUCCESS, manager.steps[i].status)
 
         manager.steps = []
         file_path_4 = os.path.join(script_dir, 'files/test_demo_full_example_wrong_attribute.aasx')
