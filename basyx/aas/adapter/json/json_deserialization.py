@@ -175,7 +175,7 @@ class AASFromJsonDecoder(json.JSONDecoder):
             'Submodel': cls._construct_submodel,
             'Capability': cls._construct_capability,
             'Entity': cls._construct_entity,
-            'BasicEvent': cls._construct_basic_event,
+            'BasicEventElement': cls._construct_basic_event_element,
             'Operation': cls._construct_operation,
             'RelationshipElement': cls._construct_relationship_element,
             'AnnotatedRelationshipElement': cls._construct_annotated_relationship_element,
@@ -524,7 +524,8 @@ class AASFromJsonDecoder(json.JSONDecoder):
         return ret
 
     @classmethod
-    def _construct_basic_event(cls, dct: Dict[str, object], object_class=model.BasicEvent) -> model.BasicEvent:
+    def _construct_basic_event_element(cls, dct: Dict[str, object], object_class=model.BasicEventElement) \
+            -> model.BasicEventElement:
         # TODO: remove the following type: ignore comments when mypy supports abstract types for Type[T]
         # see https://github.com/python/mypy/issues/5374
         ret = object_class(id_short=_get_ts(dct, "idShort", str),

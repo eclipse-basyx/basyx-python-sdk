@@ -47,7 +47,7 @@ KEY_ELEMENTS_CLASSES: Dict[Type[Referable], KeyElements] = {
     ConceptDescription: KeyElements.CONCEPT_DESCRIPTION,
     Submodel: KeyElements.SUBMODEL,
     Entity: KeyElements.ENTITY,
-    BasicEvent: KeyElements.BASIC_EVENT,
+    BasicEventElement: KeyElements.BASIC_EVENT_ELEMENT,
     Event: KeyElements.EVENT,
     Blob: KeyElements.BLOB,
     File: KeyElements.FILE,

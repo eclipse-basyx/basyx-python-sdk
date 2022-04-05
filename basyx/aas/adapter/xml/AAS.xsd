@@ -70,7 +70,7 @@
 			<element maxOccurs="unbounded" minOccurs="0" name="specificAssetId" type="aas:identifierKeyValuePair_t"/>
 		</sequence>
 	</complexType>
-	<complexType name="basicEvent_t">
+	<complexType name="basicEventElement_t">
 		<complexContent>
 			<extension base="aas:eventAbstract_t">
 				<sequence>
@@ -260,7 +260,7 @@
 							<enumeration value="AccessPermissionRule"/>
 							<enumeration value="AnnotatedRelationshipElement"/>
 							<enumeration value="AssetAdministrationShell"/>
-							<enumeration value="BasicEvent"/>
+							<enumeration value="BasicEventElement"/>
 							<enumeration value="Blob"/>
 							<enumeration value="Capability"/>
 							<enumeration value="ConceptDescription"/>
@@ -417,7 +417,7 @@
 	<complexType name="submodelElement_t">
 		<choice>
 			<element name="annotatedRelationshipElement" type="aas:annotatedRelationshipElement_t"/>
-			<element name="basicEvent" type="aas:basicEvent_t"/>
+			<element name="basicEventElement" type="aas:basicEventElement_t"/>
 			<element name="capability" type="aas:submodelElementAbstract_t"/>
 			<element name="entity" type="aas:entity_t"/>
 			<element name="operation" type="aas:operation_t"/>

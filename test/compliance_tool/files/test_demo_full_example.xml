@@ -672,17 +672,17 @@
           </aas:capability>
         </aas:submodelElement>
         <aas:submodelElement>
-          <aas:basicEvent>
-            <aas:idShort>ExampleBasicEvent</aas:idShort>
+          <aas:basicEventElement>
+            <aas:idShort>ExampleBasicEventElement</aas:idShort>
             <aas:category>PARAMETER</aas:category>
             <aas:description>
-              <aas:langString lang="en-us">Example BasicEvent object</aas:langString>
-              <aas:langString lang="de">Beispiel BasicEvent Element</aas:langString>
+              <aas:langString lang="en-us">Example BasicEventElement object</aas:langString>
+              <aas:langString lang="de">Beispiel BasicEventElement Element</aas:langString>
             </aas:description>
             <aas:kind>Instance</aas:kind>
             <aas:semanticId>
               <aas:keys>
-                <aas:key idType="IRI" type="GlobalReference">http://acplt.org/Events/ExampleBasicEvent</aas:key>
+                <aas:key idType="IRI" type="GlobalReference">http://acplt.org/Events/ExampleBasicEventElement</aas:key>
               </aas:keys>
             </aas:semanticId>
             <aas:observed>
@@ -690,7 +690,7 @@
                 <aas:key idType="IdShort" type="Property">ExampleProperty</aas:key>
               </aas:keys>
             </aas:observed>
-          </aas:basicEvent>
+          </aas:basicEventElement>
         </aas:submodelElement>
         <aas:submodelElement>
           <aas:submodelElementCollection>
@@ -931,15 +931,15 @@
           </aas:capability>
         </aas:submodelElement>
         <aas:submodelElement>
-          <aas:basicEvent>
-            <aas:idShort>ExampleBasicEvent</aas:idShort>
+          <aas:basicEventElement>
+            <aas:idShort>ExampleBasicEventElement</aas:idShort>
             <aas:kind>Instance</aas:kind>
             <aas:observed>
               <aas:keys>
                 <aas:key idType="IdShort" type="Property">ExampleProperty</aas:key>
               </aas:keys>
             </aas:observed>
-          </aas:basicEvent>
+          </aas:basicEventElement>
         </aas:submodelElement>
         <aas:submodelElement>
           <aas:submodelElementCollection>
@@ -1234,17 +1234,17 @@
           </aas:capability>
         </aas:submodelElement>
         <aas:submodelElement>
-          <aas:basicEvent>
-            <aas:idShort>ExampleBasicEvent</aas:idShort>
+          <aas:basicEventElement>
+            <aas:idShort>ExampleBasicEventElement</aas:idShort>
             <aas:category>PARAMETER</aas:category>
             <aas:description>
-              <aas:langString lang="en-us">Example BasicEvent object</aas:langString>
-              <aas:langString lang="de">Beispiel BasicEvent Element</aas:langString>
+              <aas:langString lang="en-us">Example BasicEventElement object</aas:langString>
+              <aas:langString lang="de">Beispiel BasicEventElement Element</aas:langString>
             </aas:description>
             <aas:kind>Instance</aas:kind>
             <aas:semanticId>
               <aas:keys>
-                <aas:key idType="IRI" type="GlobalReference">http://acplt.org/Events/ExampleBasicEvent</aas:key>
+                <aas:key idType="IRI" type="GlobalReference">http://acplt.org/Events/ExampleBasicEventElement</aas:key>
               </aas:keys>
             </aas:semanticId>
             <aas:observed>
@@ -1252,7 +1252,7 @@
                 <aas:key idType="IdShort" type="Property">ExampleProperty</aas:key>
               </aas:keys>
             </aas:observed>
-          </aas:basicEvent>
+          </aas:basicEventElement>
         </aas:submodelElement>
         <aas:submodelElement>
           <aas:submodelElementCollection>
@@ -1577,17 +1577,17 @@
           </aas:capability>
         </aas:submodelElement>
         <aas:submodelElement>
-          <aas:basicEvent>
-            <aas:idShort>ExampleBasicEvent</aas:idShort>
+          <aas:basicEventElement>
+            <aas:idShort>ExampleBasicEventElement</aas:idShort>
             <aas:category>PARAMETER</aas:category>
             <aas:description>
-              <aas:langString lang="en-us">Example BasicEvent object</aas:langString>
-              <aas:langString lang="de">Beispiel BasicEvent Element</aas:langString>
+              <aas:langString lang="en-us">Example BasicEventElement object</aas:langString>
+              <aas:langString lang="de">Beispiel BasicEventElement Element</aas:langString>
             </aas:description>
             <aas:kind>Template</aas:kind>
             <aas:semanticId>
               <aas:keys>
-                <aas:key idType="IRI" type="GlobalReference">http://acplt.org/Events/ExampleBasicEvent</aas:key>
+                <aas:key idType="IRI" type="GlobalReference">http://acplt.org/Events/ExampleBasicEventElement</aas:key>
               </aas:keys>
             </aas:semanticId>
             <aas:observed>
@@ -1595,7 +1595,7 @@
                 <aas:key idType="IdShort" type="Property">ExampleProperty</aas:key>
               </aas:keys>
             </aas:observed>
-          </aas:basicEvent>
+          </aas:basicEventElement>
         </aas:submodelElement>
         <aas:submodelElement>
           <aas:submodelElementCollection>

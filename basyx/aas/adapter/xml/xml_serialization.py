@@ -538,8 +538,8 @@ def submodel_element_to_xml(obj: model.SubmodelElement) -> etree.Element:
     """
     if isinstance(obj, model.DataElement):
         return data_element_to_xml(obj)
-    if isinstance(obj, model.BasicEvent):
-        return basic_event_to_xml(obj)
+    if isinstance(obj, model.BasicEventElement):
+        return basic_event_element_to_xml(obj)
     if isinstance(obj, model.Capability):
         return capability_to_xml(obj)
     if isinstance(obj, model.Entity):
@@ -816,18 +816,17 @@ def entity_to_xml(obj: model.Entity,
     return et_entity
 
 
-def basic_event_to_xml(obj: model.BasicEvent,
-                       tag: str = NS_AAS+"basicEvent") -> etree.Element:
+def basic_event_element_to_xml(obj: model.BasicEventElement, tag: str = NS_AAS+"basicEventElement") -> etree.Element:
     """
-    Serialization of objects of class :class:`~aas.model.submodel.BasicEvent` to XML
+    Serialization of objects of class :class:`~aas.model.submodel.BasicEventElement` to XML
 
-    :param obj: Object of class :class:`~aas.model.submodel.BasicEvent`
-    :param tag: Namespace+Tag of the serialized element (optional). Default is "aas.basicEvent"
+    :param obj: Object of class :class:`~aas.model.submodel.BasicEventElement`
+    :param tag: Namespace+Tag of the serialized element (optional). Default is "aas:basicEventElement"
     :return: Serialized ElementTree object
     """
-    et_basic_event = abstract_classes_to_xml(tag, obj)
-    et_basic_event.append(reference_to_xml(obj.observed, NS_AAS+"observed"))
-    return et_basic_event
+    et_basic_event_element = abstract_classes_to_xml(tag, obj)
+    et_basic_event_element.append(reference_to_xml(obj.observed, NS_AAS+"observed"))
+    return et_basic_event_element
 
 
 # ##############################################################

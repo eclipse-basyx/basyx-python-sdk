@@ -26,7 +26,7 @@ KEY_ELEMENTS: Dict[model.KeyElements, str] = {
     model.KeyElements.CONCEPT_DESCRIPTION: 'ConceptDescription',
     model.KeyElements.SUBMODEL: 'Submodel',
     model.KeyElements.ANNOTATED_RELATIONSHIP_ELEMENT: 'AnnotatedRelationshipElement',
-    model.KeyElements.BASIC_EVENT: 'BasicEvent',
+    model.KeyElements.BASIC_EVENT_ELEMENT: 'BasicEventElement',
     model.KeyElements.BLOB: 'Blob',
     model.KeyElements.CAPABILITY: 'Capability',
     model.KeyElements.CONCEPT_DICTIONARY: 'ConceptDictionary',

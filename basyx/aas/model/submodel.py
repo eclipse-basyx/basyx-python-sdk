@@ -1220,7 +1220,7 @@ class Event(SubmodelElement, metaclass=abc.ABCMeta):
         super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, kind, extension)
 
 
-class BasicEvent(Event):
+class BasicEventElement(Event):
     """
     An event
 

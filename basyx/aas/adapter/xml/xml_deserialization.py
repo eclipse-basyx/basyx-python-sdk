@@ -630,7 +630,7 @@ class AASFromXmlDecoder:
         # object_class_unordered
         submodel_elements: Dict[str, Callable[..., model.SubmodelElement]] = {
             "annotatedRelationshipElement": cls.construct_annotated_relationship_element,
-            "basicEvent": cls.construct_basic_event,
+            "basicEventElement": cls.construct_basic_event_element,
             "capability": cls.construct_capability,
             "entity": cls.construct_entity,
             "operation": cls.construct_operation,
@@ -705,15 +705,15 @@ class AASFromXmlDecoder:
         return annotated_relationship_element
 
     @classmethod
-    def construct_basic_event(cls, element: etree.Element, object_class=model.BasicEvent, **_kwargs: Any) \
-            -> model.BasicEvent:
-        basic_event = object_class(
+    def construct_basic_event_element(cls, element: etree.Element, object_class=model.BasicEventElement,
+                                      **_kwargs: Any) -> model.BasicEventElement:
+        basic_event_element = object_class(
             _child_text_mandatory(element, NS_AAS + "idShort"),
             _child_construct_mandatory(element, NS_AAS + "observed", cls._construct_referable_reference),
             kind=_get_modeling_kind(element)
         )
-        cls._amend_abstract_attributes(basic_event, element)
-        return basic_event
+        cls._amend_abstract_attributes(basic_event_element, element)
+        return basic_event_element
 
     @classmethod
     def construct_blob(cls, element: etree.Element, object_class=model.Blob, **_kwargs: Any) -> model.Blob:
@@ -1168,7 +1168,7 @@ class XMLConstructables(enum.Enum):
     SECURITY = enum.auto()
     OPERATION_VARIABLE = enum.auto()
     ANNOTATED_RELATIONSHIP_ELEMENT = enum.auto()
-    BASIC_EVENT = enum.auto()
+    BASIC_EVENT_ELEMENT = enum.auto()
     BLOB = enum.auto()
     CAPABILITY = enum.auto()
     ENTITY = enum.auto()
@@ -1234,8 +1234,8 @@ def read_aas_xml_element(file: IO, construct: XMLConstructables, failsafe: bool 
         constructor = decoder_.construct_operation_variable
     elif construct == XMLConstructables.ANNOTATED_RELATIONSHIP_ELEMENT:
         constructor = decoder_.construct_annotated_relationship_element
-    elif construct == XMLConstructables.BASIC_EVENT:
-        constructor = decoder_.construct_basic_event
+    elif construct == XMLConstructables.BASIC_EVENT_ELEMENT:
+        constructor = decoder_.construct_basic_event_element
     elif construct == XMLConstructables.BLOB:
         constructor = decoder_.construct_blob
     elif construct == XMLConstructables.CAPABILITY:

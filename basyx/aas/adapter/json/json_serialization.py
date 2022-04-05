@@ -87,8 +87,8 @@ class AASToJsonEncoder(json.JSONEncoder):
             return self._operation_variable_to_json(obj)
         if isinstance(obj, model.Capability):
             return self._capability_to_json(obj)
-        if isinstance(obj, model.BasicEvent):
-            return self._basic_event_to_json(obj)
+        if isinstance(obj, model.BasicEventElement):
+            return self._basic_event_element_to_json(obj)
         if isinstance(obj, model.Entity):
             return self._entity_to_json(obj)
         if isinstance(obj, model.ConceptDescription):
@@ -663,11 +663,11 @@ class AASToJsonEncoder(json.JSONEncoder):
         return {}
 
     @classmethod
-    def _basic_event_to_json(cls, obj: model.BasicEvent) -> Dict[str, object]:
+    def _basic_event_element_to_json(cls, obj: model.BasicEventElement) -> Dict[str, object]:
         """
-        serialization of an object from class BasicEvent to json
+        serialization of an object from class BasicEventElement to json
 
-        :param obj: object of class BasicEvent
+        :param obj: object of class BasicEventElement
         :return: dict with the serialized attributes of this object
         """
         data = cls._abstract_classes_to_json(obj)

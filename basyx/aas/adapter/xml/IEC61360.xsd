@@ -55,7 +55,7 @@
 							<enumeration value="AccessPermissionRule"/>
 							<enumeration value="AnnotatedRelationshipElement"/>
 							<enumeration value="AssetAdministrationShell"/>
-							<enumeration value="BasicEvent"/>
+							<enumeration value="BasicEventElement"/>
 							<enumeration value="Blob"/>
 							<enumeration value="Capability"/>
 							<enumeration value="ConceptDescription"/>

@@ -271,7 +271,7 @@
 		"Submodel",
 		"AccessPermissionRule",
 		"AnnotatedRelationshipElement",
-		"BasicEvent",
+		"BasicEventElement",
 		"Blob",
 		"Capability",
 		"DataElement",
@@ -298,7 +298,7 @@
 		"Submodel",
 		"AccessPermissionRule",
 		"AnnotatedRelationshipElement",
-		"BasicEvent",
+		"BasicEventElement",
 		"Blob",
 		"Capability",
 		"DataElement",
@@ -660,7 +660,7 @@
 			{ "$ref": "#/definitions/Capability" },
 			{ "$ref": "#/definitions/Entity" },
 			{ "$ref": "#/definitions/Event" },
-			{ "$ref": "#/definitions/BasicEvent" },
+			{ "$ref": "#/definitions/BasicEventElement" },
 			{ "$ref": "#/definitions/MultiLanguageProperty" },
 			{ "$ref": "#/definitions/Operation" },
 			{ "$ref": "#/definitions/Property" },
@@ -695,7 +695,7 @@
 	    { "$ref": "#/definitions/SubmodelElement" }
 	  ]
 	},
-	"BasicEvent": {
+	"BasicEventElement": {
 	  "allOf": [
 	    { "$ref": "#/definitions/Event" },
         { "properties": {
@@ -892,7 +892,7 @@
 		      	  { "$ref": "#/definitions/Capability" },
 		      	  { "$ref": "#/definitions/Entity" },
 		      	  { "$ref": "#/definitions/Event" },
-		      	  { "$ref": "#/definitions/BasicEvent" },
+			  { "$ref": "#/definitions/BasicEventElement" },
 		      	  { "$ref": "#/definitions/MultiLanguageProperty" },
 		      	  { "$ref": "#/definitions/Operation" },
 		      	  { "$ref": "#/definitions/Property" },

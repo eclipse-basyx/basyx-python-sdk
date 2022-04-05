@@ -117,8 +117,8 @@ class AASDataChecker(DataChecker):
                 return self.check_capability_equal(object_, expected_object)  # type: ignore
             if isinstance(object_, model.Entity):
                 return self.check_entity_equal(object_, expected_object)  # type: ignore
-            if isinstance(object_, model.BasicEvent):
-                return self.check_basic_event_equal(object_, expected_object)  # type: ignore
+            if isinstance(object_, model.BasicEventElement):
+                return self.check_basic_event_element_equal(object_, expected_object)  # type: ignore
             else:
                 raise AttributeError('Submodel Element class not implemented')
 
@@ -588,12 +588,13 @@ class AASDataChecker(DataChecker):
         """
         self._check_abstract_attributes_submodel_element_equal(object_, expected_value)
 
-    def check_basic_event_equal(self, object_: model.BasicEvent, expected_value: model.BasicEvent):
+    def check_basic_event_element_equal(self, object_: model.BasicEventElement,
+                                        expected_value: model.BasicEventElement):
         """
-        Checks if the given BasicEvent objects are equal
+        Checks if the given BasicEventElement objects are equal
 
-        :param object_: Given BasicEvent object to check
-        :param expected_value: expected BasicEvent object
+        :param object_: Given BasicEventElement object to check
+        :param expected_value: expected BasicEventElement object
         :return:
         """
         self._check_abstract_attributes_submodel_element_equal(object_, expected_value)

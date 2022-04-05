@@ -102,8 +102,8 @@ def create_example_submodel() -> model.Submodel:
     submodel_element_capability = model.Capability(
         id_short='ExampleCapability')
 
-    submodel_element_basic_event = model.BasicEvent(
-        id_short='ExampleBasicEvent',
+    submodel_element_basic_event_element = model.BasicEventElement(
+        id_short='ExampleBasicEventElement',
         observed=model.AASReference((model.Key(type_=model.KeyElements.PROPERTY,
                                                value='ExampleProperty',
                                                id_type=model.KeyType.IDSHORT),),
@@ -132,7 +132,7 @@ def create_example_submodel() -> model.Submodel:
                           submodel_element_annotated_relationship_element,
                           submodel_element_operation,
                           submodel_element_capability,
-                          submodel_element_basic_event,
+                          submodel_element_basic_event_element,
                           submodel_element_submodel_element_collection_ordered,
                           submodel_element_submodel_element_collection_unordered,
                           submodel_element_submodel_element_collection_unordered_2))

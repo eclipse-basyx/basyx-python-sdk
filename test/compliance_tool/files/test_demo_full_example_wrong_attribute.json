@@ -934,27 +934,27 @@
                     }
                 },
                 {
-                    "idShort": "ExampleBasicEvent",
+                    "idShort": "ExampleBasicEventElement",
                     "category": "PARAMETER",
                     "description": [
                         {
                             "language": "en-us",
-                            "text": "Example BasicEvent object"
+                            "text": "Example BasicEventElement object"
                         },
                         {
                             "language": "de",
-                            "text": "Beispiel BasicEvent Element"
+                            "text": "Beispiel BasicEventElement Element"
                         }
                     ],
                     "modelType": {
-                        "name": "BasicEvent"
+                        "name": "BasicEventElement"
                     },
                     "semanticId": {
                         "keys": [
                             {
                                 "type": "GlobalReference",
                                 "idType": "IRI",
-                                "value": "http://acplt.org/Events/ExampleBasicEvent"
+                                "value": "http://acplt.org/Events/ExampleBasicEventElement"
                             }
                         ]
                     },
@@ -1341,9 +1341,9 @@
                     }
                 },
                 {
-                    "idShort": "ExampleBasicEvent",
+                    "idShort": "ExampleBasicEventElement",
                     "modelType": {
-                        "name": "BasicEvent"
+                        "name": "BasicEventElement"
                     },
                     "observed": {
                         "keys": [
@@ -1794,27 +1794,27 @@
                     }
                 },
                 {
-                    "idShort": "ExampleBasicEvent",
+                    "idShort": "ExampleBasicEventElement",
                     "category": "PARAMETER",
                     "description": [
                         {
                             "language": "en-us",
-                            "text": "Example BasicEvent object"
+                            "text": "Example BasicEventElement object"
                         },
                         {
                             "language": "de",
-                            "text": "Beispiel BasicEvent Element"
+                            "text": "Beispiel BasicEventElement Element"
                         }
                     ],
                     "modelType": {
-                        "name": "BasicEvent"
+                        "name": "BasicEventElement"
                     },
                     "semanticId": {
                         "keys": [
                             {
                                 "type": "GlobalReference",
                                 "idType": "IRI",
-                                "value": "http://acplt.org/Events/ExampleBasicEvent"
+                                "value": "http://acplt.org/Events/ExampleBasicEventElement"
                             }
                         ]
                     },
@@ -2361,27 +2361,27 @@
                     "kind": "Template"
                 },
                 {
-                    "idShort": "ExampleBasicEvent",
+                    "idShort": "ExampleBasicEventElement",
                     "category": "PARAMETER",
                     "description": [
                         {
                             "language": "en-us",
-                            "text": "Example BasicEvent object"
+                            "text": "Example BasicEventElement object"
                         },
                         {
                             "language": "de",
-                            "text": "Beispiel BasicEvent Element"
+                            "text": "Beispiel BasicEventElement Element"
                         }
                     ],
                     "modelType": {
-                        "name": "BasicEvent"
+                        "name": "BasicEventElement"
                     },
                     "semanticId": {
                         "keys": [
                             {
                                 "type": "GlobalReference",
                                 "idType": "IRI",
-                                "value": "http://acplt.org/Events/ExampleBasicEvent"
+                                "value": "http://acplt.org/Events/ExampleBasicEventElement"
                             }
                         ]
                     },

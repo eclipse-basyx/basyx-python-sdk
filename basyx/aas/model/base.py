@@ -75,7 +75,7 @@ class KeyElements(Enum):
 
     :cvar ACCESS_PERMISSION_RULE: access permission rule
     :cvar ANNOTATED_RELATIONSHIP_ELEMENT: :class:`~aas.model.submodel.AnnotatedRelationshipElement`
-    :cvar BASIC_EVENT: :class:`~aas.model.submodel.BasicEvent`
+    :cvar BASIC_EVENT_ELEMENT: :class:`~aas.model.submodel.BasicEventElement`
     :cvar BLOB: :class:`~aas.model.submodel.Blob`
     :cvar CAPABILITY: :class:`~aas.model.submodel.Capability`
     :cvar CONCEPT_DICTIONARY: :class:`~aas.model.concept.ConceptDictionary`
@@ -110,7 +110,7 @@ class KeyElements(Enum):
     # ReferableElements starting from 1000
     ACCESS_PERMISSION_RULE = 1000
     ANNOTATED_RELATIONSHIP_ELEMENT = 1001
-    BASIC_EVENT = 1002
+    BASIC_EVENT_ELEMENT = 1002
     BLOB = 1003
     CAPABILITY = 1004
     CONCEPT_DICTIONARY = 1005
