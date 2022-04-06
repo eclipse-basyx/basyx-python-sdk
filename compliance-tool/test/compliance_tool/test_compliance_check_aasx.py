@@ -132,7 +132,7 @@ class ComplianceToolAASXTest(unittest.TestCase):
                       manager.format_step(4, verbose_level=1))
         self.assertEqual(Status.NOT_EXECUTED, manager.steps[5].status)
 
-    @unittest.skipIf((3, 6) <= sys.version_info < (3, 7), "The XML schema check fails for Python 3.6")
+    @unittest.skipIf(sys.version_info < (3, 7), "The XML schema check fails for Python <= 3.6")
     def test_check_schema(self):
         manager = ComplianceToolStateManager()
         script_dir = os.path.dirname(__file__)
