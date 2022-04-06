@@ -111,11 +111,10 @@
 			<element maxOccurs="unbounded" minOccurs="0" name="conceptDescription" type="aas:conceptDescription_t"/>
 		</sequence>
 	</complexType>
-	<complexType name="constraints_t">
-		<choice>
-			<element maxOccurs="unbounded" minOccurs="0" name="formula" type="aas:formula_t"/>
+	<complexType name="qualifiers_t">
+		<sequence>
 			<element maxOccurs="unbounded" minOccurs="0" name="qualifier" type="aas:qualifier_t"/>
-		</choice>
+		</sequence>
 	</complexType>
 	<complexType name="containedElements_t">
 		<sequence>
@@ -193,11 +192,6 @@
 				</sequence>
 			</extension>
 		</complexContent>
-	</complexType>
-	<complexType name="formula_t">
-		<sequence>
-			<element maxOccurs="1" minOccurs="0" name="dependsOnRefs" type="aas:references_t"/>
-		</sequence>
 	</complexType>
 	<complexType name="identification_t">
 		<simpleContent>
@@ -507,7 +501,7 @@
 	</group>
 	<group name="qualifiable">
 		<sequence>
-			<element maxOccurs="1" minOccurs="0" name="qualifiers" type="aas:constraints_t"/>
+			<element maxOccurs="1" minOccurs="0" name="qualifiers" type="aas:qualifiers_t"/>
 		</sequence>
 	</group>
 	<group name="referable">

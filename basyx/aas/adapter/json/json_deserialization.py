@@ -250,7 +250,7 @@ class AASFromJsonDecoder(json.JSONDecoder):
         if isinstance(obj, model.Qualifiable) and not cls.stripped:
             if 'qualifiers' in dct:
                 for constraint in _get_ts(dct, 'qualifiers', list):
-                    if _expect_type(constraint, model.Constraint, str(obj), cls.failsafe):
+                    if _expect_type(constraint, model.Qualifier, str(obj), cls.failsafe):
                         obj.qualifier.add(constraint)
 
         if isinstance(obj, model.HasExtension) and not cls.stripped:

@@ -417,7 +417,7 @@ class Identifier:
         return "Identifier({}={})".format(self.id_type.name, self.id)
 
 
-_NSO = TypeVar('_NSO', bound=Union["Referable", "Constraint", "HasSemantics", "Extension"])
+_NSO = TypeVar('_NSO', bound=Union["Referable", "Qualifier", "HasSemantics", "Extension"])
 
 
 class Namespace(metaclass=abc.ABCMeta):
@@ -1115,17 +1115,6 @@ class HasKind(metaclass=abc.ABCMeta):
         return self._kind
 
 
-class Constraint(metaclass=abc.ABCMeta):
-    """
-    A constraint is used to further qualify an element.
-
-    <<abstract>>
-    """
-    @abc.abstractmethod
-    def __init__(self):
-        pass
-
-
 class Qualifiable(Namespace, metaclass=abc.ABCMeta):
     """
     Abstract baseclass for all objects which form a Namespace to hold :class:`~.Qualifier` objects and resolve them by
@@ -1134,14 +1123,14 @@ class Qualifiable(Namespace, metaclass=abc.ABCMeta):
     <<abstract>>
 
     :ivar namespace_element_sets: A list of all :class:`NamespaceSets <.NamespaceSet>` of this Namespace
-    :ivar qualifier: Unordered list of :class:`Constraints <~.Constraint>` that gives additional qualification of a
+    :ivar qualifier: Unordered list of :class:`Qualifiers <~.Qualifier>` that gives additional qualification of a
         qualifiable element.
     """
     @abc.abstractmethod
     def __init__(self):
         super().__init__()
         self.namespace_element_sets: List[NamespaceSet] = []
-        self.qualifier: NamespaceSet[Constraint]
+        self.qualifier: NamespaceSet[Qualifier]
 
     def get_qualifier_by_type(self, qualifier_type: QualifierType) -> "Qualifier":
         """
@@ -1170,7 +1159,7 @@ class Qualifiable(Namespace, metaclass=abc.ABCMeta):
         return super()._remove_object(Qualifiable, "type", qualifier_type)
 
 
-class Qualifier(Constraint, HasSemantics):
+class Qualifier(HasSemantics):
     """
     A qualifier is a type-value pair that makes additional statements w.r.t. the value of the element.
 

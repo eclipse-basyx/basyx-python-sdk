@@ -64,9 +64,9 @@ class AASDataCheckerTest(unittest.TestCase):
         self.assertEqual(2, sum(1 for _ in checker.failed_checks))
         self.assertEqual(9, sum(1 for _ in checker.successful_checks))
         checker_iterator = checker.failed_checks
-        self.assertEqual("FAIL: Attribute qualifier of Property[Prop1] must contain 1 Constraints (count=0)",
+        self.assertEqual("FAIL: Attribute qualifier of Property[Prop1] must contain 1 Qualifiers (count=0)",
                          repr(next(checker_iterator)))
-        self.assertEqual("FAIL: Constraint Qualifier(type=test) must exist ()", repr(next(checker_iterator)))
+        self.assertEqual("FAIL: Qualifier(type=test) must exist ()", repr(next(checker_iterator)))
 
     def test_submodel_element_collection_ordered_checker(self):
         property = model.Property(

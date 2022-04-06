@@ -223,22 +223,6 @@ class AASToJsonEncoder(json.JSONEncoder):
         return data
 
     @classmethod
-    def _constraint_to_json(cls, obj: model.Constraint) -> Dict[str, object]:  # TODO check if correct for each class
-        """
-        serialization of an object from class Constraint to json
-
-        :param obj: object of class Constraint
-        :return: dict with the serialized attributes of this object
-        """
-        CONSTRAINT_CLASSES = [model.Qualifier]
-        try:
-            const_type = next(iter(t for t in inspect.getmro(type(obj)) if t in CONSTRAINT_CLASSES))
-        except StopIteration as e:
-            raise TypeError("Object of type {} is a Constraint but does not inherit from a known AAS Constraint type"
-                            .format(obj.__class__.__name__)) from e
-        return {'modelType': {'name': const_type.__name__}}
-
-    @classmethod
     def _namespace_to_json(cls, obj):  # not in specification yet
         """
         serialization of an object from class Namespace to json
@@ -258,7 +242,7 @@ class AASToJsonEncoder(json.JSONEncoder):
         :return: dict with the serialized attributes of this object
         """
         data = cls._abstract_classes_to_json(obj)
-        data.update(cls._constraint_to_json(obj))
+        data['modelType'] = {'name': model.Qualifier.__name__}
         if obj.value:
             data['value'] = model.datatypes.xsd_repr(obj.value) if obj.value is not None else None
         if obj.value_id:

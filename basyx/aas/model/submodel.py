@@ -40,7 +40,7 @@ class SubmodelElement(base.Referable, base.Qualifiable, base.HasSemantics, base.
                        element. The semantic id may either reference an external global id or it may reference a
                        referable model element of kind=Type that defines the semantics of the element.
                        (inherited from :class:`~aas.model.base.HasSemantics`)
-    :ivar qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
+    :ivar qualifier: Unordered list of Qualifiers that gives additional qualification of a qualifiable element.
                      (from :class:`~aas.model.base.Qualifiable`)
     :ivar kind: Kind of the element: Either `TYPE` or `INSTANCE`. Default is `INSTANCE`. (inherited from
                 :class:`aas.model.base.HasKind`)
@@ -55,7 +55,7 @@ class SubmodelElement(base.Referable, base.Qualifiable, base.HasSemantics, base.
                  description: Optional[base.LangStringSet] = None,
                  parent: Optional[base.UniqueIdShortNamespace] = None,
                  semantic_id: Optional[base.Reference] = None,
-                 qualifier: Iterable[base.Constraint] = (),
+                 qualifier: Iterable[base.Qualifier] = (),
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE,
                  extension: Iterable[base.Extension] = ()):
         """
@@ -100,7 +100,7 @@ class Submodel(base.Identifiable, base.HasSemantics, base.HasKind, base.Qualifia
                        element. The semantic id may either reference an external global id or it may reference a
                        referable model element of kind=Type that defines the semantics of the element.
                        (inherited from :class:`~aas.model.base.HasSemantics`)
-    :ivar qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
+    :ivar qualifier: Unordered list of Qualifiers that gives additional qualification of a qualifiable element.
                      (from :class:`~aas.model.base.Qualifiable`)
     :ivar kind: Kind of the element: Either `TYPE` or `INSTANCE`. Default is `INSTANCE`. (inherited from
                 :class:`aas.model.base.HasKind`)
@@ -118,7 +118,7 @@ class Submodel(base.Identifiable, base.HasSemantics, base.HasKind, base.Qualifia
                  parent: Optional[base.UniqueIdShortNamespace] = None,
                  administration: Optional[base.AdministrativeInformation] = None,
                  semantic_id: Optional[base.Reference] = None,
-                 qualifier: Iterable[base.Constraint] = (),
+                 qualifier: Iterable[base.Qualifier] = (),
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE,
                  extension: Iterable[base.Extension] = ()):
         super().__init__()
@@ -165,7 +165,7 @@ class DataElement(SubmodelElement, metaclass=abc.ABCMeta):
                        element. The semantic id may either reference an external global id or it may reference a
                        referable model element of kind=Type that defines the semantics of the element.
                        (inherited from :class:`~aas.model.base.HasSemantics`)
-    :ivar qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
+    :ivar qualifier: Unordered list of Qualifiers that gives additional qualification of a qualifiable element.
                      (from :class:`~aas.model.base.Qualifiable`)
     :ivar kind: Kind of the element: Either `TYPE` or `INSTANCE`. Default is `INSTANCE`. (inherited from
                 :class:`aas.model.base.HasKind`)
@@ -180,7 +180,7 @@ class DataElement(SubmodelElement, metaclass=abc.ABCMeta):
                  description: Optional[base.LangStringSet] = None,
                  parent: Optional[base.UniqueIdShortNamespace] = None,
                  semantic_id: Optional[base.Reference] = None,
-                 qualifier: Iterable[base.Constraint] = (),
+                 qualifier: Iterable[base.Qualifier] = (),
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE,
                  extension: Iterable[base.Extension] = ()):
         super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, kind, extension)
@@ -224,7 +224,7 @@ class Property(DataElement):
                        element. The semantic id may either reference an external global id or it may reference a
                        referable model element of kind=Type that defines the semantics of the element.
                        (inherited from :class:`~aas.model.base.HasSemantics`)
-    :ivar qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
+    :ivar qualifier: Unordered list of Qualifiers that gives additional qualification of a qualifiable element.
                      (from :class:`~aas.model.base.Qualifiable`)
     :ivar kind: Kind of the element: Either `TYPE` or `INSTANCE`. Default is `INSTANCE`. (inherited from
                 :class:`aas.model.base.HasKind`)
@@ -242,7 +242,7 @@ class Property(DataElement):
                  description: Optional[base.LangStringSet] = None,
                  parent: Optional[base.UniqueIdShortNamespace] = None,
                  semantic_id: Optional[base.Reference] = None,
-                 qualifier: Iterable[base.Constraint] = (),
+                 qualifier: Iterable[base.Qualifier] = (),
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE,
                  extension: Iterable[base.Extension] = ()):
         """
@@ -289,7 +289,7 @@ class MultiLanguageProperty(DataElement):
                        element. The semantic id may either reference an external global id or it may reference a
                        referable model element of kind=Type that defines the semantics of the element.
                        (inherited from :class:`~aas.model.base.HasSemantics`)
-    :ivar qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
+    :ivar qualifier: Unordered list of Qualifiers that gives additional qualification of a qualifiable element.
                      (from :class:`~aas.model.base.Qualifiable`)
     :ivar kind: Kind of the element: Either `TYPE` or `INSTANCE`. Default is `INSTANCE`. (inherited from
                 :class:`aas.model.base.HasKind`)
@@ -306,7 +306,7 @@ class MultiLanguageProperty(DataElement):
                  description: Optional[base.LangStringSet] = None,
                  parent: Optional[base.UniqueIdShortNamespace] = None,
                  semantic_id: Optional[base.Reference] = None,
-                 qualifier: Iterable[base.Constraint] = (),
+                 qualifier: Iterable[base.Qualifier] = (),
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE,
                  extension: Iterable[base.Extension] = ()):
         """
@@ -342,7 +342,7 @@ class Range(DataElement):
                        element. The semantic id may either reference an external global id or it may reference a
                        referable model element of kind=Type that defines the semantics of the element.
                        (inherited from :class:`~aas.model.base.HasSemantics`)
-    :ivar qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
+    :ivar qualifier: Unordered list of Qualifiers that gives additional qualification of a qualifiable element.
                      (from :class:`~aas.model.base.Qualifiable`)
     :ivar kind: Kind of the element: Either `TYPE` or `INSTANCE`. Default is `INSTANCE`. (inherited from
                 :class:`aas.model.base.HasKind`)
@@ -360,7 +360,7 @@ class Range(DataElement):
                  description: Optional[base.LangStringSet] = None,
                  parent: Optional[base.UniqueIdShortNamespace] = None,
                  semantic_id: Optional[base.Reference] = None,
-                 qualifier: Iterable[base.Constraint] = (),
+                 qualifier: Iterable[base.Qualifier] = (),
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE,
                  extension: Iterable[base.Extension] = ()):
         """
@@ -419,7 +419,7 @@ class Blob(DataElement):
                        element. The semantic id may either reference an external global id or it may reference a
                        referable model element of kind=Type that defines the semantics of the element.
                        (inherited from :class:`~aas.model.base.HasSemantics`)
-    :ivar qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
+    :ivar qualifier: Unordered list of Qualifiers that gives additional qualification of a qualifiable element.
                      (from :class:`~aas.model.base.Qualifiable`)
     :ivar kind: Kind of the element: Either `TYPE` or `INSTANCE`. Default is `INSTANCE`. (inherited from
                 :class:`aas.model.base.HasKind`)
@@ -436,7 +436,7 @@ class Blob(DataElement):
                  description: Optional[base.LangStringSet] = None,
                  parent: Optional[base.UniqueIdShortNamespace] = None,
                  semantic_id: Optional[base.Reference] = None,
-                 qualifier: Iterable[base.Constraint] = (),
+                 qualifier: Iterable[base.Qualifier] = (),
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE,
                  extension: Iterable[base.Extension] = ()):
         """
@@ -467,7 +467,7 @@ class File(DataElement):
                        element. The semantic id may either reference an external global id or it may reference a
                        referable model element of kind=Type that defines the semantics of the element.
                        (inherited from :class:`~aas.model.base.HasSemantics`)
-    :ivar qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
+    :ivar qualifier: Unordered list of Qualifiers that gives additional qualification of a qualifiable element.
                      (from :class:`~aas.model.base.Qualifiable`)
     :ivar kind: Kind of the element: Either `TYPE` or `INSTANCE`. Default is `INSTANCE`. (inherited from
                 :class:`aas.model.base.HasKind`)
@@ -484,7 +484,7 @@ class File(DataElement):
                  description: Optional[base.LangStringSet] = None,
                  parent: Optional[base.UniqueIdShortNamespace] = None,
                  semantic_id: Optional[base.Reference] = None,
-                 qualifier: Iterable[base.Constraint] = (),
+                 qualifier: Iterable[base.Qualifier] = (),
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE,
                  extension: Iterable[base.Extension] = ()):
         """
@@ -516,7 +516,7 @@ class ReferenceElement(DataElement):
                        element. The semantic id may either reference an external global id or it may reference a
                        referable model element of kind=Type that defines the semantics of the element.
                        (inherited from :class:`~aas.model.base.HasSemantics`)
-    :ivar qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
+    :ivar qualifier: Unordered list of Qualifiers that gives additional qualification of a qualifiable element.
                      (from :class:`~aas.model.base.Qualifiable`)
     :ivar kind: Kind of the element: Either `TYPE` or `INSTANCE`. Default is `INSTANCE`. (inherited from
                 :class:`aas.model.base.HasKind`)
@@ -532,7 +532,7 @@ class ReferenceElement(DataElement):
                  description: Optional[base.LangStringSet] = None,
                  parent: Optional[base.UniqueIdShortNamespace] = None,
                  semantic_id: Optional[base.Reference] = None,
-                 qualifier: Iterable[base.Constraint] = (),
+                 qualifier: Iterable[base.Qualifier] = (),
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE,
                  extension: Iterable[base.Extension] = ()):
         """
@@ -563,7 +563,7 @@ class SubmodelElementCollection(SubmodelElement, metaclass=abc.ABCMeta):
                        element. The semantic id may either reference an external global id or it may reference a
                        referable model element of kind=Type that defines the semantics of the element.
                        (inherited from :class:`~aas.model.base.HasSemantics`)
-    :ivar qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
+    :ivar qualifier: Unordered list of Qualifiers that gives additional qualification of a qualifiable element.
                      (from :class:`~aas.model.base.Qualifiable`)
     :ivar kind: Kind of the element: Either `TYPE` or `INSTANCE`. Default is `INSTANCE`. (inherited from
                 :class:`aas.model.base.HasKind`)
@@ -578,7 +578,7 @@ class SubmodelElementCollection(SubmodelElement, metaclass=abc.ABCMeta):
                  description: Optional[base.LangStringSet] = None,
                  parent: Optional[base.UniqueIdShortNamespace] = None,
                  semantic_id: Optional[base.Reference] = None,
-                 qualifier: Iterable[base.Constraint] = (),
+                 qualifier: Iterable[base.Qualifier] = (),
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE,
                  extension: Iterable[base.Extension] = ()):
         """
@@ -605,7 +605,7 @@ class SubmodelElementCollection(SubmodelElement, metaclass=abc.ABCMeta):
                description: Optional[base.LangStringSet] = None,
                parent: Optional[base.UniqueIdShortNamespace] = None,
                semantic_id: Optional[base.Reference] = None,
-               qualifier: Iterable[base.Constraint] = (),
+               qualifier: Iterable[base.Qualifier] = (),
                kind: base.ModelingKind = base.ModelingKind.INSTANCE,
                extension: Iterable[base.Extension] = (),
                allow_duplicates: bool = False,
@@ -625,7 +625,7 @@ class SubmodelElementCollection(SubmodelElement, metaclass=abc.ABCMeta):
                             element. The semantic id may either reference an external global id or it may reference
                             a referable model element of kind=Type that defines the semantics of the element.
                             (from base.HasSemantics)
-        :param qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable
+        :param qualifier: Unordered list of Qualifiers that gives additional qualification of a qualifiable
                           element. (from base.Qualifiable)
         :param kind: Kind of the element: either type or instance. Default = Instance. (from base.HasKind)
         :param extension: An extension of the element. (from base.HasExtension)
@@ -672,7 +672,7 @@ class SubmodelElementCollectionOrdered(SubmodelElementCollection, base.UniqueIdS
                        element. The semantic id may either reference an external global id or it may reference a
                        referable model element of kind=Type that defines the semantics of the element.
                        (inherited from :class:`~aas.model.base.HasSemantics`)
-    :ivar qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
+    :ivar qualifier: Unordered list of Qualifiers that gives additional qualification of a qualifiable element.
                      (from :class:`~aas.model.base.Qualifiable`)
     :ivar kind: Kind of the element: Either `TYPE` or `INSTANCE`. Default is `INSTANCE`. (inherited from
                 :class:`aas.model.base.HasKind`)
@@ -687,7 +687,7 @@ class SubmodelElementCollectionOrdered(SubmodelElementCollection, base.UniqueIdS
                  description: Optional[base.LangStringSet] = None,
                  parent: Optional[base.UniqueIdShortNamespace] = None,
                  semantic_id: Optional[base.Reference] = None,
-                 qualifier: Iterable[base.Constraint] = (),
+                 qualifier: Iterable[base.Qualifier] = (),
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE,
                  extension: Iterable[base.Extension] = ()):
         """
@@ -726,7 +726,7 @@ class SubmodelElementCollectionOrderedUniqueSemanticId(SubmodelElementCollection
                        element. The semantic id may either reference an external global id or it may reference a
                        referable model element of kind=Type that defines the semantics of the element.
                        (inherited from :class:`~aas.model.base.HasSemantics`)
-    :ivar qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
+    :ivar qualifier: Unordered list of Qualifiers that gives additional qualification of a qualifiable element.
                      (from :class:`~aas.model.base.Qualifiable`)
     :ivar kind: Kind of the element: Either `TYPE` or `INSTANCE`. Default is `INSTANCE`. (inherited from
                 :class:`aas.model.base.HasKind`)
@@ -742,7 +742,7 @@ class SubmodelElementCollectionOrderedUniqueSemanticId(SubmodelElementCollection
                  description: Optional[base.LangStringSet] = None,
                  parent: Optional[base.UniqueIdShortNamespace] = None,
                  semantic_id: Optional[base.Reference] = None,
-                 qualifier: Iterable[base.Constraint] = (),
+                 qualifier: Iterable[base.Qualifier] = (),
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE,
                  extension: Iterable[base.Extension] = ()):
         """
@@ -778,7 +778,7 @@ class SubmodelElementCollectionUnordered(SubmodelElementCollection, base.UniqueI
                        element. The semantic id may either reference an external global id or it may reference a
                        referable model element of kind=Type that defines the semantics of the element.
                        (inherited from :class:`~aas.model.base.HasSemantics`)
-    :ivar qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
+    :ivar qualifier: Unordered list of Qualifiers that gives additional qualification of a qualifiable element.
                      (from :class:`~aas.model.base.Qualifiable`)
     :ivar kind: Kind of the element: Either `TYPE` or `INSTANCE`. Default is `INSTANCE`. (inherited from
                 :class:`aas.model.base.HasKind`)
@@ -794,7 +794,7 @@ class SubmodelElementCollectionUnordered(SubmodelElementCollection, base.UniqueI
                  description: Optional[base.LangStringSet] = None,
                  parent: Optional[base.UniqueIdShortNamespace] = None,
                  semantic_id: Optional[base.Reference] = None,
-                 qualifier: Iterable[base.Constraint] = (),
+                 qualifier: Iterable[base.Qualifier] = (),
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE,
                  extension: Iterable[base.Extension] = ()):
         """
@@ -832,7 +832,7 @@ class SubmodelElementCollectionUnorderedUniqueSemanticId(SubmodelElementCollecti
                        element. The semantic id may either reference an external global id or it may reference a
                        referable model element of kind=Type that defines the semantics of the element.
                        (inherited from :class:`~aas.model.base.HasSemantics`)
-    :ivar qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
+    :ivar qualifier: Unordered list of Qualifiers that gives additional qualification of a qualifiable element.
                      (from :class:`~aas.model.base.Qualifiable`)
     :ivar kind: Kind of the element: Either `TYPE` or `INSTANCE`. Default is `INSTANCE`. (inherited from
                 :class:`aas.model.base.HasKind`)
@@ -848,7 +848,7 @@ class SubmodelElementCollectionUnorderedUniqueSemanticId(SubmodelElementCollecti
                  description: Optional[base.LangStringSet] = None,
                  parent: Optional[base.UniqueIdShortNamespace] = None,
                  semantic_id: Optional[base.Reference] = None,
-                 qualifier: Iterable[base.Constraint] = (),
+                 qualifier: Iterable[base.Qualifier] = (),
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE,
                  extension: Iterable[base.Extension] = ()):
         """
@@ -886,7 +886,7 @@ class RelationshipElement(SubmodelElement):
                        element. The semantic id may either reference an external global id or it may reference a
                        referable model element of kind=Type that defines the semantics of the element.
                        (inherited from :class:`~aas.model.base.HasSemantics`)
-    :ivar qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
+    :ivar qualifier: Unordered list of Qualifiers that gives additional qualification of a qualifiable element.
                      (from :class:`~aas.model.base.Qualifiable`)
     :ivar kind: Kind of the element: Either `TYPE` or `INSTANCE`. Default is `INSTANCE`. (inherited from
                 :class:`aas.model.base.HasKind`)
@@ -903,7 +903,7 @@ class RelationshipElement(SubmodelElement):
                  description: Optional[base.LangStringSet] = None,
                  parent: Optional[base.UniqueIdShortNamespace] = None,
                  semantic_id: Optional[base.Reference] = None,
-                 qualifier: Iterable[base.Constraint] = (),
+                 qualifier: Iterable[base.Qualifier] = (),
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE,
                  extension: Iterable[base.Extension] = ()):
         """
@@ -939,7 +939,7 @@ class AnnotatedRelationshipElement(RelationshipElement, base.UniqueIdShortNamesp
                        element. The semantic id may either reference an external global id or it may reference a
                        referable model element of kind=Type that defines the semantics of the element.
                        (inherited from :class:`~aas.model.base.HasSemantics`)
-    :ivar qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
+    :ivar qualifier: Unordered list of Qualifiers that gives additional qualification of a qualifiable element.
                      (from :class:`~aas.model.base.Qualifiable`)
     :ivar kind: Kind of the element: Either `TYPE` or `INSTANCE`. Default is `INSTANCE`. (inherited from
                 :class:`aas.model.base.HasKind`)
@@ -957,7 +957,7 @@ class AnnotatedRelationshipElement(RelationshipElement, base.UniqueIdShortNamesp
                  description: Optional[base.LangStringSet] = None,
                  parent: Optional[base.UniqueIdShortNamespace] = None,
                  semantic_id: Optional[base.Reference] = None,
-                 qualifier: Iterable[base.Constraint] = (),
+                 qualifier: Iterable[base.Qualifier] = (),
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE,
                  extension: Iterable[base.Extension] = ()):
         """
@@ -1026,7 +1026,7 @@ class Operation(SubmodelElement):
                        element. The semantic id may either reference an external global id or it may reference a
                        referable model element of kind=Type that defines the semantics of the element.
                        (inherited from :class:`~aas.model.base.HasSemantics`)
-    :ivar qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
+    :ivar qualifier: Unordered list of Qualifiers that gives additional qualification of a qualifiable element.
                      (from :class:`~aas.model.base.Qualifiable`)
     :ivar kind: Kind of the element: Either `TYPE` or `INSTANCE`. Default is `INSTANCE`. (inherited from
                 :class:`aas.model.base.HasKind`)
@@ -1043,7 +1043,7 @@ class Operation(SubmodelElement):
                  description: Optional[base.LangStringSet] = None,
                  parent: Optional[base.UniqueIdShortNamespace] = None,
                  semantic_id: Optional[base.Reference] = None,
-                 qualifier: Iterable[base.Constraint] = (),
+                 qualifier: Iterable[base.Qualifier] = (),
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE,
                  extension: Iterable[base.Extension] = ()):
         """
@@ -1074,7 +1074,7 @@ class Capability(SubmodelElement):
                        element. The semantic id may either reference an external global id or it may reference a
                        referable model element of kind=Type that defines the semantics of the element.
                        (inherited from :class:`~aas.model.base.HasSemantics`)
-    :ivar qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
+    :ivar qualifier: Unordered list of Qualifiers that gives additional qualification of a qualifiable element.
                      (from :class:`~aas.model.base.Qualifiable`)
     :ivar kind: Kind of the element: Either `TYPE` or `INSTANCE`. Default is `INSTANCE`. (inherited from
                 :class:`aas.model.base.HasKind`)
@@ -1089,7 +1089,7 @@ class Capability(SubmodelElement):
                  description: Optional[base.LangStringSet] = None,
                  parent: Optional[base.UniqueIdShortNamespace] = None,
                  semantic_id: Optional[base.Reference] = None,
-                 qualifier: Iterable[base.Constraint] = (),
+                 qualifier: Iterable[base.Qualifier] = (),
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE,
                  extension: Iterable[base.Extension] = ()):
         """
@@ -1130,7 +1130,7 @@ class Entity(SubmodelElement, base.UniqueIdShortNamespace):
                        element. The semantic id may either reference an external global id or it may reference a
                        referable model element of kind=Type that defines the semantics of the element.
                        (inherited from :class:`~aas.model.base.HasSemantics`)
-    :ivar qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
+    :ivar qualifier: Unordered list of Qualifiers that gives additional qualification of a qualifiable element.
                      (from :class:`~aas.model.base.Qualifiable`)
     :ivar kind: Kind of the element: Either `TYPE` or `INSTANCE`. Default is `INSTANCE`. (inherited from
                 :class:`aas.model.base.HasKind`)
@@ -1149,7 +1149,7 @@ class Entity(SubmodelElement, base.UniqueIdShortNamespace):
                  description: Optional[base.LangStringSet] = None,
                  parent: Optional[base.UniqueIdShortNamespace] = None,
                  semantic_id: Optional[base.Reference] = None,
-                 qualifier: Iterable[base.Constraint] = (),
+                 qualifier: Iterable[base.Qualifier] = (),
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE,
                  extension: Iterable[base.Extension] = ()):
         """
@@ -1199,7 +1199,7 @@ class Event(SubmodelElement, metaclass=abc.ABCMeta):
                        element. The semantic id may either reference an external global id or it may reference a
                        referable model element of kind=Type that defines the semantics of the element.
                        (inherited from :class:`~aas.model.base.HasSemantics`)
-    :ivar qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
+    :ivar qualifier: Unordered list of Qualifiers that gives additional qualification of a qualifiable element.
                      (from :class:`~aas.model.base.Qualifiable`)
     :ivar kind: Kind of the element: Either `TYPE` or `INSTANCE`. Default is `INSTANCE`. (inherited from
                 :class:`aas.model.base.HasKind`)
@@ -1214,7 +1214,7 @@ class Event(SubmodelElement, metaclass=abc.ABCMeta):
                  description: Optional[base.LangStringSet] = None,
                  parent: Optional[base.UniqueIdShortNamespace] = None,
                  semantic_id: Optional[base.Reference] = None,
-                 qualifier: Iterable[base.Constraint] = (),
+                 qualifier: Iterable[base.Qualifier] = (),
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE,
                  extension: Iterable[base.Extension] = ()):
         super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, kind, extension)
@@ -1238,7 +1238,7 @@ class BasicEventElement(Event):
                        element. The semantic id may either reference an external global id or it may reference a
                        referable model element of kind=Type that defines the semantics of the element.
                        (inherited from :class:`~aas.model.base.HasSemantics`)
-    :ivar qualifier: Unordered list of Constraints that gives additional qualification of a qualifiable element.
+    :ivar qualifier: Unordered list of Qualifiers that gives additional qualification of a qualifiable element.
                      (from :class:`~aas.model.base.Qualifiable`)
     :ivar kind: Kind of the element: Either `TYPE` or `INSTANCE`. Default is `INSTANCE`. (inherited from
                 :class:`aas.model.base.HasKind`)
@@ -1254,7 +1254,7 @@ class BasicEventElement(Event):
                  description: Optional[base.LangStringSet] = None,
                  parent: Optional[base.UniqueIdShortNamespace] = None,
                  semantic_id: Optional[base.Reference] = None,
-                 qualifier: Iterable[base.Constraint] = (),
+                 qualifier: Iterable[base.Qualifier] = (),
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE,
                  extension: Iterable[base.Extension] = ()):
         """

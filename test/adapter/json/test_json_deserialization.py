@@ -278,7 +278,7 @@ class JsonDeserializationStrippedObjectsTest(unittest.TestCase):
                 }]
             }"""
 
-        # check if JSON with constraints can be parsed successfully
+        # check if JSON with qualifiers can be parsed successfully
         submodel = json.loads(data, cls=StrictAASFromJsonDecoder)
         self.assertIsInstance(submodel, model.Submodel)
         assert isinstance(submodel, model.Submodel)
@@ -286,7 +286,7 @@ class JsonDeserializationStrippedObjectsTest(unittest.TestCase):
         operation = submodel.submodel_element.pop()
         self.assertEqual(len(operation.qualifier), 1)
 
-        # check if constraints are ignored in stripped mode
+        # check if qualifiers are ignored in stripped mode
         submodel = json.loads(data, cls=StrictStrippedAASFromJsonDecoder)
         self.assertIsInstance(submodel, model.Submodel)
         assert isinstance(submodel, model.Submodel)

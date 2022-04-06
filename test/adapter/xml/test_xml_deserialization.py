@@ -208,19 +208,19 @@ class XmlDeserializationTest(unittest.TestCase):
         """)
         self._assertInExceptionAndLog(xml, "aas:invalidSubmodelElement", KeyError, logging.ERROR)
 
-    def test_invalid_constraint(self) -> None:
+    def test_empty_qualifier(self) -> None:
         xml = _xml_wrap("""
         <aas:submodels>
             <aas:submodel>
                 <aas:identification idType="IRI">http://acplt.org/test_submodel</aas:identification>
                 <aas:submodelElements/>
                 <aas:qualifiers>
-                    <aas:invalidConstraint/>
+                    <aas:qualifier/>
                 </aas:qualifiers>
             </aas:submodel>
         </aas:submodels>
         """)
-        self._assertInExceptionAndLog(xml, "aas:invalidConstraint", KeyError, logging.ERROR)
+        self._assertInExceptionAndLog(xml, ["aas:qualifier", "has no child aas:type"], KeyError, logging.ERROR)
 
     def test_operation_variable_no_submodel_element(self) -> None:
         # TODO: simplify this should our suggestion regarding the XML schema get accepted
@@ -386,7 +386,7 @@ class XmlDeserializationStrippedObjectsTest(unittest.TestCase):
         """
         bytes_io = io.BytesIO(xml.encode("utf-8"))
 
-        # check if XML with constraints can be parsed successfully
+        # check if XML with qualifiers can be parsed successfully
         submodel = read_aas_xml_element(bytes_io, XMLConstructables.SUBMODEL, failsafe=False)
         self.assertIsInstance(submodel, model.Submodel)
         assert isinstance(submodel, model.Submodel)
@@ -394,7 +394,7 @@ class XmlDeserializationStrippedObjectsTest(unittest.TestCase):
         operation = submodel.submodel_element.pop()
         self.assertEqual(len(operation.qualifier), 1)
 
-        # check if constraints are ignored in stripped mode
+        # check if qualifiers are ignored in stripped mode
         submodel = read_aas_xml_element(bytes_io, XMLConstructables.SUBMODEL, failsafe=False, stripped=True)
         self.assertIsInstance(submodel, model.Submodel)
         assert isinstance(submodel, model.Submodel)

@@ -179,14 +179,14 @@ class AASDataChecker(DataChecker):
         :param expected_object: The expected qualifiable object
         :return: The value of expression to be used in control statements
         """
-        self.check_contained_element_length(object_, 'qualifier', model.Constraint, len(expected_object.qualifier))
+        self.check_contained_element_length(object_, 'qualifier', model.Qualifier, len(expected_object.qualifier))
         for expected_element in expected_object.qualifier:
             element = self._find_element_by_attribute(expected_element, list(object_.qualifier), 'type')
-            if self.check(element is not None, 'Constraint {} must exist'.format(repr(expected_element))):
+            if self.check(element is not None, '{} must exist'.format(repr(expected_element))):
                 if isinstance(element, model.Qualifier):
                     self._check_qualifier_equal(element, expected_element)  # type: ignore
                 else:
-                    raise TypeError('Constraint class not implemented')
+                    raise TypeError('Qualifier class not implemented')
 
         found_elements = self._find_extra_elements_by_attribute(list(object_.qualifier),
                                                                 list(expected_object.qualifier), 'type')

@@ -72,7 +72,7 @@
 	    "qualifiers": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/Constraint"
+            "$ref": "#/definitions/Qualifier"
           }
         }
 	  }
@@ -315,8 +315,6 @@
 		"SubmodelElementCollection",
         "GlobalReference",
 		"FragmentReference",
-		"Constraint",
-		"Formula",
 		"Qualifier"
       ]
     },
@@ -614,15 +612,6 @@
           }
 	    }
 	  ]
-    },
-    "Constraint": {
-      "type": "object",
-      "properties": {
-        "modelType": {
-          "$ref": "#/definitions/ModelType"
-        }
-      },
-	  "required": [ "modelType" ]
     },
     "Operation": {
 	  "allOf": [
@@ -951,29 +940,17 @@
 	},
     "Qualifier": {
 	  "allOf": [
-	    { "$ref": "#/definitions/Constraint" },
 	    { "$ref": "#/definitions/HasSemantics" },
         { "$ref": "#/definitions/ValueObject" },
 		{ "properties": {
+            "modelType": {
+              "$ref": "#/definitions/ModelType"
+            },
 			"type": {
               "type": "string"
             }
           },
-		  "required": [ "type" ]
-        }
-	  ]
-    },
-    "Formula": {
-	  "allOf": [
-	    { "$ref": "#/definitions/Constraint" },
-		{ "properties": {
-			"dependsOn": {
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/Reference"
-              }
-            }
-          }
+		  "required": [ "type", "modelType" ]
         }
 	  ]
     },

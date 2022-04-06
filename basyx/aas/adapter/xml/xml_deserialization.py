@@ -449,8 +449,8 @@ class AASFromXmlDecoder:
         if isinstance(obj, model.Qualifiable) and not cls.stripped:
             qualifiers_elem = element.find(NS_AAS + "qualifiers")
             if qualifiers_elem is not None and len(qualifiers_elem) > 0:
-                for constraint in _failsafe_construct_multiple(qualifiers_elem, cls.construct_constraint, cls.failsafe):
-                    obj.qualifier.add(constraint)
+                for qualifier in _failsafe_construct_multiple(qualifiers_elem, cls.construct_qualifier, cls.failsafe):
+                    obj.qualifier.add(qualifier)
         if isinstance(obj, model.HasExtension) and not cls.stripped:
             extension_elem = element.find(NS_AAS + "extension")
             if extension_elem is not None:
@@ -660,19 +660,6 @@ class AASFromXmlDecoder:
         if element.tag not in data_elements:
             raise KeyError(_element_pretty_identifier(element) + f" is not a valid {abstract_class_name}!")
         return data_elements[element.tag](element, **kwargs)
-
-    @classmethod
-    def construct_constraint(cls, element: etree.Element, **kwargs: Any) -> model.Constraint:
-        """
-        This function does not support the object_class parameter.
-        Overwrite construct_formula or construct_qualifier instead.
-        """
-        constraints: Dict[str, Callable[..., model.Constraint]] = {NS_AAS + k: v for k, v in {
-            "qualifier": cls.construct_qualifier
-        }.items()}
-        if element.tag not in constraints:
-            raise KeyError(_element_pretty_identifier(element) + " is not a valid Constraint!")
-        return constraints[element.tag](element, **kwargs)
 
     @classmethod
     def construct_operation_variable(cls, element: etree.Element, object_class=model.OperationVariable,
@@ -1188,7 +1175,6 @@ class XMLConstructables(enum.Enum):
     VALUE_REFERENCE_PAIR = enum.auto()
     IEC61360_CONCEPT_DESCRIPTION = enum.auto()
     CONCEPT_DESCRIPTION = enum.auto()
-    CONSTRAINT = enum.auto()
     DATA_ELEMENT = enum.auto()
     SUBMODEL_ELEMENT = enum.auto()
     VALUE_LIST = enum.auto()
@@ -1275,8 +1261,6 @@ def read_aas_xml_element(file: IO, construct: XMLConstructables, failsafe: bool 
     elif construct == XMLConstructables.CONCEPT_DESCRIPTION:
         constructor = decoder_.construct_concept_description
     # the following constructors decide which constructor to call based on the elements tag
-    elif construct == XMLConstructables.CONSTRAINT:
-        constructor = decoder_.construct_constraint
     elif construct == XMLConstructables.DATA_ELEMENT:
         constructor = decoder_.construct_data_element
     elif construct == XMLConstructables.SUBMODEL_ELEMENT:
