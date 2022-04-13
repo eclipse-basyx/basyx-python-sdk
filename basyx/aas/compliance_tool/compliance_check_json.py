@@ -24,7 +24,7 @@ by adding new steps and associated LogRecords
 """
 import json
 import logging
-from typing import Optional
+from typing import Optional, IO
 
 from .. import model
 from ..adapter.json import json_deserialization, JSON_SCHEMA_FILE
@@ -61,6 +61,15 @@ def check_schema(file_path: str, state_manager: ComplianceToolStateManager) -> N
         state_manager.add_step('Validate file against official json schema')
         state_manager.set_step_status(Status.NOT_EXECUTED)
         return
+    return _check_schema(file_to_be_checked, state_manager)
+
+
+def _check_schema(file_to_be_checked: IO[str], state_manager: ComplianceToolStateManager):
+    logger = logging.getLogger('compliance_check')
+    logger.addHandler(state_manager)
+    logger.propagate = False
+    logger.setLevel(logging.INFO)
+
     try:
         with file_to_be_checked:
             state_manager.set_step_status(Status.SUCCESS)
