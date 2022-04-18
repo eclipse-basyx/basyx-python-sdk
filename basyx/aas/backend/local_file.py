@@ -46,8 +46,7 @@ class LocalFileBackend(backends.Backend):
         if not isinstance(store_object, model.Identifiable):
             raise FileBackendSourceError("The given store_object is not Identifiable, therefore cannot be found "
                                          "in the FileBackend")
-        file_name: str = store_object.source.removeprefix("file://localhost/")  # type: ignore
-        # Known bug in mypy v0.761: Does not know of the str.removeprefix() function
+        file_name: str = store_object.source.replace("file://localhost/", "")
         with open(file_name, "r") as file:
             data = json.load(file, cls=json_deserialization.AASFromJsonDecoder)
             updated_store_object = data["data"]
@@ -61,8 +60,7 @@ class LocalFileBackend(backends.Backend):
         if not isinstance(store_object, model.Identifiable):
             raise FileBackendSourceError("The given store_object is not Identifiable, therefore cannot be found "
                                          "in the FileBackend")
-        file_name: str = store_object.source.removeprefix("file://localhost/")  # type: ignore
-        # Known bug in mypy v0.761: Does not know of the str.removeprefix() function
+        file_name: str = store_object.source.replace("file://localhost/", "")
         with open(file_name, "w") as file:
             json.dump({'data': store_object}, file, cls=json_serialization.AASToJsonEncoder, indent=4)
 
