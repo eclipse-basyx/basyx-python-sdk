@@ -9,14 +9,17 @@
 This module adds the functionality of storing and retrieving :class:`~aas.model.base.Identifiable` objects in local
 files.
 
-The :class:`~.FileBackend` takes care of updating and committing objects from and to the files, while the
-:class:`~FileObjectStore` handles adding, deleting and otherwise managing the AAS objects in a specific Directory.
+The :class:`~.LocalFileBackend` takes care of updating and committing objects from and to the files, while the
+:class:`~LocalFileObjectStore` handles adding, deleting and otherwise managing the AAS objects in a specific Directory.
 """
+import copy
 from typing import List, Iterator, Iterable, Union
 import logging
 import json
 import os
-import urllib.parse
+import hashlib
+import threading
+import weakref
 
 from . import backends
 from ..adapter.json import json_serialization, json_deserialization
@@ -29,7 +32,7 @@ logger = logging.getLogger(__name__)
 class LocalFileBackend(backends.Backend):
     """
     This Backend stores each Identifiable object as a single JSON document as a local file in a directory.
-    Each document's id is build from the object's identifier using the pattern {idtype}-{idvalue}; the document's
+    Each document's id is build from the object's identifier using a SHA256 sum of its identifiable; the document's
     contents comprise a single property "data", containing the JSON serialization of the BaSyx Python SDK object. The
     :ref:`adapter.json <adapter.json.__init__>` package is used for serialization and deserialization of objects.
     """
@@ -43,7 +46,9 @@ class LocalFileBackend(backends.Backend):
         if not isinstance(store_object, model.Identifiable):
             raise FileBackendSourceError("The given store_object is not Identifiable, therefore cannot be found "
                                          "in the FileBackend")
-        with open(store_object.source, "r") as file:
+        file_name: str = store_object.source.removeprefix("file://localhost/")  # type: ignore
+        # Known bug in mypy v0.761: Does not know of the str.removeprefix() function
+        with open(file_name, "r") as file:
             data = json.load(file, cls=json_deserialization.AASFromJsonDecoder)
             updated_store_object = data["data"]
             store_object.update_from(updated_store_object)
@@ -56,7 +61,9 @@ class LocalFileBackend(backends.Backend):
         if not isinstance(store_object, model.Identifiable):
             raise FileBackendSourceError("The given store_object is not Identifiable, therefore cannot be found "
                                          "in the FileBackend")
-        with open(store_object.source, "w") as file:
+        file_name: str = store_object.source.removeprefix("file://localhost/")  # type: ignore
+        # Known bug in mypy v0.761: Does not know of the str.removeprefix() function
+        with open(file_name, "w") as file:
             json.dump({'data': store_object}, file, cls=json_serialization.AASToJsonEncoder, indent=4)
 
 
@@ -77,6 +84,15 @@ class LocalFileObjectStore(model.AbstractObjectStore):
         super().__init__()
         self.directory_path: str = directory_path.rstrip("/")
 
+        # A dictionary of weak references to local replications of stored objects. Objects are kept in this cache as
+        # long as there is any other reference in the Python application to them. We use this to make sure that only one
+        # local replication of each object is kept in the application and retrieving an object from the store always
+        # returns the **same** (not only equal) object. Still, objects are forgotten, when they are not referenced
+        # anywhere else to save memory.
+        self._object_cache: weakref.WeakValueDictionary[model.Identifier, model.Identifiable] \
+            = weakref.WeakValueDictionary()
+        self._object_cache_lock = threading.Lock()
+
     def check_directory(self, create=False):
         """
         Check if the directory exists and created it if not (and requested to do so)
@@ -95,19 +111,34 @@ class LocalFileObjectStore(model.AbstractObjectStore):
         Retrieve an AAS object from the local file by its :class:`~aas.model.base.Identifier`
 
         If the :class:`~.aas.model.base.Identifier` is a string, it is assumed that the string is a correct
-        local-file-ID-string (according to the
-        internal conversion rules, see LocalFileObjectStore._transform_id() )
+        local-file-ID-string (as it is outputted by LocalFileObjectStore._transform_id() )
 
-        :raises FileNotFoundError: If the respective file could not be found
+        :raises KeyError: If the respective file could not be found
         """
+        input_identifier = copy.copy(identifier)
         if isinstance(identifier, model.Identifier):
-            identifier = self._transform_id(identifier, False)
+            identifier = self._transform_id(identifier)
 
         # Try to get the correct file
-        with open("{}/{}".format(self.directory_path, identifier), "r") as file:
-            data = json.load(file, cls=json_deserialization.AASFromJsonDecoder)
-            obj = data["data"]
-            return obj
+        try:
+            with open("{}/{}.json".format(self.directory_path, identifier), "r") as file:
+                data = json.load(file, cls=json_deserialization.AASFromJsonDecoder)
+                obj = data["data"]
+                self.generate_source(obj)
+        except FileNotFoundError as e:
+            raise KeyError("No Identifiable with id {} found in local file database".format(input_identifier)) from e
+        # If we still have a local replication of that object (since it is referenced from anywhere else), update that
+        # replication and return it.
+        with self._object_cache_lock:
+            if obj.identification in self._object_cache:
+                old_obj = self._object_cache[obj.identification]
+                # If the source does not match the correct source for this CouchDB backend, the object seems to belong
+                # to another backend now, so we return a fresh copy
+                if old_obj.source == obj.source:
+                    old_obj.update_from(obj)
+                    return old_obj
+        self._object_cache[obj.identification] = obj
+        return obj
 
     def add(self, x: model.Identifiable) -> None:
         """
@@ -117,9 +148,11 @@ class LocalFileObjectStore(model.AbstractObjectStore):
         """
         logger.debug("Adding object %s to Local File Store ...", repr(x))
         if os.path.exists("{}/{}.json".format(self.directory_path, self._transform_id(x.identification))):
-            raise KeyError("The given object already exists in the object store. Get it using store.get_identifiable()")
+            raise KeyError("Identifiable with id {} already exists in local file database".format(x.identification))
         with open("{}/{}.json".format(self.directory_path, self._transform_id(x.identification)), "w") as file:
             json.dump({"data": x}, file, cls=json_serialization.AASToJsonEncoder, indent=4)
+            with self._object_cache_lock:
+                self._object_cache[x.identification] = x
             self.generate_source(x)  # Set the source of the object
 
     def discard(self, x: model.Identifiable) -> None:
@@ -127,10 +160,15 @@ class LocalFileObjectStore(model.AbstractObjectStore):
         Delete an :class:`~aas.model.base.Identifiable` AAS object from the local file store
 
         :param x: The object to be deleted
-        :raises KeyError: If the object does not exist in the database  # todo: Check what happens
+        :raises KeyError: If the object does not exist in the database
         """
         logger.debug("Deleting object %s from Local File Store database ...", repr(x))
-        os.remove("{}/{}.json".format(self.directory_path, self._transform_id(x.identification)))
+        try:
+            os.remove("{}/{}.json".format(self.directory_path, self._transform_id(x.identification)))
+        except FileNotFoundError as e:
+            raise KeyError("No AAS object with id {} exists in local file database".format(x.identification)) from e
+        with self._object_cache_lock:
+            del self._object_cache[x.identification]
         x.source = ""
 
     def __contains__(self, x: object) -> bool:
@@ -178,20 +216,15 @@ class LocalFileObjectStore(model.AbstractObjectStore):
 
         # Fetch a list of all ids and construct Iterator object
         logger.debug("Creating iterator over objects in database ...")
-        data = os.listdir(self.directory_path)
+        data = [x.rstrip(".json") for x in os.listdir(self.directory_path)]
         return FileIdentifiableIterator(self, data)
 
     @staticmethod
-    def _transform_id(identifier: model.Identifier, url_quote=True) -> str:
+    def _transform_id(identifier: model.Identifier) -> str:
         """
-        Helper method to represent an ASS Identifier as a string to be used as CouchDB document id
-
-        :param url_quote: If True, the result id string is url-encoded to be used in a HTTP request URL
+        Helper method to represent an ASS Identifier as a string to be used as Local file document id
         """
-        result = "{}-{}".format(identifier.id_type.name, identifier.id)
-        if url_quote:
-            result = urllib.parse.quote(result, safe='')
-        return result
+        return hashlib.sha256("{}-{}".format(identifier.id_type.name, identifier.id).encode("utf-8")).hexdigest()
 
     def generate_source(self, identifiable: model.Identifiable) -> str:
         """
