@@ -29,6 +29,8 @@ import pyecma376_2
 from . import compliance_check_json, compliance_check_xml
 from .. import model
 from ..adapter import aasx
+from ..adapter.xml import xml_deserialization
+from ..adapter.json import json_deserialization
 from ..examples.data import example_aas, create_example_aas_binding
 from ..examples.data._helper import AASDataChecker, DataChecker
 from .state_manager import ComplianceToolStateManager, Status
@@ -48,16 +50,17 @@ def check_deserialization(file_path: str, state_manager: ComplianceToolStateMana
     :param file_info: Additional information about the file for name of the steps
     :return: The read object store
     """
-    logger = logging.getLogger('compliance_check')
-    logger.addHandler(state_manager)
-    logger.propagate = False
-    logger.setLevel(logging.INFO)
-
-    # create handler to get logger info
-    logger_deserialization = logging.getLogger(aasx.__name__)
-    logger_deserialization.addHandler(state_manager)
-    logger_deserialization.propagate = False
-    logger_deserialization.setLevel(logging.INFO)
+    logger_names = [
+        'compliance_check',
+        aasx.__name__,
+        xml_deserialization.__name__,
+        json_deserialization.__name__,
+    ]
+    for name in logger_names:
+        logger = logging.getLogger(name)
+        logger.addHandler(state_manager)
+        logger.propagate = False
+        logger.setLevel(logging.INFO)
 
     if file_info:
         state_manager.add_step('Open {} file'.format(file_info))
