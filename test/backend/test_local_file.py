@@ -5,6 +5,7 @@
 #
 # SPDX-License-Identifier: MIT
 import os
+import shutil
 import unittest
 import unittest.mock
 
@@ -21,8 +22,10 @@ class LocalFileBackendTest(unittest.TestCase):
         self.object_store.check_directory(create=True)
 
     def tearDown(self) -> None:
-        self.object_store.clear()
-        os.removedirs("{}/local_file_test_folder/".format(os.getcwd()))
+        try:
+            self.object_store.clear()
+        finally:
+            shutil.rmtree("{}/local_file_test_folder/".format(os.getcwd()))
 
     def test_object_store_add(self):
         test_object = create_example_submodel()
