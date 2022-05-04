@@ -201,20 +201,9 @@ class LocalFileObjectStore(model.AbstractObjectStore):
         This method returns an iterator, containing only a list of all identifiers in the database and retrieving
         the identifiable objects on the fly.
         """
-        # Iterator class storing the list of ids and fetching Identifiable objects on the fly
-        class FileIdentifiableIterator(Iterator[model.Identifiable]):
-            def __init__(self, store: LocalFileObjectStore, ids: Iterable[str]):
-                self._iter = iter(ids)
-                self._store = store
-
-            def __next__(self):
-                next_id = next(self._iter)
-                return self._store.get_identifiable(next_id)
-
-        # Fetch a list of all ids and construct Iterator object
-        logger.debug("Creating iterator over objects in database ...")
-        data = [x.rstrip(".json") for x in os.listdir(self.directory_path)]
-        return FileIdentifiableIterator(self, data)
+        logger.debug("Iterating over objects in database ...")
+        for name in os.listdir(self.directory_path):
+            yield self.get_identifiable(name.rstrip(".json"))
 
     @staticmethod
     def _transform_id(identifier: model.Identifier) -> str:
