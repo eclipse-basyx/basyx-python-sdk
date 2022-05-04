@@ -32,10 +32,9 @@ The BaSyx Python SDK project provides the `basax.aas` Python package with 6 subm
 
 ## License
 
-The BaSyx Python SDK project is dual-licensed under the terms of the Eclipse Public License - v 2.0 and the
-Apache License Version 2.0. Choose either of the two licenses that better suits your needs.
+The BaSyx Python SDK project is licensed under the terms of the MIT License.
 
-SPDX-License-Identifier: EPL-2.0 OR Apache-2.0
+SPDX-License-Identifier: MIT
 
 For more information, especially considering the licenses of included third-party works, please consult the `NOTICE`
 file.
