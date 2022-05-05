@@ -4,7 +4,8 @@
 # the LICENSE file of this project.
 #
 # SPDX-License-Identifier: MIT
-import os
+import os.path
+import sys
 import shutil
 import unittest
 import unittest.mock
@@ -13,19 +14,21 @@ from basyx.aas.backend import local_file
 from basyx.aas.examples.data.example_aas import *
 
 
-source_core: str = "file://localhost/{}/local_file_test_folder/".format(os.getcwd())
+store_path: str = os.path.abspath(__file__).rstrip("test_local_file.py") + "local_file_test_folder"
+# todo: Adapt to file name changes
+source_core: str = "file://localhost/{}/".format(store_path)
 
 
 class LocalFileBackendTest(unittest.TestCase):
     def setUp(self) -> None:
-        self.object_store = local_file.LocalFileObjectStore("{}/local_file_test_folder/".format(os.getcwd()))
+        self.object_store = local_file.LocalFileObjectStore(store_path)
         self.object_store.check_directory(create=True)
 
     def tearDown(self) -> None:
         try:
             self.object_store.clear()
         finally:
-            shutil.rmtree("{}/local_file_test_folder/".format(os.getcwd()))
+            shutil.rmtree(store_path)
 
     def test_object_store_add(self):
         test_object = create_example_submodel()
