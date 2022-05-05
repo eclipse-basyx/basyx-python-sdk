@@ -5,7 +5,6 @@
 #
 # SPDX-License-Identifier: MIT
 import os.path
-import sys
 import shutil
 import unittest
 import unittest.mock
@@ -14,8 +13,7 @@ from basyx.aas.backend import local_file
 from basyx.aas.examples.data.example_aas import *
 
 
-store_path: str = os.path.abspath(__file__).rstrip("test_local_file.py") + "local_file_test_folder"
-# todo: Adapt to file name changes
+store_path: str = os.path.dirname(__file__) + "/local_file_test_folder"
 source_core: str = "file://localhost/{}/".format(store_path)
 
 
