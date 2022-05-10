@@ -1533,7 +1533,7 @@ class NamespaceSet(MutableSet[_NSO], Generic[_NSO]):
                 if isinstance(other_object, Referable):
                     backend, case_sensitive = self._backend["id_short"]
                     referable = backend[other_object.id_short if case_sensitive else other_object.id_short.upper()]
-                    referable.update_from(other_object, update_source=True)
+                    referable.update_from(other_object, update_source=True)  # type: ignore
                 elif isinstance(other_object, Qualifier):
                     backend, case_sensitive = self._backend["type"]
                     qualifier = backend[other_object.type if case_sensitive else other_object.type.upper()]
