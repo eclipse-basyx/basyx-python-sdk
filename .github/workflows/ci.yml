@@ -38,9 +38,7 @@ jobs:
       run: |
         python test/_helper/setup_testdb.py -u "admin" -p "$COUCHDB_ADMIN_PASSWORD"
     - name: Test with coverage + unittest
-      # Add source directory to PYTHONPATH to allow testing our CLI scripts, which import our modules
       run: |
-        export PYTHONPATH=".:$PYTHONPATH"
         coverage run --source=basyx -m unittest
     - name: Report test coverage
       if: ${{ always() }}
