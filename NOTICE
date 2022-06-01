@@ -1,7 +1,7 @@
 Eclipse BaSyx Python SDK
 ========================
 
-Copyright 2019-2021 the Eclipse BaSyx Authors.
+Copyright 2019-2022 the Eclipse BaSyx Authors.
 
 The Eclipse BaSyx Python SDK was started as a Python implementation of the Industry 4.0 Asset Administration Shell
 under the name of PyI40AAS at the Chair of Process Control Engineering, RWTH Aachen University
@@ -9,19 +9,10 @@ under the name of PyI40AAS at the Chair of Process Control Engineering, RWTH Aac
 of Education and Research (BMBF), grant number 01IS19022.
 
 
-Declared Project Licenses
--------------------------
-This artifacts of this project are made available under the terms of:
-
-  * the Eclipse Public License v2.0
-    https://www.eclipse.org/legal/epl-2.0
-    SPDX-License-Identifier: EPL-2.0
-
-  or
-
-  * the Apache License, Version 2.0
-    https://www.apache.org/licenses/LICENSE-2.0
-    SPDX-License-Identifier: Apache-2.0
+Declared Project License
+------------------------
+The artifacts of this project are made available under the terms of the MIT License.
+Please refer to the LICENSE file for more information.
 
 
 Third-party Work in this Repository

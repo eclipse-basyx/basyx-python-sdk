@@ -31,10 +31,9 @@ The BaSyx Python SDK project provides the `basax.aas` Python package with 6 subm
 
 ## License
 
-The BaSyx Python SDK project is dual-licensed under the terms of the Eclipse Public License - v 2.0 and the
-Apache License Version 2.0. Choose either of the two licenses that better suits your needs.
+The BaSyx Python SDK project is licensed under the terms of the MIT License.
 
-SPDX-License-Identifier: EPL-2.0 OR Apache-2.0
+SPDX-License-Identifier: MIT
 
 For more information, especially considering the licenses of included third-party works, please consult the `NOTICE`
 file.
@@ -133,15 +132,14 @@ For further examples and tutorials, check out the `basyx.aas.examples`-package. 
 * [`tutorial_backend_couchdb`](./basyx/aas/examples/tutorial_backend_couchdb.py): Use the *Backends* interface (`update()/commit()` methods) to manage and retrieve AAS objects in a CouchDB document database
 
 
-## Documentation
+### Documentation
 
-In addition to the examples above, a detailed documentation for the current branch is available [here](https://git.rwth-aachen.de/acplt/pyi40aas/-/jobs/artifacts/improve/V30RC02/file/docs/build/index.html?job=docs).
+A detailed, complete API documentation is available on Read the Docs: https://basyx-python-sdk.readthedocs.io
 
-
-## Compliance Tool
+### Compliance Tool
 
 The Eclipse BaSyx Python SDK project contains a compliance tool for testing xml and json files is provided in the 
-`aas.compliance_tool`-package. Following functionalities are supported:
+`basyx.aas.compliance_tool`-package. Following functionalities are supported:
 
 * create an xml or json file compliant to the official schema containing example Asset Administration Shell elements
 * create an aasx file with xml or json files compliant to the official schema containing example Asset Administration 
@@ -151,11 +149,11 @@ Shell elements
 * check if the data in a given xml, json or aasx file is the same as the example data
 * check if two given xml, json or aasx files contain the same Asset Administration Shell elements in any order 
 
-Invoking should work with either `python -m aas.compliance_tool.cli` or (when installed correctly and PATH is set 
+Invoking should work with either `python -m basyx.aas.compliance_tool.cli` or (when installed correctly and PATH is set 
 correctly) with `aas-compliance-check` on the command line.
 
-For further usage information consider the `aas.compliance_tool`-package or invoke with 
-`python -m aas.compliance_tool.cli --help` respectively `aas-compliance-check --help`.
+For further usage information consider the `basyx.aas.compliance_tool`-package or invoke with 
+`python -m basyx.aas.compliance_tool.cli --help` respectively `aas-compliance-check --help`.
 
 ## Development
 
@@ -172,8 +170,8 @@ pip install mypy pycodestyle
 
 Running all checks:
 ```bash
-mypy aas test
-pycodestyle --max-line-length 120 aas test
+mypy basyx test
+pycodestyle --max-line-length 120 basyx test
 python -m unittest
 ```
 
@@ -181,6 +179,11 @@ We aim to cover our code with test by at least 80%. To check test coverage, you 
 
 ```bash
 pip install coverage
-coverage run --source aas --branch -m unittest
+coverage run --source basyx --branch -m unittest
 coverage report -m
 ```
+
+### Eclipse Contributor Agreement
+
+To contribute code to this project you need to sign the [Eclipse Contributor Agreement (ECA)](https://www.eclipse.org/legal/ECA.php).
+This is done by creating an Eclipse account for your git e-mail address and then submitting the following form: https://accounts.eclipse.org/user/eca

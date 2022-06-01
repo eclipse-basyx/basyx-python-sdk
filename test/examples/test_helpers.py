@@ -1,10 +1,9 @@
 # Copyright (c) 2020 the Eclipse BaSyx Authors
 #
-# This program and the accompanying materials are made available under the terms of the Eclipse Public License v. 2.0
-# which is available at https://www.eclipse.org/legal/epl-2.0, or the Apache License, Version 2.0 which is available
-# at https://www.apache.org/licenses/LICENSE-2.0.
+# This program and the accompanying materials are made available under the terms of the MIT License, available in
+# the LICENSE file of this project.
 #
-# SPDX-License-Identifier: EPL-2.0 OR Apache-2.0
+# SPDX-License-Identifier: MIT
 import unittest
 
 from basyx.aas.examples.data._helper import DataChecker, AASDataChecker

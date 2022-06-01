@@ -1,68 +1,40 @@
-# Copyright (c) 2020 the Eclipse BaSyx Authors
+# Copyright (c) 2022 the Eclipse BaSyx Authors
 #
 # This program and the accompanying materials are made available under the terms of the MIT License, available in
 # the LICENSE file of this project.
 #
 # SPDX-License-Identifier: MIT
+import os.path
+import shutil
 import unittest
 import unittest.mock
-import urllib.error
 
-from basyx.aas.backend import couchdb
+from basyx.aas.backend import local_file
 from basyx.aas.examples.data.example_aas import *
 
-from test._helper.test_helpers import TEST_CONFIG, COUCHDB_OKAY, COUCHDB_ERROR
+
+store_path: str = os.path.dirname(__file__) + "/local_file_test_folder"
+source_core: str = "file://localhost/{}/".format(store_path)
 
 
-source_core: str = "couchdb://" + TEST_CONFIG["couchdb"]["url"].lstrip("http://") + "/" + \
-                   TEST_CONFIG["couchdb"]["database"] + "/"
-
-
-class CouchDBBackendOfflineMethodsTest(unittest.TestCase):
-    def test_parse_source(self):
-        couchdb.register_credentials(url="couchdb.plt.rwth-aachen.de:5984",
-                                     username="test_user",
-                                     password="test_password")
-
-        url = couchdb.CouchDBBackend._parse_source(
-            "couchdbs://couchdb.plt.rwth-aachen.de:5984/path_to_db/path_to_doc"
-        )
-        expected_url = "https://couchdb.plt.rwth-aachen.de:5984/path_to_db/path_to_doc"
-        self.assertEqual(expected_url, url)
-
-        url = couchdb.CouchDBBackend._parse_source(
-            "couchdb://couchdb.plt.rwth-aachen.de:5984/path_to_db/path_to_doc"
-        )
-        expected_url = "http://couchdb.plt.rwth-aachen.de:5984/path_to_db/path_to_doc"
-        self.assertEqual(expected_url, url)
-
-        with self.assertRaises(couchdb.CouchDBSourceError) as cm:
-            couchdb.CouchDBBackend._parse_source("wrong_scheme:plt.rwth-aachen.couchdb:5984/path_to_db/path_to_doc")
-            self.assertEqual("Source has wrong format. "
-                             "Expected to start with {couchdb, couchdbs}, got "
-                             "{wrong_scheme:plt.rwth-aachen.couchdb:5984/path_to_db/path_to_doc}",
-                             cm.exception)
-
-
-@unittest.skipUnless(COUCHDB_OKAY, "No CouchDB is reachable at {}/{}: {}".format(TEST_CONFIG['couchdb']['url'],
-                                                                                 TEST_CONFIG['couchdb']['database'],
-                                                                                 COUCHDB_ERROR))
-class CouchDBBackendTest(unittest.TestCase):
+class LocalFileBackendTest(unittest.TestCase):
     def setUp(self) -> None:
-        self.object_store = couchdb.CouchDBObjectStore(TEST_CONFIG['couchdb']['url'],
-                                                       TEST_CONFIG['couchdb']['database'])
-        couchdb.register_credentials(TEST_CONFIG["couchdb"]["url"],
-                                     TEST_CONFIG["couchdb"]["user"],
-                                     TEST_CONFIG["couchdb"]["password"])
-        self.object_store.check_database()
+        self.object_store = local_file.LocalFileObjectStore(store_path)
+        self.object_store.check_directory(create=True)
 
     def tearDown(self) -> None:
-        self.object_store.clear()
+        try:
+            self.object_store.clear()
+        finally:
+            shutil.rmtree(store_path)
 
     def test_object_store_add(self):
         test_object = create_example_submodel()
         self.object_store.add(test_object)
-        self.assertEqual(test_object.source, source_core+"IRI-https%3A%2F%2Facplt.org%2FTest_Submodel")
+        self.assertEqual(
+            test_object.source,
+            source_core+"bfe69a634a188d106286585170ba06dfbbd26dd000c641cab5b0f374e94c9611.json"
+        )
 
     def test_retrieval(self):
         test_object = create_example_submodel()
@@ -127,7 +99,7 @@ class CouchDBBackendTest(unittest.TestCase):
         with self.assertRaises(KeyError) as cm:
             self.object_store.add(example_submodel)
         self.assertEqual("'Identifiable with id Identifier(IRI=https://acplt.org/Test_Submodel) already exists in "
-                         "CouchDB database'", str(cm.exception))
+                         "local file database'", str(cm.exception))
 
         # Querying a deleted object should raise a KeyError
         retrieved_submodel = self.object_store.get_identifiable(
@@ -136,45 +108,15 @@ class CouchDBBackendTest(unittest.TestCase):
         with self.assertRaises(KeyError) as cm:
             self.object_store.get_identifiable(model.Identifier('https://acplt.org/Test_Submodel',
                                                                 model.IdentifierType.IRI))
-        self.assertEqual("'No Identifiable with id IRI-https://acplt.org/Test_Submodel found in CouchDB database'",
+        self.assertEqual("'No Identifiable with id Identifier(IRI=https://acplt.org/Test_Submodel) "
+                         "found in local file database'",
                          str(cm.exception))
 
         # Double deleting should also raise a KeyError
         with self.assertRaises(KeyError) as cm:
             self.object_store.discard(retrieved_submodel)
         self.assertEqual("'No AAS object with id Identifier(IRI=https://acplt.org/Test_Submodel) exists in "
-                         "CouchDB database'", str(cm.exception))
-
-    def test_conflict_errors(self):
-        # Preperation: add object and retrieve it from the database
-        example_submodel = create_example_submodel()
-        self.object_store.add(example_submodel)
-        retrieved_submodel = self.object_store.get_identifiable(
-            model.Identifier('https://acplt.org/Test_Submodel', model.IdentifierType.IRI))
-
-        # Simulate a concurrent modification (Commit submodel, while preventing that the couchdb revision store is
-        # updated)
-        with unittest.mock.patch("basyx.aas.backend.couchdb.set_couchdb_revision"):
-            retrieved_submodel.commit()
-
-        # Committing changes to the retrieved object should now raise a conflict error
-        retrieved_submodel.id_short = "myOtherNewIdShort"
-        with self.assertRaises(couchdb.CouchDBConflictError) as cm:
-            retrieved_submodel.commit()
-        self.assertEqual("Could not commit changes to id Identifier(IRI=https://acplt.org/Test_Submodel) due to a "
-                         "concurrent modification in the database.", str(cm.exception))
-
-        # Deleting the submodel with safe_delete should also raise a conflict error. Deletion without safe_delete should
-        # work
-        with self.assertRaises(couchdb.CouchDBConflictError) as cm:
-            self.object_store.discard(retrieved_submodel, True)
-        self.assertEqual("Object with id Identifier(IRI=https://acplt.org/Test_Submodel) has been modified in the "
-                         "database since the version requested to be deleted.", str(cm.exception))
-        self.object_store.discard(retrieved_submodel, False)
-        self.assertEqual(0, len(self.object_store))
-
-        # Committing after deletion should not raise a conflict error due to removal of the source attribute
-        retrieved_submodel.commit()
+                         "local file database'", str(cm.exception))
 
     def test_editing(self):
         test_object = create_example_submodel()
