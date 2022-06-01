@@ -881,7 +881,7 @@
 		      	  { "$ref": "#/definitions/Capability" },
 		      	  { "$ref": "#/definitions/Entity" },
 		      	  { "$ref": "#/definitions/Event" },
-			  { "$ref": "#/definitions/BasicEventElement" },
+		      	  { "$ref": "#/definitions/BasicEventElement" },
 		      	  { "$ref": "#/definitions/MultiLanguageProperty" },
 		      	  { "$ref": "#/definitions/Operation" },
 		      	  { "$ref": "#/definitions/Property" },
