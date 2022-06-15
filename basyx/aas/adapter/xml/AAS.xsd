@@ -72,7 +72,7 @@
 	</complexType>
 	<complexType name="basicEventElement_t">
 		<complexContent>
-			<extension base="aas:eventAbstract_t">
+			<extension base="aas:eventElementAbstract_t">
 				<sequence>
 					<element maxOccurs="1" minOccurs="1" name="observed" type="aas:reference_t"/>
 				</sequence>
@@ -164,7 +164,7 @@
 			</extension>
 		</complexContent>
 	</complexType>
-	<complexType name="eventAbstract_t">
+	<complexType name="eventElementAbstract_t">
 		<complexContent>
 			<extension base="aas:submodelElementAbstract_t"/>
 		</complexContent>
@@ -261,7 +261,7 @@
 							<enumeration value="ConceptDictionary"/>
 							<enumeration value="DataElement"/>
 							<enumeration value="Entity"/>
-							<enumeration value="Event"/>
+							<enumeration value="EventElement"/>
 							<enumeration value="File"/>
 							<enumeration value="FragmentReference"/>
 							<enumeration value="GlobalReference"/>

@@ -636,11 +636,11 @@ class AASToJsonEncoder(json.JSONEncoder):
         return data
 
     @classmethod
-    def _event_to_json(cls, obj: model.Event) -> Dict[str, object]:  # no attributes in specification yet
+    def _event_element_to_json(cls, obj: model.EventElement) -> Dict[str, object]:  # no attributes in specification yet
         """
-        serialization of an object from class Event to json
+        serialization of an object from class EventElement to json
 
-        :param obj: object of class Event
+        :param obj: object of class EventElement
         :return: dict with the serialized attributes of this object
         """
         return {}

@@ -215,8 +215,8 @@ AASd-060    If the semanticId of a Operation    ❌     Uncheckable, semantic_id
             of the following
 
             values: FUNCTION.
-AASd-061    If the semanticId of a Event        ❌     Uncheckable, semantic_id may not
-            submodel element                           be resolvable
+AASd-061    If the semanticId of an             ❌     Uncheckable, semantic_id may not
+            EventElement submodel element              be resolvable
 
             references a ConceptDescription
             then the category of the

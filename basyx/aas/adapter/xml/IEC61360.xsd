@@ -62,7 +62,7 @@
 							<enumeration value="ConceptDictionary"/>
 							<enumeration value="DataElement"/>
 							<enumeration value="Entity"/>
-							<enumeration value="Event"/>
+							<enumeration value="EventElement"/>
 							<enumeration value="File"/>
 							<enumeration value="FragmentReference"/>
 							<enumeration value="GlobalReference"/>

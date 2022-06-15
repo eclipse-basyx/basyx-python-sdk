@@ -80,7 +80,7 @@ class KeyElements(Enum):
     :cvar CONCEPT_DICTIONARY: :class:`~aas.model.concept.ConceptDictionary`
     :cvar DATA_ELEMENT: :class:`~aas.model.submodel.DataElement`
     :cvar ENTITY: :class:`~aas.model.submodel.Entity`
-    :cvar EVENT: :class:`~aas.model.submodel.Event`, Note: Event is abstract
+    :cvar EVENT_ELEMENT: :class:`~aas.model.submodel.EventElement`, Note: EventElement is abstract
     :cvar FILE: :class:`~aas.model.submodel.File`
     :cvar MULTI_LANGUAGE_PROPERTY: :class:`~aas.model.submodel.MultiLanguageProperty` property with a value that can be
                                    provided in multiple languages
@@ -115,7 +115,7 @@ class KeyElements(Enum):
     CONCEPT_DICTIONARY = 1005
     DATA_ELEMENT = 1006
     ENTITY = 1007
-    EVENT = 1008
+    EVENT_ELEMENT = 1008
     FILE = 1009
     MULTI_LANGUAGE_PROPERTY = 1010
     OPERATION = 1011

@@ -1180,7 +1180,7 @@ class Entity(SubmodelElement, base.UniqueIdShortNamespace):
     entity_type = property(_get_entity_type, _set_entity_type)
 
 
-class Event(SubmodelElement, metaclass=abc.ABCMeta):
+class EventElement(SubmodelElement, metaclass=abc.ABCMeta):
     """
     An event
     <<abstract>>
@@ -1219,7 +1219,7 @@ class Event(SubmodelElement, metaclass=abc.ABCMeta):
         super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, kind, extension)
 
 
-class BasicEventElement(Event):
+class BasicEventElement(EventElement):
     """
     An event
 

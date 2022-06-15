@@ -31,7 +31,7 @@ KEY_ELEMENTS: Dict[model.KeyElements, str] = {
     model.KeyElements.CONCEPT_DICTIONARY: 'ConceptDictionary',
     model.KeyElements.DATA_ELEMENT: 'DataElement',
     model.KeyElements.ENTITY: 'Entity',
-    model.KeyElements.EVENT: 'Event',
+    model.KeyElements.EVENT_ELEMENT: 'EventElement',
     model.KeyElements.FILE: 'File',
     model.KeyElements.MULTI_LANGUAGE_PROPERTY: 'MultiLanguageProperty',
     model.KeyElements.OPERATION: 'Operation',

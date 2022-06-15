@@ -577,12 +577,12 @@ class AASDataChecker(DataChecker):
         self.check(found_elements == set(), 'Enity {} must not have extra statements'.format(repr(object_)),
                    value=found_elements)
 
-    def _check_event_equal(self, object_: model.Event, expected_value: model.Event):
+    def _check_event_element_equal(self, object_: model.EventElement, expected_value: model.EventElement):
         """
-        Checks if the given Event objects are equal
+        Checks if the given EventElement objects are equal
 
-        :param object_: Given Event object to check
-        :param expected_value: expected Event object
+        :param object_: Given EventElement object to check
+        :param expected_value: expected EventElement object
         :return:
         """
         self._check_abstract_attributes_submodel_element_equal(object_, expected_value)
@@ -597,7 +597,7 @@ class AASDataChecker(DataChecker):
         :return:
         """
         self._check_abstract_attributes_submodel_element_equal(object_, expected_value)
-        self._check_event_equal(object_, expected_value)
+        self._check_event_element_equal(object_, expected_value)
         self.check_attribute_equal(object_, 'observed', expected_value.observed)
 
     def check_submodel_equal(self, object_: model.Submodel, expected_value: model.Submodel):

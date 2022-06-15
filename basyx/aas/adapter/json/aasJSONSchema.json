@@ -277,7 +277,7 @@
 		"DataElement",
 		"File",
 		"Entity",
-		"Event",
+		"EventElement",
 		"MultiLanguageProperty",
 		"Operation",
 		"Property",
@@ -304,7 +304,7 @@
 		"DataElement",
 		"File",
 		"Entity",
-		"Event",
+		"EventElement",
 		"MultiLanguageProperty",
 		"Operation",
 		"Property",
@@ -648,7 +648,7 @@
 			{ "$ref": "#/definitions/File" },
 			{ "$ref": "#/definitions/Capability" },
 			{ "$ref": "#/definitions/Entity" },
-			{ "$ref": "#/definitions/Event" },
+			{ "$ref": "#/definitions/EventElement" },
 			{ "$ref": "#/definitions/BasicEventElement" },
 			{ "$ref": "#/definitions/MultiLanguageProperty" },
 			{ "$ref": "#/definitions/Operation" },
@@ -679,14 +679,14 @@
 	    }
 	  ]
     },
-	"Event": {
+	"EventElement": {
 	  "allOf": [
 	    { "$ref": "#/definitions/SubmodelElement" }
 	  ]
 	},
 	"BasicEventElement": {
 	  "allOf": [
-	    { "$ref": "#/definitions/Event" },
+	    { "$ref": "#/definitions/EventElement" },
         { "properties": {
             "observed": {
               "$ref": "#/definitions/Reference"
@@ -880,7 +880,7 @@
 		      	  { "$ref": "#/definitions/File" },
 		      	  { "$ref": "#/definitions/Capability" },
 		      	  { "$ref": "#/definitions/Entity" },
-		      	  { "$ref": "#/definitions/Event" },
+		      	  { "$ref": "#/definitions/EventElement" },
 		      	  { "$ref": "#/definitions/BasicEventElement" },
 		      	  { "$ref": "#/definitions/MultiLanguageProperty" },
 		      	  { "$ref": "#/definitions/Operation" },
