@@ -665,7 +665,7 @@ class AnnotatedRelationshipElement(RelationshipElement, base.Namespace):
                  id_short: str,
                  first: base.AASReference,
                  second: base.AASReference,
-                 annotation: Optional[Iterable[DataElement]] = None,
+                 annotation: Iterable[DataElement] = (),
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
                  parent: Optional[base.Namespace] = None,
@@ -677,10 +677,7 @@ class AnnotatedRelationshipElement(RelationshipElement, base.Namespace):
         """
 
         super().__init__(id_short, first, second, category, description, parent, semantic_id, qualifier, kind)
-        if annotation is None:
-            self.annotation: base.NamespaceSet[DataElement] = base.NamespaceSet(self)
-        else:
-            self.annotation = base.NamespaceSet(self, annotation)
+        self.annotation = base.NamespaceSet(self, annotation)
 
 
 class OperationVariable:

@@ -169,7 +169,7 @@ def create_example_submodel_template() -> model.Submodel:
                                              value='ExampleProperty',
                                              id_type=model.KeyType.IDSHORT),),
                                   model.Property),
-        annotation=None,
+        annotation=(),
         category='PARAMETER',
         description={'en-us': 'Example AnnotatedRelationshipElement object',
                      'de': 'Beispiel AnnotatedRelationshipElement Element'},
