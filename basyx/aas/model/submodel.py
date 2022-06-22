@@ -950,8 +950,8 @@ class AnnotatedRelationshipElement(RelationshipElement, base.UniqueIdShortNamesp
                  id_short: str,
                  first: base.AASReference,
                  second: base.AASReference,
-                 annotation: Optional[Iterable[DataElement]] = None,
                  display_name: Optional[base.LangStringSet] = None,
+                 annotation: Iterable[DataElement] = (),
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
                  parent: Optional[base.UniqueIdShortNamespace] = None,
@@ -965,11 +965,7 @@ class AnnotatedRelationshipElement(RelationshipElement, base.UniqueIdShortNamesp
 
         super().__init__(id_short, first, second, display_name, category, description, parent, semantic_id, qualifier,
                          kind, extension)
-        self.annotation: base.NamespaceSet[DataElement]
-        if annotation is None:
-            self.annotation = base.NamespaceSet(self, [("id_short", True)])
-        else:
-            self.annotation = base.NamespaceSet(self, [("id_short", True)], annotation)
+        self.annotation = base.NamespaceSet(self, [("id_short", True)], annotation)
 
 
 class OperationVariable:
