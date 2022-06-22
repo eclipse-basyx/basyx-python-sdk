@@ -269,6 +269,17 @@ class AASDataChecker(DataChecker):
         self.check_attribute_equal(object_, 'value', expected_value.value)
         self.check_attribute_equal(object_, 'mime_type', expected_value.mime_type)
 
+    def check_resource_equal(self, object_: model.Resource, expected_value: model.Resource):
+        """
+        Checks if the given Resource objects are equal
+
+        :param object_: Given Resource object to check
+        :param expected_value: expected Resource object
+        :return:
+        """
+        self.check_attribute_equal(object_, 'path', expected_value.path)
+        self.check_attribute_equal(object_, 'content_type', expected_value.content_type)
+
     def check_reference_element_equal(self, object_: model.ReferenceElement, expected_value: model.ReferenceElement):
         """
         Checks if the given ReferenceElement objects are equal

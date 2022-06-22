@@ -842,6 +842,17 @@
         }
 	  ]
     },
+    "Resource": {
+        "properties": {
+            "path": {
+                "type": "string"
+            },
+            "contentType": {
+                "type": "string"
+            }
+        },
+        "required": [ "path" ]
+    },
     "Blob": {
 	  "allOf": [
 	    { "$ref": "#/definitions/SubmodelElement" },

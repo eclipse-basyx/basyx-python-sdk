@@ -663,6 +663,22 @@ def file_to_xml(obj: model.File,
     return et_file
 
 
+def resource_to_xml(obj: model.Resource,
+                    tag: str = NS_AAS+"resource") -> etree.Element:
+    """
+    Serialization of objects of class :class:`~aas.model.base.Resource` to XML
+
+    :param obj: Object of class :class:`~aas.model.base.Resource`
+    :param tag: Namespace+Tag of the serialized element. Default is "aas:resource"
+    :return: Serialized ElementTree object
+    """
+    et_resource = abstract_classes_to_xml(tag, obj)
+    et_resource.append(_generate_element(NS_AAS + "path", text=obj.path))
+    if obj.content_type:
+        et_resource.append(_generate_element(NS_AAS + "contentType", text=obj.content_type))
+    return et_resource
+
+
 def reference_element_to_xml(obj: model.ReferenceElement,
                              tag: str = NS_AAS+"referenceElement") -> etree.Element:
     """

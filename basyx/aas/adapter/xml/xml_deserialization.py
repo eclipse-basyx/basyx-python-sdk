@@ -766,6 +766,17 @@ class AASFromXmlDecoder:
         return file
 
     @classmethod
+    def construct_resource(cls, element: etree.Element, object_class=model.Resource, **_kwargs: Any) -> model.Resource:
+        resource = object_class(
+            _child_text_mandatory(element, NS_AAS + "path")
+        )
+        content_type = _get_text_or_none(element.find(NS_AAS + "contentType"))
+        if content_type is not None:
+            resource.content_type = content_type
+        cls._amend_abstract_attributes(resource, element)
+        return resource
+
+    @classmethod
     def construct_multi_language_property(cls, element: etree.Element, object_class=model.MultiLanguageProperty,
                                           **_kwargs: Any) -> model.MultiLanguageProperty:
         multi_language_property = object_class(
@@ -1160,6 +1171,7 @@ class XMLConstructables(enum.Enum):
     ENTITY = enum.auto()
     EXTENSION = enum.auto()
     FILE = enum.auto()
+    RESOURCE = enum.auto()
     MULTI_LANGUAGE_PROPERTY = enum.auto()
     OPERATION = enum.auto()
     PROPERTY = enum.auto()
@@ -1231,6 +1243,8 @@ def read_aas_xml_element(file: IO, construct: XMLConstructables, failsafe: bool 
         constructor = decoder_.construct_extension
     elif construct == XMLConstructables.FILE:
         constructor = decoder_.construct_file
+    elif construct == XMLConstructables.RESOURCE:
+        constructor = decoder_.construct_resource
     elif construct == XMLConstructables.MULTI_LANGUAGE_PROPERTY:
         constructor = decoder_.construct_multi_language_property
     elif construct == XMLConstructables.OPERATION:

@@ -100,6 +100,8 @@ class AASToJsonEncoder(json.JSONEncoder):
             return self._multi_language_property_to_json(obj)
         if isinstance(obj, model.File):
             return self._file_to_json(obj)
+        if isinstance(obj, model.Resource):
+            return self._resource_to_json(obj)
         if isinstance(obj, model.Blob):
             return self._blob_to_json(obj)
         if isinstance(obj, model.ReferenceElement):
@@ -519,6 +521,20 @@ class AASToJsonEncoder(json.JSONEncoder):
         """
         data = cls._abstract_classes_to_json(obj)
         data.update({'value': obj.value, 'mimeType': obj.mime_type})
+        return data
+
+    @classmethod
+    def _resource_to_json(cls, obj: model.Resource) -> Dict[str, object]:
+        """
+        serialization of an object from class Resource to json
+
+        :param obj: object of class Resource
+        :return: dict with the serialized attributes of this object
+        """
+        data = cls._abstract_classes_to_json(obj)
+        data['path'] = obj.path
+        if obj.content_type is not None:
+            data['contentType'] = obj.content_type
         return data
 
     @classmethod

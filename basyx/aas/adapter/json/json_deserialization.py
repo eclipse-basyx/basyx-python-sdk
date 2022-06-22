@@ -633,6 +633,14 @@ class AASFromJsonDecoder(json.JSONDecoder):
         return ret
 
     @classmethod
+    def _construct_resource(cls, dct: Dict[str, object], object_class=model.Resource) -> model.Resource:
+        ret = object_class(path=_get_ts(dct, "path", str))
+        cls._amend_abstract_attributes(ret, dct)
+        if 'contentType' in dct and dct['contentType'] is not None:
+            ret.content_type = _get_ts(dct, 'contentType', str)
+        return ret
+
+    @classmethod
     def _construct_multi_language_property(
             cls, dct: Dict[str, object], object_class=model.MultiLanguageProperty) -> model.MultiLanguageProperty:
         ret = object_class(id_short=_get_ts(dct, "idShort", str), kind=cls._get_kind(dct))

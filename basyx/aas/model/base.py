@@ -958,6 +958,20 @@ class AASReference(Reference, Generic[_RT]):
             ref = ref.parent
 
 
+class Resource:
+    """
+    Resource represents an address to a file (a locator). The value is an URI that can represent an absolute or relative
+    path.
+
+    :ivar path: Path and name of the resource (with file extension). The path can be absolute or relative.
+    :ivar content_type: Content type of the content of the file. The content type states which file extensions the file
+                        can have.
+    """
+    def __init__(self, path: PathType, content_type: Optional[MimeType] = None):
+        self.path: PathType = path
+        self.content_type: Optional[MimeType] = content_type
+
+
 class Identifiable(Referable, metaclass=abc.ABCMeta):
     """
     An element that has a globally unique :class:`~.Identifier`.
