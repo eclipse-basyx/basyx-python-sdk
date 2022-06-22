@@ -26,7 +26,7 @@ if TYPE_CHECKING:
 DataTypeDef = Type[datatypes.AnyXSDType]
 ValueDataType = datatypes.AnyXSDType  # any xsd atomic type (from .datatypes)
 BlobType = bytes
-MimeType = str  # any mimetype as in RFC2046
+ContentType = str  # any mimetype as in RFC2046
 PathType = str
 QualifierType = str
 # A dict of language-Identifier (according to ISO 639-1 and ISO 3166-1) and string in this language.
@@ -967,9 +967,9 @@ class Resource:
     :ivar content_type: Content type of the content of the file. The content type states which file extensions the file
                         can have.
     """
-    def __init__(self, path: PathType, content_type: Optional[MimeType] = None):
+    def __init__(self, path: PathType, content_type: Optional[ContentType] = None):
         self.path: PathType = path
-        self.content_type: Optional[MimeType] = content_type
+        self.content_type: Optional[ContentType] = content_type
 
 
 class Identifiable(Referable, metaclass=abc.ABCMeta):

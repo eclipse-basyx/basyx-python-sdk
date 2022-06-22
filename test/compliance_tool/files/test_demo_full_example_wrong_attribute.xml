@@ -803,7 +803,7 @@
                     </aas:keys>
                   </aas:semanticId>
                   <aas:value>AQIDBAU=</aas:value>
-                  <aas:mimeType>application/pdf</aas:mimeType>
+                  <aas:contentType>application/pdf</aas:contentType>
                 </aas:blob>
               </aas:submodelElement>
               <aas:submodelElement>
@@ -821,7 +821,7 @@
                     </aas:keys>
                   </aas:semanticId>
                   <aas:value>/TestFile.pdf</aas:value>
-                  <aas:mimeType>application/pdf</aas:mimeType>
+                  <aas:contentType>application/pdf</aas:contentType>
                 </aas:file>
               </aas:submodelElement>
               <aas:submodelElement>
@@ -839,7 +839,7 @@
                     </aas:keys>
                   </aas:semanticId>
                   <aas:value>https://www.plattform-i40.de/PI40/Redaktion/DE/Downloads/Publikation/Details-of-the-Asset-Administration-Shell-Part1.pdf?__blob=publicationFile&amp;v=5</aas:value>
-                  <aas:mimeType>application/pdf</aas:mimeType>
+                  <aas:contentType>application/pdf</aas:contentType>
                 </aas:file>
               </aas:submodelElement>
               <aas:submodelElement>
@@ -974,14 +974,14 @@
                   <aas:idShort>ExampleBlob</aas:idShort>
                   <aas:kind>Instance</aas:kind>
                   <aas:value/>
-                  <aas:mimeType>application/pdf</aas:mimeType>
+                  <aas:contentType>application/pdf</aas:contentType>
                 </aas:blob>
               </aas:submodelElement>
               <aas:submodelElement>
                 <aas:file>
                   <aas:idShort>ExampleFile</aas:idShort>
                   <aas:kind>Instance</aas:kind>
-                  <aas:mimeType>application/pdf</aas:mimeType>
+                  <aas:contentType>application/pdf</aas:contentType>
                 </aas:file>
               </aas:submodelElement>
               <aas:submodelElement>
@@ -1357,7 +1357,7 @@
                     </aas:keys>
                   </aas:semanticId>
                   <aas:value>AQIDBAU=</aas:value>
-                  <aas:mimeType>application/pdf</aas:mimeType>
+                  <aas:contentType>application/pdf</aas:contentType>
                 </aas:blob>
               </aas:submodelElement>
               <aas:submodelElement>
@@ -1375,7 +1375,7 @@
                     </aas:keys>
                   </aas:semanticId>
                   <aas:value>/TestFile.pdf</aas:value>
-                  <aas:mimeType>application/pdf</aas:mimeType>
+                  <aas:contentType>application/pdf</aas:contentType>
                 </aas:file>
               </aas:submodelElement>
               <aas:submodelElement>
@@ -1706,7 +1706,7 @@
                     </aas:keys>
                   </aas:semanticId>
                   <aas:value/>
-                  <aas:mimeType>application/pdf</aas:mimeType>
+                  <aas:contentType>application/pdf</aas:contentType>
                 </aas:blob>
               </aas:submodelElement>
               <aas:submodelElement>
@@ -1723,7 +1723,7 @@
                       <aas:key idType="IRI" type="GlobalReference">http://acplt.org/Files/ExampleFile</aas:key>
                     </aas:keys>
                   </aas:semanticId>
-                  <aas:mimeType>application/pdf</aas:mimeType>
+                  <aas:contentType>application/pdf</aas:contentType>
                 </aas:file>
               </aas:submodelElement>
               <aas:submodelElement>

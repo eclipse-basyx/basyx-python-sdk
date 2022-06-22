@@ -255,7 +255,7 @@ class AASDataChecker(DataChecker):
         """
         self._check_abstract_attributes_submodel_element_equal(object_, expected_value)
         self.check_attribute_equal(object_, 'value', expected_value.value)
-        self.check_attribute_equal(object_, 'mime_type', expected_value.mime_type)
+        self.check_attribute_equal(object_, 'content_type', expected_value.content_type)
 
     def check_file_equal(self, object_: model.File, expected_value: model.File):
         """
@@ -267,7 +267,7 @@ class AASDataChecker(DataChecker):
         """
         self._check_abstract_attributes_submodel_element_equal(object_, expected_value)
         self.check_attribute_equal(object_, 'value', expected_value.value)
-        self.check_attribute_equal(object_, 'mime_type', expected_value.mime_type)
+        self.check_attribute_equal(object_, 'content_type', expected_value.content_type)
 
     def check_resource_equal(self, object_: model.Resource, expected_value: model.Resource):
         """

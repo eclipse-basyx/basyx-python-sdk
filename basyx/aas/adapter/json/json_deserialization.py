@@ -614,7 +614,7 @@ class AASFromJsonDecoder(json.JSONDecoder):
     @classmethod
     def _construct_blob(cls, dct: Dict[str, object], object_class=model.Blob) -> model.Blob:
         ret = object_class(id_short=_get_ts(dct, "idShort", str),
-                           mime_type=_get_ts(dct, "mimeType", str),
+                           content_type=_get_ts(dct, "contentType", str),
                            kind=cls._get_kind(dct))
         cls._amend_abstract_attributes(ret, dct)
         if 'value' in dct:
@@ -625,7 +625,7 @@ class AASFromJsonDecoder(json.JSONDecoder):
     def _construct_file(cls, dct: Dict[str, object], object_class=model.File) -> model.File:
         ret = object_class(id_short=_get_ts(dct, "idShort", str),
                            value=None,
-                           mime_type=_get_ts(dct, "mimeType", str),
+                           content_type=_get_ts(dct, "contentType", str),
                            kind=cls._get_kind(dct))
         cls._amend_abstract_attributes(ret, dct)
         if 'value' in dct and dct['value'] is not None:

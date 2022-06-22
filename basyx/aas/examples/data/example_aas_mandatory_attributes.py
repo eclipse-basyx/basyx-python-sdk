@@ -63,11 +63,11 @@ def create_example_submodel() -> model.Submodel:
 
     submodel_element_blob = model.Blob(
         id_short='ExampleBlob',
-        mime_type='application/pdf')
+        content_type='application/pdf')
 
     submodel_element_file = model.File(
         id_short='ExampleFile',
-        mime_type='application/pdf')
+        content_type='application/pdf')
 
     submodel_element_reference_element = model.ReferenceElement(
         category="PARAMETER",

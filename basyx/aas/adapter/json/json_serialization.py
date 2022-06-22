@@ -506,7 +506,7 @@ class AASToJsonEncoder(json.JSONEncoder):
         :return: dict with the serialized attributes of this object
         """
         data = cls._abstract_classes_to_json(obj)
-        data['mimeType'] = obj.mime_type
+        data['contentType'] = obj.content_type
         if obj.value is not None:
             data['value'] = base64.b64encode(obj.value).decode()
         return data
@@ -520,7 +520,7 @@ class AASToJsonEncoder(json.JSONEncoder):
         :return: dict with the serialized attributes of this object
         """
         data = cls._abstract_classes_to_json(obj)
-        data.update({'value': obj.value, 'mimeType': obj.mime_type})
+        data.update({'value': obj.value, 'contentType': obj.content_type})
         return data
 
     @classmethod

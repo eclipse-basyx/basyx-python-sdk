@@ -705,7 +705,7 @@ class AASFromXmlDecoder:
     def construct_blob(cls, element: etree.Element, object_class=model.Blob, **_kwargs: Any) -> model.Blob:
         blob = object_class(
             _child_text_mandatory(element, NS_AAS + "idShort"),
-            _child_text_mandatory(element, NS_AAS + "mimeType"),
+            _child_text_mandatory(element, NS_AAS + "contentType"),
             kind=_get_modeling_kind(element)
         )
         value = _get_text_or_none(element.find(NS_AAS + "value"))
@@ -756,7 +756,7 @@ class AASFromXmlDecoder:
     def construct_file(cls, element: etree.Element, object_class=model.File, **_kwargs: Any) -> model.File:
         file = object_class(
             _child_text_mandatory(element, NS_AAS + "idShort"),
-            _child_text_mandatory(element, NS_AAS + "mimeType"),
+            _child_text_mandatory(element, NS_AAS + "contentType"),
             kind=_get_modeling_kind(element)
         )
         value = _get_text_or_none(element.find(NS_AAS + "value"))

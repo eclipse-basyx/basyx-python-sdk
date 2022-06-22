@@ -84,7 +84,7 @@ with open(Path(__file__).parent / 'data' / 'TestFile.pdf', 'rb') as f:
 
 submodel.submodel_element.add(
     model.File(id_short="documentationFile",
-               mime_type="application/pdf",
+               content_type="application/pdf",
                value=actual_file_name))
 
 

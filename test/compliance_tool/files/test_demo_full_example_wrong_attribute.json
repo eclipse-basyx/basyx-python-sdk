@@ -1146,7 +1146,7 @@
                                     }
                                 ]
                             },
-                            "mimeType": "application/pdf",
+                            "contentType": "application/pdf",
                             "value": "AQIDBAU="
                         },
                         {
@@ -1175,7 +1175,7 @@
                                 ]
                             },
                             "value": "/TestFile.pdf",
-                            "mimeType": "application/pdf"
+                            "contentType": "application/pdf"
                         },
                         {
                             "idShort": "ExampleFileURI",
@@ -1203,7 +1203,7 @@
                                 ]
                             },
                             "value": "https://www.plattform-i40.de/PI40/Redaktion/DE/Downloads/Publikation/Details-of-the-Asset-Administration-Shell-Part1.pdf?__blob=publicationFile&v=5",
-                            "mimeType": "application/pdf"
+                            "contentType": "application/pdf"
                         },
                         {
                             "idShort": "ExampleReferenceElement",
@@ -1378,7 +1378,7 @@
                             "modelType": {
                                 "name": "Blob"
                             },
-                            "mimeType": "application/pdf"
+                            "contentType": "application/pdf"
                         },
                         {
                             "idShort": "ExampleFile",
@@ -1386,7 +1386,7 @@
                                 "name": "File"
                             },
                             "value": null,
-                            "mimeType": "application/pdf"
+                            "contentType": "application/pdf"
                         },
                         {
                             "idShort": "ExampleReferenceElement",
@@ -1987,7 +1987,7 @@
                                     }
                                 ]
                             },
-                            "mimeType": "application/pdf",
+                            "contentType": "application/pdf",
                             "value": "AQIDBAU="
                         },
                         {
@@ -2016,7 +2016,7 @@
                                 ]
                             },
                             "value": "/TestFile.pdf",
-                            "mimeType": "application/pdf"
+                            "contentType": "application/pdf"
                         },
                         {
                             "idShort": "ExampleReferenceElement",
@@ -2572,7 +2572,7 @@
                                 ]
                             },
                             "kind": "Template",
-                            "mimeType": "application/pdf"
+                            "contentType": "application/pdf"
                         },
                         {
                             "idShort": "ExampleFile",
@@ -2601,7 +2601,7 @@
                             },
                             "kind": "Template",
                             "value": null,
-                            "mimeType": "application/pdf"
+                            "contentType": "application/pdf"
                         },
                         {
                             "idShort": "ExampleReferenceElement",

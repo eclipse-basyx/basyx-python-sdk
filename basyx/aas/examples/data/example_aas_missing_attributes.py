@@ -90,7 +90,7 @@ def create_example_submodel() -> model.Submodel:
 
     submodel_element_blob = model.Blob(
         id_short='ExampleBlob',
-        mime_type='application/pdf',
+        content_type='application/pdf',
         value=bytearray(b'\x01\x02\x03\x04\x05'),
         category='PARAMETER',
         description={'en-us': 'Example Blob object',
@@ -104,7 +104,7 @@ def create_example_submodel() -> model.Submodel:
 
     submodel_element_file = model.File(
         id_short='ExampleFile',
-        mime_type='application/pdf',
+        content_type='application/pdf',
         value='/TestFile.pdf',
         category='PARAMETER',
         description={'en-us': 'Example File object',

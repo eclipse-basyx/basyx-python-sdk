@@ -403,7 +403,7 @@ class Blob(DataElement):
 
     :ivar id_short: Identifying string of the element within its name space. (inherited from
                     :class:`~aas.model.base.Referable`)
-    :ivar mime_type: Mime type of the content of the BLOB. The mime type states which file extension the file has.
+    :ivar content_type: Mime type of the content of the BLOB. The mime type states which file extension the file has.
                      Valid values are e.g. “application/json”, “application/xls”, ”image/jpg”. The allowed values
                      are defined as in RFC2046.
     :ivar value: The value of the BLOB instance of a blob data element.
@@ -428,7 +428,7 @@ class Blob(DataElement):
 
     def __init__(self,
                  id_short: str,
-                 mime_type: base.MimeType,
+                 content_type: base.ContentType,
                  value: Optional[base.BlobType] = None,
                  display_name: Optional[base.LangStringSet] = None,
                  category: Optional[str] = None,
@@ -444,7 +444,7 @@ class Blob(DataElement):
 
         super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, kind, extension)
         self.value: Optional[base.BlobType] = value
-        self.mime_type: base.MimeType = mime_type
+        self.content_type: base.ContentType = content_type
 
 
 class File(DataElement):
@@ -453,7 +453,7 @@ class File(DataElement):
 
     :ivar id_short: Identifying string of the element within its name space. (inherited from
                     :class:`~aas.model.base.Referable`)
-    :ivar mime_type: Mime type of the content of the File.
+    :ivar content_type: Mime type of the content of the File.
     :ivar value: Path and name of the referenced file (with file extension). The path can be absolute or relative.
     :ivar display_name: Can be provided in several languages. (inherited from :class:`~aas.model.base.Referable`)
     :ivar category: The category is a value that gives further meta information w.r.t. to the class of the element.
@@ -476,7 +476,7 @@ class File(DataElement):
 
     def __init__(self,
                  id_short: str,
-                 mime_type: base.MimeType,
+                 content_type: base.ContentType,
                  value: Optional[base.PathType] = None,
                  display_name: Optional[base.LangStringSet] = None,
                  category: Optional[str] = None,
@@ -492,7 +492,7 @@ class File(DataElement):
 
         super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, kind, extension)
         self.value: Optional[base.PathType] = value
-        self.mime_type: base.MimeType = mime_type
+        self.content_type: base.ContentType = content_type
 
 
 class ReferenceElement(DataElement):

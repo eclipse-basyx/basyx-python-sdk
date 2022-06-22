@@ -308,7 +308,7 @@ def create_example_submodel() -> model.Submodel:
 
     submodel_element_blob = model.Blob(
         id_short='ExampleBlob',
-        mime_type='application/pdf',
+        content_type='application/pdf',
         value=bytes(b'\x01\x02\x03\x04\x05'),
         category='PARAMETER',
         description={'en-us': 'Example Blob object',
@@ -322,7 +322,7 @@ def create_example_submodel() -> model.Submodel:
 
     submodel_element_file = model.File(
         id_short='ExampleFile',
-        mime_type='application/pdf',
+        content_type='application/pdf',
         value='/TestFile.pdf',
         category='PARAMETER',
         description={'en-us': 'Example File object',
@@ -336,7 +336,7 @@ def create_example_submodel() -> model.Submodel:
 
     submodel_element_file_uri = model.File(
         id_short='ExampleFileURI',
-        mime_type='application/pdf',
+        content_type='application/pdf',
         value='https://www.plattform-i40.de/PI40/Redaktion/DE/Downloads/Publikation/Details-of-the-Asset-'
               'Administration-Shell-Part1.pdf?__blob=publicationFile&v=5',
         category='CONSTANT',

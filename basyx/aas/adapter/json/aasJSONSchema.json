@@ -834,11 +834,11 @@
 			"value": {
               "type": "string"
             },
-			"mimeType": {
+			"contentType": {
               "type": "string"
             }
           },
-		  "required": [ "mimeType" ]
+		  "required": [ "contentType" ]
         }
 	  ]
     },
@@ -860,11 +860,11 @@
 			"value": {
               "type": "string"
             },
-			"mimeType": {
+			"contentType": {
               "type": "string"
             }
           },
-		  "required": [ "mimeType" ]
+		  "required": [ "contentType" ]
         }
 	  ]
     },

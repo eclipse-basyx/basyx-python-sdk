@@ -259,11 +259,11 @@ class XmlDeserializationTest(unittest.TestCase):
                                     <aas:file>
                                         <aas:kind>Template</aas:kind>
                                         <aas:idShort>test_file</aas:idShort>
-                                        <aas:mimeType>application/problem+xml</aas:mimeType>
+                                        <aas:contentType>application/problem+xml</aas:contentType>
                                     </aas:file>
                                     <aas:file>
                                         <aas:idShort>test_file2</aas:idShort>
-                                        <aas:mimeType>application/problem+xml</aas:mimeType>
+                                        <aas:contentType>application/problem+xml</aas:contentType>
                                     </aas:file>
                                 </aas:value>
                             </aas:outputVariable>
