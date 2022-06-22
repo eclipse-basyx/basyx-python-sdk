@@ -194,32 +194,8 @@
                     }
                 ],
                 "thumbnail": {
-                    "idShort": "ThumbnailFile",
-                    "category": "PARAMETER",
-                    "description": [
-                        {
-                            "language": "en-us",
-                            "text": "Example Thumbnail object"
-                        },
-                        {
-                            "language": "de",
-                            "text": "Beispiel Thumbnail Element"
-                        }
-                    ],
-                    "modelType": {
-                        "name": "File"
-                    },
-                    "semanticId": {
-                        "keys": [
-                            {
-                                "type": "GlobalReference",
-                                "idType": "IRI",
-                                "value": "http://acplt.org/Files/ExampleThumbnail"
-                            }
-                        ]
-                    },
-                    "value": "/TestFile.pdf",
-                    "mimeType": "application/pdf"
+                    "path": "/TestFile.pdf",
+                    "contentType": "application/pdf"
                 }
             },
             "submodels": [

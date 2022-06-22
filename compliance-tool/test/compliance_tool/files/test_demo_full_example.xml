@@ -107,20 +107,8 @@
       </aas:submodelRefs>
       <aas:assetInformation>
         <aas:defaultThumbNail>
-          <aas:idShort>ThumbnailFile</aas:idShort>
-          <aas:category>PARAMETER</aas:category>
-          <aas:description>
-            <aas:langString lang="en-us">Example Thumbnail object</aas:langString>
-            <aas:langString lang="de">Beispiel Thumbnail Element</aas:langString>
-          </aas:description>
-          <aas:kind>Instance</aas:kind>
-          <aas:semanticId>
-            <aas:keys>
-              <aas:key idType="IRI" type="GlobalReference">http://acplt.org/Files/ExampleThumbnail</aas:key>
-            </aas:keys>
-          </aas:semanticId>
-          <aas:value>/TestFile.pdf</aas:value>
-          <aas:mimeType>application/pdf</aas:mimeType>
+          <aas:path>/TestFile.pdf</aas:path>
+          <aas:contentType>application/pdf</aas:contentType>
         </aas:defaultThumbNail>
         <aas:globalAssetId>
           <aas:keys>
