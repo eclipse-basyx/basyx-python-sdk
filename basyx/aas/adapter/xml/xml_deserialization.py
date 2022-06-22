@@ -935,7 +935,7 @@ class AASFromXmlDecoder:
                                                 cls.construct_identifier_key_value_pair, cls.failsafe):
                 asset_information.specific_asset_id.add(id)
         thumbnail = _failsafe_construct(element.find(NS_AAS + "defaultThumbNail"),
-                                        cls.construct_file, cls.failsafe)
+                                        cls.construct_resource, cls.failsafe)
         if thumbnail is not None:
             asset_information.default_thumbnail = thumbnail
 

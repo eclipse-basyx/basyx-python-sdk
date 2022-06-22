@@ -337,7 +337,7 @@ def asset_information_to_xml(obj: model.AssetInformation, tag: str = NS_AAS+"ass
     """
     et_asset_information = abstract_classes_to_xml(tag, obj)
     if obj.default_thumbnail:
-        et_asset_information.append(file_to_xml(obj.default_thumbnail, NS_AAS+"defaultThumbNail"))
+        et_asset_information.append(resource_to_xml(obj.default_thumbnail, NS_AAS+"defaultThumbNail"))
     if obj.global_asset_id:
         et_asset_information.append(reference_to_xml(obj.global_asset_id, NS_AAS + "globalAssetId"))
     et_asset_information.append(_generate_element(name=NS_AAS + "assetKind", text=_generic.ASSET_KIND[obj.asset_kind]))

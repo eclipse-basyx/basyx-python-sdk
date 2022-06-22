@@ -687,7 +687,7 @@ class AASDataChecker(DataChecker):
                    value=found_elements)
 
         if object_.default_thumbnail and expected_value.default_thumbnail:
-            self.check_file_equal(object_.default_thumbnail, expected_value.default_thumbnail)
+            self.check_resource_equal(object_.default_thumbnail, expected_value.default_thumbnail)
         else:
             if object_.default_thumbnail:
                 self.check(expected_value.default_thumbnail is not None,

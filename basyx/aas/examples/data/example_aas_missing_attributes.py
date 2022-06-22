@@ -345,19 +345,9 @@ def create_example_asset_administration_shell() -> model.AssetAdministrationShel
     :return: example asset administration shell
     """
 
-    submodel_element_file = model.File(
-        id_short='ThumbnailFile',
-        mime_type='application/pdf',
-        value='/TestFile.pdf',
-        category='PARAMETER',
-        description={'en-us': 'Example Thumbnail object',
-                     'de': 'Beispiel Thumbnail Element'},
-        parent=None,
-        semantic_id=model.Reference((model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
-                                               value='http://acplt.org/Files/ExampleThumbnail',
-                                               id_type=model.KeyType.IRI),)),
-        qualifier=(),
-        kind=model.ModelingKind.INSTANCE)
+    resource = model.Resource(
+        content_type='application/pdf',
+        path='/TestFile.pdf')
 
     asset_information = model.AssetInformation(
         asset_kind=model.AssetKind.INSTANCE,
@@ -369,7 +359,7 @@ def create_example_asset_administration_shell() -> model.AssetAdministrationShel
                                                             model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
                                                                       value='http://acplt.org/SpecificAssetId/',
                                                                       id_type=model.KeyType.IRI),)))},
-        default_thumbnail=submodel_element_file)
+        default_thumbnail=resource)
 
     asset_administration_shell = model.AssetAdministrationShell(
         asset_information=asset_information,

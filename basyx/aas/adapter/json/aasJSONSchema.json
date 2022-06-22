@@ -560,7 +560,7 @@
               }
             },
       "thumbnail":{
-              "$ref": "#/definitions/File"
+              "$ref": "#/definitions/Resource"
             }
           },
       "required": [ "assetKind" ]

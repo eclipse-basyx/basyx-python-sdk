@@ -389,7 +389,7 @@ class AASFromJsonDecoder(json.JSONDecoder):
                 ret.specific_asset_id.add(cls._construct_identifier_key_value_pair(desc_data,
                                                                                    model.IdentifierKeyValuePair))
         if 'thumbnail' in dct:
-            ret.default_thumbnail = _get_ts(dct, 'thumbnail', model.File)
+            ret.default_thumbnail = cls._construct_resource(_get_ts(dct, 'thumbnail', dict))
         return ret
 
     @classmethod

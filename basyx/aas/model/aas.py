@@ -46,14 +46,14 @@ class AssetInformation:
                  asset_kind: base.AssetKind = base.AssetKind.INSTANCE,
                  global_asset_id: Optional[base.Reference] = None,
                  specific_asset_id: Optional[Set[base.IdentifierKeyValuePair]] = None,
-                 default_thumbnail: Optional[File] = None):
+                 default_thumbnail: Optional[base.Resource] = None):
 
         super().__init__()
         self.asset_kind: base.AssetKind = asset_kind
         self._global_asset_id: Optional[base.Reference] = global_asset_id
         self.specific_asset_id: Set[base.IdentifierKeyValuePair] = set() if specific_asset_id is None \
             else specific_asset_id
-        self.default_thumbnail: Optional[File] = default_thumbnail
+        self.default_thumbnail: Optional[base.Resource] = default_thumbnail
 
     def _get_global_asset_id(self):
         return self._global_asset_id
