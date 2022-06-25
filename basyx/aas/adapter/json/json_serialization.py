@@ -146,7 +146,7 @@ class AASToJsonEncoder(json.JSONEncoder):
                                 .format(obj.__class__.__name__)) from e
             data['modelType'] = {'name': ref_type.__name__}
         if isinstance(obj, model.Identifiable):
-            data['identification'] = obj.identification
+            data['id'] = obj.id
             if obj.administration:
                 data['administration'] = obj.administration
         if isinstance(obj, model.HasSemantics):

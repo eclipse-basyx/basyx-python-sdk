@@ -38,7 +38,7 @@ LangStringSet = Dict[str, str]
 @unique
 class IdentifierType(Enum):
     """
-    Enumeration of different types of :class:`Identifiers <.Identifier>` for global identification
+    Enumeration of different types of :class:`Identifiers <.Identifier>` for global id
 
     :cvar IRDI: IRDI (International Registration Data Identifier) according to ISO29002-5 as an Identifier scheme for
                 properties and classifications.
@@ -314,8 +314,8 @@ class Key:
             key_type = KeyElements.PROPERTY
 
         if isinstance(referable, Identifiable):
-            return Key(key_type, referable.identification.id,
-                       KeyType(referable.identification.id_type.value))
+            return Key(key_type, referable.id.id,
+                       KeyType(referable.id.id_type.value))
         else:
             return Key(key_type, referable.id_short, KeyType.IDSHORT)
 
@@ -567,7 +567,7 @@ class Referable(HasExtension, metaclass=abc.ABCMeta):
         item = self  # type: Any
         while item is not None:
             if isinstance(item, Identifiable):
-                reversed_path.append(str(item.identification))
+                reversed_path.append(str(item.id))
                 break
             elif isinstance(item, Referable):
                 reversed_path.append(item.id_short)
@@ -979,16 +979,16 @@ class Identifiable(Referable, metaclass=abc.ABCMeta):
     <<abstract>>
 
     :ivar administration: :class:`~.AdministrativeInformation` of an identifiable element.
-    :ivar ~.identification: The globally unique identification of the element.
+    :ivar ~.id: The globally unique id of the element.
     """
     @abc.abstractmethod
     def __init__(self):
         super().__init__()
         self.administration: Optional[AdministrativeInformation] = None
-        self.identification: Identifier = Identifier("None", IdentifierType.IRDI)
+        self.id: Identifier = Identifier("None", IdentifierType.IRDI)
 
     def __repr__(self) -> str:
-        return "{}[{}]".format(self.__class__.__name__, self.identification)
+        return "{}[{}]".format(self.__class__.__name__, self.id)
 
 
 class HasSemantics(metaclass=abc.ABCMeta):

@@ -55,14 +55,14 @@
 	  "allOf": [
 	    { "$ref": "#/definitions/Referable" },
         { "properties": {
-            "identification": {
+            "id": {
               "$ref": "#/definitions/Identifier"
             },
             "administration": {
               "$ref": "#/definitions/AdministrativeInformation"
             }
           },
-		  "required": [ "identification" ]
+		  "required": [ "id" ]
 	    }
 	  ]
 	},

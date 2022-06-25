@@ -127,14 +127,14 @@ class LocalFileObjectStore(model.AbstractObjectStore):
         # If we still have a local replication of that object (since it is referenced from anywhere else), update that
         # replication and return it.
         with self._object_cache_lock:
-            if obj.identification in self._object_cache:
-                old_obj = self._object_cache[obj.identification]
+            if obj.id in self._object_cache:
+                old_obj = self._object_cache[obj.id]
                 # If the source does not match the correct source for this CouchDB backend, the object seems to belong
                 # to another backend now, so we return a fresh copy
                 if old_obj.source == obj.source:
                     old_obj.update_from(obj)
                     return old_obj
-        self._object_cache[obj.identification] = obj
+        self._object_cache[obj.id] = obj
         return obj
 
     def add(self, x: model.Identifiable) -> None:
@@ -144,12 +144,12 @@ class LocalFileObjectStore(model.AbstractObjectStore):
         :raises KeyError: If an object with the same id exists already in the object store
         """
         logger.debug("Adding object %s to Local File Store ...", repr(x))
-        if os.path.exists("{}/{}.json".format(self.directory_path, self._transform_id(x.identification))):
-            raise KeyError("Identifiable with id {} already exists in local file database".format(x.identification))
-        with open("{}/{}.json".format(self.directory_path, self._transform_id(x.identification)), "w") as file:
+        if os.path.exists("{}/{}.json".format(self.directory_path, self._transform_id(x.id))):
+            raise KeyError("Identifiable with id {} already exists in local file database".format(x.id))
+        with open("{}/{}.json".format(self.directory_path, self._transform_id(x.id)), "w") as file:
             json.dump({"data": x}, file, cls=json_serialization.AASToJsonEncoder, indent=4)
             with self._object_cache_lock:
-                self._object_cache[x.identification] = x
+                self._object_cache[x.id] = x
             self.generate_source(x)  # Set the source of the object
 
     def discard(self, x: model.Identifiable) -> None:
@@ -161,11 +161,11 @@ class LocalFileObjectStore(model.AbstractObjectStore):
         """
         logger.debug("Deleting object %s from Local File Store database ...", repr(x))
         try:
-            os.remove("{}/{}.json".format(self.directory_path, self._transform_id(x.identification)))
+            os.remove("{}/{}.json".format(self.directory_path, self._transform_id(x.id)))
         except FileNotFoundError as e:
-            raise KeyError("No AAS object with id {} exists in local file database".format(x.identification)) from e
+            raise KeyError("No AAS object with id {} exists in local file database".format(x.id)) from e
         with self._object_cache_lock:
-            del self._object_cache[x.identification]
+            del self._object_cache[x.id]
         x.source = ""
 
     def __contains__(self, x: object) -> bool:
@@ -179,7 +179,7 @@ class LocalFileObjectStore(model.AbstractObjectStore):
         if isinstance(x, model.Identifier):
             identifier = x
         elif isinstance(x, model.Identifiable):
-            identifier = x.identification
+            identifier = x.id
         else:
             return False
         logger.debug("Checking existence of object with id %s in database ...", repr(x))
@@ -220,7 +220,7 @@ class LocalFileObjectStore(model.AbstractObjectStore):
         """
         source: str = "file://localhost/{}/{}.json".format(
             self.directory_path,
-            self._transform_id(identifiable.identification)
+            self._transform_id(identifiable.id)
         )
         identifiable.source = source
         return source

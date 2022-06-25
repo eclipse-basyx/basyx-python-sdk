@@ -125,8 +125,8 @@ def create_example_submodel() -> model.Submodel:
         value=())
 
     submodel = model.Submodel(
-        identification=model.Identifier(id_='https://acplt.org/Test_Submodel_Mandatory',
-                                        id_type=model.IdentifierType.IRI),
+        id_=model.Identifier(id_='https://acplt.org/Test_Submodel_Mandatory',
+                             id_type=model.IdentifierType.IRI),
         submodel_element=(submodel_element_relationship_element,
                           submodel_element_annotated_relationship_element,
                           submodel_element_operation,
@@ -140,24 +140,24 @@ def create_example_submodel() -> model.Submodel:
 
 def create_example_empty_submodel() -> model.Submodel:
     """
-    Creates an example empty :class:`~aas.model.submodel.Submodel` where only the identification attribute is set
+    Creates an example empty :class:`~aas.model.submodel.Submodel` where only the id attribute is set
 
     :return: example submodel
     """
     return model.Submodel(
-        identification=model.Identifier(id_='https://acplt.org/Test_Submodel2_Mandatory',
-                                        id_type=model.IdentifierType.IRI))
+        id_=model.Identifier(id_='https://acplt.org/Test_Submodel2_Mandatory',
+                             id_type=model.IdentifierType.IRI))
 
 
 def create_example_concept_description() -> model.ConceptDescription:
     """
-    Creates an example :class:`~aas.model.concept.ConceptDescription` where only the identification attribute is set
+    Creates an example :class:`~aas.model.concept.ConceptDescription` where only the id attribute is set
 
     :return: example concept description
     """
     concept_description = model.ConceptDescription(
-        identification=model.Identifier(id_='https://acplt.org/Test_ConceptDescription_Mandatory',
-                                        id_type=model.IdentifierType.IRI))
+        id_=model.Identifier(id_='https://acplt.org/Test_ConceptDescription_Mandatory',
+                             id_type=model.IdentifierType.IRI))
     return concept_description
 
 
@@ -177,8 +177,8 @@ def create_example_asset_administration_shell() -> \
 
     asset_administration_shell = model.AssetAdministrationShell(
         asset_information=asset_information,
-        identification=model.Identifier(id_='https://acplt.org/Test_AssetAdministrationShell_Mandatory',
-                                        id_type=model.IdentifierType.IRI),
+        id_=model.Identifier(id_='https://acplt.org/Test_AssetAdministrationShell_Mandatory',
+                             id_type=model.IdentifierType.IRI),
         submodel={model.AASReference((model.Key(type_=model.KeyElements.SUBMODEL,
                                                 value='https://acplt.org/Test_Submodel_Mandatory',
                                                 id_type=model.KeyType.IRI),),
@@ -199,8 +199,8 @@ def create_example_empty_asset_administration_shell() -> model.AssetAdministrati
     """
     asset_administration_shell = model.AssetAdministrationShell(
         asset_information=model.AssetInformation(),
-        identification=model.Identifier(id_='https://acplt.org/Test_AssetAdministrationShell2_Mandatory',
-                                        id_type=model.IdentifierType.IRI))
+        id_=model.Identifier(id_='https://acplt.org/Test_AssetAdministrationShell2_Mandatory',
+                             id_type=model.IdentifierType.IRI))
     return asset_administration_shell
 
 

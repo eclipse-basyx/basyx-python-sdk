@@ -32,7 +32,7 @@ import basyx.aas.adapter.xml
 # For more details, take a look at `tutorial_create_simple_aas.py`
 
 submodel = model.Submodel(
-    identification=model.Identifier('https://acplt.org/Simple_Submodel', model.IdentifierType.IRI),
+    id_=model.Identifier('https://acplt.org/Simple_Submodel', model.IdentifierType.IRI),
     submodel_element={
         model.Property(
             id_short='ExampleProperty',
@@ -48,7 +48,7 @@ submodel = model.Submodel(
         )}
 )
 aashell = model.AssetAdministrationShell(
-    identification=model.Identifier('https://acplt.org/Simple_AAS', model.IdentifierType.IRI),
+    id_=model.Identifier('https://acplt.org/Simple_AAS', model.IdentifierType.IRI),
     asset_information=model.AssetInformation(),
     submodel={model.AASReference.from_referable(submodel)}
 )

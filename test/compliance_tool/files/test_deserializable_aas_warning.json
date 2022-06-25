@@ -1,7 +1,7 @@
 {
 	"assetAdministrationShells": [
 		{
-			"identification": {
+			"id": {
 				"id": "https://acplt.org/Test_AssetAdministrationShell",
 				"idType": "IRI"
 			},

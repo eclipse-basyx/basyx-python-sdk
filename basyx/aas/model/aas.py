@@ -75,7 +75,7 @@ class AssetAdministrationShell(base.Identifiable, base.UniqueIdShortNamespace):
     An Asset Administration Shell
 
     :ivar asset_information: :class:`~.AssetInformation` of the asset this AssetAdministrationShell is representing
-    :ivar ~.identification: The globally unique identification (:class:`~aas.model.base.Identifier`) of the element.
+    :ivar ~.id: The globally unique id (:class:`~aas.model.base.Identifier`) of the element.
                             (inherited from :class:`~aas.model.base.Identifiable`)
     :ivar id_short: Identifying string of the element within its name space. (inherited from
                     :class:`~aas.model.base.Referable`)
@@ -97,7 +97,7 @@ class AssetAdministrationShell(base.Identifiable, base.UniqueIdShortNamespace):
     """
     def __init__(self,
                  asset_information: AssetInformation,
-                 identification: base.Identifier,
+                 id_: base.Identifier,
                  id_short: str = "NotSet",
                  display_name: Optional[base.LangStringSet] = None,
                  category: Optional[str] = None,
@@ -108,7 +108,7 @@ class AssetAdministrationShell(base.Identifiable, base.UniqueIdShortNamespace):
                  derived_from: Optional[base.AASReference["AssetAdministrationShell"]] = None,
                  extension: Iterable[base.Extension] = ()):
         super().__init__()
-        self.identification: base.Identifier = identification
+        self.id: base.Identifier = id_
         self.asset_information: AssetInformation = asset_information
         self.id_short = id_short
         self.display_name: Optional[base.LangStringSet] = dict() if display_name is None else display_name

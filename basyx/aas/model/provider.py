@@ -41,13 +41,13 @@ class AbstractObjectProvider(metaclass=abc.ABCMeta):
 
     def get(self, identifier: Identifier, default: Optional[Identifiable] = None) -> Optional[Identifiable]:
         """
-        Find an object in this set by its :class:`identification <aas.model.base.Identifier>`, with fallback parameter
+        Find an object in this set by its :class:`id <aas.model.base.Identifier>`, with fallback parameter
 
         :param identifier: :class:`~aas.model.base.Identifier` of the object to return
         :param default: An object to be returned, if no object with the given
-                        :class:`identification <aas.model.base.Identifier>` is found
+                        :class:`id <aas.model.base.Identifier>` is found
         :return: The :class:`~aas.model.base.Identifiable` object with the given
-                 :class:`identification <aas.model.base.Identifier>` in the provider. Otherwise the `default` object
+                 :class:`id <aas.model.base.Identifier>` in the provider. Otherwise the `default` object
                  or None, if none is given.
         """
         try:
@@ -95,21 +95,21 @@ class DictObjectStore(AbstractObjectStore[_IT], Generic[_IT]):
         return self._backend[identifier]
 
     def add(self, x: _IT) -> None:
-        if x.identification in self._backend and self._backend.get(x.identification) is not x:
-            raise KeyError("Identifiable object with same identification {} is already stored in this store"
-                           .format(x.identification))
-        self._backend[x.identification] = x
+        if x.id in self._backend and self._backend.get(x.id) is not x:
+            raise KeyError("Identifiable object with same id {} is already stored in this store"
+                           .format(x.id))
+        self._backend[x.id] = x
 
     def discard(self, x: _IT) -> None:
-        if self._backend.get(x.identification) is x:
-            del self._backend[x.identification]
+        if self._backend.get(x.id) is x:
+            del self._backend[x.id]
 
     def __contains__(self, x: object) -> bool:
         if isinstance(x, Identifier):
             return x in self._backend
         if not isinstance(x, Identifiable):
             return False
-        return self._backend.get(x.identification) is x
+        return self._backend.get(x.id) is x
 
     def __len__(self) -> int:
         return len(self._backend)

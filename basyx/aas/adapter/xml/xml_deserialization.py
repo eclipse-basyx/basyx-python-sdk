@@ -31,8 +31,8 @@ which allows printing stacktrace-like error messages like the following in the e
 
 .. code-block::
 
-    KeyError: aas:identification on line 252 has no attribute with name idType!
-        -> Failed to construct aas:identification on line 252 using construct_identifier!
+    KeyError: aas:id on line 252 has no attribute with name idType!
+        -> Failed to construct aas:id on line 252 using construct_identifier!
         -> Failed to construct aas:conceptDescription on line 247 using construct_concept_description!
 
 
@@ -892,7 +892,7 @@ class AASFromXmlDecoder:
     def construct_asset_administration_shell(cls, element: etree.Element, object_class=model.AssetAdministrationShell,
                                              **_kwargs: Any) -> model.AssetAdministrationShell:
         aas = object_class(
-            identification=_child_construct_mandatory(element, NS_AAS + "identification", cls.construct_identifier),
+            id_=_child_construct_mandatory(element, NS_AAS + "id", cls.construct_identifier),
             asset_information=_child_construct_mandatory(element, NS_AAS + "assetInformation",
                                                          cls.construct_asset_information)
         )
@@ -946,7 +946,7 @@ class AASFromXmlDecoder:
     def construct_submodel(cls, element: etree.Element, object_class=model.Submodel, **_kwargs: Any) \
             -> model.Submodel:
         submodel = object_class(
-            _child_construct_mandatory(element, NS_AAS + "identification", cls.construct_identifier),
+            _child_construct_mandatory(element, NS_AAS + "id", cls.construct_identifier),
             kind=_get_modeling_kind(element)
         )
         if not cls.stripped:
@@ -1056,7 +1056,7 @@ class AASFromXmlDecoder:
     def construct_concept_description(cls, element: etree.Element, object_class=model.ConceptDescription,
                                       **_kwargs: Any) -> model.ConceptDescription:
         cd: Optional[model.ConceptDescription] = None
-        identifier = _child_construct_mandatory(element, NS_AAS + "identification", cls.construct_identifier)
+        identifier = _child_construct_mandatory(element, NS_AAS + "id", cls.construct_identifier)
         # Hack to detect IEC61360ConceptDescriptions, which are represented using dataSpecification according to DotAAS
         dspec_tag = NS_AAS + "embeddedDataSpecification"
         dspecs = element.findall(dspec_tag)
@@ -1342,16 +1342,16 @@ def read_aas_xml_file_into(object_store: model.AbstractObjectStore[model.Identif
             continue
         constructor = element_constructors[element_tag]
         for element in _child_construct_multiple(list_, element_tag, constructor, decoder_.failsafe):
-            if element.identification in ret:
+            if element.id in ret:
                 error_message = f"{element} has a duplicate identifier already parsed in the document!"
                 if not decoder_.failsafe:
                     raise KeyError(error_message)
                 logger.error(error_message + " skipping it...")
                 continue
-            existing_element = object_store.get(element.identification)
+            existing_element = object_store.get(element.id)
             if existing_element is not None:
                 if not replace_existing:
-                    error_message = f"object with identifier {element.identification} already exists " \
+                    error_message = f"object with identifier {element.id} already exists " \
                                     f"in the object store: {existing_element}!"
                     if not ignore_existing:
                         raise KeyError(error_message + f" failed to insert {element}!")
@@ -1359,7 +1359,7 @@ def read_aas_xml_file_into(object_store: model.AbstractObjectStore[model.Identif
                     continue
                 object_store.discard(existing_element)
             object_store.add(element)
-            ret.add(element.identification)
+            ret.add(element.id)
     return ret
 
 

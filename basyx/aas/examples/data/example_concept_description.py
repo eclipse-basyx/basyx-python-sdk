@@ -25,7 +25,7 @@ def create_iec61360_concept_description() -> IEC61360ConceptDescription:
     identification = model.Identifier(id_='http://acplt.org/DataSpecifciations/Example/Identification',
                                       id_type=model.IdentifierType.IRI)
     return IEC61360ConceptDescription(
-        identification=identification,
+        id_=identification,
         preferred_name={'de': 'Test Specification', 'en-us': "TestSpecification"},
         data_type=IEC61360DataType.REAL_MEASURE,
         definition={'de': 'Dies ist eine Data Specification für Testzwecke',

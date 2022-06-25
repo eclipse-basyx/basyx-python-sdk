@@ -30,7 +30,7 @@ class ProvidersTest(unittest.TestCase):
                                               model.Identifier("urn:x-test:aas1", model.IdentifierType.IRI))
         with self.assertRaises(KeyError) as cm:
             object_store.add(aas3)
-        self.assertEqual("'Identifiable object with same identification Identifier(IRI=urn:x-test:aas1) is already "
+        self.assertEqual("'Identifiable object with same id Identifier(IRI=urn:x-test:aas1) is already "
                          "stored in this store'", str(cm.exception))
         self.assertEqual(2, len(object_store))
         self.assertIs(self.aas1,

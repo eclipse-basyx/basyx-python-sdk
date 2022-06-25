@@ -398,7 +398,7 @@ class AASFromJsonDecoder(json.JSONDecoder):
         ret = object_class(
             asset_information=cls._construct_asset_information(_get_ts(dct, 'assetInformation', dict),
                                                                model.AssetInformation),
-            identification=cls._construct_identifier(_get_ts(dct, 'identification', dict)))
+            id_=cls._construct_identifier(_get_ts(dct, 'id', dict)))
         cls._amend_abstract_attributes(ret, dct)
         if not cls.stripped and 'submodels' in dct:
             for sm_data in _get_ts(dct, 'submodels', list):
@@ -422,7 +422,7 @@ class AASFromJsonDecoder(json.JSONDecoder):
                         dct, _get_ts(dspec, 'dataSpecificationContent', dict))
         # If this is not a special ConceptDescription, just construct one of the default object_class
         if ret is None:
-            ret = object_class(identification=cls._construct_identifier(_get_ts(dct, 'identification', dict)))
+            ret = object_class(id_=cls._construct_identifier(_get_ts(dct, 'id', dict)))
         cls._amend_abstract_attributes(ret, dct)
         if 'isCaseOf' in dct:
             for case_data in _get_ts(dct, "isCaseOf", list):
@@ -433,7 +433,7 @@ class AASFromJsonDecoder(json.JSONDecoder):
     def _construct_iec61360_concept_description(cls, dct: Dict[str, object], data_spec: Dict[str, object],
                                                 object_class=model.concept.IEC61360ConceptDescription)\
             -> model.concept.IEC61360ConceptDescription:
-        ret = object_class(identification=cls._construct_identifier(_get_ts(dct, 'identification', dict)),
+        ret = object_class(id_=cls._construct_identifier(_get_ts(dct, 'id', dict)),
                            preferred_name=cls._construct_lang_string_set(_get_ts(data_spec, 'preferredName', list)))
         if 'dataType' in data_spec:
             ret.data_type = IEC61360_DATA_TYPES_INVERSE[_get_ts(data_spec, 'dataType', str)]
@@ -507,7 +507,7 @@ class AASFromJsonDecoder(json.JSONDecoder):
 
     @classmethod
     def _construct_submodel(cls, dct: Dict[str, object], object_class=model.Submodel) -> model.Submodel:
-        ret = object_class(identification=cls._construct_identifier(_get_ts(dct, 'identification', dict)),
+        ret = object_class(id_=cls._construct_identifier(_get_ts(dct, 'id', dict)),
                            kind=cls._get_kind(dct))
         cls._amend_abstract_attributes(ret, dct)
         if not cls.stripped and 'submodelElements' in dct:
@@ -786,16 +786,16 @@ def read_aas_json_file_into(object_store: model.AbstractObjectStore, file: IO, r
                         logger.warning("{} was in wrong list '{}'; nevertheless, we'll use it".format(item, name))
                     else:
                         raise TypeError(error_message)
-                if item.identification in ret:
+                if item.id in ret:
                     error_message = f"{item} has a duplicate identifier already parsed in the document!"
                     if not decoder_.failsafe:
                         raise KeyError(error_message)
                     logger.error(error_message + " skipping it...")
                     continue
-                existing_element = object_store.get(item.identification)
+                existing_element = object_store.get(item.id)
                 if existing_element is not None:
                     if not replace_existing:
-                        error_message = f"object with identifier {item.identification} already exists " \
+                        error_message = f"object with identifier {item.id} already exists " \
                                         f"in the object store: {existing_element}!"
                         if not ignore_existing:
                             raise KeyError(error_message + f" failed to insert {item}!")
@@ -803,7 +803,7 @@ def read_aas_json_file_into(object_store: model.AbstractObjectStore, file: IO, r
                         continue
                     object_store.discard(existing_element)
                 object_store.add(item)
-                ret.add(item.identification)
+                ret.add(item.id)
             elif decoder_.failsafe:
                 logger.error(error_message)
             else:

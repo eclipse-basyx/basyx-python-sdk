@@ -272,8 +272,8 @@ def create_example_submodel_template() -> model.Submodel:
         kind=model.ModelingKind.TEMPLATE)
 
     submodel = model.Submodel(
-        identification=model.Identifier(id_='https://acplt.org/Test_Submodel_Template',
-                                        id_type=model.IdentifierType.IRI),
+        id_=model.Identifier(id_='https://acplt.org/Test_Submodel_Template',
+                             id_type=model.IdentifierType.IRI),
         submodel_element=(submodel_element_relationship_element,
                           submodel_element_annotated_relationship_element,
                           submodel_element_operation,

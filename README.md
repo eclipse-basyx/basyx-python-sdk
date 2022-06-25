@@ -87,7 +87,7 @@ Create a `Submodel`:
 from basyx.aas import model  # Import all BaSyx Python SDK classes from the model package
 
 identifier = model.Identifier('https://acplt.org/Simple_Submodel', model.IdentifierType.IRI)
-submodel = model.Submodel(identification=identifier)
+submodel = model.Submodel(id_=identifier)
 ```
 
 Create a `Property` and add it to the `Submodel`:

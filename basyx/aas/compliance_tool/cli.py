@@ -126,7 +126,7 @@ def main():
                     cp.title = "Test Title"
 
                     writer.write_aas_objects("/aasx/data.json" if args.json else "/aasx/data.xml",
-                                             [obj.identification for obj in data], data, files,
+                                             [obj.id for obj in data], data, files,
                                              write_json=args.json)
                     writer.write_core_properties(cp)
                 manager.set_step_status(Status.SUCCESS)

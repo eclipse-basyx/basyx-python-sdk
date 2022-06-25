@@ -3,7 +3,7 @@
 # See http://creativecommons.org/publicdomain/zero/1.0/ for more information.
 """
 Tutorial for storing Asset Administration Shells, Submodels and Assets in an ObjectStore and using it for fetching these
-objects by identification and resolving references.
+objects by id and resolving references.
 """
 
 # For managing a larger number of Identifiable AAS objects (AssetAdministrationShells, Assets, Submodels,
@@ -53,11 +53,11 @@ prop = model.Property(
     )
 )
 submodel = Submodel(
-    identification=model.Identifier('https://acplt.org/Simple_Submodel', model.IdentifierType.IRI),
+    id_=model.Identifier('https://acplt.org/Simple_Submodel', model.IdentifierType.IRI),
     submodel_element={prop}
 )
 aas = AssetAdministrationShell(
-    identification=model.Identifier('https://acplt.org/Simple_AAS', model.IdentifierType.IRI),
+    id_=model.Identifier('https://acplt.org/Simple_AAS', model.IdentifierType.IRI),
     asset_information=asset_information,
     submodel={model.AASReference.from_referable(submodel)}
 )
@@ -107,7 +107,7 @@ submodels = [reference.resolve(obj_store)
 assert(submodel is tmp_submodel)
 
 # Now, let's manually create a reference to the Property within the submodel. The reference uses two keys, the first one
-# identifying the submodel by its identification, the second one resolving to the Property within the submodel by its
+# identifying the submodel by its id, the second one resolving to the Property within the submodel by its
 # idShort.
 property_reference = model.AASReference(
     (model.Key(

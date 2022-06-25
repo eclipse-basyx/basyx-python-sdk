@@ -666,7 +666,7 @@ class AASReferenceTest(unittest.TestCase):
 
         class DummyObjectProvider(model.AbstractObjectProvider):
             def get_identifiable(self, identifier: Identifier) -> Identifiable:
-                if identifier == submodel.identification:
+                if identifier == submodel.id:
                     return submodel
                 else:
                     raise KeyError()
@@ -775,9 +775,9 @@ class AASReferenceTest(unittest.TestCase):
                 self.id_short = id_short
 
         class DummyIdentifyableNamespace(model.Identifiable, model.UniqueIdShortNamespace):
-            def __init__(self, identification: model.Identifier):
+            def __init__(self, id_: model.Identifier):
                 super().__init__()
-                self.identification = identification
+                self.id = id_
                 self.things: model.NamespaceSet = model.NamespaceSet(self, [("id_short", True)])
 
         thing = DummyThing("thing")

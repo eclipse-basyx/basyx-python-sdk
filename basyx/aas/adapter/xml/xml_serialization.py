@@ -113,9 +113,9 @@ def abstract_classes_to_xml(tag: str, obj: object) -> etree.Element:
     if isinstance(obj, model.Identifiable):
         if obj.administration:
             elm.append(administrative_information_to_xml(obj.administration))
-        elm.append(_generate_element(name=NS_AAS + "identification",
-                                     text=obj.identification.id,
-                                     attributes={"idType": _generic.IDENTIFIER_TYPES[obj.identification.id_type]}))
+        elm.append(_generate_element(name=NS_AAS + "id",
+                                     text=obj.id.id,
+                                     attributes={"idType": _generic.IDENTIFIER_TYPES[obj.id.id_type]}))
     if isinstance(obj, model.HasKind):
         if obj.kind is model.ModelingKind.TEMPLATE:
             elm.append(_generate_element(name=NS_AAS + "kind", text="Template"))

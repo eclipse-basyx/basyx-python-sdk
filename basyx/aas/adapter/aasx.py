@@ -190,9 +190,9 @@ class AASXReader:
             AASX that have the same Identifer. Default behavior is to skip those objects from the AASX.
         """
         for obj in self._parse_aas_part(part_name):
-            if obj.identification in read_identifiables:
+            if obj.id in read_identifiables:
                 continue
-            if obj.identification in object_store:
+            if obj.id in object_store:
                 if override_existing:
                     logger.info("Overriding existing object in  ObjectStore with {} ...".format(obj))
                     object_store.discard(obj)
@@ -201,7 +201,7 @@ class AASXReader:
                                    "ObjectStore".format(obj))
                     continue
             object_store.add(obj)
-            read_identifiables.add(obj.identification)
+            read_identifiables.add(obj.id)
             if isinstance(obj, model.Submodel):
                 self._collect_supplementary_files(part_name, obj, file_store)
 

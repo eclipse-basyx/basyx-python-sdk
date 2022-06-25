@@ -145,7 +145,7 @@ class AASDataChecker(DataChecker):
         """
         self._check_referable_equal(object_, expected_object)
         self.check_attribute_equal(object_, "administration", expected_object.administration)
-        self.check_attribute_equal(object_, "identification", expected_object.identification)
+        self.check_attribute_equal(object_, "id", expected_object.id)
 
     def _check_has_semantics_equal(self, object_: model.HasSemantics, expected_object: model.HasSemantics):
         """
@@ -838,32 +838,32 @@ class AASDataChecker(DataChecker):
                 raise KeyError('Check for {} not implemented'.format(obj))
 
         for shell_2 in shell_list_2:
-            shell_1 = obj_store_1.get(shell_2.identification)
+            shell_1 = obj_store_1.get(shell_2.id)
             if self.check(shell_1 is not None, 'Asset administration shell {} must exist in given asset administration'
                                                'shell list'.format(shell_2)):
                 self.check_asset_administration_shell_equal(shell_1, shell_2)  # type: ignore
 
-        found_elements = self._find_extra_elements_by_attribute(shell_list_1, shell_list_2, 'identification')
+        found_elements = self._find_extra_elements_by_attribute(shell_list_1, shell_list_2, 'id')
         self.check(found_elements == set(), 'Given asset administration shell list must not have extra asset '
                                             'administration shells', value=found_elements)
 
         for submodel_2 in submodel_list_2:
-            submodel_1 = obj_store_1.get(submodel_2.identification)
+            submodel_1 = obj_store_1.get(submodel_2.id)
             if self.check(submodel_1 is not None, 'Submodel {} must exist in given submodel list'.format(submodel_2)):
                 self.check_submodel_equal(submodel_1, submodel_2)  # type: ignore
 
-        found_elements = self._find_extra_elements_by_attribute(submodel_list_1, submodel_list_2, 'identification')
+        found_elements = self._find_extra_elements_by_attribute(submodel_list_1, submodel_list_2, 'id')
         self.check(found_elements == set(), 'Given submodel list must not have extra submodels',
                    value=found_elements)
 
         for cd_2 in concept_description_list_2:
-            cd_1 = obj_store_1.get(cd_2.identification)
+            cd_1 = obj_store_1.get(cd_2.id)
             if self.check(cd_1 is not None, 'Concept description {} must exist in given concept description '
                                             'list'.format(cd_2)):
                 self.check_concept_description_equal(cd_1, cd_2)  # type: ignore
 
         found_elements = self._find_extra_elements_by_attribute(concept_description_list_1, concept_description_list_2,
-                                                                'identification')
+                                                                'id')
         self.check(found_elements == set(), 'Given concept description list must not have extra concept '
                                             'descriptions',
                    value=found_elements)

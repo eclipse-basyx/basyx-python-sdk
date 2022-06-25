@@ -81,10 +81,10 @@ class CouchDBBackend(backends.Backend):
         except CouchDBServerError as e:
             if e.code == 409:
                 raise CouchDBConflictError("Could not commit changes to id {} due to a concurrent modification in the "
-                                           "database.".format(store_object.identification)) from e
+                                           "database.".format(store_object.id)) from e
             elif e.code == 404:
                 raise KeyError("Object with id {} was not found in the CouchDB at {}"
-                               .format(store_object.identification, url)) from e
+                               .format(store_object.id, url)) from e
             raise
 
     @classmethod
@@ -316,15 +316,15 @@ class CouchDBObjectStore(model.AbstractObjectStore):
         # If we still have a local replication of that object (since it is referenced from anywhere else), update that
         # replication and return it.
         with self._object_cache_lock:
-            if obj.identification in self._object_cache:
-                old_obj = self._object_cache[obj.identification]
+            if obj.id in self._object_cache:
+                old_obj = self._object_cache[obj.id]
                 # If the source does not match the correct source for this CouchDB backend, the object seems to belong
                 # to another backend now, so we return a fresh copy
                 if old_obj.source == obj.source:
                     old_obj.update_from(obj)
                     return old_obj
 
-        self._object_cache[obj.identification] = obj
+        self._object_cache[obj.id] = obj
         return obj
 
     def add(self, x: model.Identifiable) -> None:
@@ -342,19 +342,19 @@ class CouchDBObjectStore(model.AbstractObjectStore):
 
         try:
             response = CouchDBBackend.do_request(
-                "{}/{}/{}".format(self.url, self.database_name, self._transform_id(x.identification)),
+                "{}/{}/{}".format(self.url, self.database_name, self._transform_id(x.id)),
                 'PUT',
                 {'Content-type': 'application/json'},
                 data.encode('utf-8'))
-            set_couchdb_revision("{}/{}/{}".format(self.url, self.database_name, self._transform_id(x.identification)),
+            set_couchdb_revision("{}/{}/{}".format(self.url, self.database_name, self._transform_id(x.id)),
                                  response["rev"])
         except CouchDBServerError as e:
             if e.code == 409:
-                raise KeyError("Identifiable with id {} already exists in CouchDB database".format(x.identification))\
+                raise KeyError("Identifiable with id {} already exists in CouchDB database".format(x.id))\
                     from e
             raise
         with self._object_cache_lock:
-            self._object_cache[x.identification] = x
+            self._object_cache[x.id] = x
         self.generate_source(x)  # Set the source of the object
 
     def discard(self, x: model.Identifiable, safe_delete=False) -> None:
@@ -374,7 +374,7 @@ class CouchDBObjectStore(model.AbstractObjectStore):
         logger.debug("Deleting object %s from CouchDB database ...", repr(x))
         rev = get_couchdb_revision("{}/{}/{}".format(self.url,
                                                      self.database_name,
-                                                     self._transform_id(x.identification)))
+                                                     self._transform_id(x.id)))
 
         if rev is not None and safe_delete:
             logger.debug("using the object's stored revision token %s for deletion." % rev)
@@ -386,30 +386,30 @@ class CouchDBObjectStore(model.AbstractObjectStore):
             try:
                 logger.debug("fetching the current object revision for deletion ...")
                 headers = CouchDBBackend.do_request(
-                    "{}/{}/{}".format(self.url, self.database_name, self._transform_id(x.identification)), 'HEAD')
+                    "{}/{}/{}".format(self.url, self.database_name, self._transform_id(x.id)), 'HEAD')
                 rev = headers['ETag'][1:-1]
             except CouchDBServerError as e:
                 if e.code == 404:
-                    raise KeyError("No AAS object with id {} exists in CouchDB database".format(x.identification))\
+                    raise KeyError("No AAS object with id {} exists in CouchDB database".format(x.id))\
                         from e
                 raise
         try:
             CouchDBBackend.do_request(
-                "{}/{}/{}?rev={}".format(self.url, self.database_name, self._transform_id(x.identification), rev),
+                "{}/{}/{}?rev={}".format(self.url, self.database_name, self._transform_id(x.id), rev),
                 'DELETE')
         except CouchDBServerError as e:
             if e.code == 404:
-                raise KeyError("No AAS object with id {} exists in CouchDB database".format(x.identification)) from e
+                raise KeyError("No AAS object with id {} exists in CouchDB database".format(x.id)) from e
             elif e.code == 409:
                 raise CouchDBConflictError(
                     "Object with id {} has been modified in the database since "
-                    "the version requested to be deleted.".format(x.identification)) from e
+                    "the version requested to be deleted.".format(x.id)) from e
             raise
         delete_couchdb_revision("{}/{}/{}".format(self.url,
                                                   self.database_name,
-                                                  self._transform_id(x.identification)))
+                                                  self._transform_id(x.id)))
         with self._object_cache_lock:
-            del self._object_cache[x.identification]
+            del self._object_cache[x.id]
         x.source = ""
 
     def __contains__(self, x: object) -> bool:
@@ -424,7 +424,7 @@ class CouchDBObjectStore(model.AbstractObjectStore):
         if isinstance(x, model.Identifier):
             identifier = x
         elif isinstance(x, model.Identifiable):
-            identifier = x.identification
+            identifier = x.id
         else:
             return False
         logger.debug("Checking existence of object with id %s in database ...", repr(x))
@@ -493,7 +493,7 @@ class CouchDBObjectStore(model.AbstractObjectStore):
         :param identifiable: Identifiable object
         """
         source: str = self.url.replace("https://", "couchdbs://").replace("http://", "couchdb://")
-        source += "/" + self.database_name + "/" + self._transform_id(identifiable.identification)
+        source += "/" + self.database_name + "/" + self._transform_id(identifiable.id)
         identifiable.source = source
 
 

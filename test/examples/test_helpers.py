@@ -162,7 +162,7 @@ class AASDataCheckerTest(unittest.TestCase):
                 return True
 
         dummy_submodel_element_collection = DummySubmodelElementCollection('test')
-        submodel = model.Submodel(identification=model.Identifier('test', model.IdentifierType.CUSTOM))
+        submodel = model.Submodel(id_=model.Identifier('test', model.IdentifierType.CUSTOM))
         submodel.submodel_element.add(dummy_submodel_element_collection)
         checker = AASDataChecker(raise_immediately=True)
         with self.assertRaises(AttributeError) as cm:
@@ -209,13 +209,13 @@ class AASDataCheckerTest(unittest.TestCase):
                          repr(next(checker_iterator)))
 
     def test_submodel_checker(self):
-        submodel = model.Submodel(identification=model.Identifier('test', model.IdentifierType.CUSTOM))
+        submodel = model.Submodel(id_=model.Identifier('test', model.IdentifierType.CUSTOM))
         property_expected = model.Property(
             id_short='Prop1',
             value_type=model.datatypes.String,
             value='test'
         )
-        submodel_expected = model.Submodel(identification=model.Identifier('test', model.IdentifierType.CUSTOM),
+        submodel_expected = model.Submodel(id_=model.Identifier('test', model.IdentifierType.CUSTOM),
                                            submodel_element=(property_expected,)
                                            )
 
@@ -234,13 +234,13 @@ class AASDataCheckerTest(unittest.TestCase):
             global_asset_id=model.Reference((model.Key(type_=model.KeyElements.GLOBAL_REFERENCE, value='test',
                                                        id_type=model.KeyType.IRI),),
                                             )),
-                                               identification=model.Identifier('test', model.IdentifierType.CUSTOM))
+                                               id_=model.Identifier('test', model.IdentifierType.CUSTOM))
         shell_expected = model.AssetAdministrationShell(
             asset_information=model.AssetInformation(
                 global_asset_id=model.Reference((model.Key(type_=model.KeyElements.GLOBAL_REFERENCE, value='test',
                                                            id_type=model.KeyType.IRI),),
                                                 )),
-            identification=model.Identifier('test', model.IdentifierType.CUSTOM),
+            id_=model.Identifier('test', model.IdentifierType.CUSTOM),
             submodel={model.AASReference((model.Key(type_=model.KeyElements.SUBMODEL,
                                                     value='test',
                                                     id_type=model.KeyType.IRI),),
@@ -258,8 +258,8 @@ class AASDataCheckerTest(unittest.TestCase):
                          repr(next(checker_iterator)))
 
     def test_concept_description_checker(self):
-        cd = model.ConceptDescription(identification=model.Identifier('test', model.IdentifierType.CUSTOM))
-        cd_expected = model.ConceptDescription(identification=model.Identifier('test', model.IdentifierType.CUSTOM),
+        cd = model.ConceptDescription(id_=model.Identifier('test', model.IdentifierType.CUSTOM))
+        cd_expected = model.ConceptDescription(id_=model.Identifier('test', model.IdentifierType.CUSTOM),
                                                is_case_of={model.Reference((model.Key(
                                                   type_=model.KeyElements.GLOBAL_REFERENCE,
                                                   value='test',
@@ -276,7 +276,7 @@ class AASDataCheckerTest(unittest.TestCase):
                          "value=test),)) must exist ()",
                          repr(next(checker_iterator)))
         iec = model.IEC61360ConceptDescription(
-            identification=model.Identifier('test', model.IdentifierType.CUSTOM),
+            id_=model.Identifier('test', model.IdentifierType.CUSTOM),
             preferred_name={'de': 'Test Specification', 'en-us': "TestSpecification"},
             data_type=IEC61360DataType.REAL_MEASURE,
             value_list={model.ValueReferencePair(value_type=model.datatypes.String,
@@ -287,7 +287,7 @@ class AASDataCheckerTest(unittest.TestCase):
                                                      id_type=model.KeyType.IRI),)))}
         )
         iec_expected = model.IEC61360ConceptDescription(
-            identification=model.Identifier('test', model.IdentifierType.CUSTOM),
+            id_=model.Identifier('test', model.IdentifierType.CUSTOM),
             preferred_name={'de': 'Test Specification', 'en-us': "TestSpecification"},
             data_type=IEC61360DataType.REAL_MEASURE
         )

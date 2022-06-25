@@ -39,7 +39,7 @@ class ConceptDescription(base.Identifiable):
 
     *Note:* Compare :attr:`~.ConceptDescription.is_case_of` to is-case-of relationship in ISO 13584-32 & IEC EN 61360
 
-    :ivar ~.identification: The globally unique identification of the element. (inherited from
+    :ivar ~.id: The globally unique id of the element. (inherited from
                             :class:`~aas.model.base.Identifiable`)
     :ivar is_case_of: Unordered list of global :class:`References <aas.model.base.Reference>` to external definitions
                       the concept is compatible to or was derived from.
@@ -59,7 +59,7 @@ class ConceptDescription(base.Identifiable):
 """
 
     def __init__(self,
-                 identification: base.Identifier,
+                 id_: base.Identifier,
                  is_case_of: Optional[Set[base.Reference]] = None,
                  id_short: str = "NotSet",
                  display_name: Optional[base.LangStringSet] = None,
@@ -70,7 +70,7 @@ class ConceptDescription(base.Identifiable):
                  extension: Iterable[base.Extension] = ()):
 
         super().__init__()
-        self.identification: base.Identifier = identification
+        self.id: base.Identifier = id_
         self.is_case_of: Set[base.Reference] = set() if is_case_of is None else is_case_of
         self.id_short = id_short
         self.display_name: Optional[base.LangStringSet] = dict() if display_name is None else display_name
@@ -153,7 +153,7 @@ class IEC61360ConceptDescription(ConceptDescription):
     :ivar short_name: Short name of the data object
     :ivar data_type: Data type of the data object
     :ivar definition: Definition of the data object
-    :ivar ~.identification: The globally unique identification of the element. (inherited from
+    :ivar ~.id: The globally unique id of the element. (inherited from
                             :class:`~aas.model.base.Identifiable`)
     :ivar is_case_of: Unordered list of global :class:`References <aas.model.base.Reference>` to external definitions
                       the concept is compatible to or was derived from.
@@ -181,7 +181,7 @@ class IEC61360ConceptDescription(ConceptDescription):
                      :class:`~aas.model.base.HasExtension`)
     """
     def __init__(self,
-                 identification: base.Identifier,
+                 id_: base.Identifier,
                  preferred_name: base.LangStringSet,
                  data_type: Optional[IEC61360DataType] = None,
                  definition: Optional[base.LangStringSet] = None,
@@ -204,7 +204,7 @@ class IEC61360ConceptDescription(ConceptDescription):
                  level_types: Set[IEC61360LevelType] = None,
                  extension: Iterable[base.Extension] = ()):
 
-        super().__init__(identification, is_case_of, id_short, display_name, category, description, parent,
+        super().__init__(id_, is_case_of, id_short, display_name, category, description, parent,
                          administration, extension)
         self.preferred_name: base.LangStringSet = preferred_name
         self.short_name: Optional[base.LangStringSet] = short_name

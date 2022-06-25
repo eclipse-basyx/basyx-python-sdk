@@ -30,10 +30,10 @@ from basyx.aas.adapter import aasx
 # See `tutorial_create_simple_aas.py` for more details.
 
 submodel = model.Submodel(
-    identification=model.Identifier('https://acplt.org/Simple_Submodel', model.IdentifierType.IRI)
+    id_=model.Identifier('https://acplt.org/Simple_Submodel', model.IdentifierType.IRI)
 )
 aas = model.AssetAdministrationShell(
-    identification=model.Identifier('https://acplt.org/Simple_AAS', model.IdentifierType.IRI),
+    id_=model.Identifier('https://acplt.org/Simple_AAS', model.IdentifierType.IRI),
     asset_information=model.AssetInformation(
         asset_kind=model.AssetKind.INSTANCE,
         global_asset_id=model.Reference(
@@ -49,10 +49,10 @@ aas = model.AssetAdministrationShell(
 
 # Another submodel, which is not related to the AAS:
 unrelated_submodel = model.Submodel(
-    identification=model.Identifier('https://acplt.org/Unrelated_Submodel', model.IdentifierType.IRI)
+    id_=model.Identifier('https://acplt.org/Unrelated_Submodel', model.IdentifierType.IRI)
 )
 
-# We add these objects to an ObjectStore for easy retrieval by identification.
+# We add these objects to an ObjectStore for easy retrieval by id.
 # See `tutorial_storage.py` for more details. We could also use a database-backed ObjectStore here
 # (see `tutorial_backend_couchdb.py`).
 object_store = model.DictObjectStore([submodel, aas, unrelated_submodel])
@@ -99,7 +99,7 @@ submodel.submodel_element.add(
 # after doing the modifications:
 with aasx.AASXWriter("MyAASXPackage.aasx") as writer:
     # Write the AAS and everything belonging to it to the AASX package
-    # The `write_aas()` method will automatically fetch the AAS object with the given identification
+    # The `write_aas()` method will automatically fetch the AAS object with the given id
     # and all referenced Submodel objects from the ObjectStore. It will also scan every object for
     # semanticIds referencing ConceptDescription, fetch them from the ObjectStore, and scan all sbmodels for `File`
     # objects and fetch the referenced auxiliary files from the SupplementaryFileContainer.

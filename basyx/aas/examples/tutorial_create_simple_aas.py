@@ -38,7 +38,7 @@ asset_information = model.AssetInformation(
 # step 1.2: create the Asset Administration Shell
 identifier = model.Identifier('https://acplt.org/Simple_AAS', model.IdentifierType.IRI)
 aas = model.AssetAdministrationShell(
-    identification=identifier,  # set identifier
+    id_=identifier,  # set identifier
     asset_information=asset_information
 )
 
@@ -50,7 +50,7 @@ aas = model.AssetAdministrationShell(
 # Step 2.1: create the Submodel object
 identifier = model.Identifier('https://acplt.org/Simple_Submodel', model.IdentifierType.IRI)
 submodel = model.Submodel(
-    identification=identifier
+    id_=identifier
 )
 
 # Step 2.2: create a reference to that Submodel and add it to the Asset Administration Shell's `submodel` set
@@ -61,10 +61,10 @@ aas.submodel.add(model.AASReference.from_referable(submodel))
 # ALTERNATIVE: step 1 and 2 can alternatively be done in one step
 # In this version, the Submodel reference is passed to the Asset Administration Shell's constructor.
 submodel = model.Submodel(
-    identification=model.Identifier('https://acplt.org/Simple_Submodel', model.IdentifierType.IRI)
+    id_=model.Identifier('https://acplt.org/Simple_Submodel', model.IdentifierType.IRI)
 )
 aas = model.AssetAdministrationShell(
-    identification=model.Identifier('https://acplt.org/Simple_AAS', model.IdentifierType.IRI),
+    id_=model.Identifier('https://acplt.org/Simple_AAS', model.IdentifierType.IRI),
     asset_information=asset_information,
     submodel={model.AASReference.from_referable(submodel)}
 )
@@ -100,7 +100,7 @@ submodel.submodel_element.add(property_)
 # ALTERNATIVE: step 2 and 3 can also be combined in a single statement:
 # Again, we pass the Property to the Submodel's constructor instead of adding it afterwards.
 submodel = model.Submodel(
-    identification=model.Identifier('https://acplt.org/Simple_Submodel', model.IdentifierType.IRI),
+    id_=model.Identifier('https://acplt.org/Simple_Submodel', model.IdentifierType.IRI),
     submodel_element={
         model.Property(
             id_short='ExampleProperty',

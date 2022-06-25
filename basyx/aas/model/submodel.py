@@ -81,7 +81,7 @@ class Submodel(base.Identifiable, base.HasSemantics, base.HasKind, base.Qualifia
     into distinguishable parts. Each submodel refers to a well-defined domain or subject matter. Submodels can become
     standardized and thus become submodel types. Submodels can have different life-cycles.
 
-    :ivar ~.identification: The globally unique identification of the element.
+    :ivar ~.id: The globally unique id of the element.
                             (inherited from :class:`~aas.model.base.Identifiable`)
     :ivar submodel_element: Unordered list of :class:`SubmodelElements <.SubmodelElement>`
     :ivar id_short: Identifying string of the element within its name space. (inherited from
@@ -108,7 +108,7 @@ class Submodel(base.Identifiable, base.HasSemantics, base.HasKind, base.Qualifia
     """
 
     def __init__(self,
-                 identification: base.Identifier,
+                 id_: base.Identifier,
                  submodel_element: Iterable[SubmodelElement] = (),
                  id_short: str = "NotSet",
                  display_name: Optional[base.LangStringSet] = None,
@@ -121,7 +121,7 @@ class Submodel(base.Identifiable, base.HasSemantics, base.HasKind, base.Qualifia
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE,
                  extension: Iterable[base.Extension] = ()):
         super().__init__()
-        self.identification: base.Identifier = identification
+        self.id: base.Identifier = id_
         self.submodel_element = base.NamespaceSet(self, [("id_short", True)], submodel_element)
         self.id_short = id_short
         self.display_name: Optional[base.LangStringSet] = dict() if display_name is None else display_name

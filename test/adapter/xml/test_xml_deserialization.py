@@ -78,7 +78,7 @@ class XmlDeserializationTest(unittest.TestCase):
         xml = _xml_wrap("""
         <aas:submodels>
             <aas:submodel>
-                <aas:identification>http://acplt.org/test_asset</aas:identification>
+                <aas:id>http://acplt.org/test_asset</aas:id>
                 <aas:submodelElements/>
             </aas:submodel>
         </aas:submodels>
@@ -89,7 +89,7 @@ class XmlDeserializationTest(unittest.TestCase):
         xml = _xml_wrap("""
         <aas:submodels>
             <aas:submodel>
-                <aas:identification idType="invalid">http://acplt.org/test_asset</aas:identification>
+                <aas:id idType="invalid">http://acplt.org/test_asset</aas:id>
                 <aas:submodelElements/>
             </aas:submodel>
         </aas:submodels>
@@ -100,7 +100,7 @@ class XmlDeserializationTest(unittest.TestCase):
         xml = _xml_wrap("""
         <aas:assetAdministrationShells>
             <aas:assetAdministrationShell>
-                <aas:identification idType="IRI">http://acplt.org/test_aas</aas:identification>
+                <aas:id idType="IRI">http://acplt.org/test_aas</aas:id>
                 <aas:assetInformation>
                 </aas:assetInformation>
             </aas:assetAdministrationShell>
@@ -112,7 +112,7 @@ class XmlDeserializationTest(unittest.TestCase):
         xml = _xml_wrap("""
         <aas:assetAdministrationShells>
             <aas:assetAdministrationShell>
-                <aas:identification idType="IRI">http://acplt.org/test_aas</aas:identification>
+                <aas:id idType="IRI">http://acplt.org/test_aas</aas:id>
                 <aas:assetInformation>
                     <aas:assetKind></aas:assetKind>
                 </aas:assetInformation>
@@ -125,7 +125,7 @@ class XmlDeserializationTest(unittest.TestCase):
         xml = _xml_wrap("""
         <aas:assetAdministrationShells>
             <aas:assetAdministrationShell>
-                <aas:identification idType="IRI">http://acplt.org/test_aas</aas:identification>
+                <aas:id idType="IRI">http://acplt.org/test_aas</aas:id>
                 <aas:assetInformation>
                     <aas:assetKind>invalidKind</aas:assetKind>
                 </aas:assetInformation>
@@ -138,7 +138,7 @@ class XmlDeserializationTest(unittest.TestCase):
         xml = _xml_wrap("""
         <aas:submodels>
             <aas:submodel>
-                <aas:identification idType="IRI">http://acplt.org/test_submodel</aas:identification>
+                <aas:id idType="IRI">http://acplt.org/test_submodel</aas:id>
                 <aas:submodelElements>
                     <aas:submodelElement>
                         <aas:submodelElementCollection>
@@ -156,7 +156,7 @@ class XmlDeserializationTest(unittest.TestCase):
         xml = _xml_wrap("""
         <aas:submodels>
             <aas:submodel>
-                <aas:identification idType="IRI">http://acplt.org/test_submodel</aas:identification>
+                <aas:id idType="IRI">http://acplt.org/test_submodel</aas:id>
                 <aas:submodelElements/>
             </aas:submodel>
         </aas:submodels>
@@ -173,7 +173,7 @@ class XmlDeserializationTest(unittest.TestCase):
         xml = _xml_wrap("""
         <aas:assetAdministrationShells>
             <aas:assetAdministrationShell>
-                <aas:identification idType="IRI">http://acplt.org/test_aas</aas:identification>
+                <aas:id idType="IRI">http://acplt.org/test_aas</aas:id>
                 <aas:assetInformation>
                     <aas:assetKind>Instance</aas:assetKind>
                 </aas:assetInformation>
@@ -196,7 +196,7 @@ class XmlDeserializationTest(unittest.TestCase):
         xml = _xml_wrap("""
         <aas:submodels>
             <aas:submodel>
-                <aas:identification idType="IRI">http://acplt.org/test_submodel</aas:identification>
+                <aas:id idType="IRI">http://acplt.org/test_submodel</aas:id>
                 <aas:submodelElements>
                     <aas:submodelElement>
                         <aas:invalidSubmodelElement/>
@@ -211,7 +211,7 @@ class XmlDeserializationTest(unittest.TestCase):
         xml = _xml_wrap("""
         <aas:submodels>
             <aas:submodel>
-                <aas:identification idType="IRI">http://acplt.org/test_submodel</aas:identification>
+                <aas:id idType="IRI">http://acplt.org/test_submodel</aas:id>
                 <aas:submodelElements/>
                 <aas:qualifiers>
                     <aas:qualifier/>
@@ -227,7 +227,7 @@ class XmlDeserializationTest(unittest.TestCase):
         xml = _xml_wrap("""
         <aas:submodels>
             <aas:submodel>
-                <aas:identification idType="IRI">http://acplt.org/test_submodel</aas:identification>
+                <aas:id idType="IRI">http://acplt.org/test_submodel</aas:id>
                 <aas:submodelElements>
                     <aas:submodelElement>
                         <aas:operation>
@@ -249,7 +249,7 @@ class XmlDeserializationTest(unittest.TestCase):
         xml = _xml_wrap("""
         <aas:submodels>
             <aas:submodel>
-                <aas:identification idType="IRI">http://acplt.org/test_submodel</aas:identification>
+                <aas:id idType="IRI">http://acplt.org/test_submodel</aas:id>
                 <aas:submodelElements>
                     <aas:submodelElement>
                         <aas:operation>
@@ -281,7 +281,7 @@ class XmlDeserializationTest(unittest.TestCase):
         xml = _xml_wrap("""
         <aas:assetAdministrationShells>
             <aas:assetAdministrationShell>
-                <aas:identification idType="IRI">http://acplt.org/test_aas</aas:identification>
+                <aas:id idType="IRI">http://acplt.org/test_aas</aas:id>
                 <aas:idShort>NotSet</aas:idShort>
                 <aas:assetInformation>
                     <aas:assetKind>Instance</aas:assetKind>
@@ -290,7 +290,7 @@ class XmlDeserializationTest(unittest.TestCase):
         </aas:assetAdministrationShells>
         <aas:submodels>
             <aas:submodel>
-                <aas:identification idType="IRI">http://acplt.org/test_aas</aas:identification>
+                <aas:id idType="IRI">http://acplt.org/test_aas</aas:id>
                 <aas:idShort>NotSet</aas:idShort>
                 <aas:submodelElements/>
             </aas:submodel>
@@ -310,7 +310,7 @@ class XmlDeserializationTest(unittest.TestCase):
         xml = _xml_wrap("""
         <aas:submodels>
             <aas:submodel>
-                <aas:identification idType="IRI">http://acplt.org/test_submodel</aas:identification>
+                <aas:id idType="IRI">http://acplt.org/test_submodel</aas:id>
                 <aas:idShort>test456</aas:idShort>
                 <aas:submodelElements/>
             </aas:submodel>
@@ -347,7 +347,7 @@ class XmlDeserializationTest(unittest.TestCase):
     def test_read_aas_xml_element(self) -> None:
         xml = """
         <aas:submodel xmlns:aas="http://www.admin-shell.io/aas/3/0">
-            <aas:identification idType="IRI">http://acplt.org/test_submodel</aas:identification>
+            <aas:id idType="IRI">http://acplt.org/test_submodel</aas:id>
             <aas:submodelElements/>
         </aas:submodel>
         """
@@ -361,7 +361,7 @@ class XmlDeserializationStrippedObjectsTest(unittest.TestCase):
     def test_stripped_qualifiable(self) -> None:
         xml = """
         <aas:submodel xmlns:aas="http://www.admin-shell.io/aas/3/0">
-            <aas:identification idType="IRI">http://acplt.org/test_stripped_submodel</aas:identification>
+            <aas:id idType="IRI">http://acplt.org/test_stripped_submodel</aas:id>
             <aas:submodelElements>
                 <aas:submodelElement>
                     <aas:operation>
@@ -461,7 +461,7 @@ class XmlDeserializationStrippedObjectsTest(unittest.TestCase):
     def test_stripped_asset_administration_shell(self) -> None:
         xml = """
         <aas:assetAdministrationShell xmlns:aas="http://www.admin-shell.io/aas/3/0">
-            <aas:identification idType="IRI">http://acplt.org/test_aas</aas:identification>
+            <aas:id idType="IRI">http://acplt.org/test_aas</aas:id>
             <aas:assetInformation>
                 <aas:assetKind>Instance</aas:assetKind>
             </aas:assetInformation>
@@ -505,7 +505,7 @@ class XmlDeserializationDerivingTest(unittest.TestCase):
 
         xml = """
         <aas:submodel xmlns:aas="http://www.admin-shell.io/aas/3/0">
-            <aas:identification idType="IRI">http://acplt.org/test_stripped_submodel</aas:identification>
+            <aas:id idType="IRI">http://acplt.org/test_stripped_submodel</aas:id>
             <aas:submodelElements/>
         </aas:submodel>
         """

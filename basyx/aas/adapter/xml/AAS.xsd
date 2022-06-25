@@ -502,7 +502,7 @@
 		<sequence>
 			<group ref="aas:referable"/>
 			<element maxOccurs="1" minOccurs="0" name="administration" type="aas:administration_t"/>
-			<element maxOccurs="1" minOccurs="1" name="identification" type="aas:identification_t"/>
+			<element maxOccurs="1" minOccurs="1" name="id" type="aas:identification_t"/>
 		</sequence>
 	</group>
 	<group name="qualifiable">

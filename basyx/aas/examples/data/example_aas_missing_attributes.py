@@ -292,8 +292,8 @@ def create_example_submodel() -> model.Submodel:
         kind=model.ModelingKind.INSTANCE)
 
     submodel = model.Submodel(
-        identification=model.Identifier(id_='https://acplt.org/Test_Submodel_Missing',
-                                        id_type=model.IdentifierType.IRI),
+        id_=model.Identifier(id_='https://acplt.org/Test_Submodel_Missing',
+                             id_type=model.IdentifierType.IRI),
         submodel_element=(submodel_element_relationship_element,
                           submodel_element_annotated_relationship_element,
                           submodel_element_operation,
@@ -324,8 +324,8 @@ def create_example_concept_description() -> model.ConceptDescription:
     :return: example concept description
     """
     concept_description = model.ConceptDescription(
-        identification=model.Identifier(id_='https://acplt.org/Test_ConceptDescription_Missing',
-                                        id_type=model.IdentifierType.IRI),
+        id_=model.Identifier(id_='https://acplt.org/Test_ConceptDescription_Missing',
+                             id_type=model.IdentifierType.IRI),
         is_case_of=None,
         id_short='TestConceptDescription',
         category=None,
@@ -363,8 +363,8 @@ def create_example_asset_administration_shell() -> model.AssetAdministrationShel
 
     asset_administration_shell = model.AssetAdministrationShell(
         asset_information=asset_information,
-        identification=model.Identifier(id_='https://acplt.org/Test_AssetAdministrationShell_Missing',
-                                        id_type=model.IdentifierType.IRI),
+        id_=model.Identifier(id_='https://acplt.org/Test_AssetAdministrationShell_Missing',
+                             id_type=model.IdentifierType.IRI),
         id_short='TestAssetAdministrationShell',
         category=None,
         description={'en-us': 'An Example Asset Administration Shell for the test application',

@@ -44,7 +44,7 @@ class JsonDeserializationTest(unittest.TestCase):
                         "modelType": {
                             "name": "AssetAdministrationShell"
                         },
-                        "identification": {
+                        "id": {
                             "id": "https://acplt.org/Test_Asset",
                             "idType": "IRI"
                         },
@@ -86,42 +86,42 @@ class JsonDeserializationTest(unittest.TestCase):
                 },
                 {
                     "modelType": {"name": "Submodel"},
-                    "identification": ["https://acplt.org/Test_Submodel_broken_id", "IRI"]
+                    "id": ["https://acplt.org/Test_Submodel_broken_id", "IRI"]
                 },
                 {
                     "modelType": {"name": "Submodel"},
-                    "identification": {"id": "https://acplt.org/Test_Submodel", "idType": "IRI"}
+                    "id": {"id": "https://acplt.org/Test_Submodel", "idType": "IRI"}
                 }
             ]"""
         # In strict mode, we should catch an exception
-        with self.assertRaisesRegex(KeyError, r"identification"):
+        with self.assertRaisesRegex(KeyError, r"id"):
             json.loads(data, cls=StrictAASFromJsonDecoder)
 
         # In failsafe mode, we should get a log entry and the first Submodel entry should be returned as untouched dict
         with self.assertLogs(logging.getLogger(), level=logging.WARNING) as cm:
             parsed_data = json.loads(data, cls=AASFromJsonDecoder)
-        self.assertIn("identification", cm.output[0])  # type: ignore
+        self.assertIn("id", cm.output[0])  # type: ignore
         self.assertIsInstance(parsed_data, list)
         self.assertEqual(3, len(parsed_data))
 
         self.assertIsInstance(parsed_data[0], dict)
         self.assertIsInstance(parsed_data[1], dict)
         self.assertIsInstance(parsed_data[2], model.Submodel)
-        self.assertEqual("https://acplt.org/Test_Submodel", parsed_data[2].identification.id)
+        self.assertEqual("https://acplt.org/Test_Submodel", parsed_data[2].id.id)
 
     def test_wrong_submodel_element_type(self) -> None:
         data = """
             [
                 {
                     "modelType": {"name": "Submodel"},
-                    "identification": {
+                    "id": {
                         "id": "http://acplt.org/Submodels/Assets/TestAsset/Identification",
                         "idType": "IRI"
                     },
                     "submodelElements": [
                         {
                             "modelType": {"name": "Submodel"},
-                            "identification": {"id": "https://acplt.org/Test_Submodel", "idType": "IRI"}
+                            "id": {"id": "https://acplt.org/Test_Submodel", "idType": "IRI"}
                         },
                         {
                             "modelType": "Broken modelType"
@@ -159,14 +159,14 @@ class JsonDeserializationTest(unittest.TestCase):
             {
                 "assetAdministrationShells": [{
                     "modelType": {"name": "AssetAdministrationShell"},
-                    "identification": {"idType": "IRI", "id": "http://acplt.org/test_aas"},
+                    "id": {"idType": "IRI", "id": "http://acplt.org/test_aas"},
                     "assetInformation": {
                         "assetKind": "Instance"
                     }
                 }],
                 "submodels": [{
                     "modelType": {"name": "Submodel"},
-                    "identification": {"idType": "IRI", "id": "http://acplt.org/test_aas"}
+                    "id": {"idType": "IRI", "id": "http://acplt.org/test_aas"}
                 }],
                 "conceptDescriptions": []
             }"""
@@ -191,7 +191,7 @@ class JsonDeserializationTest(unittest.TestCase):
             {
                 "submodels": [{
                     "modelType": {"name": "Submodel"},
-                    "identification": {"idType": "IRI", "id": "http://acplt.org/test_submodel"},
+                    "id": {"idType": "IRI", "id": "http://acplt.org/test_submodel"},
                     "idShort": "test456"
                 }],
                 "assetAdministrationShells": [],
@@ -246,7 +246,7 @@ class JsonDeserializationDerivingTest(unittest.TestCase):
             [
                 {
                     "modelType": {"name": "Submodel"},
-                    "identification": {"id": "https://acplt.org/Test_Submodel", "idType": "IRI"}
+                    "id": {"id": "https://acplt.org/Test_Submodel", "idType": "IRI"}
                 }
             ]"""
         parsed_data = json.loads(data, cls=EnhancedAASDecoder)
@@ -260,7 +260,7 @@ class JsonDeserializationStrippedObjectsTest(unittest.TestCase):
         data = """
             {
                 "modelType": {"name": "Submodel"},
-                "identification": {"idType": "IRI", "id": "http://acplt.org/test_stripped_submodel"},
+                "id": {"idType": "IRI", "id": "http://acplt.org/test_stripped_submodel"},
                 "submodelElements": [{
                     "modelType": {"name": "Operation"},
                     "idShort": "test_operation",
@@ -391,7 +391,7 @@ class JsonDeserializationStrippedObjectsTest(unittest.TestCase):
         data = """
             {
                 "modelType": {"name": "AssetAdministrationShell"},
-                "identification": {"idType": "IRI", "id": "http://acplt.org/test_aas"},
+                "id": {"idType": "IRI", "id": "http://acplt.org/test_aas"},
                 "assetInformation": {
                     "assetKind": "Instance",
                     "globalAssetId": {

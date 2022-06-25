@@ -118,8 +118,8 @@ def create_example_asset_identification_submodel() -> model.Submodel:
 
     # asset identification submodel which will be included in the asset object
     identification_submodel = model.Submodel(
-        identification=model.Identifier(id_='http://acplt.org/Submodels/Assets/TestAsset/Identification',
-                                        id_type=model.IdentifierType.IRI),
+        id_=model.Identifier(id_='http://acplt.org/Submodels/Assets/TestAsset/Identification',
+                             id_type=model.IdentifierType.IRI),
         submodel_element=(identification_submodel_element_manufacturer_name,
                           identification_submodel_element_instance_id),
         id_short='Identification',
@@ -229,8 +229,8 @@ def create_example_bill_of_material_submodel() -> model.Submodel:
 
     # bill of material submodel which will be included in the asset object
     bill_of_material = model.Submodel(
-        identification=model.Identifier(id_='http://acplt.org/Submodels/Assets/TestAsset/BillOfMaterial',
-                                        id_type=model.IdentifierType.IRI),
+        id_=model.Identifier(id_='http://acplt.org/Submodels/Assets/TestAsset/BillOfMaterial',
+                             id_type=model.IdentifierType.IRI),
         submodel_element=(entity,
                           entity_2),
         id_short='BillOfMaterial',
@@ -526,8 +526,8 @@ def create_example_submodel() -> model.Submodel:
         kind=model.ModelingKind.INSTANCE)
 
     submodel = model.Submodel(
-        identification=model.Identifier(id_='https://acplt.org/Test_Submodel',
-                                        id_type=model.IdentifierType.IRI),
+        id_=model.Identifier(id_='https://acplt.org/Test_Submodel',
+                             id_type=model.IdentifierType.IRI),
         submodel_element=(submodel_element_relationship_element,
                           submodel_element_annotated_relationship_element,
                           submodel_element_operation,
@@ -558,8 +558,8 @@ def create_example_concept_description() -> model.ConceptDescription:
     :return: example concept description
     """
     concept_description = model.ConceptDescription(
-        identification=model.Identifier(id_='https://acplt.org/Test_ConceptDescription',
-                                        id_type=model.IdentifierType.IRI),
+        id_=model.Identifier(id_='https://acplt.org/Test_ConceptDescription',
+                             id_type=model.IdentifierType.IRI),
         is_case_of={model.Reference((model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
                                                value='http://acplt.org/DataSpecifications/'
                                                      'ConceptDescriptions/TestConceptDescription',
@@ -598,8 +598,8 @@ def create_example_asset_administration_shell() -> \
 
     asset_administration_shell = model.AssetAdministrationShell(
         asset_information=asset_information,
-        identification=model.Identifier(id_='https://acplt.org/Test_AssetAdministrationShell',
-                                        id_type=model.IdentifierType.IRI),
+        id_=model.Identifier(id_='https://acplt.org/Test_AssetAdministrationShell',
+                             id_type=model.IdentifierType.IRI),
         id_short='TestAssetAdministrationShell',
         category=None,
         description={'en-us': 'An Example Asset Administration Shell for the test application',

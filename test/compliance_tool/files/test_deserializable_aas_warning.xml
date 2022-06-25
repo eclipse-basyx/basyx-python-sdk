@@ -3,7 +3,7 @@
 	<aas:assetAdministrationShells>
 		<aas:assetAdministrationShell>
 			<aas:idShort>TestAssetAdministrationShell</aas:idShort>
-			<aas:identification idType="IRI">https://acplt.org/Test_AssetAdministrationShell</aas:identification>
+			<aas:id idType="IRI">https://acplt.org/Test_AssetAdministrationShell</aas:id>
 			<aas:administration>
 				<aas:revision>0</aas:revision>
 			</aas:administration>
