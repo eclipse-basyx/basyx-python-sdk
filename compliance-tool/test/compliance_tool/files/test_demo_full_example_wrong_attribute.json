@@ -15,7 +15,7 @@
             "modelType": {
                 "name": "AssetAdministrationShell"
             },
-            "identification": {
+            "id": {
                 "id": "https://acplt.org/Test_AssetAdministrationShell",
                 "idType": "IRI"
             },
@@ -94,7 +94,7 @@
             "modelType": {
                 "name": "AssetAdministrationShell"
             },
-            "identification": {
+            "id": {
                 "id": "https://acplt.org/Test_AssetAdministrationShell_Mandatory",
                 "idType": "IRI"
             },
@@ -136,7 +136,7 @@
             "modelType": {
                 "name": "AssetAdministrationShell"
             },
-            "identification": {
+            "id": {
                 "id": "https://acplt.org/Test_AssetAdministrationShell2_Mandatory",
                 "idType": "IRI"
             },
@@ -159,7 +159,7 @@
             "modelType": {
                 "name": "AssetAdministrationShell"
             },
-            "identification": {
+            "id": {
                 "id": "https://acplt.org/Test_AssetAdministrationShell_Missing",
                 "idType": "IRI"
             },
@@ -227,7 +227,7 @@
             "modelType": {
                 "name": "Submodel"
             },
-            "identification": {
+            "id": {
                 "id": "http://acplt.org/Submodels/Assets/TestAsset/Identification",
                 "idType": "IRI"
             },
@@ -388,7 +388,7 @@
             "modelType": {
                 "name": "Submodel"
             },
-            "identification": {
+            "id": {
                 "id": "http://acplt.org/Submodels/Assets/TestAsset/BillOfMaterial",
                 "idType": "IRI"
             },
@@ -574,7 +574,7 @@
             "modelType": {
                 "name": "Submodel"
             },
-            "identification": {
+            "id": {
                 "id": "https://acplt.org/Test_Submodel",
                 "idType": "IRI"
             },
@@ -1251,7 +1251,7 @@
             "modelType": {
                 "name": "Submodel"
             },
-            "identification": {
+            "id": {
                 "id": "https://acplt.org/Test_Submodel_Mandatory",
                 "idType": "IRI"
             },
@@ -1414,7 +1414,7 @@
             "modelType": {
                 "name": "Submodel"
             },
-            "identification": {
+            "id": {
                 "id": "https://acplt.org/Test_Submodel2_Mandatory",
                 "idType": "IRI"
             }
@@ -1434,7 +1434,7 @@
             "modelType": {
                 "name": "Submodel"
             },
-            "identification": {
+            "id": {
                 "id": "https://acplt.org/Test_Submodel_Missing",
                 "idType": "IRI"
             },
@@ -2074,7 +2074,7 @@
             "modelType": {
                 "name": "Submodel"
             },
-            "identification": {
+            "id": {
                 "id": "https://acplt.org/Test_Submodel_Template",
                 "idType": "IRI"
             },
@@ -2682,7 +2682,7 @@
             "modelType": {
                 "name": "ConceptDescription"
             },
-            "identification": {
+            "id": {
                 "id": "https://acplt.org/Test_ConceptDescription",
                 "idType": "IRI"
             },
@@ -2707,7 +2707,7 @@
             "modelType": {
                 "name": "ConceptDescription"
             },
-            "identification": {
+            "id": {
                 "id": "https://acplt.org/Test_ConceptDescription_Mandatory",
                 "idType": "IRI"
             }
@@ -2727,7 +2727,7 @@
             "modelType": {
                 "name": "ConceptDescription"
             },
-            "identification": {
+            "id": {
                 "id": "https://acplt.org/Test_ConceptDescription_Missing",
                 "idType": "IRI"
             },
@@ -2741,7 +2741,7 @@
             "modelType": {
                 "name": "ConceptDescription"
             },
-            "identification": {
+            "id": {
                 "id": "http://acplt.org/DataSpecifciations/Example/Identification",
                 "idType": "IRI"
             },

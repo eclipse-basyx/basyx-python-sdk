@@ -3,7 +3,7 @@
   <aas:assetAdministrationShells>
 		<aas:submodel>
 			<aas:idShort/>
-			<aas:identification idType="IRI">https://acplt.org/Test_Submodel2_Mandatory</aas:identification>
+			<aas:id idType="IRI">https://acplt.org/Test_Submodel2_Mandatory</aas:id>
 			<aas:kind>Instance</aas:kind>
 			<aas:submodelElements/>
 		</aas:submodel>

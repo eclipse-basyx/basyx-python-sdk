@@ -11,7 +11,7 @@
         <aas:revision>0</aas:revision>
         <aas:version>0.9</aas:version>
       </aas:administration>
-      <aas:identification idType="IRI">https://acplt.org/Test_AssetAdministrationShell</aas:identification>
+      <aas:id idType="IRI">https://acplt.org/Test_AssetAdministrationShell</aas:id>
       <aas:derivedFrom>
         <aas:keys>
           <aas:key idType="IRI" type="AssetAdministrationShell">https://acplt.org/TestAssetAdministrationShell2</aas:key>
@@ -56,7 +56,7 @@
     </aas:assetAdministrationShell>
     <aas:assetAdministrationShell>
       <aas:idShort>NotSet</aas:idShort>
-      <aas:identification idType="IRI">https://acplt.org/Test_AssetAdministrationShell_Mandatory</aas:identification>
+      <aas:id idType="IRI">https://acplt.org/Test_AssetAdministrationShell_Mandatory</aas:id>
       <aas:submodelRefs>
         <aas:submodelRef>
           <aas:keys>
@@ -81,7 +81,7 @@
     </aas:assetAdministrationShell>
     <aas:assetAdministrationShell>
       <aas:idShort>NotSet</aas:idShort>
-      <aas:identification idType="IRI">https://acplt.org/Test_AssetAdministrationShell2_Mandatory</aas:identification>
+      <aas:id idType="IRI">https://acplt.org/Test_AssetAdministrationShell2_Mandatory</aas:id>
       <aas:assetInformation>
         <aas:assetKind>Instance</aas:assetKind>
         <aas:specificAssetIds/>
@@ -97,7 +97,7 @@
         <aas:revision>0</aas:revision>
         <aas:version>0.9</aas:version>
       </aas:administration>
-      <aas:identification idType="IRI">https://acplt.org/Test_AssetAdministrationShell_Missing</aas:identification>
+      <aas:id idType="IRI">https://acplt.org/Test_AssetAdministrationShell_Missing</aas:id>
       <aas:submodelRefs>
         <aas:submodelRef>
           <aas:keys>
@@ -141,7 +141,7 @@
         <aas:revision>0</aas:revision>
         <aas:version>0.9</aas:version>
       </aas:administration>
-      <aas:identification idType="IRI">https://acplt.org/Test_ConceptDescription</aas:identification>
+      <aas:id idType="IRI">https://acplt.org/Test_ConceptDescription</aas:id>
       <aas:isCaseOf>
         <aas:keys>
           <aas:key idType="IRI" type="GlobalReference">http://acplt.org/DataSpecifications/ConceptDescriptions/TestConceptDescription</aas:key>
@@ -150,7 +150,7 @@
     </aas:conceptDescription>
     <aas:conceptDescription>
       <aas:idShort>NotSet</aas:idShort>
-      <aas:identification idType="IRI">https://acplt.org/Test_ConceptDescription_Mandatory</aas:identification>
+      <aas:id idType="IRI">https://acplt.org/Test_ConceptDescription_Mandatory</aas:id>
     </aas:conceptDescription>
     <aas:conceptDescription>
       <aas:idShort>TestConceptDescription</aas:idShort>
@@ -162,7 +162,7 @@
         <aas:revision>0</aas:revision>
         <aas:version>0.9</aas:version>
       </aas:administration>
-      <aas:identification idType="IRI">https://acplt.org/Test_ConceptDescription_Missing</aas:identification>
+      <aas:id idType="IRI">https://acplt.org/Test_ConceptDescription_Missing</aas:id>
     </aas:conceptDescription>
     <aas:conceptDescription>
       <aas:idShort>TestSpec_01</aas:idShort>
@@ -170,7 +170,7 @@
         <aas:revision>0</aas:revision>
         <aas:version>0.9</aas:version>
       </aas:administration>
-      <aas:identification idType="IRI">http://acplt.org/DataSpecifciations/Example/Identification</aas:identification>
+      <aas:id idType="IRI">http://acplt.org/DataSpecifciations/Example/Identification</aas:id>
       <aas:embeddedDataSpecification>
         <aas:dataSpecificationContent>
           <aas:dataSpecificationIEC61360>
@@ -243,7 +243,7 @@
         <aas:revision>0</aas:revision>
         <aas:version>0.9</aas:version>
       </aas:administration>
-      <aas:identification idType="IRI">http://acplt.org/Submodels/Assets/TestAsset/Identification</aas:identification>
+      <aas:id idType="IRI">http://acplt.org/Submodels/Assets/TestAsset/Identification</aas:id>
       <aas:kind>Instance</aas:kind>
       <aas:semanticId>
         <aas:keys>
@@ -342,7 +342,7 @@
       <aas:administration>
         <aas:version>0.9</aas:version>
       </aas:administration>
-      <aas:identification idType="IRI">http://acplt.org/Submodels/Assets/TestAsset/BillOfMaterial</aas:identification>
+      <aas:id idType="IRI">http://acplt.org/Submodels/Assets/TestAsset/BillOfMaterial</aas:id>
       <aas:kind>Instance</aas:kind>
       <aas:semanticId>
         <aas:keys>
@@ -459,7 +459,7 @@
         <aas:revision>0</aas:revision>
         <aas:version>0.9</aas:version>
       </aas:administration>
-      <aas:identification idType="IRI">https://acplt.org/Test_Submodel</aas:identification>
+      <aas:id idType="IRI">https://acplt.org/Test_Submodel</aas:id>
       <aas:kind>Instance</aas:kind>
       <aas:semanticId>
         <aas:keys>
@@ -870,7 +870,7 @@
     </aas:submodel>
     <aas:submodel>
       <aas:idShort>NotSet</aas:idShort>
-      <aas:identification idType="IRI">https://acplt.org/Test_Submodel_Mandatory</aas:identification>
+      <aas:id idType="IRI">https://acplt.org/Test_Submodel_Mandatory</aas:id>
       <aas:kind>Instance</aas:kind>
       <aas:submodelElements>
         <aas:submodelElement>
@@ -1007,7 +1007,7 @@
     </aas:submodel>
     <aas:submodel>
       <aas:idShort>NotSet</aas:idShort>
-      <aas:identification idType="IRI">https://acplt.org/Test_Submodel2_Mandatory</aas:identification>
+      <aas:id idType="IRI">https://acplt.org/Test_Submodel2_Mandatory</aas:id>
       <aas:kind>Instance</aas:kind>
       <aas:submodelElements/>
     </aas:submodel>
@@ -1021,7 +1021,7 @@
         <aas:revision>0</aas:revision>
         <aas:version>0.9</aas:version>
       </aas:administration>
-      <aas:identification idType="IRI">https://acplt.org/Test_Submodel_Missing</aas:identification>
+      <aas:id idType="IRI">https://acplt.org/Test_Submodel_Missing</aas:id>
       <aas:kind>Instance</aas:kind>
       <aas:semanticId>
         <aas:keys>
@@ -1414,7 +1414,7 @@
         <aas:revision>0</aas:revision>
         <aas:version>0.9</aas:version>
       </aas:administration>
-      <aas:identification idType="IRI">https://acplt.org/Test_Submodel_Template</aas:identification>
+      <aas:id idType="IRI">https://acplt.org/Test_Submodel_Template</aas:id>
       <aas:kind>Template</aas:kind>
       <aas:semanticId>
         <aas:keys>
