@@ -103,18 +103,14 @@ class LocalFileObjectStore(model.AbstractObjectStore):
             os.mkdir(self.directory_path)
             logger.info("Creating directory {}".format(self.directory_path))
 
-    def get_identifiable(self, identifier: Union[str, model.Identifier]) -> model.Identifiable:
+    def get_identifiable(self, identifier: model.Identifier) -> model.Identifiable:
         """
         Retrieve an AAS object from the local file by its :class:`~aas.model.base.Identifier`
-
-        If the :class:`~.aas.model.base.Identifier` is a string, it is assumed that the string is a correct
-        local-file-ID-string (as it is outputted by LocalFileObjectStore._transform_id() )
 
         :raises KeyError: If the respective file could not be found
         """
         input_identifier = copy.copy(identifier)
-        if isinstance(identifier, model.Identifier):
-            identifier = self._transform_id(identifier)
+        identifier = self._transform_id(identifier)
 
         # Try to get the correct file
         try:
