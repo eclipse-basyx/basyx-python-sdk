@@ -1,10 +1,7 @@
 {
 	"assetAdministrationShells": [
 		{
-			"id": {
-				"id": "https://acplt.org/Test_AssetAdministrationShell",
-				"idType": "IRI"
-			},
+			"id": "https://acplt.org/Test_AssetAdministrationShell",
 			"idShort": "TestAssetAdministrationShell",
 			"administration": {
 				"revision": "0"
@@ -15,10 +12,10 @@
 			"assetInformation": {
                 "assetKind": "Instance",
                 "globalAssetId": {
+                    "type": "GlobalReference",
                     "keys": [
                         {
                             "type": "GlobalReference",
-                            "idType": "IRI",
                             "value": "http://acplt.org/TestAsset/"
                         }
                     ]
@@ -28,10 +25,10 @@
                         "key": "TestKey",
                         "value": "TestValue",
                         "subjectId": {
+                            "type": "GlobalReference",
                             "keys": [
                                 {
                                     "type": "GlobalReference",
-                                    "idType": "IRI",
                                     "value": "http://acplt.org/SpecificAssetId/"
                                 }
                             ]

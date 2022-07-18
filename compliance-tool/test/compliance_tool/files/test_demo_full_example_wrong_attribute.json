@@ -15,19 +15,16 @@
             "modelType": {
                 "name": "AssetAdministrationShell"
             },
-            "id": {
-                "id": "https://acplt.org/Test_AssetAdministrationShell",
-                "idType": "IRI"
-            },
+            "id": "https://acplt.org/Test_AssetAdministrationShell",
             "administration": {
                 "version": "0.9",
                 "revision": "0"
             },
             "derivedFrom": {
+                "type": "ModelReference",
                 "keys": [
                     {
                         "type": "AssetAdministrationShell",
-                        "idType": "IRI",
                         "value": "https://acplt.org/TestAssetAdministrationShell2"
                     }
                 ]
@@ -35,10 +32,10 @@
             "assetInformation": {
                 "assetKind": "Instance",
                 "globalAssetId": {
+                    "type": "GlobalReference",
                     "keys": [
                         {
                             "type": "GlobalReference",
-                            "idType": "IRI",
                             "value": "http://acplt.org/TestAsset/"
                         }
                     ]
@@ -48,10 +45,10 @@
                         "key": "TestKey",
                         "value": "TestValue",
                         "subjectId": {
+                            "type": "GlobalReference",
                             "keys": [
                                 {
                                     "type": "GlobalReference",
-                                    "idType": "IRI",
                                     "value": "http://acplt.org/SpecificAssetId/"
                                 }
                             ]
@@ -61,28 +58,28 @@
             },
             "submodels": [
                 {
+                    "type": "ModelReference",
                     "keys": [
                         {
                             "type": "Submodel",
-                            "idType": "IRI",
                             "value": "https://acplt.org/Test_Submodel"
                         }
                     ]
                 },
                 {
+                    "type": "ModelReference",
                     "keys": [
                         {
                             "type": "Submodel",
-                            "idType": "IRI",
                             "value": "http://acplt.org/Submodels/Assets/TestAsset/BillOfMaterial"
                         }
                     ]
                 },
                 {
+                    "type": "ModelReference",
                     "keys": [
                         {
                             "type": "Submodel",
-                            "idType": "IRI",
                             "value": "http://acplt.org/Submodels/Assets/TestAsset/Identification"
                         }
                     ]
@@ -94,17 +91,14 @@
             "modelType": {
                 "name": "AssetAdministrationShell"
             },
-            "id": {
-                "id": "https://acplt.org/Test_AssetAdministrationShell_Mandatory",
-                "idType": "IRI"
-            },
+            "id": "https://acplt.org/Test_AssetAdministrationShell_Mandatory",
             "assetInformation": {
                 "assetKind": "Instance",
                 "globalAssetId": {
+                    "type": "GlobalReference",
                     "keys": [
                         {
                             "type": "GlobalReference",
-                            "idType": "IRI",
                             "value": "http://acplt.org/Test_Asset_Mandatory/"
                         }
                     ]
@@ -112,19 +106,19 @@
             },
             "submodels": [
                 {
+                    "type": "ModelReference",
                     "keys": [
                         {
                             "type": "Submodel",
-                            "idType": "IRI",
                             "value": "https://acplt.org/Test_Submodel2_Mandatory"
                         }
                     ]
                 },
                 {
+                    "type": "ModelReference",
                     "keys": [
                         {
                             "type": "Submodel",
-                            "idType": "IRI",
                             "value": "https://acplt.org/Test_Submodel_Mandatory"
                         }
                     ]
@@ -136,10 +130,7 @@
             "modelType": {
                 "name": "AssetAdministrationShell"
             },
-            "id": {
-                "id": "https://acplt.org/Test_AssetAdministrationShell2_Mandatory",
-                "idType": "IRI"
-            },
+            "id": "https://acplt.org/Test_AssetAdministrationShell2_Mandatory",
             "assetInformation": {
                 "assetKind": "Instance"
             }
@@ -159,10 +150,7 @@
             "modelType": {
                 "name": "AssetAdministrationShell"
             },
-            "id": {
-                "id": "https://acplt.org/Test_AssetAdministrationShell_Missing",
-                "idType": "IRI"
-            },
+            "id": "https://acplt.org/Test_AssetAdministrationShell_Missing",
             "administration": {
                 "version": "0.9",
                 "revision": "0"
@@ -170,10 +158,10 @@
             "assetInformation": {
                 "assetKind": "Instance",
                 "globalAssetId": {
+                    "type": "GlobalReference",
                     "keys": [
                         {
                             "type": "GlobalReference",
-                            "idType": "IRI",
                             "value": "http://acplt.org/Test_Asset_Missing/"
                         }
                     ]
@@ -183,10 +171,10 @@
                         "key": "TestKey",
                         "value": "TestValue",
                         "subjectId": {
+                            "type": "GlobalReference",
                             "keys": [
                                 {
                                     "type": "GlobalReference",
-                                    "idType": "IRI",
                                     "value": "http://acplt.org/SpecificAssetId/"
                                 }
                             ]
@@ -200,10 +188,10 @@
             },
             "submodels": [
                 {
+                    "type": "ModelReference",
                     "keys": [
                         {
                             "type": "Submodel",
-                            "idType": "IRI",
                             "value": "https://acplt.org/Test_Submodel_Missing"
                         }
                     ]
@@ -227,19 +215,16 @@
             "modelType": {
                 "name": "Submodel"
             },
-            "id": {
-                "id": "http://acplt.org/Submodels/Assets/TestAsset/Identification",
-                "idType": "IRI"
-            },
+            "id": "http://acplt.org/Submodels/Assets/TestAsset/Identification",
             "administration": {
                 "version": "0.9",
                 "revision": "0"
             },
             "semanticId": {
+                "type": "ModelReference",
                 "keys": [
                     {
                         "type": "Submodel",
-                        "idType": "IRI",
                         "value": "http://acplt.org/SubmodelTemplates/AssetIdentification"
                     }
                 ]
@@ -250,10 +235,10 @@
                         {
                             "value": "ExampleExtensionValue",
                             "refersTo": {
+                                "type": "GlobalReference",
                                 "keys": [
                                     {
                                         "type": "GlobalReference",
-                                        "idType": "IRI",
                                         "value": "http://acplt.org/RefersTo/ExampleRefersTo"
                                     }
                                 ]
@@ -278,10 +263,10 @@
                         "name": "Property"
                     },
                     "semanticId": {
+                        "type": "GlobalReference",
                         "keys": [
                             {
                                 "type": "GlobalReference",
-                                "idType": "IRI",
                                 "value": "0173-1#02-AAO677#002"
                             }
                         ]
@@ -293,10 +278,10 @@
                             },
                             "value": "50",
                             "valueId": {
+                                "type": "GlobalReference",
                                 "keys": [
                                     {
                                         "type": "GlobalReference",
-                                        "idType": "IRI",
                                         "value": "http://acplt.org/ValueId/ExampleValueId"
                                     }
                                 ]
@@ -310,10 +295,10 @@
                             },
                             "value": "100",
                             "valueId": {
+                                "type": "GlobalReference",
                                 "keys": [
                                     {
                                         "type": "GlobalReference",
-                                        "idType": "IRI",
                                         "value": "http://acplt.org/ValueId/ExampleValueId"
                                     }
                                 ]
@@ -324,10 +309,10 @@
                     ],
                     "value": "ACPLT",
                     "valueId": {
+                        "type": "GlobalReference",
                         "keys": [
                             {
                                 "type": "GlobalReference",
-                                "idType": "IRI",
                                 "value": "http://acplt.org/ValueId/ExampleValueId"
                             }
                         ]
@@ -351,20 +336,20 @@
                         "name": "Property"
                     },
                     "semanticId": {
+                        "type": "GlobalReference",
                         "keys": [
                             {
                                 "type": "GlobalReference",
-                                "idType": "IRI",
                                 "value": "http://opcfoundation.org/UA/DI/1.1/DeviceType/Serialnumber"
                             }
                         ]
                     },
                     "value": "978-8234-234-342",
                     "valueId": {
+                        "type": "GlobalReference",
                         "keys": [
                             {
                                 "type": "GlobalReference",
-                                "idType": "IRI",
                                 "value": "http://acplt.org/ValueId/ExampleValueId"
                             }
                         ]
@@ -388,18 +373,15 @@
             "modelType": {
                 "name": "Submodel"
             },
-            "id": {
-                "id": "http://acplt.org/Submodels/Assets/TestAsset/BillOfMaterial",
-                "idType": "IRI"
-            },
+            "id": "http://acplt.org/Submodels/Assets/TestAsset/BillOfMaterial",
             "administration": {
                 "version": "0.9"
             },
             "semanticId": {
+                "type": "ModelReference",
                 "keys": [
                     {
                         "type": "Submodel",
-                        "idType": "IRI",
                         "value": "http://acplt.org/SubmodelTemplates/BillOfMaterial"
                     }
                 ]
@@ -422,10 +404,10 @@
                         "name": "Entity"
                     },
                     "semanticId": {
+                        "type": "GlobalReference",
                         "keys": [
                             {
                                 "type": "GlobalReference",
-                                "idType": "IRI",
                                 "value": "http://opcfoundation.org/UA/DI/1.1/DeviceType/Serialnumber"
                             }
                         ]
@@ -448,20 +430,20 @@
                                 "name": "Property"
                             },
                             "semanticId": {
+                                "type": "GlobalReference",
                                 "keys": [
                                     {
                                         "type": "GlobalReference",
-                                        "idType": "IRI",
                                         "value": "http://acplt.org/Properties/ExampleProperty"
                                     }
                                 ]
                             },
                             "value": "exampleValue2",
                             "valueId": {
+                                "type": "GlobalReference",
                                 "keys": [
                                     {
                                         "type": "GlobalReference",
-                                        "idType": "IRI",
                                         "value": "http://acplt.org/ValueId/ExampleValueId"
                                     }
                                 ]
@@ -485,20 +467,20 @@
                                 "name": "Property"
                             },
                             "semanticId": {
+                                "type": "GlobalReference",
                                 "keys": [
                                     {
                                         "type": "GlobalReference",
-                                        "idType": "IRI",
                                         "value": "http://acplt.org/Properties/ExampleProperty"
                                     }
                                 ]
                             },
                             "value": "exampleValue",
                             "valueId": {
+                                "type": "GlobalReference",
                                 "keys": [
                                     {
                                         "type": "GlobalReference",
-                                        "idType": "IRI",
                                         "value": "http://acplt.org/ValueId/ExampleValueId"
                                     }
                                 ]
@@ -508,10 +490,10 @@
                     ],
                     "entityType": "SelfManagedEntity",
                     "globalAssetId": {
+                        "type": "GlobalReference",
                         "keys": [
                             {
                                 "type": "GlobalReference",
-                                "idType": "IRI",
                                 "value": "http://acplt.org/TestAsset/"
                             }
                         ]
@@ -520,10 +502,10 @@
                         "key": "TestKey",
                         "value": "TestValue",
                         "subjectId": {
+                            "type": "GlobalReference",
                             "keys": [
                                 {
                                     "type": "GlobalReference",
-                                    "idType": "IRI",
                                     "value": "http://acplt.org/SpecificAssetId/"
                                 }
                             ]
@@ -547,10 +529,10 @@
                         "name": "Entity"
                     },
                     "semanticId": {
+                        "type": "GlobalReference",
                         "keys": [
                             {
                                 "type": "GlobalReference",
-                                "idType": "IRI",
                                 "value": "http://opcfoundation.org/UA/DI/1.1/DeviceType/Serialnumber"
                             }
                         ]
@@ -574,19 +556,16 @@
             "modelType": {
                 "name": "Submodel"
             },
-            "id": {
-                "id": "https://acplt.org/Test_Submodel",
-                "idType": "IRI"
-            },
+            "id": "https://acplt.org/Test_Submodel",
             "administration": {
                 "version": "0.9",
                 "revision": "0"
             },
             "semanticId": {
+                "type": "GlobalReference",
                 "keys": [
                     {
                         "type": "GlobalReference",
-                        "idType": "IRI",
                         "value": "http://acplt.org/SubmodelTemplates/ExampleSubmodel"
                     }
                 ]
@@ -609,28 +588,36 @@
                         "name": "RelationshipElement"
                     },
                     "semanticId": {
+                        "type": "ModelReference",
                         "keys": [
                             {
                                 "type": "ConceptDescription",
-                                "idType": "IRI",
                                 "value": "https://acplt.org/Test_ConceptDescription"
                             }
                         ]
                     },
                     "first": {
+                        "type": "ModelReference",
                         "keys": [
                             {
+                                "type": "Submodel",
+                                "value": "http://acplt.org/Test_Submodel"
+                            },
+                            {
                                 "type": "Property",
-                                "idType": "IdShort",
                                 "value": "ExampleProperty"
                             }
                         ]
                     },
                     "second": {
+                        "type": "ModelReference",
                         "keys": [
                             {
+                                "type": "Submodel",
+                                "value": "http://acplt.org/Test_Submodel"
+                            },
+                            {
                                 "type": "Property",
-                                "idType": "IdShort",
                                 "value": "ExampleProperty2"
                             }
                         ]
@@ -653,28 +640,36 @@
                         "name": "AnnotatedRelationshipElement"
                     },
                     "semanticId": {
+                        "type": "GlobalReference",
                         "keys": [
                             {
                                 "type": "GlobalReference",
-                                "idType": "IRI",
                                 "value": "http://acplt.org/RelationshipElements/ExampleAnnotatedRelationshipElement"
                             }
                         ]
                     },
                     "first": {
+                        "type": "ModelReference",
                         "keys": [
                             {
+                                "type": "Submodel",
+                                "value": "http://acplt.org/Test_Submodel"
+                            },
+                            {
                                 "type": "Property",
-                                "idType": "IdShort",
                                 "value": "ExampleProperty"
                             }
                         ]
                     },
                     "second": {
+                        "type": "ModelReference",
                         "keys": [
                             {
+                                "type": "Submodel",
+                                "value": "http://acplt.org/Test_Submodel"
+                            },
+                            {
                                 "type": "Property",
-                                "idType": "IdShort",
                                 "value": "ExampleProperty2"
                             }
                         ]
@@ -718,10 +713,10 @@
                         "name": "Operation"
                     },
                     "semanticId": {
+                        "type": "GlobalReference",
                         "keys": [
                             {
                                 "type": "GlobalReference",
-                                "idType": "IRI",
                                 "value": "http://acplt.org/Operations/ExampleOperation"
                             }
                         ]
@@ -755,10 +750,10 @@
                                     "name": "Property"
                                 },
                                 "semanticId": {
+                                    "type": "GlobalReference",
                                     "keys": [
                                         {
                                             "type": "GlobalReference",
-                                            "idType": "IRI",
                                             "value": "http://acplt.org/Properties/ExampleProperty"
                                         }
                                     ]
@@ -766,10 +761,10 @@
                                 "kind": "Template",
                                 "value": "exampleValue",
                                 "valueId": {
+                                    "type": "GlobalReference",
                                     "keys": [
                                         {
                                             "type": "GlobalReference",
-                                            "idType": "IRI",
                                             "value": "http://acplt.org/ValueId/ExampleValueId"
                                         }
                                     ]
@@ -807,10 +802,10 @@
                                     "name": "Property"
                                 },
                                 "semanticId": {
+                                    "type": "GlobalReference",
                                     "keys": [
                                         {
                                             "type": "GlobalReference",
-                                            "idType": "IRI",
                                             "value": "http://acplt.org/Properties/ExampleProperty"
                                         }
                                     ]
@@ -818,10 +813,10 @@
                                 "kind": "Template",
                                 "value": "exampleValue",
                                 "valueId": {
+                                    "type": "GlobalReference",
                                     "keys": [
                                         {
                                             "type": "GlobalReference",
-                                            "idType": "IRI",
                                             "value": "http://acplt.org/ValueId/ExampleValueId"
                                         }
                                     ]
@@ -859,10 +854,10 @@
                                     "name": "Property"
                                 },
                                 "semanticId": {
+                                    "type": "GlobalReference",
                                     "keys": [
                                         {
                                             "type": "GlobalReference",
-                                            "idType": "IRI",
                                             "value": "http://acplt.org/Properties/ExampleProperty"
                                         }
                                     ]
@@ -870,10 +865,10 @@
                                 "kind": "Template",
                                 "value": "exampleValue",
                                 "valueId": {
+                                    "type": "GlobalReference",
                                     "keys": [
                                         {
                                             "type": "GlobalReference",
-                                            "idType": "IRI",
                                             "value": "http://acplt.org/ValueId/ExampleValueId"
                                         }
                                     ]
@@ -900,10 +895,10 @@
                         "name": "Capability"
                     },
                     "semanticId": {
+                        "type": "GlobalReference",
                         "keys": [
                             {
                                 "type": "GlobalReference",
-                                "idType": "IRI",
                                 "value": "http://acplt.org/Capabilities/ExampleCapability"
                             }
                         ]
@@ -926,19 +921,23 @@
                         "name": "BasicEventElement"
                     },
                     "semanticId": {
+                        "type": "GlobalReference",
                         "keys": [
                             {
                                 "type": "GlobalReference",
-                                "idType": "IRI",
                                 "value": "http://acplt.org/Events/ExampleBasicEventElement"
                             }
                         ]
                     },
                     "observed": {
+                        "type": "ModelReference",
                         "keys": [
                             {
+                                "type": "Submodel",
+                                "value": "http://acplt.org/Test_Submodel"
+                            },
+                            {
                                 "type": "Property",
-                                "idType": "IdShort",
                                 "value": "ExampleProperty"
                             }
                         ]
@@ -961,10 +960,10 @@
                         "name": "SubmodelElementCollection"
                     },
                     "semanticId": {
+                        "type": "GlobalReference",
                         "keys": [
                             {
                                 "type": "GlobalReference",
-                                "idType": "IRI",
                                 "value": "http://acplt.org/SubmodelElementCollections/ExampleSubmodelElementCollectionOrdered"
                             }
                         ]
@@ -997,20 +996,20 @@
                                 "name": "Property"
                             },
                             "semanticId": {
+                                "type": "GlobalReference",
                                 "keys": [
                                     {
                                         "type": "GlobalReference",
-                                        "idType": "IRI",
                                         "value": "http://acplt.org/Properties/ExampleProperty"
                                     }
                                 ]
                             },
                             "value": "exampleValue",
                             "valueId": {
+                                "type": "GlobalReference",
                                 "keys": [
                                     {
                                         "type": "GlobalReference",
-                                        "idType": "IRI",
                                         "value": "http://acplt.org/ValueId/ExampleValueId"
                                     }
                                 ]
@@ -1034,10 +1033,10 @@
                                 "name": "MultiLanguageProperty"
                             },
                             "semanticId": {
+                                "type": "GlobalReference",
                                 "keys": [
                                     {
                                         "type": "GlobalReference",
-                                        "idType": "IRI",
                                         "value": "http://acplt.org/MultiLanguageProperties/ExampleMultiLanguageProperty"
                                     }
                                 ]
@@ -1053,10 +1052,10 @@
                                 }
                             ],
                             "valueId": {
+                                "type": "GlobalReference",
                                 "keys": [
                                     {
                                         "type": "GlobalReference",
-                                        "idType": "IRI",
                                         "value": "http://acplt.org/ValueId/ExampleMultiLanguageValueId"
                                     }
                                 ]
@@ -1079,10 +1078,10 @@
                                 "name": "Range"
                             },
                             "semanticId": {
+                                "type": "GlobalReference",
                                 "keys": [
                                     {
                                         "type": "GlobalReference",
-                                        "idType": "IRI",
                                         "value": "http://acplt.org/Ranges/ExampleRange"
                                     }
                                 ]
@@ -1112,10 +1111,10 @@
                         "name": "SubmodelElementCollection"
                     },
                     "semanticId": {
+                        "type": "GlobalReference",
                         "keys": [
                             {
                                 "type": "GlobalReference",
-                                "idType": "IRI",
                                 "value": "http://acplt.org/SubmodelElementCollections/ExampleSubmodelElementCollectionUnordered"
                             }
                         ]
@@ -1138,10 +1137,10 @@
                                 "name": "Blob"
                             },
                             "semanticId": {
+                                "type": "GlobalReference",
                                 "keys": [
                                     {
                                         "type": "GlobalReference",
-                                        "idType": "IRI",
                                         "value": "http://acplt.org/Blobs/ExampleBlob"
                                     }
                                 ]
@@ -1166,10 +1165,10 @@
                                 "name": "File"
                             },
                             "semanticId": {
+                                "type": "GlobalReference",
                                 "keys": [
                                     {
                                         "type": "GlobalReference",
-                                        "idType": "IRI",
                                         "value": "http://acplt.org/Files/ExampleFile"
                                     }
                                 ]
@@ -1194,10 +1193,10 @@
                                 "name": "File"
                             },
                             "semanticId": {
+                                "type": "GlobalReference",
                                 "keys": [
                                     {
                                         "type": "GlobalReference",
-                                        "idType": "IRI",
                                         "value": "http://acplt.org/Files/ExampleFile"
                                     }
                                 ]
@@ -1222,19 +1221,23 @@
                                 "name": "ReferenceElement"
                             },
                             "semanticId": {
+                                "type": "GlobalReference",
                                 "keys": [
                                     {
                                         "type": "GlobalReference",
-                                        "idType": "IRI",
                                         "value": "http://acplt.org/ReferenceElements/ExampleReferenceElement"
                                     }
                                 ]
                             },
                             "value": {
+                                "type": "ModelReference",
                                 "keys": [
                                     {
+                                        "type": "Submodel",
+                                        "value": "http://acplt.org/Test_Submodel"
+                                    },
+                                    {
                                         "type": "Property",
-                                        "idType": "IdShort",
                                         "value": "ExampleProperty"
                                     }
                                 ]
@@ -1251,10 +1254,7 @@
             "modelType": {
                 "name": "Submodel"
             },
-            "id": {
-                "id": "https://acplt.org/Test_Submodel_Mandatory",
-                "idType": "IRI"
-            },
+            "id": "https://acplt.org/Test_Submodel_Mandatory",
             "submodelElements": [
                 {
                     "idShort": "ExampleRelationshipElement",
@@ -1262,19 +1262,27 @@
                         "name": "RelationshipElement"
                     },
                     "first": {
+                        "type": "ModelReference",
                         "keys": [
                             {
+                                "type": "Submodel",
+                                "value": "http://acplt.org/Test_Submodel"
+                            },
+                            {
                                 "type": "Property",
-                                "idType": "IdShort",
                                 "value": "ExampleProperty"
                             }
                         ]
                     },
                     "second": {
+                        "type": "ModelReference",
                         "keys": [
                             {
+                                "type": "Submodel",
+                                "value": "http://acplt.org/Test_Submodel"
+                            },
+                            {
                                 "type": "Property",
-                                "idType": "IdShort",
                                 "value": "ExampleProperty"
                             }
                         ]
@@ -1286,19 +1294,27 @@
                         "name": "AnnotatedRelationshipElement"
                     },
                     "first": {
+                        "type": "ModelReference",
                         "keys": [
                             {
+                                "type": "Submodel",
+                                "value": "http://acplt.org/Test_Submodel"
+                            },
+                            {
                                 "type": "Property",
-                                "idType": "IdShort",
                                 "value": "ExampleProperty"
                             }
                         ]
                     },
                     "second": {
+                        "type": "ModelReference",
                         "keys": [
                             {
+                                "type": "Submodel",
+                                "value": "http://acplt.org/Test_Submodel"
+                            },
+                            {
                                 "type": "Property",
-                                "idType": "IdShort",
                                 "value": "ExampleProperty"
                             }
                         ]
@@ -1322,10 +1338,14 @@
                         "name": "BasicEventElement"
                     },
                     "observed": {
+                        "type": "ModelReference",
                         "keys": [
                             {
+                                "type": "Submodel",
+                                "value": "http://acplt.org/Test_Submodel"
+                            },
+                            {
                                 "type": "Property",
-                                "idType": "IdShort",
                                 "value": "ExampleProperty"
                             }
                         ]
@@ -1414,10 +1434,7 @@
             "modelType": {
                 "name": "Submodel"
             },
-            "id": {
-                "id": "https://acplt.org/Test_Submodel2_Mandatory",
-                "idType": "IRI"
-            }
+            "id": "https://acplt.org/Test_Submodel2_Mandatory"
         },
         {
             "idShort": "TestSubmodel",
@@ -1434,19 +1451,16 @@
             "modelType": {
                 "name": "Submodel"
             },
-            "id": {
-                "id": "https://acplt.org/Test_Submodel_Missing",
-                "idType": "IRI"
-            },
+            "id": "https://acplt.org/Test_Submodel_Missing",
             "administration": {
                 "version": "0.9",
                 "revision": "0"
             },
             "semanticId": {
+                "type": "GlobalReference",
                 "keys": [
                     {
                         "type": "GlobalReference",
-                        "idType": "IRI",
                         "value": "http://acplt.org/SubmodelTemplates/ExampleSubmodel"
                     }
                 ]
@@ -1469,28 +1483,36 @@
                         "name": "RelationshipElement"
                     },
                     "semanticId": {
+                        "type": "GlobalReference",
                         "keys": [
                             {
                                 "type": "GlobalReference",
-                                "idType": "IRI",
                                 "value": "http://acplt.org/RelationshipElements/ExampleRelationshipElement"
                             }
                         ]
                     },
                     "first": {
+                        "type": "ModelReference",
                         "keys": [
                             {
+                                "type": "Submodel",
+                                "value": "http://acplt.org/Test_Submodel"
+                            },
+                            {
                                 "type": "Property",
-                                "idType": "IdShort",
                                 "value": "ExampleProperty"
                             }
                         ]
                     },
                     "second": {
+                        "type": "ModelReference",
                         "keys": [
                             {
+                                "type": "Submodel",
+                                "value": "http://acplt.org/Test_Submodel"
+                            },
+                            {
                                 "type": "Property",
-                                "idType": "IdShort",
                                 "value": "ExampleProperty"
                             }
                         ]
@@ -1513,28 +1535,36 @@
                         "name": "AnnotatedRelationshipElement"
                     },
                     "semanticId": {
+                        "type": "GlobalReference",
                         "keys": [
                             {
                                 "type": "GlobalReference",
-                                "idType": "IRI",
                                 "value": "http://acplt.org/RelationshipElements/ExampleAnnotatedRelationshipElement"
                             }
                         ]
                     },
                     "first": {
+                        "type": "ModelReference",
                         "keys": [
                             {
+                                "type": "Submodel",
+                                "value": "http://acplt.org/Test_Submodel"
+                            },
+                            {
                                 "type": "Property",
-                                "idType": "IdShort",
                                 "value": "ExampleProperty"
                             }
                         ]
                     },
                     "second": {
+                        "type": "ModelReference",
                         "keys": [
                             {
+                                "type": "Submodel",
+                                "value": "http://acplt.org/Test_Submodel"
+                            },
+                            {
                                 "type": "Property",
-                                "idType": "IdShort",
                                 "value": "ExampleProperty"
                             }
                         ]
@@ -1578,10 +1608,10 @@
                         "name": "Operation"
                     },
                     "semanticId": {
+                        "type": "GlobalReference",
                         "keys": [
                             {
                                 "type": "GlobalReference",
-                                "idType": "IRI",
                                 "value": "http://acplt.org/Operations/ExampleOperation"
                             }
                         ]
@@ -1615,10 +1645,10 @@
                                     "name": "Property"
                                 },
                                 "semanticId": {
+                                    "type": "GlobalReference",
                                     "keys": [
                                         {
                                             "type": "GlobalReference",
-                                            "idType": "IRI",
                                             "value": "http://acplt.org/Properties/ExampleProperty"
                                         }
                                     ]
@@ -1626,10 +1656,10 @@
                                 "kind": "Template",
                                 "value": "exampleValue",
                                 "valueId": {
+                                    "type": "GlobalReference",
                                     "keys": [
                                         {
                                             "type": "GlobalReference",
-                                            "idType": "IRI",
                                             "value": "http://acplt.org/ValueId/ExampleValueId"
                                         }
                                     ]
@@ -1667,10 +1697,10 @@
                                     "name": "Property"
                                 },
                                 "semanticId": {
+                                    "type": "GlobalReference",
                                     "keys": [
                                         {
                                             "type": "GlobalReference",
-                                            "idType": "IRI",
                                             "value": "http://acplt.org/Properties/ExampleProperty"
                                         }
                                     ]
@@ -1678,10 +1708,10 @@
                                 "kind": "Template",
                                 "value": "exampleValue",
                                 "valueId": {
+                                    "type": "GlobalReference",
                                     "keys": [
                                         {
                                             "type": "GlobalReference",
-                                            "idType": "IRI",
                                             "value": "http://acplt.org/ValueId/ExampleValueId"
                                         }
                                     ]
@@ -1719,10 +1749,10 @@
                                     "name": "Property"
                                 },
                                 "semanticId": {
+                                    "type": "GlobalReference",
                                     "keys": [
                                         {
                                             "type": "GlobalReference",
-                                            "idType": "IRI",
                                             "value": "http://acplt.org/Properties/ExampleProperty"
                                         }
                                     ]
@@ -1730,10 +1760,10 @@
                                 "kind": "Template",
                                 "value": "exampleValue",
                                 "valueId": {
+                                    "type": "GlobalReference",
                                     "keys": [
                                         {
                                             "type": "GlobalReference",
-                                            "idType": "IRI",
                                             "value": "http://acplt.org/ValueId/ExampleValueId"
                                         }
                                     ]
@@ -1760,10 +1790,10 @@
                         "name": "Capability"
                     },
                     "semanticId": {
+                        "type": "GlobalReference",
                         "keys": [
                             {
                                 "type": "GlobalReference",
-                                "idType": "IRI",
                                 "value": "http://acplt.org/Capabilities/ExampleCapability"
                             }
                         ]
@@ -1786,19 +1816,23 @@
                         "name": "BasicEventElement"
                     },
                     "semanticId": {
+                        "type": "GlobalReference",
                         "keys": [
                             {
                                 "type": "GlobalReference",
-                                "idType": "IRI",
                                 "value": "http://acplt.org/Events/ExampleBasicEventElement"
                             }
                         ]
                     },
                     "observed": {
+                        "type": "ModelReference",
                         "keys": [
                             {
+                                "type": "Submodel",
+                                "value": "http://acplt.org/Test_Submodel"
+                            },
+                            {
                                 "type": "Property",
-                                "idType": "IdShort",
                                 "value": "ExampleProperty"
                             }
                         ]
@@ -1821,10 +1855,10 @@
                         "name": "SubmodelElementCollection"
                     },
                     "semanticId": {
+                        "type": "GlobalReference",
                         "keys": [
                             {
                                 "type": "GlobalReference",
-                                "idType": "IRI",
                                 "value": "http://acplt.org/SubmodelElementCollections/ExampleSubmodelElementCollectionOrdered"
                             }
                         ]
@@ -1847,10 +1881,10 @@
                                 "name": "Property"
                             },
                             "semanticId": {
+                                "type": "GlobalReference",
                                 "keys": [
                                     {
                                         "type": "GlobalReference",
-                                        "idType": "IRI",
                                         "value": "http://acplt.org/Properties/ExampleProperty"
                                     }
                                 ]
@@ -1884,10 +1918,10 @@
                                 "name": "MultiLanguageProperty"
                             },
                             "semanticId": {
+                                "type": "GlobalReference",
                                 "keys": [
                                     {
                                         "type": "GlobalReference",
-                                        "idType": "IRI",
                                         "value": "http://acplt.org/MultiLanguageProperties/ExampleMultiLanguageProperty"
                                     }
                                 ]
@@ -1920,10 +1954,10 @@
                                 "name": "Range"
                             },
                             "semanticId": {
+                                "type": "GlobalReference",
                                 "keys": [
                                     {
                                         "type": "GlobalReference",
-                                        "idType": "IRI",
                                         "value": "http://acplt.org/Ranges/ExampleRange"
                                     }
                                 ]
@@ -1953,10 +1987,10 @@
                         "name": "SubmodelElementCollection"
                     },
                     "semanticId": {
+                        "type": "GlobalReference",
                         "keys": [
                             {
                                 "type": "GlobalReference",
-                                "idType": "IRI",
                                 "value": "http://acplt.org/SubmodelElementCollections/ExampleSubmodelElementCollectionUnordered"
                             }
                         ]
@@ -1979,10 +2013,10 @@
                                 "name": "Blob"
                             },
                             "semanticId": {
+                                "type": "GlobalReference",
                                 "keys": [
                                     {
                                         "type": "GlobalReference",
-                                        "idType": "IRI",
                                         "value": "http://acplt.org/Blobs/ExampleBlob"
                                     }
                                 ]
@@ -2007,10 +2041,10 @@
                                 "name": "File"
                             },
                             "semanticId": {
+                                "type": "GlobalReference",
                                 "keys": [
                                     {
                                         "type": "GlobalReference",
-                                        "idType": "IRI",
                                         "value": "http://acplt.org/Files/ExampleFile"
                                     }
                                 ]
@@ -2035,19 +2069,23 @@
                                 "name": "ReferenceElement"
                             },
                             "semanticId": {
+                                "type": "GlobalReference",
                                 "keys": [
                                     {
                                         "type": "GlobalReference",
-                                        "idType": "IRI",
                                         "value": "http://acplt.org/ReferenceElements/ExampleReferenceElement"
                                     }
                                 ]
                             },
                             "value": {
+                                "type": "ModelReference",
                                 "keys": [
                                     {
+                                        "type": "Submodel",
+                                        "value": "http://acplt.org/Test_Submodel"
+                                    },
+                                    {
                                         "type": "Property",
-                                        "idType": "IdShort",
                                         "value": "ExampleProperty"
                                     }
                                 ]
@@ -2074,19 +2112,16 @@
             "modelType": {
                 "name": "Submodel"
             },
-            "id": {
-                "id": "https://acplt.org/Test_Submodel_Template",
-                "idType": "IRI"
-            },
+            "id": "https://acplt.org/Test_Submodel_Template",
             "administration": {
                 "version": "0.9",
                 "revision": "0"
             },
             "semanticId": {
+                "type": "GlobalReference",
                 "keys": [
                     {
                         "type": "GlobalReference",
-                        "idType": "IRI",
                         "value": "http://acplt.org/SubmodelTemplates/ExampleSubmodel"
                     }
                 ]
@@ -2110,29 +2145,37 @@
                         "name": "RelationshipElement"
                     },
                     "semanticId": {
+                        "type": "GlobalReference",
                         "keys": [
                             {
                                 "type": "GlobalReference",
-                                "idType": "IRI",
                                 "value": "http://acplt.org/RelationshipElements/ExampleRelationshipElement"
                             }
                         ]
                     },
                     "kind": "Template",
                     "first": {
+                        "type": "ModelReference",
                         "keys": [
                             {
+                                "type": "Submodel",
+                                "value": "http://acplt.org/Test_Submodel"
+                            },
+                            {
                                 "type": "Property",
-                                "idType": "IdShort",
                                 "value": "ExampleProperty"
                             }
                         ]
                     },
                     "second": {
+                        "type": "ModelReference",
                         "keys": [
                             {
+                                "type": "Submodel",
+                                "value": "http://acplt.org/Test_Submodel"
+                            },
+                            {
                                 "type": "Property",
-                                "idType": "IdShort",
                                 "value": "ExampleProperty"
                             }
                         ]
@@ -2155,29 +2198,37 @@
                         "name": "AnnotatedRelationshipElement"
                     },
                     "semanticId": {
+                        "type": "GlobalReference",
                         "keys": [
                             {
                                 "type": "GlobalReference",
-                                "idType": "IRI",
                                 "value": "http://acplt.org/RelationshipElements/ExampleAnnotatedRelationshipElement"
                             }
                         ]
                     },
                     "kind": "Template",
                     "first": {
+                        "type": "ModelReference",
                         "keys": [
                             {
+                                "type": "Submodel",
+                                "value": "http://acplt.org/Test_Submodel"
+                            },
+                            {
                                 "type": "Property",
-                                "idType": "IdShort",
                                 "value": "ExampleProperty"
                             }
                         ]
                     },
                     "second": {
+                        "type": "ModelReference",
                         "keys": [
                             {
+                                "type": "Submodel",
+                                "value": "http://acplt.org/Test_Submodel"
+                            },
+                            {
                                 "type": "Property",
-                                "idType": "IdShort",
                                 "value": "ExampleProperty"
                             }
                         ]
@@ -2200,10 +2251,10 @@
                         "name": "Operation"
                     },
                     "semanticId": {
+                        "type": "GlobalReference",
                         "keys": [
                             {
                                 "type": "GlobalReference",
-                                "idType": "IRI",
                                 "value": "http://acplt.org/Operations/ExampleOperation"
                             }
                         ]
@@ -2228,10 +2279,10 @@
                                     "name": "Property"
                                 },
                                 "semanticId": {
+                                    "type": "GlobalReference",
                                     "keys": [
                                         {
                                             "type": "GlobalReference",
-                                            "idType": "IRI",
                                             "value": "http://acplt.org/Properties/ExampleProperty"
                                         }
                                     ]
@@ -2261,10 +2312,10 @@
                                     "name": "Property"
                                 },
                                 "semanticId": {
+                                    "type": "GlobalReference",
                                     "keys": [
                                         {
                                             "type": "GlobalReference",
-                                            "idType": "IRI",
                                             "value": "http://acplt.org/Properties/ExampleProperty"
                                         }
                                     ]
@@ -2294,10 +2345,10 @@
                                     "name": "Property"
                                 },
                                 "semanticId": {
+                                    "type": "GlobalReference",
                                     "keys": [
                                         {
                                             "type": "GlobalReference",
-                                            "idType": "IRI",
                                             "value": "http://acplt.org/Properties/ExampleProperty"
                                         }
                                     ]
@@ -2326,10 +2377,10 @@
                         "name": "Capability"
                     },
                     "semanticId": {
+                        "type": "GlobalReference",
                         "keys": [
                             {
                                 "type": "GlobalReference",
-                                "idType": "IRI",
                                 "value": "http://acplt.org/Capabilities/ExampleCapability"
                             }
                         ]
@@ -2353,20 +2404,24 @@
                         "name": "BasicEventElement"
                     },
                     "semanticId": {
+                        "type": "GlobalReference",
                         "keys": [
                             {
                                 "type": "GlobalReference",
-                                "idType": "IRI",
                                 "value": "http://acplt.org/Events/ExampleBasicEventElement"
                             }
                         ]
                     },
                     "kind": "Template",
                     "observed": {
+                        "type": "ModelReference",
                         "keys": [
                             {
+                                "type": "Submodel",
+                                "value": "http://acplt.org/Test_Submodel"
+                            },
+                            {
                                 "type": "Property",
-                                "idType": "IdShort",
                                 "value": "ExampleProperty"
                             }
                         ]
@@ -2389,10 +2444,10 @@
                         "name": "SubmodelElementCollection"
                     },
                     "semanticId": {
+                        "type": "GlobalReference",
                         "keys": [
                             {
                                 "type": "GlobalReference",
-                                "idType": "IRI",
                                 "value": "http://acplt.org/SubmodelElementCollections/ExampleSubmodelElementCollectionOrdered"
                             }
                         ]
@@ -2416,10 +2471,10 @@
                                 "name": "Property"
                             },
                             "semanticId": {
+                                "type": "GlobalReference",
                                 "keys": [
                                     {
                                         "type": "GlobalReference",
-                                        "idType": "IRI",
                                         "value": "http://acplt.org/Properties/ExampleProperty"
                                     }
                                 ]
@@ -2445,10 +2500,10 @@
                                 "name": "MultiLanguageProperty"
                             },
                             "semanticId": {
+                                "type": "GlobalReference",
                                 "keys": [
                                     {
                                         "type": "GlobalReference",
-                                        "idType": "IRI",
                                         "value": "http://acplt.org/MultiLanguageProperties/ExampleMultiLanguageProperty"
                                     }
                                 ]
@@ -2472,10 +2527,10 @@
                                 "name": "Range"
                             },
                             "semanticId": {
+                                "type": "GlobalReference",
                                 "keys": [
                                     {
                                         "type": "GlobalReference",
-                                        "idType": "IRI",
                                         "value": "http://acplt.org/Ranges/ExampleRange"
                                     }
                                 ]
@@ -2502,10 +2557,10 @@
                                 "name": "Range"
                             },
                             "semanticId": {
+                                "type": "GlobalReference",
                                 "keys": [
                                     {
                                         "type": "GlobalReference",
-                                        "idType": "IRI",
                                         "value": "http://acplt.org/Ranges/ExampleRange"
                                     }
                                 ]
@@ -2536,10 +2591,10 @@
                         "name": "SubmodelElementCollection"
                     },
                     "semanticId": {
+                        "type": "GlobalReference",
                         "keys": [
                             {
                                 "type": "GlobalReference",
-                                "idType": "IRI",
                                 "value": "http://acplt.org/SubmodelElementCollections/ExampleSubmodelElementCollectionUnordered"
                             }
                         ]
@@ -2563,10 +2618,10 @@
                                 "name": "Blob"
                             },
                             "semanticId": {
+                                "type": "GlobalReference",
                                 "keys": [
                                     {
                                         "type": "GlobalReference",
-                                        "idType": "IRI",
                                         "value": "http://acplt.org/Blobs/ExampleBlob"
                                     }
                                 ]
@@ -2591,10 +2646,10 @@
                                 "name": "File"
                             },
                             "semanticId": {
+                                "type": "GlobalReference",
                                 "keys": [
                                     {
                                         "type": "GlobalReference",
-                                        "idType": "IRI",
                                         "value": "http://acplt.org/Files/ExampleFile"
                                     }
                                 ]
@@ -2620,10 +2675,10 @@
                                 "name": "ReferenceElement"
                             },
                             "semanticId": {
+                                "type": "GlobalReference",
                                 "keys": [
                                     {
                                         "type": "GlobalReference",
-                                        "idType": "IRI",
                                         "value": "http://acplt.org/ReferenceElements/ExampleReferenceElement"
                                     }
                                 ]
@@ -2651,10 +2706,10 @@
                         "name": "SubmodelElementCollection"
                     },
                     "semanticId": {
+                        "type": "GlobalReference",
                         "keys": [
                             {
                                 "type": "GlobalReference",
-                                "idType": "IRI",
                                 "value": "http://acplt.org/SubmodelElementCollections/ExampleSubmodelElementCollectionUnordered"
                             }
                         ]
@@ -2672,7 +2727,7 @@
             "description": [
                 {
                     "language": "en-us",
-                    "text": "An example concept description  for the test application"
+                    "text": "An example concept description for the test application"
                 },
                 {
                     "language": "de",
@@ -2682,20 +2737,17 @@
             "modelType": {
                 "name": "ConceptDescription"
             },
-            "id": {
-                "id": "https://acplt.org/Test_ConceptDescription",
-                "idType": "IRI"
-            },
+            "id": "https://acplt.org/Test_ConceptDescription",
             "administration": {
                 "version": "0.9",
                 "revision": "0"
             },
             "isCaseOf": [
                 {
+                    "type": "GlobalReference",
                     "keys": [
                         {
                             "type": "GlobalReference",
-                            "idType": "IRI",
                             "value": "http://acplt.org/DataSpecifications/ConceptDescriptions/TestConceptDescription"
                         }
                     ]
@@ -2707,17 +2759,14 @@
             "modelType": {
                 "name": "ConceptDescription"
             },
-            "id": {
-                "id": "https://acplt.org/Test_ConceptDescription_Mandatory",
-                "idType": "IRI"
-            }
+            "id": "https://acplt.org/Test_ConceptDescription_Mandatory"
         },
         {
             "idShort": "TestConceptDescription",
             "description": [
                 {
                     "language": "en-us",
-                    "text": "An example concept description  for the test application"
+                    "text": "An example concept description for the test application"
                 },
                 {
                     "language": "de",
@@ -2727,10 +2776,7 @@
             "modelType": {
                 "name": "ConceptDescription"
             },
-            "id": {
-                "id": "https://acplt.org/Test_ConceptDescription_Missing",
-                "idType": "IRI"
-            },
+            "id": "https://acplt.org/Test_ConceptDescription_Missing",
             "administration": {
                 "version": "0.9",
                 "revision": "0"
@@ -2741,20 +2787,17 @@
             "modelType": {
                 "name": "ConceptDescription"
             },
-            "id": {
-                "id": "http://acplt.org/DataSpecifciations/Example/Identification",
-                "idType": "IRI"
-            },
+            "id": "http://acplt.org/DataSpecifciations/Example/Identification",
             "administration": {
                 "version": "0.9",
                 "revision": "0"
             },
             "isCaseOf": [
                 {
+                    "type": "GlobalReference",
                     "keys": [
                         {
                             "type": "GlobalReference",
-                            "idType": "IRI",
                             "value": "http://acplt.org/ReferenceElements/ConceptDescriptionX"
                         }
                     ]
@@ -2763,10 +2806,10 @@
             "embeddedDataSpecifications": [
                 {
                     "dataSpecification": {
+                        "type": "GlobalReference",
                         "keys": [
                             {
                                 "type": "GlobalReference",
-                                "idType": "IRI",
                                 "value": "http://admin-shell.io/DataSpecificationTemplates/DataSpecificationIEC61360/2/0"
                             }
                         ]
@@ -2805,10 +2848,10 @@
                         ],
                         "unit": "SpaceUnit",
                         "unitId": {
+                            "type": "GlobalReference",
                             "keys": [
                                 {
                                     "type": "GlobalReference",
-                                    "idType": "IRI",
                                     "value": "http://acplt.org/Units/SpaceUnit"
                                 }
                             ]
@@ -2821,10 +2864,10 @@
                                 {
                                     "value": "exampleValue",
                                     "valueId": {
+                                        "type": "GlobalReference",
                                         "keys": [
                                             {
                                                 "type": "GlobalReference",
-                                                "idType": "IRI",
                                                 "value": "http://acplt.org/ValueId/ExampleValueId"
                                             }
                                         ]
@@ -2834,10 +2877,10 @@
                                 {
                                     "value": "exampleValue2",
                                     "valueId": {
+                                        "type": "GlobalReference",
                                         "keys": [
                                             {
                                                 "type": "GlobalReference",
-                                                "idType": "IRI",
                                                 "value": "http://acplt.org/ValueId/ExampleValueId2"
                                             }
                                         ]

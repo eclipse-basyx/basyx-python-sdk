@@ -68,8 +68,8 @@ class ComplianceToolAASXTest(unittest.TestCase):
         self.assertEqual(Status.SUCCESS, manager.steps[0].status)
         self.assertEqual(Status.SUCCESS, manager.steps[1].status)
         self.assertEqual(Status.FAILED, manager.steps[2].status)
-        self.assertIn('Attribute id_short of AssetAdministrationShell[Identifier(IRI=https://acplt.org/'
-                      'Test_AssetAdministrationShell)] must be == TestAssetAdministrationShell',
+        self.assertIn('Attribute id_short of AssetAdministrationShell[https://acplt.org/Test_AssetAdministrationShell]'
+                      ' must be == TestAssetAdministrationShell',
                       manager.format_step(2, verbose_level=1))
         self.assertEqual(Status.NOT_EXECUTED, manager.steps[3].status)
 
@@ -121,7 +121,7 @@ class ComplianceToolAASXTest(unittest.TestCase):
         self.assertEqual(Status.SUCCESS, manager.steps[3].status)
         self.assertEqual(Status.FAILED, manager.steps[4].status)
         self.assertIn('Attribute id_short of AssetAdministrationShell'
-                      '[Identifier(IRI=https://acplt.org/Test_AssetAdministrationShell)] must be ==',
+                      '[https://acplt.org/Test_AssetAdministrationShell] must be ==',
                       manager.format_step(4, verbose_level=1))
         self.assertEqual(Status.FAILED, manager.steps[4].status)
 
@@ -134,7 +134,7 @@ class ComplianceToolAASXTest(unittest.TestCase):
         self.assertEqual(Status.SUCCESS, manager.steps[3].status)
         self.assertEqual(Status.FAILED, manager.steps[4].status)
         self.assertIn('Attribute id_short of AssetAdministrationShell'
-                      '[Identifier(IRI=https://acplt.org/Test_AssetAdministrationShell)] must be ==',
+                      '[https://acplt.org/Test_AssetAdministrationShell] must be ==',
                       manager.format_step(4, verbose_level=1))
         self.assertEqual(Status.NOT_EXECUTED, manager.steps[5].status)
 

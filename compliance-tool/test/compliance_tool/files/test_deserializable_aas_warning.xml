@@ -3,22 +3,22 @@
 	<aas:assetAdministrationShells>
 		<aas:assetAdministrationShell>
 			<aas:idShort>TestAssetAdministrationShell</aas:idShort>
-			<aas:id idType="IRI">https://acplt.org/Test_AssetAdministrationShell</aas:id>
+			<aas:id>https://acplt.org/Test_AssetAdministrationShell</aas:id>
 			<aas:administration>
 				<aas:revision>0</aas:revision>
 			</aas:administration>
 			<aas:assetInformation>
-				<aas:globalAssetId>
+				<aas:globalAssetId type="GlobalReference">
 				  <aas:keys>
-					<aas:key idType="IRI" type="GlobalReference">http://acplt.org/TestAsset/</aas:key>
+					<aas:key type="GlobalReference">http://acplt.org/TestAsset/</aas:key>
 				  </aas:keys>
 				</aas:globalAssetId>
 				<aas:assetKind>Instance</aas:assetKind>
 				<aas:specificAssetIds>
 				  <aas:specificAssetId>
-					<aas:externalSubjectId>
+					<aas:externalSubjectId type="GlobalReference">
 					  <aas:keys>
-						<aas:key idType="IRI" type="GlobalReference">http://acplt.org/SpecificAssetId/</aas:key>
+						<aas:key type="GlobalReference">http://acplt.org/SpecificAssetId/</aas:key>
 					  </aas:keys>
 					</aas:externalSubjectId>
 					<aas:key>TestKey</aas:key>

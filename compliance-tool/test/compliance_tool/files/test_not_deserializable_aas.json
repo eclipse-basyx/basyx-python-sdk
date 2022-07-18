@@ -1,5 +1,25 @@
 {
-	"assetAdministrationShells":[{"id":{"id":"https://acplt.org/Test_AssetAdministrationShell","idType":"IRI"},"idShort":"TestAssetAdministrationShell","modelType":{"name":"Test"},"asset":{"keys":[{"idType":"IRI","local":false,"type":"Asset","value":"https://acplt.org/Test_Asset"}]}}],
-	"submodels": [],
-	"conceptDescriptions": []
+    "assetAdministrationShells": [
+        {
+            "id": "https://acplt.org/Test_AssetAdministrationShell",
+            "idShort": "TestAssetAdministrationShell",
+            "modelType": {
+                "name": "Test"
+            },
+            "assetInformation": {
+                "assetKind": "Instance",
+                "globalAssetId": {
+                    "type": "GlobalReference",
+                    "keys": [
+                        {
+                            "type": "GlobalReference",
+                            "value": "http://acplt.org/Test_Asset/"
+                        }
+                    ]
+                }
+            }
+        }
+    ],
+    "submodels": [],
+    "conceptDescriptions": []
 }
