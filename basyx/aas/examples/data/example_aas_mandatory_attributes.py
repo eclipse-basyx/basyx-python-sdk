@@ -75,25 +75,29 @@ def create_example_submodel() -> model.Submodel:
 
     submodel_element_relationship_element = model.RelationshipElement(
         id_short='ExampleRelationshipElement',
-        first=model.AASReference((model.Key(type_=model.KeyElements.PROPERTY,
-                                            value='ExampleProperty',
-                                            id_type=model.KeyType.IDSHORT),),
-                                 model.Property),
-        second=model.AASReference((model.Key(type_=model.KeyElements.PROPERTY,
-                                             value='ExampleProperty',
-                                             id_type=model.KeyType.IDSHORT),),
-                                  model.Property))
+        first=model.ModelReference((model.Key(type_=model.KeyTypes.SUBMODEL,
+                                              value='http://acplt.org/Test_Submodel'),
+                                    model.Key(type_=model.KeyTypes.PROPERTY,
+                                              value='ExampleProperty'),),
+                                   model.Property),
+        second=model.ModelReference((model.Key(type_=model.KeyTypes.SUBMODEL,
+                                               value='http://acplt.org/Test_Submodel'),
+                                     model.Key(type_=model.KeyTypes.PROPERTY,
+                                               value='ExampleProperty'),),
+                                    model.Property))
 
     submodel_element_annotated_relationship_element = model.AnnotatedRelationshipElement(
         id_short='ExampleAnnotatedRelationshipElement',
-        first=model.AASReference((model.Key(type_=model.KeyElements.PROPERTY,
-                                            value='ExampleProperty',
-                                            id_type=model.KeyType.IDSHORT),),
-                                 model.Property),
-        second=model.AASReference((model.Key(type_=model.KeyElements.PROPERTY,
-                                             value='ExampleProperty',
-                                             id_type=model.KeyType.IDSHORT),),
-                                  model.Property))
+        first=model.ModelReference((model.Key(type_=model.KeyTypes.SUBMODEL,
+                                              value='http://acplt.org/Test_Submodel'),
+                                    model.Key(type_=model.KeyTypes.PROPERTY,
+                                              value='ExampleProperty'),),
+                                   model.Property),
+        second=model.ModelReference((model.Key(type_=model.KeyTypes.SUBMODEL,
+                                               value='http://acplt.org/Test_Submodel'),
+                                     model.Key(type_=model.KeyTypes.PROPERTY,
+                                               value='ExampleProperty'),),
+                                    model.Property))
 
     submodel_element_operation = model.Operation(
         id_short='ExampleOperation')
@@ -103,10 +107,11 @@ def create_example_submodel() -> model.Submodel:
 
     submodel_element_basic_event_element = model.BasicEventElement(
         id_short='ExampleBasicEventElement',
-        observed=model.AASReference((model.Key(type_=model.KeyElements.PROPERTY,
-                                               value='ExampleProperty',
-                                               id_type=model.KeyType.IDSHORT),),
-                                    model.Property))
+        observed=model.ModelReference((model.Key(type_=model.KeyTypes.SUBMODEL,
+                                                 value='http://acplt.org/Test_Submodel'),
+                                       model.Key(type_=model.KeyTypes.PROPERTY,
+                                                 value='ExampleProperty'),),
+                                      model.Property))
 
     submodel_element_submodel_element_collection_ordered = model.SubmodelElementCollectionOrdered(
         id_short='ExampleSubmodelCollectionOrdered',
@@ -125,8 +130,7 @@ def create_example_submodel() -> model.Submodel:
         value=())
 
     submodel = model.Submodel(
-        id_=model.Identifier(id_='https://acplt.org/Test_Submodel_Mandatory',
-                             id_type=model.IdentifierType.IRI),
+        id_='https://acplt.org/Test_Submodel_Mandatory',
         submodel_element=(submodel_element_relationship_element,
                           submodel_element_annotated_relationship_element,
                           submodel_element_operation,
@@ -145,8 +149,7 @@ def create_example_empty_submodel() -> model.Submodel:
     :return: example submodel
     """
     return model.Submodel(
-        id_=model.Identifier(id_='https://acplt.org/Test_Submodel2_Mandatory',
-                             id_type=model.IdentifierType.IRI))
+        id_='https://acplt.org/Test_Submodel2_Mandatory')
 
 
 def create_example_concept_description() -> model.ConceptDescription:
@@ -156,8 +159,7 @@ def create_example_concept_description() -> model.ConceptDescription:
     :return: example concept description
     """
     concept_description = model.ConceptDescription(
-        id_=model.Identifier(id_='https://acplt.org/Test_ConceptDescription_Mandatory',
-                             id_type=model.IdentifierType.IRI))
+        id_='https://acplt.org/Test_ConceptDescription_Mandatory')
     return concept_description
 
 
@@ -171,22 +173,18 @@ def create_example_asset_administration_shell() -> \
     """
     asset_information = model.AssetInformation(
         asset_kind=model.AssetKind.INSTANCE,
-        global_asset_id=model.Reference((model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
-                                                   value='http://acplt.org/Test_Asset_Mandatory/',
-                                                   id_type=model.KeyType.IRI),)))
+        global_asset_id=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
+                                                         value='http://acplt.org/Test_Asset_Mandatory/'),)))
 
     asset_administration_shell = model.AssetAdministrationShell(
         asset_information=asset_information,
-        id_=model.Identifier(id_='https://acplt.org/Test_AssetAdministrationShell_Mandatory',
-                             id_type=model.IdentifierType.IRI),
-        submodel={model.AASReference((model.Key(type_=model.KeyElements.SUBMODEL,
-                                                value='https://acplt.org/Test_Submodel_Mandatory',
-                                                id_type=model.KeyType.IRI),),
-                                     model.Submodel),
-                  model.AASReference((model.Key(type_=model.KeyElements.SUBMODEL,
-                                                value='https://acplt.org/Test_Submodel2_Mandatory',
-                                                id_type=model.KeyType.IRI),),
-                                     model.Submodel)},)
+        id_='https://acplt.org/Test_AssetAdministrationShell_Mandatory',
+        submodel={model.ModelReference((model.Key(type_=model.KeyTypes.SUBMODEL,
+                                                  value='https://acplt.org/Test_Submodel_Mandatory'),),
+                                       model.Submodel),
+                  model.ModelReference((model.Key(type_=model.KeyTypes.SUBMODEL,
+                                                  value='https://acplt.org/Test_Submodel2_Mandatory'),),
+                                       model.Submodel)},)
     return asset_administration_shell
 
 
@@ -199,8 +197,7 @@ def create_example_empty_asset_administration_shell() -> model.AssetAdministrati
     """
     asset_administration_shell = model.AssetAdministrationShell(
         asset_information=model.AssetInformation(),
-        id_=model.Identifier(id_='https://acplt.org/Test_AssetAdministrationShell2_Mandatory',
-                             id_type=model.IdentifierType.IRI))
+        id_='https://acplt.org/Test_AssetAdministrationShell2_Mandatory')
     return asset_administration_shell
 
 

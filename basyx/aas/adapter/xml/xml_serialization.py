@@ -113,9 +113,7 @@ def abstract_classes_to_xml(tag: str, obj: object) -> etree.Element:
     if isinstance(obj, model.Identifiable):
         if obj.administration:
             elm.append(administrative_information_to_xml(obj.administration))
-        elm.append(_generate_element(name=NS_AAS + "id",
-                                     text=obj.id.id,
-                                     attributes={"idType": _generic.IDENTIFIER_TYPES[obj.id.id_type]}))
+        elm.append(_generate_element(name=NS_AAS + "id", text=obj.id))
     if isinstance(obj, model.HasKind):
         if obj.kind is model.ModelingKind.TEMPLATE:
             elm.append(_generate_element(name=NS_AAS + "kind", text="Template"))
@@ -220,14 +218,15 @@ def reference_to_xml(obj: model.Reference, tag: str = NS_AAS+"reference") -> etr
     :param tag: Namespace+Tag of the returned element. Default is "aas:reference"
     :return: Serialized ElementTree
     """
-    et_reference = _generate_element(tag)
+    et_reference = _generate_element(tag, attributes={"type": _generic.REFERENCE_TYPES[obj.__class__]})
     et_keys = _generate_element(name=NS_AAS + "keys")
     for aas_key in obj.key:
         et_keys.append(_generate_element(name=NS_AAS + "key",
                                          text=aas_key.value,
-                                         attributes={"idType": _generic.KEY_TYPES[aas_key.id_type],
-                                                     "type": _generic.KEY_ELEMENTS[aas_key.type]}))
+                                         attributes={"type": _generic.KEY_TYPES[aas_key.type]}))
     et_reference.append(et_keys)
+    if obj.referred_semantic_id is not None:
+        et_reference.append(reference_to_xml(obj.referred_semantic_id, NS_AAS + "referredSemanticId"))
     return et_reference
 
 
@@ -366,11 +365,11 @@ def concept_description_to_xml(obj: model.ConceptDescription,
         et_data_spec_content.append(_iec61360_concept_description_to_xml(obj))
         et_embedded_data_specification.append(et_data_spec_content)
         et_concept_description.append(et_embedded_data_specification)
-        et_embedded_data_specification.append(reference_to_xml(model.Reference(tuple([model.Key(
-            model.KeyElements.GLOBAL_REFERENCE,
-            "http://admin-shell.io/DataSpecificationTemplates/DataSpecificationIEC61360/2/0",
-            model.KeyType.IRI
-        )])), NS_AAS+"dataSpecification"))
+        et_embedded_data_specification.append(reference_to_xml(model.GlobalReference(
+            (model.Key(
+                model.KeyTypes.GLOBAL_REFERENCE,
+                "http://admin-shell.io/DataSpecificationTemplates/DataSpecificationIEC61360/2/0"
+            ),)), NS_AAS+"dataSpecification"))
     if obj.is_case_of:
         for reference in obj.is_case_of:
             et_concept_description.append(reference_to_xml(reference, NS_AAS+"isCaseOf"))
@@ -392,39 +391,6 @@ def _iec61360_concept_description_to_xml(obj: model.concept.IEC61360ConceptDescr
     :return: serialized ElementTree object
     """
 
-    def _iec_lang_string_set_to_xml(lss: model.LangStringSet, lss_tag: str) -> etree.Element:
-        """
-        serialization of objects of class LangStringSet to XML
-
-        :param lss: object of class LangStringSet
-        :param lss_tag: lss_tag name of the returned XML element (incl. namespace)
-        :return: serialized ElementTree object
-        """
-        et_lss = _generate_element(name=lss_tag)
-        for language in lss:
-            et_lss.append(_generate_element(name=NS_IEC + "langString",
-                                            text=lss[language],
-                                            attributes={"lang": language}))
-        return et_lss
-
-    def _iec_reference_to_xml(ref: model.Reference, ref_tag: str = NS_AAS + "reference") -> etree.Element:
-        """
-        serialization of objects of class Reference to XML
-
-        :param ref: object of class Reference
-        :param ref_tag: ref_tag of the returned element
-        :return: serialized ElementTree
-        """
-        et_reference = _generate_element(ref_tag)
-        et_keys = _generate_element(name=NS_IEC + "keys")
-        for aas_key in ref.key:
-            et_keys.append(_generate_element(name=NS_IEC + "key",
-                                             text=aas_key.value,
-                                             attributes={"idType": _generic.KEY_TYPES[aas_key.id_type],
-                                                         "type": _generic.KEY_ELEMENTS[aas_key.type]}))
-        et_reference.append(et_keys)
-        return et_reference
-
     def _iec_value_reference_pair_to_xml(vrp: model.ValueReferencePair,
                                          vrp_tag: str = NS_IEC + "valueReferencePair") -> etree.Element:
         """
@@ -435,7 +401,7 @@ def _iec61360_concept_description_to_xml(obj: model.concept.IEC61360ConceptDescr
         :return: serialized ElementTree object
         """
         et_vrp = _generate_element(vrp_tag)
-        et_vrp.append(_iec_reference_to_xml(vrp.value_id, NS_IEC + "valueId"))
+        et_vrp.append(reference_to_xml(vrp.value_id, NS_IEC + "valueId"))
         et_vrp.append(_value_to_xml(vrp.value, vrp.value_type, tag=NS_IEC+"value"))
         return et_vrp
 
@@ -454,13 +420,13 @@ def _iec61360_concept_description_to_xml(obj: model.concept.IEC61360ConceptDescr
         return et_value_list
 
     et_iec = _generate_element(tag)
-    et_iec.append(_iec_lang_string_set_to_xml(obj.preferred_name, NS_IEC + "preferredName"))
+    et_iec.append(lang_string_set_to_xml(obj.preferred_name, NS_IEC + "preferredName"))
     if obj.short_name:
-        et_iec.append(_iec_lang_string_set_to_xml(obj.short_name, NS_IEC + "shortName"))
+        et_iec.append(lang_string_set_to_xml(obj.short_name, NS_IEC + "shortName"))
     if obj.unit:
         et_iec.append(_generate_element(NS_IEC+"unit", text=obj.unit))
     if obj.unit_id:
-        et_iec.append(_iec_reference_to_xml(obj.unit_id, NS_IEC+"unitId"))
+        et_iec.append(reference_to_xml(obj.unit_id, NS_IEC+"unitId"))
     if obj.source_of_definition:
         et_iec.append(_generate_element(NS_IEC+"sourceOfDefinition", text=obj.source_of_definition))
     if obj.symbol:
@@ -468,7 +434,7 @@ def _iec61360_concept_description_to_xml(obj: model.concept.IEC61360ConceptDescr
     if obj.data_type:
         et_iec.append(_generate_element(NS_IEC+"dataType", text=_generic.IEC61360_DATA_TYPES[obj.data_type]))
     if obj.definition:
-        et_iec.append(_iec_lang_string_set_to_xml(obj.definition, NS_IEC + "definition"))
+        et_iec.append(lang_string_set_to_xml(obj.definition, NS_IEC + "definition"))
     if obj.value_format:
         et_iec.append(_generate_element(NS_IEC+"valueFormat", text=model.datatypes.XSD_TYPE_NAMES[obj.value_format]))
     if obj.value_list:
@@ -476,7 +442,7 @@ def _iec61360_concept_description_to_xml(obj: model.concept.IEC61360ConceptDescr
     if obj.value:
         et_iec.append(_generate_element(NS_IEC+"value", text=model.datatypes.xsd_repr(obj.value)))
     if obj.value_id:
-        et_iec.append(_iec_reference_to_xml(obj.value_id, NS_IEC+"valueId"))
+        et_iec.append(reference_to_xml(obj.value_id, NS_IEC+"valueId"))
     if obj.level_types:
         for level_type in obj.level_types:
             et_iec.append(_generate_element(NS_IEC+"levelType", text=_generic.IEC61360_LEVEL_TYPES[level_type]))

@@ -34,28 +34,14 @@ QualifierType = str
 # << Data Type >> Example ["en-US", "germany"]
 LangStringSet = Dict[str, str]
 
-
-@unique
-class IdentifierType(Enum):
-    """
-    Enumeration of different types of :class:`Identifiers <.Identifier>` for global id
-
-    :cvar IRDI: IRDI (International Registration Data Identifier) according to ISO29002-5 as an Identifier scheme for
-                properties and classifications.
-    :cvar IRI: IRI according to Rfc 3987. Every URI is an IRI
-    :cvar CUSTOM: Custom identifiers like GUIDs (globally unique Identifiers)
-    """
-
-    IRDI = 0
-    IRI = 1
-    CUSTOM = 2
+Identifier = str
 
 
 @unique
-class KeyElements(Enum):
+class KeyTypes(Enum):
     """
     Enumeration for denoting which kind of entity is referenced. They can be categorized in ReferableElements,
-    IdentifiableElements and other KeyElements
+    IdentifiableElements and other KeyTypes
 
     **IdentifiableElements starting from 0**
 
@@ -65,10 +51,10 @@ class KeyElements(Enum):
 
     **ReferableElements starting from 1000**
 
-    *Note:* DataElement is abstract, i. e. if a key uses :attr:`~.KeyElements.DATA_ELEMENT` the reference may be
+    *Note:* DataElement is abstract, i. e. if a key uses :attr:`~.KeyTypes.DATA_ELEMENT` the reference may be
     :class:`~aas.model.submodel.Property`, :class:`~aas.model.submodel.File` etc.
 
-    *Note:* SubmodelElement is abstract, i.e. if a key uses :attr:`~.KeyElements.SUBMODEL_ELEMENT`
+    *Note:* SubmodelElement is abstract, i.e. if a key uses :attr:`~.KeyTypes.SUBMODEL_ELEMENT`
     the reference may be a :class:`~aas.model.submodel.Property`, a
     :class:`~aas.model.submodel.SubmodelElementCollection`, an :class:`~aas.model.submodel.Operation` etc.
 
@@ -92,7 +78,7 @@ class KeyElements(Enum):
     :cvar SUBMODEL_ELEMENT: :class:`~aas.model.submodel.SubmodelElement`
     :cvar SUBMODEL_ELEMENT_COLLECTION: :class:`~aas.model.submodel.SubmodelElementCollection`
 
-    **KeyElements starting from 2000**
+    **KeyTypes starting from 2000**
 
     :cvar GLOBAL_REFERENCE: reference to an element not belonging to an asset administration shell
     :cvar FRAGMENT_REFERENCE: unique reference to an element within a file. The file itself is assumed to be part of an
@@ -128,33 +114,54 @@ class KeyElements(Enum):
     # keep _VIEW = 1018 as a protected enum member here, so 1018 isn't reused in the enum by a future referable
     _VIEW = 1018
 
-    # KeyElements starting from 2000
+    # KeyTypes starting from 2000
     GLOBAL_REFERENCE = 2000
     FRAGMENT_REFERENCE = 2001
 
-
-@unique
-class KeyType(Enum):
-    """
-    Enumeration for denoting the type of the key value.
-
-    :cvar IRDI: IRDI (International Registration Data Identifier) according to ISO29002-5 as an Identifier scheme for
-                properties and classifications.
-    :cvar IRI: IRI according to Rfc 3987. Every URI is an IRI
-    :cvar CUSTOM: Custom identifiers like GUIDs (globally unique Identifiers)
-    :cvar IDSHORT: id_short of a referable element
-    :cvar FRAGMENT_ID: identifier of a fragment within a file
-    """
-
-    IRDI = 0
-    IRI = 1
-    CUSTOM = 2
-    IDSHORT = 3
-    FRAGMENT_ID = 4
+    @property
+    def is_aas_identifiable(self) -> bool:
+        return self in (self.ASSET_ADMINISTRATION_SHELL, self.CONCEPT_DESCRIPTION, self.SUBMODEL)
 
     @property
-    def is_local_key_type(self) -> bool:
-        return self in (KeyType.IDSHORT, KeyType.FRAGMENT_ID)
+    def is_generic_globally_identifiable(self) -> bool:
+        return self == self.GLOBAL_REFERENCE
+
+    @property
+    def is_generic_fragment_key(self) -> bool:
+        return self == self.FRAGMENT_REFERENCE
+
+    @property
+    def is_aas_submodel_element(self) -> bool:
+        return self in (
+            self.ANNOTATED_RELATIONSHIP_ELEMENT,
+            self.BASIC_EVENT_ELEMENT,
+            self.BLOB,
+            self.CAPABILITY,
+            self.DATA_ELEMENT,
+            self.ENTITY,
+            self.EVENT_ELEMENT,
+            self.FILE,
+            self.MULTI_LANGUAGE_PROPERTY,
+            self.OPERATION,
+            self.PROPERTY,
+            self.RANGE,
+            self.REFERENCE_ELEMENT,
+            self.RELATIONSHIP_ELEMENT,
+            self.SUBMODEL_ELEMENT,
+            self.SUBMODEL_ELEMENT_COLLECTION
+        )
+
+    @property
+    def is_aas_referable_non_identifiable(self) -> bool:
+        return self.is_aas_submodel_element
+
+    @property
+    def is_fragment_key_element(self) -> bool:
+        return self.is_aas_referable_non_identifiable or self.is_generic_fragment_key
+
+    @property
+    def is_globally_identifiable(self) -> bool:
+        return self.is_aas_identifiable or self.is_generic_globally_identifiable
 
 
 @unique
@@ -214,86 +221,57 @@ class AssetKind(Enum):
     INSTANCE = 1
 
 
-LOCAL_KEY_TYPES: Set[KeyType] = {
-    KeyType.IDSHORT,
-    KeyType.FRAGMENT_ID
-}
-
-
 class Key:
     """
     A key is a reference to an element by its id.
 
-    *Constraint AASd-080:* A Key with :attr:`~.type` == :attr:`~.KeyElements.GLOBAL_REFERENCE` must not have an
-    :attr:`~.id_type` of LocalKeyType: (:attr:`~.KeyElements.IDSHORT`, :attr:`~.KeyElements.FRAGMENT_ID`)
-
-    *Constraint AASd-081:* A Key with :attr:`~.type` == :attr:`~.KeyElements.ASSET_ADMINISTRATION_SHELL` must not have
-    an :attr:`~.id_type` of LocalKeyType: (:attr:`~.KeyElements.IDSHORT`, :attr:`~.KeyElements.FRAGMENT_ID`)
-
-    :ivar type_: Denote which kind of entity is referenced. In case type = :attr:`~.KeyElements.GLOBAL_REFERENCE` then
+    :ivar type_: Denote which kind of entity is referenced. In case type = :attr:`~.KeyTypes.GLOBAL_REFERENCE` then
                 the element is a global unique id. In all other cases the key references a model element of the same or
                 of another AAS. The name of the model element is explicitly listed.
-    :ivar value: The key value, for example an IRDI if the idType = :attr:`~.KeyType.IRDI`
-    :ivar id_type: Type of the key value. In case type =
-                   :attr:`~.KeyElements.GLOBAL_REFERENCE` idType shall not be IdShort.
+    :ivar value: The key value, for example an IRDI or IRI
     """
 
     def __init__(self,
-                 type_: KeyElements,
-                 value: str,
-                 id_type: KeyType):
+                 type_: KeyTypes,
+                 value: str):
         """
         TODO: Add instruction what to do after construction
         """
-        self.type: KeyElements
+        self.type: KeyTypes
         if value == "":
             raise ValueError("value is not allowed to be an empty string")
         self.value: str
-        self.id_type: KeyType
         super().__setattr__('type', type_)
         super().__setattr__('value', value)
-        super().__setattr__('id_type', id_type)
-        if self.type is KeyElements.GLOBAL_REFERENCE and self.id_type in LOCAL_KEY_TYPES:
-            raise AASConstraintViolation(
-                80,
-                "A Key with Key.type==GLOBAL_REFERENCE must not have an id_type of LocalKeyType: (IDSHORT, FRAGMENT_ID)"
-            )
-        if self.type is KeyElements.ASSET_ADMINISTRATION_SHELL and self.id_type in LOCAL_KEY_TYPES:
-            raise AASConstraintViolation(
-                81,
-                "A Key with Key.type==ASSET_ADMINISTRATION_SHELL must not have an id_type of LocalKeyType: " +
-                ", ".join([key_type.name for key_type in LOCAL_KEY_TYPES])
-            )
 
     def __setattr__(self, key, value):
         """Prevent modification of attributes."""
         raise AttributeError('Reference is immutable')
 
     def __repr__(self) -> str:
-        return "Key(id_type={}, value={})".format(self.id_type.name, self.value)
+        return "Key(type={}, value={})".format(self.type.name, self.value)
 
     def __str__(self) -> str:
-        return "{}={}".format(self.id_type.name, self.value)
+        return self.value
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, Key):
             return NotImplemented
-        return (self.id_type is other.id_type
-                and self.value == other.value
+        return (self.value == other.value
                 and self.type == other.type)
 
     def __hash__(self):
-        return hash((self.id_type, self.value, self.type))
+        return hash((self.value, self.type))
 
     def get_identifier(self) -> Optional["Identifier"]:
         """
-        Get an :class:`~.Identifier` object corresponding to this key, if it is a global key.
+        Get an :class:`~.Identifier` object corresponding to this key, if it is an identifiable key.
 
-        :return: None if this is no global key, otherwise a corresponding :class:`~.Identifier` object
+        :return: None if this is no identifiable key, otherwise a corresponding :class:`~.Identifier` string.
         """
-        if self.id_type.is_local_key_type:
+        if not self.type.is_aas_identifiable:
             return None
-        return Identifier(self.value, IdentifierType(self.id_type.value))
+        return self.value
 
     @staticmethod
     def from_referable(referable: "Referable") -> "Key":
@@ -305,19 +283,18 @@ class Key:
         """
         # Get the `type` by finding the first class from the base classes list (via inspect.getmro), that is contained
         # in KEY_ELEMENTS_CLASSES
-        from . import KEY_ELEMENTS_CLASSES
+        from . import KEY_TYPES_CLASSES
         try:
-            key_type = next(iter(KEY_ELEMENTS_CLASSES[t]
+            key_type = next(iter(KEY_TYPES_CLASSES[t]
                                  for t in inspect.getmro(type(referable))
-                                 if t in KEY_ELEMENTS_CLASSES))
+                                 if t in KEY_TYPES_CLASSES))
         except StopIteration:
-            key_type = KeyElements.PROPERTY
+            key_type = KeyTypes.PROPERTY
 
         if isinstance(referable, Identifiable):
-            return Key(key_type, referable.id.id,
-                       KeyType(referable.id.id_type.value))
+            return Key(key_type, referable.id)
         else:
-            return Key(key_type, referable.id_short, KeyType.IDSHORT)
+            return Key(key_type, referable.id_short)
 
 
 class AdministrativeInformation:
@@ -376,44 +353,6 @@ class AdministrativeInformation:
 
     def __repr__(self) -> str:
         return "AdministrativeInformation(version={}, revision={})".format(self.version, self.revision)
-
-
-class Identifier:
-    """
-    Used to uniquely identify an entity by using an identifier.
-
-    :ivar ~.id: Identifier of the element. Its type is defined in id_type. (*Initialized as:* `id_`)
-    :ivar id_type: Type of the Identifier, e.g. URI, IRDI etc. The supported Identifier types are defined in
-                   the :class:`~.IdentifierType` enumeration.
-    """
-
-    def __init__(self,
-                 id_: str,
-                 id_type: IdentifierType):
-        """
-        TODO: Add instruction what to do after construction
-        """
-        self.id: str
-        self.id_type: IdentifierType
-        if id_ == "":
-            raise ValueError("id is not allowed to be an empty string")
-        super().__setattr__('id', id_)
-        super().__setattr__('id_type', id_type)
-
-    def __setattr__(self, key, value):
-        """Prevent modification of attributes."""
-        raise AttributeError('Identifier are immutable')
-
-    def __hash__(self):
-        return hash((self.id_type, self.id))
-
-    def __eq__(self, other: object) -> bool:
-        if not isinstance(other, Identifier):
-            return NotImplemented
-        return self.id_type == other.id_type and self.id == other.id
-
-    def __repr__(self) -> str:
-        return "Identifier({}={})".format(self.id_type.name, self.id)
 
 
 _NSO = TypeVar('_NSO', bound=Union["Referable", "Qualifier", "HasSemantics", "Extension"])
@@ -780,7 +719,7 @@ _RT = TypeVar('_RT', bound=Referable)
 
 class UnexpectedTypeError(TypeError):
     """
-    Exception to be raised by :meth:`aas.model.base.AASReference.resolve` if the retrieved object has not the expected
+    Exception to be raised by :meth:`aas.model.base.ModelReference.resolve` if the retrieved object has not the expected
     type.
 
     :ivar value: The object of unexpected type
@@ -790,69 +729,139 @@ class UnexpectedTypeError(TypeError):
         self.value = value
 
 
-class Reference:
+class Reference(metaclass=abc.ABCMeta):
     """
     Reference to either a model element of the same or another AAs or to an external entity.
 
     A reference is an ordered list of keys, each key referencing an element. The complete list of keys may for
-    example be concatenated to a path that then gives unique access to an element or entity
+    example be concatenated to a path that then gives unique access to an element or entity.
 
-    :ivar: key: Ordered list of unique reference in its name space, each key referencing an element. The complete
-                list of keys may for example be concatenated to a path that then gives unique access to an element
-                or entity.
-    :ivar: type: The type of the referenced object (additional attribute, not from the AAS Metamodel)
+    This is the abstract superclass of GlobalReference and ModelReference, which implements common attributes and
+    methods used in both reference types. The two reference types are implemented as separate classes in this SDK to
+    allow typing and resolving of References with Reference/type=ModelReference.
+
+    <<abstract>>
+
+    *Constraint AASd-121:* For References the type of the first key of Reference/keys shall be one of
+                           GloballyIdentifiables.
+
+    :ivar key: Ordered list of unique reference in its name space, each key referencing an element. The complete
+               list of keys may for example be concatenated to a path that then gives unique access to an element
+               or entity.
+    :ivar referred_semantic_id: SemanticId of the referenced model element. For global references there typically is no
+                                semantic id.
     """
+    def __init__(self, key: Tuple[Key, ...], referred_semantic_id: Optional["Reference"] = None):
+        if len(key) < 1:
+            raise ValueError("A reference must have at least one key!")
 
-    def __init__(self,
-                 key: Tuple[Key, ...]):
-        """
+        # Constraint AASd-121 is enforced by checking AASd-122 for global references and AASd-123 for model references
 
-
-        TODO: Add instruction what to do after construction
-        """
         self.key: Tuple[Key, ...]
+        self.referred_semantic_id: Optional["Reference"]
         super().__setattr__('key', key)
+        super().__setattr__('referred_semantic_id', referred_semantic_id)
 
     def __setattr__(self, key, value):
         """Prevent modification of attributes."""
         raise AttributeError('Reference is immutable')
 
-    def __repr__(self) -> str:
-        return "Reference(key={})".format(self.key)
-
     def __hash__(self):
-        return hash(self.key)
+        return hash((self.__class__, self.key))
 
     def __eq__(self, other: object) -> bool:
-        if not isinstance(other, Reference):
+        if not isinstance(other, self.__class__):
             return NotImplemented
         if len(self.key) != len(other.key):
             return False
-        return all(k1 == k2 for k1, k2 in zip(self.key, other.key))
+        return all(k1 == k2 for k1, k2 in zip(self.key, other.key)) \
+            and self.referred_semantic_id == other.referred_semantic_id
 
 
-class AASReference(Reference, Generic[_RT]):
+class GlobalReference(Reference):
     """
-    Typed Reference to any referable :class:`Asset Administration Shell <aas.model.aas.AssetAdministrationShell>` object
+    Reference to either a model element of the same or another AAs or to an external entity.
+
+    A reference is an ordered list of keys, each key referencing an element. The complete list of keys may for
+    example be concatenated to a path that then gives unique access to an element or entity.
+
+    *Constraint AASd-122:* For global references the type of the first key of Reference/keys shall be one of
+                           GenericGloballyIdentifiables.
+    *Constraint AASd-124:* For global references the last key of Reference/keys shall be either one of
+                           GenericGloballyIdentifiables or one of GenericFragmentKeys.
+
+    :ivar key: Ordered list of unique reference in its name space, each key referencing an element. The complete
+               list of keys may for example be concatenated to a path that then gives unique access to an element
+               or entity.
+    :ivar referred_semantic_id: SemanticId of the referenced model element. For global references there typically is no
+                                semantic id.
+    """
+
+    def __init__(self, key: Tuple[Key, ...], referred_semantic_id: Optional["Reference"] = None):
+        super().__init__(key, referred_semantic_id)
+
+        if not key[0].type.is_generic_globally_identifiable:
+            raise AASConstraintViolation(122, "The type of the first key of a GlobalReference must be a "
+                                              f"GenericGloballyIdentifiable: {key[0]!r}")
+        if not key[-1].type.is_generic_globally_identifiable and not key[-1].type.is_generic_fragment_key:
+            raise AASConstraintViolation(124, "The type of the last key of a GlobalReference must be a "
+                                              f"GenericGloballyIdentifiable or a GenericFragmentKey: {key[-1]!r}")
+
+    def __repr__(self) -> str:
+        return "GlobalReference(key={})".format(self.key)
+
+
+class ModelReference(Reference, Generic[_RT]):
+    """
+    Typed Reference to any referable AAS object.
 
     This is a special construct of the implementation to allow typed references and de-referencing.
+
+    *Constraint AASd-123:* For model references the type of the first key of Reference/keys shall be one of
+                           AasIdentifiables.
+    *Constraint AASd-125:* For model references with more than one key in Reference/keys the type of the keys following
+                           the first key of Reference/keys shall be one of FragmentKeyElements.
+    *Constraint AASd-126:* For model references with more than one key in Reference/keys the type of the last Key in
+                           the reference key chain may be one of GenericFragments or no key at all shall have a value
+                           out of GenericFragmentKeys.
+    *Constraint AASd-127:* For model references with more than one key in Reference/keys a key with type
+                           FragmentReference shall be preceded by a key with type File or Blob. All other AAS fragments,
+                           i.e. type values out of AasSubmodelElements, do not support fragments.
+    *Constraint AASd-128:* For model references the Key/value of a Key preceded by a Key with
+                           Key/type=SubmodelElementList is an integer number denoting the position in the array of the
+                           submodel element list.
 
     :ivar key: Ordered list of unique :class:`Keys <.Key>` in its name space, each key referencing an element.
                The complete list of keys may for example be concatenated to a path that then gives unique access to an
                element or entity.
     :ivar ~.type: The type of the referenced object (additional parameter, not from the AAS Metamodel)
-                  *Initialization parameter:* `target_type`
+                  *Initialization parameter:* `type_`
+    :ivar referred_semantic_id: SemanticId of the referenced model element. For global references there typically is no
+                                semantic id.
     """
-    def __init__(self,
-                 key: Tuple[Key, ...],
-                 target_type: Type[_RT]):
-        """
-        TODO: Add instruction what to do after construction
-        """
-        # TODO check keys for validity. GlobalReference and Fragment-Type keys are not allowed here
-        super().__init__(key)
+    def __init__(self, key: Tuple[Key, ...], type_: Type[_RT], referred_semantic_id: Optional[Reference] = None):
+        super().__init__(key, referred_semantic_id)
+
+        if not key[0].type.is_aas_identifiable:
+            raise AASConstraintViolation(123, "The type of the first key of a ModelReference must be an "
+                                              f"AasIdentifiable: {key[0]!r}")
+        for k in key[1:]:
+            if not k.type.is_fragment_key_element:
+                raise AASConstraintViolation(125, "The type of all keys following the first of a ModelReference "
+                                                  f"must be one of FragmentKeyElements: {k!r}")
+        if not key[-1].type.is_generic_fragment_key:
+            for k in key[:-1]:
+                if k.type.is_generic_fragment_key:
+                    raise AASConstraintViolation(126, f"Key {k!r} is a GenericFragmentKey, "
+                                                      f"but the last key of the chain is not: {key[-1]!r}")
+        for pk, k in zip(key, key[1:]):
+            if k.type == KeyTypes.FRAGMENT_REFERENCE and pk.type not in (KeyTypes.BLOB, KeyTypes.FILE):
+                raise AASConstraintViolation(127, f"{k!r} is not preceeded by a key of type File or Blob, but {pk!r}")
+
+        # TODO: check Constraint AASd-128, when SubmodelElementLists are implemented (and also test it)
+
         self.type: Type[_RT]
-        object.__setattr__(self, 'type', target_type)
+        object.__setattr__(self, 'type', type_)
 
     def resolve(self, provider_: "provider.AbstractObjectProvider") -> _RT:
         """
@@ -866,30 +875,22 @@ class AASReference(Reference, Generic[_RT]):
                                      object is stored in the `value` attribute of the exception
         :raises KeyError: If the reference could not be resolved
         """
-        if len(self.key) == 0:
-            raise IndexError("List of keys is empty")
-        # Find key index last (global) identifier-key in key list (from https://stackoverflow.com/a/6890255/10315508)
-        try:
-            last_identifier_index = next(i
-                                         for i in reversed(range(len(self.key)))
-                                         if self.key[i].get_identifier())
-        except StopIteration:
-            # If no identifier-key is contained in the list, we could try to resolve the path locally.
-            # TODO implement local resolution
-            raise NotImplementedError("We currently don't support local-only references without global identifier keys")
+
+        # For ModelReferences, the first key must be an AasIdentifiable. So resolve the first key via the provider.
+        identifier: Optional[Identifier] = self.key[0].get_identifier()
+        if identifier is None:
+            raise AssertionError("Retrieving the identifier of the first key failed.")
 
         resolved_keys: List[str] = []  # for more helpful error messages
-
-        # First, resolve the identifier-key via the provider
-        identifier: Identifier = self.key[last_identifier_index].get_identifier()  # type: ignore
         try:
             item: Referable = provider_.get_identifiable(identifier)
         except KeyError as e:
-            raise KeyError("Could not resolve global reference key {}".format(identifier)) from e
+            raise KeyError("Could not resolve identifier {}".format(identifier)) from e
         resolved_keys.append(str(identifier))
 
-        # Now, follow path, given by remaining keys, recursively
-        for key in self.key[last_identifier_index+1:]:
+        # All keys following the first must not reference identifiables (AASd-125). Thus we can just follow the path
+        # recursively.
+        for key in self.key[1:]:
             if not isinstance(item, UniqueIdShortNamespace):
                 raise TypeError("Object retrieved at {} is not a Namespace".format(" / ".join(resolved_keys)))
             try:
@@ -910,7 +911,7 @@ class AASReference(Reference, Generic[_RT]):
         referenced :class:`~.Referable` is contained.
 
         :returns: :class:`~.Identifier`
-        :raises ValueError: If this :class:`~.Reference` does not include a Key with global KeyType (IRDI, IRI, CUSTOM)
+        :raises ValueError: If this :class:`~.ModelReference` does not include a Key of AasIdentifiable type
         """
         try:
             last_identifier = next(key.get_identifier()
@@ -918,31 +919,31 @@ class AASReference(Reference, Generic[_RT]):
                                    if key.get_identifier())
             return last_identifier  # type: ignore  # MyPy doesn't get the generator expression above
         except StopIteration:
-            raise ValueError("Reference cannot be represented as an Identifier, since it does not contain a Key with "
-                             "global KeyType (IRDI, IRI, CUSTOM)")
+            raise ValueError("ModelReference cannot be represented as an Identifier, since it does not contain a Key"
+                             f" of an AasIdentifiable type ({[t.name for t in KeyTypes if t.is_aas_identifiable]})")
 
     def __repr__(self) -> str:
-        return "AASReference(type={}, key={})".format(self.type.__name__, self.key)
+        return "ModelReference<{}>(key={})".format(self.type.__name__, self.key)
 
     @staticmethod
-    def from_referable(referable: Referable) -> "AASReference":
+    def from_referable(referable: Referable) -> "ModelReference":
         """
-        Construct an :class:`~.AASReference` to a given :class:`~.Referable` AAS object
+        Construct an :class:`~.ModelReference` to a given :class:`~.Referable` AAS object
 
         This requires that the :class:`~.Referable` object is :class:`~.Identifiable` itself or is a
         child-, grand-child-, etc. object of an
         :class:`~.Identifiable` object. Additionally, the object must be an instance of a known :class:`~.Referable`
         type.
 
-        :param referable: :class:`~aas.model.base.Referable` object to construct the :class:`~.AASReference` from
-        :returns: Constructed :class:`~.AASReference`
+        :param referable: :class:`~aas.model.base.Referable` object to construct the :class:`~.ModelReference` from
+        :returns: Constructed :class:`~.ModelReference`
         :raises ValueError: If no :class:`~aas.model.base.Identifiable` object is found while traversing the object's
                 ancestors
         """
         # Get the first class from the base classes list (via inspect.getmro), that is contained in KEY_ELEMENTS_CLASSES
-        from . import KEY_ELEMENTS_CLASSES
+        from . import KEY_TYPES_CLASSES
         try:
-            ref_type = next(iter(t for t in inspect.getmro(type(referable)) if t in KEY_ELEMENTS_CLASSES))
+            ref_type = next(iter(t for t in inspect.getmro(type(referable)) if t in KEY_TYPES_CLASSES))
         except StopIteration:
             ref_type = Referable
 
@@ -952,7 +953,7 @@ class AASReference(Reference, Generic[_RT]):
             keys.append(Key.from_referable(ref))
             if isinstance(ref, Identifiable):
                 keys.reverse()
-                return AASReference(tuple(keys), ref_type)
+                return ModelReference(tuple(keys), ref_type)
             if ref.parent is None or not isinstance(ref.parent, Referable):
                 raise ValueError("The given Referable object is not embedded within an Identifiable object")
             ref = ref.parent
@@ -985,10 +986,20 @@ class Identifiable(Referable, metaclass=abc.ABCMeta):
     def __init__(self):
         super().__init__()
         self.administration: Optional[AdministrativeInformation] = None
-        self.id: Identifier = Identifier("None", IdentifierType.IRDI)
+        self._id: Identifier = ""
 
     def __repr__(self) -> str:
         return "{}[{}]".format(self.__class__.__name__, self.id)
+
+    @property
+    def id(self) -> Identifier:
+        return self._id
+
+    @id.setter
+    def id(self, id_: Identifier) -> None:
+        if id_ == "":
+            raise ValueError("The id attribute must not be an empty string!")
+        self._id = id_
 
 
 class HasSemantics(metaclass=abc.ABCMeta):

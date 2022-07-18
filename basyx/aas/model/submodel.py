@@ -895,8 +895,8 @@ class RelationshipElement(SubmodelElement):
 
     def __init__(self,
                  id_short: str,
-                 first: base.AASReference,
-                 second: base.AASReference,
+                 first: base.ModelReference,
+                 second: base.ModelReference,
                  display_name: Optional[base.LangStringSet] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
@@ -910,8 +910,8 @@ class RelationshipElement(SubmodelElement):
         """
 
         super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, kind, extension)
-        self.first: base.AASReference = first
-        self.second: base.AASReference = second
+        self.first: base.ModelReference = first
+        self.second: base.ModelReference = second
 
 
 class AnnotatedRelationshipElement(RelationshipElement, base.UniqueIdShortNamespace):
@@ -948,8 +948,8 @@ class AnnotatedRelationshipElement(RelationshipElement, base.UniqueIdShortNamesp
 
     def __init__(self,
                  id_short: str,
-                 first: base.AASReference,
-                 second: base.AASReference,
+                 first: base.ModelReference,
+                 second: base.ModelReference,
                  display_name: Optional[base.LangStringSet] = None,
                  annotation: Iterable[DataElement] = (),
                  category: Optional[str] = None,
@@ -1221,7 +1221,7 @@ class BasicEventElement(EventElement):
 
     :ivar id_short: Identifying string of the element within its name space. (inherited from
                     :class:`~aas.model.base.Referable`)
-    :ivar observed: :class:`~aas.model.base.AASReference` to the data or other elements that are being observed
+    :ivar observed: :class:`~aas.model.base.ModelReference` to the data or other elements that are being observed
     :ivar display_name: Can be provided in several languages. (inherited from :class:`~aas.model.base.Referable`)
     :ivar category: The category is a value that gives further meta information w.r.t. to the class of the element.
                      It affects the expected existence of attributes and the applicability of constraints.
@@ -1243,7 +1243,7 @@ class BasicEventElement(EventElement):
 
     def __init__(self,
                  id_short: str,
-                 observed: base.AASReference,
+                 observed: base.ModelReference,
                  display_name: Optional[base.LangStringSet] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
@@ -1257,4 +1257,4 @@ class BasicEventElement(EventElement):
         """
 
         super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, kind, extension)
-        self.observed: base.AASReference = observed
+        self.observed: base.ModelReference = observed

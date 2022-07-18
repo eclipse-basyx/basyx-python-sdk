@@ -16,7 +16,7 @@ This module contains the following classes from an up-to-down-level:
 from typing import Optional, Set, Iterable
 
 from . import base
-from .submodel import File, Submodel
+from .submodel import Submodel
 
 
 class AssetInformation:
@@ -30,8 +30,8 @@ class AssetInformation:
 
     :ivar asset_kind: Denotes whether the Asset is of :class:`~aas.model.base.AssetKind` "TYPE" or "INSTANCE".
                       Default is "INSTANCE".
-    :ivar global_asset_id: :class:`~aas.model.base.Reference` to either an Asset object or a global reference to the
-                           asset the AAS is representing.
+    :ivar global_asset_id: :class:`~aas.model.base.GlobalReference` modeling the identifier of the asset the AAS is
+                           representing.
                            This attribute is required as soon as the AAS is exchanged via partners in the
                            life cycle of the asset. In a first phase of the life cycle the asset might not yet have a
                            global id but already an internal identifier. The internal identifier would be modelled via
@@ -44,13 +44,13 @@ class AssetInformation:
 
     def __init__(self,
                  asset_kind: base.AssetKind = base.AssetKind.INSTANCE,
-                 global_asset_id: Optional[base.Reference] = None,
+                 global_asset_id: Optional[base.GlobalReference] = None,
                  specific_asset_id: Optional[Set[base.IdentifierKeyValuePair]] = None,
                  default_thumbnail: Optional[base.Resource] = None):
 
         super().__init__()
         self.asset_kind: base.AssetKind = asset_kind
-        self._global_asset_id: Optional[base.Reference] = global_asset_id
+        self._global_asset_id: Optional[base.GlobalReference] = global_asset_id
         self.specific_asset_id: Set[base.IdentifierKeyValuePair] = set() if specific_asset_id is None \
             else specific_asset_id
         self.default_thumbnail: Optional[base.Resource] = default_thumbnail
@@ -58,7 +58,7 @@ class AssetInformation:
     def _get_global_asset_id(self):
         return self._global_asset_id
 
-    def _set_global_asset_id(self, global_asset_id: Optional[base.Reference]):
+    def _set_global_asset_id(self, global_asset_id: Optional[base.GlobalReference]):
         if global_asset_id is None and (self.specific_asset_id is None or not self.specific_asset_id):
             raise ValueError("either global or specific asset id must be set")
         self._global_asset_id = global_asset_id
@@ -91,7 +91,7 @@ class AssetAdministrationShell(base.Identifiable, base.UniqueIdShortNamespace):
                           :class:`~aas.model.base.Identifiable`)
     :ivar ~.submodel: Unordered list of :class:`submodels <aas.model.submodel.Submodel>` to describe typically the asset
                     of an AAS. (Initialization-parameter: `submodel_`)
-    :ivar derived_from: The :class:`reference <aas.model.base.AASReference>` to the AAS the AAs was derived from
+    :ivar derived_from: The :class:`reference <aas.model.base.ModelReference>` to the AAS the AAs was derived from
     :ivar extension: An extension of the element.
                      (from :class:`~aas.model.base.HasExtensions`)
     """
@@ -104,8 +104,8 @@ class AssetAdministrationShell(base.Identifiable, base.UniqueIdShortNamespace):
                  description: Optional[base.LangStringSet] = None,
                  parent: Optional[base.UniqueIdShortNamespace] = None,
                  administration: Optional[base.AdministrativeInformation] = None,
-                 submodel: Optional[Set[base.AASReference[Submodel]]] = None,
-                 derived_from: Optional[base.AASReference["AssetAdministrationShell"]] = None,
+                 submodel: Optional[Set[base.ModelReference[Submodel]]] = None,
+                 derived_from: Optional[base.ModelReference["AssetAdministrationShell"]] = None,
                  extension: Iterable[base.Extension] = ()):
         super().__init__()
         self.id: base.Identifier = id_
@@ -116,6 +116,6 @@ class AssetAdministrationShell(base.Identifiable, base.UniqueIdShortNamespace):
         self.description: Optional[base.LangStringSet] = dict() if description is None else description
         self.parent: Optional[base.UniqueIdShortNamespace] = parent
         self.administration: Optional[base.AdministrativeInformation] = administration
-        self.derived_from: Optional[base.AASReference["AssetAdministrationShell"]] = derived_from
-        self.submodel: Set[base.AASReference[Submodel]] = set() if submodel is None else submodel
+        self.derived_from: Optional[base.ModelReference["AssetAdministrationShell"]] = derived_from
+        self.submodel: Set[base.ModelReference[Submodel]] = set() if submodel is None else submodel
         self.extension = base.NamespaceSet(self, [("name", True)], extension)

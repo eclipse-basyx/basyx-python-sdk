@@ -20,41 +20,33 @@ ASSET_KIND: Dict[model.AssetKind, str] = {
     model.AssetKind.TYPE: 'Type',
     model.AssetKind.INSTANCE: 'Instance'}
 
-KEY_ELEMENTS: Dict[model.KeyElements, str] = {
-    model.KeyElements.ASSET_ADMINISTRATION_SHELL: 'AssetAdministrationShell',
-    model.KeyElements.CONCEPT_DESCRIPTION: 'ConceptDescription',
-    model.KeyElements.SUBMODEL: 'Submodel',
-    model.KeyElements.ANNOTATED_RELATIONSHIP_ELEMENT: 'AnnotatedRelationshipElement',
-    model.KeyElements.BASIC_EVENT_ELEMENT: 'BasicEventElement',
-    model.KeyElements.BLOB: 'Blob',
-    model.KeyElements.CAPABILITY: 'Capability',
-    model.KeyElements.CONCEPT_DICTIONARY: 'ConceptDictionary',
-    model.KeyElements.DATA_ELEMENT: 'DataElement',
-    model.KeyElements.ENTITY: 'Entity',
-    model.KeyElements.EVENT_ELEMENT: 'EventElement',
-    model.KeyElements.FILE: 'File',
-    model.KeyElements.MULTI_LANGUAGE_PROPERTY: 'MultiLanguageProperty',
-    model.KeyElements.OPERATION: 'Operation',
-    model.KeyElements.PROPERTY: 'Property',
-    model.KeyElements.RANGE: 'Range',
-    model.KeyElements.REFERENCE_ELEMENT: 'ReferenceElement',
-    model.KeyElements.RELATIONSHIP_ELEMENT: 'RelationshipElement',
-    model.KeyElements.SUBMODEL_ELEMENT: 'SubmodelElement',
-    model.KeyElements.SUBMODEL_ELEMENT_COLLECTION: 'SubmodelElementCollection',
-    model.KeyElements.GLOBAL_REFERENCE: 'GlobalReference',
-    model.KeyElements.FRAGMENT_REFERENCE: 'FragmentReference'}
+REFERENCE_TYPES: Dict[Type[model.Reference], str] = {
+    model.GlobalReference: 'GlobalReference',
+    model.ModelReference: 'ModelReference'}
 
-KEY_TYPES: Dict[model.KeyType, str] = {
-    model.KeyType.CUSTOM: 'Custom',
-    model.KeyType.IRDI: 'IRDI',
-    model.KeyType.IRI: 'IRI',
-    model.KeyType.IDSHORT: 'IdShort',
-    model.KeyType.FRAGMENT_ID: 'FragmentId'}
-
-IDENTIFIER_TYPES: Dict[model.IdentifierType, str] = {
-    model.IdentifierType.CUSTOM: 'Custom',
-    model.IdentifierType.IRDI: 'IRDI',
-    model.IdentifierType.IRI: 'IRI'}
+KEY_TYPES: Dict[model.KeyTypes, str] = {
+    model.KeyTypes.ASSET_ADMINISTRATION_SHELL: 'AssetAdministrationShell',
+    model.KeyTypes.CONCEPT_DESCRIPTION: 'ConceptDescription',
+    model.KeyTypes.SUBMODEL: 'Submodel',
+    model.KeyTypes.ANNOTATED_RELATIONSHIP_ELEMENT: 'AnnotatedRelationshipElement',
+    model.KeyTypes.BASIC_EVENT_ELEMENT: 'BasicEventElement',
+    model.KeyTypes.BLOB: 'Blob',
+    model.KeyTypes.CAPABILITY: 'Capability',
+    model.KeyTypes.CONCEPT_DICTIONARY: 'ConceptDictionary',
+    model.KeyTypes.DATA_ELEMENT: 'DataElement',
+    model.KeyTypes.ENTITY: 'Entity',
+    model.KeyTypes.EVENT_ELEMENT: 'EventElement',
+    model.KeyTypes.FILE: 'File',
+    model.KeyTypes.MULTI_LANGUAGE_PROPERTY: 'MultiLanguageProperty',
+    model.KeyTypes.OPERATION: 'Operation',
+    model.KeyTypes.PROPERTY: 'Property',
+    model.KeyTypes.RANGE: 'Range',
+    model.KeyTypes.REFERENCE_ELEMENT: 'ReferenceElement',
+    model.KeyTypes.RELATIONSHIP_ELEMENT: 'RelationshipElement',
+    model.KeyTypes.SUBMODEL_ELEMENT: 'SubmodelElement',
+    model.KeyTypes.SUBMODEL_ELEMENT_COLLECTION: 'SubmodelElementCollection',
+    model.KeyTypes.GLOBAL_REFERENCE: 'GlobalReference',
+    model.KeyTypes.FRAGMENT_REFERENCE: 'FragmentReference'}
 
 ENTITY_TYPES: Dict[model.EntityType, str] = {
     model.EntityType.CO_MANAGED_ENTITY: 'CoManagedEntity',
@@ -84,13 +76,12 @@ IEC61360_LEVEL_TYPES: Dict[model.concept.IEC61360LevelType, str] = {
 
 MODELING_KIND_INVERSE: Dict[str, model.ModelingKind] = {v: k for k, v in MODELING_KIND.items()}
 ASSET_KIND_INVERSE: Dict[str, model.AssetKind] = {v: k for k, v in ASSET_KIND.items()}
-KEY_ELEMENTS_INVERSE: Dict[str, model.KeyElements] = {v: k for k, v in KEY_ELEMENTS.items()}
-KEY_TYPES_INVERSE: Dict[str, model.KeyType] = {v: k for k, v in KEY_TYPES.items()}
-IDENTIFIER_TYPES_INVERSE: Dict[str, model.IdentifierType] = {v: k for k, v in IDENTIFIER_TYPES.items()}
+REFERENCE_TYPES_INVERSE: Dict[str, Type[model.Reference]] = {v: k for k, v in REFERENCE_TYPES.items()}
+KEY_TYPES_INVERSE: Dict[str, model.KeyTypes] = {v: k for k, v in KEY_TYPES.items()}
 ENTITY_TYPES_INVERSE: Dict[str, model.EntityType] = {v: k for k, v in ENTITY_TYPES.items()}
 IEC61360_DATA_TYPES_INVERSE: Dict[str, model.concept.IEC61360DataType] = {v: k for k, v in IEC61360_DATA_TYPES.items()}
 IEC61360_LEVEL_TYPES_INVERSE: Dict[str, model.concept.IEC61360LevelType] = \
     {v: k for k, v in IEC61360_LEVEL_TYPES.items()}
 
-KEY_ELEMENTS_CLASSES_INVERSE: Dict[model.KeyElements, Type[model.Referable]] = \
-    {v: k for k, v in model.KEY_ELEMENTS_CLASSES.items()}
+KEY_TYPES_CLASSES_INVERSE: Dict[model.KeyTypes, Type[model.Referable]] = \
+    {v: k for k, v in model.KEY_TYPES_CLASSES.items()}

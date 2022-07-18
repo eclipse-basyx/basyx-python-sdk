@@ -26,13 +26,13 @@ class XMLSerializationTest(unittest.TestCase):
         # todo: is this a correct way to test it?
 
     def test_random_object_serialization(self) -> None:
-        asset_key = (model.Key(model.KeyElements.GLOBAL_REFERENCE, "test", model.KeyType.CUSTOM),)
-        asset_reference = model.Reference(asset_key)
-        aas_identifier = model.Identifier("AAS1", model.IdentifierType.CUSTOM)
-        submodel_key = (model.Key(model.KeyElements.SUBMODEL, "SM1", model.KeyType.CUSTOM),)
+        asset_key = (model.Key(model.KeyTypes.GLOBAL_REFERENCE, "test"),)
+        asset_reference = model.GlobalReference(asset_key)
+        aas_identifier = "AAS1"
+        submodel_key = (model.Key(model.KeyTypes.SUBMODEL, "SM1"),)
         submodel_identifier = submodel_key[0].get_identifier()
         assert (submodel_identifier is not None)
-        submodel_reference = model.AASReference(submodel_key, model.Submodel)
+        submodel_reference = model.ModelReference(submodel_key, model.Submodel)
         submodel = model.Submodel(submodel_identifier)
         test_aas = model.AssetAdministrationShell(model.AssetInformation(global_asset_id=asset_reference),
                                                   aas_identifier, submodel={submodel_reference})
@@ -47,14 +47,16 @@ class XMLSerializationTest(unittest.TestCase):
 
 class XMLSerializationSchemaTest(unittest.TestCase):
     def test_random_object_serialization(self) -> None:
-        asset_key = (model.Key(model.KeyElements.GLOBAL_REFERENCE, "test", model.KeyType.CUSTOM),)
-        asset_reference = model.Reference(asset_key)
-        aas_identifier = model.Identifier("AAS1", model.IdentifierType.CUSTOM)
-        submodel_key = (model.Key(model.KeyElements.SUBMODEL, "SM1", model.KeyType.CUSTOM),)
+        asset_key = (model.Key(model.KeyTypes.GLOBAL_REFERENCE, "test"),)
+        asset_reference = model.GlobalReference(asset_key)
+        aas_identifier = "AAS1"
+        submodel_key = (model.Key(model.KeyTypes.SUBMODEL, "SM1"),)
         submodel_identifier = submodel_key[0].get_identifier()
         assert(submodel_identifier is not None)
-        submodel_reference = model.AASReference(submodel_key, model.Submodel)
-        submodel = model.Submodel(submodel_identifier, semantic_id=model.Reference((),))
+        submodel_reference = model.ModelReference(submodel_key, model.Submodel)
+        submodel = model.Submodel(submodel_identifier,
+                                  semantic_id=model.GlobalReference((model.Key(model.KeyTypes.GLOBAL_REFERENCE,
+                                                                               "http://acplt.org/TestSemanticId"),)))
         test_aas = model.AssetAdministrationShell(model.AssetInformation(global_asset_id=asset_reference),
                                                   aas_identifier, submodel={submodel_reference})
         # serialize object to xml

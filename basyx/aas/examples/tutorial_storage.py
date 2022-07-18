@@ -31,11 +31,10 @@ from basyx.aas.model import AssetInformation, AssetAdministrationShell, Submodel
 
 asset_information = AssetInformation(
     asset_kind=model.AssetKind.INSTANCE,
-    global_asset_id=model.Reference(
+    global_asset_id=model.GlobalReference(
         (model.Key(
-            type_=model.KeyElements.GLOBAL_REFERENCE,
-            value='http://acplt.org/Simple_Asset',
-            id_type=model.KeyType.IRI
+            type_=model.KeyTypes.GLOBAL_REFERENCE,
+            value='http://acplt.org/Simple_Asset'
         ),)
     )
 )
@@ -44,22 +43,21 @@ prop = model.Property(
     id_short='ExampleProperty',
     value_type=model.datatypes.String,
     value='exampleValue',
-    semantic_id=model.Reference(
+    semantic_id=model.GlobalReference(
         (model.Key(
-            type_=model.KeyElements.GLOBAL_REFERENCE,
-            value='http://acplt.org/Properties/SimpleProperty',
-            id_type=model.KeyType.IRI
+            type_=model.KeyTypes.GLOBAL_REFERENCE,
+            value='http://acplt.org/Properties/SimpleProperty'
         ),)
     )
 )
 submodel = Submodel(
-    id_=model.Identifier('https://acplt.org/Simple_Submodel', model.IdentifierType.IRI),
+    id_='https://acplt.org/Simple_Submodel',
     submodel_element={prop}
 )
 aas = AssetAdministrationShell(
-    id_=model.Identifier('https://acplt.org/Simple_AAS', model.IdentifierType.IRI),
+    id_='https://acplt.org/Simple_AAS',
     asset_information=asset_information,
-    submodel={model.AASReference.from_referable(submodel)}
+    submodel={model.ModelReference.from_referable(submodel)}
 )
 
 
@@ -89,7 +87,7 @@ obj_store.add(aas)
 #################################################################
 
 tmp_submodel = obj_store.get_identifiable(
-    model.Identifier('https://acplt.org/Simple_Submodel', model.IdentifierType.IRI))
+    'https://acplt.org/Simple_Submodel')
 
 assert(submodel is tmp_submodel)
 
@@ -109,17 +107,15 @@ assert(submodel is tmp_submodel)
 # Now, let's manually create a reference to the Property within the submodel. The reference uses two keys, the first one
 # identifying the submodel by its id, the second one resolving to the Property within the submodel by its
 # idShort.
-property_reference = model.AASReference(
+property_reference = model.ModelReference(
     (model.Key(
-        type_=model.KeyElements.SUBMODEL,
-        value='https://acplt.org/Simple_Submodel',
-        id_type=model.KeyType.IRI),
+        type_=model.KeyTypes.SUBMODEL,
+        value='https://acplt.org/Simple_Submodel'),
      model.Key(
-         type_=model.KeyElements.PROPERTY,
-         value='ExampleProperty',
-         id_type=model.KeyType.IDSHORT),
+         type_=model.KeyTypes.PROPERTY,
+         value='ExampleProperty'),
      ),
-    target_type=model.Property
+    type_=model.Property
 )
 
 # Now, we can resolve this new reference.

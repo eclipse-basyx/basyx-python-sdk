@@ -40,26 +40,26 @@ from .provider import *
 from .concept import ConceptDescription, IEC61360ConceptDescription
 from . import datatypes
 
-# A mapping of BaSyx Python SDK implementation classes to the corresponding `KeyElements` enum members for all classes
+# A mapping of BaSyx Python SDK implementation classes to the corresponding `KeyTypes` enum members for all classes
 # that are covered by this enum.
-KEY_ELEMENTS_CLASSES: Dict[Type[Referable], KeyElements] = {
-    AssetAdministrationShell: KeyElements.ASSET_ADMINISTRATION_SHELL,
-    ConceptDescription: KeyElements.CONCEPT_DESCRIPTION,
-    Submodel: KeyElements.SUBMODEL,
-    Entity: KeyElements.ENTITY,
-    BasicEventElement: KeyElements.BASIC_EVENT_ELEMENT,
-    EventElement: KeyElements.EVENT_ELEMENT,
-    Blob: KeyElements.BLOB,
-    File: KeyElements.FILE,
-    Operation: KeyElements.OPERATION,
-    Capability: KeyElements.CAPABILITY,
-    Property: KeyElements.PROPERTY,
-    MultiLanguageProperty: KeyElements.MULTI_LANGUAGE_PROPERTY,
-    Range: KeyElements.RANGE,
-    ReferenceElement: KeyElements.REFERENCE_ELEMENT,
-    DataElement: KeyElements.DATA_ELEMENT,
-    SubmodelElementCollection: KeyElements.SUBMODEL_ELEMENT_COLLECTION,
-    AnnotatedRelationshipElement: KeyElements.ANNOTATED_RELATIONSHIP_ELEMENT,
-    RelationshipElement: KeyElements.RELATIONSHIP_ELEMENT,
-    SubmodelElement: KeyElements.SUBMODEL_ELEMENT,
+KEY_TYPES_CLASSES: Dict[Type[Referable], KeyTypes] = {
+    AssetAdministrationShell: KeyTypes.ASSET_ADMINISTRATION_SHELL,
+    ConceptDescription: KeyTypes.CONCEPT_DESCRIPTION,
+    Submodel: KeyTypes.SUBMODEL,
+    Entity: KeyTypes.ENTITY,
+    BasicEventElement: KeyTypes.BASIC_EVENT_ELEMENT,
+    EventElement: KeyTypes.EVENT_ELEMENT,
+    Blob: KeyTypes.BLOB,
+    File: KeyTypes.FILE,
+    Operation: KeyTypes.OPERATION,
+    Capability: KeyTypes.CAPABILITY,
+    Property: KeyTypes.PROPERTY,
+    MultiLanguageProperty: KeyTypes.MULTI_LANGUAGE_PROPERTY,
+    Range: KeyTypes.RANGE,
+    ReferenceElement: KeyTypes.REFERENCE_ELEMENT,
+    DataElement: KeyTypes.DATA_ELEMENT,
+    SubmodelElementCollection: KeyTypes.SUBMODEL_ELEMENT_COLLECTION,
+    AnnotatedRelationshipElement: KeyTypes.ANNOTATED_RELATIONSHIP_ELEMENT,
+    RelationshipElement: KeyTypes.RELATIONSHIP_ELEMENT,
+    SubmodelElement: KeyTypes.SUBMODEL_ELEMENT,
 }

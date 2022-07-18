@@ -21,9 +21,9 @@ from basyx.aas.examples.data import example_aas, example_aas_mandatory_attribute
 class TestAASXUtils(unittest.TestCase):
     def test_name_friendlyfier(self) -> None:
         friendlyfier = aasx.NameFriendlyfier()
-        name1 = friendlyfier.get_friendly_name(model.Identifier("http://example.com/AAS-a", model.IdentifierType.IRI))
+        name1 = friendlyfier.get_friendly_name("http://example.com/AAS-a")
         self.assertEqual("http___example_com_AAS_a", name1)
-        name2 = friendlyfier.get_friendly_name(model.Identifier("http://example.com/AAS+a", model.IdentifierType.IRI))
+        name2 = friendlyfier.get_friendly_name("http://example.com/AAS+a")
         self.assertEqual("http___example_com_AAS_a_1", name2)
 
     def test_supplementary_file_container(self) -> None:
@@ -81,8 +81,7 @@ class AASXWriterTest(unittest.TestCase):
                 with warnings.catch_warnings(record=True) as w:
                     with aasx.AASXWriter(filename) as writer:
                         # TODO test writing multiple AAS
-                        writer.write_aas(model.Identifier(id_='https://acplt.org/Test_AssetAdministrationShell',
-                                                          id_type=model.IdentifierType.IRI),
+                        writer.write_aas('https://acplt.org/Test_AssetAdministrationShell',
                                          data, files, write_json=write_json)
                         writer.write_core_properties(cp)
 

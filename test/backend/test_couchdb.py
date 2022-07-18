@@ -62,27 +62,24 @@ class CouchDBBackendTest(unittest.TestCase):
     def test_object_store_add(self):
         test_object = create_example_submodel()
         self.object_store.add(test_object)
-        self.assertEqual(test_object.source, source_core+"IRI-https%3A%2F%2Facplt.org%2FTest_Submodel")
+        self.assertEqual(test_object.source, source_core+"https%3A%2F%2Facplt.org%2FTest_Submodel")
 
     def test_retrieval(self):
         test_object = create_example_submodel()
         self.object_store.add(test_object)
 
         # When retrieving the object, we should get the *same* instance as we added
-        test_object_retrieved = self.object_store.get_identifiable(
-            model.Identifier(id_='https://acplt.org/Test_Submodel', id_type=model.IdentifierType.IRI))
+        test_object_retrieved = self.object_store.get_identifiable('https://acplt.org/Test_Submodel')
         self.assertIs(test_object, test_object_retrieved)
 
         # When retrieving it again, we should still get the same object
         del test_object
-        test_object_retrieved_again = self.object_store.get_identifiable(
-            model.Identifier(id_='https://acplt.org/Test_Submodel', id_type=model.IdentifierType.IRI))
+        test_object_retrieved_again = self.object_store.get_identifiable('https://acplt.org/Test_Submodel')
         self.assertIs(test_object_retrieved, test_object_retrieved_again)
 
         # However, a changed source should invalidate the cached object, so we should get a new copy
-        test_object_retrieved.source = "couchdb://example.com/example/IRI-https%3A%2F%2Facplt.org%2FTest_Submodel"
-        test_object_retrieved_third = self.object_store.get_identifiable(
-            model.Identifier(id_='https://acplt.org/Test_Submodel', id_type=model.IdentifierType.IRI))
+        test_object_retrieved.source = "couchdb://example.com/example/https%3A%2F%2Facplt.org%2FTest_Submodel"
+        test_object_retrieved_third = self.object_store.get_identifiable('https://acplt.org/Test_Submodel')
         self.assertIsNot(test_object_retrieved, test_object_retrieved_third)
 
     def test_example_submodel_storing(self) -> None:
@@ -94,8 +91,7 @@ class CouchDBBackendTest(unittest.TestCase):
         self.assertIn(example_submodel, self.object_store)
 
         # Restore example submodel and check data
-        submodel_restored = self.object_store.get_identifiable(
-            model.Identifier(id_='https://acplt.org/Test_Submodel', id_type=model.IdentifierType.IRI))
+        submodel_restored = self.object_store.get_identifiable('https://acplt.org/Test_Submodel')
         assert (isinstance(submodel_restored, model.Submodel))
         checker = AASDataChecker(raise_immediately=True)
         check_example_submodel(checker, submodel_restored)
@@ -126,31 +122,28 @@ class CouchDBBackendTest(unittest.TestCase):
         self.object_store.add(example_submodel)
         with self.assertRaises(KeyError) as cm:
             self.object_store.add(example_submodel)
-        self.assertEqual("'Identifiable with id Identifier(IRI=https://acplt.org/Test_Submodel) already exists in "
+        self.assertEqual("'Identifiable with id https://acplt.org/Test_Submodel already exists in "
                          "CouchDB database'", str(cm.exception))
 
         # Querying a deleted object should raise a KeyError
-        retrieved_submodel = self.object_store.get_identifiable(
-            model.Identifier('https://acplt.org/Test_Submodel', model.IdentifierType.IRI))
+        retrieved_submodel = self.object_store.get_identifiable('https://acplt.org/Test_Submodel')
         self.object_store.discard(example_submodel)
         with self.assertRaises(KeyError) as cm:
-            self.object_store.get_identifiable(model.Identifier('https://acplt.org/Test_Submodel',
-                                                                model.IdentifierType.IRI))
-        self.assertEqual("'No Identifiable with id IRI-https://acplt.org/Test_Submodel found in CouchDB database'",
+            self.object_store.get_identifiable('https://acplt.org/Test_Submodel')
+        self.assertEqual("'No Identifiable with id https://acplt.org/Test_Submodel found in CouchDB database'",
                          str(cm.exception))
 
         # Double deleting should also raise a KeyError
         with self.assertRaises(KeyError) as cm:
             self.object_store.discard(retrieved_submodel)
-        self.assertEqual("'No AAS object with id Identifier(IRI=https://acplt.org/Test_Submodel) exists in "
+        self.assertEqual("'No AAS object with id https://acplt.org/Test_Submodel exists in "
                          "CouchDB database'", str(cm.exception))
 
     def test_conflict_errors(self):
         # Preperation: add object and retrieve it from the database
         example_submodel = create_example_submodel()
         self.object_store.add(example_submodel)
-        retrieved_submodel = self.object_store.get_identifiable(
-            model.Identifier('https://acplt.org/Test_Submodel', model.IdentifierType.IRI))
+        retrieved_submodel = self.object_store.get_identifiable('https://acplt.org/Test_Submodel')
 
         # Simulate a concurrent modification (Commit submodel, while preventing that the couchdb revision store is
         # updated)
@@ -161,14 +154,14 @@ class CouchDBBackendTest(unittest.TestCase):
         retrieved_submodel.id_short = "myOtherNewIdShort"
         with self.assertRaises(couchdb.CouchDBConflictError) as cm:
             retrieved_submodel.commit()
-        self.assertEqual("Could not commit changes to id Identifier(IRI=https://acplt.org/Test_Submodel) due to a "
+        self.assertEqual("Could not commit changes to id https://acplt.org/Test_Submodel due to a "
                          "concurrent modification in the database.", str(cm.exception))
 
         # Deleting the submodel with safe_delete should also raise a conflict error. Deletion without safe_delete should
         # work
         with self.assertRaises(couchdb.CouchDBConflictError) as cm:
             self.object_store.discard(retrieved_submodel, True)
-        self.assertEqual("Object with id Identifier(IRI=https://acplt.org/Test_Submodel) has been modified in the "
+        self.assertEqual("Object with id https://acplt.org/Test_Submodel has been modified in the "
                          "database since the version requested to be deleted.", str(cm.exception))
         self.object_store.discard(retrieved_submodel, False)
         self.assertEqual(0, len(self.object_store))

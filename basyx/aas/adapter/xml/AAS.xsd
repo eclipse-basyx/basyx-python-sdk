@@ -2,25 +2,7 @@
 <schema elementFormDefault="qualified" targetNamespace="http://www.admin-shell.io/aas/3/0" xmlns="http://www.w3.org/2001/XMLSchema" xmlns:aas="http://www.admin-shell.io/aas/3/0" xmlns:IEC61360="http://www.admin-shell.io/IEC61360/3/0" xmlns:Q1="http://www.admin-shell.io/aas/3/0">
 
 	<import namespace="http://www.admin-shell.io/IEC61360/3/0" schemaLocation="IEC61360.xsd"/>
-	
-	<attributeGroup name="keyTypes">
-		<attribute name="identifierType" use="optional">
-			<simpleType>
-				<restriction base="string">
-					<enumeration value="Custom"/>
-					<enumeration value="IRDI"/>
-					<enumeration value="IRI"/>
-				</restriction>
-			</simpleType>
-		</attribute>
-		<attribute name="localKeyType" use="optional">
-			<simpleType>
-				<restriction base="string">
-					<enumeration value="idShort"/>
-				</restriction>
-			</simpleType>
-		</attribute>
-	</attributeGroup>
+
 	<complexType name="aasenv_t">
 		<sequence>
 			<element maxOccurs="1" minOccurs="0" name="assetAdministrationShells" type="aas:assetAdministrationShells_t"/>
@@ -199,27 +181,6 @@
 			<element maxOccurs="1" minOccurs="1" name="contentType" type="string"/>
 		</sequence>
 	</complexType>
-	<complexType name="identification_t">
-		<simpleContent>
-			<extension base="string">
-				<attribute name="idType" use="optional">
-					<simpleType>
-						<restriction base="string">
-							<enumeration value="Custom"/>
-							<enumeration value="IRDI"/>
-							<enumeration value="IRI"/>
-						</restriction>
-					</simpleType>
-				</attribute>
-			</extension>
-		</simpleContent>
-	</complexType>
-	<complexType name="identifier_t">
-		<sequence>
-			<element maxOccurs="1" minOccurs="1" name="id" type="string"/>
-			<element maxOccurs="1" minOccurs="1" name="idType" type="aas:identifierType_t"/>
-		</sequence>
-	</complexType>
 	<complexType name="identifierKeyValuePair_t">
 		<sequence>
 			<group ref="aas:hasSemantics"/>
@@ -228,14 +189,12 @@
 			<element maxOccurs="1" minOccurs="1" name="value" type="string"/>
 		</sequence>
 	</complexType>
-	<complexType name="idPropertyDefinition_t">
+	<complexType name="idShort_t">
 		<simpleContent>
-			<extension base="string">
-				<attribute name="idType" type="string"/>
-			</extension>
+			<extension base="string"/>
 		</simpleContent>
 	</complexType>
-	<complexType name="idShort_t">
+	<complexType name="identifier_t">
 		<simpleContent>
 			<extension base="string"/>
 		</simpleContent>
@@ -243,17 +202,6 @@
 	<complexType name="key_t">
 		<simpleContent>
 			<extension base="string">
-				<attribute name="idType">
-					<simpleType>
-						<restriction base="string">
-							<enumeration value="Custom"/>
-							<enumeration value="FragmentId"/>
-							<enumeration value="IdShort"/>
-							<enumeration value="IRDI"/>
-							<enumeration value="IRI"/>
-						</restriction>
-					</simpleType>
-				</attribute>
 				<attribute name="type">
 					<simpleType>
 						<restriction base="string">
@@ -288,7 +236,7 @@
 	</complexType>
 	<complexType name="keys_t">
 		<sequence>
-			<element maxOccurs="unbounded" minOccurs="0" ref="aas:key"/>
+			<element maxOccurs="unbounded" minOccurs="1" ref="aas:key"/>
 		</sequence>
 	</complexType>
 	<complexType name="langString_t">
@@ -370,10 +318,25 @@
 			</extension>
 		</complexContent>
 	</complexType>
-	<complexType name="reference_t">
+	<complexType name="referenceContent_t">
 		<sequence>
 			<element name="keys" type="aas:keys_t"/>
+			<element maxOccurs="1" minOccurs="0" name="referredSemanticId" type="aas:reference_t"/>
 		</sequence>
+	</complexType>
+	<complexType name="reference_t">
+		<complexContent>
+			<extension base="aas:referenceContent_t">
+				<attribute name="type">
+					<simpleType>
+						<restriction base="string">
+							<enumeration value="GlobalReference"/>
+							<enumeration value="ModelReference"/>
+						</restriction>
+					</simpleType>
+				</attribute>
+			</extension>
+		</complexContent>
 	</complexType>
 	<complexType name="referenceElement_t">
 		<complexContent>
@@ -502,7 +465,7 @@
 		<sequence>
 			<group ref="aas:referable"/>
 			<element maxOccurs="1" minOccurs="0" name="administration" type="aas:administration_t"/>
-			<element maxOccurs="1" minOccurs="1" name="id" type="aas:identification_t"/>
+			<element maxOccurs="1" minOccurs="1" name="id" type="aas:identifier_t"/>
 		</sequence>
 	</group>
 	<group name="qualifiable">
@@ -528,13 +491,6 @@
 	</simpleType>
 	<simpleType name="entityType_t">
 		<restriction base="string"/>
-	</simpleType>
-	<simpleType name="identifierType_t">
-		<restriction base="string">
-			<enumeration value="Custom"/>
-			<enumeration value="IRDI"/>
-			<enumeration value="IRI"/>
-		</restriction>
 	</simpleType>
 	<simpleType name="modelingKind_t">
 		<restriction base="string">

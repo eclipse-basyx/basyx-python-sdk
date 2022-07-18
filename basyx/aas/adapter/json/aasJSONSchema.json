@@ -198,20 +198,7 @@
 	  ]
     },
     "Identifier": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "type": "string"
-        },
-        "idType": {
-              "$ref": "#/definitions/KeyType"
-        }
-      },
-	  "required": [ "id", "idType" ]
-    },
-    "KeyType": {
-      "type": "string",
-      "enum": ["Custom", "IRDI", "IRI", "IdShort", "FragmentId"]
+      "type": "string"
     },
     "AdministrativeInformation": {
       "type": "object",
@@ -239,31 +226,41 @@
     "Reference": {
       "type": "object",
       "properties": {
+        "type": {
+          "$ref": "#/definitions/ReferenceTypes"
+        },
         "keys": {
           "type": "array",
           "items": {
             "$ref": "#/definitions/Key"
           }
+        },
+        "referredSemanticId": {
+          "$ref": "#/definitions/Reference"
         }
       },
-	  "required": [ "keys" ]
+	  "required": [ "type", "keys" ]
     },
     "Key": {
       "type": "object",
       "properties": {
         "type": {
-            "$ref": "#/definitions/KeyElements"
-        },
-        "idType": {
-            "$ref": "#/definitions/KeyType"
+            "$ref": "#/definitions/KeyTypes"
         },
         "value": {
           "type": "string"
         }
       },
-	  "required": [ "type", "idType", "value"]
+	  "required": [ "type", "value"]
     },
-    "KeyElements": {
+    "ReferenceTypes": {
+      "type": "string",
+      "enum": [
+        "GlobalReference",
+        "ModelReference"
+      ]
+    },
+    "KeyTypes": {
       "type": "string",
       "enum": [
 		"AssetAdministrationShell",

@@ -59,19 +59,15 @@ def create_example_aas_binding() -> model.DictObjectStore:
     obj_store.update(example_aas_missing_attributes.create_full_example())
     obj_store.add(example_submodel_template.create_example_submodel_template())
 
-    aas = obj_store.get_identifiable(model.Identifier('https://acplt.org/Test_AssetAdministrationShell',
-                                                      model.IdentifierType.IRI))
-    sm = obj_store.get_identifiable(model.Identifier('https://acplt.org/Test_Submodel_Template',
-                                                     model.IdentifierType.IRI))
+    aas = obj_store.get_identifiable('https://acplt.org/Test_AssetAdministrationShell')
+    sm = obj_store.get_identifiable('https://acplt.org/Test_Submodel_Template')
     assert (isinstance(aas, model.aas.AssetAdministrationShell))  # make mypy happy
     assert (isinstance(sm, model.submodel.Submodel))  # make mypy happy
-    aas.submodel.add(model.AASReference.from_referable(sm))
+    aas.submodel.add(model.ModelReference.from_referable(sm))
 
     obj_store.add(example_concept_description.create_iec61360_concept_description())
-    cd = obj_store.get_identifiable(model.Identifier('http://acplt.org/DataSpecifciations/Example/Identification',
-                                                     model.IdentifierType.IRI))
+    cd = obj_store.get_identifiable('http://acplt.org/DataSpecifciations/Example/Identification')
     assert (isinstance(cd, model.concept.IEC61360ConceptDescription))  # make mypy happy
-    cd2 = obj_store.get_identifiable(model.Identifier('https://acplt.org/Test_ConceptDescription_Mandatory',
-                                                      model.IdentifierType.IRI))
+    cd2 = obj_store.get_identifiable('https://acplt.org/Test_ConceptDescription_Mandatory')
     assert (isinstance(cd2, model.concept.ConceptDescription))  # make mypy happy
     return obj_store

@@ -162,7 +162,7 @@ class AASDataCheckerTest(unittest.TestCase):
                 return True
 
         dummy_submodel_element_collection = DummySubmodelElementCollection('test')
-        submodel = model.Submodel(id_=model.Identifier('test', model.IdentifierType.CUSTOM))
+        submodel = model.Submodel(id_='test')
         submodel.submodel_element.add(dummy_submodel_element_collection)
         checker = AASDataChecker(raise_immediately=True)
         with self.assertRaises(AttributeError) as cm:
@@ -174,24 +174,33 @@ class AASDataCheckerTest(unittest.TestCase):
 
     def test_annotated_relationship_element(self):
         rel1 = model.AnnotatedRelationshipElement(id_short='test',
-                                                  first=model.AASReference((model.Key(type_=model.KeyElements.PROPERTY,
-                                                                                      value='ExampleProperty',
-                                                                                      id_type=model.KeyType.IDSHORT),),
+                                                  first=model.ModelReference((
+                                                      model.Key(type_=model.KeyTypes.SUBMODEL,
+                                                                value='http://acplt.org/Test_Submodel'),
+                                                      model.Key(
+                                                          type_=model.KeyTypes.PROPERTY,
+                                                          value='ExampleProperty'),),
                                                                            model.Property),
-                                                  second=model.AASReference((model.Key(type_=model.KeyElements.PROPERTY,
-                                                                                       value='ExampleProperty',
-                                                                                       id_type=model.KeyType.IDSHORT),),
-                                                                            model.Property),
+                                                  second=model.ModelReference((
+                                                      model.Key(type_=model.KeyTypes.SUBMODEL,
+                                                                value='http://acplt.org/Test_Submodel'),
+                                                      model.Key(type_=model.KeyTypes.PROPERTY,
+                                                                value='ExampleProperty'),),
+                                                      model.Property),
                                                   )
         rel2 = model.AnnotatedRelationshipElement(id_short='test',
-                                                  first=model.AASReference((model.Key(type_=model.KeyElements.PROPERTY,
-                                                                                      value='ExampleProperty',
-                                                                                      id_type=model.KeyType.IDSHORT),),
-                                                                           model.Property),
-                                                  second=model.AASReference((model.Key(type_=model.KeyElements.PROPERTY,
-                                                                                       value='ExampleProperty',
-                                                                                       id_type=model.KeyType.IDSHORT),),
-                                                                            model.Property),
+                                                  first=model.ModelReference((
+                                                      model.Key(type_=model.KeyTypes.SUBMODEL,
+                                                                value='http://acplt.org/Test_Submodel'),
+                                                      model.Key(type_=model.KeyTypes.PROPERTY,
+                                                                value='ExampleProperty'),),
+                                                      model.Property),
+                                                  second=model.ModelReference((
+                                                      model.Key(type_=model.KeyTypes.SUBMODEL,
+                                                                value='http://acplt.org/Test_Submodel'),
+                                                      model.Key(type_=model.KeyTypes.PROPERTY,
+                                                                value='ExampleProperty'),),
+                                                      model.Property),
                                                   annotation={
                                                       model.Property(id_short="ExampleAnnotatedProperty",
                                                                      value_type=model.datatypes.String,
@@ -209,13 +218,13 @@ class AASDataCheckerTest(unittest.TestCase):
                          repr(next(checker_iterator)))
 
     def test_submodel_checker(self):
-        submodel = model.Submodel(id_=model.Identifier('test', model.IdentifierType.CUSTOM))
+        submodel = model.Submodel(id_='test')
         property_expected = model.Property(
             id_short='Prop1',
             value_type=model.datatypes.String,
             value='test'
         )
-        submodel_expected = model.Submodel(id_=model.Identifier('test', model.IdentifierType.CUSTOM),
+        submodel_expected = model.Submodel(id_='test',
                                            submodel_element=(property_expected,)
                                            )
 
@@ -223,71 +232,67 @@ class AASDataCheckerTest(unittest.TestCase):
         checker.check_submodel_equal(submodel, submodel_expected)
         self.assertEqual(2, sum(1 for _ in checker.failed_checks))
         checker_iterator = checker.failed_checks
-        self.assertEqual("FAIL: Attribute submodel_element of Submodel[Identifier(CUSTOM=test)] must contain 1 "
+        self.assertEqual("FAIL: Attribute submodel_element of Submodel[test] must contain 1 "
                          "SubmodelElements (count=0)",
                          repr(next(checker_iterator)))
-        self.assertEqual("FAIL: Submodel Element Property[Identifier(CUSTOM=test) / Prop1] must exist ()",
+        self.assertEqual("FAIL: Submodel Element Property[test / Prop1] must exist ()",
                          repr(next(checker_iterator)))
 
     def test_asset_administration_shell_checker(self):
         shell = model.AssetAdministrationShell(asset_information=model.AssetInformation(
-            global_asset_id=model.Reference((model.Key(type_=model.KeyElements.GLOBAL_REFERENCE, value='test',
-                                                       id_type=model.KeyType.IRI),),
-                                            )),
-                                               id_=model.Identifier('test', model.IdentifierType.CUSTOM))
+            global_asset_id=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE, value='test'),),)),
+            id_='test')
         shell_expected = model.AssetAdministrationShell(
             asset_information=model.AssetInformation(
-                global_asset_id=model.Reference((model.Key(type_=model.KeyElements.GLOBAL_REFERENCE, value='test',
-                                                           id_type=model.KeyType.IRI),),
-                                                )),
-            id_=model.Identifier('test', model.IdentifierType.CUSTOM),
-            submodel={model.AASReference((model.Key(type_=model.KeyElements.SUBMODEL,
-                                                    value='test',
-                                                    id_type=model.KeyType.IRI),),
-                                         model.Submodel)}
+                global_asset_id=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE, value='test'),),
+                                                      )),
+            id_='test',
+            submodel={model.ModelReference((model.Key(type_=model.KeyTypes.SUBMODEL,
+                                                      value='test'),),
+                                           model.Submodel)}
             )
         checker = AASDataChecker(raise_immediately=False)
         checker.check_asset_administration_shell_equal(shell, shell_expected)
         self.assertEqual(2, sum(1 for _ in checker.failed_checks))
         checker_iterator = checker.failed_checks
-        self.assertEqual("FAIL: Attribute submodel of AssetAdministrationShell[Identifier(CUSTOM=test)] must contain 1 "
-                         "AASReferences (count=0)",
+        self.assertEqual("FAIL: Attribute submodel of AssetAdministrationShell[test] must contain 1 "
+                         "ModelReferences (count=0)",
                          repr(next(checker_iterator)))
-        self.assertEqual("FAIL: Submodel Reference AASReference(type=Submodel, key=(Key(id_type=IRI, "
-                         "value=test),)) must exist ()",
+        self.assertEqual("FAIL: Submodel Reference ModelReference<Submodel>(key=(Key(type=SUBMODEL,"
+                         " value=test),)) must exist ()",
                          repr(next(checker_iterator)))
 
     def test_concept_description_checker(self):
-        cd = model.ConceptDescription(id_=model.Identifier('test', model.IdentifierType.CUSTOM))
-        cd_expected = model.ConceptDescription(id_=model.Identifier('test', model.IdentifierType.CUSTOM),
-                                               is_case_of={model.Reference((model.Key(
-                                                  type_=model.KeyElements.GLOBAL_REFERENCE,
-                                                  value='test',
-                                                  id_type=model.KeyType.IRI),))}
+        cd = model.ConceptDescription(id_='test')
+        cd_expected = model.ConceptDescription(id_='test',
+                                               is_case_of={
+                                                   model.GlobalReference((model.Key(
+                                                       type_=model.KeyTypes.GLOBAL_REFERENCE,
+                                                       value='test'),))}
                                                )
         checker = AASDataChecker(raise_immediately=False)
         checker.check_concept_description_equal(cd, cd_expected)
         self.assertEqual(2, sum(1 for _ in checker.failed_checks))
         checker_iterator = checker.failed_checks
-        self.assertEqual("FAIL: Attribute is_case_of of ConceptDescription[Identifier(CUSTOM=test)] must contain "
+        self.assertEqual("FAIL: Attribute is_case_of of ConceptDescription[test] must contain "
                          "1 References (count=0)",
                          repr(next(checker_iterator)))
-        self.assertEqual("FAIL: Concept Description Reference Reference(key=(Key(id_type=IRI, "
-                         "value=test),)) must exist ()",
+        self.assertEqual("FAIL: Concept Description Reference GlobalReference(key=(Key("
+                         "type=GLOBAL_REFERENCE, value=test),)) must exist ()",
                          repr(next(checker_iterator)))
         iec = model.IEC61360ConceptDescription(
-            id_=model.Identifier('test', model.IdentifierType.CUSTOM),
+            id_='test',
             preferred_name={'de': 'Test Specification', 'en-us': "TestSpecification"},
             data_type=IEC61360DataType.REAL_MEASURE,
             value_list={model.ValueReferencePair(value_type=model.datatypes.String,
                                                  value='test',
-                                                 value_id=model.Reference((model.Key(
-                                                     type_=model.KeyElements.GLOBAL_REFERENCE,
-                                                     value='test',
-                                                     id_type=model.KeyType.IRI),)))}
+                                                 value_id=model.GlobalReference(
+                                                                          (model.Key(
+                                                                              type_=model.KeyTypes.GLOBAL_REFERENCE,
+                                                                              value='test'),)))}
         )
         iec_expected = model.IEC61360ConceptDescription(
-            id_=model.Identifier('test', model.IdentifierType.CUSTOM),
+            id_='test',
             preferred_name={'de': 'Test Specification', 'en-us': "TestSpecification"},
             data_type=IEC61360DataType.REAL_MEASURE
         )
@@ -302,4 +307,5 @@ class AASDataCheckerTest(unittest.TestCase):
             checker.check_concept_description_equal(iec_expected, iec)
         self.assertEqual("('Check failed: ValueList must contain 1 ValueReferencePairs', {'value': "
                          "{ValueReferencePair(value_type=<class 'str'>, value=test, "
-                         "value_id=Reference(key=(Key(id_type=IRI, value=test),)))}})", str(cm.exception))
+                         "value_id=GlobalReference(key=(Key(type=GLOBAL_REFERENCE, value=test),)))}})",
+                         str(cm.exception))

@@ -21,9 +21,9 @@ class EntityTest(unittest.TestCase):
         )
         with self.assertRaises(model.AASConstraintViolation) as cm:
             obj2 = model.Entity(id_short='Test', entity_type=model.EntityType.CO_MANAGED_ENTITY,
-                                global_asset_id=model.Reference((model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
-                                                                           value='http://acplt.org/TestAsset/',
-                                                                           id_type=model.KeyType.IRI),)),
+                                global_asset_id=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
+                                                                                 value='http://acplt.org/TestAsset/'),
+                                                                       )),
                                 statement=())
         self.assertIn(
             'A co-managed entity has to have neither a globalAssetId nor a specificAssetId',
@@ -32,10 +32,9 @@ class EntityTest(unittest.TestCase):
 
         identifier_key_value_pair = model.IdentifierKeyValuePair(key="TestKey",
                                                                  value="TestValue",
-                                                                 external_subject_id=model.Reference((model.Key(
-                                                                     type_=model.KeyElements.GLOBAL_REFERENCE,
-                                                                     value='http://acplt.org/SpecificAssetId/',
-                                                                     id_type=model.KeyType.IRI),)))
+                                                                 external_subject_id=model.GlobalReference((model.Key(
+                                                                         type_=model.KeyTypes.GLOBAL_REFERENCE,
+                                                                         value='http://acplt.org/SpecificAssetId/'),)))
         with self.assertRaises(model.AASConstraintViolation) as cm:
             obj3 = model.Entity(id_short='Test', entity_type=model.EntityType.CO_MANAGED_ENTITY,
                                 specific_asset_id=identifier_key_value_pair, statement=())
@@ -65,12 +64,10 @@ class RangeTest(unittest.TestCase):
 
 class SubmodelElementCollectionTest(unittest.TestCase):
     def test_submodel_element_collection_unordered_unique_semantic_id(self):
-        propSemanticID1 = model.Reference((model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
-                                                     value='http://acplt.org/Test1',
-                                                     id_type=model.KeyType.IRI),))
-        propSemanticID2 = model.Reference((model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
-                                                     value='http://acplt.org/Test2',
-                                                     id_type=model.KeyType.IRI),))
+        propSemanticID1 = model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
+                                                           value='http://acplt.org/Test1'),))
+        propSemanticID2 = model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
+                                                           value='http://acplt.org/Test2'),))
         property1 = model.Property('test1', model.datatypes.Int, 2, semantic_id=propSemanticID1)
         property2 = model.Property('test1', model.datatypes.Int, 2, semantic_id=propSemanticID2)
         property3 = model.Property('test2', model.datatypes.Int, 2, semantic_id=propSemanticID1)
@@ -87,8 +84,9 @@ class SubmodelElementCollectionTest(unittest.TestCase):
 
         with self.assertRaises(KeyError) as cm:
             collection.value.add(property3)
-        self.assertEqual('"Object with attribute (name=\'semantic_id\', value=\'Reference(key=(Key(id_type=IRI, '
-                         'value=http://acplt.org/Test1),))\') is already present in this set of objects"',
+        self.assertEqual('"Object with attribute (name=\'semantic_id\', value=\'GlobalReference('
+                         'key=(Key(type=GLOBAL_REFERENCE, value=http://acplt.org/Test1),))\')'
+                         ' is already present in this set of objects"',
                          str(cm.exception))
         collection.value.add(property4)
         self.assertIs(property1, collection.get_referable("test1"))

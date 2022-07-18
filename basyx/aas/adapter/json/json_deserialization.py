@@ -36,9 +36,8 @@ import pprint
 from typing import Dict, Callable, TypeVar, Type, List, IO, Optional, Set
 
 from basyx.aas import model
-from .._generic import MODELING_KIND_INVERSE, ASSET_KIND_INVERSE, KEY_ELEMENTS_INVERSE, KEY_TYPES_INVERSE,\
-    IDENTIFIER_TYPES_INVERSE, ENTITY_TYPES_INVERSE, IEC61360_DATA_TYPES_INVERSE, IEC61360_LEVEL_TYPES_INVERSE,\
-    KEY_ELEMENTS_CLASSES_INVERSE
+from .._generic import MODELING_KIND_INVERSE, ASSET_KIND_INVERSE, KEY_TYPES_INVERSE, ENTITY_TYPES_INVERSE,\
+    IEC61360_DATA_TYPES_INVERSE, IEC61360_LEVEL_TYPES_INVERSE, KEY_TYPES_CLASSES_INVERSE, REFERENCE_TYPES_INVERSE
 
 logger = logging.getLogger(__name__)
 
@@ -277,8 +276,7 @@ class AASFromJsonDecoder(json.JSONDecoder):
 
     @classmethod
     def _construct_key(cls, dct: Dict[str, object], object_class=model.Key) -> model.Key:
-        return object_class(type_=KEY_ELEMENTS_INVERSE[_get_ts(dct, 'type', str)],
-                            id_type=KEY_TYPES_INVERSE[_get_ts(dct, 'idType', str)],
+        return object_class(type_=KEY_TYPES_INVERSE[_get_ts(dct, 'type', str)],
                             value=_get_ts(dct, 'value', str))
 
     @classmethod
@@ -289,23 +287,36 @@ class AASFromJsonDecoder(json.JSONDecoder):
                             external_subject_id=cls._construct_reference(_get_ts(dct, 'subjectId', dict)))
 
     @classmethod
-    def _construct_reference(cls, dct: Dict[str, object], object_class=model.Reference) -> model.Reference:
-        keys = [cls._construct_key(key_data) for key_data in _get_ts(dct, "keys", list)]
-        return object_class(tuple(keys))
+    def _construct_reference(cls, dct: Dict[str, object]) -> model.Reference:
+        reference_type: Type[model.Reference] = REFERENCE_TYPES_INVERSE[_get_ts(dct, 'type', str)]
+        if reference_type is model.ModelReference:
+            return cls._construct_model_reference(dct, model.Referable)  # type: ignore
+        elif reference_type is model.GlobalReference:
+            return cls._construct_global_reference(dct)
+        raise ValueError(f"Unsupported reference type {reference_type}!")
 
     @classmethod
-    def _construct_aas_reference(cls, dct: Dict[str, object], type_: Type[T], object_class=model.AASReference)\
-            -> model.AASReference:
+    def _construct_global_reference(cls, dct: Dict[str, object], object_class=model.GlobalReference)\
+            -> model.GlobalReference:
+        reference_type: Type[model.Reference] = REFERENCE_TYPES_INVERSE[_get_ts(dct, 'type', str)]
+        if reference_type is not model.GlobalReference:
+            raise ValueError(f"Expected a reference of type {model.GlobalReference}, got {reference_type}!")
         keys = [cls._construct_key(key_data) for key_data in _get_ts(dct, "keys", list)]
-        if keys and not issubclass(KEY_ELEMENTS_CLASSES_INVERSE.get(keys[-1].type, type(None)), type_):
+        return object_class(tuple(keys), cls._construct_reference(_get_ts(dct, 'referredSemanticId', dict))
+                            if 'referredSemanticId' in dct else None)
+
+    @classmethod
+    def _construct_model_reference(cls, dct: Dict[str, object], type_: Type[T], object_class=model.ModelReference)\
+            -> model.ModelReference:
+        reference_type: Type[model.Reference] = REFERENCE_TYPES_INVERSE[_get_ts(dct, 'type', str)]
+        if reference_type is not model.ModelReference:
+            raise ValueError(f"Expected a reference of type {model.ModelReference}, got {reference_type}!")
+        keys = [cls._construct_key(key_data) for key_data in _get_ts(dct, "keys", list)]
+        if keys and not issubclass(KEY_TYPES_CLASSES_INVERSE.get(keys[-1].type, type(None)), type_):
             logger.warning("type %s of last key of reference to %s does not match reference type %s",
                            keys[-1].type.name, " / ".join(str(k) for k in keys), type_.__name__)
-        return object_class(tuple(keys), type_)
-
-    @classmethod
-    def _construct_identifier(cls, dct: Dict[str, object], object_class=model.Identifier) -> model.Identifier:
-        return object_class(_get_ts(dct, 'id', str),
-                            IDENTIFIER_TYPES_INVERSE[_get_ts(dct, 'idType', str)])
+        return object_class(tuple(keys), type_, cls._construct_reference(_get_ts(dct, 'referredSemanticId', dict))
+                            if 'referredSemanticId' in dct else None)
 
     @classmethod
     def _construct_administrative_information(
@@ -398,14 +409,14 @@ class AASFromJsonDecoder(json.JSONDecoder):
         ret = object_class(
             asset_information=cls._construct_asset_information(_get_ts(dct, 'assetInformation', dict),
                                                                model.AssetInformation),
-            id_=cls._construct_identifier(_get_ts(dct, 'id', dict)))
+            id_=_get_ts(dct, 'id', str))
         cls._amend_abstract_attributes(ret, dct)
         if not cls.stripped and 'submodels' in dct:
             for sm_data in _get_ts(dct, 'submodels', list):
-                ret.submodel.add(cls._construct_aas_reference(sm_data, model.Submodel))
+                ret.submodel.add(cls._construct_model_reference(sm_data, model.Submodel))
         if 'derivedFrom' in dct:
-            ret.derived_from = cls._construct_aas_reference(_get_ts(dct, 'derivedFrom', dict),
-                                                            model.AssetAdministrationShell)
+            ret.derived_from = cls._construct_model_reference(_get_ts(dct, 'derivedFrom', dict),
+                                                              model.AssetAdministrationShell)
         return ret
 
     @classmethod
@@ -422,7 +433,7 @@ class AASFromJsonDecoder(json.JSONDecoder):
                         dct, _get_ts(dspec, 'dataSpecificationContent', dict))
         # If this is not a special ConceptDescription, just construct one of the default object_class
         if ret is None:
-            ret = object_class(id_=cls._construct_identifier(_get_ts(dct, 'id', dict)))
+            ret = object_class(id_=_get_ts(dct, 'id', str))
         cls._amend_abstract_attributes(ret, dct)
         if 'isCaseOf' in dct:
             for case_data in _get_ts(dct, "isCaseOf", list):
@@ -433,7 +444,7 @@ class AASFromJsonDecoder(json.JSONDecoder):
     def _construct_iec61360_concept_description(cls, dct: Dict[str, object], data_spec: Dict[str, object],
                                                 object_class=model.concept.IEC61360ConceptDescription)\
             -> model.concept.IEC61360ConceptDescription:
-        ret = object_class(id_=cls._construct_identifier(_get_ts(dct, 'id', dict)),
+        ret = object_class(id_=_get_ts(dct, 'id', str),
                            preferred_name=cls._construct_lang_string_set(_get_ts(data_spec, 'preferredName', list)))
         if 'dataType' in data_spec:
             ret.data_type = IEC61360_DATA_TYPES_INVERSE[_get_ts(data_spec, 'dataType', str)]
@@ -507,7 +518,7 @@ class AASFromJsonDecoder(json.JSONDecoder):
 
     @classmethod
     def _construct_submodel(cls, dct: Dict[str, object], object_class=model.Submodel) -> model.Submodel:
-        ret = object_class(id_=cls._construct_identifier(_get_ts(dct, 'id', dict)),
+        ret = object_class(id_=_get_ts(dct, 'id', str),
                            kind=cls._get_kind(dct))
         cls._amend_abstract_attributes(ret, dct)
         if not cls.stripped and 'submodelElements' in dct:
@@ -528,8 +539,8 @@ class AASFromJsonDecoder(json.JSONDecoder):
         # TODO: remove the following type: ignore comments when mypy supports abstract types for Type[T]
         # see https://github.com/python/mypy/issues/5374
         ret = object_class(id_short=_get_ts(dct, "idShort", str),
-                           observed=cls._construct_aas_reference(_get_ts(dct, 'observed', dict),
-                                                                 model.Referable),  # type: ignore
+                           observed=cls._construct_model_reference(_get_ts(dct, 'observed', dict),
+                                                                   model.Referable),  # type: ignore
                            kind=cls._get_kind(dct))
         cls._amend_abstract_attributes(ret, dct)
         return ret
@@ -562,10 +573,10 @@ class AASFromJsonDecoder(json.JSONDecoder):
         # TODO: remove the following type: ignore comments when mypy supports abstract types for Type[T]
         # see https://github.com/python/mypy/issues/5374
         ret = object_class(id_short=_get_ts(dct, "idShort", str),
-                           first=cls._construct_aas_reference(_get_ts(dct, 'first', dict),
-                                                              model.Referable),  # type: ignore
-                           second=cls._construct_aas_reference(_get_ts(dct, 'second', dict),
-                                                               model.Referable),  # type: ignore
+                           first=cls._construct_model_reference(_get_ts(dct, 'first', dict),
+                                                                model.Referable),  # type: ignore
+                           second=cls._construct_model_reference(_get_ts(dct, 'second', dict),
+                                                                 model.Referable),  # type: ignore
                            kind=cls._get_kind(dct))
         cls._amend_abstract_attributes(ret, dct)
         return ret
@@ -578,8 +589,8 @@ class AASFromJsonDecoder(json.JSONDecoder):
         # see https://github.com/python/mypy/issues/5374
         ret = object_class(
             id_short=_get_ts(dct, "idShort", str),
-            first=cls._construct_aas_reference(_get_ts(dct, 'first', dict), model.Referable),  # type: ignore
-            second=cls._construct_aas_reference(_get_ts(dct, 'second', dict), model.Referable),  # type: ignore
+            first=cls._construct_model_reference(_get_ts(dct, 'first', dict), model.Referable),  # type: ignore
+            second=cls._construct_model_reference(_get_ts(dct, 'second', dict), model.Referable),  # type: ignore
             kind=cls._get_kind(dct))
         cls._amend_abstract_attributes(ret, dct)
         if not cls.stripped and 'annotation' in dct:

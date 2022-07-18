@@ -711,13 +711,13 @@ class AASDataChecker(DataChecker):
         self.check_asset_information_equal(object_.asset_information, expected_value.asset_information)
 
         self.check_attribute_equal(object_, 'derived_from', expected_value.derived_from)
-        self.check_contained_element_length(object_, 'submodel', model.AASReference, len(expected_value.submodel))
+        self.check_contained_element_length(object_, 'submodel', model.ModelReference, len(expected_value.submodel))
         for expected_ref in expected_value.submodel:
             ref = self._find_reference(expected_ref, object_.submodel)
             if self.check(ref is not None, 'Submodel Reference {} must exist'.format(repr(expected_ref))):
                 self._check_reference_equal(ref, expected_ref)  # type: ignore
 
-        found_elements = self._find_extra_object(object_.submodel, expected_value.submodel, model.AASReference)
+        found_elements = self._find_extra_object(object_.submodel, expected_value.submodel, model.ModelReference)
         self.check(found_elements == set(), 'Asset Administration Shell {} must not have extra submodel '
                                             'references'.format(repr(object_)),
                    value=found_elements)
@@ -740,7 +740,7 @@ class AASDataChecker(DataChecker):
                 self._check_reference_equal(ref, expected_ref)  # type: ignore
 
         found_elements = self._find_extra_object(object_.is_case_of, expected_value.is_case_of,
-                                                 model.AASReference)
+                                                 model.ModelReference)
         self.check(found_elements == set(), 'Concept Description Reference {} must not have extra '
                                             'is case of references'.format(repr(object_)),
                    value=found_elements)

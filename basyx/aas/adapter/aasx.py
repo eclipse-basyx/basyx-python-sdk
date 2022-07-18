@@ -273,10 +273,10 @@ class AASXWriter:
         cp.created = datetime.datetime.now()
 
         with AASXWriter("filename.aasx") as writer:
-            writer.write_aas(Identifier("https://acplt.org/AssetAdministrationShell", IdentifierType.IRI),
+            writer.write_aas("https://acplt.org/AssetAdministrationShell",
                              object_store,
                              file_store)
-            writer.write_aas(Identifier("https://acplt.org/AssetAdministrationShell2", IdentifierType.IRI),
+            writer.write_aas("https://acplt.org/AssetAdministrationShell2",
                              object_store,
                              file_store)
             writer.write_core_properties(cp)
@@ -393,7 +393,8 @@ class AASXWriter:
         concept_descriptions: List[model.ConceptDescription] = []
         for identifiable in objects_to_be_written:
             for semantic_id in traversal.walk_semantic_ids_recursive(identifiable):
-                if not isinstance(semantic_id, model.AASReference) or semantic_id.type is not model.ConceptDescription:
+                if not isinstance(semantic_id, model.ModelReference) \
+                        or semantic_id.type is not model.ConceptDescription:
                     logger.info("semanticId %s does not reference a ConceptDescription.", str(semantic_id))
                     continue
                 try:
@@ -682,15 +683,15 @@ class NameFriendlyfier:
         .. code-block:: python
 
             friendlyfier = NameFriendlyfier()
-            friendlyfier.get_friendly_name(model.Identifier("http://example.com/AAS-a", model.IdentifierType.IRI))
+            friendlyfier.get_friendly_name("http://example.com/AAS-a")
              > "http___example_com_AAS_a"
 
-            friendlyfier.get_friendly_name(model.Identifier("http://example.com/AAS+a", model.IdentifierType.IRI))
+            friendlyfier.get_friendly_name("http://example.com/AAS+a")
              >  "http___example_com_AAS_a_1"
 
         """
         # friendlify name
-        raw_name = self.RE_NON_ALPHANUMERICAL.sub('_', identifier.id)
+        raw_name = self.RE_NON_ALPHANUMERICAL.sub('_', identifier)
 
         # Unify name (avoid collisions)
         amended_name = raw_name

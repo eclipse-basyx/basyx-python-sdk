@@ -43,47 +43,46 @@ class ExampleAASTest(unittest.TestCase):
         obj_store = model.DictObjectStore()
         with self.assertRaises(AssertionError) as cm:
             example_aas.check_full_example(checker, obj_store)
-        self.assertIn("AssetAdministrationShell[Identifier(IRI=https://acplt.org/Test_AssetAdministrationShell)]",
+        self.assertIn("AssetAdministrationShell[https://acplt.org/Test_AssetAdministrationShell]",
                       str(cm.exception))
 
         obj_store = example_aas.create_full_example()
         example_aas.check_full_example(checker, obj_store)
 
         failed_shell = model.AssetAdministrationShell(
-            asset_information=model.AssetInformation(global_asset_id=model.AASReference(
-                (model.Key(type_=model.KeyElements.GLOBAL_REFERENCE, value='test', id_type=model.KeyType.IRI),),
-                model.Submodel)),
-            id_=model.Identifier('test', model.IdentifierType.CUSTOM)
+            asset_information=model.AssetInformation(global_asset_id=model.GlobalReference(
+                (model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE, value='test'),))),
+            id_='test'
         )
         obj_store.add(failed_shell)
         with self.assertRaises(AssertionError) as cm:
             example_aas.check_full_example(checker, obj_store)
-        self.assertIn("AssetAdministrationShell[Identifier(CUSTOM=test)]", str(cm.exception))
+        self.assertIn("AssetAdministrationShell[test]", str(cm.exception))
         obj_store.discard(failed_shell)
 
-        failed_submodel = model.Submodel(id_=model.Identifier('test', model.IdentifierType.CUSTOM))
+        failed_submodel = model.Submodel(id_='test')
         obj_store.add(failed_submodel)
         with self.assertRaises(AssertionError) as cm:
             example_aas.check_full_example(checker, obj_store)
-        self.assertIn("Submodel[Identifier(CUSTOM=test)]", str(cm.exception))
+        self.assertIn("Submodel[test]", str(cm.exception))
         obj_store.discard(failed_submodel)
 
-        failed_cd = model.ConceptDescription(id_=model.Identifier('test', model.IdentifierType.CUSTOM))
+        failed_cd = model.ConceptDescription(id_='test')
         obj_store.add(failed_cd)
         with self.assertRaises(AssertionError) as cm:
             example_aas.check_full_example(checker, obj_store)
-        self.assertIn("ConceptDescription[Identifier(CUSTOM=test)]", str(cm.exception))
+        self.assertIn("ConceptDescription[test]", str(cm.exception))
         obj_store.discard(failed_cd)
 
         class DummyIdentifiable(model.Identifiable):
             def __init__(self, id_: model.Identifier):
                 super().__init__()
                 self.id = id_
-        failed_identifiable = DummyIdentifiable(id_=model.Identifier('test', model.IdentifierType.CUSTOM))
+        failed_identifiable = DummyIdentifiable(id_='test')
         obj_store.add(failed_identifiable)
         with self.assertRaises(KeyError) as cm:
             example_aas.check_full_example(checker, obj_store)
-        self.assertIn("Check for DummyIdentifiable[Identifier(CUSTOM=test)] not implemented", str(cm.exception))
+        self.assertIn("Check for DummyIdentifiable[test] not implemented", str(cm.exception))
         obj_store.discard(failed_identifiable)
         example_aas.check_full_example(checker, obj_store)
 
@@ -114,12 +113,12 @@ class ExampleAASMandatoryTest(unittest.TestCase):
         obj_store = example_aas_mandatory_attributes.create_full_example()
         example_aas_mandatory_attributes.check_full_example(checker, obj_store)
 
-        failed_submodel = model.Submodel(id_=model.Identifier('test', model.IdentifierType.CUSTOM))
+        failed_submodel = model.Submodel(id_='test')
         obj_store.add(failed_submodel)
         with self.assertRaises(AssertionError) as cm:
             example_aas_mandatory_attributes.check_full_example(checker, obj_store)
         self.assertIn("Given submodel list must not have extra submodels", str(cm.exception))
-        self.assertIn("Submodel[Identifier(CUSTOM=test)]", str(cm.exception))
+        self.assertIn("Submodel[test]", str(cm.exception))
         obj_store.discard(failed_submodel)
         example_aas_mandatory_attributes.check_full_example(checker, obj_store)
 
@@ -145,12 +144,12 @@ class ExampleAASMissingTest(unittest.TestCase):
         obj_store = example_aas_missing_attributes.create_full_example()
         example_aas_missing_attributes.check_full_example(checker, obj_store)
 
-        failed_submodel = model.Submodel(id_=model.Identifier('test', model.IdentifierType.CUSTOM))
+        failed_submodel = model.Submodel(id_='test')
         obj_store.add(failed_submodel)
         with self.assertRaises(AssertionError) as cm:
             example_aas_missing_attributes.check_full_example(checker, obj_store)
         self.assertIn("Given submodel list must not have extra submodels", str(cm.exception))
-        self.assertIn("Submodel[Identifier(CUSTOM=test)]", str(cm.exception))
+        self.assertIn("Submodel[test]", str(cm.exception))
         obj_store.discard(failed_submodel)
         example_aas_missing_attributes.check_full_example(checker, obj_store)
 
@@ -167,12 +166,12 @@ class ExampleConceptDescriptionTest(unittest.TestCase):
         obj_store.add(example_concept_description.create_iec61360_concept_description())
         example_concept_description.check_full_example(checker, obj_store)
 
-        failed_submodel = model.Submodel(id_=model.Identifier('test', model.IdentifierType.CUSTOM))
+        failed_submodel = model.Submodel(id_='test')
         obj_store.add(failed_submodel)
         with self.assertRaises(AssertionError) as cm:
             example_concept_description.check_full_example(checker, obj_store)
         self.assertIn("Given submodel list must not have extra submodels", str(cm.exception))
-        self.assertIn("Submodel[Identifier(CUSTOM=test)]", str(cm.exception))
+        self.assertIn("Submodel[test]", str(cm.exception))
         obj_store.discard(failed_submodel)
 
         example_concept_description.check_full_example(checker, obj_store)
@@ -190,12 +189,12 @@ class ExampleSubmodelTemplate(unittest.TestCase):
         obj_store.add(example_submodel_template.create_example_submodel_template())
         example_submodel_template.check_full_example(checker, obj_store)
 
-        failed_submodel = model.Submodel(id_=model.Identifier('test', model.IdentifierType.CUSTOM))
+        failed_submodel = model.Submodel(id_='test')
         obj_store.add(failed_submodel)
         with self.assertRaises(AssertionError) as cm:
             example_submodel_template.check_full_example(checker, obj_store)
         self.assertIn("Given submodel list must not have extra submodels", str(cm.exception))
-        self.assertIn("Submodel[Identifier(CUSTOM=test)]", str(cm.exception))
+        self.assertIn("Submodel[test]", str(cm.exception))
         obj_store.discard(failed_submodel)
 
         example_submodel_template.check_full_example(checker, obj_store)

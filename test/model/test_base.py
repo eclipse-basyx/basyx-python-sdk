@@ -18,49 +18,19 @@ from basyx.aas.examples.data import example_aas
 
 class KeyTest(unittest.TestCase):
     def test_get_identifier(self):
-        key1 = model.Key(model.KeyElements.SUBMODEL, "urn:x-test:submodel1", model.KeyType.IRI)
-        key2 = model.Key(model.KeyElements.PROPERTY, "prop1", model.KeyType.IDSHORT)
-        self.assertEqual("urn:x-test:submodel1", key1.get_identifier().id)
-        self.assertEqual(model.IdentifierType.IRI, key1.get_identifier().id_type)
+        key1 = model.Key(model.KeyTypes.SUBMODEL, "urn:x-test:submodel1")
+        key2 = model.Key(model.KeyTypes.PROPERTY, "prop1")
+        self.assertEqual("urn:x-test:submodel1", key1.get_identifier())
         self.assertIsNone(key2.get_identifier())
 
     def test_string_representation(self):
-        key1 = model.Key(model.KeyElements.SUBMODEL, "urn:x-test:submodel1", model.KeyType.IRI)
-        self.assertEqual("IRI=urn:x-test:submodel1", key1.__str__())
+        key1 = model.Key(model.KeyTypes.SUBMODEL, "urn:x-test:submodel1")
+        self.assertEqual("urn:x-test:submodel1", key1.__str__())
 
     def test_equality(self):
-        key1 = model.Key(model.KeyElements.SUBMODEL, "urn:x-test:submodel1", model.KeyType.IRI)
-        ident = model.Identifier('test', model.IdentifierType.CUSTOM)
+        key1 = model.Key(model.KeyTypes.SUBMODEL, "urn:x-test:submodel1")
+        ident = 'test'
         self.assertEqual(key1.__eq__(ident), NotImplemented)
-
-
-class IdentifierTest(unittest.TestCase):
-    def test_equality_hashing(self):
-        id1 = model.Identifier("urn:x-test:aas1", model.IdentifierType.IRI)
-        id2 = model.Identifier("urn:x-test:aas1", model.IdentifierType.IRI)
-        id3 = model.Identifier("urn:x-test:aas1", model.IdentifierType.CUSTOM)
-        self.assertEqual(id1, id2)
-        self.assertNotEqual(id1, id3)
-
-        ids = set()
-        ids.add(id1)
-        self.assertIn(id1, ids)
-        self.assertIn(id2, ids)
-        self.assertNotIn(id3, ids)
-
-        key1 = model.Key(model.KeyElements.SUBMODEL, "urn:x-test:submodel1", model.KeyType.IRI)
-        self.assertEqual(id1.__eq__(key1), NotImplemented)
-
-    def test_string_repr(self):
-        id1 = model.Identifier("urn:x-test:aas1", model.IdentifierType.IRI)
-        self.assertIn("urn:x-test:aas1", repr(id1))
-        self.assertIn("IRI", repr(id1))
-
-    def test_set_identifier(self):
-        id1 = model.Identifier("urn:x-test:aas1", model.IdentifierType.IRI)
-        with self.assertRaises(AttributeError) as cm:
-            id1.id = 'test'
-        self.assertEqual('Identifier are immutable', str(cm.exception))
 
 
 class ExampleReferable(model.Referable):
@@ -300,12 +270,12 @@ class ReferableTest(unittest.TestCase):
         self.assertEqual("scheme:NewRelElSource", example_relel.source)
 
     def test_update_commit_qualifier_extension_semantic_id(self):
-        submodel = model.Submodel(model.Identifier("https://acplt.org/Test_Submodel", model.IdentifierType.IRI))
+        submodel = model.Submodel("https://acplt.org/Test_Submodel")
         submodel.update()
         qualifier = model.Qualifier("test", model.datatypes.String)
         extension = model.Extension("test")
         collection = model.SubmodelElementCollection.create("test")
-        semantic_id = model.Reference((model.Key(model.KeyElements.GLOBAL_REFERENCE, "test", model.KeyType.IRI),))
+        semantic_id = model.GlobalReference((model.Key(model.KeyTypes.GLOBAL_REFERENCE, "test"),))
         property = model.MultiLanguageProperty("test", semantic_id=semantic_id)
 
         collection.add_referable(property)
@@ -362,15 +332,12 @@ class ModelNamespaceTest(unittest.TestCase):
     _namespace_class_qualifier = ExampleNamespaceQualifier
 
     def setUp(self):
-        self.propSemanticID = model.Reference((model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
-                                                         value='http://acplt.org/Test1',
-                                                         id_type=model.KeyType.IRI),))
-        self.propSemanticID2 = model.Reference((model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
-                                                          value='http://acplt.org/Test2',
-                                                          id_type=model.KeyType.IRI),))
-        self.propSemanticID3 = model.Reference((model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
-                                                          value='http://acplt.org/Test3',
-                                                          id_type=model.KeyType.IRI),))
+        self.propSemanticID = model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
+                                                               value='http://acplt.org/Test1'),))
+        self.propSemanticID2 = model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
+                                                                value='http://acplt.org/Test2'),))
+        self.propSemanticID3 = model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
+                                                                value='http://acplt.org/Test3'),))
         self.prop1 = model.Property("Prop1", model.datatypes.Int, semantic_id=self.propSemanticID)
         self.prop2 = model.Property("Prop2", model.datatypes.Int, semantic_id=self.propSemanticID)
         self.prop3 = model.Property("Prop2", model.datatypes.Int, semantic_id=self.propSemanticID2)
@@ -393,9 +360,10 @@ class ModelNamespaceTest(unittest.TestCase):
         self.assertEqual(1, len(self.namespace.set1))
         with self.assertRaises(KeyError) as cm:
             self.namespace.set1.add(self.prop2)
-        self.assertEqual('"Object with attribute (name=\'semantic_id\', value=\'Reference(key=(Key(id_type=IRI, '
-                         'value=http://acplt.org/Test1),))\') is already present in this set of objects"',
-                         str(cm.exception))
+        self.assertEqual(
+            '"Object with attribute (name=\'semantic_id\', value=\'GlobalReference(key=(Key('
+            'type=GLOBAL_REFERENCE, value=http://acplt.org/Test1),))\') is already present in this set of objects"',
+            str(cm.exception))
         self.namespace.set2.add(self.prop5)
         self.namespace.set2.add(self.prop6)
         self.assertEqual(2, len(self.namespace.set2))
@@ -406,9 +374,11 @@ class ModelNamespaceTest(unittest.TestCase):
                          str(cm.exception))
         with self.assertRaises(KeyError) as cm:
             self.namespace.set2.add(self.prop4)
-        self.assertEqual('"Object with attribute (name=\'semantic_id\', value=\'Reference(key=(Key(id_type=IRI, '
-                         'value=http://acplt.org/Test1),))\') is already present in another set in the same namespace"',
-                         str(cm.exception))
+        self.assertEqual(
+            '"Object with attribute (name=\'semantic_id\', value=\''
+            'GlobalReference(key=(Key(type=GLOBAL_REFERENCE, value=http://acplt.org/Test1),))\')'
+            ' is already present in another set in the same namespace"',
+            str(cm.exception))
 
         self.assertIs(self.prop1, self.namespace.set1.get("id_short", "Prop1"))
         self.assertIn(self.prop1, self.namespace.set1)
@@ -621,39 +591,128 @@ class ModelOrderedNamespaceTest(ModelNamespaceTest):
                          str(cm.exception))
 
 
-class AASReferenceTest(unittest.TestCase):
+class GlobalReferenceTest(unittest.TestCase):
+    def test_constraints(self):
+        with self.assertRaises(ValueError) as cm:
+            model.GlobalReference(tuple())
+        self.assertEqual("A reference must have at least one key!", str(cm.exception))
+
+        # AASd-122
+        keys = (model.Key(model.KeyTypes.PROPERTY, "urn:x-test:x"),)
+        with self.assertRaises(model.AASConstraintViolation) as cm:
+            model.GlobalReference(keys)
+        self.assertEqual("The type of the first key of a GlobalReference must be a GenericGloballyIdentifiable: "
+                         f"{keys[0]!r} (Constraint AASd-122)", str(cm.exception))
+        model.GlobalReference((model.Key(model.KeyTypes.GLOBAL_REFERENCE, "urn:x-test:x"),))
+
+        # AASd-124
+        keys = (model.Key(model.KeyTypes.GLOBAL_REFERENCE, "urn:x-test:x"),
+                model.Key(model.KeyTypes.SUBMODEL, "urn:x-test:x"),)
+        with self.assertRaises(model.AASConstraintViolation) as cm:
+            model.GlobalReference(keys)
+        self.assertEqual("The type of the last key of a GlobalReference must be a GenericGloballyIdentifiable or a"
+                         f" GenericFragmentKey: {keys[-1]!r} (Constraint AASd-124)", str(cm.exception))
+        keys += (model.Key(model.KeyTypes.FRAGMENT_REFERENCE, "urn:x-test:x"),)
+        model.GlobalReference(keys)
+
+
+class ModelReferenceTest(unittest.TestCase):
+    def test_constraints(self):
+        with self.assertRaises(ValueError) as cm:
+            model.GlobalReference(tuple())
+        self.assertEqual("A reference must have at least one key!", str(cm.exception))
+
+        # AASd-123
+        keys = (model.Key(model.KeyTypes.PROPERTY, "urn:x-test:x"),)
+        with self.assertRaises(model.AASConstraintViolation) as cm:
+            model.ModelReference(keys, model.Submodel)
+        self.assertEqual(f"The type of the first key of a ModelReference must be an AasIdentifiable: {keys[0]!r}"
+                         " (Constraint AASd-123)", str(cm.exception))
+        keys = (model.Key(model.KeyTypes.SUBMODEL, "urn:x-test:x"),) + keys
+        model.ModelReference(keys, model.Submodel)
+
+        # AASd-125
+        keys = (model.Key(model.KeyTypes.SUBMODEL, "urn:x-test:x"),
+                model.Key(model.KeyTypes.ASSET_ADMINISTRATION_SHELL, "urn:x-test:x"),
+                model.Key(model.KeyTypes.CONCEPT_DESCRIPTION, "urn:x-test:x"))
+        with self.assertRaises(model.AASConstraintViolation) as cm:
+            model.ModelReference(keys, model.Submodel)
+        self.assertEqual("The type of all keys following the first of a ModelReference "
+                         f"must be one of FragmentKeyElements: {keys[1]!r} (Constraint AASd-125)", str(cm.exception))
+        keys = (keys[0], model.Key(model.KeyTypes.FILE, "urn:x-test:x"), keys[2])
+        with self.assertRaises(model.AASConstraintViolation) as cm:
+            model.ModelReference(keys, model.Submodel)
+        self.assertEqual("The type of all keys following the first of a ModelReference "
+                         f"must be one of FragmentKeyElements: {keys[2]!r} (Constraint AASd-125)", str(cm.exception))
+        keys = tuple(keys[:2]) + (model.Key(model.KeyTypes.FRAGMENT_REFERENCE, "urn:x-test:x"),)
+        model.ModelReference(keys, model.Submodel)
+
+        # AASd-126
+        keys = (model.Key(model.KeyTypes.SUBMODEL, "urn:x-test:x"),
+                model.Key(model.KeyTypes.FILE, "urn:x-test:x"),
+                model.Key(model.KeyTypes.FRAGMENT_REFERENCE, "urn:x-test:x"),
+                model.Key(model.KeyTypes.PROPERTY, "urn:x-test:x"))
+        with self.assertRaises(model.AASConstraintViolation) as cm:
+            model.ModelReference(keys, model.Submodel)
+        self.assertEqual(f"Key {keys[2]!r} is a GenericFragmentKey, but the last key of the chain is not: {keys[-1]!r}"
+                         " (Constraint AASd-126)", str(cm.exception))
+        keys = tuple(keys[:3])
+        model.ModelReference(keys, model.Submodel)
+
+        # AASd-127
+        keys = (model.Key(model.KeyTypes.SUBMODEL, "urn:x-test:x"),
+                model.Key(model.KeyTypes.PROPERTY, "urn:x-test:x"),
+                model.Key(model.KeyTypes.FRAGMENT_REFERENCE, "urn:x-test:x"))
+        with self.assertRaises(model.AASConstraintViolation) as cm:
+            model.ModelReference(keys, model.Submodel)
+        self.assertEqual(f"{keys[-1]!r} is not preceeded by a key of type File or Blob, but {keys[1]!r}"
+                         f" (Constraint AASd-127)", str(cm.exception))
+        keys = (keys[0], model.Key(model.KeyTypes.BLOB, "urn:x-test:x"), keys[2])
+        model.ModelReference(keys, model.Submodel)
+
     def test_set_reference(self):
-        ref = model.AASReference((model.Key(model.KeyElements.SUBMODEL, "urn:x-test:x", model.KeyType.IRI),),
-                                 model.Submodel)
+        ref = model.ModelReference((model.Key(model.KeyTypes.SUBMODEL, "urn:x-test:x"),), model.Submodel)
         with self.assertRaises(AttributeError) as cm:
             ref.type = model.Property
         self.assertEqual('Reference is immutable', str(cm.exception))
         with self.assertRaises(AttributeError) as cm:
-            ref.key = model.Key(model.KeyElements.PROPERTY, "urn:x-test:x", model.KeyType.IRI)
+            ref.key = model.Key(model.KeyTypes.PROPERTY, "urn:x-test:x")
         self.assertEqual('Reference is immutable', str(cm.exception))
         with self.assertRaises(AttributeError) as cm:
             ref.key = ()
         self.assertEqual('Reference is immutable', str(cm.exception))
+        with self.assertRaises(AttributeError) as cm:
+            ref.referred_semantic_id = model.GlobalReference(
+                (model.Key(model.KeyTypes.GLOBAL_REFERENCE, "urn:x-test:x"),))
+        self.assertEqual('Reference is immutable', str(cm.exception))
 
     def test_equality(self):
-        ref = model.AASReference((model.Key(model.KeyElements.SUBMODEL, "urn:x-test:x", model.KeyType.IRI),),
-                                 model.Submodel)
-        ident = model.Identifier('test', model.IdentifierType.CUSTOM)
-        self.assertEqual(ref.__eq__(ident), NotImplemented)
-        ref_2 = model.AASReference((model.Key(model.KeyElements.SUBMODEL, "urn:x-test:x", model.KeyType.IRI),
-                                    model.Key(model.KeyElements.PROPERTY, "test", model.KeyType.IRI)),
+        ref = model.ModelReference((model.Key(model.KeyTypes.SUBMODEL, "urn:x-test:x"),),
                                    model.Submodel)
-        self.assertFalse(ref == ref_2)
+        ident = 'test'
+        self.assertEqual(ref.__eq__(ident), NotImplemented)
+        ref_2 = model.ModelReference((model.Key(model.KeyTypes.SUBMODEL, "urn:x-test:x"),
+                                      model.Key(model.KeyTypes.PROPERTY, "test")),
+                                     model.Submodel)
+        self.assertNotEqual(ref, ref_2)
+        ref_3 = model.ModelReference((model.Key(model.KeyTypes.SUBMODEL, "urn:x-test:x"),
+                                      model.Key(model.KeyTypes.PROPERTY, "test")),
+                                     model.Submodel)
+        self.assertEqual(ref_2, ref_3)
+        referred_semantic_id = model.GlobalReference((model.Key(model.KeyTypes.GLOBAL_REFERENCE, "urn:x-test:x"),))
+        object.__setattr__(ref_2, 'referred_semantic_id', referred_semantic_id)
+        self.assertNotEqual(ref_2, ref_3)
+        object.__setattr__(ref_3, 'referred_semantic_id', referred_semantic_id)
+        self.assertEqual(ref_2, ref_3)
 
     def test_reference_typing(self) -> None:
-        dummy_submodel = model.Submodel(model.Identifier("urn:x-test:x", model.IdentifierType.IRI))
+        dummy_submodel = model.Submodel("urn:x-test:x")
 
         class DummyObjectProvider(model.AbstractObjectProvider):
             def get_identifiable(self, identifier: Identifier) -> Identifiable:
                 return dummy_submodel
 
-        x = model.AASReference((model.Key(model.KeyElements.SUBMODEL, "urn:x-test:x", model.KeyType.IRI),),
-                               model.Submodel)
+        x = model.ModelReference((model.Key(model.KeyTypes.SUBMODEL, "urn:x-test:x"),), model.Submodel)
         submodel: model.Submodel = x.resolve(DummyObjectProvider())
         self.assertIs(submodel, submodel)
 
@@ -661,7 +720,7 @@ class AASReferenceTest(unittest.TestCase):
         prop = model.Property("prop", model.datatypes.Int)
         collection = model.SubmodelElementCollectionUnordered("collection", {prop})
         prop.parent = collection
-        submodel = model.Submodel(model.Identifier("urn:x-test:submodel", model.IdentifierType.IRI), {collection})
+        submodel = model.Submodel("urn:x-test:submodel", {collection})
         collection.parent = submodel
 
         class DummyObjectProvider(model.AbstractObjectProvider):
@@ -671,101 +730,72 @@ class AASReferenceTest(unittest.TestCase):
                 else:
                     raise KeyError()
 
-        ref1 = model.AASReference((model.Key(model.KeyElements.SUBMODEL, "urn:x-test:submodel",
-                                             model.KeyType.IRI),
-                                   model.Key(model.KeyElements.SUBMODEL_ELEMENT_COLLECTION, "collection",
-                                             model.KeyType.IDSHORT),
-                                   model.Key(model.KeyElements.PROPERTY, "prop", model.KeyType.IDSHORT)),
-                                  model.Property)
+        ref1 = model.ModelReference((model.Key(model.KeyTypes.SUBMODEL, "urn:x-test:submodel"),
+                                     model.Key(model.KeyTypes.SUBMODEL_ELEMENT_COLLECTION, "collection"),
+                                     model.Key(model.KeyTypes.PROPERTY, "prop")),
+                                    model.Property)
         self.assertIs(prop, ref1.resolve(DummyObjectProvider()))
 
-        ref2 = model.AASReference((model.Key(model.KeyElements.SUBMODEL, "urn:x-test:submodel",
-                                             model.KeyType.IRI),
-                                   model.Key(model.KeyElements.SUBMODEL_ELEMENT_COLLECTION, "collection",
-                                             model.KeyType.IDSHORT),
-                                   model.Key(model.KeyElements.PROPERTY, "prop", model.KeyType.IDSHORT),
-                                   model.Key(model.KeyElements.PROPERTY, "prop", model.KeyType.IDSHORT)),
-                                  model.Property)
+        ref2 = model.ModelReference((model.Key(model.KeyTypes.SUBMODEL, "urn:x-test:submodel"),
+                                     model.Key(model.KeyTypes.SUBMODEL_ELEMENT_COLLECTION, "collection"),
+                                     model.Key(model.KeyTypes.PROPERTY, "prop"),
+                                     model.Key(model.KeyTypes.PROPERTY, "prop")),
+                                    model.Property)
         with self.assertRaises(TypeError) as cm:
             ref2.resolve(DummyObjectProvider())
-        self.assertEqual("Object retrieved at Identifier(IRI=urn:x-test:submodel) is not a Namespace",
+        self.assertEqual("Object retrieved at urn:x-test:submodel is not a Namespace",
                          str(cm.exception))
 
         with self.assertRaises(AttributeError) as cm_2:
             ref1.key[2].value = "prop1"
         self.assertEqual("Reference is immutable", str(cm_2.exception))
 
-        ref3 = model.AASReference((model.Key(model.KeyElements.SUBMODEL, "urn:x-test:sub", model.KeyType.IRI),),
-                                  model.Property)
+        ref3 = model.ModelReference((model.Key(model.KeyTypes.SUBMODEL, "urn:x-test:sub"),), model.Property)
         # Oh no, yet another typo!
         with self.assertRaises(KeyError) as cm_3:
             ref3.resolve(DummyObjectProvider())
-        self.assertEqual("'Could not resolve global reference key Identifier(IRI=urn:x-test:sub)'", str(cm_3.exception))
+        self.assertEqual("'Could not resolve identifier urn:x-test:sub'", str(cm_3.exception))
 
-        ref4 = model.AASReference((model.Key(model.KeyElements.SUBMODEL, "urn:x-test:submodel",
-                                             model.KeyType.IRI),),
-                                  model.Property)
+        ref4 = model.ModelReference((model.Key(model.KeyTypes.SUBMODEL, "urn:x-test:submodel"),), model.Property)
         # Okay, typo is fixed, but the type is not what we expect. However, we should get the the submodel via the
         # exception's value attribute
         with self.assertRaises(model.UnexpectedTypeError) as cm_4:
             ref4.resolve(DummyObjectProvider())
         self.assertIs(submodel, cm_4.exception.value)
 
-        ref5 = model.AASReference((), model.Submodel)
-        with self.assertRaises(IndexError) as cm_5:
-            ref5.resolve(DummyObjectProvider())
-        self.assertEqual('List of keys is empty', str(cm_5.exception))
-
     def test_get_identifier(self) -> None:
-        ref = model.AASReference((model.Key(model.KeyElements.SUBMODEL, "urn:x-test:x", model.KeyType.IRI),),
-                                 model.Submodel)
-        self.assertEqual(model.Identifier("urn:x-test:x", model.IdentifierType.IRI), ref.get_identifier())
+        ref = model.ModelReference((model.Key(model.KeyTypes.SUBMODEL, "urn:x-test:x"),), model.Submodel)
+        self.assertEqual("urn:x-test:x", ref.get_identifier())
 
-        ref2 = model.AASReference((model.Key(model.KeyElements.SUBMODEL, "urn:x-test:x", model.KeyType.IRI),
-                                   model.Key(model.KeyElements.PROPERTY, "myProperty", model.KeyType.IDSHORT),),
-                                  model.Submodel)
-        self.assertEqual(model.Identifier("urn:x-test:x", model.IdentifierType.IRI), ref.get_identifier())
-
-        # People will do strange things ...
-        ref3 = model.AASReference((model.Key(model.KeyElements.ASSET_ADMINISTRATION_SHELL, "urn:x-test-aas:x",
-                                             model.KeyType.IRI),
-                                   model.Key(model.KeyElements.SUBMODEL, "urn:x-test:x", model.KeyType.IRI),),
-                                  model.Submodel)
-        self.assertEqual(model.Identifier("urn:x-test:x", model.IdentifierType.IRI), ref2.get_identifier())
-
-        ref4 = model.AASReference((model.Key(model.KeyElements.PROPERTY, "myProperty", model.KeyType.IDSHORT),),
-                                  model.Property)
-        with self.assertRaises(ValueError):
-            ref4.get_identifier()
+        ref2 = model.ModelReference((model.Key(model.KeyTypes.SUBMODEL, "urn:x-test:x"),
+                                     model.Key(model.KeyTypes.PROPERTY, "myProperty"),), model.Submodel)
+        self.assertEqual("urn:x-test:x", ref2.get_identifier())
 
     def test_from_referable(self) -> None:
         prop = model.Property("prop", model.datatypes.Int)
         collection = model.SubmodelElementCollectionUnordered("collection", {prop})
         prop.parent = collection
-        submodel = model.Submodel(model.Identifier("urn:x-test:submodel", model.IdentifierType.IRI), {collection})
+        submodel = model.Submodel("urn:x-test:submodel", {collection})
         collection.parent = submodel
 
         # Test normal usage for Identifiable and Referable objects
-        ref1 = model.AASReference.from_referable(submodel)
+        ref1 = model.ModelReference.from_referable(submodel)
         self.assertEqual(1, len(ref1.key))
         self.assertIs(ref1.type, model.Submodel)
         self.assertEqual("urn:x-test:submodel", ref1.key[0].value)
-        self.assertEqual(model.KeyType.IRI, ref1.key[0].id_type)
-        self.assertEqual(model.KeyElements.SUBMODEL, ref1.key[0].type)
+        self.assertEqual(model.KeyTypes.SUBMODEL, ref1.key[0].type)
 
-        ref2 = model.AASReference.from_referable(prop)
+        ref2 = model.ModelReference.from_referable(prop)
         self.assertEqual(3, len(ref2.key))
         self.assertIs(ref2.type, model.Property)
         self.assertEqual("urn:x-test:submodel", ref2.key[0].value)
-        self.assertEqual(model.KeyType.IRI, ref2.key[0].id_type)
         self.assertEqual("prop", ref2.key[2].value)
-        self.assertEqual(model.KeyType.IDSHORT, ref2.key[2].id_type)
-        self.assertEqual(model.KeyElements.PROPERTY, ref2.key[2].type)
+        self.assertEqual(model.KeyTypes.PROPERTY, ref2.key[2].type)
 
         # Test exception for element without identifiable ancestor
         submodel.submodel_element.remove(collection)
         with self.assertRaises(ValueError) as cm:
-            ref3 = model.AASReference.from_referable(prop)
+            ref3 = model.ModelReference.from_referable(prop)
         self.assertEqual("The given Referable object is not embedded within an Identifiable object", str(cm.exception))
 
         # Test creating a reference to a custom Referable class
@@ -774,16 +804,15 @@ class AASReferenceTest(unittest.TestCase):
                 super().__init__()
                 self.id_short = id_short
 
-        class DummyIdentifyableNamespace(model.Identifiable, model.UniqueIdShortNamespace):
+        class DummyIdentifyableNamespace(model.Submodel, model.UniqueIdShortNamespace):
             def __init__(self, id_: model.Identifier):
-                super().__init__()
-                self.id = id_
+                super().__init__(id_)
                 self.things: model.NamespaceSet = model.NamespaceSet(self, [("id_short", True)])
 
         thing = DummyThing("thing")
-        identifable_thing = DummyIdentifyableNamespace(model.Identifier("urn:x-test:thing", model.IdentifierType.IRI))
+        identifable_thing = DummyIdentifyableNamespace("urn:x-test:thing")
         identifable_thing.things.add(thing)
-        ref4 = model.AASReference.from_referable(thing)
+        ref4 = model.ModelReference.from_referable(thing)
         self.assertIs(ref4.type, model.Referable)
 
 
@@ -825,8 +854,8 @@ class ExtensionTest(unittest.TestCase):
 
 class ValueReferencePairTest(unittest.TestCase):
     def test_set_value(self):
-        pair = model.ValueReferencePair(model.datatypes.Int, 2, model.Reference((model.Key(
-            model.KeyElements.GLOBAL_REFERENCE, 'test', model.KeyType.CUSTOM),)))
+        pair = model.ValueReferencePair(model.datatypes.Int, 2, model.GlobalReference(
+            (model.Key(model.KeyTypes.GLOBAL_REFERENCE, 'test'),)))
         self.assertEqual(pair.value, 2)
         with self.assertRaises(AttributeError) as cm:
             pair.value = None

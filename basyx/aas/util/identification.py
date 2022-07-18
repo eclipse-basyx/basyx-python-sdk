@@ -55,7 +55,7 @@ class UUIDGenerator(AbstractIdentifierGenerator):
     def generate_id(self, proposal: Optional[str] = None) -> model.Identifier:
         uuid_ = uuid.uuid1(clock_seq=self._sequence)
         self._sequence += 1
-        return model.Identifier("urn:uuid:{}".format(uuid_), model.IdentifierType.IRI)
+        return "urn:uuid:{}".format(uuid_)
 
 
 class NamespaceIRIGenerator(AbstractIdentifierGenerator):
@@ -102,10 +102,10 @@ class NamespaceIRIGenerator(AbstractIdentifierGenerator):
                 iri = "{}{}".format(self._namespace, proposal)
             # Try to find iri in provider. If it does not exist (KeyError), we found a unique one to return
             try:
-                self.provider.get_identifiable(model.Identifier(iri, model.IdentifierType.IRI))
+                self.provider.get_identifiable(iri)
             except KeyError:
                 self._counter_cache[proposal] = counter
-                return model.Identifier(iri, model.IdentifierType.IRI)
+                return iri
             counter += 1
 
 

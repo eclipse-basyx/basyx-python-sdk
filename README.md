@@ -86,19 +86,17 @@ Create a `Submodel`:
 ```python
 from basyx.aas import model  # Import all BaSyx Python SDK classes from the model package
 
-identifier = model.Identifier('https://acplt.org/Simple_Submodel', model.IdentifierType.IRI)
-submodel = model.Submodel(id_=identifier)
+identifier = 'https://acplt.org/Simple_Submodel'
+submodel = model.Submodel(identifier)
 ```
 
 Create a `Property` and add it to the `Submodel`:
 ```python
 # create a global reference to a semantic description of the property
-semantic_reference = model.Reference(
+semantic_reference = model.GlobalReference(
     (model.Key(
-        type_=model.KeyElements.GLOBAL_REFERENCE,
-        local=False,
-        value='http://acplt.org/Properties/SimpleProperty',
-        id_type=model.KeyType.IRI
+        type_=model.KeyTypes.GLOBAL_REFERENCE,
+        value='http://acplt.org/Properties/SimpleProperty'
     ),)
 )
 property = model.Property(

@@ -64,8 +64,6 @@ class AASToJsonEncoder(json.JSONEncoder):
         """
         if isinstance(obj, model.AssetAdministrationShell):
             return self._asset_administration_shell_to_json(obj)
-        if isinstance(obj, model.Identifier):
-            return self._identifier_to_json(obj)
         if isinstance(obj, model.AdministrativeInformation):
             return self._administrative_information_to_json(obj)
         if isinstance(obj, model.Reference):
@@ -140,7 +138,7 @@ class AASToJsonEncoder(json.JSONEncoder):
             if obj.description:
                 data['description'] = cls._lang_string_set_to_json(obj.description)
             try:
-                ref_type = next(iter(t for t in inspect.getmro(type(obj)) if t in model.KEY_ELEMENTS_CLASSES))
+                ref_type = next(iter(t for t in inspect.getmro(type(obj)) if t in model.KEY_TYPES_CLASSES))
             except StopIteration as e:
                 raise TypeError("Object of type {} is Referable but does not inherit from a known AAS type"
                                 .format(obj.__class__.__name__)) from e
@@ -178,8 +176,7 @@ class AASToJsonEncoder(json.JSONEncoder):
         :return: dict with the serialized attributes of this object
         """
         data = cls._abstract_classes_to_json(obj)
-        data.update({'type': _generic.KEY_ELEMENTS[obj.type],
-                     'idType': _generic.KEY_TYPES[obj.id_type],
+        data.update({'type': _generic.KEY_TYPES[obj.type],
                      'value': obj.value})
         return data
 
@@ -199,19 +196,6 @@ class AASToJsonEncoder(json.JSONEncoder):
         return data
 
     @classmethod
-    def _identifier_to_json(cls, obj: model.Identifier) -> Dict[str, object]:
-        """
-        serialization of an object from class Identifier to json
-
-        :param obj: object of class Identifier
-        :return: dict with the serialized attributes of this object
-        """
-        data = cls._abstract_classes_to_json(obj)
-        data['id'] = obj.id
-        data['idType'] = _generic.IDENTIFIER_TYPES[obj.id_type]
-        return data
-
-    @classmethod
     def _reference_to_json(cls, obj: model.Reference) -> Dict[str, object]:
         """
         serialization of an object from class Reference to json
@@ -220,7 +204,10 @@ class AASToJsonEncoder(json.JSONEncoder):
         :return: dict with the serialized attributes of this object
         """
         data = cls._abstract_classes_to_json(obj)
+        data['type'] = _generic.REFERENCE_TYPES[obj.__class__]
         data['keys'] = list(obj.key)
+        if obj.referred_semantic_id is not None:
+            data['referredSemanticId'] = cls._reference_to_json(obj.referred_semantic_id)
         return data
 
     @classmethod
@@ -386,10 +373,9 @@ class AASToJsonEncoder(json.JSONEncoder):
         if obj.level_types:
             data_spec['levelType'] = [_generic.IEC61360_LEVEL_TYPES[lt] for lt in obj.level_types]
         data['embeddedDataSpecifications'] = [
-            {'dataSpecification': model.Reference((
-                model.Key(model.KeyElements.GLOBAL_REFERENCE,
-                          "http://admin-shell.io/DataSpecificationTemplates/DataSpecificationIEC61360/2/0",
-                          model.KeyType.IRI),)),
+            {'dataSpecification': model.GlobalReference(
+                (model.Key(model.KeyTypes.GLOBAL_REFERENCE,
+                           "http://admin-shell.io/DataSpecificationTemplates/DataSpecificationIEC61360/2/0", ),)),
              'dataSpecificationContent': data_spec}
         ]
 
