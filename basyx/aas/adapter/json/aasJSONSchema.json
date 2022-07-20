@@ -167,9 +167,12 @@
     "value":{
             "type": "string"
           },
-    "refersTo":{
+    "refersTo": {
+        "type": "array",
+        "items": {
             "$ref": "#/definitions/Reference"
-          }
+        }
+    }
         },
     "required": [ "name" ]
     }

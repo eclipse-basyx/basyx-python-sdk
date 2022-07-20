@@ -258,9 +258,9 @@
                 <aas:name>ExampleExtension</aas:name>
                 <aas:valueType>string</aas:valueType>
                 <aas:value>ExampleExtensionValue</aas:value>
-                <aas:refersTo type="GlobalReference">
+                <aas:refersTo type="ModelReference">
                   <aas:keys>
-                    <aas:key type="GlobalReference">http://acplt.org/RefersTo/ExampleRefersTo</aas:key>
+                    <aas:key type="AssetAdministrationShell">http://acplt.org/RefersTo/ExampleRefersTo</aas:key>
                   </aas:keys>
                 </aas:refersTo>
               </aas:extension>

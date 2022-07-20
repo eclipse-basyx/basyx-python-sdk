@@ -251,7 +251,7 @@ class AASToJsonEncoder(json.JSONEncoder):
         if obj.value:
             data['value'] = model.datatypes.xsd_repr(obj.value) if obj.value is not None else None
         if obj.refers_to:
-            data['refersTo'] = obj.refers_to
+            data['refersTo'] = list(obj.refers_to)
         if obj.value_type:
             data['valueType'] = model.datatypes.XSD_TYPE_NAMES[obj.value_type]
         data['name'] = obj.name

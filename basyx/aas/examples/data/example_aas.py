@@ -63,8 +63,9 @@ def create_example_asset_identification_submodel() -> model.Submodel:
         name='ExampleExtension',
         value_type=model.datatypes.String,
         value="ExampleExtensionValue",
-        refers_to=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
-                                                   value='http://acplt.org/RefersTo/ExampleRefersTo'),)))
+        refers_to=(model.ModelReference((model.Key(type_=model.KeyTypes.ASSET_ADMINISTRATION_SHELL,
+                                                   value='http://acplt.org/RefersTo/ExampleRefersTo'),),
+                                        model.AssetAdministrationShell),))
 
     # Property-Element conform to 'Verwaltungssschale in der Praxis' page 41 ManufacturerName:
     # https://www.plattform-i40.de/PI40/Redaktion/DE/Downloads/Publikation/2019-verwaltungsschale-in-der-praxis.html

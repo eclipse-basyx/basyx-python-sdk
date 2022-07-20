@@ -1051,7 +1051,7 @@ class Extension(HasSemantics):
     :ivar name: An extension of the element.
     :ivar value_type: Type (:class:`~.DataTypeDef`) of the value of the extension. Default: xsd:string
     :ivar value: Value (:class:`~.ValueDataType`) of the extension
-    :ivar refers_to: :class:`~.Reference` to an element the extension refers to
+    :ivar refers_to: An iterable of :class:`~.ModelReference` to elements the extension refers to
     :ivar semantic_id: The semantic_id defined in the :class:`~.HasSemantics` class.
     """
 
@@ -1059,18 +1059,8 @@ class Extension(HasSemantics):
                  name: str,
                  value_type: Optional[DataTypeDef] = None,
                  value: Optional[ValueDataType] = None,
-                 refers_to: Optional[Reference] = None,
+                 refers_to: Iterable[ModelReference] = (),
                  semantic_id: Optional[Reference] = None):
-        """
-        Initializer of Extension
-
-        :param name: An extension of the element.
-        :param value_type: Type of the value of the extension. Default: xsd:string
-        :param value: Value of the extension
-        :param refers_to: Reference to an element the extension refers to
-        :param semantic_id: The semantic_id defined in the HasSemantics class.
-        :raises ValueError: if the value_type is None and a value is set
-        """
         super().__init__()
         self.parent: Optional[HasExtension] = None
         self._name: str
@@ -1078,7 +1068,7 @@ class Extension(HasSemantics):
         self.value_type: Optional[Type[datatypes.AnyXSDType]] = value_type
         self._value: Optional[ValueDataType]
         self.value = value
-        self.refers_to: Optional[Reference] = refers_to
+        self.refers_to: Iterable[ModelReference] = refers_to
         self.semantic_id: Optional[Reference] = semantic_id
 
     def __repr__(self) -> str:

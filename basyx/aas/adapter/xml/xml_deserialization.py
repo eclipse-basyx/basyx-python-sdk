@@ -627,9 +627,8 @@ class AASFromXmlDecoder:
         value = _get_text_or_none(element.find(NS_AAS + "value"))
         if value is not None:
             extension.value = model.datatypes.from_xsd(value, extension.value_type)
-        refers_to = _failsafe_construct(element.find(NS_AAS + "RefersTo"), cls.construct_reference, cls.failsafe)
-        if refers_to is not None:
-            extension.refers_to = refers_to
+        extension.refers_to = _failsafe_construct_multiple(element.findall(NS_AAS + "refersTo"),
+                                                           cls._construct_referable_reference, cls.failsafe)
         cls._amend_abstract_attributes(extension, element)
         return extension
 
