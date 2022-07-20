@@ -477,8 +477,8 @@ class AASFromXmlDecoder:
         """
         relationship_element = object_class(
             _child_text_mandatory(element, NS_AAS + "idShort"),
-            _child_construct_mandatory(element, NS_AAS + "first", cls._construct_referable_reference),
-            _child_construct_mandatory(element, NS_AAS + "second", cls._construct_referable_reference),
+            _child_construct_mandatory(element, NS_AAS + "first", cls.construct_reference),
+            _child_construct_mandatory(element, NS_AAS + "second", cls.construct_reference),
             kind=_get_modeling_kind(element)
         )
         cls._amend_abstract_attributes(relationship_element, element)

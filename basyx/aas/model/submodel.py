@@ -895,8 +895,8 @@ class RelationshipElement(SubmodelElement):
 
     def __init__(self,
                  id_short: str,
-                 first: base.ModelReference,
-                 second: base.ModelReference,
+                 first: base.Reference,
+                 second: base.Reference,
                  display_name: Optional[base.LangStringSet] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
@@ -910,8 +910,8 @@ class RelationshipElement(SubmodelElement):
         """
 
         super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, kind, extension)
-        self.first: base.ModelReference = first
-        self.second: base.ModelReference = second
+        self.first: base.Reference = first
+        self.second: base.Reference = second
 
 
 class AnnotatedRelationshipElement(RelationshipElement, base.UniqueIdShortNamespace):
@@ -948,8 +948,8 @@ class AnnotatedRelationshipElement(RelationshipElement, base.UniqueIdShortNamesp
 
     def __init__(self,
                  id_short: str,
-                 first: base.ModelReference,
-                 second: base.ModelReference,
+                 first: base.Reference,
+                 second: base.Reference,
                  display_name: Optional[base.LangStringSet] = None,
                  annotation: Iterable[DataElement] = (),
                  category: Optional[str] = None,
