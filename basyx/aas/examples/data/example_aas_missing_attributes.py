@@ -342,8 +342,8 @@ def create_example_asset_administration_shell() -> model.AssetAdministrationShel
         asset_kind=model.AssetKind.INSTANCE,
         global_asset_id=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
                                                          value='http://acplt.org/Test_Asset_Missing/'),)),
-        specific_asset_id={model.IdentifierKeyValuePair(key="TestKey", value="TestValue",
-                                                        external_subject_id=model.GlobalReference(
+        specific_asset_id={model.SpecificAssetId(name="TestKey", value="TestValue",
+                                                 external_subject_id=model.GlobalReference(
                                                             (model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
                                                                        value='http://acplt.org/SpecificAssetId/'),)))},
         default_thumbnail=resource)

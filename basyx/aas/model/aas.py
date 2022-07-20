@@ -37,7 +37,7 @@ class AssetInformation:
                            global id but already an internal identifier. The internal identifier would be modelled via
                            :attr:`~.specificAssetId`.
     :ivar specific_asset_id: Additional domain specific, typically proprietary Identifier (Set of
-                             :class:`IdentifierKeyValuePairs <aas.model.base.IdentifierKeyValuePair>` for the asset like
+                             :class:`SpecificAssetIds <aas.model.base.SpecificAssetId>` for the asset like
                              e.g. serial number etc.
     :ivar default_thumbnail: Thumbnail of the asset represented by the asset administration shell. Used as default.
     """
@@ -45,13 +45,13 @@ class AssetInformation:
     def __init__(self,
                  asset_kind: base.AssetKind = base.AssetKind.INSTANCE,
                  global_asset_id: Optional[base.GlobalReference] = None,
-                 specific_asset_id: Optional[Set[base.IdentifierKeyValuePair]] = None,
+                 specific_asset_id: Optional[Set[base.SpecificAssetId]] = None,
                  default_thumbnail: Optional[base.Resource] = None):
 
         super().__init__()
         self.asset_kind: base.AssetKind = asset_kind
         self._global_asset_id: Optional[base.GlobalReference] = global_asset_id
-        self.specific_asset_id: Set[base.IdentifierKeyValuePair] = set() if specific_asset_id is None \
+        self.specific_asset_id: Set[base.SpecificAssetId] = set() if specific_asset_id is None \
             else specific_asset_id
         self.default_thumbnail: Optional[base.Resource] = default_thumbnail
 

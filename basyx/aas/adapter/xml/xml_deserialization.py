@@ -752,7 +752,7 @@ class AASFromXmlDecoder:
         global_asset_id = _failsafe_construct(element.find(NS_AAS + "globalAssetId"),
                                               cls.construct_reference, cls.failsafe)
         specific_asset_id = _failsafe_construct(element.find(NS_AAS + "specificAssetId"),
-                                                cls.construct_identifier_key_value_pair, cls.failsafe)
+                                                cls.construct_specific_asset_id, cls.failsafe)
         entity = object_class(
             id_short=_child_text_mandatory(element, NS_AAS + "idShort"),
             entity_type=_child_text_mandatory_mapped(element, NS_AAS + "entityType", ENTITY_TYPES_INVERSE),
@@ -933,13 +933,15 @@ class AASFromXmlDecoder:
         return aas
 
     @classmethod
-    def construct_identifier_key_value_pair(cls, element: etree.Element, object_class=model.IdentifierKeyValuePair,
-                                            **_kwargs: Any) -> model.IdentifierKeyValuePair:
+    def construct_specific_asset_id(cls, element: etree.Element, object_class=model.SpecificAssetId,
+                                    **_kwargs: Any) -> model.SpecificAssetId:
+        # semantic_id can't be applied by _amend_abstract_attributes because specificAssetId is immutable
         return object_class(
             external_subject_id=_child_construct_mandatory(element, NS_AAS + "externalSubjectId",
-                                                           cls.construct_reference),
-            key=_get_text_or_none(element.find(NS_AAS + "key")),
-            value=_get_text_or_none(element.find(NS_AAS + "value"))
+                                                           cls.construct_global_reference),
+            name=_get_text_or_none(element.find(NS_AAS + "name")),
+            value=_get_text_or_none(element.find(NS_AAS + "value")),
+            semantic_id=_failsafe_construct(element.find(NS_AAS + "semanticId"), cls.construct_reference, cls.failsafe)
         )
 
     @classmethod
@@ -955,7 +957,7 @@ class AASFromXmlDecoder:
         specific_assset_ids = element.find(NS_AAS + "specificAssetIds")
         if specific_assset_ids is not None:
             for id in _child_construct_multiple(specific_assset_ids, NS_AAS + "specificAssetId",
-                                                cls.construct_identifier_key_value_pair, cls.failsafe):
+                                                cls.construct_specific_asset_id, cls.failsafe):
                 asset_information.specific_asset_id.add(id)
         thumbnail = _failsafe_construct(element.find(NS_AAS + "defaultThumbNail"),
                                         cls.construct_resource, cls.failsafe)
@@ -1201,7 +1203,7 @@ class XMLConstructables(enum.Enum):
     SUBMODEL_ELEMENT_COLLECTION = enum.auto()
     ASSET_ADMINISTRATION_SHELL = enum.auto()
     ASSET_INFORMATION = enum.auto()
-    IDENTIFIER_KEY_VALUE_PAIR = enum.auto()
+    SPECIFIC_ASSET_ID = enum.auto()
     SUBMODEL = enum.auto()
     VALUE_REFERENCE_PAIR = enum.auto()
     IEC61360_CONCEPT_DESCRIPTION = enum.auto()
@@ -1283,8 +1285,8 @@ def read_aas_xml_element(file: IO, construct: XMLConstructables, failsafe: bool 
         constructor = decoder_.construct_asset_administration_shell
     elif construct == XMLConstructables.ASSET_INFORMATION:
         constructor = decoder_.construct_asset_information
-    elif construct == XMLConstructables.IDENTIFIER_KEY_VALUE_PAIR:
-        constructor = decoder_.construct_identifier_key_value_pair
+    elif construct == XMLConstructables.SPECIFIC_ASSET_ID:
+        constructor = decoder_.construct_specific_asset_id
     elif construct == XMLConstructables.SUBMODEL:
         constructor = decoder_.construct_submodel
     elif construct == XMLConstructables.VALUE_REFERENCE_PAIR:

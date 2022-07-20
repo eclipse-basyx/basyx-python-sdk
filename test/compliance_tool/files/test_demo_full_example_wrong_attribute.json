@@ -42,7 +42,7 @@
                 },
                 "externalAssetIds": [
                     {
-                        "key": "TestKey",
+                        "name": "TestKey",
                         "value": "TestValue",
                         "subjectId": {
                             "type": "GlobalReference",
@@ -168,7 +168,7 @@
                 },
                 "externalAssetIds": [
                     {
-                        "key": "TestKey",
+                        "name": "TestKey",
                         "value": "TestValue",
                         "subjectId": {
                             "type": "GlobalReference",
@@ -499,7 +499,7 @@
                         ]
                     },
                     "externalAssetId": {
-                        "key": "TestKey",
+                        "name": "TestKey",
                         "value": "TestValue",
                         "subjectId": {
                             "type": "GlobalReference",

@@ -309,18 +309,18 @@ def value_list_to_xml(obj: model.ValueList,
 # ##############################################################
 
 
-def identifier_key_value_pair_to_xml(obj: model.IdentifierKeyValuePair, tag: str = NS_AAS+"identifierKeyValuePair") \
+def specific_asset_id_to_xml(obj: model.SpecificAssetId, tag: str = NS_AAS + "specifidAssetId") \
         -> etree.Element:
     """
-    Serialization of objects of class :class:`~aas.model.base.IdentifierKeyValuePair` to XML
+    Serialization of objects of class :class:`~aas.model.base.SpecificAssetId` to XML
 
-    :param obj: Object of class :class:`~aas.model.base.IdentifierKeyValuePair`
+    :param obj: Object of class :class:`~aas.model.base.SpecificAssetId`
     :param tag: Namespace+Tag of the ElementTree object. Default is "aas:identifierKeyValuePair"
     :return: Serialized ElementTree object
     """
     et_asset_information = abstract_classes_to_xml(tag, obj)
     et_asset_information.append(reference_to_xml(obj.external_subject_id, NS_AAS + "externalSubjectId"))
-    et_asset_information.append(_generate_element(name=NS_AAS + "key", text=obj.key))
+    et_asset_information.append(_generate_element(name=NS_AAS + "name", text=obj.name))
     et_asset_information.append(_generate_element(name=NS_AAS + "value", text=obj.value))
 
     return et_asset_information
@@ -343,7 +343,7 @@ def asset_information_to_xml(obj: model.AssetInformation, tag: str = NS_AAS+"ass
     et_specific_asset_id = _generate_element(name=NS_AAS + "specificAssetIds")
     if obj.specific_asset_id:
         for specific_asset_id in obj.specific_asset_id:
-            et_specific_asset_id.append(identifier_key_value_pair_to_xml(specific_asset_id, NS_AAS+"specificAssetId"))
+            et_specific_asset_id.append(specific_asset_id_to_xml(specific_asset_id, NS_AAS + "specificAssetId"))
     et_asset_information.append(et_specific_asset_id)
 
     return et_asset_information
@@ -785,7 +785,7 @@ def entity_to_xml(obj: model.Entity,
     if obj.global_asset_id:
         et_entity.append(reference_to_xml(obj.global_asset_id, NS_AAS + "globalAssetId"))
     if obj.specific_asset_id:
-        et_entity.append(identifier_key_value_pair_to_xml(obj.specific_asset_id, NS_AAS+"specificAssetId"))
+        et_entity.append(specific_asset_id_to_xml(obj.specific_asset_id, NS_AAS + "specificAssetId"))
     et_entity.append(_generate_element(NS_AAS + "entityType", text=_generic.ENTITY_TYPES[obj.entity_type]))
     et_statements = _generate_element(NS_AAS + "statements")
     for statement in obj.statement:

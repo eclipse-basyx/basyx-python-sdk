@@ -74,8 +74,8 @@ class AASToJsonEncoder(json.JSONEncoder):
             return self._value_reference_pair_to_json(obj)
         if isinstance(obj, model.AssetInformation):
             return self._asset_information_to_json(obj)
-        if isinstance(obj, model.IdentifierKeyValuePair):
-            return self._identifier_key_value_pair_to_json(obj)
+        if isinstance(obj, model.SpecificAssetId):
+            return self._specific_asset_id_to_json(obj)
         if isinstance(obj, model.Submodel):
             return self._submodel_to_json(obj)
         if isinstance(obj, model.Operation):
@@ -286,15 +286,15 @@ class AASToJsonEncoder(json.JSONEncoder):
     # ############################################################
 
     @classmethod
-    def _identifier_key_value_pair_to_json(cls, obj: model.IdentifierKeyValuePair) -> Dict[str, object]:
+    def _specific_asset_id_to_json(cls, obj: model.SpecificAssetId) -> Dict[str, object]:
         """
-        serialization of an object from class IdentifierKeyValuePair to json
+        serialization of an object from class SpecificAssetId to json
 
-        :param obj: object of class IdentifierKeyValuePair
+        :param obj: object of class SpecificAssetId
         :return: dict with the serialized attributes of this object
         """
         data = cls._abstract_classes_to_json(obj)
-        data['key'] = obj.key
+        data['name'] = obj.name
         data['value'] = obj.value
         data['subjectId'] = obj.external_subject_id
         return data

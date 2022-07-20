@@ -1692,53 +1692,60 @@ class OrderedNamespaceSet(NamespaceSet[_NSO], MutableSequence[_NSO], Generic[_NS
         del self._order[i]
 
 
-class IdentifierKeyValuePair:
+class SpecificAssetId(HasSemantics):
     """
-    An IdentifierKeyValuePair describes a generic identifier as key-value pair
+    A specific asset ID describes a generic supplementary identifying attribute of the asset.
+    The specific asset ID is not necessarily globally unique.
 
-    :ivar key: Key of the identifier
+    :ivar name: Key of the identifier
     :ivar value: The value of the identifier with the corresponding key.
     :ivar external_subject_id: The (external) subject the key belongs to or has meaning to.
-
     :ivar semantic_id: The semantic_id defined in the :class:`~.HasSemantics` class.
     """
 
-    # TODO make IdentifierKeyValuePair derive from HasSemantics
     def __init__(self,
-                 key: str,
+                 name: str,
                  value: str,
-                 external_subject_id: Reference,
+                 external_subject_id: GlobalReference,
                  semantic_id: Optional[Reference] = None):
         super().__init__()
-        if key == "":
-            raise ValueError("key is not allowed to be an empty string")
+        if name == "":
+            raise ValueError("name is not allowed to be an empty string")
         if value == "":
             raise ValueError("value is not allowed to be an empty string")
-        self.key: str
+        self.name: str
         self.value: str
-        self.external_subject_id: Reference
+        self.external_subject_id: GlobalReference
 
-        super().__setattr__('key', key)
+        super().__setattr__('name', name)
         super().__setattr__('value', value)
         super().__setattr__('external_subject_id', external_subject_id)
+        super().__setattr__('semantic_id', semantic_id)
 
     def __setattr__(self, key, value):
         """Prevent modification of attributes."""
-        raise AttributeError('IdentifierKeyValuePair is immutable')
+        # Hack to make the HasSemantics inheritance work
+        # HasSemantics.__init__ sets the parent attribute to None, so that has to be possible. It needs to be set
+        # because its value is checked in the semantic_id setter and since every subclass of HasSemantics is expected
+        # to have this attribute. Additionally, the protected _semantic_id attribute must be settable.
+        if key == '_semantic_id' or (key == 'parent' and value is None):
+            return super(HasSemantics, self).__setattr__(key, value)
+        raise AttributeError('SpecificAssetId is immutable')
 
     def __eq__(self, other: object) -> bool:
-        if not isinstance(other, IdentifierKeyValuePair):
+        if not isinstance(other, SpecificAssetId):
             return NotImplemented
-        return (self.key == other.key
+        return (self.name == other.name
                 and self.value == other.value
-                and self.external_subject_id == other.external_subject_id)
+                and self.external_subject_id == other.external_subject_id
+                and self.semantic_id == other.semantic_id)
 
     def __hash__(self):
-        return hash((self.key, self.value, self.external_subject_id))
+        return hash((self.name, self.value, self.external_subject_id))
 
     def __repr__(self) -> str:
-        return "IdentifierKeyValuePair(key={}, value={}, external_subject_id={})".format(self.key, self.value,
-                                                                                         self.external_subject_id)
+        return "SpecificAssetId(key={}, value={}, external_subject_id={})".format(self.name, self.value,
+                                                                                  self.external_subject_id)
 
 
 class AASConstraintViolation(Exception):

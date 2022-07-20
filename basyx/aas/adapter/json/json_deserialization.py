@@ -166,7 +166,7 @@ class AASFromJsonDecoder(json.JSONDecoder):
         AAS_CLASS_PARSERS: Dict[str, Callable[[Dict[str, object]], object]] = {
             'AssetAdministrationShell': cls._construct_asset_administration_shell,
             'AssetInformation': cls._construct_asset_information,
-            'IdentifierKeyValuePair': cls._construct_identifier_key_value_pair,
+            'SpecificAssetId': cls._construct_specific_asset_id,
             'ConceptDescription': cls._construct_concept_description,
             'Qualifier': cls._construct_qualifier,
             'Extension': cls._construct_extension,
@@ -280,11 +280,14 @@ class AASFromJsonDecoder(json.JSONDecoder):
                             value=_get_ts(dct, 'value', str))
 
     @classmethod
-    def _construct_identifier_key_value_pair(cls, dct: Dict[str, object], object_class=model.IdentifierKeyValuePair) \
-            -> model.IdentifierKeyValuePair:
-        return object_class(key=_get_ts(dct, 'key', str),
+    def _construct_specific_asset_id(cls, dct: Dict[str, object], object_class=model.SpecificAssetId) \
+            -> model.SpecificAssetId:
+        # semantic_id can't be applied by _amend_abstract_attributes because specificAssetId is immutable
+        return object_class(name=_get_ts(dct, 'name', str),
                             value=_get_ts(dct, 'value', str),
-                            external_subject_id=cls._construct_reference(_get_ts(dct, 'subjectId', dict)))
+                            external_subject_id=cls._construct_global_reference(_get_ts(dct, 'subjectId', dict)),
+                            semantic_id=cls._construct_reference(_get_ts(dct, 'semanticId', dict))
+                            if 'semanticId' in dct else None)
 
     @classmethod
     def _construct_reference(cls, dct: Dict[str, object]) -> model.Reference:
@@ -397,8 +400,8 @@ class AASFromJsonDecoder(json.JSONDecoder):
             ret.global_asset_id = cls._construct_reference(_get_ts(dct, 'globalAssetId', dict))
         if 'externalAssetIds' in dct:
             for desc_data in _get_ts(dct, "externalAssetIds", list):
-                ret.specific_asset_id.add(cls._construct_identifier_key_value_pair(desc_data,
-                                                                                   model.IdentifierKeyValuePair))
+                ret.specific_asset_id.add(cls._construct_specific_asset_id(desc_data,
+                                                                           model.SpecificAssetId))
         if 'thumbnail' in dct:
             ret.default_thumbnail = cls._construct_resource(_get_ts(dct, 'thumbnail', dict))
         return ret
@@ -480,7 +483,7 @@ class AASFromJsonDecoder(json.JSONDecoder):
             global_asset_id = cls._construct_reference(_get_ts(dct, 'globalAssetId', dict))
         specific_asset_id = None
         if 'externalAssetId' in dct:
-            specific_asset_id = cls._construct_identifier_key_value_pair(_get_ts(dct, 'externalAssetId', dict))
+            specific_asset_id = cls._construct_specific_asset_id(_get_ts(dct, 'externalAssetId', dict))
 
         ret = object_class(id_short=_get_ts(dct, "idShort", str),
                            entity_type=ENTITY_TYPES_INVERSE[_get_ts(dct, "entityType", str)],

@@ -553,7 +553,7 @@
       "externalAssetIds":{
               "type": "array",
               "items": {
-                "$ref": "#/definitions/IdentifierKeyValuePair"
+                "$ref": "#/definitions/SpecificAssetId"
               }
             },
       "thumbnail":{
@@ -564,10 +564,10 @@
       }
     ]
   },
-  "IdentifierKeyValuePair":{
+  "SpecificAssetId":{
   "allOf": [{  "$ref": "#/definitions/HasSemantics"},
       { "properties": {
-          "key": {
+          "name": {
             "dataType":"string"
           },
             "value": {
@@ -578,7 +578,7 @@
             "$ref": "#/definitions/Reference"
               }
         },
-    "required": [ "key","value","subjectId" ]
+    "required": [ "name","value","subjectId" ]
     }
   ]
 },
@@ -714,7 +714,7 @@
                     "$ref": "#/definitions/Reference"
                       },
             "specificAssetIds":{
-                  "$ref": "#/definitions/IdentifierKeyValuePair"
+                  "$ref": "#/definitions/SpecificAssetId"
             }
           },
 		  "required": [ "entityType" ]

@@ -405,14 +405,14 @@ class AASDataChecker(DataChecker):
                 return element
         return None
 
-    def _find_identifier_key_value_pair(self, object_: model.IdentifierKeyValuePair, search_list: Union[Set, List]) \
-            -> Union[model.IdentifierKeyValuePair, None]:
+    def _find_specific_asset_id(self, object_: model.SpecificAssetId, search_list: Union[Set, List]) \
+            -> Union[model.SpecificAssetId, None]:
         """
-        Find a IdentifierKeyValuePair in an list
+        Find a SpecificAssetId in an list
 
-        :param object_: Given IdentifierKeyValuePair which should be find in list
-        :param search_list: List in which the given IdentifierKeyValuePair should be find
-        :return: the searched IdentifierKeyValuePair if found else none
+        :param object_: Given SpecificAssetId which should be find in list
+        :param search_list: List in which the given SpecificAssetId should be find
+        :return: the searched SpecificAssetId if found else none
         """
         for element in search_list:
             if object_ == element:
@@ -568,7 +568,7 @@ class AASDataChecker(DataChecker):
                                                                        'globalAssetId'.format(repr(object_)),
                                value=expected_value.global_asset_id)
         if object_.specific_asset_id and expected_value.specific_asset_id:
-            self.check_identifier_key_value_pair(object_.specific_asset_id, expected_value.specific_asset_id)
+            self.check_specific_asset_id(object_.specific_asset_id, expected_value.specific_asset_id)
         else:
             if expected_value.specific_asset_id:
                 self.check(expected_value.specific_asset_id is not None,
@@ -650,18 +650,19 @@ class AASDataChecker(DataChecker):
         self.check_attribute_equal(object_, 'value', expected_value.value)
         self.check_attribute_equal(object_, 'value_id', expected_value.value_id)
 
-    def check_identifier_key_value_pair(self, object_: model.IdentifierKeyValuePair,
-                                        expected_value: model.IdentifierKeyValuePair):
+    def check_specific_asset_id(self, object_: model.SpecificAssetId,
+                                expected_value: model.SpecificAssetId):
         """
-        Checks if the given IdentifierKeyValuePair objects are equal
+        Checks if the given SpecificAssetId objects are equal
 
-        :param object_: Given IdentifierKeyValuePair object to check
-        :param expected_value: expected IdentifierKeyValuePair object
+        :param object_: Given SpecificAssetId object to check
+        :param expected_value: expected SpecificAssetId object
         :return:
         """
-        self.check_attribute_equal(object_, "key", expected_value.key)
+        self.check_attribute_equal(object_, "name", expected_value.name)
         self.check_attribute_equal(object_, "value", expected_value.value)
         self.check_attribute_equal(object_, "external_subject_id", expected_value.external_subject_id)
+        self.check_attribute_equal(object_, "semantic_id", expected_value.semantic_id)
 
     def check_asset_information_equal(self, object_: model.AssetInformation, expected_value: model.AssetInformation):
         """
@@ -673,15 +674,15 @@ class AASDataChecker(DataChecker):
         """
         self.check_attribute_equal(object_, 'asset_kind', expected_value.asset_kind)
         self._check_reference_equal(object_.global_asset_id, expected_value.global_asset_id)
-        self.check_contained_element_length(object_, 'specific_asset_id', model.IdentifierKeyValuePair,
+        self.check_contained_element_length(object_, 'specific_asset_id', model.SpecificAssetId,
                                             len(expected_value.specific_asset_id))
         for expected_pair in expected_value.specific_asset_id:
-            pair = self._find_identifier_key_value_pair(expected_pair, object_.specific_asset_id)
-            if self.check(pair is not None, 'IdentifierValueKeyPair {} must exist'.format(repr(expected_pair))):
-                self.check_identifier_key_value_pair(pair, expected_pair)  # type: ignore
+            pair = self._find_specific_asset_id(expected_pair, object_.specific_asset_id)
+            if self.check(pair is not None, 'SpecificAssetId {} must exist'.format(repr(expected_pair))):
+                self.check_specific_asset_id(pair, expected_pair)  # type: ignore
 
         found_elements = self._find_extra_object(object_.specific_asset_id, expected_value.specific_asset_id,
-                                                 model.IdentifierKeyValuePair)
+                                                 model.SpecificAssetId)
         self.check(found_elements == set(), 'AssetInformation {} must not have extra '
                                             'specificAssetIds'.format(repr(object_)),
                    value=found_elements)

@@ -1138,7 +1138,7 @@ class Entity(SubmodelElement, base.UniqueIdShortNamespace):
                  entity_type: base.EntityType,
                  statement: Iterable[SubmodelElement] = (),
                  global_asset_id: Optional[base.Reference] = None,
-                 specific_asset_id: Optional[base.IdentifierKeyValuePair] = None,
+                 specific_asset_id: Optional[base.SpecificAssetId] = None,
                  display_name: Optional[base.LangStringSet] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
@@ -1152,7 +1152,7 @@ class Entity(SubmodelElement, base.UniqueIdShortNamespace):
         """
         super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, kind, extension)
         self.statement = base.NamespaceSet(self, [("id_short", True)], statement)
-        self.specific_asset_id: Optional[base.IdentifierKeyValuePair] = specific_asset_id
+        self.specific_asset_id: Optional[base.SpecificAssetId] = specific_asset_id
         self.global_asset_id: Optional[base.Reference] = global_asset_id
         self._entity_type: base.EntityType
         self.entity_type = entity_type
