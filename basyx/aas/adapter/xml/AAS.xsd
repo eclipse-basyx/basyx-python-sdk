@@ -212,7 +212,6 @@
 							<enumeration value="Blob"/>
 							<enumeration value="Capability"/>
 							<enumeration value="ConceptDescription"/>
-							<enumeration value="ConceptDictionary"/>
 							<enumeration value="DataElement"/>
 							<enumeration value="Entity"/>
 							<enumeration value="EventElement"/>

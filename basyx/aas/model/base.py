@@ -63,7 +63,6 @@ class KeyTypes(Enum):
     :cvar BASIC_EVENT_ELEMENT: :class:`~aas.model.submodel.BasicEventElement`
     :cvar BLOB: :class:`~aas.model.submodel.Blob`
     :cvar CAPABILITY: :class:`~aas.model.submodel.Capability`
-    :cvar CONCEPT_DICTIONARY: :class:`~aas.model.concept.ConceptDictionary`
     :cvar DATA_ELEMENT: :class:`~aas.model.submodel.DataElement`
     :cvar ENTITY: :class:`~aas.model.submodel.Entity`
     :cvar EVENT_ELEMENT: :class:`~aas.model.submodel.EventElement`, Note: EventElement is abstract
@@ -85,20 +84,20 @@ class KeyTypes(Enum):
                               asset administration shell.
     """
 
-    # IdentifiableElements starting from 0
+    # AasIdentifiables starting from 0
     # keep _ASSET = 0 as a protected enum member here, so 0 isn't reused in the enum by a future identifiable
     _ASSET = 0
     ASSET_ADMINISTRATION_SHELL = 1
     CONCEPT_DESCRIPTION = 2
     SUBMODEL = 3
 
-    # ReferableElements starting from 1000
+    # AasSubmodelElements starting from 1000
     ACCESS_PERMISSION_RULE = 1000
     ANNOTATED_RELATIONSHIP_ELEMENT = 1001
     BASIC_EVENT_ELEMENT = 1002
     BLOB = 1003
     CAPABILITY = 1004
-    CONCEPT_DICTIONARY = 1005
+    _CONCEPT_DICTIONARY = 1005
     DATA_ELEMENT = 1006
     ENTITY = 1007
     EVENT_ELEMENT = 1008
@@ -114,7 +113,7 @@ class KeyTypes(Enum):
     # keep _VIEW = 1018 as a protected enum member here, so 1018 isn't reused in the enum by a future referable
     _VIEW = 1018
 
-    # KeyTypes starting from 2000
+    # GenericFragmentKeys and GenericGloballyIdentifiables starting from 2000
     GLOBAL_REFERENCE = 2000
     FRAGMENT_REFERENCE = 2001
 

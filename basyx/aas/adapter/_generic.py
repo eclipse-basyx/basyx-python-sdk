@@ -32,7 +32,6 @@ KEY_TYPES: Dict[model.KeyTypes, str] = {
     model.KeyTypes.BASIC_EVENT_ELEMENT: 'BasicEventElement',
     model.KeyTypes.BLOB: 'Blob',
     model.KeyTypes.CAPABILITY: 'Capability',
-    model.KeyTypes.CONCEPT_DICTIONARY: 'ConceptDictionary',
     model.KeyTypes.DATA_ELEMENT: 'DataElement',
     model.KeyTypes.ENTITY: 'Entity',
     model.KeyTypes.EVENT_ELEMENT: 'EventElement',
