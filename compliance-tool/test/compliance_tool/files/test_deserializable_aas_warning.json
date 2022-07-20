@@ -22,7 +22,7 @@
                 },
                 "externalAssetIds": [
                     {
-                        "key": "TestKey",
+                        "name": "TestKey",
                         "value": "TestValue",
                         "subjectId": {
                             "type": "GlobalReference",

@@ -53,12 +53,17 @@
         <aas:assetKind>Instance</aas:assetKind>
         <aas:specificAssetIds>
           <aas:specificAssetId>
+            <aas:semanticId type="GlobalReference">
+              <aas:keys>
+                <aas:key type="GlobalReference">http://acplt.org/SpecificAssetId/</aas:key>
+              </aas:keys>
+            </aas:semanticId>
             <aas:externalSubjectId type="GlobalReference">
               <aas:keys>
                 <aas:key type="GlobalReference">http://acplt.org/SpecificAssetId/</aas:key>
               </aas:keys>
             </aas:externalSubjectId>
-            <aas:key>TestKey</aas:key>
+            <aas:name>TestKey</aas:name>
             <aas:value>TestValue</aas:value>
           </aas:specificAssetId>
         </aas:specificAssetIds>
@@ -133,7 +138,7 @@
                 <aas:key type="GlobalReference">http://acplt.org/SpecificAssetId/</aas:key>
               </aas:keys>
             </aas:externalSubjectId>
-            <aas:key>TestKey</aas:key>
+            <aas:name>TestKey</aas:name>
             <aas:value>TestValue</aas:value>
           </aas:specificAssetId>
         </aas:specificAssetIds>
@@ -385,7 +390,7 @@
                   <aas:key type="GlobalReference">http://acplt.org/SpecificAssetId/</aas:key>
                 </aas:keys>
               </aas:externalSubjectId>
-              <aas:key>TestKey</aas:key>
+              <aas:name>TestKey</aas:name>
               <aas:value>TestValue</aas:value>
             </aas:specificAssetId>
             <aas:entityType>SelfManagedEntity</aas:entityType>

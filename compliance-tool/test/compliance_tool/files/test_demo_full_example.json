@@ -42,9 +42,18 @@
                 },
                 "externalAssetIds": [
                     {
-                        "key": "TestKey",
+                        "name": "TestKey",
                         "value": "TestValue",
                         "subjectId": {
+                            "type": "GlobalReference",
+                            "keys": [
+                                {
+                                    "type": "GlobalReference",
+                                    "value": "http://acplt.org/SpecificAssetId/"
+                                }
+                            ]
+                        },
+                        "semanticId": {
                             "type": "GlobalReference",
                             "keys": [
                                 {
@@ -186,7 +195,7 @@
                 },
                 "externalAssetIds": [
                     {
-                        "key": "TestKey",
+                        "name": "TestKey",
                         "value": "TestValue",
                         "subjectId": {
                             "type": "GlobalReference",
@@ -517,7 +526,7 @@
                         ]
                     },
                     "externalAssetId": {
-                        "key": "TestKey",
+                        "name": "TestKey",
                         "value": "TestValue",
                         "subjectId": {
                             "type": "GlobalReference",
