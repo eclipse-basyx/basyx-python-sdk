@@ -867,7 +867,7 @@ def write_aas_xml_file(file: IO,
     for obj in data:
         if isinstance(obj, model.Asset):
             assets.append(obj)
-        if isinstance(obj, model.AssetAdministrationShell):
+        elif isinstance(obj, model.AssetAdministrationShell):
             asset_administration_shells.append(obj)
         elif isinstance(obj, model.Submodel):
             submodels.append(obj)
