@@ -492,9 +492,9 @@ class Referable(HasExtension, metaclass=abc.ABCMeta):
     def __init__(self):
         super().__init__()
         self._id_short: str = "NotSet"
-        self.display_name: Optional[LangStringSet] = set()
+        self.display_name: Optional[LangStringSet] = dict()
         self._category: Optional[str] = None
-        self.description: Optional[LangStringSet] = set()
+        self.description: Optional[LangStringSet] = dict()
         # We use a Python reference to the parent Namespace instead of a Reference Object, as specified. This allows
         # simpler and faster navigation/checks and it has no effect in the serialized data formats anyway.
         self.parent: Optional[UniqueIdShortNamespace] = None

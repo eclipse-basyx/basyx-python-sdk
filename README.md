@@ -59,6 +59,11 @@ Development/testing/documentation/example dependencies (see `requirements.txt`):
 * `sphinx-rtd-theme` and its dependencies
 * `sphinx-argparse` (MIT License)
 
+Dependencies for building the documentation:
+* `Sphinx` and its dependencies (BSD 2-clause License, MIT License, Apache License)
+* `sphinx-rtd-theme` and its dependencies (MIT License, PSF License)
+* `sphinx-argparse` (MIT License)
+
 
 ## Getting Started
 
