@@ -85,7 +85,7 @@ def check_deserialization(file_path: str, state_manager: ComplianceToolStateMana
         reader.read_into(obj_store, files)
         new_cp = reader.get_core_properties()
         state_manager.set_step_status(Status.SUCCESS)
-    except ValueError as error:
+    except (ValueError, KeyError) as error:
         logger.error(error)
         state_manager.set_step_status(Status.FAILED)
         return model.DictObjectStore(), aasx.DictSupplementaryFileContainer(), pyecma376_2.OPCCoreProperties()
