@@ -58,7 +58,6 @@ class KeyTypes(Enum):
     the reference may be a :class:`~aas.model.submodel.Property`, a
     :class:`~aas.model.submodel.SubmodelElementCollection`, an :class:`~aas.model.submodel.Operation` etc.
 
-    :cvar ACCESS_PERMISSION_RULE: access permission rule
     :cvar ANNOTATED_RELATIONSHIP_ELEMENT: :class:`~aas.model.submodel.AnnotatedRelationshipElement`
     :cvar BASIC_EVENT_ELEMENT: :class:`~aas.model.submodel.BasicEventElement`
     :cvar BLOB: :class:`~aas.model.submodel.Blob`
@@ -85,18 +84,20 @@ class KeyTypes(Enum):
     """
 
     # AasIdentifiables starting from 0
-    # keep _ASSET = 0 as a protected enum member here, so 0 isn't reused in the enum by a future identifiable
+    # keep _ASSET = 0 as a protected enum member here, so 0 isn't reused by a future key type
     _ASSET = 0
     ASSET_ADMINISTRATION_SHELL = 1
     CONCEPT_DESCRIPTION = 2
     SUBMODEL = 3
 
     # AasSubmodelElements starting from 1000
-    ACCESS_PERMISSION_RULE = 1000
+    # keep _ACCESS_PERMISSION_RULE = 1000 as a protected enum member here, so 1000 isn't reused by a future key type
+    _ACCESS_PERMISSION_RULE = 1000
     ANNOTATED_RELATIONSHIP_ELEMENT = 1001
     BASIC_EVENT_ELEMENT = 1002
     BLOB = 1003
     CAPABILITY = 1004
+    # keep _CONCEPT_DICTIONARY = 1005 as a protected enum member here, so 1005 isn't reused by a future key type
     _CONCEPT_DICTIONARY = 1005
     DATA_ELEMENT = 1006
     ENTITY = 1007
@@ -110,7 +111,7 @@ class KeyTypes(Enum):
     RELATIONSHIP_ELEMENT = 1015
     SUBMODEL_ELEMENT = 1016
     SUBMODEL_ELEMENT_COLLECTION = 1017
-    # keep _VIEW = 1018 as a protected enum member here, so 1018 isn't reused in the enum by a future referable
+    # keep _VIEW = 1018 as a protected enum member here, so 1018 isn't reused by a future key type
     _VIEW = 1018
 
     # GenericFragmentKeys and GenericGloballyIdentifiables starting from 2000

@@ -269,7 +269,6 @@
 		"AssetAdministrationShell",
 		"ConceptDescription",
 		"Submodel",
-		"AccessPermissionRule",
 		"AnnotatedRelationshipElement",
 		"BasicEventElement",
 		"Blob",

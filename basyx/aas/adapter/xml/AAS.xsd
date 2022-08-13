@@ -205,7 +205,6 @@
 				<attribute name="type">
 					<simpleType>
 						<restriction base="string">
-							<enumeration value="AccessPermissionRule"/>
 							<enumeration value="AnnotatedRelationshipElement"/>
 							<enumeration value="AssetAdministrationShell"/>
 							<enumeration value="BasicEventElement"/>
