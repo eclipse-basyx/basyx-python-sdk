@@ -403,7 +403,7 @@ class ModelNamespaceTest(unittest.TestCase):
         # Check that Prop3 got added correctly
         prop3_new = namespace1.set1.get_referable("Prop3")
         self.assertIs(prop3_new.parent, namespace1)
-        assert(isinstance(prop3_new, model.Property))
+        assert isinstance(prop3_new, model.Property)
         self.assertEqual(prop3_new.value, 2)
         # Check that Prop2 got removed correctly
         self.assertNotIn("Prop2", namespace1.set1)
