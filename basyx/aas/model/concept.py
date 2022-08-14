@@ -197,7 +197,7 @@ class IEC61360ConceptDescription(ConceptDescription):
                  unit_id: Optional[base.Reference] = None,
                  source_of_definition: Optional[str] = None,
                  symbol: Optional[str] = None,
-                 value_format: base.DataTypeDef = None,
+                 value_format: base.DataTypeDefXsd = None,
                  value_list: Optional[base.ValueList] = None,
                  value: Optional[base.ValueDataType] = None,
                  value_id: Optional[base.Reference] = None,
@@ -217,7 +217,7 @@ class IEC61360ConceptDescription(ConceptDescription):
         self.value_list: Optional[base.ValueList] = value_list
         self.value_id: Optional[base.Reference] = value_id
         self.level_types: Set[IEC61360LevelType] = level_types if level_types else set()
-        self.value_format: Optional[Type[datatypes.AnyXSDType]] = value_format
+        self.value_format: Optional[base.DataTypeDefXsd] = value_format
         self._value: Optional[base.ValueDataType] = (datatypes.trivial_cast(value, self.value_format)
                                                      if (value is not None and self.value_format is not None) else None)
 

@@ -233,7 +233,7 @@ class Property(DataElement):
 
     def __init__(self,
                  id_short: str,
-                 value_type: base.DataTypeDef,
+                 value_type: base.DataTypeDefXsd,
                  value: Optional[base.ValueDataType] = None,
                  value_id: Optional[base.Reference] = None,
                  display_name: Optional[base.LangStringSet] = None,
@@ -249,7 +249,7 @@ class Property(DataElement):
         """
 
         super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, kind, extension)
-        self.value_type: Type[datatypes.AnyXSDType] = value_type
+        self.value_type: base.DataTypeDefXsd = value_type
         self._value: Optional[base.ValueDataType] = (datatypes.trivial_cast(value, value_type)
                                                      if value is not None else None)
         self.value_id: Optional[base.Reference] = value_id
@@ -351,7 +351,7 @@ class Range(DataElement):
 
     def __init__(self,
                  id_short: str,
-                 value_type: base.DataTypeDef,
+                 value_type: base.DataTypeDefXsd,
                  min: Optional[base.ValueDataType] = None,
                  max: Optional[base.ValueDataType] = None,
                  display_name: Optional[base.LangStringSet] = None,
@@ -367,7 +367,7 @@ class Range(DataElement):
         """
 
         super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, kind, extension)
-        self.value_type: base.DataTypeDef = value_type
+        self.value_type: base.DataTypeDefXsd = value_type
         self._min: Optional[base.ValueDataType] = datatypes.trivial_cast(min, value_type) if min is not None else None
         self._max: Optional[base.ValueDataType] = datatypes.trivial_cast(max, value_type) if max is not None else None
 

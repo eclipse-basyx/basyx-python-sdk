@@ -991,7 +991,7 @@ class AASFromXmlDecoder:
         return submodel
 
     @classmethod
-    def construct_value_reference_pair(cls, element: etree.Element, value_format: Optional[model.DataTypeDef] = None,
+    def construct_value_reference_pair(cls, element: etree.Element, value_format: Optional[model.DataTypeDefXsd] = None,
                                        object_class=model.ValueReferencePair, **_kwargs: Any) \
             -> model.ValueReferencePair:
         if value_format is None:
@@ -1003,7 +1003,7 @@ class AASFromXmlDecoder:
         )
 
     @classmethod
-    def construct_value_list(cls, element: etree.Element, value_format: Optional[model.DataTypeDef] = None,
+    def construct_value_list(cls, element: etree.Element, value_format: Optional[model.DataTypeDefXsd] = None,
                              **_kwargs: Any) -> model.ValueList:
         """
         This function doesn't support the object_class parameter, because ValueList is just a generic type alias.

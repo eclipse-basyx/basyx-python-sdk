@@ -23,7 +23,7 @@ from ..backend import backends
 if TYPE_CHECKING:
     from . import provider
 
-DataTypeDef = Type[datatypes.AnyXSDType]
+DataTypeDefXsd = Type[datatypes.AnyXSDType]
 ValueDataType = datatypes.AnyXSDType  # any xsd atomic type (from .datatypes)
 BlobType = bytes
 ContentType = str  # any mimetype as in RFC2046
@@ -1049,7 +1049,7 @@ class Extension(HasSemantics):
     Single extension of an element
 
     :ivar name: An extension of the element.
-    :ivar value_type: Type (:class:`~.DataTypeDef`) of the value of the extension. Default: xsd:string
+    :ivar value_type: Type (:class:`~.DataTypeDefXsd`) of the value of the extension. Default: xsd:string
     :ivar value: Value (:class:`~.ValueDataType`) of the extension
     :ivar refers_to: An iterable of :class:`~.ModelReference` to elements the extension refers to
     :ivar semantic_id: The semantic_id defined in the :class:`~.HasSemantics` class.
@@ -1057,7 +1057,7 @@ class Extension(HasSemantics):
 
     def __init__(self,
                  name: str,
-                 value_type: Optional[DataTypeDef] = None,
+                 value_type: Optional[DataTypeDefXsd] = None,
                  value: Optional[ValueDataType] = None,
                  refers_to: Iterable[ModelReference] = (),
                  semantic_id: Optional[Reference] = None):
@@ -1065,7 +1065,7 @@ class Extension(HasSemantics):
         self.parent: Optional[HasExtension] = None
         self._name: str
         self.name: str = name
-        self.value_type: Optional[Type[datatypes.AnyXSDType]] = value_type
+        self.value_type: Optional[DataTypeDefXsd] = value_type
         self._value: Optional[ValueDataType]
         self.value = value
         self.refers_to: Iterable[ModelReference] = refers_to
@@ -1181,7 +1181,7 @@ class Qualifier(HasSemantics):
     identical to the value of the referenced coded value in Qualifier/valueId.
 
     :ivar type: The type (:class:`~.QualifierType`) of the qualifier that is applied to the element.
-    :ivar value_type: Data type (:class:`~.DataTypeDef`) of the qualifier value
+    :ivar value_type: Data type (:class:`~.DataTypeDefXsd`) of the qualifier value
     :ivar value: The value (:class:`~.ValueDataType`) of the qualifier.
     :ivar value_id: :class:`~.Reference` to the global unique id of a coded value.
     :ivar semantic_id: The semantic_id defined in :class:`~.HasSemantics`.
@@ -1189,7 +1189,7 @@ class Qualifier(HasSemantics):
 
     def __init__(self,
                  type_: QualifierType,
-                 value_type: DataTypeDef,
+                 value_type: DataTypeDefXsd,
                  value: Optional[ValueDataType] = None,
                  value_id: Optional[Reference] = None,
                  semantic_id: Optional[Reference] = None):
@@ -1200,7 +1200,7 @@ class Qualifier(HasSemantics):
         self.parent: Optional[Qualifiable] = None
         self._type: QualifierType
         self.type: QualifierType = type_
-        self.value_type: Type[datatypes.AnyXSDType] = value_type
+        self.value_type: DataTypeDefXsd = value_type
         self._value: Optional[ValueDataType] = datatypes.trivial_cast(value, value_type) if value is not None else None
         self.value_id: Optional[Reference] = value_id
         self.semantic_id: Optional[Reference] = semantic_id
@@ -1254,7 +1254,7 @@ class ValueReferencePair:
     """
 
     def __init__(self,
-                 value_type: DataTypeDef,
+                 value_type: DataTypeDefXsd,
                  value: ValueDataType,
                  value_id: Reference):
         """
@@ -1262,7 +1262,7 @@ class ValueReferencePair:
 
         TODO: Add instruction what to do after construction
         """
-        self.value_type: Type[datatypes.AnyXSDType] = value_type
+        self.value_type: DataTypeDefXsd = value_type
         self.value_id: Reference = value_id
         self._value: ValueDataType = datatypes.trivial_cast(value, value_type)
 

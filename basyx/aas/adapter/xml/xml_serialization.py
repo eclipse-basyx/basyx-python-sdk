@@ -140,13 +140,13 @@ def abstract_classes_to_xml(tag: str, obj: object) -> etree.Element:
 
 
 def _value_to_xml(value: model.ValueDataType,
-                  value_type: model.DataTypeDef,
+                  value_type: model.DataTypeDefXsd,
                   tag: str = NS_AAS+"value") -> etree.Element:
     """
     Serialization of objects of class ValueDataType to XML
 
     :param value: model.ValueDataType object
-    :param value_type: Corresponding model.DataTypeDef
+    :param value_type: Corresponding model.DataTypeDefXsd
     :param tag: tag of the serialized ValueDataType object
     :return: Serialized ElementTree.Element object
     """
