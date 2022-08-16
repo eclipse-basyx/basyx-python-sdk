@@ -86,7 +86,7 @@ obj_store.add(aas)
 tmp_submodel = obj_store.get_identifiable(
     model.Identifier('https://acplt.org/Simple_Submodel', model.IdentifierType.IRI))
 
-assert(submodel is tmp_submodel)
+assert submodel is tmp_submodel
 
 
 ########################################################
@@ -99,7 +99,7 @@ submodels = [reference.resolve(obj_store)
              for reference in aas.submodel]
 
 # The first (and only) element of this list should be our example submodel:
-assert(submodel is tmp_submodel)
+assert submodel is tmp_submodel
 
 # Now, let's manually create a reference to the Property within the submodel. The reference uses two keys, the first one
 # identifying the submodel by its identification, the second one resolving to the Property within the submodel by its
@@ -123,4 +123,4 @@ property_reference = model.AASReference(
 # The `resolve()` method will fetch the Submodel object from the ObjectStore, traverse down to the included Property
 # object and return this object.
 tmp_property = property_reference.resolve(obj_store)
-assert(prop is tmp_property)
+assert prop is tmp_property
