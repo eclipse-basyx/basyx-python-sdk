@@ -215,7 +215,7 @@ def check_aas_example(file_path: str, state_manager: ComplianceToolStateManager)
 
     checker2 = DataChecker(raise_immediately=False)
     try:
-        assert(isinstance(cp_new.created, datetime.datetime))
+        assert isinstance(cp_new.created, datetime.datetime)
         checker2.check(isinstance(cp_new.created, datetime.datetime), "core property created must be of type datetime",
                        created=type(cp_new.created))
         duration = cp_new.created - cp.created
@@ -230,7 +230,7 @@ def check_aas_example(file_path: str, state_manager: ComplianceToolStateManager)
     checker2.check(cp_new.lastModifiedBy == cp.lastModifiedBy, "lastModifiedBy must be {}".format(cp.lastModifiedBy),
                    lastModifiedBy=cp_new.lastModifiedBy)
     try:
-        assert(isinstance(cp_new.modified, datetime.datetime))
+        assert isinstance(cp_new.modified, datetime.datetime)
         checker2.check(isinstance(cp_new.modified, datetime.datetime), "modified bust be of type datetime",
                        modified=type(cp_new.modified))
         duration = cp_new.modified - cp.modified
