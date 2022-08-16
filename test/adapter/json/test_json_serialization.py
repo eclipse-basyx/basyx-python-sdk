@@ -30,7 +30,7 @@ class JsonSerializationTest(unittest.TestCase):
         aas_identifier = "AAS1"
         submodel_key = (model.Key(model.KeyTypes.SUBMODEL, "SM1"),)
         submodel_identifier = submodel_key[0].get_identifier()
-        assert(submodel_identifier is not None)
+        assert submodel_identifier is not None
         submodel_reference = model.ModelReference(submodel_key, model.Submodel)
         submodel = model.Submodel(submodel_identifier)
         test_aas = model.AssetAdministrationShell(model.AssetInformation(global_asset_id=asset_reference),
@@ -53,7 +53,7 @@ class JsonSerializationSchemaTest(unittest.TestCase):
         aas_identifier = "AAS1"
         submodel_key = (model.Key(model.KeyTypes.SUBMODEL, "SM1"),)
         submodel_identifier = submodel_key[0].get_identifier()
-        assert(submodel_identifier is not None)
+        assert submodel_identifier is not None
         submodel_reference = model.ModelReference(submodel_key, model.Submodel)
         # The JSONSchema expects every object with HasSemnatics (like Submodels) to have a `semanticId` Reference, which
         # must be a Reference. (This seems to be a bug in the JSONSchema.)

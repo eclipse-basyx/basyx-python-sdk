@@ -52,7 +52,7 @@ class XMLSerializationSchemaTest(unittest.TestCase):
         aas_identifier = "AAS1"
         submodel_key = (model.Key(model.KeyTypes.SUBMODEL, "SM1"),)
         submodel_identifier = submodel_key[0].get_identifier()
-        assert(submodel_identifier is not None)
+        assert submodel_identifier is not None
         submodel_reference = model.ModelReference(submodel_key, model.Submodel)
         submodel = model.Submodel(submodel_identifier,
                                   semantic_id=model.GlobalReference((model.Key(model.KeyTypes.GLOBAL_REFERENCE,

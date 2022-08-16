@@ -646,7 +646,7 @@ class Referable(HasExtension, metaclass=abc.ABCMeta):
                 relative_path.reverse()
                 return referable, relative_path
             if referable.parent:
-                assert(isinstance(referable.parent, Referable))
+                assert isinstance(referable.parent, Referable)
                 referable = referable.parent
                 relative_path.append(referable.id_short)
                 continue
@@ -685,7 +685,7 @@ class Referable(HasExtension, metaclass=abc.ABCMeta):
         relative_path: List[str] = [self.id_short]
         # Commit to all ancestors with sources
         while current_ancestor:
-            assert(isinstance(current_ancestor, Referable))
+            assert isinstance(current_ancestor, Referable)
             if current_ancestor.source != "":
                 backends.get_backend(current_ancestor.source).commit_object(committed_object=self,
                                                                             store_object=current_ancestor,

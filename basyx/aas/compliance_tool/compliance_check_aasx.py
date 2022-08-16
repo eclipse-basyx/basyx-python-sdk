@@ -85,7 +85,7 @@ def check_deserialization(file_path: str, state_manager: ComplianceToolStateMana
         reader.read_into(obj_store, files)
         new_cp = reader.get_core_properties()
         state_manager.set_step_status(Status.SUCCESS)
-    except ValueError as error:
+    except (ValueError, KeyError) as error:
         logger.error(error)
         state_manager.set_step_status(Status.FAILED)
         return model.DictObjectStore(), aasx.DictSupplementaryFileContainer(), pyecma376_2.OPCCoreProperties()
@@ -215,7 +215,7 @@ def check_aas_example(file_path: str, state_manager: ComplianceToolStateManager)
 
     checker2 = DataChecker(raise_immediately=False)
     try:
-        assert(isinstance(cp_new.created, datetime.datetime))
+        assert isinstance(cp_new.created, datetime.datetime)
         checker2.check(isinstance(cp_new.created, datetime.datetime), "core property created must be of type datetime",
                        created=type(cp_new.created))
         duration = cp_new.created - cp.created
@@ -230,7 +230,7 @@ def check_aas_example(file_path: str, state_manager: ComplianceToolStateManager)
     checker2.check(cp_new.lastModifiedBy == cp.lastModifiedBy, "lastModifiedBy must be {}".format(cp.lastModifiedBy),
                    lastModifiedBy=cp_new.lastModifiedBy)
     try:
-        assert(isinstance(cp_new.modified, datetime.datetime))
+        assert isinstance(cp_new.modified, datetime.datetime)
         checker2.check(isinstance(cp_new.modified, datetime.datetime), "modified bust be of type datetime",
                        modified=type(cp_new.modified))
         duration = cp_new.modified - cp.modified

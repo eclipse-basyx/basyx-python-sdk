@@ -517,7 +517,7 @@ class ModelNamespaceTest(unittest.TestCase):
         # Check that Prop3 got added correctly
         prop3_new = namespace1.set2.get_object_by_attribute("id_short", "Prop3")
         self.assertIs(prop3_new.parent, namespace1)
-        assert(isinstance(prop3_new, model.Property))
+        assert isinstance(prop3_new, model.Property)
         self.assertEqual(prop3_new.value, 2)
         # Check that Prop2 got removed correctly
         self.assertFalse(namespace1.set2.contains_id("id_short", "Prop2"))
