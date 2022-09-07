@@ -85,8 +85,9 @@ def _tag_replace_namespace(tag: str, nsmap: Dict[str, str]) -> str:
     """
     split = tag.split("}")
     for prefix, namespace in nsmap.items():
-        if namespace == split[0][1:]:
-            return prefix + ":" + split[1]
+        if prefix:
+            if namespace == split[0][1:]:
+                return prefix + ":" + split[1]
     return tag
 
 
