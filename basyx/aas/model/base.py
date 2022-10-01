@@ -1454,10 +1454,10 @@ class NamespaceSet(MutableSet[_NSO], Generic[_NSO]):
         return self._backend[attr_name][0].get(attr_value) is obj
 
     def __len__(self) -> int:
-        return len(self._backend[next(iter(self._backend))][0])
+        return len(next(iter(self._backend.values()))[0])
 
     def __iter__(self) -> Iterator[_NSO]:
-        return iter(self._backend[next(iter(self._backend))][0].values())
+        return iter(next(iter(self._backend.values()))[0].values())
 
     def add(self, value: _NSO):
         for set_ in self.parent.namespace_element_sets:
@@ -1498,7 +1498,7 @@ class NamespaceSet(MutableSet[_NSO], Generic[_NSO]):
         self.remove(x)
 
     def pop(self) -> _NSO:
-        _, value = self._backend[next(iter(self._backend))][0].popitem()
+        _, value = next(iter(self._backend.values()))[0].popitem()
         value.parent = None
         return value
 
