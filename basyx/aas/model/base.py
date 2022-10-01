@@ -371,7 +371,7 @@ class Namespace(metaclass=abc.ABCMeta):
     def __init__(self) -> None:
         self.namespace_element_sets: List[NamespaceSet] = []
 
-    def _get_object(self, object_type: type, attribute_name: str, attribute) -> _NSO:
+    def _get_object(self, object_type: Type[_NSO], attribute_name: str, attribute) -> _NSO:
         """
         Find an :class:`~._NSO` in this namespace by its attribute
 
@@ -440,7 +440,7 @@ class HasExtension(Namespace, metaclass=abc.ABCMeta):
 
         :raises KeyError: If no such :class:`~.Extension` can be found
         """
-        return super()._get_object(HasExtension, "name", name)
+        return super()._get_object(Extension, "name", name)
 
     def add_extension(self, extension: "Extension") -> None:
         """
@@ -1152,7 +1152,7 @@ class Qualifiable(Namespace, metaclass=abc.ABCMeta):
 
         :raises KeyError: If no such :class:`~.Qualifier` can be found
         """
-        return super()._get_object(Qualifiable, "type", qualifier_type)
+        return super()._get_object(Qualifier, "type", qualifier_type)
 
     def add_qualifier(self, qualifier: "Qualifier") -> None:
         """
@@ -1310,7 +1310,7 @@ class UniqueIdShortNamespace(Namespace, metaclass=abc.ABCMeta):
         :returns: :class:`~.Referable`
         :raises KeyError: If no such :class:`~.Referable` can be found
         """
-        return super()._get_object(Referable, "id_short", id_short)
+        return super()._get_object(Referable, "id_short", id_short)  # type: ignore
 
     def add_referable(self, referable: Referable) -> None:
         """
@@ -1362,7 +1362,7 @@ class UniqueSemanticIdNamespace(Namespace, metaclass=abc.ABCMeta):
 
         :raises KeyError: If no such HasSemantics can be found
         """
-        return super()._get_object(HasSemantics, "semantic_id", semantic_id)
+        return super()._get_object(HasSemantics, "semantic_id", semantic_id)  # type: ignore
 
     def remove_object_by_semantic_id(self, semantic_id: Reference) -> None:
         """
