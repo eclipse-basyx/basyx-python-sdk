@@ -14,7 +14,7 @@ import inspect
 import itertools
 from enum import Enum, unique
 from typing import List, Optional, Set, TypeVar, MutableSet, Generic, Iterable, Dict, Iterator, Union, overload, \
-    MutableSequence, Type, Any, TYPE_CHECKING, Tuple
+    MutableSequence, Type, Any, TYPE_CHECKING, Tuple, Callable
 import re
 
 from . import datatypes
@@ -1401,7 +1401,8 @@ class NamespaceSet(MutableSet[_NSO], Generic[_NSO]):
     :raises KeyError: When `items` contains multiple objects with same unique attribute
     """
     def __init__(self, parent: Union[UniqueIdShortNamespace, UniqueSemanticIdNamespace, Qualifiable, HasExtension],
-                 attribute_names: List[Tuple[str, bool]], items: Iterable[_NSO] = ()) -> None:
+                 attribute_names: List[Tuple[str, bool]], items: Iterable[_NSO] = (),
+                 item_add_hook: Optional[Callable[[_NSO, Iterable[_NSO]], None]] = None) -> None:
         """
         Initialize a new NamespaceSet.
 
@@ -1412,11 +1413,15 @@ class NamespaceSet(MutableSet[_NSO], Generic[_NSO]):
         :attribute_names: List of attribute names, for which objects should be unique in the set. The bool flag
                           indicates if the attribute should be matched case-sensitive (true) or case-insensitive (false)
         :param items: A given list of AAS items to be added to the set
+        :param item_add_hook: A function that is called for each item that is added to this NamespaceSet, even when
+                              it is initialized. The first parameter is the item that is added while the second is
+                              an iterator over all currently contained items. Useful for constraint checking.
         :raises KeyError: When `items` contains multiple objects with same unique attribute
         """
         self.parent = parent
         parent.namespace_element_sets.append(self)
         self._backend: Dict[str, Tuple[Dict[ATTRIBUTE_TYPES, _NSO], bool]] = {}
+        self._item_add_hook: Optional[Callable[[_NSO, Iterable[_NSO]], None]] = item_add_hook
         for name, case_sensitive in attribute_names:
             self._backend[name] = ({}, case_sensitive)
         try:
@@ -1471,6 +1476,8 @@ class NamespaceSet(MutableSet[_NSO], Generic[_NSO]):
         if value.parent is not None and value.parent is not self.parent:
             raise ValueError("Object has already a parent, but it must not be part of two namespaces.")
             # TODO remove from current parent instead (allow moving)?
+        if self._item_add_hook is not None:
+            self._item_add_hook(value, self.__iter__())
         value.parent = self.parent
         for attr_name, (backend, case_sensitive) in self._backend.items():
             backend[self._get_attribute(value, attr_name, case_sensitive)] = value
@@ -1585,7 +1592,8 @@ class OrderedNamespaceSet(NamespaceSet[_NSO], MutableSequence[_NSO], Generic[_NS
     objects.
     """
     def __init__(self, parent: Union[UniqueIdShortNamespace, UniqueSemanticIdNamespace, Qualifiable, HasExtension],
-                 attribute_names: List[Tuple[str, bool]], items: Iterable[_NSO] = ()) -> None:
+                 attribute_names: List[Tuple[str, bool]], items: Iterable[_NSO] = (),
+                 item_add_hook: Optional[Callable[[_NSO, Iterable[_NSO]], None]] = None) -> None:
         """
         Initialize a new OrderedNamespaceSet.
 
@@ -1599,7 +1607,7 @@ class OrderedNamespaceSet(NamespaceSet[_NSO], MutableSequence[_NSO], Generic[_NS
         :raises KeyError: When `items` contains multiple objects with same id_short
         """
         self._order: List[_NSO] = []
-        super().__init__(parent, attribute_names, items)
+        super().__init__(parent, attribute_names, items, item_add_hook)
 
     def __iter__(self) -> Iterator[_NSO]:
         return iter(self._order)

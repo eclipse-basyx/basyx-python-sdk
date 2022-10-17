@@ -446,6 +446,46 @@ class ModelNamespaceTest(unittest.TestCase):
                          'of objects"',
                          str(cm.exception))
 
+    def test_namespaceset_item_add_hook(self) -> None:
+        new_item = None
+        existing_items = []
+
+        class DummyNamespace(model.UniqueIdShortNamespace):
+            def __init__(self, items):
+                def dummy_hook(new, existing):
+                    nonlocal new_item, existing_items
+                    new_item = new
+                    # Create a new list to prevent an error when checking the assertions:
+                    # RuntimeError: dictionary changed size during iteration
+                    existing_items = list(existing)
+                super().__init__()
+                self.set1 = model.NamespaceSet(self, [('id_short', True)], items, dummy_hook)
+
+        cap = model.Capability("test_cap")
+        dummy_ns = DummyNamespace({cap})
+        self.assertIs(new_item, cap)
+        self.assertEqual(len(existing_items), 0)
+
+        mlp = model.MultiLanguageProperty("test_mlp")
+        dummy_ns.add_referable(mlp)
+        self.assertIs(new_item, mlp)
+        self.assertEqual(len(existing_items), 1)
+        self.assertIn(cap, existing_items)
+
+        prop = model.Property("test_prop", model.datatypes.Int)
+        dummy_ns.set1.add(prop)
+        self.assertIs(new_item, prop)
+        self.assertEqual(len(existing_items), 2)
+        self.assertIn(cap, existing_items)
+        self.assertIn(mlp, existing_items)
+
+        dummy_ns.remove_referable("test_cap")
+        dummy_ns.add_referable(cap)
+        self.assertIs(new_item, cap)
+        self.assertEqual(len(existing_items), 2)
+        self.assertIn(mlp, existing_items)
+        self.assertIn(prop, existing_items)
+
     def test_Namespace(self) -> None:
         with self.assertRaises(KeyError) as cm:
             namespace_test = ExampleNamespaceReferable([self.prop1, self.prop2, self.prop1alt])
