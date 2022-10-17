@@ -7,6 +7,7 @@
 import datetime
 import math
 import unittest
+from builtins import ValueError
 
 import dateutil
 
@@ -18,6 +19,9 @@ class TestIntTypes(unittest.TestCase):
         self.assertEqual(5, model.datatypes.from_xsd("5", model.datatypes.Integer))
         self.assertEqual(6, model.datatypes.from_xsd("6", model.datatypes.Byte))
         self.assertEqual(7, model.datatypes.from_xsd("7", model.datatypes.NonNegativeInteger))
+        self.assertEqual(8, model.datatypes.from_xsd("8", model.datatypes.Long))
+        self.assertEqual(9, model.datatypes.from_xsd("9", model.datatypes.Int))
+        self.assertEqual(10, model.datatypes.from_xsd("10", model.datatypes.Short))
 
     def test_serialize_int(self) -> None:
         self.assertEqual("5", model.datatypes.xsd_repr(model.datatypes.Integer(5)))
@@ -40,7 +44,12 @@ class TestIntTypes(unittest.TestCase):
         with self.assertRaises(ValueError) as cm:
             model.datatypes.PositiveInteger(0)
         self.assertEqual("0 is out of the allowed range for type PositiveInteger", str(cm.exception))
-
+        with self.assertRaises(ValueError) as cm:
+            model.datatypes.Int(2147483648)
+        self.assertEqual("2147483648 is out of the allowed range for type Int", str(cm.exception))
+        with self.assertRaises(ValueError) as cm:
+            model.datatypes.Long(2**63)
+        self.assertEqual(str(2**63)+" is out of the allowed range for type Long", str(cm.exception))
     def test_trivial_cast(self) -> None:
         val = model.datatypes.trivial_cast(5, model.datatypes.UnsignedByte)
         self.assertEqual(5, val)
