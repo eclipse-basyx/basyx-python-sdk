@@ -539,17 +539,14 @@ class AASToJsonEncoder(json.JSONEncoder):
     @classmethod
     def _submodel_element_collection_to_json(cls, obj: model.SubmodelElementCollection) -> Dict[str, object]:
         """
-        serialization of an object from class SubmodelElementCollectionOrdered and SubmodelElementCollectionUnordered to
-        json
+        serialization of an object from class SubmodelElementCollection to json
 
-        :param obj: object of class SubmodelElementCollectionOrdered and SubmodelElementCollectionUnordered
+        :param obj: object of class SubmodelElementCollection
         :return: dict with the serialized attributes of this object
         """
         data = cls._abstract_classes_to_json(obj)
-        if not cls.stripped and obj.value:
+        if not cls.stripped and len(obj.value) > 0:
             data['value'] = list(obj.value)
-        data['ordered'] = obj.ordered
-        data['allowDuplicates'] = obj.allow_duplicates
         return data
 
     @classmethod

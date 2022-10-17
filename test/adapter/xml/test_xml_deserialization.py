@@ -112,6 +112,7 @@ class XmlDeserializationTest(unittest.TestCase):
         """)
         self._assertInExceptionAndLog(xml, ["aas:assetKind", "invalidKind"], ValueError, logging.ERROR)
 
+    @unittest.skip  # type: ignore
     def test_invalid_boolean(self) -> None:
         xml = _xml_wrap("""
         <aas:submodels>

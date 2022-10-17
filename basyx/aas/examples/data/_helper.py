@@ -105,7 +105,7 @@ class AASDataChecker(DataChecker):
             if isinstance(object_, model.ReferenceElement):
                 return self.check_reference_element_equal(object_, expected_object)  # type: ignore
             if isinstance(object_, model.SubmodelElementCollection):
-                return self.check_submodel_collection_equal(object_, expected_object)  # type: ignore
+                return self.check_submodel_element_collection_equal(object_, expected_object)  # type: ignore
             if isinstance(object_, model.AnnotatedRelationshipElement):
                 return self.check_annotated_relationship_element_equal(object_, expected_object)  # type: ignore
             if isinstance(object_, model.RelationshipElement):
@@ -206,6 +206,26 @@ class AASDataChecker(DataChecker):
         self._check_has_kind_equal(object_, expected_value)
         self._check_qualifiable_equal(object_, expected_value)
 
+    def _check_submodel_elements_equal_unordered(self, object_: model.SubmodelElementCollection,
+                                                 expected_value: model.SubmodelElementCollection):
+        """
+        Checks if the given SubmodelElement objects are equal (in any order)
+
+        :param object_: Given SubmodelElementCollection containing the objects to check
+        :param expected_value: SubmodelElementCollection containing the expected elements
+        :return:
+        """
+        for expected_element in expected_value.value:
+            try:
+                element = object_.get_referable(expected_element.id_short)
+                self._check_submodel_element(element, expected_element)  # type: ignore
+            except KeyError:
+                self.check(False, 'Submodel Element {} must exist'.format(repr(expected_element)))
+
+        found_elements = self._find_extra_elements_by_id_short(object_.value, expected_value.value)
+        self.check(found_elements == set(), '{} must not have extra elements'.format(repr(object_)),
+                   value=found_elements)
+
     def check_property_equal(self, object_: model.Property, expected_value: model.Property):
         """
         Checks if the given Property objects are equal
@@ -291,8 +311,8 @@ class AASDataChecker(DataChecker):
         self._check_abstract_attributes_submodel_element_equal(object_, expected_value)
         self.check_attribute_equal(object_, 'value', expected_value.value)
 
-    def check_submodel_collection_equal(self, object_: model.SubmodelElementCollection,
-                                        expected_value: model.SubmodelElementCollection):
+    def check_submodel_element_collection_equal(self, object_: model.SubmodelElementCollection,
+                                                expected_value: model.SubmodelElementCollection):
         """
         Checks if the given SubmodelElementCollection objects are equal
 
@@ -300,51 +320,10 @@ class AASDataChecker(DataChecker):
         :param expected_value: expected SubmodelElementCollection object
         :return:
         """
+        # the submodel elements are compared unordered, as collections are unordered
         self._check_abstract_attributes_submodel_element_equal(object_, expected_value)
-        if isinstance(object_, model.SubmodelElementCollectionUnordered):
-            self._check_submodel_collection_unordered_equal(object_, expected_value)  # type: ignore
-        elif isinstance(object_, model.SubmodelElementCollectionOrdered):
-            self._check_submodel_collection_ordered_equal(object_, expected_value)  # type: ignore
-        else:
-            raise AttributeError('Submodel Element collection class not implemented')
-
-    def _check_submodel_collection_unordered_equal(self, object_: model.SubmodelElementCollectionUnordered,
-                                                   expected_value: model.SubmodelElementCollectionUnordered):
-        """
-        Checks if the given SubmodelElementCollectionUnordered objects are equal
-
-        :param object_: Given SubmodelElementCollectionUnordered object to check
-        :param expected_value: expected SubmodelElementCollectionUnordered object
-        :return:
-        """
         self.check_contained_element_length(object_, 'value', model.SubmodelElement, len(expected_value.value))
-        for expected_element in expected_value.value:
-            if isinstance(expected_element, model.Referable):
-                try:
-                    element = object_.get_referable(expected_element.id_short)
-                    self._check_submodel_element(element, expected_element)  # type: ignore
-                except KeyError:
-                    self.check(False, 'Submodel Element {} must exist'.format(repr(expected_element)))
-
-        found_elements = self._find_extra_elements_by_id_short(object_.value, expected_value.value)
-        self.check(found_elements == set(), 'Submodel Collection {} must not have extra elements'.format(repr(object_)),
-                   value=found_elements)
-
-    def _check_submodel_collection_ordered_equal(self, object_: model.SubmodelElementCollectionUnordered,
-                                                 expected_value: model.SubmodelElementCollectionUnordered):
-        """
-        Checks if the given SubmodelElementCollectionUnordered objects are equal
-
-        :param object_: Given SubmodelElementCollectionUnordered object to check
-        :param expected_value: expected SubmodelElementCollectionUnordered object
-        :return:
-        """
-        self.check_contained_element_length(object_, 'value', model.SubmodelElement, len(expected_value.value))
-        list_values = list(object_.value)
-        list_expected_values = list(expected_value.value)
-
-        for i in range(len(list_expected_values)):
-            self._check_submodel_element(list_values[i], list_expected_values[i])
+        self._check_submodel_elements_equal_unordered(object_, expected_value)
 
     def check_relationship_element_equal(self, object_: model.RelationshipElement,
                                          expected_value: model.RelationshipElement):

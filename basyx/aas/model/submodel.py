@@ -542,15 +542,13 @@ class ReferenceElement(DataElement):
         self.value: Optional[base.Reference] = value
 
 
-class SubmodelElementCollection(SubmodelElement, metaclass=abc.ABCMeta):
+class SubmodelElementCollection(SubmodelElement, base.UniqueIdShortNamespace):
     """
     A submodel element collection is a set or list of :class:`SubmodelElements <.SubmodelElement>`.
 
-    <<abstract>>
-
-    :ivar value: Ordered or unordered list of :class:`SubmodelElements <.SubmodelElement>`
     :ivar id_short: Identifying string of the element within its name space. (inherited from
                     :class:`~aas.model.base.Referable`)
+    :ivar value: list of :class:`SubmodelElements <.SubmodelElement>`
     :ivar display_name: Can be provided in several languages. (inherited from :class:`~aas.model.base.Referable`)
     :ivar category: The category is a value that gives further meta information w.r.t. to the class of the element.
                      It affects the expected existence of attributes and the applicability of constraints.
@@ -569,9 +567,9 @@ class SubmodelElementCollection(SubmodelElement, metaclass=abc.ABCMeta):
     :ivar extension: An extension of the element. (inherited from
                      :class:`aas.model.base.HasExtension`)
     """
-    @abc.abstractmethod
     def __init__(self,
                  id_short: str,
+                 value: Iterable[SubmodelElement] = (),
                  display_name: Optional[base.LangStringSet] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
@@ -580,288 +578,9 @@ class SubmodelElementCollection(SubmodelElement, metaclass=abc.ABCMeta):
                  qualifier: Iterable[base.Qualifier] = (),
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE,
                  extension: Iterable[base.Extension] = ()):
-        """
-        TODO: Add instruction what to do after construction
-        """
+
         super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, kind, extension)
-        self.value: base.NamespaceSet[SubmodelElement] = None  # type: ignore
-
-    @property
-    @abc.abstractmethod
-    def ordered(self) -> bool:
-        pass
-
-    @property
-    @abc.abstractmethod
-    def allow_duplicates(self):
-        pass
-
-    @staticmethod
-    def create(id_short: str,
-               value: Iterable[SubmodelElement] = (),
-               display_name: Optional[base.LangStringSet] = None,
-               category: Optional[str] = None,
-               description: Optional[base.LangStringSet] = None,
-               parent: Optional[base.UniqueIdShortNamespace] = None,
-               semantic_id: Optional[base.Reference] = None,
-               qualifier: Iterable[base.Qualifier] = (),
-               kind: base.ModelingKind = base.ModelingKind.INSTANCE,
-               extension: Iterable[base.Extension] = (),
-               allow_duplicates: bool = False,
-               ordered: bool = False):
-        """
-        A factory to create a SubmodelElementCollection based on the parameter dublicates_allowed and ordered.
-
-        :param id_short: Identifying string of the element within its name space. (from base.Referable)
-        :param value: Ordered or unordered list of submodel elements.
-        :param display_name: Can be provided in several languages. (from base.Referable)
-        :param category: The category is a value that gives further meta information w.r.t. to the class of the
-                         element. It affects the expected existence of attributes and the applicability of
-                         constraints. (from base.Referable)
-        :param description: Description or comments on the element. (from base.Referable)
-        :param parent: Reference to the next referable parent element of the element. (from base.Referable)
-        :param semantic_id: Identifier of the semantic definition of the element. It is called semantic id of the
-                            element. The semantic id may either reference an external global id or it may reference
-                            a referable model element of kind=Type that defines the semantics of the element.
-                            (from base.HasSemantics)
-        :param qualifier: Unordered list of Qualifiers that gives additional qualification of a qualifiable
-                          element. (from base.Qualifiable)
-        :param kind: Kind of the element: either type or instance. Default = Instance. (from base.HasKind)
-        :param extension: An extension of the element. (from base.HasExtension)
-        :param ordered: If ordered=false then the elements in the property collection are not ordered. If
-                        ordered=true then the elements in the collection are ordered.
-        :param allow_duplicates: If allowDuplicates=true, then it is allowed that the collection contains several
-                                 elements with the same semantics (i.e. the same semanticId).
-                                 If allowDuplicates=false, then it is not allowed that the collection contains
-                                 several elements with the same semantics (i.e. the same semanticId).
-        """
-        if ordered:
-            if allow_duplicates:
-                return SubmodelElementCollectionOrdered(id_short, value, display_name, category, description, parent,
-                                                        semantic_id, qualifier, kind, extension)
-            else:
-                return SubmodelElementCollectionOrderedUniqueSemanticId(id_short, value, display_name, category,
-                                                                        description, parent, semantic_id, qualifier,
-                                                                        kind, extension)
-        else:
-            if allow_duplicates:
-                return SubmodelElementCollectionUnordered(id_short, value, display_name, category, description, parent,
-                                                          semantic_id, qualifier, kind, extension)
-            else:
-                return SubmodelElementCollectionUnorderedUniqueSemanticId(id_short, value, display_name, category,
-                                                                          description, parent, semantic_id, qualifier,
-                                                                          kind, extension)
-
-
-class SubmodelElementCollectionOrdered(SubmodelElementCollection, base.UniqueIdShortNamespace):
-    """
-    A SubmodelElementCollectionOrdered is an ordered list of :class:`SubmodelElements <.SubmodelElement>`
-
-    :ivar id_short: Identifying string of the element within its name space. (inherited from
-                    :class:`~aas.model.base.Referable`)
-    :ivar value: Ordered or unordered list of :class:`SubmodelElements <.SubmodelElement>`
-    :ivar display_name: Can be provided in several languages. (inherited from :class:`~aas.model.base.Referable`)
-    :ivar category: The category is a value that gives further meta information w.r.t. to the class of the element.
-                     It affects the expected existence of attributes and the applicability of constraints.
-                     (inherited from :class:`~aas.model.base.Referable`)
-    :ivar description: Description or comments on the element. (inherited from :class:`~aas.model.base.Referable`)
-    :ivar parent: Reference to the next referable parent element of the element. (inherited from
-                  :class:`~aas.model.base.Referable`)
-    :ivar semantic_id: Identifier of the semantic definition of the element. It is called semantic id of the
-                       element. The semantic id may either reference an external global id or it may reference a
-                       referable model element of kind=Type that defines the semantics of the element.
-                       (inherited from :class:`~aas.model.base.HasSemantics`)
-    :ivar qualifier: Unordered list of Qualifiers that gives additional qualification of a qualifiable element.
-                     (from :class:`~aas.model.base.Qualifiable`)
-    :ivar kind: Kind of the element: Either `TYPE` or `INSTANCE`. Default is `INSTANCE`. (inherited from
-                :class:`aas.model.base.HasKind`)
-    :ivar extension: An extension of the element. (inherited from
-                     :class:`aas.model.base.HasExtension`)
-    """
-    def __init__(self,
-                 id_short: str,
-                 value: Iterable[SubmodelElement] = (),
-                 display_name: Optional[base.LangStringSet] = None,
-                 category: Optional[str] = None,
-                 description: Optional[base.LangStringSet] = None,
-                 parent: Optional[base.UniqueIdShortNamespace] = None,
-                 semantic_id: Optional[base.Reference] = None,
-                 qualifier: Iterable[base.Qualifier] = (),
-                 kind: base.ModelingKind = base.ModelingKind.INSTANCE,
-                 extension: Iterable[base.Extension] = ()):
-        """
-        TODO: Add instruction what to do after construction
-        """
-        super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, kind,
-                         extension)
-        self.value = base.OrderedNamespaceSet(self, [("id_short", False)], value)
-
-    @property
-    def ordered(self) -> bool:
-        return True
-
-    @property
-    def allow_duplicates(self):
-        return True
-
-
-class SubmodelElementCollectionOrderedUniqueSemanticId(SubmodelElementCollectionOrdered,
-                                                       base.UniqueSemanticIdNamespace):
-    """
-    A SubmodelElementCollectionOrderedUniqueSemanticId is an ordered list of submodel elements where id_shorts and
-    semantic_ids are unique.
-
-    :ivar id_short: Identifying string of the element within its name space. (inherited from
-                    :class:`~aas.model.base.Referable`)
-    :ivar value: Ordered or unordered list of :class:`SubmodelElements <.SubmodelElement>`
-    :ivar display_name: Can be provided in several languages. (inherited from :class:`~aas.model.base.Referable`)
-    :ivar category: The category is a value that gives further meta information w.r.t. to the class of the element.
-                     It affects the expected existence of attributes and the applicability of constraints.
-                     (inherited from :class:`~aas.model.base.Referable`)
-    :ivar description: Description or comments on the element. (inherited from :class:`~aas.model.base.Referable`)
-    :ivar parent: Reference to the next referable parent element of the element. (inherited from
-                  :class:`~aas.model.base.Referable`)
-    :ivar semantic_id: Identifier of the semantic definition of the element. It is called semantic id of the
-                       element. The semantic id may either reference an external global id or it may reference a
-                       referable model element of kind=Type that defines the semantics of the element.
-                       (inherited from :class:`~aas.model.base.HasSemantics`)
-    :ivar qualifier: Unordered list of Qualifiers that gives additional qualification of a qualifiable element.
-                     (from :class:`~aas.model.base.Qualifiable`)
-    :ivar kind: Kind of the element: Either `TYPE` or `INSTANCE`. Default is `INSTANCE`. (inherited from
-                :class:`aas.model.base.HasKind`)
-    :ivar extension: An extension of the element. (inherited from
-                     :class:`aas.model.base.HasExtension`)
-    """
-
-    def __init__(self,
-                 id_short: str,
-                 value: Iterable[SubmodelElement] = (),
-                 display_name: Optional[base.LangStringSet] = None,
-                 category: Optional[str] = None,
-                 description: Optional[base.LangStringSet] = None,
-                 parent: Optional[base.UniqueIdShortNamespace] = None,
-                 semantic_id: Optional[base.Reference] = None,
-                 qualifier: Iterable[base.Qualifier] = (),
-                 kind: base.ModelingKind = base.ModelingKind.INSTANCE,
-                 extension: Iterable[base.Extension] = ()):
-        """
-        TODO: Add instruction what to do after construction
-        """
-
-        super().__init__(id_short, (), display_name, category, description, parent, semantic_id, qualifier, kind,
-                         extension)
-        # super().__init__() adds an unused NamespaceSet
-        self.namespace_element_sets.pop()
-        self.value = base.OrderedNamespaceSet(self, [("id_short", False), ("semantic_id", True)], value)
-
-    @property
-    def allow_duplicates(self):
-        return False
-
-
-class SubmodelElementCollectionUnordered(SubmodelElementCollection, base.UniqueIdShortNamespace):
-    """
-    A SubmodelElementCollectionOrdered is an unordered list of submodel elements where id_shorts are unique.
-
-    :ivar id_short: Identifying string of the element within its name space. (inherited from
-                    :class:`~aas.model.base.Referable`)
-    :ivar value: Ordered or unordered list of :class:`SubmodelElements <.SubmodelElement>`
-    :ivar display_name: Can be provided in several languages. (inherited from :class:`~aas.model.base.Referable`)
-    :ivar category: The category is a value that gives further meta information w.r.t. to the class of the element.
-                     It affects the expected existence of attributes and the applicability of constraints.
-                     (inherited from :class:`~aas.model.base.Referable`)
-    :ivar description: Description or comments on the element. (inherited from :class:`~aas.model.base.Referable`)
-    :ivar parent: Reference to the next referable parent element of the element. (inherited from
-                  :class:`~aas.model.base.Referable`)
-    :ivar semantic_id: Identifier of the semantic definition of the element. It is called semantic id of the
-                       element. The semantic id may either reference an external global id or it may reference a
-                       referable model element of kind=Type that defines the semantics of the element.
-                       (inherited from :class:`~aas.model.base.HasSemantics`)
-    :ivar qualifier: Unordered list of Qualifiers that gives additional qualification of a qualifiable element.
-                     (from :class:`~aas.model.base.Qualifiable`)
-    :ivar kind: Kind of the element: Either `TYPE` or `INSTANCE`. Default is `INSTANCE`. (inherited from
-                :class:`aas.model.base.HasKind`)
-    :ivar extension: An extension of the element. (inherited from
-                     :class:`aas.model.base.HasExtension`)
-    """
-
-    def __init__(self,
-                 id_short: str,
-                 value: Iterable[SubmodelElement] = (),
-                 display_name: Optional[base.LangStringSet] = None,
-                 category: Optional[str] = None,
-                 description: Optional[base.LangStringSet] = None,
-                 parent: Optional[base.UniqueIdShortNamespace] = None,
-                 semantic_id: Optional[base.Reference] = None,
-                 qualifier: Iterable[base.Qualifier] = (),
-                 kind: base.ModelingKind = base.ModelingKind.INSTANCE,
-                 extension: Iterable[base.Extension] = ()):
-        """
-        TODO: Add instruction what to do after construction
-        """
-        super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, kind, extension)
-        self.value = base.NamespaceSet(self, [("id_short", False)], value)
-
-    @property
-    def ordered(self) -> bool:
-        return False
-
-    @property
-    def allow_duplicates(self):
-        return True
-
-
-class SubmodelElementCollectionUnorderedUniqueSemanticId(SubmodelElementCollectionUnordered,
-                                                         base.UniqueSemanticIdNamespace):
-    """
-    A SubmodelElementCollectionOrdered is an unordered list of submodel elements where where id_shorts and
-    semanticIds are unique.
-
-    :ivar id_short: Identifying string of the element within its name space. (inherited from
-                    :class:`~aas.model.base.Referable`)
-    :ivar value: Ordered or unordered list of :class:`SubmodelElements <.SubmodelElement>`
-    :ivar display_name: Can be provided in several languages. (inherited from :class:`~aas.model.base.Referable`)
-    :ivar category: The category is a value that gives further meta information w.r.t. to the class of the element.
-                     It affects the expected existence of attributes and the applicability of constraints.
-                     (inherited from :class:`~aas.model.base.Referable`)
-    :ivar description: Description or comments on the element. (inherited from :class:`~aas.model.base.Referable`)
-    :ivar parent: Reference to the next referable parent element of the element. (inherited from
-                  :class:`~aas.model.base.Referable`)
-    :ivar semantic_id: Identifier of the semantic definition of the element. It is called semantic id of the
-                       element. The semantic id may either reference an external global id or it may reference a
-                       referable model element of kind=Type that defines the semantics of the element.
-                       (inherited from :class:`~aas.model.base.HasSemantics`)
-    :ivar qualifier: Unordered list of Qualifiers that gives additional qualification of a qualifiable element.
-                     (from :class:`~aas.model.base.Qualifiable`)
-    :ivar kind: Kind of the element: Either `TYPE` or `INSTANCE`. Default is `INSTANCE`. (inherited from
-                :class:`aas.model.base.HasKind`)
-    :ivar extension: An extension of the element. (inherited from
-                     :class:`aas.model.base.HasExtension`)
-    """
-
-    def __init__(self,
-                 id_short: str,
-                 value: Iterable[SubmodelElement] = (),
-                 display_name: Optional[base.LangStringSet] = None,
-                 category: Optional[str] = None,
-                 description: Optional[base.LangStringSet] = None,
-                 parent: Optional[base.UniqueIdShortNamespace] = None,
-                 semantic_id: Optional[base.Reference] = None,
-                 qualifier: Iterable[base.Qualifier] = (),
-                 kind: base.ModelingKind = base.ModelingKind.INSTANCE,
-                 extension: Iterable[base.Extension] = ()):
-        """
-        TODO: Add instruction what to do after construction
-        """
-        super().__init__(id_short, (), display_name, category, description, parent, semantic_id, qualifier, kind,
-                         extension)
-        # super().__init__() adds an unused NamespaceSet
-        self.namespace_element_sets.pop()
-        self.value = base.NamespaceSet(self, [("id_short", False), ("semantic_id", True)], value)
-
-    @property
-    def allow_duplicates(self):
-        return False
+        self.value: base.NamespaceSet[SubmodelElement] = base.NamespaceSet(self, [("id_short", True)], value)
 
 
 class RelationshipElement(SubmodelElement):

@@ -274,9 +274,8 @@ class ReferableTest(unittest.TestCase):
         submodel.update()
         qualifier = model.Qualifier("test", model.datatypes.String)
         extension = model.Extension("test")
-        collection = model.SubmodelElementCollection.create("test")
-        semantic_id = model.GlobalReference((model.Key(model.KeyTypes.GLOBAL_REFERENCE, "test"),))
-        property = model.MultiLanguageProperty("test", semantic_id=semantic_id)
+        collection = model.SubmodelElementCollection("test")
+        property = model.MultiLanguageProperty("test")
 
         collection.add_referable(property)
         submodel.add_qualifier(qualifier)
@@ -292,14 +291,14 @@ class ReferableTest(unittest.TestCase):
         submodel.get_qualifier_by_type("test")
         submodel.get_extension_by_name("test")
         collection_ = submodel.get_referable("test")
-        self.assertIsInstance(collection_, model.SubmodelElementCollectionUnorderedUniqueSemanticId)
-        assert isinstance(collection_, model.SubmodelElementCollectionUnorderedUniqueSemanticId)
-        collection_.get_object_by_semantic_id(semantic_id)
+        self.assertIsInstance(collection_, model.UniqueIdShortNamespace)
+        assert isinstance(collection_, model.UniqueIdShortNamespace)
+        collection_.get_referable("test")
 
         submodel.remove_qualifier_by_type("test")
         submodel.remove_extension_by_name("test")
         submodel.remove_referable("test")
-        collection_.remove_object_by_semantic_id(semantic_id)
+        collection_.remove_referable("test")
 
         with self.assertRaises(StopIteration):
             next(iter(submodel.qualifier))
@@ -308,7 +307,7 @@ class ReferableTest(unittest.TestCase):
         with self.assertRaises(StopIteration):
             next(iter(submodel.submodel_element))
         with self.assertRaises(StopIteration):
-            next(iter(collection_.value))
+            next(iter(collection.value))
         submodel.commit()
 
 
@@ -528,8 +527,8 @@ class ModelNamespaceTest(unittest.TestCase):
     def test_qualifiable_id_short_namespace(self) -> None:
         prop1 = model.Property("Prop1", model.datatypes.Int, 1)
         qualifier1 = model.Qualifier("Qualifier1", model.datatypes.Int, 2)
-        submodel_element_collection = model.SubmodelElementCollectionUnordered("test_SMC", [prop1],
-                                                                               qualifier=[qualifier1])
+        submodel_element_collection = model.SubmodelElementCollection("test_SMC", [prop1],
+                                                                      qualifier=[qualifier1])
         self.assertIs(submodel_element_collection.get_referable("Prop1"), prop1)
         self.assertIs(submodel_element_collection.get_qualifier_by_type("Qualifier1"), qualifier1)
 
@@ -625,27 +624,27 @@ class ModelReferenceTest(unittest.TestCase):
         # AASd-123
         keys = (model.Key(model.KeyTypes.PROPERTY, "urn:x-test:x"),)
         with self.assertRaises(model.AASConstraintViolation) as cm:
-            model.ModelReference(keys, model.Submodel)
+            model.ModelReference(keys, model.Property)
         self.assertEqual(f"The type of the first key of a ModelReference must be an AasIdentifiable: {keys[0]!r}"
                          " (Constraint AASd-123)", str(cm.exception))
         keys = (model.Key(model.KeyTypes.SUBMODEL, "urn:x-test:x"),) + keys
-        model.ModelReference(keys, model.Submodel)
+        model.ModelReference(keys, model.Property)
 
         # AASd-125
         keys = (model.Key(model.KeyTypes.SUBMODEL, "urn:x-test:x"),
                 model.Key(model.KeyTypes.ASSET_ADMINISTRATION_SHELL, "urn:x-test:x"),
                 model.Key(model.KeyTypes.CONCEPT_DESCRIPTION, "urn:x-test:x"))
         with self.assertRaises(model.AASConstraintViolation) as cm:
-            model.ModelReference(keys, model.Submodel)
+            model.ModelReference(keys, model.ConceptDescription)
         self.assertEqual("The type of all keys following the first of a ModelReference "
                          f"must be one of FragmentKeyElements: {keys[1]!r} (Constraint AASd-125)", str(cm.exception))
         keys = (keys[0], model.Key(model.KeyTypes.FILE, "urn:x-test:x"), keys[2])
         with self.assertRaises(model.AASConstraintViolation) as cm:
-            model.ModelReference(keys, model.Submodel)
+            model.ModelReference(keys, model.ConceptDescription)
         self.assertEqual("The type of all keys following the first of a ModelReference "
                          f"must be one of FragmentKeyElements: {keys[2]!r} (Constraint AASd-125)", str(cm.exception))
         keys = tuple(keys[:2]) + (model.Key(model.KeyTypes.FRAGMENT_REFERENCE, "urn:x-test:x"),)
-        model.ModelReference(keys, model.Submodel)
+        model.ModelReference(keys, model.ConceptDescription)
 
         # AASd-126
         keys = (model.Key(model.KeyTypes.SUBMODEL, "urn:x-test:x"),
@@ -653,22 +652,22 @@ class ModelReferenceTest(unittest.TestCase):
                 model.Key(model.KeyTypes.FRAGMENT_REFERENCE, "urn:x-test:x"),
                 model.Key(model.KeyTypes.PROPERTY, "urn:x-test:x"))
         with self.assertRaises(model.AASConstraintViolation) as cm:
-            model.ModelReference(keys, model.Submodel)
+            model.ModelReference(keys, model.Property)
         self.assertEqual(f"Key {keys[2]!r} is a GenericFragmentKey, but the last key of the chain is not: {keys[-1]!r}"
                          " (Constraint AASd-126)", str(cm.exception))
         keys = tuple(keys[:3])
-        model.ModelReference(keys, model.Submodel)
+        model.ModelReference(keys, model.File)
 
         # AASd-127
         keys = (model.Key(model.KeyTypes.SUBMODEL, "urn:x-test:x"),
                 model.Key(model.KeyTypes.PROPERTY, "urn:x-test:x"),
                 model.Key(model.KeyTypes.FRAGMENT_REFERENCE, "urn:x-test:x"))
         with self.assertRaises(model.AASConstraintViolation) as cm:
-            model.ModelReference(keys, model.Submodel)
+            model.ModelReference(keys, model.Property)
         self.assertEqual(f"{keys[-1]!r} is not preceeded by a key of type File or Blob, but {keys[1]!r}"
                          f" (Constraint AASd-127)", str(cm.exception))
         keys = (keys[0], model.Key(model.KeyTypes.BLOB, "urn:x-test:x"), keys[2])
-        model.ModelReference(keys, model.Submodel)
+        model.ModelReference(keys, model.Blob)
 
     def test_set_reference(self):
         ref = model.ModelReference((model.Key(model.KeyTypes.SUBMODEL, "urn:x-test:x"),), model.Submodel)
@@ -718,7 +717,7 @@ class ModelReferenceTest(unittest.TestCase):
 
     def test_resolve(self) -> None:
         prop = model.Property("prop", model.datatypes.Int)
-        collection = model.SubmodelElementCollectionUnordered("collection", {prop})
+        collection = model.SubmodelElementCollection("collection", {prop})
         prop.parent = collection
         submodel = model.Submodel("urn:x-test:submodel", {collection})
         collection.parent = submodel
@@ -773,7 +772,7 @@ class ModelReferenceTest(unittest.TestCase):
 
     def test_from_referable(self) -> None:
         prop = model.Property("prop", model.datatypes.Int)
-        collection = model.SubmodelElementCollectionUnordered("collection", {prop})
+        collection = model.SubmodelElementCollection("collection", {prop})
         prop.parent = collection
         submodel = model.Submodel("urn:x-test:submodel", {collection})
         collection.parent = submodel

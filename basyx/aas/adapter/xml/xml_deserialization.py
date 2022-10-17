@@ -645,11 +645,7 @@ class AASFromXmlDecoder:
         This function doesn't support the object_class parameter.
         Overwrite each individual SubmodelElement/DataElement constructor function instead.
         """
-        # unlike in construct_data_elements, we have to declare a submodel_elements dict without namespace here first
-        # because mypy doesn't automatically infer Callable[..., model.SubmodelElement] for the functions, because
-        # construct_submodel_element_collection doesn't have the object_class parameter, but object_class_ordered and
-        # object_class_unordered
-        submodel_elements: Dict[str, Callable[..., model.SubmodelElement]] = {
+        submodel_elements: Dict[str, Callable[..., model.SubmodelElement]] = {NS_AAS + k: v for k, v in {
             "annotatedRelationshipElement": cls.construct_annotated_relationship_element,
             "basicEventElement": cls.construct_basic_event_element,
             "capability": cls.construct_capability,
@@ -657,8 +653,7 @@ class AASFromXmlDecoder:
             "operation": cls.construct_operation,
             "relationshipElement": cls.construct_relationship_element,
             "submodelElementCollection": cls.construct_submodel_element_collection
-        }
-        submodel_elements = {NS_AAS + k: v for k, v in submodel_elements.items()}
+        }.items()}
         if element.tag not in submodel_elements:
             return cls.construct_data_element(element, abstract_class_name="SubmodelElement", **kwargs)
         return submodel_elements[element.tag](element, **kwargs)
@@ -884,15 +879,11 @@ class AASFromXmlDecoder:
         return cls._construct_relationship_element_internal(element, object_class=object_class, **_kwargs)
 
     @classmethod
-    def construct_submodel_element_collection(cls, element: etree.Element,
+    def construct_submodel_element_collection(cls, element: etree.Element, object_class=model.SubmodelElementCollection,
                                               **_kwargs: Any) -> model.SubmodelElementCollection:
-        ordered = _str_to_bool(_child_text_mandatory(element, NS_AAS + "ordered"))
-        allow_duplicates = _str_to_bool(_child_text_mandatory(element, NS_AAS + "allowDuplicates"))
-        collection = model.SubmodelElementCollection.create(
+        collection = object_class(
             _child_text_mandatory(element, NS_AAS + "idShort"),
-            kind=_get_modeling_kind(element),
-            allow_duplicates=allow_duplicates,
-            ordered=ordered
+            kind=_get_modeling_kind(element)
         )
         if not cls.stripped:
             value = _get_child_mandatory(element, NS_AAS + "value")

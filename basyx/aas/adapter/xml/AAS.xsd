@@ -400,8 +400,6 @@
 		<complexContent>
 			<extension base="aas:submodelElementAbstract_t">
 				<sequence>
-					<element name="allowDuplicates" type="boolean"/>
-					<element name="ordered" type="boolean"/>
 					<element name="value" type="aas:submodelElements_t"/>
 				</sequence>
 			</extension>

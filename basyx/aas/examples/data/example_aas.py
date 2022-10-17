@@ -474,34 +474,22 @@ def create_example_submodel() -> model.Submodel:
         qualifier=(),
         kind=model.ModelingKind.INSTANCE)
 
-    submodel_element_submodel_element_collection_ordered = model.SubmodelElementCollectionOrdered(
-        id_short='ExampleSubmodelCollectionOrdered',
-        value=(submodel_element_property,
-               submodel_element_multi_language_property,
-               submodel_element_range),
-        category='PARAMETER',
-        description={'en-us': 'Example SubmodelElementCollectionOrdered object',
-                     'de': 'Beispiel SubmodelElementCollectionOrdered Element'},
-        parent=None,
-        semantic_id=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
-                                                     value='http://acplt.org/SubmodelElementCollections/'
-                                                           'ExampleSubmodelElementCollectionOrdered'),)),
-        qualifier=(),
-        kind=model.ModelingKind.INSTANCE)
-
-    submodel_element_submodel_element_collection_unordered = model.SubmodelElementCollectionUnordered(
-        id_short='ExampleSubmodelCollectionUnordered',
+    submodel_element_submodel_element_collection = model.SubmodelElementCollection(
+        id_short='ExampleSubmodelCollection',
         value=(submodel_element_blob,
                submodel_element_file,
                submodel_element_file_uri,
+               submodel_element_multi_language_property,
+               submodel_element_property,
+               submodel_element_range,
                submodel_element_reference_element),
         category='PARAMETER',
-        description={'en-us': 'Example SubmodelElementCollectionUnordered object',
-                     'de': 'Beispiel SubmodelElementCollectionUnordered Element'},
+        description={'en-us': 'Example SubmodelElementCollection object',
+                     'de': 'Beispiel SubmodelElementCollection Element'},
         parent=None,
         semantic_id=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
                                                      value='http://acplt.org/SubmodelElementCollections/'
-                                                           'ExampleSubmodelElementCollectionUnordered'),)),
+                                                           'ExampleSubmodelElementCollection'),)),
         qualifier=(),
         kind=model.ModelingKind.INSTANCE)
 
@@ -512,8 +500,7 @@ def create_example_submodel() -> model.Submodel:
                           submodel_element_operation,
                           submodel_element_capability,
                           submodel_element_basic_event_element,
-                          submodel_element_submodel_element_collection_ordered,
-                          submodel_element_submodel_element_collection_unordered),
+                          submodel_element_submodel_element_collection),
         id_short='TestSubmodel',
         category=None,
         description={'en-us': 'An example submodel for the test application',

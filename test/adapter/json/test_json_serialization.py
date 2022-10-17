@@ -214,7 +214,7 @@ class JsonSerializationStrippedObjectsTest(unittest.TestCase):
 
     def test_stripped_submodel_element_collection(self) -> None:
         mlp = model.MultiLanguageProperty("test_multi_language_property", category="PARAMETER")
-        sec = model.SubmodelElementCollectionOrdered("test_submodel_element_collection", value=[mlp])
+        sec = model.SubmodelElementCollection("test_submodel_element_collection", value=[mlp])
 
         self._checkNormalAndStripped("value", sec)
 

@@ -602,21 +602,10 @@ class AASFromJsonDecoder(json.JSONDecoder):
         return ret
 
     @classmethod
-    def _construct_submodel_element_collection(
-            cls,
-            dct: Dict[str, object])\
+    def _construct_submodel_element_collection(cls, dct: Dict[str, object],
+                                               object_class=model.SubmodelElementCollection)\
             -> model.SubmodelElementCollection:
-        ret: model.SubmodelElementCollection
-        ordered = False
-        allow_duplicates = False
-        if 'ordered' in dct:
-            ordered = _get_ts(dct, "ordered", bool)
-        if 'allowDuplicates' in dct:
-            allow_duplicates = _get_ts(dct, "allowDuplicates", bool)
-        ret = model.SubmodelElementCollection.create(id_short=_get_ts(dct, "idShort", str),
-                                                     kind=cls._get_kind(dct),
-                                                     ordered=ordered,
-                                                     allow_duplicates=allow_duplicates)
+        ret = object_class(id_short=_get_ts(dct, "idShort", str), kind=cls._get_kind(dct))
         cls._amend_abstract_attributes(ret, dct)
         if not cls.stripped and 'value' in dct:
             for element in _get_ts(dct, "value", list):

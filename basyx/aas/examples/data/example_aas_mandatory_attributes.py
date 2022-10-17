@@ -113,20 +113,17 @@ def create_example_submodel() -> model.Submodel:
                                                  value='ExampleProperty'),),
                                       model.Property))
 
-    submodel_element_submodel_element_collection_ordered = model.SubmodelElementCollectionOrdered(
-        id_short='ExampleSubmodelCollectionOrdered',
-        value=(submodel_element_property,
-               submodel_element_multi_language_property,
-               submodel_element_range))
-
-    submodel_element_submodel_element_collection_unordered = model.SubmodelElementCollectionUnordered(
-        id_short='ExampleSubmodelCollectionUnordered',
+    submodel_element_submodel_element_collection = model.SubmodelElementCollection(
+        id_short='ExampleSubmodelCollection',
         value=(submodel_element_blob,
                submodel_element_file,
+               submodel_element_multi_language_property,
+               submodel_element_property,
+               submodel_element_range,
                submodel_element_reference_element))
 
-    submodel_element_submodel_element_collection_unordered_2 = model.SubmodelElementCollectionUnordered(
-        id_short='ExampleSubmodelCollectionUnordered2',
+    submodel_element_submodel_element_collection_2 = model.SubmodelElementCollection(
+        id_short='ExampleSubmodelCollection2',
         value=())
 
     submodel = model.Submodel(
@@ -136,9 +133,8 @@ def create_example_submodel() -> model.Submodel:
                           submodel_element_operation,
                           submodel_element_capability,
                           submodel_element_basic_event_element,
-                          submodel_element_submodel_element_collection_ordered,
-                          submodel_element_submodel_element_collection_unordered,
-                          submodel_element_submodel_element_collection_unordered_2))
+                          submodel_element_submodel_element_collection,
+                          submodel_element_submodel_element_collection_2))
     return submodel
 
 

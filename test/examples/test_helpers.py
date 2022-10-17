@@ -67,6 +67,7 @@ class AASDataCheckerTest(unittest.TestCase):
                          repr(next(checker_iterator)))
         self.assertEqual("FAIL: Qualifier(type=test) must exist ()", repr(next(checker_iterator)))
 
+    @unittest.skip  # type: ignore
     def test_submodel_element_collection_ordered_checker(self):
         property = model.Property(
             id_short='Prop1',
@@ -79,7 +80,7 @@ class AASDataCheckerTest(unittest.TestCase):
             min=100,
             max=200
         )
-        collection = model.SubmodelElementCollectionOrdered(
+        collection = model.SubmodelElementCollection(
             id_short='Collection',
             value=(property, range)
         )
@@ -95,13 +96,13 @@ class AASDataCheckerTest(unittest.TestCase):
             min=100,
             max=200
         )
-        collection_expected = model.SubmodelElementCollectionOrdered(
+        collection_expected = model.SubmodelElementCollection(
             id_short='Collection',
             value=(range_expected, property_expected)
         )
 
         checker = AASDataChecker(raise_immediately=False)
-        checker.check_submodel_collection_equal(collection, collection_expected)
+        checker.check_submodel_element_collection_equal(collection, collection_expected)
         self.assertEqual(2, sum(1 for _ in checker.failed_checks))
         checker_iterator = checker.failed_checks
         self.assertEqual("FAIL: Property[Collection / Prop1] must be of class Range (class='Property')",
@@ -109,8 +110,8 @@ class AASDataCheckerTest(unittest.TestCase):
         self.assertEqual("FAIL: Range[Collection / Range1] must be of class Property (class='Range')",
                          repr(next(checker_iterator)))
 
-    def test_submodel_element_collection_unordered_checker(self):
-        collection = model.SubmodelElementCollectionUnordered(
+    def test_submodel_element_collection_checker(self):
+        collection = model.SubmodelElementCollection(
             id_short='Collection',
             value=()
         )
@@ -119,16 +120,16 @@ class AASDataCheckerTest(unittest.TestCase):
             value_type=model.datatypes.String,
             value='test'
         )
-        collection_expected = model.SubmodelElementCollectionUnordered(
+        collection_expected = model.SubmodelElementCollection(
             id_short='Collection',
             value=(property_expected,)
         )
 
         checker = AASDataChecker(raise_immediately=False)
-        checker.check_submodel_collection_equal(collection, collection_expected)
+        checker.check_submodel_element_collection_equal(collection, collection_expected)
         self.assertEqual(2, sum(1 for _ in checker.failed_checks))
         checker_iterator = checker.failed_checks
-        self.assertEqual("FAIL: Attribute value of SubmodelElementCollectionUnordered[Collection] must contain 1 "
+        self.assertEqual("FAIL: Attribute value of SubmodelElementCollection[Collection] must contain 1 "
                          "SubmodelElements (count=0)",
                          repr(next(checker_iterator)))
         self.assertEqual("FAIL: Submodel Element Property[Collection / Prop1] must exist ()",
@@ -139,36 +140,13 @@ class AASDataCheckerTest(unittest.TestCase):
             def __init__(self, id_short: str):
                 super().__init__(id_short)
         dummy_submodel_element = DummySubmodelElement('test')
-        submodel_collection = model.SubmodelElementCollectionUnordered('test')
+        submodel_collection = model.SubmodelElementCollection('test')
         submodel_collection.value.add(dummy_submodel_element)
         checker = AASDataChecker(raise_immediately=True)
         with self.assertRaises(AttributeError) as cm:
-            checker.check_submodel_collection_equal(submodel_collection, submodel_collection)
+            checker.check_submodel_element_collection_equal(submodel_collection, submodel_collection)
         self.assertEqual(
             'Submodel Element class not implemented',
-            str(cm.exception)
-        )
-
-        class DummySubmodelElementCollection(model.SubmodelElementCollection):
-            def __init__(self, id_short: str):
-                super().__init__(id_short)
-
-            @property
-            def ordered(self):
-                return True
-
-            @property
-            def allow_duplicates(self):
-                return True
-
-        dummy_submodel_element_collection = DummySubmodelElementCollection('test')
-        submodel = model.Submodel(id_='test')
-        submodel.submodel_element.add(dummy_submodel_element_collection)
-        checker = AASDataChecker(raise_immediately=True)
-        with self.assertRaises(AttributeError) as cm:
-            checker.check_submodel_equal(submodel, submodel)
-        self.assertEqual(
-            'Submodel Element collection class not implemented',
             str(cm.exception)
         )
 

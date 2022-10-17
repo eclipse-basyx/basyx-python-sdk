@@ -373,8 +373,6 @@ class JsonDeserializationStrippedObjectsTest(unittest.TestCase):
             {
                 "modelType": {"name": "SubmodelElementCollection"},
                 "idShort": "test_submodel_element_collection",
-                "ordered": false,
-                "allowDuplicates": true,
                 "value": [{
                     "modelType": {"name": "MultiLanguageProperty"},
                     "idShort": "test_multi_language_property"
@@ -383,14 +381,14 @@ class JsonDeserializationStrippedObjectsTest(unittest.TestCase):
 
         # check if JSON with value can be parsed successfully
         sec = json.loads(data, cls=StrictAASFromJsonDecoder)
-        self.assertIsInstance(sec, model.SubmodelElementCollectionUnordered)
-        assert isinstance(sec, model.SubmodelElementCollectionUnordered)
+        self.assertIsInstance(sec, model.SubmodelElementCollection)
+        assert isinstance(sec, model.SubmodelElementCollection)
         self.assertEqual(len(sec.value), 1)
 
         # check if value is ignored in stripped mode
         sec = json.loads(data, cls=StrictStrippedAASFromJsonDecoder)
-        self.assertIsInstance(sec, model.SubmodelElementCollectionUnordered)
-        assert isinstance(sec, model.SubmodelElementCollectionUnordered)
+        self.assertIsInstance(sec, model.SubmodelElementCollection)
+        assert isinstance(sec, model.SubmodelElementCollection)
         self.assertEqual(len(sec.value), 0)
 
     def test_stripped_asset_administration_shell(self) -> None:

@@ -901,12 +901,6 @@
 		      	  { "$ref": "#/definitions/SubmodelElementCollection" }
 		        ]
               }
-            },
-			"allowDuplicates": {
-              "type": "boolean"
-            },
-            "ordered": {
-              "type": "boolean"
             }
           }
         }
