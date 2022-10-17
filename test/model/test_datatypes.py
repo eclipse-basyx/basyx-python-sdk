@@ -50,6 +50,7 @@ class TestIntTypes(unittest.TestCase):
         with self.assertRaises(ValueError) as cm:
             model.datatypes.Long(2**63)
         self.assertEqual(str(2**63)+" is out of the allowed range for type Long", str(cm.exception))
+
     def test_trivial_cast(self) -> None:
         val = model.datatypes.trivial_cast(5, model.datatypes.UnsignedByte)
         self.assertEqual(5, val)
