@@ -356,6 +356,8 @@ class ModelNamespaceTest(unittest.TestCase):
         self.assertIsNone(self.prop1.parent)
         self.namespace.set1.discard(self.prop1)
 
+        self.assertFalse([1] in self.namespace.set1)
+
     def test_Namespace(self) -> None:
         with self.assertRaises(KeyError) as cm:
             namespace_test = ExampleNamespace([self.prop1, self.prop2, self.prop1alt])
@@ -368,6 +370,14 @@ class ModelNamespaceTest(unittest.TestCase):
         with self.assertRaises(KeyError) as cm:
             namespace.get_referable("Prop3")
         self.assertEqual("'Referable with id_short Prop3 not found in this namespace'", str(cm.exception))
+
+        namespace.remove_referable("Prop2")
+        with self.assertRaises(KeyError) as cm2:
+            namespace.get_referable("Prop2")
+            self.assertEqual("'Referable with id_short Prop2 not found in this namespace'", str(cm2.exception))
+
+        with self.assertRaises(KeyError) as cm3:
+            namespace.remove_referable("Prob2")
 
     def test_renaming(self) -> None:
         self.namespace.set1.add(self.prop1)
@@ -547,6 +557,23 @@ class AASReferenceTest(unittest.TestCase):
         with self.assertRaises(model.UnexpectedTypeError) as cm_4:
             ref4.resolve(DummyObjectProvider())
         self.assertIs(submodel, cm_4.exception.value)
+
+        ref5 = model.AASReference((), model.Submodel)
+        with self.assertRaises(IndexError) as cm_5:
+            ref5.resolve(DummyObjectProvider())
+        self.assertEqual('List of keys is empty', str(cm_5.exception))
+
+        ref6 = model.AASReference((model.Key(model.KeyElements.SUBMODEL, False, "urn:x-test:submodel",
+                                             model.KeyType.IRI),
+                                   model.Key(model.KeyElements.SUBMODEL_ELEMENT_COLLECTION, False, "collection",
+                                             model.KeyType.IDSHORT),
+                                   model.Key(model.KeyElements.PROPERTY, False, "prop_false",
+                                             model.KeyType.IDSHORT)), model.Property)
+
+        with self.assertRaises(KeyError) as cm_6:
+            ref6.resolve(DummyObjectProvider())
+            self.assertEqual("'Could not resolve id_short prop_false at Identifier(IRI=urn:x-test:submodel)'",
+                             str(cm_6.exception))
 
     def test_get_identifier(self) -> None:
         ref = model.AASReference((model.Key(model.KeyElements.SUBMODEL, False, "urn:x-test:x", model.KeyType.IRI),),
