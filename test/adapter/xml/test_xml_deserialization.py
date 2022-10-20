@@ -112,7 +112,6 @@ class XmlDeserializationTest(unittest.TestCase):
         """)
         self._assertInExceptionAndLog(xml, ["aas:assetKind", "invalidKind"], ValueError, logging.ERROR)
 
-    @unittest.skip  # type: ignore
     def test_invalid_boolean(self) -> None:
         xml = _xml_wrap("""
         <aas:submodels>
@@ -120,10 +119,11 @@ class XmlDeserializationTest(unittest.TestCase):
                 <aas:id>http://acplt.org/test_submodel</aas:id>
                 <aas:submodelElements>
                     <aas:submodelElement>
-                        <aas:submodelElementCollection>
-                            <aas:ordered>False</aas:ordered>
+                        <aas:submodelElementList>
+                            <aas:orderRelevant>False</aas:orderRelevant>
                             <aas:idShort>collection</aas:idShort>
-                        </aas:submodelElementCollection>
+                            <aas:typeValueListElement>Capability</aas:typeValueListElement>
+                        </aas:submodelElementList>
                     </aas:submodelElement>
                 </aas:submodelElements>
             </aas:submodel>
@@ -348,7 +348,7 @@ class XmlDeserializationStrippedObjectsTest(unittest.TestCase):
                         <aas:qualifiers>
                             <aas:qualifier>
                                 <aas:type>test_qualifier</aas:type>
-                                <aas:valueType>string</aas:valueType>
+                                <aas:valueType>xs:string</aas:valueType>
                             </aas:qualifier>
                         </aas:qualifiers>
                     </aas:operation>
@@ -357,7 +357,7 @@ class XmlDeserializationStrippedObjectsTest(unittest.TestCase):
             <aas:qualifiers>
                 <aas:qualifier>
                     <aas:type>test_qualifier</aas:type>
-                    <aas:valueType>string</aas:valueType>
+                    <aas:valueType>xs:string</aas:valueType>
                 </aas:qualifier>
             </aas:qualifiers>
         </aas:submodel>

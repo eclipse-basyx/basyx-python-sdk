@@ -8,9 +8,12 @@
 Helper classes for checking two objects for completeness and correctness and reporting the check results.
 """
 import pprint
-from typing import List, NamedTuple, Iterator, Dict, Any, Type, Union, Set, Iterable
+from typing import List, NamedTuple, Iterator, Dict, Any, Type, Union, Set, Iterable, TypeVar
 
 from ... import model
+
+
+_LIST_OR_COLLECTION = TypeVar("_LIST_OR_COLLECTION", model.SubmodelElementList, model.SubmodelElementCollection)
 
 
 class CheckResult(NamedTuple):
@@ -106,6 +109,8 @@ class AASDataChecker(DataChecker):
                 return self.check_reference_element_equal(object_, expected_object)  # type: ignore
             if isinstance(object_, model.SubmodelElementCollection):
                 return self.check_submodel_element_collection_equal(object_, expected_object)  # type: ignore
+            if isinstance(object_, model.SubmodelElementList):
+                return self.check_submodel_element_list_equal(object_, expected_object)  # type: ignore
             if isinstance(object_, model.AnnotatedRelationshipElement):
                 return self.check_annotated_relationship_element_equal(object_, expected_object)  # type: ignore
             if isinstance(object_, model.RelationshipElement):
@@ -206,13 +211,13 @@ class AASDataChecker(DataChecker):
         self._check_has_kind_equal(object_, expected_value)
         self._check_qualifiable_equal(object_, expected_value)
 
-    def _check_submodel_elements_equal_unordered(self, object_: model.SubmodelElementCollection,
-                                                 expected_value: model.SubmodelElementCollection):
+    def _check_submodel_elements_equal_unordered(self, object_: _LIST_OR_COLLECTION,
+                                                 expected_value: _LIST_OR_COLLECTION):
         """
         Checks if the given SubmodelElement objects are equal (in any order)
 
-        :param object_: Given SubmodelElementCollection containing the objects to check
-        :param expected_value: SubmodelElementCollection containing the expected elements
+        :param object_: Given SubmodelElementCollection or SubmodelElementList containing the objects to check
+        :param expected_value: SubmodelElementCollection or SubmodelElementList containing the expected elements
         :return:
         """
         for expected_element in expected_value.value:
@@ -324,6 +329,30 @@ class AASDataChecker(DataChecker):
         self._check_abstract_attributes_submodel_element_equal(object_, expected_value)
         self.check_contained_element_length(object_, 'value', model.SubmodelElement, len(expected_value.value))
         self._check_submodel_elements_equal_unordered(object_, expected_value)
+
+    def check_submodel_element_list_equal(self, object_: model.SubmodelElementList,
+                                          expected_value: model.SubmodelElementList):
+        """
+        Checks if the given SubmodelElementList objects are equal
+
+        :param object_: Given SubmodelElementList object to check
+        :param expected_value: expected SubmodelElementList object
+        :return:
+        """
+        self._check_abstract_attributes_submodel_element_equal(object_, expected_value)
+        self.check_attribute_equal(object_, 'order_relevant', expected_value.order_relevant)
+        self.check_attribute_equal(object_, 'semantic_id_list_element', expected_value.semantic_id_list_element)
+        self.check_attribute_equal(object_, 'value_type_list_element', expected_value.value_type_list_element)
+        self.check_attribute_equal(object_, 'type_value_list_element', expected_value.type_value_list_element)
+        self.check_contained_element_length(object_, 'value', object_.type_value_list_element,
+                                            len(expected_value.value))
+        if object_.order_relevant:
+            # compare ordered
+            for se1, se2 in zip(object_.value, expected_value.value):
+                self._check_submodel_element(se1, se2)
+        else:
+            # compare unordered
+            self._check_submodel_elements_equal_unordered(object_, expected_value)
 
     def check_relationship_element_equal(self, object_: model.RelationshipElement,
                                          expected_value: model.RelationshipElement):
@@ -859,7 +888,10 @@ class AASDataChecker(DataChecker):
         :param kwargs: Relevant values to add to the check result for further analysis (e.g. the compared values)
         :return: The value of expression to be used in control statements
         """
-        if attribute_name == 'value_type':
+        # TODO: going by attribute name here isn't exactly pretty...
+        if attribute_name in ('value_type', 'value_type_list_element', 'type_value_list_element') \
+                and getattr(object_, attribute_name) is not None:
+            # value_type_list_element can be None and doesn't have the __name__ attribute in this case
             kwargs['value'] = getattr(object_, attribute_name).__name__
             return self.check(getattr(object_, attribute_name) is expected_value,  # type:ignore
                               "Attribute {} of {} must be == {}".format(

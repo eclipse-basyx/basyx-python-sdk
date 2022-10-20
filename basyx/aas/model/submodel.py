@@ -9,7 +9,7 @@ This module contains everything needed to model Submodels and define Events acco
 """
 
 import abc
-from typing import Optional, Set, Iterable, TYPE_CHECKING, List, Type
+from typing import Optional, Set, Iterable, TYPE_CHECKING, List, Type, TypeVar, Generic
 
 from . import base, datatypes
 if TYPE_CHECKING:
@@ -581,6 +581,149 @@ class SubmodelElementCollection(SubmodelElement, base.UniqueIdShortNamespace):
 
         super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, kind, extension)
         self.value: base.NamespaceSet[SubmodelElement] = base.NamespaceSet(self, [("id_short", True)], value)
+
+
+_SE = TypeVar("_SE", bound=SubmodelElement)
+
+
+class SubmodelElementList(SubmodelElement, base.UniqueIdShortNamespace, Generic[_SE]):
+    """
+    A submodel element list is an ordered list of :class:`SubmodelElements <.SubmodelElement>`.
+    The numbering starts with Zero (0).
+
+    *Constraint AASd-107:* If a first level child element in a :class:`SubmodelElementList` has a semanticId it shall be
+    identical to SubmodelElementList/semanticIdListElement.
+    *Constraint AASd-114:* If two first level child elements in a :class:`SubmodelElementList` have a semanticId then
+    they shall be identical.
+    *Constraint AASd-115:* If a first level child element in a :class:`SubmodelElementList` does not specify
+    a semanticId then the value is assumed to be identical to SubmodelElementList/semanticIdListElement.
+    *Constraint AASd-108:* All first level child elements in a :class:`SubmodelElementList` shall have the same
+    submodel element type as specified in SubmodelElementList/typeValueListElement.
+    *Constraint AASd-109:* If SubmodelElementList/typeValueListElement equal to Property or Range
+    SubmodelElementList/valueTypeListElement shall be set and all first level child elements in the
+    :class:`SubmodelElementList` shall have the value type as specified in SubmodelElementList/valueTypeListElement.
+
+    :ivar id_short: Identifying string of the element within its name space. (inherited from
+                    :class:`~aas.model.base.Referable`)
+    :ivar type_value_list_element: The :class:`SubmodelElement` type of the submodel elements contained in the list.
+    :ivar value: :class:`SubmodelElements <.SubmodelElement>` contained in the list. The list is ordered.
+    :ivar semantic_id_list_element: Semantic ID of the :class:`SubmodelElements <.SubmodelElement>` contained in the
+                                    list to match to.
+    :ivar value_type_list_element: The value type of the submodel element contained in the list.
+    :ivar order_relevant: Defines whether order in list is relevant. If False the list is representing a set or a bag.
+                          Default: True
+    :ivar display_name: Can be provided in several languages. (inherited from :class:`~aas.model.base.Referable`)
+    :ivar category: The category is a value that gives further meta information w.r.t. to the class of the element.
+                     It affects the expected existence of attributes and the applicability of constraints.
+                     (inherited from :class:`~aas.model.base.Referable`)
+    :ivar description: Description or comments on the element. (inherited from :class:`~aas.model.base.Referable`)
+    :ivar parent: Reference to the next referable parent element of the element. (inherited from
+                  :class:`~aas.model.base.Referable`)
+    :ivar semantic_id: Identifier of the semantic definition of the element. It is called semantic id of the
+                       element. The semantic id may either reference an external global id or it may reference a
+                       referable model element of kind=Type that defines the semantics of the element.
+                       (inherited from :class:`~aas.model.base.HasSemantics`)
+    :ivar qualifier: Unordered list of Qualifiers that gives additional qualification of a qualifiable element.
+                     (from :class:`~aas.model.base.Qualifiable`)
+    :ivar kind: Kind of the element: Either `TYPE` or `INSTANCE`. Default is `INSTANCE`. (inherited from
+                :class:`aas.model.base.HasKind`)
+    :ivar extension: An extension of the element. (inherited from
+                     :class:`aas.model.base.HasExtension`)
+    """
+    def __init__(self,
+                 id_short: str,
+                 type_value_list_element: Type[_SE],
+                 value: Iterable[_SE] = (),
+                 semantic_id_list_element: Optional[base.Reference] = None,
+                 value_type_list_element: Optional[base.DataTypeDefXsd] = None,
+                 order_relevant: bool = True,
+                 display_name: Optional[base.LangStringSet] = None,
+                 category: Optional[str] = None,
+                 description: Optional[base.LangStringSet] = None,
+                 parent: Optional[base.UniqueIdShortNamespace] = None,
+                 semantic_id: Optional[base.Reference] = None,
+                 qualifier: Iterable[base.Qualifier] = (),
+                 kind: base.ModelingKind = base.ModelingKind.INSTANCE,
+                 extension: Iterable[base.Extension] = ()):
+        super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, kind, extension)
+        # It doesn't really make sense to change any of these properties. thus they are immutable here.
+        self._type_value_list_element: Type[_SE] = type_value_list_element
+        self._order_relevant: bool = order_relevant
+        self._semantic_id_list_element: Optional[base.Reference] = semantic_id_list_element
+        self._value_type_list_element: Optional[base.DataTypeDefXsd] = value_type_list_element
+
+        if self.type_value_list_element in (Property, Range) and self.value_type_list_element is None:
+            raise base.AASConstraintViolation(109, f"type_value_list_element={self.type_value_list_element.__name__}, "
+                                                   "but value_type_list_element is not set!")
+
+        # Items must be added after the above contraint has been checked. Otherwise, it can lead to errors, since the
+        # constraints in _check_constraints() assume that this constraint has been checked.
+        self._value: base.OrderedNamespaceSet[_SE] = base.OrderedNamespaceSet(self, [("id_short", True)], value,
+                                                                              self._check_constraints)
+
+    def _check_constraints(self, new: _SE, existing: Iterable[_SE]) -> None:
+        # We can't use isinstance(new, self.type_value_list_element) here, because each subclass of
+        # self.type_value_list_element wouldn't raise a ConstraintViolation, when it should.
+        # Example: AnnotatedRelationshipElement is a subclass of RelationshipElement
+        if type(new) is not self.type_value_list_element:
+            raise base.AASConstraintViolation(108, "All first level elements must be of the type specified in "
+                                                   f"type_value_list_element={self.type_value_list_element.__name__}, "
+                                                   f"got {new!r}")
+
+        if self.semantic_id_list_element is not None and new.semantic_id is not None \
+                and new.semantic_id != self.semantic_id_list_element:
+            # Constraint AASd-115 specifies that if the semantic_id of an item is not specified
+            # but semantic_id_list_element is, the semantic_id of the new is assumed to be identical.
+            # Not really a constraint...
+            # TODO: maybe set the semantic_id of new to semantic_id_list_element if it is None
+            raise base.AASConstraintViolation(107, f"If semantic_id_list_element={self.semantic_id_list_element!r} "
+                                                   "is specified all first level children must have the same "
+                                                   f"semantic_id, got {new!r} with semantic_id={new.semantic_id!r}")
+
+        # If we got here we know that `new` is an instance of type_value_list_element and that type_value_list_element
+        # is either Property or Range. Thus, `new` must have the value_type property. Ignore the type here because
+        # the typechecker doesn't get it.
+        if self.type_value_list_element in (Property, Range) \
+                and new.value_type is not self.value_type_list_element:  # type: ignore
+            raise base.AASConstraintViolation(109, "All first level elements must have the value_type "  # type: ignore
+                                                   "specified by value_type_list_element="
+                                                   f"{self.value_type_list_element.__name__}, got {new!r} with "
+                                                   f"value_type={new.value_type.__name__}")  # type: ignore
+
+        # If semantic_id_list_element is not None that would already enforce the semantic_id for all first level
+        # elements. Thus, we only need to perform this check if semantic_id_list_element is None.
+        if new.semantic_id is not None and self.semantic_id_list_element is None:
+            for item in existing:
+                if item.semantic_id is not None and new.semantic_id != item.semantic_id:
+                    raise base.AASConstraintViolation(114, f"Element to be added {new!r} has semantic_id "
+                                                           f"{new.semantic_id!r}, while already contained element "
+                                                           f"{item!r} has semantic_id {item.semantic_id!r}, which "
+                                                           "aren't equal.")
+
+    @property
+    def value(self) -> base.OrderedNamespaceSet[_SE]:
+        return self._value
+
+    @value.setter
+    def value(self, value: Iterable[_SE]):
+        del self._value[:]
+        self._value.extend(value)
+
+    @property
+    def type_value_list_element(self) -> Type[_SE]:
+        return self._type_value_list_element
+
+    @property
+    def order_relevant(self) -> bool:
+        return self._order_relevant
+
+    @property
+    def semantic_id_list_element(self) -> Optional[base.Reference]:
+        return self._semantic_id_list_element
+
+    @property
+    def value_type_list_element(self) -> Optional[base.DataTypeDefXsd]:
+        return self._value_type_list_element
 
 
 class RelationshipElement(SubmodelElement):

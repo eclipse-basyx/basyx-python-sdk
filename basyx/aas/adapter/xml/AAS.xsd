@@ -116,11 +116,6 @@
 			<element name="dataSpecificationIEC61360" type="IEC61360:dataSpecificationIEC61630_t"/>
 		</choice>
 	</complexType>
-	<complexType name="dataTypeDef_t">
-		<simpleContent>
-			<extension base="string"/>
-		</simpleContent>
-	</complexType>
 	<complexType name="embeddedDataSpecification_t">
 		<sequence>
 			<element maxOccurs="1" minOccurs="0" name="dataSpecificationContent" type="aas:dataSpecificationContent_t"/>
@@ -155,7 +150,7 @@
 		<sequence>
 			<group ref="aas:hasSemantics"/>
 			<element maxOccurs="1" minOccurs="1" name="name" type="string"/>
-			<element maxOccurs="1" minOccurs="0" name="valueType" type="aas:dataTypeDef_t"/>
+			<element maxOccurs="1" minOccurs="0" name="valueType" type="aas:dataTypeDefXsd_t"/>
 			<element maxOccurs="1" minOccurs="0" name="value" type="aas:valueDataType_t"/>
 			<element maxOccurs="unbounded" minOccurs="0" name="refersTo" type="aas:reference_t"/>
 		</sequence>
@@ -226,6 +221,7 @@
 							<enumeration value="Submodel"/>
 							<enumeration value="SubmodelElement"/>
 							<enumeration value="SubmodelElementCollection"/>
+                            <enumeration value="SubmodelElementList"/>
 						</restriction>
 					</simpleType>
 				</attribute>
@@ -286,7 +282,7 @@
 				<sequence>
 					<element maxOccurs="1" minOccurs="0" name="valueId" type="aas:reference_t"/>
 					<element maxOccurs="1" minOccurs="0" name="value" type="aas:valueDataType_t"/>
-					<element maxOccurs="1" minOccurs="1" name="valueType" type="aas:dataTypeDef_t"/>
+					<element maxOccurs="1" minOccurs="1" name="valueType" type="aas:dataTypeDefXsd_t"/>
 				</sequence>
 			</extension>
 		</complexContent>
@@ -297,7 +293,7 @@
 			<element maxOccurs="1" minOccurs="0" name="valueId" type="aas:reference_t"/>
 			<element maxOccurs="1" minOccurs="0" name="value" type="aas:valueDataType_t"/>
 			<element maxOccurs="1" minOccurs="1" name="type" type="aas:qualifierType_t"/>
-			<element maxOccurs="1" minOccurs="1" name="valueType" type="aas:dataTypeDef_t"/>
+			<element maxOccurs="1" minOccurs="1" name="valueType" type="aas:dataTypeDefXsd_t"/>
 		</sequence>
 	</complexType>
 	<complexType name="qualifierType_t">
@@ -311,7 +307,7 @@
 				<sequence>
 					<element maxOccurs="1" minOccurs="0" name="max" type="aas:valueDataType_t"/>
 					<element maxOccurs="1" minOccurs="0" name="min" type="aas:valueDataType_t"/>
-					<element maxOccurs="1" minOccurs="1" name="valueType" type="aas:dataTypeDef_t"/>
+					<element maxOccurs="1" minOccurs="1" name="valueType" type="aas:dataTypeDefXsd_t"/>
 				</sequence>
 			</extension>
 		</complexContent>
@@ -384,6 +380,7 @@
 			<element name="operation" type="aas:operation_t"/>
 			<element name="relationshipElement" type="aas:relationshipElement_t"/>
 			<element name="submodelElementCollection" type="aas:submodelElementCollection_t"/>
+            <element name="submodelElementList" type="aas:submodelElementList_t"/>
 			<group ref="aas:dataElement"/>
 		</choice>
 	</complexType>
@@ -405,6 +402,101 @@
 			</extension>
 		</complexContent>
 	</complexType>
+  <simpleType name="dataTypeDefXsd_t">
+    <restriction base="string">
+      <enumeration value="xs:anyURI"/>
+      <enumeration value="xs:base64Binary"/>
+      <enumeration value="xs:boolean"/>
+      <enumeration value="xs:date"/>
+      <enumeration value="xs:dateTime"/>
+      <enumeration value="xs:dateTimeStamp"/>
+      <enumeration value="xs:decimal"/>
+      <enumeration value="xs:double"/>
+      <enumeration value="xs:duration"/>
+      <enumeration value="xs:float"/>
+      <enumeration value="xs:gDay"/>
+      <enumeration value="xs:gMonth"/>
+      <enumeration value="xs:gMonthDay"/>
+      <enumeration value="xs:gYear"/>
+      <enumeration value="xs:gYearMonth"/>
+      <enumeration value="xs:hexBinary"/>
+      <enumeration value="xs:string"/>
+      <enumeration value="xs:time"/>
+      <enumeration value="xs:dayTimeDuration"/>
+      <enumeration value="xs:yearMonthDuration"/>
+      <enumeration value="xs:integer"/>
+      <enumeration value="xs:long"/>
+      <enumeration value="xs:int"/>
+      <enumeration value="xs:short"/>
+      <enumeration value="xs:byte"/>
+      <enumeration value="xs:nonNegativeInteger"/>
+      <enumeration value="xs:positiveInteger"/>
+      <enumeration value="xs:unsignedLong"/>
+      <enumeration value="xs:unsignedInt"/>
+      <enumeration value="xs:unsignedShort"/>
+      <enumeration value="xs:unsignedByte"/>
+      <enumeration value="xs:nonPositiveInteger"/>
+      <enumeration value="xs:negativeInteger"/>
+    </restriction>
+</simpleType>
+  <simpleType name="aasSubmodelElements_t">
+    <restriction base="string">
+      <enumeration value="AnnotatedRelationshipElement"/>
+      <enumeration value="BasicEventElement"/>
+      <enumeration value="Blob"/>
+      <enumeration value="Capability"/>
+      <enumeration value="DataElement"/>
+      <enumeration value="Entity"/>
+      <enumeration value="EventElement"/>
+      <enumeration value="File"/>
+      <enumeration value="MultiLanguageProperty"/>
+      <enumeration value="Operation"/>
+      <enumeration value="Property"/>
+      <enumeration value="Range"/>
+      <enumeration value="ReferenceElement"/>
+      <enumeration value="RelationshipElement"/>
+      <enumeration value="SubmodelElement"/>
+      <enumeration value="SubmodelElementList"/>
+      <enumeration value="SubmodelElementCollection"/>
+    </restriction>
+  </simpleType>
+  <complexType name="submodelElementList_t">
+    <complexContent>
+        <extension base="aas:submodelElementAbstract_t">
+            <sequence>
+              <element name="orderRelevant" type="boolean" minOccurs="0" maxOccurs="1"/>
+              <element name="value" minOccurs="0" maxOccurs="1">
+                <complexType>
+                  <sequence>
+                    <group ref="aas:submodelElement_choice" minOccurs="1" maxOccurs="unbounded"/>
+                  </sequence>
+                </complexType>
+              </element>
+              <element name="semanticIdListElement" type="aas:reference_t" minOccurs="0" maxOccurs="1"/>
+              <element name="typeValueListElement" type="aas:aasSubmodelElements_t"/>
+              <element name="valueTypeListElement" type="aas:dataTypeDefXsd_t" minOccurs="0" maxOccurs="1"/>
+            </sequence>
+        </extension>
+    </complexContent>
+  </complexType>
+	<group name="submodelElement_choice">
+    <choice>
+      <element name="relationshipElement" type="aas:relationshipElement_t"/>
+      <element name="annotatedRelationshipElement" type="aas:annotatedRelationshipElement_t"/>
+      <element name="basicEventElement" type="aas:basicEventElement_t"/>
+      <element name="blob" type="aas:blob_t"/>
+      <element name="capability" type="aas:submodelElement_t"/>
+      <element name="entity" type="aas:entity_t"/>
+      <element name="file" type="aas:file_t"/>
+      <element name="multiLanguageProperty" type="aas:multiLanguageProperty_t"/>
+      <element name="operation" type="aas:operation_t"/>
+      <element name="property" type="aas:property_t"/>
+      <element name="range" type="aas:range_t"/>
+      <element name="referenceElement" type="aas:referenceElement_t"/>
+      <element name="submodelElementCollection" type="aas:submodelElementCollection_t"/>
+      <element name="submodelElementList" type="aas:submodelElementList_t"/>
+    </choice>
+  </group>
 	<complexType name="submodelElements_t">
 		<sequence>
 			<element maxOccurs="unbounded" minOccurs="0" name="submodelElement" type="aas:submodelElement_t"/>

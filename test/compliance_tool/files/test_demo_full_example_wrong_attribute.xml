@@ -22,11 +22,21 @@
           <aas:keys>
             <aas:key type="Submodel">http://acplt.org/Submodels/Assets/TestAsset/Identification</aas:key>
           </aas:keys>
+          <aas:referredSemanticId type="ModelReference">
+            <aas:keys>
+              <aas:key type="Submodel">http://acplt.org/SubmodelTemplates/AssetIdentification</aas:key>
+            </aas:keys>
+          </aas:referredSemanticId>
         </aas:submodelRef>
         <aas:submodelRef type="ModelReference">
           <aas:keys>
             <aas:key type="Submodel">https://acplt.org/Test_Submodel</aas:key>
           </aas:keys>
+          <aas:referredSemanticId type="GlobalReference">
+            <aas:keys>
+              <aas:key type="GlobalReference">http://acplt.org/SubmodelTemplates/ExampleSubmodel</aas:key>
+            </aas:keys>
+          </aas:referredSemanticId>
         </aas:submodelRef>
         <aas:submodelRef type="ModelReference">
           <aas:keys>
@@ -43,6 +53,11 @@
         <aas:assetKind>Instance</aas:assetKind>
         <aas:specificAssetIds>
           <aas:specificAssetId>
+            <aas:semanticId type="GlobalReference">
+              <aas:keys>
+                <aas:key type="GlobalReference">http://acplt.org/SpecificAssetId/</aas:key>
+              </aas:keys>
+            </aas:semanticId>
             <aas:externalSubjectId type="GlobalReference">
               <aas:keys>
                 <aas:key type="GlobalReference">http://acplt.org/SpecificAssetId/</aas:key>
@@ -195,7 +210,7 @@
               <aas:langString lang="de">Dies ist eine Data Specification für Testzwecke</aas:langString>
               <aas:langString lang="en-us">This is a DataSpecification for testing purposes</aas:langString>
             </IEC:definition>
-            <IEC:valueFormat>string</IEC:valueFormat>
+            <IEC:valueFormat>xs:string</IEC:valueFormat>
             <IEC:valueList>
               <IEC:valueReferencePair>
                 <IEC:valueId type="GlobalReference">
@@ -256,7 +271,7 @@
             <aas:extensions>
               <aas:extension>
                 <aas:name>ExampleExtension</aas:name>
-                <aas:valueType>string</aas:valueType>
+                <aas:valueType>xs:string</aas:valueType>
                 <aas:value>ExampleExtensionValue</aas:value>
                 <aas:refersTo type="ModelReference">
                   <aas:keys>
@@ -286,7 +301,7 @@
                 </aas:valueId>
                 <aas:value>100</aas:value>
                 <aas:type>http://acplt.org/Qualifier/ExampleQualifier</aas:type>
-                <aas:valueType>int</aas:valueType>
+                <aas:valueType>xs:int</aas:valueType>
               </aas:qualifier>
               <aas:qualifier>
                 <aas:valueId type="GlobalReference">
@@ -296,7 +311,7 @@
                 </aas:valueId>
                 <aas:value>50</aas:value>
                 <aas:type>http://acplt.org/Qualifier/ExampleQualifier2</aas:type>
-                <aas:valueType>int</aas:valueType>
+                <aas:valueType>xs:int</aas:valueType>
               </aas:qualifier>
             </aas:qualifiers>
             <aas:valueId type="GlobalReference">
@@ -305,7 +320,7 @@
               </aas:keys>
             </aas:valueId>
             <aas:value>ACPLT</aas:value>
-            <aas:valueType>string</aas:valueType>
+            <aas:valueType>xs:string</aas:valueType>
           </aas:property>
         </aas:submodelElement>
         <aas:submodelElement>
@@ -328,7 +343,7 @@
               </aas:keys>
             </aas:valueId>
             <aas:value>978-8234-234-342</aas:value>
-            <aas:valueType>string</aas:valueType>
+            <aas:valueType>xs:string</aas:valueType>
           </aas:property>
         </aas:submodelElement>
       </aas:submodelElements>
@@ -400,7 +415,7 @@
                     </aas:keys>
                   </aas:valueId>
                   <aas:value>exampleValue2</aas:value>
-                  <aas:valueType>string</aas:valueType>
+                  <aas:valueType>xs:string</aas:valueType>
                 </aas:property>
               </aas:submodelElement>
               <aas:submodelElement>
@@ -423,7 +438,7 @@
                     </aas:keys>
                   </aas:valueId>
                   <aas:value>exampleValue</aas:value>
-                  <aas:valueType>string</aas:valueType>
+                  <aas:valueType>xs:string</aas:valueType>
                 </aas:property>
               </aas:submodelElement>
             </aas:statements>
@@ -528,7 +543,7 @@
                   <aas:category>PARAMETER</aas:category>
                   <aas:kind>Instance</aas:kind>
                   <aas:value>exampleValue</aas:value>
-                  <aas:valueType>string</aas:valueType>
+                  <aas:valueType>xs:string</aas:valueType>
                 </aas:property>
               </aas:dataElement>
               <aas:dataElement>
@@ -538,7 +553,7 @@
                   <aas:kind>Instance</aas:kind>
                   <aas:max>5</aas:max>
                   <aas:min>1</aas:min>
-                  <aas:valueType>integer</aas:valueType>
+                  <aas:valueType>xs:integer</aas:valueType>
                 </aas:range>
               </aas:dataElement>
             </aas:annotations>
@@ -583,7 +598,7 @@
                     </aas:keys>
                   </aas:valueId>
                   <aas:value>exampleValue</aas:value>
-                  <aas:valueType>string</aas:valueType>
+                  <aas:valueType>xs:string</aas:valueType>
                 </aas:property>
               </aas:value>
             </aas:inoutputVariable>
@@ -612,7 +627,7 @@
                     </aas:keys>
                   </aas:valueId>
                   <aas:value>exampleValue</aas:value>
-                  <aas:valueType>string</aas:valueType>
+                  <aas:valueType>xs:string</aas:valueType>
                 </aas:property>
               </aas:value>
             </aas:inputVariable>
@@ -641,7 +656,7 @@
                     </aas:keys>
                   </aas:valueId>
                   <aas:value>exampleValue</aas:value>
-                  <aas:valueType>string</aas:valueType>
+                  <aas:valueType>xs:string</aas:valueType>
                 </aas:property>
               </aas:value>
             </aas:outputVariable>
@@ -687,111 +702,18 @@
         </aas:submodelElement>
         <aas:submodelElement>
           <aas:submodelElementCollection>
-            <aas:idShort>ExampleSubmodelCollectionOrdered</aas:idShort>
+            <aas:idShort>ExampleSubmodelCollection</aas:idShort>
             <aas:category>PARAMETER</aas:category>
             <aas:description>
-              <aas:langString lang="en-us">Example SubmodelElementCollectionOrdered object</aas:langString>
-              <aas:langString lang="de">Beispiel SubmodelElementCollectionOrdered Element</aas:langString>
+              <aas:langString lang="en-us">Example SubmodelElementCollection object</aas:langString>
+              <aas:langString lang="de">Beispiel SubmodelElementCollection Element</aas:langString>
             </aas:description>
             <aas:kind>Instance</aas:kind>
             <aas:semanticId type="GlobalReference">
               <aas:keys>
-                <aas:key type="GlobalReference">http://acplt.org/SubmodelElementCollections/ExampleSubmodelElementCollectionOrdered</aas:key>
+                <aas:key type="GlobalReference">http://acplt.org/SubmodelElementCollections/ExampleSubmodelElementCollection</aas:key>
               </aas:keys>
             </aas:semanticId>
-            <aas:allowDuplicates>true</aas:allowDuplicates>
-            <aas:ordered>true</aas:ordered>
-            <aas:value>
-              <aas:submodelElement>
-                <aas:property>
-                  <aas:idShort>ExampleProperty</aas:idShort>
-                  <aas:displayName>
-                    <aas:langString lang="en-us">ExampleProperty</aas:langString>
-                    <aas:langString lang="de">BeispielProperty</aas:langString>
-                  </aas:displayName>
-                  <aas:category>CONSTANT</aas:category>
-                  <aas:description>
-                    <aas:langString lang="en-us">Example Property object</aas:langString>
-                    <aas:langString lang="de">Beispiel Property Element</aas:langString>
-                  </aas:description>
-                  <aas:kind>Instance</aas:kind>
-                  <aas:semanticId type="GlobalReference">
-                    <aas:keys>
-                      <aas:key type="GlobalReference">http://acplt.org/Properties/ExampleProperty</aas:key>
-                    </aas:keys>
-                  </aas:semanticId>
-                  <aas:valueId type="GlobalReference">
-                    <aas:keys>
-                      <aas:key type="GlobalReference">http://acplt.org/ValueId/ExampleValueId</aas:key>
-                    </aas:keys>
-                  </aas:valueId>
-                  <aas:value>exampleValue</aas:value>
-                  <aas:valueType>string</aas:valueType>
-                </aas:property>
-              </aas:submodelElement>
-              <aas:submodelElement>
-                <aas:multiLanguageProperty>
-                  <aas:idShort>ExampleMultiLanguageProperty</aas:idShort>
-                  <aas:category>CONSTANT</aas:category>
-                  <aas:description>
-                    <aas:langString lang="en-us">Example MultiLanguageProperty object</aas:langString>
-                    <aas:langString lang="de">Beispiel MultiLanguageProperty Element</aas:langString>
-                  </aas:description>
-                  <aas:kind>Instance</aas:kind>
-                  <aas:semanticId type="GlobalReference">
-                    <aas:keys>
-                      <aas:key type="GlobalReference">http://acplt.org/MultiLanguageProperties/ExampleMultiLanguageProperty</aas:key>
-                    </aas:keys>
-                  </aas:semanticId>
-                  <aas:valueId type="GlobalReference">
-                    <aas:keys>
-                      <aas:key type="GlobalReference">http://acplt.org/ValueId/ExampleMultiLanguageValueId</aas:key>
-                    </aas:keys>
-                  </aas:valueId>
-                  <aas:value>
-                    <aas:langString lang="en-us">Example value of a MultiLanguageProperty element</aas:langString>
-                    <aas:langString lang="de">Beispielswert für ein MulitLanguageProperty-Element</aas:langString>
-                  </aas:value>
-                </aas:multiLanguageProperty>
-              </aas:submodelElement>
-              <aas:submodelElement>
-                <aas:range>
-                  <aas:idShort>ExampleRange</aas:idShort>
-                  <aas:category>PARAMETER</aas:category>
-                  <aas:description>
-                    <aas:langString lang="en-us">Example Range object</aas:langString>
-                    <aas:langString lang="de">Beispiel Range Element</aas:langString>
-                  </aas:description>
-                  <aas:kind>Instance</aas:kind>
-                  <aas:semanticId type="GlobalReference">
-                    <aas:keys>
-                      <aas:key type="GlobalReference">http://acplt.org/Ranges/ExampleRange</aas:key>
-                    </aas:keys>
-                  </aas:semanticId>
-                  <aas:max>100</aas:max>
-                  <aas:min>0</aas:min>
-                  <aas:valueType>int</aas:valueType>
-                </aas:range>
-              </aas:submodelElement>
-            </aas:value>
-          </aas:submodelElementCollection>
-        </aas:submodelElement>
-        <aas:submodelElement>
-          <aas:submodelElementCollection>
-            <aas:idShort>ExampleSubmodelCollectionUnordered</aas:idShort>
-            <aas:category>PARAMETER</aas:category>
-            <aas:description>
-              <aas:langString lang="en-us">Example SubmodelElementCollectionUnordered object</aas:langString>
-              <aas:langString lang="de">Beispiel SubmodelElementCollectionUnordered Element</aas:langString>
-            </aas:description>
-            <aas:kind>Instance</aas:kind>
-            <aas:semanticId type="GlobalReference">
-              <aas:keys>
-                <aas:key type="GlobalReference">http://acplt.org/SubmodelElementCollections/ExampleSubmodelElementCollectionUnordered</aas:key>
-              </aas:keys>
-            </aas:semanticId>
-            <aas:allowDuplicates>true</aas:allowDuplicates>
-            <aas:ordered>false</aas:ordered>
             <aas:value>
               <aas:submodelElement>
                 <aas:blob>
@@ -846,6 +768,126 @@
                   <aas:value>https://www.plattform-i40.de/PI40/Redaktion/DE/Downloads/Publikation/Details-of-the-Asset-Administration-Shell-Part1.pdf?__blob=publicationFile&amp;v=5</aas:value>
                   <aas:contentType>application/pdf</aas:contentType>
                 </aas:file>
+              </aas:submodelElement>
+              <aas:submodelElement>
+                <aas:submodelElementList>
+                  <aas:idShort>ExampleSubmodelList</aas:idShort>
+                  <aas:category>PARAMETER</aas:category>
+                  <aas:description>
+                    <aas:langString lang="en-us">Example SubmodelElementList object</aas:langString>
+                    <aas:langString lang="de">Beispiel SubmodelElementList Element</aas:langString>
+                  </aas:description>
+                  <aas:kind>Instance</aas:kind>
+                  <aas:semanticId type="GlobalReference">
+                    <aas:keys>
+                      <aas:key type="GlobalReference">http://acplt.org/SubmodelElementLists/ExampleSubmodelElementList</aas:key>
+                    </aas:keys>
+                  </aas:semanticId>
+                  <aas:orderRelevant>true</aas:orderRelevant>
+                  <aas:value>
+                    <aas:property>
+                      <aas:idShort>ExampleProperty</aas:idShort>
+                      <aas:displayName>
+                        <aas:langString lang="en-us">ExampleProperty</aas:langString>
+                        <aas:langString lang="de">BeispielProperty</aas:langString>
+                      </aas:displayName>
+                      <aas:category>CONSTANT</aas:category>
+                      <aas:description>
+                        <aas:langString lang="en-us">Example Property object</aas:langString>
+                        <aas:langString lang="de">Beispiel Property Element</aas:langString>
+                      </aas:description>
+                      <aas:kind>Instance</aas:kind>
+                      <aas:semanticId type="GlobalReference">
+                        <aas:keys>
+                          <aas:key type="GlobalReference">http://acplt.org/Properties/ExampleProperty</aas:key>
+                        </aas:keys>
+                      </aas:semanticId>
+                      <aas:valueId type="GlobalReference">
+                        <aas:keys>
+                          <aas:key type="GlobalReference">http://acplt.org/ValueId/ExampleValueId</aas:key>
+                        </aas:keys>
+                      </aas:valueId>
+                      <aas:value>exampleValue</aas:value>
+                      <aas:valueType>xs:string</aas:valueType>
+                    </aas:property>
+                    <aas:property>
+                      <aas:idShort>ExampleProperty2</aas:idShort>
+                      <aas:displayName>
+                        <aas:langString lang="en-us">ExampleProperty</aas:langString>
+                        <aas:langString lang="de">BeispielProperty</aas:langString>
+                      </aas:displayName>
+                      <aas:category>CONSTANT</aas:category>
+                      <aas:description>
+                        <aas:langString lang="en-us">Example Property object</aas:langString>
+                        <aas:langString lang="de">Beispiel Property Element</aas:langString>
+                      </aas:description>
+                      <aas:kind>Instance</aas:kind>
+                      <aas:semanticId type="GlobalReference">
+                        <aas:keys>
+                          <aas:key type="GlobalReference">http://acplt.org/Properties/ExampleProperty</aas:key>
+                        </aas:keys>
+                      </aas:semanticId>
+                      <aas:valueId type="GlobalReference">
+                        <aas:keys>
+                          <aas:key type="GlobalReference">http://acplt.org/ValueId/ExampleValueId</aas:key>
+                        </aas:keys>
+                      </aas:valueId>
+                      <aas:value>exampleValue</aas:value>
+                      <aas:valueType>xs:string</aas:valueType>
+                    </aas:property>
+                  </aas:value>
+                  <aas:semanticIdListElement type="GlobalReference">
+                    <aas:keys>
+                      <aas:key type="GlobalReference">http://acplt.org/Properties/ExampleProperty</aas:key>
+                    </aas:keys>
+                  </aas:semanticIdListElement>
+                  <aas:typeValueListElement>Property</aas:typeValueListElement>
+                  <aas:valueTypeListElement>xs:string</aas:valueTypeListElement>
+                </aas:submodelElementList>
+              </aas:submodelElement>
+              <aas:submodelElement>
+                <aas:multiLanguageProperty>
+                  <aas:idShort>ExampleMultiLanguageProperty</aas:idShort>
+                  <aas:category>CONSTANT</aas:category>
+                  <aas:description>
+                    <aas:langString lang="en-us">Example MultiLanguageProperty object</aas:langString>
+                    <aas:langString lang="de">Beispiel MultiLanguageProperty Element</aas:langString>
+                  </aas:description>
+                  <aas:kind>Instance</aas:kind>
+                  <aas:semanticId type="GlobalReference">
+                    <aas:keys>
+                      <aas:key type="GlobalReference">http://acplt.org/MultiLanguageProperties/ExampleMultiLanguageProperty</aas:key>
+                    </aas:keys>
+                  </aas:semanticId>
+                  <aas:valueId type="GlobalReference">
+                    <aas:keys>
+                      <aas:key type="GlobalReference">http://acplt.org/ValueId/ExampleMultiLanguageValueId</aas:key>
+                    </aas:keys>
+                  </aas:valueId>
+                  <aas:value>
+                    <aas:langString lang="en-us">Example value of a MultiLanguageProperty element</aas:langString>
+                    <aas:langString lang="de">Beispielswert für ein MulitLanguageProperty-Element</aas:langString>
+                  </aas:value>
+                </aas:multiLanguageProperty>
+              </aas:submodelElement>
+              <aas:submodelElement>
+                <aas:range>
+                  <aas:idShort>ExampleRange</aas:idShort>
+                  <aas:category>PARAMETER</aas:category>
+                  <aas:description>
+                    <aas:langString lang="en-us">Example Range object</aas:langString>
+                    <aas:langString lang="de">Beispiel Range Element</aas:langString>
+                  </aas:description>
+                  <aas:kind>Instance</aas:kind>
+                  <aas:semanticId type="GlobalReference">
+                    <aas:keys>
+                      <aas:key type="GlobalReference">http://acplt.org/Ranges/ExampleRange</aas:key>
+                    </aas:keys>
+                  </aas:semanticId>
+                  <aas:max>100</aas:max>
+                  <aas:min>0</aas:min>
+                  <aas:valueType>xs:int</aas:valueType>
+                </aas:range>
               </aas:submodelElement>
               <aas:submodelElement>
                 <aas:referenceElement>
@@ -941,78 +983,74 @@
           </aas:basicEventElement>
         </aas:submodelElement>
         <aas:submodelElement>
-          <aas:submodelElementCollection>
-            <aas:idShort>ExampleSubmodelCollectionOrdered</aas:idShort>
-            <aas:kind>Instance</aas:kind>
-            <aas:allowDuplicates>true</aas:allowDuplicates>
-            <aas:ordered>true</aas:ordered>
+          <aas:submodelElementList>
+            <aas:idShort>ExampleSubmodelList</aas:idShort>
             <aas:value>
-              <aas:submodelElement>
-                <aas:property>
-                  <aas:idShort>ExampleProperty</aas:idShort>
-                  <aas:category>PARAMETER</aas:category>
-                  <aas:kind>Instance</aas:kind>
-                  <aas:valueType>string</aas:valueType>
-                </aas:property>
-              </aas:submodelElement>
-              <aas:submodelElement>
-                <aas:multiLanguageProperty>
-                  <aas:idShort>ExampleMultiLanguageProperty</aas:idShort>
-                  <aas:category>PARAMETER</aas:category>
-                  <aas:kind>Instance</aas:kind>
-                </aas:multiLanguageProperty>
-              </aas:submodelElement>
-              <aas:submodelElement>
-                <aas:range>
-                  <aas:idShort>ExampleRange</aas:idShort>
-                  <aas:category>PARAMETER</aas:category>
-                  <aas:kind>Instance</aas:kind>
-                  <aas:valueType>int</aas:valueType>
-                </aas:range>
-              </aas:submodelElement>
+              <aas:submodelElementCollection>
+                <aas:idShort>ExampleSubmodelCollection</aas:idShort>
+                <aas:kind>Instance</aas:kind>
+                <aas:value>
+                  <aas:submodelElement>
+                    <aas:blob>
+                      <aas:idShort>ExampleBlob</aas:idShort>
+                      <aas:kind>Instance</aas:kind>
+                      <aas:value/>
+                      <aas:contentType>application/pdf</aas:contentType>
+                    </aas:blob>
+                  </aas:submodelElement>
+                  <aas:submodelElement>
+                    <aas:file>
+                      <aas:idShort>ExampleFile</aas:idShort>
+                      <aas:kind>Instance</aas:kind>
+                      <aas:contentType>application/pdf</aas:contentType>
+                    </aas:file>
+                  </aas:submodelElement>
+                  <aas:submodelElement>
+                    <aas:multiLanguageProperty>
+                      <aas:idShort>ExampleMultiLanguageProperty</aas:idShort>
+                      <aas:category>PARAMETER</aas:category>
+                      <aas:kind>Instance</aas:kind>
+                    </aas:multiLanguageProperty>
+                  </aas:submodelElement>
+                  <aas:submodelElement>
+                    <aas:property>
+                      <aas:idShort>ExampleProperty</aas:idShort>
+                      <aas:category>PARAMETER</aas:category>
+                      <aas:kind>Instance</aas:kind>
+                      <aas:valueType>xs:string</aas:valueType>
+                    </aas:property>
+                  </aas:submodelElement>
+                  <aas:submodelElement>
+                    <aas:range>
+                      <aas:idShort>ExampleRange</aas:idShort>
+                      <aas:category>PARAMETER</aas:category>
+                      <aas:kind>Instance</aas:kind>
+                      <aas:valueType>xs:int</aas:valueType>
+                    </aas:range>
+                  </aas:submodelElement>
+                  <aas:submodelElement>
+                    <aas:referenceElement>
+                      <aas:idShort>ExampleReferenceElement</aas:idShort>
+                      <aas:category>PARAMETER</aas:category>
+                      <aas:kind>Instance</aas:kind>
+                    </aas:referenceElement>
+                  </aas:submodelElement>
+                </aas:value>
+              </aas:submodelElementCollection>
+              <aas:submodelElementCollection>
+                <aas:idShort>ExampleSubmodelCollection2</aas:idShort>
+                <aas:kind>Instance</aas:kind>
+                <aas:value/>
+              </aas:submodelElementCollection>
             </aas:value>
-          </aas:submodelElementCollection>
+            <aas:typeValueListElement>SubmodelElementCollection</aas:typeValueListElement>
+          </aas:submodelElementList>
         </aas:submodelElement>
         <aas:submodelElement>
-          <aas:submodelElementCollection>
-            <aas:idShort>ExampleSubmodelCollectionUnordered</aas:idShort>
-            <aas:kind>Instance</aas:kind>
-            <aas:allowDuplicates>true</aas:allowDuplicates>
-            <aas:ordered>false</aas:ordered>
-            <aas:value>
-              <aas:submodelElement>
-                <aas:blob>
-                  <aas:idShort>ExampleBlob</aas:idShort>
-                  <aas:kind>Instance</aas:kind>
-                  <aas:value/>
-                  <aas:contentType>application/pdf</aas:contentType>
-                </aas:blob>
-              </aas:submodelElement>
-              <aas:submodelElement>
-                <aas:file>
-                  <aas:idShort>ExampleFile</aas:idShort>
-                  <aas:kind>Instance</aas:kind>
-                  <aas:contentType>application/pdf</aas:contentType>
-                </aas:file>
-              </aas:submodelElement>
-              <aas:submodelElement>
-                <aas:referenceElement>
-                  <aas:idShort>ExampleReferenceElement</aas:idShort>
-                  <aas:category>PARAMETER</aas:category>
-                  <aas:kind>Instance</aas:kind>
-                </aas:referenceElement>
-              </aas:submodelElement>
-            </aas:value>
-          </aas:submodelElementCollection>
-        </aas:submodelElement>
-        <aas:submodelElement>
-          <aas:submodelElementCollection>
-            <aas:idShort>ExampleSubmodelCollectionUnordered2</aas:idShort>
-            <aas:kind>Instance</aas:kind>
-            <aas:allowDuplicates>true</aas:allowDuplicates>
-            <aas:ordered>false</aas:ordered>
-            <aas:value/>
-          </aas:submodelElementCollection>
+          <aas:submodelElementList>
+            <aas:idShort>ExampleSubmodelList2</aas:idShort>
+            <aas:typeValueListElement>Capability</aas:typeValueListElement>
+          </aas:submodelElementList>
         </aas:submodelElement>
       </aas:submodelElements>
     </aas:submodel>
@@ -1102,7 +1140,7 @@
                   <aas:kind>Instance</aas:kind>
                   <aas:max>5</aas:max>
                   <aas:min>1</aas:min>
-                  <aas:valueType>integer</aas:valueType>
+                  <aas:valueType>xs:integer</aas:valueType>
                 </aas:range>
               </aas:dataElement>
               <aas:dataElement>
@@ -1111,7 +1149,7 @@
                   <aas:category>PARAMETER</aas:category>
                   <aas:kind>Instance</aas:kind>
                   <aas:value>exampleValue</aas:value>
-                  <aas:valueType>string</aas:valueType>
+                  <aas:valueType>xs:string</aas:valueType>
                 </aas:property>
               </aas:dataElement>
             </aas:annotations>
@@ -1156,7 +1194,7 @@
                     </aas:keys>
                   </aas:valueId>
                   <aas:value>exampleValue</aas:value>
-                  <aas:valueType>string</aas:valueType>
+                  <aas:valueType>xs:string</aas:valueType>
                 </aas:property>
               </aas:value>
             </aas:inoutputVariable>
@@ -1185,7 +1223,7 @@
                     </aas:keys>
                   </aas:valueId>
                   <aas:value>exampleValue</aas:value>
-                  <aas:valueType>string</aas:valueType>
+                  <aas:valueType>xs:string</aas:valueType>
                 </aas:property>
               </aas:value>
             </aas:inputVariable>
@@ -1214,7 +1252,7 @@
                     </aas:keys>
                   </aas:valueId>
                   <aas:value>exampleValue</aas:value>
-                  <aas:valueType>string</aas:valueType>
+                  <aas:valueType>xs:string</aas:valueType>
                 </aas:property>
               </aas:value>
             </aas:outputVariable>
@@ -1260,103 +1298,18 @@
         </aas:submodelElement>
         <aas:submodelElement>
           <aas:submodelElementCollection>
-            <aas:idShort>ExampleSubmodelCollectionOrdered</aas:idShort>
+            <aas:idShort>ExampleSubmodelCollection</aas:idShort>
             <aas:category>PARAMETER</aas:category>
             <aas:description>
-              <aas:langString lang="en-us">Example SubmodelElementCollectionOrdered object</aas:langString>
-              <aas:langString lang="de">Beispiel SubmodelElementCollectionOrdered Element</aas:langString>
+              <aas:langString lang="en-us">Example SubmodelElementCollection object</aas:langString>
+              <aas:langString lang="de">Beispiel SubmodelElementCollection Element</aas:langString>
             </aas:description>
             <aas:kind>Instance</aas:kind>
             <aas:semanticId type="GlobalReference">
               <aas:keys>
-                <aas:key type="GlobalReference">http://acplt.org/SubmodelElementCollections/ExampleSubmodelElementCollectionOrdered</aas:key>
+                <aas:key type="GlobalReference">http://acplt.org/SubmodelElementCollections/ExampleSubmodelElementCollection</aas:key>
               </aas:keys>
             </aas:semanticId>
-            <aas:allowDuplicates>false</aas:allowDuplicates>
-            <aas:ordered>true</aas:ordered>
-            <aas:value>
-              <aas:submodelElement>
-                <aas:property>
-                  <aas:idShort>ExampleProperty</aas:idShort>
-                  <aas:category>CONSTANT</aas:category>
-                  <aas:description>
-                    <aas:langString lang="en-us">Example Property object</aas:langString>
-                    <aas:langString lang="de">Beispiel Property Element</aas:langString>
-                  </aas:description>
-                  <aas:kind>Instance</aas:kind>
-                  <aas:semanticId type="GlobalReference">
-                    <aas:keys>
-                      <aas:key type="GlobalReference">http://acplt.org/Properties/ExampleProperty</aas:key>
-                    </aas:keys>
-                  </aas:semanticId>
-                  <aas:qualifiers>
-                    <aas:qualifier>
-                      <aas:type>http://acplt.org/Qualifier/ExampleQualifier</aas:type>
-                      <aas:valueType>string</aas:valueType>
-                    </aas:qualifier>
-                  </aas:qualifiers>
-                  <aas:value>exampleValue</aas:value>
-                  <aas:valueType>string</aas:valueType>
-                </aas:property>
-              </aas:submodelElement>
-              <aas:submodelElement>
-                <aas:multiLanguageProperty>
-                  <aas:idShort>ExampleMultiLanguageProperty</aas:idShort>
-                  <aas:category>CONSTANT</aas:category>
-                  <aas:description>
-                    <aas:langString lang="en-us">Example MultiLanguageProperty object</aas:langString>
-                    <aas:langString lang="de">Beispiel MulitLanguageProperty Element</aas:langString>
-                  </aas:description>
-                  <aas:kind>Instance</aas:kind>
-                  <aas:semanticId type="GlobalReference">
-                    <aas:keys>
-                      <aas:key type="GlobalReference">http://acplt.org/MultiLanguageProperties/ExampleMultiLanguageProperty</aas:key>
-                    </aas:keys>
-                  </aas:semanticId>
-                  <aas:value>
-                    <aas:langString lang="en-us">Example value of a MultiLanguageProperty element</aas:langString>
-                    <aas:langString lang="de">Beispielswert für ein MulitLanguageProperty-Element</aas:langString>
-                  </aas:value>
-                </aas:multiLanguageProperty>
-              </aas:submodelElement>
-              <aas:submodelElement>
-                <aas:range>
-                  <aas:idShort>ExampleRange</aas:idShort>
-                  <aas:category>PARAMETER</aas:category>
-                  <aas:description>
-                    <aas:langString lang="en-us">Example Range object</aas:langString>
-                    <aas:langString lang="de">Beispiel Range Element</aas:langString>
-                  </aas:description>
-                  <aas:kind>Instance</aas:kind>
-                  <aas:semanticId type="GlobalReference">
-                    <aas:keys>
-                      <aas:key type="GlobalReference">http://acplt.org/Ranges/ExampleRange</aas:key>
-                    </aas:keys>
-                  </aas:semanticId>
-                  <aas:max>100</aas:max>
-                  <aas:min>0</aas:min>
-                  <aas:valueType>int</aas:valueType>
-                </aas:range>
-              </aas:submodelElement>
-            </aas:value>
-          </aas:submodelElementCollection>
-        </aas:submodelElement>
-        <aas:submodelElement>
-          <aas:submodelElementCollection>
-            <aas:idShort>ExampleSubmodelCollectionUnordered</aas:idShort>
-            <aas:category>PARAMETER</aas:category>
-            <aas:description>
-              <aas:langString lang="en-us">Example SubmodelElementCollectionUnordered object</aas:langString>
-              <aas:langString lang="de">Beispiel SubmodelElementCollectionUnordered Element</aas:langString>
-            </aas:description>
-            <aas:kind>Instance</aas:kind>
-            <aas:semanticId type="GlobalReference">
-              <aas:keys>
-                <aas:key type="GlobalReference">http://acplt.org/SubmodelElementCollections/ExampleSubmodelElementCollectionUnordered</aas:key>
-              </aas:keys>
-            </aas:semanticId>
-            <aas:allowDuplicates>false</aas:allowDuplicates>
-            <aas:ordered>false</aas:ordered>
             <aas:value>
               <aas:submodelElement>
                 <aas:blob>
@@ -1393,6 +1346,69 @@
                   <aas:value>/TestFile.pdf</aas:value>
                   <aas:contentType>application/pdf</aas:contentType>
                 </aas:file>
+              </aas:submodelElement>
+              <aas:submodelElement>
+                <aas:multiLanguageProperty>
+                  <aas:idShort>ExampleMultiLanguageProperty</aas:idShort>
+                  <aas:category>CONSTANT</aas:category>
+                  <aas:description>
+                    <aas:langString lang="en-us">Example MultiLanguageProperty object</aas:langString>
+                    <aas:langString lang="de">Beispiel MulitLanguageProperty Element</aas:langString>
+                  </aas:description>
+                  <aas:kind>Instance</aas:kind>
+                  <aas:semanticId type="GlobalReference">
+                    <aas:keys>
+                      <aas:key type="GlobalReference">http://acplt.org/MultiLanguageProperties/ExampleMultiLanguageProperty</aas:key>
+                    </aas:keys>
+                  </aas:semanticId>
+                  <aas:value>
+                    <aas:langString lang="en-us">Example value of a MultiLanguageProperty element</aas:langString>
+                    <aas:langString lang="de">Beispielswert für ein MulitLanguageProperty-Element</aas:langString>
+                  </aas:value>
+                </aas:multiLanguageProperty>
+              </aas:submodelElement>
+              <aas:submodelElement>
+                <aas:property>
+                  <aas:idShort>ExampleProperty</aas:idShort>
+                  <aas:category>CONSTANT</aas:category>
+                  <aas:description>
+                    <aas:langString lang="en-us">Example Property object</aas:langString>
+                    <aas:langString lang="de">Beispiel Property Element</aas:langString>
+                  </aas:description>
+                  <aas:kind>Instance</aas:kind>
+                  <aas:semanticId type="GlobalReference">
+                    <aas:keys>
+                      <aas:key type="GlobalReference">http://acplt.org/Properties/ExampleProperty</aas:key>
+                    </aas:keys>
+                  </aas:semanticId>
+                  <aas:qualifiers>
+                    <aas:qualifier>
+                      <aas:type>http://acplt.org/Qualifier/ExampleQualifier</aas:type>
+                      <aas:valueType>xs:string</aas:valueType>
+                    </aas:qualifier>
+                  </aas:qualifiers>
+                  <aas:value>exampleValue</aas:value>
+                  <aas:valueType>xs:string</aas:valueType>
+                </aas:property>
+              </aas:submodelElement>
+              <aas:submodelElement>
+                <aas:range>
+                  <aas:idShort>ExampleRange</aas:idShort>
+                  <aas:category>PARAMETER</aas:category>
+                  <aas:description>
+                    <aas:langString lang="en-us">Example Range object</aas:langString>
+                    <aas:langString lang="de">Beispiel Range Element</aas:langString>
+                  </aas:description>
+                  <aas:kind>Instance</aas:kind>
+                  <aas:semanticId type="GlobalReference">
+                    <aas:keys>
+                      <aas:key type="GlobalReference">http://acplt.org/Ranges/ExampleRange</aas:key>
+                    </aas:keys>
+                  </aas:semanticId>
+                  <aas:max>100</aas:max>
+                  <aas:min>0</aas:min>
+                  <aas:valueType>xs:int</aas:valueType>
+                </aas:range>
               </aas:submodelElement>
               <aas:submodelElement>
                 <aas:referenceElement>
@@ -1525,7 +1541,7 @@
                       <aas:key type="GlobalReference">http://acplt.org/Properties/ExampleProperty</aas:key>
                     </aas:keys>
                   </aas:semanticId>
-                  <aas:valueType>string</aas:valueType>
+                  <aas:valueType>xs:string</aas:valueType>
                 </aas:property>
               </aas:value>
             </aas:inoutputVariable>
@@ -1544,7 +1560,7 @@
                       <aas:key type="GlobalReference">http://acplt.org/Properties/ExampleProperty</aas:key>
                     </aas:keys>
                   </aas:semanticId>
-                  <aas:valueType>string</aas:valueType>
+                  <aas:valueType>xs:string</aas:valueType>
                 </aas:property>
               </aas:value>
             </aas:inputVariable>
@@ -1563,7 +1579,7 @@
                       <aas:key type="GlobalReference">http://acplt.org/Properties/ExampleProperty</aas:key>
                     </aas:keys>
                   </aas:semanticId>
-                  <aas:valueType>string</aas:valueType>
+                  <aas:valueType>xs:string</aas:valueType>
                 </aas:property>
               </aas:value>
             </aas:outputVariable>
@@ -1608,183 +1624,203 @@
           </aas:basicEventElement>
         </aas:submodelElement>
         <aas:submodelElement>
-          <aas:submodelElementCollection>
-            <aas:idShort>ExampleSubmodelCollectionOrdered</aas:idShort>
+          <aas:submodelElementList>
+            <aas:idShort>ExampleSubmodelList</aas:idShort>
             <aas:category>PARAMETER</aas:category>
             <aas:description>
-              <aas:langString lang="en-us">Example SubmodelElementCollectionOrdered object</aas:langString>
-              <aas:langString lang="de">Beispiel SubmodelElementCollectionOrdered Element</aas:langString>
+              <aas:langString lang="en-us">Example SubmodelElementList object</aas:langString>
+              <aas:langString lang="de">Beispiel SubmodelElementList Element</aas:langString>
             </aas:description>
             <aas:kind>Template</aas:kind>
             <aas:semanticId type="GlobalReference">
               <aas:keys>
-                <aas:key type="GlobalReference">http://acplt.org/SubmodelElementCollections/ExampleSubmodelElementCollectionOrdered</aas:key>
+                <aas:key type="GlobalReference">http://acplt.org/SubmodelElementLists/ExampleSubmodelElementList</aas:key>
               </aas:keys>
             </aas:semanticId>
-            <aas:allowDuplicates>true</aas:allowDuplicates>
-            <aas:ordered>true</aas:ordered>
+            <aas:orderRelevant>false</aas:orderRelevant>
             <aas:value>
-              <aas:submodelElement>
-                <aas:property>
-                  <aas:idShort>ExampleProperty</aas:idShort>
-                  <aas:category>CONSTANT</aas:category>
-                  <aas:description>
-                    <aas:langString lang="en-us">Example Property object</aas:langString>
-                    <aas:langString lang="de">Beispiel Property Element</aas:langString>
-                  </aas:description>
-                  <aas:kind>Template</aas:kind>
-                  <aas:semanticId type="GlobalReference">
-                    <aas:keys>
-                      <aas:key type="GlobalReference">http://acplt.org/Properties/ExampleProperty</aas:key>
-                    </aas:keys>
-                  </aas:semanticId>
-                  <aas:valueType>string</aas:valueType>
-                </aas:property>
-              </aas:submodelElement>
-              <aas:submodelElement>
-                <aas:multiLanguageProperty>
-                  <aas:idShort>ExampleMultiLanguageProperty</aas:idShort>
-                  <aas:category>CONSTANT</aas:category>
-                  <aas:description>
-                    <aas:langString lang="en-us">Example MultiLanguageProperty object</aas:langString>
-                    <aas:langString lang="de">Beispiel MulitLanguageProperty Element</aas:langString>
-                  </aas:description>
-                  <aas:kind>Template</aas:kind>
-                  <aas:semanticId type="GlobalReference">
-                    <aas:keys>
-                      <aas:key type="GlobalReference">http://acplt.org/MultiLanguageProperties/ExampleMultiLanguageProperty</aas:key>
-                    </aas:keys>
-                  </aas:semanticId>
-                </aas:multiLanguageProperty>
-              </aas:submodelElement>
-              <aas:submodelElement>
-                <aas:range>
-                  <aas:idShort>ExampleRange</aas:idShort>
-                  <aas:category>PARAMETER</aas:category>
-                  <aas:description>
-                    <aas:langString lang="en-us">Example Range object</aas:langString>
-                    <aas:langString lang="de">Beispiel Range Element</aas:langString>
-                  </aas:description>
-                  <aas:kind>Template</aas:kind>
-                  <aas:semanticId type="GlobalReference">
-                    <aas:keys>
-                      <aas:key type="GlobalReference">http://acplt.org/Ranges/ExampleRange</aas:key>
-                    </aas:keys>
-                  </aas:semanticId>
-                  <aas:max>100</aas:max>
-                  <aas:valueType>int</aas:valueType>
-                </aas:range>
-              </aas:submodelElement>
-              <aas:submodelElement>
-                <aas:range>
-                  <aas:idShort>ExampleRange2</aas:idShort>
-                  <aas:category>PARAMETER</aas:category>
-                  <aas:description>
-                    <aas:langString lang="en-us">Example Range object</aas:langString>
-                    <aas:langString lang="de">Beispiel Range Element</aas:langString>
-                  </aas:description>
-                  <aas:kind>Template</aas:kind>
-                  <aas:semanticId type="GlobalReference">
-                    <aas:keys>
-                      <aas:key type="GlobalReference">http://acplt.org/Ranges/ExampleRange</aas:key>
-                    </aas:keys>
-                  </aas:semanticId>
-                  <aas:min>0</aas:min>
-                  <aas:valueType>int</aas:valueType>
-                </aas:range>
-              </aas:submodelElement>
+              <aas:submodelElementCollection>
+                <aas:idShort>ExampleSubmodelCollection</aas:idShort>
+                <aas:category>PARAMETER</aas:category>
+                <aas:description>
+                  <aas:langString lang="en-us">Example SubmodelElementCollection object</aas:langString>
+                  <aas:langString lang="de">Beispiel SubmodelElementCollection Element</aas:langString>
+                </aas:description>
+                <aas:kind>Template</aas:kind>
+                <aas:semanticId type="GlobalReference">
+                  <aas:keys>
+                    <aas:key type="GlobalReference">http://acplt.org/SubmodelElementCollections/ExampleSubmodelElementCollection</aas:key>
+                  </aas:keys>
+                </aas:semanticId>
+                <aas:value>
+                  <aas:submodelElement>
+                    <aas:property>
+                      <aas:idShort>ExampleProperty</aas:idShort>
+                      <aas:category>CONSTANT</aas:category>
+                      <aas:description>
+                        <aas:langString lang="en-us">Example Property object</aas:langString>
+                        <aas:langString lang="de">Beispiel Property Element</aas:langString>
+                      </aas:description>
+                      <aas:kind>Template</aas:kind>
+                      <aas:semanticId type="GlobalReference">
+                        <aas:keys>
+                          <aas:key type="GlobalReference">http://acplt.org/Properties/ExampleProperty</aas:key>
+                        </aas:keys>
+                      </aas:semanticId>
+                      <aas:valueType>xs:string</aas:valueType>
+                    </aas:property>
+                  </aas:submodelElement>
+                  <aas:submodelElement>
+                    <aas:multiLanguageProperty>
+                      <aas:idShort>ExampleMultiLanguageProperty</aas:idShort>
+                      <aas:category>CONSTANT</aas:category>
+                      <aas:description>
+                        <aas:langString lang="en-us">Example MultiLanguageProperty object</aas:langString>
+                        <aas:langString lang="de">Beispiel MulitLanguageProperty Element</aas:langString>
+                      </aas:description>
+                      <aas:kind>Template</aas:kind>
+                      <aas:semanticId type="GlobalReference">
+                        <aas:keys>
+                          <aas:key type="GlobalReference">http://acplt.org/MultiLanguageProperties/ExampleMultiLanguageProperty</aas:key>
+                        </aas:keys>
+                      </aas:semanticId>
+                    </aas:multiLanguageProperty>
+                  </aas:submodelElement>
+                  <aas:submodelElement>
+                    <aas:range>
+                      <aas:idShort>ExampleRange</aas:idShort>
+                      <aas:category>PARAMETER</aas:category>
+                      <aas:description>
+                        <aas:langString lang="en-us">Example Range object</aas:langString>
+                        <aas:langString lang="de">Beispiel Range Element</aas:langString>
+                      </aas:description>
+                      <aas:kind>Template</aas:kind>
+                      <aas:semanticId type="GlobalReference">
+                        <aas:keys>
+                          <aas:key type="GlobalReference">http://acplt.org/Ranges/ExampleRange</aas:key>
+                        </aas:keys>
+                      </aas:semanticId>
+                      <aas:max>100</aas:max>
+                      <aas:valueType>xs:int</aas:valueType>
+                    </aas:range>
+                  </aas:submodelElement>
+                  <aas:submodelElement>
+                    <aas:range>
+                      <aas:idShort>ExampleRange2</aas:idShort>
+                      <aas:category>PARAMETER</aas:category>
+                      <aas:description>
+                        <aas:langString lang="en-us">Example Range object</aas:langString>
+                        <aas:langString lang="de">Beispiel Range Element</aas:langString>
+                      </aas:description>
+                      <aas:kind>Template</aas:kind>
+                      <aas:semanticId type="GlobalReference">
+                        <aas:keys>
+                          <aas:key type="GlobalReference">http://acplt.org/Ranges/ExampleRange</aas:key>
+                        </aas:keys>
+                      </aas:semanticId>
+                      <aas:min>0</aas:min>
+                      <aas:valueType>xs:int</aas:valueType>
+                    </aas:range>
+                  </aas:submodelElement>
+                  <aas:submodelElement>
+                    <aas:blob>
+                      <aas:idShort>ExampleBlob</aas:idShort>
+                      <aas:category>PARAMETER</aas:category>
+                      <aas:description>
+                        <aas:langString lang="en-us">Example Blob object</aas:langString>
+                        <aas:langString lang="de">Beispiel Blob Element</aas:langString>
+                      </aas:description>
+                      <aas:kind>Template</aas:kind>
+                      <aas:semanticId type="GlobalReference">
+                        <aas:keys>
+                          <aas:key type="GlobalReference">http://acplt.org/Blobs/ExampleBlob</aas:key>
+                        </aas:keys>
+                      </aas:semanticId>
+                      <aas:value/>
+                      <aas:contentType>application/pdf</aas:contentType>
+                    </aas:blob>
+                  </aas:submodelElement>
+                  <aas:submodelElement>
+                    <aas:file>
+                      <aas:idShort>ExampleFile</aas:idShort>
+                      <aas:category>PARAMETER</aas:category>
+                      <aas:description>
+                        <aas:langString lang="en-us">Example File object</aas:langString>
+                        <aas:langString lang="de">Beispiel File Element</aas:langString>
+                      </aas:description>
+                      <aas:kind>Template</aas:kind>
+                      <aas:semanticId type="GlobalReference">
+                        <aas:keys>
+                          <aas:key type="GlobalReference">http://acplt.org/Files/ExampleFile</aas:key>
+                        </aas:keys>
+                      </aas:semanticId>
+                      <aas:contentType>application/pdf</aas:contentType>
+                    </aas:file>
+                  </aas:submodelElement>
+                  <aas:submodelElement>
+                    <aas:referenceElement>
+                      <aas:idShort>ExampleReferenceElement</aas:idShort>
+                      <aas:category>PARAMETER</aas:category>
+                      <aas:description>
+                        <aas:langString lang="en-us">Example Reference Element object</aas:langString>
+                        <aas:langString lang="de">Beispiel Reference Element Element</aas:langString>
+                      </aas:description>
+                      <aas:kind>Template</aas:kind>
+                      <aas:semanticId type="GlobalReference">
+                        <aas:keys>
+                          <aas:key type="GlobalReference">http://acplt.org/ReferenceElements/ExampleReferenceElement</aas:key>
+                        </aas:keys>
+                      </aas:semanticId>
+                    </aas:referenceElement>
+                  </aas:submodelElement>
+                </aas:value>
+              </aas:submodelElementCollection>
+              <aas:submodelElementCollection>
+                <aas:idShort>ExampleSubmodelCollection2</aas:idShort>
+                <aas:category>PARAMETER</aas:category>
+                <aas:description>
+                  <aas:langString lang="en-us">Example SubmodelElementCollection object</aas:langString>
+                  <aas:langString lang="de">Beispiel SubmodelElementCollection Element</aas:langString>
+                </aas:description>
+                <aas:kind>Template</aas:kind>
+                <aas:semanticId type="GlobalReference">
+                  <aas:keys>
+                    <aas:key type="GlobalReference">http://acplt.org/SubmodelElementCollections/ExampleSubmodelElementCollection</aas:key>
+                  </aas:keys>
+                </aas:semanticId>
+                <aas:value/>
+              </aas:submodelElementCollection>
             </aas:value>
-          </aas:submodelElementCollection>
+            <aas:semanticIdListElement type="GlobalReference">
+              <aas:keys>
+                <aas:key type="GlobalReference">http://acplt.org/SubmodelElementCollections/ExampleSubmodelElementCollection</aas:key>
+              </aas:keys>
+            </aas:semanticIdListElement>
+            <aas:typeValueListElement>SubmodelElementCollection</aas:typeValueListElement>
+          </aas:submodelElementList>
         </aas:submodelElement>
         <aas:submodelElement>
-          <aas:submodelElementCollection>
-            <aas:idShort>ExampleSubmodelCollectionUnordered</aas:idShort>
+          <aas:submodelElementList>
+            <aas:idShort>ExampleSubmodelList2</aas:idShort>
             <aas:category>PARAMETER</aas:category>
             <aas:description>
-              <aas:langString lang="en-us">Example SubmodelElementCollectionUnordered object</aas:langString>
-              <aas:langString lang="de">Beispiel SubmodelElementCollectionUnordered Element</aas:langString>
+              <aas:langString lang="en-us">Example SubmodelElementList object</aas:langString>
+              <aas:langString lang="de">Beispiel SubmodelElementList Element</aas:langString>
             </aas:description>
             <aas:kind>Template</aas:kind>
             <aas:semanticId type="GlobalReference">
               <aas:keys>
-                <aas:key type="GlobalReference">http://acplt.org/SubmodelElementCollections/ExampleSubmodelElementCollectionUnordered</aas:key>
+                <aas:key type="GlobalReference">http://acplt.org/SubmodelElementLists/ExampleSubmodelElementList</aas:key>
               </aas:keys>
             </aas:semanticId>
-            <aas:allowDuplicates>true</aas:allowDuplicates>
-            <aas:ordered>false</aas:ordered>
-            <aas:value>
-              <aas:submodelElement>
-                <aas:blob>
-                  <aas:idShort>ExampleBlob</aas:idShort>
-                  <aas:category>PARAMETER</aas:category>
-                  <aas:description>
-                    <aas:langString lang="en-us">Example Blob object</aas:langString>
-                    <aas:langString lang="de">Beispiel Blob Element</aas:langString>
-                  </aas:description>
-                  <aas:kind>Template</aas:kind>
-                  <aas:semanticId type="GlobalReference">
-                    <aas:keys>
-                      <aas:key type="GlobalReference">http://acplt.org/Blobs/ExampleBlob</aas:key>
-                    </aas:keys>
-                  </aas:semanticId>
-                  <aas:value/>
-                  <aas:contentType>application/pdf</aas:contentType>
-                </aas:blob>
-              </aas:submodelElement>
-              <aas:submodelElement>
-                <aas:file>
-                  <aas:idShort>ExampleFile</aas:idShort>
-                  <aas:category>PARAMETER</aas:category>
-                  <aas:description>
-                    <aas:langString lang="en-us">Example File object</aas:langString>
-                    <aas:langString lang="de">Beispiel File Element</aas:langString>
-                  </aas:description>
-                  <aas:kind>Template</aas:kind>
-                  <aas:semanticId type="GlobalReference">
-                    <aas:keys>
-                      <aas:key type="GlobalReference">http://acplt.org/Files/ExampleFile</aas:key>
-                    </aas:keys>
-                  </aas:semanticId>
-                  <aas:contentType>application/pdf</aas:contentType>
-                </aas:file>
-              </aas:submodelElement>
-              <aas:submodelElement>
-                <aas:referenceElement>
-                  <aas:idShort>ExampleReferenceElement</aas:idShort>
-                  <aas:category>PARAMETER</aas:category>
-                  <aas:description>
-                    <aas:langString lang="en-us">Example Reference Element object</aas:langString>
-                    <aas:langString lang="de">Beispiel Reference Element Element</aas:langString>
-                  </aas:description>
-                  <aas:kind>Template</aas:kind>
-                  <aas:semanticId type="GlobalReference">
-                    <aas:keys>
-                      <aas:key type="GlobalReference">http://acplt.org/ReferenceElements/ExampleReferenceElement</aas:key>
-                    </aas:keys>
-                  </aas:semanticId>
-                </aas:referenceElement>
-              </aas:submodelElement>
-            </aas:value>
-          </aas:submodelElementCollection>
-        </aas:submodelElement>
-        <aas:submodelElement>
-          <aas:submodelElementCollection>
-            <aas:idShort>ExampleSubmodelCollectionUnordered2</aas:idShort>
-            <aas:category>PARAMETER</aas:category>
-            <aas:description>
-              <aas:langString lang="en-us">Example SubmodelElementCollectionUnordered object</aas:langString>
-              <aas:langString lang="de">Beispiel SubmodelElementCollectionUnordered Element</aas:langString>
-            </aas:description>
-            <aas:kind>Template</aas:kind>
-            <aas:semanticId type="GlobalReference">
+            <aas:orderRelevant>false</aas:orderRelevant>
+            <aas:semanticIdListElement type="GlobalReference">
               <aas:keys>
-                <aas:key type="GlobalReference">http://acplt.org/SubmodelElementCollections/ExampleSubmodelElementCollectionUnordered</aas:key>
+                <aas:key type="GlobalReference">http://acplt.org/SubmodelElementCollections/ExampleSubmodelElementCollection</aas:key>
               </aas:keys>
-            </aas:semanticId>
-            <aas:allowDuplicates>true</aas:allowDuplicates>
-            <aas:ordered>false</aas:ordered>
-            <aas:value/>
-          </aas:submodelElementCollection>
+            </aas:semanticIdListElement>
+            <aas:typeValueListElement>Capability</aas:typeValueListElement>
+          </aas:submodelElementList>
         </aas:submodelElement>
       </aas:submodelElements>
     </aas:submodel>

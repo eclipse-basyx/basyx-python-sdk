@@ -258,6 +258,23 @@ def create_example_submodel() -> model.Submodel:
         qualifier=(),
         kind=model.ModelingKind.INSTANCE)
 
+    submodel_element_property_2 = model.Property(
+        id_short='ExampleProperty2',
+        value_type=model.datatypes.String,
+        value='exampleValue',
+        value_id=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
+                                                  value='http://acplt.org/ValueId/ExampleValueId'),)),
+        display_name={'en-us': 'ExampleProperty',
+                      'de': 'BeispielProperty'},
+        category='CONSTANT',
+        description={'en-us': 'Example Property object',
+                     'de': 'Beispiel Property Element'},
+        parent=None,
+        semantic_id=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
+                                                     value='http://acplt.org/Properties/ExampleProperty'),)),
+        qualifier=(),
+        kind=model.ModelingKind.INSTANCE)
+
     submodel_element_multi_language_property = model.MultiLanguageProperty(
         id_short='ExampleMultiLanguageProperty',
         value={'en-us': 'Example value of a MultiLanguageProperty element',
@@ -474,15 +491,33 @@ def create_example_submodel() -> model.Submodel:
         qualifier=(),
         kind=model.ModelingKind.INSTANCE)
 
+    submodel_element_submodel_element_list = model.SubmodelElementList(
+        id_short='ExampleSubmodelList',
+        type_value_list_element=model.Property,
+        value=(submodel_element_property, submodel_element_property_2),
+        semantic_id_list_element=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
+                                                       value='http://acplt.org/Properties/ExampleProperty'),)),
+        value_type_list_element=model.datatypes.String,
+        order_relevant=True,
+        category='PARAMETER',
+        description={'en-us': 'Example SubmodelElementList object',
+                     'de': 'Beispiel SubmodelElementList Element'},
+        parent=None,
+        semantic_id=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
+                                                     value='http://acplt.org/SubmodelElementLists/'
+                                                           'ExampleSubmodelElementList'),)),
+        qualifier=(),
+        kind=model.ModelingKind.INSTANCE)
+
     submodel_element_submodel_element_collection = model.SubmodelElementCollection(
         id_short='ExampleSubmodelCollection',
         value=(submodel_element_blob,
                submodel_element_file,
                submodel_element_file_uri,
                submodel_element_multi_language_property,
-               submodel_element_property,
                submodel_element_range,
-               submodel_element_reference_element),
+               submodel_element_reference_element,
+               submodel_element_submodel_element_list),
         category='PARAMETER',
         description={'en-us': 'Example SubmodelElementCollection object',
                      'de': 'Beispiel SubmodelElementCollection Element'},

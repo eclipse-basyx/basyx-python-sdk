@@ -106,6 +106,8 @@ class AASToJsonEncoder(json.JSONEncoder):
             return self._reference_element_to_json(obj)
         if isinstance(obj, model.SubmodelElementCollection):
             return self._submodel_element_collection_to_json(obj)
+        if isinstance(obj, model.SubmodelElementList):
+            return self._submodel_element_list_to_json(obj)
         if isinstance(obj, model.AnnotatedRelationshipElement):
             return self._annotated_relationship_element_to_json(obj)
         if isinstance(obj, model.RelationshipElement):
@@ -545,6 +547,25 @@ class AASToJsonEncoder(json.JSONEncoder):
         :return: dict with the serialized attributes of this object
         """
         data = cls._abstract_classes_to_json(obj)
+        if not cls.stripped and len(obj.value) > 0:
+            data['value'] = list(obj.value)
+        return data
+
+    @classmethod
+    def _submodel_element_list_to_json(cls, obj: model.SubmodelElementList) -> Dict[str, object]:
+        """
+        serialization of an object from class SubmodelElementList to json
+
+        :param obj: object of class SubmodelElementList
+        :return: dict with the serialized attributes of this object
+        """
+        data = cls._abstract_classes_to_json(obj)
+        data['orderRelevant'] = obj.order_relevant
+        data['typeValueListElement'] = _generic.KEY_TYPES[model.KEY_TYPES_CLASSES[obj.type_value_list_element]]
+        if obj.semantic_id_list_element is not None:
+            data['semanticIdListElement'] = obj.semantic_id_list_element
+        if obj.value_type_list_element is not None:
+            data['valueTypeListElement'] = model.datatypes.XSD_TYPE_NAMES[obj.value_type_list_element]
         if not cls.stripped and len(obj.value) > 0:
             data['value'] = list(obj.value)
         return data

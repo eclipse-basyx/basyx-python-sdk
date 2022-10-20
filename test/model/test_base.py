@@ -32,6 +32,16 @@ class KeyTest(unittest.TestCase):
         ident = 'test'
         self.assertEqual(key1.__eq__(ident), NotImplemented)
 
+    def test_from_referable(self):
+        mlp1 = model.MultiLanguageProperty("mlp1")
+        mlp2 = model.MultiLanguageProperty("mlp2")
+        model.SubmodelElementList("list", model.MultiLanguageProperty, [mlp1, mlp2])
+        self.assertEqual(model.Key(model.KeyTypes.MULTI_LANGUAGE_PROPERTY, "0"), model.Key.from_referable(mlp1))
+        self.assertEqual(model.Key(model.KeyTypes.MULTI_LANGUAGE_PROPERTY, "1"), model.Key.from_referable(mlp2))
+        mlp1.parent = mlp2.parent = None
+        self.assertEqual(model.Key(model.KeyTypes.MULTI_LANGUAGE_PROPERTY, "mlp1"), model.Key.from_referable(mlp1))
+        self.assertEqual(model.Key(model.KeyTypes.MULTI_LANGUAGE_PROPERTY, "mlp2"), model.Key.from_referable(mlp2))
+
 
 class ExampleReferable(model.Referable):
     def __init__(self):
@@ -709,6 +719,20 @@ class ModelReferenceTest(unittest.TestCase):
         keys = (keys[0], model.Key(model.KeyTypes.BLOB, "urn:x-test:x"), keys[2])
         model.ModelReference(keys, model.Blob)
 
+        # AASd-128
+        keys = (model.Key(model.KeyTypes.SUBMODEL, "urn:x-test:x"),
+                model.Key(model.KeyTypes.SUBMODEL_ELEMENT_LIST, "urn:x-test:x"))
+        for invalid_key_value in ("string", "-5", "5.5", "5,5", "+5"):
+            invalid_key = model.Key(model.KeyTypes.PROPERTY, invalid_key_value)
+            with self.assertRaises(model.AASConstraintViolation) as cm:
+                model.ModelReference(keys + (invalid_key,), model.Property)
+            self.assertEqual(f"Key {keys[1]!r} references a SubmodelElementList, but the value of the succeeding key "
+                             f"({invalid_key!r}) is not a non-negative integer: {invalid_key.value} "
+                             "(Constraint AASd-128)",
+                             str(cm.exception))
+        keys = keys[:1] + (model.Key(model.KeyTypes.PROPERTY, "5"),)
+        model.ModelReference(keys, model.Property)
+
     def test_set_reference(self):
         ref = model.ModelReference((model.Key(model.KeyTypes.SUBMODEL, "urn:x-test:x"),), model.Submodel)
         with self.assertRaises(AttributeError) as cm:
@@ -758,9 +782,8 @@ class ModelReferenceTest(unittest.TestCase):
     def test_resolve(self) -> None:
         prop = model.Property("prop", model.datatypes.Int)
         collection = model.SubmodelElementCollection("collection", {prop})
-        prop.parent = collection
-        submodel = model.Submodel("urn:x-test:submodel", {collection})
-        collection.parent = submodel
+        list_ = model.SubmodelElementList("list", model.SubmodelElementCollection, {collection})
+        submodel = model.Submodel("urn:x-test:submodel", {list_})
 
         class DummyObjectProvider(model.AbstractObjectProvider):
             def get_identifiable(self, identifier: Identifier) -> Identifiable:
@@ -770,37 +793,57 @@ class ModelReferenceTest(unittest.TestCase):
                     raise KeyError()
 
         ref1 = model.ModelReference((model.Key(model.KeyTypes.SUBMODEL, "urn:x-test:submodel"),
-                                     model.Key(model.KeyTypes.SUBMODEL_ELEMENT_COLLECTION, "collection"),
+                                     model.Key(model.KeyTypes.SUBMODEL_ELEMENT_LIST, "lst"),
+                                     model.Key(model.KeyTypes.SUBMODEL_ELEMENT_COLLECTION, "99"),
                                      model.Key(model.KeyTypes.PROPERTY, "prop")),
                                     model.Property)
-        self.assertIs(prop, ref1.resolve(DummyObjectProvider()))
+        with self.assertRaises(KeyError) as cm:
+            ref1.resolve(DummyObjectProvider())
+        self.assertEqual("'Could not resolve id_short lst at urn:x-test:submodel'", str(cm.exception))
 
         ref2 = model.ModelReference((model.Key(model.KeyTypes.SUBMODEL, "urn:x-test:submodel"),
-                                     model.Key(model.KeyTypes.SUBMODEL_ELEMENT_COLLECTION, "collection"),
+                                     model.Key(model.KeyTypes.SUBMODEL_ELEMENT_LIST, "list"),
+                                     model.Key(model.KeyTypes.SUBMODEL_ELEMENT_COLLECTION, "99"),
+                                     model.Key(model.KeyTypes.PROPERTY, "prop")),
+                                    model.Property)
+        with self.assertRaises(KeyError) as cm_2:
+            ref2.resolve(DummyObjectProvider())
+        self.assertEqual("'Could not resolve index 99 at urn:x-test:submodel / list'", str(cm_2.exception))
+
+        ref3 = model.ModelReference((model.Key(model.KeyTypes.SUBMODEL, "urn:x-test:submodel"),
+                                     model.Key(model.KeyTypes.SUBMODEL_ELEMENT_LIST, "list"),
+                                     model.Key(model.KeyTypes.SUBMODEL_ELEMENT_COLLECTION, "0"),
+                                     model.Key(model.KeyTypes.PROPERTY, "prop")),
+                                    model.Property)
+        self.assertIs(prop, ref3.resolve(DummyObjectProvider()))
+
+        ref4 = model.ModelReference((model.Key(model.KeyTypes.SUBMODEL, "urn:x-test:submodel"),
+                                     model.Key(model.KeyTypes.SUBMODEL_ELEMENT_LIST, "list"),
+                                     model.Key(model.KeyTypes.SUBMODEL_ELEMENT_COLLECTION, "0"),
                                      model.Key(model.KeyTypes.PROPERTY, "prop"),
                                      model.Key(model.KeyTypes.PROPERTY, "prop")),
                                     model.Property)
-        with self.assertRaises(TypeError) as cm:
-            ref2.resolve(DummyObjectProvider())
-        self.assertEqual("Object retrieved at urn:x-test:submodel is not a Namespace",
-                         str(cm.exception))
-
-        with self.assertRaises(AttributeError) as cm_2:
-            ref1.key[2].value = "prop1"
-        self.assertEqual("Reference is immutable", str(cm_2.exception))
-
-        ref3 = model.ModelReference((model.Key(model.KeyTypes.SUBMODEL, "urn:x-test:sub"),), model.Property)
-        # Oh no, yet another typo!
-        with self.assertRaises(KeyError) as cm_3:
-            ref3.resolve(DummyObjectProvider())
-        self.assertEqual("'Could not resolve identifier urn:x-test:sub'", str(cm_3.exception))
-
-        ref4 = model.ModelReference((model.Key(model.KeyTypes.SUBMODEL, "urn:x-test:submodel"),), model.Property)
-        # Okay, typo is fixed, but the type is not what we expect. However, we should get the the submodel via the
-        # exception's value attribute
-        with self.assertRaises(model.UnexpectedTypeError) as cm_4:
+        with self.assertRaises(TypeError) as cm_3:
             ref4.resolve(DummyObjectProvider())
-        self.assertIs(submodel, cm_4.exception.value)
+        self.assertEqual("Object retrieved at urn:x-test:submodel / list / collection / prop is not a Namespace",
+                         str(cm_3.exception))
+
+        with self.assertRaises(AttributeError) as cm_4:
+            ref1.key[2].value = "prop1"
+        self.assertEqual("Reference is immutable", str(cm_4.exception))
+
+        ref5 = model.ModelReference((model.Key(model.KeyTypes.SUBMODEL, "urn:x-test:sub"),), model.Property)
+        # Oh no, yet another typo!
+        with self.assertRaises(KeyError) as cm_5:
+            ref5.resolve(DummyObjectProvider())
+        self.assertEqual("'Could not resolve identifier urn:x-test:sub'", str(cm_5.exception))
+
+        ref6 = model.ModelReference((model.Key(model.KeyTypes.SUBMODEL, "urn:x-test:submodel"),), model.Property)
+        # Okay, typo is fixed, but the type is not what we expect. However, we should get the submodel via the
+        # exception's value attribute
+        with self.assertRaises(model.UnexpectedTypeError) as cm_6:
+            ref6.resolve(DummyObjectProvider())
+        self.assertIs(submodel, cm_6.exception.value)
 
     def test_get_identifier(self) -> None:
         ref = model.ModelReference((model.Key(model.KeyTypes.SUBMODEL, "urn:x-test:x"),), model.Submodel)

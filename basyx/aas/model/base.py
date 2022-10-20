@@ -113,6 +113,7 @@ class KeyTypes(Enum):
     SUBMODEL_ELEMENT_COLLECTION = 1017
     # keep _VIEW = 1018 as a protected enum member here, so 1018 isn't reused by a future key type
     _VIEW = 1018
+    SUBMODEL_ELEMENT_LIST = 1019
 
     # GenericFragmentKeys and GenericGloballyIdentifiables starting from 2000
     GLOBAL_REFERENCE = 2000
@@ -148,7 +149,8 @@ class KeyTypes(Enum):
             self.REFERENCE_ELEMENT,
             self.RELATIONSHIP_ELEMENT,
             self.SUBMODEL_ELEMENT,
-            self.SUBMODEL_ELEMENT_COLLECTION
+            self.SUBMODEL_ELEMENT_COLLECTION,
+            self.SUBMODEL_ELEMENT_LIST
         )
 
     @property
@@ -283,7 +285,7 @@ class Key:
         """
         # Get the `type` by finding the first class from the base classes list (via inspect.getmro), that is contained
         # in KEY_ELEMENTS_CLASSES
-        from . import KEY_TYPES_CLASSES
+        from . import KEY_TYPES_CLASSES, SubmodelElementList
         try:
             key_type = next(iter(KEY_TYPES_CLASSES[t]
                                  for t in inspect.getmro(type(referable))
@@ -293,6 +295,11 @@ class Key:
 
         if isinstance(referable, Identifiable):
             return Key(key_type, referable.id)
+        elif isinstance(referable.parent, SubmodelElementList):
+            try:
+                return Key(key_type, str(referable.parent.value.index(referable)))  # type: ignore
+            except ValueError as e:
+                raise ValueError(f"Object {referable!r} is not contained within its parent {referable.parent!r}") from e
         else:
             return Key(key_type, referable.id_short)
 
@@ -857,8 +864,10 @@ class ModelReference(Reference, Generic[_RT]):
         for pk, k in zip(key, key[1:]):
             if k.type == KeyTypes.FRAGMENT_REFERENCE and pk.type not in (KeyTypes.BLOB, KeyTypes.FILE):
                 raise AASConstraintViolation(127, f"{k!r} is not preceeded by a key of type File or Blob, but {pk!r}")
-
-        # TODO: check Constraint AASd-128, when SubmodelElementLists are implemented (and also test it)
+            if pk.type == KeyTypes.SUBMODEL_ELEMENT_LIST and not k.value.isnumeric():
+                raise AASConstraintViolation(128, f"Key {pk!r} references a SubmodelElementList, "
+                                                  f"but the value of the succeeding key ({k!r}) is not a non-negative "
+                                                  f"integer: {k.value}")
 
         self.type: Type[_RT]
         object.__setattr__(self, 'type', type_)
@@ -876,6 +885,8 @@ class ModelReference(Reference, Generic[_RT]):
         :raises KeyError: If the reference could not be resolved
         """
 
+        from . import SubmodelElementList
+
         # For ModelReferences, the first key must be an AasIdentifiable. So resolve the first key via the provider.
         identifier: Optional[Identifier] = self.key[0].get_identifier()
         if identifier is None:
@@ -888,16 +899,27 @@ class ModelReference(Reference, Generic[_RT]):
             raise KeyError("Could not resolve identifier {}".format(identifier)) from e
         resolved_keys.append(str(identifier))
 
-        # All keys following the first must not reference identifiables (AASd-125). Thus we can just follow the path
+        # All keys following the first must not reference identifiables (AASd-125). Thus, we can just follow the path
         # recursively.
         for key in self.key[1:]:
             if not isinstance(item, UniqueIdShortNamespace):
                 raise TypeError("Object retrieved at {} is not a Namespace".format(" / ".join(resolved_keys)))
+            is_submodel_element_list = isinstance(item, SubmodelElementList)
             try:
-                item = item.get_referable(key.value)
-            except KeyError as e:
-                raise KeyError("Could not resolve id_short {} at {}".format(key.value, " / ".join(resolved_keys)))\
+                if is_submodel_element_list:
+                    # The key's value must be numeric, since this is checked for keys following keys of type
+                    # SUBMODEL_ELEMENT_LIST on construction of ModelReferences.
+                    # Additionally item is known to be a SubmodelElementList which supports __getitem__ because we're in
+                    # the `is_submodel_element_list` branch, but mypy doesn't infer types based on isinstance checks
+                    # stored in boolean variables.
+                    item = item.value[int(key.value)]  # type: ignore
+                else:
+                    item = item.get_referable(key.value)
+            except (KeyError, IndexError) as e:
+                raise KeyError("Could not resolve {} {} at {}".format(
+                    "index" if is_submodel_element_list else "id_short", key.value, " / ".join(resolved_keys)))\
                     from e
+            resolved_keys.append(item.id_short)
 
         # Check type
         if not isinstance(item, self.type):

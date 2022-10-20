@@ -652,7 +652,8 @@ class AASFromXmlDecoder:
             "entity": cls.construct_entity,
             "operation": cls.construct_operation,
             "relationshipElement": cls.construct_relationship_element,
-            "submodelElementCollection": cls.construct_submodel_element_collection
+            "submodelElementCollection": cls.construct_submodel_element_collection,
+            "submodelElementList": cls.construct_submodel_element_list
         }.items()}
         if element.tag not in submodel_elements:
             return cls.construct_data_element(element, abstract_class_name="SubmodelElement", **kwargs)
@@ -900,6 +901,33 @@ class AASFromXmlDecoder:
                     collection.value.add(constructed)
         cls._amend_abstract_attributes(collection, element)
         return collection
+
+    @classmethod
+    def construct_submodel_element_list(cls, element: etree.Element, object_class=model.SubmodelElementList,
+                                        **_kwargs: Any) -> model.SubmodelElementList:
+        type_value_list_element = KEY_TYPES_CLASSES_INVERSE[
+            _child_text_mandatory_mapped(element, NS_AAS + "typeValueListElement", KEY_TYPES_INVERSE)]
+        if not issubclass(type_value_list_element, model.SubmodelElement):
+            raise ValueError("Expected a SubmodelElementList with a typeValueListElement that is a subclass of"
+                             f"{model.SubmodelElement}, got {type_value_list_element}!")
+        order_relevant = element.find(NS_AAS + "orderRelevant")
+        list_ = object_class(
+            _child_text_mandatory(element, NS_AAS + "idShort"),
+            type_value_list_element,
+            semantic_id_list_element=_failsafe_construct(element.find(NS_AAS + "semanticIdListElement"),
+                                                         cls.construct_reference, cls.failsafe),
+            value_type_list_element=_get_text_mapped_or_none(element.find(NS_AAS + "valueTypeListElement"),
+                                                             model.datatypes.XSD_TYPE_CLASSES),
+            order_relevant=_str_to_bool(_get_text_mandatory(order_relevant))
+            if order_relevant is not None else True,
+            kind=_get_modeling_kind(element)
+        )
+        if not cls.stripped:
+            value = element.find(NS_AAS + "value")
+            if value is not None:
+                list_.value.extend(_failsafe_construct_multiple(value, cls.construct_submodel_element, cls.failsafe))
+        cls._amend_abstract_attributes(list_, element)
+        return list_
 
     @classmethod
     def construct_asset_administration_shell(cls, element: etree.Element, object_class=model.AssetAdministrationShell,
@@ -1191,6 +1219,7 @@ class XMLConstructables(enum.Enum):
     REFERENCE_ELEMENT = enum.auto()
     RELATIONSHIP_ELEMENT = enum.auto()
     SUBMODEL_ELEMENT_COLLECTION = enum.auto()
+    SUBMODEL_ELEMENT_LIST = enum.auto()
     ASSET_ADMINISTRATION_SHELL = enum.auto()
     ASSET_INFORMATION = enum.auto()
     SPECIFIC_ASSET_ID = enum.auto()
@@ -1271,6 +1300,8 @@ def read_aas_xml_element(file: IO, construct: XMLConstructables, failsafe: bool 
         constructor = decoder_.construct_relationship_element
     elif construct == XMLConstructables.SUBMODEL_ELEMENT_COLLECTION:
         constructor = decoder_.construct_submodel_element_collection
+    elif construct == XMLConstructables.SUBMODEL_ELEMENT_LIST:
+        constructor = decoder_.construct_submodel_element_list
     elif construct == XMLConstructables.ASSET_ADMINISTRATION_SHELL:
         constructor = decoder_.construct_asset_administration_shell
     elif construct == XMLConstructables.ASSET_INFORMATION:

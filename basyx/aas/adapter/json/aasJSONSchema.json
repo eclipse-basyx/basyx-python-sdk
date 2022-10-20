@@ -117,53 +117,8 @@
             "type": "string"
           },
     "valueType":{
-        "type": "string",
-        "enum": [
-        "anyUri",
-        "base64Binary",
-        "boolean",
-        "date",
-        "dateTime",
-        "dateTimeStamp",
-        "decimal",
-        "integer",
-        "long",
-        "int",
-        "short",
-        "byte",
-        "nonNegativeInteger",
-        "positiveInteger",
-        "unsignedLong",
-        "unsignedInt",
-        "unsignedShort",
-        "unsignedByte",
-        "nonPositiveInteger",
-        "negativeInteger",
-        "double",
-        "duration",
-        "dayTimeDuration",
-        "yearMonthDuration",
-        "float",
-        "gDay",
-        "gMonth",
-        "gMonthDay",
-        "gYear",
-        "gYearMonth",
-        "hexBinary",
-        "NOTATION",
-        "QName",
-        "string",
-        "normalizedString",
-        "token",
-        "language",
-        "Name",
-        "NCName",
-        "ENTITY",
-        "ID",
-        "IDREF",
-        "NMTOKEN",
-        "time"
-        ]},
+      "$ref": "#/definitions/DataTypeDefXsd"
+    },
     "value":{
             "type": "string"
           },
@@ -285,6 +240,7 @@
 		"RelationshipElement",
 		"SubmodelElement",
 		"SubmodelElementCollection",
+        "SubmodelElementList",
         "GlobalReference",
 		"FragmentReference"
       ]
@@ -312,6 +268,7 @@
 		"RelationshipElement",
 		"SubmodelElement",
 		"SubmodelElementCollection",
+        "SubmodelElementList",
         "GlobalReference",
 		"FragmentReference",
 		"Qualifier"
@@ -494,53 +451,8 @@
           "$ref": "#/definitions/Reference"
         },
 		"valueType": {
-		  "type": "string",
-		  "enum": [
-			"anyUri",
-			"base64Binary",
-			"boolean",
-			"date",
-			"dateTime",
-			"dateTimeStamp",
-			"decimal",
-			"integer",
-			"long",
-			"int",
-			"short",
-			"byte",
-			"nonNegativeInteger",
-			"positiveInteger",
-			"unsignedLong",
-			"unsignedInt",
-			"unsignedShort",
-			"unsignedByte",
-			"nonPositiveInteger",
-			"negativeInteger",
-			"double",
-			"duration",
-			"dayTimeDuration",
-			"yearMonthDuration",
-			"float",
-			"gDay",
-			"gMonth",
-			"gMonthDay",
-			"gYear",
-			"gYearMonth",
-			"hexBinary",
-			"NOTATION",
-			"QName",
-			"string",
-			"normalizedString",
-			"token",
-			"language",
-			"Name",
-			"NCName",
-			"ENTITY",
-			"ID",
-			"IDREF",
-			"NMTOKEN",
-			"time"
-		  ]}
+          "$ref": "#/definitions/DataTypeDefXsd"
+        }
 	  }
 	},
     "AssetInformation": {
@@ -655,7 +567,8 @@
 			{ "$ref": "#/definitions/Range" },
 			{ "$ref": "#/definitions/ReferenceElement" },
 			{ "$ref": "#/definitions/RelationshipElement" },
-			{ "$ref": "#/definitions/SubmodelElementCollection" }
+			{ "$ref": "#/definitions/SubmodelElementCollection" },
+            { "$ref": "#/definitions/SubmodelElementList" }
 		  ]
         }
       },
@@ -898,13 +811,107 @@
 		      	  { "$ref": "#/definitions/Range" },
 		      	  { "$ref": "#/definitions/ReferenceElement" },
 		      	  { "$ref": "#/definitions/RelationshipElement" },
-		      	  { "$ref": "#/definitions/SubmodelElementCollection" }
+		      	  { "$ref": "#/definitions/SubmodelElementCollection" },
+                  { "$ref": "#/definitions/SubmodelElementList" }
 		        ]
               }
             }
           }
         }
 	  ]
+    },
+    "SubmodelElementList": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/SubmodelElement"
+        },
+        {
+          "properties": {
+            "orderRelevant": {
+              "type": "boolean"
+            },
+            "value": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/SubmodelElement"
+              },
+              "minItems": 1
+            },
+            "semanticIdListElement": {
+              "$ref": "#/definitions/Reference"
+            },
+            "typeValueListElement": {
+              "$ref": "#/definitions/AasSubmodelElements"
+            },
+            "valueTypeListElement": {
+              "$ref": "#/definitions/DataTypeDefXsd"
+            }
+          },
+          "required": [
+            "typeValueListElement"
+          ]
+        }
+      ]
+    },
+    "DataTypeDefXsd": {
+      "type": "string",
+      "enum": [
+        "xs:anyURI",
+        "xs:base64Binary",
+        "xs:boolean",
+        "xs:byte",
+        "xs:date",
+        "xs:dateTime",
+        "xs:dateTimeStamp",
+        "xs:dayTimeDuration",
+        "xs:decimal",
+        "xs:double",
+        "xs:duration",
+        "xs:float",
+        "xs:gDay",
+        "xs:gMonth",
+        "xs:gMonthDay",
+        "xs:gYear",
+        "xs:gYearMonth",
+        "xs:hexBinary",
+        "xs:int",
+        "xs:integer",
+        "xs:long",
+        "xs:negativeInteger",
+        "xs:nonNegativeInteger",
+        "xs:nonPositiveInteger",
+        "xs:positiveInteger",
+        "xs:short",
+        "xs:string",
+        "xs:time",
+        "xs:unsignedByte",
+        "xs:unsignedInt",
+        "xs:unsignedLong",
+        "xs:unsignedShort",
+        "xs:yearMonthDuration"
+      ]
+    },
+    "AasSubmodelElements": {
+      "type": "string",
+      "enum": [
+        "AnnotatedRelationshipElement",
+        "BasicEventElement",
+        "Blob",
+        "Capability",
+        "DataElement",
+        "Entity",
+        "EventElement",
+        "File",
+        "MultiLanguageProperty",
+        "Operation",
+        "Property",
+        "Range",
+        "ReferenceElement",
+        "RelationshipElement",
+        "SubmodelElement",
+        "SubmodelElementCollection",
+        "SubmodelElementList"
+      ]
     },
     "RelationshipElement": {
 	  "allOf": [

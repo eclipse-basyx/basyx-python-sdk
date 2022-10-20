@@ -261,13 +261,13 @@ class JsonDeserializationStrippedObjectsTest(unittest.TestCase):
                     "qualifiers": [{
                         "modelType": {"name": "Qualifier"},
                         "type": "test_qualifier",
-                        "valueType": "string"
+                        "valueType": "xs:string"
                     }]
                 }],
                 "qualifiers": [{
                     "modelType": {"name": "Qualifier"},
                     "type": "test_qualifier",
-                    "valueType": "string"
+                    "valueType": "xs:string"
                 }]
             }"""
 

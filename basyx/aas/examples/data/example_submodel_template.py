@@ -246,6 +246,42 @@ def create_example_submodel_template() -> model.Submodel:
         qualifier=(),
         kind=model.ModelingKind.TEMPLATE)
 
+    submodel_element_submodel_element_list = model.SubmodelElementList(
+        id_short='ExampleSubmodelList',
+        type_value_list_element=model.SubmodelElementCollection,
+        value=(submodel_element_submodel_element_collection, submodel_element_submodel_element_collection_2),
+        semantic_id_list_element=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
+                                                       value='http://acplt.org/SubmodelElementCollections/'
+                                                                  'ExampleSubmodelElementCollection'),)),
+        order_relevant=False,
+        category='PARAMETER',
+        description={'en-us': 'Example SubmodelElementList object',
+                     'de': 'Beispiel SubmodelElementList Element'},
+        parent=None,
+        semantic_id=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
+                                                     value='http://acplt.org/SubmodelElementLists/'
+                                                           'ExampleSubmodelElementList'),)),
+        qualifier=(),
+        kind=model.ModelingKind.TEMPLATE)
+
+    submodel_element_submodel_element_list_2 = model.SubmodelElementList(
+        id_short='ExampleSubmodelList2',
+        type_value_list_element=model.Capability,
+        value=(),
+        semantic_id_list_element=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
+                                                       value='http://acplt.org/SubmodelElementCollections/'
+                                                                  'ExampleSubmodelElementCollection'),)),
+        order_relevant=False,
+        category='PARAMETER',
+        description={'en-us': 'Example SubmodelElementList object',
+                     'de': 'Beispiel SubmodelElementList Element'},
+        parent=None,
+        semantic_id=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
+                                                     value='http://acplt.org/SubmodelElementLists/'
+                                                           'ExampleSubmodelElementList'),)),
+        qualifier=(),
+        kind=model.ModelingKind.TEMPLATE)
+
     submodel = model.Submodel(
         id_='https://acplt.org/Test_Submodel_Template',
         submodel_element=(submodel_element_relationship_element,
@@ -253,8 +289,8 @@ def create_example_submodel_template() -> model.Submodel:
                           submodel_element_operation,
                           submodel_element_capability,
                           submodel_element_basic_event_element,
-                          submodel_element_submodel_element_collection,
-                          submodel_element_submodel_element_collection_2),
+                          submodel_element_submodel_element_list,
+                          submodel_element_submodel_element_list_2),
         id_short='TestSubmodel',
         category=None,
         description={'en-us': 'An example submodel for the test application',

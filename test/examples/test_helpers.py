@@ -67,14 +67,142 @@ class AASDataCheckerTest(unittest.TestCase):
                          repr(next(checker_iterator)))
         self.assertEqual("FAIL: Qualifier(type=test) must exist ()", repr(next(checker_iterator)))
 
-    @unittest.skip  # type: ignore
-    def test_submodel_element_collection_ordered_checker(self):
+    def test_submodel_element_list_checker(self):
+
+        # value
+        range1 = model.Range('range1', model.datatypes.Int, 42, 142857)
+        range2 = model.Range('range2', model.datatypes.Int, 42, 1337)
+        list_ = model.SubmodelElementList(
+            id_short='test_list',
+            type_value_list_element=model.Range,
+            value_type_list_element=model.datatypes.Int,
+            order_relevant=True,
+            value=(range1, range2)
+        )
+
+        range1_expected = model.Range('range1', model.datatypes.Int, 42, 142857)
+        range2_expected = model.Range('range2', model.datatypes.Int, 42, 1337)
+        list_expected = model.SubmodelElementList(
+            id_short='test_list',
+            type_value_list_element=model.Range,
+            value_type_list_element=model.datatypes.Int,
+            order_relevant=True,
+            value=(range2_expected, range1_expected)
+        )
+
+        checker = AASDataChecker(raise_immediately=False)
+        checker.check_submodel_element_list_equal(list_, list_expected)
+        self.assertEqual(4, sum(1 for _ in checker.failed_checks))
+        checker_iterator = checker.failed_checks
+        self.assertEqual("FAIL: Attribute id_short of Range[test_list / range1] must be == range2 (value='range1')",
+                         repr(next(checker_iterator)))
+        self.assertEqual("FAIL: Attribute max of Range[test_list / range1] must be == 1337 (value=142857)",
+                         repr(next(checker_iterator)))
+        self.assertEqual("FAIL: Attribute id_short of Range[test_list / range2] must be == range1 (value='range2')",
+                         repr(next(checker_iterator)))
+        self.assertEqual("FAIL: Attribute max of Range[test_list / range2] must be == 142857 (value=1337)",
+                         repr(next(checker_iterator)))
+
+        # order_relevant
+        # Don't set protected attributes like this in production code!
+        list_._order_relevant = False
+        checker = AASDataChecker(raise_immediately=False)
+        checker.check_submodel_element_list_equal(list_, list_expected)
+        self.assertEqual(1, sum(1 for _ in checker.failed_checks))
+        checker_iterator = checker.failed_checks
+        self.assertEqual("FAIL: Attribute order_relevant of SubmodelElementList[test_list] must be == True "
+                         "(value=False)", repr(next(checker_iterator)))
+
+        # Don't set protected attributes like this in production code!
+        list_expected._order_relevant = False
+        checker = AASDataChecker(raise_immediately=False)
+        checker.check_submodel_element_list_equal(list_, list_expected)
+        self.assertEqual(0, sum(1 for _ in checker.failed_checks))
+
+        # value_type_list_element
+        list_ = model.SubmodelElementList(
+            id_short='test_list',
+            type_value_list_element=model.Range,
+            value_type_list_element=model.datatypes.Int,
+        )
+        list_expected = model.SubmodelElementList(
+            id_short='test_list',
+            type_value_list_element=model.Range,
+            value_type_list_element=model.datatypes.String,
+        )
+        checker = AASDataChecker(raise_immediately=False)
+        checker.check_submodel_element_list_equal(list_, list_expected)
+        self.assertEqual(1, sum(1 for _ in checker.failed_checks))
+        checker_iterator = checker.failed_checks
+        self.assertEqual("FAIL: Attribute value_type_list_element of SubmodelElementList[test_list] must be == str "
+                         "(value='Int')", repr(next(checker_iterator)))
+
+        # Don't set protected attributes like this in production code!
+        list_._value_type_list_element = model.datatypes.String
+        checker = AASDataChecker(raise_immediately=False)
+        checker.check_submodel_element_list_equal(list_, list_expected)
+        self.assertEqual(0, sum(1 for _ in checker.failed_checks))
+
+        # type_value_list_element
+        list_ = model.SubmodelElementList(
+            id_short='test_list',
+            type_value_list_element=model.Range,
+            value_type_list_element=model.datatypes.Int,
+        )
+        list_expected = model.SubmodelElementList(
+            id_short='test_list',
+            type_value_list_element=model.Property,
+            value_type_list_element=model.datatypes.Int,
+        )
+        checker = AASDataChecker(raise_immediately=False)
+        checker.check_submodel_element_list_equal(list_, list_expected)
+        self.assertEqual(1, sum(1 for _ in checker.failed_checks))
+        checker_iterator = checker.failed_checks
+        self.assertEqual("FAIL: Attribute type_value_list_element of SubmodelElementList[test_list] must be == "
+                         "Property (value='Range')",
+                         repr(next(checker_iterator)))
+
+        # Don't set protected attributes like this in production code!
+        list_._type_value_list_element = model.Property
+        checker = AASDataChecker(raise_immediately=False)
+        checker.check_submodel_element_list_equal(list_, list_expected)
+        self.assertEqual(0, sum(1 for _ in checker.failed_checks))
+
+        # semantic_id_list_element
+        list_ = model.SubmodelElementList(
+            id_short='test_list',
+            type_value_list_element=model.MultiLanguageProperty,
+            semantic_id_list_element=model.GlobalReference(
+                (model.Key(model.KeyTypes.GLOBAL_REFERENCE, "urn:x-test:invalid"),))
+        )
+        list_expected = model.SubmodelElementList(
+            id_short='test_list',
+            type_value_list_element=model.MultiLanguageProperty,
+            semantic_id_list_element=model.GlobalReference(
+                (model.Key(model.KeyTypes.GLOBAL_REFERENCE, "urn:x-test:test"),))
+        )
+        checker = AASDataChecker(raise_immediately=False)
+        checker.check_submodel_element_list_equal(list_, list_expected)
+        self.assertEqual(1, sum(1 for _ in checker.failed_checks))
+        checker_iterator = checker.failed_checks
+        self.assertEqual("FAIL: Attribute semantic_id_list_element of SubmodelElementList[test_list] must be == "
+                         "GlobalReference(key=(Key(type=GLOBAL_REFERENCE, value=urn:x-test:test),)) "
+                         "(value=GlobalReference(key=(Key(type=GLOBAL_REFERENCE, value=urn:x-test:invalid),)))",
+                         repr(next(checker_iterator)))
+        # Don't set protected attributes like this in production code!
+        list_._semantic_id_list_element = model.GlobalReference(
+            (model.Key(model.KeyTypes.GLOBAL_REFERENCE, "urn:x-test:test"),))
+        checker = AASDataChecker(raise_immediately=False)
+        checker.check_submodel_element_list_equal(list_, list_expected)
+        self.assertEqual(0, sum(1 for _ in checker.failed_checks))
+
+    def test_submodel_element_collection_checker(self):
         property = model.Property(
             id_short='Prop1',
             value_type=model.datatypes.String,
             value='test'
         )
-        range = model.Range(
+        range_ = model.Range(
             id_short='Range1',
             value_type=model.datatypes.Int,
             min=100,
@@ -82,9 +210,8 @@ class AASDataCheckerTest(unittest.TestCase):
         )
         collection = model.SubmodelElementCollection(
             id_short='Collection',
-            value=(property, range)
+            value=(range_,)
         )
-
         property_expected = model.Property(
             id_short='Prop1',
             value_type=model.datatypes.String,
@@ -98,42 +225,22 @@ class AASDataCheckerTest(unittest.TestCase):
         )
         collection_expected = model.SubmodelElementCollection(
             id_short='Collection',
-            value=(range_expected, property_expected)
+            value=(property_expected, range_expected)
         )
 
         checker = AASDataChecker(raise_immediately=False)
         checker.check_submodel_element_collection_equal(collection, collection_expected)
         self.assertEqual(2, sum(1 for _ in checker.failed_checks))
         checker_iterator = checker.failed_checks
-        self.assertEqual("FAIL: Property[Collection / Prop1] must be of class Range (class='Property')",
-                         repr(next(checker_iterator)))
-        self.assertEqual("FAIL: Range[Collection / Range1] must be of class Property (class='Range')",
-                         repr(next(checker_iterator)))
-
-    def test_submodel_element_collection_checker(self):
-        collection = model.SubmodelElementCollection(
-            id_short='Collection',
-            value=()
-        )
-        property_expected = model.Property(
-            id_short='Prop1',
-            value_type=model.datatypes.String,
-            value='test'
-        )
-        collection_expected = model.SubmodelElementCollection(
-            id_short='Collection',
-            value=(property_expected,)
-        )
-
-        checker = AASDataChecker(raise_immediately=False)
-        checker.check_submodel_element_collection_equal(collection, collection_expected)
-        self.assertEqual(2, sum(1 for _ in checker.failed_checks))
-        checker_iterator = checker.failed_checks
-        self.assertEqual("FAIL: Attribute value of SubmodelElementCollection[Collection] must contain 1 "
-                         "SubmodelElements (count=0)",
+        self.assertEqual("FAIL: Attribute value of SubmodelElementCollection[Collection] must contain 2 "
+                         "SubmodelElements (count=1)",
                          repr(next(checker_iterator)))
         self.assertEqual("FAIL: Submodel Element Property[Collection / Prop1] must exist ()",
                          repr(next(checker_iterator)))
+
+        collection.add_referable(property)
+        checker = AASDataChecker(raise_immediately=False)
+        self.assertEqual(0, sum(1 for _ in checker.failed_checks))
 
     def test_not_implemented(self):
         class DummySubmodelElement(model.SubmodelElement):

@@ -126,6 +126,16 @@ def create_example_submodel() -> model.Submodel:
         id_short='ExampleSubmodelCollection2',
         value=())
 
+    submodel_element_submodel_element_list = model.SubmodelElementList(
+        id_short='ExampleSubmodelList',
+        type_value_list_element=model.SubmodelElementCollection,
+        value=(submodel_element_submodel_element_collection, submodel_element_submodel_element_collection_2))
+
+    submodel_element_submodel_element_list_2 = model.SubmodelElementList(
+        id_short='ExampleSubmodelList2',
+        type_value_list_element=model.Capability,
+        value=())
+
     submodel = model.Submodel(
         id_='https://acplt.org/Test_Submodel_Mandatory',
         submodel_element=(submodel_element_relationship_element,
@@ -133,8 +143,8 @@ def create_example_submodel() -> model.Submodel:
                           submodel_element_operation,
                           submodel_element_capability,
                           submodel_element_basic_event_element,
-                          submodel_element_submodel_element_collection,
-                          submodel_element_submodel_element_collection_2))
+                          submodel_element_submodel_element_list,
+                          submodel_element_submodel_element_list_2))
     return submodel
 
 

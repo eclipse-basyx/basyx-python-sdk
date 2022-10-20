@@ -361,7 +361,7 @@ AnyXSDType = Union[
     NormalizedString]
 
 
-XSD_TYPE_NAMES: Dict[Type[AnyXSDType], str] = {
+XSD_TYPE_NAMES: Dict[Type[AnyXSDType], str] = {k: "xs:" + v for k, v in {
     Duration: "duration",
     DateTime: "dateTime",
     Date: "date",
@@ -392,7 +392,7 @@ XSD_TYPE_NAMES: Dict[Type[AnyXSDType], str] = {
     AnyURI: "anyURI",
     String: "string",
     NormalizedString: "normalizedString",
-}
+}.items()}
 XSD_TYPE_CLASSES: Dict[str, Type[AnyXSDType]] = {v: k for k, v in XSD_TYPE_NAMES.items()}
 
 

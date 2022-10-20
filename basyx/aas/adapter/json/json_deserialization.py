@@ -178,6 +178,7 @@ class AASFromJsonDecoder(json.JSONDecoder):
             'RelationshipElement': cls._construct_relationship_element,
             'AnnotatedRelationshipElement': cls._construct_annotated_relationship_element,
             'SubmodelElementCollection': cls._construct_submodel_element_collection,
+            'SubmodelElementList': cls._construct_submodel_element_list,
             'Blob': cls._construct_blob,
             'File': cls._construct_file,
             'MultiLanguageProperty': cls._construct_multi_language_property,
@@ -610,6 +611,32 @@ class AASFromJsonDecoder(json.JSONDecoder):
         if not cls.stripped and 'value' in dct:
             for element in _get_ts(dct, "value", list):
                 if _expect_type(element, model.SubmodelElement, str(ret), cls.failsafe):
+                    ret.value.add(element)
+        return ret
+
+    @classmethod
+    def _construct_submodel_element_list(cls, dct: Dict[str, object], object_class=model.SubmodelElementList)\
+            -> model.SubmodelElementList:
+        type_value_list_element = KEY_TYPES_CLASSES_INVERSE[
+            KEY_TYPES_INVERSE[_get_ts(dct, 'typeValueListElement', str)]]
+        if not issubclass(type_value_list_element, model.SubmodelElement):
+            raise ValueError("Expected a SubmodelElementList with a typeValueListElement that is a subclass of"
+                             f"{model.SubmodelElement}, got {type_value_list_element}!")
+        order_relevant = _get_ts(dct, 'orderRelevant', bool) if 'orderRelevant' in dct else True
+        semantic_id_list_element = cls._construct_reference(_get_ts(dct, 'semanticIdListElement', dict))\
+            if 'semanticIdListElement' in dct else None
+        value_type_list_element = model.datatypes.XSD_TYPE_CLASSES[_get_ts(dct, 'valueTypeListElement', str)]\
+            if 'valueTypeListElement' in dct else None
+        ret = object_class(id_short=_get_ts(dct, 'idShort', str),
+                           type_value_list_element=type_value_list_element,
+                           order_relevant=order_relevant,
+                           semantic_id_list_element=semantic_id_list_element,
+                           value_type_list_element=value_type_list_element,
+                           kind=cls._get_kind(dct))
+        cls._amend_abstract_attributes(ret, dct)
+        if not cls.stripped and 'value' in dct:
+            for element in _get_ts(dct, 'value', list):
+                if _expect_type(element, type_value_list_element, str(ret), cls.failsafe):
                     ret.value.add(element)
         return ret
 

@@ -59,6 +59,7 @@ KEY_TYPES_CLASSES: Dict[Type[Referable], KeyTypes] = {
     ReferenceElement: KeyTypes.REFERENCE_ELEMENT,
     DataElement: KeyTypes.DATA_ELEMENT,
     SubmodelElementCollection: KeyTypes.SUBMODEL_ELEMENT_COLLECTION,
+    SubmodelElementList: KeyTypes.SUBMODEL_ELEMENT_LIST,
     AnnotatedRelationshipElement: KeyTypes.ANNOTATED_RELATIONSHIP_ELEMENT,
     RelationshipElement: KeyTypes.RELATIONSHIP_ELEMENT,
     SubmodelElement: KeyTypes.SUBMODEL_ELEMENT,
