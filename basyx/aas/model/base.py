@@ -626,6 +626,9 @@ class Reference:
 
         TODO: Add instruction what to do after construction
         """
+        if len(key) < 1:
+            raise ValueError("A reference must have at least one key!")
+
         self.key: Tuple[Key, ...]
         super().__setattr__('key', key)
 
@@ -681,8 +684,6 @@ class AASReference(Reference, Generic[_RT]):
                                      object is stored in the `value` attribute of the exception
         :raises KeyError: If the reference could not be resolved
         """
-        if len(self.key) == 0:
-            raise IndexError("List of keys is empty")
         # Find key index last (global) identifier-key in key list (from https://stackoverflow.com/a/6890255/10315508)
         try:
             last_identifier_index = next(i
