@@ -60,9 +60,10 @@ class ComplianceToolAASXTest(unittest.TestCase):
         self.assertEqual(Status.SUCCESS, manager.steps[0].status)
         self.assertEqual(Status.SUCCESS, manager.steps[1].status)
         self.assertEqual(Status.FAILED, manager.steps[2].status)
-        self.assertIn('Attribute id_short of AssetAdministrationShell[Identifier(IRI=https://acplt.org/'
-                      'Test_AssetAdministrationShell)] must be == TestAssetAdministrationShell',
-                      manager.format_step(2, verbose_level=1))
+        self.assertEqual('FAILED:       Check if data is equal to example data\n - ERROR: Attribute id_short of '
+                         'AssetAdministrationShell[Identifier(IRI=https://acplt.org/Test_AssetAdministrationShell)] '
+                         'must be == TestAssetAdministrationShell (value=\'TestAssetAdministrationShell2\')',
+                         manager.format_step(2, verbose_level=1))
         self.assertEqual(Status.NOT_EXECUTED, manager.steps[3].status)
 
     def test_check_aasx_files_equivalence(self) -> None:
@@ -112,10 +113,10 @@ class ComplianceToolAASXTest(unittest.TestCase):
         self.assertEqual(Status.SUCCESS, manager.steps[2].status)
         self.assertEqual(Status.SUCCESS, manager.steps[3].status)
         self.assertEqual(Status.FAILED, manager.steps[4].status)
-        self.assertIn('Attribute id_short of AssetAdministrationShell'
-                      '[Identifier(IRI=https://acplt.org/Test_AssetAdministrationShell)] must be ==',
-                      manager.format_step(4, verbose_level=1))
-        self.assertEqual(Status.FAILED, manager.steps[4].status)
+        self.assertEqual('FAILED:       Check if data in files are equal\n - ERROR: Attribute id_short of '
+                         'AssetAdministrationShell[Identifier(IRI=https://acplt.org/Test_AssetAdministrationShell)] '
+                         'must be == TestAssetAdministrationShell2 (value=\'TestAssetAdministrationShell\')',
+                         manager.format_step(4, verbose_level=1))
 
         manager.steps = []
         compliance_tool.check_aasx_files_equivalence(file_path_4, file_path_3, manager)
@@ -125,9 +126,10 @@ class ComplianceToolAASXTest(unittest.TestCase):
         self.assertEqual(Status.SUCCESS, manager.steps[2].status)
         self.assertEqual(Status.SUCCESS, manager.steps[3].status)
         self.assertEqual(Status.FAILED, manager.steps[4].status)
-        self.assertIn('Attribute id_short of AssetAdministrationShell'
-                      '[Identifier(IRI=https://acplt.org/Test_AssetAdministrationShell)] must be ==',
-                      manager.format_step(4, verbose_level=1))
+        self.assertEqual('FAILED:       Check if data in files are equal\n - ERROR: Attribute id_short of '
+                         'AssetAdministrationShell[Identifier(IRI=https://acplt.org/Test_AssetAdministrationShell)] '
+                         'must be == TestAssetAdministrationShell (value=\'TestAssetAdministrationShell2\')',
+                         manager.format_step(4, verbose_level=1))
         self.assertEqual(Status.NOT_EXECUTED, manager.steps[5].status)
 
     def test_check_schema(self):
