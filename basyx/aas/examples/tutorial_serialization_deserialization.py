@@ -156,4 +156,4 @@ with open('data.xml', 'rb') as xml_file:
 # For more information on the availiable techniques, see `tutorial_storage.py`.
 submodel_from_xml = xml_file_data.get_identifiable(model.Identifier('https://acplt.org/Simple_Submodel',
                                                                     model.IdentifierType.IRI))
-assert(isinstance(submodel_from_xml, model.Submodel))
+assert isinstance(submodel_from_xml, model.Submodel)

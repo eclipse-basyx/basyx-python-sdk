@@ -96,7 +96,7 @@ example_submodel1.update()
 
 # Make some changes to a Property within the submodel
 prop = example_submodel1.get_referable('ManufacturerName')
-assert(isinstance(prop, basyx.aas.model.Property))
+assert isinstance(prop, basyx.aas.model.Property)
 
 prop.value = "RWTH Aachen"
 

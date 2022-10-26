@@ -403,7 +403,7 @@ class ModelNamespaceTest(unittest.TestCase):
         # Check that Prop3 got added correctly
         prop3_new = namespace1.set1.get_referable("Prop3")
         self.assertIs(prop3_new.parent, namespace1)
-        assert(isinstance(prop3_new, model.Property))
+        assert isinstance(prop3_new, model.Property)
         self.assertEqual(prop3_new.value, 2)
         # Check that Prop2 got removed correctly
         self.assertNotIn("Prop2", namespace1.set1)
@@ -547,11 +547,6 @@ class AASReferenceTest(unittest.TestCase):
         with self.assertRaises(model.UnexpectedTypeError) as cm_4:
             ref4.resolve(DummyObjectProvider())
         self.assertIs(submodel, cm_4.exception.value)
-
-        ref5 = model.AASReference((), model.Submodel)
-        with self.assertRaises(IndexError) as cm_5:
-            ref5.resolve(DummyObjectProvider())
-        self.assertEqual('List of keys is empty', str(cm_5.exception))
 
     def test_get_identifier(self) -> None:
         ref = model.AASReference((model.Key(model.KeyElements.SUBMODEL, False, "urn:x-test:x", model.KeyType.IRI),),

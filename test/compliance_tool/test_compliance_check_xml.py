@@ -119,9 +119,12 @@ class ComplianceToolXmlTest(unittest.TestCase):
         self.assertEqual(Status.SUCCESS, manager.steps[0].status)
         self.assertEqual(Status.SUCCESS, manager.steps[1].status)
         self.assertEqual(Status.FAILED, manager.steps[2].status)
-        self.assertIn('Asset administration shell AssetAdministrationShell[Identifier(IRI=https://acplt.org/'
-                      'Test_AssetAdministrationShell)] must exist in given asset administrationshell list',
-                      manager.format_step(2, verbose_level=1))
+        self.assertEqual('FAILED:       Check if data is equal to example data\n - ERROR: Asset administration shell '
+                         'AssetAdministrationShell[Identifier(IRI=https://acplt.org/Test_AssetAdministrationShell)] '
+                         'must exist in given asset administrationshell list ()\n - ERROR: Given asset administration '
+                         'shell list must not have extra asset administration shells (value={AssetAdministrationShell'
+                         '[Identifier(IRI=https://acplt.org/Test_AssetAdministrationShell123)]})',
+                         manager.format_step(2, verbose_level=1))
 
     def test_check_xml_files_equivalence(self) -> None:
         manager = ComplianceToolStateManager()
@@ -167,6 +170,12 @@ class ComplianceToolXmlTest(unittest.TestCase):
         self.assertEqual(Status.SUCCESS, manager.steps[2].status)
         self.assertEqual(Status.SUCCESS, manager.steps[3].status)
         self.assertEqual(Status.FAILED, manager.steps[4].status)
+        self.assertEqual('FAILED:       Check if data in files are equal\n - ERROR: Asset administration shell '
+                         'AssetAdministrationShell[Identifier(IRI=https://acplt.org/Test_AssetAdministrationShell123)] '
+                         'must exist in given asset administrationshell list ()\n - ERROR: Given asset administration '
+                         'shell list must not have extra asset administration shells (value={AssetAdministrationShell'
+                         '[Identifier(IRI=https://acplt.org/Test_AssetAdministrationShell)]})',
+                         manager.format_step(4, verbose_level=1))
 
         manager.steps = []
         compliance_tool.check_xml_files_equivalence(file_path_4, file_path_3, manager)
@@ -176,6 +185,9 @@ class ComplianceToolXmlTest(unittest.TestCase):
         self.assertEqual(Status.SUCCESS, manager.steps[2].status)
         self.assertEqual(Status.SUCCESS, manager.steps[3].status)
         self.assertEqual(Status.FAILED, manager.steps[4].status)
-        self.assertIn('Asset administration shell AssetAdministrationShell[Identifier(IRI=https://acplt.org/'
-                      'Test_AssetAdministrationShell)] must exist in given asset administrationshell list',
-                      manager.format_step(4, verbose_level=1))
+        self.assertEqual('FAILED:       Check if data in files are equal\n - ERROR: Asset administration shell '
+                         'AssetAdministrationShell[Identifier(IRI=https://acplt.org/Test_AssetAdministrationShell)] '
+                         'must exist in given asset administrationshell list ()\n - ERROR: Given asset administration '
+                         'shell list must not have extra asset administration shells (value={AssetAdministrationShell'
+                         '[Identifier(IRI=https://acplt.org/Test_AssetAdministrationShell123)]})',
+                         manager.format_step(4, verbose_level=1))
