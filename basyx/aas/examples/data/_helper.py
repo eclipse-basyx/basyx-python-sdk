@@ -497,12 +497,12 @@ class AASDataChecker(DataChecker):
                                             len(expected_value.output_variable))
         self.check_contained_element_length(object_, 'in_output_variable', model.OperationVariable,
                                             len(expected_value.in_output_variable))
-        for i in range(len(object_.input_variable)):
-            self._check_operation_variable_equal(object_.input_variable[i], expected_value.input_variable[i])
-        for i in range(len(object_.output_variable)):
-            self._check_operation_variable_equal(object_.output_variable[i], expected_value.output_variable[i])
-        for i in range(len(object_.in_output_variable)):
-            self._check_operation_variable_equal(object_.in_output_variable[i], expected_value.in_output_variable[i])
+        for iv1, iv2 in zip(object_.input_variable, expected_value.input_variable):
+            self._check_operation_variable_equal(iv1, iv2)
+        for ov1, ov2 in zip(object_.output_variable, expected_value.output_variable):
+            self._check_operation_variable_equal(ov1, ov2)
+        for iov1, iov2 in zip(object_.in_output_variable, expected_value.in_output_variable):
+            self._check_operation_variable_equal(iov1, iov2)
 
     def check_capability_equal(self, object_: model.Capability, expected_value: model.Capability):
         """
