@@ -12,9 +12,11 @@ from basyx.aas import model
 
 class ProvidersTest(unittest.TestCase):
     def setUp(self) -> None:
-        self.aas1 = model.AssetAdministrationShell(model.AASReference((), model.Asset),
+        self.aas1 = model.AssetAdministrationShell(model.AASReference((model.Key(
+            model.KeyElements.ASSET, True, "urn:x-test:asset", model.KeyType.IRI),), model.Asset),
                                                    model.Identifier("urn:x-test:aas1", model.IdentifierType.IRI))
-        self.aas2 = model.AssetAdministrationShell(model.AASReference((), model.Asset),
+        self.aas2 = model.AssetAdministrationShell(model.AASReference((model.Key(
+            model.KeyElements.ASSET, True, "urn:x-test:asset", model.KeyType.IRI),), model.Asset),
                                                    model.Identifier("urn:x-test:aas2", model.IdentifierType.IRI))
         self.submodel1 = model.Submodel(model.Identifier("urn:x-test:submodel1", model.IdentifierType.IRI))
         self.submodel2 = model.Submodel(model.Identifier("urn:x-test:submodel2", model.IdentifierType.IRI))
@@ -26,7 +28,8 @@ class ProvidersTest(unittest.TestCase):
         self.assertIn(self.aas1, object_store)
         property = model.Property('test', model.datatypes.String)
         self.assertFalse(property in object_store)
-        aas3 = model.AssetAdministrationShell(model.AASReference((), model.Asset),
+        aas3 = model.AssetAdministrationShell(model.AASReference((model.Key(
+            model.KeyElements.SUBMODEL, True, "urn:x-test:submodel", model.KeyType.IRI),), model.Asset),
                                               model.Identifier("urn:x-test:aas1", model.IdentifierType.IRI))
         with self.assertRaises(KeyError) as cm:
             object_store.add(aas3)
