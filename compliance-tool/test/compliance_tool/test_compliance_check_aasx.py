@@ -6,7 +6,6 @@
 # SPDX-License-Identifier: MIT
 import os
 import unittest
-import sys
 
 from basyx.aas.compliance_tool import compliance_check_aasx as compliance_tool
 from basyx.aas.compliance_tool.state_manager import ComplianceToolStateManager, Status
@@ -68,9 +67,10 @@ class ComplianceToolAASXTest(unittest.TestCase):
         self.assertEqual(Status.SUCCESS, manager.steps[0].status)
         self.assertEqual(Status.SUCCESS, manager.steps[1].status)
         self.assertEqual(Status.FAILED, manager.steps[2].status)
-        self.assertIn('Attribute id_short of AssetAdministrationShell[https://acplt.org/Test_AssetAdministrationShell]'
-                      ' must be == TestAssetAdministrationShell',
-                      manager.format_step(2, verbose_level=1))
+        self.assertEqual('FAILED:       Check if data is equal to example data\n - ERROR: Attribute id_short of '
+                         'AssetAdministrationShell[https://acplt.org/Test_AssetAdministrationShell] must be == '
+                         'TestAssetAdministrationShell (value=\'TestAssetAdministrationShell123\')',
+                         manager.format_step(2, verbose_level=1))
         self.assertEqual(Status.NOT_EXECUTED, manager.steps[3].status)
 
     def test_check_aasx_files_equivalence(self) -> None:
@@ -120,10 +120,10 @@ class ComplianceToolAASXTest(unittest.TestCase):
         self.assertEqual(Status.SUCCESS, manager.steps[2].status)
         self.assertEqual(Status.SUCCESS, manager.steps[3].status)
         self.assertEqual(Status.FAILED, manager.steps[4].status)
-        self.assertIn('Attribute id_short of AssetAdministrationShell'
-                      '[https://acplt.org/Test_AssetAdministrationShell] must be ==',
-                      manager.format_step(4, verbose_level=1))
-        self.assertEqual(Status.FAILED, manager.steps[4].status)
+        self.assertEqual('FAILED:       Check if data in files are equal\n - ERROR: Attribute id_short of '
+                         'AssetAdministrationShell[https://acplt.org/Test_AssetAdministrationShell] must be == '
+                         'TestAssetAdministrationShell123 (value=\'TestAssetAdministrationShell\')',
+                         manager.format_step(4, verbose_level=1))
 
         manager.steps = []
         compliance_tool.check_aasx_files_equivalence(file_path_4, file_path_3, manager)
@@ -133,12 +133,12 @@ class ComplianceToolAASXTest(unittest.TestCase):
         self.assertEqual(Status.SUCCESS, manager.steps[2].status)
         self.assertEqual(Status.SUCCESS, manager.steps[3].status)
         self.assertEqual(Status.FAILED, manager.steps[4].status)
-        self.assertIn('Attribute id_short of AssetAdministrationShell'
-                      '[https://acplt.org/Test_AssetAdministrationShell] must be ==',
-                      manager.format_step(4, verbose_level=1))
+        self.assertEqual('FAILED:       Check if data in files are equal\n - ERROR: Attribute id_short of '
+                         'AssetAdministrationShell[https://acplt.org/Test_AssetAdministrationShell] must be == '
+                         'TestAssetAdministrationShell (value=\'TestAssetAdministrationShell123\')',
+                         manager.format_step(4, verbose_level=1))
         self.assertEqual(Status.NOT_EXECUTED, manager.steps[5].status)
 
-    @unittest.skipIf(sys.version_info < (3, 7), "The XML schema check fails for Python <= 3.6")
     def test_check_schema(self):
         manager = ComplianceToolStateManager()
         script_dir = os.path.dirname(__file__)
