@@ -525,8 +525,8 @@ class AASReferenceTest(unittest.TestCase):
                                   model.Property)
         with self.assertRaises(TypeError) as cm:
             ref2.resolve(DummyObjectProvider())
-        self.assertEqual("Object retrieved at Identifier(IRI=urn:x-test:submodel) is not a Namespace",
-                         str(cm.exception))
+        self.assertEqual("Object retrieved at Identifier(IRI=urn:x-test:submodel) / collection / prop is not a "
+                         "Namespace", str(cm.exception))
 
         with self.assertRaises(AttributeError) as cm_2:
             ref1.key[2].value = "prop1"
