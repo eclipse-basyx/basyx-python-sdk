@@ -223,6 +223,26 @@ class AssetKind(Enum):
     INSTANCE = 1
 
 
+@unique
+class Direction(Enum):
+    """
+    Direction of an event. Used in :class:`aas.model.submodel.BasicEventElement`.
+    """
+
+    INPUT = 0
+    OUTPUT = 1
+
+
+@unique
+class StateOfEvent(Enum):
+    """
+    State of an event. Used in :class:`aas.model.submodel.BasicEventElement`.
+    """
+
+    ON = 0
+    OFF = 1
+
+
 class Key:
     """
     A key is a reference to an element by its id.

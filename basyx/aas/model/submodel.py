@@ -9,7 +9,8 @@ This module contains everything needed to model Submodels and define Events acco
 """
 
 import abc
-from typing import Optional, Set, Iterable, TYPE_CHECKING, List, Type, TypeVar, Generic
+import datetime
+from typing import Optional, Set, Iterable, TYPE_CHECKING, List, Type, TypeVar, Generic, Union
 
 from . import base, datatypes
 if TYPE_CHECKING:
@@ -1040,7 +1041,7 @@ class Entity(SubmodelElement, base.UniqueIdShortNamespace):
 
 class EventElement(SubmodelElement, metaclass=abc.ABCMeta):
     """
-    An event
+    An event element.
     <<abstract>>
 
     :ivar id_short: Identifying string of the element within its name space. (inherited from
@@ -1079,11 +1080,32 @@ class EventElement(SubmodelElement, metaclass=abc.ABCMeta):
 
 class BasicEventElement(EventElement):
     """
-    An event
+    A basic event element.
 
     :ivar id_short: Identifying string of the element within its name space. (inherited from
                     :class:`~aas.model.base.Referable`)
-    :ivar observed: :class:`~aas.model.base.ModelReference` to the data or other elements that are being observed
+    :ivar observed: :class:`~aas.model.base.ModelReference` to the Referable, which defines the scope of the event.
+                    Can be :class:`~aas.model.aas.AssetAdministrationShell`, :class:`~aas.model.submodel.Submodel`
+                    or :class:`~aas.model.submodel.SubmodelElement`. Reference to a referable, e.g. a data element
+                    or a submodel, that is being observed.
+    :ivar direction: Direction of event as :class:`~aas.model.base.Direction`.
+    :ivar state: State of event as :class:`~aas.model.base.StateOfEvent`.
+    :ivar message_topic: Information for the outer message infrastructure for scheduling the event to the respective
+                         communication channel.
+    :ivar message_broker: Information, which outer message infrastructure shall handle messages for the EventElement.
+                          Refers to a :class:`~aas.model.submodel.Submodel`,
+                          :class:`~aas.model.submodel.SubmodelElementList`,
+                          :class:`~aas.model.submodel.SubmodelElementCollection` or :class:`~aas.model.submodel.Entity`,
+                          which contains DataElements describing the proprietary specification for the message broker.
+                          Note: for different message infrastructure, e.g. OPC UA or MQTT or AMQP, this proprietary
+                          specification could be standardized by having respective Submodels.
+    :ivar last_update: Timestamp in UTC, when the last event was received (input direction) or sent (output direction).
+    :ivar min_interval: For input direction, reports on the maximum frequency, the software entity behind the respective
+                        Referable can handle input events. For output events, specifies the maximum frequency of
+                        outputting this event to an outer infrastructure.
+    :ivar max_interval: For input direction: not applicable.
+                        For output direction: maximum interval in time, the respective Referable shall send an update of
+                        the status of the event, even if no other trigger condition for the event was not met.
     :ivar display_name: Can be provided in several languages. (inherited from :class:`~aas.model.base.Referable`)
     :ivar category: The category is a value that gives further meta information w.r.t. to the class of the element.
                      It affects the expected existence of attributes and the applicability of constraints.
@@ -1099,13 +1121,20 @@ class BasicEventElement(EventElement):
                      (from :class:`~aas.model.base.Qualifiable`)
     :ivar kind: Kind of the element: Either `TYPE` or `INSTANCE`. Default is `INSTANCE`. (inherited from
                 :class:`aas.model.base.HasKind`)
-    :ivar extension: An extension of the element. (inherited from
-                     :class:`aas.model.base.HasExtension`)
+    :ivar extension: An extension of the element. (inherited from :class:`aas.model.base.HasExtension`)
     """
 
     def __init__(self,
                  id_short: str,
-                 observed: base.ModelReference,
+                 observed: base.ModelReference[Union["aas.AssetAdministrationShell", Submodel, SubmodelElement]],
+                 direction: base.Direction,
+                 state: base.StateOfEvent,
+                 message_topic: Optional[str] = None,
+                 message_broker: Optional[base.ModelReference[Union[Submodel, SubmodelElementList,
+                                                                    SubmodelElementCollection, Entity]]] = None,
+                 last_update: Optional[datatypes.DateTime] = None,
+                 min_interval: Optional[datatypes.Duration] = None,
+                 max_interval: Optional[datatypes.Duration] = None,
                  display_name: Optional[base.LangStringSet] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
@@ -1119,4 +1148,44 @@ class BasicEventElement(EventElement):
         """
 
         super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, kind, extension)
-        self.observed: base.ModelReference = observed
+        self.observed: base.ModelReference[Union["aas.AssetAdministrationShell", Submodel, SubmodelElement]] = observed
+        # max_interval must be set here because the direction setter attempts to read it
+        self.max_interval: Optional[datatypes.Duration] = None
+        self.direction: base.Direction = direction
+        self.state: base.StateOfEvent = state
+        self.message_topic: Optional[str] = message_topic
+        self.message_broker: Optional[base.ModelReference[Union[Submodel, SubmodelElementList,
+                                                                SubmodelElementCollection, Entity]]] = message_broker
+        self.last_update: Optional[datatypes.DateTime] = last_update
+        self.min_interval: Optional[datatypes.Duration] = min_interval
+        self.max_interval: Optional[datatypes.Duration] = max_interval
+
+    @property
+    def direction(self) -> base.Direction:
+        return self._direction
+
+    @direction.setter
+    def direction(self, direction: base.Direction) -> None:
+        if direction is base.Direction.INPUT and self.max_interval is not None:
+            raise ValueError("max_interval is not applicable if direction = input!")
+        self._direction: base.Direction = direction
+
+    @property
+    def last_update(self) -> Optional[datatypes.DateTime]:
+        return self._last_update
+
+    @last_update.setter
+    def last_update(self, last_update: Optional[datatypes.DateTime]) -> None:
+        if last_update is not None and last_update.tzname() != "UTC":
+            raise ValueError("last_update must be specified in UTC!")
+        self._last_update: Optional[datatypes.DateTime] = last_update
+
+    @property
+    def max_interval(self) -> Optional[datatypes.Duration]:
+        return self._max_interval
+
+    @max_interval.setter
+    def max_interval(self, max_interval: Optional[datatypes.Duration]) -> None:
+        if max_interval is not None and self.direction is base.Direction.INPUT:
+            raise ValueError("max_interval is not applicable if direction = input!")
+        self._max_interval: Optional[datatypes.Duration] = max_interval

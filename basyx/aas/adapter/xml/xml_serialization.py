@@ -826,6 +826,21 @@ def basic_event_element_to_xml(obj: model.BasicEventElement, tag: str = NS_AAS+"
     """
     et_basic_event_element = abstract_classes_to_xml(tag, obj)
     et_basic_event_element.append(reference_to_xml(obj.observed, NS_AAS+"observed"))
+    et_basic_event_element.append(_generate_element(NS_AAS+"direction", text=_generic.DIRECTION[obj.direction]))
+    et_basic_event_element.append(_generate_element(NS_AAS+"state", text=_generic.STATE_OF_EVENT[obj.state]))
+    if obj.message_topic is not None:
+        et_basic_event_element.append(_generate_element(NS_AAS+"messageTopic", text=obj.message_topic))
+    if obj.message_broker is not None:
+        et_basic_event_element.append(reference_to_xml(obj.message_broker, NS_AAS+"messageBroker"))
+    if obj.last_update is not None:
+        et_basic_event_element.append(_generate_element(NS_AAS+"lastUpdate",
+                                                        text=model.datatypes.xsd_repr(obj.last_update)))
+    if obj.min_interval is not None:
+        et_basic_event_element.append(_generate_element(NS_AAS+"minInterval",
+                                                        text=model.datatypes.xsd_repr(obj.min_interval)))
+    if obj.max_interval is not None:
+        et_basic_event_element.append(_generate_element(NS_AAS+"maxInterval",
+                                                        text=model.datatypes.xsd_repr(obj.max_interval)))
     return et_basic_event_element
 
 

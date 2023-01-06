@@ -6,6 +6,7 @@
 # SPDX-License-Identifier: MIT
 
 import unittest
+import dateutil.tz
 
 from basyx.aas import model
 
@@ -174,3 +175,43 @@ class SubmodelElementListTest(unittest.TestCase):
             list_.semantic_id_list_element = model.GlobalReference((model.Key(model.KeyTypes.GLOBAL_REFERENCE, "t"),))
         with self.assertRaises(AttributeError):
             list_.value_type_list_element = model.datatypes.Int
+
+
+class BasicEventElementTest(unittest.TestCase):
+    def test_constraints(self):
+        with self.assertRaises(ValueError) as cm:
+            model.BasicEventElement("test_basic_event_element",
+                                    model.ModelReference((model.Key(model.KeyTypes.ASSET_ADMINISTRATION_SHELL,
+                                                                    "urn:x-test:AssetAdministrationShell"),),
+                                                         model.AssetAdministrationShell),
+                                    model.Direction.INPUT,
+                                    model.StateOfEvent.ON,
+                                    max_interval=model.datatypes.Duration(minutes=10))
+        self.assertEqual("max_interval is not applicable if direction = input!", str(cm.exception))
+        bee = model.BasicEventElement("test_basic_event_element",
+                                      model.ModelReference((model.Key(model.KeyTypes.ASSET_ADMINISTRATION_SHELL,
+                                                            "urn:x-test:AssetAdministrationShell"),),
+                                                           model.AssetAdministrationShell),
+                                      model.Direction.OUTPUT,
+                                      model.StateOfEvent.ON,
+                                      max_interval=model.datatypes.Duration(minutes=10))
+        with self.assertRaises(ValueError) as cm:
+            bee.direction = model.Direction.INPUT
+        self.assertEqual("max_interval is not applicable if direction = input!", str(cm.exception))
+
+        bee.max_interval = None
+        bee.direction = model.Direction.INPUT
+
+        timestamp_tzinfo = model.datatypes.DateTime(2022, 11, 13, 23, 45, 30, 123456,
+                                                    dateutil.tz.gettz("Europe/Berlin"))
+        with self.assertRaises(ValueError) as cm:
+            bee.last_update = timestamp_tzinfo
+        self.assertEqual("last_update must be specified in UTC!", str(cm.exception))
+
+        timestamp = model.datatypes.DateTime(2022, 11, 13, 23, 45, 30, 123456)
+        with self.assertRaises(ValueError) as cm:
+            bee.last_update = timestamp
+        self.assertEqual("last_update must be specified in UTC!", str(cm.exception))
+
+        timestamp_tzinfo_utc = model.datatypes.DateTime(2022, 11, 13, 23, 45, 30, 123456, dateutil.tz.UTC)
+        bee.last_update = timestamp_tzinfo_utc

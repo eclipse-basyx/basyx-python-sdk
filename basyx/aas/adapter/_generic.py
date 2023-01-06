@@ -20,6 +20,14 @@ ASSET_KIND: Dict[model.AssetKind, str] = {
     model.AssetKind.TYPE: 'Type',
     model.AssetKind.INSTANCE: 'Instance'}
 
+DIRECTION: Dict[model.Direction, str] = {
+    model.Direction.INPUT: 'input',
+    model.Direction.OUTPUT: 'output'}
+
+STATE_OF_EVENT: Dict[model.StateOfEvent, str] = {
+    model.StateOfEvent.ON: 'on',
+    model.StateOfEvent.OFF: 'off'}
+
 REFERENCE_TYPES: Dict[Type[model.Reference], str] = {
     model.GlobalReference: 'GlobalReference',
     model.ModelReference: 'ModelReference'}
@@ -75,6 +83,8 @@ IEC61360_LEVEL_TYPES: Dict[model.concept.IEC61360LevelType, str] = {
 
 MODELING_KIND_INVERSE: Dict[str, model.ModelingKind] = {v: k for k, v in MODELING_KIND.items()}
 ASSET_KIND_INVERSE: Dict[str, model.AssetKind] = {v: k for k, v in ASSET_KIND.items()}
+DIRECTION_INVERSE: Dict[str, model.Direction] = {v: k for k, v in DIRECTION.items()}
+STATE_OF_EVENT_INVERSE: Dict[str, model.StateOfEvent] = {v: k for k, v in STATE_OF_EVENT.items()}
 REFERENCE_TYPES_INVERSE: Dict[str, Type[model.Reference]] = {v: k for k, v in REFERENCE_TYPES.items()}
 KEY_TYPES_INVERSE: Dict[str, model.KeyTypes] = {v: k for k, v in KEY_TYPES.items()}
 ENTITY_TYPES_INVERSE: Dict[str, model.EntityType] = {v: k for k, v in ENTITY_TYPES.items()}

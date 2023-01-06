@@ -51,7 +51,8 @@ import enum
 from typing import Any, Callable, Dict, IO, Iterable, Optional, Set, Tuple, Type, TypeVar
 from .xml_serialization import NS_AAS, NS_ABAC, NS_IEC
 from .._generic import MODELING_KIND_INVERSE, ASSET_KIND_INVERSE, KEY_TYPES_INVERSE, ENTITY_TYPES_INVERSE,\
-    IEC61360_DATA_TYPES_INVERSE, IEC61360_LEVEL_TYPES_INVERSE, KEY_TYPES_CLASSES_INVERSE, REFERENCE_TYPES_INVERSE
+    IEC61360_DATA_TYPES_INVERSE, IEC61360_LEVEL_TYPES_INVERSE, KEY_TYPES_CLASSES_INVERSE, REFERENCE_TYPES_INVERSE,\
+    DIRECTION_INVERSE, STATE_OF_EVENT_INVERSE
 
 logger = logging.getLogger(__name__)
 
@@ -714,8 +715,26 @@ class AASFromXmlDecoder:
         basic_event_element = object_class(
             _child_text_mandatory(element, NS_AAS + "idShort"),
             _child_construct_mandatory(element, NS_AAS + "observed", cls._construct_referable_reference),
+            _child_text_mandatory_mapped(element, NS_AAS + "direction", DIRECTION_INVERSE),
+            _child_text_mandatory_mapped(element, NS_AAS + "state", STATE_OF_EVENT_INVERSE),
             kind=_get_modeling_kind(element)
         )
+        message_topic = _get_text_or_none(element.find(NS_AAS + "messageTopic"))
+        if message_topic is not None:
+            basic_event_element.message_topic = message_topic
+        message_broker = element.find(NS_AAS + "messageBroker")
+        if message_broker is not None:
+            basic_event_element.message_broker = _failsafe_construct(message_broker, cls.construct_reference,
+                                                                     cls.failsafe)
+        last_update = _get_text_or_none(element.find(NS_AAS + "lastUpdate"))
+        if last_update is not None:
+            basic_event_element.last_update = model.datatypes.from_xsd(last_update, model.datatypes.DateTime)
+        min_interval = _get_text_or_none(element.find(NS_AAS + "minInterval"))
+        if min_interval is not None:
+            basic_event_element.min_interval = model.datatypes.from_xsd(min_interval, model.datatypes.Duration)
+        max_interval = _get_text_or_none(element.find(NS_AAS + "maxInterval"))
+        if max_interval is not None:
+            basic_event_element.max_interval = model.datatypes.from_xsd(max_interval, model.datatypes.Duration)
         cls._amend_abstract_attributes(basic_event_element, element)
         return basic_event_element
 

@@ -37,7 +37,8 @@ from typing import Dict, Callable, TypeVar, Type, List, IO, Optional, Set
 
 from basyx.aas import model
 from .._generic import MODELING_KIND_INVERSE, ASSET_KIND_INVERSE, KEY_TYPES_INVERSE, ENTITY_TYPES_INVERSE,\
-    IEC61360_DATA_TYPES_INVERSE, IEC61360_LEVEL_TYPES_INVERSE, KEY_TYPES_CLASSES_INVERSE, REFERENCE_TYPES_INVERSE
+    IEC61360_DATA_TYPES_INVERSE, IEC61360_LEVEL_TYPES_INVERSE, KEY_TYPES_CLASSES_INVERSE, REFERENCE_TYPES_INVERSE,\
+    DIRECTION_INVERSE, STATE_OF_EVENT_INVERSE
 
 logger = logging.getLogger(__name__)
 
@@ -546,8 +547,20 @@ class AASFromJsonDecoder(json.JSONDecoder):
         ret = object_class(id_short=_get_ts(dct, "idShort", str),
                            observed=cls._construct_model_reference(_get_ts(dct, 'observed', dict),
                                                                    model.Referable),  # type: ignore
+                           direction=DIRECTION_INVERSE[_get_ts(dct, "direction", str)],
+                           state=STATE_OF_EVENT_INVERSE[_get_ts(dct, "state", str)],
                            kind=cls._get_kind(dct))
         cls._amend_abstract_attributes(ret, dct)
+        if 'messageTopic' in dct:
+            ret.message_topic = _get_ts(dct, 'messageTopic', str)
+        if 'messageBroker' in dct:
+            ret.message_broker = cls._construct_reference(_get_ts(dct, 'messageBroker', dict))
+        if 'lastUpdate' in dct:
+            ret.last_update = model.datatypes.from_xsd(_get_ts(dct, 'lastUpdate', str), model.datatypes.DateTime)
+        if 'minInterval' in dct:
+            ret.min_interval = model.datatypes.from_xsd(_get_ts(dct, 'minInterval', str), model.datatypes.Duration)
+        if 'maxInterval' in dct:
+            ret.max_interval = model.datatypes.from_xsd(_get_ts(dct, 'maxInterval', str), model.datatypes.Duration)
         return ret
 
     @classmethod

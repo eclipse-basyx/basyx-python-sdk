@@ -618,6 +618,13 @@ class AASDataChecker(DataChecker):
         self._check_abstract_attributes_submodel_element_equal(object_, expected_value)
         self._check_event_element_equal(object_, expected_value)
         self.check_attribute_equal(object_, 'observed', expected_value.observed)
+        self.check_attribute_equal(object_, 'direction', expected_value.direction)
+        self.check_attribute_equal(object_, 'state', expected_value.state)
+        self.check_attribute_equal(object_, 'message_topic', expected_value.message_topic)
+        self.check_attribute_equal(object_, 'message_broker', expected_value.message_broker)
+        self.check_attribute_equal(object_, 'last_update', expected_value.last_update)
+        self.check_attribute_equal(object_, 'min_interval', expected_value.min_interval)
+        self.check_attribute_equal(object_, 'max_interval', expected_value.max_interval)
 
     def check_submodel_equal(self, object_: model.Submodel, expected_value: model.Submodel):
         """

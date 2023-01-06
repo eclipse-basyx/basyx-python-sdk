@@ -52,11 +52,54 @@
 			<element maxOccurs="unbounded" minOccurs="0" name="specificAssetId" type="aas:specificAssetId_t"/>
 		</sequence>
 	</complexType>
+	<simpleType name="stateOfEvent_t">
+		<restriction base="string">
+			<enumeration value="on"/>
+			<enumeration value="off"/>
+		</restriction>
+	</simpleType>
+	<simpleType name="direction_t">
+		<restriction base="string">
+			<enumeration value="input"/>
+			<enumeration value="output"/>
+		</restriction>
+	</simpleType>
 	<complexType name="basicEventElement_t">
 		<complexContent>
 			<extension base="aas:eventElementAbstract_t">
 				<sequence>
-					<element maxOccurs="1" minOccurs="1" name="observed" type="aas:reference_t"/>
+					<element name="observed" type="aas:reference_t"/>
+					<element name="direction" type="aas:direction_t"/>
+					<element name="state" type="aas:stateOfEvent_t"/>
+					<element name="messageTopic" minOccurs="0" maxOccurs="1">
+						<simpleType>
+							<restriction base="string">
+								<minLength value="1"/>
+							</restriction>
+						</simpleType>
+					</element>
+					<element name="messageBroker" type="aas:reference_t" minOccurs="0" maxOccurs="1"/>
+					<element name="lastUpdate" minOccurs="0" maxOccurs="1">
+						<simpleType>
+							<restriction base="string">
+								<pattern value="-?(([1-9][0-9][0-9][0-9]+)|(0[0-9][0-9][0-9]))-((0[1-9])|(1[0-2]))-((0[1-9])|([12][0-9])|(3[01]))T(((([01][0-9])|(2[0-3])):[0-5][0-9]:([0-5][0-9])(\.[0-9]+)?)|24:00:00(\.0+)?)(Z|[+-]00:00)"/>
+							</restriction>
+						</simpleType>
+					</element>
+					<element name="minInterval" minOccurs="0" maxOccurs="1">
+						<simpleType>
+							<restriction base="string">
+								<pattern value="P(([0-9]+Y|[0-9]+Y[0-9]+M|[0-9]+Y[0-9]+M[0-9]+D|[0-9]+Y[0-9]+D|[0-9]+M|[0-9]+M[0-9]+D|[0-9]+D)(T([0-9]+H[0-9]+M[0-9]+(\.[0-9]+)?S|[0-9]+H[0-9]+(\.[0-9]+)?S|[0-9]+H|[0-9]+H[0-9]+M|[0-9]+M[0-9]+(\.[0-9]+)?S|[0-9]+M|[0-9]+(\.[0-9]+)?S))?|T([0-9]+H[0-9]+M[0-9]+(\.[0-9]+)?S|[0-9]+H[0-9]+(\.[0-9]+)?S|[0-9]+H|[0-9]+H[0-9]+M|[0-9]+M[0-9]+(\.[0-9]+)?S|[0-9]+M|[0-9]+(\.[0-9]+)?S))"/>
+							</restriction>
+						</simpleType>
+					</element>
+					<element name="maxInterval" minOccurs="0" maxOccurs="1">
+						<simpleType>
+							<restriction base="string">
+								<pattern value="P(([0-9]+Y|[0-9]+Y[0-9]+M|[0-9]+Y[0-9]+M[0-9]+D|[0-9]+Y[0-9]+D|[0-9]+M|[0-9]+M[0-9]+D|[0-9]+D)(T([0-9]+H[0-9]+M[0-9]+(\.[0-9]+)?S|[0-9]+H[0-9]+(\.[0-9]+)?S|[0-9]+H|[0-9]+H[0-9]+M|[0-9]+M[0-9]+(\.[0-9]+)?S|[0-9]+M|[0-9]+(\.[0-9]+)?S))?|T([0-9]+H[0-9]+M[0-9]+(\.[0-9]+)?S|[0-9]+H[0-9]+(\.[0-9]+)?S|[0-9]+H|[0-9]+H[0-9]+M|[0-9]+M[0-9]+(\.[0-9]+)?S|[0-9]+M|[0-9]+(\.[0-9]+)?S))"/>
+							</restriction>
+						</simpleType>
+					</element>
 				</sequence>
 			</extension>
 		</complexContent>

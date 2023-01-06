@@ -11,6 +11,7 @@ administration shell and example submodels and an example concept description
 To get this object store use the function :meth:`~aas.examples.data.example_aas.create_full_example`.
 If you want to get single example objects or want to get more information use the other functions.
 """
+import datetime
 import logging
 
 from ._helper import AASDataChecker
@@ -481,13 +482,22 @@ def create_example_submodel() -> model.Submodel:
                                        model.Key(type_=model.KeyTypes.PROPERTY,
                                                  value='ExampleProperty'),),
                                       model.Property),
+        direction=model.Direction.OUTPUT,
+        state=model.StateOfEvent.ON,
+        message_topic='ExampleTopic',
+        message_broker=model.ModelReference((model.Key(model.KeyTypes.SUBMODEL,
+                                                       "http://acplt.org/ExampleMessageBroker"),),
+                                            model.Submodel),
+        last_update=model.datatypes.DateTime(2022, 11, 12, 23, 50, 23, 123456, datetime.timezone.utc),
+        min_interval=model.datatypes.Duration(microseconds=1),
+        max_interval=model.datatypes.Duration(years=1, months=2, days=3, hours=4, minutes=5, seconds=6,
+                                              microseconds=123456),
         category='PARAMETER',
         description={'en-us': 'Example BasicEventElement object',
                      'de': 'Beispiel BasicEventElement Element'},
         parent=None,
         semantic_id=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
-                                                     value='http://acplt.org/Events/'
-                                                           'ExampleBasicEventElement'),)),
+                                                     value='http://acplt.org/Events/ExampleBasicEventElement'),)),
         qualifier=(),
         kind=model.ModelingKind.INSTANCE)
 

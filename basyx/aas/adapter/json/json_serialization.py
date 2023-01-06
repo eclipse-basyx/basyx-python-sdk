@@ -675,6 +675,18 @@ class AASToJsonEncoder(json.JSONEncoder):
         """
         data = cls._abstract_classes_to_json(obj)
         data['observed'] = obj.observed
+        data['direction'] = _generic.DIRECTION[obj.direction]
+        data['state'] = _generic.STATE_OF_EVENT[obj.state]
+        if obj.message_topic is not None:
+            data['messageTopic'] = obj.message_topic
+        if obj.message_broker is not None:
+            data['messageBroker'] = cls._reference_to_json(obj.message_broker)
+        if obj.last_update is not None:
+            data['lastUpdate'] = model.datatypes.xsd_repr(obj.last_update)
+        if obj.min_interval is not None:
+            data['minInterval'] = model.datatypes.xsd_repr(obj.min_interval)
+        if obj.max_interval is not None:
+            data['maxInterval'] = model.datatypes.xsd_repr(obj.max_interval)
         return data
 
 
