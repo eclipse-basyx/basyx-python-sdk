@@ -970,7 +970,22 @@
                                 "value": "ExampleProperty"
                             }
                         ]
-                    }
+                    },
+                    "direction": "output",
+                    "state": "on",
+                    "messageTopic": "ExampleTopic",
+                    "messageBroker": {
+                        "type": "ModelReference",
+                        "keys": [
+                            {
+                                "type": "Submodel",
+                                "value": "http://acplt.org/ExampleMessageBroker"
+                            }
+                        ]
+                    },
+                    "lastUpdate": "2022-11-12T23:50:23.123456+00:00",
+                    "minInterval": "PT0.000001S",
+                    "maxInterval": "P1Y2M3DT4H5M6.123456S"
                 },
                 {
                     "idShort": "ExampleSubmodelCollection",
@@ -1433,7 +1448,9 @@
                                 "value": "ExampleProperty"
                             }
                         ]
-                    }
+                    },
+                    "direction": "input",
+                    "state": "off"
                 },
                 {
                     "idShort": "ExampleSubmodelList",
@@ -1922,7 +1939,22 @@
                                 "value": "ExampleProperty"
                             }
                         ]
-                    }
+                    },
+                    "direction": "output",
+                    "state": "on",
+                    "messageTopic": "ExampleTopic",
+                    "messageBroker": {
+                        "type": "ModelReference",
+                        "keys": [
+                            {
+                                "type": "Submodel",
+                                "value": "http://acplt.org/ExampleMessageBroker"
+                            }
+                        ]
+                    },
+                    "lastUpdate": "2022-11-12T23:50:23.123456+00:00",
+                    "minInterval": "PT0.000001S",
+                    "maxInterval": "P1Y2M3DT4H5M6.123456S"
                 },
                 {
                     "idShort": "ExampleSubmodelCollection",
@@ -2479,7 +2511,22 @@
                                 "value": "ExampleProperty"
                             }
                         ]
-                    }
+                    },
+                    "direction": "output",
+                    "state": "on",
+                    "messageTopic": "ExampleTopic",
+                    "messageBroker": {
+                        "type": "ModelReference",
+                        "keys": [
+                            {
+                                "type": "Submodel",
+                                "value": "http://acplt.org/ExampleMessageBroker"
+                            }
+                        ]
+                    },
+                    "lastUpdate": "2022-11-12T23:50:23.123456+00:00",
+                    "minInterval": "PT0.000001S",
+                    "maxInterval": "P1Y2M3DT4H5M6.123456S"
                 },
                 {
                     "idShort": "ExampleSubmodelList",

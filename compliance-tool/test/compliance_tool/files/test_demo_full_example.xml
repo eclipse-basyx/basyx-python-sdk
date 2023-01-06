@@ -698,6 +698,17 @@
                 <aas:key type="Property">ExampleProperty</aas:key>
               </aas:keys>
             </aas:observed>
+            <aas:direction>output</aas:direction>
+            <aas:state>on</aas:state>
+            <aas:messageTopic>ExampleTopic</aas:messageTopic>
+            <aas:messageBroker type="ModelReference">
+              <aas:keys>
+                <aas:key type="Submodel">http://acplt.org/ExampleMessageBroker</aas:key>
+              </aas:keys>
+            </aas:messageBroker>
+            <aas:lastUpdate>2022-11-12T23:50:23.123456+00:00</aas:lastUpdate>
+            <aas:minInterval>PT0.000001S</aas:minInterval>
+            <aas:maxInterval>P1Y2M3DT4H5M6.123456S</aas:maxInterval>
           </aas:basicEventElement>
         </aas:submodelElement>
         <aas:submodelElement>
@@ -980,6 +991,8 @@
                 <aas:key type="Property">ExampleProperty</aas:key>
               </aas:keys>
             </aas:observed>
+            <aas:direction>input</aas:direction>
+            <aas:state>off</aas:state>
           </aas:basicEventElement>
         </aas:submodelElement>
         <aas:submodelElement>
@@ -1294,6 +1307,17 @@
                 <aas:key type="Property">ExampleProperty</aas:key>
               </aas:keys>
             </aas:observed>
+            <aas:direction>output</aas:direction>
+            <aas:state>on</aas:state>
+            <aas:messageTopic>ExampleTopic</aas:messageTopic>
+            <aas:messageBroker type="ModelReference">
+              <aas:keys>
+                <aas:key type="Submodel">http://acplt.org/ExampleMessageBroker</aas:key>
+              </aas:keys>
+            </aas:messageBroker>
+            <aas:lastUpdate>2022-11-12T23:50:23.123456+00:00</aas:lastUpdate>
+            <aas:minInterval>PT0.000001S</aas:minInterval>
+            <aas:maxInterval>P1Y2M3DT4H5M6.123456S</aas:maxInterval>
           </aas:basicEventElement>
         </aas:submodelElement>
         <aas:submodelElement>
@@ -1621,6 +1645,17 @@
                 <aas:key type="Property">ExampleProperty</aas:key>
               </aas:keys>
             </aas:observed>
+            <aas:direction>output</aas:direction>
+            <aas:state>on</aas:state>
+            <aas:messageTopic>ExampleTopic</aas:messageTopic>
+            <aas:messageBroker type="ModelReference">
+              <aas:keys>
+                <aas:key type="Submodel">http://acplt.org/ExampleMessageBroker</aas:key>
+              </aas:keys>
+            </aas:messageBroker>
+            <aas:lastUpdate>2022-11-12T23:50:23.123456+00:00</aas:lastUpdate>
+            <aas:minInterval>PT0.000001S</aas:minInterval>
+            <aas:maxInterval>P1Y2M3DT4H5M6.123456S</aas:maxInterval>
           </aas:basicEventElement>
         </aas:submodelElement>
         <aas:submodelElement>
