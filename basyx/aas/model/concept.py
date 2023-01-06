@@ -167,16 +167,16 @@ class IEC61360ConceptDescription(ConceptDescription):
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
                  parent: Optional[base.Namespace] = None,
-                 administration: base.AdministrativeInformation = None,
+                 administration: Optional[base.AdministrativeInformation] = None,
                  unit: Optional[str] = None,
                  unit_id: Optional[base.Reference] = None,
                  source_of_definition: Optional[str] = None,
                  symbol: Optional[str] = None,
-                 value_format: base.DataTypeDef = None,
+                 value_format: Optional[base.DataTypeDef] = None,
                  value_list: Optional[base.ValueList] = None,
                  value: Optional[base.ValueDataType] = None,
                  value_id: Optional[base.Reference] = None,
-                 level_types: Set[IEC61360LevelType] = None,
+                 level_types: Optional[Set[IEC61360LevelType]] = None,
                  ):
         super().__init__(identification, is_case_of, id_short, category, description, parent, administration)
         self.preferred_name: base.LangStringSet = preferred_name

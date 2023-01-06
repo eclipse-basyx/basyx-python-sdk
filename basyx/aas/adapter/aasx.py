@@ -362,8 +362,8 @@ class AASXWriter:
 
         # Add referenced ConceptDescriptions to the AAS part
         for dictionary in aas.concept_dictionary:
-            for concept_rescription_ref in dictionary.concept_description:
-                objects_to_be_written.add(concept_rescription_ref.get_identifier())
+            for concept_description_ref in dictionary.concept_description:
+                objects_to_be_written.add(concept_description_ref.get_identifier())
 
         # Write submodels: Either create a split part for each of them or otherwise add them to objects_to_be_written
         aas_split_part_names: List[str] = []
