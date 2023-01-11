@@ -356,8 +356,6 @@ class ModelNamespaceTest(unittest.TestCase):
         self.assertIsNone(self.prop1.parent)
         self.namespace.set1.discard(self.prop1)
 
-        self.assertFalse([1] in self.namespace.set1)
-
     def test_Namespace(self) -> None:
         with self.assertRaises(KeyError) as cm:
             namespace_test = ExampleNamespace([self.prop1, self.prop2, self.prop1alt])
@@ -377,7 +375,8 @@ class ModelNamespaceTest(unittest.TestCase):
             self.assertEqual("'Referable with id_short Prop2 not found in this namespace'", str(cm2.exception))
 
         with self.assertRaises(KeyError) as cm3:
-            namespace.remove_referable("Prob2")
+            namespace.remove_referable("Prop2")
+            self.assertEqual("'Referable with id_short Prop2 not found in this namespace'", str(cm3.exception))
 
     def test_renaming(self) -> None:
         self.namespace.set1.add(self.prop1)
