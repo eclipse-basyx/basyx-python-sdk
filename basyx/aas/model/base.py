@@ -713,6 +713,7 @@ class AASReference(Reference, Generic[_RT]):
             except KeyError as e:
                 raise KeyError("Could not resolve id_short {} at {}".format(key.value, " / ".join(resolved_keys)))\
                     from e
+            resolved_keys.append(item.id_short)
 
         # Check type
         if not isinstance(item, self.type):
