@@ -944,3 +944,26 @@ class ValueReferencePairTest(unittest.TestCase):
         self.assertEqual('Value can not be None', str(cm.exception))
         pair.value = 3
         self.assertEqual(pair.value, 3)
+
+
+class HasSemanticsTest(unittest.TestCase):
+    def test_add_supplementary_semantic_id(self):
+        extension = model.Extension(name='test')
+        ref_sem_id = model.Reference(['main', 'Reference'])
+        ref1: model.Reference = model.Reference(['random', 'path'])
+        ref2 = model.Reference(['another', 'random', 'path'])
+        with self.assertRaises(TypeError) as cm:
+            extension.add_supplementary_semantic_id(ref1)
+        self.assertEqual('No main semantic ID defined', str(cm.exception))
+        extension.semantic_id = ref_sem_id
+        extension.add_supplementary_semantic_id(ref1)
+        print(extension.supplementary_semantic_id().__len__())
+        if not extension.is_supplementary_semantic_id(ref1):
+            raise ValueError("Element is not in ConstrainedList")
+        if extension.is_supplementary_semantic_id(ref2):
+            raise ValueError("Element should not be in ConstrainedList")
+
+
+
+
+

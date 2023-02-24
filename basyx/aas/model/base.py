@@ -12,6 +12,7 @@ the higher level classes to inherit from.
 import abc
 import inspect
 import itertools
+from abc import abstractmethod
 from enum import Enum, unique
 from typing import List, Optional, Set, TypeVar, MutableSet, Generic, Iterable, Dict, Iterator, Union, overload, \
     MutableSequence, Type, Any, TYPE_CHECKING, Tuple, Callable
@@ -1054,13 +1055,22 @@ class HasSemantics(metaclass=abc.ABCMeta):
                        The semantic id may either reference an external global id or it may reference a referable model
                        element of kind=Type that defines the semantics of the element.
     """
-    @abc.abstractmethod
     def __init__(self):
         super().__init__()
         # TODO: parent can be any `Namespace`, unfortunately this definition would be incompatible with the definition
         #  of Referable.parent as `UniqueIdShortNamespace`
         self.parent: Optional[Any] = None
         self._semantic_id: Optional[Reference] = None
+        self._supplementary_semantic_id: ConstrainedList = ConstrainedList[Reference](
+            sequence_=[], item_add_hook=self._check_constraint_add,
+            item_del_hook=self._check_constraint_delete)
+
+    def _check_constraint_add(self) -> None:
+        if self._semantic_id is None:
+            raise TypeError('No main semantic ID defined')
+
+    def _check_constraint_delete(self):
+        pass
 
     @property
     def semantic_id(self):
@@ -1084,6 +1094,19 @@ class HasSemantics(metaclass=abc.ABCMeta):
                 set_.add(self)
         # Redundant to the line above. However this way, we make sure that we really update the _semantic_id
         self._semantic_id = semantic_id
+
+    def add_supplementary_semantic_id(self, ref: Reference) -> None:
+        self._supplementary_semantic_id.append(ref)
+
+    def supplementary_semantic_id(self):
+        return self._supplementary_semantic_id
+
+    def delete_supplementary_semantic_id(self, ref: Reference):
+        self._supplementary_semantic_id.remove(ref)
+
+    def is_supplementary_semantic_id(self, ref: Reference) -> bool:
+        return self._supplementary_semantic_id.is_element_in_list(ref)
+
 
 
 class Extension(HasSemantics):
@@ -1800,3 +1823,77 @@ class AASConstraintViolation(Exception):
         self.constraint_id: int = constraint_id
         self.message: str = message + " (Constraint AASd-" + str(constraint_id).zfill(3) + ")"
         super().__init__(self.message)
+
+
+_T = TypeVar("_T")
+
+
+class ConstrainedList(MutableSequence[_T], Generic[_T]):
+    """
+    A type of list that can be constrained by hooks. Useful when implementing AASd constraints.
+    """
+
+    def __delitem__(self, key) -> None:
+        del self.sequence_[key]
+
+    def __setitem__(self, key, value) -> None:
+        self.sequence_[key] = value
+
+    def __len__(self) -> int:
+        return len(self.sequence_)
+
+    def __getitem__(self, key):
+        return self.sequence_[key]
+
+    def __init__(self, sequence_: MutableSequence[_T], item_add_hook: Optional[Callable[[_T, List[_T]], None]] = None,
+                 item_del_hook: Optional[Callable[[_T, List[_T]], None]] = None):
+        super().__init__()
+        self._item_add_hook: Optional[Callable[[_T, List[_T]], None]] = item_add_hook
+        self._item_del_hook: Optional[Callable[[_T, List[_T]], None]] = item_del_hook
+        self.sequence_: MutableSequence[_T] = sequence_
+        for item in sequence_:
+            self.append(item)
+
+    def append(self, __object: _T) -> None:
+        self._item_add_hook()
+        super().append(__object)
+
+    def insert(self, __index: int, __object: _T) -> None:
+        print("index:" + str(__index) + "list laenge:" + str(self.__len__()))
+        if __index.__index__() <= self.__len__():
+            self._item_add_hook()
+            seq1: ConstrainedList[_T] = self[:__index:]
+            seq2: ConstrainedList[_T] = self[__index::]
+            self = seq1
+            print("list index: " + str(self.__len__()))
+            print(".....")
+            print(self)
+            print("1." + self[0])
+            print(self[1])
+            self[self.__len__()] = __object
+            for item in seq2:
+                self[self.__len__()] = item
+
+    def remove(self, __value: _T) -> None:
+        if __value in self:
+            self._item_del_hook(__value, self)
+        super().remove(__value)
+
+    def pop(self, __index: int) -> _T:
+        if __index.__index__() < self.__len__():
+            self._item_del_hook(self[__index], self)
+        return super().pop(__index)
+
+    def extend(self, __iterable: Iterable[_T]) -> None:
+        for item in __iterable:
+            self.append(item)
+
+    def is_empty(self) -> bool:
+        if self.__len__() == 0:
+            return True
+        return False
+
+    def is_element_in_list(self, __value: _T) -> bool:
+        if __value in self:
+            return True
+        return False
