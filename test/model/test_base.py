@@ -962,6 +962,30 @@ class HasSemanticsTest(unittest.TestCase):
             raise ValueError("Element is not in ConstrainedList")
         if extension.is_supplementary_semantic_id(ref2):
             raise ValueError("Element should not be in ConstrainedList")
+        print(extension.supplementary_semantic_id().__len__())
+        print(extension.supplementary_semantic_id().data)
+        if extension.supplementary_semantic_id().__len__() != 1:
+            raise IndexError("ConstraintList has wrong size")
+        extension.add_supplementary_semantic_id(ref2)
+        if extension.supplementary_semantic_id().__len__() != 2:
+            raise IndexError("ConstraintList has wrong size")
+        extension.delete_supplementary_semantic_id(ref2)
+        if extension.supplementary_semantic_id().__len__() != 1:
+            raise IndexError("ConstraintList has wrong size")
+        extension.delete_supplementary_semantic_id(ref2)
+        if extension.supplementary_semantic_id().__len__() != 1:
+            raise IndexError("ConstraintList has wrong size")
+        #semanticid löschen
+
+        #TRACK something with __slots()__?
+        extension.add_supplementary_semantic_id(1)
+
+
+
+
+class ConstraintListTest(unittest.TestCase):
+    pass
+    #try adding stuff that doesnt belong?
 
 
 

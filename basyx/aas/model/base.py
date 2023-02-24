@@ -1833,51 +1833,47 @@ class ConstrainedList(MutableSequence[_T], Generic[_T]):
     A type of list that can be constrained by hooks. Useful when implementing AASd constraints.
     """
 
+    def __repr__(self):
+        return self.data.__repr__()
+
     def __delitem__(self, key) -> None:
-        del self.sequence_[key]
+        del self.data[key]
 
     def __setitem__(self, key, value) -> None:
-        self.sequence_[key] = value
+        self.data[key] = value
 
     def __len__(self) -> int:
-        return len(self.sequence_)
+        return len(self.data)
 
     def __getitem__(self, key):
-        return self.sequence_[key]
+        return self.data[key]
 
     def __init__(self, sequence_: MutableSequence[_T], item_add_hook: Optional[Callable[[_T, List[_T]], None]] = None,
                  item_del_hook: Optional[Callable[[_T, List[_T]], None]] = None):
         super().__init__()
+        self.data = []
         self._item_add_hook: Optional[Callable[[_T, List[_T]], None]] = item_add_hook
         self._item_del_hook: Optional[Callable[[_T, List[_T]], None]] = item_del_hook
-        self.sequence_: MutableSequence[_T] = sequence_
         for item in sequence_:
-            self.append(item)
+            super().append(item)
 
-    def append(self, __object: _T) -> None:
+    def append(self, __object
+    : _T) -> None:
         self._item_add_hook()
         super().append(__object)
 
     def insert(self, __index: int, __object: _T) -> None:
-        print("index:" + str(__index) + "list laenge:" + str(self.__len__()))
+        self._item_add_hook()
         if __index.__index__() <= self.__len__():
-            self._item_add_hook()
-            seq1: ConstrainedList[_T] = self[:__index:]
-            seq2: ConstrainedList[_T] = self[__index::]
-            self = seq1
-            print("list index: " + str(self.__len__()))
-            print(".....")
-            print(self)
-            print("1." + self[0])
-            print(self[1])
-            self[self.__len__()] = __object
-            for item in seq2:
-                self[self.__len__()] = item
+            self.data.insert(__index, __object)
+            print(self.data)
+        else:
+            raise UnexpectedTypeError("TEST")
 
     def remove(self, __value: _T) -> None:
-        if __value in self:
-            self._item_del_hook(__value, self)
-        super().remove(__value)
+        if __value in self.data:
+            self._item_del_hook()
+            super().remove(__value)
 
     def pop(self, __index: int) -> _T:
         if __index.__index__() < self.__len__():
@@ -1886,7 +1882,7 @@ class ConstrainedList(MutableSequence[_T], Generic[_T]):
 
     def extend(self, __iterable: Iterable[_T]) -> None:
         for item in __iterable:
-            self.append(item)
+            super().append(item)
 
     def is_empty(self) -> bool:
         if self.__len__() == 0:
@@ -1894,6 +1890,8 @@ class ConstrainedList(MutableSequence[_T], Generic[_T]):
         return False
 
     def is_element_in_list(self, __value: _T) -> bool:
-        if __value in self:
+        if __value in self.data:
             return True
         return False
+
+
