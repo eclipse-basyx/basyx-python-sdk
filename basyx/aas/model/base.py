@@ -1061,7 +1061,7 @@ class HasSemantics(metaclass=abc.ABCMeta):
         #  of Referable.parent as `UniqueIdShortNamespace`
         self.parent: Optional[Any] = None
         self._semantic_id: Optional[Reference] = None
-        self._supplementary_semantic_id: ConstrainedList = ConstrainedList[Reference](
+        self._supplementary_semantic_id: ConstrainedList[Reference] = ConstrainedList[Reference](
             sequence_=[], item_add_hook=self._check_constraint_add,
             item_del_hook=self._check_constraint_delete)
 
@@ -1096,6 +1096,7 @@ class HasSemantics(metaclass=abc.ABCMeta):
         self._semantic_id = semantic_id
 
     def add_supplementary_semantic_id(self, ref: Reference) -> None:
+        print("RefType: "+ str(type(ref)))
         self._supplementary_semantic_id.append(ref)
 
     def supplementary_semantic_id(self):
@@ -1857,8 +1858,7 @@ class ConstrainedList(MutableSequence[_T], Generic[_T]):
         for item in sequence_:
             super().append(item)
 
-    def append(self, __object
-    : _T) -> None:
+    def append(self, __object: _T) -> None:
         self._item_add_hook()
         super().append(__object)
 
