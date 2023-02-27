@@ -1079,8 +1079,8 @@ class ConstrainedList(MutableSequence[_T], Generic[_T]):
                 raise IndexError
         return self.data[key]
 
-    def __init__(self, sequence_: MutableSequence[_T], item_add_hook: Optional[Callable[[_T, List[_T]], None]] = None,
-                 item_del_hook: Optional[Callable[[_T, List[_T]], None]] = None) -> None:
+    def __init__(self, sequence_: MutableSequence[_T], item_add_hook: Optional[Callable[[_T, List[_T]], None]],
+                 item_del_hook: Optional[Callable[[_T, List[_T]], None]]) -> None:
         super().__init__()
         self.data: list[_T] = []
         self._item_add_hook: Optional[Callable[[_T, List[_T]], None]] = item_add_hook
@@ -1089,25 +1089,27 @@ class ConstrainedList(MutableSequence[_T], Generic[_T]):
             super().append(item)
 
     def append(self, __object: _T) -> None:
-        self._item_add_hook(__object, self.data)
+        if self._item_add_hook is not None:
+            self._item_add_hook(__object, self.data)
         super().append(__object)
 
     def insert(self, __index: int, __object: _T) -> None:
-        self._item_add_hook(__object, self.data)
+        if self._item_add_hook is not None:
+            self._item_add_hook(__object, self.data)
         if __index.__index__() <= self.__len__():
             self.data.insert(__index, __object)
-        else:
-            raise UnexpectedTypeError("TEST")
 
     def remove(self, __value: _T) -> None:
         if __value in self.data:
-            self._item_del_hook(__value, self.data)
+            if self._item_del_hook is not None:
+                self._item_del_hook(__value, self.data)
             super().remove(__value)
 
-    def pop(self, __index: int) -> _T:
+    def pop(self, __index: int = -1) -> _T:
         if __index.__index__() < self.__len__():
             __object: _T = self.data[__index]
-            self._item_del_hook(__object, self.data)
+            if self._item_del_hook is not None:
+                self._item_del_hook(__object, self.data)
         return super().pop(__index)
 
     def extend(self, __iterable: Iterable[_T]) -> None:
