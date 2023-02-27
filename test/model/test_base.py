@@ -957,13 +957,10 @@ class HasSemanticsTest(unittest.TestCase):
         self.assertEqual('No main semantic ID defined', str(cm.exception))
         extension.semantic_id = ref_sem_id
         extension.add_supplementary_semantic_id(ref1)
-        print(extension.supplementary_semantic_id().__len__())
         if not extension.is_supplementary_semantic_id(ref1):
             raise ValueError("Element is not in ConstrainedList")
         if extension.is_supplementary_semantic_id(ref2):
             raise ValueError("Element should not be in ConstrainedList")
-        print(extension.supplementary_semantic_id().__len__())
-        print(extension.supplementary_semantic_id().data)
         if extension.supplementary_semantic_id().__len__() != 1:
             raise IndexError("ConstraintList has wrong size")
         extension.add_supplementary_semantic_id(ref2)
@@ -975,10 +972,19 @@ class HasSemanticsTest(unittest.TestCase):
         extension.delete_supplementary_semantic_id(ref2)
         if extension.supplementary_semantic_id().__len__() != 1:
             raise IndexError("ConstraintList has wrong size")
+        extension.semantic_id = None
+        with self.assertRaises(TypeError) as cm2:
+            extension.add_supplementary_semantic_id(ref1)
+        self.assertEqual('No main semantic ID defined', str(cm2.exception))
+        if not extension.supplementary_semantic_id().is_element_in_list(ref1):
+            raise ValueError("Element should be in ConstraintList")
+        if extension.supplementary_semantic_id().is_element_in_list(ref2):
+            raise ValueError("Element should not be in ConstraintList")
+
         #semanticid löschen
 
         #TRACK something with __slots()__?
-        extension.add_supplementary_semantic_id(1)
+        #extension.add_supplementary_semantic_id(1)
 
 
 
@@ -986,6 +992,7 @@ class HasSemanticsTest(unittest.TestCase):
 class ConstraintListTest(unittest.TestCase):
     pass
     #try adding stuff that doesnt belong?
+    #__getitem()__ mit CinstraintlIST return
 
 
 

@@ -1045,6 +1045,86 @@ class Identifiable(Referable, metaclass=abc.ABCMeta):
         self._id = id_
 
 
+_T = TypeVar("_T")
+
+
+class ConstrainedList(MutableSequence[_T], Generic[_T]):
+    """
+    A type of list that can be constrained by hooks. Useful when implementing AASd constraints.
+    """
+
+    def __repr__(self) -> str:
+        return self.data.__repr__()
+
+    def __delitem__(self, key) -> None:
+        del self.data[key]
+
+    def __setitem__(self, key, value) -> None:
+        self.data[key] = value
+
+    def __len__(self) -> int:
+        return len(self.data)
+
+    @overload
+    def __getitem__(self, key: int) -> _T:
+        ...
+
+    @overload
+    def __getitem__(self, key: slice) -> MutableSequence[_T]:
+        ...
+
+    def __getitem__(self, key):
+        if type(key) is int:
+            if key < 0 or key > self.__len__() - 1:
+                raise IndexError
+        return self.data[key]
+
+    def __init__(self, sequence_: MutableSequence[_T], item_add_hook: Optional[Callable[[_T, List[_T]], None]] = None,
+                 item_del_hook: Optional[Callable[[_T, List[_T]], None]] = None) -> None:
+        super().__init__()
+        self.data: list[_T] = []
+        self._item_add_hook: Optional[Callable[[_T, List[_T]], None]] = item_add_hook
+        self._item_del_hook: Optional[Callable[[_T, List[_T]], None]] = item_del_hook
+        for item in sequence_:
+            super().append(item)
+
+    def append(self, __object: _T) -> None:
+        self._item_add_hook(__object, self.data)
+        super().append(__object)
+
+    def insert(self, __index: int, __object: _T) -> None:
+        self._item_add_hook(__object, self.data)
+        if __index.__index__() <= self.__len__():
+            self.data.insert(__index, __object)
+        else:
+            raise UnexpectedTypeError("TEST")
+
+    def remove(self, __value: _T) -> None:
+        if __value in self.data:
+            self._item_del_hook(__value, self.data)
+            super().remove(__value)
+
+    def pop(self, __index: int) -> _T:
+        if __index.__index__() < self.__len__():
+            __object: _T = self.data[__index]
+            self._item_del_hook(__object, self.data)
+        return super().pop(__index)
+
+    def extend(self, __iterable: Iterable[_T]) -> None:
+        for item in __iterable:
+            super().append(item)
+
+    def is_empty(self) -> bool:
+        if self.__len__() == 0:
+            return True
+        return False
+
+    def is_element_in_list(self, __value: _T) -> bool:
+        if __value in self.data:
+            return True
+        return False
+
+
 class HasSemantics(metaclass=abc.ABCMeta):
     """
     Element that can have a semantic definition.
@@ -1065,11 +1145,11 @@ class HasSemantics(metaclass=abc.ABCMeta):
             sequence_=[], item_add_hook=self._check_constraint_add,
             item_del_hook=self._check_constraint_delete)
 
-    def _check_constraint_add(self) -> None:
+    def _check_constraint_add(self, __object: Reference, __constraint_list: ConstrainedList[Reference]) -> None:
         if self._semantic_id is None:
             raise TypeError('No main semantic ID defined')
 
-    def _check_constraint_delete(self):
+    def _check_constraint_delete(self, __object: Reference, __constraint_list: ConstrainedList[Reference]) -> None:
         pass
 
     @property
@@ -1082,8 +1162,7 @@ class HasSemantics(metaclass=abc.ABCMeta):
             if semantic_id is not None:
                 for set_ in self.parent.namespace_element_sets:
                     if set_.contains_id("semantic_id", semantic_id):
-                        raise KeyError("Object with semantic_id '{}' is already present in the parent Namespace"
-                                       .format(semantic_id))
+                        raise KeyError("Object with semantic_id is already present in the parent Namespace")
             set_add_list: List[NamespaceSet] = []
             for set_ in self.parent.namespace_element_sets:
                 if self in set_:
@@ -1096,7 +1175,6 @@ class HasSemantics(metaclass=abc.ABCMeta):
         self._semantic_id = semantic_id
 
     def add_supplementary_semantic_id(self, ref: Reference) -> None:
-        print("RefType: "+ str(type(ref)))
         self._supplementary_semantic_id.append(ref)
 
     def supplementary_semantic_id(self):
@@ -1107,7 +1185,6 @@ class HasSemantics(metaclass=abc.ABCMeta):
 
     def is_supplementary_semantic_id(self, ref: Reference) -> bool:
         return self._supplementary_semantic_id.is_element_in_list(ref)
-
 
 
 class Extension(HasSemantics):
@@ -1824,74 +1901,5 @@ class AASConstraintViolation(Exception):
         self.constraint_id: int = constraint_id
         self.message: str = message + " (Constraint AASd-" + str(constraint_id).zfill(3) + ")"
         super().__init__(self.message)
-
-
-_T = TypeVar("_T")
-
-
-class ConstrainedList(MutableSequence[_T], Generic[_T]):
-    """
-    A type of list that can be constrained by hooks. Useful when implementing AASd constraints.
-    """
-
-    def __repr__(self):
-        return self.data.__repr__()
-
-    def __delitem__(self, key) -> None:
-        del self.data[key]
-
-    def __setitem__(self, key, value) -> None:
-        self.data[key] = value
-
-    def __len__(self) -> int:
-        return len(self.data)
-
-    def __getitem__(self, key):
-        return self.data[key]
-
-    def __init__(self, sequence_: MutableSequence[_T], item_add_hook: Optional[Callable[[_T, List[_T]], None]] = None,
-                 item_del_hook: Optional[Callable[[_T, List[_T]], None]] = None):
-        super().__init__()
-        self.data = []
-        self._item_add_hook: Optional[Callable[[_T, List[_T]], None]] = item_add_hook
-        self._item_del_hook: Optional[Callable[[_T, List[_T]], None]] = item_del_hook
-        for item in sequence_:
-            super().append(item)
-
-    def append(self, __object: _T) -> None:
-        self._item_add_hook()
-        super().append(__object)
-
-    def insert(self, __index: int, __object: _T) -> None:
-        self._item_add_hook()
-        if __index.__index__() <= self.__len__():
-            self.data.insert(__index, __object)
-            print(self.data)
-        else:
-            raise UnexpectedTypeError("TEST")
-
-    def remove(self, __value: _T) -> None:
-        if __value in self.data:
-            self._item_del_hook()
-            super().remove(__value)
-
-    def pop(self, __index: int) -> _T:
-        if __index.__index__() < self.__len__():
-            self._item_del_hook(self[__index], self)
-        return super().pop(__index)
-
-    def extend(self, __iterable: Iterable[_T]) -> None:
-        for item in __iterable:
-            super().append(item)
-
-    def is_empty(self) -> bool:
-        if self.__len__() == 0:
-            return True
-        return False
-
-    def is_element_in_list(self, __value: _T) -> bool:
-        if __value in self.data:
-            return True
-        return False
 
 
