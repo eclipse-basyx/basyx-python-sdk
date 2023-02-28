@@ -84,6 +84,7 @@ def generate_example_referable_tree() -> model.Referable:
 
     :return: example_referable
     """
+
     def generate_example_referable_with_namespace(id_short: str,
                                                   child: Optional[model.Referable] = None) -> model.Referable:
         """
@@ -468,6 +469,7 @@ class ModelNamespaceTest(unittest.TestCase):
                     # Create a new list to prevent an error when checking the assertions:
                     # RuntimeError: dictionary changed size during iteration
                     existing_items = list(existing)
+
                 super().__init__()
                 self.set1 = model.NamespaceSet(self, [('id_short', True)], items, dummy_hook)
 
@@ -947,7 +949,10 @@ class ValueReferencePairTest(unittest.TestCase):
 
 
 class HasSemanticsTest(unittest.TestCase):
-    def test_add_supplementary_semantic_id(self):
+    def test_semantic_id(self):
+        pass
+
+    def test_supplementary_semantic_id(self):
         extension = model.Extension(name='test')
         ref_sem_id = model.Reference(['main', 'Reference'])
         ref1: model.Reference = model.Reference(['random', 'path'])
@@ -957,9 +962,9 @@ class HasSemanticsTest(unittest.TestCase):
         self.assertEqual('No main semantic ID defined', str(cm.exception))
         extension.semantic_id = ref_sem_id
         extension.add_supplementary_semantic_id(ref1)
-        if not extension.is_supplementary_semantic_id(ref1):
+        if ref1 not in extension.supplementary_semantic_id():
             raise ValueError("Element is not in ConstrainedList")
-        if extension.is_supplementary_semantic_id(ref2):
+        if ref2 in extension.supplementary_semantic_id():
             raise ValueError("Element should not be in ConstrainedList")
         if extension.supplementary_semantic_id().__len__() != 1:
             raise IndexError("ConstraintList has wrong size")
@@ -976,25 +981,42 @@ class HasSemanticsTest(unittest.TestCase):
         with self.assertRaises(TypeError) as cm2:
             extension.add_supplementary_semantic_id(ref1)
         self.assertEqual('No main semantic ID defined', str(cm2.exception))
-        if not extension.supplementary_semantic_id().is_element_in_list(ref1):
+        if ref1 not in extension.supplementary_semantic_id():
             raise ValueError("Element should be in ConstraintList")
-        if extension.supplementary_semantic_id().is_element_in_list(ref2):
+        if ref2 in extension.supplementary_semantic_id():
             raise ValueError("Element should not be in ConstraintList")
-
-        #semanticid löschen
-
-        #TRACK something with __slots()__?
-        #extension.add_supplementary_semantic_id(1)
-
-
 
 
 class ConstraintListTest(unittest.TestCase):
-    pass
-    #try adding stuff that doesnt belong?
-    #__getitem()__ mit CinstraintlIST return
+    def test_constrained_list(self):
+        def add_list(__item: int, __list: List[int]):
+            if __item in __list:
+                raise TypeError
 
-
-
-
-
+        def delete_list(__item: int, __list: List[int]):
+            if __item not in __list:
+                raise TypeError
+        checkList: List[int] = [1, 2, 3]
+        def test_list():
+            if str(checkList) != str(constList):
+                raise ValueError
+        constList: model.ConstrainedList[int] = model.ConstrainedList(sequence_=[1, 2, 3], item_add_hook=add_list,
+                                                                      item_del_hook=delete_list)
+        test_list()
+        constList.append(4)
+        checkList.append(4)
+        test_list()
+    # __getitem()__ mit CinstraintlIST return
+    # append
+    # extend
+    # insert
+    # remove
+    # pop
+    # index
+    # count
+    # sort()
+    # sorted()
+    # reverse
+    # Slicing
+    # len
+    #Methode mit falschen Parametern übergeben!!!

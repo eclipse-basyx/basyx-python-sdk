@@ -1065,6 +1065,9 @@ class ConstrainedList(MutableSequence[_T], Generic[_T]):
     def __len__(self) -> int:
         return len(self.data)
 
+    def __contains__(self, item):
+        return item in self.data
+
     @overload
     def __getitem__(self, key: int) -> _T:
         ...
@@ -1121,10 +1124,22 @@ class ConstrainedList(MutableSequence[_T], Generic[_T]):
             return True
         return False
 
-    def is_element_in_list(self, __value: _T) -> bool:
-        if __value in self.data:
-            return True
-        return False
+    def index(self, value: Any, start: int = 0, stop: Optional[int] = None) -> int:
+        _index: int = 0
+        if stop is None:
+            stop = len(self)
+        for item in range(start, stop):
+            if item is value:
+                return _index
+            _index += 1
+        raise ValueError
+
+    def count(self, value: Any) -> int:
+        _count: int = 0
+        for item in self.data:
+            if item is value:
+                _count += 1
+        return _count
 
 
 class HasSemantics(metaclass=abc.ABCMeta):
@@ -1184,9 +1199,6 @@ class HasSemantics(metaclass=abc.ABCMeta):
 
     def delete_supplementary_semantic_id(self, ref: Reference):
         self._supplementary_semantic_id.remove(ref)
-
-    def is_supplementary_semantic_id(self, ref: Reference) -> bool:
-        return self._supplementary_semantic_id.is_element_in_list(ref)
 
 
 class Extension(HasSemantics):
@@ -1903,5 +1915,3 @@ class AASConstraintViolation(Exception):
         self.constraint_id: int = constraint_id
         self.message: str = message + " (Constraint AASd-" + str(constraint_id).zfill(3) + ")"
         super().__init__(self.message)
-
-
