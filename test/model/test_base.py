@@ -997,6 +997,7 @@ class ConstraintListTest(unittest.TestCase):
             if __item not in __list:
                 raise TypeError
         checkList: List[int] = [1, 2, 3]
+
         def test_list():
             if str(checkList) != str(constList):
                 raise ValueError

@@ -1056,8 +1056,20 @@ class ConstrainedList(MutableSequence[_T], Generic[_T]):
     def __repr__(self) -> str:
         return self.data.__repr__()
 
-    def __delitem__(self, key) -> None:
-        del self.data[key]
+    @overload
+    def __delitem__(self, i: int) -> None:
+        ...
+
+    @overload
+    def __delitem__(self, i: slice) -> None:
+        ...
+
+    def __delitem__(self, i: Union[int, slice]) -> None:
+        if isinstance(i, int):
+            i = slice(i, i + 1)
+        for o in self.data[i]:
+            super().remove(o)
+        del self.data[i]
 
     def __setitem__(self, key, value) -> None:
         self.data[key] = value
@@ -1077,9 +1089,10 @@ class ConstrainedList(MutableSequence[_T], Generic[_T]):
         ...
 
     def __getitem__(self, key):
-        if type(key) is int:
+        if isinstance(key, int):
             if key < 0 or key > self.__len__() - 1:
                 raise IndexError
+            key = slice(key, key + 1)
         return self.data[key]
 
     def __init__(self, sequence_: MutableSequence[_T], item_add_hook: Optional[Callable[[_T, List[_T]], None]],
@@ -1175,6 +1188,8 @@ class HasSemantics(metaclass=abc.ABCMeta):
 
     @semantic_id.setter
     def semantic_id(self, semantic_id: Optional[Reference]) -> None:
+        if semantic_id is None and self._supplementary_semantic_id is not None:
+            raise ValueError("semantic_id can not be set to None while there is a _supplementary_semantic_id")
         if self.parent is not None:
             if semantic_id is not None:
                 for set_ in self.parent.namespace_element_sets:
