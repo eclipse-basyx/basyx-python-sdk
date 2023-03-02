@@ -995,11 +995,11 @@ class ConstraintListTest(unittest.TestCase):
     def test_constrained_list(self):
         def add_list(__item: int, __list: List[int]):
             if __item in __list:
-                raise TypeError
+                raise ValueError
 
         def delete_list(__item: int, __list: List[int]):
             if __item not in __list:
-                raise TypeError
+                raise ValueError
 
         check_list: List[int] = [1, 2, 3]
 
@@ -1021,6 +1021,7 @@ class ConstraintListTest(unittest.TestCase):
         c_list.insert(-1, 30)
         check_list.insert(-1, 30)
         test_list()
+        print(c_list)
         c_list.remove(20)
         check_list.remove(20)
         with self.assertRaises(ValueError) as cm:
@@ -1036,14 +1037,21 @@ class ConstraintListTest(unittest.TestCase):
         check_list.pop(-5)
         with self.assertRaises(IndexError) as cm2:
             c_list.pop(-5)
-        self.assertEqual("Index out of bound", str(cm2.exception))
+        self.assertEqual("list index out of range", str(cm2.exception))
+        print(c_list)
+        if c_list.index(10) != 2:
+            raise ValueError
+        with self.assertRaises(ValueError):
+            c_list.index(100)
+        with self.assertRaises(ValueError):
+            c_list.insert(0, 10)
+        if c_list.count(10) != 1:
+            raise ValueError
+        if len(c_list) != len(check_list):
+            raise ValueError
+        c_list.append("Test")
+        c_list.pop()
 
     # __getitem()__ mit CinstraintlIST return
-    # index
-    # count
-    # sort()
-    # sorted()
-    # reverse
     # Slicing
-    # len
     # Methode mit falschen Parametern übergeben!!!

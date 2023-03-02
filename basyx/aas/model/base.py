@@ -1065,11 +1065,15 @@ class ConstrainedList(MutableSequence[_T], Generic[_T]):
         ...
 
     def __delitem__(self, i: Union[int, slice]) -> None:
-        if isinstance(i, int):
-            i = slice(i, i + 1)
-        for o in self.data[i]:
-            super().remove(o)
         del self.data[i]
+
+    @overload
+    def __setitem__(self, key: int, value: _T) -> None:
+        ...
+
+    @overload
+    def __setitem__(self, key: slice, value: Iterable[_T]) -> None:
+        ...
 
     def __setitem__(self, key, value) -> None:
         self.data[key] = value
@@ -1089,16 +1093,12 @@ class ConstrainedList(MutableSequence[_T], Generic[_T]):
         ...
 
     def __getitem__(self, key: Union[int, slice]):
-        if isinstance(key, int):
-            if key < 0 or key > self.__len__() - 1:
-                raise IndexError
-            key = slice(key, key + 1)
         return self.data[key]
 
     def __init__(self, sequence_: MutableSequence[_T], item_add_hook: Optional[Callable[[_T, List[_T]], None]],
                  item_del_hook: Optional[Callable[[_T, List[_T]], None]]) -> None:
         super().__init__()
-        self.data: list[_T] = []
+        self.data: List[_T] = []
         self._item_add_hook: Optional[Callable[[_T, List[_T]], None]] = item_add_hook
         self._item_del_hook: Optional[Callable[[_T, List[_T]], None]] = item_del_hook
         for item in sequence_:
@@ -1112,8 +1112,7 @@ class ConstrainedList(MutableSequence[_T], Generic[_T]):
     def insert(self, __index: int, __object: _T) -> None:
         if self._item_add_hook is not None:
             self._item_add_hook(__object, self.data)
-        if __index.__index__() <= self.__len__():
-            self.data.insert(__index, __object)
+        self.data.insert(__index, __object)
 
     def remove(self, __value: _T) -> None:
         if __value in self.data:
@@ -1124,10 +1123,6 @@ class ConstrainedList(MutableSequence[_T], Generic[_T]):
             raise ValueError("Object not in ConstrainedList")
 
     def pop(self, __index: int = -1) -> _T:
-        __len = len(self.data)
-        __index = __index.__index__()
-        if __len == 0 or abs(__index) > __len or __index >= __len:
-            raise IndexError("Index out of bound")
         __object: _T = self.data[__index]
         if self._item_del_hook is not None:
             self._item_del_hook(__object, self.data)
@@ -1191,8 +1186,8 @@ class HasSemantics(metaclass=abc.ABCMeta):
 
     @semantic_id.setter
     def semantic_id(self, semantic_id: Optional[Reference]) -> None:
-        if semantic_id is None and self._supplementary_semantic_id is not None:
-            raise ValueError("semantic_id can not be set to None while there is a _supplementary_semantic_id")
+        #if semantic_id is None and self._supplementary_semantic_id is not None:
+            #raise ValueError("semantic_id can not be set to None while there is a _supplementary_semantic_id")
         if self.parent is not None:
             if semantic_id is not None:
                 for set_ in self.parent.namespace_element_sets:
