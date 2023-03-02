@@ -1088,7 +1088,7 @@ class ConstrainedList(MutableSequence[_T], Generic[_T]):
     def __getitem__(self, key: slice) -> MutableSequence[_T]:
         ...
 
-    def __getitem__(self, key):
+    def __getitem__(self, key: Union[int, slice]):
         if isinstance(key, int):
             if key < 0 or key > self.__len__() - 1:
                 raise IndexError
@@ -1120,12 +1120,17 @@ class ConstrainedList(MutableSequence[_T], Generic[_T]):
             if self._item_del_hook is not None:
                 self._item_del_hook(__value, self.data)
             super().remove(__value)
+        else:
+            raise ValueError("Object not in ConstrainedList")
 
     def pop(self, __index: int = -1) -> _T:
-        if __index.__index__() < self.__len__():
-            __object: _T = self.data[__index]
-            if self._item_del_hook is not None:
-                self._item_del_hook(__object, self.data)
+        __len = len(self.data)
+        __index = __index.__index__()
+        if __len == 0 or abs(__index) > __len or __index >= __len:
+            raise IndexError("Index out of bound")
+        __object: _T = self.data[__index]
+        if self._item_del_hook is not None:
+            self._item_del_hook(__object, self.data)
         return super().pop(__index)
 
     def extend(self, __iterable: Iterable[_T]) -> None:
@@ -1137,14 +1142,12 @@ class ConstrainedList(MutableSequence[_T], Generic[_T]):
             return True
         return False
 
-    def index(self, value: Any, start: int = 0, stop: Optional[int] = None) -> int:
-        _index: int = 0
+    def index(self, value: _T, start: int = 0, stop: Optional[int] = None) -> int:
         if stop is None:
             stop = len(self)
-        for item in range(start, stop):
-            if item is value:
-                return _index
-            _index += 1
+        for __index in range(start, stop):
+            if self.data[__index] is value:
+                return __index
         raise ValueError
 
     def count(self, value: Any) -> int:

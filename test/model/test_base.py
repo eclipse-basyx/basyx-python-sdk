@@ -974,7 +974,10 @@ class HasSemanticsTest(unittest.TestCase):
         extension.delete_supplementary_semantic_id(ref2)
         if extension.supplementary_semantic_id().__len__() != 1:
             raise IndexError("ConstraintList has wrong size")
-        extension.delete_supplementary_semantic_id(ref2)
+
+        with self.assertRaises(ValueError) as cm2:
+            extension.delete_supplementary_semantic_id(ref2)
+        self.assertEqual("Object not in ConstrainedList", str(cm2.exception))
         if extension.supplementary_semantic_id().__len__() != 1:
             raise IndexError("ConstraintList has wrong size")
         extension.semantic_id = None
@@ -988,6 +991,7 @@ class HasSemanticsTest(unittest.TestCase):
 
 
 class ConstraintListTest(unittest.TestCase):
+
     def test_constrained_list(self):
         def add_list(__item: int, __list: List[int]):
             if __item in __list:
@@ -996,23 +1000,45 @@ class ConstraintListTest(unittest.TestCase):
         def delete_list(__item: int, __list: List[int]):
             if __item not in __list:
                 raise TypeError
-        checkList: List[int] = [1, 2, 3]
+
+        check_list: List[int] = [1, 2, 3]
 
         def test_list():
-            if str(checkList) != str(constList):
+            if str(check_list) != str(c_list):
                 raise ValueError
-        constList: model.ConstrainedList[int] = model.ConstrainedList(sequence_=[1, 2, 3], item_add_hook=add_list,
-                                                                      item_del_hook=delete_list)
+
+        c_list: model.ConstrainedList[int] = model.ConstrainedList(sequence_=[1, 2, 3], item_add_hook=add_list,
+                                                                   item_del_hook=delete_list)
         test_list()
-        constList.append(4)
-        checkList.append(4)
+        c_list.append(4)
+        check_list.append(4)
         test_list()
+        c_list.extend([10, 11])
+        check_list.extend([10, 11])
+        test_list()
+        c_list.insert(2, 20)
+        check_list.insert(2, 20)
+        c_list.insert(-1, 30)
+        check_list.insert(-1, 30)
+        test_list()
+        c_list.remove(20)
+        check_list.remove(20)
+        with self.assertRaises(ValueError) as cm:
+            c_list.remove(100)
+        self.assertEqual("Object not in ConstrainedList", str(cm.exception))
+        test_list()
+        c_list.pop()
+        check_list.pop()
+        c_list.pop(2)
+        check_list.pop(2)
+        test_list()
+        c_list.pop(-5)
+        check_list.pop(-5)
+        with self.assertRaises(IndexError) as cm2:
+            c_list.pop(-5)
+        self.assertEqual("Index out of bound", str(cm2.exception))
+
     # __getitem()__ mit CinstraintlIST return
-    # append
-    # extend
-    # insert
-    # remove
-    # pop
     # index
     # count
     # sort()
@@ -1020,4 +1046,4 @@ class ConstraintListTest(unittest.TestCase):
     # reverse
     # Slicing
     # len
-    #Methode mit falschen Parametern übergeben!!!
+    # Methode mit falschen Parametern übergeben!!!
