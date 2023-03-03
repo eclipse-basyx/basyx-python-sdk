@@ -952,11 +952,13 @@ class HasSemanticsTest(unittest.TestCase):
     def test_semantic_id(self):
         pass
 
-    def test_supplementary_semantic_id(self):
+    def test_supplementary_semantic_id(self) -> None:
         extension = model.Extension(name='test')
-        ref_sem_id = model.Reference(['main', 'Reference'])
-        ref1: model.Reference = model.Reference(['random', 'path'])
-        ref2 = model.Reference(['another', 'random', 'path'])
+        key: model.Key = model.Key(model.KeyTypes.GLOBAL_REFERENCE, "global_reference")
+        key2: model.Key = model.Key(model.KeyTypes.GLOBAL_REFERENCE, "global_reference2")
+        ref_sem_id: model.Reference = model.Reference((key, ))
+        ref1: model.Reference = model.Reference((key, ))
+        ref2: model.Reference = model.Reference((key2, ))
         with self.assertRaises(TypeError) as cm:
             extension.add_supplementary_semantic_id(ref1)
         self.assertEqual('No main semantic ID defined', str(cm.exception))
@@ -964,6 +966,7 @@ class HasSemanticsTest(unittest.TestCase):
         extension.add_supplementary_semantic_id(ref1)
         if ref1 not in extension.supplementary_semantic_id():
             raise ValueError("Element is not in ConstrainedList")
+        print(extension.supplementary_semantic_id())
         if ref2 in extension.supplementary_semantic_id():
             raise ValueError("Element should not be in ConstrainedList")
         if extension.supplementary_semantic_id().__len__() != 1:
@@ -981,9 +984,9 @@ class HasSemanticsTest(unittest.TestCase):
         if extension.supplementary_semantic_id().__len__() != 1:
             raise IndexError("ConstraintList has wrong size")
         extension.semantic_id = None
-        with self.assertRaises(TypeError) as cm2:
+        with self.assertRaises(TypeError) as cm3:
             extension.add_supplementary_semantic_id(ref1)
-        self.assertEqual('No main semantic ID defined', str(cm2.exception))
+        self.assertEqual('No main semantic ID defined', str(cm3.exception))
         if ref1 not in extension.supplementary_semantic_id():
             raise ValueError("Element should be in ConstraintList")
         if ref2 in extension.supplementary_semantic_id():
@@ -992,18 +995,18 @@ class HasSemanticsTest(unittest.TestCase):
 
 class ConstraintListTest(unittest.TestCase):
 
-    def test_constrained_list(self):
-        def add_list(__item: int, __list: List[int]):
+    def test_constrained_list(self) -> None:
+        def add_list(__item: int, __list: List[int]) -> None:
             if __item in __list:
                 raise ValueError
 
-        def delete_list(__item: int, __list: List[int]):
+        def delete_list(__item: int, __list: List[int]) -> None:
             if __item not in __list:
                 raise ValueError
 
         check_list: List[int] = [1, 2, 3]
 
-        def test_list():
+        def test_list() -> None:
             if str(check_list) != str(c_list):
                 raise ValueError
 
@@ -1049,7 +1052,6 @@ class ConstraintListTest(unittest.TestCase):
             raise ValueError
         if len(c_list) != len(check_list):
             raise ValueError
-        c_list.append("Test")
         c_list.pop()
 
     # __getitem()__ mit CinstraintlIST return

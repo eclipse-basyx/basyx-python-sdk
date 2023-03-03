@@ -1081,7 +1081,7 @@ class ConstrainedList(MutableSequence[_T], Generic[_T]):
     def __len__(self) -> int:
         return len(self.data)
 
-    def __contains__(self, item):
+    def __contains__(self, item: object) -> bool:
         return item in self.data
 
     @overload
@@ -1092,7 +1092,7 @@ class ConstrainedList(MutableSequence[_T], Generic[_T]):
     def __getitem__(self, key: slice) -> MutableSequence[_T]:
         ...
 
-    def __getitem__(self, key: Union[int, slice]):
+    def __getitem__(self, key: Union[int, slice]) -> Union[_T, MutableSequence[_T]]:
         return self.data[key]
 
     def __init__(self, sequence_: MutableSequence[_T], item_add_hook: Optional[Callable[[_T, List[_T]], None]],
@@ -1133,7 +1133,7 @@ class ConstrainedList(MutableSequence[_T], Generic[_T]):
             super().append(item)
 
     def is_empty(self) -> bool:
-        if self.__len__() == 0:
+        if len(self) == 0:
             return True
         return False
 
@@ -1163,31 +1163,35 @@ class HasSemantics(metaclass=abc.ABCMeta):
                        The semantic id may either reference an external global id or it may reference a referable model
                        element of kind=Type that defines the semantics of the element.
     """
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         # TODO: parent can be any `Namespace`, unfortunately this definition would be incompatible with the definition
         #  of Referable.parent as `UniqueIdShortNamespace`
         self.parent: Optional[Any] = None
         self._semantic_id: Optional[Reference] = None
+        self._optional_check_constraint_add: Optional[Callable[[Reference, List[Reference]], None]] = \
+            self._check_constraint_add
+        self._optional_check_constraint_delete: Optional[Callable[[Reference, List[Reference]], None]] = \
+            self._check_constraint_delete
         self._supplementary_semantic_id: ConstrainedList[Reference] = ConstrainedList[Reference](
-            sequence_=[], item_add_hook=self._check_constraint_add,
-            item_del_hook=self._check_constraint_delete)
+            sequence_=[], item_add_hook=self._optional_check_constraint_add,
+            item_del_hook=self._optional_check_constraint_delete)
 
-    def _check_constraint_add(self, __object: Reference, __constraint_list: ConstrainedList[Reference]) -> None:
+    def _check_constraint_add(self, __object: Reference, __constraint_list: List[Reference]) -> None:
         if self._semantic_id is None:
             raise TypeError('No main semantic ID defined')
 
-    def _check_constraint_delete(self, __object: Reference, __constraint_list: ConstrainedList[Reference]) -> None:
+    def _check_constraint_delete(self, __object: Reference, __constraint_list: List[Reference]) -> None:
         pass
 
     @property
-    def semantic_id(self):
+    def semantic_id(self) -> Optional[Reference]:
         return self._semantic_id
 
     @semantic_id.setter
     def semantic_id(self, semantic_id: Optional[Reference]) -> None:
-        #if semantic_id is None and self._supplementary_semantic_id is not None:
-            #raise ValueError("semantic_id can not be set to None while there is a _supplementary_semantic_id")
+        if semantic_id is None and self.supplementary_semantic_id() is not None:
+            raise ValueError("semantic_id can not be set to None while there is a _supplementary_semantic_id")
         if self.parent is not None:
             if semantic_id is not None:
                 for set_ in self.parent.namespace_element_sets:
@@ -1207,10 +1211,11 @@ class HasSemantics(metaclass=abc.ABCMeta):
     def add_supplementary_semantic_id(self, ref: Reference) -> None:
         self._supplementary_semantic_id.append(ref)
 
-    def supplementary_semantic_id(self):
+    @property
+    def supplementary_semantic_id(self) -> ConstrainedList[Reference]:
         return self._supplementary_semantic_id
 
-    def delete_supplementary_semantic_id(self, ref: Reference):
+    def delete_supplementary_semantic_id(self, ref: Reference) -> None:
         self._supplementary_semantic_id.remove(ref)
 
 

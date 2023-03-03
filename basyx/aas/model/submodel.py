@@ -57,7 +57,8 @@ class SubmodelElement(base.Referable, base.Qualifiable, base.HasSemantics, base.
                  semantic_id: Optional[base.Reference] = None,
                  qualifier: Iterable[base.Qualifier] = (),
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE,
-                 extension: Iterable[base.Extension] = ()):
+                 extension: Iterable[base.Extension] = (),
+                 supplementary_semantic_id: Optional[base.ConstrainedList] = None):
         """
         TODO: Add instruction what to do after construction
         """
@@ -72,6 +73,7 @@ class SubmodelElement(base.Referable, base.Qualifiable, base.HasSemantics, base.
         self.qualifier = base.NamespaceSet(self, [("type", True)], qualifier)
         self._kind: base.ModelingKind = kind
         self.extension = base.NamespaceSet(self, [("name", True)], extension)
+        self.supplementary_semantic_id: Optional[base.ConstrainedList] = supplementary_semantic_id
 
 
 class Submodel(base.Identifiable, base.HasSemantics, base.HasKind, base.Qualifiable, base.UniqueIdShortNamespace):
@@ -171,6 +173,8 @@ class DataElement(SubmodelElement, metaclass=abc.ABCMeta):
                 :class:`aas.model.base.HasKind`)
     :ivar extension: An extension of the element. (inherited from
                      :class:`aas.model.base.HasExtension`)
+    :ivar supplementary_semantic_id: List of Identifiers of the semantic definition of the element. It supports the
+                                    semantic_id. (inherited from :class:`~aas.model.base.HasSemantics`)
     """
     @abc.abstractmethod
     def __init__(self,
@@ -182,8 +186,10 @@ class DataElement(SubmodelElement, metaclass=abc.ABCMeta):
                  semantic_id: Optional[base.Reference] = None,
                  qualifier: Iterable[base.Qualifier] = (),
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE,
-                 extension: Iterable[base.Extension] = ()):
-        super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, kind, extension)
+                 extension: Iterable[base.Extension] = (),
+                 supplementary_semantic_id: Optional[base.ConstrainedList[base.Reference]] = None):
+        super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, kind, extension,
+                         supplementary_semantic_id)
 
     def _set_category(self, category: Optional[str]):
         if category == "":
@@ -230,6 +236,8 @@ class Property(DataElement):
                 :class:`aas.model.base.HasKind`)
     :ivar extension: An extension of the element. (inherited from
                      :class:`aas.model.base.HasExtension`)
+    :ivar supplementary_semantic_id: List of Identifiers of the semantic definition of the element. It supports the
+                                    semantic_id. (inherited from :class:`~aas.model.base.HasSemantics`)
     """
 
     def __init__(self,
@@ -244,12 +252,14 @@ class Property(DataElement):
                  semantic_id: Optional[base.Reference] = None,
                  qualifier: Iterable[base.Qualifier] = (),
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE,
-                 extension: Iterable[base.Extension] = ()):
+                 extension: Iterable[base.Extension] = (),
+                 supplementary_semantic_id: Optional[base.ConstrainedList[base.Reference]] = None):
         """
         TODO: Add instruction what to do after construction
         """
 
-        super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, kind, extension)
+        super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, kind, extension,
+                         supplementary_semantic_id)
         self.value_type: base.DataTypeDefXsd = value_type
         self._value: Optional[base.ValueDataType] = (datatypes.trivial_cast(value, value_type)
                                                      if value is not None else None)
