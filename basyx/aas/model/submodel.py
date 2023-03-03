@@ -46,6 +46,8 @@ class SubmodelElement(base.Referable, base.Qualifiable, base.HasSemantics, base.
                 :class:`aas.model.base.HasKind`)
     :ivar extension: An extension of the element. (inherited from
                      :class:`aas.model.base.HasExtension`)
+    :ivar supplementary_semantic_id: List of Identifiers of the semantic definition of the element. It supports the
+                                    semantic_id. (inherited from :class:`~aas.model.base.HasSemantics`)
     """
     @abc.abstractmethod
     def __init__(self,
@@ -58,7 +60,7 @@ class SubmodelElement(base.Referable, base.Qualifiable, base.HasSemantics, base.
                  qualifier: Iterable[base.Qualifier] = (),
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE,
                  extension: Iterable[base.Extension] = (),
-                 supplementary_semantic_id: Optional[base.ConstrainedList] = None):
+                 supplementary_semantic_id: Optional[base.ConstrainedList[base.Reference]] = None):
         """
         TODO: Add instruction what to do after construction
         """
@@ -236,7 +238,7 @@ class Property(DataElement):
                 :class:`aas.model.base.HasKind`)
     :ivar extension: An extension of the element. (inherited from
                      :class:`aas.model.base.HasExtension`)
-    :ivar supplementary_semantic_id: List of Identifiers of the semantic definition of the element. It supports the
+    :ivar _supplementary_semantic_id: List of Identifiers of the semantic definition of the element. It supports the
                                     semantic_id. (inherited from :class:`~aas.model.base.HasSemantics`)
     """
 
@@ -264,6 +266,7 @@ class Property(DataElement):
         self._value: Optional[base.ValueDataType] = (datatypes.trivial_cast(value, value_type)
                                                      if value is not None else None)
         self.value_id: Optional[base.Reference] = value_id
+        self.supplementary_semantic_id = supplementary_semantic_id
 
     @property
     def value(self):
@@ -305,6 +308,8 @@ class MultiLanguageProperty(DataElement):
                 :class:`aas.model.base.HasKind`)
     :ivar extension: An extension of the element. (inherited from
                      :class:`aas.model.base.HasExtension`)
+        def supplementary_semantic_id(self) -> ConstrainedList[Reference]:
+        return self._supplementary_semantic_id
     """
 
     def __init__(self,
@@ -318,12 +323,14 @@ class MultiLanguageProperty(DataElement):
                  semantic_id: Optional[base.Reference] = None,
                  qualifier: Iterable[base.Qualifier] = (),
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE,
-                 extension: Iterable[base.Extension] = ()):
+                 extension: Iterable[base.Extension] = (),
+                 supplementary_semantic_id: Optional[base.ConstrainedList[base.Reference]] = None):
         """
         TODO: Add instruction what to do after construction
         """
 
-        super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, kind, extension)
+        super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, kind, extension,
+                         supplementary_semantic_id)
         self.value: base.LangStringSet = dict() if value is None else value
         self.value_id: Optional[base.Reference] = value_id
 

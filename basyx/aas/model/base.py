@@ -1168,14 +1168,14 @@ class HasSemantics(metaclass=abc.ABCMeta):
         # TODO: parent can be any `Namespace`, unfortunately this definition would be incompatible with the definition
         #  of Referable.parent as `UniqueIdShortNamespace`
         self.parent: Optional[Any] = None
-        self._semantic_id: Optional[Reference] = None
         self._optional_check_constraint_add: Optional[Callable[[Reference, List[Reference]], None]] = \
             self._check_constraint_add
         self._optional_check_constraint_delete: Optional[Callable[[Reference, List[Reference]], None]] = \
             self._check_constraint_delete
-        self._supplementary_semantic_id: ConstrainedList[Reference] = ConstrainedList[Reference](
+        self._supplementary_semantic_id: Optional[ConstrainedList[Reference]] = ConstrainedList[Reference](
             sequence_=[], item_add_hook=self._optional_check_constraint_add,
             item_del_hook=self._optional_check_constraint_delete)
+        self._semantic_id: Optional[Reference] = None
 
     def _check_constraint_add(self, __object: Reference, __constraint_list: List[Reference]) -> None:
         if self._semantic_id is None:
@@ -1188,10 +1188,23 @@ class HasSemantics(metaclass=abc.ABCMeta):
     def semantic_id(self) -> Optional[Reference]:
         return self._semantic_id
 
+    @property
+    def supplementary_semantic_id(self) -> Optional[ConstrainedList[Reference]]:
+        if hasattr(self, "_supplementary_semantic_id"):
+            return self._supplementary_semantic_id
+        return
+
+    @supplementary_semantic_id.setter
+    def supplementary_semantic_id(self, __constraint_list: Optional[ConstrainedList[Reference]]) -> None:
+        if __constraint_list is not None:
+            self._supplementary_semantic_id = __constraint_list
+
     @semantic_id.setter
     def semantic_id(self, semantic_id: Optional[Reference]) -> None:
-        if semantic_id is None and self.supplementary_semantic_id() is not None:
-            raise ValueError("semantic_id can not be set to None while there is a _supplementary_semantic_id")
+        #__supplementary_semantic_id: Optional[ConstrainedList[Reference]] = self._supplementary_semantic_id
+        if semantic_id is None:
+            if self.supplementary_semantic_id is not None and not self.supplementary_semantic_id.is_empty():
+                raise ValueError("semantic_id can not be set to None while there is a _supplementary_semantic_id")
         if self.parent is not None:
             if semantic_id is not None:
                 for set_ in self.parent.namespace_element_sets:
@@ -1209,14 +1222,12 @@ class HasSemantics(metaclass=abc.ABCMeta):
         self._semantic_id = semantic_id
 
     def add_supplementary_semantic_id(self, ref: Reference) -> None:
-        self._supplementary_semantic_id.append(ref)
-
-    @property
-    def supplementary_semantic_id(self) -> ConstrainedList[Reference]:
-        return self._supplementary_semantic_id
+        if self._supplementary_semantic_id is not None:
+            self._supplementary_semantic_id.append(ref)
 
     def delete_supplementary_semantic_id(self, ref: Reference) -> None:
-        self._supplementary_semantic_id.remove(ref)
+        if self._supplementary_semantic_id is not None:
+            self._supplementary_semantic_id.remove(ref)
 
 
 class Extension(HasSemantics):
@@ -1228,6 +1239,8 @@ class Extension(HasSemantics):
     :ivar value: Value (:class:`~.ValueDataType`) of the extension
     :ivar refers_to: An iterable of :class:`~.ModelReference` to elements the extension refers to
     :ivar semantic_id: The semantic_id defined in the :class:`~.HasSemantics` class.
+    :ivar supplementary_semantic_id: List of Identifiers of the semantic definition of the element. It supports the
+                                    semantic_id. (inherited from :class:`~aas.model.base.HasSemantics`)
     """
 
     def __init__(self,
@@ -1235,7 +1248,8 @@ class Extension(HasSemantics):
                  value_type: Optional[DataTypeDefXsd] = None,
                  value: Optional[ValueDataType] = None,
                  refers_to: Iterable[ModelReference] = (),
-                 semantic_id: Optional[Reference] = None):
+                 semantic_id: Optional[Reference] = None,
+                 supplementary_semantic_id: Optional[ConstrainedList[Reference]] = None):
         super().__init__()
         self.parent: Optional[HasExtension] = None
         self._name: str
@@ -1245,6 +1259,7 @@ class Extension(HasSemantics):
         self.value = value
         self.refers_to: Iterable[ModelReference] = refers_to
         self.semantic_id: Optional[Reference] = semantic_id
+        self.supplementary_semantic_id: [Optional[ConstrainedList[Reference]]] = supplementary_semantic_id
 
     def __repr__(self) -> str:
         return "Extension(name={})".format(self.name)

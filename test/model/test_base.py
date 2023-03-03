@@ -964,33 +964,37 @@ class HasSemanticsTest(unittest.TestCase):
         self.assertEqual('No main semantic ID defined', str(cm.exception))
         extension.semantic_id = ref_sem_id
         extension.add_supplementary_semantic_id(ref1)
-        if ref1 not in extension.supplementary_semantic_id():
+        if ref1 not in extension.supplementary_semantic_id:
             raise ValueError("Element is not in ConstrainedList")
-        print(extension.supplementary_semantic_id())
-        if ref2 in extension.supplementary_semantic_id():
+        if ref2 in extension.supplementary_semantic_id:
             raise ValueError("Element should not be in ConstrainedList")
-        if extension.supplementary_semantic_id().__len__() != 1:
+        if extension.supplementary_semantic_id.__len__() != 1:
             raise IndexError("ConstraintList has wrong size")
         extension.add_supplementary_semantic_id(ref2)
-        if extension.supplementary_semantic_id().__len__() != 2:
+        if extension.supplementary_semantic_id.__len__() != 2:
             raise IndexError("ConstraintList has wrong size")
         extension.delete_supplementary_semantic_id(ref2)
-        if extension.supplementary_semantic_id().__len__() != 1:
+        if extension.supplementary_semantic_id.__len__() != 1:
             raise IndexError("ConstraintList has wrong size")
 
         with self.assertRaises(ValueError) as cm2:
             extension.delete_supplementary_semantic_id(ref2)
         self.assertEqual("Object not in ConstrainedList", str(cm2.exception))
-        if extension.supplementary_semantic_id().__len__() != 1:
+        if extension.supplementary_semantic_id.__len__() != 1:
             raise IndexError("ConstraintList has wrong size")
-        extension.semantic_id = None
-        with self.assertRaises(TypeError) as cm3:
-            extension.add_supplementary_semantic_id(ref1)
-        self.assertEqual('No main semantic ID defined', str(cm3.exception))
-        if ref1 not in extension.supplementary_semantic_id():
+        with self.assertRaises(ValueError) as cm3:
+            extension.semantic_id = None
+        self.assertEqual('semantic_id can not be set to None while there is a _supplementary_semantic_id',
+                         str(cm3.exception))
+        if ref1 not in extension.supplementary_semantic_id:
             raise ValueError("Element should be in ConstraintList")
-        if ref2 in extension.supplementary_semantic_id():
+        if ref2 in extension.supplementary_semantic_id:
             raise ValueError("Element should not be in ConstraintList")
+        extension.delete_supplementary_semantic_id(ref1)
+        extension.semantic_id = None
+        with self.assertRaises(TypeError) as cm4:
+            extension.add_supplementary_semantic_id(ref1)
+        self.assertEqual('No main semantic ID defined', str(cm4.exception))
 
 
 class ConstraintListTest(unittest.TestCase):
@@ -1024,7 +1028,6 @@ class ConstraintListTest(unittest.TestCase):
         c_list.insert(-1, 30)
         check_list.insert(-1, 30)
         test_list()
-        print(c_list)
         c_list.remove(20)
         check_list.remove(20)
         with self.assertRaises(ValueError) as cm:
@@ -1041,7 +1044,6 @@ class ConstraintListTest(unittest.TestCase):
         with self.assertRaises(IndexError) as cm2:
             c_list.pop(-5)
         self.assertEqual("list index out of range", str(cm2.exception))
-        print(c_list)
         if c_list.index(10) != 2:
             raise ValueError
         with self.assertRaises(ValueError):
