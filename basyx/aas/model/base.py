@@ -1162,6 +1162,8 @@ class HasSemantics(metaclass=abc.ABCMeta):
     :ivar semantic_id: Identifier of the semantic definition of the element. It is called semantic id of the element.
                        The semantic id may either reference an external global id or it may reference a referable model
                        element of kind=Type that defines the semantics of the element.
+    :ivar supplementary_semantic_id: List of Identifiers of the semantic definition of the element. It supports the
+                                    semantic_id.
     """
     def __init__(self) -> None:
         super().__init__()
@@ -1201,7 +1203,6 @@ class HasSemantics(metaclass=abc.ABCMeta):
 
     @semantic_id.setter
     def semantic_id(self, semantic_id: Optional[Reference]) -> None:
-        #__supplementary_semantic_id: Optional[ConstrainedList[Reference]] = self._supplementary_semantic_id
         if semantic_id is None:
             if self.supplementary_semantic_id is not None and not self.supplementary_semantic_id.is_empty():
                 raise ValueError("semantic_id can not be set to None while there is a _supplementary_semantic_id")
@@ -1375,6 +1376,8 @@ class Qualifier(HasSemantics):
     :ivar value: The value (:class:`~.ValueDataType`) of the qualifier.
     :ivar value_id: :class:`~.Reference` to the global unique id of a coded value.
     :ivar semantic_id: The semantic_id defined in :class:`~.HasSemantics`.
+    :ivar supplementary_semantic_id: List of Identifiers of the semantic definition of the element. It supports the
+                                    semantic_id. (inherited from :class:`~aas.model.base.HasSemantics`)
     """
 
     def __init__(self,
@@ -1382,7 +1385,8 @@ class Qualifier(HasSemantics):
                  value_type: DataTypeDefXsd,
                  value: Optional[ValueDataType] = None,
                  value_id: Optional[Reference] = None,
-                 semantic_id: Optional[Reference] = None):
+                 semantic_id: Optional[Reference] = None,
+                 supplementary_semantic_id: Optional[base.ConstrainedList[base.Reference]] = None):
         """
         TODO: Add instruction what to do after construction
         """
@@ -1394,6 +1398,7 @@ class Qualifier(HasSemantics):
         self._value: Optional[ValueDataType] = datatypes.trivial_cast(value, value_type) if value is not None else None
         self.value_id: Optional[Reference] = value_id
         self.semantic_id: Optional[Reference] = semantic_id
+        self._supplementary_semantic_id = supplementary_semantic_id
 
     def __repr__(self) -> str:
         return "Qualifier(type={})".format(self.type)
@@ -1895,7 +1900,8 @@ class SpecificAssetId(HasSemantics):
                  name: str,
                  value: str,
                  external_subject_id: GlobalReference,
-                 semantic_id: Optional[Reference] = None):
+                 semantic_id: Optional[Reference] = None,
+                 supplementary_semantic_id: Optional[ConstrainedList[Reference]] = None):
         super().__init__()
         if name == "":
             raise ValueError("name is not allowed to be an empty string")
@@ -1909,6 +1915,7 @@ class SpecificAssetId(HasSemantics):
         super().__setattr__('value', value)
         super().__setattr__('external_subject_id', external_subject_id)
         super().__setattr__('semantic_id', semantic_id)
+        super().__setattr__('_supplementary_semantic_id', supplementary_semantic_id)
 
     def __setattr__(self, key, value):
         """Prevent modification of attributes."""
