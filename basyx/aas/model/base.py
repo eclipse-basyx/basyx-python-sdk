@@ -1386,7 +1386,7 @@ class Qualifier(HasSemantics):
                  value: Optional[ValueDataType] = None,
                  value_id: Optional[Reference] = None,
                  semantic_id: Optional[Reference] = None,
-                 supplementary_semantic_id: Optional[base.ConstrainedList[base.Reference]] = None):
+                 supplementary_semantic_id: Optional[ConstrainedList[Reference]] = None):
         """
         TODO: Add instruction what to do after construction
         """

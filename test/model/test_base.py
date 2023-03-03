@@ -949,9 +949,6 @@ class ValueReferencePairTest(unittest.TestCase):
 
 
 class HasSemanticsTest(unittest.TestCase):
-    def test_semantic_id(self):
-        pass
-
     def test_supplementary_semantic_id(self) -> None:
         extension = model.Extension(name='test')
         key: model.Key = model.Key(model.KeyTypes.GLOBAL_REFERENCE, "global_reference")
@@ -1055,7 +1052,3 @@ class ConstraintListTest(unittest.TestCase):
         if len(c_list) != len(check_list):
             raise ValueError
         c_list.pop()
-
-    # __getitem()__ mit CinstraintlIST return
-    # Slicing
-    # Methode mit falschen Parametern übergeben!!!
