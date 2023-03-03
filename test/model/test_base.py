@@ -1051,4 +1051,3 @@ class ConstraintListTest(unittest.TestCase):
             raise ValueError
         if len(c_list) != len(check_list):
             raise ValueError
-        c_list.pop()
