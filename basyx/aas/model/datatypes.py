@@ -347,12 +347,6 @@ class NormalizedString(str):
         return cls(value.translate({0xD: None, 0xA: None, 0x9: None}))
 
 
-AllXSDTypes = (Duration, DateTime, Date, Time, GYearMonth, GYear, GMonthDay, GMonth, GDay, Boolean, Base64Binary,
-               HexBinary, Float, Double, Decimal, Integer, Long, Int, Short, Byte, NonPositiveInteger,
-               NegativeInteger, NonNegativeInteger, PositiveInteger, UnsignedLong, UnsignedInt, UnsignedShort,
-               UnsignedByte, AnyURI, String, NormalizedString)
-
-# Unfortunately, Union does not accept a tuple of Types.
 AnyXSDType = Union[
     Duration, DateTime, Date, Time, GYearMonth, GYear, GMonthDay, GMonth, GDay, Boolean, Base64Binary,
     HexBinary, Float, Double, Decimal, Integer, Long, Int, Short, Byte, NonPositiveInteger, NegativeInteger,
