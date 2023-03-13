@@ -366,7 +366,7 @@ XSD_TYPE_NAMES: Dict[Type[AnyXSDType], str] = {
     GDay: "gDay",
     Boolean: "boolean",
     Base64Binary: "base64Binary",
-    HexBinary: "heyBinary",
+    HexBinary: "hexBinary",
     Float: "float",
     Double: "double",
     Decimal: "decimal",
