@@ -156,7 +156,7 @@ class CouchDBBackend(backends.Backend):
         if method == 'HEAD':
             return response.headers
 
-        if response.getheader('Content-type') != 'application/json':
+        if response.headers.get('Content-type') != 'application/json':
             raise CouchDBResponseError("Unexpected Content-type header")
         try:
             data = json.loads(response.data.decode('utf-8'), cls=json_deserialization.AASFromJsonDecoder)
