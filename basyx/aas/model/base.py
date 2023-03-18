@@ -397,6 +397,7 @@ class Namespace(metaclass=abc.ABCMeta):
     """
     @abc.abstractmethod
     def __init__(self) -> None:
+        super().__init__()
         self.namespace_element_sets: List[NamespaceSet] = []
 
     def _get_object(self, object_type: Type[_NSO], attribute_name: str, attribute) -> _NSO:
@@ -459,6 +460,7 @@ class HasExtension(Namespace, metaclass=abc.ABCMeta):
     """
     @abc.abstractmethod
     def __init__(self) -> None:
+        super().__init__()
         self.namespace_element_sets: List[NamespaceSet] = []
         self.extension: NamespaceSet[Extension]
 
@@ -1496,6 +1498,7 @@ class UniqueIdShortNamespace(Namespace, metaclass=abc.ABCMeta):
     """
     @abc.abstractmethod
     def __init__(self) -> None:
+        super().__init__()
         self.namespace_element_sets: List[NamespaceSet] = []
 
     def get_referable(self, id_short: str) -> Referable:
@@ -1550,6 +1553,7 @@ class UniqueSemanticIdNamespace(Namespace, metaclass=abc.ABCMeta):
     """
     @abc.abstractmethod
     def __init__(self) -> None:
+        super().__init__()
         self.namespace_element_sets: List[NamespaceSet] = []
 
     def get_object_by_semantic_id(self, semantic_id: Reference) -> HasSemantics:
