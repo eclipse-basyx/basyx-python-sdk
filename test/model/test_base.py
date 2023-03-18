@@ -949,105 +949,143 @@ class ValueReferencePairTest(unittest.TestCase):
 
 
 class HasSemanticsTest(unittest.TestCase):
-    def test_supplementary_semantic_id(self) -> None:
+    def test_supplemental_semantic_id_constraint(self) -> None:
         extension = model.Extension(name='test')
         key: model.Key = model.Key(model.KeyTypes.GLOBAL_REFERENCE, "global_reference")
-        key2: model.Key = model.Key(model.KeyTypes.GLOBAL_REFERENCE, "global_reference2")
-        ref_sem_id: model.Reference = model.Reference((key, ))
-        ref1: model.Reference = model.Reference((key, ))
-        ref2: model.Reference = model.Reference((key2, ))
-        with self.assertRaises(TypeError) as cm:
-            extension.add_supplementary_semantic_id(ref1)
-        self.assertEqual('No main semantic ID defined', str(cm.exception))
+        ref_sem_id: model.Reference = model.GlobalReference((key, ))
+        ref1: model.Reference = model.GlobalReference((key, ))
+
+        with self.assertRaises(model.AASConstraintViolation) as cm:
+            extension.supplemental_semantic_id.append(ref1)
+        self.assertEqual(cm.exception.constraint_id, 118)
+        self.assertEqual('A semantic_id must be defined before adding a supplemental_semantic_id! '
+                         '(Constraint AASd-118)', str(cm.exception))
         extension.semantic_id = ref_sem_id
-        extension.add_supplementary_semantic_id(ref1)
-        if ref1 not in extension.supplementary_semantic_id:
-            raise ValueError("Element is not in ConstrainedList")
-        if ref2 in extension.supplementary_semantic_id:
-            raise ValueError("Element should not be in ConstrainedList")
-        if extension.supplementary_semantic_id.__len__() != 1:
-            raise IndexError("ConstraintList has wrong size")
-        extension.add_supplementary_semantic_id(ref2)
-        if extension.supplementary_semantic_id.__len__() != 2:
-            raise IndexError("ConstraintList has wrong size")
-        extension.delete_supplementary_semantic_id(ref2)
-        if extension.supplementary_semantic_id.__len__() != 1:
-            raise IndexError("ConstraintList has wrong size")
+        extension.supplemental_semantic_id.append(ref1)
 
-        with self.assertRaises(ValueError) as cm2:
-            extension.delete_supplementary_semantic_id(ref2)
-        self.assertEqual("Object not in ConstrainedList", str(cm2.exception))
-        if extension.supplementary_semantic_id.__len__() != 1:
-            raise IndexError("ConstraintList has wrong size")
-        with self.assertRaises(ValueError) as cm3:
+        with self.assertRaises(model.AASConstraintViolation) as cm:
             extension.semantic_id = None
-        self.assertEqual('semantic_id can not be set to None while there is a _supplementary_semantic_id',
-                         str(cm3.exception))
-        if ref1 not in extension.supplementary_semantic_id:
-            raise ValueError("Element should be in ConstraintList")
-        if ref2 in extension.supplementary_semantic_id:
-            raise ValueError("Element should not be in ConstraintList")
-        extension.delete_supplementary_semantic_id(ref1)
+        self.assertEqual(cm.exception.constraint_id, 118)
+        self.assertEqual('semantic_id can not be removed while there is at least one supplemental_semantic_id: '
+                         '[GlobalReference(key=(Key(type=GLOBAL_REFERENCE, value=global_reference),))] '
+                         '(Constraint AASd-118)', str(cm.exception))
+        extension.supplemental_semantic_id.clear()
         extension.semantic_id = None
-        with self.assertRaises(TypeError) as cm4:
-            extension.add_supplementary_semantic_id(ref1)
-        self.assertEqual('No main semantic ID defined', str(cm4.exception))
 
 
-class ConstraintListTest(unittest.TestCase):
+class ConstrainedListTest(unittest.TestCase):
+    def test_length(self) -> None:
+        c_list: model.ConstrainedList[int] = model.ConstrainedList([1, 2])
+        self.assertEqual(len(c_list), 2)
+        c_list.append(1)
+        self.assertEqual(len(c_list), 3)
+        c_list.clear()
+        self.assertEqual(len(c_list), 0)
 
-    def test_constrained_list(self) -> None:
-        def add_list(__item: int, __list: List[int]) -> None:
-            if __item in __list:
-                raise ValueError
+    def test_contains(self) -> None:
+        c_list: model.ConstrainedList[int] = model.ConstrainedList([1, 2])
+        self.assertIn(1, c_list)
+        self.assertNotIn(3, c_list)
+        c_list.append(3)
+        self.assertIn(3, c_list)
 
-        def delete_list(__item: int, __list: List[int]) -> None:
-            if __item not in __list:
-                raise ValueError
+    def test_hooks(self) -> None:
+        new: Optional[int] = None
+        old_items: List[int] = []
+        new_items: List[int] = []
+        existing_items: List[int] = []
 
+        def add_hook(itm: int, list_: List[int]) -> None:
+            nonlocal new, existing_items
+            new = itm
+            # Copy list, otherwise we just store a reference to the same lists and the tests are meaningless.
+            existing_items = list_.copy()
+
+        def set_hook(old: List[int], new: List[int], list_: List[int]) -> None:
+            nonlocal old_items, new_items, existing_items
+            # Copy list, otherwise we just store a reference to the same lists and the tests are meaningless.
+            old_items = old.copy()
+            new_items = new.copy()
+            existing_items = list_.copy()
+
+        def del_hook(itm: int, list_: List[int]) -> None:
+            nonlocal new, existing_items
+            new = itm
+            # Copy list, otherwise we just store a reference to the same lists and the tests are meaningless.
+            existing_items = list_.copy()
+
+        self.assertIsNone(new)
+        self.assertEqual(len(existing_items), 0)
+
+        c_list: model.ConstrainedList[int] = model.ConstrainedList([1, 2, 3], item_add_hook=add_hook,
+                                                                   item_set_hook=set_hook,
+                                                                   item_del_hook=del_hook)
         check_list: List[int] = [1, 2, 3]
 
-        def test_list() -> None:
-            if str(check_list) != str(c_list):
-                raise ValueError
+        self.assertEqual(new, 3)
+        self.assertEqual(existing_items, [1, 2])
+        self.assertEqual(c_list, check_list)
 
-        c_list: model.ConstrainedList[int] = model.ConstrainedList(sequence_=[1, 2, 3], item_add_hook=add_list,
-                                                                   item_del_hook=delete_list)
-        test_list()
+        # add hook test
         c_list.append(4)
+        self.assertEqual(new, 4)
+        self.assertEqual(existing_items, [1, 2, 3])
         check_list.append(4)
-        test_list()
+        self.assertEqual(c_list, check_list)
+
         c_list.extend([10, 11])
+        self.assertEqual(new, 11)
+        self.assertEqual(existing_items, [1, 2, 3, 4, 10])
         check_list.extend([10, 11])
-        test_list()
+        self.assertEqual(c_list, check_list)
+
         c_list.insert(2, 20)
+        self.assertEqual(new, 20)
+        self.assertEqual(existing_items, [1, 2, 3, 4, 10, 11])
         check_list.insert(2, 20)
-        c_list.insert(-1, 30)
-        check_list.insert(-1, 30)
-        test_list()
+        self.assertEqual(c_list, check_list)
+
+        # set hook test
+        c_list[2] = 40
+        self.assertEqual(old_items, [20])
+        self.assertEqual(new_items, [40])
+        self.assertEqual(existing_items, [1, 2, 20, 3, 4, 10, 11])
+        check_list[2] = 40
+        self.assertEqual(c_list, check_list)
+
+        c_list[2:4] = [2, 3]
+        self.assertEqual(old_items, [40, 3])
+        self.assertEqual(new_items, [2, 3])
+        self.assertEqual(existing_items, [1, 2, 40, 3, 4, 10, 11])
+        check_list[2:4] = [2, 3]
+        self.assertEqual(c_list, check_list)
+
+        c_list[:] = []
+        self.assertEqual(old_items, [1, 2, 2, 3, 4, 10, 11])
+        self.assertEqual(new_items, [])
+        self.assertEqual(existing_items, [1, 2, 2, 3, 4, 10, 11])
+        check_list[:] = []
+        self.assertEqual(c_list, check_list)
+
+        c_list[:] = [1, 2, 20, 3, 4, 10, 11]
+        self.assertEqual(old_items, [])
+        self.assertEqual(new_items, [1, 2, 20, 3, 4, 10, 11])
+        self.assertEqual(existing_items, [])
+        check_list[:] = [1, 2, 20, 3, 4, 10, 11]
+        self.assertEqual(c_list, check_list)
+
+        # del hook test
         c_list.remove(20)
+        self.assertEqual(new, 20)
+        self.assertEqual(existing_items, [1, 2, 20, 3, 4, 10, 11])
         check_list.remove(20)
-        with self.assertRaises(ValueError) as cm:
-            c_list.remove(100)
-        self.assertEqual("Object not in ConstrainedList", str(cm.exception))
-        test_list()
+        self.assertEqual(c_list, check_list)
+
+        with self.assertRaises(ValueError):
+            c_list.remove(20)
+
         c_list.pop()
+        self.assertEqual(new, 11)
+        self.assertEqual(existing_items, [1, 2, 3, 4, 10, 11])
         check_list.pop()
-        c_list.pop(2)
-        check_list.pop(2)
-        test_list()
-        c_list.pop(-5)
-        check_list.pop(-5)
-        with self.assertRaises(IndexError) as cm2:
-            c_list.pop(-5)
-        self.assertEqual("list index out of range", str(cm2.exception))
-        if c_list.index(10) != 2:
-            raise ValueError
-        with self.assertRaises(ValueError):
-            c_list.index(100)
-        with self.assertRaises(ValueError):
-            c_list.insert(0, 10)
-        if c_list.count(10) != 1:
-            raise ValueError
-        if len(c_list) != len(check_list):
-            raise ValueError
+        self.assertEqual(c_list, check_list)

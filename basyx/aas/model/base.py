@@ -12,7 +12,6 @@ the higher level classes to inherit from.
 import abc
 import inspect
 import itertools
-from abc import abstractmethod
 from enum import Enum, unique
 from typing import List, Optional, Set, TypeVar, MutableSet, Generic, Iterable, Dict, Iterator, Union, overload, \
     MutableSequence, Type, Any, TYPE_CHECKING, Tuple, Callable
@@ -1053,107 +1052,95 @@ _T = TypeVar("_T")
 
 class ConstrainedList(MutableSequence[_T], Generic[_T]):
     """
-    A type of list that can be constrained by hooks. Useful when implementing AASd constraints.
+    A type of list that can be constrained by hooks, useful when implementing AASd constraints. This list can be
+    initialized with an `item_add_hook`, `item_set_hook` and an `item_del_hook`.
+
+    The item_add_hook is called every time an item is added to the list. It is passed the item that is added and
+    all items currently contained in the list.
+
+    The `item_set_hook` is called every time one or multiple items are overwritten with one or multiple new items, à la
+    `list[i] = new_item` or `list[i:j] = new_items`. It is passed the item(s) about to replaced, the new item(s) and all
+    items currently contained in the list.
+    Note that this can also be used to clear the list, e.g. `list[:] = []`. Thus, to ensure that a list is never empty,
+    `item_set_hook` must be used in addition to `item_del_hook`.
+
+    Finally, `item_del_hook` is called whenever an item is removed from the list, (e.g. via `.remove()`, `.pop()` or
+    `del list[i]`. It is passed the item about to be deleted and the current list elements.
     """
 
-    def __repr__(self) -> str:
-        return self.data.__repr__()
+    def __init__(self, items: Iterable[_T], item_add_hook: Optional[Callable[[_T, List[_T]], None]] = None,
+                 item_set_hook: Optional[Callable[[List[_T], List[_T], List[_T]], None]] = None,
+                 item_del_hook: Optional[Callable[[_T, List[_T]], None]] = None) -> None:
+        super().__init__()
+        self._list: List[_T] = []
+        self._item_add_hook: Optional[Callable[[_T, List[_T]], None]] = item_add_hook
+        self._item_set_hook: Optional[Callable[[List[_T], List[_T], List[_T]], None]] = item_set_hook
+        self._item_del_hook: Optional[Callable[[_T, List[_T]], None]] = item_del_hook
+        self.extend(items)
+
+    def insert(self, index: int, value: _T) -> None:
+        if self._item_add_hook is not None:
+            self._item_add_hook(value, self._list)
+        self._list.insert(index, value)
 
     @overload
-    def __delitem__(self, i: int) -> None:
-        ...
+    def __getitem__(self, index: int) -> _T: ...
 
     @overload
-    def __delitem__(self, i: slice) -> None:
-        ...
+    def __getitem__(self, index: slice) -> MutableSequence[_T]: ...
 
-    def __delitem__(self, i: Union[int, slice]) -> None:
-        del self.data[i]
-
-    @overload
-    def __setitem__(self, key: int, value: _T) -> None:
-        ...
+    def __getitem__(self, index: Union[int, slice]) -> Union[_T, MutableSequence[_T]]:
+        return self._list[index]
 
     @overload
-    def __setitem__(self, key: slice, value: Iterable[_T]) -> None:
-        ...
+    def __setitem__(self, index: int, value: _T) -> None: ...
 
-    def __setitem__(self, key, value) -> None:
-        self.data[key] = value
+    @overload
+    def __setitem__(self, index: slice, value: Iterable[_T]) -> None: ...
+
+    def __setitem__(self, index: Union[int, slice], value: Union[_T, Iterable[_T]]) -> None:
+        # TODO: remove the following type: ignore once mypy supports type narrowing using overload information
+        # https://github.com/python/mypy/issues/4063
+        if isinstance(index, int):
+            if self._item_set_hook is not None:
+                self._item_set_hook([self._list[index]], [value], self._list)  # type: ignore
+            self._list[index] = value  # type: ignore
+            return
+        if self._item_set_hook is not None:
+            self._item_set_hook(self._list[index], list(value), self._list)  # type: ignore
+        self._list[index] = value  # type: ignore
+
+    @overload
+    def __delitem__(self, index: int) -> None: ...
+
+    @overload
+    def __delitem__(self, index: slice) -> None: ...
+
+    def __delitem__(self, index: Union[int, slice]) -> None:
+        if isinstance(index, int):
+            if self._item_del_hook is not None:
+                self._item_del_hook(self._list[index], self._list)
+            del self._list[index]
+            return
+        if self._item_del_hook is not None:
+            indices = range(len(self._list))[index]
+            # To avoid partial deletions, perform a dry run first.
+            dry_run_list = self._list.copy()
+            # Delete high indices first to avoid conflicts by changing indices due to deletion of other objects.
+            for i in sorted(indices, reverse=True):
+                self._item_del_hook(dry_run_list[i], dry_run_list)
+                del dry_run_list[i]
+        # If all went well, we can now perform the real deletion.
+        del self._list[index]
 
     def __len__(self) -> int:
-        return len(self.data)
+        return len(self._list)
 
-    def __contains__(self, item: object) -> bool:
-        return item in self.data
+    def __repr__(self) -> str:
+        return repr(self._list)
 
-    @overload
-    def __getitem__(self, key: int) -> _T:
-        ...
-
-    @overload
-    def __getitem__(self, key: slice) -> MutableSequence[_T]:
-        ...
-
-    def __getitem__(self, key: Union[int, slice]) -> Union[_T, MutableSequence[_T]]:
-        return self.data[key]
-
-    def __init__(self, sequence_: MutableSequence[_T], item_add_hook: Optional[Callable[[_T, List[_T]], None]],
-                 item_del_hook: Optional[Callable[[_T, List[_T]], None]]) -> None:
-        super().__init__()
-        self.data: List[_T] = []
-        self._item_add_hook: Optional[Callable[[_T, List[_T]], None]] = item_add_hook
-        self._item_del_hook: Optional[Callable[[_T, List[_T]], None]] = item_del_hook
-        for item in sequence_:
-            super().append(item)
-
-    def append(self, __object: _T) -> None:
-        if self._item_add_hook is not None:
-            self._item_add_hook(__object, self.data)
-        super().append(__object)
-
-    def insert(self, __index: int, __object: _T) -> None:
-        if self._item_add_hook is not None:
-            self._item_add_hook(__object, self.data)
-        self.data.insert(__index, __object)
-
-    def remove(self, __value: _T) -> None:
-        if __value in self.data:
-            if self._item_del_hook is not None:
-                self._item_del_hook(__value, self.data)
-            super().remove(__value)
-        else:
-            raise ValueError("Object not in ConstrainedList")
-
-    def pop(self, __index: int = -1) -> _T:
-        __object: _T = self.data[__index]
-        if self._item_del_hook is not None:
-            self._item_del_hook(__object, self.data)
-        return super().pop(__index)
-
-    def extend(self, __iterable: Iterable[_T]) -> None:
-        for item in __iterable:
-            super().append(item)
-
-    def is_empty(self) -> bool:
-        if len(self) == 0:
-            return True
-        return False
-
-    def index(self, value: _T, start: int = 0, stop: Optional[int] = None) -> int:
-        if stop is None:
-            stop = len(self)
-        for __index in range(start, stop):
-            if self.data[__index] is value:
-                return __index
-        raise ValueError
-
-    def count(self, value: Any) -> int:
-        _count: int = 0
-        for item in self.data:
-            if item is value:
-                _count += 1
-        return _count
+    def __eq__(self, other) -> bool:
+        return other == self._list
 
 
 class HasSemantics(metaclass=abc.ABCMeta):
@@ -1162,53 +1149,38 @@ class HasSemantics(metaclass=abc.ABCMeta):
 
     <<abstract>>
 
+    *Constraint AASd-118:* If there is a supplemental semantic ID (HasSemantics/supplementalSemanticId) defined,
+                           then there shall be also a main semantic ID (HasSemantics/semanticId).
+
     :ivar semantic_id: Identifier of the semantic definition of the element. It is called semantic id of the element.
                        The semantic id may either reference an external global id or it may reference a referable model
                        element of kind=Type that defines the semantics of the element.
-    :ivar supplementary_semantic_id: List of Identifiers of the semantic definition of the element. It supports the
-                                    semantic_id.
+    :ivar supplemental_semantic_id: Identifier of a supplemental semantic definition of the element. It is called
+                                    supplemental semantic ID of the element.
     """
+    @abc.abstractmethod
     def __init__(self) -> None:
         super().__init__()
         # TODO: parent can be any `Namespace`, unfortunately this definition would be incompatible with the definition
         #  of Referable.parent as `UniqueIdShortNamespace`
         self.parent: Optional[Any] = None
-        self._optional_check_constraint_add: Optional[Callable[[Reference, List[Reference]], None]] = \
-            self._check_constraint_add
-        self._optional_check_constraint_delete: Optional[Callable[[Reference, List[Reference]], None]] = \
-            self._check_constraint_delete
-        self._supplementary_semantic_id: Optional[ConstrainedList[Reference]] = ConstrainedList[Reference](
-            sequence_=[], item_add_hook=self._optional_check_constraint_add,
-            item_del_hook=self._optional_check_constraint_delete)
+        self._supplemental_semantic_id: ConstrainedList[Reference] = ConstrainedList(
+            [], item_add_hook=self._check_constraint_add)
         self._semantic_id: Optional[Reference] = None
 
-    def _check_constraint_add(self, __object: Reference, __constraint_list: List[Reference]) -> None:
-        if self._semantic_id is None:
-            raise TypeError('No main semantic ID defined')
-
-    def _check_constraint_delete(self, __object: Reference, __constraint_list: List[Reference]) -> None:
-        pass
+    def _check_constraint_add(self, _new: Reference, _list: List[Reference]) -> None:
+        if self.semantic_id is None:
+            raise AASConstraintViolation(118, "A semantic_id must be defined before adding a supplemental_semantic_id!")
 
     @property
     def semantic_id(self) -> Optional[Reference]:
         return self._semantic_id
 
-    @property
-    def supplementary_semantic_id(self) -> Optional[ConstrainedList[Reference]]:
-        if hasattr(self, "_supplementary_semantic_id"):
-            return self._supplementary_semantic_id
-        return
-
-    @supplementary_semantic_id.setter
-    def supplementary_semantic_id(self, __constraint_list: Optional[ConstrainedList[Reference]]) -> None:
-        if __constraint_list is not None:
-            self._supplementary_semantic_id = __constraint_list
-
     @semantic_id.setter
     def semantic_id(self, semantic_id: Optional[Reference]) -> None:
-        if semantic_id is None:
-            if self.supplementary_semantic_id is not None and not self.supplementary_semantic_id.is_empty():
-                raise ValueError("semantic_id can not be set to None while there is a _supplementary_semantic_id")
+        if semantic_id is None and len(self.supplemental_semantic_id) > 0:
+            raise AASConstraintViolation(118, "semantic_id can not be removed while there is at least one "
+                                              f"supplemental_semantic_id: {self.supplemental_semantic_id!r}")
         if self.parent is not None:
             if semantic_id is not None:
                 for set_ in self.parent.namespace_element_sets:
@@ -1225,13 +1197,13 @@ class HasSemantics(metaclass=abc.ABCMeta):
         # Redundant to the line above. However this way, we make sure that we really update the _semantic_id
         self._semantic_id = semantic_id
 
-    def add_supplementary_semantic_id(self, ref: Reference) -> None:
-        if self._supplementary_semantic_id is not None:
-            self._supplementary_semantic_id.append(ref)
+    @property
+    def supplemental_semantic_id(self) -> ConstrainedList[Reference]:
+        return self._supplemental_semantic_id
 
-    def delete_supplementary_semantic_id(self, ref: Reference) -> None:
-        if self._supplementary_semantic_id is not None:
-            self._supplementary_semantic_id.remove(ref)
+    @supplemental_semantic_id.setter
+    def supplemental_semantic_id(self, supplemental_semantic_id: Iterable[Reference]):
+        self._supplemental_semantic_id[:] = supplemental_semantic_id
 
 
 class Extension(HasSemantics):
@@ -1243,8 +1215,9 @@ class Extension(HasSemantics):
     :ivar value: Value (:class:`~.ValueDataType`) of the extension
     :ivar refers_to: An iterable of :class:`~.ModelReference` to elements the extension refers to
     :ivar semantic_id: The semantic_id defined in the :class:`~.HasSemantics` class.
-    :ivar supplementary_semantic_id: List of Identifiers of the semantic definition of the element. It supports the
-                                    semantic_id. (inherited from :class:`~aas.model.base.HasSemantics`)
+    :ivar supplemental_semantic_id: Identifier of a supplemental semantic definition of the element. It is called
+                                    supplemental semantic ID of the element. (inherited from
+                                    :class:`~aas.model.base.HasSemantics`)
     """
 
     def __init__(self,
@@ -1253,7 +1226,7 @@ class Extension(HasSemantics):
                  value: Optional[ValueDataType] = None,
                  refers_to: Iterable[ModelReference] = (),
                  semantic_id: Optional[Reference] = None,
-                 supplementary_semantic_id: Optional[ConstrainedList[Reference]] = None):
+                 supplemental_semantic_id: Iterable[Reference] = ()):
         super().__init__()
         self.parent: Optional[HasExtension] = None
         self._name: str
@@ -1263,7 +1236,7 @@ class Extension(HasSemantics):
         self.value = value
         self.refers_to: Iterable[ModelReference] = refers_to
         self.semantic_id: Optional[Reference] = semantic_id
-        self.supplementary_semantic_id: [Optional[ConstrainedList[Reference]]] = supplementary_semantic_id
+        self.supplemental_semantic_id: ConstrainedList[Reference] = ConstrainedList(supplemental_semantic_id)
 
     def __repr__(self) -> str:
         return "Extension(name={})".format(self.name)
@@ -1379,8 +1352,9 @@ class Qualifier(HasSemantics):
     :ivar value: The value (:class:`~.ValueDataType`) of the qualifier.
     :ivar value_id: :class:`~.Reference` to the global unique id of a coded value.
     :ivar semantic_id: The semantic_id defined in :class:`~.HasSemantics`.
-    :ivar supplementary_semantic_id: List of Identifiers of the semantic definition of the element. It supports the
-                                    semantic_id. (inherited from :class:`~aas.model.base.HasSemantics`)
+    :ivar supplemental_semantic_id: Identifier of a supplemental semantic definition of the element. It is called
+                                    supplemental semantic ID of the element. (inherited from
+                                    :class:`~aas.model.base.HasSemantics`)
     """
 
     def __init__(self,
@@ -1389,7 +1363,7 @@ class Qualifier(HasSemantics):
                  value: Optional[ValueDataType] = None,
                  value_id: Optional[Reference] = None,
                  semantic_id: Optional[Reference] = None,
-                 supplementary_semantic_id: Optional[ConstrainedList[Reference]] = None):
+                 supplemental_semantic_id: Iterable[Reference] = ()):
         """
         TODO: Add instruction what to do after construction
         """
@@ -1401,7 +1375,7 @@ class Qualifier(HasSemantics):
         self._value: Optional[ValueDataType] = datatypes.trivial_cast(value, value_type) if value is not None else None
         self.value_id: Optional[Reference] = value_id
         self.semantic_id: Optional[Reference] = semantic_id
-        self._supplementary_semantic_id = supplementary_semantic_id
+        self.supplemental_semantic_id: ConstrainedList[Reference] = ConstrainedList(supplemental_semantic_id)
 
     def __repr__(self) -> str:
         return "Qualifier(type={})".format(self.type)
@@ -1898,7 +1872,13 @@ class SpecificAssetId(HasSemantics):
     :ivar name: Key of the identifier
     :ivar value: The value of the identifier with the corresponding key.
     :ivar external_subject_id: The (external) subject the key belongs to or has meaning to.
-    :ivar semantic_id: The semantic_id defined in the :class:`~.HasSemantics` class.
+    :ivar semantic_id: Identifier of the semantic definition of the element. It is called semantic id of the
+                       element. The semantic id may either reference an external global id or it may reference a
+                       referable model element of kind=Type that defines the semantics of the element.
+                       (inherited from :class:`~aas.model.base.HasSemantics`)
+    :ivar supplemental_semantic_id: Identifier of a supplemental semantic definition of the element. It is called
+                                    supplemental semantic ID of the element. (inherited from
+                                    :class:`~aas.model.base.HasSemantics`)
     """
 
     def __init__(self,
@@ -1906,7 +1886,7 @@ class SpecificAssetId(HasSemantics):
                  value: str,
                  external_subject_id: GlobalReference,
                  semantic_id: Optional[Reference] = None,
-                 supplementary_semantic_id: Optional[ConstrainedList[Reference]] = None):
+                 supplemental_semantic_id: Iterable[Reference] = ()):
         super().__init__()
         if name == "":
             raise ValueError("name is not allowed to be an empty string")
@@ -1920,7 +1900,7 @@ class SpecificAssetId(HasSemantics):
         super().__setattr__('value', value)
         super().__setattr__('external_subject_id', external_subject_id)
         super().__setattr__('semantic_id', semantic_id)
-        super().__setattr__('_supplementary_semantic_id', supplementary_semantic_id)
+        super().__setattr__('supplemental_semantic_id', supplemental_semantic_id)
 
     def __setattr__(self, key, value):
         """Prevent modification of attributes."""
@@ -1928,7 +1908,7 @@ class SpecificAssetId(HasSemantics):
         # HasSemantics.__init__ sets the parent attribute to None, so that has to be possible. It needs to be set
         # because its value is checked in the semantic_id setter and since every subclass of HasSemantics is expected
         # to have this attribute. Additionally, the protected _semantic_id attribute must be settable.
-        if key == '_semantic_id' or (key == 'parent' and value is None):
+        if key == '_semantic_id' or key == '_supplemental_semantic_id' or (key == 'parent' and value is None):
             return super(HasSemantics, self).__setattr__(key, value)
         raise AttributeError('SpecificAssetId is immutable')
 
@@ -1938,7 +1918,8 @@ class SpecificAssetId(HasSemantics):
         return (self.name == other.name
                 and self.value == other.value
                 and self.external_subject_id == other.external_subject_id
-                and self.semantic_id == other.semantic_id)
+                and self.semantic_id == other.semantic_id
+                and self.supplemental_semantic_id == other.supplemental_semantic_id)
 
     def __hash__(self):
         return hash((self.name, self.value, self.external_subject_id))
