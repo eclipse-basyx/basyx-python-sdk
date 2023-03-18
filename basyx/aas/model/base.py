@@ -779,6 +779,7 @@ class Reference(metaclass=abc.ABCMeta):
     :ivar referred_semantic_id: SemanticId of the referenced model element. For global references there typically is no
                                 semantic id.
     """
+    @abc.abstractmethod
     def __init__(self, key: Tuple[Key, ...], referred_semantic_id: Optional["Reference"] = None):
         if len(key) < 1:
             raise ValueError("A reference must have at least one key!")
