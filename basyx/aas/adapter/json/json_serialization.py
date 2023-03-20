@@ -597,11 +597,11 @@ class AASToJsonEncoder(json.JSONEncoder):
         """
         data = cls._abstract_classes_to_json(obj)
         if obj.input_variable:
-            data['inputVariable'] = list(obj.input_variable)
+            data['inputVariables'] = list(obj.input_variable)
         if obj.output_variable:
-            data['outputVariable'] = list(obj.output_variable)
+            data['outputVariables'] = list(obj.output_variable)
         if obj.in_output_variable:
-            data['inoutputVariable'] = list(obj.in_output_variable)
+            data['inoutputVariables'] = list(obj.in_output_variable)
         return data
 
     @classmethod

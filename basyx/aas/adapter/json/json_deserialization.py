@@ -569,9 +569,9 @@ class AASFromJsonDecoder(json.JSONDecoder):
         cls._amend_abstract_attributes(ret, dct)
 
         # Deserialize variables (they are not Referable, thus we don't
-        for json_name, target in (('inputVariable', ret.input_variable),
-                                  ('outputVariable', ret.output_variable),
-                                  ('inoutputVariable', ret.in_output_variable)):
+        for json_name, target in (('inputVariables', ret.input_variable),
+                                  ('outputVariables', ret.output_variable),
+                                  ('inoutputVariables', ret.in_output_variable)):
             if json_name in dct:
                 for variable_data in _get_ts(dct, json_name, list):
                     try:
