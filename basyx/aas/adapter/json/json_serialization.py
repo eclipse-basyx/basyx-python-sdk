@@ -572,7 +572,7 @@ class AASToJsonEncoder(json.JSONEncoder):
         data = cls._abstract_classes_to_json(obj)
         data.update({'first': obj.first, 'second': obj.second})
         if not cls.stripped and obj.annotation:
-            data['annotation'] = list(obj.annotation)
+            data['annotations'] = list(obj.annotation)
         return data
 
     @classmethod
