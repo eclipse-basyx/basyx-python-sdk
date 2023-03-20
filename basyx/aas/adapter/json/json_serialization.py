@@ -62,60 +62,39 @@ class AASToJsonEncoder(json.JSONEncoder):
         :param obj: The object to serialize to json
         :return: The serialized object
         """
-        if isinstance(obj, model.AssetAdministrationShell):
-            return self._asset_administration_shell_to_json(obj)
-        if isinstance(obj, model.AdministrativeInformation):
-            return self._administrative_information_to_json(obj)
-        if isinstance(obj, model.Reference):
-            return self._reference_to_json(obj)
-        if isinstance(obj, model.Key):
-            return self._key_to_json(obj)
-        if isinstance(obj, model.ValueReferencePair):
-            return self._value_reference_pair_to_json(obj)
-        if isinstance(obj, model.AssetInformation):
-            return self._asset_information_to_json(obj)
-        if isinstance(obj, model.SpecificAssetId):
-            return self._specific_asset_id_to_json(obj)
-        if isinstance(obj, model.Submodel):
-            return self._submodel_to_json(obj)
-        if isinstance(obj, model.Operation):
-            return self._operation_to_json(obj)
-        if isinstance(obj, model.OperationVariable):
-            return self._operation_variable_to_json(obj)
-        if isinstance(obj, model.Capability):
-            return self._capability_to_json(obj)
-        if isinstance(obj, model.BasicEventElement):
-            return self._basic_event_element_to_json(obj)
-        if isinstance(obj, model.Entity):
-            return self._entity_to_json(obj)
-        if isinstance(obj, model.ConceptDescription):
-            return self._concept_description_to_json(obj)
-        if isinstance(obj, model.Property):
-            return self._property_to_json(obj)
-        if isinstance(obj, model.Range):
-            return self._range_to_json(obj)
-        if isinstance(obj, model.MultiLanguageProperty):
-            return self._multi_language_property_to_json(obj)
-        if isinstance(obj, model.File):
-            return self._file_to_json(obj)
-        if isinstance(obj, model.Resource):
-            return self._resource_to_json(obj)
-        if isinstance(obj, model.Blob):
-            return self._blob_to_json(obj)
-        if isinstance(obj, model.ReferenceElement):
-            return self._reference_element_to_json(obj)
-        if isinstance(obj, model.SubmodelElementCollection):
-            return self._submodel_element_collection_to_json(obj)
-        if isinstance(obj, model.SubmodelElementList):
-            return self._submodel_element_list_to_json(obj)
-        if isinstance(obj, model.AnnotatedRelationshipElement):
-            return self._annotated_relationship_element_to_json(obj)
-        if isinstance(obj, model.RelationshipElement):
-            return self._relationship_element_to_json(obj)
-        if isinstance(obj, model.Qualifier):
-            return self._qualifier_to_json(obj)
-        if isinstance(obj, model.Extension):
-            return self._extension_to_json(obj)
+        mapping = {
+            model.AdministrativeInformation: self._administrative_information_to_json,
+            model.AnnotatedRelationshipElement: self._annotated_relationship_element_to_json,
+            model.AssetAdministrationShell: self._asset_administration_shell_to_json,
+            model.AssetInformation: self._asset_information_to_json,
+            model.BasicEventElement: self._basic_event_element_to_json,
+            model.Blob: self._blob_to_json,
+            model.Capability: self._capability_to_json,
+            model.ConceptDescription: self._concept_description_to_json,
+            model.Entity: self._entity_to_json,
+            model.Extension: self._extension_to_json,
+            model.File: self._file_to_json,
+            model.Key: self._key_to_json,
+            model.MultiLanguageProperty: self._multi_language_property_to_json,
+            model.Operation: self._operation_to_json,
+            model.OperationVariable: self._operation_variable_to_json,
+            model.Property: self._property_to_json,
+            model.Qualifier: self._qualifier_to_json,
+            model.Range: self._range_to_json,
+            model.Reference: self._reference_to_json,
+            model.ReferenceElement: self._reference_element_to_json,
+            model.RelationshipElement: self._relationship_element_to_json,
+            model.Resource: self._resource_to_json,
+            model.SpecificAssetId: self._specific_asset_id_to_json,
+            model.Submodel: self._submodel_to_json,
+            model.SubmodelElementCollection: self._submodel_element_collection_to_json,
+            model.SubmodelElementList: self._submodel_element_list_to_json,
+            model.ValueReferencePair: self._value_reference_pair_to_json,
+        }
+        for typ in mapping:
+            if isinstance(obj, typ):
+                mapping_method = mapping[typ]
+                return mapping_method(obj)
         return super().default(obj)
 
     @classmethod
