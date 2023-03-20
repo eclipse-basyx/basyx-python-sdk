@@ -293,9 +293,9 @@ class AASToJsonEncoder(json.JSONEncoder):
         if obj.global_asset_id:
             data['globalAssetId'] = obj.global_asset_id
         if obj.specific_asset_id:
-            data['externalAssetIds'] = list(obj.specific_asset_id)
+            data['specificAssetIds'] = list(obj.specific_asset_id)
         if obj.default_thumbnail:
-            data['thumbnail'] = obj.default_thumbnail
+            data['defaultThumbnail'] = obj.default_thumbnail
         return data
 
     @classmethod

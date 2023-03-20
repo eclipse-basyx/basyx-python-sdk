@@ -400,12 +400,12 @@ class AASFromJsonDecoder(json.JSONDecoder):
         cls._amend_abstract_attributes(ret, dct)
         if 'globalAssetId' in dct:
             ret.global_asset_id = cls._construct_reference(_get_ts(dct, 'globalAssetId', dict))
-        if 'externalAssetIds' in dct:
-            for desc_data in _get_ts(dct, "externalAssetIds", list):
+        if 'specificAssetIds' in dct:
+            for desc_data in _get_ts(dct, "specificAssetIds", list):
                 ret.specific_asset_id.add(cls._construct_specific_asset_id(desc_data,
                                                                            model.SpecificAssetId))
-        if 'thumbnail' in dct:
-            ret.default_thumbnail = cls._construct_resource(_get_ts(dct, 'thumbnail', dict))
+        if 'defaultThumbnail' in dct:
+            ret.default_thumbnail = cls._construct_resource(_get_ts(dct, 'defaultThumbnail', dict))
         return ret
 
     @classmethod
