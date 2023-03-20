@@ -484,8 +484,8 @@ class AASFromJsonDecoder(json.JSONDecoder):
         if 'globalAssetId' in dct:
             global_asset_id = cls._construct_reference(_get_ts(dct, 'globalAssetId', dict))
         specific_asset_id = None
-        if 'externalAssetId' in dct:
-            specific_asset_id = cls._construct_specific_asset_id(_get_ts(dct, 'externalAssetId', dict))
+        if 'specificAssetIds' in dct:
+            specific_asset_id = cls._construct_specific_asset_id(_get_ts(dct, 'specificAssetIds', dict))
 
         ret = object_class(id_short=_get_ts(dct, "idShort", str),
                            entity_type=ENTITY_TYPES_INVERSE[_get_ts(dct, "entityType", str)],
