@@ -277,7 +277,7 @@ class AASToJsonEncoder(json.JSONEncoder):
         data = cls._abstract_classes_to_json(obj)
         data['name'] = obj.name
         data['value'] = obj.value
-        data['subjectId'] = obj.external_subject_id
+        data['externalSubjectId'] = obj.external_subject_id
         return data
 
     @classmethod

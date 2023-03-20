@@ -287,7 +287,7 @@ class AASFromJsonDecoder(json.JSONDecoder):
         # semantic_id can't be applied by _amend_abstract_attributes because specificAssetId is immutable
         return object_class(name=_get_ts(dct, 'name', str),
                             value=_get_ts(dct, 'value', str),
-                            external_subject_id=cls._construct_global_reference(_get_ts(dct, 'subjectId', dict)),
+                            external_subject_id=cls._construct_global_reference(_get_ts(dct, 'externalSubjectId', dict)),
                             semantic_id=cls._construct_reference(_get_ts(dct, 'semanticId', dict))
                             if 'semanticId' in dct else None)
 
