@@ -68,9 +68,9 @@ class SubmodelElement(base.Referable, base.Qualifiable, base.HasSemantics, base.
 
         super().__init__()
         self.id_short = id_short
-        self.display_name: Optional[base.LangStringSet] = dict() if display_name is None else display_name
+        self.display_name: Optional[base.LangStringSet] = display_name
         self.category = category
-        self.description: Optional[base.LangStringSet] = dict() if description is None else description
+        self.description: Optional[base.LangStringSet] = description
         self.parent: Optional[base.UniqueIdShortNamespace] = parent
         self.semantic_id: Optional[base.Reference] = semantic_id
         self.qualifier = base.NamespaceSet(self, [("type", True)], qualifier)
@@ -135,9 +135,9 @@ class Submodel(base.Identifiable, base.HasSemantics, base.HasKind, base.Qualifia
         self.id: base.Identifier = id_
         self.submodel_element = base.NamespaceSet(self, [("id_short", True)], submodel_element)
         self.id_short = id_short
-        self.display_name: Optional[base.LangStringSet] = dict() if display_name is None else display_name
+        self.display_name: Optional[base.LangStringSet] = display_name
         self.category = category
-        self.description: Optional[base.LangStringSet] = dict() if description is None else description
+        self.description: Optional[base.LangStringSet] = description
         self.parent: Optional[base.UniqueIdShortNamespace] = parent
         self.administration: Optional[base.AdministrativeInformation] = administration
         self.semantic_id: Optional[base.Reference] = semantic_id

@@ -111,9 +111,9 @@ class AssetAdministrationShell(base.Identifiable, base.UniqueIdShortNamespace):
         self.id: base.Identifier = id_
         self.asset_information: AssetInformation = asset_information
         self.id_short = id_short
-        self.display_name: Optional[base.LangStringSet] = dict() if display_name is None else display_name
+        self.display_name: Optional[base.LangStringSet] = display_name
         self.category = category
-        self.description: Optional[base.LangStringSet] = dict() if description is None else description
+        self.description: Optional[base.LangStringSet] = description
         self.parent: Optional[base.UniqueIdShortNamespace] = parent
         self.administration: Optional[base.AdministrativeInformation] = administration
         self.derived_from: Optional[base.ModelReference["AssetAdministrationShell"]] = derived_from

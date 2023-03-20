@@ -14,7 +14,7 @@ import inspect
 import itertools
 from enum import Enum, unique
 from typing import List, Optional, Set, TypeVar, MutableSet, Generic, Iterable, Dict, Iterator, Union, overload, \
-    MutableSequence, Type, Any, TYPE_CHECKING, Tuple, Callable
+    MutableSequence, Type, Any, TYPE_CHECKING, Tuple, Callable, MutableMapping, SupportsIndex
 import re
 
 from . import datatypes
@@ -32,7 +32,6 @@ QualifierType = str
 # A dict of language-Identifier (according to ISO 639-1 and ISO 3166-1) and string in this language.
 # The meaning of the string in each language is the same.
 # << Data Type >> Example ["en-US", "germany"]
-LangStringSet = Dict[str, str]
 
 Identifier = str
 
@@ -241,6 +240,60 @@ class StateOfEvent(Enum):
 
     ON = 0
     OFF = 1
+
+
+class LangStringSet(MutableMapping[str, str]):
+    """
+    A mapping of language code to string. Must be non-empty.
+
+    langString is an RDF data type. A langString is a value tagged with a language code. RDF requires
+    IETF BCP 4723 language tags, i.e. simple two-letter language tags for Locales like “de” conformant to ISO 639-1
+    are allowed as well as language tags plus extension like “de-DE” for country code, dialect etc. like in “en-US” or
+    “en-GB” for English (United Kingdom) and English (United States). IETF language tags are referencing ISO 639,
+    ISO 3166 and ISO 15924.
+    """
+    def __init__(self, dict_: Dict[str, str]):
+        self.dict: MutableMapping[str, str] = {}
+
+        if len(dict_) < 1:
+            raise ValueError(f"A {self.__class__.__name__} must not be empty!")
+        for ltag in dict_:
+            self._check_language_tag_constraints(ltag)
+            self.dict[ltag] = dict_[ltag]
+
+    @classmethod
+    def _check_language_tag_constraints(cls, ltag: str):
+        split = ltag.split("-", 1)
+        if len(split[0]) != 2 or not split[0].isalpha() or not split[0].islower():
+            raise ValueError(f"The language code '{split[0]}' of the language tag '{ltag}' doesn't consist of exactly "
+                             "two lower-case letters!")
+        if len(split) > 1 and (len(split[1]) != 2 or not split[1].isalpha() or not split[1].isupper()):
+            raise ValueError(f"The extension '{split[1]}' of the language tag '{ltag}' doesn't consist of exactly "
+                             "two upper-case letters!")
+
+    def __getitem__(self, item: str) -> str:
+        return self.dict[item]
+
+    def __setitem__(self, key: str, value: str) -> None:
+        self._check_language_tag_constraints(key)
+        self.dict[key] = value
+
+    def __delitem__(self, key: str) -> None:
+        if len(self.dict) == 1:
+            raise KeyError(f"A {self.__class__.__name__} must not be empty!")
+        del self.dict[key]
+
+    def __iter__(self) -> Iterator[str]:
+        return iter(self.dict)
+
+    def __len__(self) -> int:
+        return len(self.dict)
+
+    def __repr__(self) -> str:
+        return self.__class__.__name__ + "(" + ", ".join(f'{k}="{v}"' for k, v in self.items()) + ")"
+
+    def clear(self) -> None:
+        raise KeyError(f"A {self.__class__.__name__} must not be empty!")
 
 
 class Key:
@@ -1167,6 +1220,7 @@ class HasSemantics(metaclass=abc.ABCMeta):
         self._supplemental_semantic_id: ConstrainedList[Reference] = ConstrainedList(
             [], item_add_hook=self._check_constraint_add)
         self._semantic_id: Optional[Reference] = None
+        self._supplemental_semantic_id: List[Reference] = []
 
     def _check_constraint_add(self, _new: Reference, _list: List[Reference]) -> None:
         if self.semantic_id is None:

@@ -21,7 +21,7 @@ class XMLSerializationTest(unittest.TestCase):
         test_object = model.Property("test_id_short",
                                      model.datatypes.String,
                                      category="PARAMETER",
-                                     description={"en-us": "Germany", "de": "Deutschland"})
+                                     description=model.LangStringSet({"en-US": "Germany", "de": "Deutschland"}))
         xml_data = xml_serialization.property_to_xml(test_object,  xml_serialization.NS_AAS+"test_object")
         # todo: is this a correct way to test it?
 
@@ -79,6 +79,7 @@ class XMLSerializationSchemaTest(unittest.TestCase):
         data = example_aas.create_full_example()
         file = io.BytesIO()
         write_aas_xml_file(file=file, data=data)
+        write_aas_xml_file(file="/home/jkhsjdhjs/Desktop/aas.xml", data=data, pretty_print=True)
 
         # load schema
         aas_schema = etree.XMLSchema(file=XML_SCHEMA_FILE)

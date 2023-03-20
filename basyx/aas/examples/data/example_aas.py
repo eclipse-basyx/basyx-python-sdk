@@ -77,12 +77,14 @@ def create_example_asset_identification_submodel() -> model.Submodel:
         value_id=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
                                                   value='http://acplt.org/ValueId/ExampleValueId'),)),
         category="PARAMETER",
-        description={'en-us': 'Legally valid designation of the natural or judicial person which is directly '
-                              'responsible for the design, production, packaging and labeling of a product in '
-                              'respect to its being brought into circulation.',
-                     'de': 'Bezeichnung für eine natürliche oder juristische Person, die für die Auslegung, '
-                           'Herstellung und Verpackung sowie die Etikettierung eines Produkts im Hinblick auf das '
-                           '\'Inverkehrbringen\' im eigenen Namen verantwortlich ist'},
+        description=model.LangStringSet({'en-US': 'Legally valid designation of the natural or judicial person which '
+                                                  'is directly responsible for the design, production, packaging and '
+                                                  'labeling of a product in respect to its being brought into '
+                                                  'circulation.',
+                                         'de': 'Bezeichnung für eine natürliche oder juristische Person, die für die '
+                                               'Auslegung, Herstellung und Verpackung sowie die Etikettierung eines '
+                                               'Produkts im Hinblick auf das \'Inverkehrbringen\' im eigenen Namen '
+                                               'verantwortlich ist'}),
         parent=None,
         semantic_id=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
                                                      value='0173-1#02-AAO677#002'),)),
@@ -99,12 +101,14 @@ def create_example_asset_identification_submodel() -> model.Submodel:
         value_id=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
                                                   value='http://acplt.org/ValueId/ExampleValueId'),)),
         category="PARAMETER",
-        description={'en-us': 'Legally valid designation of the natural or judicial person which is directly '
-                              'responsible for the design, production, packaging and labeling of a product in '
-                              'respect to its being brought into circulation.',
-                     'de': 'Bezeichnung für eine natürliche oder juristische Person, die für die Auslegung, '
-                           'Herstellung und Verpackung sowie die Etikettierung eines Produkts im Hinblick auf das '
-                           '\'Inverkehrbringen\' im eigenen Namen verantwortlich ist'},
+        description=model.LangStringSet({'en-US': 'Legally valid designation of the natural or judicial person which '
+                                                  'is directly responsible for the design, production, packaging and '
+                                                  'labeling of a product in respect to its being brought into '
+                                                  'circulation.',
+                                         'de': 'Bezeichnung für eine natürliche oder juristische Person, die für die '
+                                               'Auslegung, Herstellung und Verpackung sowie die Etikettierung eines '
+                                               'Produkts im Hinblick auf das \'Inverkehrbringen\' im eigenen Namen '
+                                               'verantwortlich ist'}),
         parent=None,
         semantic_id=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
                                                      value='http://opcfoundation.org/UA/DI/1.1/DeviceType/Serialnumber'
@@ -119,8 +123,8 @@ def create_example_asset_identification_submodel() -> model.Submodel:
                           identification_submodel_element_instance_id),
         id_short='Identification',
         category=None,
-        description={'en-us': 'An example asset identification submodel for the test application',
-                     'de': 'Ein Beispiel-Identifikations-Submodel für eine Test-Anwendung'},
+        description=model.LangStringSet({'en-US': 'An example asset identification submodel for the test application',
+                                         'de': 'Ein Beispiel-Identifikations-Submodel für eine Test-Anwendung'}),
         parent=None,
         administration=model.AdministrativeInformation(version='0.9',
                                                        revision='0'),
@@ -146,8 +150,8 @@ def create_example_bill_of_material_submodel() -> model.Submodel:
         value_id=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
                                                   value='http://acplt.org/ValueId/ExampleValueId'),)),
         category='CONSTANT',
-        description={'en-us': 'Example Property object',
-                     'de': 'Beispiel Property Element'},
+        description=model.LangStringSet({'en-US': 'Example Property object',
+                                         'de': 'Beispiel Property Element'}),
         parent=None,
         semantic_id=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
                                                      value='http://acplt.org/Properties/ExampleProperty'),)),
@@ -161,8 +165,8 @@ def create_example_bill_of_material_submodel() -> model.Submodel:
         value_id=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
                                                   value='http://acplt.org/ValueId/ExampleValueId'),)),
         category='CONSTANT',
-        description={'en-us': 'Example Property object',
-                     'de': 'Beispiel Property Element'},
+        description=model.LangStringSet({'en-US': 'Example Property object',
+                                         'de': 'Beispiel Property Element'}),
         parent=None,
         semantic_id=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
                                                      value='http://acplt.org/Properties/ExampleProperty'),)),
@@ -181,12 +185,14 @@ def create_example_bill_of_material_submodel() -> model.Submodel:
                                                            (model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
                                                                       value='http://acplt.org/SpecificAssetId/'),))),
         category="PARAMETER",
-        description={'en-us': 'Legally valid designation of the natural or judicial person which is directly '
-                              'responsible for the design, production, packaging and labeling of a product in '
-                              'respect to its being brought into circulation.',
-                     'de': 'Bezeichnung für eine natürliche oder juristische Person, die für die Auslegung, '
-                           'Herstellung und Verpackung sowie die Etikettierung eines Produkts im Hinblick auf das '
-                           '\'Inverkehrbringen\' im eigenen Namen verantwortlich ist'},
+        description=model.LangStringSet({'en-US': 'Legally valid designation of the natural or judicial person which '
+                                                  'is directly responsible for the design, production, packaging and '
+                                                  'labeling of a product in respect to its being brought into '
+                                                  'circulation.',
+                                         'de': 'Bezeichnung für eine natürliche oder juristische Person, die für die '
+                                               'Auslegung, Herstellung und Verpackung sowie die Etikettierung eines '
+                                               'Produkts im Hinblick auf das \'Inverkehrbringen\' im eigenen Namen '
+                                               'verantwortlich ist'}),
         parent=None,
         semantic_id=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
                                                      value='http://opcfoundation.org/UA/DI/1.1/DeviceType/Serialnumber'
@@ -202,12 +208,14 @@ def create_example_bill_of_material_submodel() -> model.Submodel:
         global_asset_id=None,
         specific_asset_id=None,
         category="PARAMETER",
-        description={'en-us': 'Legally valid designation of the natural or judicial person which is directly '
-                              'responsible for the design, production, packaging and labeling of a product in '
-                              'respect to its being brought into circulation.',
-                     'de': 'Bezeichnung für eine natürliche oder juristische Person, die für die Auslegung, '
-                           'Herstellung und Verpackung sowie die Etikettierung eines Produkts im Hinblick auf das '
-                           '\'Inverkehrbringen\' im eigenen Namen verantwortlich ist'},
+        description=model.LangStringSet({'en-US': 'Legally valid designation of the natural or judicial person which '
+                                                  'is directly responsible for the design, production, packaging and '
+                                                  'labeling of a product in respect to its being brought into '
+                                                  'circulation.',
+                                        'de': 'Bezeichnung für eine natürliche oder juristische Person, die für die '
+                                              'Auslegung, Herstellung und Verpackung sowie die Etikettierung eines '
+                                              'Produkts im Hinblick auf das \'Inverkehrbringen\' im eigenen Namen '
+                                              'verantwortlich ist'}),
         parent=None,
         semantic_id=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
                                                      value='http://opcfoundation.org/UA/DI/1.1/DeviceType/Serialnumber'
@@ -223,8 +231,8 @@ def create_example_bill_of_material_submodel() -> model.Submodel:
                           entity_2),
         id_short='BillOfMaterial',
         category=None,
-        description={'en-us': 'An example bill of material submodel for the test application',
-                     'de': 'Ein Beispiel-BillofMaterial-Submodel für eine Test-Anwendung'},
+        description=model.LangStringSet({'en-US': 'An example bill of material submodel for the test application',
+                                         'de': 'Ein Beispiel-BillofMaterial-Submodel für eine Test-Anwendung'}),
         parent=None,
         administration=model.AdministrativeInformation(version='0.9'),
         semantic_id=model.ModelReference((model.Key(type_=model.KeyTypes.SUBMODEL,
@@ -248,11 +256,11 @@ def create_example_submodel() -> model.Submodel:
         value='exampleValue',
         value_id=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
                                                   value='http://acplt.org/ValueId/ExampleValueId'),)),
-        display_name={'en-us': 'ExampleProperty',
-                      'de': 'BeispielProperty'},
+        display_name=model.LangStringSet({'en-US': 'ExampleProperty',
+                                          'de': 'BeispielProperty'}),
         category='CONSTANT',
-        description={'en-us': 'Example Property object',
-                     'de': 'Beispiel Property Element'},
+        description=model.LangStringSet({'en-US': 'Example Property object',
+                                         'de': 'Beispiel Property Element'}),
         parent=None,
         semantic_id=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
                                                      value='http://acplt.org/Properties/ExampleProperty'),)),
@@ -265,11 +273,11 @@ def create_example_submodel() -> model.Submodel:
         value='exampleValue',
         value_id=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
                                                   value='http://acplt.org/ValueId/ExampleValueId'),)),
-        display_name={'en-us': 'ExampleProperty',
-                      'de': 'BeispielProperty'},
+        display_name=model.LangStringSet({'en-US': 'ExampleProperty',
+                                          'de': 'BeispielProperty'}),
         category='CONSTANT',
-        description={'en-us': 'Example Property object',
-                     'de': 'Beispiel Property Element'},
+        description=model.LangStringSet({'en-US': 'Example Property object',
+                                         'de': 'Beispiel Property Element'}),
         parent=None,
         semantic_id=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
                                                      value='http://acplt.org/Properties/ExampleProperty'),)),
@@ -278,13 +286,13 @@ def create_example_submodel() -> model.Submodel:
 
     submodel_element_multi_language_property = model.MultiLanguageProperty(
         id_short='ExampleMultiLanguageProperty',
-        value={'en-us': 'Example value of a MultiLanguageProperty element',
-               'de': 'Beispielswert für ein MulitLanguageProperty-Element'},
+        value=model.LangStringSet({'en-US': 'Example value of a MultiLanguageProperty element',
+                                   'de': 'Beispielswert für ein MulitLanguageProperty-Element'}),
         value_id=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
                                                   value='http://acplt.org/ValueId/ExampleMultiLanguageValueId'),)),
         category='CONSTANT',
-        description={'en-us': 'Example MultiLanguageProperty object',
-                     'de': 'Beispiel MultiLanguageProperty Element'},
+        description=model.LangStringSet({'en-US': 'Example MultiLanguageProperty object',
+                                         'de': 'Beispiel MultiLanguageProperty Element'}),
         parent=None,
         semantic_id=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
                                                      value='http://acplt.org/MultiLanguageProperties/'
@@ -298,8 +306,8 @@ def create_example_submodel() -> model.Submodel:
         min=0,
         max=100,
         category='PARAMETER',
-        description={'en-us': 'Example Range object',
-                     'de': 'Beispiel Range Element'},
+        description=model.LangStringSet({'en-US': 'Example Range object',
+                                         'de': 'Beispiel Range Element'}),
         parent=None,
         semantic_id=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
                                                      value='http://acplt.org/Ranges/ExampleRange'),)),
@@ -311,8 +319,8 @@ def create_example_submodel() -> model.Submodel:
         content_type='application/pdf',
         value=bytes(b'\x01\x02\x03\x04\x05'),
         category='PARAMETER',
-        description={'en-us': 'Example Blob object',
-                     'de': 'Beispiel Blob Element'},
+        description=model.LangStringSet({'en-US': 'Example Blob object',
+                                         'de': 'Beispiel Blob Element'}),
         parent=None,
         semantic_id=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
                                                      value='http://acplt.org/Blobs/ExampleBlob'),)),
@@ -324,8 +332,8 @@ def create_example_submodel() -> model.Submodel:
         content_type='application/pdf',
         value='/TestFile.pdf',
         category='PARAMETER',
-        description={'en-us': 'Example File object',
-                     'de': 'Beispiel File Element'},
+        description=model.LangStringSet({'en-US': 'Example File object',
+                                         'de': 'Beispiel File Element'}),
         parent=None,
         semantic_id=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
                                                      value='http://acplt.org/Files/ExampleFile'),)),
@@ -338,9 +346,10 @@ def create_example_submodel() -> model.Submodel:
         value='https://www.plattform-i40.de/PI40/Redaktion/DE/Downloads/Publikation/Details-of-the-Asset-'
               'Administration-Shell-Part1.pdf?__blob=publicationFile&v=5',
         category='CONSTANT',
-        description={'en-us': 'Details of the Asset Administration Shell — An example for an external file reference',
-                     'de': 'Details of the Asset Administration Shell – Ein Beispiel für eine extern referenzierte '
-                           'Datei'},
+        description=model.LangStringSet({'en-US': 'Details of the Asset Administration Shell — An example for an '
+                                                  'external file reference',
+                                         'de': 'Details of the Asset Administration Shell – Ein Beispiel für eine '
+                                               'extern referenzierte Datei'}),
         parent=None,
         semantic_id=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
                                                      value='http://acplt.org/Files/ExampleFile'),)),
@@ -355,8 +364,8 @@ def create_example_submodel() -> model.Submodel:
                                               value='ExampleProperty'),),
                                    model.Property),
         category='PARAMETER',
-        description={'en-us': 'Example Reference Element object',
-                     'de': 'Beispiel Reference Element Element'},
+        description=model.LangStringSet({'en-US': 'Example Reference Element object',
+                                         'de': 'Beispiel Reference Element Element'}),
         parent=None,
         semantic_id=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
                                                      value='http://acplt.org/ReferenceElements/ExampleReferenceElement'
@@ -383,8 +392,8 @@ def create_example_submodel() -> model.Submodel:
                 value='ExampleProperty2'),
         ), model.Property),
         category='PARAMETER',
-        description={'en-us': 'Example RelationshipElement object',
-                     'de': 'Beispiel RelationshipElement Element'},
+        description=model.LangStringSet({'en-US': 'Example RelationshipElement object',
+                                         'de': 'Beispiel RelationshipElement Element'}),
         parent=None,
         semantic_id=model.ModelReference((model.Key(type_=model.KeyTypes.CONCEPT_DESCRIPTION,
                                                     value='https://acplt.org/Test_ConceptDescription'),),
@@ -415,8 +424,8 @@ def create_example_submodel() -> model.Submodel:
                                 parent=None)
                     },
         category='PARAMETER',
-        description={'en-us': 'Example AnnotatedRelationshipElement object',
-                     'de': 'Beispiel AnnotatedRelationshipElement Element'},
+        description=model.LangStringSet({'en-US': 'Example AnnotatedRelationshipElement object',
+                                         'de': 'Beispiel AnnotatedRelationshipElement Element'}),
         parent=None,
         semantic_id=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
                                                      value='http://acplt.org/RelationshipElements/'
@@ -430,11 +439,11 @@ def create_example_submodel() -> model.Submodel:
         value='exampleValue',
         value_id=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
                                                   value='http://acplt.org/ValueId/ExampleValueId'),)),
-        display_name={'en-us': 'ExampleProperty',
-                      'de': 'BeispielProperty'},
+        display_name=model.LangStringSet({'en-US': 'ExampleProperty',
+                                          'de': 'BeispielProperty'}),
         category='CONSTANT',
-        description={'en-us': 'Example Property object',
-                     'de': 'Beispiel Property Element'},
+        description=model.LangStringSet({'en-US': 'Example Property object',
+                                         'de': 'Beispiel Property Element'}),
         parent=None,
         semantic_id=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
                                                      value='http://acplt.org/Properties/ExampleProperty'),)),
@@ -455,8 +464,8 @@ def create_example_submodel() -> model.Submodel:
         output_variable=[submodel_element_operation_variable_output],
         in_output_variable=[submodel_element_operation_variable_in_output],
         category='PARAMETER',
-        description={'en-us': 'Example Operation object',
-                     'de': 'Beispiel Operation Element'},
+        description=model.LangStringSet({'en-US': 'Example Operation object',
+                                         'de': 'Beispiel Operation Element'}),
         parent=None,
         semantic_id=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
                                                      value='http://acplt.org/Operations/'
@@ -467,8 +476,8 @@ def create_example_submodel() -> model.Submodel:
     submodel_element_capability = model.Capability(
         id_short='ExampleCapability',
         category='PARAMETER',
-        description={'en-us': 'Example Capability object',
-                     'de': 'Beispiel Capability Element'},
+        description=model.LangStringSet({'en-US': 'Example Capability object',
+                                         'de': 'Beispiel Capability Element'}),
         parent=None,
         semantic_id=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
                                                      value='http://acplt.org/Capabilities/'
@@ -493,8 +502,8 @@ def create_example_submodel() -> model.Submodel:
         max_interval=model.datatypes.Duration(years=1, months=2, days=3, hours=4, minutes=5, seconds=6,
                                               microseconds=123456),
         category='PARAMETER',
-        description={'en-us': 'Example BasicEventElement object',
-                     'de': 'Beispiel BasicEventElement Element'},
+        description=model.LangStringSet({'en-US': 'Example BasicEventElement object',
+                                         'de': 'Beispiel BasicEventElement Element'}),
         parent=None,
         semantic_id=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
                                                      value='http://acplt.org/Events/ExampleBasicEventElement'),)),
@@ -510,8 +519,8 @@ def create_example_submodel() -> model.Submodel:
         value_type_list_element=model.datatypes.String,
         order_relevant=True,
         category='PARAMETER',
-        description={'en-us': 'Example SubmodelElementList object',
-                     'de': 'Beispiel SubmodelElementList Element'},
+        description=model.LangStringSet({'en-US': 'Example SubmodelElementList object',
+                                         'de': 'Beispiel SubmodelElementList Element'}),
         parent=None,
         semantic_id=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
                                                      value='http://acplt.org/SubmodelElementLists/'
@@ -529,8 +538,8 @@ def create_example_submodel() -> model.Submodel:
                submodel_element_reference_element,
                submodel_element_submodel_element_list),
         category='PARAMETER',
-        description={'en-us': 'Example SubmodelElementCollection object',
-                     'de': 'Beispiel SubmodelElementCollection Element'},
+        description=model.LangStringSet({'en-US': 'Example SubmodelElementCollection object',
+                                         'de': 'Beispiel SubmodelElementCollection Element'}),
         parent=None,
         semantic_id=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
                                                      value='http://acplt.org/SubmodelElementCollections/'
@@ -548,8 +557,8 @@ def create_example_submodel() -> model.Submodel:
                           submodel_element_submodel_element_collection),
         id_short='TestSubmodel',
         category=None,
-        description={'en-us': 'An example submodel for the test application',
-                     'de': 'Ein Beispiel-Teilmodell für eine Test-Anwendung'},
+        description=model.LangStringSet({'en-US': 'An example submodel for the test application',
+                                         'de': 'Ein Beispiel-Teilmodell für eine Test-Anwendung'}),
         parent=None,
         administration=model.AdministrativeInformation(version='0.9',
                                                        revision='0'),
@@ -574,8 +583,8 @@ def create_example_concept_description() -> model.ConceptDescription:
                                                            'ConceptDescriptions/TestConceptDescription'),))},
         id_short='TestConceptDescription',
         category=None,
-        description={'en-us': 'An example concept description for the test application',
-                     'de': 'Ein Beispiel-ConceptDescription für eine Test-Anwendung'},
+        description=model.LangStringSet({'en-US': 'An example concept description for the test application',
+                                         'de': 'Ein Beispiel-ConceptDescription für eine Test-Anwendung'}),
         parent=None,
         administration=model.AdministrativeInformation(version='0.9',
                                                        revision='0'))
@@ -611,8 +620,8 @@ def create_example_asset_administration_shell() -> \
         id_='https://acplt.org/Test_AssetAdministrationShell',
         id_short='TestAssetAdministrationShell',
         category=None,
-        description={'en-us': 'An Example Asset Administration Shell for the test application',
-                     'de': 'Ein Beispiel-Verwaltungsschale für eine Test-Anwendung'},
+        description=model.LangStringSet({'en-US': 'An Example Asset Administration Shell for the test application',
+                                         'de': 'Ein Beispiel-Verwaltungsschale für eine Test-Anwendung'}),
         parent=None,
         administration=model.AdministrativeInformation(version='0.9',
                                                        revision='0'),

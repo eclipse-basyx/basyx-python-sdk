@@ -73,9 +73,9 @@ class ConceptDescription(base.Identifiable):
         self.id: base.Identifier = id_
         self.is_case_of: Set[base.Reference] = set() if is_case_of is None else is_case_of
         self.id_short = id_short
-        self.display_name: Optional[base.LangStringSet] = dict() if display_name is None else display_name
+        self.display_name: Optional[base.LangStringSet] = display_name
         self.category = category
-        self.description: Optional[base.LangStringSet] = dict() if description is None else description
+        self.description: Optional[base.LangStringSet] = description
         self.parent: Optional[base.UniqueIdShortNamespace] = parent
         self.administration: Optional[base.AdministrativeInformation] = administration
         self.extension = base.NamespaceSet(self, [("name", True)], extension)

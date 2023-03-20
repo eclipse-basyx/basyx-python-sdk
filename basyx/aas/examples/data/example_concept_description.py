@@ -25,11 +25,11 @@ def create_iec61360_concept_description() -> IEC61360ConceptDescription:
     identification = 'http://acplt.org/DataSpecifciations/Example/Identification'
     return IEC61360ConceptDescription(
         id_=identification,
-        preferred_name={'de': 'Test Specification', 'en-us': "TestSpecification"},
+        preferred_name=model.LangStringSet({'de': 'Test Specification', 'en-US': "TestSpecification"}),
         data_type=IEC61360DataType.REAL_MEASURE,
-        definition={'de': 'Dies ist eine Data Specification für Testzwecke',
-                    'en-us': "This is a DataSpecification for testing purposes"},
-        short_name={'de': 'Test Spec', 'en-us': "TestSpec"},
+        definition=model.LangStringSet({'de': 'Dies ist eine Data Specification für Testzwecke',
+                                        'en-US': "This is a DataSpecification for testing purposes"}),
+        short_name=model.LangStringSet({'de': 'Test Spec', 'en-US': "TestSpec"}),
         is_case_of={model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
                                                      value='http://acplt.org/ReferenceElements/ConceptDescriptionX'),
                                            ))},

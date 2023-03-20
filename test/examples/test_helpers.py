@@ -367,7 +367,7 @@ class AASDataCheckerTest(unittest.TestCase):
                          repr(next(checker_iterator)))
         iec = model.IEC61360ConceptDescription(
             id_='test',
-            preferred_name={'de': 'Test Specification', 'en-us': "TestSpecification"},
+            preferred_name=model.LangStringSet({'de': 'Test Specification', 'en-US': "TestSpecification"}),
             data_type=IEC61360DataType.REAL_MEASURE,
             value_list={model.ValueReferencePair(value_type=model.datatypes.String,
                                                  value='test',
@@ -378,7 +378,7 @@ class AASDataCheckerTest(unittest.TestCase):
         )
         iec_expected = model.IEC61360ConceptDescription(
             id_='test',
-            preferred_name={'de': 'Test Specification', 'en-us': "TestSpecification"},
+            preferred_name=model.LangStringSet({'de': 'Test Specification', 'en-US': "TestSpecification"}),
             data_type=IEC61360DataType.REAL_MEASURE
         )
 

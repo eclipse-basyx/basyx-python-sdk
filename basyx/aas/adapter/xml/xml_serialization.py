@@ -31,18 +31,10 @@ from .. import _generic
 # ##############################################################
 
 # Namespace definition
-NS_AAS = "{http://www.admin-shell.io/aas/3/0}"
-NS_ABAC = "{http://www.admin-shell.io/aas/abac/3/0}"
-NS_AAS_COMMON = "{http://www.admin-shell.io/aas_common/3/0}"
-NS_XSI = "{http://www.w3.org/2001/XMLSchema-instance}"
-NS_XS = "{http://www.w3.org/2001/XMLSchema}"
-NS_IEC = "{http://www.admin-shell.io/IEC61360/3/0}"
-NS_MAP = {"aas": "http://www.admin-shell.io/aas/3/0",
-          "abac": "http://www.admin-shell.io/aas/abac/3/0",
-          "aas_common": "http://www.admin-shell.io/aas_common/3/0",
-          "xsi": "http://www.w3.org/2001/XMLSchema-instance",
-          "IEC": "http://www.admin-shell.io/IEC61360/3/0",
-          "xs": "http://www.w3.org/2001/XMLSchema"}
+NS_AAS = "{https://admin-shell.io/aas/3/0/RC02}"
+NS_ABAC = "{http://admin-shell.io/aas/abac/3/0/RC02}"
+NS_MAP = {"aas": "https://admin-shell.io/aas/3/0/RC02",
+          "abac": "https://admin-shell.io/aas/abac/3/0/RC02"}
 
 
 def _generate_element(name: str,
@@ -165,10 +157,11 @@ def lang_string_set_to_xml(obj: model.LangStringSet, tag: str) -> etree.Element:
     :return: Serialized ElementTree object
     """
     et_lss = _generate_element(name=tag)
-    for language in obj:
-        et_lss.append(_generate_element(name=NS_AAS + "langString",
-                                        text=obj[language],
-                                        attributes={"lang": language}))
+    for language, text in obj.items():
+        et_ls = _generate_element(name=NS_AAS + "langString")
+        et_ls.append(_generate_element(name=NS_AAS + "language", text=language))
+        et_ls.append(_generate_element(name=NS_AAS + "text", text=text))
+        et_lss.append(et_ls)
     return et_lss
 
 
@@ -182,10 +175,10 @@ def administrative_information_to_xml(obj: model.AdministrativeInformation,
     :return: Serialized ElementTree object
     """
     et_administration = _generate_element(tag)
-    if obj.revision:
-        et_administration.append(_generate_element(name=NS_AAS + "revision", text=obj.revision))
     if obj.version:
         et_administration.append(_generate_element(name=NS_AAS + "version", text=obj.version))
+    if obj.revision:
+        et_administration.append(_generate_element(name=NS_AAS + "revision", text=obj.revision))
     return et_administration
 
 
@@ -218,15 +211,18 @@ def reference_to_xml(obj: model.Reference, tag: str = NS_AAS+"reference") -> etr
     :param tag: Namespace+Tag of the returned element. Default is "aas:reference"
     :return: Serialized ElementTree
     """
-    et_reference = _generate_element(tag, attributes={"type": _generic.REFERENCE_TYPES[obj.__class__]})
-    et_keys = _generate_element(name=NS_AAS + "keys")
-    for aas_key in obj.key:
-        et_keys.append(_generate_element(name=NS_AAS + "key",
-                                         text=aas_key.value,
-                                         attributes={"type": _generic.KEY_TYPES[aas_key.type]}))
-    et_reference.append(et_keys)
+    et_reference = _generate_element(tag)
+    et_reference.append(_generate_element(NS_AAS + "type", text=_generic.REFERENCE_TYPES[obj.__class__]))
     if obj.referred_semantic_id is not None:
         et_reference.append(reference_to_xml(obj.referred_semantic_id, NS_AAS + "referredSemanticId"))
+    et_keys = _generate_element(name=NS_AAS + "keys")
+    for aas_key in obj.key:
+        et_key = _generate_element(name=NS_AAS + "key")
+        et_key.append(_generate_element(name=NS_AAS + "type", text=_generic.KEY_TYPES[aas_key.type]))
+        et_key.append(_generate_element(name=NS_AAS + "value", text=aas_key.value))
+        et_keys.append(et_key)
+    et_reference.append(et_keys)
+
     return et_reference
 
 
@@ -319,9 +315,9 @@ def specific_asset_id_to_xml(obj: model.SpecificAssetId, tag: str = NS_AAS + "sp
     :return: Serialized ElementTree object
     """
     et_asset_information = abstract_classes_to_xml(tag, obj)
-    et_asset_information.append(reference_to_xml(obj.external_subject_id, NS_AAS + "externalSubjectId"))
     et_asset_information.append(_generate_element(name=NS_AAS + "name", text=obj.name))
     et_asset_information.append(_generate_element(name=NS_AAS + "value", text=obj.value))
+    et_asset_information.append(reference_to_xml(obj.external_subject_id, NS_AAS + "externalSubjectId"))
 
     return et_asset_information
 
@@ -335,16 +331,16 @@ def asset_information_to_xml(obj: model.AssetInformation, tag: str = NS_AAS+"ass
     :return: Serialized ElementTree object
     """
     et_asset_information = abstract_classes_to_xml(tag, obj)
-    if obj.default_thumbnail:
-        et_asset_information.append(resource_to_xml(obj.default_thumbnail, NS_AAS+"defaultThumbNail"))
+    et_asset_information.append(_generate_element(name=NS_AAS + "assetKind", text=_generic.ASSET_KIND[obj.asset_kind]))
     if obj.global_asset_id:
         et_asset_information.append(reference_to_xml(obj.global_asset_id, NS_AAS + "globalAssetId"))
-    et_asset_information.append(_generate_element(name=NS_AAS + "assetKind", text=_generic.ASSET_KIND[obj.asset_kind]))
-    et_specific_asset_id = _generate_element(name=NS_AAS + "specificAssetIds")
     if obj.specific_asset_id:
+        et_specific_asset_id = _generate_element(name=NS_AAS + "specificAssetIds")
         for specific_asset_id in obj.specific_asset_id:
             et_specific_asset_id.append(specific_asset_id_to_xml(specific_asset_id, NS_AAS + "specificAssetId"))
-    et_asset_information.append(et_specific_asset_id)
+        et_asset_information.append(et_specific_asset_id)
+    if obj.default_thumbnail:
+        et_asset_information.append(resource_to_xml(obj.default_thumbnail, NS_AAS+"defaultThumbNail"))
 
     return et_asset_information
 
@@ -392,7 +388,7 @@ def _iec61360_concept_description_to_xml(obj: model.concept.IEC61360ConceptDescr
     """
 
     def _iec_value_reference_pair_to_xml(vrp: model.ValueReferencePair,
-                                         vrp_tag: str = NS_IEC + "valueReferencePair") -> etree.Element:
+                                         vrp_tag: str = NS_AAS + "valueReferencePair") -> etree.Element:
         """
         serialization of objects of class ValueReferencePair to XML
 
@@ -401,12 +397,12 @@ def _iec61360_concept_description_to_xml(obj: model.concept.IEC61360ConceptDescr
         :return: serialized ElementTree object
         """
         et_vrp = _generate_element(vrp_tag)
-        et_vrp.append(reference_to_xml(vrp.value_id, NS_IEC + "valueId"))
-        et_vrp.append(_value_to_xml(vrp.value, vrp.value_type, tag=NS_IEC+"value"))
+        et_vrp.append(reference_to_xml(vrp.value_id, NS_AAS + "valueId"))
+        et_vrp.append(_value_to_xml(vrp.value, vrp.value_type, tag=NS_AAS + "value"))
         return et_vrp
 
     def _iec_value_list_to_xml(vl: model.ValueList,
-                               vl_tag: str = NS_IEC + "valueList") -> etree.Element:
+                               vl_tag: str = NS_AAS + "valueList") -> etree.Element:
         """
         serialization of objects of class ValueList to XML
 
@@ -416,36 +412,36 @@ def _iec61360_concept_description_to_xml(obj: model.concept.IEC61360ConceptDescr
         """
         et_value_list = _generate_element(vl_tag)
         for aas_reference_pair in vl:
-            et_value_list.append(_iec_value_reference_pair_to_xml(aas_reference_pair, NS_IEC+"valueReferencePair"))
+            et_value_list.append(_iec_value_reference_pair_to_xml(aas_reference_pair, NS_AAS + "valueReferencePair"))
         return et_value_list
 
     et_iec = _generate_element(tag)
-    et_iec.append(lang_string_set_to_xml(obj.preferred_name, NS_IEC + "preferredName"))
+    et_iec.append(lang_string_set_to_xml(obj.preferred_name, NS_AAS + "preferredName"))
     if obj.short_name:
-        et_iec.append(lang_string_set_to_xml(obj.short_name, NS_IEC + "shortName"))
+        et_iec.append(lang_string_set_to_xml(obj.short_name, NS_AAS + "shortName"))
     if obj.unit:
-        et_iec.append(_generate_element(NS_IEC+"unit", text=obj.unit))
+        et_iec.append(_generate_element(NS_AAS + "unit", text=obj.unit))
     if obj.unit_id:
-        et_iec.append(reference_to_xml(obj.unit_id, NS_IEC+"unitId"))
+        et_iec.append(reference_to_xml(obj.unit_id, NS_AAS + "unitId"))
     if obj.source_of_definition:
-        et_iec.append(_generate_element(NS_IEC+"sourceOfDefinition", text=obj.source_of_definition))
+        et_iec.append(_generate_element(NS_AAS + "sourceOfDefinition", text=obj.source_of_definition))
     if obj.symbol:
-        et_iec.append(_generate_element(NS_IEC+"symbol", text=obj.symbol))
+        et_iec.append(_generate_element(NS_AAS + "symbol", text=obj.symbol))
     if obj.data_type:
-        et_iec.append(_generate_element(NS_IEC+"dataType", text=_generic.IEC61360_DATA_TYPES[obj.data_type]))
+        et_iec.append(_generate_element(NS_AAS + "dataType", text=_generic.IEC61360_DATA_TYPES[obj.data_type]))
     if obj.definition:
-        et_iec.append(lang_string_set_to_xml(obj.definition, NS_IEC + "definition"))
+        et_iec.append(lang_string_set_to_xml(obj.definition, NS_AAS + "definition"))
     if obj.value_format:
-        et_iec.append(_generate_element(NS_IEC+"valueFormat", text=model.datatypes.XSD_TYPE_NAMES[obj.value_format]))
+        et_iec.append(_generate_element(NS_AAS + "valueFormat", text=model.datatypes.XSD_TYPE_NAMES[obj.value_format]))
     if obj.value_list:
-        et_iec.append(_iec_value_list_to_xml(obj.value_list, NS_IEC+"valueList"))
+        et_iec.append(_iec_value_list_to_xml(obj.value_list, NS_AAS + "valueList"))
     if obj.value:
-        et_iec.append(_generate_element(NS_IEC+"value", text=model.datatypes.xsd_repr(obj.value)))
+        et_iec.append(_generate_element(NS_AAS + "value", text=model.datatypes.xsd_repr(obj.value)))
     if obj.value_id:
-        et_iec.append(reference_to_xml(obj.value_id, NS_IEC+"valueId"))
+        et_iec.append(reference_to_xml(obj.value_id, NS_AAS + "valueId"))
     if obj.level_types:
         for level_type in obj.level_types:
-            et_iec.append(_generate_element(NS_IEC+"levelType", text=_generic.IEC61360_LEVEL_TYPES[level_type]))
+            et_iec.append(_generate_element(NS_AAS + "levelType", text=_generic.IEC61360_LEVEL_TYPES[level_type]))
     return et_iec
 
 
@@ -461,12 +457,12 @@ def asset_administration_shell_to_xml(obj: model.AssetAdministrationShell,
     et_aas = abstract_classes_to_xml(tag, obj)
     if obj.derived_from:
         et_aas.append(reference_to_xml(obj.derived_from, tag=NS_AAS+"derivedFrom"))
-    if obj.submodel:
-        et_submodels = _generate_element(NS_AAS + "submodelRefs")
-        for reference in obj.submodel:
-            et_submodels.append(reference_to_xml(reference, tag=NS_AAS+"submodelRef"))
-        et_aas.append(et_submodels)
     et_aas.append(asset_information_to_xml(obj.asset_information, tag=NS_AAS + "assetInformation"))
+    if obj.submodel:
+        et_submodels = _generate_element(NS_AAS + "submodels")
+        for reference in obj.submodel:
+            et_submodels.append(reference_to_xml(reference, tag=NS_AAS+"reference"))
+        et_aas.append(et_submodels)
     return et_aas
 
 
@@ -874,7 +870,7 @@ def write_aas_xml_file(file: IO,
             concept_descriptions.append(obj)
 
     # serialize objects to XML
-    root = etree.Element(NS_AAS + "aasenv", nsmap=NS_MAP)
+    root = etree.Element(NS_AAS + "environment", nsmap=NS_MAP)
     et_asset_administration_shells = etree.Element(NS_AAS + "assetAdministrationShells")
     for aas_obj in asset_administration_shells:
         et_asset_administration_shells.append(asset_administration_shell_to_xml(aas_obj))

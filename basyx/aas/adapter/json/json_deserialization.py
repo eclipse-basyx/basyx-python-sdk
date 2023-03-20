@@ -361,7 +361,7 @@ class AASFromJsonDecoder(json.JSONDecoder):
                     logger.error(error_message, exc_info=e)
                 else:
                     raise type(e)(error_message) from e
-        return ret
+        return model.LangStringSet(ret)
 
     @classmethod
     def _construct_value_list(cls, dct: Dict[str, object]) -> model.ValueList:

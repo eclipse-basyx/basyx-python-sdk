@@ -4,7 +4,7 @@
             "idShort": "TestAssetAdministrationShell123",
             "description": [
                 {
-                    "language": "en-us",
+                    "language": "en-US",
                     "text": "An Example Asset Administration Shell for the test application"
                 },
                 {
@@ -166,7 +166,7 @@
             "idShort": "TestAssetAdministrationShell",
             "description": [
                 {
-                    "language": "en-us",
+                    "language": "en-US",
                     "text": "An Example Asset Administration Shell for the test application"
                 },
                 {
@@ -231,7 +231,7 @@
             "idShort": "Identification",
             "description": [
                 {
-                    "language": "en-us",
+                    "language": "en-US",
                     "text": "An example asset identification submodel for the test application"
                 },
                 {
@@ -280,7 +280,7 @@
                     "category": "PARAMETER",
                     "description": [
                         {
-                            "language": "en-us",
+                            "language": "en-US",
                             "text": "Legally valid designation of the natural or judicial person which is directly responsible for the design, production, packaging and labeling of a product in respect to its being brought into circulation."
                         },
                         {
@@ -353,7 +353,7 @@
                     "category": "PARAMETER",
                     "description": [
                         {
-                            "language": "en-us",
+                            "language": "en-US",
                             "text": "Legally valid designation of the natural or judicial person which is directly responsible for the design, production, packaging and labeling of a product in respect to its being brought into circulation."
                         },
                         {
@@ -391,7 +391,7 @@
             "idShort": "BillOfMaterial",
             "description": [
                 {
-                    "language": "en-us",
+                    "language": "en-US",
                     "text": "An example bill of material submodel for the test application"
                 },
                 {
@@ -421,7 +421,7 @@
                     "category": "PARAMETER",
                     "description": [
                         {
-                            "language": "en-us",
+                            "language": "en-US",
                             "text": "Legally valid designation of the natural or judicial person which is directly responsible for the design, production, packaging and labeling of a product in respect to its being brought into circulation."
                         },
                         {
@@ -447,7 +447,7 @@
                             "category": "CONSTANT",
                             "description": [
                                 {
-                                    "language": "en-us",
+                                    "language": "en-US",
                                     "text": "Example Property object"
                                 },
                                 {
@@ -484,7 +484,7 @@
                             "category": "CONSTANT",
                             "description": [
                                 {
-                                    "language": "en-us",
+                                    "language": "en-US",
                                     "text": "Example Property object"
                                 },
                                 {
@@ -546,7 +546,7 @@
                     "category": "PARAMETER",
                     "description": [
                         {
-                            "language": "en-us",
+                            "language": "en-US",
                             "text": "Legally valid designation of the natural or judicial person which is directly responsible for the design, production, packaging and labeling of a product in respect to its being brought into circulation."
                         },
                         {
@@ -574,7 +574,7 @@
             "idShort": "TestSubmodel",
             "description": [
                 {
-                    "language": "en-us",
+                    "language": "en-US",
                     "text": "An example submodel for the test application"
                 },
                 {
@@ -605,7 +605,7 @@
                     "category": "PARAMETER",
                     "description": [
                         {
-                            "language": "en-us",
+                            "language": "en-US",
                             "text": "Example RelationshipElement object"
                         },
                         {
@@ -657,7 +657,7 @@
                     "category": "PARAMETER",
                     "description": [
                         {
-                            "language": "en-us",
+                            "language": "en-US",
                             "text": "Example AnnotatedRelationshipElement object"
                         },
                         {
@@ -730,7 +730,7 @@
                     "category": "PARAMETER",
                     "description": [
                         {
-                            "language": "en-us",
+                            "language": "en-US",
                             "text": "Example Operation object"
                         },
                         {
@@ -756,7 +756,7 @@
                                 "idShort": "ExampleProperty",
                                 "displayName": [
                                     {
-                                        "language": "en-us",
+                                        "language": "en-US",
                                         "text": "ExampleProperty"
                                     },
                                     {
@@ -767,7 +767,7 @@
                                 "category": "CONSTANT",
                                 "description": [
                                     {
-                                        "language": "en-us",
+                                        "language": "en-US",
                                         "text": "Example Property object"
                                     },
                                     {
@@ -808,7 +808,7 @@
                                 "idShort": "ExampleProperty",
                                 "displayName": [
                                     {
-                                        "language": "en-us",
+                                        "language": "en-US",
                                         "text": "ExampleProperty"
                                     },
                                     {
@@ -819,7 +819,7 @@
                                 "category": "CONSTANT",
                                 "description": [
                                     {
-                                        "language": "en-us",
+                                        "language": "en-US",
                                         "text": "Example Property object"
                                     },
                                     {
@@ -860,7 +860,7 @@
                                 "idShort": "ExampleProperty",
                                 "displayName": [
                                     {
-                                        "language": "en-us",
+                                        "language": "en-US",
                                         "text": "ExampleProperty"
                                     },
                                     {
@@ -871,7 +871,7 @@
                                 "category": "CONSTANT",
                                 "description": [
                                     {
-                                        "language": "en-us",
+                                        "language": "en-US",
                                         "text": "Example Property object"
                                     },
                                     {
@@ -912,7 +912,7 @@
                     "category": "PARAMETER",
                     "description": [
                         {
-                            "language": "en-us",
+                            "language": "en-US",
                             "text": "Example Capability object"
                         },
                         {
@@ -938,7 +938,7 @@
                     "category": "PARAMETER",
                     "description": [
                         {
-                            "language": "en-us",
+                            "language": "en-US",
                             "text": "Example BasicEventElement object"
                         },
                         {
@@ -992,7 +992,7 @@
                     "category": "PARAMETER",
                     "description": [
                         {
-                            "language": "en-us",
+                            "language": "en-US",
                             "text": "Example SubmodelElementCollection object"
                         },
                         {
@@ -1018,7 +1018,7 @@
                             "category": "PARAMETER",
                             "description": [
                                 {
-                                    "language": "en-us",
+                                    "language": "en-US",
                                     "text": "Example Blob object"
                                 },
                                 {
@@ -1046,7 +1046,7 @@
                             "category": "PARAMETER",
                             "description": [
                                 {
-                                    "language": "en-us",
+                                    "language": "en-US",
                                     "text": "Example File object"
                                 },
                                 {
@@ -1074,7 +1074,7 @@
                             "category": "CONSTANT",
                             "description": [
                                 {
-                                    "language": "en-us",
+                                    "language": "en-US",
                                     "text": "Details of the Asset Administration Shell \u2014 An example for an external file reference"
                                 },
                                 {
@@ -1102,7 +1102,7 @@
                             "category": "CONSTANT",
                             "description": [
                                 {
-                                    "language": "en-us",
+                                    "language": "en-US",
                                     "text": "Example MultiLanguageProperty object"
                                 },
                                 {
@@ -1124,7 +1124,7 @@
                             },
                             "value": [
                                 {
-                                    "language": "en-us",
+                                    "language": "en-US",
                                     "text": "Example value of a MultiLanguageProperty element"
                                 },
                                 {
@@ -1147,7 +1147,7 @@
                             "category": "PARAMETER",
                             "description": [
                                 {
-                                    "language": "en-us",
+                                    "language": "en-US",
                                     "text": "Example Range object"
                                 },
                                 {
@@ -1176,7 +1176,7 @@
                             "category": "PARAMETER",
                             "description": [
                                 {
-                                    "language": "en-us",
+                                    "language": "en-US",
                                     "text": "Example Reference Element object"
                                 },
                                 {
@@ -1227,7 +1227,7 @@
                             "category": "PARAMETER",
                             "description": [
                                 {
-                                    "language": "en-us",
+                                    "language": "en-US",
                                     "text": "Example SubmodelElementList object"
                                 },
                                 {
@@ -1252,7 +1252,7 @@
                                     "idShort": "ExampleProperty",
                                     "displayName": [
                                         {
-                                            "language": "en-us",
+                                            "language": "en-US",
                                             "text": "ExampleProperty"
                                         },
                                         {
@@ -1263,7 +1263,7 @@
                                     "category": "CONSTANT",
                                     "description": [
                                         {
-                                            "language": "en-us",
+                                            "language": "en-US",
                                             "text": "Example Property object"
                                         },
                                         {
@@ -1299,7 +1299,7 @@
                                     "idShort": "ExampleProperty2",
                                     "displayName": [
                                         {
-                                            "language": "en-us",
+                                            "language": "en-US",
                                             "text": "ExampleProperty"
                                         },
                                         {
@@ -1310,7 +1310,7 @@
                                     "category": "CONSTANT",
                                     "description": [
                                         {
-                                            "language": "en-us",
+                                            "language": "en-US",
                                             "text": "Example Property object"
                                         },
                                         {
@@ -1543,7 +1543,7 @@
             "idShort": "TestSubmodel",
             "description": [
                 {
-                    "language": "en-us",
+                    "language": "en-US",
                     "text": "An example submodel for the test application"
                 },
                 {
@@ -1574,7 +1574,7 @@
                     "category": "PARAMETER",
                     "description": [
                         {
-                            "language": "en-us",
+                            "language": "en-US",
                             "text": "Example RelationshipElement object"
                         },
                         {
@@ -1626,7 +1626,7 @@
                     "category": "PARAMETER",
                     "description": [
                         {
-                            "language": "en-us",
+                            "language": "en-US",
                             "text": "Example AnnotatedRelationshipElement object"
                         },
                         {
@@ -1699,7 +1699,7 @@
                     "category": "PARAMETER",
                     "description": [
                         {
-                            "language": "en-us",
+                            "language": "en-US",
                             "text": "Example Operation object"
                         },
                         {
@@ -1725,7 +1725,7 @@
                                 "idShort": "ExampleProperty",
                                 "displayName": [
                                     {
-                                        "language": "en-us",
+                                        "language": "en-US",
                                         "text": "ExampleProperty"
                                     },
                                     {
@@ -1736,7 +1736,7 @@
                                 "category": "CONSTANT",
                                 "description": [
                                     {
-                                        "language": "en-us",
+                                        "language": "en-US",
                                         "text": "Example Property object"
                                     },
                                     {
@@ -1777,7 +1777,7 @@
                                 "idShort": "ExampleProperty",
                                 "displayName": [
                                     {
-                                        "language": "en-us",
+                                        "language": "en-US",
                                         "text": "ExampleProperty"
                                     },
                                     {
@@ -1788,7 +1788,7 @@
                                 "category": "CONSTANT",
                                 "description": [
                                     {
-                                        "language": "en-us",
+                                        "language": "en-US",
                                         "text": "Example Property object"
                                     },
                                     {
@@ -1829,7 +1829,7 @@
                                 "idShort": "ExampleProperty",
                                 "displayName": [
                                     {
-                                        "language": "en-us",
+                                        "language": "en-US",
                                         "text": "ExampleProperty"
                                     },
                                     {
@@ -1840,7 +1840,7 @@
                                 "category": "CONSTANT",
                                 "description": [
                                     {
-                                        "language": "en-us",
+                                        "language": "en-US",
                                         "text": "Example Property object"
                                     },
                                     {
@@ -1881,7 +1881,7 @@
                     "category": "PARAMETER",
                     "description": [
                         {
-                            "language": "en-us",
+                            "language": "en-US",
                             "text": "Example Capability object"
                         },
                         {
@@ -1907,7 +1907,7 @@
                     "category": "PARAMETER",
                     "description": [
                         {
-                            "language": "en-us",
+                            "language": "en-US",
                             "text": "Example BasicEventElement object"
                         },
                         {
@@ -1961,7 +1961,7 @@
                     "category": "PARAMETER",
                     "description": [
                         {
-                            "language": "en-us",
+                            "language": "en-US",
                             "text": "Example SubmodelElementCollection object"
                         },
                         {
@@ -1987,7 +1987,7 @@
                             "category": "PARAMETER",
                             "description": [
                                 {
-                                    "language": "en-us",
+                                    "language": "en-US",
                                     "text": "Example Blob object"
                                 },
                                 {
@@ -2015,7 +2015,7 @@
                             "category": "PARAMETER",
                             "description": [
                                 {
-                                    "language": "en-us",
+                                    "language": "en-US",
                                     "text": "Example File object"
                                 },
                                 {
@@ -2043,7 +2043,7 @@
                             "category": "CONSTANT",
                             "description": [
                                 {
-                                    "language": "en-us",
+                                    "language": "en-US",
                                     "text": "Example MultiLanguageProperty object"
                                 },
                                 {
@@ -2065,7 +2065,7 @@
                             },
                             "value": [
                                 {
-                                    "language": "en-us",
+                                    "language": "en-US",
                                     "text": "Example value of a MultiLanguageProperty element"
                                 },
                                 {
@@ -2079,7 +2079,7 @@
                             "category": "CONSTANT",
                             "description": [
                                 {
-                                    "language": "en-us",
+                                    "language": "en-US",
                                     "text": "Example Property object"
                                 },
                                 {
@@ -2116,7 +2116,7 @@
                             "category": "PARAMETER",
                             "description": [
                                 {
-                                    "language": "en-us",
+                                    "language": "en-US",
                                     "text": "Example Range object"
                                 },
                                 {
@@ -2145,7 +2145,7 @@
                             "category": "PARAMETER",
                             "description": [
                                 {
-                                    "language": "en-us",
+                                    "language": "en-US",
                                     "text": "Example Reference Element object"
                                 },
                                 {
@@ -2187,7 +2187,7 @@
             "idShort": "TestSubmodel",
             "description": [
                 {
-                    "language": "en-us",
+                    "language": "en-US",
                     "text": "An example submodel for the test application"
                 },
                 {
@@ -2219,7 +2219,7 @@
                     "category": "PARAMETER",
                     "description": [
                         {
-                            "language": "en-us",
+                            "language": "en-US",
                             "text": "Example RelationshipElement object"
                         },
                         {
@@ -2272,7 +2272,7 @@
                     "category": "PARAMETER",
                     "description": [
                         {
-                            "language": "en-us",
+                            "language": "en-US",
                             "text": "Example AnnotatedRelationshipElement object"
                         },
                         {
@@ -2325,7 +2325,7 @@
                     "category": "PARAMETER",
                     "description": [
                         {
-                            "language": "en-us",
+                            "language": "en-US",
                             "text": "Example Operation object"
                         },
                         {
@@ -2353,7 +2353,7 @@
                                 "category": "CONSTANT",
                                 "description": [
                                     {
-                                        "language": "en-us",
+                                        "language": "en-US",
                                         "text": "Example Property object"
                                     },
                                     {
@@ -2386,7 +2386,7 @@
                                 "category": "CONSTANT",
                                 "description": [
                                     {
-                                        "language": "en-us",
+                                        "language": "en-US",
                                         "text": "Example Property object"
                                     },
                                     {
@@ -2419,7 +2419,7 @@
                                 "category": "CONSTANT",
                                 "description": [
                                     {
-                                        "language": "en-us",
+                                        "language": "en-US",
                                         "text": "Example Property object"
                                     },
                                     {
@@ -2451,7 +2451,7 @@
                     "category": "PARAMETER",
                     "description": [
                         {
-                            "language": "en-us",
+                            "language": "en-US",
                             "text": "Example Capability object"
                         },
                         {
@@ -2478,7 +2478,7 @@
                     "category": "PARAMETER",
                     "description": [
                         {
-                            "language": "en-us",
+                            "language": "en-US",
                             "text": "Example BasicEventElement object"
                         },
                         {
@@ -2544,7 +2544,7 @@
                     "category": "PARAMETER",
                     "description": [
                         {
-                            "language": "en-us",
+                            "language": "en-US",
                             "text": "Example SubmodelElementList object"
                         },
                         {
@@ -2571,7 +2571,7 @@
                     "category": "PARAMETER",
                     "description": [
                         {
-                            "language": "en-us",
+                            "language": "en-US",
                             "text": "Example SubmodelElementCollection object"
                         },
                         {
@@ -2598,7 +2598,7 @@
                             "category": "CONSTANT",
                             "description": [
                                 {
-                                    "language": "en-us",
+                                    "language": "en-US",
                                     "text": "Example Property object"
                                 },
                                 {
@@ -2627,7 +2627,7 @@
                             "category": "CONSTANT",
                             "description": [
                                 {
-                                    "language": "en-us",
+                                    "language": "en-US",
                                     "text": "Example MultiLanguageProperty object"
                                 },
                                 {
@@ -2654,7 +2654,7 @@
                             "category": "PARAMETER",
                             "description": [
                                 {
-                                    "language": "en-us",
+                                    "language": "en-US",
                                     "text": "Example Range object"
                                 },
                                 {
@@ -2684,7 +2684,7 @@
                             "category": "PARAMETER",
                             "description": [
                                 {
-                                    "language": "en-us",
+                                    "language": "en-US",
                                     "text": "Example Range object"
                                 },
                                 {
@@ -2714,7 +2714,7 @@
                             "category": "PARAMETER",
                             "description": [
                                 {
-                                    "language": "en-us",
+                                    "language": "en-US",
                                     "text": "Example Blob object"
                                 },
                                 {
@@ -2742,7 +2742,7 @@
                             "category": "PARAMETER",
                             "description": [
                                 {
-                                    "language": "en-us",
+                                    "language": "en-US",
                                     "text": "Example File object"
                                 },
                                 {
@@ -2771,7 +2771,7 @@
                             "category": "PARAMETER",
                             "description": [
                                 {
-                                    "language": "en-us",
+                                    "language": "en-US",
                                     "text": "Example Reference Element object"
                                 },
                                 {
@@ -2800,7 +2800,7 @@
                     "category": "PARAMETER",
                     "description": [
                         {
-                            "language": "en-us",
+                            "language": "en-US",
                             "text": "Example SubmodelElementCollection object"
                         },
                         {
@@ -2840,7 +2840,7 @@
                     "category": "PARAMETER",
                     "description": [
                         {
-                            "language": "en-us",
+                            "language": "en-US",
                             "text": "Example SubmodelElementList object"
                         },
                         {
@@ -2870,7 +2870,7 @@
             "idShort": "TestConceptDescription",
             "description": [
                 {
-                    "language": "en-us",
+                    "language": "en-US",
                     "text": "An example concept description for the test application"
                 },
                 {
@@ -2909,7 +2909,7 @@
             "idShort": "TestConceptDescription",
             "description": [
                 {
-                    "language": "en-us",
+                    "language": "en-US",
                     "text": "An example concept description for the test application"
                 },
                 {
@@ -2965,7 +2965,7 @@
                                 "text": "Test Specification"
                             },
                             {
-                                "language": "en-us",
+                                "language": "en-US",
                                 "text": "TestSpecification"
                             }
                         ],
@@ -2976,7 +2976,7 @@
                                 "text": "Dies ist eine Data Specification f\u00fcr Testzwecke"
                             },
                             {
-                                "language": "en-us",
+                                "language": "en-US",
                                 "text": "This is a DataSpecification for testing purposes"
                             }
                         ],
@@ -2986,7 +2986,7 @@
                                 "text": "Test Spec"
                             },
                             {
-                                "language": "en-us",
+                                "language": "en-US",
                                 "text": "TestSpec"
                             }
                         ],

@@ -49,7 +49,7 @@ import base64
 import enum
 
 from typing import Any, Callable, Dict, IO, Iterable, Optional, Set, Tuple, Type, TypeVar
-from .xml_serialization import NS_AAS, NS_ABAC, NS_IEC
+from .xml_serialization import NS_AAS
 from .._generic import MODELING_KIND_INVERSE, ASSET_KIND_INVERSE, KEY_TYPES_INVERSE, ENTITY_TYPES_INVERSE,\
     IEC61360_DATA_TYPES_INVERSE, IEC61360_LEVEL_TYPES_INVERSE, KEY_TYPES_CLASSES_INVERSE, REFERENCE_TYPES_INVERSE,\
     DIRECTION_INVERSE, STATE_OF_EVENT_INVERSE
@@ -524,13 +524,14 @@ class AASFromXmlDecoder:
     def construct_key(cls, element: etree.Element, object_class=model.Key, **_kwargs: Any) \
             -> model.Key:
         return object_class(
-            _get_attrib_mandatory_mapped(element, "type", KEY_TYPES_INVERSE),
-            _get_text_mandatory(element)
+            _child_text_mandatory_mapped(element, NS_AAS + "type", KEY_TYPES_INVERSE),
+            _child_text_mandatory(element, NS_AAS + "value")
         )
 
     @classmethod
     def construct_reference(cls, element: etree.Element, namespace: str = NS_AAS, **kwargs: Any) -> model.Reference:
-        reference_type: Type[model.Reference] = _get_attrib_mandatory_mapped(element, "type", REFERENCE_TYPES_INVERSE)
+        reference_type: Type[model.Reference] = _child_text_mandatory_mapped(element, NS_AAS + "type",
+                                                                             REFERENCE_TYPES_INVERSE)
         references: Dict[Type[model.Reference], Callable[..., model.Reference]] = {
             model.GlobalReference: cls.construct_global_reference,
             model.ModelReference: cls.construct_model_reference
@@ -596,10 +597,11 @@ class AASFromXmlDecoder:
         """
         This function doesn't support the object_class parameter, because LangStringSet is just a generic type alias.
         """
-        lss: model.LangStringSet = {}
+        lss: Dict[str, str] = {}
         for lang_string in _get_all_children_expect_tag(element, namespace + "langString", cls.failsafe):
-            lss[_get_attrib_mandatory(lang_string, "lang")] = _get_text_mandatory(lang_string)
-        return lss
+            lss[_child_text_mandatory(lang_string, namespace + "language")] = _child_text_mandatory(lang_string,
+                                                                                                    namespace + "text")
+        return model.LangStringSet(lss)
 
     @classmethod
     def construct_qualifier(cls, element: etree.Element, object_class=model.Qualifier, **_kwargs: Any) \
@@ -957,9 +959,9 @@ class AASFromXmlDecoder:
                                                          cls.construct_asset_information)
         )
         if not cls.stripped:
-            submodels = element.find(NS_AAS + "submodelRefs")
+            submodels = element.find(NS_AAS + "submodels")
             if submodels is not None:
-                for ref in _child_construct_multiple(submodels, NS_AAS + "submodelRef",
+                for ref in _child_construct_multiple(submodels, NS_AAS + "reference",
                                                      cls._construct_submodel_reference, cls.failsafe):
                     aas.submodel.add(ref)
         derived_from = _failsafe_construct(element.find(NS_AAS + "derivedFrom"),
@@ -1036,8 +1038,8 @@ class AASFromXmlDecoder:
             raise ValueError("No value format given!")
         return object_class(
             value_format,
-            model.datatypes.from_xsd(_child_text_mandatory(element, NS_IEC + "value"), value_format),
-            _child_construct_mandatory(element, NS_IEC + "valueId", cls.construct_reference)
+            model.datatypes.from_xsd(_child_text_mandatory(element, NS_AAS + "value"), value_format),
+            _child_construct_mandatory(element, NS_AAS + "valueId", cls.construct_reference)
         )
 
     @classmethod
@@ -1047,7 +1049,7 @@ class AASFromXmlDecoder:
         This function doesn't support the object_class parameter, because ValueList is just a generic type alias.
         """
         return set(
-            _child_construct_multiple(element, NS_IEC + "valueReferencePair", cls.construct_value_reference_pair,
+            _child_construct_multiple(element, NS_AAS + "valueReferencePair", cls.construct_value_reference_pair,
                                       cls.failsafe, value_format=value_format)
         )
 
@@ -1060,46 +1062,46 @@ class AASFromXmlDecoder:
             raise ValueError("No identifier given!")
         cd = object_class(
             identifier,
-            _child_construct_mandatory(element, NS_IEC + "preferredName", cls.construct_lang_string_set)
+            _child_construct_mandatory(element, NS_AAS + "preferredName", cls.construct_lang_string_set)
         )
-        data_type = _get_text_mapped_or_none(element.find(NS_IEC + "dataType"), IEC61360_DATA_TYPES_INVERSE)
+        data_type = _get_text_mapped_or_none(element.find(NS_AAS + "dataType"), IEC61360_DATA_TYPES_INVERSE)
         if data_type is not None:
             cd.data_type = data_type
-        definition = _failsafe_construct(element.find(NS_IEC + "definition"), cls.construct_lang_string_set,
+        definition = _failsafe_construct(element.find(NS_AAS + "definition"), cls.construct_lang_string_set,
                                          cls.failsafe)
         if definition is not None:
             cd.definition = definition
-        short_name = _failsafe_construct(element.find(NS_IEC + "shortName"), cls.construct_lang_string_set,
+        short_name = _failsafe_construct(element.find(NS_AAS + "shortName"), cls.construct_lang_string_set,
                                          cls.failsafe)
         if short_name is not None:
             cd.short_name = short_name
-        unit = _get_text_or_none(element.find(NS_IEC + "unit"))
+        unit = _get_text_or_none(element.find(NS_AAS + "unit"))
         if unit is not None:
             cd.unit = unit
-        unit_id = _failsafe_construct(element.find(NS_IEC + "unitId"), cls.construct_reference, cls.failsafe)
+        unit_id = _failsafe_construct(element.find(NS_AAS + "unitId"), cls.construct_reference, cls.failsafe)
         if unit_id is not None:
             cd.unit_id = unit_id
-        source_of_definition = _get_text_or_none(element.find(NS_IEC + "sourceOfDefinition"))
+        source_of_definition = _get_text_or_none(element.find(NS_AAS + "sourceOfDefinition"))
         if source_of_definition is not None:
             cd.source_of_definition = source_of_definition
-        symbol = _get_text_or_none(element.find(NS_IEC + "symbol"))
+        symbol = _get_text_or_none(element.find(NS_AAS + "symbol"))
         if symbol is not None:
             cd.symbol = symbol
-        value_format = _get_text_mapped_or_none(element.find(NS_IEC + "valueFormat"),
+        value_format = _get_text_mapped_or_none(element.find(NS_AAS + "valueFormat"),
                                                 model.datatypes.XSD_TYPE_CLASSES)
         if value_format is not None:
             cd.value_format = value_format
-        value_list = _failsafe_construct(element.find(NS_IEC + "valueList"), cls.construct_value_list, cls.failsafe,
+        value_list = _failsafe_construct(element.find(NS_AAS + "valueList"), cls.construct_value_list, cls.failsafe,
                                          value_format=value_format)
         if value_list is not None:
             cd.value_list = value_list
-        value = _get_text_or_none(element.find(NS_IEC + "value"))
+        value = _get_text_or_none(element.find(NS_AAS + "value"))
         if value is not None and value_format is not None:
             cd.value = model.datatypes.from_xsd(value, value_format)
-        value_id = _failsafe_construct(element.find(NS_IEC + "valueId"), cls.construct_reference, cls.failsafe)
+        value_id = _failsafe_construct(element.find(NS_AAS + "valueId"), cls.construct_reference, cls.failsafe)
         if value_id is not None:
             cd.value_id = value_id
-        for level_type_element in element.findall(NS_IEC + "levelType"):
+        for level_type_element in element.findall(NS_AAS + "levelType"):
             level_type = _get_text_mapped_or_none(level_type_element, IEC61360_LEVEL_TYPES_INVERSE)
             if level_type is None:
                 error_message = f"{_element_pretty_identifier(level_type_element)} has invalid value: " \
@@ -1335,6 +1337,8 @@ def read_aas_xml_element(file: IO, construct: XMLConstructables, failsafe: bool 
         constructor = decoder_.construct_iec61360_concept_description
     elif construct == XMLConstructables.CONCEPT_DESCRIPTION:
         constructor = decoder_.construct_concept_description
+    elif construct == XMLConstructables.LANG_STRING_SET:
+        constructor = decoder_.construct_lang_string_set
     # the following constructors decide which constructor to call based on the elements tag
     elif construct == XMLConstructables.DATA_ELEMENT:
         constructor = decoder_.construct_data_element
@@ -1343,8 +1347,6 @@ def read_aas_xml_element(file: IO, construct: XMLConstructables, failsafe: bool 
     # type aliases
     elif construct == XMLConstructables.VALUE_LIST:
         constructor = decoder_.construct_value_list
-    elif construct == XMLConstructables.LANG_STRING_SET:
-        constructor = decoder_.construct_lang_string_set
     else:
         raise ValueError(f"{construct.name} cannot be constructed!")
 

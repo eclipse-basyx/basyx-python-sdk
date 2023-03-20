@@ -4,7 +4,7 @@
     <aas:assetAdministrationShell>
       <aas:idShort>TestAssetAdministrationShell</aas:idShort>
       <aas:description>
-        <aas:langString lang="en-us">An Example Asset Administration Shell for the test application</aas:langString>
+        <aas:langString lang="en-US">An Example Asset Administration Shell for the test application</aas:langString>
         <aas:langString lang="de">Ein Beispiel-Verwaltungsschale für eine Test-Anwendung</aas:langString>
       </aas:description>
       <aas:administration>
@@ -105,7 +105,7 @@
     <aas:assetAdministrationShell>
       <aas:idShort>TestAssetAdministrationShell</aas:idShort>
       <aas:description>
-        <aas:langString lang="en-us">An Example Asset Administration Shell for the test application</aas:langString>
+        <aas:langString lang="en-US">An Example Asset Administration Shell for the test application</aas:langString>
         <aas:langString lang="de">Ein Beispiel-Verwaltungsschale für eine Test-Anwendung</aas:langString>
       </aas:description>
       <aas:administration>
@@ -149,7 +149,7 @@
     <aas:conceptDescription>
       <aas:idShort>TestConceptDescription</aas:idShort>
       <aas:description>
-        <aas:langString lang="en-us">An example concept description for the test application</aas:langString>
+        <aas:langString lang="en-US">An example concept description for the test application</aas:langString>
         <aas:langString lang="de">Ein Beispiel-ConceptDescription für eine Test-Anwendung</aas:langString>
       </aas:description>
       <aas:administration>
@@ -170,7 +170,7 @@
     <aas:conceptDescription>
       <aas:idShort>TestConceptDescription</aas:idShort>
       <aas:description>
-        <aas:langString lang="en-us">An example concept description for the test application</aas:langString>
+        <aas:langString lang="en-US">An example concept description for the test application</aas:langString>
         <aas:langString lang="de">Ein Beispiel-ConceptDescription für eine Test-Anwendung</aas:langString>
       </aas:description>
       <aas:administration>
@@ -191,11 +191,11 @@
           <aas:dataSpecificationIEC61360>
             <IEC:preferredName>
               <aas:langString lang="de">Test Specification</aas:langString>
-              <aas:langString lang="en-us">TestSpecification</aas:langString>
+              <aas:langString lang="en-US">TestSpecification</aas:langString>
             </IEC:preferredName>
             <IEC:shortName>
               <aas:langString lang="de">Test Spec</aas:langString>
-              <aas:langString lang="en-us">TestSpec</aas:langString>
+              <aas:langString lang="en-US">TestSpec</aas:langString>
             </IEC:shortName>
             <IEC:unit>SpaceUnit</IEC:unit>
             <IEC:unitId type="GlobalReference">
@@ -208,7 +208,7 @@
             <IEC:dataType>REAL_MEASURE</IEC:dataType>
             <IEC:definition>
               <aas:langString lang="de">Dies ist eine Data Specification für Testzwecke</aas:langString>
-              <aas:langString lang="en-us">This is a DataSpecification for testing purposes</aas:langString>
+              <aas:langString lang="en-US">This is a DataSpecification for testing purposes</aas:langString>
             </IEC:definition>
             <IEC:valueFormat>xs:string</IEC:valueFormat>
             <IEC:valueList>
@@ -251,7 +251,7 @@
     <aas:submodel>
       <aas:idShort>Identification</aas:idShort>
       <aas:description>
-        <aas:langString lang="en-us">An example asset identification submodel for the test application</aas:langString>
+        <aas:langString lang="en-US">An example asset identification submodel for the test application</aas:langString>
         <aas:langString lang="de">Ein Beispiel-Identifikations-Submodel für eine Test-Anwendung</aas:langString>
       </aas:description>
       <aas:administration>
@@ -283,7 +283,7 @@
             <aas:idShort>ManufacturerName</aas:idShort>
             <aas:category>PARAMETER</aas:category>
             <aas:description>
-              <aas:langString lang="en-us">Legally valid designation of the natural or judicial person which is directly responsible for the design, production, packaging and labeling of a product in respect to its being brought into circulation.</aas:langString>
+              <aas:langString lang="en-US">Legally valid designation of the natural or judicial person which is directly responsible for the design, production, packaging and labeling of a product in respect to its being brought into circulation.</aas:langString>
               <aas:langString lang="de">Bezeichnung für eine natürliche oder juristische Person, die für die Auslegung, Herstellung und Verpackung sowie die Etikettierung eines Produkts im Hinblick auf das 'Inverkehrbringen' im eigenen Namen verantwortlich ist</aas:langString>
             </aas:description>
             <aas:kind>Instance</aas:kind>
@@ -328,7 +328,7 @@
             <aas:idShort>InstanceId</aas:idShort>
             <aas:category>PARAMETER</aas:category>
             <aas:description>
-              <aas:langString lang="en-us">Legally valid designation of the natural or judicial person which is directly responsible for the design, production, packaging and labeling of a product in respect to its being brought into circulation.</aas:langString>
+              <aas:langString lang="en-US">Legally valid designation of the natural or judicial person which is directly responsible for the design, production, packaging and labeling of a product in respect to its being brought into circulation.</aas:langString>
               <aas:langString lang="de">Bezeichnung für eine natürliche oder juristische Person, die für die Auslegung, Herstellung und Verpackung sowie die Etikettierung eines Produkts im Hinblick auf das 'Inverkehrbringen' im eigenen Namen verantwortlich ist</aas:langString>
             </aas:description>
             <aas:kind>Instance</aas:kind>
@@ -351,7 +351,7 @@
     <aas:submodel>
       <aas:idShort>BillOfMaterial</aas:idShort>
       <aas:description>
-        <aas:langString lang="en-us">An example bill of material submodel for the test application</aas:langString>
+        <aas:langString lang="en-US">An example bill of material submodel for the test application</aas:langString>
         <aas:langString lang="de">Ein Beispiel-BillofMaterial-Submodel für eine Test-Anwendung</aas:langString>
       </aas:description>
       <aas:administration>
@@ -370,7 +370,7 @@
             <aas:idShort>ExampleEntity</aas:idShort>
             <aas:category>PARAMETER</aas:category>
             <aas:description>
-              <aas:langString lang="en-us">Legally valid designation of the natural or judicial person which is directly responsible for the design, production, packaging and labeling of a product in respect to its being brought into circulation.</aas:langString>
+              <aas:langString lang="en-US">Legally valid designation of the natural or judicial person which is directly responsible for the design, production, packaging and labeling of a product in respect to its being brought into circulation.</aas:langString>
               <aas:langString lang="de">Bezeichnung für eine natürliche oder juristische Person, die für die Auslegung, Herstellung und Verpackung sowie die Etikettierung eines Produkts im Hinblick auf das 'Inverkehrbringen' im eigenen Namen verantwortlich ist</aas:langString>
             </aas:description>
             <aas:kind>Instance</aas:kind>
@@ -400,7 +400,7 @@
                   <aas:idShort>ExampleProperty2</aas:idShort>
                   <aas:category>CONSTANT</aas:category>
                   <aas:description>
-                    <aas:langString lang="en-us">Example Property object</aas:langString>
+                    <aas:langString lang="en-US">Example Property object</aas:langString>
                     <aas:langString lang="de">Beispiel Property Element</aas:langString>
                   </aas:description>
                   <aas:kind>Instance</aas:kind>
@@ -423,7 +423,7 @@
                   <aas:idShort>ExampleProperty</aas:idShort>
                   <aas:category>CONSTANT</aas:category>
                   <aas:description>
-                    <aas:langString lang="en-us">Example Property object</aas:langString>
+                    <aas:langString lang="en-US">Example Property object</aas:langString>
                     <aas:langString lang="de">Beispiel Property Element</aas:langString>
                   </aas:description>
                   <aas:kind>Instance</aas:kind>
@@ -449,7 +449,7 @@
             <aas:idShort>ExampleEntity2</aas:idShort>
             <aas:category>PARAMETER</aas:category>
             <aas:description>
-              <aas:langString lang="en-us">Legally valid designation of the natural or judicial person which is directly responsible for the design, production, packaging and labeling of a product in respect to its being brought into circulation.</aas:langString>
+              <aas:langString lang="en-US">Legally valid designation of the natural or judicial person which is directly responsible for the design, production, packaging and labeling of a product in respect to its being brought into circulation.</aas:langString>
               <aas:langString lang="de">Bezeichnung für eine natürliche oder juristische Person, die für die Auslegung, Herstellung und Verpackung sowie die Etikettierung eines Produkts im Hinblick auf das 'Inverkehrbringen' im eigenen Namen verantwortlich ist</aas:langString>
             </aas:description>
             <aas:kind>Instance</aas:kind>
@@ -467,7 +467,7 @@
     <aas:submodel>
       <aas:idShort>TestSubmodel</aas:idShort>
       <aas:description>
-        <aas:langString lang="en-us">An example submodel for the test application</aas:langString>
+        <aas:langString lang="en-US">An example submodel for the test application</aas:langString>
         <aas:langString lang="de">Ein Beispiel-Teilmodell für eine Test-Anwendung</aas:langString>
       </aas:description>
       <aas:administration>
@@ -487,7 +487,7 @@
             <aas:idShort>ExampleRelationshipElement</aas:idShort>
             <aas:category>PARAMETER</aas:category>
             <aas:description>
-              <aas:langString lang="en-us">Example RelationshipElement object</aas:langString>
+              <aas:langString lang="en-US">Example RelationshipElement object</aas:langString>
               <aas:langString lang="de">Beispiel RelationshipElement Element</aas:langString>
             </aas:description>
             <aas:kind>Instance</aas:kind>
@@ -515,7 +515,7 @@
             <aas:idShort>ExampleAnnotatedRelationshipElement</aas:idShort>
             <aas:category>PARAMETER</aas:category>
             <aas:description>
-              <aas:langString lang="en-us">Example AnnotatedRelationshipElement object</aas:langString>
+              <aas:langString lang="en-US">Example AnnotatedRelationshipElement object</aas:langString>
               <aas:langString lang="de">Beispiel AnnotatedRelationshipElement Element</aas:langString>
             </aas:description>
             <aas:kind>Instance</aas:kind>
@@ -564,7 +564,7 @@
             <aas:idShort>ExampleOperation</aas:idShort>
             <aas:category>PARAMETER</aas:category>
             <aas:description>
-              <aas:langString lang="en-us">Example Operation object</aas:langString>
+              <aas:langString lang="en-US">Example Operation object</aas:langString>
               <aas:langString lang="de">Beispiel Operation Element</aas:langString>
             </aas:description>
             <aas:kind>Instance</aas:kind>
@@ -578,12 +578,12 @@
                 <aas:property>
                   <aas:idShort>ExampleProperty</aas:idShort>
                   <aas:displayName>
-                    <aas:langString lang="en-us">ExampleProperty</aas:langString>
+                    <aas:langString lang="en-US">ExampleProperty</aas:langString>
                     <aas:langString lang="de">BeispielProperty</aas:langString>
                   </aas:displayName>
                   <aas:category>CONSTANT</aas:category>
                   <aas:description>
-                    <aas:langString lang="en-us">Example Property object</aas:langString>
+                    <aas:langString lang="en-US">Example Property object</aas:langString>
                     <aas:langString lang="de">Beispiel Property Element</aas:langString>
                   </aas:description>
                   <aas:kind>Template</aas:kind>
@@ -607,12 +607,12 @@
                 <aas:property>
                   <aas:idShort>ExampleProperty</aas:idShort>
                   <aas:displayName>
-                    <aas:langString lang="en-us">ExampleProperty</aas:langString>
+                    <aas:langString lang="en-US">ExampleProperty</aas:langString>
                     <aas:langString lang="de">BeispielProperty</aas:langString>
                   </aas:displayName>
                   <aas:category>CONSTANT</aas:category>
                   <aas:description>
-                    <aas:langString lang="en-us">Example Property object</aas:langString>
+                    <aas:langString lang="en-US">Example Property object</aas:langString>
                     <aas:langString lang="de">Beispiel Property Element</aas:langString>
                   </aas:description>
                   <aas:kind>Template</aas:kind>
@@ -636,12 +636,12 @@
                 <aas:property>
                   <aas:idShort>ExampleProperty</aas:idShort>
                   <aas:displayName>
-                    <aas:langString lang="en-us">ExampleProperty</aas:langString>
+                    <aas:langString lang="en-US">ExampleProperty</aas:langString>
                     <aas:langString lang="de">BeispielProperty</aas:langString>
                   </aas:displayName>
                   <aas:category>CONSTANT</aas:category>
                   <aas:description>
-                    <aas:langString lang="en-us">Example Property object</aas:langString>
+                    <aas:langString lang="en-US">Example Property object</aas:langString>
                     <aas:langString lang="de">Beispiel Property Element</aas:langString>
                   </aas:description>
                   <aas:kind>Template</aas:kind>
@@ -667,7 +667,7 @@
             <aas:idShort>ExampleCapability</aas:idShort>
             <aas:category>PARAMETER</aas:category>
             <aas:description>
-              <aas:langString lang="en-us">Example Capability object</aas:langString>
+              <aas:langString lang="en-US">Example Capability object</aas:langString>
               <aas:langString lang="de">Beispiel Capability Element</aas:langString>
             </aas:description>
             <aas:kind>Instance</aas:kind>
@@ -683,7 +683,7 @@
             <aas:idShort>ExampleBasicEventElement</aas:idShort>
             <aas:category>PARAMETER</aas:category>
             <aas:description>
-              <aas:langString lang="en-us">Example BasicEventElement object</aas:langString>
+              <aas:langString lang="en-US">Example BasicEventElement object</aas:langString>
               <aas:langString lang="de">Beispiel BasicEventElement Element</aas:langString>
             </aas:description>
             <aas:kind>Instance</aas:kind>
@@ -716,7 +716,7 @@
             <aas:idShort>ExampleSubmodelCollection</aas:idShort>
             <aas:category>PARAMETER</aas:category>
             <aas:description>
-              <aas:langString lang="en-us">Example SubmodelElementCollection object</aas:langString>
+              <aas:langString lang="en-US">Example SubmodelElementCollection object</aas:langString>
               <aas:langString lang="de">Beispiel SubmodelElementCollection Element</aas:langString>
             </aas:description>
             <aas:kind>Instance</aas:kind>
@@ -731,7 +731,7 @@
                   <aas:idShort>ExampleBlob</aas:idShort>
                   <aas:category>PARAMETER</aas:category>
                   <aas:description>
-                    <aas:langString lang="en-us">Example Blob object</aas:langString>
+                    <aas:langString lang="en-US">Example Blob object</aas:langString>
                     <aas:langString lang="de">Beispiel Blob Element</aas:langString>
                   </aas:description>
                   <aas:kind>Instance</aas:kind>
@@ -749,7 +749,7 @@
                   <aas:idShort>ExampleFile</aas:idShort>
                   <aas:category>PARAMETER</aas:category>
                   <aas:description>
-                    <aas:langString lang="en-us">Example File object</aas:langString>
+                    <aas:langString lang="en-US">Example File object</aas:langString>
                     <aas:langString lang="de">Beispiel File Element</aas:langString>
                   </aas:description>
                   <aas:kind>Instance</aas:kind>
@@ -767,7 +767,7 @@
                   <aas:idShort>ExampleFileURI</aas:idShort>
                   <aas:category>CONSTANT</aas:category>
                   <aas:description>
-                    <aas:langString lang="en-us">Details of the Asset Administration Shell — An example for an external file reference</aas:langString>
+                    <aas:langString lang="en-US">Details of the Asset Administration Shell — An example for an external file reference</aas:langString>
                     <aas:langString lang="de">Details of the Asset Administration Shell – Ein Beispiel für eine extern referenzierte Datei</aas:langString>
                   </aas:description>
                   <aas:kind>Instance</aas:kind>
@@ -785,7 +785,7 @@
                   <aas:idShort>ExampleSubmodelList</aas:idShort>
                   <aas:category>PARAMETER</aas:category>
                   <aas:description>
-                    <aas:langString lang="en-us">Example SubmodelElementList object</aas:langString>
+                    <aas:langString lang="en-US">Example SubmodelElementList object</aas:langString>
                     <aas:langString lang="de">Beispiel SubmodelElementList Element</aas:langString>
                   </aas:description>
                   <aas:kind>Instance</aas:kind>
@@ -799,12 +799,12 @@
                     <aas:property>
                       <aas:idShort>ExampleProperty</aas:idShort>
                       <aas:displayName>
-                        <aas:langString lang="en-us">ExampleProperty</aas:langString>
+                        <aas:langString lang="en-US">ExampleProperty</aas:langString>
                         <aas:langString lang="de">BeispielProperty</aas:langString>
                       </aas:displayName>
                       <aas:category>CONSTANT</aas:category>
                       <aas:description>
-                        <aas:langString lang="en-us">Example Property object</aas:langString>
+                        <aas:langString lang="en-US">Example Property object</aas:langString>
                         <aas:langString lang="de">Beispiel Property Element</aas:langString>
                       </aas:description>
                       <aas:kind>Instance</aas:kind>
@@ -824,12 +824,12 @@
                     <aas:property>
                       <aas:idShort>ExampleProperty2</aas:idShort>
                       <aas:displayName>
-                        <aas:langString lang="en-us">ExampleProperty</aas:langString>
+                        <aas:langString lang="en-US">ExampleProperty</aas:langString>
                         <aas:langString lang="de">BeispielProperty</aas:langString>
                       </aas:displayName>
                       <aas:category>CONSTANT</aas:category>
                       <aas:description>
-                        <aas:langString lang="en-us">Example Property object</aas:langString>
+                        <aas:langString lang="en-US">Example Property object</aas:langString>
                         <aas:langString lang="de">Beispiel Property Element</aas:langString>
                       </aas:description>
                       <aas:kind>Instance</aas:kind>
@@ -861,7 +861,7 @@
                   <aas:idShort>ExampleMultiLanguageProperty</aas:idShort>
                   <aas:category>CONSTANT</aas:category>
                   <aas:description>
-                    <aas:langString lang="en-us">Example MultiLanguageProperty object</aas:langString>
+                    <aas:langString lang="en-US">Example MultiLanguageProperty object</aas:langString>
                     <aas:langString lang="de">Beispiel MultiLanguageProperty Element</aas:langString>
                   </aas:description>
                   <aas:kind>Instance</aas:kind>
@@ -876,7 +876,7 @@
                     </aas:keys>
                   </aas:valueId>
                   <aas:value>
-                    <aas:langString lang="en-us">Example value of a MultiLanguageProperty element</aas:langString>
+                    <aas:langString lang="en-US">Example value of a MultiLanguageProperty element</aas:langString>
                     <aas:langString lang="de">Beispielswert für ein MulitLanguageProperty-Element</aas:langString>
                   </aas:value>
                 </aas:multiLanguageProperty>
@@ -886,7 +886,7 @@
                   <aas:idShort>ExampleRange</aas:idShort>
                   <aas:category>PARAMETER</aas:category>
                   <aas:description>
-                    <aas:langString lang="en-us">Example Range object</aas:langString>
+                    <aas:langString lang="en-US">Example Range object</aas:langString>
                     <aas:langString lang="de">Beispiel Range Element</aas:langString>
                   </aas:description>
                   <aas:kind>Instance</aas:kind>
@@ -905,7 +905,7 @@
                   <aas:idShort>ExampleReferenceElement</aas:idShort>
                   <aas:category>PARAMETER</aas:category>
                   <aas:description>
-                    <aas:langString lang="en-us">Example Reference Element object</aas:langString>
+                    <aas:langString lang="en-US">Example Reference Element object</aas:langString>
                     <aas:langString lang="de">Beispiel Reference Element Element</aas:langString>
                   </aas:description>
                   <aas:kind>Instance</aas:kind>
@@ -1076,7 +1076,7 @@
     <aas:submodel>
       <aas:idShort>TestSubmodel</aas:idShort>
       <aas:description>
-        <aas:langString lang="en-us">An example submodel for the test application</aas:langString>
+        <aas:langString lang="en-US">An example submodel for the test application</aas:langString>
         <aas:langString lang="de">Ein Beispiel-Teilmodell für eine Test-Anwendung</aas:langString>
       </aas:description>
       <aas:administration>
@@ -1096,7 +1096,7 @@
             <aas:idShort>ExampleRelationshipElement</aas:idShort>
             <aas:category>PARAMETER</aas:category>
             <aas:description>
-              <aas:langString lang="en-us">Example RelationshipElement object</aas:langString>
+              <aas:langString lang="en-US">Example RelationshipElement object</aas:langString>
               <aas:langString lang="de">Beispiel RelationshipElement Element</aas:langString>
             </aas:description>
             <aas:kind>Instance</aas:kind>
@@ -1124,7 +1124,7 @@
             <aas:idShort>ExampleAnnotatedRelationshipElement</aas:idShort>
             <aas:category>PARAMETER</aas:category>
             <aas:description>
-              <aas:langString lang="en-us">Example AnnotatedRelationshipElement object</aas:langString>
+              <aas:langString lang="en-US">Example AnnotatedRelationshipElement object</aas:langString>
               <aas:langString lang="de">Beispiel AnnotatedRelationshipElement Element</aas:langString>
             </aas:description>
             <aas:kind>Instance</aas:kind>
@@ -1173,7 +1173,7 @@
             <aas:idShort>ExampleOperation</aas:idShort>
             <aas:category>PARAMETER</aas:category>
             <aas:description>
-              <aas:langString lang="en-us">Example Operation object</aas:langString>
+              <aas:langString lang="en-US">Example Operation object</aas:langString>
               <aas:langString lang="de">Beispiel Operation Element</aas:langString>
             </aas:description>
             <aas:kind>Instance</aas:kind>
@@ -1187,12 +1187,12 @@
                 <aas:property>
                   <aas:idShort>ExampleProperty</aas:idShort>
                   <aas:displayName>
-                    <aas:langString lang="en-us">ExampleProperty</aas:langString>
+                    <aas:langString lang="en-US">ExampleProperty</aas:langString>
                     <aas:langString lang="de">BeispielProperty</aas:langString>
                   </aas:displayName>
                   <aas:category>CONSTANT</aas:category>
                   <aas:description>
-                    <aas:langString lang="en-us">Example Property object</aas:langString>
+                    <aas:langString lang="en-US">Example Property object</aas:langString>
                     <aas:langString lang="de">Beispiel Property Element</aas:langString>
                   </aas:description>
                   <aas:kind>Template</aas:kind>
@@ -1216,12 +1216,12 @@
                 <aas:property>
                   <aas:idShort>ExampleProperty</aas:idShort>
                   <aas:displayName>
-                    <aas:langString lang="en-us">ExampleProperty</aas:langString>
+                    <aas:langString lang="en-US">ExampleProperty</aas:langString>
                     <aas:langString lang="de">BeispielProperty</aas:langString>
                   </aas:displayName>
                   <aas:category>CONSTANT</aas:category>
                   <aas:description>
-                    <aas:langString lang="en-us">Example Property object</aas:langString>
+                    <aas:langString lang="en-US">Example Property object</aas:langString>
                     <aas:langString lang="de">Beispiel Property Element</aas:langString>
                   </aas:description>
                   <aas:kind>Template</aas:kind>
@@ -1245,12 +1245,12 @@
                 <aas:property>
                   <aas:idShort>ExampleProperty</aas:idShort>
                   <aas:displayName>
-                    <aas:langString lang="en-us">ExampleProperty</aas:langString>
+                    <aas:langString lang="en-US">ExampleProperty</aas:langString>
                     <aas:langString lang="de">BeispielProperty</aas:langString>
                   </aas:displayName>
                   <aas:category>CONSTANT</aas:category>
                   <aas:description>
-                    <aas:langString lang="en-us">Example Property object</aas:langString>
+                    <aas:langString lang="en-US">Example Property object</aas:langString>
                     <aas:langString lang="de">Beispiel Property Element</aas:langString>
                   </aas:description>
                   <aas:kind>Template</aas:kind>
@@ -1276,7 +1276,7 @@
             <aas:idShort>ExampleCapability</aas:idShort>
             <aas:category>PARAMETER</aas:category>
             <aas:description>
-              <aas:langString lang="en-us">Example Capability object</aas:langString>
+              <aas:langString lang="en-US">Example Capability object</aas:langString>
               <aas:langString lang="de">Beispiel Capability Element</aas:langString>
             </aas:description>
             <aas:kind>Instance</aas:kind>
@@ -1292,7 +1292,7 @@
             <aas:idShort>ExampleBasicEventElement</aas:idShort>
             <aas:category>PARAMETER</aas:category>
             <aas:description>
-              <aas:langString lang="en-us">Example BasicEventElement object</aas:langString>
+              <aas:langString lang="en-US">Example BasicEventElement object</aas:langString>
               <aas:langString lang="de">Beispiel BasicEventElement Element</aas:langString>
             </aas:description>
             <aas:kind>Instance</aas:kind>
@@ -1325,7 +1325,7 @@
             <aas:idShort>ExampleSubmodelCollection</aas:idShort>
             <aas:category>PARAMETER</aas:category>
             <aas:description>
-              <aas:langString lang="en-us">Example SubmodelElementCollection object</aas:langString>
+              <aas:langString lang="en-US">Example SubmodelElementCollection object</aas:langString>
               <aas:langString lang="de">Beispiel SubmodelElementCollection Element</aas:langString>
             </aas:description>
             <aas:kind>Instance</aas:kind>
@@ -1340,7 +1340,7 @@
                   <aas:idShort>ExampleBlob</aas:idShort>
                   <aas:category>PARAMETER</aas:category>
                   <aas:description>
-                    <aas:langString lang="en-us">Example Blob object</aas:langString>
+                    <aas:langString lang="en-US">Example Blob object</aas:langString>
                     <aas:langString lang="de">Beispiel Blob Element</aas:langString>
                   </aas:description>
                   <aas:kind>Instance</aas:kind>
@@ -1358,7 +1358,7 @@
                   <aas:idShort>ExampleFile</aas:idShort>
                   <aas:category>PARAMETER</aas:category>
                   <aas:description>
-                    <aas:langString lang="en-us">Example File object</aas:langString>
+                    <aas:langString lang="en-US">Example File object</aas:langString>
                     <aas:langString lang="de">Beispiel File Element</aas:langString>
                   </aas:description>
                   <aas:kind>Instance</aas:kind>
@@ -1376,7 +1376,7 @@
                   <aas:idShort>ExampleMultiLanguageProperty</aas:idShort>
                   <aas:category>CONSTANT</aas:category>
                   <aas:description>
-                    <aas:langString lang="en-us">Example MultiLanguageProperty object</aas:langString>
+                    <aas:langString lang="en-US">Example MultiLanguageProperty object</aas:langString>
                     <aas:langString lang="de">Beispiel MulitLanguageProperty Element</aas:langString>
                   </aas:description>
                   <aas:kind>Instance</aas:kind>
@@ -1386,7 +1386,7 @@
                     </aas:keys>
                   </aas:semanticId>
                   <aas:value>
-                    <aas:langString lang="en-us">Example value of a MultiLanguageProperty element</aas:langString>
+                    <aas:langString lang="en-US">Example value of a MultiLanguageProperty element</aas:langString>
                     <aas:langString lang="de">Beispielswert für ein MulitLanguageProperty-Element</aas:langString>
                   </aas:value>
                 </aas:multiLanguageProperty>
@@ -1396,7 +1396,7 @@
                   <aas:idShort>ExampleProperty</aas:idShort>
                   <aas:category>CONSTANT</aas:category>
                   <aas:description>
-                    <aas:langString lang="en-us">Example Property object</aas:langString>
+                    <aas:langString lang="en-US">Example Property object</aas:langString>
                     <aas:langString lang="de">Beispiel Property Element</aas:langString>
                   </aas:description>
                   <aas:kind>Instance</aas:kind>
@@ -1420,7 +1420,7 @@
                   <aas:idShort>ExampleRange</aas:idShort>
                   <aas:category>PARAMETER</aas:category>
                   <aas:description>
-                    <aas:langString lang="en-us">Example Range object</aas:langString>
+                    <aas:langString lang="en-US">Example Range object</aas:langString>
                     <aas:langString lang="de">Beispiel Range Element</aas:langString>
                   </aas:description>
                   <aas:kind>Instance</aas:kind>
@@ -1439,7 +1439,7 @@
                   <aas:idShort>ExampleReferenceElement</aas:idShort>
                   <aas:category>PARAMETER</aas:category>
                   <aas:description>
-                    <aas:langString lang="en-us">Example Reference Element object</aas:langString>
+                    <aas:langString lang="en-US">Example Reference Element object</aas:langString>
                     <aas:langString lang="de">Beispiel Reference Element Element</aas:langString>
                   </aas:description>
                   <aas:kind>Instance</aas:kind>
@@ -1464,7 +1464,7 @@
     <aas:submodel>
       <aas:idShort>TestSubmodel</aas:idShort>
       <aas:description>
-        <aas:langString lang="en-us">An example submodel for the test application</aas:langString>
+        <aas:langString lang="en-US">An example submodel for the test application</aas:langString>
         <aas:langString lang="de">Ein Beispiel-Teilmodell für eine Test-Anwendung</aas:langString>
       </aas:description>
       <aas:administration>
@@ -1484,7 +1484,7 @@
             <aas:idShort>ExampleRelationshipElement</aas:idShort>
             <aas:category>PARAMETER</aas:category>
             <aas:description>
-              <aas:langString lang="en-us">Example RelationshipElement object</aas:langString>
+              <aas:langString lang="en-US">Example RelationshipElement object</aas:langString>
               <aas:langString lang="de">Beispiel RelationshipElement Element</aas:langString>
             </aas:description>
             <aas:kind>Template</aas:kind>
@@ -1512,7 +1512,7 @@
             <aas:idShort>ExampleAnnotatedRelationshipElement</aas:idShort>
             <aas:category>PARAMETER</aas:category>
             <aas:description>
-              <aas:langString lang="en-us">Example AnnotatedRelationshipElement object</aas:langString>
+              <aas:langString lang="en-US">Example AnnotatedRelationshipElement object</aas:langString>
               <aas:langString lang="de">Beispiel AnnotatedRelationshipElement Element</aas:langString>
             </aas:description>
             <aas:kind>Template</aas:kind>
@@ -1541,7 +1541,7 @@
             <aas:idShort>ExampleOperation</aas:idShort>
             <aas:category>PARAMETER</aas:category>
             <aas:description>
-              <aas:langString lang="en-us">Example Operation object</aas:langString>
+              <aas:langString lang="en-US">Example Operation object</aas:langString>
               <aas:langString lang="de">Beispiel Operation Element</aas:langString>
             </aas:description>
             <aas:kind>Template</aas:kind>
@@ -1556,7 +1556,7 @@
                   <aas:idShort>ExampleProperty</aas:idShort>
                   <aas:category>CONSTANT</aas:category>
                   <aas:description>
-                    <aas:langString lang="en-us">Example Property object</aas:langString>
+                    <aas:langString lang="en-US">Example Property object</aas:langString>
                     <aas:langString lang="de">Beispiel Property Element</aas:langString>
                   </aas:description>
                   <aas:kind>Template</aas:kind>
@@ -1575,7 +1575,7 @@
                   <aas:idShort>ExampleProperty</aas:idShort>
                   <aas:category>CONSTANT</aas:category>
                   <aas:description>
-                    <aas:langString lang="en-us">Example Property object</aas:langString>
+                    <aas:langString lang="en-US">Example Property object</aas:langString>
                     <aas:langString lang="de">Beispiel Property Element</aas:langString>
                   </aas:description>
                   <aas:kind>Template</aas:kind>
@@ -1594,7 +1594,7 @@
                   <aas:idShort>ExampleProperty</aas:idShort>
                   <aas:category>CONSTANT</aas:category>
                   <aas:description>
-                    <aas:langString lang="en-us">Example Property object</aas:langString>
+                    <aas:langString lang="en-US">Example Property object</aas:langString>
                     <aas:langString lang="de">Beispiel Property Element</aas:langString>
                   </aas:description>
                   <aas:kind>Template</aas:kind>
@@ -1614,7 +1614,7 @@
             <aas:idShort>ExampleCapability</aas:idShort>
             <aas:category>PARAMETER</aas:category>
             <aas:description>
-              <aas:langString lang="en-us">Example Capability object</aas:langString>
+              <aas:langString lang="en-US">Example Capability object</aas:langString>
               <aas:langString lang="de">Beispiel Capability Element</aas:langString>
             </aas:description>
             <aas:kind>Template</aas:kind>
@@ -1630,7 +1630,7 @@
             <aas:idShort>ExampleBasicEventElement</aas:idShort>
             <aas:category>PARAMETER</aas:category>
             <aas:description>
-              <aas:langString lang="en-us">Example BasicEventElement object</aas:langString>
+              <aas:langString lang="en-US">Example BasicEventElement object</aas:langString>
               <aas:langString lang="de">Beispiel BasicEventElement Element</aas:langString>
             </aas:description>
             <aas:kind>Template</aas:kind>
@@ -1663,7 +1663,7 @@
             <aas:idShort>ExampleSubmodelList</aas:idShort>
             <aas:category>PARAMETER</aas:category>
             <aas:description>
-              <aas:langString lang="en-us">Example SubmodelElementList object</aas:langString>
+              <aas:langString lang="en-US">Example SubmodelElementList object</aas:langString>
               <aas:langString lang="de">Beispiel SubmodelElementList Element</aas:langString>
             </aas:description>
             <aas:kind>Template</aas:kind>
@@ -1678,7 +1678,7 @@
                 <aas:idShort>ExampleSubmodelCollection</aas:idShort>
                 <aas:category>PARAMETER</aas:category>
                 <aas:description>
-                  <aas:langString lang="en-us">Example SubmodelElementCollection object</aas:langString>
+                  <aas:langString lang="en-US">Example SubmodelElementCollection object</aas:langString>
                   <aas:langString lang="de">Beispiel SubmodelElementCollection Element</aas:langString>
                 </aas:description>
                 <aas:kind>Template</aas:kind>
@@ -1693,7 +1693,7 @@
                       <aas:idShort>ExampleProperty</aas:idShort>
                       <aas:category>CONSTANT</aas:category>
                       <aas:description>
-                        <aas:langString lang="en-us">Example Property object</aas:langString>
+                        <aas:langString lang="en-US">Example Property object</aas:langString>
                         <aas:langString lang="de">Beispiel Property Element</aas:langString>
                       </aas:description>
                       <aas:kind>Template</aas:kind>
@@ -1710,7 +1710,7 @@
                       <aas:idShort>ExampleMultiLanguageProperty</aas:idShort>
                       <aas:category>CONSTANT</aas:category>
                       <aas:description>
-                        <aas:langString lang="en-us">Example MultiLanguageProperty object</aas:langString>
+                        <aas:langString lang="en-US">Example MultiLanguageProperty object</aas:langString>
                         <aas:langString lang="de">Beispiel MulitLanguageProperty Element</aas:langString>
                       </aas:description>
                       <aas:kind>Template</aas:kind>
@@ -1726,7 +1726,7 @@
                       <aas:idShort>ExampleRange</aas:idShort>
                       <aas:category>PARAMETER</aas:category>
                       <aas:description>
-                        <aas:langString lang="en-us">Example Range object</aas:langString>
+                        <aas:langString lang="en-US">Example Range object</aas:langString>
                         <aas:langString lang="de">Beispiel Range Element</aas:langString>
                       </aas:description>
                       <aas:kind>Template</aas:kind>
@@ -1744,7 +1744,7 @@
                       <aas:idShort>ExampleRange2</aas:idShort>
                       <aas:category>PARAMETER</aas:category>
                       <aas:description>
-                        <aas:langString lang="en-us">Example Range object</aas:langString>
+                        <aas:langString lang="en-US">Example Range object</aas:langString>
                         <aas:langString lang="de">Beispiel Range Element</aas:langString>
                       </aas:description>
                       <aas:kind>Template</aas:kind>
@@ -1762,7 +1762,7 @@
                       <aas:idShort>ExampleBlob</aas:idShort>
                       <aas:category>PARAMETER</aas:category>
                       <aas:description>
-                        <aas:langString lang="en-us">Example Blob object</aas:langString>
+                        <aas:langString lang="en-US">Example Blob object</aas:langString>
                         <aas:langString lang="de">Beispiel Blob Element</aas:langString>
                       </aas:description>
                       <aas:kind>Template</aas:kind>
@@ -1780,7 +1780,7 @@
                       <aas:idShort>ExampleFile</aas:idShort>
                       <aas:category>PARAMETER</aas:category>
                       <aas:description>
-                        <aas:langString lang="en-us">Example File object</aas:langString>
+                        <aas:langString lang="en-US">Example File object</aas:langString>
                         <aas:langString lang="de">Beispiel File Element</aas:langString>
                       </aas:description>
                       <aas:kind>Template</aas:kind>
@@ -1797,7 +1797,7 @@
                       <aas:idShort>ExampleReferenceElement</aas:idShort>
                       <aas:category>PARAMETER</aas:category>
                       <aas:description>
-                        <aas:langString lang="en-us">Example Reference Element object</aas:langString>
+                        <aas:langString lang="en-US">Example Reference Element object</aas:langString>
                         <aas:langString lang="de">Beispiel Reference Element Element</aas:langString>
                       </aas:description>
                       <aas:kind>Template</aas:kind>
@@ -1814,7 +1814,7 @@
                 <aas:idShort>ExampleSubmodelCollection2</aas:idShort>
                 <aas:category>PARAMETER</aas:category>
                 <aas:description>
-                  <aas:langString lang="en-us">Example SubmodelElementCollection object</aas:langString>
+                  <aas:langString lang="en-US">Example SubmodelElementCollection object</aas:langString>
                   <aas:langString lang="de">Beispiel SubmodelElementCollection Element</aas:langString>
                 </aas:description>
                 <aas:kind>Template</aas:kind>
@@ -1839,7 +1839,7 @@
             <aas:idShort>ExampleSubmodelList2</aas:idShort>
             <aas:category>PARAMETER</aas:category>
             <aas:description>
-              <aas:langString lang="en-us">Example SubmodelElementList object</aas:langString>
+              <aas:langString lang="en-US">Example SubmodelElementList object</aas:langString>
               <aas:langString lang="de">Beispiel SubmodelElementList Element</aas:langString>
             </aas:description>
             <aas:kind>Template</aas:kind>
