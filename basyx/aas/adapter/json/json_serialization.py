@@ -703,11 +703,13 @@ def _create_dict(data: model.AbstractObjectStore) -> dict:
             submodels.append(obj)
         elif isinstance(obj, model.ConceptDescription):
             concept_descriptions.append(obj)
-    dict_ = {
-        'assetAdministrationShells': asset_administration_shells,
-        'submodels': submodels,
-        'conceptDescriptions': concept_descriptions,
-    }
+    dict_ = {}
+    if asset_administration_shells:
+        dict_['assetAdministrationShells'] = asset_administration_shells
+    if submodels:
+        dict_['submodels'] = submodels
+    if concept_descriptions:
+        dict_['conceptDescriptions'] = concept_descriptions
     return dict_
 
 
