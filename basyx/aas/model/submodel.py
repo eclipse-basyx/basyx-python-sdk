@@ -902,8 +902,6 @@ class OperationVariable:
     """
     An operation variable is part of an operation that is used to define an input or output variable of that operation.
 
-    *Constraint AASd-008:* The submodel element value of an operation variable shall be of kind=Template.
-
     :ivar value: Describes the needed argument for an operation via a :class:`~.SubmodelElement` of `kind=TYPE`.
     """
 
@@ -912,22 +910,7 @@ class OperationVariable:
         """
         TODO: Add instruction what to do after construction
         """
-        # Constraint AASd-008: The submodel element shall be of kind=Template.
-        self._value: SubmodelElement
-        self.value = value
-
-    def _get_value(self):
-        return self._value
-
-    def _set_value(self, value: SubmodelElement) -> None:
-        if value.kind is not base.ModelingKind.TEMPLATE:
-            raise base.AASConstraintViolation(
-                8,
-                "The SubmodelElement `OperationVariable.value` must have the attribute `kind==ModelingType.TEMPLATE`"
-            )
-        self._value = value
-
-    value = property(_get_value, _set_value)
+        self.value: SubmodelElement = value
 
 
 class Operation(SubmodelElement):
