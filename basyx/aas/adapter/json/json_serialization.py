@@ -429,7 +429,8 @@ class AASToJsonEncoder(json.JSONEncoder):
         :return: dict with the serialized attributes of this object
         """
         data = cls._abstract_classes_to_json(obj)
-        data['value'] = model.datatypes.xsd_repr(obj.value) if obj.value is not None else None
+        if obj.value is not None:
+            data['value'] = model.datatypes.xsd_repr(obj.value)
         if obj.value_id:
             data['valueId'] = obj.value_id
         data['valueType'] = model.datatypes.XSD_TYPE_NAMES[obj.value_type]
