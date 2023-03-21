@@ -461,9 +461,11 @@ class AASToJsonEncoder(json.JSONEncoder):
         :return: dict with the serialized attributes of this object
         """
         data = cls._abstract_classes_to_json(obj)
-        data.update({'valueType': model.datatypes.XSD_TYPE_NAMES[obj.value_type],
-                     'min': model.datatypes.xsd_repr(obj.min) if obj.min is not None else None,
-                     'max': model.datatypes.xsd_repr(obj.max) if obj.max is not None else None})
+        data['valueType'] = model.datatypes.XSD_TYPE_NAMES[obj.value_type]
+        if obj.min is not None:
+            data['min'] = model.datatypes.xsd_repr(obj.min)
+        if obj.max is not None:
+            data['max'] = model.datatypes.xsd_repr(obj.max)
         return data
 
     @classmethod
