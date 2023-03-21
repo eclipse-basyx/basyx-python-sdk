@@ -812,12 +812,9 @@ def read_aas_json_file_into(object_store: model.AbstractObjectStore, file: IO, r
         try:
             lst = _get_ts(data, name, list)
         except (KeyError, TypeError) as e:
-            error_message = "Could not find list '{}' in AAS JSON file".format(name)
-            if decoder_.failsafe:
-                logger.warning(error_message)
-                continue
-            else:
-                raise type(e)(error_message) from e
+            info_message = "Could not find list '{}' in AAS JSON file".format(name)
+            logger.info(info_message)
+            continue
 
         for item in lst:
             error_message = "Expected a {} in list '{}', but found {}".format(
