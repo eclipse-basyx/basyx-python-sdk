@@ -14,7 +14,7 @@ import inspect
 import itertools
 from enum import Enum, unique
 from typing import List, Optional, Set, TypeVar, MutableSet, Generic, Iterable, Dict, Iterator, Union, overload, \
-    MutableSequence, Type, Any, TYPE_CHECKING, Tuple, Callable, MutableMapping, SupportsIndex
+    MutableSequence, Type, Any, TYPE_CHECKING, Tuple, Callable, MutableMapping
 import re
 
 from . import datatypes
