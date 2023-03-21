@@ -189,13 +189,13 @@ class AASFromJsonDecoder(json.JSONDecoder):
         }
 
         # Get modelType and constructor function
-        if not isinstance(dct['modelType'], dict) or 'name' not in dct['modelType']:
+        if not isinstance(dct['modelType'], str) or dct['modelType'] not in dct['modelType']:
             logger.warning("JSON object has unexpected format of modelType: %s", dct['modelType'])
             # Even in strict mode, we consider 'modelType' attributes of wrong type as non-AAS objects instead of
             #   raising an exception. However, the object's type will probably checked later by read_json_aas_file() or
             #   _expect_type()
             return dct
-        model_type = dct['modelType']['name']
+        model_type = dct['modelType']
         if model_type not in AAS_CLASS_PARSERS:
             if not cls.failsafe:
                 raise TypeError("Found JSON object with modelType=\"%s\", which is not a known AAS class" % model_type)
