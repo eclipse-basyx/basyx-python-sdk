@@ -211,11 +211,12 @@ class AASToJsonEncoder(json.JSONEncoder):
         :return: dict with the serialized attributes of this object
         """
         data = cls._abstract_classes_to_json(obj)
-        data['modelType'] = model.Qualifier.__name__
         if obj.value:
             data['value'] = model.datatypes.xsd_repr(obj.value) if obj.value is not None else None
         if obj.value_id:
             data['valueId'] = obj.value_id
+        if obj.kind is not model.QualifierKind.CONCEPT_QUALIFIER:
+            data['kind'] = _generic.QUALIFIER_KIND[obj.kind]
         data['valueType'] = model.datatypes.XSD_TYPE_NAMES[obj.value_type]
         data['type'] = obj.type
         return data

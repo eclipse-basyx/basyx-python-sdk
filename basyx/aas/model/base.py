@@ -222,6 +222,20 @@ class AssetKind(Enum):
     INSTANCE = 1
 
 
+class QualifierKind(Enum):
+    """
+    Enumeration for denoting whether a Qualifier is a concept, template or value qualifier.
+
+    :cvar CONCEPT_QUALIFIER: qualifies the semantic definition the element is referring to (HasSemantics/semanticId)
+    :cvar TEMPLATE_QUALIFIER: qualifies the elements within a specific submodel on concept level. Template qualifiers are only applicable to elements with kind=„Template”
+    :cvar VALUE_QUALIFIER: qualifies the value of the element and can change during run-time. Value qualifiers are only applicable to elements with kind=„Instance”
+    """
+
+    CONCEPT_QUALIFIER = 0
+    TEMPLATE_QUALIFIER = 1
+    VALUE_QUALIFIER = 2
+
+
 @unique
 class Direction(Enum):
     """
@@ -1416,6 +1430,7 @@ class Qualifier(HasSemantics):
                  value_type: DataTypeDefXsd,
                  value: Optional[ValueDataType] = None,
                  value_id: Optional[Reference] = None,
+                 kind: QualifierKind = QualifierKind.CONCEPT_QUALIFIER,
                  semantic_id: Optional[Reference] = None,
                  supplemental_semantic_id: Iterable[Reference] = ()):
         """
@@ -1428,6 +1443,7 @@ class Qualifier(HasSemantics):
         self.value_type: DataTypeDefXsd = value_type
         self._value: Optional[ValueDataType] = datatypes.trivial_cast(value, value_type) if value is not None else None
         self.value_id: Optional[Reference] = value_id
+        self.kind: QualifierKind = kind
         self.semantic_id: Optional[Reference] = semantic_id
         self.supplemental_semantic_id: ConstrainedList[Reference] = ConstrainedList(supplemental_semantic_id)
 

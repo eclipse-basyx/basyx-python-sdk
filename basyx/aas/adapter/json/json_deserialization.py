@@ -38,7 +38,7 @@ from typing import Dict, Callable, TypeVar, Type, List, IO, Optional, Set
 from basyx.aas import model
 from .._generic import MODELING_KIND_INVERSE, ASSET_KIND_INVERSE, KEY_TYPES_INVERSE, ENTITY_TYPES_INVERSE,\
     IEC61360_DATA_TYPES_INVERSE, IEC61360_LEVEL_TYPES_INVERSE, KEY_TYPES_CLASSES_INVERSE, REFERENCE_TYPES_INVERSE,\
-    DIRECTION_INVERSE, STATE_OF_EVENT_INVERSE
+    DIRECTION_INVERSE, STATE_OF_EVENT_INVERSE, QUALIFIER_KIND_INVERSE
 
 logger = logging.getLogger(__name__)
 
@@ -169,7 +169,6 @@ class AASFromJsonDecoder(json.JSONDecoder):
             'AssetInformation': cls._construct_asset_information,
             'SpecificAssetId': cls._construct_specific_asset_id,
             'ConceptDescription': cls._construct_concept_description,
-            'Qualifier': cls._construct_qualifier,
             'Extension': cls._construct_extension,
             'Submodel': cls._construct_submodel,
             'Capability': cls._construct_capability,
@@ -249,9 +248,9 @@ class AASFromJsonDecoder(json.JSONDecoder):
         # However, the `cls._get_kind()` function may assist by retrieving them from the JSON object
         if isinstance(obj, model.Qualifiable) and not cls.stripped:
             if 'qualifiers' in dct:
-                for constraint in _get_ts(dct, 'qualifiers', list):
-                    if _expect_type(constraint, model.Qualifier, str(obj), cls.failsafe):
-                        obj.qualifier.add(constraint)
+                for constraint_dct in _get_ts(dct, 'qualifiers', list):
+                    constraint = cls._construct_qualifier(constraint_dct)
+                    obj.qualifier.add(constraint)
 
         if isinstance(obj, model.HasExtension) and not cls.stripped:
             if 'extensions' in dct:
@@ -507,6 +506,8 @@ class AASFromJsonDecoder(json.JSONDecoder):
             ret.value = model.datatypes.from_xsd(_get_ts(dct, 'value', str), ret.value_type)
         if 'valueId' in dct:
             ret.value_id = cls._construct_reference(_get_ts(dct, 'valueId', dict))
+        if 'kind' in dct:
+            ret.kind = QUALIFIER_KIND_INVERSE[_get_ts(dct, 'kind', str)]
         return ret
 
     @classmethod

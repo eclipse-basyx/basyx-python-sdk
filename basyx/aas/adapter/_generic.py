@@ -20,6 +20,11 @@ ASSET_KIND: Dict[model.AssetKind, str] = {
     model.AssetKind.TYPE: 'Type',
     model.AssetKind.INSTANCE: 'Instance'}
 
+QUALIFIER_KIND: Dict[model.QualifierKind, str] = {
+    model.QualifierKind.CONCEPT_QUALIFIER: 'ConceptQualifier',
+    model.QualifierKind.TEMPLATE_QUALIFIER: 'TemplateQualifier',
+    model.QualifierKind.VALUE_QUALIFIER: 'ValueQualifier'}
+
 DIRECTION: Dict[model.Direction, str] = {
     model.Direction.INPUT: 'input',
     model.Direction.OUTPUT: 'output'}
@@ -83,6 +88,7 @@ IEC61360_LEVEL_TYPES: Dict[model.concept.IEC61360LevelType, str] = {
 
 MODELING_KIND_INVERSE: Dict[str, model.ModelingKind] = {v: k for k, v in MODELING_KIND.items()}
 ASSET_KIND_INVERSE: Dict[str, model.AssetKind] = {v: k for k, v in ASSET_KIND.items()}
+QUALIFIER_KIND_INVERSE: Dict[str, model.QualifierKind] = {v: k for k, v in QUALIFIER_KIND.items()}
 DIRECTION_INVERSE: Dict[str, model.Direction] = {v: k for k, v in DIRECTION.items()}
 STATE_OF_EVENT_INVERSE: Dict[str, model.StateOfEvent] = {v: k for k, v in STATE_OF_EVENT.items()}
 REFERENCE_TYPES_INVERSE: Dict[str, Type[model.Reference]] = {v: k for k, v in REFERENCE_TYPES.items()}
