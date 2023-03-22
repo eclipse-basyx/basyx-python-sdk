@@ -395,16 +395,20 @@ class AdministrativeInformation:
     """
     Administrative meta-information for an element like version information.
 
-    *Constraint AASd-005:* A revision requires a version. This means, if there is no version there is no revision
-    either.
+    *Constraint AASd-005:* If version is not specified, revision shall also be unspecified. This means that a revision
+    requires a version. If there is no version, there is no revision. Revision is optional.
 
     :ivar version: Version of the element.
     :ivar revision: Revision of the element.
+    :ivar creator: The subject ID of the subject responsible for making the element.
+    :ivar templateId: Identifier of the template that guided the creation of the element.
     """
 
     def __init__(self,
                  version: Optional[str] = None,
-                 revision: Optional[str] = None):
+                 revision: Optional[str] = None,
+                 creator: Optional["Reference"] = None,
+                 templateId: Optional["Identifier"] = None):
         """
         Initializer of AdministrativeInformation
 
@@ -416,6 +420,8 @@ class AdministrativeInformation:
         self.version = version
         self._revision: Optional[str]
         self.revision = revision
+        self.creator = creator
+        self.templateId = templateId
 
     def _get_version(self):
         return self._version
@@ -446,7 +452,10 @@ class AdministrativeInformation:
         return self.version == other.version and self._revision == other._revision
 
     def __repr__(self) -> str:
-        return "AdministrativeInformation(version={}, revision={})".format(self.version, self.revision)
+        return "AdministrativeInformation(version={}, revision={}, creator={}, templateId={})".format(self.version,
+                                                                                                      self.revision,
+                                                                                                      self.creator,
+                                                                                                      self.templateId)
 
 
 _NSO = TypeVar('_NSO', bound=Union["Referable", "Qualifier", "HasSemantics", "Extension"])
