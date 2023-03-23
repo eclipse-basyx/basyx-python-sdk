@@ -1202,7 +1202,7 @@ class BasicEventElement(EventElement):
                  observed: base.ModelReference[Union["aas.AssetAdministrationShell", Submodel, SubmodelElement]],
                  direction: base.Direction,
                  state: base.StateOfEvent,
-                 message_topic: Optional[str] = None,
+                 message_topic: Optional[datatypes.MessageTopicType] = None,
                  message_broker: Optional[base.ModelReference[Union[Submodel, SubmodelElementList,
                                                                     SubmodelElementCollection, Entity]]] = None,
                  last_update: Optional[datatypes.DateTime] = None,
@@ -1228,7 +1228,7 @@ class BasicEventElement(EventElement):
         self.max_interval: Optional[datatypes.Duration] = None
         self.direction: base.Direction = direction
         self.state: base.StateOfEvent = state
-        self.message_topic: Optional[str] = message_topic
+        self.message_topic: Optional[datatypes.MessageTopicType] = message_topic
         self.message_broker: Optional[base.ModelReference[Union[Submodel, SubmodelElementList,
                                                                 SubmodelElementCollection, Entity]]] = message_broker
         self.last_update: Optional[datatypes.DateTime] = last_update

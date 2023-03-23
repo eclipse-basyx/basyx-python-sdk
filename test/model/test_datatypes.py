@@ -81,6 +81,13 @@ class TestStringTypes(unittest.TestCase):
         self.assertEqual("\\r, \\n and \\t are not allowed in NormalizedStrings", str(cm.exception))
         self.assertEqual("abc", model.datatypes.NormalizedString.from_string("a\r\nb\tc"))
 
+    def test_message_topic_type(self) -> None:
+        self.assertEqual("abc", model.datatypes.MessageTopicType("abc"))
+        self.assertEqual(None, model.datatypes.MessageTopicType(None))
+        with self.assertRaises(ValueError) as cm:
+            model.datatypes.MessageTopicType('a'*256)
+        self.assertEqual("MessageTopicType has a maximum of 255 characters", str(cm.exception))
+
     def test_serialize(self) -> None:
         self.assertEqual("abc", model.datatypes.from_xsd("abc", model.datatypes.String))
         self.assertEqual("abc", model.datatypes.from_xsd("abc", model.datatypes.NormalizedString))
