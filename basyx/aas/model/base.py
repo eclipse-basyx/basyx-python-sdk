@@ -1954,9 +1954,8 @@ class SpecificAssetId(HasSemantics):
     def __init__(self,
                  name: str,
                  value: str,
-                 external_subject_id: GlobalReference,
-                 semantic_id: Optional[Reference] = None,
-                 supplemental_semantic_id: Iterable[Reference] = ()):
+                 external_subject_id: Optional[GlobalReference],
+                 semantic_id: Optional[Reference] = None):
         super().__init__()
         if name == "":
             raise ValueError("name is not allowed to be an empty string")
@@ -1964,7 +1963,7 @@ class SpecificAssetId(HasSemantics):
             raise ValueError("value is not allowed to be an empty string")
         self.name: str
         self.value: str
-        self.external_subject_id: GlobalReference
+        self.external_subject_id: Optional[GlobalReference]
 
         super().__setattr__('name', name)
         super().__setattr__('value', value)
