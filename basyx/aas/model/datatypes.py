@@ -348,46 +348,6 @@ class NormalizedString(str):
         return cls(value.translate({0xD: None, 0xA: None, 0x9: None}))
 
 
-class LabelType(str):
-    def __new__(cls, *args, **kwargs):
-        res = str.__new__(cls, *args, **kwargs)
-        if res == 'None':
-            return None
-        if len(res) > 64:
-            raise ValueError("LabelType has a maximum of 64 characters")
-        return res
-
-
-class MessageTopicType(str):
-    def __new__(cls, *args, **kwargs):
-        res = str.__new__(cls, *args, **kwargs)
-        if res == 'None':
-            return None
-        if len(res) > 255:
-            raise ValueError("MessageTopicType has a maximum of 255 characters")
-        return res
-
-"""Unicode - Encode Decode"""
-class MultiLanguageNameType(str):
-    def __new__(cls, *args, **kwargs):
-        res = str.__new__(cls, *args, **kwargs)
-        if res == 'None':
-            return None
-        if len(res) > 64:
-            raise ValueError("MultiLanguageNameType has a maximum of 64 characters")
-        return res
-
-
-class MultiLanguageTextType(str):
-    def __new__(cls, *args, **kwargs):
-        res = str.__new__(cls, *args, **kwargs)
-        if res == 'None':
-            return None
-        if len(res) > 64:
-            raise ValueError("MultiLanguageTextType has a maximum of 64 characters")
-        return res
-
-
 AllXSDTypes = (Duration, DateTime, Date, Time, GYearMonth, GYear, GMonthDay, GMonth, GDay, Boolean, Base64Binary,
                HexBinary, Float, Double, Decimal, Integer, Long, Int, Short, Byte, NonPositiveInteger,
                NegativeInteger, NonNegativeInteger, PositiveInteger, UnsignedLong, UnsignedInt, UnsignedShort,

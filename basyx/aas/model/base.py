@@ -28,7 +28,6 @@ ValueDataType = datatypes.AnyXSDType  # any xsd atomic type (from .datatypes)
 BlobType = bytes
 ContentType = str  # any mimetype as in RFC2046
 PathType = str
-QualifierType = str
 # A dict of language-Identifier (according to ISO 639-1 and ISO 3166-1) and string in this language.
 # The meaning of the string in each language is the same.
 # << Data Type >> Example ["en-US", "germany"]
@@ -256,6 +255,16 @@ class StateOfEvent(Enum):
     OFF = 1
 
 
+class NameType(str):
+    def __new__(cls, value: str):
+        if len(value) > 128:
+            raise ValueError("NameType has a maximum of 128 characters")
+        return super().__new__(cls, value)
+
+
+QualifierType = NameType
+
+
 class LangStringSet(MutableMapping[str, str]):
     """
     A mapping of language code to string. Must be non-empty.
@@ -308,6 +317,40 @@ class LangStringSet(MutableMapping[str, str]):
 
     def clear(self) -> None:
         raise KeyError(f"A {self.__class__.__name__} must not be empty!")
+
+
+class MultiLanguageNameType:
+    def __init__(self, dict_: Dict[str, str]):
+        for value in dict_.values():
+            if len(value) == 0:
+                raise ValueError("MultiLanguageNameType has a minimum of 1 character")
+            if len(value) > 1023:
+                raise ValueError("MultiLanguageNameType has maximum of 1023 characters")
+        self.dict: LangStringSet = LangStringSet(dict_)
+
+
+class MultiLanguageTextType:
+    def __init__(self, dict_: Dict[str, str]):
+        for value in dict_.values():
+            if len(value) == 0:
+                raise ValueError("MultiLanguageTextType has a minimum of 1 character")
+            if len(value) > 1023:
+                raise ValueError("MultiLanguageTextType has maximum of 1023 characters")
+        self.dict: LangStringSet = LangStringSet(dict_)
+
+
+class LabelType(str):
+    def __new__(cls, value: str):
+        if len(value) > 64:
+            raise ValueError("LabelType has a maximum of 64 characters")
+        return super().__new__(cls, value)
+
+
+class MessageTopicType(str):
+    def __new__(cls, value: str):
+        if len(value) > 255:
+            raise ValueError("MessageTopicType has a maximum of 255 characters")
+        return super().__new__(cls, value)
 
 
 class Key:
@@ -588,10 +631,10 @@ class Referable(HasExtension, metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def __init__(self):
         super().__init__()
-        self._id_short: str = "NotSet"
-        self.display_name: Optional[LangStringSet] = dict()
-        self._category: Optional[str] = None
-        self.description: Optional[LangStringSet] = dict()
+        self._id_short: NameType = "NotSet"
+        self.display_name: Optional[MultiLanguageNameType] = dict()
+        self._category: Optional[NameType] = None
+        self.description: Optional[MultiLanguageTextType] = dict()
         # We use a Python reference to the parent Namespace instead of a Reference Object, as specified. This allows
         # simpler and faster navigation/checks and it has no effect in the serialized data formats anyway.
         self.parent: Optional[UniqueIdShortNamespace] = None
@@ -613,10 +656,10 @@ class Referable(HasExtension, metaclass=abc.ABCMeta):
 
         return "{}[{}]".format(self.__class__.__name__, " / ".join(reversed(reversed_path)))
 
-    def _get_id_short(self):
+    def _get_id_short(self) -> Optional[NameType]:
         return self._id_short
 
-    def _set_category(self, category: Optional[str]):
+    def _set_category(self, category: Optional[NameType]):
         """
         Check the input string
 
@@ -630,12 +673,12 @@ class Referable(HasExtension, metaclass=abc.ABCMeta):
             raise AASConstraintViolation(100, "category is not allowed to be an empty string")
         self._category = category
 
-    def _get_category(self) -> Optional[str]:
+    def _get_category(self) -> Optional[NameType]:
         return self._category
 
     category = property(_get_category, _set_category)
 
-    def _set_id_short(self, id_short: str):
+    def _set_id_short(self, id_short: NameType):
         """
         Check the input string
 
@@ -1289,7 +1332,7 @@ class Extension(HasSemantics):
     """
 
     def __init__(self,
-                 name: str,
+                 name: NameType,
                  value_type: Optional[DataTypeDefXsd] = None,
                  value: Optional[ValueDataType] = None,
                  refers_to: Iterable[ModelReference] = (),
@@ -1297,8 +1340,8 @@ class Extension(HasSemantics):
                  supplemental_semantic_id: Iterable[Reference] = ()):
         super().__init__()
         self.parent: Optional[HasExtension] = None
-        self._name: str
-        self.name: str = name
+        self._name: NameType
+        self.name: NameType = name
         self.value_type: Optional[DataTypeDefXsd] = value_type
         self._value: Optional[ValueDataType]
         self.value = value
@@ -1327,7 +1370,7 @@ class Extension(HasSemantics):
         return self._name
 
     @name.setter
-    def name(self, name: str) -> None:
+    def name(self, name: NameType) -> None:
         if self.parent is not None:
             for set_ in self.parent.namespace_element_sets:
                 if set_.contains_id("name", name):
@@ -1952,8 +1995,8 @@ class SpecificAssetId(HasSemantics):
     """
 
     def __init__(self,
-                 name: str,
-                 value: str,
+                 name: LabelType,
+                 value: Identifier,
                  external_subject_id: GlobalReference,
                  semantic_id: Optional[Reference] = None,
                  supplemental_semantic_id: Iterable[Reference] = ()):
@@ -1962,8 +2005,8 @@ class SpecificAssetId(HasSemantics):
             raise ValueError("name is not allowed to be an empty string")
         if value == "":
             raise ValueError("value is not allowed to be an empty string")
-        self.name: str
-        self.value: str
+        self.name: LabelType
+        self.value: Identifier
         self.external_subject_id: GlobalReference
 
         super().__setattr__('name', name)
