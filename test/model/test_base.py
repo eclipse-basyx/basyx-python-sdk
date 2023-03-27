@@ -938,7 +938,9 @@ class ExtensionTest(unittest.TestCase):
 
 class ValueReferencePairTest(unittest.TestCase):
     def test_set_value(self):
-        pair = model.ValueReferencePair(model.datatypes.Int, 2, model.GlobalReference(
+        pair = model.ValueReferencePair(
+            value_type=model.datatypes.Int,
+            value=2, value_id=model.GlobalReference(
             (model.Key(model.KeyTypes.GLOBAL_REFERENCE, 'test'),)))
         self.assertEqual(pair.value, 2)
         with self.assertRaises(AttributeError) as cm:

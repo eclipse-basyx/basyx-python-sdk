@@ -258,9 +258,10 @@ class AASToJsonEncoder(json.JSONEncoder):
         :return: dict with the serialized attributes of this object
         """
         data = cls._abstract_classes_to_json(obj)
+        if obj.value_type:
+            data['valueType'] = model.datatypes.XSD_TYPE_NAMES[obj.value_type]
         data.update({'value': model.datatypes.xsd_repr(obj.value),
-                     'valueId': obj.value_id,
-                     'valueType': model.datatypes.XSD_TYPE_NAMES[obj.value_type]})
+                     'valueId': obj.value_id})
         return data
 
     @classmethod

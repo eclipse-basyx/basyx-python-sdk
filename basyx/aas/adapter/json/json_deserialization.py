@@ -403,9 +403,12 @@ class AASFromJsonDecoder(json.JSONDecoder):
     @classmethod
     def _construct_value_reference_pair(cls, dct: Dict[str, object], object_class=model.ValueReferencePair) -> \
             model.ValueReferencePair:
-        value_type = model.datatypes.XSD_TYPE_CLASSES[_get_ts(dct, 'valueType', str)]
-        return object_class(value_type=value_type,
-                            value=model.datatypes.from_xsd(_get_ts(dct, 'value', str), value_type),
+        if 'valueType' in dct:
+            value_type = model.datatypes.XSD_TYPE_CLASSES[_get_ts(dct, 'valueType', str)]
+            return object_class(value_type=value_type,
+                                value=model.datatypes.from_xsd(_get_ts(dct, 'value', str), value_type),
+                                value_id=cls._construct_reference(_get_ts(dct, 'valueId', dict)))
+        return object_class(value=_get_ts(dct, 'value', str),
                             value_id=cls._construct_reference(_get_ts(dct, 'valueId', dict)))
 
     # #############################################################################
