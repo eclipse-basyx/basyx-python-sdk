@@ -291,7 +291,12 @@ class AASFromJsonDecoder(json.JSONDecoder):
                             value=_get_ts(dct, 'value', str),
                             external_subject_id=cls._construct_global_reference(_get_ts(dct, 'externalSubjectId', dict)),
                             semantic_id=cls._construct_reference(_get_ts(dct, 'semanticId', dict))
-                            if 'semanticId' in dct else None)
+                            if 'semanticId' in dct else None,
+                            supplemental_semantic_id=[
+                                cls._construct_reference(ref) for ref in
+                                _get_ts(dct, 'supplementalSemanticIds',list)]
+                            if 'supplementalSemanticIds' in dct else ()
+        )
 
     @classmethod
     def _construct_reference(cls, dct: Dict[str, object]) -> model.Reference:
