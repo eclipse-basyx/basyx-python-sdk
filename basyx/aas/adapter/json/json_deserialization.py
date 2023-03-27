@@ -242,6 +242,9 @@ class AASFromJsonDecoder(json.JSONDecoder):
             if 'administration' in dct:
                 obj.administration = cls._construct_administrative_information(_get_ts(dct, 'administration', dict))
         if isinstance(obj, model.HasSemantics):
+            if 'supplementalSemanticIds' in dct:
+                obj.supplemental_semantic_id = [cls._construct_reference(ref)  # type: ignore
+                                                for ref in _get_ts(dct, 'supplementalSemanticIds', list)]
             if 'semanticId' in dct:
                 obj.semantic_id = cls._construct_reference(_get_ts(dct, 'semanticId', dict))
         # `HasKind` provides only mandatory, immutable attributes; so we cannot do anything here, after object creation.

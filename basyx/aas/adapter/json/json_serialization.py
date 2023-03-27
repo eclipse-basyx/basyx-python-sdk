@@ -131,6 +131,8 @@ class AASToJsonEncoder(json.JSONEncoder):
         if isinstance(obj, model.HasSemantics):
             if obj.semantic_id:
                 data['semanticId'] = obj.semantic_id
+            if obj.supplemental_semantic_id:
+                data['supplementalSemanticIds'] = list(obj.supplemental_semantic_id)
         if isinstance(obj, model.HasKind):
             if obj.kind is model.ModelingKind.TEMPLATE:
                 data['kind'] = _generic.MODELING_KIND[obj.kind]
