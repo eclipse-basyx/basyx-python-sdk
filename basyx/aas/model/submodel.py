@@ -17,7 +17,8 @@ if TYPE_CHECKING:
     from . import aas
 
 
-class SubmodelElement(base.Referable, base.Qualifiable, base.HasSemantics, base.HasKind, metaclass=abc.ABCMeta):
+class SubmodelElement(base.Referable, base.Qualifiable, base.HasSemantics, base.HasKind,
+                      base.HasDataSpecification, metaclass=abc.ABCMeta):
     """
     A submodel element is an element suitable for the description and differentiation of assets.
 
@@ -44,6 +45,7 @@ class SubmodelElement(base.Referable, base.Qualifiable, base.HasSemantics, base.
                      (from :class:`~aas.model.base.Qualifiable`)
     :ivar kind: Kind of the element: Either `TYPE` or `INSTANCE`. Default is `INSTANCE`. (inherited from
                 :class:`aas.model.base.HasKind`)
+    :ivar embedded_data_specifications: List of Embedded data specification.
     :ivar extension: An extension of the element. (inherited from
                      :class:`aas.model.base.HasExtension`)
     :ivar supplemental_semantic_id: Identifier of a supplemental semantic definition of the element. It is called
@@ -60,6 +62,8 @@ class SubmodelElement(base.Referable, base.Qualifiable, base.HasSemantics, base.
                  semantic_id: Optional[base.Reference] = None,
                  qualifier: Iterable[base.Qualifier] = (),
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE,
+                 embedded_data_specifications: Iterable[base.Embedded_data_specification]
+                 = (),
                  extension: Iterable[base.Extension] = (),
                  supplemental_semantic_id: Iterable[base.Reference] = ()):
         """
@@ -75,12 +79,15 @@ class SubmodelElement(base.Referable, base.Qualifiable, base.HasSemantics, base.
         self.semantic_id: Optional[base.Reference] = semantic_id
         self.qualifier = base.NamespaceSet(self, [("type", True)], qualifier)
         self._kind: base.ModelingKind = kind
+        self.embedded_data_specifications: Iterable[base.Embedded_data_specification] \
+            = list(embedded_data_specifications)
         self.extension = base.NamespaceSet(self, [("name", True)], extension)
         self.supplemental_semantic_id: base.ConstrainedList[base.Reference] = \
             base.ConstrainedList(supplemental_semantic_id)
 
 
-class Submodel(base.Identifiable, base.HasSemantics, base.HasKind, base.Qualifiable, base.UniqueIdShortNamespace):
+class Submodel(base.Identifiable, base.HasSemantics, base.HasKind, base.Qualifiable,
+               base.UniqueIdShortNamespace, base.HasDataSpecification):
     """
     A Submodel defines a specific aspect of the asset represented by the AAS.
 
@@ -110,6 +117,7 @@ class Submodel(base.Identifiable, base.HasSemantics, base.HasKind, base.Qualifia
                      (from :class:`~aas.model.base.Qualifiable`)
     :ivar kind: Kind of the element: Either `TYPE` or `INSTANCE`. Default is `INSTANCE`. (inherited from
                 :class:`aas.model.base.HasKind`)
+    :ivar embedded_data_specifications: List of Embedded data specification.
     :ivar extension: An extension of the element. (inherited from
                      :class:`aas.model.base.HasExtension`)
     :ivar supplemental_semantic_id: Identifier of a supplemental semantic definition of the element. It is called
@@ -129,6 +137,8 @@ class Submodel(base.Identifiable, base.HasSemantics, base.HasKind, base.Qualifia
                  semantic_id: Optional[base.Reference] = None,
                  qualifier: Iterable[base.Qualifier] = (),
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE,
+                 embedded_data_specifications: Iterable[base.Embedded_data_specification]
+                 = (),
                  extension: Iterable[base.Extension] = (),
                  supplemental_semantic_id: Iterable[base.Reference] = ()):
         super().__init__()
@@ -143,6 +153,8 @@ class Submodel(base.Identifiable, base.HasSemantics, base.HasKind, base.Qualifia
         self.semantic_id: Optional[base.Reference] = semantic_id
         self.qualifier = base.NamespaceSet(self, [("type", True)], qualifier)
         self._kind: base.ModelingKind = kind
+        self.embedded_data_specifications: Iterable[base.Embedded_data_specification] \
+            = list(embedded_data_specifications)
         self.extension = base.NamespaceSet(self, [("name", True)], extension)
         self.supplemental_semantic_id: base.ConstrainedList[base.Reference] = \
             base.ConstrainedList(supplemental_semantic_id)

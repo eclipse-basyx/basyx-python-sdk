@@ -64,26 +64,26 @@ ENTITY_TYPES: Dict[model.EntityType, str] = {
     model.EntityType.CO_MANAGED_ENTITY: 'CoManagedEntity',
     model.EntityType.SELF_MANAGED_ENTITY: 'SelfManagedEntity'}
 
-IEC61360_DATA_TYPES: Dict[model.concept.IEC61360DataType, str] = {
-    model.concept.IEC61360DataType.DATE: 'DATE',
-    model.concept.IEC61360DataType.STRING: 'STRING',
-    model.concept.IEC61360DataType.STRING_TRANSLATABLE: 'STRING_TRANSLATABLE',
-    model.concept.IEC61360DataType.REAL_MEASURE: 'REAL_MEASURE',
-    model.concept.IEC61360DataType.REAL_COUNT: 'REAL_COUNT',
-    model.concept.IEC61360DataType.REAL_CURRENCY: 'REAL_CURRENCY',
-    model.concept.IEC61360DataType.BOOLEAN: 'BOOLEAN',
-    model.concept.IEC61360DataType.URL: 'URL',
-    model.concept.IEC61360DataType.RATIONAL: 'RATIONAL',
-    model.concept.IEC61360DataType.RATIONAL_MEASURE: 'RATIONAL_MEASURE',
-    model.concept.IEC61360DataType.TIME: 'TIME',
-    model.concept.IEC61360DataType.TIMESTAMP: 'TIMESTAMP',
+IEC61360_DATA_TYPES: Dict[model.base.IEC61360DataType, str] = {
+    model.base.IEC61360DataType.DATE: 'DATE',
+    model.base.IEC61360DataType.STRING: 'STRING',
+    model.base.IEC61360DataType.STRING_TRANSLATABLE: 'STRING_TRANSLATABLE',
+    model.base.IEC61360DataType.REAL_MEASURE: 'REAL_MEASURE',
+    model.base.IEC61360DataType.REAL_COUNT: 'REAL_COUNT',
+    model.base.IEC61360DataType.REAL_CURRENCY: 'REAL_CURRENCY',
+    model.base.IEC61360DataType.BOOLEAN: 'BOOLEAN',
+    model.base.IEC61360DataType.URL: 'URL',
+    model.base.IEC61360DataType.RATIONAL: 'RATIONAL',
+    model.base.IEC61360DataType.RATIONAL_MEASURE: 'RATIONAL_MEASURE',
+    model.base.IEC61360DataType.TIME: 'TIME',
+    model.base.IEC61360DataType.TIMESTAMP: 'TIMESTAMP',
 }
 
-IEC61360_LEVEL_TYPES: Dict[model.concept.IEC61360LevelType, str] = {
-    model.concept.IEC61360LevelType.MIN: 'Min',
-    model.concept.IEC61360LevelType.MAX: 'Max',
-    model.concept.IEC61360LevelType.NOM: 'Nom',
-    model.concept.IEC61360LevelType.TYP: 'Typ',
+IEC61360_LEVEL_TYPES: Dict[model.base.IEC61360LevelType, str] = {
+    model.base.IEC61360LevelType.MIN: 'Min',
+    model.base.IEC61360LevelType.MAX: 'Max',
+    model.base.IEC61360LevelType.NOM: 'Nom',
+    model.base.IEC61360LevelType.TYP: 'Typ',
 }
 
 MODELING_KIND_INVERSE: Dict[str, model.ModelingKind] = {v: k for k, v in MODELING_KIND.items()}
@@ -94,8 +94,8 @@ STATE_OF_EVENT_INVERSE: Dict[str, model.StateOfEvent] = {v: k for k, v in STATE_
 REFERENCE_TYPES_INVERSE: Dict[str, Type[model.Reference]] = {v: k for k, v in REFERENCE_TYPES.items()}
 KEY_TYPES_INVERSE: Dict[str, model.KeyTypes] = {v: k for k, v in KEY_TYPES.items()}
 ENTITY_TYPES_INVERSE: Dict[str, model.EntityType] = {v: k for k, v in ENTITY_TYPES.items()}
-IEC61360_DATA_TYPES_INVERSE: Dict[str, model.concept.IEC61360DataType] = {v: k for k, v in IEC61360_DATA_TYPES.items()}
-IEC61360_LEVEL_TYPES_INVERSE: Dict[str, model.concept.IEC61360LevelType] = \
+IEC61360_DATA_TYPES_INVERSE: Dict[str, model.base.IEC61360DataType] = {v: k for k, v in IEC61360_DATA_TYPES.items()}
+IEC61360_LEVEL_TYPES_INVERSE: Dict[str, model.base.IEC61360LevelType] = \
     {v: k for k, v in IEC61360_LEVEL_TYPES.items()}
 
 KEY_TYPES_CLASSES_INVERSE: Dict[model.KeyTypes, Type[model.Referable]] = \

@@ -37,7 +37,7 @@ from .security import *
 from .base import *
 from .submodel import *
 from .provider import *
-from .concept import ConceptDescription, IEC61360ConceptDescription
+from .concept import ConceptDescription
 from . import datatypes
 
 # A mapping of BaSyx Python SDK implementation classes to the corresponding `KeyTypes` enum members for all classes

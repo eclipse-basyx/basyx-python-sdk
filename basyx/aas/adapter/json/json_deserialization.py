@@ -185,6 +185,8 @@ class AASFromJsonDecoder(json.JSONDecoder):
             'Property': cls._construct_property,
             'Range': cls._construct_range,
             'ReferenceElement': cls._construct_reference_element,
+            'DataSpecificationIEC61360': cls._construct_iec61360_data_specification_content,
+            'DataSpecificationPhysicalUnit': cls._construct_iec61360_physical_unit_data_specification_content,
         }
 
         # Get modelType and constructor function
@@ -254,7 +256,19 @@ class AASFromJsonDecoder(json.JSONDecoder):
                 for constraint_dct in _get_ts(dct, 'qualifiers', list):
                     constraint = cls._construct_qualifier(constraint_dct)
                     obj.qualifier.add(constraint)
-
+        if isinstance(obj, model.HasDataSpecification) and not cls.stripped:
+            if 'embeddedDataSpecifications' in dct:
+                for dspec in _get_ts(dct, 'embeddedDataSpecifications', list):
+                    dspec_ref = cls._construct_reference(
+                        _get_ts(dspec, 'dataSpecification', dict))
+                    if "dataSpecificationContent" in dspec:
+                        content = _get_ts(dspec, 'dataSpecificationContent', model.DataSpecificationContent)
+                        obj.embedded_data_specifications.append(
+                            model.Embedded_data_specification(
+                                data_specification=dspec_ref,
+                                data_specification_content=content
+                            )
+                        )
         if isinstance(obj, model.HasExtension) and not cls.stripped:
             if 'extensions' in dct:
                 for extension in _get_ts(dct, 'extensions', list):
@@ -335,6 +349,7 @@ class AASFromJsonDecoder(json.JSONDecoder):
             cls, dct: Dict[str, object], object_class=model.AdministrativeInformation)\
             -> model.AdministrativeInformation:
         ret = object_class()
+        cls._amend_abstract_attributes(ret, dct)
         if 'version' in dct:
             ret.version = _get_ts(dct, 'version', str)
             if 'revision' in dct:
@@ -434,18 +449,7 @@ class AASFromJsonDecoder(json.JSONDecoder):
     @classmethod
     def _construct_concept_description(cls, dct: Dict[str, object], object_class=model.ConceptDescription)\
             -> model.ConceptDescription:
-        # Hack to detect IEC61360ConceptDescriptions, which are represented using dataSpecification according to DotAAS
-        ret = None
-        if 'embeddedDataSpecifications' in dct:
-            for dspec in _get_ts(dct, 'embeddedDataSpecifications', list):
-                dspec_ref = cls._construct_reference(_get_ts(dspec, 'dataSpecification', dict))
-                if dspec_ref.key and (dspec_ref.key[0].value ==
-                                      "http://admin-shell.io/DataSpecificationTemplates/DataSpecificationIEC61360/2/0"):
-                    ret = cls._construct_iec61360_concept_description(
-                        dct, _get_ts(dspec, 'dataSpecificationContent', dict))
-        # If this is not a special ConceptDescription, just construct one of the default object_class
-        if ret is None:
-            ret = object_class(id_=_get_ts(dct, 'id', str))
+        ret = object_class(id_=_get_ts(dct, 'id', str))
         cls._amend_abstract_attributes(ret, dct)
         if 'isCaseOf' in dct:
             for case_data in _get_ts(dct, "isCaseOf", list):
@@ -453,36 +457,68 @@ class AASFromJsonDecoder(json.JSONDecoder):
         return ret
 
     @classmethod
-    def _construct_iec61360_concept_description(cls, dct: Dict[str, object], data_spec: Dict[str, object],
-                                                object_class=model.concept.IEC61360ConceptDescription)\
-            -> model.concept.IEC61360ConceptDescription:
-        ret = object_class(id_=_get_ts(dct, 'id', str),
-                           preferred_name=cls._construct_lang_string_set(_get_ts(data_spec, 'preferredName', list)))
-        if 'dataType' in data_spec:
-            ret.data_type = IEC61360_DATA_TYPES_INVERSE[_get_ts(data_spec, 'dataType', str)]
-        if 'definition' in data_spec:
-            ret.definition = cls._construct_lang_string_set(_get_ts(data_spec, 'definition', list))
-        if 'shortName' in data_spec:
-            ret.short_name = cls._construct_lang_string_set(_get_ts(data_spec, 'shortName', list))
-        if 'unit' in data_spec:
-            ret.unit = _get_ts(data_spec, 'unit', str)
-        if 'unitId' in data_spec:
-            ret.unit_id = cls._construct_reference(_get_ts(data_spec, 'unitId', dict))
-        if 'sourceOfDefinition' in data_spec:
-            ret.source_of_definition = _get_ts(data_spec, 'sourceOfDefinition', str)
-        if 'symbol' in data_spec:
-            ret.symbol = _get_ts(data_spec, 'symbol', str)
-        if 'valueFormat' in data_spec:
-            ret.value_format = model.datatypes.XSD_TYPE_CLASSES[_get_ts(data_spec, 'valueFormat', str)]
-        if 'valueList' in data_spec:
-            ret.value_list = cls._construct_value_list(_get_ts(data_spec, 'valueList', dict))
-        if 'value' in data_spec:
-            ret.value = model.datatypes.from_xsd(_get_ts(data_spec, 'value', str), ret.value_format)
-        if 'valueId' in data_spec:
-            ret.value_id = cls._construct_reference(_get_ts(data_spec, 'valueId', dict))
-        if 'levelType' in data_spec:
-            ret.level_types = set(IEC61360_LEVEL_TYPES_INVERSE[level_type]
-                                  for level_type in _get_ts(data_spec, 'levelType', list))
+    def _construct_iec61360_physical_unit_data_specification_content(cls, dct: Dict[str, object],
+                                                       object_class=model.base.DataSpecificationPhysicalUnit)\
+            -> model.base.DataSpecificationPhysicalUnit:
+        ret = object_class(
+            unit_name=_get_ts(dct, 'unitName', str),
+            unit_symbol=_get_ts(dct, 'unitSymbol', str),
+            definition=cls._construct_lang_string_set(_get_ts(dct, 'definition', list))
+        )
+        if 'siNotation' in dct:
+            ret.SI_notation = _get_ts(dct, 'siNotation', str)
+        if 'siName' in dct:
+            ret.SI_name = _get_ts(dct, 'siName', str)
+        if 'dinNotation' in dct:
+            ret.DIN_notation = _get_ts(dct, 'dinNotation', str)
+        if 'eceName' in dct:
+            ret.ECE_name = _get_ts(dct, 'eceName', str)
+        if 'eceCode' in dct:
+            ret.ECE_code = _get_ts(dct, 'eceCode', str)
+        if 'nistName' in dct:
+            ret.NIST_name = _get_ts(dct, 'nistName', str)
+        if 'sourceOfDefinition' in dct:
+            ret.source_of_definition = _get_ts(dct, 'sourceOfDefinition', str)
+        if 'conversionFactor' in dct:
+            ret.conversion_factor = _get_ts(dct, 'conversionFactor', str)
+        if 'registrationAuthorityId' in dct:
+            ret.registration_authority_id = _get_ts(dct, 'registrationAuthorityId', str)
+        if 'supplier' in dct:
+            ret.supplier = _get_ts(dct, 'supplier', str)
+        return ret
+
+    @classmethod
+    def _construct_iec61360_data_specification_content(cls, dct: Dict[str, object],
+                                                       object_class=model.base.DataSpecificationIEC61360)\
+            -> model.base.DataSpecificationIEC61360:
+        ret = object_class(preferred_name=cls._construct_lang_string_set(_get_ts(dct, 'preferredName', list)))
+        if 'dataType' in dct:
+            ret.data_type = IEC61360_DATA_TYPES_INVERSE[_get_ts(dct, 'dataType', str)]
+        if 'definition' in dct:
+            ret.definition = cls._construct_lang_string_set(_get_ts(dct, 'definition', list))
+        if 'shortName' in dct:
+            ret.short_name = cls._construct_lang_string_set(_get_ts(dct, 'shortName', list))
+        if 'unit' in dct:
+            ret.unit = _get_ts(dct, 'unit', str)
+        if 'unitId' in dct:
+            ret.unit_id = cls._construct_reference(_get_ts(dct, 'unitId', dict))
+        if 'sourceOfDefinition' in dct:
+            ret.source_of_definition = _get_ts(dct, 'sourceOfDefinition', str)
+        if 'symbol' in dct:
+            ret.symbol = _get_ts(dct, 'symbol', str)
+        if 'valueFormat' in dct:
+            ret.value_format = _get_ts(dct, 'valueFormat', str)
+            # ret.value_format = model.datatypes.XSD_TYPE_CLASSES[_get_ts(dct, 'valueFormat', str)]
+        if 'valueList' in dct:
+            ret.value_list = cls._construct_value_list(_get_ts(dct, 'valueList', dict))
+        if 'value' in dct:
+            ret.value = _get_ts(dct, 'value', str)
+            # ret.value = model.datatypes.from_xsd(_get_ts(dct, 'value', str), ret.value_format)
+        if 'valueId' in dct:
+            ret.value_id = cls._construct_reference(_get_ts(dct, 'valueId', dict))
+        if 'levelType' in dct:
+            # TODO fix in V3.0
+            ret.level_types = set([IEC61360_LEVEL_TYPES_INVERSE[_get_ts(dct, 'levelType', str)]])
         return ret
 
     @classmethod

@@ -109,6 +109,14 @@ class AASToJsonEncoder(json.JSONEncoder):
         if isinstance(obj, model.HasExtension) and not cls.stripped:
             if obj.extension:
                 data['extensions'] = list(obj.extension)
+        if isinstance(obj, model.HasDataSpecification) and not cls.stripped:
+            if obj.embedded_data_specifications:
+                data['embeddedDataSpecifications'] = [
+                    {'dataSpecification': spec.data_specification,
+                     'dataSpecificationContent': cls._data_specification_content_to_json(spec.data_specification_content)}
+                    for spec in obj.embedded_data_specifications
+                ]
+
         if isinstance(obj, model.Referable):
             if obj.id_short:
                 data['idShort'] = obj.id_short
@@ -312,24 +320,36 @@ class AASToJsonEncoder(json.JSONEncoder):
         data = cls._abstract_classes_to_json(obj)
         if obj.is_case_of:
             data['isCaseOf'] = list(obj.is_case_of)
-
-        if isinstance(obj, model.concept.IEC61360ConceptDescription):
-            cls._append_iec61360_concept_description_attrs(obj, data)
-
         return data
 
     @classmethod
-    def _append_iec61360_concept_description_attrs(cls, obj: model.concept.IEC61360ConceptDescription,
-                                                   data: Dict[str, object]) -> None:
+    def _data_specification_content_to_json(
+            cls, obj: model.base.DataSpecificationContent) -> None:
         """
-        Add the 'embeddedDataSpecifications' attribute to IEC61360ConceptDescription's JSON representation.
+        serialization of an object from class DataSpecificationContent to json
 
-        `IEC61360ConceptDescription` is not a distinct class according DotAAS, but instead is built by referencing
-        "DataSpecificationIEC61360" as dataSpecification. However, we implemented it as an explicit class, inheriting
-        from ConceptDescription, but we want to generate compliant JSON documents. So, we fake the JSON structure of an
-        object with dataSpecifications.
+        :param obj: object of class DataSpecificationContent
+        :return: dict with the serialized attributes of this object
+        """
+        if isinstance(obj, model.base.DataSpecificationIEC61360):
+            return cls._iec61360_specification_content_to_json(obj)
+        elif isinstance(obj, model.base.DataSpecificationPhysicalUnit):
+            return cls._iec61360_physical_unit_specification_content_to_json(obj)
+        else:
+            raise TypeError(f"For the given type there is no implemented serialization "
+                            f"yet: {type(obj)}")
+
+    @classmethod
+    def _iec61360_specification_content_to_json(
+            cls, obj: model.base.DataSpecificationIEC61360) -> None:
+        """
+        serialization of an object from class DataSpecificationIEC61360 to json
+
+        :param obj: object of class DataSpecificationIEC61360
+        :return: dict with the serialized attributes of this object
         """
         data_spec: Dict[str, object] = {
+            'modelType': 'DataSpecificationIEC61360',
             'preferredName': cls._lang_string_set_to_json(obj.preferred_name)
         }
         if obj.data_type is not None:
@@ -347,21 +367,55 @@ class AASToJsonEncoder(json.JSONEncoder):
         if obj.symbol is not None:
             data_spec['symbol'] = obj.symbol
         if obj.value_format is not None:
-            data_spec['valueFormat'] = model.datatypes.XSD_TYPE_NAMES[obj.value_format]
+            data_spec['valueFormat'] = obj.value_format
         if obj.value_list is not None:
             data_spec['valueList'] = cls._value_list_to_json(obj.value_list)
         if obj.value is not None:
-            data_spec['value'] = model.datatypes.xsd_repr(obj.value) if obj.value is not None else None
+            data_spec['value'] = obj.value
+            # data_spec['value'] = model.datatypes.xsd_repr(obj.value) if obj.value is not None else None
         if obj.value_id is not None:
             data_spec['valueId'] = obj.value_id
         if obj.level_types:
-            data_spec['levelType'] = [_generic.IEC61360_LEVEL_TYPES[lt] for lt in obj.level_types]
-        data['embeddedDataSpecifications'] = [
-            {'dataSpecification': model.GlobalReference(
-                (model.Key(model.KeyTypes.GLOBAL_REFERENCE,
-                           "http://admin-shell.io/DataSpecificationTemplates/DataSpecificationIEC61360/2/0", ),)),
-             'dataSpecificationContent': data_spec}
-        ]
+            # TODO fix in V3.0
+            data_spec['levelType'] = [_generic.IEC61360_LEVEL_TYPES[lt] for lt in obj.level_types][0]
+        return data_spec
+
+    @classmethod
+    def _iec61360_physical_unit_specification_content_to_json(
+            cls, obj: model.base.DataSpecificationPhysicalUnit) -> None:
+        """
+        serialization of an object from class DataSpecificationPhysicalUnit to json
+
+        :param obj: object of class DataSpecificationPhysicalUnit
+        :return: dict with the serialized attributes of this object
+        """
+        data_spec: Dict[str, object] = {
+            'modelType': 'DataSpecificationPhysicalUnit',
+            'unitName': obj.unit_name,
+            'unitSymbol': obj.unit_symbol,
+            'definition': cls._lang_string_set_to_json(obj.definition)
+        }
+        if obj.SI_notation is not None:
+            data_spec['siNotation'] = obj.SI_notation
+        if obj.SI_name is not None:
+            data_spec['siName'] = obj.SI_name
+        if obj.DIN_notation is not None:
+            data_spec['dinNotation'] = obj.DIN_notation
+        if obj.ECE_name is not None:
+            data_spec['eceName'] = obj.ECE_name
+        if obj.ECE_code is not None:
+            data_spec['eceCode'] = obj.ECE_code
+        if obj.NIST_name is not None:
+            data_spec['nistName'] = obj.NIST_name
+        if obj.source_of_definition is not None:
+            data_spec['sourceOfDefinition'] = obj.source_of_definition
+        if obj.conversion_factor is not None:
+            data_spec['conversionFactor'] = obj.conversion_factor
+        if obj.registration_authority_id is not None:
+            data_spec['registrationAuthorityId'] = obj.registration_authority_id
+        if obj.supplier is not None:
+            data_spec['supplier'] = obj.supplier
+        return data_spec
 
     @classmethod
     def _asset_administration_shell_to_json(cls, obj: model.AssetAdministrationShell) -> Dict[str, object]:
