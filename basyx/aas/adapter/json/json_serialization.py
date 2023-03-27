@@ -271,7 +271,7 @@ class AASToJsonEncoder(json.JSONEncoder):
         :param obj: object of class ValueList
         :return: dict with the serialized attributes of this object
         """
-        return {'valueReferencePairTypes': list(obj)}
+        return {'valueReferencePairs': list(obj)}
 
     # ############################################################
     # transformation functions to serialize classes from model.aas

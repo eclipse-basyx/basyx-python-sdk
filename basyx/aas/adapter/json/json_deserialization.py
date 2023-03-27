@@ -388,7 +388,7 @@ class AASFromJsonDecoder(json.JSONDecoder):
     @classmethod
     def _construct_value_list(cls, dct: Dict[str, object]) -> model.ValueList:
         ret: model.ValueList = set()
-        for element in _get_ts(dct, 'valueReferencePairTypes', list):
+        for element in _get_ts(dct, 'valueReferencePairs', list):
             try:
                 ret.add(cls._construct_value_reference_pair(element))
             except (KeyError, TypeError) as e:
