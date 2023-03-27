@@ -614,7 +614,7 @@ class AASFromJsonDecoder(json.JSONDecoder):
             kind=cls._get_kind(dct))
         cls._amend_abstract_attributes(ret, dct)
         if not cls.stripped and 'annotations' in dct:
-            for element in _get_ts(dct, "annotation", list):
+            for element in _get_ts(dct, 'annotations', list):
                 if _expect_type(element, model.DataElement, str(ret), cls.failsafe):
                     ret.annotation.add(element)
         return ret
