@@ -490,6 +490,7 @@ class AASFromJsonDecoder(json.JSONDecoder):
             specific_asset_id = cls._construct_specific_asset_id(_get_ts(dct, 'specificAssetIds', dict))
 
         ret = object_class(id_short=_get_ts(dct, "idShort", str),
+                           kind=cls._get_kind(dct),
                            entity_type=ENTITY_TYPES_INVERSE[_get_ts(dct, "entityType", str)],
                            global_asset_id=global_asset_id,
                            specific_asset_id=specific_asset_id)
