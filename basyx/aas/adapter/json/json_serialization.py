@@ -602,9 +602,8 @@ class AASToJsonEncoder(json.JSONEncoder):
         :return: dict with the serialized attributes of this object
         """
         data = cls._abstract_classes_to_json(obj)
+        data['orderRelevant'] = obj.order_relevant
         data['typeValueListElement'] = _generic.KEY_TYPES[model.KEY_TYPES_CLASSES[obj.type_value_list_element]]
-        if obj.order_relevant is not True:
-            data['orderRelevant'] = obj.order_relevant
         if obj.semantic_id_list_element is not None:
             data['semanticIdListElement'] = obj.semantic_id_list_element
         if obj.value_type_list_element is not None:
