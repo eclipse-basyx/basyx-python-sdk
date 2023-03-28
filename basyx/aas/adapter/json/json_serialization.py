@@ -225,8 +225,9 @@ class AASToJsonEncoder(json.JSONEncoder):
             data['value'] = model.datatypes.xsd_repr(obj.value) if obj.value is not None else None
         if obj.value_id:
             data['valueId'] = obj.value_id
-        if obj.kind is not model.QualifierKind.CONCEPT_QUALIFIER:
-            data['kind'] = _generic.QUALIFIER_KIND[obj.kind]
+        # Even though kind is optional in the schema, it's better to always serialize it instead of specifying
+        # the default value in multiple locations.
+        data['kind'] = _generic.QUALIFIER_KIND[obj.kind]
         data['valueType'] = model.datatypes.XSD_TYPE_NAMES[obj.value_type]
         data['type'] = obj.type
         return data
@@ -602,6 +603,8 @@ class AASToJsonEncoder(json.JSONEncoder):
         :return: dict with the serialized attributes of this object
         """
         data = cls._abstract_classes_to_json(obj)
+        # Even though orderRelevant is optional in the schema, it's better to always serialize it instead of specifying
+        # the default value in multiple locations.
         data['orderRelevant'] = obj.order_relevant
         data['typeValueListElement'] = _generic.KEY_TYPES[model.KEY_TYPES_CLASSES[obj.type_value_list_element]]
         if obj.semantic_id_list_element is not None:
