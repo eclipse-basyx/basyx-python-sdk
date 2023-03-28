@@ -66,7 +66,7 @@ class ConceptDescription(base.Identifiable, base.HasDataSpecification):
                  description: Optional[base.LangStringSet] = None,
                  parent: Optional[base.UniqueIdShortNamespace] = None,
                  administration: Optional[base.AdministrativeInformation] = None,
-                 embedded_data_specifications: Iterable[base.Embedded_data_specification]
+                 embedded_data_specifications: Iterable[base.EmbeddedDataSpecification]
                  = (),
                  extension: Iterable[base.Extension] = ()):
 
@@ -79,7 +79,7 @@ class ConceptDescription(base.Identifiable, base.HasDataSpecification):
         self.description: Optional[base.LangStringSet] = description
         self.parent: Optional[base.UniqueIdShortNamespace] = parent
         self.administration: Optional[base.AdministrativeInformation] = administration
-        self.embedded_data_specifications: Iterable[base.Embedded_data_specification] \
+        self.embedded_data_specifications: Iterable[base.EmbeddedDataSpecification] \
             = list(embedded_data_specifications)
         self.extension = base.NamespaceSet(self, [("name", True)], extension)
 

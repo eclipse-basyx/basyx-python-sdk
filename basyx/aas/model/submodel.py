@@ -62,7 +62,7 @@ class SubmodelElement(base.Referable, base.Qualifiable, base.HasSemantics, base.
                  semantic_id: Optional[base.Reference] = None,
                  qualifier: Iterable[base.Qualifier] = (),
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE,
-                 embedded_data_specifications: Iterable[base.Embedded_data_specification]
+                 embedded_data_specifications: Iterable[base.EmbeddedDataSpecification]
                  = (),
                  extension: Iterable[base.Extension] = (),
                  supplemental_semantic_id: Iterable[base.Reference] = ()):
@@ -79,7 +79,7 @@ class SubmodelElement(base.Referable, base.Qualifiable, base.HasSemantics, base.
         self.semantic_id: Optional[base.Reference] = semantic_id
         self.qualifier = base.NamespaceSet(self, [("type", True)], qualifier)
         self._kind: base.ModelingKind = kind
-        self.embedded_data_specifications: Iterable[base.Embedded_data_specification] \
+        self.embedded_data_specifications: Iterable[base.EmbeddedDataSpecification] \
             = list(embedded_data_specifications)
         self.extension = base.NamespaceSet(self, [("name", True)], extension)
         self.supplemental_semantic_id: base.ConstrainedList[base.Reference] = \
@@ -137,7 +137,7 @@ class Submodel(base.Identifiable, base.HasSemantics, base.HasKind, base.Qualifia
                  semantic_id: Optional[base.Reference] = None,
                  qualifier: Iterable[base.Qualifier] = (),
                  kind: base.ModelingKind = base.ModelingKind.INSTANCE,
-                 embedded_data_specifications: Iterable[base.Embedded_data_specification]
+                 embedded_data_specifications: Iterable[base.EmbeddedDataSpecification]
                  = (),
                  extension: Iterable[base.Extension] = (),
                  supplemental_semantic_id: Iterable[base.Reference] = ()):
@@ -153,7 +153,7 @@ class Submodel(base.Identifiable, base.HasSemantics, base.HasKind, base.Qualifia
         self.semantic_id: Optional[base.Reference] = semantic_id
         self.qualifier = base.NamespaceSet(self, [("type", True)], qualifier)
         self._kind: base.ModelingKind = kind
-        self.embedded_data_specifications: Iterable[base.Embedded_data_specification] \
+        self.embedded_data_specifications: Iterable[base.EmbeddedDataSpecification] \
             = list(embedded_data_specifications)
         self.extension = base.NamespaceSet(self, [("name", True)], extension)
         self.supplemental_semantic_id: base.ConstrainedList[base.Reference] = \

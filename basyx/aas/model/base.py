@@ -1044,7 +1044,7 @@ class DataSpecificationContent:
         pass
 
 
-class Embedded_data_specification:
+class EmbeddedDataSpecification:
     """
     Embed the content of a data specification.
 
@@ -1073,7 +1073,7 @@ class HasDataSpecification(metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def __init__(
         self,
-        embedded_data_specifications: Iterable["Embedded_data_specification"] = (),
+        embedded_data_specifications: Iterable["EmbeddedDataSpecification"] = (),
     ) -> None:
         self.embedded_data_specifications = list(embedded_data_specifications)
 
@@ -1094,7 +1094,7 @@ class AdministrativeInformation(HasDataSpecification):
     def __init__(self,
                  version: Optional[str] = None,
                  revision: Optional[str] = None,
-                 embedded_data_specifications: Iterable[Embedded_data_specification]
+                 embedded_data_specifications: Iterable[EmbeddedDataSpecification]
                  = ()):
         """
         Initializer of AdministrativeInformation
@@ -1108,7 +1108,7 @@ class AdministrativeInformation(HasDataSpecification):
         self.version = version
         self._revision: Optional[str]
         self.revision = revision
-        self.embedded_data_specifications: Iterable[Embedded_data_specification] \
+        self.embedded_data_specifications: Iterable[EmbeddedDataSpecification] \
             = list(embedded_data_specifications)
 
     def _get_version(self):
@@ -2266,12 +2266,12 @@ class DataSpecificationPhysicalUnit(DataSpecificationContent):
         unit_name: str,
         unit_symbol: str,
         definition: LangStringSet,
-        SI_notation: Optional[str] = None,
-        SI_name: Optional[str] = None,
-        DIN_notation: Optional[str] = None,
-        ECE_name: Optional[str] = None,
-        ECE_code: Optional[str] = None,
-        NIST_name: Optional[str] = None,
+        si_notation: Optional[str] = None,
+        si_name: Optional[str] = None,
+        din_notation: Optional[str] = None,
+        ece_name: Optional[str] = None,
+        ece_code: Optional[str] = None,
+        nist_name: Optional[str] = None,
         source_of_definition: Optional[str] = None,
         conversion_factor: Optional[str] = None,
         registration_authority_id: Optional[str] = None,
@@ -2280,12 +2280,12 @@ class DataSpecificationPhysicalUnit(DataSpecificationContent):
         self.unit_name = unit_name
         self.unit_symbol = unit_symbol
         self.definition = definition
-        self.SI_notation = SI_notation
-        self.SI_name = SI_name
-        self.DIN_notation = DIN_notation
-        self.ECE_name = ECE_name
-        self.ECE_code = ECE_code
-        self.NIST_name = NIST_name
+        self.SI_notation = si_notation
+        self.SI_name = si_name
+        self.DIN_notation = din_notation
+        self.ECE_name = ece_name
+        self.ECE_code = ece_code
+        self.NIST_name = nist_name
         self.source_of_definition = source_of_definition
         self.conversion_factor = conversion_factor
         self.registration_authority_id = registration_authority_id

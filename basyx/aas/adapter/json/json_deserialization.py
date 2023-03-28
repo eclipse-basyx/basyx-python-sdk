@@ -264,7 +264,7 @@ class AASFromJsonDecoder(json.JSONDecoder):
                     if "dataSpecificationContent" in dspec:
                         content = _get_ts(dspec, 'dataSpecificationContent', model.DataSpecificationContent)
                         obj.embedded_data_specifications.append(
-                            model.Embedded_data_specification(
+                            model.EmbeddedDataSpecification(
                                 data_specification=dspec_ref,
                                 data_specification_content=content
                             )

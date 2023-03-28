@@ -107,7 +107,7 @@ class AssetAdministrationShell(base.Identifiable, base.UniqueIdShortNamespace, b
                  administration: Optional[base.AdministrativeInformation] = None,
                  submodel: Optional[Set[base.ModelReference[Submodel]]] = None,
                  derived_from: Optional[base.ModelReference["AssetAdministrationShell"]] = None,
-                 embedded_data_specifications: Iterable[base.Embedded_data_specification]
+                 embedded_data_specifications: Iterable[base.EmbeddedDataSpecification]
                  = (),
                  extension: Iterable[base.Extension] = ()):
         super().__init__()
@@ -121,6 +121,6 @@ class AssetAdministrationShell(base.Identifiable, base.UniqueIdShortNamespace, b
         self.administration: Optional[base.AdministrativeInformation] = administration
         self.derived_from: Optional[base.ModelReference["AssetAdministrationShell"]] = derived_from
         self.submodel: Set[base.ModelReference[Submodel]] = set() if submodel is None else submodel
-        self.embedded_data_specifications: Iterable[base.Embedded_data_specification] \
+        self.embedded_data_specifications: Iterable[base.EmbeddedDataSpecification] \
             = list(embedded_data_specifications)
         self.extension = base.NamespaceSet(self, [("name", True)], extension)
