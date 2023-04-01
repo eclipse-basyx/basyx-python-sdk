@@ -346,6 +346,13 @@ class LabelType(str):
         return super().__new__(cls, value)
 
 
+class ShortNameType(str):
+    def __new__(cls, value: str):
+        if len(value) > 64:
+            raise ValueError("ShortNameType has a maximum of 64 characters")
+        return super().__new__(cls, value)
+
+
 class MessageTopicType(str):
     def __new__(cls, value: str):
         if len(value) > 255:
@@ -365,10 +372,15 @@ class RevisionType(str):
         return super().__new__(cls, value)
 
 
-class ShortNameType(str):
+class VersionType(str):
     def __new__(cls, value: str):
-        if len(value) > 64:
-            raise ValueError("ShortNameType has a maximum of 64 characters")
+        if len(value) > 4:
+            raise ValueError("VersionType has a maximum of 4 characters")
+        if len(value) == 0:
+            raise ValueError("VersionType has a minimum of 1 character")
+        pattern = r'^([0-9]|[1-9][0-9]*)$'
+        if not re.match(pattern, value):
+            raise ValueError("VersionType does not match with pattern '/^([0-9]|[1-9][0-9]*)$/'")
         return super().__new__(cls, value)
 
 
@@ -466,7 +478,7 @@ class AdministrativeInformation:
 
     def __init__(self,
                  version: Optional[RevisionType] = None,
-                 revision: Optional[str] = None):
+                 revision: Optional[VersionType] = None):
         """
         Initializer of AdministrativeInformation
 
@@ -474,15 +486,15 @@ class AdministrativeInformation:
 
         TODO: Add instruction what to do after construction
         """
-        self._version: Optional[RevisionType]
+        self._version: Optional[VersionType]
         self.version = version
-        self._revision: Optional[str]
+        self._revision: Optional[RevisionType]
         self.revision = revision
 
     def _get_version(self):
         return self._version
 
-    def _set_version(self, version: RevisionType):
+    def _set_version(self, version: VersionType):
         self._version = version
 
     version = property(_get_version, _set_version)
@@ -490,9 +502,7 @@ class AdministrativeInformation:
     def _get_revision(self):
         return self._revision
 
-    def _set_revision(self, revision: str):
-        if revision == "":
-            raise ValueError("revision is not allowed to be an empty string")
+    def _set_revision(self, revision: RevisionType):
         if self.version is None and revision:
             raise ValueError("A revision requires a version. This means, if there is no version there is no revision "
                              "neither. Please set version first.")
