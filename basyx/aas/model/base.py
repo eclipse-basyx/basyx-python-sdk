@@ -365,6 +365,13 @@ class RevisionType(str):
         return super().__new__(cls, value)
 
 
+class ShortNameType(str):
+    def __new__(cls, value: str):
+        if len(value) > 64:
+            raise ValueError("ShortNameType has a maximum of 64 characters")
+        return super().__new__(cls, value)
+
+
 class Key:
     """
     A key is a reference to an element by its id.
