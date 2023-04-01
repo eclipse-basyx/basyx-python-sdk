@@ -779,7 +779,7 @@ class AASDataChecker(DataChecker):
             self._check_physical_unit_data_specification_equal(object_, expected_value)  # type: ignore
 
     def _check_iec61360_data_specification_equal(self, object_: model.base.DataSpecificationIEC61360,
-                                                  expected_value: model.base.DataSpecificationIEC61360):
+                                                 expected_value: model.base.DataSpecificationIEC61360):
         """
         Checks if the given IEC61360ConceptDescription objects are equal
 

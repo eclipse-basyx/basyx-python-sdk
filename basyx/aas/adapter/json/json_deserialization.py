@@ -185,8 +185,8 @@ class AASFromJsonDecoder(json.JSONDecoder):
             'Property': cls._construct_property,
             'Range': cls._construct_range,
             'ReferenceElement': cls._construct_reference_element,
-            'DataSpecificationIEC61360': cls._construct_iec61360_data_specification_content,
-            'DataSpecificationPhysicalUnit': cls._construct_iec61360_physical_unit_data_specification_content,
+            'DataSpecificationIEC61360': cls._construct_data_specification_iec61360,
+            'DataSpecificationPhysicalUnit': cls._construct_data_specification_physical_unit,
         }
 
         # Get modelType and constructor function
@@ -306,14 +306,14 @@ class AASFromJsonDecoder(json.JSONDecoder):
         # semantic_id can't be applied by _amend_abstract_attributes because specificAssetId is immutable
         return object_class(name=_get_ts(dct, 'name', str),
                             value=_get_ts(dct, 'value', str),
-                            external_subject_id=cls._construct_global_reference(_get_ts(dct, 'externalSubjectId', dict)),
+                            external_subject_id=cls._construct_global_reference(
+                                _get_ts(dct, 'externalSubjectId', dict)),
                             semantic_id=cls._construct_reference(_get_ts(dct, 'semanticId', dict))
                             if 'semanticId' in dct else None,
                             supplemental_semantic_id=[
                                 cls._construct_reference(ref) for ref in
-                                _get_ts(dct, 'supplementalSemanticIds',list)]
-                            if 'supplementalSemanticIds' in dct else ()
-        )
+                                _get_ts(dct, 'supplementalSemanticIds', list)]
+                            if 'supplementalSemanticIds' in dct else ())
 
     @classmethod
     def _construct_reference(cls, dct: Dict[str, object]) -> model.Reference:
@@ -463,8 +463,8 @@ class AASFromJsonDecoder(json.JSONDecoder):
         return ret
 
     @classmethod
-    def _construct_iec61360_physical_unit_data_specification_content(cls, dct: Dict[str, object],
-                                                       object_class=model.base.DataSpecificationPhysicalUnit)\
+    def _construct_data_specification_physical_unit(cls, dct: Dict[str, object],
+                                                    object_class=model.base.DataSpecificationPhysicalUnit)\
             -> model.base.DataSpecificationPhysicalUnit:
         ret = object_class(
             unit_name=_get_ts(dct, 'unitName', str),
@@ -494,8 +494,8 @@ class AASFromJsonDecoder(json.JSONDecoder):
         return ret
 
     @classmethod
-    def _construct_iec61360_data_specification_content(cls, dct: Dict[str, object],
-                                                       object_class=model.base.DataSpecificationIEC61360)\
+    def _construct_data_specification_iec61360(cls, dct: Dict[str, object],
+                                               object_class=model.base.DataSpecificationIEC61360)\
             -> model.base.DataSpecificationIEC61360:
         ret = object_class(preferred_name=cls._construct_lang_string_set(_get_ts(dct, 'preferredName', list)))
         if 'dataType' in dct:

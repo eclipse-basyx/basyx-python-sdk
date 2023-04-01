@@ -113,7 +113,8 @@ class AASToJsonEncoder(json.JSONEncoder):
             if obj.embedded_data_specifications:
                 data['embeddedDataSpecifications'] = [
                     {'dataSpecification': spec.data_specification,
-                     'dataSpecificationContent': cls._data_specification_content_to_json(spec.data_specification_content)}
+                     'dataSpecificationContent': cls._data_specification_content_to_json(
+                         spec.data_specification_content)}
                     for spec in obj.embedded_data_specifications
                 ]
 
@@ -334,15 +335,15 @@ class AASToJsonEncoder(json.JSONEncoder):
         :return: dict with the serialized attributes of this object
         """
         if isinstance(obj, model.base.DataSpecificationIEC61360):
-            return cls._iec61360_specification_content_to_json(obj)
+            return cls._data_specification_iec61360_to_json(obj)
         elif isinstance(obj, model.base.DataSpecificationPhysicalUnit):
-            return cls._iec61360_physical_unit_specification_content_to_json(obj)
+            return cls._data_specification_physical_unit_to_json(obj)
         else:
             raise TypeError(f"For the given type there is no implemented serialization "
                             f"yet: {type(obj)}")
 
     @classmethod
-    def _iec61360_specification_content_to_json(
+    def _data_specification_iec61360_to_json(
             cls, obj: model.base.DataSpecificationIEC61360) -> Dict[str, object]:
         """
         serialization of an object from class DataSpecificationIEC61360 to json
@@ -383,7 +384,7 @@ class AASToJsonEncoder(json.JSONEncoder):
         return data_spec
 
     @classmethod
-    def _iec61360_physical_unit_specification_content_to_json(
+    def _data_specification_physical_unit_to_json(
             cls, obj: model.base.DataSpecificationPhysicalUnit) -> Dict[str, object]:
         """
         serialization of an object from class DataSpecificationPhysicalUnit to json

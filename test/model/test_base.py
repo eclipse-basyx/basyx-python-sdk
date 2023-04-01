@@ -940,8 +940,8 @@ class ValueReferencePairTest(unittest.TestCase):
     def test_set_value(self):
         pair = model.ValueReferencePair(
             value_type=model.datatypes.Int,
-            value=2, value_id=model.GlobalReference(
-            (model.Key(model.KeyTypes.GLOBAL_REFERENCE, 'test'),)))
+            value=2,
+            value_id=model.GlobalReference((model.Key(model.KeyTypes.GLOBAL_REFERENCE, 'test'),)))
         self.assertEqual(pair.value, 2)
         with self.assertRaises(AttributeError) as cm:
             pair.value = None

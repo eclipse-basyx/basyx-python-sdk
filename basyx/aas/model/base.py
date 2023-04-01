@@ -227,8 +227,10 @@ class QualifierKind(Enum):
     Enumeration for denoting whether a Qualifier is a concept, template or value qualifier.
 
     :cvar CONCEPT_QUALIFIER: qualifies the semantic definition the element is referring to (HasSemantics/semanticId)
-    :cvar TEMPLATE_QUALIFIER: qualifies the elements within a specific submodel on concept level. Template qualifiers are only applicable to elements with kind=„Template”
-    :cvar VALUE_QUALIFIER: qualifies the value of the element and can change during run-time. Value qualifiers are only applicable to elements with kind=„Instance”
+    :cvar TEMPLATE_QUALIFIER: qualifies the elements within a specific submodel on concept level. Template qualifiers
+                              are only applicable to elements with kind="Template"
+    :cvar VALUE_QUALIFIER: qualifies the value of the element and can change during run-time. Value qualifiers are only
+                           applicable to elements with kind="Instance"
     """
 
     CONCEPT_QUALIFIER = 0
@@ -389,6 +391,7 @@ class Key:
                 raise ValueError(f"Object {referable!r} is not contained within its parent {referable.parent!r}") from e
         else:
             return Key(key_type, referable.id_short)
+
 
 _NSO = TypeVar('_NSO', bound=Union["Referable", "Qualifier", "HasSemantics", "Extension"])
 
@@ -2051,9 +2054,9 @@ class SpecificAssetId(HasSemantics):
 
     def __repr__(self) -> str:
         return "SpecificAssetId(key={}, value={}, external_subject_id={}, " \
-               "semantic_id={}, supplemental_semantic_id={})".format(
-            self.name, self.value, self.external_subject_id, self.semantic_id,
-            self.supplemental_semantic_id)
+                "semantic_id={}, supplemental_semantic_id={})".format(
+                    self.name, self.value, self.external_subject_id, self.semantic_id,
+                    self.supplemental_semantic_id)
 
 
 class AASConstraintViolation(Exception):
@@ -2240,7 +2243,7 @@ class DataSpecificationIEC61360(DataSpecificationContent):
 
 class DataSpecificationPhysicalUnit(DataSpecificationContent):
     """
-    A specialized :class:`~.DataSpecificationContent` to define descriptions 
+    A specialized :class:`~.DataSpecificationContent` to define descriptions
     for physical units conformant to IEC 61360.
 
     :ivar unit_name: Name of the physical unit
