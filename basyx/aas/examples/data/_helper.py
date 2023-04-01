@@ -774,9 +774,9 @@ class AASDataChecker(DataChecker):
         self.check(type(object_) == type(expected_value), "type({}) must be == type({})"
                    .format(repr(object_), repr(expected_value)))
         if isinstance(object_, model.base.DataSpecificationIEC61360):
-            self._check_iec61360_data_specification_equal(object_, expected_value)
+            self._check_iec61360_data_specification_equal(object_, expected_value)  # type: ignore
         elif isinstance(object_, model.base.DataSpecificationPhysicalUnit):
-            self._check_physical_unit_data_specification_equal(object_, expected_value)
+            self._check_physical_unit_data_specification_equal(object_, expected_value)  # type: ignore
 
     def _check_iec61360_data_specification_equal(self, object_: model.base.DataSpecificationIEC61360,
                                                   expected_value: model.base.DataSpecificationIEC61360):

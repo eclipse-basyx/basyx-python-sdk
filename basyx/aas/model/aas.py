@@ -13,7 +13,7 @@ This module contains the following classes from an up-to-down-level:
  - :class:`~.AssetInformation`
 """
 
-from typing import Optional, Set, Iterable
+from typing import Optional, Set, Iterable, List
 
 from . import base
 from .submodel import Submodel
@@ -121,6 +121,5 @@ class AssetAdministrationShell(base.Identifiable, base.UniqueIdShortNamespace, b
         self.administration: Optional[base.AdministrativeInformation] = administration
         self.derived_from: Optional[base.ModelReference["AssetAdministrationShell"]] = derived_from
         self.submodel: Set[base.ModelReference[Submodel]] = set() if submodel is None else submodel
-        self.embedded_data_specifications: Iterable[base.EmbeddedDataSpecification] \
-            = list(embedded_data_specifications)
+        self.embedded_data_specifications: List[base.EmbeddedDataSpecification] = list(embedded_data_specifications)
         self.extension = base.NamespaceSet(self, [("name", True)], extension)

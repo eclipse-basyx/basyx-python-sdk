@@ -8,7 +8,6 @@ import unittest
 
 from basyx.aas.examples.data._helper import DataChecker, AASDataChecker
 from basyx.aas import model
-from basyx.aas.model.concept import IEC61360DataType
 
 
 class DataCheckerTest(unittest.TestCase):

@@ -79,7 +79,6 @@ class XMLSerializationSchemaTest(unittest.TestCase):
         data = example_aas.create_full_example()
         file = io.BytesIO()
         write_aas_xml_file(file=file, data=data)
-        write_aas_xml_file(file="/home/jkhsjdhjs/Desktop/aas.xml", data=data, pretty_print=True)
 
         # load schema
         aas_schema = etree.XMLSchema(file=XML_SCHEMA_FILE)

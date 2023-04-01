@@ -1053,11 +1053,11 @@ class EmbeddedDataSpecification:
     """
     def __init__(
         self,
-        data_specification: Reference,
+        data_specification: GlobalReference,
         data_specification_content: DataSpecificationContent,
     ) -> None:
-        self.data_specification = data_specification
-        self.data_specification_content = data_specification_content
+        self.data_specification: GlobalReference = data_specification
+        self.data_specification_content: DataSpecificationContent = data_specification_content
 
 
 class HasDataSpecification(metaclass=abc.ABCMeta):
@@ -1068,12 +1068,12 @@ class HasDataSpecification(metaclass=abc.ABCMeta):
     element may or shall have. The data specifications used are explicitly specified
     with their global ID.
 
-    :ivar embedded_data_specifications: List of Embedded data specification.
+    :ivar embedded_data_specifications: List of :class:`~.EmbeddedDataSpecification`.
     """
     @abc.abstractmethod
     def __init__(
         self,
-        embedded_data_specifications: Iterable["EmbeddedDataSpecification"] = (),
+        embedded_data_specifications: Iterable[EmbeddedDataSpecification] = (),
     ) -> None:
         self.embedded_data_specifications = list(embedded_data_specifications)
 
@@ -1094,8 +1094,7 @@ class AdministrativeInformation(HasDataSpecification):
     def __init__(self,
                  version: Optional[str] = None,
                  revision: Optional[str] = None,
-                 embedded_data_specifications: Iterable[EmbeddedDataSpecification]
-                 = ()):
+                 embedded_data_specifications: Iterable[EmbeddedDataSpecification] = ()):
         """
         Initializer of AdministrativeInformation
 
@@ -1108,8 +1107,7 @@ class AdministrativeInformation(HasDataSpecification):
         self.version = version
         self._revision: Optional[str]
         self.revision = revision
-        self.embedded_data_specifications: Iterable[EmbeddedDataSpecification] \
-            = list(embedded_data_specifications)
+        self.embedded_data_specifications: List[EmbeddedDataSpecification] = list(embedded_data_specifications)
 
     def _get_version(self):
         return self._version
@@ -1292,7 +1290,6 @@ class HasSemantics(metaclass=abc.ABCMeta):
         self._supplemental_semantic_id: ConstrainedList[Reference] = ConstrainedList(
             [], item_add_hook=self._check_constraint_add)
         self._semantic_id: Optional[Reference] = None
-        self._supplemental_semantic_id: List[Reference] = []
 
     def _check_constraint_add(self, _new: Reference, _list: List[Reference]) -> None:
         if self.semantic_id is None:
@@ -1562,7 +1559,7 @@ class ValueReferencePair:
 
         TODO: Add instruction what to do after construction
         """
-        self.value_type: DataTypeDefXsd = value_type
+        self.value_type: Optional[DataTypeDefXsd] = value_type
         self.value_id: Reference = value_id
         self._value: ValueDataType = datatypes.trivial_cast(value, value_type) if value_type else value
 

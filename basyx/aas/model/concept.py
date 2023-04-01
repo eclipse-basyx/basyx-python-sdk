@@ -8,7 +8,7 @@
 This module contains the class :class:`~.ConceptDescription` from the AAS meta model
 as well as specialized :class:`ConceptDescriptions <.ConceptDescription>` like :class:`~.IEC61360ConceptDescription`.
 """
-from typing import Optional, Set, Iterable
+from typing import Optional, Set, Iterable, List
 
 from . import base
 
@@ -79,8 +79,7 @@ class ConceptDescription(base.Identifiable, base.HasDataSpecification):
         self.description: Optional[base.LangStringSet] = description
         self.parent: Optional[base.UniqueIdShortNamespace] = parent
         self.administration: Optional[base.AdministrativeInformation] = administration
-        self.embedded_data_specifications: Iterable[base.EmbeddedDataSpecification] \
-            = list(embedded_data_specifications)
+        self.embedded_data_specifications: List[base.EmbeddedDataSpecification] = list(embedded_data_specifications)
         self.extension = base.NamespaceSet(self, [("name", True)], extension)
 
     def _set_category(self, category: Optional[str]):

@@ -28,7 +28,7 @@ conversion functions to handle all the attributes of abstract base classes.
 """
 import base64
 import inspect
-from typing import List, Dict, IO, Optional, Type
+from typing import List, Dict, IO, Optional, Type, Callable
 import json
 
 from basyx.aas import model
@@ -62,7 +62,7 @@ class AASToJsonEncoder(json.JSONEncoder):
         :param obj: The object to serialize to json
         :return: The serialized object
         """
-        mapping = {
+        mapping: Dict[Type, Callable] = {
             model.AdministrativeInformation: self._administrative_information_to_json,
             model.AnnotatedRelationshipElement: self._annotated_relationship_element_to_json,
             model.AssetAdministrationShell: self._asset_administration_shell_to_json,
@@ -326,7 +326,7 @@ class AASToJsonEncoder(json.JSONEncoder):
 
     @classmethod
     def _data_specification_content_to_json(
-            cls, obj: model.base.DataSpecificationContent) -> None:
+            cls, obj: model.base.DataSpecificationContent) -> Dict[str, object]:
         """
         serialization of an object from class DataSpecificationContent to json
 
@@ -343,7 +343,7 @@ class AASToJsonEncoder(json.JSONEncoder):
 
     @classmethod
     def _iec61360_specification_content_to_json(
-            cls, obj: model.base.DataSpecificationIEC61360) -> None:
+            cls, obj: model.base.DataSpecificationIEC61360) -> Dict[str, object]:
         """
         serialization of an object from class DataSpecificationIEC61360 to json
 
@@ -384,7 +384,7 @@ class AASToJsonEncoder(json.JSONEncoder):
 
     @classmethod
     def _iec61360_physical_unit_specification_content_to_json(
-            cls, obj: model.base.DataSpecificationPhysicalUnit) -> None:
+            cls, obj: model.base.DataSpecificationPhysicalUnit) -> Dict[str, object]:
         """
         serialization of an object from class DataSpecificationPhysicalUnit to json
 
@@ -759,9 +759,9 @@ def _select_encoder(stripped: bool, encoder: Optional[Type[AASToJsonEncoder]] = 
 
 def _create_dict(data: model.AbstractObjectStore) -> dict:
     # separate different kind of objects
-    asset_administration_shells = []
-    submodels = []
-    concept_descriptions = []
+    asset_administration_shells: List[model.AssetAdministrationShell] = []
+    submodels: List[model.Submodel] = []
+    concept_descriptions: List[model.ConceptDescription] = []
     for obj in data:
         if isinstance(obj, model.AssetAdministrationShell):
             asset_administration_shells.append(obj)
@@ -769,7 +769,7 @@ def _create_dict(data: model.AbstractObjectStore) -> dict:
             submodels.append(obj)
         elif isinstance(obj, model.ConceptDescription):
             concept_descriptions.append(obj)
-    dict_ = {}
+    dict_: Dict[str, List] = {}
     if asset_administration_shells:
         dict_['assetAdministrationShells'] = asset_administration_shells
     if submodels:

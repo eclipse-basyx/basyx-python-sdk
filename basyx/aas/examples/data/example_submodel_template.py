@@ -42,7 +42,7 @@ def create_example_submodel_template() -> model.Submodel:
 
     submodel_element_multi_language_property = model.MultiLanguageProperty(
         id_short='ExampleMultiLanguageProperty',
-        value=None,
+        value=model.LangStringSet({}),
         value_id=None,  # TODO
         category='CONSTANT',
         description=model.LangStringSet({'en-US': 'Example MultiLanguageProperty object',

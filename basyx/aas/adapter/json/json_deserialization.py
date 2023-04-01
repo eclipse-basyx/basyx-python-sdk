@@ -259,10 +259,13 @@ class AASFromJsonDecoder(json.JSONDecoder):
         if isinstance(obj, model.HasDataSpecification) and not cls.stripped:
             if 'embeddedDataSpecifications' in dct:
                 for dspec in _get_ts(dct, 'embeddedDataSpecifications', list):
-                    dspec_ref = cls._construct_reference(
+                    dspec_ref = cls._construct_global_reference(
                         _get_ts(dspec, 'dataSpecification', dict))
                     if "dataSpecificationContent" in dspec:
-                        content = _get_ts(dspec, 'dataSpecificationContent', model.DataSpecificationContent)
+                        # TODO: remove the following type: ignore comment when mypy supports abstract types for Type[T]
+                        # see https://github.com/python/mypy/issues/5374
+                        content = _get_ts(dspec, 'dataSpecificationContent',
+                                          model.DataSpecificationContent)  # type: ignore
                         obj.embedded_data_specifications.append(
                             model.EmbeddedDataSpecification(
                                 data_specification=dspec_ref,
