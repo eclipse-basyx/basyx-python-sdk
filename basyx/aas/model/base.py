@@ -353,6 +353,18 @@ class MessageTopicType(str):
         return super().__new__(cls, value)
 
 
+class RevisionType(str):
+    def __new__(cls, value: str):
+        if len(value) > 4:
+            raise ValueError("RevisionType has a maximum of 4 characters")
+        if len(value) == 0:
+            raise ValueError("RevisionType has a minimum of 1 character")
+        pattern = r'^([0-9]|[1-9][0-9]*)$'
+        if not re.match(pattern, value):
+            raise ValueError("Revision Type does not match with pattern '/^([0-9]|[1-9][0-9]*)$/'")
+        return super().__new__(cls, value)
+
+
 class Key:
     """
     A key is a reference to an element by its id.
@@ -446,7 +458,7 @@ class AdministrativeInformation:
     """
 
     def __init__(self,
-                 version: Optional[str] = None,
+                 version: Optional[RevisionType] = None,
                  revision: Optional[str] = None):
         """
         Initializer of AdministrativeInformation
@@ -455,7 +467,7 @@ class AdministrativeInformation:
 
         TODO: Add instruction what to do after construction
         """
-        self._version: Optional[str]
+        self._version: Optional[RevisionType]
         self.version = version
         self._revision: Optional[str]
         self.revision = revision
@@ -463,9 +475,7 @@ class AdministrativeInformation:
     def _get_version(self):
         return self._version
 
-    def _set_version(self, version: str):
-        if version == "":
-            raise ValueError("version is not allowed to be an empty string")
+    def _set_version(self, version: RevisionType):
         self._version = version
 
     version = property(_get_version, _set_version)
