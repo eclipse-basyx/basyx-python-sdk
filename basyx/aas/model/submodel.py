@@ -337,7 +337,7 @@ class MultiLanguageProperty(DataElement):
 
     def __init__(self,
                  id_short: str,
-                 value: base.LangStringSet = base.LangStringSet({}),
+                 value: Optional[base.LangStringSet] = None,
                  value_id: Optional[base.Reference] = None,
                  display_name: Optional[base.LangStringSet] = None,
                  category: Optional[str] = None,
@@ -355,7 +355,7 @@ class MultiLanguageProperty(DataElement):
 
         super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, kind, extension,
                          supplemental_semantic_id, embedded_data_specifications)
-        self.value: base.LangStringSet = value
+        self.value: Optional[base.LangStringSet] = value
         self.value_id: Optional[base.Reference] = value_id
 
 
