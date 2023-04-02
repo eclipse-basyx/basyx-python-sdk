@@ -27,11 +27,11 @@ DataTypeDefXsd = Type[datatypes.AnyXSDType]
 ValueDataType = datatypes.AnyXSDType  # any xsd atomic type (from .datatypes)
 BlobType = bytes
 PathType = str
+
+
 # A dict of language-Identifier (according to ISO 639-1 and ISO 3166-1) and string in this language.
 # The meaning of the string in each language is the same.
 # << Data Type >> Example ["en-US", "germany"]
-
-Identifier = str
 
 
 @unique
@@ -274,6 +274,7 @@ class LangStringSet(MutableMapping[str, str]):
     “en-GB” for English (United Kingdom) and English (United States). IETF language tags are referencing ISO 639,
     ISO 3166 and ISO 15924.
     """
+
     def __init__(self, dict_: Dict[str, str]):
         self.dict: MutableMapping[str, str] = {}
 
@@ -389,6 +390,15 @@ class ContentType(str):
             raise ValueError("ContentType has a maximum of 100 characters")
         if len(value) == 0:
             raise ValueError("ContentType has a minimum of 1 character")
+        return super().__new__(cls, value)
+
+
+class Identifier(str):
+    def __new__(cls, value: str):
+        if len(value) > 2000:
+            raise ValueError("Identifier has a maximum of 2000 characters")
+        if len(value) == 0:
+            raise ValueError("Identifier has a minimum of 1 character")
         return super().__new__(cls, value)
 
 
@@ -539,6 +549,7 @@ class Namespace(metaclass=abc.ABCMeta):
 
     :ivar namespace_element_sets: List of :class:`NamespaceSets <aas.model.base.NamespaceSet>`
     """
+
     @abc.abstractmethod
     def __init__(self) -> None:
         super().__init__()
@@ -602,6 +613,7 @@ class HasExtension(Namespace, metaclass=abc.ABCMeta):
     :ivar _MEMBER_OBJ_TYPE: :class:`_NSO <aas.model.base.Namespace>`
     :ivar _ATTRIBUTE_NAME: Specific attribute name <aas.model.base.Namespace>`.
     """
+
     @abc.abstractmethod
     def __init__(self) -> None:
         super().__init__()
@@ -663,6 +675,7 @@ class Referable(HasExtension, metaclass=abc.ABCMeta):
                   This is used to specify where the Referable should be updated from and committed to.
                   Default is an empty string, making it use the source of its ancestor, if possible.
     """
+
     @abc.abstractmethod
     def __init__(self):
         super().__init__()
@@ -898,6 +911,7 @@ class UnexpectedTypeError(TypeError):
 
     :ivar value: The object of unexpected type
     """
+
     def __init__(self, value: Referable, *args):
         super().__init__(*args)
         self.value = value
@@ -925,6 +939,7 @@ class Reference(metaclass=abc.ABCMeta):
     :ivar referred_semantic_id: SemanticId of the referenced model element. For global references there typically is no
                                 semantic id.
     """
+
     @abc.abstractmethod
     def __init__(self, key: Tuple[Key, ...], referred_semantic_id: Optional["Reference"] = None):
         if len(key) < 1:
@@ -950,7 +965,7 @@ class Reference(metaclass=abc.ABCMeta):
         if len(self.key) != len(other.key):
             return False
         return all(k1 == k2 for k1, k2 in zip(self.key, other.key)) \
-            and self.referred_semantic_id == other.referred_semantic_id
+               and self.referred_semantic_id == other.referred_semantic_id
 
 
 class GlobalReference(Reference):
@@ -1014,6 +1029,7 @@ class ModelReference(Reference, Generic[_RT]):
     :ivar referred_semantic_id: SemanticId of the referenced model element. For global references there typically is no
                                 semantic id.
     """
+
     def __init__(self, key: Tuple[Key, ...], type_: Type[_RT], referred_semantic_id: Optional[Reference] = None):
         super().__init__(key, referred_semantic_id)
 
@@ -1085,14 +1101,14 @@ class ModelReference(Reference, Generic[_RT]):
                     item = item.get_referable(key.value)
             except (KeyError, IndexError) as e:
                 raise KeyError("Could not resolve {} {} at {}".format(
-                    "index" if is_submodel_element_list else "id_short", key.value, " / ".join(resolved_keys)))\
+                    "index" if is_submodel_element_list else "id_short", key.value, " / ".join(resolved_keys))) \
                     from e
             resolved_keys.append(item.id_short)
 
         # Check type
         if not isinstance(item, self.type):
             raise UnexpectedTypeError(item, "Retrieved object {} is not an instance of referenced type {}"
-                                            .format(item, self.type.__name__))
+                                      .format(item, self.type.__name__))
         return item
 
     def get_identifier(self) -> Identifier:
@@ -1158,6 +1174,7 @@ class Resource:
     :ivar content_type: Content type of the content of the file. The content type states which file extensions the file
                         can have.
     """
+
     def __init__(self, path: PathType, content_type: Optional[ContentType] = None):
         self.path: PathType = path
         self.content_type: Optional[ContentType] = content_type
@@ -1172,6 +1189,7 @@ class Identifiable(Referable, metaclass=abc.ABCMeta):
     :ivar administration: :class:`~.AdministrativeInformation` of an identifiable element.
     :ivar ~.id: The globally unique id of the element.
     """
+
     @abc.abstractmethod
     def __init__(self):
         super().__init__()
@@ -1229,19 +1247,23 @@ class ConstrainedList(MutableSequence[_T], Generic[_T]):
         self._list.insert(index, value)
 
     @overload
-    def __getitem__(self, index: int) -> _T: ...
+    def __getitem__(self, index: int) -> _T:
+        ...
 
     @overload
-    def __getitem__(self, index: slice) -> MutableSequence[_T]: ...
+    def __getitem__(self, index: slice) -> MutableSequence[_T]:
+        ...
 
     def __getitem__(self, index: Union[int, slice]) -> Union[_T, MutableSequence[_T]]:
         return self._list[index]
 
     @overload
-    def __setitem__(self, index: int, value: _T) -> None: ...
+    def __setitem__(self, index: int, value: _T) -> None:
+        ...
 
     @overload
-    def __setitem__(self, index: slice, value: Iterable[_T]) -> None: ...
+    def __setitem__(self, index: slice, value: Iterable[_T]) -> None:
+        ...
 
     def __setitem__(self, index: Union[int, slice], value: Union[_T, Iterable[_T]]) -> None:
         # TODO: remove the following type: ignore once mypy supports type narrowing using overload information
@@ -1256,10 +1278,12 @@ class ConstrainedList(MutableSequence[_T], Generic[_T]):
         self._list[index] = value  # type: ignore
 
     @overload
-    def __delitem__(self, index: int) -> None: ...
+    def __delitem__(self, index: int) -> None:
+        ...
 
     @overload
-    def __delitem__(self, index: slice) -> None: ...
+    def __delitem__(self, index: slice) -> None:
+        ...
 
     def __delitem__(self, index: Union[int, slice]) -> None:
         if isinstance(index, int):
@@ -1303,6 +1327,7 @@ class HasSemantics(metaclass=abc.ABCMeta):
     :ivar supplemental_semantic_id: Identifier of a supplemental semantic definition of the element. It is called
                                     supplemental semantic ID of the element.
     """
+
     @abc.abstractmethod
     def __init__(self) -> None:
         super().__init__()
@@ -1432,6 +1457,7 @@ class HasKind(metaclass=abc.ABCMeta):
 
     :ivar _kind: Kind of the element: either type or instance. Default = :attr:`~ModelingKind.INSTANCE`.
     """
+
     @abc.abstractmethod
     def __init__(self):
         super().__init__()
@@ -1453,6 +1479,7 @@ class Qualifiable(Namespace, metaclass=abc.ABCMeta):
     :ivar qualifier: Unordered list of :class:`Qualifiers <~.Qualifier>` that gives additional qualification of a
         qualifiable element.
     """
+
     @abc.abstractmethod
     def __init__(self):
         super().__init__()
@@ -1618,6 +1645,7 @@ class UniqueIdShortNamespace(Namespace, metaclass=abc.ABCMeta):
 
     :ivar namespace_element_sets: A list of all :class:`NamespaceSets <.NamespaceSet>` of this Namespace
     """
+
     @abc.abstractmethod
     def __init__(self) -> None:
         super().__init__()
@@ -1673,6 +1701,7 @@ class UniqueSemanticIdNamespace(Namespace, metaclass=abc.ABCMeta):
 
     :ivar namespace_element_sets: A list of all NamespaceSets of this Namespace
     """
+
     @abc.abstractmethod
     def __init__(self) -> None:
         super().__init__()
@@ -1722,6 +1751,7 @@ class NamespaceSet(MutableSet[_NSO], Generic[_NSO]):
 
     :raises KeyError: When `items` contains multiple objects with same unique attribute
     """
+
     def __init__(self, parent: Union[UniqueIdShortNamespace, UniqueSemanticIdNamespace, Qualifiable, HasExtension],
                  attribute_names: List[Tuple[str, bool]], items: Iterable[_NSO] = (),
                  item_add_hook: Optional[Callable[[_NSO, Iterable[_NSO]], None]] = None) -> None:
@@ -1913,6 +1943,7 @@ class OrderedNamespaceSet(NamespaceSet[_NSO], MutableSequence[_NSO], Generic[_NS
     (actually it is derived from MutableSequence). However, we don't permit duplicate entries in the ordered list of
     objects.
     """
+
     def __init__(self, parent: Union[UniqueIdShortNamespace, UniqueSemanticIdNamespace, Qualifiable, HasExtension],
                  attribute_names: List[Tuple[str, bool]], items: Iterable[_NSO] = (),
                  item_add_hook: Optional[Callable[[_NSO, Iterable[_NSO]], None]] = None) -> None:
@@ -1962,19 +1993,23 @@ class OrderedNamespaceSet(NamespaceSet[_NSO], MutableSequence[_NSO], Generic[_NS
         self._order.insert(index, object_)
 
     @overload
-    def __getitem__(self, i: int) -> _NSO: ...
+    def __getitem__(self, i: int) -> _NSO:
+        ...
 
     @overload
-    def __getitem__(self, s: slice) -> MutableSequence[_NSO]: ...
+    def __getitem__(self, s: slice) -> MutableSequence[_NSO]:
+        ...
 
     def __getitem__(self, s: Union[int, slice]) -> Union[_NSO, MutableSequence[_NSO]]:
         return self._order[s]
 
     @overload
-    def __setitem__(self, i: int, o: _NSO) -> None: ...
+    def __setitem__(self, i: int, o: _NSO) -> None:
+        ...
 
     @overload
-    def __setitem__(self, s: slice, o: Iterable[_NSO]) -> None: ...
+    def __setitem__(self, s: slice, o: Iterable[_NSO]) -> None:
+        ...
 
     def __setitem__(self, s, o) -> None:
         if isinstance(s, int):
@@ -1999,14 +2034,16 @@ class OrderedNamespaceSet(NamespaceSet[_NSO], MutableSequence[_NSO], Generic[_NS
             super().remove(i)
 
     @overload
-    def __delitem__(self, i: int) -> None: ...
+    def __delitem__(self, i: int) -> None:
+        ...
 
     @overload
-    def __delitem__(self, i: slice) -> None: ...
+    def __delitem__(self, i: slice) -> None:
+        ...
 
     def __delitem__(self, i: Union[int, slice]) -> None:
         if isinstance(i, int):
-            i = slice(i, i+1)
+            i = slice(i, i + 1)
         for o in self._order[i]:
             super().remove(o)
         del self._order[i]
@@ -2085,6 +2122,7 @@ class AASConstraintViolation(Exception):
     :ivar constraint_id: The ID of the constraint that is violated
     :ivar message: The error message of the Exception
     """
+
     def __init__(self, constraint_id: int, message: str):
         self.constraint_id: int = constraint_id
         self.message: str = message + " (Constraint AASd-" + str(constraint_id).zfill(3) + ")"
