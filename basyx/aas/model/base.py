@@ -26,7 +26,6 @@ if TYPE_CHECKING:
 DataTypeDefXsd = Type[datatypes.AnyXSDType]
 ValueDataType = datatypes.AnyXSDType  # any xsd atomic type (from .datatypes)
 BlobType = bytes
-ContentType = str  # any mimetype as in RFC2046
 PathType = str
 # A dict of language-Identifier (according to ISO 639-1 and ISO 3166-1) and string in this language.
 # The meaning of the string in each language is the same.
@@ -381,6 +380,15 @@ class VersionType(str):
         pattern = r'^([0-9]|[1-9][0-9]*)$'
         if not re.match(pattern, value):
             raise ValueError("VersionType does not match with pattern '/^([0-9]|[1-9][0-9]*)$/'")
+        return super().__new__(cls, value)
+
+
+class ContentType(str):
+    def __new__(cls, value: str):
+        if len(value) > 100:
+            raise ValueError("ContentType has a maximum of 100 characters")
+        if len(value) == 0:
+            raise ValueError("ContentType has a minimum of 1 character")
         return super().__new__(cls, value)
 
 
