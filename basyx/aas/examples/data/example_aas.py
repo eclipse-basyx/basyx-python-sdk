@@ -177,8 +177,7 @@ def create_example_bill_of_material_submodel() -> model.Submodel:
         id_short='ExampleEntity',
         entity_type=model.EntityType.SELF_MANAGED_ENTITY,
         statement={submodel_element_property, submodel_element_property2},
-        global_asset_id=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
-                                                         value='http://acplt.org/TestAsset/'),)),
+        global_asset_id=model.Identifier('http://acplt.org/TestAsset/'),
         specific_asset_id=model.SpecificAssetId(name="TestKey",
                                                 value="TestValue",
                                                 external_subject_id=model.GlobalReference(
