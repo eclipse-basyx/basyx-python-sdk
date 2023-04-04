@@ -26,7 +26,6 @@ if TYPE_CHECKING:
 DataTypeDefXsd = Type[datatypes.AnyXSDType]
 ValueDataType = datatypes.AnyXSDType  # any xsd atomic type (from .datatypes)
 BlobType = bytes
-PathType = str
 
 
 # A dict of language-Identifier (according to ISO 639-1 and ISO 3166-1) and string in this language.
@@ -400,6 +399,9 @@ class Identifier(str):
         if len(value) == 0:
             raise ValueError("Identifier has a minimum of 1 character")
         return super().__new__(cls, value)
+
+
+PathType = Identifier
 
 
 class Key:
