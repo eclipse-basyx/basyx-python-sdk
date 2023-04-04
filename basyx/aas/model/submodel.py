@@ -17,14 +17,13 @@ if TYPE_CHECKING:
     from . import aas
 
 
-class SubmodelElement(base.Referable, base.Qualifiable, base.HasSemantics, base.HasKind, metaclass=abc.ABCMeta):
+class SubmodelElement(base.Referable, base.Qualifiable, base.HasSemantics, metaclass=abc.ABCMeta):
     """
     A submodel element is an element suitable for the description and differentiation of assets.
 
     *Note:* The concept of type and instance applies to submodel elements. :class:`Properties <.Property>` are special
     submodel elements. The property types are defined in dictionaries (like the IEC Common Data Dictionary or eCl\\@ss),
-    they do not have a value. The property type (`kind=Type`) is also called data element type in some standards.
-    The property instances (`kind=Instance`) typically have a value. A property instance is also called
+    they do not have a value. A property instance is also called
     property-value pair in certain standards.
 
     :ivar id_short: Identifying string of the element within its name space. (inherited from
@@ -42,8 +41,6 @@ class SubmodelElement(base.Referable, base.Qualifiable, base.HasSemantics, base.
                        (inherited from :class:`~aas.model.base.HasSemantics`)
     :ivar qualifier: Unordered list of Qualifiers that gives additional qualification of a qualifiable element.
                      (from :class:`~aas.model.base.Qualifiable`)
-    :ivar kind: Kind of the element: Either `TYPE` or `INSTANCE`. Default is `INSTANCE`. (inherited from
-                :class:`aas.model.base.HasKind`)
     :ivar extension: An extension of the element. (inherited from
                      :class:`aas.model.base.HasExtension`)
     :ivar supplemental_semantic_id: Identifier of a supplemental semantic definition of the element. It is called
@@ -59,7 +56,6 @@ class SubmodelElement(base.Referable, base.Qualifiable, base.HasSemantics, base.
                  parent: Optional[base.UniqueIdShortNamespace] = None,
                  semantic_id: Optional[base.Reference] = None,
                  qualifier: Iterable[base.Qualifier] = (),
-                 kind: base.ModelingKind = base.ModelingKind.INSTANCE,
                  extension: Iterable[base.Extension] = (),
                  supplemental_semantic_id: Iterable[base.Reference] = ()):
         """
@@ -74,7 +70,6 @@ class SubmodelElement(base.Referable, base.Qualifiable, base.HasSemantics, base.
         self.parent: Optional[base.UniqueIdShortNamespace] = parent
         self.semantic_id: Optional[base.Reference] = semantic_id
         self.qualifier = base.NamespaceSet(self, [("type", True)], qualifier)
-        self._kind: base.ModelingKind = kind
         self.extension = base.NamespaceSet(self, [("name", True)], extension)
         self.supplemental_semantic_id: base.ConstrainedList[base.Reference] = \
             base.ConstrainedList(supplemental_semantic_id)
