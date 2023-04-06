@@ -256,7 +256,7 @@ class StateOfEvent(Enum):
 class NameType(str):
     def __new__(cls, value: str):
         if len(value) > 128:
-            raise ValueError("NameType has a maximum of 128 characters")
+            raise AASConstraintViolation("NameType has a maximum of 128 characters")
         return super().__new__(cls, value)
 
 
@@ -322,9 +322,9 @@ class MultiLanguageNameType:
     def __init__(self, dict_: Dict[str, str]):
         for value in dict_.values():
             if len(value) == 0:
-                raise ValueError("MultiLanguageNameType has a minimum of 1 character")
+                raise AASConstraintViolation("MultiLanguageNameType has a minimum of 1 character")
             if len(value) > 1023:
-                raise ValueError("MultiLanguageNameType has maximum of 1023 characters")
+                raise AASConstraintViolation("MultiLanguageNameType has maximum of 1023 characters")
         self.dict: LangStringSet = LangStringSet(dict_)
 
 
@@ -332,72 +332,72 @@ class MultiLanguageTextType:
     def __init__(self, dict_: Dict[str, str]):
         for value in dict_.values():
             if len(value) == 0:
-                raise ValueError("MultiLanguageTextType has a minimum of 1 character")
+                raise AASConstraintViolation("MultiLanguageTextType has a minimum of 1 character")
             if len(value) > 1023:
-                raise ValueError("MultiLanguageTextType has maximum of 1023 characters")
+                raise AASConstraintViolation("MultiLanguageTextType has maximum of 1023 characters")
         self.dict: LangStringSet = LangStringSet(dict_)
 
 
 class LabelType(str):
     def __new__(cls, value: str):
         if len(value) > 64:
-            raise ValueError("LabelType has a maximum of 64 characters")
+            raise AASConstraintViolation("LabelType has a maximum of 64 characters")
         return super().__new__(cls, value)
 
 
 class ShortNameType(str):
     def __new__(cls, value: str):
         if len(value) > 64:
-            raise ValueError("ShortNameType has a maximum of 64 characters")
+            raise AASConstraintViolation("ShortNameType has a maximum of 64 characters")
         return super().__new__(cls, value)
 
 
 class MessageTopicType(str):
     def __new__(cls, value: str):
         if len(value) > 255:
-            raise ValueError("MessageTopicType has a maximum of 255 characters")
+            raise AASConstraintViolation("MessageTopicType has a maximum of 255 characters")
         return super().__new__(cls, value)
 
 
 class RevisionType(str):
     def __new__(cls, value: str):
         if len(value) > 4:
-            raise ValueError("RevisionType has a maximum of 4 characters")
+            raise AASConstraintViolation("RevisionType has a maximum of 4 characters")
         if len(value) == 0:
-            raise ValueError("RevisionType has a minimum of 1 character")
+            raise AASConstraintViolation("RevisionType has a minimum of 1 character")
         pattern = r'^([0-9]|[1-9][0-9]*)$'
         if not re.match(pattern, value):
-            raise ValueError("Revision Type does not match with pattern '/^([0-9]|[1-9][0-9]*)$/'")
+            raise AASConstraintViolation("Revision Type does not match with pattern '/^([0-9]|[1-9][0-9]*)$/'")
         return super().__new__(cls, value)
 
 
 class VersionType(str):
     def __new__(cls, value: str):
         if len(value) > 4:
-            raise ValueError("VersionType has a maximum of 4 characters")
+            raise AASConstraintViolation("VersionType has a maximum of 4 characters")
         if len(value) == 0:
-            raise ValueError("VersionType has a minimum of 1 character")
+            raise AASConstraintViolation("VersionType has a minimum of 1 character")
         pattern = r'^([0-9]|[1-9][0-9]*)$'
         if not re.match(pattern, value):
-            raise ValueError("VersionType does not match with pattern '/^([0-9]|[1-9][0-9]*)$/'")
+            raise AASConstraintViolation("VersionType does not match with pattern '/^([0-9]|[1-9][0-9]*)$/'")
         return super().__new__(cls, value)
 
 
 class ContentType(str):
     def __new__(cls, value: str):
         if len(value) > 100:
-            raise ValueError("ContentType has a maximum of 100 characters")
+            raise AASConstraintViolation("ContentType has a maximum of 100 characters")
         if len(value) == 0:
-            raise ValueError("ContentType has a minimum of 1 character")
+            raise AASConstraintViolation("ContentType has a minimum of 1 character")
         return super().__new__(cls, value)
 
 
 class Identifier(str):
     def __new__(cls, value: str):
         if len(value) > 2000:
-            raise ValueError("Identifier has a maximum of 2000 characters")
+            raise AASConstraintViolation("Identifier has a maximum of 2000 characters")
         if len(value) == 0:
-            raise ValueError("Identifier has a minimum of 1 character")
+            raise AASConstraintViolation("Identifier has a minimum of 1 character")
         return super().__new__(cls, value)
 
 
