@@ -269,13 +269,13 @@ class LangStringSet(MutableMapping[str, str]):
     ISO 3166 and ISO 15924.
     """
     def __init__(self, dict_: Dict[str, str]):
-        self.dict: MutableMapping[str, str] = {}
+        self._dict: Dict[str, str] = {}
 
         if len(dict_) < 1:
             raise ValueError(f"A {self.__class__.__name__} must not be empty!")
         for ltag in dict_:
             self._check_language_tag_constraints(ltag)
-            self.dict[ltag] = dict_[ltag]
+            self._dict[ltag] = dict_[ltag]
 
     @classmethod
     def _check_language_tag_constraints(cls, ltag: str):
@@ -288,22 +288,22 @@ class LangStringSet(MutableMapping[str, str]):
                              "two upper-case letters!")
 
     def __getitem__(self, item: str) -> str:
-        return self.dict[item]
+        return self._dict[item]
 
     def __setitem__(self, key: str, value: str) -> None:
         self._check_language_tag_constraints(key)
-        self.dict[key] = value
+        self._dict[key] = value
 
     def __delitem__(self, key: str) -> None:
-        if len(self.dict) == 1:
+        if len(self._dict) == 1:
             raise KeyError(f"A {self.__class__.__name__} must not be empty!")
-        del self.dict[key]
+        del self._dict[key]
 
     def __iter__(self) -> Iterator[str]:
-        return iter(self.dict)
+        return iter(self._dict)
 
     def __len__(self) -> int:
-        return len(self.dict)
+        return len(self._dict)
 
     def __repr__(self) -> str:
         return self.__class__.__name__ + "(" + ", ".join(f'{k}="{v}"' for k, v in self.items()) + ")"
