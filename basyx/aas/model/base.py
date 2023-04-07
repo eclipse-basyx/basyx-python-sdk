@@ -71,6 +71,7 @@ class KeyTypes(Enum):
     :cvar RELATIONSHIP_ELEMENT: :class:`~aas.model.submodel.RelationshipElement`
     :cvar SUBMODEL_ELEMENT: :class:`~aas.model.submodel.SubmodelElement`
     :cvar SUBMODEL_ELEMENT_COLLECTION: :class:`~aas.model.submodel.SubmodelElementCollection`
+    :cvar SUBMODEL_ELEMENT_LIST: :class:`~aas.model.submodel.SubmodelElementList`
 
     **KeyTypes starting from 2000**
 
