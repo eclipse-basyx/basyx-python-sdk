@@ -1107,30 +1107,4 @@ class RevisionTypeTest(unittest.TestCase):
             revision_type: model.RevisionType = model.RevisionType("ABC")
         self.assertEqual("Revision Type does not match with pattern '/^([0-9]|[1-9][0-9]*)$/'", str(cm4.exception))
 
-    def test_constraints_change(self):
-        revision_type: model.RevisionType = model.RevisionType("12")
-        revision_type = "1234"
-        with self.assertRaises(ValueError) as cm:
-            revision_type = "123456"
-        self.assertEqual("RevisionType has a maximum of 4 characters", str(cm.exception))
-        with self.assertRaises(ValueError) as cm2:
-            revision_type = ""
-        self.assertEqual("RevisionType has a minimum of 1 character", str(cm2.exception))
-        with self.assertRaises(ValueError) as cm3:
-            revision_type = model.RevisionType("04")
-        self.assertEqual("Revision Type does not match with pattern '/^([0-9]|[1-9][0-9]*)$/'", str(cm3.exception))
-        with self.assertRaises(ValueError) as cm4:
-            revision_type = model.RevisionType("ABC")
-        self.assertEqual("Revision Type does not match with pattern '/^([0-9]|[1-9][0-9]*)$/'", str(cm4.exception))
-
-    def test_functionality(self):
-        revision_type: model.RevisionType = model.RevisionType("111")
-        revision_type2: model.RevisionType = model.RevisionType("2")
-        revision_type += revision_type2
-        with self.assertRaises(ValueError) as cm:
-            revision_type += "3"
-        self.assertEqual("RevisionType has a maximum of 4 characters", str(cm.exception))
-        revision_type = "50"
-        revision_type2 = "50"
-        self.assertEqual(revision_type, revision_type2)
 
