@@ -2152,7 +2152,7 @@ class DataSpecificationIEC61360(DataSpecificationContent):
                  unit_id: Optional[Reference] = None,
                  source_of_definition: Optional[str] = None,
                  symbol: Optional[str] = None,
-                 value_format: Optional[DataTypeDefXsd] = None,
+                 value_format: DataTypeDefXsd = datatypes.String,
                  value_list: Optional[ValueList] = None,
                  value: Optional[ValueDataType] = None,
                  level_types: Iterable[IEC61360LevelType] = ()):
@@ -2168,9 +2168,9 @@ class DataSpecificationIEC61360(DataSpecificationContent):
         self._symbol: Optional[str] = symbol
         self.value_list: Optional[ValueList] = value_list
         self.level_types: Set[IEC61360LevelType] = set(level_types)
-        self.value_format: Optional[DataTypeDefXsd] = value_format
-        self._value: Optional[ValueDataType] = (datatypes.trivial_cast(value, self.value_format)
-                                                if (value is not None and self.value_format is not None) else None)
+        self.value_format: DataTypeDefXsd = value_format
+        self._value: Optional[ValueDataType] = datatypes.trivial_cast(value, self.value_format) if value is not None \
+            else None
 
     @property
     def value(self):
