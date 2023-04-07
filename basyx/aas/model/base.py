@@ -1560,15 +1560,15 @@ class ValueReferencePair:
     def __init__(self,
                  value: ValueDataType,
                  value_id: Reference,
-                 value_type: Optional[DataTypeDefXsd] = None):
+                 value_type: DataTypeDefXsd = datatypes.String):
         """
 
 
         TODO: Add instruction what to do after construction
         """
-        self.value_type: Optional[DataTypeDefXsd] = value_type
+        self.value_type: DataTypeDefXsd = value_type
         self.value_id: Reference = value_id
-        self._value: ValueDataType = datatypes.trivial_cast(value, value_type) if value_type else value
+        self._value: ValueDataType = datatypes.trivial_cast(value, value_type)
 
     @property
     def value(self):
@@ -1579,7 +1579,7 @@ class ValueReferencePair:
         if value is None:
             raise AttributeError('Value can not be None')
         else:
-            self._value = datatypes.trivial_cast(value, self.value_type) if self.value_type else value
+            self._value = datatypes.trivial_cast(value, self.value_type)
 
     def __repr__(self) -> str:
         return "ValueReferencePair(value_type={}, value={}, value_id={})".format(self.value_type,
