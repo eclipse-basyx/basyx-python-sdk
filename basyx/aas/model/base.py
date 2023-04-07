@@ -1028,6 +1028,9 @@ class Resource:
         self.path: PathType = path
         self.content_type: Optional[ContentType] = content_type
 
+    def __repr__(self):
+        return f"Resource[{self.path}]"
+
 
 class DataSpecificationContent:
     """
