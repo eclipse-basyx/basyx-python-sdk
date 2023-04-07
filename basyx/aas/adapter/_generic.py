@@ -13,10 +13,8 @@ from typing import Dict, Type
 from basyx.aas import model
 
 # XML Namespace definition
-XML_NS_MAP = {"aas": "https://admin-shell.io/aas/3/0",
-              "abac": "https://admin-shell.io/aas/abac/3/0"}
+XML_NS_MAP = {"aas": "https://admin-shell.io/aas/3/0"}
 XML_NS_AAS = "{" + XML_NS_MAP["aas"] + "}"
-XML_NS_ABAC = "{" + XML_NS_MAP["abac"] + "}"
 
 MODELING_KIND: Dict[model.ModelingKind, str] = {
     model.ModelingKind.TEMPLATE: 'Template',

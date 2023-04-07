@@ -25,15 +25,11 @@ provider.py
     Providers for AAS objects, in order to store and retrieve :class:`~aas.model.base.Identifiable` objects by their
     :class:`~aas.model.base.Identifier`.
 
-security.py
-    Security model of the AAS. Currently not existing.
-
 submodel.py
     Meta-model of the submodels and events.
 """
 
 from .aas import *
-from .security import *
 from .base import *
 from .submodel import *
 from .provider import *

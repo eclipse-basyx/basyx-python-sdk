@@ -511,25 +511,6 @@ def asset_administration_shell_to_xml(obj: model.AssetAdministrationShell,
 
 
 # ##############################################################
-# transformation functions to serialize classes from model.security
-# ##############################################################
-
-
-def security_to_xml(obj: model.Security,
-                    tag: str = _generic.XML_NS_ABAC+"security") -> etree.Element:
-    """
-    Serialization of objects of class :class:`~aas.model.security.Security` to XML
-
-    todo: This is not yet implemented
-
-    :param obj: Object of class :class:`~aas.model.security.Security`
-    :param tag: Namespace+Tag of the serialized element (optional). Default is "aas:security"
-    :return: Serialized ElementTree object
-    """
-    return abstract_classes_to_xml(tag, obj)
-
-
-# ##############################################################
 # transformation functions to serialize classes from model.submodel
 # ##############################################################
 

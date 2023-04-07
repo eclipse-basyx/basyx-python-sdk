@@ -416,21 +416,6 @@ class AASToJsonEncoder(json.JSONEncoder):
         return data
 
     # #################################################################
-    # transformation functions to serialize classes from model.security
-    # #################################################################
-
-    @classmethod
-    def _security_to_json(cls, obj: model.Security) -> Dict[str, object]:  # has no attributes in our implementation
-        """
-        serialization of an object from class Security to json
-
-        :param obj: object of class Security
-        :return: dict with the serialized attributes of this object
-        """
-        data = cls._abstract_classes_to_json(obj)
-        return data
-
-    # #################################################################
     # transformation functions to serialize classes from model.submodel
     # #################################################################
 

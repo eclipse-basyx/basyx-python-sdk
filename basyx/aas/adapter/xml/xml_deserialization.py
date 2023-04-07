@@ -654,13 +654,6 @@ class AASFromXmlDecoder:
         return extension
 
     @classmethod
-    def construct_security(cls, _element: etree.Element, object_class=model.Security, **_kwargs: Any) -> model.Security:
-        """
-        TODO: this is just a stub implementation
-        """
-        return object_class()
-
-    @classmethod
     def construct_submodel_element(cls, element: etree.Element, **kwargs: Any) -> model.SubmodelElement:
         """
         This function doesn't support the object_class parameter.
@@ -1346,8 +1339,6 @@ def read_aas_xml_element(file: IO, construct: XMLConstructables, failsafe: bool 
         constructor = decoder_.construct_administrative_information
     elif construct == XMLConstructables.QUALIFIER:
         constructor = decoder_.construct_qualifier
-    elif construct == XMLConstructables.SECURITY:
-        constructor = decoder_.construct_security
     elif construct == XMLConstructables.OPERATION_VARIABLE:
         constructor = decoder_.construct_operation_variable
     elif construct == XMLConstructables.ANNOTATED_RELATIONSHIP_ELEMENT:

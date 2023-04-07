@@ -359,10 +359,6 @@ class AASFromJsonDecoder(json.JSONDecoder):
         return ret
 
     @classmethod
-    def _construct_security(cls, _dct: Dict[str, object], object_class=model.Security) -> model.Security:
-        return object_class()
-
-    @classmethod
     def _construct_operation_variable(
             cls, dct: Dict[str, object], object_class=model.OperationVariable) -> model.OperationVariable:
         # TODO: remove the following type: ignore comments when mypy supports abstract types for Type[T]
