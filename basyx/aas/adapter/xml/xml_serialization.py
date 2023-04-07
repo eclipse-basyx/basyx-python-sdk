@@ -433,9 +433,8 @@ def data_specification_iec61360_to_xml(obj: model.DataSpecificationIEC61360,
                                                                 text=_generic.IEC61360_DATA_TYPES[obj.data_type]))
     if obj.definition is not None:
         et_data_specification_iec61360.append(lang_string_set_to_xml(obj.definition, NS_AAS + "definition"))
-    if obj.value_format is not None:
-        et_data_specification_iec61360.append(_generate_element(NS_AAS + "valueFormat",
-                                                                text=model.datatypes.XSD_TYPE_NAMES[obj.value_format]))
+    et_data_specification_iec61360.append(_generate_element(NS_AAS + "valueFormat",
+                                                            text=model.datatypes.XSD_TYPE_NAMES[obj.value_format]))
     # this can be either None or an empty set, both of which are equivalent to the bool false
     # thus we don't check 'is not None' for this property
     if obj.value_list:

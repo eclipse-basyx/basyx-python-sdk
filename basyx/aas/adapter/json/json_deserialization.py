@@ -386,8 +386,7 @@ class AASFromJsonDecoder(json.JSONDecoder):
         return model.LangStringSet(ret)
 
     @classmethod
-    def _construct_value_list(cls, dct: Dict[str, object], value_format: Optional[model.DataTypeDefXsd] = None) \
-            -> model.ValueList:
+    def _construct_value_list(cls, dct: Dict[str, object], value_format: model.DataTypeDefXsd) -> model.ValueList:
         ret: model.ValueList = set()
         for element in _get_ts(dct, 'valueReferencePairs', list):
             try:
@@ -402,10 +401,9 @@ class AASFromJsonDecoder(json.JSONDecoder):
         return ret
 
     @classmethod
-    def _construct_value_reference_pair(cls, dct: Dict[str, object],
-                                        value_format: Optional[model.DataTypeDefXsd] = None,
+    def _construct_value_reference_pair(cls, dct: Dict[str, object], value_format: model.DataTypeDefXsd,
                                         object_class=model.ValueReferencePair) -> model.ValueReferencePair:
-        return object_class(value=model.datatypes.from_xsd(_get_ts(dct, 'value', str), value_format),  # type: ignore
+        return object_class(value=model.datatypes.from_xsd(_get_ts(dct, 'value', str), value_format),
                             value_id=cls._construct_reference(_get_ts(dct, 'valueId', dict)),
                             value_type=value_format)
 
@@ -507,12 +505,10 @@ class AASFromJsonDecoder(json.JSONDecoder):
             ret.source_of_definition = _get_ts(dct, 'sourceOfDefinition', str)
         if 'symbol' in dct:
             ret.symbol = _get_ts(dct, 'symbol', str)
-        value_format: Optional[model.DataTypeDefXsd] = None
         if 'valueFormat' in dct:
-            value_format = model.datatypes.XSD_TYPE_CLASSES[_get_ts(dct, 'valueFormat', str)]
-            ret.value_format = value_format
+            ret.value_format = model.datatypes.XSD_TYPE_CLASSES[_get_ts(dct, 'valueFormat', str)]
         if 'valueList' in dct:
-            ret.value_list = cls._construct_value_list(_get_ts(dct, 'valueList', dict), value_format=value_format)
+            ret.value_list = cls._construct_value_list(_get_ts(dct, 'valueList', dict), value_format=ret.value_format)
         if 'value' in dct:
             ret.value = model.datatypes.from_xsd(_get_ts(dct, 'value', str), ret.value_format)
         if 'valueId' in dct:

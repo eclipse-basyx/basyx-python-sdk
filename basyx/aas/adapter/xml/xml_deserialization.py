@@ -1029,18 +1029,18 @@ class AASFromXmlDecoder:
         return submodel
 
     @classmethod
-    def construct_value_reference_pair(cls, element: etree.Element, value_format: Optional[model.DataTypeDefXsd] = None,
+    def construct_value_reference_pair(cls, element: etree.Element, value_format: model.DataTypeDefXsd,
                                        object_class=model.ValueReferencePair, **_kwargs: Any) \
             -> model.ValueReferencePair:
         return object_class(
-            model.datatypes.from_xsd(_child_text_mandatory(element, NS_AAS + "value"), value_format),  # type: ignore
+            model.datatypes.from_xsd(_child_text_mandatory(element, NS_AAS + "value"), value_format),
             _child_construct_mandatory(element, NS_AAS + "valueId", cls.construct_reference),
             value_format
         )
 
     @classmethod
-    def construct_value_list(cls, element: etree.Element, value_format: Optional[model.DataTypeDefXsd] = None,
-                             **_kwargs: Any) -> model.ValueList:
+    def construct_value_list(cls, element: etree.Element, value_format: model.DataTypeDefXsd, **_kwargs: Any) \
+            -> model.ValueList:
         """
         This function doesn't support the object_class parameter, because ValueList is just a generic type alias.
         """
@@ -1167,7 +1167,7 @@ class AASFromXmlDecoder:
         if value_format is not None:
             ds_iec.value_format = value_format
         value_list = _failsafe_construct(element.find(NS_AAS + "valueList"), cls.construct_value_list, cls.failsafe,
-                                         value_format=value_format)
+                                         value_format=ds_iec.value_format)
         if value_list is not None:
             ds_iec.value_list = value_list
         value = _get_text_or_none(element.find(NS_AAS + "value"))
