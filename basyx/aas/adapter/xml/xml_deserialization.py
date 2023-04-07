@@ -51,7 +51,7 @@ import enum
 from typing import Any, Callable, Dict, IO, Iterable, Optional, Set, Tuple, Type, TypeVar
 from .._generic import XML_NS_AAS, MODELING_KIND_INVERSE, ASSET_KIND_INVERSE, KEY_TYPES_INVERSE, ENTITY_TYPES_INVERSE,\
     IEC61360_DATA_TYPES_INVERSE, IEC61360_LEVEL_TYPES_INVERSE, KEY_TYPES_CLASSES_INVERSE, REFERENCE_TYPES_INVERSE,\
-    DIRECTION_INVERSE, STATE_OF_EVENT_INVERSE
+    DIRECTION_INVERSE, STATE_OF_EVENT_INVERSE, QUALIFIER_KIND_INVERSE
 
 NS_AAS = XML_NS_AAS
 
@@ -625,6 +625,9 @@ class AASFromXmlDecoder:
             _child_text_mandatory(element, NS_AAS + "type"),
             _child_text_mandatory_mapped(element, NS_AAS + "valueType", model.datatypes.XSD_TYPE_CLASSES)
         )
+        kind = _get_text_mapped_or_none(element.find(NS_AAS + "kind"), QUALIFIER_KIND_INVERSE)
+        if kind is not None:
+            qualifier.kind = kind
         value = _get_text_or_none(element.find(NS_AAS + "value"))
         if value is not None:
             qualifier.value = model.datatypes.from_xsd(value, qualifier.value_type)

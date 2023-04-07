@@ -411,7 +411,8 @@
                                 ]
                             },
                             "valueType": "xs:int",
-                            "type": "http://acplt.org/Qualifier/ExampleQualifier2"
+                            "type": "http://acplt.org/Qualifier/ExampleQualifier2",
+                            "kind": "TemplateQualifier"
                         },
                         {
                             "value": "100",
@@ -425,7 +426,8 @@
                                 ]
                             },
                             "valueType": "xs:int",
-                            "type": "http://acplt.org/Qualifier/ExampleQualifier"
+                            "type": "http://acplt.org/Qualifier/ExampleQualifier",
+                            "kind": "ConceptQualifier"
                         }
                     ],
                     "value": "ACPLT",
@@ -463,6 +465,23 @@
                             }
                         ]
                     },
+                    "qualifiers": [
+                        {
+                            "value": "2023-04-07T16:59:54.870123",
+                            "valueId": {
+                                "type": "GlobalReference",
+                                "keys": [
+                                    {
+                                        "type": "GlobalReference",
+                                        "value": "http://acplt.org/ValueId/ExampleValueId"
+                                    }
+                                ]
+                            },
+                            "valueType": "xs:dateTime",
+                            "type": "http://acplt.org/Qualifier/ExampleQualifier3",
+                            "kind": "ValueQualifier"
+                        }
+                    ],
                     "value": "978-8234-234-342",
                     "valueId": {
                         "type": "GlobalReference",

@@ -102,14 +102,24 @@ def create_example_asset_identification_submodel() -> model.Submodel:
         value_type=model.datatypes.Int,
         value=100,
         value_id=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
-                                                  value='http://acplt.org/ValueId/ExampleValueId'),)))
+                                                  value='http://acplt.org/ValueId/ExampleValueId'),)),
+        kind=model.QualifierKind.CONCEPT_QUALIFIER)
 
     qualifier2 = model.Qualifier(
         type_='http://acplt.org/Qualifier/ExampleQualifier2',
         value_type=model.datatypes.Int,
         value=50,
         value_id=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
-                                                  value='http://acplt.org/ValueId/ExampleValueId'),)))
+                                                  value='http://acplt.org/ValueId/ExampleValueId'),)),
+        kind=model.QualifierKind.TEMPLATE_QUALIFIER)
+
+    qualifier3 = model.Qualifier(
+        type_='http://acplt.org/Qualifier/ExampleQualifier3',
+        value_type=model.datatypes.DateTime,
+        value=model.datatypes.DateTime(2023, 4, 7, 16, 59, 54, 870123),
+        value_id=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
+                                                  value='http://acplt.org/ValueId/ExampleValueId'),)),
+        kind=model.QualifierKind.VALUE_QUALIFIER)
 
     extension = model.Extension(
         name='ExampleExtension',
@@ -167,7 +177,7 @@ def create_example_asset_identification_submodel() -> model.Submodel:
         semantic_id=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
                                                      value='http://opcfoundation.org/UA/DI/1.1/DeviceType/Serialnumber'
                                                      ),)),
-        qualifier=(),
+        qualifier={qualifier3},
         kind=model.ModelingKind.INSTANCE,
         extension=(),
         supplemental_semantic_id=(),

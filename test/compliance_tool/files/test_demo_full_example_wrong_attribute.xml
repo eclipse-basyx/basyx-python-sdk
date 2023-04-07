@@ -385,6 +385,7 @@
           </aas:semanticId>
           <aas:qualifiers>
             <aas:qualifier>
+              <aas:kind>ConceptQualifier</aas:kind>
               <aas:type>http://acplt.org/Qualifier/ExampleQualifier</aas:type>
               <aas:valueType>xs:int</aas:valueType>
               <aas:value>100</aas:value>
@@ -399,6 +400,7 @@
               </aas:valueId>
             </aas:qualifier>
             <aas:qualifier>
+              <aas:kind>TemplateQualifier</aas:kind>
               <aas:type>http://acplt.org/Qualifier/ExampleQualifier2</aas:type>
               <aas:valueType>xs:int</aas:valueType>
               <aas:value>50</aas:value>
@@ -448,6 +450,23 @@
               </aas:key>
             </aas:keys>
           </aas:semanticId>
+          <aas:qualifiers>
+            <aas:qualifier>
+              <aas:kind>ValueQualifier</aas:kind>
+              <aas:type>http://acplt.org/Qualifier/ExampleQualifier3</aas:type>
+              <aas:valueType>xs:dateTime</aas:valueType>
+              <aas:value>2023-04-07T16:59:54.870123</aas:value>
+              <aas:valueId>
+                <aas:type>GlobalReference</aas:type>
+                <aas:keys>
+                  <aas:key>
+                    <aas:type>GlobalReference</aas:type>
+                    <aas:value>http://acplt.org/ValueId/ExampleValueId</aas:value>
+                  </aas:key>
+                </aas:keys>
+              </aas:valueId>
+            </aas:qualifier>
+          </aas:qualifiers>
           <aas:valueType>xs:string</aas:valueType>
           <aas:value>978-8234-234-342</aas:value>
           <aas:valueId>
