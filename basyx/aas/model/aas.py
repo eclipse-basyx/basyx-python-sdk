@@ -57,7 +57,6 @@ class AssetInformation:
         self.asset_type = asset_type
         self.default_thumbnail: Optional[base.Resource] = default_thumbnail
 
-
     def _get_global_asset_id(self):
         return self._global_asset_id
 
