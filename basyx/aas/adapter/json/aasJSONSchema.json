@@ -576,7 +576,11 @@
               "type": "string"
             },
             "refersTo": {
-              "$ref": "#/definitions/Reference"
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Reference"
+              },
+              "minItems": 1
             }
           },
           "required": [
@@ -739,12 +743,26 @@
       ]
     },
     "LevelType": {
-      "type": "string",
-      "enum": [
-        "Max",
-        "Min",
-        "Nom",
-        "Typ"
+      "type": "object",
+      "properties": {
+        "min": {
+          "type": "boolean"
+        },
+        "nom": {
+          "type": "boolean"
+        },
+        "typ": {
+          "type": "boolean"
+        },
+        "max": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "min",
+        "nom",
+        "typ",
+        "max"
       ]
     },
     "ModelType": {

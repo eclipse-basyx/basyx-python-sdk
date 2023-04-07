@@ -7,7 +7,7 @@
 import unittest
 
 from basyx.aas.examples.data import example_aas, example_aas_mandatory_attributes, example_aas_missing_attributes, \
-    example_concept_description, example_submodel_template
+    example_submodel_template
 from basyx.aas.examples.data._helper import AASDataChecker
 from basyx.aas import model
 
@@ -152,29 +152,6 @@ class ExampleAASMissingTest(unittest.TestCase):
         self.assertIn("Submodel[test]", str(cm.exception))
         obj_store.discard(failed_submodel)
         example_aas_missing_attributes.check_full_example(checker, obj_store)
-
-
-class ExampleConceptDescriptionTest(unittest.TestCase):
-    def test_iec61360_concept_description(self):
-        checker = AASDataChecker(raise_immediately=True)
-        concept_description = example_concept_description.create_iec61360_concept_description()
-        example_concept_description.check_example_iec61360_concept_description(checker, concept_description)
-
-    def test_full_example(self):
-        checker = AASDataChecker(raise_immediately=True)
-        obj_store: model.DictObjectStore[model.Identifiable] = model.DictObjectStore()
-        obj_store.add(example_concept_description.create_iec61360_concept_description())
-        example_concept_description.check_full_example(checker, obj_store)
-
-        failed_submodel = model.Submodel(id_='test')
-        obj_store.add(failed_submodel)
-        with self.assertRaises(AssertionError) as cm:
-            example_concept_description.check_full_example(checker, obj_store)
-        self.assertIn("Given submodel list must not have extra submodels", str(cm.exception))
-        self.assertIn("Submodel[test]", str(cm.exception))
-        obj_store.discard(failed_submodel)
-
-        example_concept_description.check_full_example(checker, obj_store)
 
 
 class ExampleSubmodelTemplate(unittest.TestCase):

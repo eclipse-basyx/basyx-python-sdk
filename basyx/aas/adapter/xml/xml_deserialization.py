@@ -49,10 +49,11 @@ import base64
 import enum
 
 from typing import Any, Callable, Dict, IO, Iterable, Optional, Set, Tuple, Type, TypeVar
-from .xml_serialization import NS_AAS
-from .._generic import MODELING_KIND_INVERSE, ASSET_KIND_INVERSE, KEY_TYPES_INVERSE, ENTITY_TYPES_INVERSE,\
+from .._generic import XML_NS_AAS, MODELING_KIND_INVERSE, ASSET_KIND_INVERSE, KEY_TYPES_INVERSE, ENTITY_TYPES_INVERSE,\
     IEC61360_DATA_TYPES_INVERSE, IEC61360_LEVEL_TYPES_INVERSE, KEY_TYPES_CLASSES_INVERSE, REFERENCE_TYPES_INVERSE,\
     DIRECTION_INVERSE, STATE_OF_EVENT_INVERSE
+
+NS_AAS = XML_NS_AAS
 
 logger = logging.getLogger(__name__)
 
@@ -406,7 +407,7 @@ def _expect_reference_type(element: etree.Element, expected_type: Type[model.Ref
     :param expected_type: The expected type of the Reference.
     :return: None
     """
-    actual_type = _get_attrib_mandatory_mapped(element, "type", REFERENCE_TYPES_INVERSE)
+    actual_type = _child_text_mandatory_mapped(element, NS_AAS + "type", REFERENCE_TYPES_INVERSE)
     if actual_type is not expected_type:
         raise ValueError(f"{_element_pretty_identifier(element)} is of type {actual_type}, expected {expected_type}!")
 
@@ -458,11 +459,23 @@ class AASFromXmlDecoder:
                                               cls.failsafe)
             if semantic_id is not None:
                 obj.semantic_id = semantic_id
+            supplemental_semantic_ids = element.find(NS_AAS + "supplementalSemanticIds")
+            if supplemental_semantic_ids is not None:
+                for supplemental_semantic_id in _child_construct_multiple(supplemental_semantic_ids,
+                                                                          NS_AAS + "reference", cls.construct_reference,
+                                                                          cls.failsafe):
+                    obj.supplemental_semantic_id.append(supplemental_semantic_id)
         if isinstance(obj, model.Qualifiable) and not cls.stripped:
             qualifiers_elem = element.find(NS_AAS + "qualifiers")
             if qualifiers_elem is not None and len(qualifiers_elem) > 0:
                 for qualifier in _failsafe_construct_multiple(qualifiers_elem, cls.construct_qualifier, cls.failsafe):
                     obj.qualifier.add(qualifier)
+        if isinstance(obj, model.HasDataSpecification) and not cls.stripped:
+            embedded_data_specifications_elem = element.find(NS_AAS + "embeddedDataSpecifications")
+            if embedded_data_specifications_elem is not None:
+                for eds in _failsafe_construct_multiple(embedded_data_specifications_elem,
+                                                        cls.construct_embedded_data_specification, cls.failsafe):
+                    obj.embedded_data_specifications.append(eds)
         if isinstance(obj, model.HasExtension) and not cls.stripped:
             extension_elem = element.find(NS_AAS + "extension")
             if extension_elem is not None:
@@ -586,10 +599,12 @@ class AASFromXmlDecoder:
     @classmethod
     def construct_administrative_information(cls, element: etree.Element, object_class=model.AdministrativeInformation,
                                              **_kwargs: Any) -> model.AdministrativeInformation:
-        return object_class(
+        administrative_information = object_class(
             revision=_get_text_or_none(element.find(NS_AAS + "revision")),
             version=_get_text_or_none(element.find(NS_AAS + "version"))
         )
+        cls._amend_abstract_attributes(administrative_information, element)
+        return administrative_information
 
     @classmethod
     def construct_lang_string_set(cls, element: etree.Element, namespace: str = NS_AAS, **_kwargs: Any) \
@@ -700,15 +715,11 @@ class AASFromXmlDecoder:
             -> model.AnnotatedRelationshipElement:
         annotated_relationship_element = cls._construct_relationship_element_internal(element, object_class)
         if not cls.stripped:
-            for data_element in _get_child_mandatory(element, NS_AAS + "annotations"):
-                if len(data_element) == 0:
-                    raise KeyError(f"{_element_pretty_identifier(data_element)} has no data element!")
-                if len(data_element) > 1:
-                    logger.warning(f"{_element_pretty_identifier(data_element)} has more than one data element, "
-                                   "using the first one...")
-                constructed = _failsafe_construct(data_element[0], cls.construct_data_element, cls.failsafe)
-                if constructed is not None:
-                    annotated_relationship_element.annotation.add(constructed)
+            annotations = element.find(NS_AAS + "annotations")
+            if annotations is not None:
+                for data_element in _failsafe_construct_multiple(annotations, cls.construct_data_element,
+                                                                 cls.failsafe):
+                    annotated_relationship_element.annotation.add(data_element)
         return annotated_relationship_element
 
     @classmethod
@@ -776,18 +787,11 @@ class AASFromXmlDecoder:
             specific_asset_id=specific_asset_id)
 
         if not cls.stripped:
-            # TODO: remove wrapping submodelElement, in accordance to future schemas
-            # https://git.rwth-aachen.de/acplt/pyi40aas/-/issues/57
-            statements = _get_child_mandatory(element, NS_AAS + "statements")
-            for submodel_element in _get_all_children_expect_tag(statements, NS_AAS + "submodelElement", cls.failsafe):
-                if len(submodel_element) == 0:
-                    raise KeyError(f"{_element_pretty_identifier(submodel_element)} has no submodel element!")
-                if len(submodel_element) > 1:
-                    logger.warning(f"{_element_pretty_identifier(submodel_element)} has more than one submodel element,"
-                                   " using the first one...")
-                constructed = _failsafe_construct(submodel_element[0], cls.construct_submodel_element, cls.failsafe)
-                if constructed is not None:
-                    entity.statement.add(constructed)
+            statements = element.find(NS_AAS + "statements")
+            if statements is not None:
+                for submodel_element in _failsafe_construct_multiple(statements, cls.construct_submodel_element,
+                                                                     cls.failsafe):
+                    entity.statement.add(submodel_element)
         cls._amend_abstract_attributes(entity, element)
         return entity
 
@@ -838,15 +842,21 @@ class AASFromXmlDecoder:
             _child_text_mandatory(element, NS_AAS + "idShort"),
             kind=_get_modeling_kind(element)
         )
-        for input_variable in _failsafe_construct_multiple(element.findall(NS_AAS + "inputVariable"),
-                                                           cls.construct_operation_variable, cls.failsafe):
-            operation.input_variable.append(input_variable)
-        for output_variable in _failsafe_construct_multiple(element.findall(NS_AAS + "outputVariable"),
+        input_variables = element.find(NS_AAS + "inputVariables")
+        if input_variables is not None:
+            for input_variable in _child_construct_multiple(input_variables, NS_AAS + "operationVariable",
                                                             cls.construct_operation_variable, cls.failsafe):
-            operation.output_variable.append(output_variable)
-        for in_output_variable in _failsafe_construct_multiple(element.findall(NS_AAS + "inoutputVariable"),
-                                                               cls.construct_operation_variable, cls.failsafe):
-            operation.in_output_variable.append(in_output_variable)
+                operation.input_variable.append(input_variable)
+        output_variables = element.find(NS_AAS + "outputVariables")
+        if output_variables is not None:
+            for output_variable in _child_construct_multiple(output_variables, NS_AAS + "operationVariable",
+                                                             cls.construct_operation_variable, cls.failsafe):
+                operation.output_variable.append(output_variable)
+        in_output_variables = element.find(NS_AAS + "inoutputVariables")
+        if in_output_variables is not None:
+            for in_output_variable in _child_construct_multiple(in_output_variables, NS_AAS + "operationVariable",
+                                                                cls.construct_operation_variable, cls.failsafe):
+                operation.in_output_variable.append(in_output_variable)
         cls._amend_abstract_attributes(operation, element)
         return operation
 
@@ -908,18 +918,11 @@ class AASFromXmlDecoder:
             kind=_get_modeling_kind(element)
         )
         if not cls.stripped:
-            value = _get_child_mandatory(element, NS_AAS + "value")
-            # TODO: simplify this should our suggestion regarding the XML schema get accepted
-            # https://git.rwth-aachen.de/acplt/pyi40aas/-/issues/57
-            for submodel_element in _get_all_children_expect_tag(value, NS_AAS + "submodelElement", cls.failsafe):
-                if len(submodel_element) == 0:
-                    raise KeyError(f"{_element_pretty_identifier(submodel_element)} has no submodel element!")
-                if len(submodel_element) > 1:
-                    logger.warning(f"{_element_pretty_identifier(submodel_element)} has more than one submodel element,"
-                                   " using the first one...")
-                constructed = _failsafe_construct(submodel_element[0], cls.construct_submodel_element, cls.failsafe)
-                if constructed is not None:
-                    collection.value.add(constructed)
+            value = element.find(NS_AAS + "value")
+            if value is not None:
+                for submodel_element in _failsafe_construct_multiple(value, cls.construct_submodel_element,
+                                                                     cls.failsafe):
+                    collection.value.add(submodel_element)
         cls._amend_abstract_attributes(collection, element)
         return collection
 
@@ -998,7 +1001,7 @@ class AASFromXmlDecoder:
             for id in _child_construct_multiple(specific_assset_ids, NS_AAS + "specificAssetId",
                                                 cls.construct_specific_asset_id, cls.failsafe):
                 asset_information.specific_asset_id.add(id)
-        thumbnail = _failsafe_construct(element.find(NS_AAS + "defaultThumbNail"),
+        thumbnail = _failsafe_construct(element.find(NS_AAS + "defaultThumbnail"),
                                         cls.construct_resource, cls.failsafe)
         if thumbnail is not None:
             asset_information.default_thumbnail = thumbnail
@@ -1014,19 +1017,11 @@ class AASFromXmlDecoder:
             kind=_get_modeling_kind(element)
         )
         if not cls.stripped:
-            # TODO: simplify this should our suggestion regarding the XML schema get accepted
-            # https://git.rwth-aachen.de/acplt/pyi40aas/-/issues/57
-            for submodel_element in _get_all_children_expect_tag(
-                    _get_child_mandatory(element, NS_AAS + "submodelElements"), NS_AAS + "submodelElement",
-                    cls.failsafe):
-                if len(submodel_element) == 0:
-                    raise KeyError(f"{_element_pretty_identifier(submodel_element)} has no submodel element!")
-                if len(submodel_element) > 1:
-                    logger.warning(f"{_element_pretty_identifier(submodel_element)} has more than one submodel element,"
-                                   " using the first one...")
-                constructed = _failsafe_construct(submodel_element[0], cls.construct_submodel_element, cls.failsafe)
-                if constructed is not None:
-                    submodel.submodel_element.add(constructed)
+            submodel_elements = element.find(NS_AAS + "submodelElements")
+            if submodel_elements is not None:
+                for submodel_element in _failsafe_construct_multiple(submodel_elements, cls.construct_submodel_element,
+                                                                     cls.failsafe):
+                    submodel.submodel_element.add(submodel_element)
         cls._amend_abstract_attributes(submodel, element)
         return submodel
 
@@ -1034,12 +1029,10 @@ class AASFromXmlDecoder:
     def construct_value_reference_pair(cls, element: etree.Element, value_format: Optional[model.DataTypeDefXsd] = None,
                                        object_class=model.ValueReferencePair, **_kwargs: Any) \
             -> model.ValueReferencePair:
-        if value_format is None:
-            raise ValueError("No value format given!")
         return object_class(
-            value_format,
-            model.datatypes.from_xsd(_child_text_mandatory(element, NS_AAS + "value"), value_format),
-            _child_construct_mandatory(element, NS_AAS + "valueId", cls.construct_reference)
+            model.datatypes.from_xsd(_child_text_mandatory(element, NS_AAS + "value"), value_format),  # type: ignore
+            _child_construct_mandatory(element, NS_AAS + "valueId", cls.construct_reference),
+            value_format
         )
 
     @classmethod
@@ -1048,101 +1041,160 @@ class AASFromXmlDecoder:
         """
         This function doesn't support the object_class parameter, because ValueList is just a generic type alias.
         """
+
         return set(
-            _child_construct_multiple(element, NS_AAS + "valueReferencePair", cls.construct_value_reference_pair,
+            _child_construct_multiple(_get_child_mandatory(element, NS_AAS + "valueReferencePairs"),
+                                      NS_AAS + "valueReferencePair", cls.construct_value_reference_pair,
                                       cls.failsafe, value_format=value_format)
         )
 
     @classmethod
-    def construct_iec61360_concept_description(cls, element: etree.Element,
-                                               identifier: Optional[model.Identifier] = None,
-                                               object_class=model.IEC61360ConceptDescription, **_kwargs: Any) \
-            -> model.IEC61360ConceptDescription:
-        if identifier is None:
-            raise ValueError("No identifier given!")
-        cd = object_class(
-            identifier,
-            _child_construct_mandatory(element, NS_AAS + "preferredName", cls.construct_lang_string_set)
-        )
-        data_type = _get_text_mapped_or_none(element.find(NS_AAS + "dataType"), IEC61360_DATA_TYPES_INVERSE)
-        if data_type is not None:
-            cd.data_type = data_type
-        definition = _failsafe_construct(element.find(NS_AAS + "definition"), cls.construct_lang_string_set,
-                                         cls.failsafe)
-        if definition is not None:
-            cd.definition = definition
-        short_name = _failsafe_construct(element.find(NS_AAS + "shortName"), cls.construct_lang_string_set,
-                                         cls.failsafe)
-        if short_name is not None:
-            cd.short_name = short_name
-        unit = _get_text_or_none(element.find(NS_AAS + "unit"))
-        if unit is not None:
-            cd.unit = unit
-        unit_id = _failsafe_construct(element.find(NS_AAS + "unitId"), cls.construct_reference, cls.failsafe)
-        if unit_id is not None:
-            cd.unit_id = unit_id
-        source_of_definition = _get_text_or_none(element.find(NS_AAS + "sourceOfDefinition"))
-        if source_of_definition is not None:
-            cd.source_of_definition = source_of_definition
-        symbol = _get_text_or_none(element.find(NS_AAS + "symbol"))
-        if symbol is not None:
-            cd.symbol = symbol
-        value_format = _get_text_mapped_or_none(element.find(NS_AAS + "valueFormat"),
-                                                model.datatypes.XSD_TYPE_CLASSES)
-        if value_format is not None:
-            cd.value_format = value_format
-        value_list = _failsafe_construct(element.find(NS_AAS + "valueList"), cls.construct_value_list, cls.failsafe,
-                                         value_format=value_format)
-        if value_list is not None:
-            cd.value_list = value_list
-        value = _get_text_or_none(element.find(NS_AAS + "value"))
-        if value is not None and value_format is not None:
-            cd.value = model.datatypes.from_xsd(value, value_format)
-        value_id = _failsafe_construct(element.find(NS_AAS + "valueId"), cls.construct_reference, cls.failsafe)
-        if value_id is not None:
-            cd.value_id = value_id
-        for level_type_element in element.findall(NS_AAS + "levelType"):
-            level_type = _get_text_mapped_or_none(level_type_element, IEC61360_LEVEL_TYPES_INVERSE)
-            if level_type is None:
-                error_message = f"{_element_pretty_identifier(level_type_element)} has invalid value: " \
-                                + str(level_type_element.text)
-                if not cls.failsafe:
-                    raise ValueError(error_message)
-                logger.warning(error_message)
-                continue
-            cd.level_types.add(level_type)
+    def construct_concept_description(cls, element: etree.Element, object_class=model.ConceptDescription,
+                                      **_kwargs: Any) -> model.ConceptDescription:
+        cd = object_class(_child_text_mandatory(element, NS_AAS + "id"))
+        is_case_of = element.find(NS_AAS + "isCaseOf")
+        if is_case_of is not None:
+            for ref in _child_construct_multiple(is_case_of, NS_AAS + "reference", cls.construct_reference,
+                                                 cls.failsafe):
+                cd.is_case_of.add(ref)
+        cls._amend_abstract_attributes(cd, element)
         return cd
 
     @classmethod
-    def construct_concept_description(cls, element: etree.Element, object_class=model.ConceptDescription,
-                                      **_kwargs: Any) -> model.ConceptDescription:
-        cd: Optional[model.ConceptDescription] = None
-        identifier = _child_text_mandatory(element, NS_AAS + "id")
-        # Hack to detect IEC61360ConceptDescriptions, which are represented using dataSpecification according to DotAAS
-        dspec_tag = NS_AAS + "embeddedDataSpecification"
-        dspecs = element.findall(dspec_tag)
-        if len(dspecs) > 1:
-            logger.warning(f"{_element_pretty_identifier(element)} has more than one "
-                           f"{_tag_replace_namespace(dspec_tag, element.nsmap)}. This model currently supports only one"
-                           f" per {_tag_replace_namespace(element.tag, element.nsmap)}!")
-        if len(dspecs) > 0:
-            dspec = dspecs[0]
-            dspec_content = dspec.find(NS_AAS + "dataSpecificationContent")
-            if dspec_content is not None:
-                dspec_ref = _failsafe_construct(dspec.find(NS_AAS + "dataSpecification"), cls.construct_reference,
-                                                cls.failsafe)
-                if dspec_ref is not None and len(dspec_ref.key) > 0 and dspec_ref.key[0].value == \
-                        "http://admin-shell.io/DataSpecificationTemplates/DataSpecificationIEC61360/2/0":
-                    cd = _failsafe_construct(dspec_content.find(NS_AAS + "dataSpecificationIEC61360"),
-                                             cls.construct_iec61360_concept_description, cls.failsafe,
-                                             identifier=identifier)
-        if cd is None:
-            cd = object_class(identifier)
-        for ref in _failsafe_construct_multiple(element.findall(NS_AAS + "isCaseOf"), cls.construct_reference,
-                                                cls.failsafe):
-            cd.is_case_of.add(ref)
-        cls._amend_abstract_attributes(cd, element)
-        return cd
+    def construct_embedded_data_specification(cls, element: etree.Element, object_class=model.EmbeddedDataSpecification,
+                                              **_kwargs: Any) -> model.EmbeddedDataSpecification:
+        data_specification_content = _get_child_mandatory(element, NS_AAS + "dataSpecificationContent")
+        if len(data_specification_content) == 0:
+            raise KeyError(f"{_element_pretty_identifier(data_specification_content)} has no data specification!")
+        if len(data_specification_content) > 1:
+            logger.warning(f"{_element_pretty_identifier(data_specification_content)} has more than one "
+                           "data specification, using the first one...")
+        embedded_data_specification = object_class(
+            _child_construct_mandatory(element, NS_AAS + "dataSpecification", cls.construct_global_reference),
+            _failsafe_construct_mandatory(data_specification_content[0], cls.construct_data_specification_content)
+        )
+        cls._amend_abstract_attributes(embedded_data_specification, element)
+        return embedded_data_specification
+
+    @classmethod
+    def construct_data_specification_content(cls, element: etree.Element, **kwargs: Any) \
+            -> model.DataSpecificationContent:
+        """
+        This function doesn't support the object_class parameter.
+        Overwrite each individual DataSpecificationContent constructor function instead.
+        """
+        data_specification_contents: Dict[str, Callable[..., model.DataSpecificationContent]] = \
+            {NS_AAS + k: v for k, v in {
+                "dataSpecificationIec61360": cls.construct_data_specification_iec61360,
+                "dataSpecificationPhysicalUnit": cls.construct_data_specification_physical_unit,
+            }.items()}
+        if element.tag not in data_specification_contents:
+            raise KeyError(f"{_element_pretty_identifier(element)} is not a valid DataSpecificationContent!")
+        return data_specification_contents[element.tag](element, **kwargs)
+
+    @classmethod
+    def construct_data_specification_physical_unit(cls, element: etree.Element,
+                                                   object_class=model.DataSpecificationPhysicalUnit, **_kwargs: Any) \
+            -> model.DataSpecificationPhysicalUnit:
+        dspu = object_class(_child_text_mandatory(element, NS_AAS + "unitName"),
+                            _child_text_mandatory(element, NS_AAS + "unitSymbol"),
+                            _child_construct_mandatory(element, NS_AAS + "definition", cls.construct_lang_string_set))
+        si_notation = _get_text_or_none(element.find(NS_AAS + "siNotation"))
+        if si_notation is not None:
+            dspu.si_notation = si_notation
+        si_name = _get_text_or_none(element.find(NS_AAS + "siName"))
+        if si_name is not None:
+            dspu.si_name = si_name
+        din_notation = _get_text_or_none(element.find(NS_AAS + "dinNotation"))
+        if din_notation is not None:
+            dspu.din_notation = din_notation
+        ece_name = _get_text_or_none(element.find(NS_AAS + "eceName"))
+        if ece_name is not None:
+            dspu.ece_name = ece_name
+        ece_code = _get_text_or_none(element.find(NS_AAS + "eceCode"))
+        if ece_code is not None:
+            dspu.ece_code = ece_code
+        nist_name = _get_text_or_none(element.find(NS_AAS + "nistName"))
+        if nist_name is not None:
+            dspu.nist_name = nist_name
+        source_of_definition = _get_text_or_none(element.find(NS_AAS + "sourceOfDefinition"))
+        if source_of_definition is not None:
+            dspu.source_of_definition = source_of_definition
+        conversion_factor = _get_text_or_none(element.find(NS_AAS + "conversionFactor"))
+        if conversion_factor is not None:
+            dspu.conversion_factor = conversion_factor
+        registration_authority_id = _get_text_or_none(element.find(NS_AAS + "registrationAuthorityId"))
+        if registration_authority_id is not None:
+            dspu.registration_authority_id = registration_authority_id
+        supplier = _get_text_or_none(element.find(NS_AAS + "supplier"))
+        if supplier is not None:
+            dspu.supplier = supplier
+        cls._amend_abstract_attributes(dspu, element)
+        return dspu
+
+    @classmethod
+    def construct_data_specification_iec61360(cls, element: etree.Element, object_class=model.DataSpecificationIEC61360,
+                                              **_kwargs: Any) -> model.DataSpecificationIEC61360:
+        ds_iec = object_class(_child_construct_mandatory(element, NS_AAS + "preferredName",
+                                                         cls.construct_lang_string_set))
+        short_name = _failsafe_construct(element.find(NS_AAS + "shortName"), cls.construct_lang_string_set,
+                                         cls.failsafe)
+        if short_name is not None:
+            ds_iec.short_name = short_name
+        unit = _get_text_or_none(element.find(NS_AAS + "unit"))
+        if unit is not None:
+            ds_iec.unit = unit
+        unit_id = _failsafe_construct(element.find(NS_AAS + "unitId"), cls.construct_reference, cls.failsafe)
+        if unit_id is not None:
+            ds_iec.unit_id = unit_id
+        source_of_definiion = _get_text_or_none(element.find(NS_AAS + "sourceOfDefinition"))
+        if source_of_definiion is not None:
+            ds_iec.source_of_definition = source_of_definiion
+        symbol = _get_text_or_none(element.find(NS_AAS + "symbol"))
+        if symbol is not None:
+            ds_iec.symbol = symbol
+        data_type = _get_text_mapped_or_none(element.find(NS_AAS + "dataType"), IEC61360_DATA_TYPES_INVERSE)
+        if data_type is not None:
+            ds_iec.data_type = data_type
+        definition = _failsafe_construct(element.find(NS_AAS + "definition"), cls.construct_lang_string_set,
+                                         cls.failsafe)
+        if definition is not None:
+            ds_iec.definition = definition
+        value_format = _get_text_mapped_or_none(element.find(NS_AAS + "valueFormat"), model.datatypes.XSD_TYPE_CLASSES)
+        if value_format is not None:
+            ds_iec.value_format = value_format
+        value_list = _failsafe_construct(element.find(NS_AAS + "valueList"), cls.construct_value_list, cls.failsafe,
+                                         value_format=value_format)
+        if value_list is not None:
+            ds_iec.value_list = value_list
+        value = _get_text_or_none(element.find(NS_AAS + "value"))
+        if value is not None and value_format is not None:
+            ds_iec.value = model.datatypes.from_xsd(value, value_format)
+        level_type = element.find(NS_AAS + "levelType")
+        if level_type is not None:
+            for child in level_type:
+                tag = child.tag.split(NS_AAS, 1)[-1]
+                if tag not in IEC61360_LEVEL_TYPES_INVERSE:
+                    error_message = f"{_element_pretty_identifier(element)} has invalid levelType: {tag}"
+                    if not cls.failsafe:
+                        raise ValueError(error_message)
+                    logger.warning(error_message)
+                    continue
+                try:
+                    if child.text is None:
+                        raise ValueError
+                    level_type_value = _str_to_bool(child.text)
+                except ValueError:
+                    error_message = f"levelType {tag} of {_element_pretty_identifier(element)} has invalid boolean: " \
+                            + str(child.text)
+                    if not cls.failsafe:
+                        raise ValueError(error_message)
+                    logger.warning(error_message)
+                    continue
+                if level_type_value:
+                    ds_iec.level_types.add(IEC61360_LEVEL_TYPES_INVERSE[tag])
+        cls._amend_abstract_attributes(ds_iec, element)
+        return ds_iec
 
 
 class StrictAASFromXmlDecoder(AASFromXmlDecoder):
@@ -1252,6 +1304,10 @@ class XMLConstructables(enum.Enum):
     SUBMODEL_ELEMENT = enum.auto()
     VALUE_LIST = enum.auto()
     LANG_STRING_SET = enum.auto()
+    EMBEDDED_DATA_SPECIFICATION = enum.auto()
+    DATA_SPECIFICATION_CONTENT = enum.auto()
+    DATA_SPECIFICATION_IEC61360 = enum.auto()
+    DATA_SPECIFICATION_PHYSICAL_UNIT = enum.auto()
 
 
 def read_aas_xml_element(file: IO, construct: XMLConstructables, failsafe: bool = True, stripped: bool = False,
@@ -1333,17 +1389,23 @@ def read_aas_xml_element(file: IO, construct: XMLConstructables, failsafe: bool 
         constructor = decoder_.construct_submodel
     elif construct == XMLConstructables.VALUE_REFERENCE_PAIR:
         constructor = decoder_.construct_value_reference_pair
-    elif construct == XMLConstructables.IEC61360_CONCEPT_DESCRIPTION:
-        constructor = decoder_.construct_iec61360_concept_description
     elif construct == XMLConstructables.CONCEPT_DESCRIPTION:
         constructor = decoder_.construct_concept_description
     elif construct == XMLConstructables.LANG_STRING_SET:
         constructor = decoder_.construct_lang_string_set
+    elif construct == XMLConstructables.EMBEDDED_DATA_SPECIFICATION:
+        constructor = decoder_.construct_embedded_data_specification
+    elif construct == XMLConstructables.DATA_SPECIFICATION_IEC61360:
+        constructor = decoder_.construct_data_specification_iec61360
+    elif construct == XMLConstructables.DATA_SPECIFICATION_PHYSICAL_UNIT:
+        constructor = decoder_.construct_data_specification_physical_unit
     # the following constructors decide which constructor to call based on the elements tag
     elif construct == XMLConstructables.DATA_ELEMENT:
         constructor = decoder_.construct_data_element
     elif construct == XMLConstructables.SUBMODEL_ELEMENT:
         constructor = decoder_.construct_submodel_element
+    elif construct == XMLConstructables.DATA_SPECIFICATION_CONTENT:
+        constructor = decoder_.construct_data_specification_content
     # type aliases
     elif construct == XMLConstructables.VALUE_LIST:
         constructor = decoder_.construct_value_list

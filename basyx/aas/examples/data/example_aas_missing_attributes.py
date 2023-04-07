@@ -333,7 +333,7 @@ def create_example_asset_administration_shell() -> model.AssetAdministrationShel
 
     resource = model.Resource(
         content_type='application/pdf',
-        path='/TestFile.pdf')
+        path='file:///TestFile.pdf')
 
     asset_information = model.AssetInformation(
         asset_kind=model.AssetKind.INSTANCE,

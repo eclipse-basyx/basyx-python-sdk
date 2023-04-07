@@ -58,9 +58,10 @@ class AASDataCheckerTest(unittest.TestCase):
         )
 
         checker = AASDataChecker(raise_immediately=False)
+
         checker.check_property_equal(property, property_expected)
         self.assertEqual(2, sum(1 for _ in checker.failed_checks))
-        self.assertEqual(9, sum(1 for _ in checker.successful_checks))
+        self.assertEqual(12, sum(1 for _ in checker.successful_checks))
         checker_iterator = checker.failed_checks
         self.assertEqual("FAIL: Attribute qualifier of Property[Prop1] must contain 1 Qualifiers (count=0)",
                          repr(next(checker_iterator)))
@@ -364,32 +365,3 @@ class AASDataCheckerTest(unittest.TestCase):
         self.assertEqual("FAIL: Concept Description Reference GlobalReference(key=(Key("
                          "type=GLOBAL_REFERENCE, value=test),)) must exist ()",
                          repr(next(checker_iterator)))
-        iec = model.IEC61360ConceptDescription(
-            id_='test',
-            preferred_name=model.LangStringSet({'de': 'Test Specification', 'en-US': "TestSpecification"}),
-            data_type=IEC61360DataType.REAL_MEASURE,
-            value_list={model.ValueReferencePair(value_type=model.datatypes.String,
-                                                 value='test',
-                                                 value_id=model.GlobalReference(
-                                                                          (model.Key(
-                                                                              type_=model.KeyTypes.GLOBAL_REFERENCE,
-                                                                              value='test'),)))}
-        )
-        iec_expected = model.IEC61360ConceptDescription(
-            id_='test',
-            preferred_name=model.LangStringSet({'de': 'Test Specification', 'en-US': "TestSpecification"}),
-            data_type=IEC61360DataType.REAL_MEASURE
-        )
-
-        checker.raise_immediately = True
-        with self.assertRaises(AssertionError) as cm:
-            checker.check_concept_description_equal(iec, iec_expected)
-        self.assertEqual("('Check failed: ValueList must contain 0 ValueReferencePairs', {'value': 1})",
-                         str(cm.exception))
-
-        with self.assertRaises(AssertionError) as cm:
-            checker.check_concept_description_equal(iec_expected, iec)
-        self.assertEqual("('Check failed: ValueList must contain 1 ValueReferencePairs', {'value': "
-                         "{ValueReferencePair(value_type=<class 'str'>, value=test, "
-                         "value_id=GlobalReference(key=(Key(type=GLOBAL_REFERENCE, value=test),)))}})",
-                         str(cm.exception))

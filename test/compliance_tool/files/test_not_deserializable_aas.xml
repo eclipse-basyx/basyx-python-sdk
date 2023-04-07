@@ -1,8 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<aas:aasenv xmlns:aas="http://www.admin-shell.io/aas/3/0" xmlns:abac="http://www.admin-shell.io/aas/abac/3/0"
-            xmlns:aas_common="http://www.admin-shell.io/aas_common/3/0"
-            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:IEC="http://www.admin-shell.io/IEC61360/3/0"
-            xmlns:xs="http://www.w3.org/2001/XMLSchema">
+<aas:environment xmlns:aas="https://admin-shell.io/aas/3/0">
     <aas:assetAdministrationShells>
         <aas:submodel>
             <aas:idShort/>
@@ -13,4 +10,4 @@
     </aas:assetAdministrationShells>
     <aas:conceptDescriptions/>
     <aas:submodels/>
-</aas:aasenv>
+</aas:environment>

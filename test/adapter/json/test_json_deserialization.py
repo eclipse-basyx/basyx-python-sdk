@@ -21,29 +21,14 @@ from basyx.aas import model
 
 
 class JsonDeserializationTest(unittest.TestCase):
-    def test_file_format_missing_list(self) -> None:
-        data = """
-            {
-                "assetAdministrationShells": [],
-                "conceptDescriptions": []
-            }"""
-        with self.assertRaisesRegex(KeyError, r"submodels"):
-            read_aas_json_file(io.StringIO(data), failsafe=False)
-        with self.assertLogs(logging.getLogger(), level=logging.WARNING) as cm:
-            read_aas_json_file(io.StringIO(data), failsafe=True)
-        self.assertIn("submodels", cm.output[0])  # type: ignore
-
     def test_file_format_wrong_list(self) -> None:
         data = """
             {
                 "assetAdministrationShells": [],
-                "assets": [],
                 "conceptDescriptions": [],
                 "submodels": [
                     {
-                        "modelType": {
-                            "name": "AssetAdministrationShell"
-                        },
+                        "modelType": "AssetAdministrationShell",
                         "id": "https://acplt.org/Test_Asset",
                         "assetInformation": {
                             "assetKind": "Instance"
@@ -79,14 +64,14 @@ class JsonDeserializationTest(unittest.TestCase):
         data = """
             [
                 {
-                    "modelType": {"name": "Submodel"}
+                    "modelType": "Submodel"
                 },
                 {
-                    "modelType": {"name": "Submodel"},
+                    "modelType": "Submodel",
                     "id": ["https://acplt.org/Test_Submodel_broken_id", "IRI"]
                 },
                 {
-                    "modelType": {"name": "Submodel"},
+                    "modelType": "Submodel",
                     "id": "https://acplt.org/Test_Submodel"
                 }
             ]"""
@@ -110,18 +95,20 @@ class JsonDeserializationTest(unittest.TestCase):
         data = """
             [
                 {
-                    "modelType": {"name": "Submodel"},
+                    "modelType": "Submodel",
                     "id": "http://acplt.org/Submodels/Assets/TestAsset/Identification",
                     "submodelElements": [
                         {
-                            "modelType": {"name": "Submodel"},
+                            "modelType": "Submodel",
                             "id": "https://acplt.org/Test_Submodel"
                         },
                         {
-                            "modelType": "Broken modelType"
+                            "modelType": {
+                                "name": "Broken modelType"
+                            }
                         },
                         {
-                            "modelType": {"name": "Capability"},
+                            "modelType": "Capability",
                             "idShort": "TestCapability"
                         }
                     ]
@@ -152,14 +139,14 @@ class JsonDeserializationTest(unittest.TestCase):
         data = """
             {
                 "assetAdministrationShells": [{
-                    "modelType": {"name": "AssetAdministrationShell"},
+                    "modelType": "AssetAdministrationShell",
                     "id": "http://acplt.org/test_aas",
                     "assetInformation": {
                         "assetKind": "Instance"
                     }
                 }],
                 "submodels": [{
-                    "modelType": {"name": "Submodel"},
+                    "modelType": "Submodel",
                     "id": "http://acplt.org/test_aas"
                 }],
                 "conceptDescriptions": []
@@ -184,7 +171,7 @@ class JsonDeserializationTest(unittest.TestCase):
         data = """
             {
                 "submodels": [{
-                    "modelType": {"name": "Submodel"},
+                    "modelType": "Submodel",
                     "id": "http://acplt.org/test_submodel",
                     "idShort": "test456"
                 }],
@@ -239,7 +226,7 @@ class JsonDeserializationDerivingTest(unittest.TestCase):
         data = """
             [
                 {
-                    "modelType": {"name": "Submodel"},
+                    "modelType": "Submodel",
                     "id": "https://acplt.org/Test_Submodel"
                 }
             ]"""
@@ -253,19 +240,17 @@ class JsonDeserializationStrippedObjectsTest(unittest.TestCase):
     def test_stripped_qualifiable(self) -> None:
         data = """
             {
-                "modelType": {"name": "Submodel"},
+                "modelType": "Submodel",
                 "id": "http://acplt.org/test_stripped_submodel",
                 "submodelElements": [{
-                    "modelType": {"name": "Operation"},
+                    "modelType": "Operation",
                     "idShort": "test_operation",
                     "qualifiers": [{
-                        "modelType": {"name": "Qualifier"},
                         "type": "test_qualifier",
                         "valueType": "xs:string"
                     }]
                 }],
                 "qualifiers": [{
-                    "modelType": {"name": "Qualifier"},
                     "type": "test_qualifier",
                     "valueType": "xs:string"
                 }]
@@ -289,7 +274,7 @@ class JsonDeserializationStrippedObjectsTest(unittest.TestCase):
     def test_stripped_annotated_relationship_element(self) -> None:
         data = """
             {
-                "modelType": {"name": "AnnotatedRelationshipElement"},
+                "modelType": "AnnotatedRelationshipElement",
                 "idShort": "test_annotated_relationship_element",
                 "category": "PARAMETER",
                 "first": {
@@ -318,8 +303,8 @@ class JsonDeserializationStrippedObjectsTest(unittest.TestCase):
                         }
                     ]
                 },
-                "annotation": [{
-                    "modelType": {"name": "MultiLanguageProperty"},
+                "annotations": [{
+                    "modelType": "MultiLanguageProperty",
                     "idShort": "test_multi_language_property",
                     "category": "CONSTANT"
                 }]
@@ -340,7 +325,7 @@ class JsonDeserializationStrippedObjectsTest(unittest.TestCase):
     def test_stripped_entity(self) -> None:
         data = """
             {
-                "modelType": {"name": "Entity"},
+                "modelType": "Entity",
                 "idShort": "test_entity",
                 "entityType": "SelfManagedEntity",
                 "globalAssetId": {
@@ -351,7 +336,7 @@ class JsonDeserializationStrippedObjectsTest(unittest.TestCase):
                     }]
                 },
                 "statements": [{
-                    "modelType": {"name": "MultiLanguageProperty"},
+                    "modelType": "MultiLanguageProperty",
                     "idShort": "test_multi_language_property"
                 }]
             }"""
@@ -371,10 +356,10 @@ class JsonDeserializationStrippedObjectsTest(unittest.TestCase):
     def test_stripped_submodel_element_collection(self) -> None:
         data = """
             {
-                "modelType": {"name": "SubmodelElementCollection"},
+                "modelType": "SubmodelElementCollection",
                 "idShort": "test_submodel_element_collection",
                 "value": [{
-                    "modelType": {"name": "MultiLanguageProperty"},
+                    "modelType": "MultiLanguageProperty",
                     "idShort": "test_multi_language_property"
                 }]
             }"""
@@ -394,7 +379,7 @@ class JsonDeserializationStrippedObjectsTest(unittest.TestCase):
     def test_stripped_asset_administration_shell(self) -> None:
         data = """
             {
-                "modelType": {"name": "AssetAdministrationShell"},
+                "modelType": "AssetAdministrationShell",
                 "id": "http://acplt.org/test_aas",
                 "assetInformation": {
                     "assetKind": "Instance",

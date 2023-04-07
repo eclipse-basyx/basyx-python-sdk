@@ -12,6 +12,12 @@ from typing import Dict, Type
 
 from basyx.aas import model
 
+# XML Namespace definition
+XML_NS_MAP = {"aas": "https://admin-shell.io/aas/3/0",
+              "abac": "https://admin-shell.io/aas/abac/3/0"}
+XML_NS_AAS = "{" + XML_NS_MAP["aas"] + "}"
+XML_NS_ABAC = "{" + XML_NS_MAP["abac"] + "}"
+
 MODELING_KIND: Dict[model.ModelingKind, str] = {
     model.ModelingKind.TEMPLATE: 'Template',
     model.ModelingKind.INSTANCE: 'Instance'}
@@ -80,10 +86,10 @@ IEC61360_DATA_TYPES: Dict[model.base.IEC61360DataType, str] = {
 }
 
 IEC61360_LEVEL_TYPES: Dict[model.base.IEC61360LevelType, str] = {
-    model.base.IEC61360LevelType.MIN: 'Min',
-    model.base.IEC61360LevelType.MAX: 'Max',
-    model.base.IEC61360LevelType.NOM: 'Nom',
-    model.base.IEC61360LevelType.TYP: 'Typ',
+    model.base.IEC61360LevelType.MIN: 'min',
+    model.base.IEC61360LevelType.NOM: 'nom',
+    model.base.IEC61360LevelType.TYP: 'typ',
+    model.base.IEC61360LevelType.MAX: 'max',
 }
 
 MODELING_KIND_INVERSE: Dict[str, model.ModelingKind] = {v: k for k, v in MODELING_KIND.items()}

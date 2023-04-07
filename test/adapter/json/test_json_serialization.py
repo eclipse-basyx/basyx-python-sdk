@@ -14,7 +14,7 @@ from basyx.aas.adapter.json import AASToJsonEncoder, StrippedAASToJsonEncoder, w
 from jsonschema import validate  # type: ignore
 from typing import Set, Union
 
-from basyx.aas.examples.data import example_concept_description, example_aas_missing_attributes, example_aas, \
+from basyx.aas.examples.data import example_aas_missing_attributes, example_aas, \
     example_aas_mandatory_attributes, example_submodel_template, create_example
 
 
@@ -66,9 +66,7 @@ class JsonSerializationSchemaTest(unittest.TestCase):
         # serialize object to json
         json_data = json.dumps({
                 'assetAdministrationShells': [test_aas],
-                'submodels': [submodel],
-                'assets': [],
-                'conceptDescriptions': [],
+                'submodels': [submodel]
             }, cls=AASToJsonEncoder)
         json_data_new = json.loads(json_data)
 
@@ -138,7 +136,7 @@ class JsonSerializationSchemaTest(unittest.TestCase):
 
     def test_concept_description_serialization(self) -> None:
         data: model.DictObjectStore[model.Identifiable] = model.DictObjectStore()
-        data.add(example_concept_description.create_iec61360_concept_description())
+        data.add(example_aas.create_example_concept_description())
         file = io.StringIO()
         write_aas_json_file(file=file, data=data)
 
@@ -204,7 +202,7 @@ class JsonSerializationStrippedObjectsTest(unittest.TestCase):
             annotation=[mlp]
         )
 
-        self._checkNormalAndStripped("annotation", are)
+        self._checkNormalAndStripped("annotations", are)
 
     def test_stripped_entity(self) -> None:
         mlp = model.MultiLanguageProperty("test_multi_language_property", category="PARAMETER")

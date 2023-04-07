@@ -244,11 +244,11 @@ class AASFromJsonDecoder(json.JSONDecoder):
             if 'administration' in dct:
                 obj.administration = cls._construct_administrative_information(_get_ts(dct, 'administration', dict))
         if isinstance(obj, model.HasSemantics):
+            if 'semanticId' in dct:
+                obj.semantic_id = cls._construct_reference(_get_ts(dct, 'semanticId', dict))
             if 'supplementalSemanticIds' in dct:
                 for ref in _get_ts(dct, 'supplementalSemanticIds', list):
                     obj.supplemental_semantic_id.append(cls._construct_reference(ref))
-            if 'semanticId' in dct:
-                obj.semantic_id = cls._construct_reference(_get_ts(dct, 'semanticId', dict))
         # `HasKind` provides only mandatory, immutable attributes; so we cannot do anything here, after object creation.
         # However, the `cls._get_kind()` function may assist by retrieving them from the JSON object
         if isinstance(obj, model.Qualifiable) and not cls.stripped:
@@ -259,19 +259,16 @@ class AASFromJsonDecoder(json.JSONDecoder):
         if isinstance(obj, model.HasDataSpecification) and not cls.stripped:
             if 'embeddedDataSpecifications' in dct:
                 for dspec in _get_ts(dct, 'embeddedDataSpecifications', list):
-                    dspec_ref = cls._construct_global_reference(
-                        _get_ts(dspec, 'dataSpecification', dict))
-                    if "dataSpecificationContent" in dspec:
+                    obj.embedded_data_specifications.append(
                         # TODO: remove the following type: ignore comment when mypy supports abstract types for Type[T]
                         # see https://github.com/python/mypy/issues/5374
-                        content = _get_ts(dspec, 'dataSpecificationContent',
-                                          model.DataSpecificationContent)  # type: ignore
-                        obj.embedded_data_specifications.append(
-                            model.EmbeddedDataSpecification(
-                                data_specification=dspec_ref,
-                                data_specification_content=content
-                            )
+                        model.EmbeddedDataSpecification(
+                            data_specification=cls._construct_global_reference(_get_ts(dspec, 'dataSpecification',
+                                                                                       dict)),
+                            data_specification_content=_get_ts(dspec, 'dataSpecificationContent',
+                                                               model.DataSpecificationContent)  # type: ignore
                         )
+                    )
         if isinstance(obj, model.HasExtension) and not cls.stripped:
             if 'extensions' in dct:
                 for extension in _get_ts(dct, 'extensions', list):
@@ -389,11 +386,12 @@ class AASFromJsonDecoder(json.JSONDecoder):
         return model.LangStringSet(ret)
 
     @classmethod
-    def _construct_value_list(cls, dct: Dict[str, object]) -> model.ValueList:
+    def _construct_value_list(cls, dct: Dict[str, object], value_format: Optional[model.DataTypeDefXsd] = None) \
+            -> model.ValueList:
         ret: model.ValueList = set()
         for element in _get_ts(dct, 'valueReferencePairs', list):
             try:
-                ret.add(cls._construct_value_reference_pair(element))
+                ret.add(cls._construct_value_reference_pair(element, value_format=value_format))
             except (KeyError, TypeError) as e:
                 error_message = "Error while trying to convert JSON object into ValueReferencePair: {} >>> {}".format(
                     e, pprint.pformat(element, depth=2, width=2 ** 14, compact=True))
@@ -404,15 +402,12 @@ class AASFromJsonDecoder(json.JSONDecoder):
         return ret
 
     @classmethod
-    def _construct_value_reference_pair(cls, dct: Dict[str, object], object_class=model.ValueReferencePair) -> \
-            model.ValueReferencePair:
-        if 'valueType' in dct:
-            value_type = model.datatypes.XSD_TYPE_CLASSES[_get_ts(dct, 'valueType', str)]
-            return object_class(value_type=value_type,
-                                value=model.datatypes.from_xsd(_get_ts(dct, 'value', str), value_type),
-                                value_id=cls._construct_reference(_get_ts(dct, 'valueId', dict)))
-        return object_class(value=_get_ts(dct, 'value', str),
-                            value_id=cls._construct_reference(_get_ts(dct, 'valueId', dict)))
+    def _construct_value_reference_pair(cls, dct: Dict[str, object],
+                                        value_format: Optional[model.DataTypeDefXsd] = None,
+                                        object_class=model.ValueReferencePair) -> model.ValueReferencePair:
+        return object_class(value=model.datatypes.from_xsd(_get_ts(dct, 'value', str), value_format),  # type: ignore
+                            value_id=cls._construct_reference(_get_ts(dct, 'valueId', dict)),
+                            value_type=value_format)
 
     # #############################################################################
     # Direct Constructor Methods (for classes with `modelType`) starting from here
@@ -472,17 +467,17 @@ class AASFromJsonDecoder(json.JSONDecoder):
             definition=cls._construct_lang_string_set(_get_ts(dct, 'definition', list))
         )
         if 'siNotation' in dct:
-            ret.SI_notation = _get_ts(dct, 'siNotation', str)
+            ret.si_notation = _get_ts(dct, 'siNotation', str)
         if 'siName' in dct:
-            ret.SI_name = _get_ts(dct, 'siName', str)
+            ret.si_name = _get_ts(dct, 'siName', str)
         if 'dinNotation' in dct:
-            ret.DIN_notation = _get_ts(dct, 'dinNotation', str)
+            ret.din_notation = _get_ts(dct, 'dinNotation', str)
         if 'eceName' in dct:
-            ret.ECE_name = _get_ts(dct, 'eceName', str)
+            ret.ece_name = _get_ts(dct, 'eceName', str)
         if 'eceCode' in dct:
-            ret.ECE_code = _get_ts(dct, 'eceCode', str)
+            ret.ece_code = _get_ts(dct, 'eceCode', str)
         if 'nistName' in dct:
-            ret.NIST_name = _get_ts(dct, 'nistName', str)
+            ret.nist_name = _get_ts(dct, 'nistName', str)
         if 'sourceOfDefinition' in dct:
             ret.source_of_definition = _get_ts(dct, 'sourceOfDefinition', str)
         if 'conversionFactor' in dct:
@@ -512,19 +507,20 @@ class AASFromJsonDecoder(json.JSONDecoder):
             ret.source_of_definition = _get_ts(dct, 'sourceOfDefinition', str)
         if 'symbol' in dct:
             ret.symbol = _get_ts(dct, 'symbol', str)
+        value_format: Optional[model.DataTypeDefXsd] = None
         if 'valueFormat' in dct:
-            ret.value_format = _get_ts(dct, 'valueFormat', str)
-            # ret.value_format = model.datatypes.XSD_TYPE_CLASSES[_get_ts(dct, 'valueFormat', str)]
+            value_format = model.datatypes.XSD_TYPE_CLASSES[_get_ts(dct, 'valueFormat', str)]
+            ret.value_format = value_format
         if 'valueList' in dct:
-            ret.value_list = cls._construct_value_list(_get_ts(dct, 'valueList', dict))
+            ret.value_list = cls._construct_value_list(_get_ts(dct, 'valueList', dict), value_format=value_format)
         if 'value' in dct:
-            ret.value = _get_ts(dct, 'value', str)
-            # ret.value = model.datatypes.from_xsd(_get_ts(dct, 'value', str), ret.value_format)
+            ret.value = model.datatypes.from_xsd(_get_ts(dct, 'value', str), ret.value_format)
         if 'valueId' in dct:
             ret.value_id = cls._construct_reference(_get_ts(dct, 'valueId', dict))
         if 'levelType' in dct:
-            # TODO fix in V3.0
-            ret.level_types = set([IEC61360_LEVEL_TYPES_INVERSE[_get_ts(dct, 'levelType', str)]])
+            for k, v in _get_ts(dct, 'levelType', dict).items():
+                if v:
+                    ret.level_types.add(IEC61360_LEVEL_TYPES_INVERSE[k])
         return ret
 
     @classmethod
@@ -863,9 +859,7 @@ def read_aas_json_file_into(object_store: model.AbstractObjectStore, file: IO, r
                                 ('conceptDescriptions', model.ConceptDescription)):
         try:
             lst = _get_ts(data, name, list)
-        except (KeyError, TypeError) as e:
-            info_message = "Could not find list '{}' in AAS JSON file".format(name)
-            logger.info(info_message)
+        except (KeyError, TypeError):
             continue
 
         for item in lst:

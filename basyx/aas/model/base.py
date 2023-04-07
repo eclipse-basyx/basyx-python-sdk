@@ -1062,6 +1062,9 @@ class EmbeddedDataSpecification:
         self.data_specification: GlobalReference = data_specification
         self.data_specification_content: DataSpecificationContent = data_specification_content
 
+    def __repr__(self):
+        return f"EmbeddedDataSpecification[{self.data_specification}]"
+
 
 class HasDataSpecification(metaclass=abc.ABCMeta):
     """
@@ -2140,7 +2143,6 @@ class DataSpecificationIEC61360(DataSpecificationContent):
     :ivar value_format: Optional format of the values
     :ivar value_list: Optional list of values
     :ivar value: Optional value data type object
-    :ivar value_id: Optional reference to the value
     :ivar level_types: Optional set of level types of the DataSpecificationContent
     """
     def __init__(self,
@@ -2148,16 +2150,14 @@ class DataSpecificationIEC61360(DataSpecificationContent):
                  data_type: Optional[IEC61360DataType] = None,
                  definition: Optional[LangStringSet] = None,
                  short_name: Optional[LangStringSet] = None,
-                 parent: Optional[UniqueIdShortNamespace] = None,
                  unit: Optional[str] = None,
                  unit_id: Optional[Reference] = None,
                  source_of_definition: Optional[str] = None,
                  symbol: Optional[str] = None,
-                 value_format: Optional[str] = None,
+                 value_format: Optional[DataTypeDefXsd] = None,
                  value_list: Optional[ValueList] = None,
                  value: Optional[ValueDataType] = None,
-                 value_id: Optional[Reference] = None,
-                 level_types: Optional[Set[IEC61360LevelType]] = None):
+                 level_types: Iterable[IEC61360LevelType] = ()):
 
         super().__init__()
         self.preferred_name: LangStringSet = preferred_name
@@ -2169,10 +2169,10 @@ class DataSpecificationIEC61360(DataSpecificationContent):
         self._source_of_definition: Optional[str] = source_of_definition
         self._symbol: Optional[str] = symbol
         self.value_list: Optional[ValueList] = value_list
-        self.value_id: Optional[Reference] = value_id
-        self.level_types: Set[IEC61360LevelType] = level_types if level_types else set()
-        self.value_format: Optional[str] = value_format
-        self._value: Optional[ValueDataType] = value
+        self.level_types: Set[IEC61360LevelType] = set(level_types)
+        self.value_format: Optional[DataTypeDefXsd] = value_format
+        self._value: Optional[ValueDataType] = (datatypes.trivial_cast(value, self.value_format)
+                                                if (value is not None and self.value_format is not None) else None)
 
     @property
     def value(self):
@@ -2180,11 +2180,10 @@ class DataSpecificationIEC61360(DataSpecificationContent):
 
     @value.setter
     def value(self, value) -> None:
-        self._value = value
-        # if value is None or self.value_format is None:
-        #     self._value = None
-        # else:
-        #     self._value = datatypes.trivial_cast(value, self.value_format)
+        if value is None or self.value_format is None:
+            self._value = None
+        else:
+            self._value = datatypes.trivial_cast(value, self.value_format)
 
     def _set_unit(self, unit: Optional[str]):
         """
@@ -2240,6 +2239,9 @@ class DataSpecificationIEC61360(DataSpecificationContent):
 
     symbol = property(_get_symbol, _set_symbol)
 
+    def __repr__(self):
+        return f"DataSpecificationIEC61360[unit={self.unit}]"
+
 
 class DataSpecificationPhysicalUnit(DataSpecificationContent):
     """
@@ -2249,12 +2251,12 @@ class DataSpecificationPhysicalUnit(DataSpecificationContent):
     :ivar unit_name: Name of the physical unit
     :ivar unit_symbol: Symbol for the physical unit
     :ivar definition: Definition in different languages
-    :ivar SI_notation: Notation of SI physical unit
-    :ivar SI_name: Name of SI physical unit
-    :ivar DIN_notation: Notation of physical unit conformant to DIN
-    :ivar ECE_name: Name of physical unit conformant to ECE
-    :ivar ECE_code: Code of physical unit conformant to ECE
-    :ivar NIST_name: Name of NIST physical unit
+    :ivar si_notation: Notation of SI physical unit
+    :ivar si_name: Name of SI physical unit
+    :ivar din_notation: Notation of physical unit conformant to DIN
+    :ivar ece_name: Name of physical unit conformant to ECE
+    :ivar ece_code: Code of physical unit conformant to ECE
+    :ivar nist_name: Name of NIST physical unit
     :ivar source_of_definition: Source of definition
     :ivar conversion_factor: Conversion factor
     :ivar registration_authority_id: Registration authority ID
@@ -2277,16 +2279,19 @@ class DataSpecificationPhysicalUnit(DataSpecificationContent):
         registration_authority_id: Optional[str] = None,
         supplier: Optional[str] = None,
     ) -> None:
-        self.unit_name = unit_name
-        self.unit_symbol = unit_symbol
-        self.definition = definition
-        self.SI_notation = si_notation
-        self.SI_name = si_name
-        self.DIN_notation = din_notation
-        self.ECE_name = ece_name
-        self.ECE_code = ece_code
-        self.NIST_name = nist_name
-        self.source_of_definition = source_of_definition
-        self.conversion_factor = conversion_factor
-        self.registration_authority_id = registration_authority_id
-        self.supplier = supplier
+        self.unit_name: str = unit_name
+        self.unit_symbol: str = unit_symbol
+        self.definition: LangStringSet = definition
+        self.si_notation: Optional[str] = si_notation
+        self.si_name: Optional[str] = si_name
+        self.din_notation: Optional[str] = din_notation
+        self.ece_name: Optional[str] = ece_name
+        self.ece_code: Optional[str] = ece_code
+        self.nist_name: Optional[str] = nist_name
+        self.source_of_definition: Optional[str] = source_of_definition
+        self.conversion_factor: Optional[str] = conversion_factor
+        self.registration_authority_id: Optional[str] = registration_authority_id
+        self.supplier: Optional[str] = supplier
+
+    def __repr__(self):
+        return f"DataSpecificationPhysicalUnit[unit_name={self.unit_name}]"

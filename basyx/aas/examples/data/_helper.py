@@ -150,6 +150,8 @@ class AASDataChecker(DataChecker):
         """
         self._check_referable_equal(object_, expected_object)
         self.check_attribute_equal(object_, "administration", expected_object.administration)
+        if object_.administration is not None and expected_object.administration is not None:
+            self._check_has_data_specification_equal(object_.administration, expected_object.administration)
         self.check_attribute_equal(object_, "id", expected_object.id)
 
     def _check_has_semantics_equal(self, object_: model.HasSemantics, expected_object: model.HasSemantics):
@@ -162,6 +164,15 @@ class AASDataChecker(DataChecker):
         :return: The value of expression to be used in control statements
         """
         self.check_attribute_equal(object_, "semantic_id", expected_object.semantic_id)
+        for suppl_semantic_id in expected_object.supplemental_semantic_id:
+            given_semantic_id = self._find_reference(suppl_semantic_id, object_.supplemental_semantic_id)
+            self.check(given_semantic_id is not None, f"{object_!r} must have supplementalSemanticId",
+                       value=suppl_semantic_id)
+
+        found_elements = self._find_extra_object(object_.supplemental_semantic_id,
+                                                 expected_object.supplemental_semantic_id, model.Reference)
+        self.check(found_elements == set(), '{} must not have extra supplementalSemanticId'.format(repr(object_)),
+                   value=found_elements)
 
     def _check_has_kind_equal(self, object_: model.HasKind, expected_object: model.HasKind):
         """
@@ -197,6 +208,31 @@ class AASDataChecker(DataChecker):
         self.check(found_elements == set(), 'Qualifiable Element {} must not have extra elements'.format(repr(object_)),
                    value=found_elements)
 
+    def _check_has_data_specification_equal(self, object_: model.HasDataSpecification,
+                                            expected_object: model.HasDataSpecification):
+        """
+        Checks if the HasDataSpecification object_ has the same HasDataSpecification attributes
+        as the expected_value object and adds / stores the check result for later analysis.
+
+        :param object_: The HasDataSpecification object which shall be checked
+        :param expected_object: The expected HasDataSpecification object
+        """
+        self.check_contained_element_length(object_, 'embedded_data_specifications', model.EmbeddedDataSpecification,
+                                            len(expected_object.embedded_data_specifications))
+        for expected_dspec in expected_object.embedded_data_specifications:
+            given_dspec = self._find_element_by_attribute(expected_dspec, object_.embedded_data_specifications,
+                                                          'data_specification')
+            if self.check(given_dspec is not None, 'EmbeddedDataSpecification {} must exist in {}'.format(
+                    repr(expected_dspec.data_specification), repr(object_))):
+                self.check_data_specification_content_equal(given_dspec.data_specification_content,  # type: ignore
+                                                            expected_dspec.data_specification_content)
+
+        found_elements = self._find_extra_elements_by_attribute(object_.embedded_data_specifications,
+                                                                expected_object.embedded_data_specifications,
+                                                                'data_specification')
+        self.check(found_elements == set(), '{} must not have extra data specifications'.format(repr(object_)),
+                   value=found_elements)
+
     def _check_abstract_attributes_submodel_element_equal(self, object_: model.SubmodelElement,
                                                           expected_value: model.SubmodelElement):
         """
@@ -210,6 +246,7 @@ class AASDataChecker(DataChecker):
         self._check_has_semantics_equal(object_, expected_value)
         self._check_has_kind_equal(object_, expected_value)
         self._check_qualifiable_equal(object_, expected_value)
+        self._check_has_data_specification_equal(object_, expected_value)
 
     def _check_submodel_elements_equal_unordered(self, object_: _LIST_OR_COLLECTION,
                                                  expected_value: _LIST_OR_COLLECTION):
@@ -400,7 +437,7 @@ class AASDataChecker(DataChecker):
         """
         self.check(object_ == expected_value, "{} must be == {}".format(repr(object_), repr(expected_value)))
 
-    def _find_reference(self, object_: model.Reference, search_list: Union[Set, List]) -> Union[model.Reference, None]:
+    def _find_reference(self, object_: model.Reference, search_list: Iterable) -> Union[model.Reference, None]:
         """
         Find a reference in an list
 
@@ -427,7 +464,7 @@ class AASDataChecker(DataChecker):
                 return element
         return None
 
-    def _find_element_by_attribute(self, object_: object, search_list: Union[Set, List], *attribute: str) -> object:
+    def _find_element_by_attribute(self, object_: object, search_list: Iterable, *attribute: str) -> object:
         """
         Find an element in an list
 
@@ -436,7 +473,6 @@ class AASDataChecker(DataChecker):
         :param attribute: List of attributes on which the comparison should be done
         :return:
         """
-        find = False
         for element in search_list:
             if isinstance(element, object_.__class__):
                 found = True
@@ -638,6 +674,7 @@ class AASDataChecker(DataChecker):
         self._check_has_semantics_equal(object_, expected_value)
         self._check_has_kind_equal(object_, expected_value)
         self._check_qualifiable_equal(object_, expected_value)
+        self._check_has_data_specification_equal(object_, expected_value)
         self.check_contained_element_length(object_, 'submodel_element', model.SubmodelElement,
                                             len(expected_value.submodel_element))
         for expected_element in expected_value.submodel_element:
@@ -698,7 +735,7 @@ class AASDataChecker(DataChecker):
 
         found_elements = self._find_extra_object(object_.specific_asset_id, expected_value.specific_asset_id,
                                                  model.SpecificAssetId)
-        self.check(found_elements == set(), 'AssetInformation {} must not have extra '
+        self.check(found_elements == set(), '{} must not have extra '
                                             'specificAssetIds'.format(repr(object_)),
                    value=found_elements)
 
@@ -707,11 +744,11 @@ class AASDataChecker(DataChecker):
         else:
             if object_.default_thumbnail:
                 self.check(expected_value.default_thumbnail is not None,
-                           'Thumbnail object {} must exist'.format(repr(object_.default_thumbnail)),
+                           'defaultThumbnail object {} must exist'.format(repr(object_.default_thumbnail)),
                            value=expected_value.default_thumbnail)
             else:
-                self.check(expected_value.default_thumbnail is None, 'Asset Administration Shell {} must not have a '
-                                                                     'Thumbnail object'.format(repr(object_)),
+                self.check(expected_value.default_thumbnail is None, '{} must not have a '
+                                                                     'defaultThumbnail object'.format(repr(object_)),
                            value=expected_value.default_thumbnail)
 
     def check_asset_administration_shell_equal(self, object_: model.AssetAdministrationShell,
@@ -724,6 +761,7 @@ class AASDataChecker(DataChecker):
         :return:
         """
         self._check_identifiable_equal(object_, expected_value)
+        self._check_has_data_specification_equal(object_, expected_value)
         self.check_asset_information_equal(object_.asset_information, expected_value.asset_information)
 
         self.check_attribute_equal(object_, 'derived_from', expected_value.derived_from)
@@ -748,6 +786,7 @@ class AASDataChecker(DataChecker):
         :return:
         """
         self._check_identifiable_equal(object_, expected_value)
+        self._check_has_data_specification_equal(object_, expected_value)
         self.check_contained_element_length(object_, 'is_case_of', model.Reference,
                                             len(expected_value.is_case_of))
         for expected_ref in expected_value.is_case_of:
@@ -774,11 +813,11 @@ class AASDataChecker(DataChecker):
         self.check(type(object_) == type(expected_value), "type({}) must be == type({})"
                    .format(repr(object_), repr(expected_value)))
         if isinstance(object_, model.base.DataSpecificationIEC61360):
-            self._check_iec61360_data_specification_equal(object_, expected_value)  # type: ignore
+            self._check_data_specification_iec61360_equal(object_, expected_value)  # type: ignore
         elif isinstance(object_, model.base.DataSpecificationPhysicalUnit):
-            self._check_physical_unit_data_specification_equal(object_, expected_value)  # type: ignore
+            self._check_data_specification_physical_unit_equal(object_, expected_value)  # type: ignore
 
-    def _check_iec61360_data_specification_equal(self, object_: model.base.DataSpecificationIEC61360,
+    def _check_data_specification_iec61360_equal(self, object_: model.base.DataSpecificationIEC61360,
                                                  expected_value: model.base.DataSpecificationIEC61360):
         """
         Checks if the given IEC61360ConceptDescription objects are equal
@@ -797,7 +836,6 @@ class AASDataChecker(DataChecker):
         self.check_attribute_equal(object_, 'symbol', expected_value.symbol)
         self.check_attribute_equal(object_, 'value_format', expected_value.value_format)
         self.check_attribute_equal(object_, 'value', expected_value.value)
-        self.check_attribute_equal(object_, 'value_id', expected_value.value_id)
         self.check_attribute_equal(object_, 'level_types', expected_value.level_types)
 
         if expected_value.value_list is not None:
@@ -811,7 +849,7 @@ class AASDataChecker(DataChecker):
                           "ValueList must contain 0 ValueReferencePairs", value=len(object_.value_list)):
                 self._check_value_list_equal(object_.value_list, expected_value.value_list)  # type: ignore
 
-    def _check_physical_unit_data_specification_equal(
+    def _check_data_specification_physical_unit_equal(
             self, object_: model.base.DataSpecificationPhysicalUnit,
             expected_value: model.base.DataSpecificationPhysicalUnit):
         """
@@ -824,12 +862,12 @@ class AASDataChecker(DataChecker):
         self.check_attribute_equal(object_, 'unit_name', expected_value.unit_name)
         self.check_attribute_equal(object_, 'unit_symbol', expected_value.unit_symbol)
         self.check_attribute_equal(object_, 'definition', expected_value.definition)
-        self.check_attribute_equal(object_, 'si_notation', expected_value.SI_notation)
-        self.check_attribute_equal(object_, 'si_name', expected_value.SI_name)
-        self.check_attribute_equal(object_, 'din_notation', expected_value.DIN_notation)
-        self.check_attribute_equal(object_, 'ece_name', expected_value.ECE_name)
-        self.check_attribute_equal(object_, 'ece_code', expected_value.ECE_code)
-        self.check_attribute_equal(object_, 'nist_name', expected_value.NIST_name)
+        self.check_attribute_equal(object_, 'si_notation', expected_value.si_notation)
+        self.check_attribute_equal(object_, 'si_name', expected_value.si_name)
+        self.check_attribute_equal(object_, 'din_notation', expected_value.din_notation)
+        self.check_attribute_equal(object_, 'ece_name', expected_value.ece_name)
+        self.check_attribute_equal(object_, 'ece_code', expected_value.ece_code)
+        self.check_attribute_equal(object_, 'nist_name', expected_value.nist_name)
         self.check_attribute_equal(object_, 'source_of_definition', expected_value.source_of_definition)
         self.check_attribute_equal(object_, 'conversion_factor', expected_value.conversion_factor)
         self.check_attribute_equal(object_, 'registration_authority_id', expected_value.registration_authority_id)
@@ -851,7 +889,7 @@ class AASDataChecker(DataChecker):
 
         found_elements = self._find_extra_elements_by_attribute(object_, expected_value,
                                                                 'value', 'value_id', 'value_type')
-        self.check(found_elements == set(), 'ValueReferenceList must not have extra ValueReferencePairs',
+        self.check(found_elements == set(), 'ValueList must not have extra ValueReferencePairs',
                    value=found_elements)
 
     def check_object_store(self, obj_store_1: model.DictObjectStore, obj_store_2: model.DictObjectStore):

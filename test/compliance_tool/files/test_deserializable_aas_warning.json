@@ -6,9 +6,7 @@
 			"administration": {
 				"revision": "0"
 			},
-			"modelType": {
-				"name": "AssetAdministrationShell"
-			},
+			"modelType": "AssetAdministrationShell",
 			"assetInformation": {
                 "assetKind": "Instance",
                 "globalAssetId": {
@@ -37,7 +35,5 @@
                 ]
             }
 		}
-	],
-	"submodels": [],
-	"conceptDescriptions": []
+	]
 }
