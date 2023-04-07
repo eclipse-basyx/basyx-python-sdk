@@ -13,12 +13,12 @@ from typing import Union, Iterator
 from .. import model
 
 
-def walk_submodel(collection: Union[model.Submodel, model.SubmodelElementCollection]) \
+def walk_submodel(collection: Union[model.Submodel, model.SubmodelElementCollection, model.SubmodelElementList]) \
         -> Iterator[model.SubmodelElement]:
     """
     Traverse the :class:`SubmodelElements <aas.model.submodel.SubmodelElement>` in a
-    :class:`~aas.model.submodel.Submodel` or a :class:`~aas.model.submodel.SubmodelElementCollection` recursively in
-    post-order tree-traversal.
+    :class:`~aas.model.submodel.Submodel`, :class:`~aas.model.submodel.SubmodelElementCollection` or a
+    :class:`~aas.model.submodel.SubmodelElementList` recursively in post-order tree-traversal.
 
     This is a generator function, yielding all the :class:`SubmodelElements <aas.model.submodel.SubmodelElement>`.
     No :class:`SubmodelElements <aas.model.submodel.SubmodelElement>` should be added, removed or
@@ -26,7 +26,7 @@ def walk_submodel(collection: Union[model.Submodel, model.SubmodelElementCollect
     """
     elements = collection.submodel_element if isinstance(collection, model.Submodel) else collection.value
     for element in elements:
-        if isinstance(element, model.SubmodelElementCollection):
+        if isinstance(element, (model.SubmodelElementCollection, model.SubmodelElementList)):
             yield from walk_submodel(element)
         yield element
 
