@@ -29,11 +29,8 @@ BlobType = bytes
 ContentType = str  # any mimetype as in RFC2046
 PathType = str
 QualifierType = str
-# A dict of language-Identifier (according to ISO 639-1 and ISO 3166-1) and string in this language.
-# The meaning of the string in each language is the same.
-# << Data Type >> Example ["en-US", "germany"]
-
 Identifier = str
+ValueList = Set["ValueReferencePair"]
 
 
 @unique
@@ -1587,9 +1584,6 @@ class ValueReferencePair:
         return "ValueReferencePair(value_type={}, value={}, value_id={})".format(self.value_type,
                                                                                  self.value,
                                                                                  self.value_id)
-
-
-ValueList = Set[ValueReferencePair]
 
 
 class UniqueIdShortNamespace(Namespace, metaclass=abc.ABCMeta):
