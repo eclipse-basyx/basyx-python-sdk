@@ -3,9 +3,7 @@
         {
             "id": "https://acplt.org/Test_AssetAdministrationShell",
             "idShort": "TestAssetAdministrationShell",
-            "modelType": {
-                "name": "Test"
-            },
+            "modelType": "Test",
             "assetInformation": {
                 "assetKind": "Instance",
                 "globalAssetId": {
