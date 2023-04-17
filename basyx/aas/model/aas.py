@@ -6,163 +6,120 @@
 # SPDX-License-Identifier: MIT
 """
 The main module of the AAS meta-model. It is used to define the class structures of high level elements such as
-:class:`~.AssetAdministrationShell` and :class:`~.Asset`.
+AssetAdministrationShell.
 
 This module contains the following classes from an up-to-down-level:
-
  - :class:`~.AssetAdministrationShell`
- - :class:`~.Asset`
- - :class:`~.View`
+ - :class:`~.AssetInformation`
 """
 
-from typing import Optional, Set, Iterable, TYPE_CHECKING
+from typing import Optional, Set, Iterable, List
 
-from . import base, concept
-from .security import Security
+from . import base
 from .submodel import Submodel
 
 
-class View(base.Referable, base.HasSemantics):
+class AssetInformation:
     """
-    A view is a collection of referable elements w.r.t. to a specific viewpoint of one or more stakeholders.
+    In AssetInformation identifying meta data of the asset that is represented by an AAS is defined.
 
-    todo: what does this exactly?
+    The asset may either represent an asset type or an asset instance.
+    The asset has a globally unique identifier plus – if needed – additional domain specific (proprietary)
+    identifiers. However, to support the corner case of very first phase of lifecycle where a stabilised/constant
+    global asset identifier does not already exist, the corresponding attribute “globalAssetId” is optional.
 
-    :ivar id_short: Identifying string of the element within its name space.
-        (inherited from :class:`~aas.model.base.Referable`)
-    :ivar contained_element: Unordered list of :class:`References <aas.model.base.Reference>` to elements of class
-        :class:`~aas.model.base.Referable`
-    :ivar category: The category is a value that gives further meta information w.r.t. to the class of the element.
-                     It affects the expected existence of attributes and the applicability of constraints.
-                     (inherited from :class:`~aas.model.base.Referable`)
-    :ivar description: Description or comments on the element. (inherited from :class:`~aas.model.base.Referable`)
-    :ivar parent: :class:`~aas.model.base.Reference` to the next :class:`~aas.model.base.Referable` parent element of
-        the element. (inherited from :class:`~aas.model.base.Referable`)
-    :ivar semantic_id: :class:`~aas.model.base.Identifier` of the semantic definition of the element. It is called
-        semantic id of the element. The semantic id may either reference an external global id or it may reference a
-        :class:`~aas.model.base.Referable` model element of kind=Type that defines the semantics of the element.
-        (inherited from :class:`~aas.model.base.HasSemantics`)
-    """
-    def __init__(self,
-                 id_short: str,
-                 contained_element: Optional[Set[base.AASReference]] = None,
-                 category: Optional[str] = None,
-                 description: Optional[base.LangStringSet] = None,
-                 parent: Optional[base.Namespace] = None,
-                 semantic_id: Optional[base.Reference] = None):
-        """
-        TODO: Add instruction what to do after construction
-        """
-        super().__init__()
-        self.id_short = id_short
-        self.contained_element: Set[base.AASReference] = set() if contained_element is None else contained_element
-        self.category: Optional[str] = category
-        self.description: Optional[base.LangStringSet] = dict() if description is None else description
-        self.parent: Optional[base.Namespace] = parent
-        self.semantic_id: Optional[base.Reference] = semantic_id
-
-
-class Asset(base.Identifiable):
-    """
-    An Asset describes meta data of an asset that is represented by an AAS
-
-    The asset may either represent an asset type or an asset instance. The asset has a globally unique
-    :class:`~aas.model.base.Identifier` plus – if needed – additional domain specific (proprietary) identifiers.
-
-    :ivar kind: Denotes whether the Asset is of kind "Type" or "Instance".
-    :ivar ~.identification: The globally unique identification of the element.
-        (inherited from :class:`~aas.model.base.Identifiable`)
-    :ivar id_short: Identifying string of the element within its name space.
-        (inherited from :class:`~aas.model.base.Referable`)
-    :ivar category: The category is a value that gives further meta information w.r.t. to the class of the element.
-                     It affects the expected existence of attributes and the applicability of constraints.
-                     (inherited from :class:`~aas.model.base.Referable`)
-    :ivar description: Description or comments on the element. (inherited from :class:`~aas.model.base.Referable`)
-    :ivar parent: :class:`~aas.model.base.Reference` to the next :class:`~aas.model.base.Referable` parent element of
-        the element. (inherited from :class:`~aas.model.base.Referable`)
-    :ivar administration: Administrative information of an :class:`~aas.model.base.Identifiable` element.
-        (inherited from :class:`~aas.model.base.Identifiable`)
-    :ivar asset_identification_model: A :class:`~aas.model.base.AASReference` to a :class:`~aas.model.submodel.Submodel`
-                                      that defines the handling of additional domain
-                                      specific (proprietary) Identifiers for the asset like e.g. serial number etc
-    :ivar bill_of_material: Bill of material of the asset represented by a :class:`~aas.model.submodel.Submodel` of the
-                            same AAS. This submodel
-                            contains a set of entities describing the material used to compose the composite I4.0
-                            Component.
+    :ivar asset_kind: Denotes whether the Asset is of :class:`~aas.model.base.AssetKind` "TYPE" or "INSTANCE".
+                      Default is "INSTANCE".
+    :ivar global_asset_id: :class:`~aas.model.base.GlobalReference` modeling the identifier of the asset the AAS is
+                           representing.
+                           This attribute is required as soon as the AAS is exchanged via partners in the
+                           life cycle of the asset. In a first phase of the life cycle the asset might not yet have a
+                           global id but already an internal identifier. The internal identifier would be modelled via
+                           :attr:`~.specificAssetId`.
+    :ivar specific_asset_id: Additional domain specific, typically proprietary Identifier (Set of
+                             :class:`SpecificAssetIds <aas.model.base.SpecificAssetId>` for the asset like
+                             e.g. serial number etc.
+    :ivar default_thumbnail: Thumbnail of the asset represented by the asset administration shell. Used as default.
     """
 
     def __init__(self,
-                 kind: base.AssetKind,
-                 identification: base.Identifier,
-                 id_short: str = "",
-                 category: Optional[str] = None,
-                 description: Optional[base.LangStringSet] = None,
-                 parent: Optional[base.Namespace] = None,
-                 administration: Optional[base.AdministrativeInformation] = None,
-                 asset_identification_model: Optional[base.AASReference[Submodel]] = None,
-                 bill_of_material: Optional[base.AASReference[Submodel]] = None):
+                 asset_kind: base.AssetKind = base.AssetKind.INSTANCE,
+                 global_asset_id: Optional[base.GlobalReference] = None,
+                 specific_asset_id: Optional[Set[base.SpecificAssetId]] = None,
+                 default_thumbnail: Optional[base.Resource] = None):
+
         super().__init__()
-        self.kind: base.AssetKind = kind
-        self.identification: base.Identifier = identification
-        self.id_short = id_short
-        self.category: Optional[str] = category
-        self.description: Optional[base.LangStringSet] = dict() if description is None else description
-        self.parent: Optional[base.Namespace] = parent
-        self.administration: Optional[base.AdministrativeInformation] = administration
-        self.asset_identification_model: Optional[base.AASReference[Submodel]] = asset_identification_model
-        self.bill_of_material: Optional[base.AASReference[Submodel]] = bill_of_material
+        self.asset_kind: base.AssetKind = asset_kind
+        self._global_asset_id: Optional[base.GlobalReference] = global_asset_id
+        self.specific_asset_id: Set[base.SpecificAssetId] = set() if specific_asset_id is None \
+            else specific_asset_id
+        self.default_thumbnail: Optional[base.Resource] = default_thumbnail
+
+    def _get_global_asset_id(self):
+        return self._global_asset_id
+
+    def _set_global_asset_id(self, global_asset_id: Optional[base.GlobalReference]):
+        if global_asset_id is None and (self.specific_asset_id is None or not self.specific_asset_id):
+            raise ValueError("either global or specific asset id must be set")
+        self._global_asset_id = global_asset_id
+
+    global_asset_id = property(_get_global_asset_id, _set_global_asset_id)
+
+    def __repr__(self) -> str:
+        return "AssetInformation(assetKind={}, globalAssetId={}, specificAssetId={}, defaultThumbnail={})".format(
+            self.asset_kind, self._global_asset_id, str(self.specific_asset_id), str(self.default_thumbnail))
 
 
-class AssetAdministrationShell(base.Identifiable, base.Namespace):
+class AssetAdministrationShell(base.Identifiable, base.UniqueIdShortNamespace, base.HasDataSpecification):
     """
     An Asset Administration Shell
 
-    :ivar asset: :class:`~aas.model.base.Reference` to the :class:`~.Asset` the AAS is representing.
-    :ivar ~.identification: The globally unique identification of the element.
-        (inherited from :class:`~aas.model.base.Identifiable`)
-    :ivar id_short: Identifying string of the element within its name space.
-        (inherited from :class:`~aas.model.base.Referable`)
+    :ivar asset_information: :class:`~.AssetInformation` of the asset this AssetAdministrationShell is representing
+    :ivar ~.id: The globally unique id (:class:`~aas.model.base.Identifier`) of the element.
+                            (inherited from :class:`~aas.model.base.Identifiable`)
+    :ivar id_short: Identifying string of the element within its name space. (inherited from
+                    :class:`~aas.model.base.Referable`)
+    :ivar display_name: Can be provided in several languages. (inherited from :class:`~aas.model.base.Referable`)
     :ivar category: The category is a value that gives further meta information w.r.t. to the class of the element.
-                     It affects the expected existence of attributes and the applicability of constraints.
-                     (inherited from :class:`~aas.model.base.Referable`)
+                    It affects the expected existence of attributes and the applicability of constraints.
+                    (inherited from :class:`~aas.model.base.Referable`)
     :ivar description: Description or comments on the element. (inherited from :class:`~aas.model.base.Referable`)
-    :ivar parent: :class:`~aas.model.base.Reference` to the next :class:`~aas.model.base.Referable` parent element of
-        the element. (inherited from :class:`~aas.model.base.Referable`)
-    :ivar administration: Administrative information of an :class:`~aas.model.base.Identifiable` element.
-        (inherited from :class:`~aas.model.base.Identifiable`)
-    :ivar ~.security: Definition of the security relevant aspects of the AAS.
-    :ivar ~.submodel: Unordered list of :class:`AASReferences <aas.model.base.AASReference>` to
-        :class:`Submodels <aas.model.submodel.Submodel>` to describe typically the asset of an AAS.
-    :ivar concept_dictionary: Unordered list of :class:`ConceptDictionaries <aas.model.concept.ConceptDictionary>`.
-                              The concept dictionaries typically contain only
-                              descriptions for elements that are also used within the AAS
-    :ivar view: Unordered list of stakeholder specific :class:`Views <~.View>` that can group the elements of the AAS.
-    :ivar derived_from: The :class:`~aas.model.base.AASReference` to the AAS the AAs was derived from
+    :ivar parent: Reference to the next referable parent element of the element. (inherited from
+                  :class:`~aas.model.base.Referable`)
+    :ivar administration: :class:`~aas.model.base.AdministrativeInformation` of an
+                          :class:`~.aas.model.base.Identifiable` element. (inherited from
+                          :class:`~aas.model.base.Identifiable`)
+    :ivar ~.submodel: Unordered list of :class:`submodels <aas.model.submodel.Submodel>` to describe typically the asset
+                    of an AAS. (Initialization-parameter: `submodel_`)
+    :ivar derived_from: The :class:`reference <aas.model.base.ModelReference>` to the AAS the AAs was derived from
+    :ivar embedded_data_specifications: List of Embedded data specification.
+    :ivar extension: An extension of the element.
+                     (from :class:`~aas.model.base.HasExtensions`)
     """
     def __init__(self,
-                 asset: base.AASReference[Asset],
-                 identification: base.Identifier,
-                 id_short: str = "",
+                 asset_information: AssetInformation,
+                 id_: base.Identifier,
+                 id_short: str = "NotSet",
+                 display_name: Optional[base.LangStringSet] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
-                 parent: Optional[base.Namespace] = None,
+                 parent: Optional[base.UniqueIdShortNamespace] = None,
                  administration: Optional[base.AdministrativeInformation] = None,
-                 security: Optional[Security] = None,
-                 submodel: Optional[Set[base.AASReference[Submodel]]] = None,
-                 concept_dictionary: Iterable[concept.ConceptDictionary] = (),
-                 view: Iterable[View] = (),
-                 derived_from: Optional[base.AASReference["AssetAdministrationShell"]] = None):
+                 submodel: Optional[Set[base.ModelReference[Submodel]]] = None,
+                 derived_from: Optional[base.ModelReference["AssetAdministrationShell"]] = None,
+                 embedded_data_specifications: Iterable[base.EmbeddedDataSpecification]
+                 = (),
+                 extension: Iterable[base.Extension] = ()):
         super().__init__()
-        self.identification: base.Identifier = identification
+        self.id: base.Identifier = id_
+        self.asset_information: AssetInformation = asset_information
         self.id_short = id_short
-        self.category: Optional[str] = category
-        self.description: Optional[base.LangStringSet] = dict() if description is None else description
-        self.parent: Optional[base.Namespace] = parent
+        self.display_name: Optional[base.LangStringSet] = display_name
+        self.category = category
+        self.description: Optional[base.LangStringSet] = description
+        self.parent: Optional[base.UniqueIdShortNamespace] = parent
         self.administration: Optional[base.AdministrativeInformation] = administration
-        self.derived_from: Optional[base.AASReference[AssetAdministrationShell]] = derived_from
-        self.security: Optional[Security] = security
-        self.asset: base.AASReference[Asset] = asset
-        self.submodel: Set[base.AASReference[Submodel]] = set() if submodel is None else submodel
-        self.concept_dictionary: base.NamespaceSet[concept.ConceptDictionary] = \
-            base.NamespaceSet(self, concept_dictionary)
-        self.view: base.NamespaceSet[View] = base.NamespaceSet(self, view)
+        self.derived_from: Optional[base.ModelReference["AssetAdministrationShell"]] = derived_from
+        self.submodel: Set[base.ModelReference[Submodel]] = set() if submodel is None else submodel
+        self.embedded_data_specifications: List[base.EmbeddedDataSpecification] = list(embedded_data_specifications)
+        self.extension = base.NamespaceSet(self, [("name", True)], extension)

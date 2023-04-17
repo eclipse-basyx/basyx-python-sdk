@@ -1,17 +1,13 @@
 name: ci
 
-on:
-  push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
+on: [push, pull_request]
 
 jobs:
   test:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.6", "3.8", "3.10"]
+        python-version: ["3.7", "3.9", "3.11"]
     env:
       COUCHDB_ADMIN_PASSWORD: "yo0Quai3"
     services:

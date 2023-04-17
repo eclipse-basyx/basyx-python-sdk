@@ -12,7 +12,7 @@ from lxml import etree  # type: ignore
 from basyx.aas import model
 from basyx.aas.adapter.xml import write_aas_xml_file, xml_serialization, XML_SCHEMA_FILE
 
-from basyx.aas.examples.data import example_concept_description, example_aas_missing_attributes, example_aas, \
+from basyx.aas.examples.data import example_aas_missing_attributes, example_aas, \
     example_submodel_template, example_aas_mandatory_attributes
 
 
@@ -21,20 +21,21 @@ class XMLSerializationTest(unittest.TestCase):
         test_object = model.Property("test_id_short",
                                      model.datatypes.String,
                                      category="PARAMETER",
-                                     description={"en-us": "Germany", "de": "Deutschland"})
+                                     description=model.LangStringSet({"en-US": "Germany", "de": "Deutschland"}))
         xml_data = xml_serialization.property_to_xml(test_object,  xml_serialization.NS_AAS+"test_object")
         # todo: is this a correct way to test it?
 
     def test_random_object_serialization(self) -> None:
-        asset_key = (model.Key(model.KeyElements.ASSET, True, "asset", model.KeyType.CUSTOM),)
-        asset_reference = model.AASReference(asset_key, model.Asset)
-        aas_identifier = model.Identifier("AAS1", model.IdentifierType.CUSTOM)
-        submodel_key = (model.Key(model.KeyElements.SUBMODEL, True, "SM1", model.KeyType.CUSTOM),)
+        asset_key = (model.Key(model.KeyTypes.GLOBAL_REFERENCE, "test"),)
+        asset_reference = model.GlobalReference(asset_key)
+        aas_identifier = "AAS1"
+        submodel_key = (model.Key(model.KeyTypes.SUBMODEL, "SM1"),)
         submodel_identifier = submodel_key[0].get_identifier()
         assert (submodel_identifier is not None)
-        submodel_reference = model.AASReference(submodel_key, model.Submodel)
+        submodel_reference = model.ModelReference(submodel_key, model.Submodel)
         submodel = model.Submodel(submodel_identifier)
-        test_aas = model.AssetAdministrationShell(asset_reference, aas_identifier, submodel={submodel_reference})
+        test_aas = model.AssetAdministrationShell(model.AssetInformation(global_asset_id=asset_reference),
+                                                  aas_identifier, submodel={submodel_reference})
 
         test_data: model.DictObjectStore[model.Identifiable] = model.DictObjectStore()
         test_data.add(test_aas)
@@ -46,16 +47,18 @@ class XMLSerializationTest(unittest.TestCase):
 
 class XMLSerializationSchemaTest(unittest.TestCase):
     def test_random_object_serialization(self) -> None:
-        asset_key = (model.Key(model.KeyElements.ASSET, True, "asset", model.KeyType.CUSTOM),)
-        asset_reference = model.AASReference(asset_key, model.Asset)
-        aas_identifier = model.Identifier("AAS1", model.IdentifierType.CUSTOM)
-        submodel_key = (model.Key(model.KeyElements.SUBMODEL, True, "SM1", model.KeyType.CUSTOM),)
+        asset_key = (model.Key(model.KeyTypes.GLOBAL_REFERENCE, "test"),)
+        asset_reference = model.GlobalReference(asset_key)
+        aas_identifier = "AAS1"
+        submodel_key = (model.Key(model.KeyTypes.SUBMODEL, "SM1"),)
         submodel_identifier = submodel_key[0].get_identifier()
-        assert(submodel_identifier is not None)
-        submodel_reference = model.AASReference(submodel_key, model.Submodel)
-        submodel = model.Submodel(submodel_identifier, semantic_id=model.Reference((),))
-        test_aas = model.AssetAdministrationShell(asset_reference, aas_identifier, submodel={submodel_reference})
-
+        assert submodel_identifier is not None
+        submodel_reference = model.ModelReference(submodel_key, model.Submodel)
+        submodel = model.Submodel(submodel_identifier,
+                                  semantic_id=model.GlobalReference((model.Key(model.KeyTypes.GLOBAL_REFERENCE,
+                                                                               "http://acplt.org/TestSemanticId"),)))
+        test_aas = model.AssetAdministrationShell(model.AssetInformation(global_asset_id=asset_reference),
+                                                  aas_identifier, submodel={submodel_reference})
         # serialize object to xml
         test_data: model.DictObjectStore[model.Identifiable] = model.DictObjectStore()
         test_data.add(test_aas)
@@ -115,7 +118,7 @@ class XMLSerializationSchemaTest(unittest.TestCase):
     def test_missing_serialization(self) -> None:
         data = example_aas_missing_attributes.create_full_example()
         file = io.BytesIO()
-        write_aas_xml_file(file=file, data=data)
+        write_aas_xml_file(file=file, data=data, pretty_print=True)
 
         # load schema
         aas_schema = etree.XMLSchema(file=XML_SCHEMA_FILE)
@@ -127,7 +130,7 @@ class XMLSerializationSchemaTest(unittest.TestCase):
 
     def test_concept_description(self) -> None:
         data: model.DictObjectStore[model.Identifiable] = model.DictObjectStore()
-        data.add(example_concept_description.create_iec61360_concept_description())
+        data.add(example_aas.create_example_concept_description())
         file = io.BytesIO()
         write_aas_xml_file(file=file, data=data)
 

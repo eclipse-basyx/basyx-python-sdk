@@ -25,7 +25,7 @@ setuptools.setup(
     package_data={
         "basyx": ["py.typed"],
         "basyx.aas.adapter.json": ["aasJSONSchema.json"],
-        "basyx.aas.adapter.xml": ["AAS.xsd", "AAS_ABAC.xsd", "IEC61360.xsd"],
+        "basyx.aas.adapter.xml": ["AAS.xsd"],
         "basyx.aas.examples.data": ["TestFile.pdf"],
     },
     classifiers=[
@@ -39,11 +39,11 @@ setuptools.setup(
             "aas-compliance-check = basyx.aas.compliance_tool.cli:main"
         ]
     },
-    python_requires='>=3.6',
+    python_requires='>=3.7',
     install_requires=[
         'python-dateutil>=2.8,<3',
         'lxml>=4.2,<5',
-        'urllib3>=1.26<2.0',
+        'urllib3>=1.26,<2.0',
         'pyecma376-2>=0.2.4',
     ]
 )

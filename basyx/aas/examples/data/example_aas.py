@@ -6,12 +6,12 @@
 # SPDX-License-Identifier: MIT
 """
 Module for the creation of an :class:`ObjectStore <aas.model.provider.DictObjectStore>` with an example asset
-administration shell, related asset and example
-submodels and a concept dictionary containing an example concept description
+administration shell and example submodels and an example concept description
 
 To get this object store use the function :meth:`~aas.examples.data.example_aas.create_full_example`.
 If you want to get single example objects or want to get more information use the other functions.
 """
+import datetime
 import logging
 
 from ._helper import AASDataChecker
@@ -20,29 +20,78 @@ from ... import model
 logger = logging.getLogger(__name__)
 
 
+_embedded_data_specification_iec61360 = model.EmbeddedDataSpecification(
+    data_specification=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
+                                                        value='https://admin-shell.io/DataSpecificationTemplates/'
+                                                              'DataSpecificationIEC61360/3/0'),)),
+    data_specification_content=model.DataSpecificationIEC61360(preferred_name=model.LangStringSet({
+        'de': 'Test Specification',
+        'en-US': 'TestSpecification'
+    }), data_type=model.IEC61360DataType.REAL_MEASURE,
+        definition=model.LangStringSet({'de': 'Dies ist eine Data Specification für Testzwecke',
+                                        'en-US': 'This is a DataSpecification for testing purposes'}),
+        short_name=model.LangStringSet({'de': 'Test Spec', 'en-US': 'TestSpec'}), unit='SpaceUnit',
+        unit_id=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
+                                                 value='http://acplt.org/Units/SpaceUnit'),)),
+        source_of_definition='http://acplt.org/DataSpec/ExampleDef', symbol='SU', value_format=model.datatypes.String,
+        value_list={
+            model.ValueReferencePair(
+                value_type=model.datatypes.String,
+                value='exampleValue',
+                value_id=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
+                                                          value='http://acplt.org/ValueId/ExampleValueId'),)), ),
+            model.ValueReferencePair(
+                value_type=model.datatypes.String,
+                value='exampleValue2',
+                value_id=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
+                                                          value='http://acplt.org/ValueId/ExampleValueId2'),)), )},
+        value="TEST", level_types={model.IEC61360LevelType.MIN, model.IEC61360LevelType.MAX})
+)
+
+_embedded_data_specification_physical_unit = model.EmbeddedDataSpecification(
+    data_specification=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
+                                                        value='https://admin-shell.io/DataSpecificationTemplates/'
+                                                              'DataSpecificationPhysicalUnit/3/0'),)),
+    data_specification_content=model.DataSpecificationPhysicalUnit(
+        unit_name='TestPhysicalUnit',
+        unit_symbol='TPU',
+        definition=model.LangStringSet({'de': 'Dies ist eine DataSpecificationPhysicalUnit für Testzwecke',
+                                        'en-US': 'This is a DataSpecificationPhysicalUnit for testing purposes'}),
+        si_notation='t',
+        si_name='test',
+        din_notation='v',
+        ece_name='vest',
+        ece_code='ECE',
+        nist_name='nest',
+        source_of_definition='http://acplt.org/DataSpec/ExamplePUDef',
+        conversion_factor='1000',
+        registration_authority_id='DIN',
+        supplier='IAT'
+    )
+)
+
+
 def create_full_example() -> model.DictObjectStore:
     """
-    Creates an object store which is filled with an example :class:`~aas.model.aas.Asset`,
-    :class:`~aas.model.submodel.Submodel`, :class:`~aas.model.concept.ConceptDescription` and
-    :class:`~aas.model.aas.AssetAdministrationShell` using the functions of this module
+    Creates an object store which is filled with an example :class:`~aas.model.submodel.Submodel`,
+    :class:`~aas.model.concept.ConceptDescription` and :class:`~aas.model.aas.AssetAdministrationShell`
+    using the functions of this module
 
     :return: :class:`~aas.model.provider.DictObjectStore`
     """
     obj_store: model.DictObjectStore[model.Identifiable] = model.DictObjectStore()
     obj_store.add(create_example_asset_identification_submodel())
     obj_store.add(create_example_bill_of_material_submodel())
-    obj_store.add(create_example_asset())
     obj_store.add(create_example_submodel())
     obj_store.add(create_example_concept_description())
-    obj_store.add(create_example_asset_administration_shell(create_example_concept_dictionary()))
+    obj_store.add(create_example_asset_administration_shell())
     return obj_store
 
 
 def create_example_asset_identification_submodel() -> model.Submodel:
     """
-    Creates a :class:`~aas.model.submodel.Submodel` for the identification of the example :class:`~aas.model.aas.Asset`
-    containing two :class:`~aas.model.submodel.Property` elements according to
-    'Verwaltungssschale in der Praxis'
+    Creates a :class:`~aas.model.submodel.Submodel` containing two :class:`~aas.model.submodel.Property` elements
+    according to 'Verwaltungssschale in der Praxis'
     https://www.plattform-i40.de/PI40/Redaktion/DE/Downloads/Publikation/2019-verwaltungsschale-in-der-praxis.html
 
     :return: example asset identification submodel
@@ -52,19 +101,33 @@ def create_example_asset_identification_submodel() -> model.Submodel:
         type_='http://acplt.org/Qualifier/ExampleQualifier',
         value_type=model.datatypes.Int,
         value=100,
-        value_id=model.Reference((model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
-                                            local=False,
-                                            value='http://acplt.org/ValueId/ExampleValueId',
-                                            id_type=model.KeyType.IRI),)))
+        value_id=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
+                                                  value='http://acplt.org/ValueId/ExampleValueId'),)),
+        kind=model.QualifierKind.CONCEPT_QUALIFIER)
 
     qualifier2 = model.Qualifier(
         type_='http://acplt.org/Qualifier/ExampleQualifier2',
         value_type=model.datatypes.Int,
         value=50,
-        value_id=model.Reference((model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
-                                            local=False,
-                                            value='http://acplt.org/ValueId/ExampleValueId',
-                                            id_type=model.KeyType.IRI),)))
+        value_id=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
+                                                  value='http://acplt.org/ValueId/ExampleValueId'),)),
+        kind=model.QualifierKind.TEMPLATE_QUALIFIER)
+
+    qualifier3 = model.Qualifier(
+        type_='http://acplt.org/Qualifier/ExampleQualifier3',
+        value_type=model.datatypes.DateTime,
+        value=model.datatypes.DateTime(2023, 4, 7, 16, 59, 54, 870123),
+        value_id=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
+                                                  value='http://acplt.org/ValueId/ExampleValueId'),)),
+        kind=model.QualifierKind.VALUE_QUALIFIER)
+
+    extension = model.Extension(
+        name='ExampleExtension',
+        value_type=model.datatypes.String,
+        value="ExampleExtensionValue",
+        refers_to=(model.ModelReference((model.Key(type_=model.KeyTypes.ASSET_ADMINISTRATION_SHELL,
+                                                   value='http://acplt.org/RefersTo/ExampleRefersTo'),),
+                                        model.AssetAdministrationShell),))
 
     # Property-Element conform to 'Verwaltungssschale in der Praxis' page 41 ManufacturerName:
     # https://www.plattform-i40.de/PI40/Redaktion/DE/Downloads/Publikation/2019-verwaltungsschale-in-der-praxis.html
@@ -72,24 +135,26 @@ def create_example_asset_identification_submodel() -> model.Submodel:
         id_short='ManufacturerName',
         value_type=model.datatypes.String,
         value='ACPLT',
-        value_id=model.Reference((model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
-                                            local=False,
-                                            value='http://acplt.org/ValueId/ExampleValueId',
-                                            id_type=model.KeyType.IRI),)),
-        category=None,
-        description={'en-us': 'Legally valid designation of the natural or judicial person which is directly '
-                              'responsible for the design, production, packaging and labeling of a product in '
-                              'respect to its being brought into circulation.',
-                     'de': 'Bezeichnung für eine natürliche oder juristische Person, die für die Auslegung, '
-                           'Herstellung und Verpackung sowie die Etikettierung eines Produkts im Hinblick auf das '
-                           '\'Inverkehrbringen\' im eigenen Namen verantwortlich ist'},
+        value_id=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
+                                                  value='http://acplt.org/ValueId/ExampleValueId'),)),
+        category="PARAMETER",
+        description=model.LangStringSet({'en-US': 'Legally valid designation of the natural or judicial person which '
+                                                  'is directly responsible for the design, production, packaging and '
+                                                  'labeling of a product in respect to its being brought into '
+                                                  'circulation.',
+                                         'de': 'Bezeichnung für eine natürliche oder juristische Person, die für die '
+                                               'Auslegung, Herstellung und Verpackung sowie die Etikettierung eines '
+                                               'Produkts im Hinblick auf das \'Inverkehrbringen\' im eigenen Namen '
+                                               'verantwortlich ist'}),
         parent=None,
-        semantic_id=model.Reference((model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
-                                               local=False,
-                                               value='0173-1#02-AAO677#002',
-                                               id_type=model.KeyType.IRI),)),
+        semantic_id=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
+                                                     value='0173-1#02-AAO677#002'),)),
         qualifier={qualifier, qualifier2},
-        kind=model.ModelingKind.INSTANCE)
+        kind=model.ModelingKind.INSTANCE,
+        extension={extension},
+        supplemental_semantic_id=(),
+        embedded_data_specifications=()
+    )
 
     # Property-Element conform to 'Verwaltungssschale in der Praxis' page 44 InstanceId:
     # https://www.plattform-i40.de/PI40/Redaktion/DE/Downloads/Publikation/2019-verwaltungsschale-in-der-praxis.html
@@ -97,52 +162,56 @@ def create_example_asset_identification_submodel() -> model.Submodel:
         id_short='InstanceId',
         value_type=model.datatypes.String,
         value='978-8234-234-342',
-        value_id=model.Reference((model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
-                                            local=False,
-                                            value='http://acplt.org/ValueId/ExampleValueId',
-                                            id_type=model.KeyType.IRI),)),
-        category=None,
-        description={'en-us': 'Legally valid designation of the natural or judicial person which is directly '
-                              'responsible for the design, production, packaging and labeling of a product in '
-                              'respect to its being brought into circulation.',
-                     'de': 'Bezeichnung für eine natürliche oder juristische Person, die für die Auslegung, '
-                           'Herstellung und Verpackung sowie die Etikettierung eines Produkts im Hinblick auf das '
-                           '\'Inverkehrbringen\' im eigenen Namen verantwortlich ist'},
+        value_id=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
+                                                  value='http://acplt.org/ValueId/ExampleValueId'),)),
+        category="PARAMETER",
+        description=model.LangStringSet({'en-US': 'Legally valid designation of the natural or judicial person which '
+                                                  'is directly responsible for the design, production, packaging and '
+                                                  'labeling of a product in respect to its being brought into '
+                                                  'circulation.',
+                                         'de': 'Bezeichnung für eine natürliche oder juristische Person, die für die '
+                                               'Auslegung, Herstellung und Verpackung sowie die Etikettierung eines '
+                                               'Produkts im Hinblick auf das \'Inverkehrbringen\' im eigenen Namen '
+                                               'verantwortlich ist'}),
         parent=None,
-        semantic_id=model.Reference((model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
-                                               local=False,
-                                               value='http://opcfoundation.org/UA/DI/1.1/DeviceType/Serialnumber',
-                                               id_type=model.KeyType.IRI),)),
-        qualifier=None,
-        kind=model.ModelingKind.INSTANCE)
+        semantic_id=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
+                                                     value='http://opcfoundation.org/UA/DI/1.1/DeviceType/Serialnumber'
+                                                     ),)),
+        qualifier={qualifier3},
+        kind=model.ModelingKind.INSTANCE,
+        extension=(),
+        supplemental_semantic_id=(),
+        embedded_data_specifications=()
+    )
 
     # asset identification submodel which will be included in the asset object
     identification_submodel = model.Submodel(
-        identification=model.Identifier(id_='http://acplt.org/Submodels/Assets/TestAsset/Identification',
-                                        id_type=model.IdentifierType.IRI),
+        id_='http://acplt.org/Submodels/Assets/TestAsset/Identification',
         submodel_element=(identification_submodel_element_manufacturer_name,
                           identification_submodel_element_instance_id),
         id_short='Identification',
         category=None,
-        description={'en-us': 'An example asset identification submodel for the test application',
-                     'de': 'Ein Beispiel-Identifikations-Submodel für eine Test-Anwendung'},
+        description=model.LangStringSet({'en-US': 'An example asset identification submodel for the test application',
+                                         'de': 'Ein Beispiel-Identifikations-Submodel für eine Test-Anwendung'}),
         parent=None,
         administration=model.AdministrativeInformation(version='0.9',
                                                        revision='0'),
-        semantic_id=model.Reference((model.Key(type_=model.KeyElements.SUBMODEL,
-                                               local=False,
-                                               value='http://acplt.org/SubmodelTemplates/AssetIdentification',
-                                               id_type=model.KeyType.IRI),)),
-        qualifier=None,
-        kind=model.ModelingKind.INSTANCE)
+        semantic_id=model.ModelReference((model.Key(type_=model.KeyTypes.SUBMODEL,
+                                                    value='http://acplt.org/SubmodelTemplates/AssetIdentification'),),
+                                         model.Submodel),
+        qualifier=(),
+        kind=model.ModelingKind.INSTANCE,
+        extension=(),
+        supplemental_semantic_id=(),
+        embedded_data_specifications=()
+    )
     return identification_submodel
 
 
 def create_example_bill_of_material_submodel() -> model.Submodel:
     """
-    Creates a :class:`~aas.model.submodel.Submodel` for the bill of material of the example
-    :class:`~aas.model.aas.Asset` containing two entities one co-managed and one
-    self-managed
+    creates a :class:`~aas.model.submodel.Submodel` for the bill of material containing two entities one
+    co-managed and one self-managed
 
     :return: example bill of material submodel
     """
@@ -150,143 +219,118 @@ def create_example_bill_of_material_submodel() -> model.Submodel:
         id_short='ExampleProperty',
         value_type=model.datatypes.String,
         value='exampleValue',
-        value_id=model.Reference((model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
-                                            local=False,
-                                            value='http://acplt.org/ValueId/ExampleValueId',
-                                            id_type=model.KeyType.IRI),)),
+        value_id=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
+                                                  value='http://acplt.org/ValueId/ExampleValueId'),)),
         category='CONSTANT',
-        description={'en-us': 'Example Property object',
-                     'de': 'Beispiel Property Element'},
+        description=model.LangStringSet({'en-US': 'Example Property object',
+                                         'de': 'Beispiel Property Element'}),
         parent=None,
-        semantic_id=model.Reference((model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
-                                               local=False,
-                                               value='http://acplt.org/Properties/ExampleProperty',
-                                               id_type=model.KeyType.IRI),)),
-        qualifier={model.Formula(
-            depends_on={model.Reference((model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
-                                                   local=False,
-                                                   value='http://acplt.org/ValueId/ExampleValueId',
-                                                   id_type=model.KeyType.IRI),))}),
-                   model.Formula()},
-        kind=model.ModelingKind.INSTANCE)
+        semantic_id=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
+                                                     value='http://acplt.org/Properties/ExampleProperty'),)),
+        qualifier=(),
+        kind=model.ModelingKind.INSTANCE,
+        extension=(),
+        supplemental_semantic_id=(),
+        embedded_data_specifications=()
+    )
 
     submodel_element_property2 = model.Property(
         id_short='ExampleProperty2',
         value_type=model.datatypes.String,
         value='exampleValue2',
-        value_id=model.Reference((model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
-                                            local=False,
-                                            value='http://acplt.org/ValueId/ExampleValueId',
-                                            id_type=model.KeyType.IRI),)),
+        value_id=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
+                                                  value='http://acplt.org/ValueId/ExampleValueId'),)),
         category='CONSTANT',
-        description={'en-us': 'Example Property object',
-                     'de': 'Beispiel Property Element'},
+        description=model.LangStringSet({'en-US': 'Example Property object',
+                                         'de': 'Beispiel Property Element'}),
         parent=None,
-        semantic_id=model.Reference((model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
-                                               local=False,
-                                               value='http://acplt.org/Properties/ExampleProperty',
-                                               id_type=model.KeyType.IRI),)),
-        qualifier=None,
-        kind=model.ModelingKind.INSTANCE)
+        semantic_id=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
+                                                     value='http://acplt.org/Properties/ExampleProperty'),)),
+        qualifier=(),
+        kind=model.ModelingKind.INSTANCE,
+        extension=(),
+        supplemental_semantic_id=(),
+        embedded_data_specifications=()
+    )
 
     entity = model.Entity(
         id_short='ExampleEntity',
-        entity_type=model.EntityType.CO_MANAGED_ENTITY,
+        entity_type=model.EntityType.SELF_MANAGED_ENTITY,
         statement={submodel_element_property, submodel_element_property2},
-        asset=None,
-        category=None,
-        description={'en-us': 'Legally valid designation of the natural or judicial person which is directly '
-                              'responsible for the design, production, packaging and labeling of a product in '
-                              'respect to its being brought into circulation.',
-                     'de': 'Bezeichnung für eine natürliche oder juristische Person, die für die Auslegung, '
-                           'Herstellung und Verpackung sowie die Etikettierung eines Produkts im Hinblick auf das '
-                           '\'Inverkehrbringen\' im eigenen Namen verantwortlich ist'},
+        global_asset_id=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
+                                                         value='http://acplt.org/TestAsset/'),)),
+        specific_asset_id=model.SpecificAssetId(name="TestKey",
+                                                value="TestValue",
+                                                external_subject_id=model.GlobalReference(
+                                                           (model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
+                                                                      value='http://acplt.org/SpecificAssetId/'),))),
+        category="PARAMETER",
+        description=model.LangStringSet({'en-US': 'Legally valid designation of the natural or judicial person which '
+                                                  'is directly responsible for the design, production, packaging and '
+                                                  'labeling of a product in respect to its being brought into '
+                                                  'circulation.',
+                                         'de': 'Bezeichnung für eine natürliche oder juristische Person, die für die '
+                                               'Auslegung, Herstellung und Verpackung sowie die Etikettierung eines '
+                                               'Produkts im Hinblick auf das \'Inverkehrbringen\' im eigenen Namen '
+                                               'verantwortlich ist'}),
         parent=None,
-        semantic_id=model.Reference((model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
-                                               local=False,
-                                               value='http://opcfoundation.org/UA/DI/1.1/DeviceType/Serialnumber',
-                                               id_type=model.KeyType.IRI),)),
-        qualifier=None,
-        kind=model.ModelingKind.INSTANCE
+        semantic_id=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
+                                                     value='http://opcfoundation.org/UA/DI/1.1/DeviceType/Serialnumber'
+                                                     ),)),
+        qualifier=(),
+        kind=model.ModelingKind.INSTANCE,
+        extension=(),
+        supplemental_semantic_id=(),
+        embedded_data_specifications=()
     )
 
     entity_2 = model.Entity(
         id_short='ExampleEntity2',
-        entity_type=model.EntityType.SELF_MANAGED_ENTITY,
+        entity_type=model.EntityType.CO_MANAGED_ENTITY,
         statement=(),
-        asset=model.AASReference((model.Key(type_=model.KeyElements.ASSET,
-                                            local=False,
-                                            value='https://acplt.org/Test_Asset2',
-                                            id_type=model.KeyType.IRI),),
-                                 model.Asset),
-        category=None,
-        description={'en-us': 'Legally valid designation of the natural or judicial person which is directly '
-                              'responsible for the design, production, packaging and labeling of a product in '
-                              'respect to its being brought into circulation.',
-                     'de': 'Bezeichnung für eine natürliche oder juristische Person, die für die Auslegung, '
-                           'Herstellung und Verpackung sowie die Etikettierung eines Produkts im Hinblick auf das '
-                           '\'Inverkehrbringen\' im eigenen Namen verantwortlich ist'},
+        global_asset_id=None,
+        specific_asset_id=None,
+        category="PARAMETER",
+        description=model.LangStringSet({'en-US': 'Legally valid designation of the natural or judicial person which '
+                                                  'is directly responsible for the design, production, packaging and '
+                                                  'labeling of a product in respect to its being brought into '
+                                                  'circulation.',
+                                        'de': 'Bezeichnung für eine natürliche oder juristische Person, die für die '
+                                              'Auslegung, Herstellung und Verpackung sowie die Etikettierung eines '
+                                              'Produkts im Hinblick auf das \'Inverkehrbringen\' im eigenen Namen '
+                                              'verantwortlich ist'}),
         parent=None,
-        semantic_id=model.Reference((model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
-                                               local=False,
-                                               value='http://opcfoundation.org/UA/DI/1.1/DeviceType/Serialnumber',
-                                               id_type=model.KeyType.IRI),)),
-        qualifier=None,
-        kind=model.ModelingKind.INSTANCE
+        semantic_id=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
+                                                     value='http://opcfoundation.org/UA/DI/1.1/DeviceType/Serialnumber'
+                                                     ),)),
+        qualifier=(),
+        kind=model.ModelingKind.INSTANCE,
+        extension=(),
+        supplemental_semantic_id=(),
+        embedded_data_specifications=()
     )
 
     # bill of material submodel which will be included in the asset object
     bill_of_material = model.Submodel(
-        identification=model.Identifier(id_='http://acplt.org/Submodels/Assets/TestAsset/BillOfMaterial',
-                                        id_type=model.IdentifierType.IRI),
+        id_='http://acplt.org/Submodels/Assets/TestAsset/BillOfMaterial',
         submodel_element=(entity,
                           entity_2),
         id_short='BillOfMaterial',
         category=None,
-        description={'en-us': 'An example bill of material submodel for the test application',
-                     'de': 'Ein Beispiel-BillofMaterial-Submodel für eine Test-Anwendung'},
+        description=model.LangStringSet({'en-US': 'An example bill of material submodel for the test application',
+                                         'de': 'Ein Beispiel-BillofMaterial-Submodel für eine Test-Anwendung'}),
         parent=None,
         administration=model.AdministrativeInformation(version='0.9'),
-        semantic_id=model.Reference((model.Key(type_=model.KeyElements.SUBMODEL,
-                                               local=False,
-                                               value='http://acplt.org/SubmodelTemplates/BillOfMaterial',
-                                               id_type=model.KeyType.IRI),)),
-        qualifier=None,
-        kind=model.ModelingKind.INSTANCE)
+        semantic_id=model.ModelReference((model.Key(type_=model.KeyTypes.SUBMODEL,
+                                                    value='http://acplt.org/SubmodelTemplates/BillOfMaterial'),),
+                                         model.Submodel),
+        qualifier=(),
+        kind=model.ModelingKind.INSTANCE,
+        extension=(),
+        supplemental_semantic_id=(),
+        embedded_data_specifications=()
+    )
     return bill_of_material
-
-
-def create_example_asset() -> model.Asset:
-    """
-    Creates an example :class:`~aas.model.aas.Asset` which holds references to the example asset identification
-    submodel and bill of material submodel
-
-    :return: example asset
-    """
-    asset = model.Asset(
-        kind=model.AssetKind.INSTANCE,
-        identification=model.Identifier(id_='https://acplt.org/Test_Asset',
-                                        id_type=model.IdentifierType.IRI),
-        id_short='Test_Asset',
-        category=None,
-        description={'en-us': 'An example asset for the test application',
-                     'de': 'Ein Beispiel-Asset für eine Test-Anwendung'},
-        parent=None,
-        administration=model.AdministrativeInformation(version='0.9',
-                                                       revision='0'),
-        asset_identification_model=model.AASReference((model.Key(type_=model.KeyElements.SUBMODEL,
-                                                                 local=False,
-                                                                 value='http://acplt.org/Submodels/Assets/'
-                                                                       'TestAsset/Identification',
-                                                                 id_type=model.KeyType.IRI),),
-                                                      model.Submodel),
-        bill_of_material=model.AASReference((model.Key(type_=model.KeyElements.SUBMODEL,
-                                                       local=False,
-                                                       value='http://acplt.org/Submodels/Assets/'
-                                                             'TestAsset/BillOfMaterial',
-                                                       id_type=model.KeyType.IRI),),
-                                            model.Submodel))
-    return asset
 
 
 def create_example_submodel() -> model.Submodel:
@@ -296,44 +340,77 @@ def create_example_submodel() -> model.Submodel:
 
     :return: example submodel
     """
+
     submodel_element_property = model.Property(
         id_short='ExampleProperty',
         value_type=model.datatypes.String,
         value='exampleValue',
-        value_id=model.Reference((model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
-                                            local=False,
-                                            value='http://acplt.org/ValueId/ExampleValueId',
-                                            id_type=model.KeyType.IRI),)),
+        value_id=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
+                                                  value='http://acplt.org/ValueId/ExampleValueId'),)),
+        display_name=model.LangStringSet({'en-US': 'ExampleProperty',
+                                          'de': 'BeispielProperty'}),
         category='CONSTANT',
-        description={'en-us': 'Example Property object',
-                     'de': 'Beispiel Property Element'},
+        description=model.LangStringSet({'en-US': 'Example Property object',
+                                         'de': 'Beispiel Property Element'}),
         parent=None,
-        semantic_id=model.Reference((model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
-                                               local=False,
-                                               value='http://acplt.org/Properties/ExampleProperty',
-                                               id_type=model.KeyType.IRI),)),
-        qualifier=None,
-        kind=model.ModelingKind.INSTANCE)
+        semantic_id=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
+                                                     value='http://acplt.org/Properties/ExampleProperty'),),),
+        qualifier=(),
+        kind=model.ModelingKind.INSTANCE,
+        extension=(),
+        supplemental_semantic_id=(model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
+                                                                   value='http://acplt.org/Properties/'
+                                                                         'ExampleProperty/SupplementalId1'),)),
+                                  model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
+                                                                   value='http://acplt.org/Properties/'
+                                                                         'ExampleProperty/SupplementalId2'),))),
+        embedded_data_specifications=(_embedded_data_specification_iec61360,))
+
+    submodel_element_property_2 = model.Property(
+        id_short='ExampleProperty2',
+        value_type=model.datatypes.String,
+        value='exampleValue',
+        value_id=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
+                                                  value='http://acplt.org/ValueId/ExampleValueId'),)),
+        display_name=model.LangStringSet({'en-US': 'ExampleProperty',
+                                          'de': 'BeispielProperty'}),
+        category='CONSTANT',
+        description=model.LangStringSet({'en-US': 'Example Property object',
+                                         'de': 'Beispiel Property Element'}),
+        parent=None,
+        semantic_id=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
+                                                     value='http://acplt.org/Properties/ExampleProperty'),)),
+        qualifier=(),
+        kind=model.ModelingKind.INSTANCE,
+        extension=(),
+        supplemental_semantic_id=(model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
+                                                                   value='http://acplt.org/Properties/'
+                                                                         'ExampleProperty2/SupplementalId'),)),),
+        embedded_data_specifications=()
+    )
 
     submodel_element_multi_language_property = model.MultiLanguageProperty(
         id_short='ExampleMultiLanguageProperty',
-        value={'en-us': 'Example value of a MultiLanguageProperty element',
-               'de': 'Beispielswert für ein MulitLanguageProperty-Element'},
-        value_id=model.Reference((model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
-                                            local=False,
-                                            value='http://acplt.org/ValueId/ExampleMultiLanguageValueId',
-                                            id_type=model.KeyType.IRI),)),
+        value=model.LangStringSet({'en-US': 'Example value of a MultiLanguageProperty element',
+                                   'de': 'Beispielswert für ein MulitLanguageProperty-Element'}),
+        value_id=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
+                                                  value='http://acplt.org/ValueId/ExampleMultiLanguageValueId'),)),
         category='CONSTANT',
-        description={'en-us': 'Example MultiLanguageProperty object',
-                     'de': 'Beispiel MulitLanguageProperty Element'},
+        description=model.LangStringSet({'en-US': 'Example MultiLanguageProperty object',
+                                         'de': 'Beispiel MultiLanguageProperty Element'}),
         parent=None,
-        semantic_id=model.Reference((model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
-                                               local=False,
-                                               value='http://acplt.org/MultiLanguageProperties/'
-                                                     'ExampleMultiLanguageProperty',
-                                               id_type=model.KeyType.IRI),)),
-        qualifier=None,
-        kind=model.ModelingKind.INSTANCE)
+        semantic_id=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
+                                                     value='http://acplt.org/MultiLanguageProperties/'
+                                                           'ExampleMultiLanguageProperty'),),
+                                          referred_semantic_id=model.GlobalReference((model.Key(
+                                              type_=model.KeyTypes.GLOBAL_REFERENCE,
+                                              value='http://acplt.org/Properties/ExampleProperty/Referred'),))),
+        qualifier=(),
+        kind=model.ModelingKind.INSTANCE,
+        extension=(),
+        supplemental_semantic_id=(),
+        embedded_data_specifications=()
+    )
 
     submodel_element_range = model.Range(
         id_short='ExampleRange',
@@ -341,146 +418,190 @@ def create_example_submodel() -> model.Submodel:
         min=0,
         max=100,
         category='PARAMETER',
-        description={'en-us': 'Example Range object',
-                     'de': 'Beispiel Range Element'},
+        description=model.LangStringSet({'en-US': 'Example Range object',
+                                         'de': 'Beispiel Range Element'}),
         parent=None,
-        semantic_id=model.Reference((model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
-                                               local=False,
-                                               value='http://acplt.org/Ranges/ExampleRange',
-                                               id_type=model.KeyType.IRI),)),
-        qualifier=None,
-        kind=model.ModelingKind.INSTANCE)
+        semantic_id=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
+                                                     value='http://acplt.org/Ranges/ExampleRange'),)),
+        qualifier=(),
+        kind=model.ModelingKind.INSTANCE,
+        extension=(),
+        supplemental_semantic_id=(),
+        embedded_data_specifications=()
+    )
 
     submodel_element_blob = model.Blob(
         id_short='ExampleBlob',
-        mime_type='application/pdf',
-        value=bytearray(b'\x01\x02\x03\x04\x05'),
+        content_type='application/pdf',
+        value=bytes(b'\x01\x02\x03\x04\x05'),
         category='PARAMETER',
-        description={'en-us': 'Example Blob object',
-                     'de': 'Beispiel Blob Element'},
+        description=model.LangStringSet({'en-US': 'Example Blob object',
+                                         'de': 'Beispiel Blob Element'}),
         parent=None,
-        semantic_id=model.Reference((model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
-                                               local=False,
-                                               value='http://acplt.org/Blobs/ExampleBlob',
-                                               id_type=model.KeyType.IRI),)),
-        qualifier=None,
-        kind=model.ModelingKind.INSTANCE)
+        semantic_id=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
+                                                     value='http://acplt.org/Blobs/ExampleBlob'),)),
+        qualifier=(),
+        kind=model.ModelingKind.INSTANCE,
+        extension=(),
+        supplemental_semantic_id=(),
+        embedded_data_specifications=()
+    )
 
     submodel_element_file = model.File(
         id_short='ExampleFile',
-        mime_type='application/pdf',
+        content_type='application/pdf',
         value='/TestFile.pdf',
         category='PARAMETER',
-        description={'en-us': 'Example File object',
-                     'de': 'Beispiel File Element'},
+        description=model.LangStringSet({'en-US': 'Example File object',
+                                         'de': 'Beispiel File Element'}),
         parent=None,
-        semantic_id=model.Reference((model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
-                                               local=False,
-                                               value='http://acplt.org/Files/ExampleFile',
-                                               id_type=model.KeyType.IRI),)),
-        qualifier=None,
-        kind=model.ModelingKind.INSTANCE)
+        semantic_id=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
+                                                     value='http://acplt.org/Files/ExampleFile'),)),
+        qualifier=(),
+        kind=model.ModelingKind.INSTANCE,
+        extension=(),
+        supplemental_semantic_id=(),
+        embedded_data_specifications=()
+    )
 
     submodel_element_file_uri = model.File(
         id_short='ExampleFileURI',
-        mime_type='application/pdf',
+        content_type='application/pdf',
         value='https://www.plattform-i40.de/PI40/Redaktion/DE/Downloads/Publikation/Details-of-the-Asset-'
               'Administration-Shell-Part1.pdf?__blob=publicationFile&v=5',
         category='CONSTANT',
-        description={'en-us': 'Details of the Asset Administration Shell—An example for an external file reference',
-                     'de': 'Details of the Asset Administration Shell – Ein Beispiel für eine extern referenzierte '
-                           'Datei'},
+        description=model.LangStringSet({'en-US': 'Details of the Asset Administration Shell — An example for an '
+                                                  'external file reference',
+                                         'de': 'Details of the Asset Administration Shell – Ein Beispiel für eine '
+                                               'extern referenzierte Datei'}),
         parent=None,
-        semantic_id=model.Reference((model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
-                                               local=False,
-                                               value='http://acplt.org/Files/ExampleFile',
-                                               id_type=model.KeyType.IRI),)),
-        qualifier=None,
-        kind=model.ModelingKind.INSTANCE)
+        semantic_id=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
+                                                     value='http://acplt.org/Files/ExampleFile'),)),
+        qualifier=(),
+        kind=model.ModelingKind.INSTANCE,
+        extension=(),
+        supplemental_semantic_id=(),
+        embedded_data_specifications=()
+    )
 
     submodel_element_reference_element = model.ReferenceElement(
         id_short='ExampleReferenceElement',
-        value=model.Reference((model.Key(type_=model.KeyElements.PROPERTY,
-                                         local=True,
-                                         value='ExampleProperty',
-                                         id_type=model.KeyType.IDSHORT),)),
+        value=model.ModelReference((model.Key(type_=model.KeyTypes.SUBMODEL,
+                                              value='http://acplt.org/Test_Submodel'),
+                                    model.Key(type_=model.KeyTypes.PROPERTY,
+                                              value='ExampleProperty'),),
+                                   model.Property),
         category='PARAMETER',
-        description={'en-us': 'Example Reference Element object',
-                     'de': 'Beispiel Reference Element Element'},
+        description=model.LangStringSet({'en-US': 'Example Reference Element object',
+                                         'de': 'Beispiel Reference Element Element'}),
         parent=None,
-        semantic_id=model.Reference((model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
-                                               local=False,
-                                               value='http://acplt.org/ReferenceElements/ExampleReferenceElement',
-                                               id_type=model.KeyType.IRI),)),
-        qualifier=None,
-        kind=model.ModelingKind.INSTANCE)
+        semantic_id=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
+                                                     value='http://acplt.org/ReferenceElements/ExampleReferenceElement'
+                                                     ),)),
+        qualifier=(),
+        kind=model.ModelingKind.INSTANCE,
+        extension=(),
+        supplemental_semantic_id=(),
+        embedded_data_specifications=()
+    )
 
     submodel_element_relationship_element = model.RelationshipElement(
         id_short='ExampleRelationshipElement',
-        first=model.AASReference((model.Key(type_=model.KeyElements.PROPERTY,
-                                            local=True,
-                                            value='ExampleProperty',
-                                            id_type=model.KeyType.IDSHORT),),
-                                 model.Property),
-        second=model.AASReference((model.Key(type_=model.KeyElements.PROPERTY,
-                                             local=True,
-                                             value='ExampleProperty2',
-                                             id_type=model.KeyType.IDSHORT),),
-                                  model.Property),
+        first=model.ModelReference((
+            model.Key(
+                type_=model.KeyTypes.SUBMODEL,
+                value='http://acplt.org/Test_Submodel'),
+            model.Key(
+                type_=model.KeyTypes.PROPERTY,
+                value='ExampleProperty'),
+        ), model.Property),
+        second=model.ModelReference((
+            model.Key(
+                type_=model.KeyTypes.SUBMODEL,
+                value='http://acplt.org/Test_Submodel'),
+            model.Key(
+                type_=model.KeyTypes.PROPERTY,
+                value='ExampleProperty2'),
+        ), model.Property),
         category='PARAMETER',
-        description={'en-us': 'Example RelationshipElement object',
-                     'de': 'Beispiel RelationshipElement Element'},
+        description=model.LangStringSet({'en-US': 'Example RelationshipElement object',
+                                         'de': 'Beispiel RelationshipElement Element'}),
         parent=None,
-        semantic_id=model.Reference((model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
-                                               local=False,
-                                               value='http://acplt.org/RelationshipElements/'
-                                                     'ExampleRelationshipElement',
-                                               id_type=model.KeyType.IRI),)),
-        qualifier=None,
-        kind=model.ModelingKind.INSTANCE)
+        semantic_id=model.ModelReference((model.Key(type_=model.KeyTypes.CONCEPT_DESCRIPTION,
+                                                    value='https://acplt.org/Test_ConceptDescription'),),
+                                         model.ConceptDescription),
+        qualifier=(),
+        kind=model.ModelingKind.INSTANCE,
+        extension=(),
+        supplemental_semantic_id=(),
+        embedded_data_specifications=()
+    )
 
     submodel_element_annotated_relationship_element = model.AnnotatedRelationshipElement(
         id_short='ExampleAnnotatedRelationshipElement',
-        first=model.AASReference((model.Key(type_=model.KeyElements.PROPERTY,
-                                            local=True,
-                                            value='ExampleProperty',
-                                            id_type=model.KeyType.IDSHORT),),
-                                 model.Property),
-        second=model.AASReference((model.Key(type_=model.KeyElements.PROPERTY,
-                                             local=True,
-                                             value='ExampleProperty2',
-                                             id_type=model.KeyType.IDSHORT),),
-                                  model.Property),
+        first=model.ModelReference((model.Key(type_=model.KeyTypes.SUBMODEL, value='http://acplt.org/Test_Submodel'),
+                                    model.Key(type_=model.KeyTypes.PROPERTY,
+                                              value='ExampleProperty'),),
+                                   model.Property),
+        second=model.ModelReference((model.Key(type_=model.KeyTypes.SUBMODEL, value='http://acplt.org/Test_Submodel'),
+                                     model.Key(type_=model.KeyTypes.PROPERTY,
+                                               value='ExampleProperty2'),),
+                                    model.Property),
         annotation={model.Property(id_short="ExampleAnnotatedProperty",
                                    value_type=model.datatypes.String,
                                    value='exampleValue',
+                                   category="PARAMETER",
                                    parent=None),
                     model.Range(id_short="ExampleAnnotatedRange",
                                 value_type=model.datatypes.Integer,
                                 min=1,
                                 max=5,
+                                category="PARAMETER",
                                 parent=None)
                     },
         category='PARAMETER',
-        description={'en-us': 'Example AnnotatedRelationshipElement object',
-                     'de': 'Beispiel AnnotatedRelationshipElement Element'},
+        description=model.LangStringSet({'en-US': 'Example AnnotatedRelationshipElement object',
+                                         'de': 'Beispiel AnnotatedRelationshipElement Element'}),
         parent=None,
-        semantic_id=model.Reference((model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
-                                               local=False,
-                                               value='http://acplt.org/RelationshipElements/'
-                                                     'ExampleAnnotatedRelationshipElement',
-                                               id_type=model.KeyType.IRI),)),
-        qualifier=None,
-        kind=model.ModelingKind.INSTANCE)
+        semantic_id=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
+                                                     value='http://acplt.org/RelationshipElements/'
+                                                           'ExampleAnnotatedRelationshipElement'),)),
+        qualifier=(),
+        kind=model.ModelingKind.INSTANCE,
+        extension=(),
+        supplemental_semantic_id=(),
+        embedded_data_specifications=()
+    )
+
+    operation_variable_property = model.Property(
+        id_short='ExampleProperty',
+        value_type=model.datatypes.String,
+        value='exampleValue',
+        value_id=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
+                                                  value='http://acplt.org/ValueId/ExampleValueId'),)),
+        display_name=model.LangStringSet({'en-US': 'ExampleProperty',
+                                          'de': 'BeispielProperty'}),
+        category='CONSTANT',
+        description=model.LangStringSet({'en-US': 'Example Property object',
+                                         'de': 'Beispiel Property Element'}),
+        parent=None,
+        semantic_id=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
+                                                     value='http://acplt.org/Properties/ExampleProperty'),)),
+        qualifier=(),
+        kind=model.ModelingKind.TEMPLATE,
+        extension=(),
+        supplemental_semantic_id=(),
+        embedded_data_specifications=()
+    )
 
     submodel_element_operation_variable_input = model.OperationVariable(
-        value=submodel_element_property)
+        value=operation_variable_property)
 
     submodel_element_operation_variable_output = model.OperationVariable(
-        value=submodel_element_property)
+        value=operation_variable_property)
 
     submodel_element_operation_variable_in_output = model.OperationVariable(
-        value=submodel_element_property)
+        value=operation_variable_property)
 
     submodel_element_operation = model.Operation(
         id_short='ExampleOperation',
@@ -488,109 +609,133 @@ def create_example_submodel() -> model.Submodel:
         output_variable=[submodel_element_operation_variable_output],
         in_output_variable=[submodel_element_operation_variable_in_output],
         category='PARAMETER',
-        description={'en-us': 'Example Operation object',
-                     'de': 'Beispiel Operation Element'},
+        description=model.LangStringSet({'en-US': 'Example Operation object',
+                                         'de': 'Beispiel Operation Element'}),
         parent=None,
-        semantic_id=model.Reference((model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
-                                               local=False,
-                                               value='http://acplt.org/Operations/'
-                                                     'ExampleOperation',
-                                               id_type=model.KeyType.IRI),)),
-        qualifier=None,
-        kind=model.ModelingKind.INSTANCE)
+        semantic_id=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
+                                                     value='http://acplt.org/Operations/'
+                                                           'ExampleOperation'),)),
+        qualifier=(),
+        kind=model.ModelingKind.INSTANCE,
+        extension=(),
+        supplemental_semantic_id=(),
+        embedded_data_specifications=()
+    )
 
     submodel_element_capability = model.Capability(
         id_short='ExampleCapability',
         category='PARAMETER',
-        description={'en-us': 'Example Capability object',
-                     'de': 'Beispiel Capability Element'},
+        description=model.LangStringSet({'en-US': 'Example Capability object',
+                                         'de': 'Beispiel Capability Element'}),
         parent=None,
-        semantic_id=model.Reference((model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
-                                               local=False,
-                                               value='http://acplt.org/Capabilities/'
-                                                     'ExampleCapability',
-                                               id_type=model.KeyType.IRI),)),
-        qualifier=None,
-        kind=model.ModelingKind.INSTANCE)
+        semantic_id=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
+                                                     value='http://acplt.org/Capabilities/'
+                                                           'ExampleCapability'),)),
+        qualifier=(),
+        kind=model.ModelingKind.INSTANCE,
+        extension=(),
+        supplemental_semantic_id=(),
+        embedded_data_specifications=()
+    )
 
-    submodel_element_basic_event = model.BasicEvent(
-        id_short='ExampleBasicEvent',
-        observed=model.AASReference((model.Key(type_=model.KeyElements.PROPERTY,
-                                               local=True,
-                                               value='ExampleProperty',
-                                               id_type=model.KeyType.IDSHORT),),
-                                    model.Property),
+    submodel_element_basic_event_element = model.BasicEventElement(
+        id_short='ExampleBasicEventElement',
+        observed=model.ModelReference((model.Key(type_=model.KeyTypes.SUBMODEL, value='http://acplt.org/Test_Submodel'),
+                                       model.Key(type_=model.KeyTypes.PROPERTY,
+                                                 value='ExampleProperty'),),
+                                      model.Property),
+        direction=model.Direction.OUTPUT,
+        state=model.StateOfEvent.ON,
+        message_topic='ExampleTopic',
+        message_broker=model.ModelReference((model.Key(model.KeyTypes.SUBMODEL,
+                                                       "http://acplt.org/ExampleMessageBroker"),),
+                                            model.Submodel),
+        last_update=model.datatypes.DateTime(2022, 11, 12, 23, 50, 23, 123456, datetime.timezone.utc),
+        min_interval=model.datatypes.Duration(microseconds=1),
+        max_interval=model.datatypes.Duration(years=1, months=2, days=3, hours=4, minutes=5, seconds=6,
+                                              microseconds=123456),
         category='PARAMETER',
-        description={'en-us': 'Example BasicEvent object',
-                     'de': 'Beispiel BasicEvent Element'},
+        description=model.LangStringSet({'en-US': 'Example BasicEventElement object',
+                                         'de': 'Beispiel BasicEventElement Element'}),
         parent=None,
-        semantic_id=model.Reference((model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
-                                               local=False,
-                                               value='http://acplt.org/Events/'
-                                                     'ExampleBasicEvent',
-                                               id_type=model.KeyType.IRI),)),
-        qualifier=None,
-        kind=model.ModelingKind.INSTANCE)
+        semantic_id=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
+                                                     value='http://acplt.org/Events/ExampleBasicEventElement'),)),
+        qualifier=(),
+        kind=model.ModelingKind.INSTANCE,
+        extension=(),
+        supplemental_semantic_id=(),
+        embedded_data_specifications=()
+    )
 
-    submodel_element_submodel_element_collection_ordered = model.SubmodelElementCollectionOrdered(
-        id_short='ExampleSubmodelCollectionOrdered',
-        value=(submodel_element_property,
-               submodel_element_multi_language_property,
-               submodel_element_range),
+    submodel_element_submodel_element_list = model.SubmodelElementList(
+        id_short='ExampleSubmodelList',
+        type_value_list_element=model.Property,
+        value=(submodel_element_property, submodel_element_property_2),
+        semantic_id_list_element=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
+                                                       value='http://acplt.org/Properties/ExampleProperty'),)),
+        value_type_list_element=model.datatypes.String,
+        order_relevant=True,
         category='PARAMETER',
-        description={'en-us': 'Example SubmodelElementCollectionOrdered object',
-                     'de': 'Beispiel SubmodelElementCollectionOrdered Element'},
+        description=model.LangStringSet({'en-US': 'Example SubmodelElementList object',
+                                         'de': 'Beispiel SubmodelElementList Element'}),
         parent=None,
-        semantic_id=model.Reference((model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
-                                               local=False,
-                                               value='http://acplt.org/SubmodelElementCollections/'
-                                                     'ExampleSubmodelElementCollectionOrdered',
-                                               id_type=model.KeyType.IRI),)),
-        qualifier=None,
-        kind=model.ModelingKind.INSTANCE)
+        semantic_id=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
+                                                     value='http://acplt.org/SubmodelElementLists/'
+                                                           'ExampleSubmodelElementList'),)),
+        qualifier=(),
+        kind=model.ModelingKind.INSTANCE,
+        extension=(),
+        supplemental_semantic_id=(),
+        embedded_data_specifications=()
+    )
 
-    submodel_element_submodel_element_collection_unordered = model.SubmodelElementCollectionUnordered(
-        id_short='ExampleSubmodelCollectionUnordered',
+    submodel_element_submodel_element_collection = model.SubmodelElementCollection(
+        id_short='ExampleSubmodelCollection',
         value=(submodel_element_blob,
                submodel_element_file,
                submodel_element_file_uri,
-               submodel_element_reference_element),
+               submodel_element_multi_language_property,
+               submodel_element_range,
+               submodel_element_reference_element,
+               submodel_element_submodel_element_list),
         category='PARAMETER',
-        description={'en-us': 'Example SubmodelElementCollectionUnordered object',
-                     'de': 'Beispiel SubmodelElementCollectionUnordered Element'},
+        description=model.LangStringSet({'en-US': 'Example SubmodelElementCollection object',
+                                         'de': 'Beispiel SubmodelElementCollection Element'}),
         parent=None,
-        semantic_id=model.Reference((model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
-                                               local=False,
-                                               value='http://acplt.org/SubmodelElementCollections/'
-                                                     'ExampleSubmodelElementCollectionUnordered',
-                                               id_type=model.KeyType.IRI),)),
-        qualifier=None,
-        kind=model.ModelingKind.INSTANCE)
+        semantic_id=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
+                                                     value='http://acplt.org/SubmodelElementCollections/'
+                                                           'ExampleSubmodelElementCollection'),)),
+        qualifier=(),
+        kind=model.ModelingKind.INSTANCE,
+        extension=(),
+        supplemental_semantic_id=(),
+        embedded_data_specifications=()
+    )
 
     submodel = model.Submodel(
-        identification=model.Identifier(id_='https://acplt.org/Test_Submodel',
-                                        id_type=model.IdentifierType.IRI),
+        id_='https://acplt.org/Test_Submodel',
         submodel_element=(submodel_element_relationship_element,
                           submodel_element_annotated_relationship_element,
                           submodel_element_operation,
                           submodel_element_capability,
-                          submodel_element_basic_event,
-                          submodel_element_submodel_element_collection_ordered,
-                          submodel_element_submodel_element_collection_unordered),
+                          submodel_element_basic_event_element,
+                          submodel_element_submodel_element_collection),
         id_short='TestSubmodel',
         category=None,
-        description={'en-us': 'An example submodel for the test application',
-                     'de': 'Ein Beispiel-Teilmodell für eine Test-Anwendung'},
+        description=model.LangStringSet({'en-US': 'An example submodel for the test application',
+                                         'de': 'Ein Beispiel-Teilmodell für eine Test-Anwendung'}),
         parent=None,
         administration=model.AdministrativeInformation(version='0.9',
                                                        revision='0'),
-        semantic_id=model.Reference((model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
-                                               local=False,
-                                               value='http://acplt.org/SubmodelTemplates/'
-                                                     'ExampleSubmodel',
-                                               id_type=model.KeyType.IRI),)),
-        qualifier=None,
-        kind=model.ModelingKind.INSTANCE)
+        semantic_id=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
+                                                     value='http://acplt.org/SubmodelTemplates/'
+                                                           'ExampleSubmodel'),)),
+        qualifier=(),
+        kind=model.ModelingKind.INSTANCE,
+        extension=(),
+        supplemental_semantic_id=(),
+        embedded_data_specifications=(_embedded_data_specification_physical_unit,)
+    )
     return submodel
 
 
@@ -601,92 +746,87 @@ def create_example_concept_description() -> model.ConceptDescription:
     :return: example concept description
     """
     concept_description = model.ConceptDescription(
-        identification=model.Identifier(id_='https://acplt.org/Test_ConceptDescription',
-                                        id_type=model.IdentifierType.IRI),
-        is_case_of={model.Reference((model.Key(type_=model.KeyElements.GLOBAL_REFERENCE,
-                                               local=False,
-                                               value='http://acplt.org/DataSpecifications/'
-                                                     'ConceptDescriptions/TestConceptDescription',
-                                               id_type=model.KeyType.IRI),))},
+        id_='https://acplt.org/Test_ConceptDescription',
+        is_case_of={model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
+                                                     value='http://acplt.org/DataSpecifications/'
+                                                           'ConceptDescriptions/TestConceptDescription'),))},
         id_short='TestConceptDescription',
         category=None,
-        description={'en-us': 'An example concept description  for the test application',
-                     'de': 'Ein Beispiel-ConceptDescription für eine Test-Anwendung'},
+        description=model.LangStringSet({'en-US': 'An example concept description for the test application',
+                                         'de': 'Ein Beispiel-ConceptDescription für eine Test-Anwendung'}),
         parent=None,
-        administration=model.AdministrativeInformation(version='0.9',
-                                                       revision='0'))
+        administration=model.AdministrativeInformation(version='0.9', revision='0',
+                                                       embedded_data_specifications=(
+                                                           _embedded_data_specification_iec61360,
+                                                       )),
+        embedded_data_specifications=(_embedded_data_specification_physical_unit,)
+    )
     return concept_description
 
 
-def create_example_concept_dictionary() -> model.ConceptDictionary:
-    """
-    Creates an example :class:`~aas.model.concept.ConceptDictionary` containing an :class:`~aas.model.base.AASReference`
-    to the example :class:`~aas.model.concept.ConceptDescription`
-
-    :return: example concept dictionary
-    """
-    concept_dictionary = model.ConceptDictionary(
-        id_short='TestConceptDictionary',
-        category=None,
-        description={'en-us': 'An example concept dictionary for the test application',
-                     'de': 'Ein Beispiel-ConceptDictionary für eine Test-Anwendung'},
-        parent=None,
-        concept_description={model.AASReference((model.Key(type_=model.KeyElements.CONCEPT_DESCRIPTION,
-                                                           local=False,
-                                                           value='https://acplt.org/Test_ConceptDescription',
-                                                           id_type=model.KeyType.IRI),),
-                                                model.ConceptDescription)})
-    return concept_dictionary
-
-
-def create_example_asset_administration_shell(concept_dictionary: model.ConceptDictionary) -> \
+def create_example_asset_administration_shell() -> \
         model.AssetAdministrationShell:
     """
     Creates an :class:`~aas.model.aas.AssetAdministrationShell` with references to an example
-    :class:`~aas.model.aas.Asset` and :class:`~aas.model.submodel.Submodel` and includes a given
-    :class:`~aas.model.concept.ConceptDictionary`
+    :class:`~aas.model.submodel.Submodel`.
 
     :return: example :class:`~aas.model.aas.AssetAdministrationShell`
     """
+
+    asset_information = model.AssetInformation(
+        asset_kind=model.AssetKind.INSTANCE,
+        global_asset_id=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
+                                                         value='http://acplt.org/TestAsset/'),)),
+        specific_asset_id={model.SpecificAssetId(name="TestKey",
+                                                 value="TestValue",
+                                                 external_subject_id=model.GlobalReference(
+                                                            (model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
+                                                                       value='http://acplt.org/SpecificAssetId/'),)),
+                                                 semantic_id=model.GlobalReference((model.Key(
+                                                     model.KeyTypes.GLOBAL_REFERENCE,
+                                                     "http://acplt.org/SpecificAssetId/"
+                                                 ),)))},
+        default_thumbnail=model.Resource(
+            "file:///path/to/thumbnail.png",
+            "image/png"
+        )
+    )
+
     asset_administration_shell = model.AssetAdministrationShell(
-        asset=model.AASReference((model.Key(type_=model.KeyElements.ASSET,
-                                            local=False,
-                                            value='https://acplt.org/Test_Asset',
-                                            id_type=model.KeyType.IRI),),
-                                 model.Asset),
-        identification=model.Identifier(id_='https://acplt.org/Test_AssetAdministrationShell',
-                                        id_type=model.IdentifierType.IRI),
+        asset_information=asset_information,
+        id_='https://acplt.org/Test_AssetAdministrationShell',
         id_short='TestAssetAdministrationShell',
         category=None,
-        description={'en-us': 'An Example Asset Administration Shell for the test application',
-                     'de': 'Ein Beispiel-Verwaltungsschale für eine Test-Anwendung'},
+        description=model.LangStringSet({'en-US': 'An Example Asset Administration Shell for the test application',
+                                         'de': 'Ein Beispiel-Verwaltungsschale für eine Test-Anwendung'}),
         parent=None,
         administration=model.AdministrativeInformation(version='0.9',
                                                        revision='0'),
-        security=None,
-        submodel={model.AASReference((model.Key(type_=model.KeyElements.SUBMODEL,
-                                                local=True,
-                                                value='https://acplt.org/Test_Submodel',
-                                                id_type=model.KeyType.IRI),),
-                                     model.Submodel),
-                  model.AASReference((model.Key(type_=model.KeyElements.SUBMODEL,
-                                                local=True,
-                                                value='http://acplt.org/Submodels/Assets/TestAsset/Identification',
-                                                id_type=model.KeyType.IRI),),
-                                     model.Submodel),
-                  model.AASReference((model.Key(type_=model.KeyElements.SUBMODEL,
-                                                local=True,
-                                                value='http://acplt.org/Submodels/Assets/TestAsset/BillOfMaterial',
-                                                id_type=model.KeyType.IRI),),
-                                     model.Submodel),
+        submodel={model.ModelReference((model.Key(type_=model.KeyTypes.SUBMODEL,
+                                                  value='https://acplt.org/Test_Submodel'),),
+                                       model.Submodel,
+                                       model.GlobalReference((
+                                           model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
+                                                     value='http://acplt.org/SubmodelTemplates/ExampleSubmodel'),
+                                       ))),
+                  model.ModelReference((model.Key(type_=model.KeyTypes.SUBMODEL,
+                                                  value='http://acplt.org/Submodels/Assets/TestAsset/Identification'),),
+                                       model.Submodel,
+                                       model.ModelReference((
+                                           model.Key(type_=model.KeyTypes.SUBMODEL,
+                                                     value='http://acplt.org/SubmodelTemplates/AssetIdentification'),),
+                                           model.Submodel
+                                       )),
+                  model.ModelReference((model.Key(type_=model.KeyTypes.SUBMODEL,
+                                                  value='http://acplt.org/Submodels/Assets/TestAsset/BillOfMaterial'),),
+                                       model.Submodel),
                   },
-        concept_dictionary=[concept_dictionary],
-        view=[],
-        derived_from=model.AASReference((model.Key(type_=model.KeyElements.ASSET_ADMINISTRATION_SHELL,
-                                                   local=False,
-                                                   value='https://acplt.org/TestAssetAdministrationShell2',
-                                                   id_type=model.KeyType.IRI),),
-                                        model.AssetAdministrationShell))
+        derived_from=model.ModelReference((model.Key(type_=model.KeyTypes.ASSET_ADMINISTRATION_SHELL,
+                                                     value='https://acplt.org/TestAssetAdministrationShell2'),),
+                                          model.AssetAdministrationShell),
+        extension=(),
+        embedded_data_specifications=(_embedded_data_specification_iec61360,)
+    )
     return asset_administration_shell
 
 
@@ -703,19 +843,13 @@ def check_example_bill_of_material_submodel(checker: AASDataChecker, submodel: m
     checker.check_submodel_equal(submodel, expected_submodel)
 
 
-def check_example_asset(checker: AASDataChecker, asset: model.Asset) -> None:
-    expected_asset = create_example_asset()
-    checker.check_asset_equal(asset, expected_asset)
-
-
 def check_example_concept_description(checker: AASDataChecker, concept_description: model.ConceptDescription) -> None:
     expected_concept_description = create_example_concept_description()
     checker.check_concept_description_equal(concept_description, expected_concept_description)
 
 
 def check_example_asset_administration_shell(checker: AASDataChecker, shell: model.AssetAdministrationShell) -> None:
-    example_cd = create_example_concept_dictionary()
-    expected_shell = create_example_asset_administration_shell(example_cd)
+    expected_shell = create_example_asset_administration_shell()
     checker.check_asset_administration_shell_equal(shell, expected_shell)
 
 
@@ -725,5 +859,5 @@ def check_example_submodel(checker: AASDataChecker, submodel: model.Submodel) ->
 
 
 def check_full_example(checker: AASDataChecker, obj_store: model.DictObjectStore) -> None:
-    example_data = create_full_example()
-    checker.check_object_store(example_data, obj_store)
+    expected_data = create_full_example()
+    checker.check_object_store(obj_store, expected_data)

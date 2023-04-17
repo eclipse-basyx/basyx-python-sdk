@@ -19,7 +19,6 @@ internally by the objects' :meth:`~aas.model.base.Referable.update` and :meth:`~
 methods when the backend is applicable for the relevant source URI. Then, the Backend class
 needs to be registered to handle update/commit requests for a specific URI schema, using
 :meth:`~aas.backend.backends.register_backend`.
-
 """
 import abc
 import re

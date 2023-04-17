@@ -12,6 +12,7 @@ import unittest
 from basyx.aas import model
 from basyx.aas.adapter.xml import StrictAASFromXmlDecoder, XMLConstructables, read_aas_xml_file, \
     read_aas_xml_file_into, read_aas_xml_element
+from basyx.aas.adapter._generic import XML_NS_MAP
 from lxml import etree  # type: ignore
 from typing import Iterable, Type, Union
 
@@ -19,11 +20,7 @@ from typing import Iterable, Type, Union
 def _xml_wrap(xml: str) -> str:
     return \
         """<?xml version="1.0" encoding="utf-8" ?>""" \
-        """<aas:aasenv xmlns:aas="http://www.admin-shell.io/aas/2/0" """ \
-        """xmlns:IEC61360="http://www.admin-shell.io/IEC61360/2/0" """ \
-        """xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" """ \
-        """xsi:schemaLocation="http://www.admin-shell.io/aas/2/0 AAS.xsd """ \
-        """http://www.admin-shell.io/IEC61360/2/0 IEC61360.xsd">""" \
+        f"""<aas:aasenv xmlns:aas="{XML_NS_MAP["aas"]}"> """ \
         + xml + """</aas:aasenv>"""
 
 
@@ -72,75 +69,64 @@ class XmlDeserializationTest(unittest.TestCase):
 
     def test_invalid_element_in_list(self) -> None:
         xml = _xml_wrap("""
-        <aas:assets>
+        <aas:submodels>
             <aas:invalidElement/>
-        </aas:assets>
+        </aas:submodels>
         """)
-        self._assertInExceptionAndLog(xml, ["aas:invalidElement", "aas:assets"], KeyError, logging.WARNING)
-
-    def test_missing_identification_attribute(self) -> None:
-        xml = _xml_wrap("""
-        <aas:assets>
-            <aas:asset>
-                <aas:identification>http://acplt.org/test_asset</aas:identification>
-                <aas:kind>Instance</aas:kind>
-            </aas:asset>
-        </aas:assets>
-        """)
-        self._assertInExceptionAndLog(xml, "idType", KeyError, logging.ERROR)
-
-    def test_invalid_identification_attribute_value(self) -> None:
-        xml = _xml_wrap("""
-        <aas:assets>
-            <aas:asset>
-                <aas:identification idType="invalid">http://acplt.org/test_asset</aas:identification>
-                <aas:kind>Instance</aas:kind>
-            </aas:asset>
-        </aas:assets>
-        """)
-        self._assertInExceptionAndLog(xml, ["idType", "invalid"], ValueError, logging.ERROR)
+        self._assertInExceptionAndLog(xml, ["aas:invalidElement", "aas:submodels"], KeyError, logging.WARNING)
 
     def test_missing_asset_kind(self) -> None:
         xml = _xml_wrap("""
-        <aas:assets>
-            <aas:asset>
-            </aas:asset>
-        </aas:assets>
+        <aas:assetAdministrationShells>
+            <aas:assetAdministrationShell>
+                <aas:id>http://acplt.org/test_aas</aas:id>
+                <aas:assetInformation>
+                </aas:assetInformation>
+            </aas:assetAdministrationShell>
+        </aas:assetAdministrationShells>
         """)
-        self._assertInExceptionAndLog(xml, "aas:kind", KeyError, logging.ERROR)
+        self._assertInExceptionAndLog(xml, "aas:assetKind", KeyError, logging.ERROR)
 
     def test_missing_asset_kind_text(self) -> None:
         xml = _xml_wrap("""
-        <aas:assets>
-            <aas:asset>
-                <aas:kind></aas:kind>
-            </aas:asset>
-        </aas:assets>
+        <aas:assetAdministrationShells>
+            <aas:assetAdministrationShell>
+                <aas:id>http://acplt.org/test_aas</aas:id>
+                <aas:assetInformation>
+                    <aas:assetKind></aas:assetKind>
+                </aas:assetInformation>
+            </aas:assetAdministrationShell>
+        </aas:assetAdministrationShells>
         """)
-        self._assertInExceptionAndLog(xml, "aas:kind", KeyError, logging.ERROR)
+        self._assertInExceptionAndLog(xml, "aas:assetKind", KeyError, logging.ERROR)
 
     def test_invalid_asset_kind_text(self) -> None:
         xml = _xml_wrap("""
-        <aas:assets>
-            <aas:asset>
-                <aas:kind>invalidKind</aas:kind>
-            </aas:asset>
-        </aas:assets>
+        <aas:assetAdministrationShells>
+            <aas:assetAdministrationShell>
+                <aas:id>http://acplt.org/test_aas</aas:id>
+                <aas:assetInformation>
+                    <aas:assetKind>invalidKind</aas:assetKind>
+                </aas:assetInformation>
+            </aas:assetAdministrationShell>
+        </aas:assetAdministrationShells>
         """)
-        self._assertInExceptionAndLog(xml, ["aas:kind", "invalidKind"], ValueError, logging.ERROR)
+        self._assertInExceptionAndLog(xml, ["aas:assetKind", "invalidKind"], ValueError, logging.ERROR)
 
     def test_invalid_boolean(self) -> None:
         xml = _xml_wrap("""
-        <aas:conceptDescriptions>
-            <aas:conceptDescription>
-                <aas:identification idType="IRI">http://acplt.org/test_asset</aas:identification>
-                <aas:isCaseOf>
-                    <aas:keys>
-                         <aas:key idType="IRI" local="False" type="GlobalReference">http://acplt.org/test_ref</aas:key>
-                    </aas:keys>
-                </aas:isCaseOf>
-            </aas:conceptDescription>
-        </aas:conceptDescriptions>
+        <aas:submodels>
+            <aas:submodel>
+                <aas:id>http://acplt.org/test_submodel</aas:id>
+                <aas:submodelElements>
+                    <aas:submodelElementList>
+                        <aas:orderRelevant>False</aas:orderRelevant>
+                        <aas:idShort>collection</aas:idShort>
+                        <aas:typeValueListElement>Capability</aas:typeValueListElement>
+                    </aas:submodelElementList>
+                </aas:submodelElements>
+            </aas:submodel>
+        </aas:submodels>
         """)
         self._assertInExceptionAndLog(xml, "False", ValueError, logging.ERROR)
 
@@ -148,8 +134,7 @@ class XmlDeserializationTest(unittest.TestCase):
         xml = _xml_wrap("""
         <aas:submodels>
             <aas:submodel>
-                <aas:identification idType="IRI">http://acplt.org/test_submodel</aas:identification>
-                <aas:submodelElements/>
+                <aas:id>http://acplt.org/test_submodel</aas:id>
             </aas:submodel>
         </aas:submodels>
         """)
@@ -165,52 +150,52 @@ class XmlDeserializationTest(unittest.TestCase):
         xml = _xml_wrap("""
         <aas:assetAdministrationShells>
             <aas:assetAdministrationShell>
-                <aas:identification idType="IRI">http://acplt.org/test_aas</aas:identification>
-                <aas:assetRef>
+                <aas:id>http://acplt.org/test_aas</aas:id>
+                <aas:assetInformation>
+                    <aas:assetKind>Instance</aas:assetKind>
+                </aas:assetInformation>
+                <aas:derivedFrom>
+                    <aas:type>ModelReference</aas:type>
                     <aas:keys>
-                        <aas:key idType="IRI" local="false" type="GlobalReference">http://acplt.org/test_ref</aas:key>
+                        <aas:key>
+                            <aas:type>Submodel</aas:type>
+                            <aas:value>http://acplt.org/test_ref</aas:value>
+                        </aas:key>
                     </aas:keys>
-                </aas:assetRef>
+                </aas:derivedFrom>
             </aas:assetAdministrationShell>
         </aas:assetAdministrationShells>
         """)
         with self.assertLogs(logging.getLogger(), level=logging.WARNING) as context:
             read_aas_xml_file(io.BytesIO(xml.encode("utf-8")), failsafe=False)
-        for s in ("GLOBAL_REFERENCE", "IRI=http://acplt.org/test_ref", "Asset"):
+        for s in ("SUBMODEL", "http://acplt.org/test_ref", "AssetAdministrationShell"):
             self.assertIn(s, context.output[0])  # type: ignore
 
     def test_invalid_submodel_element(self) -> None:
-        # TODO: simplify this should our suggestion regarding the XML schema get accepted
-        # https://git.rwth-aachen.de/acplt/pyi40aas/-/issues/57
         xml = _xml_wrap("""
         <aas:submodels>
             <aas:submodel>
-                <aas:identification idType="IRI">http://acplt.org/test_submodel</aas:identification>
+                <aas:id>http://acplt.org/test_submodel</aas:id>
                 <aas:submodelElements>
-                    <aas:submodelElement>
-                        <aas:invalidSubmodelElement/>
-                    </aas:submodelElement>
+                    <aas:invalidSubmodelElement/>
                 </aas:submodelElements>
             </aas:submodel>
         </aas:submodels>
         """)
         self._assertInExceptionAndLog(xml, "aas:invalidSubmodelElement", KeyError, logging.ERROR)
 
-    def test_invalid_constraint(self) -> None:
-        # TODO: simplify this should our suggestion regarding the XML schema get accepted
-        # https://git.rwth-aachen.de/acplt/pyi40aas/-/issues/57
+    def test_empty_qualifier(self) -> None:
         xml = _xml_wrap("""
         <aas:submodels>
             <aas:submodel>
-                <aas:identification idType="IRI">http://acplt.org/test_submodel</aas:identification>
-                <aas:submodelElements/>
-                <aas:qualifier>
-                    <aas:invalidConstraint/>
-                </aas:qualifier>
+                <aas:id>http://acplt.org/test_submodel</aas:id>
+                <aas:qualifiers>
+                    <aas:qualifier/>
+                </aas:qualifiers>
             </aas:submodel>
         </aas:submodels>
         """)
-        self._assertInExceptionAndLog(xml, "aas:invalidConstraint", KeyError, logging.ERROR)
+        self._assertInExceptionAndLog(xml, ["aas:qualifier", "has no child aas:type"], KeyError, logging.ERROR)
 
     def test_operation_variable_no_submodel_element(self) -> None:
         # TODO: simplify this should our suggestion regarding the XML schema get accepted
@@ -218,16 +203,16 @@ class XmlDeserializationTest(unittest.TestCase):
         xml = _xml_wrap("""
         <aas:submodels>
             <aas:submodel>
-                <aas:identification idType="IRI">http://acplt.org/test_submodel</aas:identification>
+                <aas:id>http://acplt.org/test_submodel</aas:id>
                 <aas:submodelElements>
-                    <aas:submodelElement>
-                        <aas:operation>
-                            <aas:idShort>test_operation</aas:idShort>
-                            <aas:outputVariable>
+                    <aas:operation>
+                        <aas:idShort>test_operation</aas:idShort>
+                        <aas:outputVariables>
+                            <aas:operationVariable>
                                 <aas:value/>
-                            </aas:outputVariable>
-                        </aas:operation>
-                    </aas:submodelElement>
+                            </aas:operationVariable>
+                        </aas:outputVariables>
+                    </aas:operation>
                 </aas:submodelElements>
             </aas:submodel>
         </aas:submodels>
@@ -240,25 +225,26 @@ class XmlDeserializationTest(unittest.TestCase):
         xml = _xml_wrap("""
         <aas:submodels>
             <aas:submodel>
-                <aas:identification idType="IRI">http://acplt.org/test_submodel</aas:identification>
+                <aas:id>http://acplt.org/test_submodel</aas:id>
                 <aas:submodelElements>
-                    <aas:submodelElement>
-                        <aas:operation>
-                            <aas:idShort>test_operation</aas:idShort>
-                            <aas:outputVariable>
+                    <aas:operation>
+                        <aas:idShort>test_operation</aas:idShort>
+                        <aas:outputVariables>
+                            <aas:operationVariable>
                                 <aas:value>
                                     <aas:file>
+                                        <aas:kind>Template</aas:kind>
                                         <aas:idShort>test_file</aas:idShort>
-                                        <aas:mimeType>application/problem+xml</aas:mimeType>
+                                        <aas:contentType>application/problem+xml</aas:contentType>
                                     </aas:file>
                                     <aas:file>
                                         <aas:idShort>test_file2</aas:idShort>
-                                        <aas:mimeType>application/problem+xml</aas:mimeType>
+                                        <aas:contentType>application/problem+xml</aas:contentType>
                                     </aas:file>
                                 </aas:value>
-                            </aas:outputVariable>
-                        </aas:operation>
-                    </aas:submodelElement>
+                            </aas:operationVariable>
+                        </aas:outputVariables>
+                    </aas:operation>
                 </aas:submodelElements>
             </aas:submodel>
         </aas:submodels>
@@ -271,25 +257,24 @@ class XmlDeserializationTest(unittest.TestCase):
         xml = _xml_wrap("""
         <aas:assetAdministrationShells>
             <aas:assetAdministrationShell>
-                <aas:identification idType="IRI">http://acplt.org/test_aas</aas:identification>
-                <aas:assetRef>
-                    <aas:keys>
-                        <aas:key idType="IRI" local="false" type="Asset">http://acplt.org/asset_ref</aas:key>
-                    </aas:keys>
-                </aas:assetRef>
+                <aas:id>http://acplt.org/test_aas</aas:id>
+                <aas:idShort>NotSet</aas:idShort>
+                <aas:assetInformation>
+                    <aas:assetKind>Instance</aas:assetKind>
+                </aas:assetInformation>
             </aas:assetAdministrationShell>
         </aas:assetAdministrationShells>
         <aas:submodels>
             <aas:submodel>
-                <aas:identification idType="IRI">http://acplt.org/test_aas</aas:identification>
-                <aas:submodelElements/>
+                <aas:id>http://acplt.org/test_aas</aas:id>
+                <aas:idShort>NotSet</aas:idShort>
             </aas:submodel>
         </aas:submodels>
         """)
         self._assertInExceptionAndLog(xml, "duplicate identifier", KeyError, logging.ERROR)
 
     def test_duplicate_identifier_object_store(self) -> None:
-        sm_id = model.Identifier("http://acplt.org/test_submodel", model.IdentifierType.IRI)
+        sm_id = "http://acplt.org/test_submodel"
 
         def get_clean_store() -> model.DictObjectStore:
             store: model.DictObjectStore = model.DictObjectStore()
@@ -300,9 +285,8 @@ class XmlDeserializationTest(unittest.TestCase):
         xml = _xml_wrap("""
         <aas:submodels>
             <aas:submodel>
-                <aas:identification idType="IRI">http://acplt.org/test_submodel</aas:identification>
+                <aas:id>http://acplt.org/test_submodel</aas:id>
                 <aas:idShort>test456</aas:idShort>
-                <aas:submodelElements/>
             </aas:submodel>
         </aas:submodels>
         """)
@@ -335,10 +319,9 @@ class XmlDeserializationTest(unittest.TestCase):
         self.assertEqual(submodel.id_short, "test123")
 
     def test_read_aas_xml_element(self) -> None:
-        xml = """
-        <aas:submodel xmlns:aas="http://www.admin-shell.io/aas/2/0">
-            <aas:identification idType="IRI">http://acplt.org/test_submodel</aas:identification>
-            <aas:submodelElements/>
+        xml = f"""
+        <aas:submodel xmlns:aas="{XML_NS_MAP["aas"]}">
+            <aas:id>http://acplt.org/test_submodel</aas:id>
         </aas:submodel>
         """
         bytes_io = io.BytesIO(xml.encode("utf-8"))
@@ -349,33 +332,31 @@ class XmlDeserializationTest(unittest.TestCase):
 
 class XmlDeserializationStrippedObjectsTest(unittest.TestCase):
     def test_stripped_qualifiable(self) -> None:
-        xml = """
-        <aas:submodel xmlns:aas="http://www.admin-shell.io/aas/2/0">
-            <aas:identification idType="IRI">http://acplt.org/test_stripped_submodel</aas:identification>
+        xml = f"""
+        <aas:submodel xmlns:aas="{XML_NS_MAP["aas"]}">
+            <aas:id>http://acplt.org/test_stripped_submodel</aas:id>
             <aas:submodelElements>
-                <aas:submodelElement>
-                    <aas:operation>
-                        <aas:idShort>test_operation</aas:idShort>
+                <aas:operation>
+                    <aas:idShort>test_operation</aas:idShort>
+                    <aas:qualifiers>
                         <aas:qualifier>
-                            <aas:qualifier>
-                                <aas:type>test_qualifier</aas:type>
-                                <aas:valueType>string</aas:valueType>
-                            </aas:qualifier>
+                            <aas:type>test_qualifier</aas:type>
+                            <aas:valueType>xs:string</aas:valueType>
                         </aas:qualifier>
-                    </aas:operation>
-                </aas:submodelElement>
+                    </aas:qualifiers>
+                </aas:operation>
             </aas:submodelElements>
-            <aas:qualifier>
+            <aas:qualifiers>
                 <aas:qualifier>
                     <aas:type>test_qualifier</aas:type>
-                    <aas:valueType>string</aas:valueType>
+                    <aas:valueType>xs:string</aas:valueType>
                 </aas:qualifier>
-            </aas:qualifier>
+            </aas:qualifiers>
         </aas:submodel>
         """
         bytes_io = io.BytesIO(xml.encode("utf-8"))
 
-        # check if XML with constraints can be parsed successfully
+        # check if XML with qualifiers can be parsed successfully
         submodel = read_aas_xml_element(bytes_io, XMLConstructables.SUBMODEL, failsafe=False)
         self.assertIsInstance(submodel, model.Submodel)
         assert isinstance(submodel, model.Submodel)
@@ -383,109 +364,47 @@ class XmlDeserializationStrippedObjectsTest(unittest.TestCase):
         operation = submodel.submodel_element.pop()
         self.assertEqual(len(operation.qualifier), 1)
 
-        # check if constraints are ignored in stripped mode
+        # check if qualifiers are ignored in stripped mode
         submodel = read_aas_xml_element(bytes_io, XMLConstructables.SUBMODEL, failsafe=False, stripped=True)
         self.assertIsInstance(submodel, model.Submodel)
         assert isinstance(submodel, model.Submodel)
         self.assertEqual(len(submodel.qualifier), 0)
         self.assertEqual(len(submodel.submodel_element), 0)
 
-    def test_stripped_annotated_relationship_element(self) -> None:
-        xml = """
-        <aas:annotatedRelationshipElement xmlns:aas="http://www.admin-shell.io/aas/2/0">
-            <aas:idShort>test_annotated_relationship_element</aas:idShort>
-            <aas:first>
-                <aas:keys>
-                    <aas:key idType="IdShort" local="true" type="AnnotatedRelationshipElement">test_ref</aas:key>
-                </aas:keys>
-            </aas:first>
-            <aas:second>
-                <aas:keys>
-                    <aas:key idType="IdShort" local="true" type="AnnotatedRelationshipElement">test_ref</aas:key>
-                </aas:keys>
-            </aas:second>
-        </aas:annotatedRelationshipElement>
-        """
-        bytes_io = io.BytesIO(xml.encode("utf-8"))
-
-        # XML schema requires annotations to be present, so parsing should fail
-        with self.assertRaises(KeyError):
-            read_aas_xml_element(bytes_io, XMLConstructables.ANNOTATED_RELATIONSHIP_ELEMENT, failsafe=False)
-
-        # check if it can be parsed in stripped mode
-        read_aas_xml_element(bytes_io, XMLConstructables.ANNOTATED_RELATIONSHIP_ELEMENT, failsafe=False, stripped=True)
-
-    def test_stripped_entity(self) -> None:
-        xml = """
-        <aas:entity xmlns:aas="http://www.admin-shell.io/aas/2/0">
-            <aas:idShort>test_entity</aas:idShort>
-            <aas:entityType>CoManagedEntity</aas:entityType>
-        </aas:entity>
-        """
-        bytes_io = io.BytesIO(xml.encode("utf-8"))
-
-        # XML schema requires statements to be present, so parsing should fail
-        with self.assertRaises(KeyError):
-            read_aas_xml_element(bytes_io, XMLConstructables.ENTITY, failsafe=False)
-
-        # check if it can be parsed in stripped mode
-        read_aas_xml_element(bytes_io, XMLConstructables.ENTITY, failsafe=False, stripped=True)
-
-    def test_stripped_submodel_element_collection(self) -> None:
-        xml = """
-        <aas:submodelElementCollection xmlns:aas="http://www.admin-shell.io/aas/2/0">
-            <aas:idShort>test_collection</aas:idShort>
-            <aas:ordered>false</aas:ordered>
-        </aas:submodelElementCollection>
-        """
-        bytes_io = io.BytesIO(xml.encode("utf-8"))
-
-        # XML schema requires value to be present, so parsing should fail
-        with self.assertRaises(KeyError):
-            read_aas_xml_element(bytes_io, XMLConstructables.SUBMODEL_ELEMENT_COLLECTION, failsafe=False)
-
-        # check if it can be parsed in stripped mode
-        read_aas_xml_element(bytes_io, XMLConstructables.SUBMODEL_ELEMENT_COLLECTION, failsafe=False, stripped=True)
-
     def test_stripped_asset_administration_shell(self) -> None:
-        xml = """
-        <aas:assetAdministrationShell xmlns:aas="http://www.admin-shell.io/aas/2/0">
-            <aas:identification idType="IRI">http://acplt.org/test_aas</aas:identification>
-            <aas:assetRef>
-                <aas:keys>
-                    <aas:key idType="IRI" local="false" type="Asset">http://acplt.org/test_ref</aas:key>
-                </aas:keys>
-            </aas:assetRef>
-            <aas:submodelRefs>
-                <aas:submodelRef>
+        xml = f"""
+        <aas:assetAdministrationShell xmlns:aas="{XML_NS_MAP["aas"]}">
+            <aas:id>http://acplt.org/test_aas</aas:id>
+            <aas:assetInformation>
+                <aas:assetKind>Instance</aas:assetKind>
+            </aas:assetInformation>
+            <aas:submodels>
+                <aas:reference>
+                    <aas:type>ModelReference</aas:type>
                     <aas:keys>
-                        <aas:key idType="IRI" local="false" type="Submodel">http://acplt.org/test_ref</aas:key>
+                        <aas:key>
+                            <aas:type>Submodel</aas:type>
+                            <aas:value>http://acplt.org/test_ref</aas:value>
+                        </aas:key>
                     </aas:keys>
-                </aas:submodelRef>
-            </aas:submodelRefs>
-            <aas:views>
-                <aas:view>
-                    <aas:idShort>test_view</aas:idShort>
-                </aas:view>
-            </aas:views>
+                </aas:reference>
+            </aas:submodels>
         </aas:assetAdministrationShell>
         """
         bytes_io = io.BytesIO(xml.encode("utf-8"))
 
-        # check if XML with submodelRef and views can be parsed successfully
+        # check if XML with submodels can be parsed successfully
         aas = read_aas_xml_element(bytes_io, XMLConstructables.ASSET_ADMINISTRATION_SHELL, failsafe=False)
         self.assertIsInstance(aas, model.AssetAdministrationShell)
         assert isinstance(aas, model.AssetAdministrationShell)
         self.assertEqual(len(aas.submodel), 1)
-        self.assertEqual(len(aas.view), 1)
 
-        # check if submodelRef and views are ignored in stripped mode
+        # check if submodels are ignored in stripped mode
         aas = read_aas_xml_element(bytes_io, XMLConstructables.ASSET_ADMINISTRATION_SHELL, failsafe=False,
                                    stripped=True)
         self.assertIsInstance(aas, model.AssetAdministrationShell)
         assert isinstance(aas, model.AssetAdministrationShell)
         self.assertEqual(len(aas.submodel), 0)
-        self.assertEqual(len(aas.view), 0)
 
 
 class XmlDeserializationDerivingTest(unittest.TestCase):
@@ -501,10 +420,9 @@ class XmlDeserializationDerivingTest(unittest.TestCase):
                     -> model.Submodel:
                 return super().construct_submodel(element, object_class=object_class, **kwargs)
 
-        xml = """
-        <aas:submodel xmlns:aas="http://www.admin-shell.io/aas/2/0">
-            <aas:identification idType="IRI">http://acplt.org/test_stripped_submodel</aas:identification>
-            <aas:submodelElements/>
+        xml = f"""
+        <aas:submodel xmlns:aas="{XML_NS_MAP["aas"]}">
+            <aas:id>http://acplt.org/test_stripped_submodel</aas:id>
         </aas:submodel>
         """
         bytes_io = io.BytesIO(xml.encode("utf-8"))
