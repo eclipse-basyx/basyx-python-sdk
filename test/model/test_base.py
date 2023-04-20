@@ -557,12 +557,12 @@ class AASReferenceTest(unittest.TestCase):
             ref4.resolve(DummyObjectProvider())
         self.assertIs(submodel, cm_4.exception.value)
 
-        ref5 = model.AASReference((), model.Submodel)
+        ref5 = model.ModelReference((), model.Submodel)
         with self.assertRaises(IndexError) as cm_5:
             ref5.resolve(DummyObjectProvider())
         self.assertEqual('List of keys is empty', str(cm_5.exception))
 
-        ref6 = model.AASReference((model.Key(model.KeyElements.SUBMODEL, False, "urn:x-test:submodel",
+        ref6 = model.ModelReference((model.Key(model.KeyElements.SUBMODEL, False, "urn:x-test:submodel",
                                              model.KeyType.IRI),
                                    model.Key(model.KeyElements.SUBMODEL_ELEMENT_COLLECTION, False, "collection",
                                              model.KeyType.IDSHORT),
