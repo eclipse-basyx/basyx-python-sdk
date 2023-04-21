@@ -860,12 +860,9 @@ class ModelReferenceTest(unittest.TestCase):
             ref5 = model.ModelReference((), model.Submodel)
         self.assertEqual('A reference must have at least one key!', str(cm_5.exception))
 
-        ref6 = model.ModelReference((model.Key(model.KeyElements.SUBMODEL, False, "urn:x-test:submodel",
-                                             model.KeyType.IRI),
-                                   model.Key(model.KeyElements.SUBMODEL_ELEMENT_COLLECTION, False, "collection",
-                                             model.KeyType.IDSHORT),
-                                   model.Key(model.KeyElements.PROPERTY, False, "prop_false",
-                                             model.KeyType.IDSHORT)), model.Property)
+        ref6 = model.ModelReference((model.Key(model.KeyTypes.SUBMODEL, "urn:x-test:submodel"),
+                                     model.Key(model.KeyTypes.SUBMODEL_ELEMENT_COLLECTION, "collection"),
+                                     model.Key(model.KeyTypes.PROPERTY, "prop_false")), model.Property)
 
         with self.assertRaises(KeyError) as cm_6:
             ref6.resolve(DummyObjectProvider())
@@ -979,8 +976,8 @@ class HasSemanticsTest(unittest.TestCase):
     def test_supplemental_semantic_id_constraint(self) -> None:
         extension = model.Extension(name='test')
         key: model.Key = model.Key(model.KeyTypes.GLOBAL_REFERENCE, "global_reference")
-        ref_sem_id: model.Reference = model.GlobalReference((key, ))
-        ref1: model.Reference = model.GlobalReference((key, ))
+        ref_sem_id: model.Reference = model.GlobalReference((key,))
+        ref1: model.Reference = model.GlobalReference((key,))
 
         with self.assertRaises(model.AASConstraintViolation) as cm:
             extension.supplemental_semantic_id.append(ref1)
