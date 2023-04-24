@@ -382,6 +382,16 @@ AnyXSDType = Union[
     AnyURI, String, NormalizedString]
 
 
+class MessageTopicType(str):
+    def __new__(cls, *args, **kwargs):
+        res = str.__new__(cls, *args, **kwargs)
+        if res == 'None':
+            return None
+        if len(res) > 255:
+            raise ValueError("MessageTopicType has a maximum of 255 characters")
+        return res
+
+
 XSD_TYPE_NAMES: Dict[Type[AnyXSDType], str] = {k: "xs:" + v for k, v in {
     Duration: "duration",
     DayTimeDuration: "dayTimeDuration",
