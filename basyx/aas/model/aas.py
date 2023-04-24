@@ -44,15 +44,17 @@ class AssetInformation:
 
     def __init__(self,
                  asset_kind: base.AssetKind = base.AssetKind.INSTANCE,
-                 global_asset_id: Optional[base.GlobalReference] = None,
+                 global_asset_id: Optional[base.Identifier] = None,
                  specific_asset_id: Optional[Set[base.SpecificAssetId]] = None,
+                 asset_type: Optional[base.Identifier] = None,
                  default_thumbnail: Optional[base.Resource] = None):
 
         super().__init__()
         self.asset_kind: base.AssetKind = asset_kind
-        self._global_asset_id: Optional[base.GlobalReference] = global_asset_id
+        self._global_asset_id: Optional[base.Identifier] = global_asset_id
         self.specific_asset_id: Set[base.SpecificAssetId] = set() if specific_asset_id is None \
             else specific_asset_id
+        self.asset_type: Optional[base.Identifier] = asset_type
         self.default_thumbnail: Optional[base.Resource] = default_thumbnail
 
     def _get_global_asset_id(self):
