@@ -246,7 +246,7 @@ def create_example_submodel() -> model.Submodel:
                                       model.Property),
         direction=model.Direction.OUTPUT,
         state=model.StateOfEvent.ON,
-        message_topic='ExampleTopic',
+        message_topic=model.datatypes.MessageTopicType('ExampleTopic'),
         message_broker=model.ModelReference((model.Key(model.KeyTypes.SUBMODEL,
                                                        "http://acplt.org/ExampleMessageBroker"),),
                                             model.Submodel),
