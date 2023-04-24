@@ -87,6 +87,13 @@ class TestStringTypes(unittest.TestCase):
         self.assertEqual("abc", model.datatypes.xsd_repr(model.datatypes.String("abc")))
         self.assertEqual("abc", model.datatypes.xsd_repr(model.datatypes.NormalizedString("abc")))
 
+    def test_message_topic_type(self) -> None:
+        self.assertEqual("abc", model.datatypes.MessageTopicType("abc"))
+        self.assertEqual(None, model.datatypes.MessageTopicType(None))
+        with self.assertRaises(ValueError) as cm:
+            model.datatypes.MessageTopicType('a'*256)
+        self.assertEqual("MessageTopicType has a maximum of 255 characters", str(cm.exception))
+
 
 class TestDateTimeTypes(unittest.TestCase):
     def test_parse_duration(self) -> None:
