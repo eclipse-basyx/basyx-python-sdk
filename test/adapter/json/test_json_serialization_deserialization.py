@@ -19,15 +19,13 @@ from basyx.aas.examples.data._helper import AASDataChecker
 
 class JsonSerializationDeserializationTest(unittest.TestCase):
     def test_random_object_serialization_deserialization(self) -> None:
-        asset_key = (model.Key(model.KeyTypes.GLOBAL_REFERENCE, "test"),)
-        asset_reference = model.GlobalReference(asset_key)
         aas_identifier = "AAS1"
         submodel_key = (model.Key(model.KeyTypes.SUBMODEL, "SM1"),)
         submodel_identifier = submodel_key[0].get_identifier()
         assert submodel_identifier is not None
         submodel_reference = model.ModelReference(submodel_key, model.Submodel)
         submodel = model.Submodel(submodel_identifier)
-        test_aas = model.AssetAdministrationShell(model.AssetInformation(global_asset_id=asset_reference),
+        test_aas = model.AssetAdministrationShell(model.AssetInformation(global_asset_id=model.Identifier("test")),
                                                   aas_identifier, submodel={submodel_reference})
 
         # serialize object to json

@@ -25,15 +25,13 @@ class JsonSerializationTest(unittest.TestCase):
         json_data = json.dumps(test_object, cls=AASToJsonEncoder)
 
     def test_random_object_serialization(self) -> None:
-        asset_key = (model.Key(model.KeyTypes.GLOBAL_REFERENCE, "test"),)
-        asset_reference = model.GlobalReference(asset_key)
         aas_identifier = "AAS1"
         submodel_key = (model.Key(model.KeyTypes.SUBMODEL, "SM1"),)
         submodel_identifier = submodel_key[0].get_identifier()
         assert submodel_identifier is not None
         submodel_reference = model.ModelReference(submodel_key, model.Submodel)
         submodel = model.Submodel(submodel_identifier)
-        test_aas = model.AssetAdministrationShell(model.AssetInformation(global_asset_id=asset_reference),
+        test_aas = model.AssetAdministrationShell(model.AssetInformation(global_asset_id=model.Identifier("test")),
                                                   aas_identifier, submodel={submodel_reference})
 
         # serialize object to json
@@ -48,8 +46,6 @@ class JsonSerializationTest(unittest.TestCase):
 
 class JsonSerializationSchemaTest(unittest.TestCase):
     def test_random_object_serialization(self) -> None:
-        asset_key = (model.Key(model.KeyTypes.GLOBAL_REFERENCE, "test"),)
-        asset_reference = model.GlobalReference(asset_key)
         aas_identifier = "AAS1"
         submodel_key = (model.Key(model.KeyTypes.SUBMODEL, "SM1"),)
         submodel_identifier = submodel_key[0].get_identifier()
@@ -60,7 +56,7 @@ class JsonSerializationSchemaTest(unittest.TestCase):
         submodel = model.Submodel(submodel_identifier,
                                   semantic_id=model.GlobalReference((model.Key(model.KeyTypes.GLOBAL_REFERENCE,
                                                                      "http://acplt.org/TestSemanticId"),)))
-        test_aas = model.AssetAdministrationShell(model.AssetInformation(global_asset_id=asset_reference),
+        test_aas = model.AssetAdministrationShell(model.AssetInformation(global_asset_id=model.Identifier("test")),
                                                   aas_identifier, submodel={submodel_reference})
 
         # serialize object to json
@@ -217,15 +213,12 @@ class JsonSerializationStrippedObjectsTest(unittest.TestCase):
         self._checkNormalAndStripped("value", sec)
 
     def test_stripped_asset_administration_shell(self) -> None:
-        asset_ref = model.GlobalReference(
-            (model.Key(model.KeyTypes.GLOBAL_REFERENCE, "http://acplt.org/test_ref"),),
-        )
         submodel_ref = model.ModelReference(
             (model.Key(model.KeyTypes.SUBMODEL, "http://acplt.org/test_ref"),),
             model.Submodel
         )
         aas = model.AssetAdministrationShell(
-            model.AssetInformation(global_asset_id=asset_ref),
+            model.AssetInformation(global_asset_id=model.Identifier("http://acplt.org/test_ref")),
             "http://acplt.org/test_aas",
             submodel={submodel_ref}
         )
