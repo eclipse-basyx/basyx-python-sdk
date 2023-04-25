@@ -60,7 +60,7 @@ class AssetInformation:
     def _get_global_asset_id(self):
         return self._global_asset_id
 
-    def _set_global_asset_id(self, global_asset_id: Optional[base.GlobalReference]):
+    def _set_global_asset_id(self, global_asset_id: Optional[base.Identifier]):
         if global_asset_id is None and (self.specific_asset_id is None or not self.specific_asset_id):
             raise ValueError("either global or specific asset id must be set")
         self._global_asset_id = global_asset_id

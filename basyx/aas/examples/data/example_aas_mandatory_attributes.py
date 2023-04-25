@@ -179,8 +179,7 @@ def create_example_asset_administration_shell() -> \
     """
     asset_information = model.AssetInformation(
         asset_kind=model.AssetKind.INSTANCE,
-        global_asset_id=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
-                                                         value='http://acplt.org/Test_Asset_Mandatory/'),)))
+        global_asset_id=model.Identifier('http://acplt.org/Test_Asset_Mandatory/'))
 
     asset_administration_shell = model.AssetAdministrationShell(
         asset_information=asset_information,

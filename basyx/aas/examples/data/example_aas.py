@@ -753,8 +753,7 @@ def create_example_asset_administration_shell() -> \
 
     asset_information = model.AssetInformation(
         asset_kind=model.AssetKind.INSTANCE,
-        global_asset_id=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
-                                                         value='http://acplt.org/TestAsset/'),)),
+        global_asset_id=model.Identifier('http://acplt.org/TestAsset/'),
         specific_asset_id={model.SpecificAssetId(name="TestKey",
                                                  value="TestValue",
                                                  external_subject_id=model.GlobalReference(
