@@ -14,9 +14,9 @@ In order to open an issue, go
 to https://github.com/eclipse-basyx/basyx-python-sdk/issues and click "**New Issue**".
 
 The first step for a good issue is a descriptive title. The title is a brief description
-of the issue, ideally 72 characters or less. In order to achieve this, use imperative.
-Furthermore, if a specific file is affected by whatever the issue is about, please
-mention it at the beginning of the issue title.
+of the issue, ideally 72 characters or fewer using imperative language.
+Furthermore, if you know which module is the cause of your issue, please mention 
+it at the beginning of the issue title.
 
 Here are some example for a good title:
 
@@ -26,10 +26,11 @@ compliance_tool: Fail to check aasx package without thumbnail
 adapter.aasx: `Property.value` `0` are converted into `NoneType`
 ```
 
-As you can see, code-highlighting is used in order to highlight class names or types.
+As you can see, inline code blocks (the backticks) are used to highlight 
+class names or types.
 
 In the issue message, use full text or bullet points to describe your issue in detail.
-Please include a short paragraph on each the
+Please include a short paragraph on each of
 
 - Expected behavior:  A description of what the expected behavior should be, so that
   maintainers can understand how the issue differs from the intended functionality.
@@ -39,7 +40,7 @@ Please include a short paragraph on each the
   of the specification used, or other relevant technical details that may be
   contributing to the issue.
 
-Additionally, if you have ideas for how to address the issue, you can include them here.
+Additionally, if you have ideas on how to address the issue, please include them here!
 
 ## Contribute Changes
 
@@ -90,13 +91,12 @@ the further steps via the comments.
 
 ## Commit and Pull Request Messages
 
-In order to effectively communicate, there's some conventions to respect when writing
+In order to effectively communicate, there are some conventions to respect when writing
 commit messages and pull requests.
 
-Similarily, to when creating an issue, the commit title, as well as the PR title should
-be as short as possible, ideally 72 characters or less. In order to achieve this, use
-imperative. Furthermore, if a specific file is affected by whatever the issue is about,
-please mention it at the beginning of the issue title.
+Similarily to when creating an issue, the commit title, as well as the PR title should 
+be as short as possible, ideally 72 characters or fewer using imperative language.
+If a specific module is affected, please mention it at the beginning of the title.
 
 Here are some examples:
 
