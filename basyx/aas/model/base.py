@@ -203,21 +203,21 @@ class ModelingKind(Enum):
 @unique
 class AssetKind(Enum):
     """
-    Enumeration for denoting whether an element is a type or an instance.
+    Enumeration for denoting whether an asset is a type asset or an instance asset or whether this kind of
+    classification is not applicable.
     *Note:* :attr:`~.AssetKind.INSTANCE` becomes an individual entity of a type, for example a device, by defining
     specific property values.
 
     *Note:* In an object oriented view, an instance denotes an object of a class (of a type)
 
-    :cvar TYPE: hardware or software element which specifies the common attributes shared by all instances of the type
-    :cvar INSTANCE: concrete, clearly identifiable component of a certain type,
-                    *Note:* It becomes an individual entity of a type, for example a device, by defining specific
-                    property values.
-                    *Note:* In an object oriented view, an instance denotes an object of a class (of a type)
+    :cvar TYPE: Type asset
+    :cvar INSTANCE: Instance asset
+    :cvar NOTAPPLICABLE: Neither a type asset nor an instance asset
     """
 
     TYPE = 0
     INSTANCE = 1
+    NOTAPPLICABLE = 2
 
 
 class QualifierKind(Enum):

@@ -22,7 +22,8 @@ MODELING_KIND: Dict[model.ModelingKind, str] = {
 
 ASSET_KIND: Dict[model.AssetKind, str] = {
     model.AssetKind.TYPE: 'Type',
-    model.AssetKind.INSTANCE: 'Instance'}
+    model.AssetKind.INSTANCE: 'Instance',
+    model.AssetKind.NOTAPPLICABLE: 'NotApplicable'}
 
 QUALIFIER_KIND: Dict[model.QualifierKind, str] = {
     model.QualifierKind.CONCEPT_QUALIFIER: 'ConceptQualifier',
