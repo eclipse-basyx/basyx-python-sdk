@@ -116,6 +116,13 @@ class TestStringTypes(unittest.TestCase):
             name_type: model.datatypes.NameType = model.datatypes.NameType('a'*129)
         self.assertEqual("NameType has a maximum of 128 characters", str(cm.exception))
 
+    def test_short_name_type(self):
+        short_name_type: model.datatypes.ShortNameType = model.datatypes.ShortNameType('a' * 64)
+        short_name_type: model.datatypes.ShortNameType = model.datatypes.ShortNameType("")
+        with self.assertRaises(ValueError) as cm:
+            short_name_type: model.datatypes.ShortNameType = model.datatypes.ShortNameType('a'*65)
+        self.assertEqual("ShortNameType has a maximum of 64 characters", str(cm.exception))
+
 
 class TestDateTimeTypes(unittest.TestCase):
     def test_parse_duration(self) -> None:
