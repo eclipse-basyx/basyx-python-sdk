@@ -375,6 +375,13 @@ class NormalizedString(str):
         return cls(value.translate({0xD: None, 0xA: None, 0x9: None}))
 
 
+class LabelType(str):
+    def __new__(cls, value: str):
+        if len(value) > 64:
+            raise ValueError("LabelType has a maximum of 64 characters")
+        return super().__new__(cls, value)
+
+
 AnyXSDType = Union[
     Duration, DayTimeDuration, YearMonthDuration, DateTime, Date, Time, GYearMonth, GYear, GMonthDay, GMonth, GDay,
     Boolean, Base64Binary, HexBinary, Float, Double, Decimal, Integer, Long, Int, Short, Byte, NonPositiveInteger,
