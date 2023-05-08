@@ -1099,8 +1099,8 @@ class AdministrativeInformation(HasDataSpecification):
     """
 
     def __init__(self,
-                 version: Optional[str] = None,
-                 revision: Optional[str] = None,
+                 version: Optional[datatypes.VersionType] = None,
+                 revision: Optional[datatypes.RevisionType] = None,
                  embedded_data_specifications: Iterable[EmbeddedDataSpecification] = ()):
         """
         Initializer of AdministrativeInformation
@@ -1110,16 +1110,16 @@ class AdministrativeInformation(HasDataSpecification):
         TODO: Add instruction what to do after construction
         """
         super().__init__()
-        self._version: Optional[str]
+        self._version: Optional[datatypes.VersionType]
         self.version = version
-        self._revision: Optional[str]
+        self._revision: Optional[datatypes.RevisionType]
         self.revision = revision
         self.embedded_data_specifications: List[EmbeddedDataSpecification] = list(embedded_data_specifications)
 
     def _get_version(self):
         return self._version
 
-    def _set_version(self, version: str):
+    def _set_version(self, version: datatypes.VersionType):
         if version == "":
             raise ValueError("version is not allowed to be an empty string")
         self._version = version
@@ -1129,7 +1129,7 @@ class AdministrativeInformation(HasDataSpecification):
     def _get_revision(self):
         return self._revision
 
-    def _set_revision(self, revision: str):
+    def _set_revision(self, revision: datatypes.RevisionType):
         if revision == "":
             raise ValueError("revision is not allowed to be an empty string")
         if self.version is None and revision:
