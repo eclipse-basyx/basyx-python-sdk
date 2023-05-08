@@ -382,6 +382,13 @@ class LabelType(str):
         return super().__new__(cls, value)
 
 
+class NameType(str):
+    def __new__(cls, value: str):
+        if len(value) > 128:
+            raise ValueError("NameType has a maximum of 128 characters")
+        return super().__new__(cls, value)
+
+
 AnyXSDType = Union[
     Duration, DayTimeDuration, YearMonthDuration, DateTime, Date, Time, GYearMonth, GYear, GMonthDay, GMonth, GDay,
     Boolean, Base64Binary, HexBinary, Float, Double, Decimal, Integer, Long, Int, Short, Byte, NonPositiveInteger,
