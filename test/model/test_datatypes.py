@@ -102,6 +102,13 @@ class TestStringTypes(unittest.TestCase):
             revision_type: model.datatypes.RevisionType = model.datatypes.RevisionType("ABC")
         self.assertEqual("Revision Type does not match with pattern '/^([0-9]|[1-9][0-9]*)$/'", str(cm4.exception))
 
+    def test_label_type(self):
+        revision_type: model.datatypes.LabelType = model.datatypes.LabelType('a' * 64)
+        revision_type: model.datatypes.LabelType = model.datatypes.LabelType("")
+        with self.assertRaises(ValueError) as cm:
+            revision_type: model.datatypes.LabelType = model.datatypes.LabelType('a'*65)
+        self.assertEqual("LabelType has a maximum of 64 characters", str(cm.exception))
+
 
 class TestDateTimeTypes(unittest.TestCase):
     def test_parse_duration(self) -> None:
