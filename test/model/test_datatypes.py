@@ -87,6 +87,21 @@ class TestStringTypes(unittest.TestCase):
         self.assertEqual("abc", model.datatypes.xsd_repr(model.datatypes.String("abc")))
         self.assertEqual("abc", model.datatypes.xsd_repr(model.datatypes.NormalizedString("abc")))
 
+    def test_revision_type(self):
+        with self.assertRaises(ValueError) as cm:
+            revision_type: model.datatypes.RevisionType = model.datatypes.RevisionType("")
+        self.assertEqual("RevisionType has a minimum of 1 character", str(cm.exception))
+        revision_type: model.datatypes.RevisionType = model.datatypes.RevisionType("1")
+        with self.assertRaises(ValueError) as cm2:
+            revision_type: model.datatypes.RevisionType = model.datatypes.RevisionType("12345")
+        self.assertEqual("RevisionType has a maximum of 4 characters", str(cm2.exception))
+        with self.assertRaises(ValueError) as cm3:
+            revision_type: model.datatypes.RevisionType = model.datatypes.RevisionType("04")
+        self.assertEqual("Revision Type does not match with pattern '/^([0-9]|[1-9][0-9]*)$/'", str(cm3.exception))
+        with self.assertRaises(ValueError) as cm4:
+            revision_type: model.datatypes.RevisionType = model.datatypes.RevisionType("ABC")
+        self.assertEqual("Revision Type does not match with pattern '/^([0-9]|[1-9][0-9]*)$/'", str(cm4.exception))
+
 
 class TestDateTimeTypes(unittest.TestCase):
     def test_parse_duration(self) -> None:
