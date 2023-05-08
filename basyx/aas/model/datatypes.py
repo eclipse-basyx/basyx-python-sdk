@@ -389,6 +389,18 @@ class NameType(str):
         return super().__new__(cls, value)
 
 
+class RevisionType(str):
+    def __new__(cls, value: str):
+        if len(value) > 4:
+            raise ValueError("RevisionType has a maximum of 4 characters")
+        if len(value) == 0:
+            raise ValueError("RevisionType has a minimum of 1 character")
+        pattern = r'^([0-9]|[1-9][0-9]*)$'
+        if not re.match(pattern, value):
+            raise ValueError("Revision Type does not match with pattern '/^([0-9]|[1-9][0-9]*)$/'")
+        return super().__new__(cls, value)
+
+
 AnyXSDType = Union[
     Duration, DayTimeDuration, YearMonthDuration, DateTime, Date, Time, GYearMonth, GYear, GMonthDay, GMonth, GDay,
     Boolean, Base64Binary, HexBinary, Float, Double, Decimal, Integer, Long, Int, Short, Byte, NonPositiveInteger,
