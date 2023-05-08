@@ -102,6 +102,21 @@ class TestStringTypes(unittest.TestCase):
             revision_type: model.datatypes.RevisionType = model.datatypes.RevisionType("ABC")
         self.assertEqual("Revision Type does not match with pattern '/^([0-9]|[1-9][0-9]*)$/'", str(cm4.exception))
 
+    def test_version_type(self):
+        with self.assertRaises(ValueError) as cm:
+            version_type: model.datatypes.VersionType = model.datatypes.VersionType("")
+        self.assertEqual("VersionType has a minimum of 1 character", str(cm.exception))
+        version_type: model.datatypes.VersionType = model.datatypes.VersionType("1")
+        with self.assertRaises(ValueError) as cm2:
+            version_type: model.datatypes.VersionType = model.datatypes.VersionType("12345")
+        self.assertEqual("VersionType has a maximum of 4 characters", str(cm2.exception))
+        with self.assertRaises(ValueError) as cm3:
+            version_type: model.datatypes.VersionType = model.datatypes.VersionType("04")
+        self.assertEqual("VersionType does not match with pattern '/^([0-9]|[1-9][0-9]*)$/'", str(cm3.exception))
+        with self.assertRaises(ValueError) as cm4:
+            version_type: model.datatypes.VersionType = model.datatypes.VersionType("ABC")
+        self.assertEqual("VersionType does not match with pattern '/^([0-9]|[1-9][0-9]*)$/'", str(cm4.exception))
+
     def test_label_type(self):
         label_type: model.datatypes.LabelType = model.datatypes.LabelType('a' * 64)
         label_type: model.datatypes.LabelType = model.datatypes.LabelType("")
