@@ -28,7 +28,6 @@ ValueDataType = datatypes.AnyXSDType  # any xsd atomic type (from .datatypes)
 BlobType = bytes
 PathType = str
 QualifierType = str
-Identifier = str
 ValueList = Set["ValueReferencePair"]
 
 
@@ -168,6 +167,15 @@ class ContentType(str):
             raise ValueError("ContentType has a minimum of 1 character")
         if len(value) > 100:
             raise ValueError("ContentType has a maximum of 100 characters")
+        return super().__new__(cls, value)
+
+
+class Identifier(str):
+    def __new__(cls, value: str):
+        if len(value) < 1:
+            raise ValueError("Identifier has a minimum of 1 character")
+        if len(value) > 2000:
+            raise ValueError("Identifier has a maximum of 2000 characters")
         return super().__new__(cls, value)
 
 
