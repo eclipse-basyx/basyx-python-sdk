@@ -377,6 +377,8 @@ class NormalizedString(str):
 
 class LabelType(str):
     def __new__(cls, value: str):
+        if len(value) < 1:
+            raise ValueError("LabelType has a minimum of 1 character")
         if len(value) > 64:
             raise ValueError("LabelType has a maximum of 64 characters")
         return super().__new__(cls, value)
@@ -384,6 +386,8 @@ class LabelType(str):
 
 class NameType(str):
     def __new__(cls, value: str):
+        if len(value) < 1:
+            raise ValueError("NameType has a minimum of 1 character")
         if len(value) > 128:
             raise ValueError("NameType has a maximum of 128 characters")
         return super().__new__(cls, value)
@@ -391,10 +395,10 @@ class NameType(str):
 
 class RevisionType(str):
     def __new__(cls, value: str):
+        if len(value) < 1:
+            raise ValueError("RevisionType has a minimum of 1 character")
         if len(value) > 4:
             raise ValueError("RevisionType has a maximum of 4 characters")
-        if len(value) == 0:
-            raise ValueError("RevisionType has a minimum of 1 character")
         pattern = r'^([0-9]|[1-9][0-9]*)$'
         if not re.match(pattern, value):
             raise ValueError("Revision Type does not match with pattern '/^([0-9]|[1-9][0-9]*)$/'")
@@ -403,6 +407,8 @@ class RevisionType(str):
 
 class ShortNameType(str):
     def __new__(cls, value: str):
+        if len(value) < 1:
+            raise ValueError("ShortNameType has a minimum of 1 character")
         if len(value) > 64:
             raise ValueError("ShortNameType has a maximum of 64 characters")
         return super().__new__(cls, value)
@@ -412,7 +418,7 @@ class VersionType(str):
     def __new__(cls, value: str):
         if len(value) > 4:
             raise ValueError("VersionType has a maximum of 4 characters")
-        if len(value) == 0:
+        if len(value) < 1:
             raise ValueError("VersionType has a minimum of 1 character")
         pattern = r'^([0-9]|[1-9][0-9]*)$'
         if not re.match(pattern, value):
