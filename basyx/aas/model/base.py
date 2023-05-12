@@ -26,9 +26,8 @@ if TYPE_CHECKING:
 DataTypeDefXsd = Type[datatypes.AnyXSDType]
 ValueDataType = datatypes.AnyXSDType  # any xsd atomic type (from .datatypes)
 BlobType = bytes
-PathType = str
-QualifierType = str
 ValueList = Set["ValueReferencePair"]
+QualifierType = datatypes.NameType
 
 
 @unique
@@ -177,6 +176,9 @@ class Identifier(str):
         if len(value) > 2000:
             raise ValueError("Identifier has a maximum of 2000 characters")
         return super().__new__(cls, value)
+
+
+PathType = Identifier
 
 
 @unique
