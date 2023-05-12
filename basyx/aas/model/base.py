@@ -26,7 +26,6 @@ if TYPE_CHECKING:
 DataTypeDefXsd = Type[datatypes.AnyXSDType]
 ValueDataType = datatypes.AnyXSDType  # any xsd atomic type (from .datatypes)
 BlobType = bytes
-ContentType = str  # any mimetype as in RFC2046
 PathType = str
 QualifierType = str
 Identifier = str
@@ -161,6 +160,15 @@ class KeyTypes(Enum):
     @property
     def is_globally_identifiable(self) -> bool:
         return self.is_aas_identifiable or self.is_generic_globally_identifiable
+
+
+class ContentType(str):
+    def __new__(cls, value: str):
+        if len(value) < 1:
+            raise ValueError("ContentType has a minimum of 1 character")
+        if len(value) > 100:
+            raise ValueError("ContentType has a maximum of 100 characters")
+        return super().__new__(cls, value)
 
 
 @unique
