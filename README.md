@@ -158,33 +158,9 @@ correctly) with `aas-compliance-check` on the command line.
 For further usage information consider the `basyx.aas.compliance_tool`-package or invoke with 
 `python -m basyx.aas.compliance_tool.cli --help` respectively `aas-compliance-check --help`.
 
-## Development
+## Contributing
 
-### Codestyle and Testing
-
-Our code follows the [PEP 8 -- Style Guide for Python Code](https://www.python.org/dev/peps/pep-0008/).
-Additionally, we use [PEP 484 -- Type Hints](https://www.python.org/dev/peps/pep-0484/) throughout the code to enable type checking the code.
-
-Before submitting any changes, make sure to let `mypy` and `pycodestyle` check your code and run the unit tests with
-Python's builtin `unittest`. To install the required tools, use:
-```bash
-pip install mypy pycodestyle
-```
-
-Running all checks:
-```bash
-mypy basyx test
-pycodestyle --max-line-length 120 basyx test
-python -m unittest
-```
-
-We aim to cover our code with test by at least 80%. To check test coverage, you can use `coverage`:
-
-```bash
-pip install coverage
-coverage run --source basyx --branch -m unittest
-coverage report -m
-```
+For contributing with issues and code, please see our [Contribution Guideline](CONTRIBUTING.md).
 
 ### Eclipse Contributor Agreement
 
