@@ -34,7 +34,7 @@ class JsonSerializationTest(unittest.TestCase):
         submodel_reference = model.ModelReference(submodel_key, model.Submodel)
         submodel = model.Submodel(submodel_identifier)
         test_aas = model.AssetAdministrationShell(model.AssetInformation(global_asset_id=asset_reference),
-                                                  aas_identifier, submodel={submodel_reference})
+                                                  model.Identifier(aas_identifier), submodel={submodel_reference})
 
         # serialize object to json
         json_data = json.dumps({
@@ -61,7 +61,7 @@ class JsonSerializationSchemaTest(unittest.TestCase):
                                   semantic_id=model.GlobalReference((model.Key(model.KeyTypes.GLOBAL_REFERENCE,
                                                                      "http://acplt.org/TestSemanticId"),)))
         test_aas = model.AssetAdministrationShell(model.AssetInformation(global_asset_id=asset_reference),
-                                                  aas_identifier, submodel={submodel_reference})
+                                                  model.Identifier(aas_identifier), submodel={submodel_reference})
 
         # serialize object to json
         json_data = json.dumps({
@@ -177,11 +177,11 @@ class JsonSerializationStrippedObjectsTest(unittest.TestCase):
                 assert_fn(attr, data)
 
     def test_stripped_qualifiable(self) -> None:
-        qualifier = model.Qualifier("test_qualifier", str)
-        qualifier2 = model.Qualifier("test_qualifier2", str)
+        qualifier = model.Qualifier(model.datatypes.NameType("test_qualifier"), str)
+        qualifier2 = model.Qualifier(model.datatypes.NameType("test_qualifier2"), str)
         operation = model.Operation("test_operation", qualifier={qualifier})
         submodel = model.Submodel(
-            "http://acplt.org/test_submodel",
+            model.Identifier("http://acplt.org/test_submodel"),
             submodel_element=[operation],
             qualifier={qualifier2}
         )
@@ -226,7 +226,7 @@ class JsonSerializationStrippedObjectsTest(unittest.TestCase):
         )
         aas = model.AssetAdministrationShell(
             model.AssetInformation(global_asset_id=asset_ref),
-            "http://acplt.org/test_aas",
+            model.Identifier("http://acplt.org/test_aas"),
             submodel={submodel_ref}
         )
 

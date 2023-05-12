@@ -160,7 +160,7 @@ class JsonDeserializationTest(unittest.TestCase):
             read_aas_json_file(string_io, failsafe=False)
 
     def test_duplicate_identifier_object_store(self) -> None:
-        sm_id = "http://acplt.org/test_submodel"
+        sm_id = model.Identifier("http://acplt.org/test_submodel")
 
         def get_clean_store() -> model.DictObjectStore:
             store: model.DictObjectStore = model.DictObjectStore()

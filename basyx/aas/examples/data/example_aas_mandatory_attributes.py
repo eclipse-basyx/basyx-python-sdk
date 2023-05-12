@@ -63,11 +63,11 @@ def create_example_submodel() -> model.Submodel:
 
     submodel_element_blob = model.Blob(
         id_short='ExampleBlob',
-        content_type='application/pdf')
+        content_type=model.ContentType('application/pdf'))
 
     submodel_element_file = model.File(
         id_short='ExampleFile',
-        content_type='application/pdf')
+        content_type=model.ContentType('application/pdf'))
 
     submodel_element_reference_element = model.ReferenceElement(
         category="PARAMETER",
@@ -137,7 +137,7 @@ def create_example_submodel() -> model.Submodel:
         value=())
 
     submodel = model.Submodel(
-        id_='https://acplt.org/Test_Submodel_Mandatory',
+        id_=model.Identifier('https://acplt.org/Test_Submodel_Mandatory'),
         submodel_element=(submodel_element_relationship_element,
                           submodel_element_annotated_relationship_element,
                           submodel_element_operation,
@@ -155,7 +155,7 @@ def create_example_empty_submodel() -> model.Submodel:
     :return: example submodel
     """
     return model.Submodel(
-        id_='https://acplt.org/Test_Submodel2_Mandatory')
+        id_=model.Identifier('https://acplt.org/Test_Submodel2_Mandatory'))
 
 
 def create_example_concept_description() -> model.ConceptDescription:
@@ -165,7 +165,7 @@ def create_example_concept_description() -> model.ConceptDescription:
     :return: example concept description
     """
     concept_description = model.ConceptDescription(
-        id_='https://acplt.org/Test_ConceptDescription_Mandatory')
+        id_=model.Identifier('https://acplt.org/Test_ConceptDescription_Mandatory'))
     return concept_description
 
 
@@ -184,7 +184,7 @@ def create_example_asset_administration_shell() -> \
 
     asset_administration_shell = model.AssetAdministrationShell(
         asset_information=asset_information,
-        id_='https://acplt.org/Test_AssetAdministrationShell_Mandatory',
+        id_=model.Identifier('https://acplt.org/Test_AssetAdministrationShell_Mandatory'),
         submodel={model.ModelReference((model.Key(type_=model.KeyTypes.SUBMODEL,
                                                   value='https://acplt.org/Test_Submodel_Mandatory'),),
                                        model.Submodel),
@@ -203,7 +203,7 @@ def create_example_empty_asset_administration_shell() -> model.AssetAdministrati
     """
     asset_administration_shell = model.AssetAdministrationShell(
         asset_information=model.AssetInformation(),
-        id_='https://acplt.org/Test_AssetAdministrationShell2_Mandatory')
+        id_=model.Identifier('https://acplt.org/Test_AssetAdministrationShell2_Mandatory'))
     return asset_administration_shell
 
 

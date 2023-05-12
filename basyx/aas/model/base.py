@@ -378,7 +378,7 @@ class Key:
         """
         if not self.type.is_aas_identifiable:
             return None
-        return self.value
+        return Identifier(self.value)
 
     @staticmethod
     def from_referable(referable: "Referable") -> "Key":

@@ -119,24 +119,30 @@ class TestStringTypes(unittest.TestCase):
 
     def test_label_type(self):
         label_type: model.datatypes.LabelType = model.datatypes.LabelType('a' * 64)
-        label_type: model.datatypes.LabelType = model.datatypes.LabelType("")
         with self.assertRaises(ValueError) as cm:
+            label_type: model.datatypes.LabelType = model.datatypes.LabelType("")
+        self.assertEqual("LabelType has a minimum of 1 character", str(cm.exception))
+        with self.assertRaises(ValueError) as cm2:
             label_type: model.datatypes.LabelType = model.datatypes.LabelType('a'*65)
-        self.assertEqual("LabelType has a maximum of 64 characters", str(cm.exception))
+        self.assertEqual("LabelType has a maximum of 64 characters", str(cm2.exception))
 
     def test_name_type(self):
         name_type: model.datatypes.NameType = model.datatypes.NameType('a' * 128)
-        name_type: model.datatypes.NameType = model.datatypes.NameType("")
         with self.assertRaises(ValueError) as cm:
+            name_type: model.datatypes.NameType = model.datatypes.NameType("")
+        self.assertEqual("NameType has a minimum of 1 character", str(cm.exception))
+        with self.assertRaises(ValueError) as cm2:
             name_type: model.datatypes.NameType = model.datatypes.NameType('a'*129)
-        self.assertEqual("NameType has a maximum of 128 characters", str(cm.exception))
+        self.assertEqual("NameType has a maximum of 128 characters", str(cm2.exception))
 
     def test_short_name_type(self):
         short_name_type: model.datatypes.ShortNameType = model.datatypes.ShortNameType('a' * 64)
-        short_name_type: model.datatypes.ShortNameType = model.datatypes.ShortNameType("")
         with self.assertRaises(ValueError) as cm:
+            short_name_type: model.datatypes.ShortNameType = model.datatypes.ShortNameType("")
+        self.assertEqual("ShortNameType has a minimum of 1 character", str(cm.exception))
+        with self.assertRaises(ValueError) as cm2:
             short_name_type: model.datatypes.ShortNameType = model.datatypes.ShortNameType('a'*65)
-        self.assertEqual("ShortNameType has a maximum of 64 characters", str(cm.exception))
+        self.assertEqual("ShortNameType has a maximum of 64 characters", str(cm2.exception))
 
 
 class TestDateTimeTypes(unittest.TestCase):

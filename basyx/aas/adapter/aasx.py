@@ -256,7 +256,7 @@ class AASXReader:
                 logger.debug("Reading supplementary file {} from AASX package ...".format(absolute_name))
                 with self.reader.open_part(absolute_name) as p:
                     final_name = file_store.add_file(absolute_name, p, self.reader.get_content_type(absolute_name))
-                element.value = final_name
+                element.value = model.Identifier(final_name)
 
 
 class AASXWriter:
@@ -512,7 +512,7 @@ class AASXWriter:
             if isinstance(the_object, model.Submodel):
                 for element in traversal.walk_submodel(the_object):
                     if isinstance(element, model.File):
-                        file_name = element.value
+                        file_name = str(element.value)
                         # Skip File objects with empty value URI references that are considered to be no local file
                         # (absolute URIs or network-path URI references)
                         if file_name is None or file_name.startswith('//') or ':' in file_name.split('/')[0]:

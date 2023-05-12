@@ -35,7 +35,7 @@ asset_information = model.AssetInformation(
 )
 
 # step 1.2: create the Asset Administration Shell
-identifier = 'https://acplt.org/Simple_AAS'
+identifier = model.Identifier('https://acplt.org/Simple_AAS')
 aas = model.AssetAdministrationShell(
     id_=identifier,  # set identifier
     asset_information=asset_information
@@ -47,7 +47,7 @@ aas = model.AssetAdministrationShell(
 #############################################################
 
 # Step 2.1: create the Submodel object
-identifier = 'https://acplt.org/Simple_Submodel'
+identifier = model.Identifier('https://acplt.org/Simple_Submodel')
 submodel = model.Submodel(
     id_=identifier
 )
@@ -60,10 +60,10 @@ aas.submodel.add(model.ModelReference.from_referable(submodel))
 # ALTERNATIVE: step 1 and 2 can alternatively be done in one step
 # In this version, the Submodel reference is passed to the Asset Administration Shell's constructor.
 submodel = model.Submodel(
-    id_='https://acplt.org/Simple_Submodel'
+    id_=model.Identifier('https://acplt.org/Simple_Submodel')
 )
 aas = model.AssetAdministrationShell(
-    id_='https://acplt.org/Simple_AAS',
+    id_=model.Identifier('https://acplt.org/Simple_AAS'),
     asset_information=asset_information,
     submodel={model.ModelReference.from_referable(submodel)}
 )
@@ -98,7 +98,7 @@ submodel.submodel_element.add(property_)
 # ALTERNATIVE: step 2 and 3 can also be combined in a single statement:
 # Again, we pass the Property to the Submodel's constructor instead of adding it afterwards.
 submodel = model.Submodel(
-    id_='https://acplt.org/Simple_Submodel',
+    id_=model.Identifier('https://acplt.org/Simple_Submodel'),
     submodel_element={
         model.Property(
             id_short='ExampleProperty',

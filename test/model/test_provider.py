@@ -12,10 +12,10 @@ from basyx.aas import model
 
 class ProvidersTest(unittest.TestCase):
     def setUp(self) -> None:
-        self.aas1 = model.AssetAdministrationShell(model.AssetInformation(), "urn:x-test:aas1")
-        self.aas2 = model.AssetAdministrationShell(model.AssetInformation(), "urn:x-test:aas2")
-        self.submodel1 = model.Submodel("urn:x-test:submodel1")
-        self.submodel2 = model.Submodel("urn:x-test:submodel2")
+        self.aas1 = model.AssetAdministrationShell(model.AssetInformation(), model.Identifier("urn:x-test:aas1"))
+        self.aas2 = model.AssetAdministrationShell(model.AssetInformation(), model.Identifier("urn:x-test:aas2"))
+        self.submodel1 = model.Submodel(model.Identifier("urn:x-test:submodel1"))
+        self.submodel2 = model.Submodel(model.Identifier("urn:x-test:submodel2"))
 
     def test_store_retrieve(self) -> None:
         object_store: model.DictObjectStore[model.AssetAdministrationShell] = model.DictObjectStore()
@@ -24,21 +24,21 @@ class ProvidersTest(unittest.TestCase):
         self.assertIn(self.aas1, object_store)
         property = model.Property('test', model.datatypes.String)
         self.assertFalse(property in object_store)
-        aas3 = model.AssetAdministrationShell(model.AssetInformation(), "urn:x-test:aas1")
+        aas3 = model.AssetAdministrationShell(model.AssetInformation(), model.Identifier("urn:x-test:aas1"))
         with self.assertRaises(KeyError) as cm:
             object_store.add(aas3)
         self.assertEqual("'Identifiable object with same id urn:x-test:aas1 is already "
                          "stored in this store'", str(cm.exception))
         self.assertEqual(2, len(object_store))
         self.assertIs(self.aas1,
-                      object_store.get_identifiable("urn:x-test:aas1"))
+                      object_store.get_identifiable(model.Identifier("urn:x-test:aas1")))
         self.assertIs(self.aas1,
-                      object_store.get("urn:x-test:aas1"))
+                      object_store.get(model.Identifier("urn:x-test:aas1")))
         object_store.discard(self.aas1)
         object_store.discard(self.aas1)
         with self.assertRaises(KeyError) as cm:
-            object_store.get_identifiable("urn:x-test:aas1")
-        self.assertIsNone(object_store.get("urn:x-test:aas1"))
+            object_store.get_identifiable(model.Identifier("urn:x-test:aas1"))
+        self.assertIsNone(object_store.get(model.Identifier("urn:x-test:aas1")))
         self.assertEqual("'urn:x-test:aas1'", str(cm.exception))
         self.assertIs(self.aas2, object_store.pop())
         self.assertEqual(0, len(object_store))
@@ -61,8 +61,8 @@ class ProvidersTest(unittest.TestCase):
         submodel_object_store.add(self.submodel2)
 
         multiplexer = model.ObjectProviderMultiplexer([aas_object_store, submodel_object_store])
-        self.assertIs(self.aas1, multiplexer.get_identifiable("urn:x-test:aas1"))
-        self.assertIs(self.submodel1, multiplexer.get_identifiable("urn:x-test:submodel1"))
+        self.assertIs(self.aas1, multiplexer.get_identifiable(model.Identifier("urn:x-test:aas1")))
+        self.assertIs(self.submodel1, multiplexer.get_identifiable(model.Identifier("urn:x-test:submodel1")))
         with self.assertRaises(KeyError) as cm:
-            multiplexer.get_identifiable("urn:x-test:submodel3")
+            multiplexer.get_identifiable(model.Identifier("urn:x-test:submodel3"))
         self.assertEqual("'Identifier could not be found in any of the 2 consulted registries.'", str(cm.exception))

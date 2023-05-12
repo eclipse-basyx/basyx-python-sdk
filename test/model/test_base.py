@@ -587,11 +587,11 @@ class ModelNamespaceTest(unittest.TestCase):
 
     def test_qualifiable_id_short_namespace(self) -> None:
         prop1 = model.Property("Prop1", model.datatypes.Int, 1)
-        qualifier1 = model.Qualifier("Qualifier1", model.datatypes.Int, 2)
+        qualifier1 = model.Qualifier(model.datatypes.NameType("Qualifier1"), model.datatypes.Int, 2)
         submodel_element_collection = model.SubmodelElementCollection("test_SMC", [prop1],
                                                                       qualifier=[qualifier1])
         self.assertIs(submodel_element_collection.get_referable("Prop1"), prop1)
-        self.assertIs(submodel_element_collection.get_qualifier_by_type("Qualifier1"), qualifier1)
+        self.assertIs(submodel_element_collection.get_qualifier_by_type(model.datatypes.NameType("Qualifier1")), qualifier1)
 
 
 class ExampleOrderedNamespace(model.UniqueIdShortNamespace, model.UniqueSemanticIdNamespace):
@@ -780,7 +780,7 @@ class ModelReferenceTest(unittest.TestCase):
         self.assertEqual(ref_2, ref_3)
 
     def test_reference_typing(self) -> None:
-        dummy_submodel = model.Submodel("urn:x-test:x")
+        dummy_submodel = model.Submodel(model.Identifier("urn:x-test:x"))
 
         class DummyObjectProvider(model.AbstractObjectProvider):
             def get_identifiable(self, identifier: Identifier) -> Identifiable:
@@ -794,7 +794,7 @@ class ModelReferenceTest(unittest.TestCase):
         prop = model.Property("prop", model.datatypes.Int)
         collection = model.SubmodelElementCollection("collection", {prop})
         list_ = model.SubmodelElementList("list", model.SubmodelElementCollection, {collection})
-        submodel = model.Submodel("urn:x-test:submodel", {list_})
+        submodel = model.Submodel(model.Identifier("urn:x-test:submodel"), {list_})
 
         class DummyObjectProvider(model.AbstractObjectProvider):
             def get_identifiable(self, identifier: Identifier) -> Identifiable:
@@ -884,7 +884,7 @@ class ModelReferenceTest(unittest.TestCase):
         prop = model.Property("prop", model.datatypes.Int)
         collection = model.SubmodelElementCollection("collection", {prop})
         prop.parent = collection
-        submodel = model.Submodel("urn:x-test:submodel", {collection})
+        submodel = model.Submodel(model.Identifier("urn:x-test:submodel"), {collection})
         collection.parent = submodel
 
         # Test normal usage for Identifiable and Referable objects
@@ -919,7 +919,7 @@ class ModelReferenceTest(unittest.TestCase):
                 self.things: model.NamespaceSet = model.NamespaceSet(self, [("id_short", True)])
 
         thing = DummyThing("thing")
-        identifable_thing = DummyIdentifyableNamespace("urn:x-test:thing")
+        identifable_thing = DummyIdentifyableNamespace(model.Identifier("urn:x-test:thing"))
         identifable_thing.things.add(thing)
         ref4 = model.ModelReference.from_referable(thing)
         self.assertIs(ref4.type, model.Referable)
@@ -929,16 +929,19 @@ class AdministrativeInformationTest(unittest.TestCase):
 
     def test_setting_version_revision(self) -> None:
         with self.assertRaises(ValueError) as cm:
-            obj = model.AdministrativeInformation(revision='0.9')
+            obj = model.AdministrativeInformation(revision=model.datatypes.RevisionType('1'))
         self.assertEqual("A revision requires a version. This means, if there is no version there is no "
                          "revision neither. Please set version first.", str(cm.exception))
 
     def test_setting_revision(self) -> None:
         obj = model.AdministrativeInformation()
         with self.assertRaises(ValueError) as cm:
-            obj.revision = '0.3'
+            obj.revision = model.datatypes.RevisionType('1')
         self.assertEqual("A revision requires a version. This means, if there is no version there is no revision "
                          "neither. Please set version first.", str(cm.exception))
+        with self.assertRaises(ValueError) as cm2:
+            obj.revision = model.datatypes.RevisionType('1.0')
+        self.assertEqual("Revision Type does not match with pattern '/^([0-9]|[1-9][0-9]*)$/'", str(cm2.exception))
 
 
 class QualifierTest(unittest.TestCase):

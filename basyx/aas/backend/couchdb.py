@@ -485,7 +485,7 @@ class CouchDBObjectStore(model.AbstractObjectStore):
         :param url_quote: If True, the result id string is url-encoded to be used in a HTTP request URL
         """
         if url_quote:
-            identifier = urllib.parse.quote(identifier, safe='')
+            identifier = model.Identifier(urllib.parse.quote(identifier, safe=''))
         return identifier
 
     def generate_source(self, identifiable: model.Identifiable):

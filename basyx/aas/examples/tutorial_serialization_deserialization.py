@@ -32,7 +32,7 @@ import basyx.aas.adapter.xml
 # For more details, take a look at `tutorial_create_simple_aas.py`
 
 submodel = model.Submodel(
-    id_='https://acplt.org/Simple_Submodel',
+    id_=model.Identifier('https://acplt.org/Simple_Submodel'),
     submodel_element={
         model.Property(
             id_short='ExampleProperty',
@@ -46,7 +46,7 @@ submodel = model.Submodel(
         )}
 )
 aashell = model.AssetAdministrationShell(
-    id_='https://acplt.org/Simple_AAS',
+    id_=model.Identifier('https://acplt.org/Simple_AAS'),
     asset_information=model.AssetInformation(),
     submodel={model.ModelReference.from_referable(submodel)}
 )
@@ -145,5 +145,5 @@ with open('data.xml', 'rb') as xml_file:
 
 # step 5.3: Retrieving the objects from the ObjectStore
 # For more information on the availiable techniques, see `tutorial_storage.py`.
-submodel_from_xml = xml_file_data.get_identifiable('https://acplt.org/Simple_Submodel')
+submodel_from_xml = xml_file_data.get_identifiable(model.Identifier('https://acplt.org/Simple_Submodel'))
 assert isinstance(submodel_from_xml, model.Submodel)

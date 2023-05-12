@@ -84,7 +84,7 @@ def create_example_submodel_template() -> model.Submodel:
 
     submodel_element_blob = model.Blob(
         id_short='ExampleBlob',
-        content_type='application/pdf',
+        content_type=model.ContentType('application/pdf'),
         value=None,
         category='PARAMETER',
         description=model.LangStringSet({'en-US': 'Example Blob object',
@@ -97,7 +97,7 @@ def create_example_submodel_template() -> model.Submodel:
 
     submodel_element_file = model.File(
         id_short='ExampleFile',
-        content_type='application/pdf',
+        content_type=model.ContentType('application/pdf'),
         value=None,
         category='PARAMETER',
         description=model.LangStringSet({'en-US': 'Example File object',
@@ -293,7 +293,7 @@ def create_example_submodel_template() -> model.Submodel:
         kind=model.ModelingKind.TEMPLATE)
 
     submodel = model.Submodel(
-        id_='https://acplt.org/Test_Submodel_Template',
+        id_=model.Identifier('https://acplt.org/Test_Submodel_Template'),
         submodel_element=(submodel_element_relationship_element,
                           submodel_element_annotated_relationship_element,
                           submodel_element_operation,
@@ -306,8 +306,8 @@ def create_example_submodel_template() -> model.Submodel:
         description=model.LangStringSet({'en-US': 'An example submodel for the test application',
                                          'de': 'Ein Beispiel-Teilmodell für eine Test-Anwendung'}),
         parent=None,
-        administration=model.AdministrativeInformation(version='0.9',
-                                                       revision='0'),
+        administration=model.AdministrativeInformation(version=model.datatypes.VersionType('1'),
+                                                       revision=model.datatypes.RevisionType('1')),
         semantic_id=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
                                                      value='http://acplt.org/SubmodelTemplates/'
                                                            'ExampleSubmodel'),)),

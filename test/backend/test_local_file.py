@@ -63,7 +63,7 @@ class LocalFileBackendTest(unittest.TestCase):
         self.assertIn(example_submodel, self.object_store)
 
         # Restore example submodel and check data
-        submodel_restored = self.object_store.get_identifiable('https://acplt.org/Test_Submodel')
+        submodel_restored = self.object_store.get_identifiable(model.Identifier('https://acplt.org/Test_Submodel'))
         assert (isinstance(submodel_restored, model.Submodel))
         checker = AASDataChecker(raise_immediately=True)
         check_example_submodel(checker, submodel_restored)
@@ -98,10 +98,10 @@ class LocalFileBackendTest(unittest.TestCase):
                          "local file database'", str(cm.exception))
 
         # Querying a deleted object should raise a KeyError
-        retrieved_submodel = self.object_store.get_identifiable('https://acplt.org/Test_Submodel')
+        retrieved_submodel = self.object_store.get_identifiable(model.Identifier('https://acplt.org/Test_Submodel'))
         self.object_store.discard(example_submodel)
         with self.assertRaises(KeyError) as cm:
-            self.object_store.get_identifiable('https://acplt.org/Test_Submodel')
+            self.object_store.get_identifiable(model.Identifier('https://acplt.org/Test_Submodel'))
         self.assertEqual("'No Identifiable with id https://acplt.org/Test_Submodel "
                          "found in local file database'",
                          str(cm.exception))

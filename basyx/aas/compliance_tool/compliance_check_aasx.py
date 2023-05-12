@@ -244,10 +244,10 @@ def check_aas_example(file_path: str, state_manager: ComplianceToolStateManager)
 
     # Check if file in file object is the same
     list_of_id_shorts = ["ExampleSubmodelCollection", "ExampleFile"]
-    obj = example_data.get_identifiable("https://acplt.org/Test_Submodel")
+    obj = example_data.get_identifiable(model.Identifier("https://acplt.org/Test_Submodel"))
     for id_short in list_of_id_shorts:
         obj = obj.get_referable(id_short)
-    obj2 = obj_store.get_identifiable("https://acplt.org/Test_Submodel")
+    obj2 = obj_store.get_identifiable(model.Identifier("https://acplt.org/Test_Submodel"))
     for id_short in list_of_id_shorts:
         obj2 = obj2.get_referable(id_short)
     try:

@@ -51,11 +51,11 @@ prop = model.Property(
     )
 )
 submodel = Submodel(
-    id_='https://acplt.org/Simple_Submodel',
+    id_=model.Identifier('https://acplt.org/Simple_Submodel'),
     submodel_element={prop}
 )
 aas = AssetAdministrationShell(
-    id_='https://acplt.org/Simple_AAS',
+    id_=model.Identifier('https://acplt.org/Simple_AAS'),
     asset_information=asset_information,
     submodel={model.ModelReference.from_referable(submodel)}
 )
@@ -87,7 +87,7 @@ obj_store.add(aas)
 #################################################################
 
 tmp_submodel = obj_store.get_identifiable(
-    'https://acplt.org/Simple_Submodel')
+    model.Identifier('https://acplt.org/Simple_Submodel'))
 
 assert submodel is tmp_submodel
 

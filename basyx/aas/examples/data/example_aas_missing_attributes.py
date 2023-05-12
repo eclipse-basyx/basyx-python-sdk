@@ -40,7 +40,7 @@ def create_example_submodel() -> model.Submodel:
     :return: example submodel
     """
     qualifier = model.Qualifier(
-        type_='http://acplt.org/Qualifier/ExampleQualifier',
+        type_=model.datatypes.NameType('http://acplt.org/Qualifier/ExampleQualifier'),
         value_type=model.datatypes.String)
 
     submodel_element_property = model.Property(
@@ -88,7 +88,7 @@ def create_example_submodel() -> model.Submodel:
 
     submodel_element_blob = model.Blob(
         id_short='ExampleBlob',
-        content_type='application/pdf',
+        content_type=model.ContentType('application/pdf'),
         value=bytearray(b'\x01\x02\x03\x04\x05'),
         category='PARAMETER',
         description=model.LangStringSet({'en-US': 'Example Blob object',
@@ -101,8 +101,8 @@ def create_example_submodel() -> model.Submodel:
 
     submodel_element_file = model.File(
         id_short='ExampleFile',
-        content_type='application/pdf',
-        value='/TestFile.pdf',
+        content_type=model.ContentType('application/pdf'),
+        value=model.Identifier('/TestFile.pdf'),
         category='PARAMETER',
         description=model.LangStringSet({'en-US': 'Example File object',
                                          'de': 'Beispiel File Element'}),
@@ -282,7 +282,7 @@ def create_example_submodel() -> model.Submodel:
         kind=model.ModelingKind.INSTANCE)
 
     submodel = model.Submodel(
-        id_='https://acplt.org/Test_Submodel_Missing',
+        id_=model.Identifier('https://acplt.org/Test_Submodel_Missing'),
         submodel_element=(submodel_element_relationship_element,
                           submodel_element_annotated_relationship_element,
                           submodel_element_operation,
@@ -294,8 +294,8 @@ def create_example_submodel() -> model.Submodel:
         description=model.LangStringSet({'en-US': 'An example submodel for the test application',
                                          'de': 'Ein Beispiel-Teilmodell für eine Test-Anwendung'}),
         parent=None,
-        administration=model.AdministrativeInformation(version='0.9',
-                                                       revision='0'),
+        administration=model.AdministrativeInformation(version=model.datatypes.VersionType('1'),
+                                                       revision=model.datatypes.RevisionType('1')),
         semantic_id=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
                                                      value='http://acplt.org/SubmodelTemplates/'
                                                            'ExampleSubmodel'),)),
@@ -311,15 +311,15 @@ def create_example_concept_description() -> model.ConceptDescription:
     :return: example concept description
     """
     concept_description = model.ConceptDescription(
-        id_='https://acplt.org/Test_ConceptDescription_Missing',
+        id_=model.Identifier('https://acplt.org/Test_ConceptDescription_Missing'),
         is_case_of=None,
         id_short='TestConceptDescription',
         category=None,
         description=model.LangStringSet({'en-US': 'An example concept description for the test application',
                                          'de': 'Ein Beispiel-ConceptDescription für eine Test-Anwendung'}),
         parent=None,
-        administration=model.AdministrativeInformation(version='0.9',
-                                                       revision='0'))
+        administration=model.AdministrativeInformation(version=model.datatypes.VersionType('1'),
+                                                       revision=model.datatypes.RevisionType('1')))
     return concept_description
 
 
@@ -332,8 +332,8 @@ def create_example_asset_administration_shell() -> model.AssetAdministrationShel
     """
 
     resource = model.Resource(
-        content_type='application/pdf',
-        path='file:///TestFile.pdf')
+        content_type=model.ContentType('application/pdf'),
+        path=model.Identifier('file:///TestFile.pdf'))
 
     asset_information = model.AssetInformation(
         asset_kind=model.AssetKind.INSTANCE,
@@ -347,14 +347,14 @@ def create_example_asset_administration_shell() -> model.AssetAdministrationShel
 
     asset_administration_shell = model.AssetAdministrationShell(
         asset_information=asset_information,
-        id_='https://acplt.org/Test_AssetAdministrationShell_Missing',
+        id_=model.Identifier('https://acplt.org/Test_AssetAdministrationShell_Missing'),
         id_short='TestAssetAdministrationShell',
         category=None,
         description=model.LangStringSet({'en-US': 'An Example Asset Administration Shell for the test application',
                                          'de': 'Ein Beispiel-Verwaltungsschale für eine Test-Anwendung'}),
         parent=None,
-        administration=model.AdministrativeInformation(version='0.9',
-                                                       revision='0'),
+        administration=model.AdministrativeInformation(version=model.datatypes.VersionType('1'),
+                                                       revision=model.datatypes.RevisionType('1')),
         submodel={model.ModelReference((model.Key(type_=model.KeyTypes.SUBMODEL,
                                                   value='https://acplt.org/Test_Submodel_Missing'),),
                                        model.Submodel)},

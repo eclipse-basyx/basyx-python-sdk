@@ -30,10 +30,10 @@ from basyx.aas.adapter import aasx
 # See `tutorial_create_simple_aas.py` for more details.
 
 submodel = model.Submodel(
-    id_='https://acplt.org/Simple_Submodel'
+    id_=model.Identifier('https://acplt.org/Simple_Submodel')
 )
 aas = model.AssetAdministrationShell(
-    id_='https://acplt.org/Simple_AAS',
+    id_=model.Identifier('https://acplt.org/Simple_AAS'),
     asset_information=model.AssetInformation(
         asset_kind=model.AssetKind.INSTANCE,
         global_asset_id=model.GlobalReference((model.Key(
@@ -47,7 +47,7 @@ aas = model.AssetAdministrationShell(
 
 # Another submodel, which is not related to the AAS:
 unrelated_submodel = model.Submodel(
-    id_='https://acplt.org/Unrelated_Submodel'
+    id_=model.Identifier('https://acplt.org/Unrelated_Submodel')
 )
 
 # We add these objects to an ObjectStore for easy retrieval by id.
@@ -82,8 +82,8 @@ with open(Path(__file__).parent / 'data' / 'TestFile.pdf', 'rb') as f:
 
 submodel.submodel_element.add(
     model.File(id_short="documentationFile",
-               content_type="application/pdf",
-               value=actual_file_name))
+               content_type=model.ContentType("application/pdf"),
+               value=model.Identifier(actual_file_name)))
 
 
 ######################################################################
@@ -106,7 +106,7 @@ with aasx.AASXWriter("MyAASXPackage.aasx") as writer:
     # ATTENTION: As of Version 3.0 RC01 of Details of the Asset Administration Shell, it is not longer valid to add more
     # than one "aas-spec" part (JSON/XML part with AAS objects) to an AASX package. Thus, `write_aas` MUST
     # only be called once per AASX package!
-    writer.write_aas(aas_ids=['https://acplt.org/Simple_AAS'],
+    writer.write_aas(aas_ids=[model.Identifier('https://acplt.org/Simple_AAS')],
                      object_store=object_store,
                      file_store=file_store)
 
@@ -156,6 +156,6 @@ with aasx.AASXReader("MyAASXPackage.aasx") as reader:
 
 
 # Some quick checks to make sure, reading worked as expected
-assert 'https://acplt.org/Simple_Submodel' in new_object_store
+assert model.Identifier('https://acplt.org/Simple_Submodel') in new_object_store
 assert actual_file_name in new_file_store
 assert new_meta_data.creator == "Chair of Process Control Engineering"

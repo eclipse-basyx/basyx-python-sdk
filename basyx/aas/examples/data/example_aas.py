@@ -98,7 +98,7 @@ def create_example_asset_identification_submodel() -> model.Submodel:
 
     """
     qualifier = model.Qualifier(
-        type_='http://acplt.org/Qualifier/ExampleQualifier',
+        type_=model.datatypes.NameType('http://acplt.org/Qualifier/ExampleQualifier'),
         value_type=model.datatypes.Int,
         value=100,
         value_id=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
@@ -106,7 +106,7 @@ def create_example_asset_identification_submodel() -> model.Submodel:
         kind=model.QualifierKind.CONCEPT_QUALIFIER)
 
     qualifier2 = model.Qualifier(
-        type_='http://acplt.org/Qualifier/ExampleQualifier2',
+        type_=model.datatypes.NameType('http://acplt.org/Qualifier/ExampleQualifier2'),
         value_type=model.datatypes.Int,
         value=50,
         value_id=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
@@ -114,7 +114,7 @@ def create_example_asset_identification_submodel() -> model.Submodel:
         kind=model.QualifierKind.TEMPLATE_QUALIFIER)
 
     qualifier3 = model.Qualifier(
-        type_='http://acplt.org/Qualifier/ExampleQualifier3',
+        type_=model.datatypes.NameType('http://acplt.org/Qualifier/ExampleQualifier3'),
         value_type=model.datatypes.DateTime,
         value=model.datatypes.DateTime(2023, 4, 7, 16, 59, 54, 870123),
         value_id=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
@@ -186,7 +186,7 @@ def create_example_asset_identification_submodel() -> model.Submodel:
 
     # asset identification submodel which will be included in the asset object
     identification_submodel = model.Submodel(
-        id_='http://acplt.org/Submodels/Assets/TestAsset/Identification',
+        id_=model.Identifier('http://acplt.org/Submodels/Assets/TestAsset/Identification'),
         submodel_element=(identification_submodel_element_manufacturer_name,
                           identification_submodel_element_instance_id),
         id_short='Identification',
@@ -194,8 +194,8 @@ def create_example_asset_identification_submodel() -> model.Submodel:
         description=model.LangStringSet({'en-US': 'An example asset identification submodel for the test application',
                                          'de': 'Ein Beispiel-Identifikations-Submodel für eine Test-Anwendung'}),
         parent=None,
-        administration=model.AdministrativeInformation(version='0.9',
-                                                       revision='0'),
+        administration=model.AdministrativeInformation(version=model.datatypes.VersionType('1'),
+                                                       revision=model.datatypes.RevisionType('1')),
         semantic_id=model.ModelReference((model.Key(type_=model.KeyTypes.SUBMODEL,
                                                     value='http://acplt.org/SubmodelTemplates/AssetIdentification'),),
                                          model.Submodel),
@@ -312,7 +312,7 @@ def create_example_bill_of_material_submodel() -> model.Submodel:
 
     # bill of material submodel which will be included in the asset object
     bill_of_material = model.Submodel(
-        id_='http://acplt.org/Submodels/Assets/TestAsset/BillOfMaterial',
+        id_=model.Identifier('http://acplt.org/Submodels/Assets/TestAsset/BillOfMaterial'),
         submodel_element=(entity,
                           entity_2),
         id_short='BillOfMaterial',
@@ -320,7 +320,7 @@ def create_example_bill_of_material_submodel() -> model.Submodel:
         description=model.LangStringSet({'en-US': 'An example bill of material submodel for the test application',
                                          'de': 'Ein Beispiel-BillofMaterial-Submodel für eine Test-Anwendung'}),
         parent=None,
-        administration=model.AdministrativeInformation(version='0.9'),
+        administration=model.AdministrativeInformation(version=model.datatypes.VersionType('1')),
         semantic_id=model.ModelReference((model.Key(type_=model.KeyTypes.SUBMODEL,
                                                     value='http://acplt.org/SubmodelTemplates/BillOfMaterial'),),
                                          model.Submodel),
@@ -432,7 +432,7 @@ def create_example_submodel() -> model.Submodel:
 
     submodel_element_blob = model.Blob(
         id_short='ExampleBlob',
-        content_type='application/pdf',
+        content_type=model.ContentType('application/pdf'),
         value=bytes(b'\x01\x02\x03\x04\x05'),
         category='PARAMETER',
         description=model.LangStringSet({'en-US': 'Example Blob object',
@@ -449,8 +449,8 @@ def create_example_submodel() -> model.Submodel:
 
     submodel_element_file = model.File(
         id_short='ExampleFile',
-        content_type='application/pdf',
-        value='/TestFile.pdf',
+        content_type=model.ContentType('application/pdf'),
+        value=model.Identifier('/TestFile.pdf'),
         category='PARAMETER',
         description=model.LangStringSet({'en-US': 'Example File object',
                                          'de': 'Beispiel File Element'}),
@@ -466,9 +466,9 @@ def create_example_submodel() -> model.Submodel:
 
     submodel_element_file_uri = model.File(
         id_short='ExampleFileURI',
-        content_type='application/pdf',
-        value='https://www.plattform-i40.de/PI40/Redaktion/DE/Downloads/Publikation/Details-of-the-Asset-'
-              'Administration-Shell-Part1.pdf?__blob=publicationFile&v=5',
+        content_type=model.ContentType('application/pdf'),
+        value=model.Identifier('https://www.plattform-i40.de/PI40/Redaktion/DE/Downloads/Publikation/'
+                               'Details-of-the-Asset-Administration-Shell-Part1.pdf?__blob=publicationFile&v=5'),
         category='CONSTANT',
         description=model.LangStringSet({'en-US': 'Details of the Asset Administration Shell — An example for an '
                                                   'external file reference',
@@ -713,7 +713,7 @@ def create_example_submodel() -> model.Submodel:
     )
 
     submodel = model.Submodel(
-        id_='https://acplt.org/Test_Submodel',
+        id_=model.Identifier('https://acplt.org/Test_Submodel'),
         submodel_element=(submodel_element_relationship_element,
                           submodel_element_annotated_relationship_element,
                           submodel_element_operation,
@@ -725,8 +725,8 @@ def create_example_submodel() -> model.Submodel:
         description=model.LangStringSet({'en-US': 'An example submodel for the test application',
                                          'de': 'Ein Beispiel-Teilmodell für eine Test-Anwendung'}),
         parent=None,
-        administration=model.AdministrativeInformation(version='0.9',
-                                                       revision='0'),
+        administration=model.AdministrativeInformation(version=model.datatypes.VersionType('1'),
+                                                       revision=model.datatypes.RevisionType('1')),
         semantic_id=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
                                                      value='http://acplt.org/SubmodelTemplates/'
                                                            'ExampleSubmodel'),)),
@@ -746,7 +746,7 @@ def create_example_concept_description() -> model.ConceptDescription:
     :return: example concept description
     """
     concept_description = model.ConceptDescription(
-        id_='https://acplt.org/Test_ConceptDescription',
+        id_=model.Identifier('https://acplt.org/Test_ConceptDescription'),
         is_case_of={model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
                                                      value='http://acplt.org/DataSpecifications/'
                                                            'ConceptDescriptions/TestConceptDescription'),))},
@@ -755,7 +755,8 @@ def create_example_concept_description() -> model.ConceptDescription:
         description=model.LangStringSet({'en-US': 'An example concept description for the test application',
                                          'de': 'Ein Beispiel-ConceptDescription für eine Test-Anwendung'}),
         parent=None,
-        administration=model.AdministrativeInformation(version='0.9', revision='0',
+        administration=model.AdministrativeInformation(version=model.datatypes.VersionType('1'),
+                                                       revision=model.datatypes.RevisionType('1'),
                                                        embedded_data_specifications=(
                                                            _embedded_data_specification_iec61360,
                                                        )),
@@ -787,21 +788,21 @@ def create_example_asset_administration_shell() -> \
                                                      "http://acplt.org/SpecificAssetId/"
                                                  ),)))},
         default_thumbnail=model.Resource(
-            "file:///path/to/thumbnail.png",
-            "image/png"
+            model.Identifier("file:///path/to/thumbnail.png"),
+            model.ContentType("image/png")
         )
     )
 
     asset_administration_shell = model.AssetAdministrationShell(
         asset_information=asset_information,
-        id_='https://acplt.org/Test_AssetAdministrationShell',
+        id_=model.Identifier('https://acplt.org/Test_AssetAdministrationShell'),
         id_short='TestAssetAdministrationShell',
         category=None,
         description=model.LangStringSet({'en-US': 'An Example Asset Administration Shell for the test application',
                                          'de': 'Ein Beispiel-Verwaltungsschale für eine Test-Anwendung'}),
         parent=None,
-        administration=model.AdministrativeInformation(version='0.9',
-                                                       revision='0'),
+        administration=model.AdministrativeInformation(version=model.datatypes.VersionType('1'),
+                                                       revision=model.datatypes.RevisionType('1')),
         submodel={model.ModelReference((model.Key(type_=model.KeyTypes.SUBMODEL,
                                                   value='https://acplt.org/Test_Submodel'),),
                                        model.Submodel,

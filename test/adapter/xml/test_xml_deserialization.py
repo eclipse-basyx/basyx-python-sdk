@@ -278,7 +278,7 @@ class XmlDeserializationTest(unittest.TestCase):
 
         def get_clean_store() -> model.DictObjectStore:
             store: model.DictObjectStore = model.DictObjectStore()
-            submodel_ = model.Submodel(sm_id, id_short="test123")
+            submodel_ = model.Submodel(model.Identifier(sm_id), id_short="test123")
             store.add(submodel_)
             return store
 
