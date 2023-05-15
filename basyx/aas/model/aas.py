@@ -68,8 +68,9 @@ class AssetInformation:
     global_asset_id = property(_get_global_asset_id, _set_global_asset_id)
 
     def __repr__(self) -> str:
-        return "AssetInformation(assetKind={}, globalAssetId={}, specificAssetId={}, defaultThumbnail={})".format(
-            self.asset_kind, self._global_asset_id, str(self.specific_asset_id), str(self.default_thumbnail))
+        return "AssetInformation(assetKind={}, globalAssetId={}, specificAssetId={}, assetType={}, " \
+               "defaultThumbnail={})".format(self.asset_kind, self._global_asset_id, str(self.specific_asset_id),
+                                             self.asset_type, str(self.default_thumbnail))
 
 
 class AssetAdministrationShell(base.Identifiable, base.UniqueIdShortNamespace, base.HasDataSpecification):
