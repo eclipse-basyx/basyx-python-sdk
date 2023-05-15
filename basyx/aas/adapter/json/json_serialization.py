@@ -307,6 +307,8 @@ class AASToJsonEncoder(json.JSONEncoder):
             data['globalAssetId'] = obj.global_asset_id
         if obj.specific_asset_id:
             data['specificAssetIds'] = list(obj.specific_asset_id)
+        if obj.asset_type:
+            data['assetType'] = obj.asset_type
         if obj.default_thumbnail:
             data['defaultThumbnail'] = obj.default_thumbnail
         return data

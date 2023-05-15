@@ -29,15 +29,7 @@
             },
             "assetInformation": {
                 "assetKind": "Instance",
-                "globalAssetId": {
-                    "type": "GlobalReference",
-                    "keys": [
-                        {
-                            "type": "GlobalReference",
-                            "value": "http://acplt.org/TestAsset/"
-                        }
-                    ]
-                },
+                "globalAssetId": "http://acplt.org/TestAsset/",
                 "specificAssetIds": [
                     {
                         "name": "TestKey",
@@ -62,6 +54,7 @@
                         }
                     }
                 ],
+                "assetType": "http://acplt.org/TestAssetType/",
                 "defaultThumbnail": {
                     "path": "file:///path/to/thumbnail.png",
                     "contentType": "image/png"
@@ -227,15 +220,7 @@
             "id": "https://acplt.org/Test_AssetAdministrationShell_Mandatory",
             "assetInformation": {
                 "assetKind": "Instance",
-                "globalAssetId": {
-                    "type": "GlobalReference",
-                    "keys": [
-                        {
-                            "type": "GlobalReference",
-                            "value": "http://acplt.org/Test_Asset_Mandatory/"
-                        }
-                    ]
-                }
+                "globalAssetId": "http://acplt.org/Test_Asset_Mandatory/"
             },
             "submodels": [
                 {
@@ -286,15 +271,7 @@
             },
             "assetInformation": {
                 "assetKind": "Instance",
-                "globalAssetId": {
-                    "type": "GlobalReference",
-                    "keys": [
-                        {
-                            "type": "GlobalReference",
-                            "value": "http://acplt.org/Test_Asset_Missing/"
-                        }
-                    ]
-                },
+                "globalAssetId": "http://acplt.org/Test_Asset_Missing/",
                 "specificAssetIds": [
                     {
                         "name": "TestKey",
