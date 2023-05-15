@@ -8,31 +8,7 @@
 			},
 			"modelType": "AssetAdministrationShell",
 			"assetInformation": {
-                "assetKind": "Instance",
-                "globalAssetId": {
-                    "type": "GlobalReference",
-                    "keys": [
-                        {
-                            "type": "GlobalReference",
-                            "value": "http://acplt.org/TestAsset/"
-                        }
-                    ]
-                },
-                "externalAssetIds": [
-                    {
-                        "name": "TestKey",
-                        "value": "TestValue",
-                        "subjectId": {
-                            "type": "GlobalReference",
-                            "keys": [
-                                {
-                                    "type": "GlobalReference",
-                                    "value": "http://acplt.org/SpecificAssetId/"
-                                }
-                            ]
-                        }
-                    }
-                ]
+                "assetKind": "Instance"
             }
 		}
 	]

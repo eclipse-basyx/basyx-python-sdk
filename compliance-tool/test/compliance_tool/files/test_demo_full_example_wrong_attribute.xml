@@ -125,15 +125,7 @@
       </aas:derivedFrom>
       <aas:assetInformation>
         <aas:assetKind>Instance</aas:assetKind>
-        <aas:globalAssetId>
-          <aas:type>GlobalReference</aas:type>
-          <aas:keys>
-            <aas:key>
-              <aas:type>GlobalReference</aas:type>
-              <aas:value>http://acplt.org/TestAsset/</aas:value>
-            </aas:key>
-          </aas:keys>
-        </aas:globalAssetId>
+        <aas:globalAssetId>http://acplt.org/TestAsset/</aas:globalAssetId>
         <aas:specificAssetIds>
           <aas:specificAssetId>
             <aas:semanticId>
@@ -158,6 +150,7 @@
             </aas:externalSubjectId>
           </aas:specificAssetId>
         </aas:specificAssetIds>
+        <aas:assetType>http://acplt.org/TestAssetType/</aas:assetType>
         <aas:defaultThumbnail>
           <aas:path>file:///path/to/thumbnail.png</aas:path>
           <aas:contentType>image/png</aas:contentType>
@@ -216,15 +209,7 @@
       <aas:id>https://acplt.org/Test_AssetAdministrationShell_Mandatory</aas:id>
       <aas:assetInformation>
         <aas:assetKind>Instance</aas:assetKind>
-        <aas:globalAssetId>
-          <aas:type>GlobalReference</aas:type>
-          <aas:keys>
-            <aas:key>
-              <aas:type>GlobalReference</aas:type>
-              <aas:value>http://acplt.org/Test_Asset_Mandatory/</aas:value>
-            </aas:key>
-          </aas:keys>
-        </aas:globalAssetId>
+        <aas:globalAssetId>http://acplt.org/Test_Asset_Mandatory/</aas:globalAssetId>
       </aas:assetInformation>
       <aas:submodels>
         <aas:reference>
@@ -273,15 +258,7 @@
       <aas:id>https://acplt.org/Test_AssetAdministrationShell_Missing</aas:id>
       <aas:assetInformation>
         <aas:assetKind>Instance</aas:assetKind>
-        <aas:globalAssetId>
-          <aas:type>GlobalReference</aas:type>
-          <aas:keys>
-            <aas:key>
-              <aas:type>GlobalReference</aas:type>
-              <aas:value>http://acplt.org/Test_Asset_Missing/</aas:value>
-            </aas:key>
-          </aas:keys>
-        </aas:globalAssetId>
+        <aas:globalAssetId>http://acplt.org/Test_Asset_Missing/</aas:globalAssetId>
         <aas:specificAssetIds>
           <aas:specificAssetId>
             <aas:name>TestKey</aas:name>
