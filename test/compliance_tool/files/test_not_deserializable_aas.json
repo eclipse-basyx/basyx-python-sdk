@@ -6,15 +6,7 @@
             "modelType": "Test",
             "assetInformation": {
                 "assetKind": "Instance",
-                "globalAssetId": {
-                    "type": "GlobalReference",
-                    "keys": [
-                        {
-                            "type": "GlobalReference",
-                            "value": "http://acplt.org/Test_Asset/"
-                        }
-                    ]
-                }
+                "globalAssetId": "http://acplt.org/Test_Asset/"
             }
         }
     ],

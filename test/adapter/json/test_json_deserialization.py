@@ -383,13 +383,7 @@ class JsonDeserializationStrippedObjectsTest(unittest.TestCase):
                 "id": "http://acplt.org/test_aas",
                 "assetInformation": {
                     "assetKind": "Instance",
-                    "globalAssetId": {
-                        "type": "GlobalReference",
-                        "keys": [{
-                            "type": "GlobalReference",
-                            "value": "test_asset"
-                        }]
-                    }
+                    "globalAssetId": "test_asset"
                 },
                 "submodels": [{
                     "type": "ModelReference",

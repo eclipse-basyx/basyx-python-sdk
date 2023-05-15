@@ -342,12 +342,14 @@ def asset_information_to_xml(obj: model.AssetInformation, tag: str = NS_AAS+"ass
     et_asset_information = abstract_classes_to_xml(tag, obj)
     et_asset_information.append(_generate_element(name=NS_AAS + "assetKind", text=_generic.ASSET_KIND[obj.asset_kind]))
     if obj.global_asset_id:
-        et_asset_information.append(reference_to_xml(obj.global_asset_id, NS_AAS + "globalAssetId"))
+        et_asset_information.append(_generate_element(name=NS_AAS + "globalAssetId", text=obj.global_asset_id))
     if obj.specific_asset_id:
         et_specific_asset_id = _generate_element(name=NS_AAS + "specificAssetIds")
         for specific_asset_id in obj.specific_asset_id:
             et_specific_asset_id.append(specific_asset_id_to_xml(specific_asset_id, NS_AAS + "specificAssetId"))
         et_asset_information.append(et_specific_asset_id)
+    if obj.asset_type:
+        et_asset_information.append(_generate_element(name=NS_AAS + "assetType", text=obj.asset_type))
     if obj.default_thumbnail:
         et_asset_information.append(resource_to_xml(obj.default_thumbnail, NS_AAS+"defaultThumbnail"))
 
