@@ -725,7 +725,7 @@ class AASDataChecker(DataChecker):
         :return:
         """
         self.check_attribute_equal(object_, 'asset_kind', expected_value.asset_kind)
-        self._check_reference_equal(object_.global_asset_id, expected_value.global_asset_id)
+        self.check_attribute_equal(object_, 'global_asset_id', expected_value.global_asset_id)
         self.check_contained_element_length(object_, 'specific_asset_id', model.SpecificAssetId,
                                             len(expected_value.specific_asset_id))
         for expected_pair in expected_value.specific_asset_id:
@@ -738,7 +738,7 @@ class AASDataChecker(DataChecker):
         self.check(found_elements == set(), '{} must not have extra '
                                             'specificAssetIds'.format(repr(object_)),
                    value=found_elements)
-
+        self.check_attribute_equal(object_, 'asset_type', object_.asset_type)
         if object_.default_thumbnail and expected_value.default_thumbnail:
             self.check_resource_equal(object_.default_thumbnail, expected_value.default_thumbnail)
         else:
