@@ -271,7 +271,7 @@ class ComplianceToolTest(unittest.TestCase):
         self.assertEqual(0, output.returncode)
         self.assertIn('SUCCESS:      Open file', str(output.stdout))
         self.assertIn('SUCCESS:      Read file', str(output.stdout))
-        # self.assertIn('SUCCESS:      Check if data is equal to example data', str(output.stdout))
+        self.assertIn('SUCCESS:      Check if data is equal to example data', str(output.stdout))
 
     def test_aasx_deseralization_json(self) -> None:
         test_file_path = os.path.join(os.path.dirname(__file__), 'files')
