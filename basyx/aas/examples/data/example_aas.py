@@ -763,6 +763,7 @@ def create_example_asset_administration_shell() -> \
                                                      model.KeyTypes.GLOBAL_REFERENCE,
                                                      "http://acplt.org/SpecificAssetId/"
                                                  ),)))},
+        asset_type=model.Identifier('http://acplt.org/TestAssetType/'),
         default_thumbnail=model.Resource(
             "file:///path/to/thumbnail.png",
             "image/png"
