@@ -513,6 +513,15 @@ class ModelNamespaceTest(unittest.TestCase):
         self.assertEqual("'Referable with id_short Prop3 not found in this namespace'",
                          str(cm.exception))
 
+        namespace.remove_referable("Prop2")
+        with self.assertRaises(KeyError) as cm2:
+            namespace.get_referable("Prop2")
+            self.assertEqual("'Referable with id_short Prop2 not found in this namespace'", str(cm2.exception))
+
+        with self.assertRaises(KeyError) as cm3:
+            namespace.remove_referable("Prop2")
+            self.assertEqual("'Referable with id_short Prop2 not found in this namespace'", str(cm3.exception))
+
     def test_renaming(self) -> None:
         self.namespace.set2.add(self.prop1)
         self.namespace.set2.add(self.prop2)
@@ -846,6 +855,22 @@ class ModelReferenceTest(unittest.TestCase):
         with self.assertRaises(model.UnexpectedTypeError) as cm_6:
             ref6.resolve(DummyObjectProvider())
         self.assertIs(submodel, cm_6.exception.value)
+
+        with self.assertRaises(ValueError) as cm_5:
+            ref5 = model.AASReference((), model.Submodel)
+        self.assertEqual('A reference must have at least one key!', str(cm_5.exception))
+
+        ref6 = model.AASReference((model.Key(model.KeyElements.SUBMODEL, False, "urn:x-test:submodel",
+                                             model.KeyType.IRI),
+                                   model.Key(model.KeyElements.SUBMODEL_ELEMENT_COLLECTION, False, "collection",
+                                             model.KeyType.IDSHORT),
+                                   model.Key(model.KeyElements.PROPERTY, False, "prop_false",
+                                             model.KeyType.IDSHORT)), model.Property)
+
+        with self.assertRaises(KeyError) as cm_6:
+            ref6.resolve(DummyObjectProvider())
+            self.assertEqual("'Could not resolve id_short prop_false at Identifier(IRI=urn:x-test:submodel)'",
+                             str(cm_6.exception))
 
     def test_get_identifier(self) -> None:
         ref = model.ModelReference((model.Key(model.KeyTypes.SUBMODEL, "urn:x-test:x"),), model.Submodel)
