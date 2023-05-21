@@ -1,3 +1,4 @@
+
 # Copyright (c) 2020 the Eclipse BaSyx Authors
 #
 # This program and the accompanying materials are made available under the terms of the MIT License, available in
@@ -13,6 +14,7 @@ import datetime
 from typing import Optional, Set, Iterable, TYPE_CHECKING, List, Type, TypeVar, Generic, Union
 
 from . import base, datatypes
+
 if TYPE_CHECKING:
     from . import aas
 
@@ -52,6 +54,7 @@ class SubmodelElement(base.Referable, base.Qualifiable, base.HasSemantics, base.
                                     :class:`~aas.model.base.HasSemantics`)
     :ivar embedded_data_specifications: List of Embedded data specification.
     """
+
     @abc.abstractmethod
     def __init__(self,
                  id_short: str,
@@ -196,6 +199,7 @@ class DataElement(SubmodelElement, metaclass=abc.ABCMeta):
                                     :class:`~aas.model.base.HasSemantics`)
     :ivar embedded_data_specifications: List of Embedded data specification.
     """
+
     @abc.abstractmethod
     def __init__(self,
                  id_short: str,
@@ -641,6 +645,7 @@ class SubmodelElementCollection(SubmodelElement, base.UniqueIdShortNamespace):
                                     :class:`~aas.model.base.HasSemantics`)
     :ivar embedded_data_specifications: List of Embedded data specification.
     """
+
     def __init__(self,
                  id_short: str,
                  value: Iterable[SubmodelElement] = (),
@@ -654,7 +659,6 @@ class SubmodelElementCollection(SubmodelElement, base.UniqueIdShortNamespace):
                  extension: Iterable[base.Extension] = (),
                  supplemental_semantic_id: Iterable[base.Reference] = (),
                  embedded_data_specifications: Iterable[base.EmbeddedDataSpecification] = ()):
-
         super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, kind, extension,
                          supplemental_semantic_id, embedded_data_specifications)
         self.value: base.NamespaceSet[SubmodelElement] = base.NamespaceSet(self, [("id_short", True)], value)
@@ -711,6 +715,7 @@ class SubmodelElementList(SubmodelElement, base.UniqueIdShortNamespace, Generic[
                                     :class:`~aas.model.base.HasSemantics`)
     :ivar embedded_data_specifications: List of Embedded data specification.
     """
+
     def __init__(self,
                  id_short: str,
                  type_value_list_element: Type[_SE],
@@ -974,11 +979,12 @@ class Operation(SubmodelElement):
                                     :class:`~aas.model.base.HasSemantics`)
     :ivar embedded_data_specifications: List of Embedded data specification.
     """
+
     def __init__(self,
                  id_short: str,
                  input_variable: Optional[List[OperationVariable]] = None,
-                 output_variable:  Optional[List[OperationVariable]] = None,
-                 in_output_variable:  Optional[List[OperationVariable]] = None,
+                 output_variable: Optional[List[OperationVariable]] = None,
+                 in_output_variable: Optional[List[OperationVariable]] = None,
                  display_name: Optional[base.LangStringSet] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
@@ -1168,6 +1174,7 @@ class EventElement(SubmodelElement, metaclass=abc.ABCMeta):
                                     :class:`~aas.model.base.HasSemantics`)
     :ivar embedded_data_specifications: List of Embedded data specification.
     """
+
     @abc.abstractmethod
     def __init__(self,
                  id_short: str,
@@ -1303,3 +1310,45 @@ class BasicEventElement(EventElement):
         if max_interval is not None and self.direction is base.Direction.INPUT:
             raise ValueError("max_interval is not applicable if direction = input!")
         self._max_interval: Optional[datatypes.Duration] = max_interval
+
+
+class EventPayload:
+    """
+    Defines the necessary information of an event instance sent out or received.
+
+    :ivar source :class:`~aas.model.base.ModelReference` Reference to the source event element. It is of type
+                  class:`~aas.model.submodel.EventElement`.
+    :ivar observableReference: class:`~aas.model.base.ModelReference` semanticId of the source event element,
+                               if available.
+    :ivar timestamp: class:`datatypes.DateTime` Timestamp in UTC, when this event was triggered.
+    :ivar sourceSemanticId: class:`~aas.model.base.ModelReference` semanticId of the source event element, if available.
+    :ivar topic: class: `datatypes.MessageTopicType`: Information for the outer message infrastructure to schedule the
+                 event for the respective communication channel.
+    :ivar subjectId :class:`~aas.model.base.ModelReference`: Subject, who/which initiated the creation.
+    :ivar payload: Event-specific payload.
+    """
+    def __init__(self, source: base.ModelReference[EventElement],
+                 observableReference: base.ModelReference[base.Referable],
+                 timestamp: datatypes.DateTime,
+                 sourceSemanticId: Optional[base.Reference] = None,
+                 observableSemanticId: Optional[base.Reference] = None,
+                 topic: Optional[base.MessageTopicType] = None,
+                 subjectId: Optional[base.Reference] = None,
+                 payload: Optional[base.BlobType] = None):
+        self.source: base.ModelReference[EventElement] = source
+        self.observableReference: base.ModelReference[base.Referable] = observableReference
+        self.timestamp: datatypes.DateTime = timestamp
+        self.sourceSemanticId: Optional[base.Reference] = sourceSemanticId
+        self.observableSemanticId: Optional[base.Reference] = observableSemanticId
+        self.topic: Optional[base.MessageTopicType] = topic
+        self.subjectId: Optional[base.Reference] = subjectId
+        self.payload: Optional[base.BlobType] = payload
+
+    @property
+    def timestamp(self) -> Optional[datatypes.DateTime]:
+        return self._timestamp
+    @timestamp.setter
+    def timestamp(self, timestamp: datatypes.DateTime) -> None:
+        if timestamp is not None and timestamp.tzname() != "UTC":
+            raise ValueError("timestamp must be specified in UTC!")
+        self._timestamp: Optional[datatypes.DateTime] = timestamp

@@ -31,6 +31,7 @@ PathType = str
 QualifierType = str
 Identifier = str
 ValueList = Set["ValueReferencePair"]
+MessageTopicType = str
 
 
 @unique
