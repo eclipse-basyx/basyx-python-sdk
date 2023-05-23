@@ -212,12 +212,12 @@ class AssetKind(Enum):
 
     :cvar TYPE: Type asset
     :cvar INSTANCE: Instance asset
-    :cvar NOTAPPLICABLE: Neither a type asset nor an instance asset
+    :cvar NOT_APPLICABLE: Neither a type asset nor an instance asset
     """
 
     TYPE = 0
     INSTANCE = 1
-    NOTAPPLICABLE = 2
+    NOT_APPLICABLE = 2
 
 
 class QualifierKind(Enum):
