@@ -130,7 +130,8 @@ def create_example_asset_identification_submodel() -> model.Submodel:
         value_type=model.datatypes.String,
         value="ExampleExtensionValue",
         refers_to=(model.ModelReference((model.Key(type_=model.KeyTypes.ASSET_ADMINISTRATION_SHELL,
-                                                   value=model.Identifier('http://acplt.org/RefersTo/ExampleRefersTo')),),
+                                                   value=model.Identifier('http://acplt.org/RefersTo/'
+                                                                          'ExampleRefersTo')),),
                                         model.AssetAdministrationShell),))
 
     # Property-Element conform to 'Verwaltungssschale in der Praxis' page 41 ManufacturerName:

@@ -107,7 +107,7 @@ def create_example_submodel() -> model.Submodel:
 
     submodel_element_basic_event_element = model.BasicEventElement(
         id_short='ExampleBasicEventElement',
-        observed=model.ModelReference((model.Key(type_=model.KeyTypes.SUBMODEL, 
+        observed=model.ModelReference((model.Key(type_=model.KeyTypes.SUBMODEL,
                                                  value=model.Identifier('http://acplt.org/Test_Submodel')),
                                        model.Key(type_=model.KeyTypes.PROPERTY,
                                                  value=model.Identifier('ExampleProperty')),),
