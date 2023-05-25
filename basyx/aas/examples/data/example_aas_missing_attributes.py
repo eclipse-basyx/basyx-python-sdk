@@ -189,7 +189,7 @@ def create_example_submodel() -> model.Submodel:
         value_type=model.datatypes.String,
         value='exampleValue',
         value_id=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
-                                                  value='http://acplt.org/ValueId/ExampleValueId'),)),
+                                                  value=model.Identifier('http://acplt.org/ValueId/ExampleValueId')),)),
         display_name=model.LangStringSet({'en-US': 'ExampleProperty',
                                           'de': 'BeispielProperty'}),
         category='CONSTANT',
