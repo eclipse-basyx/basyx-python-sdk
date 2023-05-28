@@ -1321,9 +1321,10 @@ class EventPayload:
     :ivar observable_reference: class:`~aas.model.base.ModelReference` semanticId of the source event element,
                                if available.
     :ivar timestamp: class:`datatypes.DateTime` Timestamp in UTC, when this event was triggered.
-    :ivar source_semantic_id: class:`~aas.model.base.ModelReference` semanticId of the source event element, if available.
-    :ivar topic: class: `datatypes.MessageTopicType`: Information for the outer message infrastructure to schedule the
-                 event for the respective communication channel.
+    :ivar source_semantic_id: class:`~aas.model.base.ModelReference` semanticId of the source event element, if
+    available.
+    :ivar topic: class: `datatypes.MessageTopicType`: Information for the outer message infrastructure to schedule
+    the event for the respective communication channel.
     :ivar subject_id :class:`~aas.model.base.ModelReference`: Subject, who/which initiated the creation.
     :ivar payload: Event-specific payload.
     """
