@@ -1347,6 +1347,7 @@ class EventPayload:
     @property
     def timestamp(self) -> Optional[datatypes.DateTime]:
         return self._timestamp
+
     @timestamp.setter
     def timestamp(self, timestamp: datatypes.DateTime) -> None:
         if timestamp is not None and timestamp.tzname() != "UTC":
