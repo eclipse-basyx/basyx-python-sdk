@@ -34,8 +34,8 @@ class EntityTest(unittest.TestCase):
         specific_asset_id = model.SpecificAssetId(name="TestKey",
                                                   value="TestValue",
                                                   external_subject_id=model.GlobalReference((model.Key(
-                                                                 type_=model.KeyTypes.GLOBAL_REFERENCE,
-                                                                 value='http://acplt.org/SpecificAssetId/'),)))
+                                                      type_=model.KeyTypes.GLOBAL_REFERENCE,
+                                                      value='http://acplt.org/SpecificAssetId/'),)))
         with self.assertRaises(model.AASConstraintViolation) as cm:
             obj3 = model.Entity(id_short='Test', entity_type=model.EntityType.CO_MANAGED_ENTITY,
                                 specific_asset_id=specific_asset_id, statement=())
@@ -190,7 +190,7 @@ class BasicEventElementTest(unittest.TestCase):
         self.assertEqual("max_interval is not applicable if direction = input!", str(cm.exception))
         bee = model.BasicEventElement("test_basic_event_element",
                                       model.ModelReference((model.Key(model.KeyTypes.ASSET_ADMINISTRATION_SHELL,
-                                                            "urn:x-test:AssetAdministrationShell"),),
+                                                                      "urn:x-test:AssetAdministrationShell"),),
                                                            model.AssetAdministrationShell),
                                       model.Direction.OUTPUT,
                                       model.StateOfEvent.ON,
@@ -215,3 +215,31 @@ class BasicEventElementTest(unittest.TestCase):
 
         timestamp_tzinfo_utc = model.datatypes.DateTime(2022, 11, 13, 23, 45, 30, 123456, dateutil.tz.UTC)
         bee.last_update = timestamp_tzinfo_utc
+
+
+class EventPayloadTest(unittest.TestCase):
+    def test_constraints(self):
+        event_payload_obj = model.EventPayload(
+            model.ModelReference((model.Key(model.KeyTypes.ASSET_ADMINISTRATION_SHELL,
+                                            "urn:x-test:AssetAdministrationShell"),
+                                  model.Key(model.KeyTypes.BASIC_EVENT_ELEMENT,
+                                            "urn:x-test:EventElement")),
+                                 model.EventElement),
+            model.ModelReference((model.Key(model.KeyTypes.ASSET_ADMINISTRATION_SHELL,
+                                            "urn:x-test:AssetAdministrationShell"),), model.AssetAdministrationShell),
+            model.datatypes.DateTime(2022, 11, 13, 23, 45, 30, 123456, dateutil.tz.UTC)
+        )
+
+        timestamp_tzinfo = model.datatypes.DateTime(2022, 11, 13, 23, 45, 30, 123456,
+                                                    dateutil.tz.gettz("Europe/Berlin"))
+        with self.assertRaises(ValueError) as cm:
+            event_payload_obj.timestamp = timestamp_tzinfo
+        self.assertEqual("timestamp must be specified in UTC!", str(cm.exception))
+
+        timestamp = model.datatypes.DateTime(2022, 11, 13, 23, 45, 30, 123456)
+        with self.assertRaises(ValueError) as cm:
+            event_payload_obj.timestamp = timestamp
+        self.assertEqual("timestamp must be specified in UTC!", str(cm.exception))
+
+        timestamp_tzinfo_utc = model.datatypes.DateTime(2022, 11, 13, 23, 45, 30, 123456, dateutil.tz.UTC)
+        event_payload_obj.timestamp = timestamp_tzinfo_utc

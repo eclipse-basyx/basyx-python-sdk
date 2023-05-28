@@ -1318,30 +1318,30 @@ class EventPayload:
 
     :ivar source :class:`~aas.model.base.ModelReference` Reference to the source event element. It is of type
                   class:`~aas.model.submodel.EventElement`.
-    :ivar observableReference: class:`~aas.model.base.ModelReference` semanticId of the source event element,
+    :ivar observable_reference: class:`~aas.model.base.ModelReference` semanticId of the source event element,
                                if available.
     :ivar timestamp: class:`datatypes.DateTime` Timestamp in UTC, when this event was triggered.
-    :ivar sourceSemanticId: class:`~aas.model.base.ModelReference` semanticId of the source event element, if available.
+    :ivar source_semantic_id: class:`~aas.model.base.ModelReference` semanticId of the source event element, if available.
     :ivar topic: class: `datatypes.MessageTopicType`: Information for the outer message infrastructure to schedule the
                  event for the respective communication channel.
-    :ivar subjectId :class:`~aas.model.base.ModelReference`: Subject, who/which initiated the creation.
+    :ivar subject_id :class:`~aas.model.base.ModelReference`: Subject, who/which initiated the creation.
     :ivar payload: Event-specific payload.
     """
     def __init__(self, source: base.ModelReference[EventElement],
-                 observableReference: base.ModelReference[base.Referable],
+                 observable_reference: base.ModelReference[base.Referable],
                  timestamp: datatypes.DateTime,
-                 sourceSemanticId: Optional[base.Reference] = None,
-                 observableSemanticId: Optional[base.Reference] = None,
+                 source_semantic_id: Optional[base.Reference] = None,
+                 observable_semantic_id: Optional[base.Reference] = None,
                  topic: Optional[base.MessageTopicType] = None,
-                 subjectId: Optional[base.Reference] = None,
+                 subject_id: Optional[base.Reference] = None,
                  payload: Optional[base.BlobType] = None):
         self.source: base.ModelReference[EventElement] = source
-        self.observableReference: base.ModelReference[base.Referable] = observableReference
+        self.observable_reference: base.ModelReference[base.Referable] = observable_reference
         self.timestamp: datatypes.DateTime = timestamp
-        self.sourceSemanticId: Optional[base.Reference] = sourceSemanticId
-        self.observableSemanticId: Optional[base.Reference] = observableSemanticId
+        self.source_semantic_id: Optional[base.Reference] = source_semantic_id
+        self.observable_semantic_id: Optional[base.Reference] = observable_semantic_id
         self.topic: Optional[base.MessageTopicType] = topic
-        self.subjectId: Optional[base.Reference] = subjectId
+        self.subject_id: Optional[base.Reference] = subject_id
         self.payload: Optional[base.BlobType] = payload
 
     @property
