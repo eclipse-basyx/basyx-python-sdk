@@ -126,7 +126,8 @@
       "type": "string",
       "enum": [
         "Instance",
-        "Type"
+        "Type",
+        "NotApplicable"
       ]
     },
     "BasicEventElement": {
