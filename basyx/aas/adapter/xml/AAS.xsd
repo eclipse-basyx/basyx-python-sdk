@@ -963,6 +963,7 @@
     <xs:restriction base="xs:string">
       <xs:enumeration value="Type"/>
       <xs:enumeration value="Instance"/>
+      <xs:enumeration value="NotApplicable"/>
     </xs:restriction>
   </xs:simpleType>
   <xs:simpleType name="dataTypeDefXsd_t">
