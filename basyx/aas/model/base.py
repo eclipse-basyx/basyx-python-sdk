@@ -780,8 +780,8 @@ class Reference(metaclass=abc.ABCMeta):
 
     <<abstract>>
 
-    *Constraint AASd-121:* For References the type of the first key of Reference/keys shall be one of
-                           GloballyIdentifiables.
+    *Constraint AASd-121:* For References the value of Key/type of the first key of Reference/keys shall be one of
+    GloballyIdentifiables.
 
     :ivar key: Ordered list of unique reference in its name space, each key referencing an element. The complete
                list of keys may for example be concatenated to a path that then gives unique access to an element
