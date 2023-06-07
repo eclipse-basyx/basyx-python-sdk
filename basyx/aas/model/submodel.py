@@ -232,8 +232,8 @@ class Property(DataElement):
     """
     A property is a :class:`DataElement` that has a single value.
 
-    *Constraint AASd-007:* if both, the value and the valueId are present then the value needs to be
-    identical to the value of the referenced coded value in valueId
+    *Constraint AASd-007:* If both, the value and the valueId of a Qualifier are present,
+    the value needs to be identical to the value of the referenced coded value in Qualifier/valueId.
 
     :ivar id_short: Identifying string of the element within its name space. (inherited from
                     :class:`~aas.model.base.Referable`)

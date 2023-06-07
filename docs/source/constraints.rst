@@ -37,13 +37,10 @@ AASd-006    If both, the value and the valueId
             the value of the referenced coded
             value in Qualifier/valueId.
 AASd-007    If both, the value and the valueId  ❌     Uncheckable, cannot check the value
-            of a Property are                          of what value_id points to
-
-            present then the value needs to
-            be identical to the value of
-
-            the referenced coded value in
-            Property/valueId.
+            of a Qualifier are present, the            of what value_id points to
+            value needs to be identical to the
+            value of the referenced coded value
+            in Qualifier/valueId.
 AASd-008    The submodel element value of an    ✅
             operation variable shall be
 
