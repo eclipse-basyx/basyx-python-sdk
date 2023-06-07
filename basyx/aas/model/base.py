@@ -858,8 +858,9 @@ class ModelReference(Reference, Generic[_RT]):
 
     *Constraint AASd-123:*  For model references, i.e. References with Reference/type = ModelReference,
     the value of Key/type of the first key of Reference/keys shall be one of AasIdentifiables.
-    *Constraint AASd-125:* For model references with more than one key in Reference/keys the type of the keys following
-                           the first key of Reference/keys shall be one of FragmentKeyElements.
+    *Constraint AASd-125:*  For model references, i.e. References with Reference/type = ModelReference with more
+    than one key in Reference/keys, the value of Key/type of each of the keys following the first key of Reference/keys
+    shall be one of FragmentKeys.
     *Constraint AASd-126:* For model references with more than one key in Reference/keys the type of the last Key in
                            the reference key chain may be one of GenericFragments or no key at all shall have a value
                            out of GenericFragmentKeys.
