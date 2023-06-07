@@ -1279,8 +1279,8 @@ class HasSemantics(metaclass=abc.ABCMeta):
 
     <<abstract>>
 
-    *Constraint AASd-118:* If there is a supplemental semantic ID (HasSemantics/supplementalSemanticId) defined,
-                           then there shall be also a main semantic ID (HasSemantics/semanticId).
+    *Constraint AASd-118:*  If a supplemental semantic ID (HasSemantics/supplementalSemanticId) is defined,
+    there shall also be a main semantic ID (HasSemantics/semanticId).
 
     :ivar semantic_id: Identifier of the semantic definition of the element. It is called semantic id of the element.
                        The semantic id may either reference an external global id or it may reference a referable model
