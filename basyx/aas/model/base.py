@@ -826,8 +826,8 @@ class GlobalReference(Reference):
 
     *Constraint AASd-122:*  For external references, i.e. References with Reference/type = ExternalReference,
     the value of Key/type of the first key of Reference/keys shall be one of GenericGloballyIdentifiables.
-    *Constraint AASd-124:* For global references the last key of Reference/keys shall be either one of
-                           GenericGloballyIdentifiables or one of GenericFragmentKeys.
+    *Constraint AASd-124:*  For external references, i.e. References with Reference/type = ExternalReference,
+    the last key of Reference/keys shall be either one of GenericGloballyIdentifiables or one of GenericFragmentKeys.
 
     :ivar key: Ordered list of unique reference in its name space, each key referencing an element. The complete
                list of keys may for example be concatenated to a path that then gives unique access to an element
