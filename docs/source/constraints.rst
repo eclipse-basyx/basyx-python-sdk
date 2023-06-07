@@ -61,11 +61,9 @@ AASd-014    Either the attribute globalAssetId  ✅
 
             “SelfManagedEntity”.
             They are not existing otherwise.
-AASd-020    The value of Qualifier/value        tbd
-            shall be consistent to the
-
-            data type as defined in
-            Qualifier/valueType.
+AASd-020    The value of Qualifier/value shall  ✅
+            be consistent with the data type
+            as defined in Qualifier/valueType.
 AASd-021    Every Qualifiable can only have     WIP    postponed
             one qualifier with the same
 
