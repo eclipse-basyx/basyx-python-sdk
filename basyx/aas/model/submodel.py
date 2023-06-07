@@ -676,7 +676,7 @@ class SubmodelElementList(SubmodelElement, base.UniqueIdShortNamespace, Generic[
     a semanticId then the value is assumed to be identical to SubmodelElementList/semanticIdListElement.
     *Constraint AASd-108:* All first level child elements in a :class:`SubmodelElementList` shall have the same
     submodel element type as specified in SubmodelElementList/typeValueListElement.
-    *Constraint AASd-109:* If SubmodelElementList/typeValueListElement equal to Property or Range
+    *Constraint AASd-109:* If SubmodelElementList/typeValueListElement is equal to Property or Range,
     SubmodelElementList/valueTypeListElement shall be set and all first level child elements in the
     :class:`SubmodelElementList` shall have the value type as specified in SubmodelElementList/valueTypeListElement.
 
