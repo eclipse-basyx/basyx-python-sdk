@@ -864,9 +864,9 @@ class ModelReference(Reference, Generic[_RT]):
     *Constraint AASd-126:*  For model references, i.e. References with Reference/type = ModelReference with more than
     one key in Reference/keys, the value of Key/type of the last Key in the reference key chain may be one of
     GenericFragmentKeys, or no key at all shall have a value out of GenericFragmentKeys.
-    *Constraint AASd-127:* For model references with more than one key in Reference/keys a key with type
-                           FragmentReference shall be preceded by a key with type File or Blob. All other AAS fragments,
-                           i.e. type values out of AasSubmodelElements, do not support fragments.
+    *Constraint AASd-127:*  For model references, i.e. References with Reference/type = ModelReference with more than
+    one key in Reference/keys, a key with Key/type FragmentReference shall be preceded by a key with Key/type
+    File or Blob. All other AAS fragments, i.e. Key/type values out of AasSubmodelElements, do not support fragments.
     *Constraint AASd-128:* For model references the Key/value of a Key preceded by a Key with
                            Key/type=SubmodelElementList is an integer number denoting the position in the array of the
                            submodel element list.
