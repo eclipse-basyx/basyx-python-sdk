@@ -305,8 +305,8 @@ class MultiLanguageProperty(DataElement):
     """
     A multi language property is a :class:`~.DataElement` that has a multi language value.
 
-    *Constraint AASd-012*: if both, the value and the valueId are present then for each string in a
-    specific language the meaning must be the same as specified in valueId.
+    *Constraint AASd-012*:  if both the MultiLanguageProperty/value and the MultiLanguageProperty/valueId are present,
+    the meaning must be the same for each string in a specific language, as specified inMultiLanguageProperty/valueId.
 
     :ivar id_short: Identifying string of the element within its name space. (inherited from
                     :class:`~aas.model.base.Referable`)

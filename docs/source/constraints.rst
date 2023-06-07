@@ -45,18 +45,12 @@ AASd-008    The submodel element value of an    ✅
             operation variable shall be
 
             of kind=Template.
-AASd-012    If both, the                        ❌     Uncheckable
+AASd-012    if both the                         ❌     Uncheckable
             MultiLanguageProperty/value and
-
             the MultiLanguageProperty/valueId
-            are present then for
-
-            each string in a specific
-            language the meaning must be
-
-
-            the same as specified in
-
+            are present, the meaning must be
+            the same for each string in a
+            specific language, as specified in
             MultiLanguageProperty/valueId.
 AASd-014    Either the attribute globalAssetId  ✅
             or specificAssetId of an
