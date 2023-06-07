@@ -1474,8 +1474,8 @@ class Qualifier(HasSemantics):
     """
     A qualifier is a type-value pair that makes additional statements w.r.t. the value of the element.
 
-    *Constraint AASd-006:* if both, the value and the valueId are present, then the value needs to be
-    identical to the value of the referenced coded value in Qualifier/valueId.
+    *Constraint AASd-006:*  If both, the value and the valueId of a Qualifier are present, the value needs
+     to be identical to the value of the referenced coded value in Qualifier/valueId.
 
     :ivar type: The type (:class:`~.QualifierType`) of the qualifier that is applied to the element.
     :ivar value_type: Data type (:class:`~.DataTypeDefXsd`) of the qualifier value
