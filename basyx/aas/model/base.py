@@ -856,8 +856,8 @@ class ModelReference(Reference, Generic[_RT]):
 
     This is a special construct of the implementation to allow typed references and de-referencing.
 
-    *Constraint AASd-123:* For model references the type of the first key of Reference/keys shall be one of
-                           AasIdentifiables.
+    *Constraint AASd-123:*  For model references, i.e. References with Reference/type = ModelReference,
+    the value of Key/type of the first key of Reference/keys shall be one of AasIdentifiables.
     *Constraint AASd-125:* For model references with more than one key in Reference/keys the type of the keys following
                            the first key of Reference/keys shall be one of FragmentKeyElements.
     *Constraint AASd-126:* For model references with more than one key in Reference/keys the type of the last Key in
