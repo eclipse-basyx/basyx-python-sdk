@@ -13,6 +13,7 @@ import datetime
 from typing import Optional, Set, Iterable, TYPE_CHECKING, List, Type, TypeVar, Generic, Union
 
 from . import base, datatypes
+
 if TYPE_CHECKING:
     from . import aas
 
@@ -52,6 +53,7 @@ class SubmodelElement(base.Referable, base.Qualifiable, base.HasSemantics, base.
                                     :class:`~aas.model.base.HasSemantics`)
     :ivar embedded_data_specifications: List of Embedded data specification.
     """
+
     @abc.abstractmethod
     def __init__(self,
                  id_short: str,
@@ -196,6 +198,7 @@ class DataElement(SubmodelElement, metaclass=abc.ABCMeta):
                                     :class:`~aas.model.base.HasSemantics`)
     :ivar embedded_data_specifications: List of Embedded data specification.
     """
+
     @abc.abstractmethod
     def __init__(self,
                  id_short: str,
@@ -641,6 +644,7 @@ class SubmodelElementCollection(SubmodelElement, base.UniqueIdShortNamespace):
                                     :class:`~aas.model.base.HasSemantics`)
     :ivar embedded_data_specifications: List of Embedded data specification.
     """
+
     def __init__(self,
                  id_short: str,
                  value: Iterable[SubmodelElement] = (),
@@ -654,7 +658,6 @@ class SubmodelElementCollection(SubmodelElement, base.UniqueIdShortNamespace):
                  extension: Iterable[base.Extension] = (),
                  supplemental_semantic_id: Iterable[base.Reference] = (),
                  embedded_data_specifications: Iterable[base.EmbeddedDataSpecification] = ()):
-
         super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, kind, extension,
                          supplemental_semantic_id, embedded_data_specifications)
         self.value: base.NamespaceSet[SubmodelElement] = base.NamespaceSet(self, [("id_short", True)], value)
@@ -711,6 +714,7 @@ class SubmodelElementList(SubmodelElement, base.UniqueIdShortNamespace, Generic[
                                     :class:`~aas.model.base.HasSemantics`)
     :ivar embedded_data_specifications: List of Embedded data specification.
     """
+
     def __init__(self,
                  id_short: str,
                  type_value_list_element: Type[_SE],
@@ -946,6 +950,9 @@ class Operation(SubmodelElement):
     """
     An operation is a :class:`~.SubmodelElement` with input and output variables.
 
+    *Constraint AASd-134:* For an operation, the idShort of all inputVariable/value,
+    outputVariable/value, and inoutputVariable/value shall be unique.
+
     :ivar id_short: Identifying string of the element within its name space. (inherited from
                     :class:`~aas.model.base.Referable`)
     :ivar input_variable: List of input parameters (:class:`OperationVariables <.OperationVariable>`) of the operation
@@ -974,11 +981,12 @@ class Operation(SubmodelElement):
                                     :class:`~aas.model.base.HasSemantics`)
     :ivar embedded_data_specifications: List of Embedded data specification.
     """
+
     def __init__(self,
                  id_short: str,
                  input_variable: Optional[List[OperationVariable]] = None,
-                 output_variable:  Optional[List[OperationVariable]] = None,
-                 in_output_variable:  Optional[List[OperationVariable]] = None,
+                 output_variable: Optional[List[OperationVariable]] = None,
+                 in_output_variable: Optional[List[OperationVariable]] = None,
                  display_name: Optional[base.LangStringSet] = None,
                  category: Optional[str] = None,
                  description: Optional[base.LangStringSet] = None,
@@ -995,9 +1003,75 @@ class Operation(SubmodelElement):
 
         super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, kind, extension,
                          supplemental_semantic_id, embedded_data_specifications)
-        self.input_variable = input_variable if input_variable is not None else []
-        self.output_variable = output_variable if output_variable is not None else []
-        self.in_output_variable = in_output_variable if in_output_variable is not None else []
+        self._input_variable = input_variable if input_variable is not None else []
+        self._output_variable = output_variable if output_variable is not None else []
+        self._in_output_variable = in_output_variable if in_output_variable is not None else []
+        variables: List[OperationVariable] = ([] +
+                                              self._input_variable +
+                                              self._output_variable +
+                                              self._in_output_variable)
+        id_short_store: List[str] = []
+        for var in variables:
+            if var.value is not None:
+                _id_short: str = var.value.id_short
+                if _id_short in id_short_store:
+                    raise base.AASConstraintViolation(134, "the idShort of all inputVariable/value, "
+                                                           "outputVariable/value, and inoutputVariable/value "
+                                                           "shall be unique")
+                id_short_store.append(_id_short)
+
+    def _get_input_variable(self):
+        return self._input_variable
+
+    def _set_input_variable(self, input_variable: Optional[List[OperationVariable]]):
+        if input_variable is not None:
+            variables: List[OperationVariable] = [] + input_variable + self._output_variable + self._in_output_variable
+            id_short_store: List[str] = []
+            for var in variables:
+                if var.value is not None:
+                    id_short: str = var.value.id_short
+                    if id_short in id_short_store:
+                        raise base.AASConstraintViolation(134, "the idShort of an inputVariable/value is not unique.")
+                    id_short_store.append(id_short)
+        self._input_variable = input_variable if input_variable is not None else []
+
+    input_variable = property(_get_input_variable, _set_input_variable)
+
+    def _get_output_variable(self):
+        return self._output_variable
+
+    def _set_output_variable(self, output_variable: Optional[List[OperationVariable]]):
+        if output_variable is not None:
+            variables: List[OperationVariable] = [] + self.input_variable + output_variable + self._in_output_variable
+            id_short_store: List[str] = []
+            for var in variables:
+                if var.value is not None:
+                    id_short: str = var.value.id_short
+                    if id_short in id_short_store:
+                        raise base.AASConstraintViolation(134, "the idShort of an outputVariable/value is not unique.")
+                    id_short_store.append(id_short)
+        self._output_variable = output_variable if output_variable is not None else []
+
+    output_variable = property(_get_output_variable, _set_output_variable)
+
+    def _get_in_output_variable(self):
+        return self._in_output_variable
+
+    def _set_in_output_variable(self, in_output_variable: Optional[List[OperationVariable]]):
+        if in_output_variable is not None:
+            variables: List[OperationVariable] = [] + self.input_variable + self._output_variable + \
+                                                 in_output_variable
+            id_short_store: List[str] = []
+            for var in variables:
+                if var.value is not None:
+                    id_short: str = var.value.id_short
+                    if id_short in id_short_store:
+                        raise base.AASConstraintViolation(134,
+                                                          "the idShort of an in_outputVariable/value is not unique.")
+                    id_short_store.append(id_short)
+        self._in_output_variable = in_output_variable if in_output_variable is not None else []
+
+    in_output_variable = property(_get_in_output_variable, _set_in_output_variable)
 
 
 class Capability(SubmodelElement):
@@ -1168,6 +1242,7 @@ class EventElement(SubmodelElement, metaclass=abc.ABCMeta):
                                     :class:`~aas.model.base.HasSemantics`)
     :ivar embedded_data_specifications: List of Embedded data specification.
     """
+
     @abc.abstractmethod
     def __init__(self,
                  id_short: str,

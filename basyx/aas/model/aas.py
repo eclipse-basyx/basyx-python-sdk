@@ -15,7 +15,7 @@ This module contains the following classes from an up-to-down-level:
 
 from typing import Optional, Set, Iterable, List
 
-from . import base, AASConstraintViolation
+from . import base
 from .submodel import Submodel
 
 
@@ -57,14 +57,14 @@ class AssetInformation:
             else specific_asset_id
         self.default_thumbnail: Optional[base.Resource] = default_thumbnail
         if global_asset_id is None and (self.specific_asset_id is None or not self.specific_asset_id):
-            raise AASConstraintViolation(131, "either global or specific asset id must be set")
+            raise base.AASConstraintViolation(131, "either global or specific asset id must be set")
 
     def _get_global_asset_id(self):
         return self._global_asset_id
 
     def _set_global_asset_id(self, global_asset_id: Optional[base.GlobalReference]):
         if global_asset_id is None and (self.specific_asset_id is None or not self.specific_asset_id):
-            raise AASConstraintViolation(131, "either global or specific asset id must be set")
+            raise base.AASConstraintViolation(131, "either global or specific asset id must be set")
         self._global_asset_id = global_asset_id
 
     global_asset_id = property(_get_global_asset_id, _set_global_asset_id)

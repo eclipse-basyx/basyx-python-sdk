@@ -63,6 +63,25 @@ class RangeTest(unittest.TestCase):
         self.assertIsNone(range.max)
 
 
+class OperationTest(unittest.TestCase):
+    def test_aasd_134_idshort(self):
+        operation1 = model.Operation("test")
+        element1 = model.Property("a", value_type=int)
+        element2 = model.Property("b", value_type=int)
+        element3 = model.Property("c", value_type=int)
+        operation1.output_variable = [model.OperationVariable(element1)]
+        with self.assertRaises(model.AASConstraintViolation) as cm:
+            operation1.input_variable = [model.OperationVariable(element1)]
+        self.assertEqual("the idShort of an inputVariable/value is not unique. (Constraint AASd-134)",
+                         str(cm.exception))
+        with self.assertRaises(model.AASConstraintViolation) as cm2:
+            operation2 = model.Operation("test", input_variable=[model.OperationVariable(element1)],
+                                         output_variable=[model.OperationVariable(element1)])
+        self.assertEqual("the idShort of all inputVariable/value, outputVariable/value, "
+                         "and inoutputVariable/value shall be unique (Constraint AASd-134)",
+                         str(cm2.exception))
+
+
 class SubmodelElementListTest(unittest.TestCase):
     def test_constraints(self):
         # AASd-107
