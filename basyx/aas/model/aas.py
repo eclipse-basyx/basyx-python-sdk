@@ -15,7 +15,7 @@ This module contains the following classes from an up-to-down-level:
 
 from typing import Optional, Set, Iterable, List
 
-from . import base
+from . import base, AASConstraintViolation
 from .submodel import Submodel
 
 
@@ -27,6 +27,8 @@ class AssetInformation:
     The asset has a globally unique identifier plus – if needed – additional domain specific (proprietary)
     identifiers. However, to support the corner case of very first phase of lifecycle where a stabilised/constant
     global asset identifier does not already exist, the corresponding attribute “globalAssetId” is optional.
+
+    *Constraint AASd-131:* The globalAssetId or at least one specificAssetId shall be defined for AssetInformation.
 
     :ivar asset_kind: Denotes whether the Asset is of :class:`~aas.model.base.AssetKind` "TYPE" or "INSTANCE".
                       Default is "INSTANCE".
@@ -54,13 +56,15 @@ class AssetInformation:
         self.specific_asset_id: Set[base.SpecificAssetId] = set() if specific_asset_id is None \
             else specific_asset_id
         self.default_thumbnail: Optional[base.Resource] = default_thumbnail
+        if global_asset_id is None and (self.specific_asset_id is None or not self.specific_asset_id):
+            raise AASConstraintViolation(131, "either global or specific asset id must be set")
 
     def _get_global_asset_id(self):
         return self._global_asset_id
 
     def _set_global_asset_id(self, global_asset_id: Optional[base.GlobalReference]):
         if global_asset_id is None and (self.specific_asset_id is None or not self.specific_asset_id):
-            raise ValueError("either global or specific asset id must be set")
+            raise AASConstraintViolation(131, "either global or specific asset id must be set")
         self._global_asset_id = global_asset_id
 
     global_asset_id = property(_get_global_asset_id, _set_global_asset_id)
