@@ -147,13 +147,13 @@ class AASXReader:
         # Iterate AAS files
         for aas_part in self.reader.get_related_parts_by_type(aasx_origin_part)[
                 RELATIONSHIP_TYPE_AAS_SPEC]:
-            self._read_aas_part_into(aas_part, object_store, file_store, 
+            self._read_aas_part_into(aas_part, object_store, file_store,
                                      read_identifiables, override_existing, **kwargs)
 
             # Iterate split parts of AAS file
             for split_part in self.reader.get_related_parts_by_type(aas_part)[
                     RELATIONSHIP_TYPE_AAS_SPEC_SPLIT]:
-                self._read_aas_part_into(split_part, object_store, file_store, 
+                self._read_aas_part_into(split_part, object_store, file_store,
                                          read_identifiables, override_existing, **kwargs)
 
         return read_identifiables
