@@ -22,7 +22,8 @@ MODELING_KIND: Dict[model.ModelingKind, str] = {
 
 ASSET_KIND: Dict[model.AssetKind, str] = {
     model.AssetKind.TYPE: 'Type',
-    model.AssetKind.INSTANCE: 'Instance'}
+    model.AssetKind.INSTANCE: 'Instance',
+    model.AssetKind.NOT_APPLICABLE: 'NotApplicable'}
 
 QUALIFIER_KIND: Dict[model.QualifierKind, str] = {
     model.QualifierKind.CONCEPT_QUALIFIER: 'ConceptQualifier',
@@ -61,6 +62,7 @@ KEY_TYPES: Dict[model.KeyTypes, str] = {
     model.KeyTypes.RELATIONSHIP_ELEMENT: 'RelationshipElement',
     model.KeyTypes.SUBMODEL_ELEMENT: 'SubmodelElement',
     model.KeyTypes.SUBMODEL_ELEMENT_COLLECTION: 'SubmodelElementCollection',
+    model.KeyTypes.SUBMODEL_ELEMENT_LIST: 'SubmodelElementList',
     model.KeyTypes.GLOBAL_REFERENCE: 'GlobalReference',
     model.KeyTypes.FRAGMENT_REFERENCE: 'FragmentReference'}
 

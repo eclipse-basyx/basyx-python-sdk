@@ -8,8 +8,8 @@
 This module defines native Python types for all simple built-in XSD datatypes, as well as functions to (de)serialize
 them from/into their lexical XML representation.
 
-See https://www.w3.org/TR/xmlschema11-2/#built-in-datatypes for the XSD simple type hierarchy and more information on
-the datatypes. All types from this type hierarchy (except for `token` and its descendants) are implemented or aliased in
+See https://www.w3.org/TR/xmlschema-2/#built-in-datatypes for the XSD simple type hierarchy and more information on the
+datatypes. All types from this type hierarchy (except for `token` and its descendants) are implemented or aliased in
 this module using their pythonized: Duration, DateTime, GMonthDay, String, Integer, Decimal, Short …. These types are
 meant to be used directly for data values in the context of Asset Administration Shells.
 
@@ -26,7 +26,7 @@ import base64
 import datetime
 import decimal
 import re
-from typing import Type, TypeVar, Union, Dict, Optional
+from typing import Type, Union, Dict, Optional
 
 import dateutil.relativedelta
 
@@ -38,33 +38,6 @@ Double = float
 Decimal = decimal.Decimal
 Integer = int
 String = str
-
-
-class DayTimeDuration(Duration):
-    """
-    A duration without years and months. The class is not constrained by itself, the constraints are only checked on
-    serialization.
-    """
-    pass
-
-
-class YearMonthDuration(Duration):
-    """
-    A duration with just years and months. The class is not constrained by itself, the constraints are only checked on
-    serialization.
-    """
-    pass
-
-
-class DateTimeStamp(DateTime):
-    """
-    A variant of :class:`~DateTime` where the timezone is required.
-    """
-    def __new__(cls, years, months=None, days=None, hours=0, minutes=0, seconds=0, microseconds=0, tzinfo=None,
-                **kwargs):
-        if tzinfo is None:
-            raise ValueError("A DateTimeStamp requires a timezone!")
-        return super().__new__(cls, years, months, days, hours, minutes, seconds, microseconds, tzinfo, **kwargs)
 
 
 class Date(datetime.date):
@@ -376,18 +349,15 @@ class NormalizedString(str):
 
 
 AnyXSDType = Union[
-    Duration, DayTimeDuration, YearMonthDuration, DateTime, Date, Time, GYearMonth, GYear, GMonthDay, GMonth, GDay,
-    Boolean, Base64Binary, HexBinary, Float, Double, Decimal, Integer, Long, Int, Short, Byte, NonPositiveInteger,
-    NegativeInteger, NonNegativeInteger, PositiveInteger, UnsignedLong, UnsignedInt, UnsignedShort, UnsignedByte,
-    AnyURI, String, NormalizedString]
+    Duration, DateTime, Date, Time, GYearMonth, GYear, GMonthDay, GMonth, GDay, Boolean, Base64Binary,
+    HexBinary, Float, Double, Decimal, Integer, Long, Int, Short, Byte, NonPositiveInteger, NegativeInteger,
+    NonNegativeInteger, PositiveInteger, UnsignedLong, UnsignedInt, UnsignedShort, UnsignedByte, AnyURI, String,
+    NormalizedString]
 
 
 XSD_TYPE_NAMES: Dict[Type[AnyXSDType], str] = {k: "xs:" + v for k, v in {
     Duration: "duration",
-    DayTimeDuration: "dayTimeDuration",
-    YearMonthDuration: "yearMonthDuration",
     DateTime: "dateTime",
-    DateTimeStamp: "dateTimeStamp",
     Date: "date",
     Time: "time",
     GYearMonth: "gYearMonth",
@@ -514,13 +484,6 @@ def _serialize_duration(value: Duration) -> str:
     elif len(signs) == 0:
         return "P0D"
 
-    if isinstance(value, DayTimeDuration) and (value.years or value.months):
-        raise ValueError("{} doesn't allow the serialization of years and months!".format(value.__class__.__name__))
-
-    if isinstance(value, YearMonthDuration) and (value.days or value.hours or value.minutes or value.seconds
-                                                 or value.microseconds):
-        raise ValueError("{} only allows the serialization of years and months!".format(value.__class__.__name__))
-
     result = "-" if signs.pop() else ""
     result += "P"
     if value.years:
@@ -556,12 +519,8 @@ def from_xsd(value: str, type_: Type[AnyXSDType]) -> AnyXSDType:  # workaround. 
         return type_(value)
     elif type_ is Duration:
         return _parse_xsd_duration(value)
-    elif type_ is YearMonthDuration:
-        return _parse_xsd_year_month_duration(value)
-    elif type_ is DayTimeDuration:
-        return _parse_xsd_day_time_duration(value)
-    elif issubclass(type_, DateTime):
-        return _parse_xsd_datetime(value, type_)
+    elif type_ is DateTime:
+        return _parse_xsd_datetime(value)
     elif type_ is Date:
         return _parse_xsd_date(value)
     elif type_ is Time:
@@ -584,10 +543,7 @@ def from_xsd(value: str, type_: Type[AnyXSDType]) -> AnyXSDType:  # workaround. 
 
 
 DURATION_RE = re.compile(r'^(-?)P(\d+Y)?(\d+M)?(\d+D)?(T(\d+H)?(\d+M)?((\d+)(\.\d+)?S)?)?$')
-YEAR_MONTH_DURATION_RE = re.compile(r'^(-?)P(\d+Y)?(\d+M)?$')
-DAY_TIME_DURATION_RE = re.compile(r'^(-?)P(\d+D)?(T(\d+H)?(\d+M)?((\d+)(\.\d+)?S)?)?$')
 DATETIME_RE = re.compile(r'^(-?)(\d\d\d\d)-(\d\d)-(\d\d)T(\d\d):(\d\d):(\d\d)(\.\d+)?([+\-](\d\d):(\d\d)|Z)?$')
-DATETIMESTAMP_RE = re.compile(r'^(-?)(\d\d\d\d)-(\d\d)-(\d\d)T(\d\d):(\d\d):(\d\d)(\.\d+)?([+\-](\d\d):(\d\d)|Z)$')
 TIME_RE = re.compile(r'^(\d\d):(\d\d):(\d\d)(\.\d+)?([+\-](\d\d):(\d\d)|Z)?$')
 DATE_RE = re.compile(r'^(-?)(\d\d\d\d)-(\d\d)-(\d\d)([+\-](\d\d):(\d\d)|Z)?$')
 
@@ -603,31 +559,6 @@ def _parse_xsd_duration(value: str) -> Duration:
                    minutes=int(match[7][:-1]) if match[7] else 0,
                    seconds=int(match[9]) if match[8] else 0,
                    microseconds=int(float(match[10])*1e6) if match[10] else 0)
-    if match[1]:
-        res = -res
-    return res
-
-
-def _parse_xsd_year_month_duration(value: str) -> YearMonthDuration:
-    match = YEAR_MONTH_DURATION_RE.match(value)
-    if not match:
-        raise ValueError("Value is not a valid XSD yearMonthDuration string")
-    res = YearMonthDuration(years=int(match[2][:-1]) if match[2] else 0,
-                            months=int(match[3][:-1]) if match[3] else 0)
-    if match[1]:
-        res = -res
-    return res
-
-
-def _parse_xsd_day_time_duration(value: str) -> DayTimeDuration:
-    match = DAY_TIME_DURATION_RE.match(value)
-    if not match:
-        raise ValueError("Value is not a valid XSD dayTimeDuraion string")
-    res = DayTimeDuration(days=int(match[2][:-1]) if match[2] else 0,
-                          hours=int(match[4][:-1]) if match[4] else 0,
-                          minutes=int(match[5][:-1]) if match[5] else 0,
-                          seconds=int(match[7]) if match[6] else 0,
-                          microseconds=int(float(match[8])*1e6) if match[8] else 0)
     if match[1]:
         res = -res
     return res
@@ -651,18 +582,15 @@ def _parse_xsd_date(value: str) -> Date:
     return Date(int(match[2]), int(match[3]), int(match[4]), _parse_xsd_date_tzinfo(match[5]))
 
 
-_DT = TypeVar("_DT", bound=DateTime)
-
-
-def _parse_xsd_datetime(value: str, type_: Type[_DT]) -> _DT:
-    match = (DATETIMESTAMP_RE if type_ is DateTimeStamp else DATETIME_RE).match(value)
+def _parse_xsd_datetime(value: str) -> DateTime:
+    match = DATETIME_RE.match(value)
     if not match:
-        raise ValueError(f"Value is not a valid XSD {type_.__name__} string")
+        raise ValueError("Value is not a valid XSD datetime string")
     if match[1]:
         raise ValueError("Negative Dates are not supported by Python")
     microseconds = int(float(match[8]) * 1e6) if match[8] else 0
-    return type_(int(match[2]), int(match[3]), int(match[4]), int(match[5]), int(match[6]), int(match[7]),
-                 microseconds, _parse_xsd_date_tzinfo(match[9]))
+    return DateTime(int(match[2]), int(match[3]), int(match[4]), int(match[5]), int(match[6]), int(match[7]),
+                    microseconds, _parse_xsd_date_tzinfo(match[9]))
 
 
 def _parse_xsd_time(value: str) -> Time:
