@@ -325,11 +325,12 @@ class AASDataCheckerTest(unittest.TestCase):
 
     def test_asset_administration_shell_checker(self):
         shell = model.AssetAdministrationShell(asset_information=model.AssetInformation(
-            global_asset_id=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE, value='test'),),)),
-            id_='test')
+            global_asset_id=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
+                                                             value=model.Identifier('test')),),)), id_='test')
         shell_expected = model.AssetAdministrationShell(
             asset_information=model.AssetInformation(
-                global_asset_id=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE, value='test'),),
+                global_asset_id=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
+                                                                 value=model.Identifier('test')),),
                                                       )),
             id_='test',
             submodel={model.ModelReference((model.Key(type_=model.KeyTypes.SUBMODEL,

@@ -322,13 +322,12 @@ class Key:
 
     def __init__(self,
                  type_: KeyTypes,
-                 value: str):
+                 value: Identifier):
         """
         TODO: Add instruction what to do after construction
         """
         self.type: KeyTypes
-        if value == "":
-            raise ValueError("value is not allowed to be an empty string")
+
         self.value: str
         super().__setattr__('type', type_)
         super().__setattr__('value', value)
@@ -341,7 +340,7 @@ class Key:
         return "Key(type={}, value={})".format(self.type.name, self.value)
 
     def __str__(self) -> str:
-        return self.value
+        return self.value.__str__()
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, Key):
