@@ -340,7 +340,7 @@ class Key:
         return "Key(type={}, value={})".format(self.type.name, self.value)
 
     def __str__(self) -> str:
-        return self.value
+        return self.value.__str__()
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, Key):
