@@ -37,8 +37,7 @@ def create_example_submodel_template() -> model.Submodel:
         parent=None,
         semantic_id=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
                                                      value='http://acplt.org/Properties/ExampleProperty'),)),
-        qualifier=(),
-        kind=model.ModelingKind.TEMPLATE)
+        qualifier=())
 
     submodel_element_multi_language_property = model.MultiLanguageProperty(
         id_short='ExampleMultiLanguageProperty',

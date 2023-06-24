@@ -605,7 +605,7 @@ class AASFromJsonDecoder(json.JSONDecoder):
 
     @classmethod
     def _construct_operation(cls, dct: Dict[str, object], object_class=model.Operation) -> model.Operation:
-        ret = object_class(_get_ts(dct, "idShort", str), kind=cls._get_kind(dct))
+        ret = object_class(_get_ts(dct, "idShort", str))
         cls._amend_abstract_attributes(ret, dct)
 
         # Deserialize variables (they are not Referable, thus we don't
@@ -632,8 +632,7 @@ class AASFromJsonDecoder(json.JSONDecoder):
         # see https://github.com/python/mypy/issues/5374
         ret = object_class(id_short=_get_ts(dct, "idShort", str),
                            first=cls._construct_reference(_get_ts(dct, 'first', dict)),
-                           second=cls._construct_reference(_get_ts(dct, 'second', dict)),
-                           kind=cls._get_kind(dct))
+                           second=cls._construct_reference(_get_ts(dct, 'second', dict)))
         cls._amend_abstract_attributes(ret, dct)
         return ret
 
@@ -725,7 +724,7 @@ class AASFromJsonDecoder(json.JSONDecoder):
     @classmethod
     def _construct_multi_language_property(
             cls, dct: Dict[str, object], object_class=model.MultiLanguageProperty) -> model.MultiLanguageProperty:
-        ret = object_class(id_short=_get_ts(dct, "idShort", str), kind=cls._get_kind(dct))
+        ret = object_class(id_short=_get_ts(dct, "idShort", str))
         cls._amend_abstract_attributes(ret, dct)
         if 'value' in dct and dct['value'] is not None:
             ret.value = cls._construct_lang_string_set(_get_ts(dct, 'value', list))
