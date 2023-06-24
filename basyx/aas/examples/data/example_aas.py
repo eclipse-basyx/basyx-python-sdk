@@ -104,14 +104,12 @@ def create_example_asset_identification_submodel() -> model.Submodel:
         value_id=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
                                                   value='http://acplt.org/ValueId/ExampleValueId'),)),)
 
-
     qualifier2 = model.Qualifier(
         type_='http://acplt.org/Qualifier/ExampleQualifier2',
         value_type=model.datatypes.Int,
         value=50,
         value_id=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
                                                   value='http://acplt.org/ValueId/ExampleValueId'),)),)
-
 
     qualifier3 = model.Qualifier(
         type_='http://acplt.org/Qualifier/ExampleQualifier3',
