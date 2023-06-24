@@ -699,7 +699,6 @@ class AASDataChecker(DataChecker):
         self.check_attribute_equal(object_, 'value_type', expected_value.value_type)
         self.check_attribute_equal(object_, 'value', expected_value.value)
         self.check_attribute_equal(object_, 'value_id', expected_value.value_id)
-        self.check_attribute_equal(object_, 'kind', expected_value.kind)
 
     def check_specific_asset_id(self, object_: model.SpecificAssetId,
                                 expected_value: model.SpecificAssetId):
