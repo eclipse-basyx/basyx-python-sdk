@@ -61,7 +61,7 @@ class AASDataCheckerTest(unittest.TestCase):
 
         checker.check_property_equal(property, property_expected)
         self.assertEqual(2, sum(1 for _ in checker.failed_checks))
-        self.assertEqual(12, sum(1 for _ in checker.successful_checks))
+        self.assertEqual(11, sum(1 for _ in checker.successful_checks))
         checker_iterator = checker.failed_checks
         self.assertEqual("FAIL: Attribute qualifier of Property[Prop1] must contain 1 Qualifiers (count=0)",
                          repr(next(checker_iterator)))
