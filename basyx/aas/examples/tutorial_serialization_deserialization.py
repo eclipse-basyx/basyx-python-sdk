@@ -47,7 +47,8 @@ submodel = model.Submodel(
 )
 aashell = model.AssetAdministrationShell(
     id_='https://acplt.org/Simple_AAS',
-    asset_information=model.AssetInformation(),
+    asset_information=model.AssetInformation(global_asset_id=model.GlobalReference(
+        [model.Key(model.KeyTypes.GLOBAL_REFERENCE, "test")])),
     submodel={model.ModelReference.from_referable(submodel)}
 )
 

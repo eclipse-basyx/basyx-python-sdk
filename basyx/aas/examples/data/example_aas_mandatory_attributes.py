@@ -202,7 +202,8 @@ def create_example_empty_asset_administration_shell() -> model.AssetAdministrati
     :return: example asset administration shell
     """
     asset_administration_shell = model.AssetAdministrationShell(
-        asset_information=model.AssetInformation(),
+        asset_information=model.AssetInformation(global_asset_id=model.GlobalReference(
+            [model.Key(model.KeyTypes.GLOBAL_REFERENCE, "test")])),
         id_='https://acplt.org/Test_AssetAdministrationShell2_Mandatory')
     return asset_administration_shell
 
