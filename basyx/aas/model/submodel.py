@@ -54,9 +54,9 @@ class SubmodelElement(base.Referable, base.Qualifiable, base.HasSemantics, base.
     """
     @abc.abstractmethod
     def __init__(self,
-                 id_short: str,
+                 id_short: base.NameType,
                  display_name: Optional[base.LangStringSet] = None,
-                 category: Optional[str] = None,
+                 category: Optional[base.NameType] = None,
                  description: Optional[base.LangStringSet] = None,
                  parent: Optional[base.UniqueIdShortNamespace] = None,
                  semantic_id: Optional[base.Reference] = None,
@@ -126,9 +126,9 @@ class Submodel(base.Identifiable, base.HasSemantics, base.HasKind, base.Qualifia
     def __init__(self,
                  id_: base.Identifier,
                  submodel_element: Iterable[SubmodelElement] = (),
-                 id_short: str = "NotSet",
+                 id_short: base.NameType = "NotSet",
                  display_name: Optional[base.LangStringSet] = None,
-                 category: Optional[str] = None,
+                 category: Optional[base.NameType] = None,
                  description: Optional[base.LangStringSet] = None,
                  parent: Optional[base.UniqueIdShortNamespace] = None,
                  administration: Optional[base.AdministrativeInformation] = None,
@@ -198,9 +198,9 @@ class DataElement(SubmodelElement, metaclass=abc.ABCMeta):
     """
     @abc.abstractmethod
     def __init__(self,
-                 id_short: str,
+                 id_short: base.NameType,
                  display_name: Optional[base.LangStringSet] = None,
-                 category: Optional[str] = None,
+                 category: Optional[base.NameType] = None,
                  description: Optional[base.LangStringSet] = None,
                  parent: Optional[base.UniqueIdShortNamespace] = None,
                  semantic_id: Optional[base.Reference] = None,
@@ -264,12 +264,12 @@ class Property(DataElement):
     """
 
     def __init__(self,
-                 id_short: str,
+                 id_short: base.NameType,
                  value_type: base.DataTypeDefXsd,
                  value: Optional[base.ValueDataType] = None,
                  value_id: Optional[base.Reference] = None,
                  display_name: Optional[base.LangStringSet] = None,
-                 category: Optional[str] = None,
+                 category: Optional[base.NameType] = None,
                  description: Optional[base.LangStringSet] = None,
                  parent: Optional[base.UniqueIdShortNamespace] = None,
                  semantic_id: Optional[base.Reference] = None,
@@ -336,11 +336,11 @@ class MultiLanguageProperty(DataElement):
     """
 
     def __init__(self,
-                 id_short: str,
+                 id_short: base.NameType,
                  value: Optional[base.LangStringSet] = None,
                  value_id: Optional[base.Reference] = None,
                  display_name: Optional[base.LangStringSet] = None,
-                 category: Optional[str] = None,
+                 category: Optional[base.NameType] = None,
                  description: Optional[base.LangStringSet] = None,
                  parent: Optional[base.UniqueIdShortNamespace] = None,
                  semantic_id: Optional[base.Reference] = None,
@@ -396,12 +396,12 @@ class Range(DataElement):
     """
 
     def __init__(self,
-                 id_short: str,
+                 id_short: base.NameType,
                  value_type: base.DataTypeDefXsd,
                  min: Optional[base.ValueDataType] = None,
                  max: Optional[base.ValueDataType] = None,
                  display_name: Optional[base.LangStringSet] = None,
-                 category: Optional[str] = None,
+                 category: Optional[base.NameType] = None,
                  description: Optional[base.LangStringSet] = None,
                  parent: Optional[base.UniqueIdShortNamespace] = None,
                  semantic_id: Optional[base.Reference] = None,
@@ -480,11 +480,11 @@ class Blob(DataElement):
     """
 
     def __init__(self,
-                 id_short: str,
+                 id_short: base.NameType,
                  content_type: base.ContentType,
                  value: Optional[base.BlobType] = None,
                  display_name: Optional[base.LangStringSet] = None,
-                 category: Optional[str] = None,
+                 category: Optional[base.NameType] = None,
                  description: Optional[base.LangStringSet] = None,
                  parent: Optional[base.UniqueIdShortNamespace] = None,
                  semantic_id: Optional[base.Reference] = None,
@@ -535,11 +535,11 @@ class File(DataElement):
     """
 
     def __init__(self,
-                 id_short: str,
+                 id_short: base.NameType,
                  content_type: base.ContentType,
                  value: Optional[base.PathType] = None,
                  display_name: Optional[base.LangStringSet] = None,
-                 category: Optional[str] = None,
+                 category: Optional[base.NameType] = None,
                  description: Optional[base.LangStringSet] = None,
                  parent: Optional[base.UniqueIdShortNamespace] = None,
                  semantic_id: Optional[base.Reference] = None,
@@ -591,10 +591,10 @@ class ReferenceElement(DataElement):
     """
 
     def __init__(self,
-                 id_short: str,
+                 id_short: base.NameType,
                  value: Optional[base.Reference] = None,
                  display_name: Optional[base.LangStringSet] = None,
-                 category: Optional[str] = None,
+                 category: Optional[base.NameType] = None,
                  description: Optional[base.LangStringSet] = None,
                  parent: Optional[base.UniqueIdShortNamespace] = None,
                  semantic_id: Optional[base.Reference] = None,
@@ -642,10 +642,10 @@ class SubmodelElementCollection(SubmodelElement, base.UniqueIdShortNamespace):
     :ivar embedded_data_specifications: List of Embedded data specification.
     """
     def __init__(self,
-                 id_short: str,
+                 id_short: base.NameType,
                  value: Iterable[SubmodelElement] = (),
                  display_name: Optional[base.LangStringSet] = None,
-                 category: Optional[str] = None,
+                 category: Optional[base.NameType] = None,
                  description: Optional[base.LangStringSet] = None,
                  parent: Optional[base.UniqueIdShortNamespace] = None,
                  semantic_id: Optional[base.Reference] = None,
@@ -712,14 +712,14 @@ class SubmodelElementList(SubmodelElement, base.UniqueIdShortNamespace, Generic[
     :ivar embedded_data_specifications: List of Embedded data specification.
     """
     def __init__(self,
-                 id_short: str,
+                 id_short: base.NameType,
                  type_value_list_element: Type[_SE],
                  value: Iterable[_SE] = (),
                  semantic_id_list_element: Optional[base.Reference] = None,
                  value_type_list_element: Optional[base.DataTypeDefXsd] = None,
                  order_relevant: bool = True,
                  display_name: Optional[base.LangStringSet] = None,
-                 category: Optional[str] = None,
+                 category: Optional[base.NameType] = None,
                  description: Optional[base.LangStringSet] = None,
                  parent: Optional[base.UniqueIdShortNamespace] = None,
                  semantic_id: Optional[base.Reference] = None,
@@ -844,11 +844,11 @@ class RelationshipElement(SubmodelElement):
     """
 
     def __init__(self,
-                 id_short: str,
+                 id_short: base.NameType,
                  first: base.Reference,
                  second: base.Reference,
                  display_name: Optional[base.LangStringSet] = None,
-                 category: Optional[str] = None,
+                 category: Optional[base.NameType] = None,
                  description: Optional[base.LangStringSet] = None,
                  parent: Optional[base.UniqueIdShortNamespace] = None,
                  semantic_id: Optional[base.Reference] = None,
@@ -904,12 +904,12 @@ class AnnotatedRelationshipElement(RelationshipElement, base.UniqueIdShortNamesp
     """
 
     def __init__(self,
-                 id_short: str,
+                 id_short: base.NameType,
                  first: base.Reference,
                  second: base.Reference,
                  display_name: Optional[base.LangStringSet] = None,
                  annotation: Iterable[DataElement] = (),
-                 category: Optional[str] = None,
+                 category: Optional[base.NameType] = None,
                  description: Optional[base.LangStringSet] = None,
                  parent: Optional[base.UniqueIdShortNamespace] = None,
                  semantic_id: Optional[base.Reference] = None,
@@ -975,12 +975,12 @@ class Operation(SubmodelElement):
     :ivar embedded_data_specifications: List of Embedded data specification.
     """
     def __init__(self,
-                 id_short: str,
+                 id_short: base.NameType,
                  input_variable: Optional[List[OperationVariable]] = None,
                  output_variable:  Optional[List[OperationVariable]] = None,
                  in_output_variable:  Optional[List[OperationVariable]] = None,
                  display_name: Optional[base.LangStringSet] = None,
-                 category: Optional[str] = None,
+                 category: Optional[base.NameType] = None,
                  description: Optional[base.LangStringSet] = None,
                  parent: Optional[base.UniqueIdShortNamespace] = None,
                  semantic_id: Optional[base.Reference] = None,
@@ -1031,9 +1031,9 @@ class Capability(SubmodelElement):
     """
 
     def __init__(self,
-                 id_short: str,
+                 id_short: base.NameType,
                  display_name: Optional[base.LangStringSet] = None,
-                 category: Optional[str] = None,
+                 category: Optional[base.NameType] = None,
                  description: Optional[base.LangStringSet] = None,
                  parent: Optional[base.UniqueIdShortNamespace] = None,
                  semantic_id: Optional[base.Reference] = None,
@@ -1094,13 +1094,13 @@ class Entity(SubmodelElement, base.UniqueIdShortNamespace):
     """
 
     def __init__(self,
-                 id_short: str,
+                 id_short: base.NameType,
                  entity_type: base.EntityType,
                  statement: Iterable[SubmodelElement] = (),
                  global_asset_id: Optional[base.GlobalReference] = None,
                  specific_asset_id: Optional[base.SpecificAssetId] = None,
                  display_name: Optional[base.LangStringSet] = None,
-                 category: Optional[str] = None,
+                 category: Optional[base.NameType] = None,
                  description: Optional[base.LangStringSet] = None,
                  parent: Optional[base.UniqueIdShortNamespace] = None,
                  semantic_id: Optional[base.Reference] = None,
@@ -1170,9 +1170,9 @@ class EventElement(SubmodelElement, metaclass=abc.ABCMeta):
     """
     @abc.abstractmethod
     def __init__(self,
-                 id_short: str,
+                 id_short: base.NameType,
                  display_name: Optional[base.LangStringSet] = None,
-                 category: Optional[str] = None,
+                 category: Optional[base.NameType] = None,
                  description: Optional[base.LangStringSet] = None,
                  parent: Optional[base.UniqueIdShortNamespace] = None,
                  semantic_id: Optional[base.Reference] = None,
@@ -1236,18 +1236,18 @@ class BasicEventElement(EventElement):
     """
 
     def __init__(self,
-                 id_short: str,
+                 id_short: base.NameType,
                  observed: base.ModelReference[Union["aas.AssetAdministrationShell", Submodel, SubmodelElement]],
                  direction: base.Direction,
                  state: base.StateOfEvent,
-                 message_topic: Optional[str] = None,
+                 message_topic: Optional[base.MessageTopicType] = None,
                  message_broker: Optional[base.ModelReference[Union[Submodel, SubmodelElementList,
                                                                     SubmodelElementCollection, Entity]]] = None,
                  last_update: Optional[datatypes.DateTime] = None,
                  min_interval: Optional[datatypes.Duration] = None,
                  max_interval: Optional[datatypes.Duration] = None,
                  display_name: Optional[base.LangStringSet] = None,
-                 category: Optional[str] = None,
+                 category: Optional[base.NameType] = None,
                  description: Optional[base.LangStringSet] = None,
                  parent: Optional[base.UniqueIdShortNamespace] = None,
                  semantic_id: Optional[base.Reference] = None,
@@ -1267,7 +1267,7 @@ class BasicEventElement(EventElement):
         self.max_interval: Optional[datatypes.Duration] = None
         self.direction: base.Direction = direction
         self.state: base.StateOfEvent = state
-        self.message_topic: Optional[str] = message_topic
+        self.message_topic: Optional[base.MessageTopicType] = message_topic
         self.message_broker: Optional[base.ModelReference[Union[Submodel, SubmodelElementList,
                                                                 SubmodelElementCollection, Entity]]] = message_broker
         self.last_update: Optional[datatypes.DateTime] = last_update

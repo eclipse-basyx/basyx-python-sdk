@@ -85,7 +85,7 @@ def generate_example_referable_tree() -> model.Referable:
     :return: example_referable
     """
 
-    def generate_example_referable_with_namespace(id_short: str,
+    def generate_example_referable_with_namespace(id_short: model.NameType,
                                                   child: Optional[model.Referable] = None) -> model.Referable:
         """
         Generates an example referable with a namespace.
@@ -919,7 +919,7 @@ class ModelReferenceTest(unittest.TestCase):
 
         # Test creating a reference to a custom Referable class
         class DummyThing(model.Referable):
-            def __init__(self, id_short: str):
+            def __init__(self, id_short: model.NameType):
                 super().__init__()
                 self.id_short = id_short
 
