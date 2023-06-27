@@ -12,8 +12,10 @@ from basyx.aas import model
 
 class ProvidersTest(unittest.TestCase):
     def setUp(self) -> None:
-        self.aas1 = model.AssetAdministrationShell(model.AssetInformation(), "urn:x-test:aas1")
-        self.aas2 = model.AssetAdministrationShell(model.AssetInformation(), "urn:x-test:aas2")
+        asset_key = model.Key(model.KeyTypes.GLOBAL_REFERENCE, "test")
+        asset_information = model.AssetInformation(global_asset_id=model.GlobalReference([asset_key]))
+        self.aas1 = model.AssetAdministrationShell(asset_information, "urn:x-test:aas1")
+        self.aas2 = model.AssetAdministrationShell(asset_information, "urn:x-test:aas2")
         self.submodel1 = model.Submodel("urn:x-test:submodel1")
         self.submodel2 = model.Submodel("urn:x-test:submodel2")
 
@@ -24,7 +26,9 @@ class ProvidersTest(unittest.TestCase):
         self.assertIn(self.aas1, object_store)
         property = model.Property('test', model.datatypes.String)
         self.assertFalse(property in object_store)
-        aas3 = model.AssetAdministrationShell(model.AssetInformation(), "urn:x-test:aas1")
+        asset_key = model.Key(model.KeyTypes.GLOBAL_REFERENCE, "test")
+        asset_information = model.AssetInformation(global_asset_id=model.GlobalReference([asset_key]))
+        aas3 = model.AssetAdministrationShell(asset_information, "urn:x-test:aas1")
         with self.assertRaises(KeyError) as cm:
             object_store.add(aas3)
         self.assertEqual("'Identifiable object with same id urn:x-test:aas1 is already "
