@@ -413,14 +413,19 @@ class AASFromJsonDecoder(json.JSONDecoder):
     @classmethod
     def _construct_asset_information(cls, dct: Dict[str, object], object_class=model.AssetInformation)\
             -> model.AssetInformation:
-        ret = object_class(asset_kind=ASSET_KIND_INVERSE[_get_ts(dct, 'assetKind', str)])
-        cls._amend_abstract_attributes(ret, dct)
+        global_asset_id = None
+        specific_asset_id = None
         if 'globalAssetId' in dct:
-            ret.global_asset_id = cls._construct_reference(_get_ts(dct, 'globalAssetId', dict))
+            global_asset_id = cls._construct_reference(_get_ts(dct, 'globalAssetId', dict))
         if 'specificAssetIds' in dct:
+            specific_asset_id = []
             for desc_data in _get_ts(dct, "specificAssetIds", list):
-                ret.specific_asset_id.add(cls._construct_specific_asset_id(desc_data,
-                                                                           model.SpecificAssetId))
+                specific_asset_id.add(cls._construct_specific_asset_id(desc_data, model.SpecificAssetId))
+        ret = object_class(asset_kind=ASSET_KIND_INVERSE[_get_ts(dct, 'assetKind', str)],
+                           global_asset_id=global_asset_id,
+                           specific_asset_id=specific_asset_id)
+        cls._amend_abstract_attributes(ret, dct)
+
         if 'defaultThumbnail' in dct:
             ret.default_thumbnail = cls._construct_resource(_get_ts(dct, 'defaultThumbnail', dict))
         return ret
