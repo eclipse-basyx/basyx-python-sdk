@@ -507,13 +507,10 @@ class Referable(HasExtension, metaclass=abc.ABCMeta):
     <<abstract>>
 
     *Constraint AASd-001:* In case of a referable element not being an identifiable element the
-    idShort is mandatory and used for referring to the element in its name space.
-
+        idShort is mandatory and used for referring to the element in its name space.
     *Constraint AASd-002:* idShort shall only feature letters, digits, underscore ("_"); starting
-    mandatory with a letter.
-
+        mandatory with a letter.
     *Constraint AASd-003:* idShort shall be matched case insensitive.
-
     *Constraint AASd-004:* Add parent in case of non identifiable elements.
 
     :ivar _id_short: Identifying string of the element within its name space
@@ -781,7 +778,7 @@ class Reference(metaclass=abc.ABCMeta):
     <<abstract>>
 
     *Constraint AASd-121:* For References the value of Key/type of the first key of Reference/keys shall be one of
-    GloballyIdentifiables.
+        GloballyIdentifiables.
 
     :ivar key: Ordered list of unique reference in its name space, each key referencing an element. The complete
                list of keys may for example be concatenated to a path that then gives unique access to an element
@@ -824,10 +821,11 @@ class GlobalReference(Reference):
     A reference is an ordered list of keys, each key referencing an element. The complete list of keys may for
     example be concatenated to a path that then gives unique access to an element or entity.
 
-    *Constraint AASd-122:*  For external references, i.e. References with Reference/type = ExternalReference,
-    the value of Key/type of the first key of Reference/keys shall be one of GenericGloballyIdentifiables.
-    *Constraint AASd-124:*  For external references, i.e. References with Reference/type = ExternalReference,
-    the last key of Reference/keys shall be either one of GenericGloballyIdentifiables or one of GenericFragmentKeys.
+    *Constraint AASd-122:* For external references, i.e. References with Reference/type = ExternalReference,
+        the value of Key/type of the first key of Reference/keys shall be one of GenericGloballyIdentifiables.
+    *Constraint AASd-124:* For external references, i.e. References with Reference/type = ExternalReference,
+        the last key of Reference/keys shall be either one of GenericGloballyIdentifiables
+        or one of GenericFragmentKeys.
 
     :ivar key: Ordered list of unique reference in its name space, each key referencing an element. The complete
                list of keys may for example be concatenated to a path that then gives unique access to an element
@@ -856,17 +854,18 @@ class ModelReference(Reference, Generic[_RT]):
 
     This is a special construct of the implementation to allow typed references and de-referencing.
 
-    *Constraint AASd-123:*  For model references, i.e. References with Reference/type = ModelReference,
-    the value of Key/type of the first key of Reference/keys shall be one of AasIdentifiables.
-    *Constraint AASd-125:*  For model references, i.e. References with Reference/type = ModelReference with more
-    than one key in Reference/keys, the value of Key/type of each of the keys following the first key of Reference/keys
-    shall be one of FragmentKeys.
-    *Constraint AASd-126:*  For model references, i.e. References with Reference/type = ModelReference with more than
-    one key in Reference/keys, the value of Key/type of the last Key in the reference key chain may be one of
-    GenericFragmentKeys, or no key at all shall have a value out of GenericFragmentKeys.
-    *Constraint AASd-127:*  For model references, i.e. References with Reference/type = ModelReference with more than
-    one key in Reference/keys, a key with Key/type FragmentReference shall be preceded by a key with Key/type
-    File or Blob. All other AAS fragments, i.e. Key/type values out of AasSubmodelElements, do not support fragments.
+    *Constraint AASd-123:* For model references, i.e. References with Reference/type = ModelReference,
+        the value of Key/type of the first key of Reference/keys shall be one of AasIdentifiables.
+    *Constraint AASd-125:* For model references, i.e. References with Reference/type = ModelReference with more than
+        one key in Reference/keys, the value of Key/type of each of the keys following the first key of Reference/keys
+        shall be one of FragmentKeys.
+    *Constraint AASd-126:* For model references, i.e. References with Reference/type = ModelReference with more than
+        one key in Reference/keys, the value of Key/type of the last Key in the reference key chain may be one of
+        GenericFragmentKeys, or no key at all shall have a value out of GenericFragmentKeys.
+    *Constraint AASd-127:* For model references, i.e. References with Reference/type = ModelReference with more than
+        one key in Reference/keys, a key with Key/type FragmentReference shall be preceded by a key with Key/type
+        File or Blob. All other AAS fragments, i.e. Key/type values out of AasSubmodelElements,
+        do not support fragments.
     *Constraint AASd-128:* For model references the Key/value of a Key preceded by a Key with
                            Key/type=SubmodelElementList is an integer number denoting the position in the array of the
                            submodel element list.
@@ -1038,10 +1037,10 @@ class DataSpecificationContent:
     the data specification template and meta information about the template itself.
 
     *Constraint AASc-3a-050:* If the `Data_specification_IEC_61360` is used
-    for an element, the value of `Has_data_specification.embedded_data_specifications`
-    shall contain the global reference to the IRI of the corresponding data specification
-    template
-    https://admin-shell.io/DataSpecificationTemplates/DataSpecificationIEC61360/3/0
+        for an element, the value of `Has_data_specification.embedded_data_specifications`
+        shall contain the global reference to the IRI of the corresponding data specification
+        template
+        https://admin-shell.io/DataSpecificationTemplates/DataSpecificationIEC61360/3/0
 
     """
     @abc.abstractmethod
@@ -1091,7 +1090,7 @@ class AdministrativeInformation(HasDataSpecification):
     Administrative meta-information for an element like version information.
 
     *Constraint AASd-005:* A revision requires a version. This means,
-    if there is no version there is no revision either.
+        if there is no version there is no revision either.
 
     :ivar version: Version of the element.
     :ivar revision: Revision of the element.
@@ -1280,8 +1279,8 @@ class HasSemantics(metaclass=abc.ABCMeta):
 
     <<abstract>>
 
-    *Constraint AASd-118:*  If a supplemental semantic ID (HasSemantics/supplementalSemanticId) is defined,
-    there shall also be a main semantic ID (HasSemantics/semanticId).
+    *Constraint AASd-118:* If a supplemental semantic ID (HasSemantics/supplementalSemanticId) is defined,
+        there shall also be a main semantic ID (HasSemantics/semanticId).
 
     :ivar semantic_id: Identifier of the semantic definition of the element. It is called semantic id of the element.
                        The semantic id may either reference an external global id or it may reference a referable model
@@ -1475,10 +1474,10 @@ class Qualifier(HasSemantics):
     """
     A qualifier is a type-value pair that makes additional statements w.r.t. the value of the element.
 
-    *Constraint AASd-006:*  If both, the value and the valueId of a Qualifier are present, the value needs
-     to be identical to the value of the referenced coded value in Qualifier/valueId.
-    *Constraint AASd-020:*  The value of Qualifier/value shall be consistent with the
-    data type as defined in Qualifier/valueType.
+    *Constraint AASd-006:* If both, the value and the valueId of a Qualifier are present, the value needs
+        to be identical to the value of the referenced coded value in Qualifier/valueId.
+    *Constraint AASd-020:* The value of Qualifier/value shall be consistent with the
+        data type as defined in Qualifier/valueType.
 
     :ivar type: The type (:class:`~.QualifierType`) of the qualifier that is applied to the element.
     :ivar value_type: Data type (:class:`~.DataTypeDefXsd`) of the qualifier value
