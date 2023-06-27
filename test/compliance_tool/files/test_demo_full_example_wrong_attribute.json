@@ -15,7 +15,7 @@
             "modelType": "AssetAdministrationShell",
             "id": "https://acplt.org/Test_AssetAdministrationShell",
             "administration": {
-                "version": "0.9",
+                "version": "9",
                 "revision": "0"
             },
             "derivedFrom": {
@@ -281,7 +281,7 @@
             "modelType": "AssetAdministrationShell",
             "id": "https://acplt.org/Test_AssetAdministrationShell_Missing",
             "administration": {
-                "version": "0.9",
+                "version": "9",
                 "revision": "0"
             },
             "assetInformation": {
@@ -344,7 +344,7 @@
             "modelType": "Submodel",
             "id": "http://acplt.org/Submodels/Assets/TestAsset/Identification",
             "administration": {
-                "version": "0.9",
+                "version": "9",
                 "revision": "0"
             },
             "semanticId": {
@@ -511,7 +511,7 @@
             "modelType": "Submodel",
             "id": "http://acplt.org/Submodels/Assets/TestAsset/BillOfMaterial",
             "administration": {
-                "version": "0.9"
+                "version": "9"
             },
             "semanticId": {
                 "type": "ModelReference",
@@ -790,7 +790,7 @@
             "modelType": "Submodel",
             "id": "https://acplt.org/Test_Submodel",
             "administration": {
-                "version": "0.9",
+                "version": "9",
                 "revision": "0"
             },
             "semanticId": {
@@ -1867,7 +1867,7 @@
             "modelType": "Submodel",
             "id": "https://acplt.org/Test_Submodel_Missing",
             "administration": {
-                "version": "0.9",
+                "version": "9",
                 "revision": "0"
             },
             "semanticId": {
@@ -2472,7 +2472,7 @@
             "modelType": "Submodel",
             "id": "https://acplt.org/Test_Submodel_Template",
             "administration": {
-                "version": "0.9",
+                "version": "9",
                 "revision": "0"
             },
             "semanticId": {
@@ -3115,7 +3115,7 @@
             "modelType": "ConceptDescription",
             "id": "https://acplt.org/Test_ConceptDescription",
             "administration": {
-                "version": "0.9",
+                "version": "9",
                 "revision": "0",
                 "embeddedDataSpecifications": [
                     {
@@ -3294,7 +3294,7 @@
             "modelType": "ConceptDescription",
             "id": "https://acplt.org/Test_ConceptDescription_Missing",
             "administration": {
-                "version": "0.9",
+                "version": "9",
                 "revision": "0"
             }
         }

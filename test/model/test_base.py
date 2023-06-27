@@ -939,14 +939,14 @@ class AdministrativeInformationTest(unittest.TestCase):
 
     def test_setting_version_revision(self) -> None:
         with self.assertRaises(ValueError) as cm:
-            obj = model.AdministrativeInformation(revision='0.9')
+            obj = model.AdministrativeInformation(revision='9')
         self.assertEqual("A revision requires a version. This means, if there is no version there is no "
                          "revision neither. Please set version first.", str(cm.exception))
 
     def test_setting_revision(self) -> None:
         obj = model.AdministrativeInformation()
         with self.assertRaises(ValueError) as cm:
-            obj.revision = '0.3'
+            obj.revision = '3'
         self.assertEqual("A revision requires a version. This means, if there is no version there is no revision "
                          "neither. Please set version first.", str(cm.exception))
 

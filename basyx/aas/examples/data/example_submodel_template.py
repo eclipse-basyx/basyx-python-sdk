@@ -306,7 +306,7 @@ def create_example_submodel_template() -> model.Submodel:
         description=model.LangStringSet({'en-US': 'An example submodel for the test application',
                                          'de': 'Ein Beispiel-Teilmodell für eine Test-Anwendung'}),
         parent=None,
-        administration=model.AdministrativeInformation(version='0.9',
+        administration=model.AdministrativeInformation(version='9',
                                                        revision='0'),
         semantic_id=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
                                                      value='http://acplt.org/SubmodelTemplates/'
