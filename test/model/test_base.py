@@ -934,17 +934,17 @@ class ModelReferenceTest(unittest.TestCase):
 class AdministrativeInformationTest(unittest.TestCase):
 
     def test_setting_version_revision(self) -> None:
-        with self.assertRaises(ValueError) as cm:
+        with self.assertRaises(model.AASConstraintViolation) as cm:
             obj = model.AdministrativeInformation(revision='9')
         self.assertEqual("A revision requires a version. This means, if there is no version there is no "
-                         "revision neither. Please set version first.", str(cm.exception))
+                         "revision neither. Please set version first. (Constraint AASd-005)", str(cm.exception))
 
     def test_setting_revision(self) -> None:
         obj = model.AdministrativeInformation()
-        with self.assertRaises(ValueError) as cm:
+        with self.assertRaises(model.AASConstraintViolation) as cm:
             obj.revision = '3'
         self.assertEqual("A revision requires a version. This means, if there is no version there is no revision "
-                         "neither. Please set version first.", str(cm.exception))
+                         "neither. Please set version first. (Constraint AASd-005)", str(cm.exception))
 
 
 class QualifierTest(unittest.TestCase):

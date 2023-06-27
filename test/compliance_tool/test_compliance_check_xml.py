@@ -66,7 +66,7 @@ class ComplianceToolXmlTest(unittest.TestCase):
         self.assertEqual(2, len(manager.steps))
         self.assertEqual(Status.SUCCESS, manager.steps[0].status)
         self.assertEqual(Status.FAILED, manager.steps[1].status)
-        self.assertIn("ValueError: A revision requires a version", manager.format_step(1, verbose_level=1))
+        self.assertIn("AASConstraintViolation: A revision requires a version", manager.format_step(1, verbose_level=1))
 
         manager.steps = []
         file_path_4 = os.path.join(script_dir, 'files/test_empty.xml')

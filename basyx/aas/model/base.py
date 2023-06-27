@@ -1130,8 +1130,8 @@ class AdministrativeInformation(HasDataSpecification):
 
     def _set_revision(self, revision: Optional[RevisionType]):
         if self.version is None and revision:
-            raise ValueError("A revision requires a version. This means, if there is no version there is no revision "
-                             "neither. Please set version first.")
+            raise AASConstraintViolation(5, "A revision requires a version. This means, if there is no version "
+                                            "there is no revision neither. Please set version first.")
         if revision is not None:
             _string_constraints.check_revision_type(revision)
         self._revision = revision
