@@ -53,21 +53,31 @@ class AssetInformation:
         super().__init__()
         self.asset_kind: base.AssetKind = asset_kind
         self._global_asset_id: Optional[base.GlobalReference] = global_asset_id
-        self.specific_asset_id: Set[base.SpecificAssetId] = set() if specific_asset_id is None \
+        self._specific_asset_id: Set[base.SpecificAssetId] = set() if specific_asset_id is None \
             else specific_asset_id
         self.default_thumbnail: Optional[base.Resource] = default_thumbnail
-        if global_asset_id is None and (self.specific_asset_id is None or not self.specific_asset_id):
+        if self._global_asset_id is None and (self._specific_asset_id is None or not self._specific_asset_id):
             raise base.AASConstraintViolation(131, "either global or specific asset id must be set")
 
     def _get_global_asset_id(self):
         return self._global_asset_id
 
     def _set_global_asset_id(self, global_asset_id: Optional[base.GlobalReference]):
-        if global_asset_id is None and (self.specific_asset_id is None or not self.specific_asset_id):
+        if global_asset_id is None and (self._specific_asset_id is None or not self._specific_asset_id):
             raise base.AASConstraintViolation(131, "either global or specific asset id must be set")
         self._global_asset_id = global_asset_id
 
     global_asset_id = property(_get_global_asset_id, _set_global_asset_id)
+
+    def _get_specific_asset_id(self):
+        return self._specific_asset_id
+
+    def _set_specific_asset_id(self, specific_asset_id: Optional[Set[base.SpecificAssetId]]):
+        if self._global_asset_id is None and (specific_asset_id is None or not specific_asset_id):
+            raise base.AASConstraintViolation(131, "either global or specific asset id must be set")
+        self._specific_asset_id = specific_asset_id
+
+    specific_asset_id = property(_get_specific_asset_id, _set_specific_asset_id)
 
     def __repr__(self) -> str:
         return "AssetInformation(assetKind={}, globalAssetId={}, specificAssetId={}, defaultThumbnail={})".format(
