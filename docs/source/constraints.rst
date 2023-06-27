@@ -31,8 +31,8 @@ AASd-005    A revision requires a version.      ✅
             This means, if there is no
             version there is no
             revision either.
-AASd-006    If both, the value and the valueId
-            of a Qualifier are present,
+AASd-006    If both, the value and the valueId  ❌     Uncheckable, cannot check the value
+            of a Qualifier are present,                of what value_id points to
             the value needs to be identical to
             the value of the referenced coded
             value in Qualifier/valueId.
