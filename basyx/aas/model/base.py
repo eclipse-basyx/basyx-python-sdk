@@ -17,7 +17,7 @@ from typing import List, Optional, Set, TypeVar, MutableSet, Generic, Iterable, 
     MutableSequence, Type, Any, TYPE_CHECKING, Tuple, Callable, MutableMapping
 import re
 
-from . import datatypes
+from . import datatypes, _string_constraints
 from ..backend import backends
 
 if TYPE_CHECKING:
@@ -576,8 +576,8 @@ class Referable(HasExtension, metaclass=abc.ABCMeta):
                          It affects the expected existence of attributes and the applicability of constraints.
         :raises ValueError: if the constraint is not fulfilled
         """
-        if category == "":
-            raise AASConstraintViolation(100, "category is not allowed to be an empty string")
+        if category is not None:
+            _string_constraints.check_name_type(category)
         self._category = category
 
     def _get_category(self) -> Optional[NameType]:
@@ -601,8 +601,7 @@ class Referable(HasExtension, metaclass=abc.ABCMeta):
 
         if id_short == self.id_short:
             return
-        if id_short == "":
-            raise AASConstraintViolation(100, "id_short is not allowed to be an empty string")
+        _string_constraints.check_name_type(id_short)
         test_id_short: NameType = str(id_short)
         if not re.fullmatch("[a-zA-Z0-9_]*", test_id_short):
             raise AASConstraintViolation(
@@ -1021,6 +1020,8 @@ class ModelReference(Reference, Generic[_RT]):
             ref = ref.parent
 
 
+@_string_constraints.constrain_content_type("content_type")
+@_string_constraints.constrain_path_type("path")
 class Resource:
     """
     Resource represents an address to a file (a locator). The value is an URI that can represent an absolute or relative
@@ -1093,6 +1094,7 @@ class HasDataSpecification(metaclass=abc.ABCMeta):
         self.embedded_data_specifications = list(embedded_data_specifications)
 
 
+@_string_constraints.constrain_version_type("version")
 class AdministrativeInformation(HasDataSpecification):
     """
     Administrative meta-information for an element like version information.
@@ -1118,31 +1120,20 @@ class AdministrativeInformation(HasDataSpecification):
         TODO: Add instruction what to do after construction
         """
         super().__init__()
-        self._version: Optional[VersionType]
-        self.version = version
+        self.version: Optional[VersionType] = version
         self._revision: Optional[RevisionType]
         self.revision = revision
         self.embedded_data_specifications: List[EmbeddedDataSpecification] = list(embedded_data_specifications)
-
-    def _get_version(self):
-        return self._version
-
-    def _set_version(self, version: str):
-        if version == "":
-            raise ValueError("version is not allowed to be an empty string")
-        self._version = version
-
-    version = property(_get_version, _set_version)
 
     def _get_revision(self):
         return self._revision
 
     def _set_revision(self, revision: Optional[RevisionType]):
-        if revision == "":
-            raise ValueError("revision is not allowed to be an empty string")
         if self.version is None and revision:
             raise ValueError("A revision requires a version. This means, if there is no version there is no revision "
                              "neither. Please set version first.")
+        if revision is not None:
+            _string_constraints.check_revision_type(revision)
         self._revision = revision
 
     revision = property(_get_revision, _set_revision)
@@ -1156,6 +1147,7 @@ class AdministrativeInformation(HasDataSpecification):
         return "AdministrativeInformation(version={}, revision={})".format(self.version, self.revision)
 
 
+@_string_constraints.constrain_identifier("id")
 class Identifiable(Referable, metaclass=abc.ABCMeta):
     """
     An element that has a globally unique :class:`~.Identifier`.
@@ -1169,20 +1161,11 @@ class Identifiable(Referable, metaclass=abc.ABCMeta):
     def __init__(self):
         super().__init__()
         self.administration: Optional[AdministrativeInformation] = None
-        self._id: Identifier = ""
+        # The id attribute is set by all inheriting classes __init__ functions.
+        self.id: Identifier
 
     def __repr__(self) -> str:
         return "{}[{}]".format(self.__class__.__name__, self.id)
-
-    @property
-    def id(self) -> Identifier:
-        return self._id
-
-    @id.setter
-    def id(self, id_: Identifier) -> None:
-        if id_ == "":
-            raise ValueError("The id attribute must not be an empty string!")
-        self._id = id_
 
 
 _T = TypeVar("_T")
@@ -1398,6 +1381,7 @@ class Extension(HasSemantics):
 
     @name.setter
     def name(self, name: NameType) -> None:
+        _string_constraints.check_name_type(name)
         if self.parent is not None:
             for set_ in self.parent.namespace_element_sets:
                 if set_.contains_id("name", name):
@@ -1537,6 +1521,7 @@ class Qualifier(HasSemantics):
 
     @type.setter
     def type(self, type_: QualifierType) -> None:
+        _string_constraints.check_qualifier_type(type_)
         if self.parent is not None:
             for set_ in self.parent.namespace_element_sets:
                 if set_.contains_id("type", type_):
@@ -2025,10 +2010,9 @@ class SpecificAssetId(HasSemantics):
                  semantic_id: Optional[Reference] = None,
                  supplemental_semantic_id: Iterable[Reference] = ()):
         super().__init__()
-        if name == "":
-            raise ValueError("name is not allowed to be an empty string")
         if value == "":
             raise ValueError("value is not allowed to be an empty string")
+        _string_constraints.check_label_type(name)
         self.name: LabelType
         self.value: str
         self.external_subject_id: GlobalReference

@@ -12,7 +12,7 @@ import abc
 import datetime
 from typing import Optional, Set, Iterable, TYPE_CHECKING, List, Type, TypeVar, Generic, Union
 
-from . import base, datatypes
+from . import base, datatypes, _string_constraints
 if TYPE_CHECKING:
     from . import aas
 
@@ -443,6 +443,7 @@ class Range(DataElement):
             self._max = datatypes.trivial_cast(value, self.value_type)
 
 
+@_string_constraints.constrain_content_type("content_type")
 class Blob(DataElement):
     """
     A BLOB is a :class:`~.DataElement` that represents a file that is contained with its source code in the value
@@ -503,6 +504,8 @@ class Blob(DataElement):
         self.content_type: base.ContentType = content_type
 
 
+@_string_constraints.constrain_content_type("content_type")
+@_string_constraints.constrain_path_type("value")
 class File(DataElement):
     """
     A File is a :class:`~.DataElement` that represents a file via its path description.
@@ -1185,6 +1188,7 @@ class EventElement(SubmodelElement, metaclass=abc.ABCMeta):
                          supplemental_semantic_id, embedded_data_specifications)
 
 
+@_string_constraints.constrain_message_topic_type("message_topic")
 class BasicEventElement(EventElement):
     """
     A basic event element.

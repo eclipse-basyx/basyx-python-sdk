@@ -1,0 +1,66 @@
+# Copyright (c) 2023 the Eclipse BaSyx Authors
+#
+# This program and the accompanying materials are made available under the terms of the MIT License, available in
+# the LICENSE file of this project.
+#
+# SPDX-License-Identifier: MIT
+
+import unittest
+
+from basyx.aas import model
+from basyx.aas.model import _string_constraints
+
+
+class StringConstraintsTest(unittest.TestCase):
+    def test_identifier(self) -> None:
+        identifier: model.Identifier = ""
+        with self.assertRaises(ValueError) as cm:
+            _string_constraints.check_identifier(identifier)
+        self.assertEqual("Identifier has a minimum length of 1! (length: 0)", cm.exception.args[0])
+        identifier = "a" * 2001
+        with self.assertRaises(ValueError) as cm:
+            _string_constraints.check_identifier(identifier)
+        self.assertEqual("Identifier has a maximum length of 2000! (length: 2001)", cm.exception.args[0])
+        identifier = "a" * 2000
+        _string_constraints.check_identifier(identifier)
+
+    def test_version_type(self) -> None:
+        version: model.VersionType = ""
+        with self.assertRaises(ValueError) as cm:
+            _string_constraints.check_version_type(version)
+        self.assertEqual("VersionType has a minimum length of 1! (length: 0)", cm.exception.args[0])
+        version = "1" * 5
+        with self.assertRaises(ValueError) as cm:
+            _string_constraints.check_version_type(version)
+        self.assertEqual("VersionType has a maximum length of 4! (length: 5)", cm.exception.args[0])
+        version = "0" * 4
+        with self.assertRaises(ValueError) as cm:
+            _string_constraints.check_version_type(version)
+        self.assertEqual("VersionType must match the pattern '([0-9]|[1-9][0-9]*)'! (value: '0000')",
+                         cm.exception.args[0])
+        version = "0"
+        _string_constraints.check_version_type(version)
+
+
+class StringConstraintsDecoratorTest(unittest.TestCase):
+    @_string_constraints.constrain_path_type("some_attr")
+    class DummyClass:
+        def __init__(self, path: model.PathType):
+            self.some_attr: model.PathType = path
+
+    def test_path_type_decoration(self) -> None:
+        with self.assertRaises(ValueError) as cm:
+            self.DummyClass("")
+        self.assertEqual("PathType has a minimum length of 1! (length: 0)", cm.exception.args[0])
+        dc = self.DummyClass("a")
+        with self.assertRaises(ValueError) as cm:
+            dc.some_attr = "a" * 2001
+        self.assertEqual("PathType has a maximum length of 2000! (length: 2001)", cm.exception.args[0])
+        self.assertEqual(dc.some_attr, "a")
+
+    def test_ignore_none_values(self) -> None:
+        # None values should be ignored as some decorated attributes are optional. As shown in the following,
+        # such assignments are caught by the typechecker anyway.
+        dc = self.DummyClass(None)  # type: ignore
+        self.assertIsNone(dc.some_attr)
+        dc.some_attr = None  # type: ignore
