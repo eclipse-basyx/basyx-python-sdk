@@ -573,8 +573,50 @@ def create_example_submodel() -> model.Submodel:
         embedded_data_specifications=()
     )
 
-    operation_variable_property = model.Property(
-        id_short='ExampleProperty',
+    operation_variable_property_1 = model.Property(
+        id_short='ExampleProperty_1',
+        value_type=model.datatypes.String,
+        value='exampleValue',
+        value_id=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
+                                                  value='http://acplt.org/ValueId/ExampleValueId'),)),
+        display_name=model.LangStringSet({'en-US': 'ExampleProperty',
+                                          'de': 'BeispielProperty'}),
+        category='CONSTANT',
+        description=model.LangStringSet({'en-US': 'Example Property object',
+                                         'de': 'Beispiel Property Element'}),
+        parent=None,
+        semantic_id=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
+                                                     value='http://acplt.org/Properties/ExampleProperty'),)),
+        qualifier=(),
+        kind=model.ModelingKind.TEMPLATE,
+        extension=(),
+        supplemental_semantic_id=(),
+        embedded_data_specifications=()
+    )
+
+    operation_variable_property_2 = model.Property(
+        id_short='ExampleProperty_2',
+        value_type=model.datatypes.String,
+        value='exampleValue',
+        value_id=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
+                                                  value='http://acplt.org/ValueId/ExampleValueId'),)),
+        display_name=model.LangStringSet({'en-US': 'ExampleProperty',
+                                          'de': 'BeispielProperty'}),
+        category='CONSTANT',
+        description=model.LangStringSet({'en-US': 'Example Property object',
+                                         'de': 'Beispiel Property Element'}),
+        parent=None,
+        semantic_id=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
+                                                     value='http://acplt.org/Properties/ExampleProperty'),)),
+        qualifier=(),
+        kind=model.ModelingKind.TEMPLATE,
+        extension=(),
+        supplemental_semantic_id=(),
+        embedded_data_specifications=()
+    )
+
+    operation_variable_property_3 = model.Property(
+        id_short='ExampleProperty_3',
         value_type=model.datatypes.String,
         value='exampleValue',
         value_id=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
@@ -595,13 +637,13 @@ def create_example_submodel() -> model.Submodel:
     )
 
     submodel_element_operation_variable_input = model.OperationVariable(
-        value=operation_variable_property)
+        value=operation_variable_property_1)
 
     submodel_element_operation_variable_output = model.OperationVariable(
-        value=operation_variable_property)
+        value=operation_variable_property_2)
 
     submodel_element_operation_variable_in_output = model.OperationVariable(
-        value=operation_variable_property)
+        value=operation_variable_property_3)
 
     submodel_element_operation = model.Operation(
         id_short='ExampleOperation',
