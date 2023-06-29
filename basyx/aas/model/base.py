@@ -203,21 +203,21 @@ class ModelingKind(Enum):
 @unique
 class AssetKind(Enum):
     """
-    Enumeration for denoting whether an element is a type or an instance.
+    Enumeration for denoting whether an asset is a type asset or an instance asset or whether this kind of
+    classification is not applicable.
     *Note:* :attr:`~.AssetKind.INSTANCE` becomes an individual entity of a type, for example a device, by defining
     specific property values.
 
     *Note:* In an object oriented view, an instance denotes an object of a class (of a type)
 
-    :cvar TYPE: hardware or software element which specifies the common attributes shared by all instances of the type
-    :cvar INSTANCE: concrete, clearly identifiable component of a certain type,
-                    *Note:* It becomes an individual entity of a type, for example a device, by defining specific
-                    property values.
-                    *Note:* In an object oriented view, an instance denotes an object of a class (of a type)
+    :cvar TYPE: Type asset
+    :cvar INSTANCE: Instance asset
+    :cvar NOT_APPLICABLE: Neither a type asset nor an instance asset
     """
 
     TYPE = 0
     INSTANCE = 1
+    NOT_APPLICABLE = 2
 
 
 class QualifierKind(Enum):
@@ -322,13 +322,12 @@ class Key:
 
     def __init__(self,
                  type_: KeyTypes,
-                 value: str):
+                 value: Identifier):
         """
         TODO: Add instruction what to do after construction
         """
         self.type: KeyTypes
-        if value == "":
-            raise ValueError("value is not allowed to be an empty string")
+
         self.value: str
         super().__setattr__('type', type_)
         super().__setattr__('value', value)
@@ -341,7 +340,7 @@ class Key:
         return "Key(type={}, value={})".format(self.type.name, self.value)
 
     def __str__(self) -> str:
-        return self.value
+        return self.value.__str__()
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, Key):

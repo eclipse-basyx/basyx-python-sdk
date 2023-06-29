@@ -48,9 +48,9 @@ def create_example_submodel_template() -> model.Submodel:
                                          'de': 'Beispiel MulitLanguageProperty Element'}),
         parent=None,
         semantic_id=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
-                                                     value='http://acplt.org/MultiLanguageProperties/'
-                                                           'ExampleMultiLanguageProperty'),)),
-        qualifier=())
+                                                     value=model.Identifier('http://acplt.org/MultiLanguageProperties/'
+                                                                            'ExampleMultiLanguageProperty')),)),
+        qualifier=(),)
 
     submodel_element_range = model.Range(
         id_short='ExampleRange',
@@ -62,8 +62,8 @@ def create_example_submodel_template() -> model.Submodel:
                                          'de': 'Beispiel Range Element'}),
         parent=None,
         semantic_id=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
-                                                     value='http://acplt.org/Ranges/ExampleRange'),)),
-        qualifier=())
+                                                     value=model.Identifier('http://acplt.org/Ranges/ExampleRange')),)),
+        qualifier=(),)
 
     submodel_element_range_2 = model.Range(
         id_short='ExampleRange2',
@@ -116,13 +116,15 @@ def create_example_submodel_template() -> model.Submodel:
 
     submodel_element_relationship_element = model.RelationshipElement(
         id_short='ExampleRelationshipElement',
-        first=model.ModelReference((model.Key(type_=model.KeyTypes.SUBMODEL, value='http://acplt.org/Test_Submodel'),
+        first=model.ModelReference((model.Key(type_=model.KeyTypes.SUBMODEL, value=model.Identifier('http://acplt.org/'
+                                                                                                    'Test_Submodel')),
                                     model.Key(type_=model.KeyTypes.PROPERTY,
-                                              value='ExampleProperty'),),
+                                              value=model.Identifier('ExampleProperty')),),
                                    model.Property),
-        second=model.ModelReference((model.Key(type_=model.KeyTypes.SUBMODEL, value='http://acplt.org/Test_Submodel'),
+        second=model.ModelReference((model.Key(type_=model.KeyTypes.SUBMODEL, value=model.Identifier('http://acplt.org/'
+                                                                                                     'Test_Submodel')),
                                      model.Key(type_=model.KeyTypes.PROPERTY,
-                                               value='ExampleProperty'),),
+                                               value=model.Identifier('ExampleProperty')),),
                                     model.Property),
         category='PARAMETER',
         description=model.LangStringSet({'en-US': 'Example RelationshipElement object',
@@ -135,13 +137,15 @@ def create_example_submodel_template() -> model.Submodel:
 
     submodel_element_annotated_relationship_element = model.AnnotatedRelationshipElement(
         id_short='ExampleAnnotatedRelationshipElement',
-        first=model.ModelReference((model.Key(type_=model.KeyTypes.SUBMODEL, value='http://acplt.org/Test_Submodel'),
+        first=model.ModelReference((model.Key(type_=model.KeyTypes.SUBMODEL, value=model.Identifier('http://acplt.org/'
+                                                                                                    'Test_Submodel')),
                                     model.Key(type_=model.KeyTypes.PROPERTY,
-                                              value='ExampleProperty'),),
+                                              value=model.Identifier('ExampleProperty')),),
                                    model.Property),
-        second=model.ModelReference((model.Key(type_=model.KeyTypes.SUBMODEL, value='http://acplt.org/Test_Submodel'),
+        second=model.ModelReference((model.Key(type_=model.KeyTypes.SUBMODEL, value=model.Identifier('http://acplt.org/'
+                                                                                                     'Test_Submodel')),
                                      model.Key(type_=model.KeyTypes.PROPERTY,
-                                               value='ExampleProperty'),),
+                                               value=model.Identifier('ExampleProperty')),),
                                     model.Property),
         annotation=(),
         category='PARAMETER',
@@ -189,7 +193,8 @@ def create_example_submodel_template() -> model.Submodel:
 
     submodel_element_basic_event_element = model.BasicEventElement(
         id_short='ExampleBasicEventElement',
-        observed=model.ModelReference((model.Key(type_=model.KeyTypes.SUBMODEL, value='http://acplt.org/Test_Submodel'),
+        observed=model.ModelReference((model.Key(type_=model.KeyTypes.SUBMODEL,
+                                                 value=model.Identifier('http://acplt.org/Test_Submodel')),
                                        model.Key(type_=model.KeyTypes.PROPERTY,
                                                  value='ExampleProperty'),),
                                       model.Property),
