@@ -232,8 +232,8 @@ class Property(DataElement):
     """
     A property is a :class:`DataElement` that has a single value.
 
-    *Constraint AASd-007:* if both, the value and the valueId are present then the value needs to be
-    identical to the value of the referenced coded value in valueId
+    *Constraint AASd-007:* If both, the value and the valueId of a Qualifier are present,
+        the value needs to be identical to the value of the referenced coded value in Qualifier/valueId.
 
     :ivar id_short: Identifying string of the element within its name space. (inherited from
                     :class:`~aas.model.base.Referable`)
@@ -305,8 +305,9 @@ class MultiLanguageProperty(DataElement):
     """
     A multi language property is a :class:`~.DataElement` that has a multi language value.
 
-    *Constraint AASd-012*: if both, the value and the valueId are present then for each string in a
-    specific language the meaning must be the same as specified in valueId.
+    *Constraint AASd-012*: if both the MultiLanguageProperty/value and the MultiLanguageProperty/valueId are present,
+        the meaning must be the same for each string in a specific language,
+        as specified inMultiLanguageProperty/valueId.
 
     :ivar id_short: Identifying string of the element within its name space. (inherited from
                     :class:`~aas.model.base.Referable`)
@@ -364,7 +365,7 @@ class Range(DataElement):
     A range is a :class:`~.DataElement` that has a range value.
 
     *Constraint AASd-013:* In case of a range with `kind=Instance` either the min or the max value or both
-    need to be defined
+        need to be defined
 
     :ivar id_short: Identifying string of the element within its name space. (inherited from
                     :class:`~aas.model.base.Referable`)
@@ -669,16 +670,16 @@ class SubmodelElementList(SubmodelElement, base.UniqueIdShortNamespace, Generic[
     The numbering starts with Zero (0).
 
     *Constraint AASd-107:* If a first level child element in a :class:`SubmodelElementList` has a semanticId it shall be
-    identical to SubmodelElementList/semanticIdListElement.
+        identical to SubmodelElementList/semanticIdListElement.
     *Constraint AASd-114:* If two first level child elements in a :class:`SubmodelElementList` have a semanticId then
-    they shall be identical.
-    *Constraint AASd-115:* If a first level child element in a :class:`SubmodelElementList` does not specify
-    a semanticId then the value is assumed to be identical to SubmodelElementList/semanticIdListElement.
+        they shall be identical.
+    *Constraint AASd-115:* If a first level child element in a :class:`SubmodelElementList` does not specify a
+        semanticId, the value is assumed to be identical to SubmodelElementList/semanticIdListElement.
     *Constraint AASd-108:* All first level child elements in a :class:`SubmodelElementList` shall have the same
-    submodel element type as specified in SubmodelElementList/typeValueListElement.
-    *Constraint AASd-109:* If SubmodelElementList/typeValueListElement equal to Property or Range
-    SubmodelElementList/valueTypeListElement shall be set and all first level child elements in the
-    :class:`SubmodelElementList` shall have the value type as specified in SubmodelElementList/valueTypeListElement.
+        submodel element type as specified in SubmodelElementList/typeValueListElement.
+    *Constraint AASd-109:* If SubmodelElementList/typeValueListElement is equal to Property or Range,
+        SubmodelElementList/valueTypeListElement shall be set and all first level child elements in the
+        :class:`SubmodelElementList` shall have the value type as specified in SubmodelElementList/valueTypeListElement.
 
     :ivar id_short: Identifying string of the element within its name space. (inherited from
                     :class:`~aas.model.base.Referable`)
@@ -1055,7 +1056,7 @@ class Entity(SubmodelElement, base.UniqueIdShortNamespace):
     An entity is a :class:`~.SubmodelElement` that is used to model entities
 
     *Constraint AASd-014:* global_asset_id or specific_asset_id must be set if :attr:`~.entity_type` is set to
-    :attr:`~.EntityType.SELF_MANAGED_ENTITY`. They must be empty otherwise.
+        :attr:`~.EntityType.SELF_MANAGED_ENTITY`. They must be empty otherwise.
 
     :ivar id_short: Identifying string of the element within its name space. (inherited from
                     :class:`~aas.model.base.Referable`)

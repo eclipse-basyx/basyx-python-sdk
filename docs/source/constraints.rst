@@ -31,38 +31,26 @@ AASd-005    A revision requires a version.      ✅
             This means, if there is no
             version there is no
             revision either.
-AASd-006    if both, the value and the valueId  ❌     Uncheckable, cannot check the value
-            of a Qualifier are                         of what value_id points to
-
-            present then the value needs to
-            be identical to the value of
-
-            the referenced coded
+AASd-006    If both, the value and the valueId  ❌     Uncheckable, cannot check the value
+            of a Qualifier are present,                of what value_id points to
+            the value needs to be identical to
+            the value of the referenced coded
             value in Qualifier/valueId.
 AASd-007    If both, the value and the valueId  ❌     Uncheckable, cannot check the value
-            of a Property are                          of what value_id points to
-
-            present then the value needs to
-            be identical to the value of
-
-            the referenced coded value in
-            Property/valueId.
+            of a Qualifier are present, the            of what value_id points to
+            value needs to be identical to the
+            value of the referenced coded value
+            in Qualifier/valueId.
 AASd-008    The submodel element value of an    ✅
             operation variable shall be
 
             of kind=Template.
-AASd-012    If both, the                        ❌     Uncheckable
+AASd-012    if both the                         ❌     Uncheckable
             MultiLanguageProperty/value and
-
             the MultiLanguageProperty/valueId
-            are present then for
-
-            each string in a specific
-            language the meaning must be
-
-
-            the same as specified in
-
+            are present, the meaning must be
+            the same for each string in a
+            specific language, as specified in
             MultiLanguageProperty/valueId.
 AASd-014    Either the attribute globalAssetId  ✅
             or specificAssetId of an
@@ -73,11 +61,9 @@ AASd-014    Either the attribute globalAssetId  ✅
 
             “SelfManagedEntity”.
             They are not existing otherwise.
-AASd-020    The value of Qualifier/value        tbd
-            shall be consistent to the
-
-            data type as defined in
-            Qualifier/valueType.
+AASd-020    The value of Qualifier/value shall  ✅
+            be consistent with the data type
+            as defined in Qualifier/valueType.
 AASd-021    Every Qualifiable can only have     WIP    postponed
             one qualifier with the same
 
