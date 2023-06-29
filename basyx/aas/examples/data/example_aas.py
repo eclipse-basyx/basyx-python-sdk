@@ -715,7 +715,6 @@ def create_example_submodel() -> model.Submodel:
                                                      value='http://acplt.org/SubmodelTemplates/'
                                                            'ExampleSubmodel'),)),
         qualifier=(),
-
         extension=(),
         supplemental_semantic_id=(),
         embedded_data_specifications=(_embedded_data_specification_physical_unit,)
