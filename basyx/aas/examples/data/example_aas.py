@@ -442,7 +442,6 @@ def create_example_submodel() -> model.Submodel:
         semantic_id=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
                                                      value='http://acplt.org/Files/ExampleFile'),)),
         qualifier=(),
-
         extension=(),
         supplemental_semantic_id=(),
         embedded_data_specifications=()
