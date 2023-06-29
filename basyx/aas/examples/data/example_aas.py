@@ -270,7 +270,6 @@ def create_example_bill_of_material_submodel() -> model.Submodel:
                                                      value='http://opcfoundation.org/UA/DI/1.1/DeviceType/Serialnumber'
                                                      ),)),
         qualifier=(),
-
         extension=(),
         supplemental_semantic_id=(),
         embedded_data_specifications=()
