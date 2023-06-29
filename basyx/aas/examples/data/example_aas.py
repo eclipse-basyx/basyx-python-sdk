@@ -512,7 +512,6 @@ def create_example_submodel() -> model.Submodel:
                                                     value='https://acplt.org/Test_ConceptDescription'),),
                                          model.ConceptDescription),
         qualifier=(),
-
         extension=(),
         supplemental_semantic_id=(),
         embedded_data_specifications=()
