@@ -393,7 +393,6 @@ def create_example_submodel() -> model.Submodel:
                                               type_=model.KeyTypes.GLOBAL_REFERENCE,
                                               value='http://acplt.org/Properties/ExampleProperty/Referred'),))),
         qualifier=(),
-
         extension=(),
         supplemental_semantic_id=(),
         embedded_data_specifications=()
