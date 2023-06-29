@@ -315,7 +315,6 @@ def create_example_bill_of_material_submodel() -> model.Submodel:
                                                     value='http://acplt.org/SubmodelTemplates/BillOfMaterial'),),
                                          model.Submodel),
         qualifier=(),
-
         extension=(),
         supplemental_semantic_id=(),
         embedded_data_specifications=()
