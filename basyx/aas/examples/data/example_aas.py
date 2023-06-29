@@ -669,7 +669,6 @@ def create_example_submodel() -> model.Submodel:
                                                      value='http://acplt.org/SubmodelElementLists/'
                                                            'ExampleSubmodelElementList'),)),
         qualifier=(),
-
         extension=(),
         supplemental_semantic_id=(),
         embedded_data_specifications=()
