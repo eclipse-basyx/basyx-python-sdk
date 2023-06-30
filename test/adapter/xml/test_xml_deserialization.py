@@ -153,6 +153,15 @@ class XmlDeserializationTest(unittest.TestCase):
                 <aas:id>http://acplt.org/test_aas</aas:id>
                 <aas:assetInformation>
                     <aas:assetKind>Instance</aas:assetKind>
+                    <aas:globalAssetId>
+                      <aas:type>GlobalReference</aas:type>
+                      <aas:keys>
+                        <aas:key>
+                          <aas:type>GlobalReference</aas:type>
+                          <aas:value>http://acplt.org/TestAsset/</aas:value>
+                        </aas:key>
+                      </aas:keys>
+                    </aas:globalAssetId>
                 </aas:assetInformation>
                 <aas:derivedFrom>
                     <aas:type>ModelReference</aas:type>
@@ -261,6 +270,15 @@ class XmlDeserializationTest(unittest.TestCase):
                 <aas:idShort>NotSet</aas:idShort>
                 <aas:assetInformation>
                     <aas:assetKind>Instance</aas:assetKind>
+                    <aas:globalAssetId>
+                      <aas:type>GlobalReference</aas:type>
+                      <aas:keys>
+                        <aas:key>
+                          <aas:type>GlobalReference</aas:type>
+                          <aas:value>http://acplt.org/TestAsset/</aas:value>
+                        </aas:key>
+                      </aas:keys>
+                    </aas:globalAssetId>
                 </aas:assetInformation>
             </aas:assetAdministrationShell>
         </aas:assetAdministrationShells>
@@ -376,8 +394,17 @@ class XmlDeserializationStrippedObjectsTest(unittest.TestCase):
         <aas:assetAdministrationShell xmlns:aas="{XML_NS_MAP["aas"]}">
             <aas:id>http://acplt.org/test_aas</aas:id>
             <aas:assetInformation>
-                <aas:assetKind>Instance</aas:assetKind>
-            </aas:assetInformation>
+                    <aas:assetKind>Instance</aas:assetKind>
+                    <aas:globalAssetId>
+                      <aas:type>GlobalReference</aas:type>
+                      <aas:keys>
+                        <aas:key>
+                          <aas:type>GlobalReference</aas:type>
+                          <aas:value>http://acplt.org/TestAsset/</aas:value>
+                        </aas:key>
+                      </aas:keys>
+                    </aas:globalAssetId>
+                </aas:assetInformation>
             <aas:submodels>
                 <aas:reference>
                     <aas:type>ModelReference</aas:type>

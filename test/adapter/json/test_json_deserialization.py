@@ -31,7 +31,16 @@ class JsonDeserializationTest(unittest.TestCase):
                         "modelType": "AssetAdministrationShell",
                         "id": "https://acplt.org/Test_Asset",
                         "assetInformation": {
-                            "assetKind": "Instance"
+                            "assetKind": "Instance",
+                            "globalAssetId": {
+                                "type": "GlobalReference",
+                                "keys": [
+                                    {
+                                        "type": "GlobalReference",
+                                        "value": "http://acplt.org/TestAsset/"
+                                    }
+                                ]
+                            }
                         }
                     }
                 ]
@@ -142,7 +151,16 @@ class JsonDeserializationTest(unittest.TestCase):
                     "modelType": "AssetAdministrationShell",
                     "id": "http://acplt.org/test_aas",
                     "assetInformation": {
-                        "assetKind": "Instance"
+                        "assetKind": "Instance",
+                        "globalAssetId": {
+                            "type": "GlobalReference",
+                            "keys": [
+                                {
+                                    "type": "GlobalReference",
+                                    "value": "http://acplt.org/TestAsset/"
+                                }
+                            ]
+                        }
                     }
                 }],
                 "submodels": [{
