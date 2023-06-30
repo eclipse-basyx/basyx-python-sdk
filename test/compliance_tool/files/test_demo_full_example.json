@@ -259,6 +259,14 @@
             ]
         },
         {
+            "idShort": "NotSet",
+            "modelType": "AssetAdministrationShell",
+            "id": "https://acplt.org/Test_AssetAdministrationShell2_Mandatory",
+            "assetInformation": {
+                "assetKind": "Instance"
+            }
+        },
+        {
             "idShort": "TestAssetAdministrationShell",
             "description": [
                 {
