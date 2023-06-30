@@ -248,13 +248,6 @@
       </aas:submodels>
     </aas:assetAdministrationShell>
     <aas:assetAdministrationShell>
-      <aas:idShort>NotSet</aas:idShort>
-      <aas:id>https://acplt.org/Test_AssetAdministrationShell2_Mandatory</aas:id>
-      <aas:assetInformation>
-        <aas:assetKind>Instance</aas:assetKind>
-      </aas:assetInformation>
-    </aas:assetAdministrationShell>
-    <aas:assetAdministrationShell>
       <aas:idShort>TestAssetAdministrationShell</aas:idShort>
       <aas:description>
         <aas:langString>
