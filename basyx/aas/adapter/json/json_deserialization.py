@@ -418,7 +418,7 @@ class AASFromJsonDecoder(json.JSONDecoder):
         if 'globalAssetId' in dct:
             global_asset_id = cls._construct_reference(_get_ts(dct, 'globalAssetId', dict))
         if 'specificAssetIds' in dct:
-            specific_asset_id = []
+            specific_asset_id = set()
             for desc_data in _get_ts(dct, "specificAssetIds", list):
                 specific_asset_id.add(cls._construct_specific_asset_id(desc_data, model.SpecificAssetId))
         ret = object_class(asset_kind=ASSET_KIND_INVERSE[_get_ts(dct, 'assetKind', str)],

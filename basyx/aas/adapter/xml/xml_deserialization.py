@@ -988,10 +988,16 @@ class AASFromXmlDecoder:
         global_asset_id = _failsafe_construct(element.find(NS_AAS + "globalAssetId"),
                                               cls.construct_reference, cls.failsafe)
         specific_assset_ids = element.find(NS_AAS + "specificAssetIds")
+        specific_assset_ids_store = set()
+        if specific_assset_ids is not None:
+            for id in _child_construct_multiple(specific_assset_ids, NS_AAS + "specificAssetId",
+                                                cls.construct_specific_asset_id, cls.failsafe):
+                specific_assset_ids_store.add(id)
+
         asset_information = object_class(asset_kind=_child_text_mandatory_mapped(element, NS_AAS + "assetKind",
                                                                                  ASSET_KIND_INVERSE),
                                          global_asset_id=global_asset_id,
-                                         specific_asset_id=specific_assset_ids)
+                                         specific_asset_id=specific_assset_ids_store)
         thumbnail = _failsafe_construct(element.find(NS_AAS + "defaultThumbnail"),
                                         cls.construct_resource, cls.failsafe)
         if thumbnail is not None:
