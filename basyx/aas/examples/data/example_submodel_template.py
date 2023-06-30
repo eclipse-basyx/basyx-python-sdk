@@ -26,8 +26,36 @@ def create_example_submodel_template() -> model.Submodel:
 
     :return: example submodel
     """
-    submodel_element_property = model.Property(
-        id_short='ExampleProperty',
+    submodel_element_property_1 = model.Property(
+        id_short='ExampleProperty_1',
+        value_type=model.datatypes.String,
+        value=None,
+        value_id=None,  # TODO
+        category='CONSTANT',
+        description=model.LangStringSet({'en-US': 'Example Property object',
+                                         'de': 'Beispiel Property Element'}),
+        parent=None,
+        semantic_id=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
+                                                     value='http://acplt.org/Properties/ExampleProperty'),)),
+        qualifier=(),
+        kind=model.ModelingKind.TEMPLATE)
+
+    submodel_element_property_2 = model.Property(
+        id_short='ExampleProperty_2',
+        value_type=model.datatypes.String,
+        value=None,
+        value_id=None,  # TODO
+        category='CONSTANT',
+        description=model.LangStringSet({'en-US': 'Example Property object',
+                                         'de': 'Beispiel Property Element'}),
+        parent=None,
+        semantic_id=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
+                                                     value='http://acplt.org/Properties/ExampleProperty'),)),
+        qualifier=(),
+        kind=model.ModelingKind.TEMPLATE)
+
+    submodel_element_property_3 = model.Property(
+        id_short='ExampleProperty_3',
         value_type=model.datatypes.String,
         value=None,
         value_id=None,  # TODO
@@ -163,13 +191,13 @@ def create_example_submodel_template() -> model.Submodel:
         kind=model.ModelingKind.TEMPLATE)
 
     submodel_element_operation_variable_input = model.OperationVariable(
-        value=submodel_element_property)
+        value=submodel_element_property_1)
 
     submodel_element_operation_variable_output = model.OperationVariable(
-        value=submodel_element_property)
+        value=submodel_element_property_2)
 
     submodel_element_operation_variable_in_output = model.OperationVariable(
-        value=submodel_element_property)
+        value=submodel_element_property_3)
 
     submodel_element_operation = model.Operation(
         id_short='ExampleOperation',
@@ -226,7 +254,7 @@ def create_example_submodel_template() -> model.Submodel:
     submodel_element_submodel_element_collection = model.SubmodelElementCollection(
         id_short='ExampleSubmodelCollection',
         value=(
-               submodel_element_property,
+               submodel_element_property_1,
                submodel_element_multi_language_property,
                submodel_element_range,
                submodel_element_range_2,
