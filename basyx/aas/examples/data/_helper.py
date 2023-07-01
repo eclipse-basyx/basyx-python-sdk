@@ -244,7 +244,6 @@ class AASDataChecker(DataChecker):
         """
         self._check_referable_equal(object_, expected_value)
         self._check_has_semantics_equal(object_, expected_value)
-        self._check_has_kind_equal(object_, expected_value)
         self._check_qualifiable_equal(object_, expected_value)
         self._check_has_data_specification_equal(object_, expected_value)
 
@@ -672,7 +671,6 @@ class AASDataChecker(DataChecker):
         """
         self._check_identifiable_equal(object_, expected_value)
         self._check_has_semantics_equal(object_, expected_value)
-        self._check_has_kind_equal(object_, expected_value)
         self._check_qualifiable_equal(object_, expected_value)
         self._check_has_data_specification_equal(object_, expected_value)
         self.check_contained_element_length(object_, 'submodel_element', model.SubmodelElement,
@@ -701,7 +699,6 @@ class AASDataChecker(DataChecker):
         self.check_attribute_equal(object_, 'value_type', expected_value.value_type)
         self.check_attribute_equal(object_, 'value', expected_value.value)
         self.check_attribute_equal(object_, 'value_id', expected_value.value_id)
-        self.check_attribute_equal(object_, 'kind', expected_value.kind)
 
     def check_specific_asset_id(self, object_: model.SpecificAssetId,
                                 expected_value: model.SpecificAssetId):

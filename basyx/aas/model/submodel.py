@@ -17,7 +17,7 @@ if TYPE_CHECKING:
     from . import aas
 
 
-class SubmodelElement(base.Referable, base.Qualifiable, base.HasSemantics, base.HasKind,
+class SubmodelElement(base.Referable, base.Qualifiable, base.HasSemantics,
                       base.HasDataSpecification, metaclass=abc.ABCMeta):
     """
     A submodel element is an element suitable for the description and differentiation of assets.
@@ -43,8 +43,6 @@ class SubmodelElement(base.Referable, base.Qualifiable, base.HasSemantics, base.
                        (inherited from :class:`~aas.model.base.HasSemantics`)
     :ivar qualifier: Unordered list of Qualifiers that gives additional qualification of a qualifiable element.
                      (from :class:`~aas.model.base.Qualifiable`)
-    :ivar kind: Kind of the element: Either `TYPE` or `INSTANCE`. Default is `INSTANCE`. (inherited from
-                :class:`aas.model.base.HasKind`)
     :ivar extension: An extension of the element. (inherited from
                      :class:`aas.model.base.HasExtension`)
     :ivar supplemental_semantic_id: Identifier of a supplemental semantic definition of the element. It is called
@@ -61,7 +59,6 @@ class SubmodelElement(base.Referable, base.Qualifiable, base.HasSemantics, base.
                  parent: Optional[base.UniqueIdShortNamespace] = None,
                  semantic_id: Optional[base.Reference] = None,
                  qualifier: Iterable[base.Qualifier] = (),
-                 kind: base.ModelingKind = base.ModelingKind.INSTANCE,
                  extension: Iterable[base.Extension] = (),
                  supplemental_semantic_id: Iterable[base.Reference] = (),
                  embedded_data_specifications: Iterable[base.EmbeddedDataSpecification] = ()):
@@ -77,7 +74,6 @@ class SubmodelElement(base.Referable, base.Qualifiable, base.HasSemantics, base.
         self.parent: Optional[base.UniqueIdShortNamespace] = parent
         self.semantic_id: Optional[base.Reference] = semantic_id
         self.qualifier = base.NamespaceSet(self, [("type", True)], qualifier)
-        self._kind: base.ModelingKind = kind
         self.extension = base.NamespaceSet(self, [("name", True)], extension)
         self.supplemental_semantic_id: base.ConstrainedList[base.Reference] = \
             base.ConstrainedList(supplemental_semantic_id)
@@ -187,8 +183,6 @@ class DataElement(SubmodelElement, metaclass=abc.ABCMeta):
                        (inherited from :class:`~aas.model.base.HasSemantics`)
     :ivar qualifier: Unordered list of Qualifiers that gives additional qualification of a qualifiable element.
                      (from :class:`~aas.model.base.Qualifiable`)
-    :ivar kind: Kind of the element: Either `TYPE` or `INSTANCE`. Default is `INSTANCE`. (inherited from
-                :class:`aas.model.base.HasKind`)
     :ivar extension: An extension of the element. (inherited from
                      :class:`aas.model.base.HasExtension`)
     :ivar supplemental_semantic_id: Identifier of a supplemental semantic definition of the element. It is called
@@ -205,11 +199,10 @@ class DataElement(SubmodelElement, metaclass=abc.ABCMeta):
                  parent: Optional[base.UniqueIdShortNamespace] = None,
                  semantic_id: Optional[base.Reference] = None,
                  qualifier: Iterable[base.Qualifier] = (),
-                 kind: base.ModelingKind = base.ModelingKind.INSTANCE,
                  extension: Iterable[base.Extension] = (),
                  supplemental_semantic_id: Iterable[base.Reference] = (),
                  embedded_data_specifications: Iterable[base.EmbeddedDataSpecification] = ()):
-        super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, kind, extension,
+        super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, extension,
                          supplemental_semantic_id, embedded_data_specifications)
 
     def _set_category(self, category: Optional[str]):
@@ -253,8 +246,6 @@ class Property(DataElement):
                        (inherited from :class:`~aas.model.base.HasSemantics`)
     :ivar qualifier: Unordered list of Qualifiers that gives additional qualification of a qualifiable element.
                      (from :class:`~aas.model.base.Qualifiable`)
-    :ivar kind: Kind of the element: Either `TYPE` or `INSTANCE`. Default is `INSTANCE`. (inherited from
-                :class:`aas.model.base.HasKind`)
     :ivar extension: An extension of the element. (inherited from
                      :class:`aas.model.base.HasExtension`)
     :ivar supplemental_semantic_id: Identifier of a supplemental semantic definition of the element. It is called
@@ -274,7 +265,6 @@ class Property(DataElement):
                  parent: Optional[base.UniqueIdShortNamespace] = None,
                  semantic_id: Optional[base.Reference] = None,
                  qualifier: Iterable[base.Qualifier] = (),
-                 kind: base.ModelingKind = base.ModelingKind.INSTANCE,
                  extension: Iterable[base.Extension] = (),
                  supplemental_semantic_id: Iterable[base.Reference] = (),
                  embedded_data_specifications: Iterable[base.EmbeddedDataSpecification] = ()):
@@ -282,7 +272,7 @@ class Property(DataElement):
         TODO: Add instruction what to do after construction
         """
 
-        super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, kind, extension,
+        super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, extension,
                          supplemental_semantic_id, embedded_data_specifications)
         self.value_type: base.DataTypeDefXsd = value_type
         self._value: Optional[base.ValueDataType] = (datatypes.trivial_cast(value, value_type)
@@ -326,8 +316,6 @@ class MultiLanguageProperty(DataElement):
                        (inherited from :class:`~aas.model.base.HasSemantics`)
     :ivar qualifier: Unordered list of Qualifiers that gives additional qualification of a qualifiable element.
                      (from :class:`~aas.model.base.Qualifiable`)
-    :ivar kind: Kind of the element: Either `TYPE` or `INSTANCE`. Default is `INSTANCE`. (inherited from
-                :class:`aas.model.base.HasKind`)
     :ivar extension: An extension of the element. (inherited from
                      :class:`aas.model.base.HasExtension`)
     :ivar supplemental_semantic_id: Identifier of a supplemental semantic definition of the element. It is called
@@ -346,7 +334,6 @@ class MultiLanguageProperty(DataElement):
                  parent: Optional[base.UniqueIdShortNamespace] = None,
                  semantic_id: Optional[base.Reference] = None,
                  qualifier: Iterable[base.Qualifier] = (),
-                 kind: base.ModelingKind = base.ModelingKind.INSTANCE,
                  extension: Iterable[base.Extension] = (),
                  supplemental_semantic_id: Iterable[base.Reference] = (),
                  embedded_data_specifications: Iterable[base.EmbeddedDataSpecification] = ()):
@@ -354,7 +341,7 @@ class MultiLanguageProperty(DataElement):
         TODO: Add instruction what to do after construction
         """
 
-        super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, kind, extension,
+        super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, extension,
                          supplemental_semantic_id, embedded_data_specifications)
         self.value: Optional[base.LangStringSet] = value
         self.value_id: Optional[base.Reference] = value_id
@@ -386,8 +373,6 @@ class Range(DataElement):
                        (inherited from :class:`~aas.model.base.HasSemantics`)
     :ivar qualifier: Unordered list of Qualifiers that gives additional qualification of a qualifiable element.
                      (from :class:`~aas.model.base.Qualifiable`)
-    :ivar kind: Kind of the element: Either `TYPE` or `INSTANCE`. Default is `INSTANCE`. (inherited from
-                :class:`aas.model.base.HasKind`)
     :ivar extension: An extension of the element. (inherited from
                      :class:`aas.model.base.HasExtension`)
     :ivar supplemental_semantic_id: Identifier of a supplemental semantic definition of the element. It is called
@@ -407,7 +392,6 @@ class Range(DataElement):
                  parent: Optional[base.UniqueIdShortNamespace] = None,
                  semantic_id: Optional[base.Reference] = None,
                  qualifier: Iterable[base.Qualifier] = (),
-                 kind: base.ModelingKind = base.ModelingKind.INSTANCE,
                  extension: Iterable[base.Extension] = (),
                  supplemental_semantic_id: Iterable[base.Reference] = (),
                  embedded_data_specifications: Iterable[base.EmbeddedDataSpecification] = ()):
@@ -415,7 +399,7 @@ class Range(DataElement):
         TODO: Add instruction what to do after construction
         """
 
-        super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, kind, extension,
+        super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, extension,
                          supplemental_semantic_id, embedded_data_specifications)
         self.value_type: base.DataTypeDefXsd = value_type
         self._min: Optional[base.ValueDataType] = datatypes.trivial_cast(min, value_type) if min is not None else None
@@ -470,8 +454,6 @@ class Blob(DataElement):
                        (inherited from :class:`~aas.model.base.HasSemantics`)
     :ivar qualifier: Unordered list of Qualifiers that gives additional qualification of a qualifiable element.
                      (from :class:`~aas.model.base.Qualifiable`)
-    :ivar kind: Kind of the element: Either `TYPE` or `INSTANCE`. Default is `INSTANCE`. (inherited from
-                :class:`aas.model.base.HasKind`)
     :ivar extension: An extension of the element. (inherited from
                      :class:`aas.model.base.HasExtension`)
     :ivar supplemental_semantic_id: Identifier of a supplemental semantic definition of the element. It is called
@@ -490,7 +472,6 @@ class Blob(DataElement):
                  parent: Optional[base.UniqueIdShortNamespace] = None,
                  semantic_id: Optional[base.Reference] = None,
                  qualifier: Iterable[base.Qualifier] = (),
-                 kind: base.ModelingKind = base.ModelingKind.INSTANCE,
                  extension: Iterable[base.Extension] = (),
                  supplemental_semantic_id: Iterable[base.Reference] = (),
                  embedded_data_specifications: Iterable[base.EmbeddedDataSpecification] = ()):
@@ -498,7 +479,7 @@ class Blob(DataElement):
         TODO: Add instruction what to do after construction
         """
 
-        super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, kind, extension,
+        super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, extension,
                          supplemental_semantic_id, embedded_data_specifications)
         self.value: Optional[base.BlobType] = value
         self.content_type: base.ContentType = content_type
@@ -525,8 +506,6 @@ class File(DataElement):
                        (inherited from :class:`~aas.model.base.HasSemantics`)
     :ivar qualifier: Unordered list of Qualifiers that gives additional qualification of a qualifiable element.
                      (from :class:`~aas.model.base.Qualifiable`)
-    :ivar kind: Kind of the element: Either `TYPE` or `INSTANCE`. Default is `INSTANCE`. (inherited from
-                :class:`aas.model.base.HasKind`)
     :ivar extension: An extension of the element. (inherited from
                      :class:`aas.model.base.HasExtension`)
     :ivar supplemental_semantic_id: Identifier of a supplemental semantic definition of the element. It is called
@@ -545,7 +524,6 @@ class File(DataElement):
                  parent: Optional[base.UniqueIdShortNamespace] = None,
                  semantic_id: Optional[base.Reference] = None,
                  qualifier: Iterable[base.Qualifier] = (),
-                 kind: base.ModelingKind = base.ModelingKind.INSTANCE,
                  extension: Iterable[base.Extension] = (),
                  supplemental_semantic_id: Iterable[base.Reference] = (),
                  embedded_data_specifications: Iterable[base.EmbeddedDataSpecification] = ()):
@@ -553,7 +531,7 @@ class File(DataElement):
         TODO: Add instruction what to do after construction
         """
 
-        super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, kind, extension,
+        super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, extension,
                          supplemental_semantic_id, embedded_data_specifications)
         self.value: Optional[base.PathType] = value
         self.content_type: base.ContentType = content_type
@@ -581,8 +559,6 @@ class ReferenceElement(DataElement):
                        (inherited from :class:`~aas.model.base.HasSemantics`)
     :ivar qualifier: Unordered list of Qualifiers that gives additional qualification of a qualifiable element.
                      (from :class:`~aas.model.base.Qualifiable`)
-    :ivar kind: Kind of the element: Either `TYPE` or `INSTANCE`. Default is `INSTANCE`. (inherited from
-                :class:`aas.model.base.HasKind`)
     :ivar extension: An extension of the element. (inherited from
                      :class:`aas.model.base.HasExtension`)
     :ivar supplemental_semantic_id: Identifier of a supplemental semantic definition of the element. It is called
@@ -600,7 +576,6 @@ class ReferenceElement(DataElement):
                  parent: Optional[base.UniqueIdShortNamespace] = None,
                  semantic_id: Optional[base.Reference] = None,
                  qualifier: Iterable[base.Qualifier] = (),
-                 kind: base.ModelingKind = base.ModelingKind.INSTANCE,
                  extension: Iterable[base.Extension] = (),
                  supplemental_semantic_id: Iterable[base.Reference] = (),
                  embedded_data_specifications: Iterable[base.EmbeddedDataSpecification] = ()):
@@ -608,7 +583,7 @@ class ReferenceElement(DataElement):
         TODO: Add instruction what to do after construction
         """
 
-        super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, kind, extension,
+        super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, extension,
                          supplemental_semantic_id, embedded_data_specifications)
         self.value: Optional[base.Reference] = value
 
@@ -633,8 +608,6 @@ class SubmodelElementCollection(SubmodelElement, base.UniqueIdShortNamespace):
                        (inherited from :class:`~aas.model.base.HasSemantics`)
     :ivar qualifier: Unordered list of Qualifiers that gives additional qualification of a qualifiable element.
                      (from :class:`~aas.model.base.Qualifiable`)
-    :ivar kind: Kind of the element: Either `TYPE` or `INSTANCE`. Default is `INSTANCE`. (inherited from
-                :class:`aas.model.base.HasKind`)
     :ivar extension: An extension of the element. (inherited from
                      :class:`aas.model.base.HasExtension`)
     :ivar supplemental_semantic_id: Identifier of a supplemental semantic definition of the element. It is called
@@ -651,12 +624,11 @@ class SubmodelElementCollection(SubmodelElement, base.UniqueIdShortNamespace):
                  parent: Optional[base.UniqueIdShortNamespace] = None,
                  semantic_id: Optional[base.Reference] = None,
                  qualifier: Iterable[base.Qualifier] = (),
-                 kind: base.ModelingKind = base.ModelingKind.INSTANCE,
                  extension: Iterable[base.Extension] = (),
                  supplemental_semantic_id: Iterable[base.Reference] = (),
                  embedded_data_specifications: Iterable[base.EmbeddedDataSpecification] = ()):
 
-        super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, kind, extension,
+        super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, extension,
                          supplemental_semantic_id, embedded_data_specifications)
         self.value: base.NamespaceSet[SubmodelElement] = base.NamespaceSet(self, [("id_short", True)], value)
 
@@ -703,8 +675,6 @@ class SubmodelElementList(SubmodelElement, base.UniqueIdShortNamespace, Generic[
                        (inherited from :class:`~aas.model.base.HasSemantics`)
     :ivar qualifier: Unordered list of Qualifiers that gives additional qualification of a qualifiable element.
                      (from :class:`~aas.model.base.Qualifiable`)
-    :ivar kind: Kind of the element: Either `TYPE` or `INSTANCE`. Default is `INSTANCE`. (inherited from
-                :class:`aas.model.base.HasKind`)
     :ivar extension: An extension of the element. (inherited from
                      :class:`aas.model.base.HasExtension`)
     :ivar supplemental_semantic_id: Identifier of a supplemental semantic definition of the element. It is called
@@ -725,11 +695,10 @@ class SubmodelElementList(SubmodelElement, base.UniqueIdShortNamespace, Generic[
                  parent: Optional[base.UniqueIdShortNamespace] = None,
                  semantic_id: Optional[base.Reference] = None,
                  qualifier: Iterable[base.Qualifier] = (),
-                 kind: base.ModelingKind = base.ModelingKind.INSTANCE,
                  extension: Iterable[base.Extension] = (),
                  supplemental_semantic_id: Iterable[base.Reference] = (),
                  embedded_data_specifications: Iterable[base.EmbeddedDataSpecification] = ()):
-        super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, kind, extension,
+        super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, extension,
                          supplemental_semantic_id, embedded_data_specifications)
         # It doesn't really make sense to change any of these properties. thus they are immutable here.
         self._type_value_list_element: Type[_SE] = type_value_list_element
@@ -834,8 +803,6 @@ class RelationshipElement(SubmodelElement):
                        (inherited from :class:`~aas.model.base.HasSemantics`)
     :ivar qualifier: Unordered list of Qualifiers that gives additional qualification of a qualifiable element.
                      (from :class:`~aas.model.base.Qualifiable`)
-    :ivar kind: Kind of the element: Either `TYPE` or `INSTANCE`. Default is `INSTANCE`. (inherited from
-                :class:`aas.model.base.HasKind`)
     :ivar extension: An extension of the element. (inherited from
                      :class:`aas.model.base.HasExtension`)
     :ivar supplemental_semantic_id: Identifier of a supplemental semantic definition of the element. It is called
@@ -854,7 +821,6 @@ class RelationshipElement(SubmodelElement):
                  parent: Optional[base.UniqueIdShortNamespace] = None,
                  semantic_id: Optional[base.Reference] = None,
                  qualifier: Iterable[base.Qualifier] = (),
-                 kind: base.ModelingKind = base.ModelingKind.INSTANCE,
                  extension: Iterable[base.Extension] = (),
                  supplemental_semantic_id: Iterable[base.Reference] = (),
                  embedded_data_specifications: Iterable[base.EmbeddedDataSpecification] = ()):
@@ -862,7 +828,7 @@ class RelationshipElement(SubmodelElement):
         TODO: Add instruction what to do after construction
         """
 
-        super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, kind, extension,
+        super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, extension,
                          supplemental_semantic_id, embedded_data_specifications)
         self.first: base.Reference = first
         self.second: base.Reference = second
@@ -894,8 +860,6 @@ class AnnotatedRelationshipElement(RelationshipElement, base.UniqueIdShortNamesp
                        (inherited from :class:`~aas.model.base.HasSemantics`)
     :ivar qualifier: Unordered list of Qualifiers that gives additional qualification of a qualifiable element.
                      (from :class:`~aas.model.base.Qualifiable`)
-    :ivar kind: Kind of the element: Either `TYPE` or `INSTANCE`. Default is `INSTANCE`. (inherited from
-                :class:`aas.model.base.HasKind`)
     :ivar extension: An extension of the element. (inherited from
                      :class:`aas.model.base.HasExtension`)
     :ivar supplemental_semantic_id: Identifier of a supplemental semantic definition of the element. It is called
@@ -915,7 +879,6 @@ class AnnotatedRelationshipElement(RelationshipElement, base.UniqueIdShortNamesp
                  parent: Optional[base.UniqueIdShortNamespace] = None,
                  semantic_id: Optional[base.Reference] = None,
                  qualifier: Iterable[base.Qualifier] = (),
-                 kind: base.ModelingKind = base.ModelingKind.INSTANCE,
                  extension: Iterable[base.Extension] = (),
                  supplemental_semantic_id: Iterable[base.Reference] = (),
                  embedded_data_specifications: Iterable[base.EmbeddedDataSpecification] = ()):
@@ -924,7 +887,7 @@ class AnnotatedRelationshipElement(RelationshipElement, base.UniqueIdShortNamesp
         """
 
         super().__init__(id_short, first, second, display_name, category, description, parent, semantic_id, qualifier,
-                         kind, extension, supplemental_semantic_id, embedded_data_specifications)
+                         extension, supplemental_semantic_id, embedded_data_specifications)
         self.annotation = base.NamespaceSet(self, [("id_short", True)], annotation)
 
 
@@ -966,8 +929,6 @@ class Operation(SubmodelElement):
                        (inherited from :class:`~aas.model.base.HasSemantics`)
     :ivar qualifier: Unordered list of Qualifiers that gives additional qualification of a qualifiable element.
                      (from :class:`~aas.model.base.Qualifiable`)
-    :ivar kind: Kind of the element: Either `TYPE` or `INSTANCE`. Default is `INSTANCE`. (inherited from
-                :class:`aas.model.base.HasKind`)
     :ivar extension: An extension of the element. (inherited from
                      :class:`aas.model.base.HasExtension`)
     :ivar supplemental_semantic_id: Identifier of a supplemental semantic definition of the element. It is called
@@ -986,7 +947,6 @@ class Operation(SubmodelElement):
                  parent: Optional[base.UniqueIdShortNamespace] = None,
                  semantic_id: Optional[base.Reference] = None,
                  qualifier: Iterable[base.Qualifier] = (),
-                 kind: base.ModelingKind = base.ModelingKind.INSTANCE,
                  extension: Iterable[base.Extension] = (),
                  supplemental_semantic_id: Iterable[base.Reference] = (),
                  embedded_data_specifications: Iterable[base.EmbeddedDataSpecification] = ()):
@@ -994,7 +954,7 @@ class Operation(SubmodelElement):
         TODO: Add instruction what to do after construction
         """
 
-        super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, kind, extension,
+        super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, extension,
                          supplemental_semantic_id, embedded_data_specifications)
         self.input_variable = input_variable if input_variable is not None else []
         self.output_variable = output_variable if output_variable is not None else []
@@ -1021,8 +981,6 @@ class Capability(SubmodelElement):
                        (inherited from :class:`~aas.model.base.HasSemantics`)
     :ivar qualifier: Unordered list of Qualifiers that gives additional qualification of a qualifiable element.
                      (from :class:`~aas.model.base.Qualifiable`)
-    :ivar kind: Kind of the element: Either `TYPE` or `INSTANCE`. Default is `INSTANCE`. (inherited from
-                :class:`aas.model.base.HasKind`)
     :ivar extension: An extension of the element. (inherited from
                      :class:`aas.model.base.HasExtension`)
     :ivar supplemental_semantic_id: Identifier of a supplemental semantic definition of the element. It is called
@@ -1039,7 +997,6 @@ class Capability(SubmodelElement):
                  parent: Optional[base.UniqueIdShortNamespace] = None,
                  semantic_id: Optional[base.Reference] = None,
                  qualifier: Iterable[base.Qualifier] = (),
-                 kind: base.ModelingKind = base.ModelingKind.INSTANCE,
                  extension: Iterable[base.Extension] = (),
                  supplemental_semantic_id: Iterable[base.Reference] = (),
                  embedded_data_specifications: Iterable[base.EmbeddedDataSpecification] = ()):
@@ -1047,7 +1004,7 @@ class Capability(SubmodelElement):
         TODO: Add instruction what to do after construction
         """
 
-        super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, kind, extension,
+        super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, extension,
                          supplemental_semantic_id, embedded_data_specifications)
 
 
@@ -1084,8 +1041,6 @@ class Entity(SubmodelElement, base.UniqueIdShortNamespace):
                        (inherited from :class:`~aas.model.base.HasSemantics`)
     :ivar qualifier: Unordered list of Qualifiers that gives additional qualification of a qualifiable element.
                      (from :class:`~aas.model.base.Qualifiable`)
-    :ivar kind: Kind of the element: Either `TYPE` or `INSTANCE`. Default is `INSTANCE`. (inherited from
-                :class:`aas.model.base.HasKind`)
     :ivar extension: An extension of the element. (inherited from
                      :class:`aas.model.base.HasExtension`)
     :ivar supplemental_semantic_id: Identifier of a supplemental semantic definition of the element. It is called
@@ -1106,14 +1061,13 @@ class Entity(SubmodelElement, base.UniqueIdShortNamespace):
                  parent: Optional[base.UniqueIdShortNamespace] = None,
                  semantic_id: Optional[base.Reference] = None,
                  qualifier: Iterable[base.Qualifier] = (),
-                 kind: base.ModelingKind = base.ModelingKind.INSTANCE,
                  extension: Iterable[base.Extension] = (),
                  supplemental_semantic_id: Iterable[base.Reference] = (),
                  embedded_data_specifications: Iterable[base.EmbeddedDataSpecification] = ()):
         """
         TODO: Add instruction what to do after construction
         """
-        super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, kind, extension,
+        super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, extension,
                          supplemental_semantic_id, embedded_data_specifications)
         self.statement = base.NamespaceSet(self, [("id_short", True)], statement)
         self.specific_asset_id: Optional[base.SpecificAssetId] = specific_asset_id
@@ -1160,8 +1114,6 @@ class EventElement(SubmodelElement, metaclass=abc.ABCMeta):
                        (inherited from :class:`~aas.model.base.HasSemantics`)
     :ivar qualifier: Unordered list of Qualifiers that gives additional qualification of a qualifiable element.
                      (from :class:`~aas.model.base.Qualifiable`)
-    :ivar kind: Kind of the element: Either `TYPE` or `INSTANCE`. Default is `INSTANCE`. (inherited from
-                :class:`aas.model.base.HasKind`)
     :ivar extension: An extension of the element. (inherited from
                      :class:`aas.model.base.HasExtension`)
     :ivar supplemental_semantic_id: Identifier of a supplemental semantic definition of the element. It is called
@@ -1178,11 +1130,10 @@ class EventElement(SubmodelElement, metaclass=abc.ABCMeta):
                  parent: Optional[base.UniqueIdShortNamespace] = None,
                  semantic_id: Optional[base.Reference] = None,
                  qualifier: Iterable[base.Qualifier] = (),
-                 kind: base.ModelingKind = base.ModelingKind.INSTANCE,
                  extension: Iterable[base.Extension] = (),
                  supplemental_semantic_id: Iterable[base.Reference] = (),
                  embedded_data_specifications: Iterable[base.EmbeddedDataSpecification] = ()):
-        super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, kind, extension,
+        super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, extension,
                          supplemental_semantic_id, embedded_data_specifications)
 
 
@@ -1227,8 +1178,6 @@ class BasicEventElement(EventElement):
                        (inherited from :class:`~aas.model.base.HasSemantics`)
     :ivar qualifier: Unordered list of Qualifiers that gives additional qualification of a qualifiable element.
                      (from :class:`~aas.model.base.Qualifiable`)
-    :ivar kind: Kind of the element: Either `TYPE` or `INSTANCE`. Default is `INSTANCE`. (inherited from
-                :class:`aas.model.base.HasKind`)
     :ivar extension: An extension of the element. (inherited from :class:`aas.model.base.HasExtension`)
     :ivar supplemental_semantic_id: Identifier of a supplemental semantic definition of the element. It is called
                                     supplemental semantic ID of the element. (inherited from
@@ -1253,7 +1202,6 @@ class BasicEventElement(EventElement):
                  parent: Optional[base.UniqueIdShortNamespace] = None,
                  semantic_id: Optional[base.Reference] = None,
                  qualifier: Iterable[base.Qualifier] = (),
-                 kind: base.ModelingKind = base.ModelingKind.INSTANCE,
                  extension: Iterable[base.Extension] = (),
                  supplemental_semantic_id: Iterable[base.Reference] = (),
                  embedded_data_specifications: Iterable[base.EmbeddedDataSpecification] = ()):
@@ -1261,7 +1209,7 @@ class BasicEventElement(EventElement):
         TODO: Add instruction what to do after construction
         """
 
-        super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, kind, extension,
+        super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, extension,
                          supplemental_semantic_id, embedded_data_specifications)
         self.observed: base.ModelReference[Union["aas.AssetAdministrationShell", Submodel, SubmodelElement]] = observed
         # max_interval must be set here because the direction setter attempts to read it

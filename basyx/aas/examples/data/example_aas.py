@@ -106,24 +106,24 @@ def create_example_asset_identification_submodel() -> model.Submodel:
         value_type=model.datatypes.Int,
         value=100,
         value_id=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
-                                                  value=model.Identifier('http://acplt.org/ValueId/ExampleValueId')),)),
-        kind=model.QualifierKind.CONCEPT_QUALIFIER)
+                                                  value=model.Identifier('http://acplt.org/ValueId/ExampleValueId')
+                                                  ),)),)
 
     qualifier2 = model.Qualifier(
         type_='http://acplt.org/Qualifier/ExampleQualifier2',
         value_type=model.datatypes.Int,
         value=50,
         value_id=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
-                                                  value=model.Identifier('http://acplt.org/ValueId/ExampleValueId')),)),
-        kind=model.QualifierKind.TEMPLATE_QUALIFIER)
+                                                  value=model.Identifier('http://acplt.org/ValueId/ExampleValueId')
+                                                  ),)),)
 
     qualifier3 = model.Qualifier(
         type_='http://acplt.org/Qualifier/ExampleQualifier3',
         value_type=model.datatypes.DateTime,
         value=model.datatypes.DateTime(2023, 4, 7, 16, 59, 54, 870123),
         value_id=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
-                                                  value=model.Identifier('http://acplt.org/ValueId/ExampleValueId')),)),
-        kind=model.QualifierKind.VALUE_QUALIFIER)
+                                                  value=model.Identifier('http://acplt.org/ValueId/ExampleValueId')
+                                                  ),)),)
 
     extension = model.Extension(
         name='ExampleExtension',
@@ -155,7 +155,6 @@ def create_example_asset_identification_submodel() -> model.Submodel:
         semantic_id=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
                                                      value='0173-1#02-AAO677#002'),)),
         qualifier={qualifier, qualifier2},
-        kind=model.ModelingKind.INSTANCE,
         extension={extension},
         supplemental_semantic_id=(),
         embedded_data_specifications=()
@@ -183,7 +182,6 @@ def create_example_asset_identification_submodel() -> model.Submodel:
                                                      value='http://opcfoundation.org/UA/DI/1.1/DeviceType/Serialnumber'
                                                      ),)),
         qualifier={qualifier3},
-        kind=model.ModelingKind.INSTANCE,
         extension=(),
         supplemental_semantic_id=(),
         embedded_data_specifications=()
@@ -205,7 +203,6 @@ def create_example_asset_identification_submodel() -> model.Submodel:
                                                     value='http://acplt.org/SubmodelTemplates/AssetIdentification'),),
                                          model.Submodel),
         qualifier=(),
-        kind=model.ModelingKind.INSTANCE,
         extension=(),
         supplemental_semantic_id=(),
         embedded_data_specifications=()
@@ -233,7 +230,6 @@ def create_example_bill_of_material_submodel() -> model.Submodel:
         semantic_id=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
                                                      value='http://acplt.org/Properties/ExampleProperty'),)),
         qualifier=(),
-        kind=model.ModelingKind.INSTANCE,
         extension=(),
         supplemental_semantic_id=(),
         embedded_data_specifications=()
@@ -252,7 +248,6 @@ def create_example_bill_of_material_submodel() -> model.Submodel:
         semantic_id=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
                                                      value='http://acplt.org/Properties/ExampleProperty'),)),
         qualifier=(),
-        kind=model.ModelingKind.INSTANCE,
         extension=(),
         supplemental_semantic_id=(),
         embedded_data_specifications=()
@@ -283,7 +278,6 @@ def create_example_bill_of_material_submodel() -> model.Submodel:
                                                      value='http://opcfoundation.org/UA/DI/1.1/DeviceType/Serialnumber'
                                                      ),)),
         qualifier=(),
-        kind=model.ModelingKind.INSTANCE,
         extension=(),
         supplemental_semantic_id=(),
         embedded_data_specifications=()
@@ -309,7 +303,6 @@ def create_example_bill_of_material_submodel() -> model.Submodel:
                                                      value='http://opcfoundation.org/UA/DI/1.1/DeviceType/Serialnumber'
                                                      ),)),
         qualifier=(),
-        kind=model.ModelingKind.INSTANCE,
         extension=(),
         supplemental_semantic_id=(),
         embedded_data_specifications=()
@@ -330,7 +323,6 @@ def create_example_bill_of_material_submodel() -> model.Submodel:
                                                     value='http://acplt.org/SubmodelTemplates/BillOfMaterial'),),
                                          model.Submodel),
         qualifier=(),
-        kind=model.ModelingKind.INSTANCE,
         extension=(),
         supplemental_semantic_id=(),
         embedded_data_specifications=()
@@ -361,7 +353,6 @@ def create_example_submodel() -> model.Submodel:
         semantic_id=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
                                                      value='http://acplt.org/Properties/ExampleProperty'),),),
         qualifier=(),
-        kind=model.ModelingKind.INSTANCE,
         extension=(),
         supplemental_semantic_id=(model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
                                                                    value='http://acplt.org/Properties/'
@@ -386,7 +377,6 @@ def create_example_submodel() -> model.Submodel:
         semantic_id=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
                                                      value='http://acplt.org/Properties/ExampleProperty'),)),
         qualifier=(),
-        kind=model.ModelingKind.INSTANCE,
         extension=(),
         supplemental_semantic_id=(model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
                                                                    value='http://acplt.org/Properties/'
@@ -411,7 +401,6 @@ def create_example_submodel() -> model.Submodel:
                                               type_=model.KeyTypes.GLOBAL_REFERENCE,
                                               value='http://acplt.org/Properties/ExampleProperty/Referred'),))),
         qualifier=(),
-        kind=model.ModelingKind.INSTANCE,
         extension=(),
         supplemental_semantic_id=(),
         embedded_data_specifications=()
@@ -429,7 +418,6 @@ def create_example_submodel() -> model.Submodel:
         semantic_id=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
                                                      value='http://acplt.org/Ranges/ExampleRange'),)),
         qualifier=(),
-        kind=model.ModelingKind.INSTANCE,
         extension=(),
         supplemental_semantic_id=(),
         embedded_data_specifications=()
@@ -446,7 +434,6 @@ def create_example_submodel() -> model.Submodel:
         semantic_id=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
                                                      value='http://acplt.org/Blobs/ExampleBlob'),)),
         qualifier=(),
-        kind=model.ModelingKind.INSTANCE,
         extension=(),
         supplemental_semantic_id=(),
         embedded_data_specifications=()
@@ -463,7 +450,6 @@ def create_example_submodel() -> model.Submodel:
         semantic_id=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
                                                      value='http://acplt.org/Files/ExampleFile'),)),
         qualifier=(),
-        kind=model.ModelingKind.INSTANCE,
         extension=(),
         supplemental_semantic_id=(),
         embedded_data_specifications=()
@@ -483,7 +469,6 @@ def create_example_submodel() -> model.Submodel:
         semantic_id=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
                                                      value='http://acplt.org/Files/ExampleFile'),)),
         qualifier=(),
-        kind=model.ModelingKind.INSTANCE,
         extension=(),
         supplemental_semantic_id=(),
         embedded_data_specifications=()
@@ -504,7 +489,6 @@ def create_example_submodel() -> model.Submodel:
                                                      value='http://acplt.org/ReferenceElements/ExampleReferenceElement'
                                                      ),)),
         qualifier=(),
-        kind=model.ModelingKind.INSTANCE,
         extension=(),
         supplemental_semantic_id=(),
         embedded_data_specifications=()
@@ -536,7 +520,6 @@ def create_example_submodel() -> model.Submodel:
                                                     value='https://acplt.org/Test_ConceptDescription'),),
                                          model.ConceptDescription),
         qualifier=(),
-        kind=model.ModelingKind.INSTANCE,
         extension=(),
         supplemental_semantic_id=(),
         embedded_data_specifications=()
@@ -574,7 +557,6 @@ def create_example_submodel() -> model.Submodel:
                                                      value='http://acplt.org/RelationshipElements/'
                                                            'ExampleAnnotatedRelationshipElement'),)),
         qualifier=(),
-        kind=model.ModelingKind.INSTANCE,
         extension=(),
         supplemental_semantic_id=(),
         embedded_data_specifications=()
@@ -595,7 +577,6 @@ def create_example_submodel() -> model.Submodel:
         semantic_id=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
                                                      value='http://acplt.org/Properties/ExampleProperty'),)),
         qualifier=(),
-        kind=model.ModelingKind.TEMPLATE,
         extension=(),
         supplemental_semantic_id=(),
         embedded_data_specifications=()
@@ -623,7 +604,6 @@ def create_example_submodel() -> model.Submodel:
                                                      value='http://acplt.org/Operations/'
                                                            'ExampleOperation'),)),
         qualifier=(),
-        kind=model.ModelingKind.INSTANCE,
         extension=(),
         supplemental_semantic_id=(),
         embedded_data_specifications=()
@@ -639,7 +619,6 @@ def create_example_submodel() -> model.Submodel:
                                                      value='http://acplt.org/Capabilities/'
                                                            'ExampleCapability'),)),
         qualifier=(),
-        kind=model.ModelingKind.INSTANCE,
         extension=(),
         supplemental_semantic_id=(),
         embedded_data_specifications=()
@@ -669,7 +648,6 @@ def create_example_submodel() -> model.Submodel:
         semantic_id=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
                                                      value='http://acplt.org/Events/ExampleBasicEventElement'),)),
         qualifier=(),
-        kind=model.ModelingKind.INSTANCE,
         extension=(),
         supplemental_semantic_id=(),
         embedded_data_specifications=()
@@ -691,7 +669,6 @@ def create_example_submodel() -> model.Submodel:
                                                      value='http://acplt.org/SubmodelElementLists/'
                                                            'ExampleSubmodelElementList'),)),
         qualifier=(),
-        kind=model.ModelingKind.INSTANCE,
         extension=(),
         supplemental_semantic_id=(),
         embedded_data_specifications=()
@@ -714,7 +691,6 @@ def create_example_submodel() -> model.Submodel:
                                                      value='http://acplt.org/SubmodelElementCollections/'
                                                            'ExampleSubmodelElementCollection'),)),
         qualifier=(),
-        kind=model.ModelingKind.INSTANCE,
         extension=(),
         supplemental_semantic_id=(),
         embedded_data_specifications=()
@@ -739,7 +715,6 @@ def create_example_submodel() -> model.Submodel:
                                                      value='http://acplt.org/SubmodelTemplates/'
                                                            'ExampleSubmodel'),)),
         qualifier=(),
-        kind=model.ModelingKind.INSTANCE,
         extension=(),
         supplemental_semantic_id=(),
         embedded_data_specifications=(_embedded_data_specification_physical_unit,)

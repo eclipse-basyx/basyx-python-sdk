@@ -525,7 +525,6 @@ class AASFromJsonDecoder(json.JSONDecoder):
             specific_asset_id = cls._construct_specific_asset_id(_get_ts(dct, 'specificAssetIds', dict))
 
         ret = object_class(id_short=_get_ts(dct, "idShort", str),
-                           kind=cls._get_kind(dct),
                            entity_type=ENTITY_TYPES_INVERSE[_get_ts(dct, "entityType", str)],
                            global_asset_id=global_asset_id,
                            specific_asset_id=specific_asset_id)
@@ -564,8 +563,7 @@ class AASFromJsonDecoder(json.JSONDecoder):
 
     @classmethod
     def _construct_submodel(cls, dct: Dict[str, object], object_class=model.Submodel) -> model.Submodel:
-        ret = object_class(id_=_get_ts(dct, 'id', str),
-                           kind=cls._get_kind(dct))
+        ret = object_class(id_=_get_ts(dct, 'id', str))
         cls._amend_abstract_attributes(ret, dct)
         if not cls.stripped and 'submodelElements' in dct:
             for element in _get_ts(dct, "submodelElements", list):
@@ -575,7 +573,7 @@ class AASFromJsonDecoder(json.JSONDecoder):
 
     @classmethod
     def _construct_capability(cls, dct: Dict[str, object], object_class=model.Capability) -> model.Capability:
-        ret = object_class(id_short=_get_ts(dct, "idShort", str), kind=cls._get_kind(dct))
+        ret = object_class(id_short=_get_ts(dct, "idShort", str))
         cls._amend_abstract_attributes(ret, dct)
         return ret
 
@@ -588,8 +586,7 @@ class AASFromJsonDecoder(json.JSONDecoder):
                            observed=cls._construct_model_reference(_get_ts(dct, 'observed', dict),
                                                                    model.Referable),  # type: ignore
                            direction=DIRECTION_INVERSE[_get_ts(dct, "direction", str)],
-                           state=STATE_OF_EVENT_INVERSE[_get_ts(dct, "state", str)],
-                           kind=cls._get_kind(dct))
+                           state=STATE_OF_EVENT_INVERSE[_get_ts(dct, "state", str)])
         cls._amend_abstract_attributes(ret, dct)
         if 'messageTopic' in dct:
             ret.message_topic = _get_ts(dct, 'messageTopic', str)
@@ -605,7 +602,7 @@ class AASFromJsonDecoder(json.JSONDecoder):
 
     @classmethod
     def _construct_operation(cls, dct: Dict[str, object], object_class=model.Operation) -> model.Operation:
-        ret = object_class(_get_ts(dct, "idShort", str), kind=cls._get_kind(dct))
+        ret = object_class(_get_ts(dct, "idShort", str))
         cls._amend_abstract_attributes(ret, dct)
 
         # Deserialize variables (they are not Referable, thus we don't
@@ -632,8 +629,7 @@ class AASFromJsonDecoder(json.JSONDecoder):
         # see https://github.com/python/mypy/issues/5374
         ret = object_class(id_short=_get_ts(dct, "idShort", str),
                            first=cls._construct_reference(_get_ts(dct, 'first', dict)),
-                           second=cls._construct_reference(_get_ts(dct, 'second', dict)),
-                           kind=cls._get_kind(dct))
+                           second=cls._construct_reference(_get_ts(dct, 'second', dict)))
         cls._amend_abstract_attributes(ret, dct)
         return ret
 
@@ -646,8 +642,7 @@ class AASFromJsonDecoder(json.JSONDecoder):
         ret = object_class(
             id_short=_get_ts(dct, "idShort", str),
             first=cls._construct_reference(_get_ts(dct, 'first', dict)),
-            second=cls._construct_reference(_get_ts(dct, 'second', dict)),
-            kind=cls._get_kind(dct))
+            second=cls._construct_reference(_get_ts(dct, 'second', dict)))
         cls._amend_abstract_attributes(ret, dct)
         if not cls.stripped and 'annotations' in dct:
             for element in _get_ts(dct, 'annotations', list):
@@ -659,7 +654,7 @@ class AASFromJsonDecoder(json.JSONDecoder):
     def _construct_submodel_element_collection(cls, dct: Dict[str, object],
                                                object_class=model.SubmodelElementCollection)\
             -> model.SubmodelElementCollection:
-        ret = object_class(id_short=_get_ts(dct, "idShort", str), kind=cls._get_kind(dct))
+        ret = object_class(id_short=_get_ts(dct, "idShort", str))
         cls._amend_abstract_attributes(ret, dct)
         if not cls.stripped and 'value' in dct:
             for element in _get_ts(dct, "value", list):
@@ -684,8 +679,7 @@ class AASFromJsonDecoder(json.JSONDecoder):
                            type_value_list_element=type_value_list_element,
                            order_relevant=order_relevant,
                            semantic_id_list_element=semantic_id_list_element,
-                           value_type_list_element=value_type_list_element,
-                           kind=cls._get_kind(dct))
+                           value_type_list_element=value_type_list_element)
         cls._amend_abstract_attributes(ret, dct)
         if not cls.stripped and 'value' in dct:
             for element in _get_ts(dct, 'value', list):
@@ -696,8 +690,7 @@ class AASFromJsonDecoder(json.JSONDecoder):
     @classmethod
     def _construct_blob(cls, dct: Dict[str, object], object_class=model.Blob) -> model.Blob:
         ret = object_class(id_short=_get_ts(dct, "idShort", str),
-                           content_type=_get_ts(dct, "contentType", str),
-                           kind=cls._get_kind(dct))
+                           content_type=_get_ts(dct, "contentType", str))
         cls._amend_abstract_attributes(ret, dct)
         if 'value' in dct:
             ret.value = base64.b64decode(_get_ts(dct, 'value', str))
@@ -707,8 +700,7 @@ class AASFromJsonDecoder(json.JSONDecoder):
     def _construct_file(cls, dct: Dict[str, object], object_class=model.File) -> model.File:
         ret = object_class(id_short=_get_ts(dct, "idShort", str),
                            value=None,
-                           content_type=_get_ts(dct, "contentType", str),
-                           kind=cls._get_kind(dct))
+                           content_type=_get_ts(dct, "contentType", str))
         cls._amend_abstract_attributes(ret, dct)
         if 'value' in dct and dct['value'] is not None:
             ret.value = _get_ts(dct, 'value', str)
@@ -725,7 +717,7 @@ class AASFromJsonDecoder(json.JSONDecoder):
     @classmethod
     def _construct_multi_language_property(
             cls, dct: Dict[str, object], object_class=model.MultiLanguageProperty) -> model.MultiLanguageProperty:
-        ret = object_class(id_short=_get_ts(dct, "idShort", str), kind=cls._get_kind(dct))
+        ret = object_class(id_short=_get_ts(dct, "idShort", str))
         cls._amend_abstract_attributes(ret, dct)
         if 'value' in dct and dct['value'] is not None:
             ret.value = cls._construct_lang_string_set(_get_ts(dct, 'value', list))
@@ -736,8 +728,7 @@ class AASFromJsonDecoder(json.JSONDecoder):
     @classmethod
     def _construct_property(cls, dct: Dict[str, object], object_class=model.Property) -> model.Property:
         ret = object_class(id_short=_get_ts(dct, "idShort", str),
-                           value_type=model.datatypes.XSD_TYPE_CLASSES[_get_ts(dct, 'valueType', str)],
-                           kind=cls._get_kind(dct))
+                           value_type=model.datatypes.XSD_TYPE_CLASSES[_get_ts(dct, 'valueType', str)],)
         cls._amend_abstract_attributes(ret, dct)
         if 'value' in dct and dct['value'] is not None:
             ret.value = model.datatypes.from_xsd(_get_ts(dct, 'value', str), ret.value_type)
@@ -748,8 +739,7 @@ class AASFromJsonDecoder(json.JSONDecoder):
     @classmethod
     def _construct_range(cls, dct: Dict[str, object], object_class=model.Range) -> model.Range:
         ret = object_class(id_short=_get_ts(dct, "idShort", str),
-                           value_type=model.datatypes.XSD_TYPE_CLASSES[_get_ts(dct, 'valueType', str)],
-                           kind=cls._get_kind(dct))
+                           value_type=model.datatypes.XSD_TYPE_CLASSES[_get_ts(dct, 'valueType', str)],)
         cls._amend_abstract_attributes(ret, dct)
         if 'min' in dct and dct['min'] is not None:
             ret.min = model.datatypes.from_xsd(_get_ts(dct, 'min', str), ret.value_type)
@@ -761,8 +751,7 @@ class AASFromJsonDecoder(json.JSONDecoder):
     def _construct_reference_element(
             cls, dct: Dict[str, object], object_class=model.ReferenceElement) -> model.ReferenceElement:
         ret = object_class(id_short=_get_ts(dct, "idShort", str),
-                           value=None,
-                           kind=cls._get_kind(dct))
+                           value=None)
         cls._amend_abstract_attributes(ret, dct)
         if 'value' in dct and dct['value'] is not None:
             ret.value = cls._construct_reference(_get_ts(dct, 'value', dict))
