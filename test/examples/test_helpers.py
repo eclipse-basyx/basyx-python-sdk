@@ -244,7 +244,7 @@ class AASDataCheckerTest(unittest.TestCase):
 
     def test_not_implemented(self):
         class DummySubmodelElement(model.SubmodelElement):
-            def __init__(self, id_short: str):
+            def __init__(self, id_short: model.NameType):
                 super().__init__(id_short)
         dummy_submodel_element = DummySubmodelElement('test')
         submodel_collection = model.SubmodelElementCollection('test')

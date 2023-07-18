@@ -281,7 +281,7 @@ def create_example_submodel() -> model.Submodel:
         description=model.LangStringSet({'en-US': 'An example submodel for the test application',
                                          'de': 'Ein Beispiel-Teilmodell für eine Test-Anwendung'}),
         parent=None,
-        administration=model.AdministrativeInformation(version='0.9',
+        administration=model.AdministrativeInformation(version='9',
                                                        revision='0'),
         semantic_id=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
                                                      value='http://acplt.org/SubmodelTemplates/'
@@ -304,7 +304,7 @@ def create_example_concept_description() -> model.ConceptDescription:
         description=model.LangStringSet({'en-US': 'An example concept description for the test application',
                                          'de': 'Ein Beispiel-ConceptDescription für eine Test-Anwendung'}),
         parent=None,
-        administration=model.AdministrativeInformation(version='0.9',
+        administration=model.AdministrativeInformation(version='9',
                                                        revision='0'))
     return concept_description
 
@@ -339,7 +339,7 @@ def create_example_asset_administration_shell() -> model.AssetAdministrationShel
         description=model.LangStringSet({'en-US': 'An Example Asset Administration Shell for the test application',
                                          'de': 'Ein Beispiel-Verwaltungsschale für eine Test-Anwendung'}),
         parent=None,
-        administration=model.AdministrativeInformation(version='0.9',
+        administration=model.AdministrativeInformation(version='9',
                                                        revision='0'),
         submodel={model.ModelReference((model.Key(type_=model.KeyTypes.SUBMODEL,
                                                   value='https://acplt.org/Test_Submodel_Missing'),),

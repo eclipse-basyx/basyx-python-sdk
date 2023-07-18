@@ -17,7 +17,7 @@ from typing import List, Optional, Set, TypeVar, MutableSet, Generic, Iterable, 
     MutableSequence, Type, Any, TYPE_CHECKING, Tuple, Callable, MutableMapping
 import re
 
-from . import datatypes
+from . import datatypes, _string_constraints
 from ..backend import backends
 
 if TYPE_CHECKING:
@@ -25,12 +25,20 @@ if TYPE_CHECKING:
 
 DataTypeDefXsd = Type[datatypes.AnyXSDType]
 ValueDataType = datatypes.AnyXSDType  # any xsd atomic type (from .datatypes)
-BlobType = bytes
-ContentType = str  # any mimetype as in RFC2046
-PathType = str
-QualifierType = str
-Identifier = str
 ValueList = Set["ValueReferencePair"]
+BlobType = bytes
+
+# The following string aliases are constrained by the decorator functions defined in the string_constraints module,
+# wherever they are used for a instance attributes.
+ContentType = str  # any mimetype as in RFC2046
+Identifier = str
+LabelType = str
+MessageTopicType = str
+NameType = str
+PathType = str
+RevisionType = str
+QualifierType = str
+VersionType = str
 
 
 @unique
@@ -526,9 +534,9 @@ class Referable(HasExtension, metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def __init__(self):
         super().__init__()
-        self._id_short: str = "NotSet"
+        self._id_short: NameType = "NotSet"
         self.display_name: Optional[LangStringSet] = dict()
-        self._category: Optional[str] = None
+        self._category: Optional[NameType] = None
         self.description: Optional[LangStringSet] = dict()
         # We use a Python reference to the parent Namespace instead of a Reference Object, as specified. This allows
         # simpler and faster navigation/checks and it has no effect in the serialized data formats anyway.
@@ -554,7 +562,7 @@ class Referable(HasExtension, metaclass=abc.ABCMeta):
     def _get_id_short(self):
         return self._id_short
 
-    def _set_category(self, category: Optional[str]):
+    def _set_category(self, category: Optional[NameType]):
         """
         Check the input string
 
@@ -564,16 +572,16 @@ class Referable(HasExtension, metaclass=abc.ABCMeta):
                          It affects the expected existence of attributes and the applicability of constraints.
         :raises ValueError: if the constraint is not fulfilled
         """
-        if category == "":
-            raise AASConstraintViolation(100, "category is not allowed to be an empty string")
+        if category is not None:
+            _string_constraints.check_name_type(category)
         self._category = category
 
-    def _get_category(self) -> Optional[str]:
+    def _get_category(self) -> Optional[NameType]:
         return self._category
 
     category = property(_get_category, _set_category)
 
-    def _set_id_short(self, id_short: str):
+    def _set_id_short(self, id_short: NameType):
         """
         Check the input string
 
@@ -589,9 +597,8 @@ class Referable(HasExtension, metaclass=abc.ABCMeta):
 
         if id_short == self.id_short:
             return
-        if id_short == "":
-            raise AASConstraintViolation(100, "id_short is not allowed to be an empty string")
-        test_id_short: str = str(id_short)
+        _string_constraints.check_name_type(id_short)
+        test_id_short: NameType = str(id_short)
         if not re.fullmatch("[a-zA-Z0-9_]*", test_id_short):
             raise AASConstraintViolation(
                 2,
@@ -674,7 +681,7 @@ class Referable(HasExtension, metaclass=abc.ABCMeta):
                  ancestor
         """
         referable: Referable = self
-        relative_path: List[str] = [self.id_short]
+        relative_path: List[NameType] = [self.id_short]
         while referable is not None:
             if referable.source != "":
                 relative_path.reverse()
@@ -716,7 +723,7 @@ class Referable(HasExtension, metaclass=abc.ABCMeta):
         ancestors. If there is no source, this function will do nothing.
         """
         current_ancestor = self.parent
-        relative_path: List[str] = [self.id_short]
+        relative_path: List[NameType] = [self.id_short]
         # Commit to all ancestors with sources
         while current_ancestor:
             assert isinstance(current_ancestor, Referable)
@@ -1012,6 +1019,8 @@ class ModelReference(Reference, Generic[_RT]):
             ref = ref.parent
 
 
+@_string_constraints.constrain_content_type("content_type")
+@_string_constraints.constrain_path_type("path")
 class Resource:
     """
     Resource represents an address to a file (a locator). The value is an URI that can represent an absolute or relative
@@ -1084,6 +1093,7 @@ class HasDataSpecification(metaclass=abc.ABCMeta):
         self.embedded_data_specifications = list(embedded_data_specifications)
 
 
+@_string_constraints.constrain_version_type("version")
 class AdministrativeInformation(HasDataSpecification):
     """
     Administrative meta-information for an element like version information.
@@ -1098,8 +1108,8 @@ class AdministrativeInformation(HasDataSpecification):
     """
 
     def __init__(self,
-                 version: Optional[str] = None,
-                 revision: Optional[str] = None,
+                 version: Optional[VersionType] = None,
+                 revision: Optional[RevisionType] = None,
                  embedded_data_specifications: Iterable[EmbeddedDataSpecification] = ()):
         """
         Initializer of AdministrativeInformation
@@ -1109,31 +1119,20 @@ class AdministrativeInformation(HasDataSpecification):
         TODO: Add instruction what to do after construction
         """
         super().__init__()
-        self._version: Optional[str]
-        self.version = version
-        self._revision: Optional[str]
+        self.version: Optional[VersionType] = version
+        self._revision: Optional[RevisionType]
         self.revision = revision
         self.embedded_data_specifications: List[EmbeddedDataSpecification] = list(embedded_data_specifications)
-
-    def _get_version(self):
-        return self._version
-
-    def _set_version(self, version: str):
-        if version == "":
-            raise ValueError("version is not allowed to be an empty string")
-        self._version = version
-
-    version = property(_get_version, _set_version)
 
     def _get_revision(self):
         return self._revision
 
-    def _set_revision(self, revision: str):
-        if revision == "":
-            raise ValueError("revision is not allowed to be an empty string")
+    def _set_revision(self, revision: Optional[RevisionType]):
         if self.version is None and revision:
-            raise ValueError("A revision requires a version. This means, if there is no version there is no revision "
-                             "neither. Please set version first.")
+            raise AASConstraintViolation(5, "A revision requires a version. This means, if there is no version "
+                                            "there is no revision neither. Please set version first.")
+        if revision is not None:
+            _string_constraints.check_revision_type(revision)
         self._revision = revision
 
     revision = property(_get_revision, _set_revision)
@@ -1147,6 +1146,7 @@ class AdministrativeInformation(HasDataSpecification):
         return "AdministrativeInformation(version={}, revision={})".format(self.version, self.revision)
 
 
+@_string_constraints.constrain_identifier("id")
 class Identifiable(Referable, metaclass=abc.ABCMeta):
     """
     An element that has a globally unique :class:`~.Identifier`.
@@ -1160,20 +1160,11 @@ class Identifiable(Referable, metaclass=abc.ABCMeta):
     def __init__(self):
         super().__init__()
         self.administration: Optional[AdministrativeInformation] = None
-        self._id: Identifier = ""
+        # The id attribute is set by all inheriting classes __init__ functions.
+        self.id: Identifier
 
     def __repr__(self) -> str:
         return "{}[{}]".format(self.__class__.__name__, self.id)
-
-    @property
-    def id(self) -> Identifier:
-        return self._id
-
-    @id.setter
-    def id(self, id_: Identifier) -> None:
-        if id_ == "":
-            raise ValueError("The id attribute must not be an empty string!")
-        self._id = id_
 
 
 _T = TypeVar("_T")
@@ -1350,7 +1341,7 @@ class Extension(HasSemantics):
     """
 
     def __init__(self,
-                 name: str,
+                 name: NameType,
                  value_type: Optional[DataTypeDefXsd] = None,
                  value: Optional[ValueDataType] = None,
                  refers_to: Iterable[ModelReference] = (),
@@ -1358,8 +1349,8 @@ class Extension(HasSemantics):
                  supplemental_semantic_id: Iterable[Reference] = ()):
         super().__init__()
         self.parent: Optional[HasExtension] = None
-        self._name: str
-        self.name: str = name
+        self._name: NameType
+        self.name: NameType = name
         self.value_type: Optional[DataTypeDefXsd] = value_type
         self._value: Optional[ValueDataType]
         self.value = value
@@ -1388,7 +1379,8 @@ class Extension(HasSemantics):
         return self._name
 
     @name.setter
-    def name(self, name: str) -> None:
+    def name(self, name: NameType) -> None:
+        _string_constraints.check_name_type(name)
         if self.parent is not None:
             for set_ in self.parent.namespace_element_sets:
                 if set_.contains_id("name", name):
@@ -1530,6 +1522,7 @@ class Qualifier(HasSemantics):
 
     @type.setter
     def type(self, type_: QualifierType) -> None:
+        _string_constraints.check_qualifier_type(type_)
         if self.parent is not None:
             for set_ in self.parent.namespace_element_sets:
                 if set_.contains_id("type", type_):
@@ -1605,7 +1598,7 @@ class UniqueIdShortNamespace(Namespace, metaclass=abc.ABCMeta):
         super().__init__()
         self.namespace_element_sets: List[NamespaceSet] = []
 
-    def get_referable(self, id_short: str) -> Referable:
+    def get_referable(self, id_short: NameType) -> Referable:
         """
         Find a :class:`~.Referable` in this Namespace by its id_short
 
@@ -1625,7 +1618,7 @@ class UniqueIdShortNamespace(Namespace, metaclass=abc.ABCMeta):
         """
         return super()._add_object("id_short", referable)
 
-    def remove_referable(self, id_short: str) -> None:
+    def remove_referable(self, id_short: NameType) -> None:
         """
         Remove a :class:`~.Referable` from this Namespace by its `id_short`
 
@@ -1677,7 +1670,7 @@ class UniqueSemanticIdNamespace(Namespace, metaclass=abc.ABCMeta):
         return super()._remove_object(HasSemantics, "semantic_id", semantic_id)
 
 
-ATTRIBUTE_TYPES = Union[str, Reference, QualifierType]
+ATTRIBUTE_TYPES = Union[NameType, Reference, QualifierType]
 
 
 class NamespaceSet(MutableSet[_NSO], Generic[_NSO]):
@@ -2012,17 +2005,16 @@ class SpecificAssetId(HasSemantics):
     """
 
     def __init__(self,
-                 name: str,
+                 name: LabelType,
                  value: str,
                  external_subject_id: GlobalReference,
                  semantic_id: Optional[Reference] = None,
                  supplemental_semantic_id: Iterable[Reference] = ()):
         super().__init__()
-        if name == "":
-            raise ValueError("name is not allowed to be an empty string")
         if value == "":
             raise ValueError("value is not allowed to be an empty string")
-        self.name: str
+        _string_constraints.check_label_type(name)
+        self.name: LabelType
         self.value: str
         self.external_subject_id: GlobalReference
 

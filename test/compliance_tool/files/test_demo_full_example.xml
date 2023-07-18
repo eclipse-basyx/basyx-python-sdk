@@ -14,7 +14,7 @@
         </aas:langString>
       </aas:description>
       <aas:administration>
-        <aas:version>0.9</aas:version>
+        <aas:version>9</aas:version>
         <aas:revision>0</aas:revision>
       </aas:administration>
       <aas:id>https://acplt.org/Test_AssetAdministrationShell</aas:id>
@@ -267,7 +267,7 @@
         </aas:langString>
       </aas:description>
       <aas:administration>
-        <aas:version>0.9</aas:version>
+        <aas:version>9</aas:version>
         <aas:revision>0</aas:revision>
       </aas:administration>
       <aas:id>https://acplt.org/Test_AssetAdministrationShell_Missing</aas:id>
@@ -329,7 +329,7 @@
         </aas:langString>
       </aas:description>
       <aas:administration>
-        <aas:version>0.9</aas:version>
+        <aas:version>9</aas:version>
         <aas:revision>0</aas:revision>
       </aas:administration>
       <aas:id>http://acplt.org/Submodels/Assets/TestAsset/Identification</aas:id>
@@ -494,7 +494,7 @@
         </aas:langString>
       </aas:description>
       <aas:administration>
-        <aas:version>0.9</aas:version>
+        <aas:version>9</aas:version>
       </aas:administration>
       <aas:id>http://acplt.org/Submodels/Assets/TestAsset/BillOfMaterial</aas:id>
       <aas:kind>Instance</aas:kind>
@@ -667,7 +667,7 @@
         </aas:langString>
       </aas:description>
       <aas:administration>
-        <aas:version>0.9</aas:version>
+        <aas:version>9</aas:version>
         <aas:revision>0</aas:revision>
       </aas:administration>
       <aas:id>https://acplt.org/Test_Submodel</aas:id>
@@ -1733,7 +1733,7 @@
         </aas:langString>
       </aas:description>
       <aas:administration>
-        <aas:version>0.9</aas:version>
+        <aas:version>9</aas:version>
         <aas:revision>0</aas:revision>
       </aas:administration>
       <aas:id>https://acplt.org/Test_Submodel_Missing</aas:id>
@@ -2341,7 +2341,7 @@
         </aas:langString>
       </aas:description>
       <aas:administration>
-        <aas:version>0.9</aas:version>
+        <aas:version>9</aas:version>
         <aas:revision>0</aas:revision>
       </aas:administration>
       <aas:id>https://acplt.org/Test_Submodel_Template</aas:id>
@@ -3060,7 +3060,7 @@
             </aas:dataSpecificationContent>
           </aas:embeddedDataSpecification>
         </aas:embeddedDataSpecifications>
-        <aas:version>0.9</aas:version>
+        <aas:version>9</aas:version>
         <aas:revision>0</aas:revision>
       </aas:administration>
       <aas:id>https://acplt.org/Test_ConceptDescription</aas:id>
@@ -3132,7 +3132,7 @@
         </aas:langString>
       </aas:description>
       <aas:administration>
-        <aas:version>0.9</aas:version>
+        <aas:version>9</aas:version>
         <aas:revision>0</aas:revision>
       </aas:administration>
       <aas:id>https://acplt.org/Test_ConceptDescription_Missing</aas:id>

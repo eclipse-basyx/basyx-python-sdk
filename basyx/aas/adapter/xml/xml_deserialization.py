@@ -284,10 +284,10 @@ def _failsafe_construct(element: Optional[etree.Element], constructor: Callable[
         return None
     try:
         return constructor(element, **kwargs)
-    except (KeyError, ValueError) as e:
+    except (KeyError, ValueError, model.AASConstraintViolation) as e:
         error_message = f"Failed to construct {_element_pretty_identifier(element)} using {constructor.__name__}!"
         if not failsafe:
-            raise type(e)(error_message) from e
+            raise (type(e) if isinstance(e, (KeyError, ValueError)) else ValueError)(error_message) from e
         error_type = type(e).__name__
         cause: Optional[BaseException] = e
         while cause is not None:

@@ -85,7 +85,7 @@ def generate_example_referable_tree() -> model.Referable:
     :return: example_referable
     """
 
-    def generate_example_referable_with_namespace(id_short: str,
+    def generate_example_referable_with_namespace(id_short: model.NameType,
                                                   child: Optional[model.Referable] = None) -> model.Referable:
         """
         Generates an example referable with a namespace.
@@ -133,10 +133,6 @@ class ReferableTest(unittest.TestCase):
         self.assertEqual(
             "The id_short must contain only letters, digits and underscore (Constraint AASd-002)",
             str(cm.exception))
-        with self.assertRaises(model.AASConstraintViolation) as cm:
-            test_object.id_short = ""
-        self.assertEqual("id_short is not allowed to be an empty string (Constraint AASd-100)",
-                         str(cm.exception))
         with self.assertRaises(model.AASConstraintViolation) as cm:
             test_object.id_short = "abc\n"
         self.assertEqual(
@@ -919,7 +915,7 @@ class ModelReferenceTest(unittest.TestCase):
 
         # Test creating a reference to a custom Referable class
         class DummyThing(model.Referable):
-            def __init__(self, id_short: str):
+            def __init__(self, id_short: model.NameType):
                 super().__init__()
                 self.id_short = id_short
 
@@ -938,17 +934,17 @@ class ModelReferenceTest(unittest.TestCase):
 class AdministrativeInformationTest(unittest.TestCase):
 
     def test_setting_version_revision(self) -> None:
-        with self.assertRaises(ValueError) as cm:
-            obj = model.AdministrativeInformation(revision='0.9')
+        with self.assertRaises(model.AASConstraintViolation) as cm:
+            obj = model.AdministrativeInformation(revision='9')
         self.assertEqual("A revision requires a version. This means, if there is no version there is no "
-                         "revision neither. Please set version first.", str(cm.exception))
+                         "revision neither. Please set version first. (Constraint AASd-005)", str(cm.exception))
 
     def test_setting_revision(self) -> None:
         obj = model.AdministrativeInformation()
-        with self.assertRaises(ValueError) as cm:
-            obj.revision = '0.3'
+        with self.assertRaises(model.AASConstraintViolation) as cm:
+            obj.revision = '3'
         self.assertEqual("A revision requires a version. This means, if there is no version there is no revision "
-                         "neither. Please set version first.", str(cm.exception))
+                         "neither. Please set version first. (Constraint AASd-005)", str(cm.exception))
 
 
 class QualifierTest(unittest.TestCase):
