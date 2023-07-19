@@ -753,7 +753,7 @@ def create_example_asset_administration_shell() -> \
 
     asset_information = model.AssetInformation(
         asset_kind=model.AssetKind.INSTANCE,
-        global_asset_id=model.Identifier('http://acplt.org/TestAsset/'),
+        global_asset_id='http://acplt.org/TestAsset/',
         specific_asset_id={model.SpecificAssetId(name="TestKey",
                                                  value="TestValue",
                                                  external_subject_id=model.GlobalReference(
@@ -763,7 +763,7 @@ def create_example_asset_administration_shell() -> \
                                                      model.KeyTypes.GLOBAL_REFERENCE,
                                                      "http://acplt.org/SpecificAssetId/"
                                                  ),)))},
-        asset_type=model.Identifier('http://acplt.org/TestAssetType/'),
+        asset_type='http://acplt.org/TestAssetType/',
         default_thumbnail=model.Resource(
             "file:///path/to/thumbnail.png",
             "image/png"

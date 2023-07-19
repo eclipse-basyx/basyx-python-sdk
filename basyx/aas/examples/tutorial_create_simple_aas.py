@@ -26,7 +26,7 @@ from basyx.aas import model
 # Step 1.1: create the AssetInformation object
 asset_information = model.AssetInformation(
     asset_kind=model.AssetKind.INSTANCE,
-    global_asset_id=model.Identifier('http://acplt.org/Simple_Asset')
+    global_asset_id='http://acplt.org/Simple_Asset'
 )
 
 # step 1.2: create the Asset Administration Shell
