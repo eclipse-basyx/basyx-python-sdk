@@ -563,7 +563,8 @@ class AASFromJsonDecoder(json.JSONDecoder):
 
     @classmethod
     def _construct_submodel(cls, dct: Dict[str, object], object_class=model.Submodel) -> model.Submodel:
-        ret = object_class(id_=_get_ts(dct, 'id', str))
+        ret = object_class(id_=_get_ts(dct, 'id', str),
+                           kind=cls._get_kind(dct))
         cls._amend_abstract_attributes(ret, dct)
         if not cls.stripped and 'submodelElements' in dct:
             for element in _get_ts(dct, "submodelElements", list):
