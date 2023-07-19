@@ -31,7 +31,7 @@ from basyx.aas.model import AssetInformation, AssetAdministrationShell, Submodel
 
 asset_information = AssetInformation(
     asset_kind=model.AssetKind.INSTANCE,
-    global_asset_id=model.Identifier('http://acplt.org/Simple_Asset')
+    global_asset_id='http://acplt.org/Simple_Asset'
 )
 
 prop = model.Property(

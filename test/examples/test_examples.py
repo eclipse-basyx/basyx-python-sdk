@@ -50,7 +50,7 @@ class ExampleAASTest(unittest.TestCase):
         example_aas.check_full_example(checker, obj_store)
 
         failed_shell = model.AssetAdministrationShell(
-            asset_information=model.AssetInformation(global_asset_id=model.Identifier('test')),
+            asset_information=model.AssetInformation(global_asset_id='test'),
             id_='test'
         )
         obj_store.add(failed_shell)
