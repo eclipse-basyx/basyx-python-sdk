@@ -372,11 +372,11 @@ class ModelNamespaceTest(unittest.TestCase):
         namespace.remove_referable("Prop2")
         with self.assertRaises(KeyError) as cm2:
             namespace.get_referable("Prop2")
-            self.assertEqual("'Referable with id_short Prop2 not found in this namespace'", str(cm2.exception))
+        self.assertEqual("'Referable with id_short Prop2 not found in this namespace'", str(cm2.exception))
 
         with self.assertRaises(KeyError) as cm3:
             namespace.remove_referable("Prop2")
-            self.assertEqual("'Referable with id_short Prop2 not found in this namespace'", str(cm3.exception))
+        self.assertEqual("'Referable with id_short Prop2 not found in this namespace'", str(cm3.exception))
 
     def test_renaming(self) -> None:
         self.namespace.set1.add(self.prop1)
@@ -570,8 +570,8 @@ class AASReferenceTest(unittest.TestCase):
 
         with self.assertRaises(KeyError) as cm_6:
             ref6.resolve(DummyObjectProvider())
-            self.assertEqual("'Could not resolve id_short prop_false at Identifier(IRI=urn:x-test:submodel)'",
-                             str(cm_6.exception))
+        self.assertEqual("'Could not resolve id_short prop_false at Identifier(IRI=urn:x-test:submodel) / collection'",
+                         str(cm_6.exception))
 
     def test_get_identifier(self) -> None:
         ref = model.AASReference((model.Key(model.KeyElements.SUBMODEL, False, "urn:x-test:x", model.KeyType.IRI),),
