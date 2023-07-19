@@ -334,9 +334,9 @@ class Key:
         """
         TODO: Add instruction what to do after construction
         """
+        _string_constraints.check_identifier(value)
         self.type: KeyTypes
-
-        self.value: str
+        self.value: Identifier
         super().__setattr__('type', type_)
         super().__setattr__('value', value)
 
