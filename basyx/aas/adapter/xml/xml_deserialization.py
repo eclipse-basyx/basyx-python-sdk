@@ -997,7 +997,8 @@ class AASFromXmlDecoder:
     def construct_submodel(cls, element: etree.Element, object_class=model.Submodel, **_kwargs: Any) \
             -> model.Submodel:
         submodel = object_class(
-            _child_text_mandatory(element, NS_AAS + "id")
+            _child_text_mandatory(element, NS_AAS + "id"),
+            kind=_get_modeling_kind(element)
         )
         if not cls.stripped:
             submodel_elements = element.find(NS_AAS + "submodelElements")

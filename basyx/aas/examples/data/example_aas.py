@@ -107,7 +107,8 @@ def create_example_asset_identification_submodel() -> model.Submodel:
         value=100,
         value_id=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
                                                   value=model.Identifier('http://acplt.org/ValueId/ExampleValueId')
-                                                  ),)),)
+                                                  ),)),
+        kind=model.QualifierKind.CONCEPT_QUALIFIER)
 
     qualifier2 = model.Qualifier(
         type_='http://acplt.org/Qualifier/ExampleQualifier2',
@@ -115,7 +116,8 @@ def create_example_asset_identification_submodel() -> model.Submodel:
         value=50,
         value_id=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
                                                   value=model.Identifier('http://acplt.org/ValueId/ExampleValueId')
-                                                  ),)),)
+                                                  ),)),
+        kind=model.QualifierKind.TEMPLATE_QUALIFIER)
 
     qualifier3 = model.Qualifier(
         type_='http://acplt.org/Qualifier/ExampleQualifier3',
@@ -123,7 +125,8 @@ def create_example_asset_identification_submodel() -> model.Submodel:
         value=model.datatypes.DateTime(2023, 4, 7, 16, 59, 54, 870123),
         value_id=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
                                                   value=model.Identifier('http://acplt.org/ValueId/ExampleValueId')
-                                                  ),)),)
+                                                  ),)),
+        kind=model.QualifierKind.VALUE_QUALIFIER)
 
     extension = model.Extension(
         name='ExampleExtension',
@@ -203,6 +206,7 @@ def create_example_asset_identification_submodel() -> model.Submodel:
                                                     value='http://acplt.org/SubmodelTemplates/AssetIdentification'),),
                                          model.Submodel),
         qualifier=(),
+        kind=model.ModelingKind.INSTANCE,
         extension=(),
         supplemental_semantic_id=(),
         embedded_data_specifications=()
@@ -323,6 +327,7 @@ def create_example_bill_of_material_submodel() -> model.Submodel:
                                                     value='http://acplt.org/SubmodelTemplates/BillOfMaterial'),),
                                          model.Submodel),
         qualifier=(),
+        kind=model.ModelingKind.INSTANCE,
         extension=(),
         supplemental_semantic_id=(),
         embedded_data_specifications=()
@@ -715,6 +720,7 @@ def create_example_submodel() -> model.Submodel:
                                                      value='http://acplt.org/SubmodelTemplates/'
                                                            'ExampleSubmodel'),)),
         qualifier=(),
+        kind=model.ModelingKind.INSTANCE,
         extension=(),
         supplemental_semantic_id=(),
         embedded_data_specifications=(_embedded_data_specification_physical_unit,)

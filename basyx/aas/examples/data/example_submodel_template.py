@@ -300,7 +300,8 @@ def create_example_submodel_template() -> model.Submodel:
         semantic_id=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
                                                      value='http://acplt.org/SubmodelTemplates/'
                                                            'ExampleSubmodel'),)),
-        qualifier=())
+        qualifier=(),
+        kind=model.ModelingKind.TEMPLATE)
     return submodel
 
 
