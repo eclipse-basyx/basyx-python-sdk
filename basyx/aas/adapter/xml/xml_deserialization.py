@@ -768,8 +768,7 @@ class AASFromXmlDecoder:
 
     @classmethod
     def construct_entity(cls, element: etree.Element, object_class=model.Entity, **_kwargs: Any) -> model.Entity:
-        global_asset_id = _failsafe_construct(element.find(NS_AAS + "globalAssetId"),
-                                              cls.construct_reference, cls.failsafe)
+        global_asset_id = _get_text_or_none(element.find(NS_AAS + "globalAssetId"))
         specific_asset_id = _failsafe_construct(element.find(NS_AAS + "specificAssetId"),
                                                 cls.construct_specific_asset_id, cls.failsafe)
         entity = object_class(

@@ -521,7 +521,7 @@ class AASFromJsonDecoder(json.JSONDecoder):
     def _construct_entity(cls, dct: Dict[str, object], object_class=model.Entity) -> model.Entity:
         global_asset_id = None
         if 'globalAssetId' in dct:
-            global_asset_id = cls._construct_reference(_get_ts(dct, 'globalAssetId', dict))
+            global_asset_id = _get_ts(dct, 'globalAssetId', str)
         specific_asset_id = None
         if 'specificAssetIds' in dct:
             specific_asset_id = cls._construct_specific_asset_id(_get_ts(dct, 'specificAssetIds', dict))

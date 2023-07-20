@@ -328,13 +328,7 @@ class JsonDeserializationStrippedObjectsTest(unittest.TestCase):
                 "modelType": "Entity",
                 "idShort": "test_entity",
                 "entityType": "SelfManagedEntity",
-                "globalAssetId": {
-                    "type": "GlobalReference",
-                    "keys": [{
-                        "type": "GlobalReference",
-                        "value": "test_asset"
-                    }]
-                },
+                "globalAssetId": "test_asset",
                 "statements": [{
                     "modelType": "MultiLanguageProperty",
                     "idShort": "test_multi_language_property"

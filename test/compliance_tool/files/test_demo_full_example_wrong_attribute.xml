@@ -581,15 +581,7 @@
             </aas:property>
           </aas:statements>
           <aas:entityType>SelfManagedEntity</aas:entityType>
-          <aas:globalAssetId>
-            <aas:type>GlobalReference</aas:type>
-            <aas:keys>
-              <aas:key>
-                <aas:type>GlobalReference</aas:type>
-                <aas:value>http://acplt.org/TestAsset/</aas:value>
-              </aas:key>
-            </aas:keys>
-          </aas:globalAssetId>
+          <aas:globalAssetId>http://acplt.org/TestAsset/</aas:globalAssetId>
           <aas:specificAssetId>
             <aas:name>TestKey</aas:name>
             <aas:value>TestValue</aas:value>

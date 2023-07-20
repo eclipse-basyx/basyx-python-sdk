@@ -702,15 +702,7 @@
                         }
                     ],
                     "entityType": "SelfManagedEntity",
-                    "globalAssetId": {
-                        "type": "GlobalReference",
-                        "keys": [
-                            {
-                                "type": "GlobalReference",
-                                "value": "http://acplt.org/TestAsset/"
-                            }
-                        ]
-                    },
+                    "globalAssetId": "http://acplt.org/TestAsset/",
                     "specificAssetId": {
                         "name": "TestKey",
                         "value": "TestValue",

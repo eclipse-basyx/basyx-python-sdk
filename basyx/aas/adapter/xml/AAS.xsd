@@ -346,7 +346,14 @@
         </xs:complexType>
       </xs:element>
       <xs:element name="entityType" type="entityType_t"/>
-      <xs:element name="globalAssetId" type="reference_t" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="globalAssetId" minOccurs="0" maxOccurs="1">
+        <xs:simpleType>
+          <xs:restriction base="xs:string">
+            <xs:minLength value="1"/>
+            <xs:maxLength value="2000"/>
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
       <xs:element name="specificAssetId" type="specificAssetId_t" minOccurs="0" maxOccurs="1"/>
     </xs:sequence>
   </xs:group>
