@@ -15,10 +15,11 @@ This module contains the following classes from an up-to-down-level:
 
 from typing import Optional, Set, Iterable, List
 
-from . import base
+from . import base, _string_constraints
 from .submodel import Submodel
 
 
+@_string_constraints.constrain_identifier("asset_type")
 class AssetInformation:
     """
     In AssetInformation identifying meta data of the asset that is represented by an AAS is defined.
@@ -30,7 +31,7 @@ class AssetInformation:
 
     :ivar asset_kind: Denotes whether the Asset is of :class:`~aas.model.base.AssetKind` "TYPE" or "INSTANCE".
                       Default is "INSTANCE".
-    :ivar global_asset_id: :class:`~aas.model.base.GlobalReference` modeling the identifier of the asset the AAS is
+    :ivar global_asset_id: :class:`~aas.model.base.Identifier` modeling the identifier of the asset the AAS is
                            representing.
                            This attribute is required as soon as the AAS is exchanged via partners in the
                            life cycle of the asset. In a first phase of the life cycle the asset might not yet have a
@@ -39,6 +40,12 @@ class AssetInformation:
     :ivar specific_asset_id: Additional domain specific, typically proprietary Identifier (Set of
                              :class:`SpecificAssetIds <aas.model.base.SpecificAssetId>` for the asset like
                              e.g. serial number etc.
+    :ivar asset_type: In case AssetInformation/assetKind is applicable the AssetInformation/assetType is the asset ID
+                      of the type asset of the asset under consideration as identified by
+                      AssetInformation/globalAssetId.
+                      *Note:* In case AssetInformation/assetKind is "Instance" then the AssetInformation/assetType
+                      denotes which "Type" the asset is of. But it is also possible to have
+                      an AssetInformation/assetType of an asset of kind "Type".
     :ivar default_thumbnail: Thumbnail of the asset represented by the asset administration shell. Used as default.
     """
 
@@ -61,8 +68,11 @@ class AssetInformation:
         return self._global_asset_id
 
     def _set_global_asset_id(self, global_asset_id: Optional[base.Identifier]):
-        if global_asset_id is None and (self.specific_asset_id is None or not self.specific_asset_id):
-            raise ValueError("either global or specific asset id must be set")
+        if global_asset_id is None:
+            if self.specific_asset_id is None or not self.specific_asset_id:
+                raise ValueError("either global or specific asset id must be set")
+        else:
+            _string_constraints.check_identifier(global_asset_id)
         self._global_asset_id = global_asset_id
 
     global_asset_id = property(_get_global_asset_id, _set_global_asset_id)
