@@ -1011,6 +1011,7 @@ class Capability(SubmodelElement):
                          supplemental_semantic_id, embedded_data_specifications)
 
 
+@_string_constraints.constrain_identifier("global_asset_id")
 class Entity(SubmodelElement, base.UniqueIdShortNamespace):
     """
     An entity is a :class:`~.SubmodelElement` that is used to model entities
@@ -1023,14 +1024,10 @@ class Entity(SubmodelElement, base.UniqueIdShortNamespace):
     :ivar entity_type: Describes whether the entity is a co-managed or a self-managed entity.
     :ivar statement: Unordered list of statements (:class:`SubmodelElements <.SubmodelElement>`) applicable to the
                      entity, typically with a qualified value.
-    :ivar global_asset_id: :class:`~aas.model.base.Reference` to the asset the AAS is
-                           representing. This attribute is required as soon as the AAS is exchanged via partners
-                           in the life cycle of the asset. In a first phase of the life cycle the asset might not
-                           yet have a global id but already an internal identifier. The internal identifier would
-                           be modelled via “specificAssetId”.
+    :ivar global_asset_id: Global :class:`~aas.model.base.Identifier` of the asset the entity is representing.
     :ivar specific_asset_id: :class:`~aas.model.base.Reference` to an identifier key value pair representing a specific
-                             identifier
-                             of the asset represented by the asset administration shell. See Constraint AASd-014
+                             identifier of the asset represented by the asset administration shell.
+                             See Constraint AASd-014
     :ivar display_name: Can be provided in several languages. (inherited from :class:`~aas.model.base.Referable`)
     :ivar category: The category is a value that gives further meta information w.r.t. to the class of the element.
                      It affects the expected existence of attributes and the applicability of constraints.
@@ -1056,7 +1053,7 @@ class Entity(SubmodelElement, base.UniqueIdShortNamespace):
                  id_short: base.NameType,
                  entity_type: base.EntityType,
                  statement: Iterable[SubmodelElement] = (),
-                 global_asset_id: Optional[base.GlobalReference] = None,
+                 global_asset_id: Optional[base.Identifier] = None,
                  specific_asset_id: Optional[base.SpecificAssetId] = None,
                  display_name: Optional[base.LangStringSet] = None,
                  category: Optional[base.NameType] = None,
@@ -1074,7 +1071,7 @@ class Entity(SubmodelElement, base.UniqueIdShortNamespace):
                          supplemental_semantic_id, embedded_data_specifications)
         self.statement = base.NamespaceSet(self, [("id_short", True)], statement)
         self.specific_asset_id: Optional[base.SpecificAssetId] = specific_asset_id
-        self.global_asset_id: Optional[base.GlobalReference] = global_asset_id
+        self.global_asset_id: Optional[base.Identifier] = global_asset_id
         self._entity_type: base.EntityType
         self.entity_type = entity_type
 

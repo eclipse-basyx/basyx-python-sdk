@@ -22,9 +22,7 @@ class EntityTest(unittest.TestCase):
         )
         with self.assertRaises(model.AASConstraintViolation) as cm:
             obj2 = model.Entity(id_short='Test', entity_type=model.EntityType.CO_MANAGED_ENTITY,
-                                global_asset_id=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
-                                                                                 value='http://acplt.org/TestAsset/'),
-                                                                       )),
+                                global_asset_id='http://acplt.org/TestAsset/',
                                 statement=())
         self.assertIn(
             'A co-managed entity has to have neither a globalAssetId nor a specificAssetId',

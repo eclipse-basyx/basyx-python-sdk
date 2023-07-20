@@ -598,18 +598,7 @@ class AASDataChecker(DataChecker):
         """
         self._check_abstract_attributes_submodel_element_equal(object_, expected_value)
         self.check_attribute_equal(object_, 'entity_type', expected_value.entity_type)
-        if object_.global_asset_id and expected_value.global_asset_id:
-            self._check_reference_equal(object_.global_asset_id, expected_value.global_asset_id)
-        else:
-            if expected_value.global_asset_id:
-                self.check(expected_value.global_asset_id is not None,
-                           'globalAssetId {} must exist'.format(repr(expected_value.global_asset_id)),
-                           value=object_.global_asset_id)
-            else:
-                if object_.global_asset_id:
-                    self.check(expected_value.global_asset_id is None, 'Enity {} must not have a '
-                                                                       'globalAssetId'.format(repr(object_)),
-                               value=expected_value.global_asset_id)
+        self.check_attribute_equal(object_, 'global_asset_id', expected_value.global_asset_id)
         if object_.specific_asset_id and expected_value.specific_asset_id:
             self.check_specific_asset_id(object_.specific_asset_id, expected_value.specific_asset_id)
         else:
