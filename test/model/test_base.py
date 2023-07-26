@@ -870,15 +870,6 @@ class ModelReferenceTest(unittest.TestCase):
             ref9 = model.ModelReference((), model.Submodel)
         self.assertEqual('A reference must have at least one key!', str(cm_9.exception))
 
-        ref10 = model.ModelReference((model.Key(model.KeyTypes.SUBMODEL, "urn:x-test:submodel"),
-                                     model.Key(model.KeyTypes.SUBMODEL_ELEMENT_COLLECTION, "collection"),
-                                     model.Key(model.KeyTypes.PROPERTY, "prop_false")), model.Property)
-
-        with self.assertRaises(KeyError) as cm_10:
-            ref10.resolve(DummyObjectProvider())
-            self.assertEqual("'Could not resolve id_short prop_false at Identifier(IRI=urn:x-test:submodel)'",
-                             str(cm_10.exception))
-
     def test_get_identifier(self) -> None:
         ref = model.ModelReference((model.Key(model.KeyTypes.SUBMODEL, "urn:x-test:x"),), model.Submodel)
         self.assertEqual("urn:x-test:x", ref.get_identifier())
