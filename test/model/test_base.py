@@ -512,11 +512,11 @@ class ModelNamespaceTest(unittest.TestCase):
         namespace.remove_referable("Prop2")
         with self.assertRaises(KeyError) as cm2:
             namespace.get_referable("Prop2")
-            self.assertEqual("'Referable with id_short Prop2 not found in this namespace'", str(cm2.exception))
+        self.assertEqual("'Referable with id_short Prop2 not found in this namespace'", str(cm2.exception))
 
         with self.assertRaises(KeyError) as cm3:
             namespace.remove_referable("Prop2")
-            self.assertEqual("'Referable with id_short Prop2 not found in this namespace'", str(cm3.exception))
+        self.assertEqual("'Referable with id_short Prop2 not found in this namespace'", str(cm3.exception))
 
     def test_renaming(self) -> None:
         self.namespace.set2.add(self.prop1)
@@ -857,13 +857,14 @@ class ModelReferenceTest(unittest.TestCase):
         self.assertEqual('A reference must have at least one key!', str(cm_7.exception))
 
         ref8 = model.ModelReference((model.Key(model.KeyTypes.SUBMODEL, "urn:x-test:submodel"),
-                                     model.Key(model.KeyTypes.SUBMODEL_ELEMENT_COLLECTION, "collection"),
+                                     model.Key(model.KeyTypes.SUBMODEL_ELEMENT_LIST, "list"),
+                                     model.Key(model.KeyTypes.SUBMODEL_ELEMENT_COLLECTION, "0"),
                                      model.Key(model.KeyTypes.PROPERTY, "prop_false")), model.Property)
 
         with self.assertRaises(KeyError) as cm_8:
             ref8.resolve(DummyObjectProvider())
-            self.assertEqual("'Could not resolve id_short prop_false at Identifier(IRI=urn:x-test:submodel)'",
-                             str(cm_8.exception))
+        self.assertEqual("'Could not resolve id_short prop_false at urn:x-test:submodel / list / collection'",
+                         str(cm_8.exception))
 
         with self.assertRaises(ValueError) as cm_9:
             ref9 = model.ModelReference((), model.Submodel)

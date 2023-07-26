@@ -112,7 +112,7 @@ class AASXReader:
 
     def read_into(self, object_store: model.AbstractObjectStore,
                   file_store: "AbstractSupplementaryFileContainer",
-                  override_existing: bool = False) -> Set[model.Identifier]:
+                  override_existing: bool = False, **kwargs) -> Set[model.Identifier]:
         """
         Read the contents of the AASX package and add them into a given
         :class:`ObjectStore <aas.model.provider.AbstractObjectStore>`
@@ -148,12 +148,14 @@ class AASXReader:
         # Iterate AAS files
         for aas_part in self.reader.get_related_parts_by_type(aasx_origin_part)[
                 RELATIONSHIP_TYPE_AAS_SPEC]:
-            self._read_aas_part_into(aas_part, object_store, file_store, read_identifiables, override_existing)
+            self._read_aas_part_into(aas_part, object_store, file_store,
+                                     read_identifiables, override_existing, **kwargs)
 
             # Iterate split parts of AAS file
             for split_part in self.reader.get_related_parts_by_type(aas_part)[
                     RELATIONSHIP_TYPE_AAS_SPEC_SPLIT]:
-                self._read_aas_part_into(split_part, object_store, file_store, read_identifiables, override_existing)
+                self._read_aas_part_into(split_part, object_store, file_store,
+                                         read_identifiables, override_existing, **kwargs)
 
         return read_identifiables
 
@@ -173,7 +175,7 @@ class AASXReader:
                             object_store: model.AbstractObjectStore,
                             file_store: "AbstractSupplementaryFileContainer",
                             read_identifiables: Set[model.Identifier],
-                            override_existing: bool) -> None:
+                            override_existing: bool, **kwargs) -> None:
         """
         Helper function for :meth:`read_into()` to read and process the contents of an AAS-spec part of the AASX file.
 
@@ -189,7 +191,7 @@ class AASXReader:
         :param override_existing: If True, existing objects in the object store are overridden with objects from the
             AASX that have the same Identifer. Default behavior is to skip those objects from the AASX.
         """
-        for obj in self._parse_aas_part(part_name):
+        for obj in self._parse_aas_part(part_name, **kwargs):
             if obj.id in read_identifiables:
                 continue
             if obj.id in object_store:
@@ -205,7 +207,7 @@ class AASXReader:
             if isinstance(obj, model.Submodel):
                 self._collect_supplementary_files(part_name, obj, file_store)
 
-    def _parse_aas_part(self, part_name: str) -> model.DictObjectStore:
+    def _parse_aas_part(self, part_name: str, **kwargs) -> model.DictObjectStore:
         """
         Helper function to parse the AAS objects from a single JSON or XML part of the AASX package.
 
@@ -219,12 +221,12 @@ class AASXReader:
         if content_type.split(";")[0] in ("text/xml", "application/xml") or content_type == "" and extension == "xml":
             logger.debug("Parsing AAS objects from XML stream in OPC part {} ...".format(part_name))
             with self.reader.open_part(part_name) as p:
-                return read_aas_xml_file(p)
+                return read_aas_xml_file(p, **kwargs)
         elif content_type.split(";")[0] in ("text/json", "application/json") \
                 or content_type == "" and extension == "json":
             logger.debug("Parsing AAS objects from JSON stream in OPC part {} ...".format(part_name))
             with self.reader.open_part(part_name) as p:
-                return read_aas_json_file(io.TextIOWrapper(p, encoding='utf-8-sig'))
+                return read_aas_json_file(io.TextIOWrapper(p, encoding='utf-8-sig'), **kwargs)
         else:
             logger.error("Could not determine part format of AASX part {} (Content Type: {}, extension: {}"
                          .format(part_name, content_type, extension))
