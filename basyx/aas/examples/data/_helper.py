@@ -799,7 +799,7 @@ class AASDataChecker(DataChecker):
         :param expected_value: expected DataSpecificationContent object
         :return:
         """
-        self.check(type(object_) == type(expected_value), "type({}) must be == type({})"
+        self.check(type(object_) is type(expected_value), "type({}) must be == type({})"
                    .format(repr(object_), repr(expected_value)))
         if isinstance(object_, model.base.DataSpecificationIEC61360):
             self._check_data_specification_iec61360_equal(object_, expected_value)  # type: ignore
