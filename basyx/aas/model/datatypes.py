@@ -517,6 +517,16 @@ def from_xsd(value: str, type_: Type[AnyXSDType]) -> AnyXSDType:  # workaround. 
         return _parse_xsd_bool(value)
     elif issubclass(type_, (int, float, str)):
         return type_(value)
+    elif type_ is decimal.Decimal:
+        try:
+            return decimal.Decimal(value)
+        except decimal.InvalidOperation as e:
+            # We cannot use the original exception text here, because the text differs depending on
+            # whether the _decimal or _pydecimal module is used. Furthermore, the _decimal doesn't provide
+            # a real error message suited for end users, but provides a list of conditions that trigger the exception.
+            # See https://github.com/python/cpython/issues/76420
+            # Raising our own error message allows us to verify it in the tests.
+            raise ValueError(f"Cannot convert '{value}' to Decimal!") from e
     elif type_ is Duration:
         return _parse_xsd_duration(value)
     elif type_ is DateTime:

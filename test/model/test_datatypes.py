@@ -282,3 +282,14 @@ class TestFloatType(unittest.TestCase):
         self.assertEqual("NaN", model.datatypes.xsd_repr(float("nan")))
         self.assertEqual("INF", model.datatypes.xsd_repr(float("inf")))
         self.assertEqual("-INF", model.datatypes.xsd_repr(float("-inf")))
+
+
+class TestDecimalType(unittest.TestCase):
+    def test_parse_decimal(self) -> None:
+        self.assertEqual(model.datatypes.Decimal("0.1"), model.datatypes.from_xsd("0.1", model.datatypes.Decimal))
+        with self.assertRaises(ValueError) as cm:
+            model.datatypes.from_xsd("foo", model.datatypes.Decimal)
+        self.assertEqual("Cannot convert 'foo' to Decimal!", str(cm.exception))
+
+    def test_serialize_decimal(self) -> None:
+        self.assertEqual("0.1", model.datatypes.xsd_repr(model.datatypes.Decimal("0.1")))
