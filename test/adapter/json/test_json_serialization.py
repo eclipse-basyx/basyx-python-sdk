@@ -55,7 +55,7 @@ class JsonSerializationSchemaTest(unittest.TestCase):
         # must be a Reference. (This seems to be a bug in the JSONSchema.)
         submodel = model.Submodel(submodel_identifier,
                                   semantic_id=model.ExternalReference((model.Key(model.KeyTypes.GLOBAL_REFERENCE,
-                                                                     "http://acplt.org/TestSemanticId"),)))
+                                                                       "http://acplt.org/TestSemanticId"),)))
         test_aas = model.AssetAdministrationShell(model.AssetInformation(global_asset_id="test"),
                                                   aas_identifier, submodel={submodel_reference})
 
