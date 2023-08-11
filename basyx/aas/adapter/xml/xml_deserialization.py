@@ -388,15 +388,15 @@ def _child_text_mandatory_mapped(parent: etree.Element, child_tag: str, dct: Dic
     return _get_text_mandatory_mapped(_get_child_mandatory(parent, child_tag), dct)
 
 
-def _get_modeling_kind(element: etree.Element) -> model.ModelingKind:
+def _get_kind(element: etree.Element) -> model.ModellingKind:
     """
     Returns the modeling kind of an element with the default value INSTANCE, if none specified.
 
     :param element: The xml element.
     :return: The modeling kind of the element.
     """
-    modeling_kind = _get_text_mapped_or_none(element.find(NS_AAS + "kind"), MODELING_KIND_INVERSE)
-    return modeling_kind if modeling_kind is not None else model.ModelingKind.INSTANCE
+    modelling_kind = _get_text_mapped_or_none(element.find(NS_AAS + "kind"), MODELING_KIND_INVERSE)
+    return modelling_kind if modelling_kind is not None else model.ModellingKind.INSTANCE
 
 
 def _expect_reference_type(element: etree.Element, expected_type: Type[model.Reference]) -> None:
@@ -999,7 +999,7 @@ class AASFromXmlDecoder:
             -> model.Submodel:
         submodel = object_class(
             _child_text_mandatory(element, NS_AAS + "id"),
-            kind=_get_modeling_kind(element)
+            kind=_get_kind(element)
         )
         if not cls.stripped:
             submodel_elements = element.find(NS_AAS + "submodelElements")

@@ -144,7 +144,7 @@ class XmlDeserializationTest(unittest.TestCase):
         submodel = object_store.pop()
         self.assertIsInstance(submodel, model.Submodel)
         assert isinstance(submodel, model.Submodel)  # to make mypy happy
-        self.assertEqual(submodel.kind, model.ModelingKind.INSTANCE)
+        self.assertEqual(submodel.kind, model.ModellingKind.INSTANCE)
 
     def test_reference_kind_mismatch(self) -> None:
         xml = _xml_wrap("""

@@ -275,14 +275,14 @@ class AASFromJsonDecoder(json.JSONDecoder):
                     obj.extension.add(cls._construct_extension(extension))
 
     @classmethod
-    def _get_kind(cls, dct: Dict[str, object]) -> model.ModelingKind:
+    def _get_kind(cls, dct: Dict[str, object]) -> model.ModellingKind:
         """
         Utility method to get the kind of an HasKind object from its JSON representation.
 
         :param dct: The object's dict representation from JSON
         :return: The object's `kind` value
         """
-        return MODELING_KIND_INVERSE[_get_ts(dct, "kind", str)] if 'kind' in dct else model.ModelingKind.INSTANCE
+        return MODELING_KIND_INVERSE[_get_ts(dct, "kind", str)] if 'kind' in dct else model.ModellingKind.INSTANCE
 
     # #############################################################################
     # Helper Constructor Methods starting from here

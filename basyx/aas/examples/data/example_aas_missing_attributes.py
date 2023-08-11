@@ -287,7 +287,7 @@ def create_example_submodel() -> model.Submodel:
                                                      value='http://acplt.org/SubmodelTemplates/'
                                                            'ExampleSubmodel'),)),
         qualifier=(),
-        kind=model.ModelingKind.INSTANCE)
+        kind=model.ModellingKind.INSTANCE)
     return submodel
 
 

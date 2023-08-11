@@ -130,7 +130,7 @@ class Submodel(base.Identifiable, base.HasSemantics, base.HasKind, base.Qualifia
                  administration: Optional[base.AdministrativeInformation] = None,
                  semantic_id: Optional[base.Reference] = None,
                  qualifier: Iterable[base.Qualifier] = (),
-                 kind: base.ModelingKind = base.ModelingKind.INSTANCE,
+                 kind: base.ModellingKind = base.ModellingKind.INSTANCE,
                  extension: Iterable[base.Extension] = (),
                  supplemental_semantic_id: Iterable[base.Reference] = (),
                  embedded_data_specifications: Iterable[base.EmbeddedDataSpecification] = ()):
@@ -145,7 +145,7 @@ class Submodel(base.Identifiable, base.HasSemantics, base.HasKind, base.Qualifia
         self.administration: Optional[base.AdministrativeInformation] = administration
         self.semantic_id: Optional[base.Reference] = semantic_id
         self.qualifier = base.NamespaceSet(self, [("type", True)], qualifier)
-        self._kind: base.ModelingKind = kind
+        self._kind: base.ModellingKind = kind
         self.extension = base.NamespaceSet(self, [("name", True)], extension)
         self.supplemental_semantic_id: base.ConstrainedList[base.Reference] = \
             base.ConstrainedList(supplemental_semantic_id)
