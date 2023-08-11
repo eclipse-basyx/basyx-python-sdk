@@ -98,7 +98,7 @@ submodel = model.Submodel(identifier)
 Create a `Property` and add it to the `Submodel`:
 ```python
 # create a global reference to a semantic description of the property
-semantic_reference = model.GlobalReference(
+semantic_reference = model.ExternalReference(
     (model.Key(
         type_=model.KeyTypes.GLOBAL_REFERENCE,
         value='http://acplt.org/Properties/SimpleProperty'

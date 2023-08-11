@@ -820,7 +820,7 @@ class Reference(metaclass=abc.ABCMeta):
             and self.referred_semantic_id == other.referred_semantic_id
 
 
-class GlobalReference(Reference):
+class ExternalReference(Reference):
     """
     Reference to either a model element of the same or another AAs or to an external entity.
 
@@ -1065,10 +1065,10 @@ class EmbeddedDataSpecification:
     """
     def __init__(
         self,
-        data_specification: GlobalReference,
+        data_specification: ExternalReference,
         data_specification_content: DataSpecificationContent,
     ) -> None:
-        self.data_specification: GlobalReference = data_specification
+        self.data_specification: ExternalReference = data_specification
         self.data_specification_content: DataSpecificationContent = data_specification_content
 
     def __repr__(self):
@@ -2007,7 +2007,7 @@ class SpecificAssetId(HasSemantics):
     def __init__(self,
                  name: LabelType,
                  value: str,
-                 external_subject_id: GlobalReference,
+                 external_subject_id: ExternalReference,
                  semantic_id: Optional[Reference] = None,
                  supplemental_semantic_id: Iterable[Reference] = ()):
         super().__init__()
@@ -2016,7 +2016,7 @@ class SpecificAssetId(HasSemantics):
         _string_constraints.check_label_type(name)
         self.name: LabelType
         self.value: str
-        self.external_subject_id: GlobalReference
+        self.external_subject_id: ExternalReference
 
         super().__setattr__('name', name)
         super().__setattr__('value', value)

@@ -172,13 +172,13 @@ class AASDataCheckerTest(unittest.TestCase):
         list_ = model.SubmodelElementList(
             id_short='test_list',
             type_value_list_element=model.MultiLanguageProperty,
-            semantic_id_list_element=model.GlobalReference(
+            semantic_id_list_element=model.ExternalReference(
                 (model.Key(model.KeyTypes.GLOBAL_REFERENCE, "urn:x-test:invalid"),))
         )
         list_expected = model.SubmodelElementList(
             id_short='test_list',
             type_value_list_element=model.MultiLanguageProperty,
-            semantic_id_list_element=model.GlobalReference(
+            semantic_id_list_element=model.ExternalReference(
                 (model.Key(model.KeyTypes.GLOBAL_REFERENCE, "urn:x-test:test"),))
         )
         checker = AASDataChecker(raise_immediately=False)
@@ -190,7 +190,7 @@ class AASDataCheckerTest(unittest.TestCase):
                          "(value=GlobalReference(key=(Key(type=GLOBAL_REFERENCE, value=urn:x-test:invalid),)))",
                          repr(next(checker_iterator)))
         # Don't set protected attributes like this in production code!
-        list_._semantic_id_list_element = model.GlobalReference(
+        list_._semantic_id_list_element = model.ExternalReference(
             (model.Key(model.KeyTypes.GLOBAL_REFERENCE, "urn:x-test:test"),))
         checker = AASDataChecker(raise_immediately=False)
         checker.check_submodel_element_list_equal(list_, list_expected)
@@ -350,7 +350,7 @@ class AASDataCheckerTest(unittest.TestCase):
         cd = model.ConceptDescription(id_='test')
         cd_expected = model.ConceptDescription(id_='test',
                                                is_case_of={
-                                                   model.GlobalReference((model.Key(
+                                                   model.ExternalReference((model.Key(
                                                        type_=model.KeyTypes.GLOBAL_REFERENCE,
                                                        value='test'),))}
                                                )

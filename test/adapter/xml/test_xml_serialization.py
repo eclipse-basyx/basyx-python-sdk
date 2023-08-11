@@ -51,7 +51,7 @@ class XMLSerializationSchemaTest(unittest.TestCase):
         assert submodel_identifier is not None
         submodel_reference = model.ModelReference(submodel_key, model.Submodel)
         submodel = model.Submodel(submodel_identifier,
-                                  semantic_id=model.GlobalReference((model.Key(model.KeyTypes.GLOBAL_REFERENCE,
+                                  semantic_id=model.ExternalReference((model.Key(model.KeyTypes.GLOBAL_REFERENCE,
                                                                                "http://acplt.org/TestSemanticId"),)))
         test_aas = model.AssetAdministrationShell(model.AssetInformation(global_asset_id="Test"),
                                                   aas_identifier, submodel={submodel_reference})

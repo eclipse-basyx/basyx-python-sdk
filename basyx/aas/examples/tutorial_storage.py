@@ -38,7 +38,7 @@ prop = model.Property(
     id_short='ExampleProperty',
     value_type=model.datatypes.String,
     value='exampleValue',
-    semantic_id=model.GlobalReference(
+    semantic_id=model.ExternalReference(
         (model.Key(
             type_=model.KeyTypes.GLOBAL_REFERENCE,
             value='http://acplt.org/Properties/SimpleProperty'

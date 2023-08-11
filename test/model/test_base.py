@@ -338,12 +338,12 @@ class ModelNamespaceTest(unittest.TestCase):
     _namespace_class_qualifier = ExampleNamespaceQualifier
 
     def setUp(self):
-        self.propSemanticID = model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
-                                                               value='http://acplt.org/Test1'),))
-        self.propSemanticID2 = model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
-                                                                value='http://acplt.org/Test2'),))
-        self.propSemanticID3 = model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
-                                                                value='http://acplt.org/Test3'),))
+        self.propSemanticID = model.ExternalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
+                                                                 value='http://acplt.org/Test1'),))
+        self.propSemanticID2 = model.ExternalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
+                                                                  value='http://acplt.org/Test2'),))
+        self.propSemanticID3 = model.ExternalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
+                                                                  value='http://acplt.org/Test3'),))
         self.prop1 = model.Property("Prop1", model.datatypes.Int, semantic_id=self.propSemanticID)
         self.prop2 = model.Property("Prop2", model.datatypes.Int, semantic_id=self.propSemanticID)
         self.prop3 = model.Property("Prop2", model.datatypes.Int, semantic_id=self.propSemanticID2)
@@ -650,32 +650,32 @@ class ModelOrderedNamespaceTest(ModelNamespaceTest):
 class GlobalReferenceTest(unittest.TestCase):
     def test_constraints(self):
         with self.assertRaises(ValueError) as cm:
-            model.GlobalReference(tuple())
+            model.ExternalReference(tuple())
         self.assertEqual("A reference must have at least one key!", str(cm.exception))
 
         # AASd-122
         keys = (model.Key(model.KeyTypes.PROPERTY, "urn:x-test:x"),)
         with self.assertRaises(model.AASConstraintViolation) as cm:
-            model.GlobalReference(keys)
+            model.ExternalReference(keys)
         self.assertEqual("The type of the first key of a GlobalReference must be a GenericGloballyIdentifiable: "
                          f"{keys[0]!r} (Constraint AASd-122)", str(cm.exception))
-        model.GlobalReference((model.Key(model.KeyTypes.GLOBAL_REFERENCE, "urn:x-test:x"),))
+        model.ExternalReference((model.Key(model.KeyTypes.GLOBAL_REFERENCE, "urn:x-test:x"),))
 
         # AASd-124
         keys = (model.Key(model.KeyTypes.GLOBAL_REFERENCE, "urn:x-test:x"),
                 model.Key(model.KeyTypes.SUBMODEL, "urn:x-test:x"),)
         with self.assertRaises(model.AASConstraintViolation) as cm:
-            model.GlobalReference(keys)
+            model.ExternalReference(keys)
         self.assertEqual("The type of the last key of a GlobalReference must be a GenericGloballyIdentifiable or a"
                          f" GenericFragmentKey: {keys[-1]!r} (Constraint AASd-124)", str(cm.exception))
         keys += (model.Key(model.KeyTypes.FRAGMENT_REFERENCE, "urn:x-test:x"),)
-        model.GlobalReference(keys)
+        model.ExternalReference(keys)
 
 
 class ModelReferenceTest(unittest.TestCase):
     def test_constraints(self):
         with self.assertRaises(ValueError) as cm:
-            model.GlobalReference(tuple())
+            model.ExternalReference(tuple())
         self.assertEqual("A reference must have at least one key!", str(cm.exception))
 
         # AASd-123
@@ -752,7 +752,7 @@ class ModelReferenceTest(unittest.TestCase):
             ref.key = ()
         self.assertEqual('Reference is immutable', str(cm.exception))
         with self.assertRaises(AttributeError) as cm:
-            ref.referred_semantic_id = model.GlobalReference(
+            ref.referred_semantic_id = model.ExternalReference(
                 (model.Key(model.KeyTypes.GLOBAL_REFERENCE, "urn:x-test:x"),))
         self.assertEqual('Reference is immutable', str(cm.exception))
 
@@ -769,7 +769,7 @@ class ModelReferenceTest(unittest.TestCase):
                                       model.Key(model.KeyTypes.PROPERTY, "test")),
                                      model.Submodel)
         self.assertEqual(ref_2, ref_3)
-        referred_semantic_id = model.GlobalReference((model.Key(model.KeyTypes.GLOBAL_REFERENCE, "urn:x-test:x"),))
+        referred_semantic_id = model.ExternalReference((model.Key(model.KeyTypes.GLOBAL_REFERENCE, "urn:x-test:x"),))
         object.__setattr__(ref_2, 'referred_semantic_id', referred_semantic_id)
         self.assertNotEqual(ref_2, ref_3)
         object.__setattr__(ref_3, 'referred_semantic_id', referred_semantic_id)
@@ -964,7 +964,7 @@ class ValueReferencePairTest(unittest.TestCase):
         pair = model.ValueReferencePair(
             value_type=model.datatypes.Int,
             value=2,
-            value_id=model.GlobalReference((model.Key(model.KeyTypes.GLOBAL_REFERENCE, 'test'),)))
+            value_id=model.ExternalReference((model.Key(model.KeyTypes.GLOBAL_REFERENCE, 'test'),)))
         self.assertEqual(pair.value, 2)
         with self.assertRaises(AttributeError) as cm:
             pair.value = None
@@ -977,8 +977,8 @@ class HasSemanticsTest(unittest.TestCase):
     def test_supplemental_semantic_id_constraint(self) -> None:
         extension = model.Extension(name='test')
         key: model.Key = model.Key(model.KeyTypes.GLOBAL_REFERENCE, "global_reference")
-        ref_sem_id: model.Reference = model.GlobalReference((key,))
-        ref1: model.Reference = model.GlobalReference((key,))
+        ref_sem_id: model.Reference = model.ExternalReference((key,))
+        ref1: model.Reference = model.ExternalReference((key,))
 
         with self.assertRaises(model.AASConstraintViolation) as cm:
             extension.supplemental_semantic_id.append(ref1)
