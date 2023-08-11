@@ -53,7 +53,7 @@ KEY_ELEMENTS_CLASSES: Dict[Type[Referable], KeyElements] = {
     ConceptDictionary: KeyElements.CONCEPT_DICTIONARY,
     Entity: KeyElements.ENTITY,
     BasicEvent: KeyElements.BASIC_EVENT,
-    Event: KeyElements.EVENT,
+    Event: KeyElements.EVENT,  # type: ignore
     Blob: KeyElements.BLOB,
     File: KeyElements.FILE,
     Operation: KeyElements.OPERATION,
@@ -62,9 +62,9 @@ KEY_ELEMENTS_CLASSES: Dict[Type[Referable], KeyElements] = {
     MultiLanguageProperty: KeyElements.MULTI_LANGUAGE_PROPERTY,
     Range: KeyElements.RANGE,
     ReferenceElement: KeyElements.REFERENCE_ELEMENT,
-    DataElement: KeyElements.DATA_ELEMENT,
-    SubmodelElementCollection: KeyElements.SUBMODEL_ELEMENT_COLLECTION,
+    DataElement: KeyElements.DATA_ELEMENT,  # type: ignore
+    SubmodelElementCollection: KeyElements.SUBMODEL_ELEMENT_COLLECTION,  # type: ignore
     AnnotatedRelationshipElement: KeyElements.ANNOTATED_RELATIONSHIP_ELEMENT,
     RelationshipElement: KeyElements.RELATIONSHIP_ELEMENT,
-    SubmodelElement: KeyElements.SUBMODEL_ELEMENT,
+    SubmodelElement: KeyElements.SUBMODEL_ELEMENT,  # type: ignore
 }
