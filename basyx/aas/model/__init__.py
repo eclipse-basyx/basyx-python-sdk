@@ -44,7 +44,7 @@ KEY_TYPES_CLASSES: Dict[Type[Referable], KeyTypes] = {
     Submodel: KeyTypes.SUBMODEL,
     Entity: KeyTypes.ENTITY,
     BasicEventElement: KeyTypes.BASIC_EVENT_ELEMENT,
-    EventElement: KeyTypes.EVENT_ELEMENT,
+    EventElement: KeyTypes.EVENT_ELEMENT,  # type: ignore
     Blob: KeyTypes.BLOB,
     File: KeyTypes.FILE,
     Operation: KeyTypes.OPERATION,
@@ -53,10 +53,10 @@ KEY_TYPES_CLASSES: Dict[Type[Referable], KeyTypes] = {
     MultiLanguageProperty: KeyTypes.MULTI_LANGUAGE_PROPERTY,
     Range: KeyTypes.RANGE,
     ReferenceElement: KeyTypes.REFERENCE_ELEMENT,
-    DataElement: KeyTypes.DATA_ELEMENT,
+    DataElement: KeyTypes.DATA_ELEMENT,  # type: ignore
     SubmodelElementCollection: KeyTypes.SUBMODEL_ELEMENT_COLLECTION,
     SubmodelElementList: KeyTypes.SUBMODEL_ELEMENT_LIST,
     AnnotatedRelationshipElement: KeyTypes.ANNOTATED_RELATIONSHIP_ELEMENT,
     RelationshipElement: KeyTypes.RELATIONSHIP_ELEMENT,
-    SubmodelElement: KeyTypes.SUBMODEL_ELEMENT,
+    SubmodelElement: KeyTypes.SUBMODEL_ELEMENT,  # type: ignore
 }
