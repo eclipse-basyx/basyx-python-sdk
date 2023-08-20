@@ -16,6 +16,16 @@
       <aas:administration>
         <aas:version>9</aas:version>
         <aas:revision>0</aas:revision>
+        <aas:creator>
+          <aas:type>GlobalReference</aas:type>
+          <aas:keys>
+            <aas:key>
+              <aas:type>GlobalReference</aas:type>
+              <aas:value>http://acplt.org/AdministrativeInformation/Test_AssetAdministrationShell</aas:value>
+            </aas:key>
+          </aas:keys>
+        </aas:creator>
+        <aas:templateId>http://acplt.org/AdministrativeInformationTemplates/Test_AssetAdministrationShell</aas:templateId>
       </aas:administration>
       <aas:id>https://acplt.org/Test_AssetAdministrationShell</aas:id>
       <aas:embeddedDataSpecifications>
@@ -308,6 +318,16 @@
       <aas:administration>
         <aas:version>9</aas:version>
         <aas:revision>0</aas:revision>
+        <aas:creator>
+          <aas:type>GlobalReference</aas:type>
+          <aas:keys>
+            <aas:key>
+              <aas:type>GlobalReference</aas:type>
+              <aas:value>http://acplt.org/AdministrativeInformation/TestAsset/Identification</aas:value>
+            </aas:key>
+          </aas:keys>
+        </aas:creator>
+        <aas:templateId>http://acplt.org/AdministrativeInformationTemplates/TestAsset/Identification</aas:templateId>
       </aas:administration>
       <aas:id>http://acplt.org/Submodels/Assets/TestAsset/Identification</aas:id>
       <aas:kind>Instance</aas:kind>
@@ -472,6 +492,7 @@
       </aas:description>
       <aas:administration>
         <aas:version>9</aas:version>
+        <aas:templateId>http://acplt.org/AdministrativeInformationTemplates/TestAsset/BillOfMaterial</aas:templateId>
       </aas:administration>
       <aas:id>http://acplt.org/Submodels/Assets/TestAsset/BillOfMaterial</aas:id>
       <aas:kind>Instance</aas:kind>
@@ -638,6 +659,15 @@
       <aas:administration>
         <aas:version>9</aas:version>
         <aas:revision>0</aas:revision>
+        <aas:creator>
+          <aas:type>GlobalReference</aas:type>
+          <aas:keys>
+            <aas:key>
+              <aas:type>GlobalReference</aas:type>
+              <aas:value>http://acplt.org/AdministrativeInformation/Test_Submodel</aas:value>
+            </aas:key>
+          </aas:keys>
+        </aas:creator>
       </aas:administration>
       <aas:id>https://acplt.org/Test_Submodel</aas:id>
       <aas:kind>Instance</aas:kind>
@@ -3031,6 +3061,16 @@
         </aas:embeddedDataSpecifications>
         <aas:version>9</aas:version>
         <aas:revision>0</aas:revision>
+        <aas:creator>
+          <aas:type>GlobalReference</aas:type>
+          <aas:keys>
+            <aas:key>
+              <aas:type>GlobalReference</aas:type>
+              <aas:value>http://acplt.org/AdministrativeInformation/Test_ConceptDescription</aas:value>
+            </aas:key>
+          </aas:keys>
+        </aas:creator>
+        <aas:templateId>http://acplt.org/AdministrativeInformationTemplates/Test_ConceptDescription</aas:templateId>
       </aas:administration>
       <aas:id>https://acplt.org/Test_ConceptDescription</aas:id>
       <aas:embeddedDataSpecifications>

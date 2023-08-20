@@ -16,7 +16,17 @@
             "id": "https://acplt.org/Test_AssetAdministrationShell",
             "administration": {
                 "version": "9",
-                "revision": "0"
+                "revision": "0",
+                "creator": {
+                    "type": "GlobalReference",
+                    "keys": [
+                        {
+                            "type": "GlobalReference",
+                            "value": "http://acplt.org/AdministrativeInformation/Test_AssetAdministrationShell"
+                        }
+                    ]
+                },
+                "templateId": "http://acplt.org/AdministrativeInformationTemplates/Test_AssetAdministrationShell"
             },
             "derivedFrom": {
                 "type": "ModelReference",
@@ -322,7 +332,17 @@
             "id": "http://acplt.org/Submodels/Assets/TestAsset/Identification",
             "administration": {
                 "version": "9",
-                "revision": "0"
+                "revision": "0",
+                "creator": {
+                    "type": "GlobalReference",
+                    "keys": [
+                        {
+                            "type": "GlobalReference",
+                            "value": "http://acplt.org/AdministrativeInformation/TestAsset/Identification"
+                        }
+                    ]
+                },
+                "templateId": "http://acplt.org/AdministrativeInformationTemplates/TestAsset/Identification"
             },
             "semanticId": {
                 "type": "ModelReference",
@@ -488,7 +508,8 @@
             "modelType": "Submodel",
             "id": "http://acplt.org/Submodels/Assets/TestAsset/BillOfMaterial",
             "administration": {
-                "version": "9"
+                "version": "9",
+                "templateId": "http://acplt.org/AdministrativeInformationTemplates/TestAsset/BillOfMaterial"
             },
             "semanticId": {
                 "type": "ModelReference",
@@ -760,7 +781,16 @@
             "id": "https://acplt.org/Test_Submodel",
             "administration": {
                 "version": "9",
-                "revision": "0"
+                "revision": "0",
+                "creator": {
+                    "type": "GlobalReference",
+                    "keys": [
+                        {
+                            "type": "GlobalReference",
+                            "value": "http://acplt.org/AdministrativeInformation/Test_Submodel"
+                        }
+                    ]
+                }
             },
             "semanticId": {
                 "type": "GlobalReference",
@@ -3086,6 +3116,16 @@
             "administration": {
                 "version": "9",
                 "revision": "0",
+                "creator": {
+                    "type": "GlobalReference",
+                    "keys": [
+                        {
+                            "type": "GlobalReference",
+                            "value": "http://acplt.org/AdministrativeInformation/Test_ConceptDescription"
+                        }
+                    ]
+                },
+                "templateId": "http://acplt.org/AdministrativeInformationTemplates/Test_ConceptDescription",
                 "embeddedDataSpecifications": [
                     {
                         "dataSpecification": {

@@ -193,7 +193,14 @@ def create_example_asset_identification_submodel() -> model.Submodel:
                                          'de': 'Ein Beispiel-Identifikations-Submodel für eine Test-Anwendung'}),
         parent=None,
         administration=model.AdministrativeInformation(version='9',
-                                                       revision='0'),
+                                                       revision='0',
+                                                       creator=model.GlobalReference((
+                                                           model.Key(model.KeyTypes.GLOBAL_REFERENCE,
+                                                                     'http://acplt.org/AdministrativeInformation/'
+                                                                     'TestAsset/Identification'),
+                                                       )),
+                                                       template_id='http://acplt.org/AdministrativeInformation'
+                                                                   'Templates/TestAsset/Identification'),
         semantic_id=model.ModelReference((model.Key(type_=model.KeyTypes.SUBMODEL,
                                                     value='http://acplt.org/SubmodelTemplates/AssetIdentification'),),
                                          model.Submodel),
@@ -313,7 +320,9 @@ def create_example_bill_of_material_submodel() -> model.Submodel:
         description=model.LangStringSet({'en-US': 'An example bill of material submodel for the test application',
                                          'de': 'Ein Beispiel-BillofMaterial-Submodel für eine Test-Anwendung'}),
         parent=None,
-        administration=model.AdministrativeInformation(version='9'),
+        administration=model.AdministrativeInformation(version='9',
+                                                       template_id='http://acplt.org/AdministrativeInformation'
+                                                                   'Templates/TestAsset/BillOfMaterial'),
         semantic_id=model.ModelReference((model.Key(type_=model.KeyTypes.SUBMODEL,
                                                     value='http://acplt.org/SubmodelTemplates/BillOfMaterial'),),
                                          model.Submodel),
@@ -703,7 +712,12 @@ def create_example_submodel() -> model.Submodel:
                                          'de': 'Ein Beispiel-Teilmodell für eine Test-Anwendung'}),
         parent=None,
         administration=model.AdministrativeInformation(version='9',
-                                                       revision='0'),
+                                                       revision='0',
+                                                       creator=model.GlobalReference((
+                                                           model.Key(model.KeyTypes.GLOBAL_REFERENCE,
+                                                                     'http://acplt.org/AdministrativeInformation/'
+                                                                     'Test_Submodel'),
+                                                       )),),
         semantic_id=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
                                                      value='http://acplt.org/SubmodelTemplates/'
                                                            'ExampleSubmodel'),)),
@@ -732,7 +746,15 @@ def create_example_concept_description() -> model.ConceptDescription:
         description=model.LangStringSet({'en-US': 'An example concept description for the test application',
                                          'de': 'Ein Beispiel-ConceptDescription für eine Test-Anwendung'}),
         parent=None,
-        administration=model.AdministrativeInformation(version='9', revision='0',
+        administration=model.AdministrativeInformation(version='9',
+                                                       revision='0',
+                                                       creator=model.GlobalReference((
+                                                           model.Key(model.KeyTypes.GLOBAL_REFERENCE,
+                                                                     'http://acplt.org/AdministrativeInformation/'
+                                                                     'Test_ConceptDescription'),
+                                                       )),
+                                                       template_id='http://acplt.org/AdministrativeInformation'
+                                                                   'Templates/Test_ConceptDescription',
                                                        embedded_data_specifications=(
                                                            _embedded_data_specification_iec61360,
                                                        )),
@@ -778,7 +800,14 @@ def create_example_asset_administration_shell() -> \
                                          'de': 'Ein Beispiel-Verwaltungsschale für eine Test-Anwendung'}),
         parent=None,
         administration=model.AdministrativeInformation(version='9',
-                                                       revision='0'),
+                                                       revision='0',
+                                                       creator=model.GlobalReference((
+                                                           model.Key(model.KeyTypes.GLOBAL_REFERENCE,
+                                                                     'http://acplt.org/AdministrativeInformation/'
+                                                                     'Test_AssetAdministrationShell'),
+                                                       )),
+                                                       template_id='http://acplt.org/AdministrativeInformation'
+                                                                   'Templates/Test_AssetAdministrationShell'),
         submodel={model.ModelReference((model.Key(type_=model.KeyTypes.SUBMODEL,
                                                   value='https://acplt.org/Test_Submodel'),),
                                        model.Submodel,
