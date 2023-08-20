@@ -71,10 +71,10 @@ class SubmodelElementListTest(unittest.TestCase):
             model.SubmodelElementList("test_list", model.MultiLanguageProperty, {mlp},
                                       semantic_id_list_element=model.ExternalReference((
                                           model.Key(model.KeyTypes.GLOBAL_REFERENCE, "urn:x-test:test"),)))
-        self.assertEqual("If semantic_id_list_element=GlobalReference(key=(Key(type=GLOBAL_REFERENCE, "
+        self.assertEqual("If semantic_id_list_element=ExternalReference(key=(Key(type=GLOBAL_REFERENCE, "
                          "value=urn:x-test:test),)) is specified all first level children must have "
                          "the same semantic_id, got MultiLanguageProperty[test] with "
-                         "semantic_id=GlobalReference(key=(Key(type=GLOBAL_REFERENCE, value=urn:x-test:invalid),)) "
+                         "semantic_id=ExternalReference(key=(Key(type=GLOBAL_REFERENCE, value=urn:x-test:invalid),)) "
                          "(Constraint AASd-107)", str(cm.exception))
         model.SubmodelElementList("test_list", model.MultiLanguageProperty, {mlp},
                                   semantic_id_list_element=model.ExternalReference((
@@ -126,9 +126,9 @@ class SubmodelElementListTest(unittest.TestCase):
         with self.assertRaises(model.AASConstraintViolation) as cm:
             model.SubmodelElementList("test_list", model.MultiLanguageProperty, [mlp1, mlp2])
         self.assertEqual("Element to be added MultiLanguageProperty[mlp2] has semantic_id "
-                         "GlobalReference(key=(Key(type=GLOBAL_REFERENCE, value=urn:x-test:different),)), "
+                         "ExternalReference(key=(Key(type=GLOBAL_REFERENCE, value=urn:x-test:different),)), "
                          "while already contained element MultiLanguageProperty[test_list / mlp1] has semantic_id "
-                         "GlobalReference(key=(Key(type=GLOBAL_REFERENCE, value=urn:x-test:test),)), "
+                         "ExternalReference(key=(Key(type=GLOBAL_REFERENCE, value=urn:x-test:test),)), "
                          "which aren't equal. (Constraint AASd-114)", str(cm.exception))
         mlp2.semantic_id = semantic_id1
         model.SubmodelElementList("test_list", model.MultiLanguageProperty, [mlp1, mlp2])

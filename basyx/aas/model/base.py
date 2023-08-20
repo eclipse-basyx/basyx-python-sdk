@@ -777,7 +777,7 @@ class Reference(metaclass=abc.ABCMeta):
     A reference is an ordered list of keys, each key referencing an element. The complete list of keys may for
     example be concatenated to a path that then gives unique access to an element or entity.
 
-    This is the abstract superclass of GlobalReference and ModelReference, which implements common attributes and
+    This is the abstract superclass of ExternalReference and ModelReference, which implements common attributes and
     methods used in both reference types. The two reference types are implemented as separate classes in this SDK to
     allow typing and resolving of References with Reference/type=ModelReference.
 
@@ -789,15 +789,15 @@ class Reference(metaclass=abc.ABCMeta):
     :ivar key: Ordered list of unique reference in its name space, each key referencing an element. The complete
                list of keys may for example be concatenated to a path that then gives unique access to an element
                or entity.
-    :ivar referred_semantic_id: SemanticId of the referenced model element. For global references there typically is no
-                                semantic id.
+    :ivar referred_semantic_id: SemanticId of the referenced model element. For external references there typically is
+                                no semantic id.
     """
     @abc.abstractmethod
     def __init__(self, key: Tuple[Key, ...], referred_semantic_id: Optional["Reference"] = None):
         if len(key) < 1:
             raise ValueError("A reference must have at least one key!")
 
-        # Constraint AASd-121 is enforced by checking AASd-122 for global references and AASd-123 for model references
+        # Constraint AASd-121 is enforced by checking AASd-122 for external references and AASd-123 for model references
 
         self.key: Tuple[Key, ...]
         self.referred_semantic_id: Optional["Reference"]
@@ -836,22 +836,22 @@ class ExternalReference(Reference):
     :ivar key: Ordered list of unique reference in its name space, each key referencing an element. The complete
                list of keys may for example be concatenated to a path that then gives unique access to an element
                or entity.
-    :ivar referred_semantic_id: SemanticId of the referenced model element. For global references there typically is no
-                                semantic id.
+    :ivar referred_semantic_id: SemanticId of the referenced model element. For external references there typically is
+                                no semantic id.
     """
 
     def __init__(self, key: Tuple[Key, ...], referred_semantic_id: Optional["Reference"] = None):
         super().__init__(key, referred_semantic_id)
 
         if not key[0].type.is_generic_globally_identifiable:
-            raise AASConstraintViolation(122, "The type of the first key of a GlobalReference must be a "
+            raise AASConstraintViolation(122, "The type of the first key of an ExternalReference must be a "
                                               f"GenericGloballyIdentifiable: {key[0]!r}")
         if not key[-1].type.is_generic_globally_identifiable and not key[-1].type.is_generic_fragment_key:
-            raise AASConstraintViolation(124, "The type of the last key of a GlobalReference must be a "
+            raise AASConstraintViolation(124, "The type of the last key of an ExternalReference must be a "
                                               f"GenericGloballyIdentifiable or a GenericFragmentKey: {key[-1]!r}")
 
     def __repr__(self) -> str:
-        return "GlobalReference(key={})".format(self.key)
+        return "ExternalReference(key={})".format(self.key)
 
 
 class ModelReference(Reference, Generic[_RT]):
@@ -881,8 +881,8 @@ class ModelReference(Reference, Generic[_RT]):
                element or entity.
     :ivar ~.type: The type of the referenced object (additional parameter, not from the AAS Metamodel)
                   *Initialization parameter:* `type_`
-    :ivar referred_semantic_id: SemanticId of the referenced model element. For global references there typically is no
-                                semantic id.
+    :ivar referred_semantic_id: SemanticId of the referenced model element. For external references there typically is
+                                no semantic id.
     """
     def __init__(self, key: Tuple[Key, ...], type_: Type[_RT], referred_semantic_id: Optional[Reference] = None):
         super().__init__(key, referred_semantic_id)
@@ -1046,7 +1046,7 @@ class DataSpecificationContent:
 
     *Constraint AASc-3a-050:* If the `Data_specification_IEC_61360` is used
         for an element, the value of `Has_data_specification.embedded_data_specifications`
-        shall contain the global reference to the IRI of the corresponding data specification
+        shall contain the external reference to the IRI of the corresponding data specification
         template
         https://admin-shell.io/DataSpecificationTemplates/DataSpecificationIEC61360/3/0
 

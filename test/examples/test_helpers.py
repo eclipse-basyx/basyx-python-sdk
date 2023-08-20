@@ -186,8 +186,8 @@ class AASDataCheckerTest(unittest.TestCase):
         self.assertEqual(1, sum(1 for _ in checker.failed_checks))
         checker_iterator = checker.failed_checks
         self.assertEqual("FAIL: Attribute semantic_id_list_element of SubmodelElementList[test_list] must be == "
-                         "GlobalReference(key=(Key(type=GLOBAL_REFERENCE, value=urn:x-test:test),)) "
-                         "(value=GlobalReference(key=(Key(type=GLOBAL_REFERENCE, value=urn:x-test:invalid),)))",
+                         "ExternalReference(key=(Key(type=GLOBAL_REFERENCE, value=urn:x-test:test),)) "
+                         "(value=ExternalReference(key=(Key(type=GLOBAL_REFERENCE, value=urn:x-test:invalid),)))",
                          repr(next(checker_iterator)))
         # Don't set protected attributes like this in production code!
         list_._semantic_id_list_element = model.ExternalReference(
@@ -361,6 +361,6 @@ class AASDataCheckerTest(unittest.TestCase):
         self.assertEqual("FAIL: Attribute is_case_of of ConceptDescription[test] must contain "
                          "1 References (count=0)",
                          repr(next(checker_iterator)))
-        self.assertEqual("FAIL: Concept Description Reference GlobalReference(key=(Key("
+        self.assertEqual("FAIL: Concept Description Reference ExternalReference(key=(Key("
                          "type=GLOBAL_REFERENCE, value=test),)) must exist ()",
                          repr(next(checker_iterator)))

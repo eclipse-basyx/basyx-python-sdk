@@ -367,7 +367,7 @@ class ModelNamespaceTest(unittest.TestCase):
         with self.assertRaises(KeyError) as cm:
             self.namespace.set1.add(self.prop2)
         self.assertEqual(
-            '"Object with attribute (name=\'semantic_id\', value=\'GlobalReference(key=(Key('
+            '"Object with attribute (name=\'semantic_id\', value=\'ExternalReference(key=(Key('
             'type=GLOBAL_REFERENCE, value=http://acplt.org/Test1),))\') is already present in this set of objects"',
             str(cm.exception))
         self.namespace.set2.add(self.prop5)
@@ -382,7 +382,7 @@ class ModelNamespaceTest(unittest.TestCase):
             self.namespace.set2.add(self.prop4)
         self.assertEqual(
             '"Object with attribute (name=\'semantic_id\', value=\''
-            'GlobalReference(key=(Key(type=GLOBAL_REFERENCE, value=http://acplt.org/Test1),))\')'
+            'ExternalReference(key=(Key(type=GLOBAL_REFERENCE, value=http://acplt.org/Test1),))\')'
             ' is already present in another set in the same namespace"',
             str(cm.exception))
 
@@ -657,7 +657,7 @@ class GlobalReferenceTest(unittest.TestCase):
         keys = (model.Key(model.KeyTypes.PROPERTY, "urn:x-test:x"),)
         with self.assertRaises(model.AASConstraintViolation) as cm:
             model.ExternalReference(keys)
-        self.assertEqual("The type of the first key of a GlobalReference must be a GenericGloballyIdentifiable: "
+        self.assertEqual("The type of the first key of an ExternalReference must be a GenericGloballyIdentifiable: "
                          f"{keys[0]!r} (Constraint AASd-122)", str(cm.exception))
         model.ExternalReference((model.Key(model.KeyTypes.GLOBAL_REFERENCE, "urn:x-test:x"),))
 
@@ -666,7 +666,7 @@ class GlobalReferenceTest(unittest.TestCase):
                 model.Key(model.KeyTypes.SUBMODEL, "urn:x-test:x"),)
         with self.assertRaises(model.AASConstraintViolation) as cm:
             model.ExternalReference(keys)
-        self.assertEqual("The type of the last key of a GlobalReference must be a GenericGloballyIdentifiable or a"
+        self.assertEqual("The type of the last key of an ExternalReference must be a GenericGloballyIdentifiable or a"
                          f" GenericFragmentKey: {keys[-1]!r} (Constraint AASd-124)", str(cm.exception))
         keys += (model.Key(model.KeyTypes.FRAGMENT_REFERENCE, "urn:x-test:x"),)
         model.ExternalReference(keys)
@@ -992,7 +992,7 @@ class HasSemanticsTest(unittest.TestCase):
             extension.semantic_id = None
         self.assertEqual(cm.exception.constraint_id, 118)
         self.assertEqual('semantic_id can not be removed while there is at least one supplemental_semantic_id: '
-                         '[GlobalReference(key=(Key(type=GLOBAL_REFERENCE, value=global_reference),))] '
+                         '[ExternalReference(key=(Key(type=GLOBAL_REFERENCE, value=global_reference),))] '
                          '(Constraint AASd-118)', str(cm.exception))
         extension.supplemental_semantic_id.clear()
         extension.semantic_id = None
