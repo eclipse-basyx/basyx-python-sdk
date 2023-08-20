@@ -1156,10 +1156,14 @@ class AdministrativeInformation(HasDataSpecification):
     def __eq__(self, other) -> bool:
         if not isinstance(other, AdministrativeInformation):
             return NotImplemented
-        return self.version == other.version and self._revision == other._revision
+        return self.version == other.version \
+            and self._revision == other._revision \
+            and self.creator == other.creator \
+            and self.template_id == other.template_id
 
     def __repr__(self) -> str:
-        return "AdministrativeInformation(version={}, revision={})".format(self.version, self.revision)
+        return "AdministrativeInformation(version={}, revision={}, creator={}, template_id={})".format(
+            self.version, self.revision, self.creator, self.template_id)
 
 
 @_string_constraints.constrain_identifier("id")
