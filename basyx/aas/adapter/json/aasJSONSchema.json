@@ -45,6 +45,15 @@
             "revision": {
               "type": "string",
               "minLength": 1
+            },
+            "creator": {
+              "$ref": "#/definitions/Reference"
+            },
+            "templateId": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 2000,
+              "pattern": "^([\\t\\n\\r -\ud7ff\ue000-\ufffd]|\\ud800[\\udc00-\\udfff]|[\\ud801-\\udbfe][\\udc00-\\udfff]|\\udbff[\\udc00-\\udfff])*$"
             }
           }
         }

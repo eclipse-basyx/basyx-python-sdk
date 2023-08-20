@@ -186,6 +186,10 @@ class AASToJsonEncoder(json.JSONEncoder):
             data['version'] = obj.version
             if obj.revision:
                 data['revision'] = obj.revision
+        if obj.creator:
+            data['creator'] = obj.creator
+        if obj.template_id:
+            data['templateId'] = obj.template_id
         return data
 
     @classmethod

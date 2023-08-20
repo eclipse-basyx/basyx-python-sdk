@@ -184,6 +184,10 @@ def administrative_information_to_xml(obj: model.AdministrativeInformation,
         et_administration.append(_generate_element(name=NS_AAS + "version", text=obj.version))
     if obj.revision:
         et_administration.append(_generate_element(name=NS_AAS + "revision", text=obj.revision))
+    if obj.creator:
+        et_administration.append(reference_to_xml(obj.creator, tag=NS_AAS + "creator"))
+    if obj.template_id:
+        et_administration.append(_generate_element(name=NS_AAS + "templateId", text=obj.template_id))
     return et_administration
 
 
