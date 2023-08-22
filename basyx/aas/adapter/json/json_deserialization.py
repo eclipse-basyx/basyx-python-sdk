@@ -48,6 +48,7 @@ logger = logging.getLogger(__name__)
 # #############################################################################
 
 T = TypeVar('T')
+LSS = TypeVar('LSS', bound=model.LangStringSet)
 
 
 def _get_ts(dct: Dict[str, object], key: str, type_: Type[T]) -> T:
@@ -235,9 +236,11 @@ class AASFromJsonDecoder(json.JSONDecoder):
             if 'category' in dct:
                 obj.category = _get_ts(dct, 'category', str)
             if 'displayName' in dct:
-                obj.display_name = cls._construct_lang_string_set(_get_ts(dct, 'displayName', list))
+                obj.display_name = cls._construct_lang_string_set(_get_ts(dct, 'displayName', list),
+                                                                  model.MultiLanguageNameType)
             if 'description' in dct:
-                obj.description = cls._construct_lang_string_set(_get_ts(dct, 'description', list))
+                obj.description = cls._construct_lang_string_set(_get_ts(dct, 'description', list),
+                                                                 model.MultiLanguageTextType)
         if isinstance(obj, model.Identifiable):
             if 'idShort' in dct:
                 obj.id_short = _get_ts(dct, 'idShort', str)
@@ -371,19 +374,19 @@ class AASFromJsonDecoder(json.JSONDecoder):
         return ret
 
     @classmethod
-    def _construct_lang_string_set(cls, lst: List[Dict[str, object]]) -> Optional[model.LangStringSet]:
+    def _construct_lang_string_set(cls, lst: List[Dict[str, object]], object_class: Type[LSS]) -> LSS:
         ret = {}
         for desc in lst:
             try:
                 ret[_get_ts(desc, 'language', str)] = _get_ts(desc, 'text', str)
             except (KeyError, TypeError) as e:
-                error_message = "Error while trying to convert JSON object into LangString: {} >>> {}".format(
-                    e, pprint.pformat(desc, depth=2, width=2 ** 14, compact=True))
+                error_message = "Error while trying to convert JSON object into {}: {} >>> {}".format(
+                    object_class.__name__, e, pprint.pformat(desc, depth=2, width=2 ** 14, compact=True))
                 if cls.failsafe:
                     logger.error(error_message, exc_info=e)
                 else:
                     raise type(e)(error_message) from e
-        return model.LangStringSet(ret)
+        return object_class(ret)
 
     @classmethod
     def _construct_value_list(cls, dct: Dict[str, object], value_format: model.DataTypeDefXsd) -> model.ValueList:
@@ -464,7 +467,7 @@ class AASFromJsonDecoder(json.JSONDecoder):
         ret = object_class(
             unit_name=_get_ts(dct, 'unitName', str),
             unit_symbol=_get_ts(dct, 'unitSymbol', str),
-            definition=cls._construct_lang_string_set(_get_ts(dct, 'definition', list))
+            definition=cls._construct_lang_string_set(_get_ts(dct, 'definition', list), model.DefinitionTypeIEC61360)
         )
         if 'siNotation' in dct:
             ret.si_notation = _get_ts(dct, 'siNotation', str)
@@ -492,13 +495,16 @@ class AASFromJsonDecoder(json.JSONDecoder):
     def _construct_data_specification_iec61360(cls, dct: Dict[str, object],
                                                object_class=model.base.DataSpecificationIEC61360)\
             -> model.base.DataSpecificationIEC61360:
-        ret = object_class(preferred_name=cls._construct_lang_string_set(_get_ts(dct, 'preferredName', list)))
+        ret = object_class(preferred_name=cls._construct_lang_string_set(_get_ts(dct, 'preferredName', list),
+                                                                         model.PreferredNameTypeIEC61360))
         if 'dataType' in dct:
             ret.data_type = IEC61360_DATA_TYPES_INVERSE[_get_ts(dct, 'dataType', str)]
         if 'definition' in dct:
-            ret.definition = cls._construct_lang_string_set(_get_ts(dct, 'definition', list))
+            ret.definition = cls._construct_lang_string_set(_get_ts(dct, 'definition', list),
+                                                            model.DefinitionTypeIEC61360)
         if 'shortName' in dct:
-            ret.short_name = cls._construct_lang_string_set(_get_ts(dct, 'shortName', list))
+            ret.short_name = cls._construct_lang_string_set(_get_ts(dct, 'shortName', list),
+                                                            model.ShortNameTypeIEC61360)
         if 'unit' in dct:
             ret.unit = _get_ts(dct, 'unit', str)
         if 'unitId' in dct:
@@ -727,7 +733,7 @@ class AASFromJsonDecoder(json.JSONDecoder):
         ret = object_class(id_short=_get_ts(dct, "idShort", str))
         cls._amend_abstract_attributes(ret, dct)
         if 'value' in dct and dct['value'] is not None:
-            ret.value = cls._construct_lang_string_set(_get_ts(dct, 'value', list))
+            ret.value = cls._construct_lang_string_set(_get_ts(dct, 'value', list), model.MultiLanguageTextType)
         if 'valueId' in dct:
             ret.value_id = cls._construct_reference(_get_ts(dct, 'valueId', dict))
         return ret

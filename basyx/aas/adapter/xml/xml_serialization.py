@@ -19,7 +19,7 @@ How to use:
 """
 
 from lxml import etree  # type: ignore
-from typing import Dict, IO, Optional
+from typing import Dict, IO, Optional, Type
 import base64
 
 from basyx.aas import model
@@ -161,9 +161,16 @@ def lang_string_set_to_xml(obj: model.LangStringSet, tag: str) -> etree.Element:
     :param tag: Namespace+Tag name of the returned XML element.
     :return: Serialized ElementTree object
     """
+    LANG_STRING_SET_TAGS: Dict[Type[model.LangStringSet], str] = {k: NS_AAS + v for k, v in {
+        model.MultiLanguageNameType: "langStringNameType",
+        model.MultiLanguageTextType: "langStringTextType",
+        model.DefinitionTypeIEC61360: "langStringDefinitionTypeIec61360",
+        model.PreferredNameTypeIEC61360: "langStringPreferredNameTypeIec61360",
+        model.ShortNameTypeIEC61360: "langStringShortNameTypeIec61360"
+    }.items()}
     et_lss = _generate_element(name=tag)
     for language, text in obj.items():
-        et_ls = _generate_element(name=NS_AAS + "langString")
+        et_ls = _generate_element(name=LANG_STRING_SET_TAGS[type(obj)])
         et_ls.append(_generate_element(name=NS_AAS + "language", text=language))
         et_ls.append(_generate_element(name=NS_AAS + "text", text=text))
         et_lss.append(et_ls)
