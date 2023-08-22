@@ -77,6 +77,7 @@ class AASToJsonEncoder(json.JSONEncoder):
             model.Extension: self._extension_to_json,
             model.File: self._file_to_json,
             model.Key: self._key_to_json,
+            model.LangStringSet: self._lang_string_set_to_json,
             model.MultiLanguageProperty: self._multi_language_property_to_json,
             model.Operation: self._operation_to_json,
             model.OperationVariable: self._operation_variable_to_json,
@@ -123,11 +124,11 @@ class AASToJsonEncoder(json.JSONEncoder):
             if obj.id_short:
                 data['idShort'] = obj.id_short
             if obj.display_name:
-                data['displayName'] = cls._lang_string_set_to_json(obj.display_name)
+                data['displayName'] = obj.display_name
             if obj.category:
                 data['category'] = obj.category
             if obj.description:
-                data['description'] = cls._lang_string_set_to_json(obj.description)
+                data['description'] = obj.description
             try:
                 ref_type = next(iter(t for t in inspect.getmro(type(obj)) if t in model.KEY_TYPES_CLASSES))
             except StopIteration as e:
@@ -337,14 +338,14 @@ class AASToJsonEncoder(json.JSONEncoder):
         """
         data_spec: Dict[str, object] = {
             'modelType': 'DataSpecificationIEC61360',
-            'preferredName': cls._lang_string_set_to_json(obj.preferred_name)
+            'preferredName': obj.preferred_name
         }
         if obj.data_type is not None:
             data_spec['dataType'] = _generic.IEC61360_DATA_TYPES[obj.data_type]
         if obj.definition is not None:
-            data_spec['definition'] = cls._lang_string_set_to_json(obj.definition)
+            data_spec['definition'] = obj.definition
         if obj.short_name is not None:
-            data_spec['shortName'] = cls._lang_string_set_to_json(obj.short_name)
+            data_spec['shortName'] = obj.short_name
         if obj.unit is not None:
             data_spec['unit'] = obj.unit
         if obj.unit_id is not None:
@@ -375,7 +376,7 @@ class AASToJsonEncoder(json.JSONEncoder):
             'modelType': 'DataSpecificationPhysicalUnit',
             'unitName': obj.unit_name,
             'unitSymbol': obj.unit_symbol,
-            'definition': cls._lang_string_set_to_json(obj.definition)
+            'definition': obj.definition
         }
         if obj.si_notation is not None:
             data_spec['siNotation'] = obj.si_notation
@@ -470,7 +471,7 @@ class AASToJsonEncoder(json.JSONEncoder):
         """
         data = cls._abstract_classes_to_json(obj)
         if obj.value:
-            data['value'] = cls._lang_string_set_to_json(obj.value)
+            data['value'] = obj.value
         if obj.value_id:
             data['valueId'] = obj.value_id
         return data
