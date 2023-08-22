@@ -319,6 +319,69 @@ class LangStringSet(MutableMapping[str, str]):
         raise KeyError(f"A {self.__class__.__name__} must not be empty!")
 
 
+class ConstrainedLangStringSet(LangStringSet, metaclass=abc.ABCMeta):
+    """
+    A :class:`~.LangStringSet` with constrained values.
+    """
+    @abc.abstractmethod
+    def __init__(self, dict_: Dict[str, str], constraint_check_fn: Callable[[str, str], None]):
+        super().__init__(dict_)
+        self._constraint_check_fn: Callable[[str, str], None] = constraint_check_fn
+        for ltag, text in self._dict.items():
+            self._check_text_constraints(ltag, text)
+
+    def _check_text_constraints(self, ltag: str, text: str) -> None:
+        try:
+            self._constraint_check_fn(text, self.__class__.__name__)
+        except ValueError as e:
+            raise ValueError(f"The text for the language tag '{ltag}' is invalid: {e}") from e
+
+    def __setitem__(self, key: str, value: str) -> None:
+        self._check_text_constraints(key, value)
+        super().__setitem__(key, value)
+
+
+class MultiLanguageNameType(ConstrainedLangStringSet):
+    """
+    A :class:`~.ConstrainedLangStringSet` where each value is a :class:`~.ShortNameType`.
+    See also: :func:`~aas.model._string_constraints.check_short_name_type`
+    """
+    def __init__(self, dict_: Dict[str, str]):
+        super().__init__(dict_, _string_constraints.check_short_name_type)
+
+
+class MultiLanguageTextType(ConstrainedLangStringSet):
+    """
+    A :class:`~.ConstrainedLangStringSet` where each value must have at least 1 and at most 1023 characters.
+    """
+    def __init__(self, dict_: Dict[str, str]):
+        super().__init__(dict_, _string_constraints.create_check_function(min_length=1, max_length=1023))
+
+
+class DefinitionTypeIEC61360(ConstrainedLangStringSet):
+    """
+    A :class:`~.ConstrainedLangStringSet` where each value must have at least 1 and at most 1023 characters.
+    """
+    def __init__(self, dict_: Dict[str, str]):
+        super().__init__(dict_, _string_constraints.create_check_function(min_length=1, max_length=1023))
+
+
+class PreferredNameTypeIEC61360(ConstrainedLangStringSet):
+    """
+    A :class:`~.ConstrainedLangStringSet` where each value must have at least 1 and at most 255 characters.
+    """
+    def __init__(self, dict_: Dict[str, str]):
+        super().__init__(dict_, _string_constraints.create_check_function(min_length=1, max_length=255))
+
+
+class ShortNameTypeIEC61360(ConstrainedLangStringSet):
+    """
+    A :class:`~.ConstrainedLangStringSet` where each value must have at least 1 and at most 18 characters.
+    """
+    def __init__(self, dict_: Dict[str, str]):
+        super().__init__(dict_, _string_constraints.create_check_function(min_length=1, max_length=18))
+
+
 class Key:
     """
     A key is a reference to an element by its id.
