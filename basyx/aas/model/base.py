@@ -36,8 +36,9 @@ LabelType = str
 MessageTopicType = str
 NameType = str
 PathType = str
-RevisionType = str
 QualifierType = str
+RevisionType = str
+ShortNameType = str
 VersionType = str
 
 
