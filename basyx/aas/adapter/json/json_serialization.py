@@ -145,7 +145,7 @@ class AASToJsonEncoder(json.JSONEncoder):
                 data['supplementalSemanticIds'] = list(obj.supplemental_semantic_id)
         if isinstance(obj, model.HasKind):
             if obj.kind is model.ModellingKind.TEMPLATE:
-                data['kind'] = _generic.MODELING_KIND[obj.kind]
+                data['kind'] = _generic.MODELLING_KIND[obj.kind]
         if isinstance(obj, model.Qualifiable) and not cls.stripped:
             if obj.qualifier:
                 data['qualifiers'] = list(obj.qualifier)

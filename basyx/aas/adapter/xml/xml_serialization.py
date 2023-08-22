@@ -105,7 +105,7 @@ def abstract_classes_to_xml(tag: str, obj: object) -> etree.Element:
         if obj.kind is model.ModellingKind.TEMPLATE:
             elm.append(_generate_element(name=NS_AAS + "kind", text="Template"))
         else:
-            # then modeling-kind is Instance
+            # then modelling-kind is Instance
             elm.append(_generate_element(name=NS_AAS + "kind", text="Instance"))
     if isinstance(obj, model.HasSemantics):
         if obj.semantic_id:

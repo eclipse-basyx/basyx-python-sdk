@@ -130,7 +130,7 @@ class XmlDeserializationTest(unittest.TestCase):
         """)
         self._assertInExceptionAndLog(xml, "False", ValueError, logging.ERROR)
 
-    def test_no_modeling_kind(self) -> None:
+    def test_no_modelling_kind(self) -> None:
         xml = _xml_wrap("""
         <aas:submodels>
             <aas:submodel>
@@ -140,7 +140,7 @@ class XmlDeserializationTest(unittest.TestCase):
         """)
         # should get parsed successfully
         object_store = read_aas_xml_file(io.BytesIO(xml.encode("utf-8")), failsafe=False)
-        # modeling kind should default to INSTANCE
+        # modelling kind should default to INSTANCE
         submodel = object_store.pop()
         self.assertIsInstance(submodel, model.Submodel)
         assert isinstance(submodel, model.Submodel)  # to make mypy happy

@@ -192,7 +192,7 @@ class EntityType(Enum):
 class ModellingKind(Enum):
     """
     Enumeration for denoting whether an element is a type or an instance.
-    *Note:* An :attr:`~.ModelingKind.INSTANCE` becomes an individual entity of a template, for example a device model,
+    *Note:* An :attr:`~.ModellingKind.INSTANCE` becomes an individual entity of a template, for example a device model,
     by defining specific property values.
 
     *Note:* In an object-oriented view, an instance denotes an object of a template (class).
@@ -1405,7 +1405,7 @@ class HasKind(metaclass=abc.ABCMeta):
 
     <<abstract>>
 
-    :ivar _kind: Kind of the element: either type or instance. Default = :attr:`~ModelingKind.INSTANCE`.
+    :ivar _kind: Kind of the element: either type or instance. Default = :attr:`~ModellingKind.INSTANCE`.
     """
     @abc.abstractmethod
     def __init__(self):

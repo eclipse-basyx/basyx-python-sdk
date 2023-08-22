@@ -526,7 +526,7 @@
   </xs:group>
   <xs:group name="hasKind">
     <xs:sequence>
-      <xs:element name="kind" type="modelingKind_t" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="kind" type="modellingKind_t" minOccurs="0" maxOccurs="1"/>
     </xs:sequence>
   </xs:group>
   <xs:group name="hasKind_choice">
@@ -1101,7 +1101,7 @@
       <xs:group ref="levelType"/>
     </xs:sequence>
   </xs:complexType>
-  <xs:simpleType name="modelingKind_t">
+  <xs:simpleType name="modellingKind_t">
     <xs:restriction base="xs:string">
       <xs:enumeration value="Template"/>
       <xs:enumeration value="Instance"/>

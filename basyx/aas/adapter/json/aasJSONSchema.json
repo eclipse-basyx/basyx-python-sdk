@@ -654,7 +654,7 @@
       "type": "object",
       "properties": {
         "kind": {
-          "$ref": "#/definitions/ModelingKind"
+          "$ref": "#/definitions/ModellingKind"
         }
       }
     },
@@ -802,7 +802,7 @@
         "SubmodelElementList"
       ]
     },
-    "ModelingKind": {
+    "ModellingKind": {
       "type": "string",
       "enum": [
         "Instance",
