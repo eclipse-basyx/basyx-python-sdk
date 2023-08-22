@@ -15,6 +15,7 @@ by a regular expression. The following types aliased in the base module are cons
 - NameType
 - PathType
 - RevisionType
+- ShortNameType
 - QualifierType
 - VersionType
 """
@@ -62,12 +63,16 @@ def check_path_type(value: str, type_name: str = "PathType") -> None:
     return check_identifier(value, type_name)
 
 
+def check_qualifier_type(value: str, type_name: str = "QualifierType") -> None:
+    return check_name_type(value, type_name)
+
+
 def check_revision_type(value: str, type_name: str = "RevisionType") -> None:
     return check(value, type_name, 1, 4, re.compile(r"([0-9]|[1-9][0-9]*)"))
 
 
-def check_qualifier_type(value: str, type_name: str = "QualifierType") -> None:
-    return check_name_type(value, type_name)
+def check_short_name_type(value: str, type_name: str = "ShortNameType") -> None:
+    return check(value, type_name, 1, 64)
 
 
 def check_version_type(value: str, type_name: str = "VersionType") -> None:
@@ -117,12 +122,16 @@ def constrain_path_type(pub_attr_name: str) -> Callable[[Type[_T]], Type[_T]]:
     return constrain_attr(pub_attr_name, check_path_type)
 
 
+def constrain_qualifier_type(pub_attr_name: str) -> Callable[[Type[_T]], Type[_T]]:
+    return constrain_attr(pub_attr_name, check_qualifier_type)
+
+
 def constrain_revision_type(pub_attr_name: str) -> Callable[[Type[_T]], Type[_T]]:
     return constrain_attr(pub_attr_name, check_revision_type)
 
 
-def constrain_qualifier_type(pub_attr_name: str) -> Callable[[Type[_T]], Type[_T]]:
-    return constrain_attr(pub_attr_name, check_qualifier_type)
+def constrain_short_name_type(pub_attr_name: str) -> Callable[[Type[_T]], Type[_T]]:
+    return constrain_attr(pub_attr_name, check_short_name_type)
 
 
 def constrain_version_type(pub_attr_name: str) -> Callable[[Type[_T]], Type[_T]]:
