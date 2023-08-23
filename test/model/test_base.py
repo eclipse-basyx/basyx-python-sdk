@@ -647,7 +647,7 @@ class ModelOrderedNamespaceTest(ModelNamespaceTest):
                          str(cm.exception))
 
 
-class GlobalReferenceTest(unittest.TestCase):
+class ExternalReferenceTest(unittest.TestCase):
     def test_constraints(self):
         with self.assertRaises(ValueError) as cm:
             model.ExternalReference(tuple())
