@@ -195,7 +195,7 @@ def create_example_asset_identification_submodel() -> model.Submodel:
         parent=None,
         administration=model.AdministrativeInformation(version='9',
                                                        revision='0',
-                                                       creator=model.GlobalReference((
+                                                       creator=model.ExternalReference((
                                                            model.Key(model.KeyTypes.GLOBAL_REFERENCE,
                                                                      'http://acplt.org/AdministrativeInformation/'
                                                                      'TestAsset/Identification'),
@@ -719,7 +719,7 @@ def create_example_submodel() -> model.Submodel:
         parent=None,
         administration=model.AdministrativeInformation(version='9',
                                                        revision='0',
-                                                       creator=model.GlobalReference((
+                                                       creator=model.ExternalReference((
                                                            model.Key(model.KeyTypes.GLOBAL_REFERENCE,
                                                                      'http://acplt.org/AdministrativeInformation/'
                                                                      'Test_Submodel'),
@@ -754,7 +754,7 @@ def create_example_concept_description() -> model.ConceptDescription:
         parent=None,
         administration=model.AdministrativeInformation(version='9',
                                                        revision='0',
-                                                       creator=model.GlobalReference((
+                                                       creator=model.ExternalReference((
                                                            model.Key(model.KeyTypes.GLOBAL_REFERENCE,
                                                                      'http://acplt.org/AdministrativeInformation/'
                                                                      'Test_ConceptDescription'),
@@ -807,7 +807,7 @@ def create_example_asset_administration_shell() -> \
         parent=None,
         administration=model.AdministrativeInformation(version='9',
                                                        revision='0',
-                                                       creator=model.GlobalReference((
+                                                       creator=model.ExternalReference((
                                                            model.Key(model.KeyTypes.GLOBAL_REFERENCE,
                                                                      'http://acplt.org/AdministrativeInformation/'
                                                                      'Test_AssetAdministrationShell'),

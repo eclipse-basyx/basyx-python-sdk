@@ -17,7 +17,7 @@
         <aas:version>9</aas:version>
         <aas:revision>0</aas:revision>
         <aas:creator>
-          <aas:type>GlobalReference</aas:type>
+          <aas:type>ExternalReference</aas:type>
           <aas:keys>
             <aas:key>
               <aas:type>GlobalReference</aas:type>
@@ -319,7 +319,7 @@
         <aas:version>9</aas:version>
         <aas:revision>0</aas:revision>
         <aas:creator>
-          <aas:type>GlobalReference</aas:type>
+          <aas:type>ExternalReference</aas:type>
           <aas:keys>
             <aas:key>
               <aas:type>GlobalReference</aas:type>
@@ -660,7 +660,7 @@
         <aas:version>9</aas:version>
         <aas:revision>0</aas:revision>
         <aas:creator>
-          <aas:type>GlobalReference</aas:type>
+          <aas:type>ExternalReference</aas:type>
           <aas:keys>
             <aas:key>
               <aas:type>GlobalReference</aas:type>
@@ -3062,7 +3062,7 @@
         <aas:version>9</aas:version>
         <aas:revision>0</aas:revision>
         <aas:creator>
-          <aas:type>GlobalReference</aas:type>
+          <aas:type>ExternalReference</aas:type>
           <aas:keys>
             <aas:key>
               <aas:type>GlobalReference</aas:type>
