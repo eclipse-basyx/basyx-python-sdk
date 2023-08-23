@@ -17,6 +17,15 @@
           </xs:restriction>
         </xs:simpleType>
       </xs:element>
+      <xs:element name="creator" type="reference_t" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="templateId" minOccurs="0" maxOccurs="1">
+        <xs:simpleType>
+          <xs:restriction base="xs:string">
+            <xs:minLength value="1"/>
+            <xs:maxLength value="2000"/>
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
     </xs:sequence>
   </xs:group>
   <xs:group name="annotatedRelationshipElement">

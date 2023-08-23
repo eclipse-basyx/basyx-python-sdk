@@ -1094,6 +1094,7 @@ class HasDataSpecification(metaclass=abc.ABCMeta):
 
 
 @_string_constraints.constrain_version_type("version")
+@_string_constraints.constrain_identifier("template_id")
 class AdministrativeInformation(HasDataSpecification):
     """
     Administrative meta-information for an element like version information.
@@ -1103,6 +1104,17 @@ class AdministrativeInformation(HasDataSpecification):
 
     :ivar version: Version of the element.
     :ivar revision: Revision of the element.
+    :ivar creator: The subject ID of the subject responsible for making the element
+    :ivar template_id: Identifier of the template that guided the creation of the element
+
+    *Note:*  In case of a submodel, the template ID is the identifier of the submodel template that guided the
+      creation of the submodel.
+
+    *Note:* The submodel template ID is not relevant for validation. Here, the Submodel/semanticId shall be used
+
+    *Note:* Usage of the template ID is not restricted to submodel instances.
+      The creation of submodel templates can also be guided by another submodel template.
+
     :ivar embedded_data_specifications: List of Embedded data specification.
      used by the element.
     """
@@ -1110,6 +1122,8 @@ class AdministrativeInformation(HasDataSpecification):
     def __init__(self,
                  version: Optional[VersionType] = None,
                  revision: Optional[RevisionType] = None,
+                 creator: Optional[Reference] = None,
+                 template_id: Optional[Identifier] = None,
                  embedded_data_specifications: Iterable[EmbeddedDataSpecification] = ()):
         """
         Initializer of AdministrativeInformation
@@ -1122,6 +1136,8 @@ class AdministrativeInformation(HasDataSpecification):
         self.version: Optional[VersionType] = version
         self._revision: Optional[RevisionType]
         self.revision = revision
+        self.creator: Optional[Reference] = creator
+        self.template_id: Optional[Identifier] = template_id
         self.embedded_data_specifications: List[EmbeddedDataSpecification] = list(embedded_data_specifications)
 
     def _get_revision(self):
@@ -1140,10 +1156,14 @@ class AdministrativeInformation(HasDataSpecification):
     def __eq__(self, other) -> bool:
         if not isinstance(other, AdministrativeInformation):
             return NotImplemented
-        return self.version == other.version and self._revision == other._revision
+        return self.version == other.version \
+            and self._revision == other._revision \
+            and self.creator == other.creator \
+            and self.template_id == other.template_id
 
     def __repr__(self) -> str:
-        return "AdministrativeInformation(version={}, revision={})".format(self.version, self.revision)
+        return "AdministrativeInformation(version={}, revision={}, creator={}, template_id={})".format(
+            self.version, self.revision, self.creator, self.template_id)
 
 
 @_string_constraints.constrain_identifier("id")

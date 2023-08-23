@@ -600,8 +600,12 @@ class AASFromXmlDecoder:
                                              **_kwargs: Any) -> model.AdministrativeInformation:
         administrative_information = object_class(
             revision=_get_text_or_none(element.find(NS_AAS + "revision")),
-            version=_get_text_or_none(element.find(NS_AAS + "version"))
+            version=_get_text_or_none(element.find(NS_AAS + "version")),
+            template_id=_get_text_or_none(element.find(NS_AAS + "templateId"))
         )
+        creator = _failsafe_construct(element.find(NS_AAS + "creator"), cls.construct_reference, cls.failsafe)
+        if creator is not None:
+            administrative_information.creator = creator
         cls._amend_abstract_attributes(administrative_information, element)
         return administrative_information
 

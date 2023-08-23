@@ -356,6 +356,10 @@ class AASFromJsonDecoder(json.JSONDecoder):
                 ret.revision = _get_ts(dct, 'revision', str)
         elif 'revision' in dct:
             logger.warning("Ignoring 'revision' attribute of AdministrativeInformation object due to missing 'version'")
+        if 'creator' in dct:
+            ret.creator = cls._construct_reference(_get_ts(dct, 'creator', dict))
+        if 'templateId' in dct:
+            ret.template_id = _get_ts(dct, 'templateId', str)
         return ret
 
     @classmethod
