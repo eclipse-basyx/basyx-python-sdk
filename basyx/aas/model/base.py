@@ -2006,7 +2006,7 @@ class SpecificAssetId(HasSemantics):
 
     def __init__(self,
                  name: LabelType,
-                 value: str,
+                 value: Identifier,
                  external_subject_id: GlobalReference,
                  semantic_id: Optional[Reference] = None,
                  supplemental_semantic_id: Iterable[Reference] = ()):
@@ -2014,8 +2014,9 @@ class SpecificAssetId(HasSemantics):
         if value == "":
             raise ValueError("value is not allowed to be an empty string")
         _string_constraints.check_label_type(name)
+        _string_constraints.check_identifier(value)
         self.name: LabelType
-        self.value: str
+        self.value: Identifier
         self.external_subject_id: GlobalReference
 
         super().__setattr__('name', name)
