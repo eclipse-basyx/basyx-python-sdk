@@ -206,7 +206,7 @@ def create_example_asset_identification_submodel() -> model.Submodel:
                                                     value='http://acplt.org/SubmodelTemplates/AssetIdentification'),),
                                          model.Submodel),
         qualifier=(),
-        kind=model.ModelingKind.INSTANCE,
+        kind=model.ModellingKind.INSTANCE,
         extension=(),
         supplemental_semantic_id=(),
         embedded_data_specifications=()
@@ -330,7 +330,7 @@ def create_example_bill_of_material_submodel() -> model.Submodel:
                                                     value='http://acplt.org/SubmodelTemplates/BillOfMaterial'),),
                                          model.Submodel),
         qualifier=(),
-        kind=model.ModelingKind.INSTANCE,
+        kind=model.ModellingKind.INSTANCE,
         extension=(),
         supplemental_semantic_id=(),
         embedded_data_specifications=()
@@ -728,7 +728,7 @@ def create_example_submodel() -> model.Submodel:
                                                        value='http://acplt.org/SubmodelTemplates/'
                                                              'ExampleSubmodel'),)),
         qualifier=(),
-        kind=model.ModelingKind.INSTANCE,
+        kind=model.ModellingKind.INSTANCE,
         extension=(),
         supplemental_semantic_id=(),
         embedded_data_specifications=(_embedded_data_specification_physical_unit,)

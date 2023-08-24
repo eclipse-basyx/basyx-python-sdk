@@ -31,7 +31,7 @@ class AssetInformation:
 
     :ivar asset_kind: Denotes whether the Asset is of :class:`~aas.model.base.AssetKind` "TYPE" or "INSTANCE".
                       Default is "INSTANCE".
-    :ivar global_asset_id: :class:`~aas.model.base.Identifier` modeling the identifier of the asset the AAS is
+    :ivar global_asset_id: :class:`~aas.model.base.Identifier` modelling the identifier of the asset the AAS is
                            representing.
                            This attribute is required as soon as the AAS is exchanged via partners in the
                            life cycle of the asset. In a first phase of the life cycle the asset might not yet have a

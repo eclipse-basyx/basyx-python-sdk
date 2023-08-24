@@ -49,9 +49,9 @@ import base64
 import enum
 
 from typing import Any, Callable, Dict, IO, Iterable, Optional, Set, Tuple, Type, TypeVar
-from .._generic import XML_NS_AAS, MODELING_KIND_INVERSE, ASSET_KIND_INVERSE, KEY_TYPES_INVERSE, ENTITY_TYPES_INVERSE, \
-    IEC61360_DATA_TYPES_INVERSE, IEC61360_LEVEL_TYPES_INVERSE, KEY_TYPES_CLASSES_INVERSE, REFERENCE_TYPES_INVERSE, \
-    DIRECTION_INVERSE, STATE_OF_EVENT_INVERSE, QUALIFIER_KIND_INVERSE
+from .._generic import XML_NS_AAS, MODELLING_KIND_INVERSE, ASSET_KIND_INVERSE, KEY_TYPES_INVERSE, \
+    ENTITY_TYPES_INVERSE, IEC61360_DATA_TYPES_INVERSE, IEC61360_LEVEL_TYPES_INVERSE, KEY_TYPES_CLASSES_INVERSE, \
+    REFERENCE_TYPES_INVERSE, DIRECTION_INVERSE, STATE_OF_EVENT_INVERSE, QUALIFIER_KIND_INVERSE
 
 NS_AAS = XML_NS_AAS
 
@@ -388,15 +388,15 @@ def _child_text_mandatory_mapped(parent: etree.Element, child_tag: str, dct: Dic
     return _get_text_mandatory_mapped(_get_child_mandatory(parent, child_tag), dct)
 
 
-def _get_modeling_kind(element: etree.Element) -> model.ModelingKind:
+def _get_kind(element: etree.Element) -> model.ModellingKind:
     """
-    Returns the modeling kind of an element with the default value INSTANCE, if none specified.
+    Returns the modelling kind of an element with the default value INSTANCE, if none specified.
 
     :param element: The xml element.
-    :return: The modeling kind of the element.
+    :return: The modelling kind of the element.
     """
-    modeling_kind = _get_text_mapped_or_none(element.find(NS_AAS + "kind"), MODELING_KIND_INVERSE)
-    return modeling_kind if modeling_kind is not None else model.ModelingKind.INSTANCE
+    modelling_kind = _get_text_mapped_or_none(element.find(NS_AAS + "kind"), MODELLING_KIND_INVERSE)
+    return modelling_kind if modelling_kind is not None else model.ModellingKind.INSTANCE
 
 
 def _expect_reference_type(element: etree.Element, expected_type: Type[model.Reference]) -> None:
@@ -1003,7 +1003,7 @@ class AASFromXmlDecoder:
             -> model.Submodel:
         submodel = object_class(
             _child_text_mandatory(element, NS_AAS + "id"),
-            kind=_get_modeling_kind(element)
+            kind=_get_kind(element)
         )
         if not cls.stripped:
             submodel_elements = element.find(NS_AAS + "submodelElements")
