@@ -38,7 +38,7 @@ submodel = model.Submodel(
             id_short='ExampleProperty',
             value_type=basyx.aas.model.datatypes.String,
             value='exampleValue',
-            semantic_id=model.GlobalReference((model.Key(
+            semantic_id=model.ExternalReference((model.Key(
                     type_=model.KeyTypes.GLOBAL_REFERENCE,
                     value='http://acplt.org/Properties/SimpleProperty'
                 ),)

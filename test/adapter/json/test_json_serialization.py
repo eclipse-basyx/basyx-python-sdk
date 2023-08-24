@@ -54,8 +54,8 @@ class JsonSerializationSchemaTest(unittest.TestCase):
         # The JSONSchema expects every object with HasSemnatics (like Submodels) to have a `semanticId` Reference, which
         # must be a Reference. (This seems to be a bug in the JSONSchema.)
         submodel = model.Submodel(submodel_identifier,
-                                  semantic_id=model.GlobalReference((model.Key(model.KeyTypes.GLOBAL_REFERENCE,
-                                                                     "http://acplt.org/TestSemanticId"),)))
+                                  semantic_id=model.ExternalReference((model.Key(model.KeyTypes.GLOBAL_REFERENCE,
+                                                                       "http://acplt.org/TestSemanticId"),)))
         test_aas = model.AssetAdministrationShell(model.AssetInformation(global_asset_id="test"),
                                                   aas_identifier, submodel={submodel_reference})
 

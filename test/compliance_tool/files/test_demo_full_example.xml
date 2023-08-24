@@ -16,12 +16,22 @@
       <aas:administration>
         <aas:version>9</aas:version>
         <aas:revision>0</aas:revision>
+        <aas:creator>
+          <aas:type>ExternalReference</aas:type>
+          <aas:keys>
+            <aas:key>
+              <aas:type>GlobalReference</aas:type>
+              <aas:value>http://acplt.org/AdministrativeInformation/Test_AssetAdministrationShell</aas:value>
+            </aas:key>
+          </aas:keys>
+        </aas:creator>
+        <aas:templateId>http://acplt.org/AdministrativeInformationTemplates/Test_AssetAdministrationShell</aas:templateId>
       </aas:administration>
       <aas:id>https://acplt.org/Test_AssetAdministrationShell</aas:id>
       <aas:embeddedDataSpecifications>
         <aas:embeddedDataSpecification>
           <aas:dataSpecification>
-            <aas:type>GlobalReference</aas:type>
+            <aas:type>ExternalReference</aas:type>
             <aas:keys>
               <aas:key>
                 <aas:type>GlobalReference</aas:type>
@@ -53,7 +63,7 @@
               </aas:shortName>
               <aas:unit>SpaceUnit</aas:unit>
               <aas:unitId>
-                <aas:type>GlobalReference</aas:type>
+                <aas:type>ExternalReference</aas:type>
                 <aas:keys>
                   <aas:key>
                     <aas:type>GlobalReference</aas:type>
@@ -80,7 +90,7 @@
                   <aas:valueReferencePair>
                     <aas:value>exampleValue</aas:value>
                     <aas:valueId>
-                      <aas:type>GlobalReference</aas:type>
+                      <aas:type>ExternalReference</aas:type>
                       <aas:keys>
                         <aas:key>
                           <aas:type>GlobalReference</aas:type>
@@ -92,7 +102,7 @@
                   <aas:valueReferencePair>
                     <aas:value>exampleValue2</aas:value>
                     <aas:valueId>
-                      <aas:type>GlobalReference</aas:type>
+                      <aas:type>ExternalReference</aas:type>
                       <aas:keys>
                         <aas:key>
                           <aas:type>GlobalReference</aas:type>
@@ -129,7 +139,7 @@
         <aas:specificAssetIds>
           <aas:specificAssetId>
             <aas:semanticId>
-              <aas:type>GlobalReference</aas:type>
+              <aas:type>ExternalReference</aas:type>
               <aas:keys>
                 <aas:key>
                   <aas:type>GlobalReference</aas:type>
@@ -140,7 +150,7 @@
             <aas:name>TestKey</aas:name>
             <aas:value>TestValue</aas:value>
             <aas:externalSubjectId>
-              <aas:type>GlobalReference</aas:type>
+              <aas:type>ExternalReference</aas:type>
               <aas:keys>
                 <aas:key>
                   <aas:type>GlobalReference</aas:type>
@@ -178,7 +188,7 @@
         <aas:reference>
           <aas:type>ModelReference</aas:type>
           <aas:referredSemanticId>
-            <aas:type>GlobalReference</aas:type>
+            <aas:type>ExternalReference</aas:type>
             <aas:keys>
               <aas:key>
                 <aas:type>GlobalReference</aas:type>
@@ -264,7 +274,7 @@
             <aas:name>TestKey</aas:name>
             <aas:value>TestValue</aas:value>
             <aas:externalSubjectId>
-              <aas:type>GlobalReference</aas:type>
+              <aas:type>ExternalReference</aas:type>
               <aas:keys>
                 <aas:key>
                   <aas:type>GlobalReference</aas:type>
@@ -308,6 +318,16 @@
       <aas:administration>
         <aas:version>9</aas:version>
         <aas:revision>0</aas:revision>
+        <aas:creator>
+          <aas:type>ExternalReference</aas:type>
+          <aas:keys>
+            <aas:key>
+              <aas:type>GlobalReference</aas:type>
+              <aas:value>http://acplt.org/AdministrativeInformation/TestAsset/Identification</aas:value>
+            </aas:key>
+          </aas:keys>
+        </aas:creator>
+        <aas:templateId>http://acplt.org/AdministrativeInformationTemplates/TestAsset/Identification</aas:templateId>
       </aas:administration>
       <aas:id>http://acplt.org/Submodels/Assets/TestAsset/Identification</aas:id>
       <aas:kind>Instance</aas:kind>
@@ -352,7 +372,7 @@
           </aas:description>
           <aas:kind>Instance</aas:kind>
           <aas:semanticId>
-            <aas:type>GlobalReference</aas:type>
+            <aas:type>ExternalReference</aas:type>
             <aas:keys>
               <aas:key>
                 <aas:type>GlobalReference</aas:type>
@@ -367,7 +387,7 @@
               <aas:valueType>xs:int</aas:valueType>
               <aas:value>100</aas:value>
               <aas:valueId>
-                <aas:type>GlobalReference</aas:type>
+                <aas:type>ExternalReference</aas:type>
                 <aas:keys>
                   <aas:key>
                     <aas:type>GlobalReference</aas:type>
@@ -382,7 +402,7 @@
               <aas:valueType>xs:int</aas:valueType>
               <aas:value>50</aas:value>
               <aas:valueId>
-                <aas:type>GlobalReference</aas:type>
+                <aas:type>ExternalReference</aas:type>
                 <aas:keys>
                   <aas:key>
                     <aas:type>GlobalReference</aas:type>
@@ -395,7 +415,7 @@
           <aas:valueType>xs:string</aas:valueType>
           <aas:value>ACPLT</aas:value>
           <aas:valueId>
-            <aas:type>GlobalReference</aas:type>
+            <aas:type>ExternalReference</aas:type>
             <aas:keys>
               <aas:key>
                 <aas:type>GlobalReference</aas:type>
@@ -419,7 +439,7 @@
           </aas:description>
           <aas:kind>Instance</aas:kind>
           <aas:semanticId>
-            <aas:type>GlobalReference</aas:type>
+            <aas:type>ExternalReference</aas:type>
             <aas:keys>
               <aas:key>
                 <aas:type>GlobalReference</aas:type>
@@ -434,7 +454,7 @@
               <aas:valueType>xs:dateTime</aas:valueType>
               <aas:value>2023-04-07T16:59:54.870123</aas:value>
               <aas:valueId>
-                <aas:type>GlobalReference</aas:type>
+                <aas:type>ExternalReference</aas:type>
                 <aas:keys>
                   <aas:key>
                     <aas:type>GlobalReference</aas:type>
@@ -447,7 +467,7 @@
           <aas:valueType>xs:string</aas:valueType>
           <aas:value>978-8234-234-342</aas:value>
           <aas:valueId>
-            <aas:type>GlobalReference</aas:type>
+            <aas:type>ExternalReference</aas:type>
             <aas:keys>
               <aas:key>
                 <aas:type>GlobalReference</aas:type>
@@ -472,6 +492,7 @@
       </aas:description>
       <aas:administration>
         <aas:version>9</aas:version>
+        <aas:templateId>http://acplt.org/AdministrativeInformationTemplates/TestAsset/BillOfMaterial</aas:templateId>
       </aas:administration>
       <aas:id>http://acplt.org/Submodels/Assets/TestAsset/BillOfMaterial</aas:id>
       <aas:kind>Instance</aas:kind>
@@ -500,7 +521,7 @@
           </aas:description>
           <aas:kind>Instance</aas:kind>
           <aas:semanticId>
-            <aas:type>GlobalReference</aas:type>
+            <aas:type>ExternalReference</aas:type>
             <aas:keys>
               <aas:key>
                 <aas:type>GlobalReference</aas:type>
@@ -524,7 +545,7 @@
               </aas:description>
               <aas:kind>Instance</aas:kind>
               <aas:semanticId>
-                <aas:type>GlobalReference</aas:type>
+                <aas:type>ExternalReference</aas:type>
                 <aas:keys>
                   <aas:key>
                     <aas:type>GlobalReference</aas:type>
@@ -535,7 +556,7 @@
               <aas:valueType>xs:string</aas:valueType>
               <aas:value>exampleValue2</aas:value>
               <aas:valueId>
-                <aas:type>GlobalReference</aas:type>
+                <aas:type>ExternalReference</aas:type>
                 <aas:keys>
                   <aas:key>
                     <aas:type>GlobalReference</aas:type>
@@ -559,7 +580,7 @@
               </aas:description>
               <aas:kind>Instance</aas:kind>
               <aas:semanticId>
-                <aas:type>GlobalReference</aas:type>
+                <aas:type>ExternalReference</aas:type>
                 <aas:keys>
                   <aas:key>
                     <aas:type>GlobalReference</aas:type>
@@ -570,7 +591,7 @@
               <aas:valueType>xs:string</aas:valueType>
               <aas:value>exampleValue</aas:value>
               <aas:valueId>
-                <aas:type>GlobalReference</aas:type>
+                <aas:type>ExternalReference</aas:type>
                 <aas:keys>
                   <aas:key>
                     <aas:type>GlobalReference</aas:type>
@@ -586,7 +607,7 @@
             <aas:name>TestKey</aas:name>
             <aas:value>TestValue</aas:value>
             <aas:externalSubjectId>
-              <aas:type>GlobalReference</aas:type>
+              <aas:type>ExternalReference</aas:type>
               <aas:keys>
                 <aas:key>
                   <aas:type>GlobalReference</aas:type>
@@ -611,7 +632,7 @@
           </aas:description>
           <aas:kind>Instance</aas:kind>
           <aas:semanticId>
-            <aas:type>GlobalReference</aas:type>
+            <aas:type>ExternalReference</aas:type>
             <aas:keys>
               <aas:key>
                 <aas:type>GlobalReference</aas:type>
@@ -638,11 +659,20 @@
       <aas:administration>
         <aas:version>9</aas:version>
         <aas:revision>0</aas:revision>
+        <aas:creator>
+          <aas:type>ExternalReference</aas:type>
+          <aas:keys>
+            <aas:key>
+              <aas:type>GlobalReference</aas:type>
+              <aas:value>http://acplt.org/AdministrativeInformation/Test_Submodel</aas:value>
+            </aas:key>
+          </aas:keys>
+        </aas:creator>
       </aas:administration>
       <aas:id>https://acplt.org/Test_Submodel</aas:id>
       <aas:kind>Instance</aas:kind>
       <aas:semanticId>
-        <aas:type>GlobalReference</aas:type>
+        <aas:type>ExternalReference</aas:type>
         <aas:keys>
           <aas:key>
             <aas:type>GlobalReference</aas:type>
@@ -653,7 +683,7 @@
       <aas:embeddedDataSpecifications>
         <aas:embeddedDataSpecification>
           <aas:dataSpecification>
-            <aas:type>GlobalReference</aas:type>
+            <aas:type>ExternalReference</aas:type>
             <aas:keys>
               <aas:key>
                 <aas:type>GlobalReference</aas:type>
@@ -755,7 +785,7 @@
           </aas:description>
           <aas:kind>Instance</aas:kind>
           <aas:semanticId>
-            <aas:type>GlobalReference</aas:type>
+            <aas:type>ExternalReference</aas:type>
             <aas:keys>
               <aas:key>
                 <aas:type>GlobalReference</aas:type>
@@ -822,7 +852,7 @@
           </aas:description>
           <aas:kind>Instance</aas:kind>
           <aas:semanticId>
-            <aas:type>GlobalReference</aas:type>
+            <aas:type>ExternalReference</aas:type>
             <aas:keys>
               <aas:key>
                 <aas:type>GlobalReference</aas:type>
@@ -858,7 +888,7 @@
                   </aas:description>
                   <aas:kind>Template</aas:kind>
                   <aas:semanticId>
-                    <aas:type>GlobalReference</aas:type>
+                    <aas:type>ExternalReference</aas:type>
                     <aas:keys>
                       <aas:key>
                         <aas:type>GlobalReference</aas:type>
@@ -869,7 +899,7 @@
                   <aas:valueType>xs:string</aas:valueType>
                   <aas:value>exampleValue</aas:value>
                   <aas:valueId>
-                    <aas:type>GlobalReference</aas:type>
+                    <aas:type>ExternalReference</aas:type>
                     <aas:keys>
                       <aas:key>
                         <aas:type>GlobalReference</aas:type>
@@ -909,7 +939,7 @@
                   </aas:description>
                   <aas:kind>Template</aas:kind>
                   <aas:semanticId>
-                    <aas:type>GlobalReference</aas:type>
+                    <aas:type>ExternalReference</aas:type>
                     <aas:keys>
                       <aas:key>
                         <aas:type>GlobalReference</aas:type>
@@ -920,7 +950,7 @@
                   <aas:valueType>xs:string</aas:valueType>
                   <aas:value>exampleValue</aas:value>
                   <aas:valueId>
-                    <aas:type>GlobalReference</aas:type>
+                    <aas:type>ExternalReference</aas:type>
                     <aas:keys>
                       <aas:key>
                         <aas:type>GlobalReference</aas:type>
@@ -960,7 +990,7 @@
                   </aas:description>
                   <aas:kind>Template</aas:kind>
                   <aas:semanticId>
-                    <aas:type>GlobalReference</aas:type>
+                    <aas:type>ExternalReference</aas:type>
                     <aas:keys>
                       <aas:key>
                         <aas:type>GlobalReference</aas:type>
@@ -971,7 +1001,7 @@
                   <aas:valueType>xs:string</aas:valueType>
                   <aas:value>exampleValue</aas:value>
                   <aas:valueId>
-                    <aas:type>GlobalReference</aas:type>
+                    <aas:type>ExternalReference</aas:type>
                     <aas:keys>
                       <aas:key>
                         <aas:type>GlobalReference</aas:type>
@@ -999,7 +1029,7 @@
           </aas:description>
           <aas:kind>Instance</aas:kind>
           <aas:semanticId>
-            <aas:type>GlobalReference</aas:type>
+            <aas:type>ExternalReference</aas:type>
             <aas:keys>
               <aas:key>
                 <aas:type>GlobalReference</aas:type>
@@ -1023,7 +1053,7 @@
           </aas:description>
           <aas:kind>Instance</aas:kind>
           <aas:semanticId>
-            <aas:type>GlobalReference</aas:type>
+            <aas:type>ExternalReference</aas:type>
             <aas:keys>
               <aas:key>
                 <aas:type>GlobalReference</aas:type>
@@ -1075,7 +1105,7 @@
           </aas:description>
           <aas:kind>Instance</aas:kind>
           <aas:semanticId>
-            <aas:type>GlobalReference</aas:type>
+            <aas:type>ExternalReference</aas:type>
             <aas:keys>
               <aas:key>
                 <aas:type>GlobalReference</aas:type>
@@ -1099,7 +1129,7 @@
               </aas:description>
               <aas:kind>Instance</aas:kind>
               <aas:semanticId>
-                <aas:type>GlobalReference</aas:type>
+                <aas:type>ExternalReference</aas:type>
                 <aas:keys>
                   <aas:key>
                     <aas:type>GlobalReference</aas:type>
@@ -1125,7 +1155,7 @@
               </aas:description>
               <aas:kind>Instance</aas:kind>
               <aas:semanticId>
-                <aas:type>GlobalReference</aas:type>
+                <aas:type>ExternalReference</aas:type>
                 <aas:keys>
                   <aas:key>
                     <aas:type>GlobalReference</aas:type>
@@ -1151,7 +1181,7 @@
               </aas:description>
               <aas:kind>Instance</aas:kind>
               <aas:semanticId>
-                <aas:type>GlobalReference</aas:type>
+                <aas:type>ExternalReference</aas:type>
                 <aas:keys>
                   <aas:key>
                     <aas:type>GlobalReference</aas:type>
@@ -1177,7 +1207,7 @@
               </aas:description>
               <aas:kind>Instance</aas:kind>
               <aas:semanticId>
-                <aas:type>GlobalReference</aas:type>
+                <aas:type>ExternalReference</aas:type>
                 <aas:keys>
                   <aas:key>
                     <aas:type>GlobalReference</aas:type>
@@ -1212,7 +1242,7 @@
                   </aas:description>
                   <aas:kind>Instance</aas:kind>
                   <aas:semanticId>
-                    <aas:type>GlobalReference</aas:type>
+                    <aas:type>ExternalReference</aas:type>
                     <aas:keys>
                       <aas:key>
                         <aas:type>GlobalReference</aas:type>
@@ -1222,7 +1252,7 @@
                   </aas:semanticId>
                   <aas:supplementalSemanticIds>
                     <aas:reference>
-                      <aas:type>GlobalReference</aas:type>
+                      <aas:type>ExternalReference</aas:type>
                       <aas:keys>
                         <aas:key>
                           <aas:type>GlobalReference</aas:type>
@@ -1231,7 +1261,7 @@
                       </aas:keys>
                     </aas:reference>
                     <aas:reference>
-                      <aas:type>GlobalReference</aas:type>
+                      <aas:type>ExternalReference</aas:type>
                       <aas:keys>
                         <aas:key>
                           <aas:type>GlobalReference</aas:type>
@@ -1243,7 +1273,7 @@
                   <aas:embeddedDataSpecifications>
                     <aas:embeddedDataSpecification>
                       <aas:dataSpecification>
-                        <aas:type>GlobalReference</aas:type>
+                        <aas:type>ExternalReference</aas:type>
                         <aas:keys>
                           <aas:key>
                             <aas:type>GlobalReference</aas:type>
@@ -1275,7 +1305,7 @@
                           </aas:shortName>
                           <aas:unit>SpaceUnit</aas:unit>
                           <aas:unitId>
-                            <aas:type>GlobalReference</aas:type>
+                            <aas:type>ExternalReference</aas:type>
                             <aas:keys>
                               <aas:key>
                                 <aas:type>GlobalReference</aas:type>
@@ -1302,7 +1332,7 @@
                               <aas:valueReferencePair>
                                 <aas:value>exampleValue</aas:value>
                                 <aas:valueId>
-                                  <aas:type>GlobalReference</aas:type>
+                                  <aas:type>ExternalReference</aas:type>
                                   <aas:keys>
                                     <aas:key>
                                       <aas:type>GlobalReference</aas:type>
@@ -1314,7 +1344,7 @@
                               <aas:valueReferencePair>
                                 <aas:value>exampleValue2</aas:value>
                                 <aas:valueId>
-                                  <aas:type>GlobalReference</aas:type>
+                                  <aas:type>ExternalReference</aas:type>
                                   <aas:keys>
                                     <aas:key>
                                       <aas:type>GlobalReference</aas:type>
@@ -1339,7 +1369,7 @@
                   <aas:valueType>xs:string</aas:valueType>
                   <aas:value>exampleValue</aas:value>
                   <aas:valueId>
-                    <aas:type>GlobalReference</aas:type>
+                    <aas:type>ExternalReference</aas:type>
                     <aas:keys>
                       <aas:key>
                         <aas:type>GlobalReference</aas:type>
@@ -1373,7 +1403,7 @@
                   </aas:description>
                   <aas:kind>Instance</aas:kind>
                   <aas:semanticId>
-                    <aas:type>GlobalReference</aas:type>
+                    <aas:type>ExternalReference</aas:type>
                     <aas:keys>
                       <aas:key>
                         <aas:type>GlobalReference</aas:type>
@@ -1383,7 +1413,7 @@
                   </aas:semanticId>
                   <aas:supplementalSemanticIds>
                     <aas:reference>
-                      <aas:type>GlobalReference</aas:type>
+                      <aas:type>ExternalReference</aas:type>
                       <aas:keys>
                         <aas:key>
                           <aas:type>GlobalReference</aas:type>
@@ -1395,7 +1425,7 @@
                   <aas:valueType>xs:string</aas:valueType>
                   <aas:value>exampleValue</aas:value>
                   <aas:valueId>
-                    <aas:type>GlobalReference</aas:type>
+                    <aas:type>ExternalReference</aas:type>
                     <aas:keys>
                       <aas:key>
                         <aas:type>GlobalReference</aas:type>
@@ -1406,7 +1436,7 @@
                 </aas:property>
               </aas:value>
               <aas:semanticIdListElement>
-                <aas:type>GlobalReference</aas:type>
+                <aas:type>ExternalReference</aas:type>
                 <aas:keys>
                   <aas:key>
                     <aas:type>GlobalReference</aas:type>
@@ -1432,9 +1462,9 @@
               </aas:description>
               <aas:kind>Instance</aas:kind>
               <aas:semanticId>
-                <aas:type>GlobalReference</aas:type>
+                <aas:type>ExternalReference</aas:type>
                 <aas:referredSemanticId>
-                  <aas:type>GlobalReference</aas:type>
+                  <aas:type>ExternalReference</aas:type>
                   <aas:keys>
                     <aas:key>
                       <aas:type>GlobalReference</aas:type>
@@ -1460,7 +1490,7 @@
                 </aas:langString>
               </aas:value>
               <aas:valueId>
-                <aas:type>GlobalReference</aas:type>
+                <aas:type>ExternalReference</aas:type>
                 <aas:keys>
                   <aas:key>
                     <aas:type>GlobalReference</aas:type>
@@ -1484,7 +1514,7 @@
               </aas:description>
               <aas:kind>Instance</aas:kind>
               <aas:semanticId>
-                <aas:type>GlobalReference</aas:type>
+                <aas:type>ExternalReference</aas:type>
                 <aas:keys>
                   <aas:key>
                     <aas:type>GlobalReference</aas:type>
@@ -1511,7 +1541,7 @@
               </aas:description>
               <aas:kind>Instance</aas:kind>
               <aas:semanticId>
-                <aas:type>GlobalReference</aas:type>
+                <aas:type>ExternalReference</aas:type>
                 <aas:keys>
                   <aas:key>
                     <aas:type>GlobalReference</aas:type>
@@ -1708,7 +1738,7 @@
       <aas:id>https://acplt.org/Test_Submodel_Missing</aas:id>
       <aas:kind>Instance</aas:kind>
       <aas:semanticId>
-        <aas:type>GlobalReference</aas:type>
+        <aas:type>ExternalReference</aas:type>
         <aas:keys>
           <aas:key>
             <aas:type>GlobalReference</aas:type>
@@ -1732,7 +1762,7 @@
           </aas:description>
           <aas:kind>Instance</aas:kind>
           <aas:semanticId>
-            <aas:type>GlobalReference</aas:type>
+            <aas:type>ExternalReference</aas:type>
             <aas:keys>
               <aas:key>
                 <aas:type>GlobalReference</aas:type>
@@ -1782,7 +1812,7 @@
           </aas:description>
           <aas:kind>Instance</aas:kind>
           <aas:semanticId>
-            <aas:type>GlobalReference</aas:type>
+            <aas:type>ExternalReference</aas:type>
             <aas:keys>
               <aas:key>
                 <aas:type>GlobalReference</aas:type>
@@ -1849,7 +1879,7 @@
           </aas:description>
           <aas:kind>Instance</aas:kind>
           <aas:semanticId>
-            <aas:type>GlobalReference</aas:type>
+            <aas:type>ExternalReference</aas:type>
             <aas:keys>
               <aas:key>
                 <aas:type>GlobalReference</aas:type>
@@ -1885,7 +1915,7 @@
                   </aas:description>
                   <aas:kind>Template</aas:kind>
                   <aas:semanticId>
-                    <aas:type>GlobalReference</aas:type>
+                    <aas:type>ExternalReference</aas:type>
                     <aas:keys>
                       <aas:key>
                         <aas:type>GlobalReference</aas:type>
@@ -1896,7 +1926,7 @@
                   <aas:valueType>xs:string</aas:valueType>
                   <aas:value>exampleValue</aas:value>
                   <aas:valueId>
-                    <aas:type>GlobalReference</aas:type>
+                    <aas:type>ExternalReference</aas:type>
                     <aas:keys>
                       <aas:key>
                         <aas:type>GlobalReference</aas:type>
@@ -1936,7 +1966,7 @@
                   </aas:description>
                   <aas:kind>Template</aas:kind>
                   <aas:semanticId>
-                    <aas:type>GlobalReference</aas:type>
+                    <aas:type>ExternalReference</aas:type>
                     <aas:keys>
                       <aas:key>
                         <aas:type>GlobalReference</aas:type>
@@ -1947,7 +1977,7 @@
                   <aas:valueType>xs:string</aas:valueType>
                   <aas:value>exampleValue</aas:value>
                   <aas:valueId>
-                    <aas:type>GlobalReference</aas:type>
+                    <aas:type>ExternalReference</aas:type>
                     <aas:keys>
                       <aas:key>
                         <aas:type>GlobalReference</aas:type>
@@ -1987,7 +2017,7 @@
                   </aas:description>
                   <aas:kind>Template</aas:kind>
                   <aas:semanticId>
-                    <aas:type>GlobalReference</aas:type>
+                    <aas:type>ExternalReference</aas:type>
                     <aas:keys>
                       <aas:key>
                         <aas:type>GlobalReference</aas:type>
@@ -1998,7 +2028,7 @@
                   <aas:valueType>xs:string</aas:valueType>
                   <aas:value>exampleValue</aas:value>
                   <aas:valueId>
-                    <aas:type>GlobalReference</aas:type>
+                    <aas:type>ExternalReference</aas:type>
                     <aas:keys>
                       <aas:key>
                         <aas:type>GlobalReference</aas:type>
@@ -2026,7 +2056,7 @@
           </aas:description>
           <aas:kind>Instance</aas:kind>
           <aas:semanticId>
-            <aas:type>GlobalReference</aas:type>
+            <aas:type>ExternalReference</aas:type>
             <aas:keys>
               <aas:key>
                 <aas:type>GlobalReference</aas:type>
@@ -2050,7 +2080,7 @@
           </aas:description>
           <aas:kind>Instance</aas:kind>
           <aas:semanticId>
-            <aas:type>GlobalReference</aas:type>
+            <aas:type>ExternalReference</aas:type>
             <aas:keys>
               <aas:key>
                 <aas:type>GlobalReference</aas:type>
@@ -2102,7 +2132,7 @@
           </aas:description>
           <aas:kind>Instance</aas:kind>
           <aas:semanticId>
-            <aas:type>GlobalReference</aas:type>
+            <aas:type>ExternalReference</aas:type>
             <aas:keys>
               <aas:key>
                 <aas:type>GlobalReference</aas:type>
@@ -2126,7 +2156,7 @@
               </aas:description>
               <aas:kind>Instance</aas:kind>
               <aas:semanticId>
-                <aas:type>GlobalReference</aas:type>
+                <aas:type>ExternalReference</aas:type>
                 <aas:keys>
                   <aas:key>
                     <aas:type>GlobalReference</aas:type>
@@ -2152,7 +2182,7 @@
               </aas:description>
               <aas:kind>Instance</aas:kind>
               <aas:semanticId>
-                <aas:type>GlobalReference</aas:type>
+                <aas:type>ExternalReference</aas:type>
                 <aas:keys>
                   <aas:key>
                     <aas:type>GlobalReference</aas:type>
@@ -2178,7 +2208,7 @@
               </aas:description>
               <aas:kind>Instance</aas:kind>
               <aas:semanticId>
-                <aas:type>GlobalReference</aas:type>
+                <aas:type>ExternalReference</aas:type>
                 <aas:keys>
                   <aas:key>
                     <aas:type>GlobalReference</aas:type>
@@ -2212,7 +2242,7 @@
               </aas:description>
               <aas:kind>Instance</aas:kind>
               <aas:semanticId>
-                <aas:type>GlobalReference</aas:type>
+                <aas:type>ExternalReference</aas:type>
                 <aas:keys>
                   <aas:key>
                     <aas:type>GlobalReference</aas:type>
@@ -2244,7 +2274,7 @@
               </aas:description>
               <aas:kind>Instance</aas:kind>
               <aas:semanticId>
-                <aas:type>GlobalReference</aas:type>
+                <aas:type>ExternalReference</aas:type>
                 <aas:keys>
                   <aas:key>
                     <aas:type>GlobalReference</aas:type>
@@ -2271,7 +2301,7 @@
               </aas:description>
               <aas:kind>Instance</aas:kind>
               <aas:semanticId>
-                <aas:type>GlobalReference</aas:type>
+                <aas:type>ExternalReference</aas:type>
                 <aas:keys>
                   <aas:key>
                     <aas:type>GlobalReference</aas:type>
@@ -2316,7 +2346,7 @@
       <aas:id>https://acplt.org/Test_Submodel_Template</aas:id>
       <aas:kind>Template</aas:kind>
       <aas:semanticId>
-        <aas:type>GlobalReference</aas:type>
+        <aas:type>ExternalReference</aas:type>
         <aas:keys>
           <aas:key>
             <aas:type>GlobalReference</aas:type>
@@ -2340,7 +2370,7 @@
           </aas:description>
           <aas:kind>Template</aas:kind>
           <aas:semanticId>
-            <aas:type>GlobalReference</aas:type>
+            <aas:type>ExternalReference</aas:type>
             <aas:keys>
               <aas:key>
                 <aas:type>GlobalReference</aas:type>
@@ -2390,7 +2420,7 @@
           </aas:description>
           <aas:kind>Template</aas:kind>
           <aas:semanticId>
-            <aas:type>GlobalReference</aas:type>
+            <aas:type>ExternalReference</aas:type>
             <aas:keys>
               <aas:key>
                 <aas:type>GlobalReference</aas:type>
@@ -2440,7 +2470,7 @@
           </aas:description>
           <aas:kind>Template</aas:kind>
           <aas:semanticId>
-            <aas:type>GlobalReference</aas:type>
+            <aas:type>ExternalReference</aas:type>
             <aas:keys>
               <aas:key>
                 <aas:type>GlobalReference</aas:type>
@@ -2466,7 +2496,7 @@
                   </aas:description>
                   <aas:kind>Template</aas:kind>
                   <aas:semanticId>
-                    <aas:type>GlobalReference</aas:type>
+                    <aas:type>ExternalReference</aas:type>
                     <aas:keys>
                       <aas:key>
                         <aas:type>GlobalReference</aas:type>
@@ -2497,7 +2527,7 @@
                   </aas:description>
                   <aas:kind>Template</aas:kind>
                   <aas:semanticId>
-                    <aas:type>GlobalReference</aas:type>
+                    <aas:type>ExternalReference</aas:type>
                     <aas:keys>
                       <aas:key>
                         <aas:type>GlobalReference</aas:type>
@@ -2528,7 +2558,7 @@
                   </aas:description>
                   <aas:kind>Template</aas:kind>
                   <aas:semanticId>
-                    <aas:type>GlobalReference</aas:type>
+                    <aas:type>ExternalReference</aas:type>
                     <aas:keys>
                       <aas:key>
                         <aas:type>GlobalReference</aas:type>
@@ -2557,7 +2587,7 @@
           </aas:description>
           <aas:kind>Template</aas:kind>
           <aas:semanticId>
-            <aas:type>GlobalReference</aas:type>
+            <aas:type>ExternalReference</aas:type>
             <aas:keys>
               <aas:key>
                 <aas:type>GlobalReference</aas:type>
@@ -2581,7 +2611,7 @@
           </aas:description>
           <aas:kind>Template</aas:kind>
           <aas:semanticId>
-            <aas:type>GlobalReference</aas:type>
+            <aas:type>ExternalReference</aas:type>
             <aas:keys>
               <aas:key>
                 <aas:type>GlobalReference</aas:type>
@@ -2633,7 +2663,7 @@
           </aas:description>
           <aas:kind>Template</aas:kind>
           <aas:semanticId>
-            <aas:type>GlobalReference</aas:type>
+            <aas:type>ExternalReference</aas:type>
             <aas:keys>
               <aas:key>
                 <aas:type>GlobalReference</aas:type>
@@ -2658,7 +2688,7 @@
               </aas:description>
               <aas:kind>Template</aas:kind>
               <aas:semanticId>
-                <aas:type>GlobalReference</aas:type>
+                <aas:type>ExternalReference</aas:type>
                 <aas:keys>
                   <aas:key>
                     <aas:type>GlobalReference</aas:type>
@@ -2682,7 +2712,7 @@
                   </aas:description>
                   <aas:kind>Template</aas:kind>
                   <aas:semanticId>
-                    <aas:type>GlobalReference</aas:type>
+                    <aas:type>ExternalReference</aas:type>
                     <aas:keys>
                       <aas:key>
                         <aas:type>GlobalReference</aas:type>
@@ -2707,7 +2737,7 @@
                   </aas:description>
                   <aas:kind>Template</aas:kind>
                   <aas:semanticId>
-                    <aas:type>GlobalReference</aas:type>
+                    <aas:type>ExternalReference</aas:type>
                     <aas:keys>
                       <aas:key>
                         <aas:type>GlobalReference</aas:type>
@@ -2731,7 +2761,7 @@
                   </aas:description>
                   <aas:kind>Template</aas:kind>
                   <aas:semanticId>
-                    <aas:type>GlobalReference</aas:type>
+                    <aas:type>ExternalReference</aas:type>
                     <aas:keys>
                       <aas:key>
                         <aas:type>GlobalReference</aas:type>
@@ -2757,7 +2787,7 @@
                   </aas:description>
                   <aas:kind>Template</aas:kind>
                   <aas:semanticId>
-                    <aas:type>GlobalReference</aas:type>
+                    <aas:type>ExternalReference</aas:type>
                     <aas:keys>
                       <aas:key>
                         <aas:type>GlobalReference</aas:type>
@@ -2783,7 +2813,7 @@
                   </aas:description>
                   <aas:kind>Template</aas:kind>
                   <aas:semanticId>
-                    <aas:type>GlobalReference</aas:type>
+                    <aas:type>ExternalReference</aas:type>
                     <aas:keys>
                       <aas:key>
                         <aas:type>GlobalReference</aas:type>
@@ -2809,7 +2839,7 @@
                   </aas:description>
                   <aas:kind>Template</aas:kind>
                   <aas:semanticId>
-                    <aas:type>GlobalReference</aas:type>
+                    <aas:type>ExternalReference</aas:type>
                     <aas:keys>
                       <aas:key>
                         <aas:type>GlobalReference</aas:type>
@@ -2834,7 +2864,7 @@
                   </aas:description>
                   <aas:kind>Template</aas:kind>
                   <aas:semanticId>
-                    <aas:type>GlobalReference</aas:type>
+                    <aas:type>ExternalReference</aas:type>
                     <aas:keys>
                       <aas:key>
                         <aas:type>GlobalReference</aas:type>
@@ -2860,7 +2890,7 @@
               </aas:description>
               <aas:kind>Template</aas:kind>
               <aas:semanticId>
-                <aas:type>GlobalReference</aas:type>
+                <aas:type>ExternalReference</aas:type>
                 <aas:keys>
                   <aas:key>
                     <aas:type>GlobalReference</aas:type>
@@ -2871,7 +2901,7 @@
             </aas:submodelElementCollection>
           </aas:value>
           <aas:semanticIdListElement>
-            <aas:type>GlobalReference</aas:type>
+            <aas:type>ExternalReference</aas:type>
             <aas:keys>
               <aas:key>
                 <aas:type>GlobalReference</aas:type>
@@ -2896,7 +2926,7 @@
           </aas:description>
           <aas:kind>Template</aas:kind>
           <aas:semanticId>
-            <aas:type>GlobalReference</aas:type>
+            <aas:type>ExternalReference</aas:type>
             <aas:keys>
               <aas:key>
                 <aas:type>GlobalReference</aas:type>
@@ -2906,7 +2936,7 @@
           </aas:semanticId>
           <aas:orderRelevant>false</aas:orderRelevant>
           <aas:semanticIdListElement>
-            <aas:type>GlobalReference</aas:type>
+            <aas:type>ExternalReference</aas:type>
             <aas:keys>
               <aas:key>
                 <aas:type>GlobalReference</aas:type>
@@ -2936,7 +2966,7 @@
           <aas:embeddedDataSpecifications>
           <aas:embeddedDataSpecification>
             <aas:dataSpecification>
-              <aas:type>GlobalReference</aas:type>
+              <aas:type>ExternalReference</aas:type>
               <aas:keys>
                 <aas:key>
                   <aas:type>GlobalReference</aas:type>
@@ -2968,7 +2998,7 @@
                 </aas:shortName>
                 <aas:unit>SpaceUnit</aas:unit>
                 <aas:unitId>
-                  <aas:type>GlobalReference</aas:type>
+                  <aas:type>ExternalReference</aas:type>
                   <aas:keys>
                     <aas:key>
                       <aas:type>GlobalReference</aas:type>
@@ -2995,7 +3025,7 @@
                     <aas:valueReferencePair>
                       <aas:value>exampleValue</aas:value>
                       <aas:valueId>
-                        <aas:type>GlobalReference</aas:type>
+                        <aas:type>ExternalReference</aas:type>
                         <aas:keys>
                           <aas:key>
                             <aas:type>GlobalReference</aas:type>
@@ -3007,7 +3037,7 @@
                     <aas:valueReferencePair>
                       <aas:value>exampleValue2</aas:value>
                       <aas:valueId>
-                        <aas:type>GlobalReference</aas:type>
+                        <aas:type>ExternalReference</aas:type>
                         <aas:keys>
                           <aas:key>
                             <aas:type>GlobalReference</aas:type>
@@ -3031,12 +3061,22 @@
         </aas:embeddedDataSpecifications>
         <aas:version>9</aas:version>
         <aas:revision>0</aas:revision>
+        <aas:creator>
+          <aas:type>ExternalReference</aas:type>
+          <aas:keys>
+            <aas:key>
+              <aas:type>GlobalReference</aas:type>
+              <aas:value>http://acplt.org/AdministrativeInformation/Test_ConceptDescription</aas:value>
+            </aas:key>
+          </aas:keys>
+        </aas:creator>
+        <aas:templateId>http://acplt.org/AdministrativeInformationTemplates/Test_ConceptDescription</aas:templateId>
       </aas:administration>
       <aas:id>https://acplt.org/Test_ConceptDescription</aas:id>
       <aas:embeddedDataSpecifications>
         <aas:embeddedDataSpecification>
           <aas:dataSpecification>
-            <aas:type>GlobalReference</aas:type>
+            <aas:type>ExternalReference</aas:type>
             <aas:keys>
               <aas:key>
                 <aas:type>GlobalReference</aas:type>
@@ -3074,7 +3114,7 @@
       </aas:embeddedDataSpecifications>
       <aas:isCaseOf>
         <aas:reference>
-          <aas:type>GlobalReference</aas:type>
+          <aas:type>ExternalReference</aas:type>
           <aas:keys>
             <aas:key>
               <aas:type>GlobalReference</aas:type>

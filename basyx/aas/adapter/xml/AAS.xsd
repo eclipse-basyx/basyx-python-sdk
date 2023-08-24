@@ -17,6 +17,15 @@
           </xs:restriction>
         </xs:simpleType>
       </xs:element>
+      <xs:element name="creator" type="reference_t" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="templateId" minOccurs="0" maxOccurs="1">
+        <xs:simpleType>
+          <xs:restriction base="xs:string">
+            <xs:minLength value="1"/>
+            <xs:maxLength value="2000"/>
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
     </xs:sequence>
   </xs:group>
   <xs:group name="annotatedRelationshipElement">
@@ -526,7 +535,7 @@
   </xs:group>
   <xs:group name="hasKind">
     <xs:sequence>
-      <xs:element name="kind" type="modelingKind_t" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="kind" type="modellingKind_t" minOccurs="0" maxOccurs="1"/>
     </xs:sequence>
   </xs:group>
   <xs:group name="hasKind_choice">
@@ -1101,7 +1110,7 @@
       <xs:group ref="levelType"/>
     </xs:sequence>
   </xs:complexType>
-  <xs:simpleType name="modelingKind_t">
+  <xs:simpleType name="modellingKind_t">
     <xs:restriction base="xs:string">
       <xs:enumeration value="Template"/>
       <xs:enumeration value="Instance"/>
@@ -1116,7 +1125,7 @@
   </xs:simpleType>
   <xs:simpleType name="referenceTypes_t">
     <xs:restriction base="xs:string">
-      <xs:enumeration value="GlobalReference"/>
+      <xs:enumeration value="ExternalReference"/>
       <xs:enumeration value="ModelReference"/>
     </xs:restriction>
   </xs:simpleType>

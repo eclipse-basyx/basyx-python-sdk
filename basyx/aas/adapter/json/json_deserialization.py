@@ -36,7 +36,7 @@ import pprint
 from typing import Dict, Callable, TypeVar, Type, List, IO, Optional, Set
 
 from basyx.aas import model
-from .._generic import MODELING_KIND_INVERSE, ASSET_KIND_INVERSE, KEY_TYPES_INVERSE, ENTITY_TYPES_INVERSE, \
+from .._generic import MODELLING_KIND_INVERSE, ASSET_KIND_INVERSE, KEY_TYPES_INVERSE, ENTITY_TYPES_INVERSE, \
     IEC61360_DATA_TYPES_INVERSE, IEC61360_LEVEL_TYPES_INVERSE, KEY_TYPES_CLASSES_INVERSE, REFERENCE_TYPES_INVERSE, \
     DIRECTION_INVERSE, STATE_OF_EVENT_INVERSE, QUALIFIER_KIND_INVERSE
 
@@ -263,8 +263,8 @@ class AASFromJsonDecoder(json.JSONDecoder):
                         # TODO: remove the following type: ignore comment when mypy supports abstract types for Type[T]
                         # see https://github.com/python/mypy/issues/5374
                         model.EmbeddedDataSpecification(
-                            data_specification=cls._construct_global_reference(_get_ts(dspec, 'dataSpecification',
-                                                                                       dict)),
+                            data_specification=cls._construct_external_reference(_get_ts(dspec, 'dataSpecification',
+                                                                                         dict)),
                             data_specification_content=_get_ts(dspec, 'dataSpecificationContent',
                                                                model.DataSpecificationContent)  # type: ignore
                         )
@@ -275,14 +275,14 @@ class AASFromJsonDecoder(json.JSONDecoder):
                     obj.extension.add(cls._construct_extension(extension))
 
     @classmethod
-    def _get_kind(cls, dct: Dict[str, object]) -> model.ModelingKind:
+    def _get_kind(cls, dct: Dict[str, object]) -> model.ModellingKind:
         """
         Utility method to get the kind of an HasKind object from its JSON representation.
 
         :param dct: The object's dict representation from JSON
         :return: The object's `kind` value
         """
-        return MODELING_KIND_INVERSE[_get_ts(dct, "kind", str)] if 'kind' in dct else model.ModelingKind.INSTANCE
+        return MODELLING_KIND_INVERSE[_get_ts(dct, "kind", str)] if 'kind' in dct else model.ModellingKind.INSTANCE
 
     # #############################################################################
     # Helper Constructor Methods starting from here
@@ -303,7 +303,7 @@ class AASFromJsonDecoder(json.JSONDecoder):
         # semantic_id can't be applied by _amend_abstract_attributes because specificAssetId is immutable
         return object_class(name=_get_ts(dct, 'name', str),
                             value=_get_ts(dct, 'value', str),
-                            external_subject_id=cls._construct_global_reference(
+                            external_subject_id=cls._construct_external_reference(
                                 _get_ts(dct, 'externalSubjectId', dict)),
                             semantic_id=cls._construct_reference(_get_ts(dct, 'semanticId', dict))
                             if 'semanticId' in dct else None,
@@ -317,16 +317,16 @@ class AASFromJsonDecoder(json.JSONDecoder):
         reference_type: Type[model.Reference] = REFERENCE_TYPES_INVERSE[_get_ts(dct, 'type', str)]
         if reference_type is model.ModelReference:
             return cls._construct_model_reference(dct, model.Referable)  # type: ignore
-        elif reference_type is model.GlobalReference:
-            return cls._construct_global_reference(dct)
+        elif reference_type is model.ExternalReference:
+            return cls._construct_external_reference(dct)
         raise ValueError(f"Unsupported reference type {reference_type}!")
 
     @classmethod
-    def _construct_global_reference(cls, dct: Dict[str, object], object_class=model.GlobalReference)\
-            -> model.GlobalReference:
+    def _construct_external_reference(cls, dct: Dict[str, object], object_class=model.ExternalReference)\
+            -> model.ExternalReference:
         reference_type: Type[model.Reference] = REFERENCE_TYPES_INVERSE[_get_ts(dct, 'type', str)]
-        if reference_type is not model.GlobalReference:
-            raise ValueError(f"Expected a reference of type {model.GlobalReference}, got {reference_type}!")
+        if reference_type is not model.ExternalReference:
+            raise ValueError(f"Expected a reference of type {model.ExternalReference}, got {reference_type}!")
         keys = [cls._construct_key(key_data) for key_data in _get_ts(dct, "keys", list)]
         return object_class(tuple(keys), cls._construct_reference(_get_ts(dct, 'referredSemanticId', dict))
                             if 'referredSemanticId' in dct else None)
@@ -356,6 +356,10 @@ class AASFromJsonDecoder(json.JSONDecoder):
                 ret.revision = _get_ts(dct, 'revision', str)
         elif 'revision' in dct:
             logger.warning("Ignoring 'revision' attribute of AdministrativeInformation object due to missing 'version'")
+        if 'creator' in dct:
+            ret.creator = cls._construct_reference(_get_ts(dct, 'creator', dict))
+        if 'templateId' in dct:
+            ret.template_id = _get_ts(dct, 'templateId', str)
         return ret
 
     @classmethod

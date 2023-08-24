@@ -102,10 +102,10 @@ def abstract_classes_to_xml(tag: str, obj: object) -> etree.Element:
             elm.append(administrative_information_to_xml(obj.administration))
         elm.append(_generate_element(name=NS_AAS + "id", text=obj.id))
     if isinstance(obj, model.HasKind):
-        if obj.kind is model.ModelingKind.TEMPLATE:
+        if obj.kind is model.ModellingKind.TEMPLATE:
             elm.append(_generate_element(name=NS_AAS + "kind", text="Template"))
         else:
-            # then modeling-kind is Instance
+            # then modelling-kind is Instance
             elm.append(_generate_element(name=NS_AAS + "kind", text="Instance"))
     if isinstance(obj, model.HasSemantics):
         if obj.semantic_id:
@@ -184,6 +184,10 @@ def administrative_information_to_xml(obj: model.AdministrativeInformation,
         et_administration.append(_generate_element(name=NS_AAS + "version", text=obj.version))
     if obj.revision:
         et_administration.append(_generate_element(name=NS_AAS + "revision", text=obj.revision))
+    if obj.creator:
+        et_administration.append(reference_to_xml(obj.creator, tag=NS_AAS + "creator"))
+    if obj.template_id:
+        et_administration.append(_generate_element(name=NS_AAS + "templateId", text=obj.template_id))
     return et_administration
 
 

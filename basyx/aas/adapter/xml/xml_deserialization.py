@@ -49,9 +49,9 @@ import base64
 import enum
 
 from typing import Any, Callable, Dict, IO, Iterable, Optional, Set, Tuple, Type, TypeVar
-from .._generic import XML_NS_AAS, MODELING_KIND_INVERSE, ASSET_KIND_INVERSE, KEY_TYPES_INVERSE, ENTITY_TYPES_INVERSE, \
-    IEC61360_DATA_TYPES_INVERSE, IEC61360_LEVEL_TYPES_INVERSE, KEY_TYPES_CLASSES_INVERSE, REFERENCE_TYPES_INVERSE, \
-    DIRECTION_INVERSE, STATE_OF_EVENT_INVERSE, QUALIFIER_KIND_INVERSE
+from .._generic import XML_NS_AAS, MODELLING_KIND_INVERSE, ASSET_KIND_INVERSE, KEY_TYPES_INVERSE, \
+    ENTITY_TYPES_INVERSE, IEC61360_DATA_TYPES_INVERSE, IEC61360_LEVEL_TYPES_INVERSE, KEY_TYPES_CLASSES_INVERSE, \
+    REFERENCE_TYPES_INVERSE, DIRECTION_INVERSE, STATE_OF_EVENT_INVERSE, QUALIFIER_KIND_INVERSE
 
 NS_AAS = XML_NS_AAS
 
@@ -388,15 +388,15 @@ def _child_text_mandatory_mapped(parent: etree.Element, child_tag: str, dct: Dic
     return _get_text_mandatory_mapped(_get_child_mandatory(parent, child_tag), dct)
 
 
-def _get_modeling_kind(element: etree.Element) -> model.ModelingKind:
+def _get_kind(element: etree.Element) -> model.ModellingKind:
     """
-    Returns the modeling kind of an element with the default value INSTANCE, if none specified.
+    Returns the modelling kind of an element with the default value INSTANCE, if none specified.
 
     :param element: The xml element.
-    :return: The modeling kind of the element.
+    :return: The modelling kind of the element.
     """
-    modeling_kind = _get_text_mapped_or_none(element.find(NS_AAS + "kind"), MODELING_KIND_INVERSE)
-    return modeling_kind if modeling_kind is not None else model.ModelingKind.INSTANCE
+    modelling_kind = _get_text_mapped_or_none(element.find(NS_AAS + "kind"), MODELLING_KIND_INVERSE)
+    return modelling_kind if modelling_kind is not None else model.ModellingKind.INSTANCE
 
 
 def _expect_reference_type(element: etree.Element, expected_type: Type[model.Reference]) -> None:
@@ -545,7 +545,7 @@ class AASFromXmlDecoder:
         reference_type: Type[model.Reference] = _child_text_mandatory_mapped(element, NS_AAS + "type",
                                                                              REFERENCE_TYPES_INVERSE)
         references: Dict[Type[model.Reference], Callable[..., model.Reference]] = {
-            model.GlobalReference: cls.construct_global_reference,
+            model.ExternalReference: cls.construct_external_reference,
             model.ModelReference: cls.construct_model_reference
         }
         if reference_type not in references:
@@ -553,10 +553,10 @@ class AASFromXmlDecoder:
         return references[reference_type](element, namespace=namespace, **kwargs)
 
     @classmethod
-    def construct_global_reference(cls, element: etree.Element, namespace: str = NS_AAS,
-                                   object_class=model.GlobalReference, **_kwargs: Any) \
-            -> model.GlobalReference:
-        _expect_reference_type(element, model.GlobalReference)
+    def construct_external_reference(cls, element: etree.Element, namespace: str = NS_AAS,
+                                     object_class=model.ExternalReference, **_kwargs: Any) \
+            -> model.ExternalReference:
+        _expect_reference_type(element, model.ExternalReference)
         return object_class(cls._construct_key_tuple(element, namespace=namespace),
                             _failsafe_construct(element.find(NS_AAS + "referredSemanticId"), cls.construct_reference,
                                                 cls.failsafe, namespace=namespace))
@@ -600,8 +600,12 @@ class AASFromXmlDecoder:
                                              **_kwargs: Any) -> model.AdministrativeInformation:
         administrative_information = object_class(
             revision=_get_text_or_none(element.find(NS_AAS + "revision")),
-            version=_get_text_or_none(element.find(NS_AAS + "version"))
+            version=_get_text_or_none(element.find(NS_AAS + "version")),
+            template_id=_get_text_or_none(element.find(NS_AAS + "templateId"))
         )
+        creator = _failsafe_construct(element.find(NS_AAS + "creator"), cls.construct_reference, cls.failsafe)
+        if creator is not None:
+            administrative_information.creator = creator
         cls._amend_abstract_attributes(administrative_information, element)
         return administrative_information
 
@@ -963,7 +967,7 @@ class AASFromXmlDecoder:
         # semantic_id can't be applied by _amend_abstract_attributes because specificAssetId is immutable
         return object_class(
             external_subject_id=_child_construct_mandatory(element, NS_AAS + "externalSubjectId",
-                                                           cls.construct_global_reference),
+                                                           cls.construct_external_reference),
             name=_get_text_or_none(element.find(NS_AAS + "name")),
             value=_get_text_or_none(element.find(NS_AAS + "value")),
             semantic_id=_failsafe_construct(element.find(NS_AAS + "semanticId"), cls.construct_reference, cls.failsafe)
@@ -999,7 +1003,7 @@ class AASFromXmlDecoder:
             -> model.Submodel:
         submodel = object_class(
             _child_text_mandatory(element, NS_AAS + "id"),
-            kind=_get_modeling_kind(element)
+            kind=_get_kind(element)
         )
         if not cls.stripped:
             submodel_elements = element.find(NS_AAS + "submodelElements")
@@ -1055,7 +1059,7 @@ class AASFromXmlDecoder:
             logger.warning(f"{_element_pretty_identifier(data_specification_content)} has more than one "
                            "data specification, using the first one...")
         embedded_data_specification = object_class(
-            _child_construct_mandatory(element, NS_AAS + "dataSpecification", cls.construct_global_reference),
+            _child_construct_mandatory(element, NS_AAS + "dataSpecification", cls.construct_external_reference),
             _failsafe_construct_mandatory(data_specification_content[0], cls.construct_data_specification_content)
         )
         cls._amend_abstract_attributes(embedded_data_specification, element)
@@ -1323,7 +1327,7 @@ def read_aas_xml_element(file: IO, construct: XMLConstructables, failsafe: bool 
     elif construct == XMLConstructables.MODEL_REFERENCE:
         constructor = decoder_.construct_model_reference
     elif construct == XMLConstructables.GLOBAL_REFERENCE:
-        constructor = decoder_.construct_global_reference
+        constructor = decoder_.construct_external_reference
     elif construct == XMLConstructables.ADMINISTRATIVE_INFORMATION:
         constructor = decoder_.construct_administrative_information
     elif construct == XMLConstructables.QUALIFIER:

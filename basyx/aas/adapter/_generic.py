@@ -16,9 +16,9 @@ from basyx.aas import model
 XML_NS_MAP = {"aas": "https://admin-shell.io/aas/3/0"}
 XML_NS_AAS = "{" + XML_NS_MAP["aas"] + "}"
 
-MODELING_KIND: Dict[model.ModelingKind, str] = {
-    model.ModelingKind.TEMPLATE: 'Template',
-    model.ModelingKind.INSTANCE: 'Instance'}
+MODELLING_KIND: Dict[model.ModellingKind, str] = {
+    model.ModellingKind.TEMPLATE: 'Template',
+    model.ModellingKind.INSTANCE: 'Instance'}
 
 ASSET_KIND: Dict[model.AssetKind, str] = {
     model.AssetKind.TYPE: 'Type',
@@ -39,7 +39,7 @@ STATE_OF_EVENT: Dict[model.StateOfEvent, str] = {
     model.StateOfEvent.OFF: 'off'}
 
 REFERENCE_TYPES: Dict[Type[model.Reference], str] = {
-    model.GlobalReference: 'GlobalReference',
+    model.ExternalReference: 'ExternalReference',
     model.ModelReference: 'ModelReference'}
 
 KEY_TYPES: Dict[model.KeyTypes, str] = {
@@ -92,7 +92,7 @@ IEC61360_LEVEL_TYPES: Dict[model.base.IEC61360LevelType, str] = {
     model.base.IEC61360LevelType.MAX: 'max',
 }
 
-MODELING_KIND_INVERSE: Dict[str, model.ModelingKind] = {v: k for k, v in MODELING_KIND.items()}
+MODELLING_KIND_INVERSE: Dict[str, model.ModellingKind] = {v: k for k, v in MODELLING_KIND.items()}
 ASSET_KIND_INVERSE: Dict[str, model.AssetKind] = {v: k for k, v in ASSET_KIND.items()}
 QUALIFIER_KIND_INVERSE: Dict[str, model.QualifierKind] = {v: k for k, v in QUALIFIER_KIND.items()}
 DIRECTION_INVERSE: Dict[str, model.Direction] = {v: k for k, v in DIRECTION.items()}

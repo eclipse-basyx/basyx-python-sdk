@@ -138,6 +138,7 @@ class AASDataChecker(DataChecker):
         self.check_attribute_equal(object_, "id_short", expected_object.id_short)
         self.check_attribute_equal(object_, "category", expected_object.category)
         self.check_attribute_equal(object_, "description", expected_object.description)
+        self.check_attribute_equal(object_, "display_name", expected_object.display_name)
 
     def _check_identifiable_equal(self, object_: model.Identifiable, expected_object: model.Identifiable):
         """

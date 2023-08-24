@@ -31,7 +31,7 @@ class EntityTest(unittest.TestCase):
 
         specific_asset_id = model.SpecificAssetId(name="TestKey",
                                                   value="TestValue",
-                                                  external_subject_id=model.GlobalReference((model.Key(
+                                                  external_subject_id=model.ExternalReference((model.Key(
                                                                  type_=model.KeyTypes.GLOBAL_REFERENCE,
                                                                  value='http://acplt.org/SpecificAssetId/'),)))
         with self.assertRaises(model.AASConstraintViolation) as cm:
@@ -64,33 +64,33 @@ class RangeTest(unittest.TestCase):
 class SubmodelElementListTest(unittest.TestCase):
     def test_constraints(self):
         # AASd-107
-        mlp = model.MultiLanguageProperty("test", semantic_id=model.GlobalReference(
+        mlp = model.MultiLanguageProperty("test", semantic_id=model.ExternalReference(
             (model.Key(model.KeyTypes.GLOBAL_REFERENCE, "urn:x-test:invalid"),)
         ))
         with self.assertRaises(model.AASConstraintViolation) as cm:
             model.SubmodelElementList("test_list", model.MultiLanguageProperty, {mlp},
-                                      semantic_id_list_element=model.GlobalReference((
+                                      semantic_id_list_element=model.ExternalReference((
                                           model.Key(model.KeyTypes.GLOBAL_REFERENCE, "urn:x-test:test"),)))
-        self.assertEqual("If semantic_id_list_element=GlobalReference(key=(Key(type=GLOBAL_REFERENCE, "
+        self.assertEqual("If semantic_id_list_element=ExternalReference(key=(Key(type=GLOBAL_REFERENCE, "
                          "value=urn:x-test:test),)) is specified all first level children must have "
                          "the same semantic_id, got MultiLanguageProperty[test] with "
-                         "semantic_id=GlobalReference(key=(Key(type=GLOBAL_REFERENCE, value=urn:x-test:invalid),)) "
+                         "semantic_id=ExternalReference(key=(Key(type=GLOBAL_REFERENCE, value=urn:x-test:invalid),)) "
                          "(Constraint AASd-107)", str(cm.exception))
         model.SubmodelElementList("test_list", model.MultiLanguageProperty, {mlp},
-                                  semantic_id_list_element=model.GlobalReference((
+                                  semantic_id_list_element=model.ExternalReference((
                                       model.Key(model.KeyTypes.GLOBAL_REFERENCE, "urn:x-test:invalid"),)))
         mlp.parent = None
         model.SubmodelElementList("test_list", model.MultiLanguageProperty, {mlp}, semantic_id_list_element=None)
         mlp = model.MultiLanguageProperty("test")
         model.SubmodelElementList("test_list", model.MultiLanguageProperty, {mlp},
-                                  semantic_id_list_element=model.GlobalReference((
+                                  semantic_id_list_element=model.ExternalReference((
                                       model.Key(model.KeyTypes.GLOBAL_REFERENCE, "urn:x-test:invalid"),)))
 
         # AASd-108
         are = model.AnnotatedRelationshipElement(
             "test",
-            model.GlobalReference((model.Key(model.KeyTypes.GLOBAL_REFERENCE, "urn:x-test:test-first"),)),
-            model.GlobalReference((model.Key(model.KeyTypes.GLOBAL_REFERENCE, "urn:x-test:test-second"),))
+            model.ExternalReference((model.Key(model.KeyTypes.GLOBAL_REFERENCE, "urn:x-test:test-first"),)),
+            model.ExternalReference((model.Key(model.KeyTypes.GLOBAL_REFERENCE, "urn:x-test:test-second"),))
         )
         # This tests checks if subclasses of the required type are rejected in a SubmodelElementList.
         # Thus, a requirement is that AnnotatedRelationshipElement is a subclass of RelationshipElement:
@@ -119,16 +119,16 @@ class SubmodelElementListTest(unittest.TestCase):
         model.SubmodelElementList("test_list", model.Property, {prop}, value_type_list_element=model.datatypes.String)
 
         # AASd-114
-        semantic_id1 = model.GlobalReference((model.Key(model.KeyTypes.GLOBAL_REFERENCE, "urn:x-test:test"),))
-        semantic_id2 = model.GlobalReference((model.Key(model.KeyTypes.GLOBAL_REFERENCE, "urn:x-test:different"),))
+        semantic_id1 = model.ExternalReference((model.Key(model.KeyTypes.GLOBAL_REFERENCE, "urn:x-test:test"),))
+        semantic_id2 = model.ExternalReference((model.Key(model.KeyTypes.GLOBAL_REFERENCE, "urn:x-test:different"),))
         mlp1 = model.MultiLanguageProperty("mlp1", semantic_id=semantic_id1)
         mlp2 = model.MultiLanguageProperty("mlp2", semantic_id=semantic_id2)
         with self.assertRaises(model.AASConstraintViolation) as cm:
             model.SubmodelElementList("test_list", model.MultiLanguageProperty, [mlp1, mlp2])
         self.assertEqual("Element to be added MultiLanguageProperty[mlp2] has semantic_id "
-                         "GlobalReference(key=(Key(type=GLOBAL_REFERENCE, value=urn:x-test:different),)), "
+                         "ExternalReference(key=(Key(type=GLOBAL_REFERENCE, value=urn:x-test:different),)), "
                          "while already contained element MultiLanguageProperty[test_list / mlp1] has semantic_id "
-                         "GlobalReference(key=(Key(type=GLOBAL_REFERENCE, value=urn:x-test:test),)), "
+                         "ExternalReference(key=(Key(type=GLOBAL_REFERENCE, value=urn:x-test:test),)), "
                          "which aren't equal. (Constraint AASd-114)", str(cm.exception))
         mlp2.semantic_id = semantic_id1
         model.SubmodelElementList("test_list", model.MultiLanguageProperty, [mlp1, mlp2])
@@ -170,7 +170,7 @@ class SubmodelElementListTest(unittest.TestCase):
         with self.assertRaises(AttributeError):
             list_.order_relevant = False
         with self.assertRaises(AttributeError):
-            list_.semantic_id_list_element = model.GlobalReference((model.Key(model.KeyTypes.GLOBAL_REFERENCE, "t"),))
+            list_.semantic_id_list_element = model.ExternalReference((model.Key(model.KeyTypes.GLOBAL_REFERENCE, "t"),))
         with self.assertRaises(AttributeError):
             list_.value_type_list_element = model.datatypes.Int
 

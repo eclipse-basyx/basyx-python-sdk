@@ -189,19 +189,19 @@ class EntityType(Enum):
 
 
 @unique
-class ModelingKind(Enum):
+class ModellingKind(Enum):
     """
     Enumeration for denoting whether an element is a type or an instance.
-    *Note:* An :attr:`~.ModelingKind.INSTANCE` becomes an individual entity of a template, for example a device model,
+    *Note:* An :attr:`~.ModellingKind.INSTANCE` becomes an individual entity of a template, for example a device model,
     by defining specific property values.
 
-    *Note:* In an object oriented view, an instance denotes an object of a template (class).
+    *Note:* In an object-oriented view, an instance denotes an object of a template (class).
 
     :cvar TEMPLATE: Software element which specifies the common attributes shared by all instances of the template
     :cvar INSTANCE: concrete, clearly identifiable component of a certain template.
         *Note:*  It becomes an individual entity of a template, for example a device model, by defining
         specific property values.
-        *Note:* In an object oriented view, an instance denotes an object of a template (class).
+        *Note:* In an object-oriented view, an instance denotes an object of a template (class).
     """
 
     TEMPLATE = 0
@@ -777,7 +777,7 @@ class Reference(metaclass=abc.ABCMeta):
     A reference is an ordered list of keys, each key referencing an element. The complete list of keys may for
     example be concatenated to a path that then gives unique access to an element or entity.
 
-    This is the abstract superclass of GlobalReference and ModelReference, which implements common attributes and
+    This is the abstract superclass of ExternalReference and ModelReference, which implements common attributes and
     methods used in both reference types. The two reference types are implemented as separate classes in this SDK to
     allow typing and resolving of References with Reference/type=ModelReference.
 
@@ -789,15 +789,15 @@ class Reference(metaclass=abc.ABCMeta):
     :ivar key: Ordered list of unique reference in its name space, each key referencing an element. The complete
                list of keys may for example be concatenated to a path that then gives unique access to an element
                or entity.
-    :ivar referred_semantic_id: SemanticId of the referenced model element. For global references there typically is no
-                                semantic id.
+    :ivar referred_semantic_id: SemanticId of the referenced model element. For external references there typically is
+                                no semantic id.
     """
     @abc.abstractmethod
     def __init__(self, key: Tuple[Key, ...], referred_semantic_id: Optional["Reference"] = None):
         if len(key) < 1:
             raise ValueError("A reference must have at least one key!")
 
-        # Constraint AASd-121 is enforced by checking AASd-122 for global references and AASd-123 for model references
+        # Constraint AASd-121 is enforced by checking AASd-122 for external references and AASd-123 for model references
 
         self.key: Tuple[Key, ...]
         self.referred_semantic_id: Optional["Reference"]
@@ -820,7 +820,7 @@ class Reference(metaclass=abc.ABCMeta):
             and self.referred_semantic_id == other.referred_semantic_id
 
 
-class GlobalReference(Reference):
+class ExternalReference(Reference):
     """
     Reference to either a model element of the same or another AAs or to an external entity.
 
@@ -836,22 +836,22 @@ class GlobalReference(Reference):
     :ivar key: Ordered list of unique reference in its name space, each key referencing an element. The complete
                list of keys may for example be concatenated to a path that then gives unique access to an element
                or entity.
-    :ivar referred_semantic_id: SemanticId of the referenced model element. For global references there typically is no
-                                semantic id.
+    :ivar referred_semantic_id: SemanticId of the referenced model element. For external references there typically is
+                                no semantic id.
     """
 
     def __init__(self, key: Tuple[Key, ...], referred_semantic_id: Optional["Reference"] = None):
         super().__init__(key, referred_semantic_id)
 
         if not key[0].type.is_generic_globally_identifiable:
-            raise AASConstraintViolation(122, "The type of the first key of a GlobalReference must be a "
+            raise AASConstraintViolation(122, "The type of the first key of an ExternalReference must be a "
                                               f"GenericGloballyIdentifiable: {key[0]!r}")
         if not key[-1].type.is_generic_globally_identifiable and not key[-1].type.is_generic_fragment_key:
-            raise AASConstraintViolation(124, "The type of the last key of a GlobalReference must be a "
+            raise AASConstraintViolation(124, "The type of the last key of an ExternalReference must be a "
                                               f"GenericGloballyIdentifiable or a GenericFragmentKey: {key[-1]!r}")
 
     def __repr__(self) -> str:
-        return "GlobalReference(key={})".format(self.key)
+        return "ExternalReference(key={})".format(self.key)
 
 
 class ModelReference(Reference, Generic[_RT]):
@@ -881,8 +881,8 @@ class ModelReference(Reference, Generic[_RT]):
                element or entity.
     :ivar ~.type: The type of the referenced object (additional parameter, not from the AAS Metamodel)
                   *Initialization parameter:* `type_`
-    :ivar referred_semantic_id: SemanticId of the referenced model element. For global references there typically is no
-                                semantic id.
+    :ivar referred_semantic_id: SemanticId of the referenced model element. For external references there typically is
+                                no semantic id.
     """
     def __init__(self, key: Tuple[Key, ...], type_: Type[_RT], referred_semantic_id: Optional[Reference] = None):
         super().__init__(key, referred_semantic_id)
@@ -1046,7 +1046,7 @@ class DataSpecificationContent:
 
     *Constraint AASc-3a-050:* If the `Data_specification_IEC_61360` is used
         for an element, the value of `Has_data_specification.embedded_data_specifications`
-        shall contain the global reference to the IRI of the corresponding data specification
+        shall contain the external reference to the IRI of the corresponding data specification
         template
         https://admin-shell.io/DataSpecificationTemplates/DataSpecificationIEC61360/3/0
 
@@ -1065,10 +1065,10 @@ class EmbeddedDataSpecification:
     """
     def __init__(
         self,
-        data_specification: GlobalReference,
+        data_specification: ExternalReference,
         data_specification_content: DataSpecificationContent,
     ) -> None:
-        self.data_specification: GlobalReference = data_specification
+        self.data_specification: ExternalReference = data_specification
         self.data_specification_content: DataSpecificationContent = data_specification_content
 
     def __repr__(self):
@@ -1094,6 +1094,7 @@ class HasDataSpecification(metaclass=abc.ABCMeta):
 
 
 @_string_constraints.constrain_version_type("version")
+@_string_constraints.constrain_identifier("template_id")
 class AdministrativeInformation(HasDataSpecification):
     """
     Administrative meta-information for an element like version information.
@@ -1103,6 +1104,17 @@ class AdministrativeInformation(HasDataSpecification):
 
     :ivar version: Version of the element.
     :ivar revision: Revision of the element.
+    :ivar creator: The subject ID of the subject responsible for making the element
+    :ivar template_id: Identifier of the template that guided the creation of the element
+
+    *Note:*  In case of a submodel, the template ID is the identifier of the submodel template that guided the
+      creation of the submodel.
+
+    *Note:* The submodel template ID is not relevant for validation. Here, the Submodel/semanticId shall be used
+
+    *Note:* Usage of the template ID is not restricted to submodel instances.
+      The creation of submodel templates can also be guided by another submodel template.
+
     :ivar embedded_data_specifications: List of Embedded data specification.
      used by the element.
     """
@@ -1110,6 +1122,8 @@ class AdministrativeInformation(HasDataSpecification):
     def __init__(self,
                  version: Optional[VersionType] = None,
                  revision: Optional[RevisionType] = None,
+                 creator: Optional[Reference] = None,
+                 template_id: Optional[Identifier] = None,
                  embedded_data_specifications: Iterable[EmbeddedDataSpecification] = ()):
         """
         Initializer of AdministrativeInformation
@@ -1122,6 +1136,8 @@ class AdministrativeInformation(HasDataSpecification):
         self.version: Optional[VersionType] = version
         self._revision: Optional[RevisionType]
         self.revision = revision
+        self.creator: Optional[Reference] = creator
+        self.template_id: Optional[Identifier] = template_id
         self.embedded_data_specifications: List[EmbeddedDataSpecification] = list(embedded_data_specifications)
 
     def _get_revision(self):
@@ -1140,10 +1156,14 @@ class AdministrativeInformation(HasDataSpecification):
     def __eq__(self, other) -> bool:
         if not isinstance(other, AdministrativeInformation):
             return NotImplemented
-        return self.version == other.version and self._revision == other._revision
+        return self.version == other.version \
+            and self._revision == other._revision \
+            and self.creator == other.creator \
+            and self.template_id == other.template_id
 
     def __repr__(self) -> str:
-        return "AdministrativeInformation(version={}, revision={})".format(self.version, self.revision)
+        return "AdministrativeInformation(version={}, revision={}, creator={}, template_id={})".format(
+            self.version, self.revision, self.creator, self.template_id)
 
 
 @_string_constraints.constrain_identifier("id")
@@ -1405,12 +1425,12 @@ class HasKind(metaclass=abc.ABCMeta):
 
     <<abstract>>
 
-    :ivar _kind: Kind of the element: either type or instance. Default = :attr:`~ModelingKind.INSTANCE`.
+    :ivar _kind: Kind of the element: either type or instance. Default = :attr:`~ModellingKind.INSTANCE`.
     """
     @abc.abstractmethod
     def __init__(self):
         super().__init__()
-        self._kind: ModelingKind = ModelingKind.INSTANCE
+        self._kind: ModellingKind = ModellingKind.INSTANCE
 
     @property
     def kind(self):
@@ -2007,7 +2027,7 @@ class SpecificAssetId(HasSemantics):
     def __init__(self,
                  name: LabelType,
                  value: Identifier,
-                 external_subject_id: GlobalReference,
+                 external_subject_id: ExternalReference,
                  semantic_id: Optional[Reference] = None,
                  supplemental_semantic_id: Iterable[Reference] = ()):
         super().__init__()
@@ -2017,7 +2037,7 @@ class SpecificAssetId(HasSemantics):
         _string_constraints.check_identifier(value)
         self.name: LabelType
         self.value: Identifier
-        self.external_subject_id: GlobalReference
+        self.external_subject_id: ExternalReference
 
         super().__setattr__('name', name)
         super().__setattr__('value', value)
