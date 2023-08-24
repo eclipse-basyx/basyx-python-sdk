@@ -39,7 +39,7 @@ STATE_OF_EVENT: Dict[model.StateOfEvent, str] = {
     model.StateOfEvent.OFF: 'off'}
 
 REFERENCE_TYPES: Dict[Type[model.Reference], str] = {
-    model.GlobalReference: 'GlobalReference',
+    model.ExternalReference: 'ExternalReference',
     model.ModelReference: 'ModelReference'}
 
 KEY_TYPES: Dict[model.KeyTypes, str] = {

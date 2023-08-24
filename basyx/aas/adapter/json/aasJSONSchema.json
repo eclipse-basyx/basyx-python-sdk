@@ -1068,7 +1068,7 @@
     "ReferenceTypes": {
       "type": "string",
       "enum": [
-        "GlobalReference",
+        "ExternalReference",
         "ModelReference"
       ]
     },

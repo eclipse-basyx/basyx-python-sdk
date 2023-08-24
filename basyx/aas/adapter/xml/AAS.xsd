@@ -1125,7 +1125,7 @@
   </xs:simpleType>
   <xs:simpleType name="referenceTypes_t">
     <xs:restriction base="xs:string">
-      <xs:enumeration value="GlobalReference"/>
+      <xs:enumeration value="ExternalReference"/>
       <xs:enumeration value="ModelReference"/>
     </xs:restriction>
   </xs:simpleType>

@@ -545,7 +545,7 @@ class AASFromXmlDecoder:
         reference_type: Type[model.Reference] = _child_text_mandatory_mapped(element, NS_AAS + "type",
                                                                              REFERENCE_TYPES_INVERSE)
         references: Dict[Type[model.Reference], Callable[..., model.Reference]] = {
-            model.GlobalReference: cls.construct_global_reference,
+            model.ExternalReference: cls.construct_external_reference,
             model.ModelReference: cls.construct_model_reference
         }
         if reference_type not in references:
@@ -553,10 +553,10 @@ class AASFromXmlDecoder:
         return references[reference_type](element, namespace=namespace, **kwargs)
 
     @classmethod
-    def construct_global_reference(cls, element: etree.Element, namespace: str = NS_AAS,
-                                   object_class=model.GlobalReference, **_kwargs: Any) \
-            -> model.GlobalReference:
-        _expect_reference_type(element, model.GlobalReference)
+    def construct_external_reference(cls, element: etree.Element, namespace: str = NS_AAS,
+                                     object_class=model.ExternalReference, **_kwargs: Any) \
+            -> model.ExternalReference:
+        _expect_reference_type(element, model.ExternalReference)
         return object_class(cls._construct_key_tuple(element, namespace=namespace),
                             _failsafe_construct(element.find(NS_AAS + "referredSemanticId"), cls.construct_reference,
                                                 cls.failsafe, namespace=namespace))
@@ -967,7 +967,7 @@ class AASFromXmlDecoder:
         # semantic_id can't be applied by _amend_abstract_attributes because specificAssetId is immutable
         return object_class(
             external_subject_id=_child_construct_mandatory(element, NS_AAS + "externalSubjectId",
-                                                           cls.construct_global_reference),
+                                                           cls.construct_external_reference),
             name=_get_text_or_none(element.find(NS_AAS + "name")),
             value=_get_text_or_none(element.find(NS_AAS + "value")),
             semantic_id=_failsafe_construct(element.find(NS_AAS + "semanticId"), cls.construct_reference, cls.failsafe)
@@ -1059,7 +1059,7 @@ class AASFromXmlDecoder:
             logger.warning(f"{_element_pretty_identifier(data_specification_content)} has more than one "
                            "data specification, using the first one...")
         embedded_data_specification = object_class(
-            _child_construct_mandatory(element, NS_AAS + "dataSpecification", cls.construct_global_reference),
+            _child_construct_mandatory(element, NS_AAS + "dataSpecification", cls.construct_external_reference),
             _failsafe_construct_mandatory(data_specification_content[0], cls.construct_data_specification_content)
         )
         cls._amend_abstract_attributes(embedded_data_specification, element)
@@ -1327,7 +1327,7 @@ def read_aas_xml_element(file: IO, construct: XMLConstructables, failsafe: bool 
     elif construct == XMLConstructables.MODEL_REFERENCE:
         constructor = decoder_.construct_model_reference
     elif construct == XMLConstructables.GLOBAL_REFERENCE:
-        constructor = decoder_.construct_global_reference
+        constructor = decoder_.construct_external_reference
     elif construct == XMLConstructables.ADMINISTRATIVE_INFORMATION:
         constructor = decoder_.construct_administrative_information
     elif construct == XMLConstructables.QUALIFIER:

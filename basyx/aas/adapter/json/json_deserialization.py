@@ -263,8 +263,8 @@ class AASFromJsonDecoder(json.JSONDecoder):
                         # TODO: remove the following type: ignore comment when mypy supports abstract types for Type[T]
                         # see https://github.com/python/mypy/issues/5374
                         model.EmbeddedDataSpecification(
-                            data_specification=cls._construct_global_reference(_get_ts(dspec, 'dataSpecification',
-                                                                                       dict)),
+                            data_specification=cls._construct_external_reference(_get_ts(dspec, 'dataSpecification',
+                                                                                         dict)),
                             data_specification_content=_get_ts(dspec, 'dataSpecificationContent',
                                                                model.DataSpecificationContent)  # type: ignore
                         )
@@ -303,7 +303,7 @@ class AASFromJsonDecoder(json.JSONDecoder):
         # semantic_id can't be applied by _amend_abstract_attributes because specificAssetId is immutable
         return object_class(name=_get_ts(dct, 'name', str),
                             value=_get_ts(dct, 'value', str),
-                            external_subject_id=cls._construct_global_reference(
+                            external_subject_id=cls._construct_external_reference(
                                 _get_ts(dct, 'externalSubjectId', dict)),
                             semantic_id=cls._construct_reference(_get_ts(dct, 'semanticId', dict))
                             if 'semanticId' in dct else None,
@@ -317,16 +317,16 @@ class AASFromJsonDecoder(json.JSONDecoder):
         reference_type: Type[model.Reference] = REFERENCE_TYPES_INVERSE[_get_ts(dct, 'type', str)]
         if reference_type is model.ModelReference:
             return cls._construct_model_reference(dct, model.Referable)  # type: ignore
-        elif reference_type is model.GlobalReference:
-            return cls._construct_global_reference(dct)
+        elif reference_type is model.ExternalReference:
+            return cls._construct_external_reference(dct)
         raise ValueError(f"Unsupported reference type {reference_type}!")
 
     @classmethod
-    def _construct_global_reference(cls, dct: Dict[str, object], object_class=model.GlobalReference)\
-            -> model.GlobalReference:
+    def _construct_external_reference(cls, dct: Dict[str, object], object_class=model.ExternalReference)\
+            -> model.ExternalReference:
         reference_type: Type[model.Reference] = REFERENCE_TYPES_INVERSE[_get_ts(dct, 'type', str)]
-        if reference_type is not model.GlobalReference:
-            raise ValueError(f"Expected a reference of type {model.GlobalReference}, got {reference_type}!")
+        if reference_type is not model.ExternalReference:
+            raise ValueError(f"Expected a reference of type {model.ExternalReference}, got {reference_type}!")
         keys = [cls._construct_key(key_data) for key_data in _get_ts(dct, "keys", list)]
         return object_class(tuple(keys), cls._construct_reference(_get_ts(dct, 'referredSemanticId', dict))
                             if 'referredSemanticId' in dct else None)

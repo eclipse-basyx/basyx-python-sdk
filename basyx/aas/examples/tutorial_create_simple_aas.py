@@ -70,7 +70,7 @@ aas = model.AssetAdministrationShell(
 
 # Step 3.1: create a global reference to a semantic description of the Property
 # A global reference consist of one key which points to the address where the semantic description is stored
-semantic_reference = model.GlobalReference(
+semantic_reference = model.ExternalReference(
     (model.Key(
         type_=model.KeyTypes.GLOBAL_REFERENCE,
         value='http://acplt.org/Properties/SimpleProperty'
@@ -99,7 +99,7 @@ submodel = model.Submodel(
             id_short='ExampleProperty',
             value_type=model.datatypes.String,
             value='exampleValue',
-            semantic_id=model.GlobalReference(
+            semantic_id=model.ExternalReference(
                 (model.Key(
                     type_=model.KeyTypes.GLOBAL_REFERENCE,
                     value='http://acplt.org/Properties/SimpleProperty'

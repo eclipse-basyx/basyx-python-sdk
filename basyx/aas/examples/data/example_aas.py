@@ -21,9 +21,9 @@ logger = logging.getLogger(__name__)
 
 
 _embedded_data_specification_iec61360 = model.EmbeddedDataSpecification(
-    data_specification=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
-                                                        value='https://admin-shell.io/DataSpecificationTemplates/'
-                                                              'DataSpecificationIEC61360/3/0'),)),
+    data_specification=model.ExternalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
+                                                          value='https://admin-shell.io/DataSpecificationTemplates/'
+                                                                'DataSpecificationIEC61360/3/0'),)),
     data_specification_content=model.DataSpecificationIEC61360(preferred_name=model.LangStringSet({
         'de': 'Test Specification',
         'en-US': 'TestSpecification'
@@ -31,27 +31,27 @@ _embedded_data_specification_iec61360 = model.EmbeddedDataSpecification(
         definition=model.LangStringSet({'de': 'Dies ist eine Data Specification für Testzwecke',
                                         'en-US': 'This is a DataSpecification for testing purposes'}),
         short_name=model.LangStringSet({'de': 'Test Spec', 'en-US': 'TestSpec'}), unit='SpaceUnit',
-        unit_id=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
-                                                 value='http://acplt.org/Units/SpaceUnit'),)),
+        unit_id=model.ExternalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
+                                                   value='http://acplt.org/Units/SpaceUnit'),)),
         source_of_definition='http://acplt.org/DataSpec/ExampleDef', symbol='SU', value_format=model.datatypes.String,
         value_list={
             model.ValueReferencePair(
                 value_type=model.datatypes.String,
                 value='exampleValue',
-                value_id=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
-                                                          value='http://acplt.org/ValueId/ExampleValueId'),)), ),
+                value_id=model.ExternalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
+                                                            value='http://acplt.org/ValueId/ExampleValueId'),)), ),
             model.ValueReferencePair(
                 value_type=model.datatypes.String,
                 value='exampleValue2',
-                value_id=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
-                                                          value='http://acplt.org/ValueId/ExampleValueId2'),)), )},
+                value_id=model.ExternalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
+                                                            value='http://acplt.org/ValueId/ExampleValueId2'),)), )},
         value="TEST", level_types={model.IEC61360LevelType.MIN, model.IEC61360LevelType.MAX})
 )
 
 _embedded_data_specification_physical_unit = model.EmbeddedDataSpecification(
-    data_specification=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
-                                                        value='https://admin-shell.io/DataSpecificationTemplates/'
-                                                              'DataSpecificationPhysicalUnit/3/0'),)),
+    data_specification=model.ExternalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
+                                                          value='https://admin-shell.io/DataSpecificationTemplates/'
+                                                                'DataSpecificationPhysicalUnit/3/0'),)),
     data_specification_content=model.DataSpecificationPhysicalUnit(
         unit_name='TestPhysicalUnit',
         unit_symbol='TPU',
@@ -101,24 +101,24 @@ def create_example_asset_identification_submodel() -> model.Submodel:
         type_='http://acplt.org/Qualifier/ExampleQualifier',
         value_type=model.datatypes.Int,
         value=100,
-        value_id=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
-                                                  value='http://acplt.org/ValueId/ExampleValueId'),)),
+        value_id=model.ExternalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
+                                                    value='http://acplt.org/ValueId/ExampleValueId'),)),
         kind=model.QualifierKind.CONCEPT_QUALIFIER)
 
     qualifier2 = model.Qualifier(
         type_='http://acplt.org/Qualifier/ExampleQualifier2',
         value_type=model.datatypes.Int,
         value=50,
-        value_id=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
-                                                  value='http://acplt.org/ValueId/ExampleValueId'),)),
+        value_id=model.ExternalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
+                                                    value='http://acplt.org/ValueId/ExampleValueId'),)),
         kind=model.QualifierKind.TEMPLATE_QUALIFIER)
 
     qualifier3 = model.Qualifier(
         type_='http://acplt.org/Qualifier/ExampleQualifier3',
         value_type=model.datatypes.DateTime,
         value=model.datatypes.DateTime(2023, 4, 7, 16, 59, 54, 870123),
-        value_id=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
-                                                  value='http://acplt.org/ValueId/ExampleValueId'),)),
+        value_id=model.ExternalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
+                                                    value='http://acplt.org/ValueId/ExampleValueId'),)),
         kind=model.QualifierKind.VALUE_QUALIFIER)
 
     extension = model.Extension(
@@ -135,8 +135,8 @@ def create_example_asset_identification_submodel() -> model.Submodel:
         id_short='ManufacturerName',
         value_type=model.datatypes.String,
         value='ACPLT',
-        value_id=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
-                                                  value='http://acplt.org/ValueId/ExampleValueId'),)),
+        value_id=model.ExternalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
+                                                    value='http://acplt.org/ValueId/ExampleValueId'),)),
         category="PARAMETER",
         description=model.LangStringSet({'en-US': 'Legally valid designation of the natural or judicial person which '
                                                   'is directly responsible for the design, production, packaging and '
@@ -147,8 +147,8 @@ def create_example_asset_identification_submodel() -> model.Submodel:
                                                'Produkts im Hinblick auf das \'Inverkehrbringen\' im eigenen Namen '
                                                'verantwortlich ist'}),
         parent=None,
-        semantic_id=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
-                                                     value='0173-1#02-AAO677#002'),)),
+        semantic_id=model.ExternalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
+                                                       value='0173-1#02-AAO677#002'),)),
         qualifier={qualifier, qualifier2},
         extension={extension},
         supplemental_semantic_id=(),
@@ -161,8 +161,8 @@ def create_example_asset_identification_submodel() -> model.Submodel:
         id_short='InstanceId',
         value_type=model.datatypes.String,
         value='978-8234-234-342',
-        value_id=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
-                                                  value='http://acplt.org/ValueId/ExampleValueId'),)),
+        value_id=model.ExternalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
+                                                    value='http://acplt.org/ValueId/ExampleValueId'),)),
         category="PARAMETER",
         description=model.LangStringSet({'en-US': 'Legally valid designation of the natural or judicial person which '
                                                   'is directly responsible for the design, production, packaging and '
@@ -173,9 +173,10 @@ def create_example_asset_identification_submodel() -> model.Submodel:
                                                'Produkts im Hinblick auf das \'Inverkehrbringen\' im eigenen Namen '
                                                'verantwortlich ist'}),
         parent=None,
-        semantic_id=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
-                                                     value='http://opcfoundation.org/UA/DI/1.1/DeviceType/Serialnumber'
-                                                     ),)),
+        semantic_id=model.ExternalReference((model.Key(
+            type_=model.KeyTypes.GLOBAL_REFERENCE,
+            value='http://opcfoundation.org/UA/DI/1.1/DeviceType/Serialnumber'
+        ),)),
         qualifier={qualifier3},
         extension=(),
         supplemental_semantic_id=(),
@@ -194,7 +195,7 @@ def create_example_asset_identification_submodel() -> model.Submodel:
         parent=None,
         administration=model.AdministrativeInformation(version='9',
                                                        revision='0',
-                                                       creator=model.GlobalReference((
+                                                       creator=model.ExternalReference((
                                                            model.Key(model.KeyTypes.GLOBAL_REFERENCE,
                                                                      'http://acplt.org/AdministrativeInformation/'
                                                                      'TestAsset/Identification'),
@@ -224,14 +225,14 @@ def create_example_bill_of_material_submodel() -> model.Submodel:
         id_short='ExampleProperty',
         value_type=model.datatypes.String,
         value='exampleValue',
-        value_id=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
-                                                  value='http://acplt.org/ValueId/ExampleValueId'),)),
+        value_id=model.ExternalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
+                                                    value='http://acplt.org/ValueId/ExampleValueId'),)),
         category='CONSTANT',
         description=model.LangStringSet({'en-US': 'Example Property object',
                                          'de': 'Beispiel Property Element'}),
         parent=None,
-        semantic_id=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
-                                                     value='http://acplt.org/Properties/ExampleProperty'),)),
+        semantic_id=model.ExternalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
+                                                       value='http://acplt.org/Properties/ExampleProperty'),)),
         qualifier=(),
         extension=(),
         supplemental_semantic_id=(),
@@ -242,14 +243,14 @@ def create_example_bill_of_material_submodel() -> model.Submodel:
         id_short='ExampleProperty2',
         value_type=model.datatypes.String,
         value='exampleValue2',
-        value_id=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
-                                                  value='http://acplt.org/ValueId/ExampleValueId'),)),
+        value_id=model.ExternalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
+                                                    value='http://acplt.org/ValueId/ExampleValueId'),)),
         category='CONSTANT',
         description=model.LangStringSet({'en-US': 'Example Property object',
                                          'de': 'Beispiel Property Element'}),
         parent=None,
-        semantic_id=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
-                                                     value='http://acplt.org/Properties/ExampleProperty'),)),
+        semantic_id=model.ExternalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
+                                                       value='http://acplt.org/Properties/ExampleProperty'),)),
         qualifier=(),
         extension=(),
         supplemental_semantic_id=(),
@@ -263,7 +264,7 @@ def create_example_bill_of_material_submodel() -> model.Submodel:
         global_asset_id='http://acplt.org/TestAsset/',
         specific_asset_id=model.SpecificAssetId(name="TestKey",
                                                 value="TestValue",
-                                                external_subject_id=model.GlobalReference(
+                                                external_subject_id=model.ExternalReference(
                                                            (model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
                                                                       value='http://acplt.org/SpecificAssetId/'),))),
         category="PARAMETER",
@@ -276,9 +277,10 @@ def create_example_bill_of_material_submodel() -> model.Submodel:
                                                'Produkts im Hinblick auf das \'Inverkehrbringen\' im eigenen Namen '
                                                'verantwortlich ist'}),
         parent=None,
-        semantic_id=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
-                                                     value='http://opcfoundation.org/UA/DI/1.1/DeviceType/Serialnumber'
-                                                     ),)),
+        semantic_id=model.ExternalReference((model.Key(
+            type_=model.KeyTypes.GLOBAL_REFERENCE,
+            value='http://opcfoundation.org/UA/DI/1.1/DeviceType/Serialnumber'
+        ),)),
         qualifier=(),
         extension=(),
         supplemental_semantic_id=(),
@@ -301,9 +303,10 @@ def create_example_bill_of_material_submodel() -> model.Submodel:
                                               'Produkts im Hinblick auf das \'Inverkehrbringen\' im eigenen Namen '
                                               'verantwortlich ist'}),
         parent=None,
-        semantic_id=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
-                                                     value='http://opcfoundation.org/UA/DI/1.1/DeviceType/Serialnumber'
-                                                     ),)),
+        semantic_id=model.ExternalReference((model.Key(
+            type_=model.KeyTypes.GLOBAL_REFERENCE,
+            value='http://opcfoundation.org/UA/DI/1.1/DeviceType/Serialnumber'
+        ),)),
         qualifier=(),
         extension=(),
         supplemental_semantic_id=(),
@@ -347,45 +350,45 @@ def create_example_submodel() -> model.Submodel:
         id_short='ExampleProperty',
         value_type=model.datatypes.String,
         value='exampleValue',
-        value_id=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
-                                                  value='http://acplt.org/ValueId/ExampleValueId'),)),
+        value_id=model.ExternalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
+                                                    value='http://acplt.org/ValueId/ExampleValueId'),)),
         display_name=model.LangStringSet({'en-US': 'ExampleProperty',
                                           'de': 'BeispielProperty'}),
         category='CONSTANT',
         description=model.LangStringSet({'en-US': 'Example Property object',
                                          'de': 'Beispiel Property Element'}),
         parent=None,
-        semantic_id=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
-                                                     value='http://acplt.org/Properties/ExampleProperty'),),),
+        semantic_id=model.ExternalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
+                                                       value='http://acplt.org/Properties/ExampleProperty'),), ),
         qualifier=(),
         extension=(),
-        supplemental_semantic_id=(model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
-                                                                   value='http://acplt.org/Properties/'
-                                                                         'ExampleProperty/SupplementalId1'),)),
-                                  model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
-                                                                   value='http://acplt.org/Properties/'
-                                                                         'ExampleProperty/SupplementalId2'),))),
+        supplemental_semantic_id=(model.ExternalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
+                                                                     value='http://acplt.org/Properties/'
+                                                                           'ExampleProperty/SupplementalId1'),)),
+                                  model.ExternalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
+                                                                     value='http://acplt.org/Properties/'
+                                                                           'ExampleProperty/SupplementalId2'),))),
         embedded_data_specifications=(_embedded_data_specification_iec61360,))
 
     submodel_element_property_2 = model.Property(
         id_short='ExampleProperty2',
         value_type=model.datatypes.String,
         value='exampleValue',
-        value_id=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
-                                                  value='http://acplt.org/ValueId/ExampleValueId'),)),
+        value_id=model.ExternalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
+                                                    value='http://acplt.org/ValueId/ExampleValueId'),)),
         display_name=model.LangStringSet({'en-US': 'ExampleProperty',
                                           'de': 'BeispielProperty'}),
         category='CONSTANT',
         description=model.LangStringSet({'en-US': 'Example Property object',
                                          'de': 'Beispiel Property Element'}),
         parent=None,
-        semantic_id=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
-                                                     value='http://acplt.org/Properties/ExampleProperty'),)),
+        semantic_id=model.ExternalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
+                                                       value='http://acplt.org/Properties/ExampleProperty'),)),
         qualifier=(),
         extension=(),
-        supplemental_semantic_id=(model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
-                                                                   value='http://acplt.org/Properties/'
-                                                                         'ExampleProperty2/SupplementalId'),)),),
+        supplemental_semantic_id=(model.ExternalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
+                                                                     value='http://acplt.org/Properties/'
+                                                                           'ExampleProperty2/SupplementalId'),)),),
         embedded_data_specifications=()
     )
 
@@ -393,16 +396,16 @@ def create_example_submodel() -> model.Submodel:
         id_short='ExampleMultiLanguageProperty',
         value=model.LangStringSet({'en-US': 'Example value of a MultiLanguageProperty element',
                                    'de': 'Beispielswert für ein MulitLanguageProperty-Element'}),
-        value_id=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
-                                                  value='http://acplt.org/ValueId/ExampleMultiLanguageValueId'),)),
+        value_id=model.ExternalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
+                                                    value='http://acplt.org/ValueId/ExampleMultiLanguageValueId'),)),
         category='CONSTANT',
         description=model.LangStringSet({'en-US': 'Example MultiLanguageProperty object',
                                          'de': 'Beispiel MultiLanguageProperty Element'}),
         parent=None,
-        semantic_id=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
-                                                     value='http://acplt.org/MultiLanguageProperties/'
-                                                           'ExampleMultiLanguageProperty'),),
-                                          referred_semantic_id=model.GlobalReference((model.Key(
+        semantic_id=model.ExternalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
+                                                       value='http://acplt.org/MultiLanguageProperties/'
+                                                             'ExampleMultiLanguageProperty'),),
+                                            referred_semantic_id=model.ExternalReference((model.Key(
                                               type_=model.KeyTypes.GLOBAL_REFERENCE,
                                               value='http://acplt.org/Properties/ExampleProperty/Referred'),))),
         qualifier=(),
@@ -420,8 +423,8 @@ def create_example_submodel() -> model.Submodel:
         description=model.LangStringSet({'en-US': 'Example Range object',
                                          'de': 'Beispiel Range Element'}),
         parent=None,
-        semantic_id=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
-                                                     value='http://acplt.org/Ranges/ExampleRange'),)),
+        semantic_id=model.ExternalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
+                                                       value='http://acplt.org/Ranges/ExampleRange'),)),
         qualifier=(),
         extension=(),
         supplemental_semantic_id=(),
@@ -436,8 +439,8 @@ def create_example_submodel() -> model.Submodel:
         description=model.LangStringSet({'en-US': 'Example Blob object',
                                          'de': 'Beispiel Blob Element'}),
         parent=None,
-        semantic_id=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
-                                                     value='http://acplt.org/Blobs/ExampleBlob'),)),
+        semantic_id=model.ExternalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
+                                                       value='http://acplt.org/Blobs/ExampleBlob'),)),
         qualifier=(),
         extension=(),
         supplemental_semantic_id=(),
@@ -452,8 +455,8 @@ def create_example_submodel() -> model.Submodel:
         description=model.LangStringSet({'en-US': 'Example File object',
                                          'de': 'Beispiel File Element'}),
         parent=None,
-        semantic_id=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
-                                                     value='http://acplt.org/Files/ExampleFile'),)),
+        semantic_id=model.ExternalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
+                                                       value='http://acplt.org/Files/ExampleFile'),)),
         qualifier=(),
         extension=(),
         supplemental_semantic_id=(),
@@ -471,8 +474,8 @@ def create_example_submodel() -> model.Submodel:
                                          'de': 'Details of the Asset Administration Shell – Ein Beispiel für eine '
                                                'extern referenzierte Datei'}),
         parent=None,
-        semantic_id=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
-                                                     value='http://acplt.org/Files/ExampleFile'),)),
+        semantic_id=model.ExternalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
+                                                       value='http://acplt.org/Files/ExampleFile'),)),
         qualifier=(),
         extension=(),
         supplemental_semantic_id=(),
@@ -490,9 +493,10 @@ def create_example_submodel() -> model.Submodel:
         description=model.LangStringSet({'en-US': 'Example Reference Element object',
                                          'de': 'Beispiel Reference Element Element'}),
         parent=None,
-        semantic_id=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
-                                                     value='http://acplt.org/ReferenceElements/ExampleReferenceElement'
-                                                     ),)),
+        semantic_id=model.ExternalReference((model.Key(
+            type_=model.KeyTypes.GLOBAL_REFERENCE,
+            value='http://acplt.org/ReferenceElements/ExampleReferenceElement'
+        ),)),
         qualifier=(),
         extension=(),
         supplemental_semantic_id=(),
@@ -556,9 +560,9 @@ def create_example_submodel() -> model.Submodel:
         description=model.LangStringSet({'en-US': 'Example AnnotatedRelationshipElement object',
                                          'de': 'Beispiel AnnotatedRelationshipElement Element'}),
         parent=None,
-        semantic_id=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
-                                                     value='http://acplt.org/RelationshipElements/'
-                                                           'ExampleAnnotatedRelationshipElement'),)),
+        semantic_id=model.ExternalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
+                                                       value='http://acplt.org/RelationshipElements/'
+                                                             'ExampleAnnotatedRelationshipElement'),)),
         qualifier=(),
         extension=(),
         supplemental_semantic_id=(),
@@ -569,16 +573,16 @@ def create_example_submodel() -> model.Submodel:
         id_short='ExampleProperty',
         value_type=model.datatypes.String,
         value='exampleValue',
-        value_id=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
-                                                  value='http://acplt.org/ValueId/ExampleValueId'),)),
+        value_id=model.ExternalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
+                                                    value='http://acplt.org/ValueId/ExampleValueId'),)),
         display_name=model.LangStringSet({'en-US': 'ExampleProperty',
                                           'de': 'BeispielProperty'}),
         category='CONSTANT',
         description=model.LangStringSet({'en-US': 'Example Property object',
                                          'de': 'Beispiel Property Element'}),
         parent=None,
-        semantic_id=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
-                                                     value='http://acplt.org/Properties/ExampleProperty'),)),
+        semantic_id=model.ExternalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
+                                                       value='http://acplt.org/Properties/ExampleProperty'),)),
         qualifier=(),
         extension=(),
         supplemental_semantic_id=(),
@@ -603,9 +607,9 @@ def create_example_submodel() -> model.Submodel:
         description=model.LangStringSet({'en-US': 'Example Operation object',
                                          'de': 'Beispiel Operation Element'}),
         parent=None,
-        semantic_id=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
-                                                     value='http://acplt.org/Operations/'
-                                                           'ExampleOperation'),)),
+        semantic_id=model.ExternalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
+                                                       value='http://acplt.org/Operations/'
+                                                             'ExampleOperation'),)),
         qualifier=(),
         extension=(),
         supplemental_semantic_id=(),
@@ -618,9 +622,9 @@ def create_example_submodel() -> model.Submodel:
         description=model.LangStringSet({'en-US': 'Example Capability object',
                                          'de': 'Beispiel Capability Element'}),
         parent=None,
-        semantic_id=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
-                                                     value='http://acplt.org/Capabilities/'
-                                                           'ExampleCapability'),)),
+        semantic_id=model.ExternalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
+                                                       value='http://acplt.org/Capabilities/'
+                                                             'ExampleCapability'),)),
         qualifier=(),
         extension=(),
         supplemental_semantic_id=(),
@@ -647,8 +651,8 @@ def create_example_submodel() -> model.Submodel:
         description=model.LangStringSet({'en-US': 'Example BasicEventElement object',
                                          'de': 'Beispiel BasicEventElement Element'}),
         parent=None,
-        semantic_id=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
-                                                     value='http://acplt.org/Events/ExampleBasicEventElement'),)),
+        semantic_id=model.ExternalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
+                                                       value='http://acplt.org/Events/ExampleBasicEventElement'),)),
         qualifier=(),
         extension=(),
         supplemental_semantic_id=(),
@@ -659,17 +663,19 @@ def create_example_submodel() -> model.Submodel:
         id_short='ExampleSubmodelList',
         type_value_list_element=model.Property,
         value=(submodel_element_property, submodel_element_property_2),
-        semantic_id_list_element=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
-                                                       value='http://acplt.org/Properties/ExampleProperty'),)),
+        semantic_id_list_element=model.ExternalReference((model.Key(
+            type_=model.KeyTypes.GLOBAL_REFERENCE,
+            value='http://acplt.org/Properties/ExampleProperty'
+        ),)),
         value_type_list_element=model.datatypes.String,
         order_relevant=True,
         category='PARAMETER',
         description=model.LangStringSet({'en-US': 'Example SubmodelElementList object',
                                          'de': 'Beispiel SubmodelElementList Element'}),
         parent=None,
-        semantic_id=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
-                                                     value='http://acplt.org/SubmodelElementLists/'
-                                                           'ExampleSubmodelElementList'),)),
+        semantic_id=model.ExternalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
+                                                       value='http://acplt.org/SubmodelElementLists/'
+                                                             'ExampleSubmodelElementList'),)),
         qualifier=(),
         extension=(),
         supplemental_semantic_id=(),
@@ -689,9 +695,9 @@ def create_example_submodel() -> model.Submodel:
         description=model.LangStringSet({'en-US': 'Example SubmodelElementCollection object',
                                          'de': 'Beispiel SubmodelElementCollection Element'}),
         parent=None,
-        semantic_id=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
-                                                     value='http://acplt.org/SubmodelElementCollections/'
-                                                           'ExampleSubmodelElementCollection'),)),
+        semantic_id=model.ExternalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
+                                                       value='http://acplt.org/SubmodelElementCollections/'
+                                                             'ExampleSubmodelElementCollection'),)),
         qualifier=(),
         extension=(),
         supplemental_semantic_id=(),
@@ -713,14 +719,14 @@ def create_example_submodel() -> model.Submodel:
         parent=None,
         administration=model.AdministrativeInformation(version='9',
                                                        revision='0',
-                                                       creator=model.GlobalReference((
+                                                       creator=model.ExternalReference((
                                                            model.Key(model.KeyTypes.GLOBAL_REFERENCE,
                                                                      'http://acplt.org/AdministrativeInformation/'
                                                                      'Test_Submodel'),
                                                        )),),
-        semantic_id=model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
-                                                     value='http://acplt.org/SubmodelTemplates/'
-                                                           'ExampleSubmodel'),)),
+        semantic_id=model.ExternalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
+                                                       value='http://acplt.org/SubmodelTemplates/'
+                                                             'ExampleSubmodel'),)),
         qualifier=(),
         kind=model.ModelingKind.INSTANCE,
         extension=(),
@@ -738,9 +744,9 @@ def create_example_concept_description() -> model.ConceptDescription:
     """
     concept_description = model.ConceptDescription(
         id_='https://acplt.org/Test_ConceptDescription',
-        is_case_of={model.GlobalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
-                                                     value='http://acplt.org/DataSpecifications/'
-                                                           'ConceptDescriptions/TestConceptDescription'),))},
+        is_case_of={model.ExternalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
+                                                       value='http://acplt.org/DataSpecifications/'
+                                                             'ConceptDescriptions/TestConceptDescription'),))},
         id_short='TestConceptDescription',
         category=None,
         description=model.LangStringSet({'en-US': 'An example concept description for the test application',
@@ -748,7 +754,7 @@ def create_example_concept_description() -> model.ConceptDescription:
         parent=None,
         administration=model.AdministrativeInformation(version='9',
                                                        revision='0',
-                                                       creator=model.GlobalReference((
+                                                       creator=model.ExternalReference((
                                                            model.Key(model.KeyTypes.GLOBAL_REFERENCE,
                                                                      'http://acplt.org/AdministrativeInformation/'
                                                                      'Test_ConceptDescription'),
@@ -777,10 +783,10 @@ def create_example_asset_administration_shell() -> \
         global_asset_id='http://acplt.org/TestAsset/',
         specific_asset_id={model.SpecificAssetId(name="TestKey",
                                                  value="TestValue",
-                                                 external_subject_id=model.GlobalReference(
+                                                 external_subject_id=model.ExternalReference(
                                                             (model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
                                                                        value='http://acplt.org/SpecificAssetId/'),)),
-                                                 semantic_id=model.GlobalReference((model.Key(
+                                                 semantic_id=model.ExternalReference((model.Key(
                                                      model.KeyTypes.GLOBAL_REFERENCE,
                                                      "http://acplt.org/SpecificAssetId/"
                                                  ),)))},
@@ -801,7 +807,7 @@ def create_example_asset_administration_shell() -> \
         parent=None,
         administration=model.AdministrativeInformation(version='9',
                                                        revision='0',
-                                                       creator=model.GlobalReference((
+                                                       creator=model.ExternalReference((
                                                            model.Key(model.KeyTypes.GLOBAL_REFERENCE,
                                                                      'http://acplt.org/AdministrativeInformation/'
                                                                      'Test_AssetAdministrationShell'),
@@ -811,7 +817,7 @@ def create_example_asset_administration_shell() -> \
         submodel={model.ModelReference((model.Key(type_=model.KeyTypes.SUBMODEL,
                                                   value='https://acplt.org/Test_Submodel'),),
                                        model.Submodel,
-                                       model.GlobalReference((
+                                       model.ExternalReference((
                                            model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
                                                      value='http://acplt.org/SubmodelTemplates/ExampleSubmodel'),
                                        ))),
