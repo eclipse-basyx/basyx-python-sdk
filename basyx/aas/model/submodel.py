@@ -53,9 +53,9 @@ class SubmodelElement(base.Referable, base.Qualifiable, base.HasSemantics,
     @abc.abstractmethod
     def __init__(self,
                  id_short: base.NameType,
-                 display_name: Optional[base.LangStringSet] = None,
+                 display_name: Optional[base.MultiLanguageNameType] = None,
                  category: Optional[base.NameType] = None,
-                 description: Optional[base.LangStringSet] = None,
+                 description: Optional[base.MultiLanguageTextType] = None,
                  parent: Optional[base.UniqueIdShortNamespace] = None,
                  semantic_id: Optional[base.Reference] = None,
                  qualifier: Iterable[base.Qualifier] = (),
@@ -68,9 +68,9 @@ class SubmodelElement(base.Referable, base.Qualifiable, base.HasSemantics,
 
         super().__init__()
         self.id_short = id_short
-        self.display_name: Optional[base.LangStringSet] = display_name
+        self.display_name: Optional[base.MultiLanguageNameType] = display_name
         self.category = category
-        self.description: Optional[base.LangStringSet] = description
+        self.description: Optional[base.MultiLanguageTextType] = description
         self.parent: Optional[base.UniqueIdShortNamespace] = parent
         self.semantic_id: Optional[base.Reference] = semantic_id
         self.qualifier = base.NamespaceSet(self, [("type", True)], qualifier)
@@ -123,9 +123,9 @@ class Submodel(base.Identifiable, base.HasSemantics, base.HasKind, base.Qualifia
                  id_: base.Identifier,
                  submodel_element: Iterable[SubmodelElement] = (),
                  id_short: base.NameType = "NotSet",
-                 display_name: Optional[base.LangStringSet] = None,
+                 display_name: Optional[base.MultiLanguageNameType] = None,
                  category: Optional[base.NameType] = None,
-                 description: Optional[base.LangStringSet] = None,
+                 description: Optional[base.MultiLanguageTextType] = None,
                  parent: Optional[base.UniqueIdShortNamespace] = None,
                  administration: Optional[base.AdministrativeInformation] = None,
                  semantic_id: Optional[base.Reference] = None,
@@ -138,9 +138,9 @@ class Submodel(base.Identifiable, base.HasSemantics, base.HasKind, base.Qualifia
         self.id: base.Identifier = id_
         self.submodel_element = base.NamespaceSet(self, [("id_short", True)], submodel_element)
         self.id_short = id_short
-        self.display_name: Optional[base.LangStringSet] = display_name
+        self.display_name: Optional[base.MultiLanguageNameType] = display_name
         self.category = category
-        self.description: Optional[base.LangStringSet] = description
+        self.description: Optional[base.MultiLanguageTextType] = description
         self.parent: Optional[base.UniqueIdShortNamespace] = parent
         self.administration: Optional[base.AdministrativeInformation] = administration
         self.semantic_id: Optional[base.Reference] = semantic_id
@@ -193,9 +193,9 @@ class DataElement(SubmodelElement, metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def __init__(self,
                  id_short: base.NameType,
-                 display_name: Optional[base.LangStringSet] = None,
+                 display_name: Optional[base.MultiLanguageNameType] = None,
                  category: Optional[base.NameType] = None,
-                 description: Optional[base.LangStringSet] = None,
+                 description: Optional[base.MultiLanguageTextType] = None,
                  parent: Optional[base.UniqueIdShortNamespace] = None,
                  semantic_id: Optional[base.Reference] = None,
                  qualifier: Iterable[base.Qualifier] = (),
@@ -259,9 +259,9 @@ class Property(DataElement):
                  value_type: base.DataTypeDefXsd,
                  value: Optional[base.ValueDataType] = None,
                  value_id: Optional[base.Reference] = None,
-                 display_name: Optional[base.LangStringSet] = None,
+                 display_name: Optional[base.MultiLanguageNameType] = None,
                  category: Optional[base.NameType] = None,
-                 description: Optional[base.LangStringSet] = None,
+                 description: Optional[base.MultiLanguageTextType] = None,
                  parent: Optional[base.UniqueIdShortNamespace] = None,
                  semantic_id: Optional[base.Reference] = None,
                  qualifier: Iterable[base.Qualifier] = (),
@@ -326,11 +326,11 @@ class MultiLanguageProperty(DataElement):
 
     def __init__(self,
                  id_short: base.NameType,
-                 value: Optional[base.LangStringSet] = None,
+                 value: Optional[base.MultiLanguageTextType] = None,
                  value_id: Optional[base.Reference] = None,
-                 display_name: Optional[base.LangStringSet] = None,
+                 display_name: Optional[base.MultiLanguageNameType] = None,
                  category: Optional[base.NameType] = None,
-                 description: Optional[base.LangStringSet] = None,
+                 description: Optional[base.MultiLanguageTextType] = None,
                  parent: Optional[base.UniqueIdShortNamespace] = None,
                  semantic_id: Optional[base.Reference] = None,
                  qualifier: Iterable[base.Qualifier] = (),
@@ -343,7 +343,7 @@ class MultiLanguageProperty(DataElement):
 
         super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, extension,
                          supplemental_semantic_id, embedded_data_specifications)
-        self.value: Optional[base.LangStringSet] = value
+        self.value: Optional[base.MultiLanguageTextType] = value
         self.value_id: Optional[base.Reference] = value_id
 
 
@@ -386,9 +386,9 @@ class Range(DataElement):
                  value_type: base.DataTypeDefXsd,
                  min: Optional[base.ValueDataType] = None,
                  max: Optional[base.ValueDataType] = None,
-                 display_name: Optional[base.LangStringSet] = None,
+                 display_name: Optional[base.MultiLanguageNameType] = None,
                  category: Optional[base.NameType] = None,
-                 description: Optional[base.LangStringSet] = None,
+                 description: Optional[base.MultiLanguageTextType] = None,
                  parent: Optional[base.UniqueIdShortNamespace] = None,
                  semantic_id: Optional[base.Reference] = None,
                  qualifier: Iterable[base.Qualifier] = (),
@@ -467,9 +467,9 @@ class Blob(DataElement):
                  id_short: base.NameType,
                  content_type: base.ContentType,
                  value: Optional[base.BlobType] = None,
-                 display_name: Optional[base.LangStringSet] = None,
+                 display_name: Optional[base.MultiLanguageNameType] = None,
                  category: Optional[base.NameType] = None,
-                 description: Optional[base.LangStringSet] = None,
+                 description: Optional[base.MultiLanguageTextType] = None,
                  parent: Optional[base.UniqueIdShortNamespace] = None,
                  semantic_id: Optional[base.Reference] = None,
                  qualifier: Iterable[base.Qualifier] = (),
@@ -521,9 +521,9 @@ class File(DataElement):
                  id_short: base.NameType,
                  content_type: base.ContentType,
                  value: Optional[base.PathType] = None,
-                 display_name: Optional[base.LangStringSet] = None,
+                 display_name: Optional[base.MultiLanguageNameType] = None,
                  category: Optional[base.NameType] = None,
-                 description: Optional[base.LangStringSet] = None,
+                 description: Optional[base.MultiLanguageTextType] = None,
                  parent: Optional[base.UniqueIdShortNamespace] = None,
                  semantic_id: Optional[base.Reference] = None,
                  qualifier: Iterable[base.Qualifier] = (),
@@ -573,9 +573,9 @@ class ReferenceElement(DataElement):
     def __init__(self,
                  id_short: base.NameType,
                  value: Optional[base.Reference] = None,
-                 display_name: Optional[base.LangStringSet] = None,
+                 display_name: Optional[base.MultiLanguageNameType] = None,
                  category: Optional[base.NameType] = None,
-                 description: Optional[base.LangStringSet] = None,
+                 description: Optional[base.MultiLanguageTextType] = None,
                  parent: Optional[base.UniqueIdShortNamespace] = None,
                  semantic_id: Optional[base.Reference] = None,
                  qualifier: Iterable[base.Qualifier] = (),
@@ -621,9 +621,9 @@ class SubmodelElementCollection(SubmodelElement, base.UniqueIdShortNamespace):
     def __init__(self,
                  id_short: base.NameType,
                  value: Iterable[SubmodelElement] = (),
-                 display_name: Optional[base.LangStringSet] = None,
+                 display_name: Optional[base.MultiLanguageNameType] = None,
                  category: Optional[base.NameType] = None,
-                 description: Optional[base.LangStringSet] = None,
+                 description: Optional[base.MultiLanguageTextType] = None,
                  parent: Optional[base.UniqueIdShortNamespace] = None,
                  semantic_id: Optional[base.Reference] = None,
                  qualifier: Iterable[base.Qualifier] = (),
@@ -692,9 +692,9 @@ class SubmodelElementList(SubmodelElement, base.UniqueIdShortNamespace, Generic[
                  semantic_id_list_element: Optional[base.Reference] = None,
                  value_type_list_element: Optional[base.DataTypeDefXsd] = None,
                  order_relevant: bool = True,
-                 display_name: Optional[base.LangStringSet] = None,
+                 display_name: Optional[base.MultiLanguageNameType] = None,
                  category: Optional[base.NameType] = None,
-                 description: Optional[base.LangStringSet] = None,
+                 description: Optional[base.MultiLanguageTextType] = None,
                  parent: Optional[base.UniqueIdShortNamespace] = None,
                  semantic_id: Optional[base.Reference] = None,
                  qualifier: Iterable[base.Qualifier] = (),
@@ -818,9 +818,9 @@ class RelationshipElement(SubmodelElement):
                  id_short: base.NameType,
                  first: base.Reference,
                  second: base.Reference,
-                 display_name: Optional[base.LangStringSet] = None,
+                 display_name: Optional[base.MultiLanguageNameType] = None,
                  category: Optional[base.NameType] = None,
-                 description: Optional[base.LangStringSet] = None,
+                 description: Optional[base.MultiLanguageTextType] = None,
                  parent: Optional[base.UniqueIdShortNamespace] = None,
                  semantic_id: Optional[base.Reference] = None,
                  qualifier: Iterable[base.Qualifier] = (),
@@ -875,10 +875,10 @@ class AnnotatedRelationshipElement(RelationshipElement, base.UniqueIdShortNamesp
                  id_short: base.NameType,
                  first: base.Reference,
                  second: base.Reference,
-                 display_name: Optional[base.LangStringSet] = None,
+                 display_name: Optional[base.MultiLanguageNameType] = None,
                  annotation: Iterable[DataElement] = (),
                  category: Optional[base.NameType] = None,
-                 description: Optional[base.LangStringSet] = None,
+                 description: Optional[base.MultiLanguageTextType] = None,
                  parent: Optional[base.UniqueIdShortNamespace] = None,
                  semantic_id: Optional[base.Reference] = None,
                  qualifier: Iterable[base.Qualifier] = (),
@@ -944,9 +944,9 @@ class Operation(SubmodelElement):
                  input_variable: Optional[List[OperationVariable]] = None,
                  output_variable:  Optional[List[OperationVariable]] = None,
                  in_output_variable:  Optional[List[OperationVariable]] = None,
-                 display_name: Optional[base.LangStringSet] = None,
+                 display_name: Optional[base.MultiLanguageNameType] = None,
                  category: Optional[base.NameType] = None,
-                 description: Optional[base.LangStringSet] = None,
+                 description: Optional[base.MultiLanguageTextType] = None,
                  parent: Optional[base.UniqueIdShortNamespace] = None,
                  semantic_id: Optional[base.Reference] = None,
                  qualifier: Iterable[base.Qualifier] = (),
@@ -994,9 +994,9 @@ class Capability(SubmodelElement):
 
     def __init__(self,
                  id_short: base.NameType,
-                 display_name: Optional[base.LangStringSet] = None,
+                 display_name: Optional[base.MultiLanguageNameType] = None,
                  category: Optional[base.NameType] = None,
-                 description: Optional[base.LangStringSet] = None,
+                 description: Optional[base.MultiLanguageTextType] = None,
                  parent: Optional[base.UniqueIdShortNamespace] = None,
                  semantic_id: Optional[base.Reference] = None,
                  qualifier: Iterable[base.Qualifier] = (),
@@ -1055,9 +1055,9 @@ class Entity(SubmodelElement, base.UniqueIdShortNamespace):
                  statement: Iterable[SubmodelElement] = (),
                  global_asset_id: Optional[base.Identifier] = None,
                  specific_asset_id: Optional[base.SpecificAssetId] = None,
-                 display_name: Optional[base.LangStringSet] = None,
+                 display_name: Optional[base.MultiLanguageNameType] = None,
                  category: Optional[base.NameType] = None,
-                 description: Optional[base.LangStringSet] = None,
+                 description: Optional[base.MultiLanguageTextType] = None,
                  parent: Optional[base.UniqueIdShortNamespace] = None,
                  semantic_id: Optional[base.Reference] = None,
                  qualifier: Iterable[base.Qualifier] = (),
@@ -1124,9 +1124,9 @@ class EventElement(SubmodelElement, metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def __init__(self,
                  id_short: base.NameType,
-                 display_name: Optional[base.LangStringSet] = None,
+                 display_name: Optional[base.MultiLanguageNameType] = None,
                  category: Optional[base.NameType] = None,
-                 description: Optional[base.LangStringSet] = None,
+                 description: Optional[base.MultiLanguageTextType] = None,
                  parent: Optional[base.UniqueIdShortNamespace] = None,
                  semantic_id: Optional[base.Reference] = None,
                  qualifier: Iterable[base.Qualifier] = (),
@@ -1197,9 +1197,9 @@ class BasicEventElement(EventElement):
                  last_update: Optional[datatypes.DateTime] = None,
                  min_interval: Optional[datatypes.Duration] = None,
                  max_interval: Optional[datatypes.Duration] = None,
-                 display_name: Optional[base.LangStringSet] = None,
+                 display_name: Optional[base.MultiLanguageNameType] = None,
                  category: Optional[base.NameType] = None,
-                 description: Optional[base.LangStringSet] = None,
+                 description: Optional[base.MultiLanguageTextType] = None,
                  parent: Optional[base.UniqueIdShortNamespace] = None,
                  semantic_id: Optional[base.Reference] = None,
                  qualifier: Iterable[base.Qualifier] = (),

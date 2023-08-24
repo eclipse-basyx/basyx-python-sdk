@@ -599,9 +599,9 @@ class Referable(HasExtension, metaclass=abc.ABCMeta):
     def __init__(self):
         super().__init__()
         self._id_short: NameType = "NotSet"
-        self.display_name: Optional[LangStringSet] = dict()
+        self.display_name: Optional[MultiLanguageNameType] = dict()
         self._category: Optional[NameType] = None
-        self.description: Optional[LangStringSet] = dict()
+        self.description: Optional[MultiLanguageTextType] = dict()
         # We use a Python reference to the parent Namespace instead of a Reference Object, as specified. This allows
         # simpler and faster navigation/checks and it has no effect in the serialized data formats anyway.
         self.parent: Optional[UniqueIdShortNamespace] = None
@@ -2222,10 +2222,10 @@ class DataSpecificationIEC61360(DataSpecificationContent):
     :ivar level_types: Optional set of level types of the DataSpecificationContent
     """
     def __init__(self,
-                 preferred_name: LangStringSet,
+                 preferred_name: PreferredNameTypeIEC61360,
                  data_type: Optional[IEC61360DataType] = None,
-                 definition: Optional[LangStringSet] = None,
-                 short_name: Optional[LangStringSet] = None,
+                 definition: Optional[DefinitionTypeIEC61360] = None,
+                 short_name: Optional[ShortNameTypeIEC61360] = None,
                  unit: Optional[str] = None,
                  unit_id: Optional[Reference] = None,
                  source_of_definition: Optional[str] = None,
@@ -2236,10 +2236,10 @@ class DataSpecificationIEC61360(DataSpecificationContent):
                  level_types: Iterable[IEC61360LevelType] = ()):
 
         super().__init__()
-        self.preferred_name: LangStringSet = preferred_name
-        self.short_name: Optional[LangStringSet] = short_name
+        self.preferred_name: PreferredNameTypeIEC61360 = preferred_name
+        self.short_name: Optional[ShortNameTypeIEC61360] = short_name
         self.data_type: Optional[IEC61360DataType] = data_type
-        self.definition: Optional[LangStringSet] = definition
+        self.definition: Optional[DefinitionTypeIEC61360] = definition
         self._unit: Optional[str] = unit
         self.unit_id: Optional[Reference] = unit_id
         self._source_of_definition: Optional[str] = source_of_definition
@@ -2343,7 +2343,7 @@ class DataSpecificationPhysicalUnit(DataSpecificationContent):
         self,
         unit_name: str,
         unit_symbol: str,
-        definition: LangStringSet,
+        definition: DefinitionTypeIEC61360,
         si_notation: Optional[str] = None,
         si_name: Optional[str] = None,
         din_notation: Optional[str] = None,
@@ -2357,7 +2357,7 @@ class DataSpecificationPhysicalUnit(DataSpecificationContent):
     ) -> None:
         self.unit_name: str = unit_name
         self.unit_symbol: str = unit_symbol
-        self.definition: LangStringSet = definition
+        self.definition: DefinitionTypeIEC61360 = definition
         self.si_notation: Optional[str] = si_notation
         self.si_name: Optional[str] = si_name
         self.din_notation: Optional[str] = din_notation

@@ -21,7 +21,7 @@ from basyx.aas.examples.data import example_aas_missing_attributes, example_aas,
 class JsonSerializationTest(unittest.TestCase):
     def test_serialize_object(self) -> None:
         test_object = model.Property("test_id_short", model.datatypes.String, category="PARAMETER",
-                                     description=model.LangStringSet({"en-US": "Germany", "de": "Deutschland"}))
+                                     description=model.MultiLanguageTextType({"en-US": "Germany", "de": "Deutschland"}))
         json_data = json.dumps(test_object, cls=AASToJsonEncoder)
 
     def test_random_object_serialization(self) -> None:

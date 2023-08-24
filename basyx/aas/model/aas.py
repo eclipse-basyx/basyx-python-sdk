@@ -113,9 +113,9 @@ class AssetAdministrationShell(base.Identifiable, base.UniqueIdShortNamespace, b
                  asset_information: AssetInformation,
                  id_: base.Identifier,
                  id_short: base.NameType = "NotSet",
-                 display_name: Optional[base.LangStringSet] = None,
+                 display_name: Optional[base.MultiLanguageNameType] = None,
                  category: Optional[base.NameType] = None,
-                 description: Optional[base.LangStringSet] = None,
+                 description: Optional[base.MultiLanguageTextType] = None,
                  parent: Optional[base.UniqueIdShortNamespace] = None,
                  administration: Optional[base.AdministrativeInformation] = None,
                  submodel: Optional[Set[base.ModelReference[Submodel]]] = None,
@@ -127,9 +127,9 @@ class AssetAdministrationShell(base.Identifiable, base.UniqueIdShortNamespace, b
         self.id: base.Identifier = id_
         self.asset_information: AssetInformation = asset_information
         self.id_short = id_short
-        self.display_name: Optional[base.LangStringSet] = display_name
+        self.display_name: Optional[base.MultiLanguageNameType] = display_name
         self.category = category
-        self.description: Optional[base.LangStringSet] = description
+        self.description: Optional[base.MultiLanguageTextType] = description
         self.parent: Optional[base.UniqueIdShortNamespace] = parent
         self.administration: Optional[base.AdministrativeInformation] = administration
         self.derived_from: Optional[base.ModelReference["AssetAdministrationShell"]] = derived_from
