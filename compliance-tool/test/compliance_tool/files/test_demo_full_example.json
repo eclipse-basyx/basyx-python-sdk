@@ -18,7 +18,7 @@
                 "version": "9",
                 "revision": "0",
                 "creator": {
-                    "type": "GlobalReference",
+                    "type": "ExternalReference",
                     "keys": [
                         {
                             "type": "GlobalReference",
@@ -45,7 +45,7 @@
                         "name": "TestKey",
                         "value": "TestValue",
                         "externalSubjectId": {
-                            "type": "GlobalReference",
+                            "type": "ExternalReference",
                             "keys": [
                                 {
                                     "type": "GlobalReference",
@@ -54,7 +54,7 @@
                             ]
                         },
                         "semanticId": {
-                            "type": "GlobalReference",
+                            "type": "ExternalReference",
                             "keys": [
                                 {
                                     "type": "GlobalReference",
@@ -80,7 +80,7 @@
                         }
                     ],
                     "referredSemanticId": {
-                        "type": "GlobalReference",
+                        "type": "ExternalReference",
                         "keys": [
                             {
                                 "type": "GlobalReference",
@@ -120,7 +120,7 @@
             "embeddedDataSpecifications": [
                 {
                     "dataSpecification": {
-                        "type": "GlobalReference",
+                        "type": "ExternalReference",
                         "keys": [
                             {
                                 "type": "GlobalReference",
@@ -163,7 +163,7 @@
                         ],
                         "unit": "SpaceUnit",
                         "unitId": {
-                            "type": "GlobalReference",
+                            "type": "ExternalReference",
                             "keys": [
                                 {
                                     "type": "GlobalReference",
@@ -179,7 +179,7 @@
                                 {
                                     "value": "exampleValue",
                                     "valueId": {
-                                        "type": "GlobalReference",
+                                        "type": "ExternalReference",
                                         "keys": [
                                             {
                                                 "type": "GlobalReference",
@@ -192,7 +192,7 @@
                                 {
                                     "value": "exampleValue2",
                                     "valueId": {
-                                        "type": "GlobalReference",
+                                        "type": "ExternalReference",
                                         "keys": [
                                             {
                                                 "type": "GlobalReference",
@@ -206,7 +206,7 @@
                         },
                         "value": "TEST",
                         "valueId": {
-                            "type": "GlobalReference",
+                            "type": "ExternalReference",
                             "keys": [
                                 {
                                     "type": "GlobalReference",
@@ -287,7 +287,7 @@
                         "name": "TestKey",
                         "value": "TestValue",
                         "externalSubjectId": {
-                            "type": "GlobalReference",
+                            "type": "ExternalReference",
                             "keys": [
                                 {
                                     "type": "GlobalReference",
@@ -334,7 +334,7 @@
                 "version": "9",
                 "revision": "0",
                 "creator": {
-                    "type": "GlobalReference",
+                    "type": "ExternalReference",
                     "keys": [
                         {
                             "type": "GlobalReference",
@@ -387,7 +387,7 @@
                     ],
                     "modelType": "Property",
                     "semanticId": {
-                        "type": "GlobalReference",
+                        "type": "ExternalReference",
                         "keys": [
                             {
                                 "type": "GlobalReference",
@@ -399,7 +399,7 @@
                         {
                             "value": "50",
                             "valueId": {
-                                "type": "GlobalReference",
+                                "type": "ExternalReference",
                                 "keys": [
                                     {
                                         "type": "GlobalReference",
@@ -414,7 +414,7 @@
                         {
                             "value": "100",
                             "valueId": {
-                                "type": "GlobalReference",
+                                "type": "ExternalReference",
                                 "keys": [
                                     {
                                         "type": "GlobalReference",
@@ -429,7 +429,7 @@
                     ],
                     "value": "ACPLT",
                     "valueId": {
-                        "type": "GlobalReference",
+                        "type": "ExternalReference",
                         "keys": [
                             {
                                 "type": "GlobalReference",
@@ -454,7 +454,7 @@
                     ],
                     "modelType": "Property",
                     "semanticId": {
-                        "type": "GlobalReference",
+                        "type": "ExternalReference",
                         "keys": [
                             {
                                 "type": "GlobalReference",
@@ -466,7 +466,7 @@
                         {
                             "value": "2023-04-07T16:59:54.870123",
                             "valueId": {
-                                "type": "GlobalReference",
+                                "type": "ExternalReference",
                                 "keys": [
                                     {
                                         "type": "GlobalReference",
@@ -481,7 +481,7 @@
                     ],
                     "value": "978-8234-234-342",
                     "valueId": {
-                        "type": "GlobalReference",
+                        "type": "ExternalReference",
                         "keys": [
                             {
                                 "type": "GlobalReference",
@@ -536,7 +536,7 @@
                     ],
                     "modelType": "Entity",
                     "semanticId": {
-                        "type": "GlobalReference",
+                        "type": "ExternalReference",
                         "keys": [
                             {
                                 "type": "GlobalReference",
@@ -560,7 +560,7 @@
                             ],
                             "modelType": "Property",
                             "semanticId": {
-                                "type": "GlobalReference",
+                                "type": "ExternalReference",
                                 "keys": [
                                     {
                                         "type": "GlobalReference",
@@ -570,7 +570,7 @@
                             },
                             "value": "exampleValue2",
                             "valueId": {
-                                "type": "GlobalReference",
+                                "type": "ExternalReference",
                                 "keys": [
                                     {
                                         "type": "GlobalReference",
@@ -595,7 +595,7 @@
                             ],
                             "modelType": "Property",
                             "semanticId": {
-                                "type": "GlobalReference",
+                                "type": "ExternalReference",
                                 "keys": [
                                     {
                                         "type": "GlobalReference",
@@ -605,7 +605,7 @@
                             },
                             "value": "exampleValue",
                             "valueId": {
-                                "type": "GlobalReference",
+                                "type": "ExternalReference",
                                 "keys": [
                                     {
                                         "type": "GlobalReference",
@@ -617,7 +617,7 @@
                             "embeddedDataSpecifications": [
                                 {
                                     "dataSpecification": {
-                                        "type": "GlobalReference",
+                                        "type": "ExternalReference",
                                         "keys": [
                                             {
                                                 "type": "GlobalReference",
@@ -660,7 +660,7 @@
                                         ],
                                         "unit": "SpaceUnit",
                                         "unitId": {
-                                            "type": "GlobalReference",
+                                            "type": "ExternalReference",
                                             "keys": [
                                                 {
                                                     "type": "GlobalReference",
@@ -676,7 +676,7 @@
                                                 {
                                                     "value": "exampleValue",
                                                     "valueId": {
-                                                        "type": "GlobalReference",
+                                                        "type": "ExternalReference",
                                                         "keys": [
                                                             {
                                                                 "type": "GlobalReference",
@@ -689,7 +689,7 @@
                                                 {
                                                     "value": "exampleValue2",
                                                     "valueId": {
-                                                        "type": "GlobalReference",
+                                                        "type": "ExternalReference",
                                                         "keys": [
                                                             {
                                                                 "type": "GlobalReference",
@@ -703,7 +703,7 @@
                                         },
                                         "value": "TEST",
                                         "valueId": {
-                                            "type": "GlobalReference",
+                                            "type": "ExternalReference",
                                             "keys": [
                                                 {
                                                     "type": "GlobalReference",
@@ -728,7 +728,7 @@
                         "name": "TestKey",
                         "value": "TestValue",
                         "externalSubjectId": {
-                            "type": "GlobalReference",
+                            "type": "ExternalReference",
                             "keys": [
                                 {
                                     "type": "GlobalReference",
@@ -753,7 +753,7 @@
                     ],
                     "modelType": "Entity",
                     "semanticId": {
-                        "type": "GlobalReference",
+                        "type": "ExternalReference",
                         "keys": [
                             {
                                 "type": "GlobalReference",
@@ -783,7 +783,7 @@
                 "version": "9",
                 "revision": "0",
                 "creator": {
-                    "type": "GlobalReference",
+                    "type": "ExternalReference",
                     "keys": [
                         {
                             "type": "GlobalReference",
@@ -793,7 +793,7 @@
                 }
             },
             "semanticId": {
-                "type": "GlobalReference",
+                "type": "ExternalReference",
                 "keys": [
                     {
                         "type": "GlobalReference",
@@ -867,7 +867,7 @@
                     ],
                     "modelType": "AnnotatedRelationshipElement",
                     "semanticId": {
-                        "type": "GlobalReference",
+                        "type": "ExternalReference",
                         "keys": [
                             {
                                 "type": "GlobalReference",
@@ -934,7 +934,7 @@
                     ],
                     "modelType": "Operation",
                     "semanticId": {
-                        "type": "GlobalReference",
+                        "type": "ExternalReference",
                         "keys": [
                             {
                                 "type": "GlobalReference",
@@ -969,7 +969,7 @@
                                 ],
                                 "modelType": "Property",
                                 "semanticId": {
-                                    "type": "GlobalReference",
+                                    "type": "ExternalReference",
                                     "keys": [
                                         {
                                             "type": "GlobalReference",
@@ -980,7 +980,7 @@
                                 "kind": "Template",
                                 "value": "exampleValue",
                                 "valueId": {
-                                    "type": "GlobalReference",
+                                    "type": "ExternalReference",
                                     "keys": [
                                         {
                                             "type": "GlobalReference",
@@ -1019,7 +1019,7 @@
                                 ],
                                 "modelType": "Property",
                                 "semanticId": {
-                                    "type": "GlobalReference",
+                                    "type": "ExternalReference",
                                     "keys": [
                                         {
                                             "type": "GlobalReference",
@@ -1030,7 +1030,7 @@
                                 "kind": "Template",
                                 "value": "exampleValue",
                                 "valueId": {
-                                    "type": "GlobalReference",
+                                    "type": "ExternalReference",
                                     "keys": [
                                         {
                                             "type": "GlobalReference",
@@ -1069,7 +1069,7 @@
                                 ],
                                 "modelType": "Property",
                                 "semanticId": {
-                                    "type": "GlobalReference",
+                                    "type": "ExternalReference",
                                     "keys": [
                                         {
                                             "type": "GlobalReference",
@@ -1080,7 +1080,7 @@
                                 "kind": "Template",
                                 "value": "exampleValue",
                                 "valueId": {
-                                    "type": "GlobalReference",
+                                    "type": "ExternalReference",
                                     "keys": [
                                         {
                                             "type": "GlobalReference",
@@ -1108,7 +1108,7 @@
                     ],
                     "modelType": "Capability",
                     "semanticId": {
-                        "type": "GlobalReference",
+                        "type": "ExternalReference",
                         "keys": [
                             {
                                 "type": "GlobalReference",
@@ -1132,7 +1132,7 @@
                     ],
                     "modelType": "BasicEventElement",
                     "semanticId": {
-                        "type": "GlobalReference",
+                        "type": "ExternalReference",
                         "keys": [
                             {
                                 "type": "GlobalReference",
@@ -1184,7 +1184,7 @@
                     ],
                     "modelType": "SubmodelElementCollection",
                     "semanticId": {
-                        "type": "GlobalReference",
+                        "type": "ExternalReference",
                         "keys": [
                             {
                                 "type": "GlobalReference",
@@ -1208,7 +1208,7 @@
                             ],
                             "modelType": "Blob",
                             "semanticId": {
-                                "type": "GlobalReference",
+                                "type": "ExternalReference",
                                 "keys": [
                                     {
                                         "type": "GlobalReference",
@@ -1234,7 +1234,7 @@
                             ],
                             "modelType": "File",
                             "semanticId": {
-                                "type": "GlobalReference",
+                                "type": "ExternalReference",
                                 "keys": [
                                     {
                                         "type": "GlobalReference",
@@ -1260,7 +1260,7 @@
                             ],
                             "modelType": "File",
                             "semanticId": {
-                                "type": "GlobalReference",
+                                "type": "ExternalReference",
                                 "keys": [
                                     {
                                         "type": "GlobalReference",
@@ -1286,7 +1286,7 @@
                             ],
                             "modelType": "MultiLanguageProperty",
                             "semanticId": {
-                                "type": "GlobalReference",
+                                "type": "ExternalReference",
                                 "keys": [
                                     {
                                         "type": "GlobalReference",
@@ -1294,7 +1294,7 @@
                                     }
                                 ],
                                 "referredSemanticId": {
-                                    "type": "GlobalReference",
+                                    "type": "ExternalReference",
                                     "keys": [
                                         {
                                             "type": "GlobalReference",
@@ -1314,7 +1314,7 @@
                                 }
                             ],
                             "valueId": {
-                                "type": "GlobalReference",
+                                "type": "ExternalReference",
                                 "keys": [
                                     {
                                         "type": "GlobalReference",
@@ -1338,7 +1338,7 @@
                             ],
                             "modelType": "Range",
                             "semanticId": {
-                                "type": "GlobalReference",
+                                "type": "ExternalReference",
                                 "keys": [
                                     {
                                         "type": "GlobalReference",
@@ -1365,7 +1365,7 @@
                             ],
                             "modelType": "ReferenceElement",
                             "semanticId": {
-                                "type": "GlobalReference",
+                                "type": "ExternalReference",
                                 "keys": [
                                     {
                                         "type": "GlobalReference",
@@ -1392,7 +1392,7 @@
                             "typeValueListElement": "Property",
                             "valueTypeListElement": "xs:string",
                             "semanticIdListElement": {
-                                "type": "GlobalReference",
+                                "type": "ExternalReference",
                                 "keys": [
                                     {
                                         "type": "GlobalReference",
@@ -1414,7 +1414,7 @@
                             ],
                             "modelType": "SubmodelElementList",
                             "semanticId": {
-                                "type": "GlobalReference",
+                                "type": "ExternalReference",
                                 "keys": [
                                     {
                                         "type": "GlobalReference",
@@ -1448,7 +1448,7 @@
                                     ],
                                     "modelType": "Property",
                                     "semanticId": {
-                                        "type": "GlobalReference",
+                                        "type": "ExternalReference",
                                         "keys": [
                                             {
                                                 "type": "GlobalReference",
@@ -1458,7 +1458,7 @@
                                     },
                                     "supplementalSemanticIds": [
                                         {
-                                            "type": "GlobalReference",
+                                            "type": "ExternalReference",
                                             "keys": [
                                                 {
                                                     "type": "GlobalReference",
@@ -1467,7 +1467,7 @@
                                             ]
                                         },
                                         {
-                                            "type": "GlobalReference",
+                                            "type": "ExternalReference",
                                             "keys": [
                                                 {
                                                     "type": "GlobalReference",
@@ -1478,7 +1478,7 @@
                                     ],
                                     "value": "exampleValue",
                                     "valueId": {
-                                        "type": "GlobalReference",
+                                        "type": "ExternalReference",
                                         "keys": [
                                             {
                                                 "type": "GlobalReference",
@@ -1490,7 +1490,7 @@
                                     "embeddedDataSpecifications": [
                                         {
                                             "dataSpecification": {
-                                                "type": "GlobalReference",
+                                                "type": "ExternalReference",
                                                 "keys": [
                                                     {
                                                         "type": "GlobalReference",
@@ -1533,7 +1533,7 @@
                                                 ],
                                                 "unit": "SpaceUnit",
                                                 "unitId": {
-                                                    "type": "GlobalReference",
+                                                    "type": "ExternalReference",
                                                     "keys": [
                                                         {
                                                             "type": "GlobalReference",
@@ -1549,7 +1549,7 @@
                                                         {
                                                             "value": "exampleValue",
                                                             "valueId": {
-                                                                "type": "GlobalReference",
+                                                                "type": "ExternalReference",
                                                                 "keys": [
                                                                     {
                                                                         "type": "GlobalReference",
@@ -1562,7 +1562,7 @@
                                                         {
                                                             "value": "exampleValue2",
                                                             "valueId": {
-                                                                "type": "GlobalReference",
+                                                                "type": "ExternalReference",
                                                                 "keys": [
                                                                     {
                                                                         "type": "GlobalReference",
@@ -1576,7 +1576,7 @@
                                                 },
                                                 "value": "TEST",
                                                 "valueId": {
-                                                    "type": "GlobalReference",
+                                                    "type": "ExternalReference",
                                                     "keys": [
                                                         {
                                                             "type": "GlobalReference",
@@ -1619,7 +1619,7 @@
                                     ],
                                     "modelType": "Property",
                                     "semanticId": {
-                                        "type": "GlobalReference",
+                                        "type": "ExternalReference",
                                         "keys": [
                                             {
                                                 "type": "GlobalReference",
@@ -1629,7 +1629,7 @@
                                     },
                                     "supplementalSemanticIds": [
                                         {
-                                            "type": "GlobalReference",
+                                            "type": "ExternalReference",
                                             "keys": [
                                                 {
                                                     "type": "GlobalReference",
@@ -1640,7 +1640,7 @@
                                     ],
                                     "value": "exampleValue",
                                     "valueId": {
-                                        "type": "GlobalReference",
+                                        "type": "ExternalReference",
                                         "keys": [
                                             {
                                                 "type": "GlobalReference",
@@ -1658,7 +1658,7 @@
             "embeddedDataSpecifications": [
                 {
                     "dataSpecification": {
-                        "type": "GlobalReference",
+                        "type": "ExternalReference",
                         "keys": [
                             {
                                 "type": "GlobalReference",
@@ -1870,7 +1870,7 @@
                 "revision": "0"
             },
             "semanticId": {
-                "type": "GlobalReference",
+                "type": "ExternalReference",
                 "keys": [
                     {
                         "type": "GlobalReference",
@@ -1894,7 +1894,7 @@
                     ],
                     "modelType": "RelationshipElement",
                     "semanticId": {
-                        "type": "GlobalReference",
+                        "type": "ExternalReference",
                         "keys": [
                             {
                                 "type": "GlobalReference",
@@ -1944,7 +1944,7 @@
                     ],
                     "modelType": "AnnotatedRelationshipElement",
                     "semanticId": {
-                        "type": "GlobalReference",
+                        "type": "ExternalReference",
                         "keys": [
                             {
                                 "type": "GlobalReference",
@@ -2011,7 +2011,7 @@
                     ],
                     "modelType": "Operation",
                     "semanticId": {
-                        "type": "GlobalReference",
+                        "type": "ExternalReference",
                         "keys": [
                             {
                                 "type": "GlobalReference",
@@ -2046,7 +2046,7 @@
                                 ],
                                 "modelType": "Property",
                                 "semanticId": {
-                                    "type": "GlobalReference",
+                                    "type": "ExternalReference",
                                     "keys": [
                                         {
                                             "type": "GlobalReference",
@@ -2057,7 +2057,7 @@
                                 "kind": "Template",
                                 "value": "exampleValue",
                                 "valueId": {
-                                    "type": "GlobalReference",
+                                    "type": "ExternalReference",
                                     "keys": [
                                         {
                                             "type": "GlobalReference",
@@ -2096,7 +2096,7 @@
                                 ],
                                 "modelType": "Property",
                                 "semanticId": {
-                                    "type": "GlobalReference",
+                                    "type": "ExternalReference",
                                     "keys": [
                                         {
                                             "type": "GlobalReference",
@@ -2107,7 +2107,7 @@
                                 "kind": "Template",
                                 "value": "exampleValue",
                                 "valueId": {
-                                    "type": "GlobalReference",
+                                    "type": "ExternalReference",
                                     "keys": [
                                         {
                                             "type": "GlobalReference",
@@ -2146,7 +2146,7 @@
                                 ],
                                 "modelType": "Property",
                                 "semanticId": {
-                                    "type": "GlobalReference",
+                                    "type": "ExternalReference",
                                     "keys": [
                                         {
                                             "type": "GlobalReference",
@@ -2157,7 +2157,7 @@
                                 "kind": "Template",
                                 "value": "exampleValue",
                                 "valueId": {
-                                    "type": "GlobalReference",
+                                    "type": "ExternalReference",
                                     "keys": [
                                         {
                                             "type": "GlobalReference",
@@ -2185,7 +2185,7 @@
                     ],
                     "modelType": "Capability",
                     "semanticId": {
-                        "type": "GlobalReference",
+                        "type": "ExternalReference",
                         "keys": [
                             {
                                 "type": "GlobalReference",
@@ -2209,7 +2209,7 @@
                     ],
                     "modelType": "BasicEventElement",
                     "semanticId": {
-                        "type": "GlobalReference",
+                        "type": "ExternalReference",
                         "keys": [
                             {
                                 "type": "GlobalReference",
@@ -2261,7 +2261,7 @@
                     ],
                     "modelType": "SubmodelElementCollection",
                     "semanticId": {
-                        "type": "GlobalReference",
+                        "type": "ExternalReference",
                         "keys": [
                             {
                                 "type": "GlobalReference",
@@ -2285,7 +2285,7 @@
                             ],
                             "modelType": "Blob",
                             "semanticId": {
-                                "type": "GlobalReference",
+                                "type": "ExternalReference",
                                 "keys": [
                                     {
                                         "type": "GlobalReference",
@@ -2311,7 +2311,7 @@
                             ],
                             "modelType": "File",
                             "semanticId": {
-                                "type": "GlobalReference",
+                                "type": "ExternalReference",
                                 "keys": [
                                     {
                                         "type": "GlobalReference",
@@ -2337,7 +2337,7 @@
                             ],
                             "modelType": "MultiLanguageProperty",
                             "semanticId": {
-                                "type": "GlobalReference",
+                                "type": "ExternalReference",
                                 "keys": [
                                     {
                                         "type": "GlobalReference",
@@ -2371,7 +2371,7 @@
                             ],
                             "modelType": "Property",
                             "semanticId": {
-                                "type": "GlobalReference",
+                                "type": "ExternalReference",
                                 "keys": [
                                     {
                                         "type": "GlobalReference",
@@ -2403,7 +2403,7 @@
                             ],
                             "modelType": "Range",
                             "semanticId": {
-                                "type": "GlobalReference",
+                                "type": "ExternalReference",
                                 "keys": [
                                     {
                                         "type": "GlobalReference",
@@ -2430,7 +2430,7 @@
                             ],
                             "modelType": "ReferenceElement",
                             "semanticId": {
-                                "type": "GlobalReference",
+                                "type": "ExternalReference",
                                 "keys": [
                                     {
                                         "type": "GlobalReference",
@@ -2475,7 +2475,7 @@
                 "revision": "0"
             },
             "semanticId": {
-                "type": "GlobalReference",
+                "type": "ExternalReference",
                 "keys": [
                     {
                         "type": "GlobalReference",
@@ -2500,7 +2500,7 @@
                     ],
                     "modelType": "RelationshipElement",
                     "semanticId": {
-                        "type": "GlobalReference",
+                        "type": "ExternalReference",
                         "keys": [
                             {
                                 "type": "GlobalReference",
@@ -2551,7 +2551,7 @@
                     ],
                     "modelType": "AnnotatedRelationshipElement",
                     "semanticId": {
-                        "type": "GlobalReference",
+                        "type": "ExternalReference",
                         "keys": [
                             {
                                 "type": "GlobalReference",
@@ -2602,7 +2602,7 @@
                     ],
                     "modelType": "Operation",
                     "semanticId": {
-                        "type": "GlobalReference",
+                        "type": "ExternalReference",
                         "keys": [
                             {
                                 "type": "GlobalReference",
@@ -2628,7 +2628,7 @@
                                 ],
                                 "modelType": "Property",
                                 "semanticId": {
-                                    "type": "GlobalReference",
+                                    "type": "ExternalReference",
                                     "keys": [
                                         {
                                             "type": "GlobalReference",
@@ -2659,7 +2659,7 @@
                                 ],
                                 "modelType": "Property",
                                 "semanticId": {
-                                    "type": "GlobalReference",
+                                    "type": "ExternalReference",
                                     "keys": [
                                         {
                                             "type": "GlobalReference",
@@ -2690,7 +2690,7 @@
                                 ],
                                 "modelType": "Property",
                                 "semanticId": {
-                                    "type": "GlobalReference",
+                                    "type": "ExternalReference",
                                     "keys": [
                                         {
                                             "type": "GlobalReference",
@@ -2720,7 +2720,7 @@
                     ],
                     "modelType": "Capability",
                     "semanticId": {
-                        "type": "GlobalReference",
+                        "type": "ExternalReference",
                         "keys": [
                             {
                                 "type": "GlobalReference",
@@ -2745,7 +2745,7 @@
                     ],
                     "modelType": "BasicEventElement",
                     "semanticId": {
-                        "type": "GlobalReference",
+                        "type": "ExternalReference",
                         "keys": [
                             {
                                 "type": "GlobalReference",
@@ -2787,7 +2787,7 @@
                     "idShort": "ExampleSubmodelList",
                     "typeValueListElement": "SubmodelElementCollection",
                     "semanticIdListElement": {
-                        "type": "GlobalReference",
+                        "type": "ExternalReference",
                         "keys": [
                             {
                                 "type": "GlobalReference",
@@ -2809,7 +2809,7 @@
                     ],
                     "modelType": "SubmodelElementList",
                     "semanticId": {
-                        "type": "GlobalReference",
+                        "type": "ExternalReference",
                         "keys": [
                             {
                                 "type": "GlobalReference",
@@ -2834,7 +2834,7 @@
                     ],
                     "modelType": "SubmodelElementCollection",
                     "semanticId": {
-                        "type": "GlobalReference",
+                        "type": "ExternalReference",
                         "keys": [
                             {
                                 "type": "GlobalReference",
@@ -2859,7 +2859,7 @@
                             ],
                             "modelType": "Property",
                             "semanticId": {
-                                "type": "GlobalReference",
+                                "type": "ExternalReference",
                                 "keys": [
                                     {
                                         "type": "GlobalReference",
@@ -2886,7 +2886,7 @@
                             ],
                             "modelType": "MultiLanguageProperty",
                             "semanticId": {
-                                "type": "GlobalReference",
+                                "type": "ExternalReference",
                                 "keys": [
                                     {
                                         "type": "GlobalReference",
@@ -2911,7 +2911,7 @@
                             ],
                             "modelType": "Range",
                             "semanticId": {
-                                "type": "GlobalReference",
+                                "type": "ExternalReference",
                                 "keys": [
                                     {
                                         "type": "GlobalReference",
@@ -2939,7 +2939,7 @@
                             ],
                             "modelType": "Range",
                             "semanticId": {
-                                "type": "GlobalReference",
+                                "type": "ExternalReference",
                                 "keys": [
                                     {
                                         "type": "GlobalReference",
@@ -2967,7 +2967,7 @@
                             ],
                             "modelType": "Blob",
                             "semanticId": {
-                                "type": "GlobalReference",
+                                "type": "ExternalReference",
                                 "keys": [
                                     {
                                         "type": "GlobalReference",
@@ -2993,7 +2993,7 @@
                             ],
                             "modelType": "File",
                             "semanticId": {
-                                "type": "GlobalReference",
+                                "type": "ExternalReference",
                                 "keys": [
                                     {
                                         "type": "GlobalReference",
@@ -3020,7 +3020,7 @@
                             ],
                             "modelType": "ReferenceElement",
                             "semanticId": {
-                                "type": "GlobalReference",
+                                "type": "ExternalReference",
                                 "keys": [
                                     {
                                         "type": "GlobalReference",
@@ -3047,7 +3047,7 @@
                     ],
                     "modelType": "SubmodelElementCollection",
                     "semanticId": {
-                        "type": "GlobalReference",
+                        "type": "ExternalReference",
                         "keys": [
                             {
                                 "type": "GlobalReference",
@@ -3063,7 +3063,7 @@
                     "idShort": "ExampleSubmodelList2",
                     "typeValueListElement": "Capability",
                     "semanticIdListElement": {
-                        "type": "GlobalReference",
+                        "type": "ExternalReference",
                         "keys": [
                             {
                                 "type": "GlobalReference",
@@ -3085,7 +3085,7 @@
                     ],
                     "modelType": "SubmodelElementList",
                     "semanticId": {
-                        "type": "GlobalReference",
+                        "type": "ExternalReference",
                         "keys": [
                             {
                                 "type": "GlobalReference",
@@ -3117,7 +3117,7 @@
                 "version": "9",
                 "revision": "0",
                 "creator": {
-                    "type": "GlobalReference",
+                    "type": "ExternalReference",
                     "keys": [
                         {
                             "type": "GlobalReference",
@@ -3129,7 +3129,7 @@
                 "embeddedDataSpecifications": [
                     {
                         "dataSpecification": {
-                            "type": "GlobalReference",
+                            "type": "ExternalReference",
                             "keys": [
                                 {
                                     "type": "GlobalReference",
@@ -3172,7 +3172,7 @@
                             ],
                             "unit": "SpaceUnit",
                             "unitId": {
-                                "type": "GlobalReference",
+                                "type": "ExternalReference",
                                 "keys": [
                                     {
                                         "type": "GlobalReference",
@@ -3188,7 +3188,7 @@
                                     {
                                         "value": "exampleValue",
                                         "valueId": {
-                                            "type": "GlobalReference",
+                                            "type": "ExternalReference",
                                             "keys": [
                                                 {
                                                     "type": "GlobalReference",
@@ -3201,7 +3201,7 @@
                                     {
                                         "value": "exampleValue2",
                                         "valueId": {
-                                            "type": "GlobalReference",
+                                            "type": "ExternalReference",
                                             "keys": [
                                                 {
                                                     "type": "GlobalReference",
@@ -3215,7 +3215,7 @@
                             },
                             "value": "TEST",
                             "valueId": {
-                                "type": "GlobalReference",
+                                "type": "ExternalReference",
                                 "keys": [
                                     {
                                         "type": "GlobalReference",
@@ -3235,7 +3235,7 @@
             },
             "isCaseOf": [
                 {
-                    "type": "GlobalReference",
+                    "type": "ExternalReference",
                     "keys": [
                         {
                             "type": "GlobalReference",
@@ -3247,7 +3247,7 @@
             "embeddedDataSpecifications": [
                 {
                     "dataSpecification": {
-                        "type": "GlobalReference",
+                        "type": "ExternalReference",
                         "keys": [
                             {
                                 "type": "GlobalReference",
