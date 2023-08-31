@@ -1114,6 +1114,7 @@ class ConstrainedListTest(unittest.TestCase):
         self.assertEqual(existing_items, [1, 2, 3, 4, 10, 11])
         check_list.pop()
         self.assertEqual(c_list, check_list)
+
     def test_atomicity(self) -> None:
         def hook(itm: int, _list: List[int]) -> None:
             if itm > 2:
