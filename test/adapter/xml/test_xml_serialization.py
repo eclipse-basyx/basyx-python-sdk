@@ -21,7 +21,7 @@ class XMLSerializationTest(unittest.TestCase):
         test_object = model.Property("test_id_short",
                                      model.datatypes.String,
                                      category="PARAMETER",
-                                     description=model.LangStringSet({"en-US": "Germany", "de": "Deutschland"}))
+                                     description=model.MultiLanguageTextType({"en-US": "Germany", "de": "Deutschland"}))
         xml_data = xml_serialization.property_to_xml(test_object,  xml_serialization.NS_AAS+"test_object")
         # todo: is this a correct way to test it?
 

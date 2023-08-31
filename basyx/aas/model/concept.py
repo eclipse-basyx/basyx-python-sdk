@@ -61,9 +61,9 @@ class ConceptDescription(base.Identifiable, base.HasDataSpecification):
                  id_: base.Identifier,
                  is_case_of: Optional[Set[base.Reference]] = None,
                  id_short: base.NameType = "NotSet",
-                 display_name: Optional[base.LangStringSet] = None,
+                 display_name: Optional[base.MultiLanguageNameType] = None,
                  category: Optional[base.NameType] = None,
-                 description: Optional[base.LangStringSet] = None,
+                 description: Optional[base.MultiLanguageTextType] = None,
                  parent: Optional[base.UniqueIdShortNamespace] = None,
                  administration: Optional[base.AdministrativeInformation] = None,
                  embedded_data_specifications: Iterable[base.EmbeddedDataSpecification]
@@ -74,9 +74,9 @@ class ConceptDescription(base.Identifiable, base.HasDataSpecification):
         self.id: base.Identifier = id_
         self.is_case_of: Set[base.Reference] = set() if is_case_of is None else is_case_of
         self.id_short = id_short
-        self.display_name: Optional[base.LangStringSet] = display_name
+        self.display_name: Optional[base.MultiLanguageNameType] = display_name
         self.category = category
-        self.description: Optional[base.LangStringSet] = description
+        self.description: Optional[base.MultiLanguageTextType] = description
         self.parent: Optional[base.UniqueIdShortNamespace] = parent
         self.administration: Optional[base.AdministrativeInformation] = administration
         self.embedded_data_specifications: List[base.EmbeddedDataSpecification] = list(embedded_data_specifications)

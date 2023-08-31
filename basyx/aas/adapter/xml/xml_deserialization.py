@@ -59,6 +59,7 @@ logger = logging.getLogger(__name__)
 
 T = TypeVar("T")
 RE = TypeVar("RE", bound=model.RelationshipElement)
+LSS = TypeVar("LSS", bound=model.LangStringSet)
 
 
 def _str_to_bool(string: str) -> bool:
@@ -436,14 +437,14 @@ class AASFromXmlDecoder:
         """
         if isinstance(obj, model.Referable):
             category = _get_text_or_none(element.find(NS_AAS + "category"))
-            display_name = _failsafe_construct(element.find(NS_AAS + "displayName"), cls.construct_lang_string_set,
-                                               cls.failsafe)
+            display_name = _failsafe_construct(element.find(NS_AAS + "displayName"),
+                                               cls.construct_multi_language_name_type, cls.failsafe)
             if display_name is not None:
                 obj.display_name = display_name
             if category is not None:
                 obj.category = category
-            description = _failsafe_construct(element.find(NS_AAS + "description"), cls.construct_lang_string_set,
-                                              cls.failsafe)
+            description = _failsafe_construct(element.find(NS_AAS + "description"),
+                                              cls.construct_multi_language_text_type, cls.failsafe)
             if description is not None:
                 obj.description = description
         if isinstance(obj, model.Identifiable):
@@ -610,16 +611,42 @@ class AASFromXmlDecoder:
         return administrative_information
 
     @classmethod
-    def construct_lang_string_set(cls, element: etree.Element, namespace: str = NS_AAS, **_kwargs: Any) \
-            -> model.LangStringSet:
-        """
-        This function doesn't support the object_class parameter, because LangStringSet is just a generic type alias.
-        """
-        lss: Dict[str, str] = {}
-        for lang_string in _get_all_children_expect_tag(element, namespace + "langString", cls.failsafe):
-            lss[_child_text_mandatory(lang_string, namespace + "language")] = _child_text_mandatory(lang_string,
-                                                                                                    namespace + "text")
-        return model.LangStringSet(lss)
+    def construct_lang_string_set(cls, element: etree.Element, expected_tag: str, object_class: Type[LSS],
+                                  **_kwargs: Any) -> LSS:
+        collected_lang_strings: Dict[str, str] = {}
+        for lang_string_elem in _get_all_children_expect_tag(element, expected_tag, cls.failsafe):
+            collected_lang_strings[_child_text_mandatory(lang_string_elem, NS_AAS + "language")] = \
+                _child_text_mandatory(lang_string_elem, NS_AAS + "text")
+        return object_class(collected_lang_strings)
+
+    @classmethod
+    def construct_multi_language_name_type(cls, element: etree.Element, object_class=model.MultiLanguageNameType,
+                                           **kwargs: Any) -> model.MultiLanguageNameType:
+        return cls.construct_lang_string_set(element, NS_AAS + "langStringNameType", object_class, **kwargs)
+
+    @classmethod
+    def construct_multi_language_text_type(cls, element: etree.Element, object_class=model.MultiLanguageTextType,
+                                           **kwargs: Any) -> model.MultiLanguageTextType:
+        return cls.construct_lang_string_set(element, NS_AAS + "langStringTextType", object_class, **kwargs)
+
+    @classmethod
+    def construct_definition_type_iec61360(cls, element: etree.Element, object_class=model.DefinitionTypeIEC61360,
+                                           **kwargs: Any) -> model.DefinitionTypeIEC61360:
+        return cls.construct_lang_string_set(element, NS_AAS + "langStringDefinitionTypeIec61360", object_class,
+                                             **kwargs)
+
+    @classmethod
+    def construct_preferred_name_type_iec61360(cls, element: etree.Element,
+                                               object_class=model.PreferredNameTypeIEC61360,
+                                               **kwargs: Any) -> model.PreferredNameTypeIEC61360:
+        return cls.construct_lang_string_set(element, NS_AAS + "langStringPreferredNameTypeIec61360", object_class,
+                                             **kwargs)
+
+    @classmethod
+    def construct_short_name_type_iec61360(cls, element: etree.Element, object_class=model.ShortNameTypeIEC61360,
+                                           **kwargs: Any) -> model.ShortNameTypeIEC61360:
+        return cls.construct_lang_string_set(element, NS_AAS + "langStringShortNameTypeIec61360", object_class,
+                                             **kwargs)
 
     @classmethod
     def construct_qualifier(cls, element: etree.Element, object_class=model.Qualifier, **_kwargs: Any) \
@@ -819,7 +846,8 @@ class AASFromXmlDecoder:
         multi_language_property = object_class(
             _child_text_mandatory(element, NS_AAS + "idShort")
         )
-        value = _failsafe_construct(element.find(NS_AAS + "value"), cls.construct_lang_string_set, cls.failsafe)
+        value = _failsafe_construct(element.find(NS_AAS + "value"), cls.construct_multi_language_text_type,
+                                    cls.failsafe)
         if value is not None:
             multi_language_property.value = value
         value_id = _failsafe_construct(element.find(NS_AAS + "valueId"), cls.construct_reference, cls.failsafe)
@@ -1087,7 +1115,8 @@ class AASFromXmlDecoder:
             -> model.DataSpecificationPhysicalUnit:
         dspu = object_class(_child_text_mandatory(element, NS_AAS + "unitName"),
                             _child_text_mandatory(element, NS_AAS + "unitSymbol"),
-                            _child_construct_mandatory(element, NS_AAS + "definition", cls.construct_lang_string_set))
+                            _child_construct_mandatory(element, NS_AAS + "definition",
+                                                       cls.construct_definition_type_iec61360))
         si_notation = _get_text_or_none(element.find(NS_AAS + "siNotation"))
         if si_notation is not None:
             dspu.si_notation = si_notation
@@ -1125,8 +1154,8 @@ class AASFromXmlDecoder:
     def construct_data_specification_iec61360(cls, element: etree.Element, object_class=model.DataSpecificationIEC61360,
                                               **_kwargs: Any) -> model.DataSpecificationIEC61360:
         ds_iec = object_class(_child_construct_mandatory(element, NS_AAS + "preferredName",
-                                                         cls.construct_lang_string_set))
-        short_name = _failsafe_construct(element.find(NS_AAS + "shortName"), cls.construct_lang_string_set,
+                                                         cls.construct_preferred_name_type_iec61360))
+        short_name = _failsafe_construct(element.find(NS_AAS + "shortName"), cls.construct_short_name_type_iec61360,
                                          cls.failsafe)
         if short_name is not None:
             ds_iec.short_name = short_name
@@ -1145,7 +1174,7 @@ class AASFromXmlDecoder:
         data_type = _get_text_mapped_or_none(element.find(NS_AAS + "dataType"), IEC61360_DATA_TYPES_INVERSE)
         if data_type is not None:
             ds_iec.data_type = data_type
-        definition = _failsafe_construct(element.find(NS_AAS + "definition"), cls.construct_lang_string_set,
+        definition = _failsafe_construct(element.find(NS_AAS + "definition"), cls.construct_definition_type_iec61360,
                                          cls.failsafe)
         if definition is not None:
             ds_iec.definition = definition
@@ -1292,7 +1321,11 @@ class XMLConstructables(enum.Enum):
     DATA_ELEMENT = enum.auto()
     SUBMODEL_ELEMENT = enum.auto()
     VALUE_LIST = enum.auto()
-    LANG_STRING_SET = enum.auto()
+    MULTI_LANGUAGE_NAME_TYPE = enum.auto()
+    MULTI_LANGUAGE_TEXT_TYPE = enum.auto()
+    DEFINITION_TYPE_IEC61360 = enum.auto()
+    PREFERRED_NAME_TYPE_IEC61360 = enum.auto()
+    SHORT_NAME_TYPE_IEC61360 = enum.auto()
     EMBEDDED_DATA_SPECIFICATION = enum.auto()
     DATA_SPECIFICATION_CONTENT = enum.auto()
     DATA_SPECIFICATION_IEC61360 = enum.auto()
@@ -1378,8 +1411,16 @@ def read_aas_xml_element(file: IO, construct: XMLConstructables, failsafe: bool 
         constructor = decoder_.construct_value_reference_pair
     elif construct == XMLConstructables.CONCEPT_DESCRIPTION:
         constructor = decoder_.construct_concept_description
-    elif construct == XMLConstructables.LANG_STRING_SET:
-        constructor = decoder_.construct_lang_string_set
+    elif construct == XMLConstructables.MULTI_LANGUAGE_NAME_TYPE:
+        constructor = decoder_.construct_multi_language_name_type
+    elif construct == XMLConstructables.MULTI_LANGUAGE_TEXT_TYPE:
+        constructor = decoder_.construct_multi_language_text_type
+    elif construct == XMLConstructables.DEFINITION_TYPE_IEC61360:
+        constructor = decoder_.construct_definition_type_iec61360
+    elif construct == XMLConstructables.PREFERRED_NAME_TYPE_IEC61360:
+        constructor = decoder_.construct_preferred_name_type_iec61360
+    elif construct == XMLConstructables.SHORT_NAME_TYPE_IEC61360:
+        constructor = decoder_.construct_short_name_type_iec61360
     elif construct == XMLConstructables.EMBEDDED_DATA_SPECIFICATION:
         constructor = decoder_.construct_embedded_data_specification
     elif construct == XMLConstructables.DATA_SPECIFICATION_IEC61360:

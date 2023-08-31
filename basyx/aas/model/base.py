@@ -36,8 +36,9 @@ LabelType = str
 MessageTopicType = str
 NameType = str
 PathType = str
-RevisionType = str
 QualifierType = str
+RevisionType = str
+ShortNameType = str
 VersionType = str
 
 
@@ -318,6 +319,69 @@ class LangStringSet(MutableMapping[str, str]):
         raise KeyError(f"A {self.__class__.__name__} must not be empty!")
 
 
+class ConstrainedLangStringSet(LangStringSet, metaclass=abc.ABCMeta):
+    """
+    A :class:`~.LangStringSet` with constrained values.
+    """
+    @abc.abstractmethod
+    def __init__(self, dict_: Dict[str, str], constraint_check_fn: Callable[[str, str], None]):
+        super().__init__(dict_)
+        self._constraint_check_fn: Callable[[str, str], None] = constraint_check_fn
+        for ltag, text in self._dict.items():
+            self._check_text_constraints(ltag, text)
+
+    def _check_text_constraints(self, ltag: str, text: str) -> None:
+        try:
+            self._constraint_check_fn(text, self.__class__.__name__)
+        except ValueError as e:
+            raise ValueError(f"The text for the language tag '{ltag}' is invalid: {e}") from e
+
+    def __setitem__(self, key: str, value: str) -> None:
+        self._check_text_constraints(key, value)
+        super().__setitem__(key, value)
+
+
+class MultiLanguageNameType(ConstrainedLangStringSet):
+    """
+    A :class:`~.ConstrainedLangStringSet` where each value is a :class:`~.ShortNameType`.
+    See also: :func:`~aas.model._string_constraints.check_short_name_type`
+    """
+    def __init__(self, dict_: Dict[str, str]):
+        super().__init__(dict_, _string_constraints.check_short_name_type)
+
+
+class MultiLanguageTextType(ConstrainedLangStringSet):
+    """
+    A :class:`~.ConstrainedLangStringSet` where each value must have at least 1 and at most 1023 characters.
+    """
+    def __init__(self, dict_: Dict[str, str]):
+        super().__init__(dict_, _string_constraints.create_check_function(min_length=1, max_length=1023))
+
+
+class DefinitionTypeIEC61360(ConstrainedLangStringSet):
+    """
+    A :class:`~.ConstrainedLangStringSet` where each value must have at least 1 and at most 1023 characters.
+    """
+    def __init__(self, dict_: Dict[str, str]):
+        super().__init__(dict_, _string_constraints.create_check_function(min_length=1, max_length=1023))
+
+
+class PreferredNameTypeIEC61360(ConstrainedLangStringSet):
+    """
+    A :class:`~.ConstrainedLangStringSet` where each value must have at least 1 and at most 255 characters.
+    """
+    def __init__(self, dict_: Dict[str, str]):
+        super().__init__(dict_, _string_constraints.create_check_function(min_length=1, max_length=255))
+
+
+class ShortNameTypeIEC61360(ConstrainedLangStringSet):
+    """
+    A :class:`~.ConstrainedLangStringSet` where each value must have at least 1 and at most 18 characters.
+    """
+    def __init__(self, dict_: Dict[str, str]):
+        super().__init__(dict_, _string_constraints.create_check_function(min_length=1, max_length=18))
+
+
 class Key:
     """
     A key is a reference to an element by its id.
@@ -535,9 +599,9 @@ class Referable(HasExtension, metaclass=abc.ABCMeta):
     def __init__(self):
         super().__init__()
         self._id_short: NameType = "NotSet"
-        self.display_name: Optional[LangStringSet] = dict()
+        self.display_name: Optional[MultiLanguageNameType] = dict()
         self._category: Optional[NameType] = None
-        self.description: Optional[LangStringSet] = dict()
+        self.description: Optional[MultiLanguageTextType] = dict()
         # We use a Python reference to the parent Namespace instead of a Reference Object, as specified. This allows
         # simpler and faster navigation/checks and it has no effect in the serialized data formats anyway.
         self.parent: Optional[UniqueIdShortNamespace] = None
@@ -2165,10 +2229,10 @@ class DataSpecificationIEC61360(DataSpecificationContent):
     :ivar level_types: Optional set of level types of the DataSpecificationContent
     """
     def __init__(self,
-                 preferred_name: LangStringSet,
+                 preferred_name: PreferredNameTypeIEC61360,
                  data_type: Optional[IEC61360DataType] = None,
-                 definition: Optional[LangStringSet] = None,
-                 short_name: Optional[LangStringSet] = None,
+                 definition: Optional[DefinitionTypeIEC61360] = None,
+                 short_name: Optional[ShortNameTypeIEC61360] = None,
                  unit: Optional[str] = None,
                  unit_id: Optional[Reference] = None,
                  source_of_definition: Optional[str] = None,
@@ -2179,10 +2243,10 @@ class DataSpecificationIEC61360(DataSpecificationContent):
                  level_types: Iterable[IEC61360LevelType] = ()):
 
         super().__init__()
-        self.preferred_name: LangStringSet = preferred_name
-        self.short_name: Optional[LangStringSet] = short_name
+        self.preferred_name: PreferredNameTypeIEC61360 = preferred_name
+        self.short_name: Optional[ShortNameTypeIEC61360] = short_name
         self.data_type: Optional[IEC61360DataType] = data_type
-        self.definition: Optional[LangStringSet] = definition
+        self.definition: Optional[DefinitionTypeIEC61360] = definition
         self._unit: Optional[str] = unit
         self.unit_id: Optional[Reference] = unit_id
         self._source_of_definition: Optional[str] = source_of_definition
@@ -2286,7 +2350,7 @@ class DataSpecificationPhysicalUnit(DataSpecificationContent):
         self,
         unit_name: str,
         unit_symbol: str,
-        definition: LangStringSet,
+        definition: DefinitionTypeIEC61360,
         si_notation: Optional[str] = None,
         si_name: Optional[str] = None,
         din_notation: Optional[str] = None,
@@ -2300,7 +2364,7 @@ class DataSpecificationPhysicalUnit(DataSpecificationContent):
     ) -> None:
         self.unit_name: str = unit_name
         self.unit_symbol: str = unit_symbol
-        self.definition: LangStringSet = definition
+        self.definition: DefinitionTypeIEC61360 = definition
         self.si_notation: Optional[str] = si_notation
         self.si_name: Optional[str] = si_name
         self.din_notation: Optional[str] = din_notation

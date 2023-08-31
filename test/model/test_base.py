@@ -7,7 +7,7 @@
 
 import unittest
 from unittest import mock
-from typing import Optional, List
+from typing import Dict, Optional, List
 from collections import OrderedDict
 
 from basyx.aas import model
@@ -1114,7 +1114,6 @@ class ConstrainedListTest(unittest.TestCase):
         self.assertEqual(existing_items, [1, 2, 3, 4, 10, 11])
         check_list.pop()
         self.assertEqual(c_list, check_list)
-
     def test_atomicity(self) -> None:
         def hook(itm: int, _list: List[int]) -> None:
             if itm > 2:
@@ -1139,3 +1138,78 @@ class ConstrainedListTest(unittest.TestCase):
         self.assertEqual(c_list, [1, 2, 3])
         del c_list[0:2]
         self.assertEqual(c_list, [3])
+
+
+class LangStringSetTest(unittest.TestCase):
+    def test_language_tag_constraints(self) -> None:
+        with self.assertRaises(ValueError) as cm:
+            model.LangStringSet({"foo": "bar"})
+        self.assertEqual("The language code 'foo' of the language tag 'foo' doesn't consist of exactly "
+                         "two lower-case letters!", str(cm.exception))
+        with self.assertRaises(ValueError) as cm:
+            model.LangStringSet({"fo-OO-bar": "bar"})
+        self.assertEqual("The extension 'OO-bar' of the language tag 'fo-OO-bar' doesn't consist of exactly "
+                         "two upper-case letters!", str(cm.exception))
+        model.LangStringSet({"fo": "bar"})
+
+        lss = model.LangStringSet({"fo-OO": "bar"})
+        with self.assertRaises(ValueError) as cm:
+            lss["foo"] = "bar"
+        self.assertEqual("The language code 'foo' of the language tag 'foo' doesn't consist of exactly "
+                         "two lower-case letters!", str(cm.exception))
+        self.assertNotIn("foo", lss)
+        self.assertNotIn("fo", lss)
+        lss["fo"] = "bar"
+        self.assertIn("fo", lss)
+
+    def test_empty(self) -> None:
+        lss = model.LangStringSet({"fo": "bar", "fo-OO": "baz"})
+        with self.assertRaises(KeyError) as cm:
+            lss.clear()
+        self.assertEqual("A LangStringSet must not be empty!", cm.exception.args[0])
+        self.assertEqual(lss, model.LangStringSet({"fo": "bar", "fo-OO": "baz"}))
+        del lss["fo"]
+        self.assertNotEqual(lss, model.LangStringSet({"fo": "bar", "fo-OO": "baz"}))
+        self.assertEqual(lss, model.LangStringSet({"fo-OO": "baz"}))
+        with self.assertRaises(KeyError) as cm:
+            del lss["fo-OO"]
+        self.assertEqual("A LangStringSet must not be empty!", cm.exception.args[0])
+        self.assertEqual(lss, model.LangStringSet({"fo-OO": "baz"}))
+
+    def test_text_constraints(self) -> None:
+        with self.assertRaises(ValueError) as cm:
+            model.MultiLanguageNameType({"fo": "o" * 65})
+        self.assertEqual("The text for the language tag 'fo' is invalid: MultiLanguageNameType has a maximum length of "
+                         "64! (length: 65)", str(cm.exception))
+        mlnt = model.MultiLanguageNameType({"fo": "o" * 64})
+        with self.assertRaises(ValueError) as cm:
+            mlnt["fo"] = ""
+        self.assertEqual("The text for the language tag 'fo' is invalid: MultiLanguageNameType has a minimum length of "
+                         "1! (length: 0)", str(cm.exception))
+        self.assertEqual(mlnt["fo"], "o" * 64)
+        mlnt["fo"] = "o"
+        self.assertEqual(mlnt["fo"], "o")
+
+    def test_repr(self) -> None:
+        lss = model.LangStringSet({"fo": "bar"})
+        self.assertEqual("LangStringSet(fo=\"bar\")", repr(lss))
+        self.assertEqual(repr(lss), str(lss))
+        mltt = model.MultiLanguageTextType({"fo": "bar"})
+        self.assertEqual("MultiLanguageTextType(fo=\"bar\")", repr(mltt))
+        self.assertEqual(repr(mltt), str(mltt))
+
+    def test_len(self) -> None:
+        lss = model.LangStringSet({"fo": "bar"})
+        self.assertEqual(1, len(lss))
+        lss["aa"] = "baz"
+        self.assertEqual(2, len(lss))
+
+    def test_iter(self) -> None:
+        lss = model.LangStringSet({"fo": "bar", "aa": "baz"})
+        count: int = 0
+        items: Dict[str, str] = {}
+        for ltag, text in lss.items():
+            count += 1
+            items[ltag] = text
+        self.assertEqual(count, 2)
+        self.assertEqual(items, {"fo": "bar", "aa": "baz"})

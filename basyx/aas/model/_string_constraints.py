@@ -15,6 +15,7 @@ by a regular expression. The following types aliased in the base module are cons
 - NameType
 - PathType
 - RevisionType
+- ShortNameType
 - QualifierType
 - VersionType
 """
@@ -62,16 +63,37 @@ def check_path_type(value: str, type_name: str = "PathType") -> None:
     return check_identifier(value, type_name)
 
 
-def check_revision_type(value: str, type_name: str = "RevisionType") -> None:
-    return check(value, type_name, 1, 4, re.compile(r"([0-9]|[1-9][0-9]*)"))
-
-
 def check_qualifier_type(value: str, type_name: str = "QualifierType") -> None:
     return check_name_type(value, type_name)
 
 
+def check_revision_type(value: str, type_name: str = "RevisionType") -> None:
+    return check(value, type_name, 1, 4, re.compile(r"([0-9]|[1-9][0-9]*)"))
+
+
+def check_short_name_type(value: str, type_name: str = "ShortNameType") -> None:
+    return check(value, type_name, 1, 64)
+
+
 def check_version_type(value: str, type_name: str = "VersionType") -> None:
     return check(value, type_name, 1, 4, re.compile(r"([0-9]|[1-9][0-9]*)"))
+
+
+def create_check_function(min_length: int = 0, max_length: Optional[int] = None, pattern: Optional[re.Pattern] = None) \
+        -> Callable[[str, str], None]:
+    """
+    Returns a new `check_type` function with mandatory `type_name` for the given min_length, max_length and pattern
+    constraints.
+
+    This is the type-independent alternative to :func:`~.check_content_type`, :func:`~.check_identifier`, etc.
+    It is used for the definition of the :class:`ConstrainedLangStringSets <aas.model.base.ConstrainedLangStringSet>`,
+    as a "Basic" constrained string type only exists for :class:`~aas.model.base.MultiLanguageNameType`, where all
+    values are :class:`ShortNames <aas.model.base.ShortNameType>`. All other
+    :class:`:class:`ConstrainedLangStringSets <aas.model.base.ConstrainedLangStringSet>` use custom constraints.
+    """
+    def check_fn(value: str, type_name: str) -> None:
+        return check(value, type_name, min_length, max_length, pattern)
+    return check_fn
 
 
 # Decorator functions to add getter/setter to classes for verification, whenever a value is updated.
@@ -117,12 +139,16 @@ def constrain_path_type(pub_attr_name: str) -> Callable[[Type[_T]], Type[_T]]:
     return constrain_attr(pub_attr_name, check_path_type)
 
 
+def constrain_qualifier_type(pub_attr_name: str) -> Callable[[Type[_T]], Type[_T]]:
+    return constrain_attr(pub_attr_name, check_qualifier_type)
+
+
 def constrain_revision_type(pub_attr_name: str) -> Callable[[Type[_T]], Type[_T]]:
     return constrain_attr(pub_attr_name, check_revision_type)
 
 
-def constrain_qualifier_type(pub_attr_name: str) -> Callable[[Type[_T]], Type[_T]]:
-    return constrain_attr(pub_attr_name, check_qualifier_type)
+def constrain_short_name_type(pub_attr_name: str) -> Callable[[Type[_T]], Type[_T]]:
+    return constrain_attr(pub_attr_name, check_short_name_type)
 
 
 def constrain_version_type(pub_attr_name: str) -> Callable[[Type[_T]], Type[_T]]:
