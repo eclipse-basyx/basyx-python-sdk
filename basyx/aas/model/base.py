@@ -1287,6 +1287,13 @@ class ConstrainedList(MutableSequence[_T], Generic[_T]):
             self._item_add_hook(value, self._list)
         self._list.insert(index, value)
 
+    def extend(self, values: Iterable[_T]) -> None:
+        v_list = list(values)
+        if self._item_add_hook is not None:
+            for idx, v in enumerate(v_list):
+                self._item_add_hook(v, self._list + v_list[:idx])
+        self._list = self._list + v_list
+
     @overload
     def __getitem__(self, index: int) -> _T: ...
 

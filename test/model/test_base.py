@@ -1115,6 +1115,31 @@ class ConstrainedListTest(unittest.TestCase):
         check_list.pop()
         self.assertEqual(c_list, check_list)
 
+    def test_atomicity(self) -> None:
+        def hook(itm: int, _list: List[int]) -> None:
+            if itm > 2:
+                raise ValueError
+
+        c_list: model.ConstrainedList[int] = model.ConstrainedList([], item_add_hook=hook)
+        with self.assertRaises(ValueError):
+            c_list = model.ConstrainedList([1, 2, 3], item_add_hook=hook)
+        self.assertEqual(c_list, [])
+        with self.assertRaises(ValueError):
+            c_list.extend([1, 2, 3])
+        self.assertEqual(c_list, [])
+        c_list.extend([1, 2])
+        self.assertEqual(c_list, [1, 2])
+
+        c_list = model.ConstrainedList([1, 2, 3], item_del_hook=hook)
+        with self.assertRaises(ValueError):
+            del c_list[0:3]
+        self.assertEqual(c_list, [1, 2, 3])
+        with self.assertRaises(ValueError):
+            c_list.clear()
+        self.assertEqual(c_list, [1, 2, 3])
+        del c_list[0:2]
+        self.assertEqual(c_list, [3])
+
 
 class LangStringSetTest(unittest.TestCase):
     def test_language_tag_constraints(self) -> None:
