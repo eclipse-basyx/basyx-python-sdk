@@ -1163,7 +1163,7 @@ class AdministrativeInformation(HasDataSpecification):
     """
     Administrative meta-information for an element like version information.
 
-    *Constraint AASd-005:* If AdministrativeInformation/version is not specified than also
+    *Constraint AASd-005:* If AdministrativeInformation/version is not specified then also
         AdministrativeInformation/revision shall be unspecified. This means, a revision
         requires a version. if there is no version there is no revision neither. Revision is
         optional.
