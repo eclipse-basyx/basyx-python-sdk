@@ -630,8 +630,6 @@ class Referable(HasExtension, metaclass=abc.ABCMeta):
         """
         Check the input string
 
-        Constraint AASd-100: An attribute with data type "string" is not allowed to be empty
-
         :param category: The category is a value that gives further meta information w.r.t. to the class of the element.
                          It affects the expected existence of attributes and the applicability of constraints.
         :raises ValueError: if the constraint is not fulfilled
@@ -2274,13 +2272,9 @@ class DataSpecificationIEC61360(DataSpecificationContent):
         """
         Check the input string
 
-        Constraint AASd-100: An attribute with data type "string" is not allowed to be empty
-
         :param unit: unit of the data object (optional)
         :raises ValueError: if the constraint is not fulfilled
         """
-        if unit == "":
-            raise ValueError("unit is not allowed to be an empty string")
         self._unit = unit
 
     def _get_unit(self):
@@ -2292,13 +2286,9 @@ class DataSpecificationIEC61360(DataSpecificationContent):
         """
         Check the input string
 
-        Constraint AASd-100: An attribute with data type "string" is not allowed to be empty
-
         :param source_of_definition: source of the definition (optional)
         :raises ValueError: if the constraint is not fulfilled
         """
-        if source_of_definition == "":
-            raise ValueError("source_of_definition is not allowed to be an empty string")
         self._source_of_definition = source_of_definition
 
     def _get_source_of_definition(self):
@@ -2310,13 +2300,9 @@ class DataSpecificationIEC61360(DataSpecificationContent):
         """
         Check the input string
 
-        Constraint AASd-100: An attribute with data type "string" is not allowed to be empty
-
         :param symbol: unit symbol (optional)
         :raises ValueError: if the constraint is not fulfilled
         """
-        if symbol == "":
-            raise ValueError("symbol is not allowed to be an empty string")
         self._symbol = symbol
 
     def _get_symbol(self):
