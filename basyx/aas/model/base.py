@@ -581,8 +581,8 @@ class Referable(HasExtension, metaclass=abc.ABCMeta):
         idShort is mandatory and used for referring to the element in its name space.
     *Constraint AASd-002:* idShort shall only feature letters, digits, underscore ("_"); starting
         mandatory with a letter.
-    *Constraint AASd-003:* idShort shall be matched case insensitive.
     *Constraint AASd-004:* Add parent in case of non identifiable elements.
+    *Constraint AASd-022:* idShort of non-identifiable referables shall be unique in its namespace (case-sensitive)
 
     :ivar _id_short: Identifying string of the element within its name space
     :ivar ~.category: The category is a value that gives further meta information w.r.t. to the class of the element.
@@ -649,8 +649,7 @@ class Referable(HasExtension, metaclass=abc.ABCMeta):
 
         Constraint AASd-002: idShort of Referables shall only feature letters, digits, underscore ("_"); starting
         mandatory with a letter. I.e. [a-zA-Z][a-zA-Z0-9_]+
-        Constraint AASd-003: idShort shall be matched case-insensitive
-        Constraint AASd-022: idShort of non-identifiable referables shall be unique in its namespace
+        Constraint AASd-022: idShort of non-identifiable referables shall be unique in its namespace (case-sensitive)
 
         :param id_short: Identifying string of the element within its name space
         :raises ValueError: if the constraint is not fulfilled
