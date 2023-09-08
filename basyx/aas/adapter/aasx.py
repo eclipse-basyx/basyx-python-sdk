@@ -39,10 +39,10 @@ from ..util import traversal
 
 logger = logging.getLogger(__name__)
 
-RELATIONSHIP_TYPE_AASX_ORIGIN = "http://www.admin-shell.io/aasx/relationships/aasx-origin"
-RELATIONSHIP_TYPE_AAS_SPEC = "http://www.admin-shell.io/aasx/relationships/aas-spec"
-RELATIONSHIP_TYPE_AAS_SPEC_SPLIT = "http://www.admin-shell.io/aasx/relationships/aas-spec-split"
-RELATIONSHIP_TYPE_AAS_SUPL = "http://www.admin-shell.io/aasx/relationships/aas-suppl"
+RELATIONSHIP_TYPE_AASX_ORIGIN = "http://admin-shell.io/aasx/relationships/aasx-origin"
+RELATIONSHIP_TYPE_AAS_SPEC = "http://admin-shell.io/aasx/relationships/aas-spec"
+RELATIONSHIP_TYPE_AAS_SPEC_SPLIT = "http://admin-shell.io/aasx/relationships/aas-spec-split"
+RELATIONSHIP_TYPE_AAS_SUPL = "http://admin-shell.io/aasx/relationships/aas-suppl"
 
 
 class AASXReader:
