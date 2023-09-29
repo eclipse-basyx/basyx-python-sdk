@@ -207,7 +207,7 @@ class AASFromJsonDecoder(json.JSONDecoder):
         # Use constructor function to transform JSON representation into BaSyx Python SDK model object
         try:
             return AAS_CLASS_PARSERS[model_type](dct)
-        except (KeyError, TypeError) as e:
+        except (KeyError, TypeError, model.AASConstraintViolation) as e:
             error_message = "Error while trying to convert JSON object into {}: {} >>> {}".format(
                 model_type, e, pprint.pformat(dct, depth=2, width=2**14, compact=True))
             if cls.failsafe:
@@ -217,7 +217,7 @@ class AASFromJsonDecoder(json.JSONDecoder):
                 #   constructors for complex objects will skip those items by using _expect_type().
                 return dct
             else:
-                raise type(e)(error_message) from e
+                raise (type(e) if isinstance(e, (KeyError, TypeError)) else TypeError)(error_message) from e
 
     # ##################################################################################################
     # Utility Methods used in constructor methods to add general attributes (from abstract base classes)
