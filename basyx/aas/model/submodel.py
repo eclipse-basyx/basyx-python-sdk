@@ -715,8 +715,19 @@ class SubmodelElementList(SubmodelElement, base.UniqueIdShortNamespace, Generic[
 
         # Items must be added after the above contraint has been checked. Otherwise, it can lead to errors, since the
         # constraints in _check_constraints() assume that this constraint has been checked.
-        self._value: base.OrderedNamespaceSet[_SE] = base.OrderedNamespaceSet(self, [("id_short", True)], value,
+        self._value: base.OrderedNamespaceSet[_SE] = base.OrderedNamespaceSet(self, [("id_short", True)], (),
                                                                               self._check_constraints)
+        # SubmodelElements need to be added after the assignment of the ordered NamespaceSet, otherwise, if a constraint
+        # check fails, Referable.__repr__ may be called for an already-contained item during the AASd-114 check, which
+        # in turn tries to access the SubmodelElementLists value / _value attribute, which wouldn't be set yet if all
+        # elements are passed to the OrderedNamespaceSet initializer.
+        try:
+            for i in value:
+                self._value.add(i)
+        except Exception:
+            # Remove all SubmodelElements if an exception occurs during initialization of the SubmodelElementList
+            self._value.clear()
+            raise
 
     def _check_constraints(self, new: _SE, existing: Iterable[_SE]) -> None:
         # We can't use isinstance(new, self.type_value_list_element) here, because each subclass of
