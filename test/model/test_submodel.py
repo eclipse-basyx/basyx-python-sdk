@@ -127,7 +127,7 @@ class SubmodelElementListTest(unittest.TestCase):
             model.SubmodelElementList("test_list", model.MultiLanguageProperty, [mlp1, mlp2])
         self.assertEqual("Element to be added MultiLanguageProperty[mlp2] has semantic_id "
                          "ExternalReference(key=(Key(type=GLOBAL_REFERENCE, value=urn:x-test:different),)), "
-                         "while already contained element MultiLanguageProperty[test_list / mlp1] has semantic_id "
+                         "while already contained element MultiLanguageProperty[test_list[0]] has semantic_id "
                          "ExternalReference(key=(Key(type=GLOBAL_REFERENCE, value=urn:x-test:test),)), "
                          "which aren't equal. (Constraint AASd-114)", str(cm.exception))
         mlp2.semantic_id = semantic_id1

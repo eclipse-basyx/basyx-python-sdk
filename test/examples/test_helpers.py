@@ -94,13 +94,13 @@ class AASDataCheckerTest(unittest.TestCase):
         checker.check_submodel_element_list_equal(list_, list_expected)
         self.assertEqual(4, sum(1 for _ in checker.failed_checks))
         checker_iterator = checker.failed_checks
-        self.assertEqual("FAIL: Attribute id_short of Range[test_list / range1] must be == range2 (value='range1')",
+        self.assertEqual("FAIL: Attribute id_short of Range[test_list[0]] must be == range2 (value='range1')",
                          repr(next(checker_iterator)))
-        self.assertEqual("FAIL: Attribute max of Range[test_list / range1] must be == 1337 (value=142857)",
+        self.assertEqual("FAIL: Attribute max of Range[test_list[0]] must be == 1337 (value=142857)",
                          repr(next(checker_iterator)))
-        self.assertEqual("FAIL: Attribute id_short of Range[test_list / range2] must be == range1 (value='range2')",
+        self.assertEqual("FAIL: Attribute id_short of Range[test_list[1]] must be == range1 (value='range2')",
                          repr(next(checker_iterator)))
-        self.assertEqual("FAIL: Attribute max of Range[test_list / range2] must be == 142857 (value=1337)",
+        self.assertEqual("FAIL: Attribute max of Range[test_list[1]] must be == 142857 (value=1337)",
                          repr(next(checker_iterator)))
 
         # order_relevant

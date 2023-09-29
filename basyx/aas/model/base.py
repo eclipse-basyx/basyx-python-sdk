@@ -610,12 +610,17 @@ class Referable(HasExtension, metaclass=abc.ABCMeta):
     def __repr__(self) -> str:
         reversed_path = []
         item = self  # type: Any
+        from .submodel import SubmodelElementList
         while item is not None:
             if isinstance(item, Identifiable):
-                reversed_path.append(str(item.id))
+                reversed_path.append(item.id)
                 break
             elif isinstance(item, Referable):
-                reversed_path.append(item.id_short)
+                if isinstance(item.parent, SubmodelElementList):
+                    reversed_path.append(f"{item.parent.id_short}[{item.parent.value.index(item)}]")
+                    item = item.parent
+                else:
+                    reversed_path.append(item.id_short)
                 item = item.parent
             else:
                 raise AttributeError('Referable must have an identifiable as root object and only parents that are '
