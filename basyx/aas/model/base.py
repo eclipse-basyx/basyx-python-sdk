@@ -1884,7 +1884,7 @@ class NamespaceSet(MutableSet[_NSO], Generic[_NSO]):
             item_in_dict = backend[self._get_attribute(item, attr_name, case_sensitive)]
             if item_in_dict is item:
                 item_found = True
-                continue
+                break
         if not item_found:
             raise KeyError("Object not found in NamespaceDict")
         item.parent = None
