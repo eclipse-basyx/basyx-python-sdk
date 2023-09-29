@@ -832,7 +832,7 @@ class ModelReferenceTest(unittest.TestCase):
                                     model.Property)
         with self.assertRaises(TypeError) as cm_3:
             ref4.resolve(DummyObjectProvider())
-        self.assertEqual("Object retrieved at urn:x-test:submodel / list / collection / prop is not a Namespace",
+        self.assertEqual("Object retrieved at urn:x-test:submodel / list[0] / prop is not a Namespace",
                          str(cm_3.exception))
 
         with self.assertRaises(AttributeError) as cm_4:
@@ -863,7 +863,7 @@ class ModelReferenceTest(unittest.TestCase):
 
         with self.assertRaises(KeyError) as cm_8:
             ref8.resolve(DummyObjectProvider())
-        self.assertEqual("'Could not resolve id_short prop_false at urn:x-test:submodel / list / collection'",
+        self.assertEqual("'Could not resolve id_short prop_false at urn:x-test:submodel / list[0]'",
                          str(cm_8.exception))
 
         with self.assertRaises(ValueError) as cm_9:
