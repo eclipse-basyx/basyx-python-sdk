@@ -1017,13 +1017,14 @@ class ModelReference(Reference, Generic[_RT]):
                     # the `is_submodel_element_list` branch, but mypy doesn't infer types based on isinstance checks
                     # stored in boolean variables.
                     item = item.value[int(key.value)]  # type: ignore
+                    resolved_keys[-1] += f"[{key.value}]"
                 else:
                     item = item.get_referable(key.value)
+                    resolved_keys.append(item.id_short)
             except (KeyError, IndexError) as e:
                 raise KeyError("Could not resolve {} {} at {}".format(
                     "index" if is_submodel_element_list else "id_short", key.value, " / ".join(resolved_keys)))\
                     from e
-            resolved_keys.append(item.id_short)
 
         # Check type
         if not isinstance(item, self.type):
