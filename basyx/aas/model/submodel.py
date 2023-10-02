@@ -52,7 +52,7 @@ class SubmodelElement(base.Referable, base.Qualifiable, base.HasSemantics,
     """
     @abc.abstractmethod
     def __init__(self,
-                 id_short: base.NameType,
+                 id_short: Optional[base.NameType],
                  display_name: Optional[base.MultiLanguageNameType] = None,
                  category: Optional[base.NameType] = None,
                  description: Optional[base.MultiLanguageTextType] = None,
@@ -192,7 +192,7 @@ class DataElement(SubmodelElement, metaclass=abc.ABCMeta):
     """
     @abc.abstractmethod
     def __init__(self,
-                 id_short: base.NameType,
+                 id_short: Optional[base.NameType],
                  display_name: Optional[base.MultiLanguageNameType] = None,
                  category: Optional[base.NameType] = None,
                  description: Optional[base.MultiLanguageTextType] = None,
@@ -255,7 +255,7 @@ class Property(DataElement):
     """
 
     def __init__(self,
-                 id_short: base.NameType,
+                 id_short: Optional[base.NameType],
                  value_type: base.DataTypeDefXsd,
                  value: Optional[base.ValueDataType] = None,
                  value_id: Optional[base.Reference] = None,
@@ -325,7 +325,7 @@ class MultiLanguageProperty(DataElement):
     """
 
     def __init__(self,
-                 id_short: base.NameType,
+                 id_short: Optional[base.NameType],
                  value: Optional[base.MultiLanguageTextType] = None,
                  value_id: Optional[base.Reference] = None,
                  display_name: Optional[base.MultiLanguageNameType] = None,
@@ -382,7 +382,7 @@ class Range(DataElement):
     """
 
     def __init__(self,
-                 id_short: base.NameType,
+                 id_short: Optional[base.NameType],
                  value_type: base.DataTypeDefXsd,
                  min: Optional[base.ValueDataType] = None,
                  max: Optional[base.ValueDataType] = None,
@@ -464,7 +464,7 @@ class Blob(DataElement):
     """
 
     def __init__(self,
-                 id_short: base.NameType,
+                 id_short: Optional[base.NameType],
                  content_type: base.ContentType,
                  value: Optional[base.BlobType] = None,
                  display_name: Optional[base.MultiLanguageNameType] = None,
@@ -518,7 +518,7 @@ class File(DataElement):
     """
 
     def __init__(self,
-                 id_short: base.NameType,
+                 id_short: Optional[base.NameType],
                  content_type: base.ContentType,
                  value: Optional[base.PathType] = None,
                  display_name: Optional[base.MultiLanguageNameType] = None,
@@ -571,7 +571,7 @@ class ReferenceElement(DataElement):
     """
 
     def __init__(self,
-                 id_short: base.NameType,
+                 id_short: Optional[base.NameType],
                  value: Optional[base.Reference] = None,
                  display_name: Optional[base.MultiLanguageNameType] = None,
                  category: Optional[base.NameType] = None,
@@ -619,7 +619,7 @@ class SubmodelElementCollection(SubmodelElement, base.UniqueIdShortNamespace):
     :ivar embedded_data_specifications: List of Embedded data specification.
     """
     def __init__(self,
-                 id_short: base.NameType,
+                 id_short: Optional[base.NameType],
                  value: Iterable[SubmodelElement] = (),
                  display_name: Optional[base.MultiLanguageNameType] = None,
                  category: Optional[base.NameType] = None,
@@ -686,7 +686,7 @@ class SubmodelElementList(SubmodelElement, base.UniqueIdShortNamespace, Generic[
     :ivar embedded_data_specifications: List of Embedded data specification.
     """
     def __init__(self,
-                 id_short: base.NameType,
+                 id_short: Optional[base.NameType],
                  type_value_list_element: Type[_SE],
                  value: Iterable[_SE] = (),
                  semantic_id_list_element: Optional[base.Reference] = None,
@@ -826,7 +826,7 @@ class RelationshipElement(SubmodelElement):
     """
 
     def __init__(self,
-                 id_short: base.NameType,
+                 id_short: Optional[base.NameType],
                  first: base.Reference,
                  second: base.Reference,
                  display_name: Optional[base.MultiLanguageNameType] = None,
@@ -883,7 +883,7 @@ class AnnotatedRelationshipElement(RelationshipElement, base.UniqueIdShortNamesp
     """
 
     def __init__(self,
-                 id_short: base.NameType,
+                 id_short: Optional[base.NameType],
                  first: base.Reference,
                  second: base.Reference,
                  display_name: Optional[base.MultiLanguageNameType] = None,
@@ -951,7 +951,7 @@ class Operation(SubmodelElement):
     :ivar embedded_data_specifications: List of Embedded data specification.
     """
     def __init__(self,
-                 id_short: base.NameType,
+                 id_short: Optional[base.NameType],
                  input_variable: Optional[List[OperationVariable]] = None,
                  output_variable:  Optional[List[OperationVariable]] = None,
                  in_output_variable:  Optional[List[OperationVariable]] = None,
@@ -1004,7 +1004,7 @@ class Capability(SubmodelElement):
     """
 
     def __init__(self,
-                 id_short: base.NameType,
+                 id_short: Optional[base.NameType],
                  display_name: Optional[base.MultiLanguageNameType] = None,
                  category: Optional[base.NameType] = None,
                  description: Optional[base.MultiLanguageTextType] = None,
@@ -1061,7 +1061,7 @@ class Entity(SubmodelElement, base.UniqueIdShortNamespace):
     """
 
     def __init__(self,
-                 id_short: base.NameType,
+                 id_short: Optional[base.NameType],
                  entity_type: base.EntityType,
                  statement: Iterable[SubmodelElement] = (),
                  global_asset_id: Optional[base.Identifier] = None,
@@ -1134,7 +1134,7 @@ class EventElement(SubmodelElement, metaclass=abc.ABCMeta):
     """
     @abc.abstractmethod
     def __init__(self,
-                 id_short: base.NameType,
+                 id_short: Optional[base.NameType],
                  display_name: Optional[base.MultiLanguageNameType] = None,
                  category: Optional[base.NameType] = None,
                  description: Optional[base.MultiLanguageTextType] = None,
@@ -1198,7 +1198,7 @@ class BasicEventElement(EventElement):
     """
 
     def __init__(self,
-                 id_short: base.NameType,
+                 id_short: Optional[base.NameType],
                  observed: base.ModelReference[Union["aas.AssetAdministrationShell", Submodel, SubmodelElement]],
                  direction: base.Direction,
                  state: base.StateOfEvent,
