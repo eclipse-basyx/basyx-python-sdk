@@ -35,12 +35,17 @@ class KeyTest(unittest.TestCase):
     def test_from_referable(self):
         mlp1 = model.MultiLanguageProperty("mlp1")
         mlp2 = model.MultiLanguageProperty("mlp2")
-        model.SubmodelElementList("list", model.MultiLanguageProperty, [mlp1, mlp2])
+        se_list = model.SubmodelElementList("list", model.MultiLanguageProperty, [mlp1, mlp2])
         self.assertEqual(model.Key(model.KeyTypes.MULTI_LANGUAGE_PROPERTY, "0"), model.Key.from_referable(mlp1))
         self.assertEqual(model.Key(model.KeyTypes.MULTI_LANGUAGE_PROPERTY, "1"), model.Key.from_referable(mlp2))
-        mlp1.parent = mlp2.parent = None
+        del se_list.value[0]
+        mlp1.id_short = None
+        self.assertEqual(model.Key(model.KeyTypes.MULTI_LANGUAGE_PROPERTY, "0"), model.Key.from_referable(mlp2))
+        with self.assertRaises(ValueError) as cm:
+            model.Key.from_referable(mlp1)
+        self.assertEqual("Can't create Key for MultiLanguageProperty without an id_short!", str(cm.exception))
+        mlp1.id_short = "mlp1"
         self.assertEqual(model.Key(model.KeyTypes.MULTI_LANGUAGE_PROPERTY, "mlp1"), model.Key.from_referable(mlp1))
-        self.assertEqual(model.Key(model.KeyTypes.MULTI_LANGUAGE_PROPERTY, "mlp2"), model.Key.from_referable(mlp2))
 
 
 class ExampleReferable(model.Referable):
@@ -146,6 +151,7 @@ class ReferableTest(unittest.TestCase):
 
         ref = ExampleReferable()
         test_object = DummyClass(ref)
+        ref.id_short = "NotNone"
         ref.parent = test_object
         with self.assertRaises(AttributeError) as cm:
             ref.__repr__()

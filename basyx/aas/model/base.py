@@ -459,6 +459,8 @@ class Key:
             except ValueError as e:
                 raise ValueError(f"Object {referable!r} is not contained within its parent {referable.parent!r}") from e
         else:
+            if referable.id_short is None:
+                raise ValueError(f"Can't create Key for {referable!r} without an id_short!")
             return Key(key_type, referable.id_short)
 
 
@@ -598,7 +600,7 @@ class Referable(HasExtension, metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def __init__(self):
         super().__init__()
-        self._id_short: NameType = "NotSet"
+        self._id_short: Optional[NameType] = None
         self.display_name: Optional[MultiLanguageNameType] = dict()
         self._category: Optional[NameType] = None
         self.description: Optional[MultiLanguageTextType] = dict()
@@ -610,25 +612,26 @@ class Referable(HasExtension, metaclass=abc.ABCMeta):
     def __repr__(self) -> str:
         reversed_path = []
         item = self  # type: Any
-        from .submodel import SubmodelElementList
-        while item is not None:
-            if isinstance(item, Identifiable):
-                reversed_path.append(item.id)
-                break
-            elif isinstance(item, Referable):
-                if isinstance(item.parent, SubmodelElementList):
-                    reversed_path.append(f"{item.parent.id_short}[{item.parent.value.index(item)}]")
+        if item.id_short is not None:
+            from .submodel import SubmodelElementList
+            while item is not None:
+                if isinstance(item, Identifiable):
+                    reversed_path.append(item.id)
+                    break
+                elif isinstance(item, Referable):
+                    if isinstance(item.parent, SubmodelElementList):
+                        reversed_path.append(f"{item.parent.id_short}[{item.parent.value.index(item)}]")
+                        item = item.parent
+                    else:
+                        reversed_path.append(item.id_short)
                     item = item.parent
                 else:
-                    reversed_path.append(item.id_short)
-                item = item.parent
-            else:
-                raise AttributeError('Referable must have an identifiable as root object and only parents that are '
-                                     'referable')
+                    raise AttributeError('Referable must have an identifiable as root object and only parents that are '
+                                         'referable')
 
-        return "{}[{}]".format(self.__class__.__name__, " / ".join(reversed(reversed_path)))
+        return self.__class__.__name__ + ("[{}]".format(" / ".join(reversed(reversed_path))) if reversed_path else "")
 
-    def _get_id_short(self):
+    def _get_id_short(self) -> Optional[NameType]:
         return self._id_short
 
     def _set_category(self, category: Optional[NameType]):
@@ -648,7 +651,7 @@ class Referable(HasExtension, metaclass=abc.ABCMeta):
 
     category = property(_get_category, _set_category)
 
-    def _set_id_short(self, id_short: NameType):
+    def _set_id_short(self, id_short: Optional[NameType]):
         """
         Check the input string
 
@@ -663,18 +666,19 @@ class Referable(HasExtension, metaclass=abc.ABCMeta):
 
         if id_short == self.id_short:
             return
-        _string_constraints.check_name_type(id_short)
-        test_id_short: NameType = str(id_short)
-        if not re.fullmatch("[a-zA-Z0-9_]*", test_id_short):
-            raise AASConstraintViolation(
-                2,
-                "The id_short must contain only letters, digits and underscore"
-            )
-        if not test_id_short[0].isalpha():
-            raise AASConstraintViolation(
-                2,
-                "The id_short must start with a letter"
-            )
+        if id_short is not None:
+            _string_constraints.check_name_type(id_short)
+            test_id_short: NameType = str(id_short)
+            if not re.fullmatch("[a-zA-Z0-9_]*", test_id_short):
+                raise AASConstraintViolation(
+                    2,
+                    "The id_short must contain only letters, digits and underscore"
+                )
+            if not test_id_short[0].isalpha():
+                raise AASConstraintViolation(
+                    2,
+                    "The id_short must start with a letter"
+                )
 
         if self.parent is not None:
             for set_ in self.parent.namespace_element_sets:
