@@ -7,7 +7,7 @@
 
 import unittest
 from unittest import mock
-from typing import Dict, Optional, List
+from typing import Callable, Dict, Iterable, List, Optional, Type, TypeVar
 from collections import OrderedDict
 
 from basyx.aas import model
@@ -460,46 +460,106 @@ class ModelNamespaceTest(unittest.TestCase):
                          "of objects (Constraint AASd-022)",
                          str(cm.exception))
 
-    def test_namespaceset_item_add_hook(self) -> None:
-        new_item = None
-        existing_items = []
+    def test_namespaceset_hooks(self) -> None:
+        T = TypeVar("T", bound=model.Referable)
+        nss_types: List[Type[model.NamespaceSet]] = [model.NamespaceSet, model.OrderedNamespaceSet]
+        for nss_type in nss_types:
+            new_item = None
+            old_item = None
+            existing_items = []
 
-        class DummyNamespace(model.UniqueIdShortNamespace):
-            def __init__(self, items):
-                def dummy_hook(new, existing):
-                    nonlocal new_item, existing_items
-                    new_item = new
-                    # Create a new list to prevent an error when checking the assertions:
-                    # RuntimeError: dictionary changed size during iteration
-                    existing_items = list(existing)
+            class DummyNamespace(model.UniqueIdShortNamespace):
+                def __init__(self, items: Iterable[T], item_add_hook: Optional[Callable[[T, Iterable[T]], None]] = None,
+                             item_id_set_hook: Optional[Callable[[T], None]] = None,
+                             item_id_del_hook: Optional[Callable[[T], None]] = None):
+                    super().__init__()
+                    self.set1 = nss_type(self, [('id_short', True)], items, item_add_hook=item_add_hook,
+                                         item_id_set_hook=item_id_set_hook,
+                                         item_id_del_hook=item_id_del_hook)
 
-                super().__init__()
-                self.set1 = model.NamespaceSet(self, [('id_short', True)], items, dummy_hook)
+            def add_hook(new: T, existing: Iterable[T]) -> None:
+                nonlocal new_item, existing_items
+                new_item = new
+                # Create a new list to prevent an error when checking the assertions:
+                # RuntimeError: dictionary changed size during iteration
+                existing_items = list(existing)
 
-        cap = model.Capability("test_cap")
-        dummy_ns = DummyNamespace({cap})
-        self.assertIs(new_item, cap)
-        self.assertEqual(len(existing_items), 0)
+            def id_set_hook(new: T) -> None:
+                if new.id_short is not None:
+                    new.id_short += "new"
 
-        mlp = model.MultiLanguageProperty("test_mlp")
-        dummy_ns.add_referable(mlp)
-        self.assertIs(new_item, mlp)
-        self.assertEqual(len(existing_items), 1)
-        self.assertIn(cap, existing_items)
+            def id_del_hook(old: T) -> None:
+                nonlocal old_item
+                old_item = old
+                if old.id_short is not None:
+                    # remove "new" suffix
+                    old.id_short = old.id_short[:-3]
 
-        prop = model.Property("test_prop", model.datatypes.Int)
-        dummy_ns.set1.add(prop)
-        self.assertIs(new_item, prop)
-        self.assertEqual(len(existing_items), 2)
-        self.assertIn(cap, existing_items)
-        self.assertIn(mlp, existing_items)
+            cap = model.Capability("test_cap")
+            dummy_ns = DummyNamespace({cap}, item_add_hook=add_hook, item_id_set_hook=id_set_hook,
+                                      item_id_del_hook=id_del_hook)
+            self.assertEqual(cap.id_short, "test_capnew")
+            self.assertIs(new_item, cap)
+            self.assertEqual(len(existing_items), 0)
 
-        dummy_ns.remove_referable("test_cap")
-        dummy_ns.add_referable(cap)
-        self.assertIs(new_item, cap)
-        self.assertEqual(len(existing_items), 2)
-        self.assertIn(mlp, existing_items)
-        self.assertIn(prop, existing_items)
+            mlp = model.MultiLanguageProperty("test_mlp")
+            dummy_ns.add_referable(mlp)
+            self.assertEqual(mlp.id_short, "test_mlpnew")
+            self.assertIs(new_item, mlp)
+            self.assertEqual(len(existing_items), 1)
+            self.assertIn(cap, existing_items)
+
+            prop = model.Property("test_prop", model.datatypes.Int)
+            dummy_ns.set1.add(prop)
+            self.assertEqual(prop.id_short, "test_propnew")
+            self.assertIs(new_item, prop)
+            self.assertEqual(len(existing_items), 2)
+            self.assertIn(cap, existing_items)
+            self.assertIn(mlp, existing_items)
+
+            dummy_ns.remove_referable("test_capnew")
+            self.assertIs(old_item, cap)
+            self.assertEqual(cap.id_short, "test_cap")
+
+            dummy_ns.set1.remove(prop)
+            self.assertIs(old_item, prop)
+            self.assertEqual(prop.id_short, "test_prop")
+
+            dummy_ns.set1.remove_by_id("id_short", "test_mlpnew")
+            self.assertIs(old_item, mlp)
+            self.assertEqual(mlp.id_short, "test_mlp")
+
+            self.assertEqual(len(list(dummy_ns)), 0)
+
+            # test atomicity
+            add_hook_counter: int = 0
+
+            def add_hook_constraint(_new: T, _existing: Iterable[T]) -> None:
+                nonlocal add_hook_counter
+                add_hook_counter += 1
+                if add_hook_counter > 1:
+                    raise ValueError
+
+            self.assertEqual(cap.id_short, "test_cap")
+            self.assertEqual(mlp.id_short, "test_mlp")
+            with self.assertRaises(ValueError):
+                DummyNamespace([cap, mlp], item_add_hook=add_hook_constraint, item_id_set_hook=id_set_hook,
+                               item_id_del_hook=id_del_hook)
+            self.assertEqual(cap.id_short, "test_cap")
+            self.assertIsNone(cap.parent)
+            self.assertEqual(mlp.id_short, "test_mlp")
+            self.assertIsNone(mlp.parent)
+
+            dummy_ns = DummyNamespace((), item_add_hook=add_hook_constraint, item_id_set_hook=id_set_hook,
+                                      item_id_del_hook=id_del_hook)
+            add_hook_counter = 0
+            dummy_ns.add_referable(cap)
+            self.assertIs(cap.parent, dummy_ns)
+
+            with self.assertRaises(ValueError):
+                dummy_ns.set1.add(prop)
+            self.assertEqual(prop.id_short, "test_prop")
+            self.assertIsNone(prop.parent)
 
     def test_Namespace(self) -> None:
         with self.assertRaises(model.AASConstraintViolation) as cm:

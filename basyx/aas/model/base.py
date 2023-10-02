@@ -1802,7 +1802,9 @@ class NamespaceSet(MutableSet[_NSO], Generic[_NSO]):
     """
     def __init__(self, parent: Union[UniqueIdShortNamespace, UniqueSemanticIdNamespace, Qualifiable, HasExtension],
                  attribute_names: List[Tuple[str, bool]], items: Iterable[_NSO] = (),
-                 item_add_hook: Optional[Callable[[_NSO, Iterable[_NSO]], None]] = None) -> None:
+                 item_add_hook: Optional[Callable[[_NSO, Iterable[_NSO]], None]] = None,
+                 item_id_set_hook: Optional[Callable[[_NSO], None]] = None,
+                 item_id_del_hook: Optional[Callable[[_NSO], None]] = None) -> None:
         """
         Initialize a new NamespaceSet.
 
@@ -1816,6 +1818,11 @@ class NamespaceSet(MutableSet[_NSO], Generic[_NSO]):
         :param item_add_hook: A function that is called for each item that is added to this NamespaceSet, even when
                               it is initialized. The first parameter is the item that is added while the second is
                               an iterator over all currently contained items. Useful for constraint checking.
+        :param item_id_set_hook: A function called to calculate the identifying attribute (e.g. id_short) of an object
+                                 on-the-fly when it is added. Used for the SubmodelElementList implementation.
+        :param item_id_del_hook: A function that is called for each item removed from this NamespaceSet. Used in
+                                 SubmodelElementList to unset id_shorts on removal. Should not be used for
+                                 constraint checking, as the hook is called after removal.
         :raises AASConstraintViolation: When `items` contains multiple objects with same unique attribute or when an
                                         item doesn't has an identifying attribute
         """
@@ -1823,6 +1830,8 @@ class NamespaceSet(MutableSet[_NSO], Generic[_NSO]):
         parent.namespace_element_sets.append(self)
         self._backend: Dict[str, Tuple[Dict[ATTRIBUTE_TYPES, _NSO], bool]] = {}
         self._item_add_hook: Optional[Callable[[_NSO, Iterable[_NSO]], None]] = item_add_hook
+        self._item_id_set_hook: Optional[Callable[[_NSO], None]] = item_id_set_hook
+        self._item_id_del_hook: Optional[Callable[[_NSO], None]] = item_id_del_hook
         for name, case_sensitive in attribute_names:
             self._backend[name] = ({}, case_sensitive)
         try:
@@ -1869,6 +1878,8 @@ class NamespaceSet(MutableSet[_NSO], Generic[_NSO]):
         if value.parent is not None and value.parent is not self.parent:
             raise ValueError("Object has already a parent, but it must not be part of two namespaces.")
             # TODO remove from current parent instead (allow moving)?
+        if self._item_id_set_hook is not None:
+            self._item_id_set_hook(value)
         for set_ in self.parent.namespace_element_sets:
             for attr_name, (backend, case_sensitive) in set_._backend.items():
                 if hasattr(value, attr_name):
@@ -1883,7 +1894,12 @@ class NamespaceSet(MutableSet[_NSO], Generic[_NSO]):
                                                              "this set of objects"
                                                              if set_ is self else "another set in the same namespace"))
         if self._item_add_hook is not None:
-            self._item_add_hook(value, self.__iter__())
+            try:
+                self._item_add_hook(value, self.__iter__())
+            except Exception:
+                if self._item_id_del_hook is not None:
+                    self._item_id_del_hook(value)
+                raise
         value.parent = self.parent
         for attr_name, (backend, case_sensitive) in self._backend.items():
             backend[self._get_attribute(value, attr_name, case_sensitive)] = value
@@ -1901,9 +1917,15 @@ class NamespaceSet(MutableSet[_NSO], Generic[_NSO]):
                 break
         if not item_found:
             raise KeyError("Object not found in NamespaceDict")
+        # parent needs to be unset first, otherwise generated id_shorts cannot be unset
+        # see SubmodelElementList
         item.parent = None
+        # item has to be removed from backend before _item_del_hook() is called, as the hook may unset the id_short,
+        # as in SubmodelElementLists
         for attr_name, (backend, case_sensitive) in self._backend.items():
             del backend[self._get_attribute(item, attr_name, case_sensitive)]
+        if self._item_id_del_hook is not None:
+            self._item_id_del_hook(item)
 
     def discard(self, x: _NSO) -> None:
         if x not in self:
@@ -1912,13 +1934,19 @@ class NamespaceSet(MutableSet[_NSO], Generic[_NSO]):
 
     def pop(self) -> _NSO:
         _, value = next(iter(self._backend.values()))[0].popitem()
+        if self._item_id_del_hook is not None:
+            self._item_id_del_hook(value)
         value.parent = None
         return value
 
     def clear(self) -> None:
         for attr_name, (backend, case_sensitive) in self._backend.items():
             for value in backend.values():
+                # parent needs to be unset first, otherwise generated id_shorts cannot be unset
+                # see SubmodelElementList
                 value.parent = None
+                if self._item_id_del_hook is not None:
+                    self._item_id_del_hook(value)
         for attr_name, (backend, case_sensitive) in self._backend.items():
             backend.clear()
 
@@ -1999,7 +2027,9 @@ class OrderedNamespaceSet(NamespaceSet[_NSO], MutableSequence[_NSO], Generic[_NS
     """
     def __init__(self, parent: Union[UniqueIdShortNamespace, UniqueSemanticIdNamespace, Qualifiable, HasExtension],
                  attribute_names: List[Tuple[str, bool]], items: Iterable[_NSO] = (),
-                 item_add_hook: Optional[Callable[[_NSO, Iterable[_NSO]], None]] = None) -> None:
+                 item_add_hook: Optional[Callable[[_NSO, Iterable[_NSO]], None]] = None,
+                 item_id_set_hook: Optional[Callable[[_NSO], None]] = None,
+                 item_id_del_hook: Optional[Callable[[_NSO], None]] = None) -> None:
         """
         Initialize a new OrderedNamespaceSet.
 
@@ -2013,11 +2043,16 @@ class OrderedNamespaceSet(NamespaceSet[_NSO], MutableSequence[_NSO], Generic[_NS
         :param item_add_hook: A function that is called for each item that is added to this NamespaceSet, even when
                               it is initialized. The first parameter is the item that is added while the second is
                               an iterator over all currently contained items. Useful for constraint checking.
+        :param item_id_set_hook: A function called to calculate the identifying attribute (e.g. id_short) of an object
+                                 on-the-fly when it is added. Used for the SubmodelElementList implementation.
+        :param item_id_del_hook: A function that is called for each item removed from this NamespaceSet. Used in
+                                 SubmodelElementList to unset id_shorts on removal. Should not be used for
+                                 constraint checking, as the hook is called after removal.
         :raises AASConstraintViolation: When `items` contains multiple objects with same unique attribute or when an
                                         item doesn't has an identifying attribute
         """
         self._order: List[_NSO] = []
-        super().__init__(parent, attribute_names, items, item_add_hook)
+        super().__init__(parent, attribute_names, items, item_add_hook, item_id_set_hook, item_id_del_hook)
 
     def __iter__(self) -> Iterator[_NSO]:
         return iter(self._order)
