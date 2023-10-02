@@ -358,12 +358,12 @@ class ModelNamespaceTest(unittest.TestCase):
         self.prop6 = model.Property("Prop4", model.datatypes.Int, semantic_id=self.propSemanticID2)
         self.prop7 = model.Property("Prop2", model.datatypes.Int, semantic_id=self.propSemanticID3)
         self.prop8 = model.Property("ProP2", model.datatypes.Int, semantic_id=self.propSemanticID3)
-        self.prop1alt = model.Property("Prop1", model.datatypes.Int)
-        self.qualifier1 = model.Qualifier("type1", model.datatypes.Int, 1)
-        self.qualifier2 = model.Qualifier("type2", model.datatypes.Int, 1)
-        self.qualifier1alt = model.Qualifier("type1", model.datatypes.Int, 1)
-        self.extension1 = model.Extension("Ext1", model.datatypes.Int, 1)
-        self.extension2 = model.Extension("Ext2", model.datatypes.Int, 1)
+        self.prop1alt = model.Property("Prop1", model.datatypes.Int, semantic_id=self.propSemanticID)
+        self.qualifier1 = model.Qualifier("type1", model.datatypes.Int, 1, semantic_id=self.propSemanticID)
+        self.qualifier2 = model.Qualifier("type2", model.datatypes.Int, 1, semantic_id=self.propSemanticID2)
+        self.qualifier1alt = model.Qualifier("type1", model.datatypes.Int, 1, semantic_id=self.propSemanticID)
+        self.extension1 = model.Extension("Ext1", model.datatypes.Int, 1, semantic_id=self.propSemanticID)
+        self.extension2 = model.Extension("Ext2", model.datatypes.Int, 1, semantic_id=self.propSemanticID2)
         self.namespace = self._namespace_class()
         self.namespace3 = self._namespace_class_qualifier()
 
@@ -565,13 +565,13 @@ class ModelNamespaceTest(unittest.TestCase):
         # Prop2 is getting deleted since it does not exist in namespace2.set1
         # Prop3 is getting added, since it does not exist in namespace1.set1 yet
         namespace1 = self._namespace_class()
-        prop1 = model.Property("Prop1", model.datatypes.Int, 1)
-        prop2 = model.Property("Prop2", model.datatypes.Int, 0)
+        prop1 = model.Property("Prop1", model.datatypes.Int, 1, semantic_id=self.propSemanticID)
+        prop2 = model.Property("Prop2", model.datatypes.Int, 0, semantic_id=self.propSemanticID2)
         namespace1.set2.add(prop1)
         namespace1.set2.add(prop2)
         namespace2 = self._namespace_class()
-        namespace2.set2.add(model.Property("Prop1", model.datatypes.Int, 0))
-        namespace2.set2.add(model.Property("Prop3", model.datatypes.Int, 2))
+        namespace2.set2.add(model.Property("Prop1", model.datatypes.Int, 0, semantic_id=self.propSemanticID))
+        namespace2.set2.add(model.Property("Prop3", model.datatypes.Int, 2, semantic_id=self.propSemanticID2))
         namespace1.set2.update_nss_from(namespace2.set2)
         # Check that Prop1 got updated correctly
         self.assertIs(namespace1.get_referable("Prop1"), prop1)
@@ -595,6 +595,21 @@ class ModelNamespaceTest(unittest.TestCase):
                                                                       qualifier=[qualifier1])
         self.assertIs(submodel_element_collection.get_referable("Prop1"), prop1)
         self.assertIs(submodel_element_collection.get_qualifier_by_type("Qualifier1"), qualifier1)
+
+    def test_aasd_117(self) -> None:
+        property = model.Property(None, model.datatypes.Int, semantic_id=self.propSemanticID)
+        se_collection = model.SubmodelElementCollection("foo")
+        with self.assertRaises(model.AASConstraintViolation) as cm:
+            se_collection.add_referable(property)
+        self.assertEqual("Property has attribute id_short=None, which is not allowed within a "
+                         "SubmodelElementCollection! (Constraint AASd-117)", str(cm.exception))
+        property.id_short = "property"
+        se_collection.add_referable(property)
+        with self.assertRaises(model.AASConstraintViolation) as cm:
+            property.id_short = None
+        self.assertEqual("id_short of Property[foo / property] cannot be unset, since it is already contained in "
+                         "SubmodelElementCollection[foo] (Constraint AASd-117)", str(cm.exception))
+        property.id_short = "bar"
 
 
 class ExampleOrderedNamespace(model.UniqueIdShortNamespace, model.UniqueSemanticIdNamespace):
