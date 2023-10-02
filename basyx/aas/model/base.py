@@ -1996,6 +1996,9 @@ class OrderedNamespaceSet(NamespaceSet[_NSO], MutableSequence[_NSO], Generic[_NS
         :attribute_names: Dict of attribute names, for which objects should be unique in the set. The bool flag
                           indicates if the attribute should be matched case-sensitive (true) or case-insensitive (false)
         :param items: A given list of Referable items to be added to the set
+        :param item_add_hook: A function that is called for each item that is added to this NamespaceSet, even when
+                              it is initialized. The first parameter is the item that is added while the second is
+                              an iterator over all currently contained items. Useful for constraint checking.
         :raises KeyError: When `items` contains multiple objects with same id_short
         """
         self._order: List[_NSO] = []
