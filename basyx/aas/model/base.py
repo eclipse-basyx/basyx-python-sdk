@@ -681,6 +681,9 @@ class Referable(HasExtension, metaclass=abc.ABCMeta):
                 )
 
         if self.parent is not None:
+            if id_short is None:
+                raise AASConstraintViolation(117, f"id_short of {self!r} cannot be unset, since it is already "
+                                                  f"contained in {self.parent!r}")
             for set_ in self.parent.namespace_element_sets:
                 if set_.contains_id("id_short", id_short):
                     raise AASConstraintViolation(22, "Object with id_short '{}' is already present in the parent "
@@ -1813,7 +1816,8 @@ class NamespaceSet(MutableSet[_NSO], Generic[_NSO]):
         :param item_add_hook: A function that is called for each item that is added to this NamespaceSet, even when
                               it is initialized. The first parameter is the item that is added while the second is
                               an iterator over all currently contained items. Useful for constraint checking.
-        :raises AASConstraintViolation: When `items` contains multiple objects with same unique attribute
+        :raises AASConstraintViolation: When `items` contains multiple objects with same unique attribute or when an
+                                        item doesn't has an identifying attribute
         """
         self.parent = parent
         parent.namespace_element_sets.append(self)
@@ -1869,6 +1873,9 @@ class NamespaceSet(MutableSet[_NSO], Generic[_NSO]):
             for attr_name, (backend, case_sensitive) in set_._backend.items():
                 if hasattr(value, attr_name):
                     attr_value = self._get_attribute(value, attr_name, case_sensitive)
+                    if attr_value is None:
+                        raise AASConstraintViolation(117, f"{value!r} has attribute {attr_name}=None, which is not "
+                                                          f"allowed within a {self.parent.__class__.__name__}!")
                     if attr_value in backend:
                         raise AASConstraintViolation(22, "Object with attribute (name='{}', value='{}') is already "
                                                          "present in {}"
@@ -2006,7 +2013,8 @@ class OrderedNamespaceSet(NamespaceSet[_NSO], MutableSequence[_NSO], Generic[_NS
         :param item_add_hook: A function that is called for each item that is added to this NamespaceSet, even when
                               it is initialized. The first parameter is the item that is added while the second is
                               an iterator over all currently contained items. Useful for constraint checking.
-        :raises AASConstraintViolation: When `items` contains multiple objects with same id_short
+        :raises AASConstraintViolation: When `items` contains multiple objects with same unique attribute or when an
+                                        item doesn't has an identifying attribute
         """
         self._order: List[_NSO] = []
         super().__init__(parent, attribute_names, items, item_add_hook)
