@@ -683,8 +683,8 @@ class Referable(HasExtension, metaclass=abc.ABCMeta):
         if self.parent is not None:
             for set_ in self.parent.namespace_element_sets:
                 if set_.contains_id("id_short", id_short):
-                    raise KeyError("Object with id_short '{}' is already present in the parent Namespace"
-                                   .format(id_short))
+                    raise AASConstraintViolation(22, "Object with id_short '{}' is already present in the parent "
+                                                     "Namespace".format(id_short))
 
             set_add_list: List[NamespaceSet] = []
             for set_ in self.parent.namespace_element_sets:
@@ -1813,7 +1813,7 @@ class NamespaceSet(MutableSet[_NSO], Generic[_NSO]):
         :param item_add_hook: A function that is called for each item that is added to this NamespaceSet, even when
                               it is initialized. The first parameter is the item that is added while the second is
                               an iterator over all currently contained items. Useful for constraint checking.
-        :raises KeyError: When `items` contains multiple objects with same unique attribute
+        :raises AASConstraintViolation: When `items` contains multiple objects with same unique attribute
         """
         self.parent = parent
         parent.namespace_element_sets.append(self)
@@ -1862,17 +1862,19 @@ class NamespaceSet(MutableSet[_NSO], Generic[_NSO]):
         return iter(next(iter(self._backend.values()))[0].values())
 
     def add(self, value: _NSO):
-        for set_ in self.parent.namespace_element_sets:
-            for attr_name, (backend, case_sensitive) in set_._backend.items():
-                if hasattr(value, attr_name):
-                    if self._get_attribute(value, attr_name, case_sensitive) in backend:
-                        raise KeyError("Object with attribute (name='{}', value='{}') is already present in {}"
-                                       .format(attr_name, str(getattr(value, attr_name)),
-                                               "this set of objects"
-                                               if set_ is self else "another set in the same namespace"))
         if value.parent is not None and value.parent is not self.parent:
             raise ValueError("Object has already a parent, but it must not be part of two namespaces.")
             # TODO remove from current parent instead (allow moving)?
+        for set_ in self.parent.namespace_element_sets:
+            for attr_name, (backend, case_sensitive) in set_._backend.items():
+                if hasattr(value, attr_name):
+                    attr_value = self._get_attribute(value, attr_name, case_sensitive)
+                    if attr_value in backend:
+                        raise AASConstraintViolation(22, "Object with attribute (name='{}', value='{}') is already "
+                                                         "present in {}"
+                                                     .format(attr_name, str(getattr(value, attr_name)),
+                                                             "this set of objects"
+                                                             if set_ is self else "another set in the same namespace"))
         if self._item_add_hook is not None:
             self._item_add_hook(value, self.__iter__())
         value.parent = self.parent
@@ -2004,7 +2006,7 @@ class OrderedNamespaceSet(NamespaceSet[_NSO], MutableSequence[_NSO], Generic[_NS
         :param item_add_hook: A function that is called for each item that is added to this NamespaceSet, even when
                               it is initialized. The first parameter is the item that is added while the second is
                               an iterator over all currently contained items. Useful for constraint checking.
-        :raises KeyError: When `items` contains multiple objects with same id_short
+        :raises AASConstraintViolation: When `items` contains multiple objects with same id_short
         """
         self._order: List[_NSO] = []
         super().__init__(parent, attribute_names, items, item_add_hook)

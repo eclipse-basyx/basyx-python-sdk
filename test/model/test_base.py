@@ -370,26 +370,27 @@ class ModelNamespaceTest(unittest.TestCase):
     def test_NamespaceSet(self) -> None:
         self.namespace.set1.add(self.prop1)
         self.assertEqual(1, len(self.namespace.set1))
-        with self.assertRaises(KeyError) as cm:
+        with self.assertRaises(model.AASConstraintViolation) as cm:
             self.namespace.set1.add(self.prop2)
         self.assertEqual(
-            '"Object with attribute (name=\'semantic_id\', value=\'ExternalReference(key=(Key('
-            'type=GLOBAL_REFERENCE, value=http://acplt.org/Test1),))\') is already present in this set of objects"',
+            "Object with attribute (name='semantic_id', value='ExternalReference(key=(Key("
+            "type=GLOBAL_REFERENCE, value=http://acplt.org/Test1),))') is already present in this set of objects "
+            "(Constraint AASd-022)",
             str(cm.exception))
         self.namespace.set2.add(self.prop5)
         self.namespace.set2.add(self.prop6)
         self.assertEqual(2, len(self.namespace.set2))
-        with self.assertRaises(KeyError) as cm:
+        with self.assertRaises(model.AASConstraintViolation) as cm:
             self.namespace.set2.add(self.prop1)
-        self.assertEqual('"Object with attribute (name=\'id_short\', value=\'Prop1\') is already present in another '
-                         'set in the same namespace"',
+        self.assertEqual("Object with attribute (name='id_short', value='Prop1') is already present in another "
+                         "set in the same namespace (Constraint AASd-022)",
                          str(cm.exception))
-        with self.assertRaises(KeyError) as cm:
+        with self.assertRaises(model.AASConstraintViolation) as cm:
             self.namespace.set2.add(self.prop4)
         self.assertEqual(
-            '"Object with attribute (name=\'semantic_id\', value=\''
-            'ExternalReference(key=(Key(type=GLOBAL_REFERENCE, value=http://acplt.org/Test1),))\')'
-            ' is already present in another set in the same namespace"',
+            "Object with attribute (name='semantic_id', value='"
+            "ExternalReference(key=(Key(type=GLOBAL_REFERENCE, value=http://acplt.org/Test1),))')"
+            " is already present in another set in the same namespace (Constraint AASd-022)",
             str(cm.exception))
 
         self.assertIs(self.prop1, self.namespace.set1.get("id_short", "Prop1"))
@@ -399,22 +400,22 @@ class ModelNamespaceTest(unittest.TestCase):
 
         self.assertIs(self.prop5, self.namespace.set2.get("id_short", "Prop3"))
 
-        with self.assertRaises(KeyError) as cm:
+        with self.assertRaises(model.AASConstraintViolation) as cm:
             self.namespace.set1.add(self.prop1alt)
-        self.assertEqual('"Object with attribute (name=\'id_short\', value=\'Prop1\') is already present in this set of'
-                         ' objects"',
+        self.assertEqual("Object with attribute (name='id_short', value='Prop1') is already present in this set of"
+                         " objects (Constraint AASd-022)",
                          str(cm.exception))
 
         self.namespace.set1.add(self.prop3)
-        with self.assertRaises(KeyError) as cm:
+        with self.assertRaises(model.AASConstraintViolation) as cm:
             self.namespace.set1.add(self.prop7)
-        self.assertEqual('"Object with attribute (name=\'id_short\', value=\'Prop2\') is already present in this set '
-                         'of objects"',
+        self.assertEqual("Object with attribute (name='id_short', value='Prop2') is already present in this set "
+                         "of objects (Constraint AASd-022)",
                          str(cm.exception))
-        with self.assertRaises(KeyError) as cm:
+        with self.assertRaises(model.AASConstraintViolation) as cm:
             self.namespace.set1.add(self.prop8)
-        self.assertEqual('"Object with attribute (name=\'id_short\', value=\'ProP2\') is already present in this set '
-                         'of objects"',
+        self.assertEqual("Object with attribute (name='id_short', value='ProP2') is already present in this set "
+                         "of objects (Constraint AASd-022)",
                          str(cm.exception))
 
         namespace2 = self._namespace_class()
@@ -453,10 +454,10 @@ class ModelNamespaceTest(unittest.TestCase):
         self.assertEqual(1, len(self.namespace3.set1))
         self.namespace3.set1.add(self.qualifier2)
         self.assertEqual(2, len(self.namespace3.set1))
-        with self.assertRaises(KeyError) as cm:
+        with self.assertRaises(model.AASConstraintViolation) as cm:
             self.namespace3.set1.add(self.qualifier1alt)
-        self.assertEqual('"Object with attribute (name=\'type\', value=\'type1\') is already present in this set '
-                         'of objects"',
+        self.assertEqual("Object with attribute (name='type', value='type1') is already present in this set "
+                         "of objects (Constraint AASd-022)",
                          str(cm.exception))
 
     def test_namespaceset_item_add_hook(self) -> None:
@@ -501,28 +502,28 @@ class ModelNamespaceTest(unittest.TestCase):
         self.assertIn(prop, existing_items)
 
     def test_Namespace(self) -> None:
-        with self.assertRaises(KeyError) as cm:
+        with self.assertRaises(model.AASConstraintViolation) as cm:
             namespace_test = ExampleNamespaceReferable([self.prop1, self.prop2, self.prop1alt])
-        self.assertEqual('"Object with attribute (name=\'id_short\', value=\'Prop1\') is already present in this set '
-                         'of objects"',
+        self.assertEqual("Object with attribute (name='id_short', value='Prop1') is already present in this set "
+                         "of objects (Constraint AASd-022)",
                          str(cm.exception))
         self.assertIsNone(self.prop1.parent)
 
         namespace = self._namespace_class([self.prop1, self.prop2])
         self.assertIs(self.prop2, namespace.get_referable("Prop2"))
-        with self.assertRaises(KeyError) as cm:
+        with self.assertRaises(KeyError) as cm2:
             namespace.get_referable("Prop3")
         self.assertEqual("'Referable with id_short Prop3 not found in this namespace'",
-                         str(cm.exception))
+                         str(cm2.exception))
 
         namespace.remove_referable("Prop2")
-        with self.assertRaises(KeyError) as cm2:
-            namespace.get_referable("Prop2")
-        self.assertEqual("'Referable with id_short Prop2 not found in this namespace'", str(cm2.exception))
-
         with self.assertRaises(KeyError) as cm3:
-            namespace.remove_referable("Prop2")
+            namespace.get_referable("Prop2")
         self.assertEqual("'Referable with id_short Prop2 not found in this namespace'", str(cm3.exception))
+
+        with self.assertRaises(KeyError) as cm4:
+            namespace.remove_referable("Prop2")
+        self.assertEqual("'Referable with id_short Prop2 not found in this namespace'", str(cm4.exception))
 
     def test_renaming(self) -> None:
         self.namespace.set2.add(self.prop1)
@@ -539,9 +540,9 @@ class ModelNamespaceTest(unittest.TestCase):
         self.assertEqual("'Referable with id_short Prop1 not found in this namespace'",
                          str(cm.exception))
         self.assertIs(self.prop2, self.namespace.get_referable("Prop2"))
-        with self.assertRaises(KeyError) as cm:
+        with self.assertRaises(model.AASConstraintViolation) as cm2:
             self.prop1.id_short = "Prop2"
-        self.assertIn("already present", str(cm.exception))
+        self.assertIn("already present", str(cm2.exception))
 
         self.namespace.set3.add(self.extension1)
         self.namespace.set3.add(self.extension2)
@@ -615,20 +616,20 @@ class ModelOrderedNamespaceTest(ModelNamespaceTest):
         self.assertEqual(1, len(self.namespace.set2))
         self.namespace.set2.insert(0, self.prop2)
         self.assertEqual(2, len(self.namespace.set2))
-        with self.assertRaises(KeyError) as cm:
+        with self.assertRaises(model.AASConstraintViolation) as cm:
             self.namespace.set1.insert(0, self.prop1alt)
-        self.assertEqual('"Object with attribute (name=\'id_short\', value=\'Prop1\') is already present in another '
-                         'set in the same namespace"',
+        self.assertEqual('Object with attribute (name=\'id_short\', value=\'Prop1\') is already present in another '
+                         'set in the same namespace (Constraint AASd-022)',
                          str(cm.exception))
         self.assertEqual((self.prop2, self.prop1), tuple(self.namespace.set2))
         self.assertEqual(self.prop1, self.namespace.set2[1])
 
-        with self.assertRaises(KeyError) as cm:
+        with self.assertRaises(model.AASConstraintViolation) as cm:
             self.namespace.set2[1] = self.prop2
-        self.assertEqual('"Object with attribute (name=\'id_short\', value=\'Prop2\') is already present in this '
-                         'set of objects"',
+        self.assertEqual('Object with attribute (name=\'id_short\', value=\'Prop2\') is already present in this '
+                         'set of objects (Constraint AASd-022)',
                          str(cm.exception))
-        prop3 = model.Property("Prop3", model.datatypes.Int)
+        prop3 = model.Property("Prop3", model.datatypes.Int, semantic_id=self.propSemanticID3)
         self.assertEqual(2, len(self.namespace.set2))
         self.namespace.set2[1] = prop3
         self.assertEqual(2, len(self.namespace.set2))
@@ -647,10 +648,10 @@ class ModelOrderedNamespaceTest(ModelNamespaceTest):
         self.assertIs(self.prop1, namespace2.set2.get("id_short", "Prop1"))
         namespace2.set2.remove(("id_short", "Prop1"))
         self.assertEqual(1, len(namespace2.set2))
-        with self.assertRaises(KeyError) as cm:
+        with self.assertRaises(KeyError) as cm2:
             namespace2.get_referable("Prop1")
         self.assertEqual("'Referable with id_short Prop1 not found in this namespace'",
-                         str(cm.exception))
+                         str(cm2.exception))
 
 
 class ExternalReferenceTest(unittest.TestCase):
