@@ -103,17 +103,13 @@ class AASDataCheckerTest(unittest.TestCase):
         # Don't set protected attributes like this in production code!
         list_._order_relevant = False
         checker = AASDataChecker(raise_immediately=False)
-        checker.check_submodel_element_list_equal(list_, list_expected)
+        with self.assertRaises(NotImplementedError) as cm:
+            checker.check_submodel_element_list_equal(list_, list_expected)
+        self.assertEqual("A SubmodelElementList with order_relevant=False cannot be compared!", str(cm.exception))
         self.assertEqual(1, sum(1 for _ in checker.failed_checks))
         checker_iterator = checker.failed_checks
         self.assertEqual("FAIL: Attribute order_relevant of SubmodelElementList[test_list] must be == True "
                          "(value=False)", repr(next(checker_iterator)))
-
-        # Don't set protected attributes like this in production code!
-        list_expected._order_relevant = False
-        checker = AASDataChecker(raise_immediately=False)
-        checker.check_submodel_element_list_equal(list_, list_expected)
-        self.assertEqual(0, sum(1 for _ in checker.failed_checks))
 
         # value_type_list_element
         list_ = model.SubmodelElementList(
