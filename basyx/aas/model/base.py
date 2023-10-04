@@ -21,7 +21,7 @@ from . import datatypes, _string_constraints
 from ..backend import backends
 
 if TYPE_CHECKING:
-    from . import provider, submodel
+    from . import provider
 
 DataTypeDefXsd = Type[datatypes.AnyXSDType]
 ValueDataType = datatypes.AnyXSDType  # any xsd atomic type (from .datatypes)

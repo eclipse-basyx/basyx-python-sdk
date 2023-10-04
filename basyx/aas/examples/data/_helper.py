@@ -386,13 +386,14 @@ class AASDataChecker(DataChecker):
         self.check_attribute_equal(object_, 'type_value_list_element', expected_value.type_value_list_element)
         self.check_contained_element_length(object_, 'value', object_.type_value_list_element,
                                             len(expected_value.value))
-        if object_.order_relevant:
-            # compare ordered
-            for se1, se2 in zip(object_.value, expected_value.value):
-                self._check_submodel_element(se1, se2)
-        else:
-            # compare unordered
-            self._check_submodel_elements_equal_unordered(object_, expected_value)
+        if not object_.order_relevant or not expected_value.order_relevant:
+            # It is impossible to compare SubmodelElementLists with order_relevant=False, since it is impossible
+            # to know which element should be compared against which other element.
+            raise NotImplementedError("A SubmodelElementList with order_relevant=False cannot be compared!")
+
+        # compare ordered
+        for se1, se2 in zip(object_.value, expected_value.value):
+            self._check_submodel_element(se1, se2)
 
     def check_relationship_element_equal(self, object_: model.RelationshipElement,
                                          expected_value: model.RelationshipElement):

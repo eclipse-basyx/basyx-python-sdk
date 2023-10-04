@@ -250,7 +250,7 @@ def create_example_submodel_template() -> model.Submodel:
         semantic_id_list_element=model.ExternalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
                                                                     value='http://acplt.org/SubmodelElementCollections/'
                                                                           'ExampleSubmodelElementCollection'),)),
-        order_relevant=False,
+        order_relevant=True,
         category='PARAMETER',
         description=model.MultiLanguageTextType({'en-US': 'Example SubmodelElementList object',
                                                  'de': 'Beispiel SubmodelElementList Element'}),
@@ -267,7 +267,7 @@ def create_example_submodel_template() -> model.Submodel:
         semantic_id_list_element=model.ExternalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
                                                                     value='http://acplt.org/SubmodelElementCollections/'
                                                                           'ExampleSubmodelElementCollection'),)),
-        order_relevant=False,
+        order_relevant=True,
         category='PARAMETER',
         description=model.MultiLanguageTextType({'en-US': 'Example SubmodelElementList object',
                                                  'de': 'Beispiel SubmodelElementList Element'}),
