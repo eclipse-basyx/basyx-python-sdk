@@ -135,7 +135,10 @@ class AASDataChecker(DataChecker):
         :param expected_object: The expected referable object
         :return: The value of expression to be used in control statements
         """
-        self.check_attribute_equal(object_, "id_short", expected_object.id_short)
+        # For SubmodelElementLists, the id_shorts of children are randomly generated.
+        # Thus, this check would always fail if enabled.
+        if not isinstance(object_.parent, model.SubmodelElementList):
+            self.check_attribute_equal(object_, "id_short", expected_object.id_short)
         self.check_attribute_equal(object_, "category", expected_object.category)
         self.check_attribute_equal(object_, "description", expected_object.description)
         self.check_attribute_equal(object_, "display_name", expected_object.display_name)
