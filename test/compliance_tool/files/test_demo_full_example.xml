@@ -1180,7 +1180,6 @@
               <aas:value>
                 <aas:property>
                   <aas:category>CONSTANT</aas:category>
-                  <aas:idShort>ExampleProperty</aas:idShort>
                   <aas:displayName>
                     <aas:langStringNameType>
                       <aas:language>en-US</aas:language>
@@ -1341,7 +1340,6 @@
                 </aas:property>
                 <aas:property>
                   <aas:category>CONSTANT</aas:category>
-                  <aas:idShort>ExampleProperty2</aas:idShort>
                   <aas:displayName>
                     <aas:langStringNameType>
                       <aas:language>en-US</aas:language>
@@ -1624,7 +1622,6 @@
           <aas:idShort>ExampleSubmodelList</aas:idShort>
           <aas:value>
             <aas:submodelElementCollection>
-              <aas:idShort>ExampleSubmodelCollection</aas:idShort>
               <aas:kind>Instance</aas:kind>
               <aas:value>
                 <aas:blob>
@@ -1663,7 +1660,6 @@
               </aas:value>
             </aas:submodelElementCollection>
             <aas:submodelElementCollection>
-              <aas:idShort>ExampleSubmodelCollection2</aas:idShort>
               <aas:kind>Instance</aas:kind>
             </aas:submodelElementCollection>
           </aas:value>
@@ -2632,11 +2628,10 @@
               </aas:key>
             </aas:keys>
           </aas:semanticId>
-          <aas:orderRelevant>false</aas:orderRelevant>
+          <aas:orderRelevant>true</aas:orderRelevant>
           <aas:value>
             <aas:submodelElementCollection>
               <aas:category>PARAMETER</aas:category>
-              <aas:idShort>ExampleSubmodelCollection</aas:idShort>
               <aas:description>
                 <aas:langStringTextType>
                   <aas:language>en-US</aas:language>
@@ -2838,7 +2833,6 @@
             </aas:submodelElementCollection>
             <aas:submodelElementCollection>
               <aas:category>PARAMETER</aas:category>
-              <aas:idShort>ExampleSubmodelCollection2</aas:idShort>
               <aas:description>
                 <aas:langStringTextType>
                   <aas:language>en-US</aas:language>
@@ -2895,7 +2889,7 @@
               </aas:key>
             </aas:keys>
           </aas:semanticId>
-          <aas:orderRelevant>false</aas:orderRelevant>
+          <aas:orderRelevant>true</aas:orderRelevant>
           <aas:semanticIdListElement>
             <aas:type>ExternalReference</aas:type>
             <aas:keys>
