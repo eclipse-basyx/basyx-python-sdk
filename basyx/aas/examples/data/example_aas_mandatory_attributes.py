@@ -114,7 +114,7 @@ def create_example_submodel() -> model.Submodel:
         state=model.StateOfEvent.OFF)
 
     submodel_element_submodel_element_collection = model.SubmodelElementCollection(
-        id_short='ExampleSubmodelCollection',
+        id_short=None,
         value=(submodel_element_blob,
                submodel_element_file,
                submodel_element_multi_language_property,
@@ -123,7 +123,7 @@ def create_example_submodel() -> model.Submodel:
                submodel_element_reference_element))
 
     submodel_element_submodel_element_collection_2 = model.SubmodelElementCollection(
-        id_short='ExampleSubmodelCollection2',
+        id_short=None,
         value=())
 
     submodel_element_submodel_element_list = model.SubmodelElementList(

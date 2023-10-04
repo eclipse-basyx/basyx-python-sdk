@@ -70,8 +70,8 @@ class AASDataCheckerTest(unittest.TestCase):
     def test_submodel_element_list_checker(self):
 
         # value
-        range1 = model.Range('range1', model.datatypes.Int, 42, 142857)
-        range2 = model.Range('range2', model.datatypes.Int, 42, 1337)
+        range1 = model.Range(None, model.datatypes.Int, 42, 142857)
+        range2 = model.Range(None, model.datatypes.Int, 42, 1337)
         list_ = model.SubmodelElementList(
             id_short='test_list',
             type_value_list_element=model.Range,
@@ -80,8 +80,8 @@ class AASDataCheckerTest(unittest.TestCase):
             value=(range1, range2)
         )
 
-        range1_expected = model.Range('range1', model.datatypes.Int, 42, 142857)
-        range2_expected = model.Range('range2', model.datatypes.Int, 42, 1337)
+        range1_expected = model.Range(None, model.datatypes.Int, 42, 142857)
+        range2_expected = model.Range(None, model.datatypes.Int, 42, 1337)
         list_expected = model.SubmodelElementList(
             id_short='test_list',
             type_value_list_element=model.Range,
@@ -92,13 +92,9 @@ class AASDataCheckerTest(unittest.TestCase):
 
         checker = AASDataChecker(raise_immediately=False)
         checker.check_submodel_element_list_equal(list_, list_expected)
-        self.assertEqual(4, sum(1 for _ in checker.failed_checks))
+        self.assertEqual(2, sum(1 for _ in checker.failed_checks))
         checker_iterator = checker.failed_checks
-        self.assertEqual("FAIL: Attribute id_short of Range[test_list[0]] must be == range2 (value='range1')",
-                         repr(next(checker_iterator)))
         self.assertEqual("FAIL: Attribute max of Range[test_list[0]] must be == 1337 (value=142857)",
-                         repr(next(checker_iterator)))
-        self.assertEqual("FAIL: Attribute id_short of Range[test_list[1]] must be == range1 (value='range2')",
                          repr(next(checker_iterator)))
         self.assertEqual("FAIL: Attribute max of Range[test_list[1]] must be == 142857 (value=1337)",
                          repr(next(checker_iterator)))

@@ -64,7 +64,7 @@ class RangeTest(unittest.TestCase):
 class SubmodelElementListTest(unittest.TestCase):
     def test_constraints(self):
         # AASd-107
-        mlp = model.MultiLanguageProperty("test", semantic_id=model.ExternalReference(
+        mlp = model.MultiLanguageProperty(None, semantic_id=model.ExternalReference(
             (model.Key(model.KeyTypes.GLOBAL_REFERENCE, "urn:x-test:invalid"),)
         ))
         with self.assertRaises(model.AASConstraintViolation) as cm:
@@ -73,22 +73,22 @@ class SubmodelElementListTest(unittest.TestCase):
                                           model.Key(model.KeyTypes.GLOBAL_REFERENCE, "urn:x-test:test"),)))
         self.assertEqual("If semantic_id_list_element=ExternalReference(key=(Key(type=GLOBAL_REFERENCE, "
                          "value=urn:x-test:test),)) is specified all first level children must have "
-                         "the same semantic_id, got MultiLanguageProperty[test] with "
+                         "the same semantic_id, got MultiLanguageProperty with "
                          "semantic_id=ExternalReference(key=(Key(type=GLOBAL_REFERENCE, value=urn:x-test:invalid),)) "
                          "(Constraint AASd-107)", str(cm.exception))
-        model.SubmodelElementList("test_list", model.MultiLanguageProperty, {mlp},
-                                  semantic_id_list_element=model.ExternalReference((
-                                      model.Key(model.KeyTypes.GLOBAL_REFERENCE, "urn:x-test:invalid"),)))
-        mlp.parent = None
+        sel = model.SubmodelElementList("test_list", model.MultiLanguageProperty, {mlp},
+                                        semantic_id_list_element=model.ExternalReference((
+                                            model.Key(model.KeyTypes.GLOBAL_REFERENCE, "urn:x-test:invalid"),)))
+        sel.value.clear()
         model.SubmodelElementList("test_list", model.MultiLanguageProperty, {mlp}, semantic_id_list_element=None)
-        mlp = model.MultiLanguageProperty("test")
+        mlp = model.MultiLanguageProperty(None)
         model.SubmodelElementList("test_list", model.MultiLanguageProperty, {mlp},
                                   semantic_id_list_element=model.ExternalReference((
                                       model.Key(model.KeyTypes.GLOBAL_REFERENCE, "urn:x-test:invalid"),)))
 
         # AASd-108
         are = model.AnnotatedRelationshipElement(
-            "test",
+            None,
             model.ExternalReference((model.Key(model.KeyTypes.GLOBAL_REFERENCE, "urn:x-test:test-first"),)),
             model.ExternalReference((model.Key(model.KeyTypes.GLOBAL_REFERENCE, "urn:x-test:test-second"),))
         )
@@ -98,34 +98,34 @@ class SubmodelElementListTest(unittest.TestCase):
         with self.assertRaises(model.AASConstraintViolation) as cm:
             model.SubmodelElementList("test_list", model.RelationshipElement, {are})
         self.assertEqual("All first level elements must be of the type specified in "
-                         "type_value_list_element=RelationshipElement, got AnnotatedRelationshipElement[test] "
+                         "type_value_list_element=RelationshipElement, got AnnotatedRelationshipElement "
                          "(Constraint AASd-108)", str(cm.exception))
         model.SubmodelElementList("test_list", model.AnnotatedRelationshipElement, {are})
 
         # AASd-109
         # Pass an item to the constructor to assert that this constraint is checked before items are added.
-        prop = model.Property("test", model.datatypes.Int, 0)
+        prop = model.Property(None, model.datatypes.Int, 0)
         with self.assertRaises(model.AASConstraintViolation) as cm:
             model.SubmodelElementList("test_list", model.Property, [prop])
         self.assertEqual("type_value_list_element=Property, but value_type_list_element is not set! "
                          "(Constraint AASd-109)", str(cm.exception))
         model.SubmodelElementList("test_list", model.Property, [prop], value_type_list_element=model.datatypes.Int)
 
-        prop = model.Property("test_prop", model.datatypes.String)
+        prop = model.Property(None, model.datatypes.String)
         with self.assertRaises(model.AASConstraintViolation) as cm:
             model.SubmodelElementList("test_list", model.Property, {prop}, value_type_list_element=model.datatypes.Int)
         self.assertEqual("All first level elements must have the value_type specified by value_type_list_element=Int, "
-                         "got Property[test_prop] with value_type=str (Constraint AASd-109)", str(cm.exception))
+                         "got Property with value_type=str (Constraint AASd-109)", str(cm.exception))
         model.SubmodelElementList("test_list", model.Property, {prop}, value_type_list_element=model.datatypes.String)
 
         # AASd-114
         semantic_id1 = model.ExternalReference((model.Key(model.KeyTypes.GLOBAL_REFERENCE, "urn:x-test:test"),))
         semantic_id2 = model.ExternalReference((model.Key(model.KeyTypes.GLOBAL_REFERENCE, "urn:x-test:different"),))
-        mlp1 = model.MultiLanguageProperty("mlp1", semantic_id=semantic_id1)
-        mlp2 = model.MultiLanguageProperty("mlp2", semantic_id=semantic_id2)
+        mlp1 = model.MultiLanguageProperty(None, semantic_id=semantic_id1)
+        mlp2 = model.MultiLanguageProperty(None, semantic_id=semantic_id2)
         with self.assertRaises(model.AASConstraintViolation) as cm:
             model.SubmodelElementList("test_list", model.MultiLanguageProperty, [mlp1, mlp2])
-        self.assertEqual("Element to be added MultiLanguageProperty[mlp2] has semantic_id "
+        self.assertEqual("Element to be added MultiLanguageProperty has semantic_id "
                          "ExternalReference(key=(Key(type=GLOBAL_REFERENCE, value=urn:x-test:different),)), "
                          "while already contained element MultiLanguageProperty[test_list[0]] has semantic_id "
                          "ExternalReference(key=(Key(type=GLOBAL_REFERENCE, value=urn:x-test:test),)), "
@@ -133,34 +133,47 @@ class SubmodelElementListTest(unittest.TestCase):
         mlp2.semantic_id = semantic_id1
         model.SubmodelElementList("test_list", model.MultiLanguageProperty, [mlp1, mlp2])
 
+        # AASd-120
+        mlp = model.MultiLanguageProperty("mlp")
+        with self.assertRaises(model.AASConstraintViolation) as cm:
+            model.SubmodelElementList("test_list", model.MultiLanguageProperty, [mlp])
+        self.assertEqual("Objects with an id_short may not be added to a SubmodelElementList, got "
+                         "MultiLanguageProperty[mlp] with id_short=mlp (Constraint AASd-120)", str(cm.exception))
+        mlp.id_short = None
+        model.SubmodelElementList("test_list", model.MultiLanguageProperty, [mlp])
+        with self.assertRaises(model.AASConstraintViolation) as cm:
+            mlp.id_short = "mlp"
+        self.assertEqual("id_short of MultiLanguageProperty[test_list[0]] cannot be set, because it is "
+                         "contained in a SubmodelElementList[test_list] (Constraint AASd-120)", str(cm.exception))
+
     def test_aasd_108_add_set(self):
-        prop = model.Property("test", model.datatypes.Int)
-        mlp1 = model.MultiLanguageProperty("mlp1")
-        mlp2 = model.MultiLanguageProperty("mlp2")
+        prop = model.Property(None, model.datatypes.Int)
+        mlp1 = model.MultiLanguageProperty(None)
+        mlp2 = model.MultiLanguageProperty(None)
         list_ = model.SubmodelElementList("test_list", model.MultiLanguageProperty)
         with self.assertRaises(model.AASConstraintViolation) as cm:
             list_.add_referable(prop)
         self.assertEqual("All first level elements must be of the type specified in type_value_list_element="
-                         "MultiLanguageProperty, got Property[test] (Constraint AASd-108)", str(cm.exception))
+                         "MultiLanguageProperty, got Property (Constraint AASd-108)", str(cm.exception))
         list_.add_referable(mlp1)
 
         with self.assertRaises(model.AASConstraintViolation) as cm:
             list_.value.add(prop)
         self.assertEqual("All first level elements must be of the type specified in type_value_list_element="
-                         "MultiLanguageProperty, got Property[test] (Constraint AASd-108)", str(cm.exception))
+                         "MultiLanguageProperty, got Property (Constraint AASd-108)", str(cm.exception))
         list_.value.add(mlp2)
 
         with self.assertRaises(model.AASConstraintViolation) as cm:
             list_.value[0] = prop
         self.assertEqual("All first level elements must be of the type specified in type_value_list_element="
-                         "MultiLanguageProperty, got Property[test] (Constraint AASd-108)", str(cm.exception))
+                         "MultiLanguageProperty, got Property (Constraint AASd-108)", str(cm.exception))
         del list_.value[1]
         list_.value[0] = mlp2
 
         with self.assertRaises(model.AASConstraintViolation) as cm:
             list_.value = [mlp1, prop]
         self.assertEqual("All first level elements must be of the type specified in type_value_list_element="
-                         "MultiLanguageProperty, got Property[test] (Constraint AASd-108)", str(cm.exception))
+                         "MultiLanguageProperty, got Property (Constraint AASd-108)", str(cm.exception))
         list_.value = [mlp1, mlp2]
 
     def test_immutable_attributes(self):

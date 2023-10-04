@@ -21,7 +21,7 @@ from . import datatypes, _string_constraints
 from ..backend import backends
 
 if TYPE_CHECKING:
-    from . import provider
+    from . import provider, submodel
 
 DataTypeDefXsd = Type[datatypes.AnyXSDType]
 ValueDataType = datatypes.AnyXSDType  # any xsd atomic type (from .datatypes)
@@ -684,6 +684,10 @@ class Referable(HasExtension, metaclass=abc.ABCMeta):
             if id_short is None:
                 raise AASConstraintViolation(117, f"id_short of {self!r} cannot be unset, since it is already "
                                                   f"contained in {self.parent!r}")
+            from .submodel import SubmodelElementList
+            if isinstance(self.parent, SubmodelElementList):
+                raise AASConstraintViolation(120, f"id_short of {self!r} cannot be set, because it is "
+                                                  f"contained in a {self.parent!r}")
             for set_ in self.parent.namespace_element_sets:
                 if set_.contains_id("id_short", id_short):
                     raise AASConstraintViolation(22, "Object with id_short '{}' is already present in the parent "
