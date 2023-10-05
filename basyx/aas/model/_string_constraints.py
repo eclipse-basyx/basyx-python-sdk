@@ -26,6 +26,7 @@ from typing import Callable, Optional, Type, TypeVar
 
 
 _T = TypeVar("_T")
+AASD130_RE = re.compile("[\x09\x0A\x0D\x20-\uD7FF\uE000-\uFFFD\U00010000-\U0010FFFF]*")
 
 
 # Functions to verify the constraints for a given value.
@@ -37,6 +38,13 @@ def check(value: str, type_name: str, min_length: int = 0, max_length: Optional[
         raise ValueError(f"{type_name} has a maximum length of {max_length}! (length: {len(value)})")
     if pattern is not None and not pattern.fullmatch(value):
         raise ValueError(f"{type_name} must match the pattern '{pattern.pattern}'! (value: '{value}')")
+    # Constraint AASd-130
+    if not AASD130_RE.fullmatch(value):
+        # It's easier to implement this as a ValueError, because otherwise AASConstraintViolation would need to be
+        # imported from `base` and the ConstrainedLangStringSet would need to except AASConstraintViolation errors
+        # as well, while only re-raising ValueErrors. Thus, even if an AASConstraintViolation would be raised here,
+        # in case of a ConstrainedLangStringSet it would be re-raised as a ValueError anyway.
+        raise ValueError(f"Every string must match the pattern '{AASD130_RE.pattern}'! (value: '{value}')")
 
 
 def check_content_type(value: str, type_name: str = "ContentType") -> None:
