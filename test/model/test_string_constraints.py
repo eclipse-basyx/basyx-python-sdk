@@ -41,6 +41,25 @@ class StringConstraintsTest(unittest.TestCase):
         version = "0"
         _string_constraints.check_version_type(version)
 
+    def test_aasd_130(self) -> None:
+        name: model.NameType = "\0"
+        with self.assertRaises(ValueError) as cm:
+            _string_constraints.check_name_type(name)
+        self.assertEqual(r"Every string must match the pattern '[\t\n\r -\ud7ff\ue000-\ufffd\U00010000-\U0010ffff]*'! "
+                         r"(value: '\x00')", cm.exception.args[0])
+        name = "\ud800"
+        with self.assertRaises(ValueError) as cm:
+            _string_constraints.check_name_type(name)
+        self.assertEqual(r"Every string must match the pattern '[\t\n\r -\ud7ff\ue000-\ufffd\U00010000-\U0010ffff]*'! "
+                         r"(value: '\ud800')", cm.exception.args[0])
+        name = "\ufffe"
+        with self.assertRaises(ValueError) as cm:
+            _string_constraints.check_name_type(name)
+        self.assertEqual(r"Every string must match the pattern '[\t\n\r -\ud7ff\ue000-\ufffd\U00010000-\U0010ffff]*'! "
+                         r"(value: '\ufffe')", cm.exception.args[0])
+        name = "this\ris\na\tvalid täst\uffdd\U0010ab12"
+        _string_constraints.check_name_type(name)
+
 
 class StringConstraintsDecoratorTest(unittest.TestCase):
     @_string_constraints.constrain_path_type("some_attr")
