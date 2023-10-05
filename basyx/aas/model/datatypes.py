@@ -375,10 +375,10 @@ class NormalizedString(str):
 
 
 AnyXSDType = Union[
-    Duration, DayTimeDuration, YearMonthDuration, DateTime, Date, Time, GYearMonth, GYear, GMonthDay, GMonth, GDay,
-    Boolean, Base64Binary, HexBinary, Float, Double, Decimal, Integer, Long, Int, Short, Byte, NonPositiveInteger,
-    NegativeInteger, NonNegativeInteger, PositiveInteger, UnsignedLong, UnsignedInt, UnsignedShort, UnsignedByte,
-    AnyURI, String, NormalizedString]
+    Duration, DayTimeDuration, YearMonthDuration, DateTime, DateTimeStamp, Date, Time, GYearMonth, GYear, GMonthDay,
+    GMonth, GDay, Boolean, Base64Binary, HexBinary, Float, Double, Decimal, Integer, Long, Int, Short, Byte,
+    NonPositiveInteger, NegativeInteger, NonNegativeInteger, PositiveInteger, UnsignedLong, UnsignedInt, UnsignedShort,
+    UnsignedByte, AnyURI, String, NormalizedString]
 
 
 XSD_TYPE_NAMES: Dict[Type[AnyXSDType], str] = {
