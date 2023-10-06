@@ -46,7 +46,7 @@ def check(value: str, type_name: str, min_length: int = 0, max_length: Optional[
     if pattern is not None and not pattern.fullmatch(value):
         raise ValueError(f"{type_name} must match the pattern '{_unicode_escape(pattern.pattern)}'! "
                          f"(value: '{_unicode_escape(value)}')")
-    # Constraint AASd-130
+    # Constraint AASd-130: an attribute with data type "string" shall consist of these characters only:
     if not AASD130_RE.fullmatch(value):
         # It's easier to implement this as a ValueError, because otherwise AASConstraintViolation would need to be
         # imported from `base` and the ConstrainedLangStringSet would need to except AASConstraintViolation errors
