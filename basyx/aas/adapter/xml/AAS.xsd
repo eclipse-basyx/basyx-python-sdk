@@ -192,7 +192,6 @@
   <xs:group name="dataSpecificationContent_choice">
     <xs:choice>
       <xs:element name="dataSpecificationIec61360" type="dataSpecificationIec61360_t"/>
-      <xs:element name="dataSpecificationPhysicalUnit" type="dataSpecificationPhysicalUnit_t"/>
     </xs:choice>
   </xs:group>
   <xs:group name="dataSpecificationIec61360">
@@ -252,102 +251,6 @@
       <xs:element name="valueList" type="valueList_t" minOccurs="0" maxOccurs="1"/>
       <xs:element name="value" type="xs:string" minOccurs="0" maxOccurs="1"/>
       <xs:element name="levelType" type="levelType_t" minOccurs="0" maxOccurs="1"/>
-    </xs:sequence>
-  </xs:group>
-  <xs:group name="dataSpecificationPhysicalUnit">
-    <xs:sequence>
-      <xs:group ref="dataSpecificationContent"/>
-      <xs:element name="unitName">
-        <xs:simpleType>
-          <xs:restriction base="xs:string">
-            <xs:minLength value="1"/>
-          </xs:restriction>
-        </xs:simpleType>
-      </xs:element>
-      <xs:element name="unitSymbol">
-        <xs:simpleType>
-          <xs:restriction base="xs:string">
-            <xs:minLength value="1"/>
-          </xs:restriction>
-        </xs:simpleType>
-      </xs:element>
-      <xs:element name="definition">
-        <xs:complexType>
-          <xs:sequence>
-            <xs:element name="langStringDefinitionTypeIec61360" type="langStringDefinitionTypeIec61360_t" minOccurs="1" maxOccurs="unbounded"/>
-          </xs:sequence>
-        </xs:complexType>
-      </xs:element>
-      <xs:element name="siNotation" minOccurs="0" maxOccurs="1">
-        <xs:simpleType>
-          <xs:restriction base="xs:string">
-            <xs:minLength value="1"/>
-          </xs:restriction>
-        </xs:simpleType>
-      </xs:element>
-      <xs:element name="siName" minOccurs="0" maxOccurs="1">
-        <xs:simpleType>
-          <xs:restriction base="xs:string">
-            <xs:minLength value="1"/>
-          </xs:restriction>
-        </xs:simpleType>
-      </xs:element>
-      <xs:element name="dinNotation" minOccurs="0" maxOccurs="1">
-        <xs:simpleType>
-          <xs:restriction base="xs:string">
-            <xs:minLength value="1"/>
-          </xs:restriction>
-        </xs:simpleType>
-      </xs:element>
-      <xs:element name="eceName" minOccurs="0" maxOccurs="1">
-        <xs:simpleType>
-          <xs:restriction base="xs:string">
-            <xs:minLength value="1"/>
-          </xs:restriction>
-        </xs:simpleType>
-      </xs:element>
-      <xs:element name="eceCode" minOccurs="0" maxOccurs="1">
-        <xs:simpleType>
-          <xs:restriction base="xs:string">
-            <xs:minLength value="1"/>
-          </xs:restriction>
-        </xs:simpleType>
-      </xs:element>
-      <xs:element name="nistName" minOccurs="0" maxOccurs="1">
-        <xs:simpleType>
-          <xs:restriction base="xs:string">
-            <xs:minLength value="1"/>
-          </xs:restriction>
-        </xs:simpleType>
-      </xs:element>
-      <xs:element name="sourceOfDefinition" minOccurs="0" maxOccurs="1">
-        <xs:simpleType>
-          <xs:restriction base="xs:string">
-            <xs:minLength value="1"/>
-          </xs:restriction>
-        </xs:simpleType>
-      </xs:element>
-      <xs:element name="conversionFactor" minOccurs="0" maxOccurs="1">
-        <xs:simpleType>
-          <xs:restriction base="xs:string">
-            <xs:minLength value="1"/>
-          </xs:restriction>
-        </xs:simpleType>
-      </xs:element>
-      <xs:element name="registrationAuthorityId" minOccurs="0" maxOccurs="1">
-        <xs:simpleType>
-          <xs:restriction base="xs:string">
-            <xs:minLength value="1"/>
-          </xs:restriction>
-        </xs:simpleType>
-      </xs:element>
-      <xs:element name="supplier" minOccurs="0" maxOccurs="1">
-        <xs:simpleType>
-          <xs:restriction base="xs:string">
-            <xs:minLength value="1"/>
-          </xs:restriction>
-        </xs:simpleType>
-      </xs:element>
     </xs:sequence>
   </xs:group>
   <xs:group name="embeddedDataSpecification">
@@ -1224,11 +1127,6 @@
   <xs:complexType name="dataSpecificationIec61360_t">
     <xs:sequence>
       <xs:group ref="dataSpecificationIec61360"/>
-    </xs:sequence>
-  </xs:complexType>
-  <xs:complexType name="dataSpecificationPhysicalUnit_t">
-    <xs:sequence>
-      <xs:group ref="dataSpecificationPhysicalUnit"/>
     </xs:sequence>
   </xs:complexType>
   <xs:complexType name="embeddedDataSpecification_t">

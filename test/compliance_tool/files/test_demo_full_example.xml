@@ -680,45 +680,6 @@
           </aas:key>
         </aas:keys>
       </aas:semanticId>
-      <aas:embeddedDataSpecifications>
-        <aas:embeddedDataSpecification>
-          <aas:dataSpecification>
-            <aas:type>ExternalReference</aas:type>
-            <aas:keys>
-              <aas:key>
-                <aas:type>GlobalReference</aas:type>
-                <aas:value>https://admin-shell.io/DataSpecificationTemplates/DataSpecificationPhysicalUnit/3/0</aas:value>
-              </aas:key>
-            </aas:keys>
-          </aas:dataSpecification>
-          <aas:dataSpecificationContent>
-            <aas:dataSpecificationPhysicalUnit>
-              <aas:unitName>TestPhysicalUnit</aas:unitName>
-              <aas:unitSymbol>TPU</aas:unitSymbol>
-              <aas:definition>
-                <aas:langStringDefinitionTypeIec61360>
-                  <aas:language>de</aas:language>
-                  <aas:text>Dies ist eine DataSpecificationPhysicalUnit für Testzwecke</aas:text>
-                </aas:langStringDefinitionTypeIec61360>
-                <aas:langStringDefinitionTypeIec61360>
-                  <aas:language>en-US</aas:language>
-                  <aas:text>This is a DataSpecificationPhysicalUnit for testing purposes</aas:text>
-                </aas:langStringDefinitionTypeIec61360>
-              </aas:definition>
-              <aas:siNotation>t</aas:siNotation>
-              <aas:siName>test</aas:siName>
-              <aas:dinNotation>v</aas:dinNotation>
-              <aas:eceName>vest</aas:eceName>
-              <aas:eceCode>ECE</aas:eceCode>
-              <aas:nistName>nest</aas:nistName>
-              <aas:sourceOfDefinition>http://acplt.org/DataSpec/ExamplePUDef</aas:sourceOfDefinition>
-              <aas:conversionFactor>1000</aas:conversionFactor>
-              <aas:registrationAuthorityId>DIN</aas:registrationAuthorityId>
-              <aas:supplier>IAT</aas:supplier>
-            </aas:dataSpecificationPhysicalUnit>
-          </aas:dataSpecificationContent>
-        </aas:embeddedDataSpecification>
-      </aas:embeddedDataSpecifications>
       <aas:submodelElements>
         <aas:relationshipElement>
           <aas:category>PARAMETER</aas:category>
@@ -3073,45 +3034,6 @@
         <aas:templateId>http://acplt.org/AdministrativeInformationTemplates/Test_ConceptDescription</aas:templateId>
       </aas:administration>
       <aas:id>https://acplt.org/Test_ConceptDescription</aas:id>
-      <aas:embeddedDataSpecifications>
-        <aas:embeddedDataSpecification>
-          <aas:dataSpecification>
-            <aas:type>ExternalReference</aas:type>
-            <aas:keys>
-              <aas:key>
-                <aas:type>GlobalReference</aas:type>
-                <aas:value>https://admin-shell.io/DataSpecificationTemplates/DataSpecificationPhysicalUnit/3/0</aas:value>
-              </aas:key>
-            </aas:keys>
-          </aas:dataSpecification>
-          <aas:dataSpecificationContent>
-            <aas:dataSpecificationPhysicalUnit>
-              <aas:unitName>TestPhysicalUnit</aas:unitName>
-              <aas:unitSymbol>TPU</aas:unitSymbol>
-              <aas:definition>
-                <aas:langStringDefinitionTypeIec61360>
-                  <aas:language>de</aas:language>
-                  <aas:text>Dies ist eine DataSpecificationPhysicalUnit für Testzwecke</aas:text>
-                </aas:langStringDefinitionTypeIec61360>
-                <aas:langStringDefinitionTypeIec61360>
-                  <aas:language>en-US</aas:language>
-                  <aas:text>This is a DataSpecificationPhysicalUnit for testing purposes</aas:text>
-                </aas:langStringDefinitionTypeIec61360>
-              </aas:definition>
-              <aas:siNotation>t</aas:siNotation>
-              <aas:siName>test</aas:siName>
-              <aas:dinNotation>v</aas:dinNotation>
-              <aas:eceName>vest</aas:eceName>
-              <aas:eceCode>ECE</aas:eceCode>
-              <aas:nistName>nest</aas:nistName>
-              <aas:sourceOfDefinition>http://acplt.org/DataSpec/ExamplePUDef</aas:sourceOfDefinition>
-              <aas:conversionFactor>1000</aas:conversionFactor>
-              <aas:registrationAuthorityId>DIN</aas:registrationAuthorityId>
-              <aas:supplier>IAT</aas:supplier>
-            </aas:dataSpecificationPhysicalUnit>
-          </aas:dataSpecificationContent>
-        </aas:embeddedDataSpecification>
-      </aas:embeddedDataSpecifications>
       <aas:isCaseOf>
         <aas:reference>
           <aas:type>ExternalReference</aas:type>

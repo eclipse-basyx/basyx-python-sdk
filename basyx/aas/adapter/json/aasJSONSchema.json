@@ -337,77 +337,6 @@
         }
       ]
     },
-    "DataSpecificationPhysicalUnit": {
-      "allOf": [
-        {
-          "$ref": "#/definitions/DataSpecificationContent"
-        },
-        {
-          "properties": {
-            "unitName": {
-              "type": "string",
-              "minLength": 1
-            },
-            "unitSymbol": {
-              "type": "string",
-              "minLength": 1
-            },
-            "definition": {
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/LangStringDefinitionTypeIec61360"
-              },
-              "minItems": 1
-            },
-            "siNotation": {
-              "type": "string",
-              "minLength": 1
-            },
-            "siName": {
-              "type": "string",
-              "minLength": 1
-            },
-            "dinNotation": {
-              "type": "string",
-              "minLength": 1
-            },
-            "eceName": {
-              "type": "string",
-              "minLength": 1
-            },
-            "eceCode": {
-              "type": "string",
-              "minLength": 1
-            },
-            "nistName": {
-              "type": "string",
-              "minLength": 1
-            },
-            "sourceOfDefinition": {
-              "type": "string",
-              "minLength": 1
-            },
-            "conversionFactor": {
-              "type": "string",
-              "minLength": 1
-            },
-            "registrationAuthorityId": {
-              "type": "string",
-              "minLength": 1
-            },
-            "supplier": {
-              "type": "string",
-              "minLength": 1
-            }
-          },
-          "required": [
-            "unitName",
-            "unitSymbol",
-            "definition"
-          ]
-        }
-      ]
-    },
     "DataTypeDefXsd": {
       "type": "string",
       "enum": [
@@ -869,7 +798,6 @@
         "Capability",
         "ConceptDescription",
         "DataSpecificationIEC61360",
-        "DataSpecificationPhysicalUnit",
         "Entity",
         "File",
         "MultiLanguageProperty",

@@ -72,7 +72,6 @@ class AASToJsonEncoder(json.JSONEncoder):
             model.Capability: self._capability_to_json,
             model.ConceptDescription: self._concept_description_to_json,
             model.DataSpecificationIEC61360: self._data_specification_iec61360_to_json,
-            model.DataSpecificationPhysicalUnit: self._data_specification_physical_unit_to_json,
             model.Entity: self._entity_to_json,
             model.Extension: self._extension_to_json,
             model.File: self._file_to_json,
@@ -365,43 +364,6 @@ class AASToJsonEncoder(json.JSONEncoder):
             data_spec['value'] = model.datatypes.xsd_repr(obj.value) if obj.value is not None else None
         if obj.level_types:
             data_spec['levelType'] = {v: k in obj.level_types for k, v in _generic.IEC61360_LEVEL_TYPES.items()}
-        return data_spec
-
-    @classmethod
-    def _data_specification_physical_unit_to_json(
-            cls, obj: model.base.DataSpecificationPhysicalUnit) -> Dict[str, object]:
-        """
-        serialization of an object from class DataSpecificationPhysicalUnit to json
-
-        :param obj: object of class DataSpecificationPhysicalUnit
-        :return: dict with the serialized attributes of this object
-        """
-        data_spec: Dict[str, object] = {
-            'modelType': 'DataSpecificationPhysicalUnit',
-            'unitName': obj.unit_name,
-            'unitSymbol': obj.unit_symbol,
-            'definition': obj.definition
-        }
-        if obj.si_notation is not None:
-            data_spec['siNotation'] = obj.si_notation
-        if obj.si_name is not None:
-            data_spec['siName'] = obj.si_name
-        if obj.din_notation is not None:
-            data_spec['dinNotation'] = obj.din_notation
-        if obj.ece_name is not None:
-            data_spec['eceName'] = obj.ece_name
-        if obj.ece_code is not None:
-            data_spec['eceCode'] = obj.ece_code
-        if obj.nist_name is not None:
-            data_spec['nistName'] = obj.nist_name
-        if obj.source_of_definition is not None:
-            data_spec['sourceOfDefinition'] = obj.source_of_definition
-        if obj.conversion_factor is not None:
-            data_spec['conversionFactor'] = obj.conversion_factor
-        if obj.registration_authority_id is not None:
-            data_spec['registrationAuthorityId'] = obj.registration_authority_id
-        if obj.supplier is not None:
-            data_spec['supplier'] = obj.supplier
         return data_spec
 
     @classmethod

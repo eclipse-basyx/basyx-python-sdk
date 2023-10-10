@@ -1656,42 +1656,6 @@
                 }
             ],
             "embeddedDataSpecifications": [
-                {
-                    "dataSpecification": {
-                        "type": "ExternalReference",
-                        "keys": [
-                            {
-                                "type": "GlobalReference",
-                                "value": "https://admin-shell.io/DataSpecificationTemplates/DataSpecificationPhysicalUnit/3/0"
-                            }
-                        ]
-                    },
-                    "dataSpecificationContent": {
-                        "modelType": "DataSpecificationPhysicalUnit",
-                        "unitName": "TestPhysicalUnit",
-                        "unitSymbol": "TPU",
-                        "definition": [
-                            {
-                                "language": "de",
-                                "text": "Dies ist eine DataSpecificationPhysicalUnit für Testzwecke"
-                            },
-                            {
-                                "language": "en-US",
-                                "text": "This is a DataSpecificationPhysicalUnit for testing purposes"
-                            }
-                        ],
-                        "siNotation": "t",
-                        "siName": "test",
-                        "dinNotation": "v",
-                        "eceName": "vest",
-                        "eceCode": "ECE",
-                        "nistName": "nest",
-                        "sourceOfDefinition": "http://acplt.org/DataSpec/ExamplePUDef",
-                        "conversionFactor": "1000",
-                        "registrationAuthorityId": "DIN",
-                        "supplier": "IAT"
-                    }
-                }
             ]
         },
         {
@@ -3245,42 +3209,6 @@
                 }
             ],
             "embeddedDataSpecifications": [
-                {
-                    "dataSpecification": {
-                        "type": "ExternalReference",
-                        "keys": [
-                            {
-                                "type": "GlobalReference",
-                                "value": "https://admin-shell.io/DataSpecificationTemplates/DataSpecificationPhysicalUnit/3/0"
-                            }
-                        ]
-                    },
-                    "dataSpecificationContent": {
-                        "modelType": "DataSpecificationPhysicalUnit",
-                        "unitName": "TestPhysicalUnit",
-                        "unitSymbol": "TPU",
-                        "definition": [
-                            {
-                                "language": "de",
-                                "text": "Dies ist eine DataSpecificationPhysicalUnit für Testzwecke"
-                            },
-                            {
-                                "language": "en-US",
-                                "text": "This is a DataSpecificationPhysicalUnit for testing purposes"
-                            }
-                        ],
-                        "siNotation": "t",
-                        "siName": "test",
-                        "dinNotation": "v",
-                        "eceName": "vest",
-                        "eceCode": "ECE",
-                        "nistName": "nest",
-                        "sourceOfDefinition": "http://acplt.org/DataSpec/ExamplePUDef",
-                        "conversionFactor": "1000",
-                        "registrationAuthorityId": "DIN",
-                        "supplier": "IAT"
-                    }
-                }
             ]
         },
         {
