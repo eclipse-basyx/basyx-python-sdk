@@ -98,7 +98,7 @@ def _element_pretty_identifier(element: etree.Element) -> str:
 
     If the prefix is known, the namespace in the element tag is replaced by the prefix.
     If additionally also the sourceline is known, is is added as a suffix to name.
-    For example, instead of "{http://admin-shell.io/aas/3/0}assetAdministrationShell" this function would return
+    For example, instead of "{https://admin-shell.io/aas/3/0}assetAdministrationShell" this function would return
     "aas:assetAdministrationShell on line $line", if both, prefix and sourceline, are known.
 
     :param element: The xml element.
