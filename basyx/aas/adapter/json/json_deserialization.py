@@ -187,7 +187,6 @@ class AASFromJsonDecoder(json.JSONDecoder):
             'Range': cls._construct_range,
             'ReferenceElement': cls._construct_reference_element,
             'DataSpecificationIEC61360': cls._construct_data_specification_iec61360,
-            'DataSpecificationPhysicalUnit': cls._construct_data_specification_physical_unit,
         }
 
         # Get modelType and constructor function
@@ -458,37 +457,6 @@ class AASFromJsonDecoder(json.JSONDecoder):
         if 'isCaseOf' in dct:
             for case_data in _get_ts(dct, "isCaseOf", list):
                 ret.is_case_of.add(cls._construct_reference(case_data))
-        return ret
-
-    @classmethod
-    def _construct_data_specification_physical_unit(cls, dct: Dict[str, object],
-                                                    object_class=model.base.DataSpecificationPhysicalUnit)\
-            -> model.base.DataSpecificationPhysicalUnit:
-        ret = object_class(
-            unit_name=_get_ts(dct, 'unitName', str),
-            unit_symbol=_get_ts(dct, 'unitSymbol', str),
-            definition=cls._construct_lang_string_set(_get_ts(dct, 'definition', list), model.DefinitionTypeIEC61360)
-        )
-        if 'siNotation' in dct:
-            ret.si_notation = _get_ts(dct, 'siNotation', str)
-        if 'siName' in dct:
-            ret.si_name = _get_ts(dct, 'siName', str)
-        if 'dinNotation' in dct:
-            ret.din_notation = _get_ts(dct, 'dinNotation', str)
-        if 'eceName' in dct:
-            ret.ece_name = _get_ts(dct, 'eceName', str)
-        if 'eceCode' in dct:
-            ret.ece_code = _get_ts(dct, 'eceCode', str)
-        if 'nistName' in dct:
-            ret.nist_name = _get_ts(dct, 'nistName', str)
-        if 'sourceOfDefinition' in dct:
-            ret.source_of_definition = _get_ts(dct, 'sourceOfDefinition', str)
-        if 'conversionFactor' in dct:
-            ret.conversion_factor = _get_ts(dct, 'conversionFactor', str)
-        if 'registrationAuthorityId' in dct:
-            ret.registration_authority_id = _get_ts(dct, 'registrationAuthorityId', str)
-        if 'supplier' in dct:
-            ret.supplier = _get_ts(dct, 'supplier', str)
         return ret
 
     @classmethod

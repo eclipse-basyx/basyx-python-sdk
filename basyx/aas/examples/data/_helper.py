@@ -804,8 +804,6 @@ class AASDataChecker(DataChecker):
                    .format(repr(object_), repr(expected_value)))
         if isinstance(object_, model.base.DataSpecificationIEC61360):
             self._check_data_specification_iec61360_equal(object_, expected_value)  # type: ignore
-        elif isinstance(object_, model.base.DataSpecificationPhysicalUnit):
-            self._check_data_specification_physical_unit_equal(object_, expected_value)  # type: ignore
 
     def _check_data_specification_iec61360_equal(self, object_: model.base.DataSpecificationIEC61360,
                                                  expected_value: model.base.DataSpecificationIEC61360):
@@ -838,30 +836,6 @@ class AASDataChecker(DataChecker):
             if self.check(expected_value.value_list is not None,
                           "ValueList must contain 0 ValueReferencePairs", value=len(object_.value_list)):
                 self._check_value_list_equal(object_.value_list, expected_value.value_list)  # type: ignore
-
-    def _check_data_specification_physical_unit_equal(
-            self, object_: model.base.DataSpecificationPhysicalUnit,
-            expected_value: model.base.DataSpecificationPhysicalUnit):
-        """
-        Checks if the given DataSpecificationPhysicalUnit objects are equal
-
-        :param object_: Given DataSpecificationPhysicalUnit object to check
-        :param expected_value: expected DataSpecificationPhysicalUnit object
-        :return:
-        """
-        self.check_attribute_equal(object_, 'unit_name', expected_value.unit_name)
-        self.check_attribute_equal(object_, 'unit_symbol', expected_value.unit_symbol)
-        self.check_attribute_equal(object_, 'definition', expected_value.definition)
-        self.check_attribute_equal(object_, 'si_notation', expected_value.si_notation)
-        self.check_attribute_equal(object_, 'si_name', expected_value.si_name)
-        self.check_attribute_equal(object_, 'din_notation', expected_value.din_notation)
-        self.check_attribute_equal(object_, 'ece_name', expected_value.ece_name)
-        self.check_attribute_equal(object_, 'ece_code', expected_value.ece_code)
-        self.check_attribute_equal(object_, 'nist_name', expected_value.nist_name)
-        self.check_attribute_equal(object_, 'source_of_definition', expected_value.source_of_definition)
-        self.check_attribute_equal(object_, 'conversion_factor', expected_value.conversion_factor)
-        self.check_attribute_equal(object_, 'registration_authority_id', expected_value.registration_authority_id)
-        self.check_attribute_equal(object_, 'supplier', expected_value.supplier)
 
     def _check_value_list_equal(self, object_: model.ValueList, expected_value: model.ValueList):
         """

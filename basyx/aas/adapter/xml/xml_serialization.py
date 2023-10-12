@@ -413,8 +413,6 @@ def data_specification_content_to_xml(obj: model.DataSpecificationContent,
     et_data_specification_content = abstract_classes_to_xml(tag, obj)
     if isinstance(obj, model.DataSpecificationIEC61360):
         et_data_specification_content.append(data_specification_iec61360_to_xml(obj))
-    elif isinstance(obj, model.DataSpecificationPhysicalUnit):
-        et_data_specification_content.append(data_specification_physical_unit_to_xml(obj))
     else:
         raise TypeError(f"Serialization of {obj.__class__} to XML is not supported!")
     return et_data_specification_content
@@ -462,45 +460,6 @@ def data_specification_iec61360_to_xml(obj: model.DataSpecificationIEC61360,
             et_level_types.append(_generate_element(NS_AAS + v, text=boolean_to_xml(k in obj.level_types)))
         et_data_specification_iec61360.append(et_level_types)
     return et_data_specification_iec61360
-
-
-def data_specification_physical_unit_to_xml(obj: model.DataSpecificationPhysicalUnit,
-                                            tag: str = NS_AAS+"dataSpecificationPhysicalUnit") -> etree.Element:
-    """
-    Serialization of objects of class :class:`~aas.model.base.DataSpecificationPhysicalUnit` to XML
-
-    :param obj: Object of class :class:`~aas.model.base.DataSpecificationPhysicalUnit`
-    :param tag: Namespace+Tag of the ElementTree object. Default is "aas:dataSpecificationPhysicalUnit"
-    :return: Serialized ElementTree object
-    """
-    et_data_specification_physical_unit = abstract_classes_to_xml(tag, obj)
-    et_data_specification_physical_unit.append(_generate_element(NS_AAS + "unitName", text=obj.unit_name))
-    et_data_specification_physical_unit.append(_generate_element(NS_AAS + "unitSymbol", text=obj.unit_symbol))
-    et_data_specification_physical_unit.append(lang_string_set_to_xml(obj.definition, NS_AAS + "definition"))
-    if obj.si_notation is not None:
-        et_data_specification_physical_unit.append(_generate_element(NS_AAS + "siNotation", text=obj.si_notation))
-    if obj.si_name is not None:
-        et_data_specification_physical_unit.append(_generate_element(NS_AAS + "siName", text=obj.si_name))
-    if obj.din_notation is not None:
-        et_data_specification_physical_unit.append(_generate_element(NS_AAS + "dinNotation", text=obj.din_notation))
-    if obj.ece_name is not None:
-        et_data_specification_physical_unit.append(_generate_element(NS_AAS + "eceName", text=obj.ece_name))
-    if obj.ece_code is not None:
-        et_data_specification_physical_unit.append(_generate_element(NS_AAS + "eceCode", text=obj.ece_code))
-    if obj.nist_name is not None:
-        et_data_specification_physical_unit.append(_generate_element(NS_AAS + "nistName", text=obj.nist_name))
-    if obj.source_of_definition is not None:
-        et_data_specification_physical_unit.append(_generate_element(NS_AAS + "sourceOfDefinition",
-                                                                     text=obj.source_of_definition))
-    if obj.conversion_factor is not None:
-        et_data_specification_physical_unit.append(_generate_element(NS_AAS + "conversionFactor",
-                                                                     text=obj.conversion_factor))
-    if obj.registration_authority_id is not None:
-        et_data_specification_physical_unit.append(_generate_element(NS_AAS + "registrationAuthorityId",
-                                                                     text=obj.registration_authority_id))
-    if obj.supplier is not None:
-        et_data_specification_physical_unit.append(_generate_element(NS_AAS + "supplier", text=obj.supplier))
-    return et_data_specification_physical_unit
 
 
 def asset_administration_shell_to_xml(obj: model.AssetAdministrationShell,

@@ -48,30 +48,6 @@ _embedded_data_specification_iec61360 = model.EmbeddedDataSpecification(
         value="TEST", level_types={model.IEC61360LevelType.MIN, model.IEC61360LevelType.MAX})
 )
 
-_embedded_data_specification_physical_unit = model.EmbeddedDataSpecification(
-    data_specification=model.ExternalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
-                                                          value='https://admin-shell.io/DataSpecificationTemplates/'
-                                                                'DataSpecificationPhysicalUnit/3/0'),)),
-    data_specification_content=model.DataSpecificationPhysicalUnit(
-        unit_name='TestPhysicalUnit',
-        unit_symbol='TPU',
-        definition=model.DefinitionTypeIEC61360({
-            'de': 'Dies ist eine DataSpecificationPhysicalUnit für Testzwecke',
-            'en-US': 'This is a DataSpecificationPhysicalUnit for testing purposes'
-        }),
-        si_notation='t',
-        si_name='test',
-        din_notation='v',
-        ece_name='vest',
-        ece_code='ECE',
-        nist_name='nest',
-        source_of_definition='http://acplt.org/DataSpec/ExamplePUDef',
-        conversion_factor='1000',
-        registration_authority_id='DIN',
-        supplier='IAT'
-    )
-)
-
 
 def create_full_example() -> model.DictObjectStore:
     """
@@ -745,7 +721,7 @@ def create_example_submodel() -> model.Submodel:
         kind=model.ModellingKind.INSTANCE,
         extension=(),
         supplemental_semantic_id=(),
-        embedded_data_specifications=(_embedded_data_specification_physical_unit,)
+        embedded_data_specifications=()
     )
     return submodel
 
@@ -777,8 +753,7 @@ def create_example_concept_description() -> model.ConceptDescription:
                                                                    'Templates/Test_ConceptDescription',
                                                        embedded_data_specifications=(
                                                            _embedded_data_specification_iec61360,
-                                                       )),
-        embedded_data_specifications=(_embedded_data_specification_physical_unit,)
+                                                       ))
     )
     return concept_description
 

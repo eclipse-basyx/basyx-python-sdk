@@ -1093,52 +1093,10 @@ class AASFromXmlDecoder:
         data_specification_contents: Dict[str, Callable[..., model.DataSpecificationContent]] = \
             {NS_AAS + k: v for k, v in {
                 "dataSpecificationIec61360": cls.construct_data_specification_iec61360,
-                "dataSpecificationPhysicalUnit": cls.construct_data_specification_physical_unit,
             }.items()}
         if element.tag not in data_specification_contents:
             raise KeyError(f"{_element_pretty_identifier(element)} is not a valid DataSpecificationContent!")
         return data_specification_contents[element.tag](element, **kwargs)
-
-    @classmethod
-    def construct_data_specification_physical_unit(cls, element: etree.Element,
-                                                   object_class=model.DataSpecificationPhysicalUnit, **_kwargs: Any) \
-            -> model.DataSpecificationPhysicalUnit:
-        dspu = object_class(_child_text_mandatory(element, NS_AAS + "unitName"),
-                            _child_text_mandatory(element, NS_AAS + "unitSymbol"),
-                            _child_construct_mandatory(element, NS_AAS + "definition",
-                                                       cls.construct_definition_type_iec61360))
-        si_notation = _get_text_or_none(element.find(NS_AAS + "siNotation"))
-        if si_notation is not None:
-            dspu.si_notation = si_notation
-        si_name = _get_text_or_none(element.find(NS_AAS + "siName"))
-        if si_name is not None:
-            dspu.si_name = si_name
-        din_notation = _get_text_or_none(element.find(NS_AAS + "dinNotation"))
-        if din_notation is not None:
-            dspu.din_notation = din_notation
-        ece_name = _get_text_or_none(element.find(NS_AAS + "eceName"))
-        if ece_name is not None:
-            dspu.ece_name = ece_name
-        ece_code = _get_text_or_none(element.find(NS_AAS + "eceCode"))
-        if ece_code is not None:
-            dspu.ece_code = ece_code
-        nist_name = _get_text_or_none(element.find(NS_AAS + "nistName"))
-        if nist_name is not None:
-            dspu.nist_name = nist_name
-        source_of_definition = _get_text_or_none(element.find(NS_AAS + "sourceOfDefinition"))
-        if source_of_definition is not None:
-            dspu.source_of_definition = source_of_definition
-        conversion_factor = _get_text_or_none(element.find(NS_AAS + "conversionFactor"))
-        if conversion_factor is not None:
-            dspu.conversion_factor = conversion_factor
-        registration_authority_id = _get_text_or_none(element.find(NS_AAS + "registrationAuthorityId"))
-        if registration_authority_id is not None:
-            dspu.registration_authority_id = registration_authority_id
-        supplier = _get_text_or_none(element.find(NS_AAS + "supplier"))
-        if supplier is not None:
-            dspu.supplier = supplier
-        cls._amend_abstract_attributes(dspu, element)
-        return dspu
 
     @classmethod
     def construct_data_specification_iec61360(cls, element: etree.Element, object_class=model.DataSpecificationIEC61360,
@@ -1319,7 +1277,6 @@ class XMLConstructables(enum.Enum):
     EMBEDDED_DATA_SPECIFICATION = enum.auto()
     DATA_SPECIFICATION_CONTENT = enum.auto()
     DATA_SPECIFICATION_IEC61360 = enum.auto()
-    DATA_SPECIFICATION_PHYSICAL_UNIT = enum.auto()
 
 
 def read_aas_xml_element(file: IO, construct: XMLConstructables, failsafe: bool = True, stripped: bool = False,
@@ -1415,8 +1372,6 @@ def read_aas_xml_element(file: IO, construct: XMLConstructables, failsafe: bool 
         constructor = decoder_.construct_embedded_data_specification
     elif construct == XMLConstructables.DATA_SPECIFICATION_IEC61360:
         constructor = decoder_.construct_data_specification_iec61360
-    elif construct == XMLConstructables.DATA_SPECIFICATION_PHYSICAL_UNIT:
-        constructor = decoder_.construct_data_specification_physical_unit
     # the following constructors decide which constructor to call based on the elements tag
     elif construct == XMLConstructables.DATA_ELEMENT:
         constructor = decoder_.construct_data_element
