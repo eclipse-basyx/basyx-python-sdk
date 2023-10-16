@@ -186,7 +186,7 @@ class AASFromJsonDecoder(json.JSONDecoder):
             'Property': cls._construct_property,
             'Range': cls._construct_range,
             'ReferenceElement': cls._construct_reference_element,
-            'DataSpecificationIEC61360': cls._construct_data_specification_iec61360,
+            'DataSpecificationIec61360': cls._construct_data_specification_iec61360,
         }
 
         # Get modelType and constructor function

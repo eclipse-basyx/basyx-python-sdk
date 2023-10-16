@@ -340,7 +340,7 @@ class AASToJsonEncoder(json.JSONEncoder):
         :return: dict with the serialized attributes of this object
         """
         data_spec: Dict[str, object] = {
-            'modelType': 'DataSpecificationIEC61360',
+            'modelType': 'DataSpecificationIec61360',
             'preferredName': obj.preferred_name
         }
         if obj.data_type is not None:
