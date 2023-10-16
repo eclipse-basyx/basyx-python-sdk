@@ -265,8 +265,7 @@ class AASFromJsonDecoder(json.JSONDecoder):
                         # TODO: remove the following type: ignore comment when mypy supports abstract types for Type[T]
                         # see https://github.com/python/mypy/issues/5374
                         model.EmbeddedDataSpecification(
-                            data_specification=cls._construct_external_reference(_get_ts(dspec, 'dataSpecification',
-                                                                                         dict)),
+                            data_specification=cls._construct_reference(_get_ts(dspec, 'dataSpecification', dict)),
                             data_specification_content=_get_ts(dspec, 'dataSpecificationContent',
                                                                model.DataSpecificationContent)  # type: ignore
                         )
