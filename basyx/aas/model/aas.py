@@ -112,7 +112,7 @@ class AssetAdministrationShell(base.Identifiable, base.UniqueIdShortNamespace, b
     def __init__(self,
                  asset_information: AssetInformation,
                  id_: base.Identifier,
-                 id_short: base.NameType = "NotSet",
+                 id_short: Optional[base.NameType] = None,
                  display_name: Optional[base.MultiLanguageNameType] = None,
                  category: Optional[base.NameType] = None,
                  description: Optional[base.MultiLanguageTextType] = None,
