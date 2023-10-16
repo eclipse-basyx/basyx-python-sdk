@@ -271,7 +271,7 @@
         "modelType"
       ]
     },
-    "DataSpecificationIEC61360": {
+    "DataSpecificationIec61360": {
       "allOf": [
         {
           "$ref": "#/definitions/DataSpecificationContent"
@@ -797,7 +797,7 @@
         "Blob",
         "Capability",
         "ConceptDescription",
-        "DataSpecificationIEC61360",
+        "DataSpecificationIec61360",
         "Entity",
         "File",
         "MultiLanguageProperty",
