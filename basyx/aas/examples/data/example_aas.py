@@ -337,7 +337,7 @@ def create_example_submodel() -> model.Submodel:
     """
 
     submodel_element_property = model.Property(
-        id_short='ExampleProperty',
+        id_short=None,
         value_type=model.datatypes.String,
         value='exampleValue',
         value_id=model.ExternalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
@@ -361,7 +361,7 @@ def create_example_submodel() -> model.Submodel:
         embedded_data_specifications=(_embedded_data_specification_iec61360,))
 
     submodel_element_property_2 = model.Property(
-        id_short='ExampleProperty2',
+        id_short=None,
         value_type=model.datatypes.String,
         value='exampleValue',
         value_id=model.ExternalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,

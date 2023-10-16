@@ -213,7 +213,7 @@ def create_example_submodel_template() -> model.Submodel:
         qualifier=())
 
     submodel_element_submodel_element_collection = model.SubmodelElementCollection(
-        id_short='ExampleSubmodelCollection',
+        id_short=None,
         value=(
                submodel_element_property,
                submodel_element_multi_language_property,
@@ -232,7 +232,7 @@ def create_example_submodel_template() -> model.Submodel:
         qualifier=())
 
     submodel_element_submodel_element_collection_2 = model.SubmodelElementCollection(
-        id_short='ExampleSubmodelCollection2',
+        id_short=None,
         value=(),
         category='PARAMETER',
         description=model.MultiLanguageTextType({'en-US': 'Example SubmodelElementCollection object',
@@ -250,7 +250,7 @@ def create_example_submodel_template() -> model.Submodel:
         semantic_id_list_element=model.ExternalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
                                                                     value='http://acplt.org/SubmodelElementCollections/'
                                                                           'ExampleSubmodelElementCollection'),)),
-        order_relevant=False,
+        order_relevant=True,
         category='PARAMETER',
         description=model.MultiLanguageTextType({'en-US': 'Example SubmodelElementList object',
                                                  'de': 'Beispiel SubmodelElementList Element'}),
@@ -267,7 +267,7 @@ def create_example_submodel_template() -> model.Submodel:
         semantic_id_list_element=model.ExternalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
                                                                     value='http://acplt.org/SubmodelElementCollections/'
                                                                           'ExampleSubmodelElementCollection'),)),
-        order_relevant=False,
+        order_relevant=True,
         category='PARAMETER',
         description=model.MultiLanguageTextType({'en-US': 'Example SubmodelElementList object',
                                                  'de': 'Beispiel SubmodelElementList Element'}),
