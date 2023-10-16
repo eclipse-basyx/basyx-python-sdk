@@ -122,7 +122,7 @@ class Submodel(base.Identifiable, base.HasSemantics, base.HasKind, base.Qualifia
     def __init__(self,
                  id_: base.Identifier,
                  submodel_element: Iterable[SubmodelElement] = (),
-                 id_short: base.NameType = "NotSet",
+                 id_short: Optional[base.NameType] = None,
                  display_name: Optional[base.MultiLanguageNameType] = None,
                  category: Optional[base.NameType] = None,
                  description: Optional[base.MultiLanguageTextType] = None,
