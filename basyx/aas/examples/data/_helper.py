@@ -850,13 +850,11 @@ class AASDataChecker(DataChecker):
         :return:
         """
         for expected_pair in expected_value:
-            pair = self._find_element_by_attribute(expected_pair, object_, 'value', 'value_id', 'value_type')
-            self.check(pair is not None, 'ValueReferencePair[value={}, value_id={}, value_type={}] '
-                                         'must exist'.format(expected_pair.value, expected_pair.value_id,
-                                                             expected_pair.value_type))
+            pair = self._find_element_by_attribute(expected_pair, object_, 'value', 'value_id')
+            self.check(pair is not None, 'ValueReferencePair[value={}, value_id={}] '
+                                         'must exist'.format(expected_pair.value, expected_pair.value_id))
 
-        found_elements = self._find_extra_elements_by_attribute(object_, expected_value,
-                                                                'value', 'value_id', 'value_type')
+        found_elements = self._find_extra_elements_by_attribute(object_, expected_value, 'value', 'value_id')
         self.check(found_elements == set(), 'ValueList must not have extra ValueReferencePairs',
                    value=found_elements)
 

@@ -387,11 +387,11 @@ class AASFromJsonDecoder(json.JSONDecoder):
         return object_class(ret)
 
     @classmethod
-    def _construct_value_list(cls, dct: Dict[str, object], value_format: model.DataTypeDefXsd) -> model.ValueList:
+    def _construct_value_list(cls, dct: Dict[str, object]) -> model.ValueList:
         ret: model.ValueList = set()
         for element in _get_ts(dct, 'valueReferencePairs', list):
             try:
-                ret.add(cls._construct_value_reference_pair(element, value_format=value_format))
+                ret.add(cls._construct_value_reference_pair(element))
             except (KeyError, TypeError) as e:
                 error_message = "Error while trying to convert JSON object into ValueReferencePair: {} >>> {}".format(
                     e, pprint.pformat(element, depth=2, width=2 ** 14, compact=True))
@@ -402,11 +402,10 @@ class AASFromJsonDecoder(json.JSONDecoder):
         return ret
 
     @classmethod
-    def _construct_value_reference_pair(cls, dct: Dict[str, object], value_format: model.DataTypeDefXsd,
+    def _construct_value_reference_pair(cls, dct: Dict[str, object],
                                         object_class=model.ValueReferencePair) -> model.ValueReferencePair:
-        return object_class(value=model.datatypes.from_xsd(_get_ts(dct, 'value', str), value_format),
-                            value_id=cls._construct_reference(_get_ts(dct, 'valueId', dict)),
-                            value_type=value_format)
+        return object_class(value=_get_ts(dct, 'value', str),
+                            value_id=cls._construct_reference(_get_ts(dct, 'valueId', dict)))
 
     # #############################################################################
     # Direct Constructor Methods (for classes with `modelType`) starting from here
@@ -481,11 +480,11 @@ class AASFromJsonDecoder(json.JSONDecoder):
         if 'symbol' in dct:
             ret.symbol = _get_ts(dct, 'symbol', str)
         if 'valueFormat' in dct:
-            ret.value_format = model.datatypes.XSD_TYPE_CLASSES[_get_ts(dct, 'valueFormat', str)]
+            ret.value_format = _get_ts(dct, 'valueFormat', str)
         if 'valueList' in dct:
-            ret.value_list = cls._construct_value_list(_get_ts(dct, 'valueList', dict), value_format=ret.value_format)
+            ret.value_list = cls._construct_value_list(_get_ts(dct, 'valueList', dict))
         if 'value' in dct:
-            ret.value = model.datatypes.from_xsd(_get_ts(dct, 'value', str), ret.value_format)
+            ret.value = _get_ts(dct, 'value', str)
         if 'valueId' in dct:
             ret.value_id = cls._construct_reference(_get_ts(dct, 'valueId', dict))
         if 'levelType' in dct:

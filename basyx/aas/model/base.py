@@ -40,6 +40,7 @@ QualifierType = str
 RevisionType = str
 ShortNameType = str
 VersionType = str
+ValueTypeIEC61360 = str
 
 
 @unique
@@ -1143,10 +1144,10 @@ class EmbeddedDataSpecification:
     """
     def __init__(
         self,
-        data_specification: ExternalReference,
+        data_specification: Reference,
         data_specification_content: DataSpecificationContent,
     ) -> None:
-        self.data_specification: ExternalReference = data_specification
+        self.data_specification: Reference = data_specification
         self.data_specification_content: DataSpecificationContent = data_specification_content
 
     def __repr__(self):
@@ -1647,6 +1648,7 @@ class Qualifier(HasSemantics):
         self._type = type_
 
 
+@_string_constraints.constrain_value_type_iec61360("value")
 class ValueReferencePair:
     """
     A value reference pair within a value list. Each value has a global unique id defining its semantic.
@@ -1655,37 +1657,21 @@ class ValueReferencePair:
 
     :ivar value: The value of the referenced concept definition of the value in value_id
     :ivar value_id: Global unique id of the value.
-    :ivar value_type: XSD datatype of the value (this is not compliant to the DotAAS meta model)
     """
 
     def __init__(self,
-                 value: ValueDataType,
-                 value_id: Reference,
-                 value_type: DataTypeDefXsd = datatypes.String):
+                 value: ValueTypeIEC61360,
+                 value_id: Reference):
         """
 
 
         TODO: Add instruction what to do after construction
         """
-        self.value_type: DataTypeDefXsd = value_type
         self.value_id: Reference = value_id
-        self._value: ValueDataType = datatypes.trivial_cast(value, value_type)
-
-    @property
-    def value(self):
-        return self._value
-
-    @value.setter
-    def value(self, value) -> None:
-        if value is None:
-            raise AttributeError('Value can not be None')
-        else:
-            self._value = datatypes.trivial_cast(value, self.value_type)
+        self.value: ValueTypeIEC61360 = value
 
     def __repr__(self) -> str:
-        return "ValueReferencePair(value_type={}, value={}, value_id={})".format(self.value_type,
-                                                                                 self.value,
-                                                                                 self.value_id)
+        return "ValueReferencePair(value={}, value_id={})".format(self.value, self.value_id)
 
 
 class UniqueIdShortNamespace(Namespace, metaclass=abc.ABCMeta):
@@ -2221,7 +2207,7 @@ class AASConstraintViolation(Exception):
 
 
 @unique
-class IEC61360DataType(Enum):
+class DataTypeIEC61360(Enum):
     """
     Data types for data_type in :class:`DataSpecificationIEC61360 <.IEC61360ConceptDescription>`
     The data types are:
@@ -2229,28 +2215,42 @@ class IEC61360DataType(Enum):
     :cvar DATE:
     :cvar STRING:
     :cvar STRING_TRANSLATABLE:
+    :cvar INTEGER_MEASURE:
+    :cvar INTEGER_COUNT:
+    :cvar INTEGER_CURRENCY:
     :cvar REAL_MEASURE:
     :cvar REAL_COUNT:
     :cvar REAL_CURRENCY:
     :cvar BOOLEAN:
-    :cvar URL:
+    :cvar IRI:
+    :cvar IRDI:
     :cvar RATIONAL:
     :cvar RATIONAL_MEASURE:
     :cvar TIME:
     :cvar TIMESTAMP:
+    :cvar HTML:
+    :cvar BLOB:
+    :cvar FILE:
     """
     DATE = 0
     STRING = 1
     STRING_TRANSLATABLE = 2
-    REAL_MEASURE = 3
-    REAL_COUNT = 4
-    REAL_CURRENCY = 5
-    BOOLEAN = 6
-    URL = 7
-    RATIONAL = 8
-    RATIONAL_MEASURE = 9
-    TIME = 10
-    TIMESTAMP = 11
+    INTEGER_MEASURE = 3
+    INTEGER_COUNT = 4
+    INTEGER_CURRENCY = 5
+    REAL_MEASURE = 6
+    REAL_COUNT = 7
+    REAL_CURRENCY = 8
+    BOOLEAN = 9
+    IRI = 10
+    IRDI = 11
+    RATIONAL = 12
+    RATIONAL_MEASURE = 13
+    TIME = 14
+    TIMESTAMP = 15
+    HTML = 16
+    BLOB = 17
+    FILE = 18
 
 
 @unique
@@ -2270,6 +2270,7 @@ class IEC61360LevelType(Enum):
     TYP = 3
 
 
+@_string_constraints.constrain_value_type_iec61360("value")
 class DataSpecificationIEC61360(DataSpecificationContent):
     """
     A specialized :class:`~.DataSpecificationContent` to define specs according to IEC61360
@@ -2291,22 +2292,22 @@ class DataSpecificationIEC61360(DataSpecificationContent):
     """
     def __init__(self,
                  preferred_name: PreferredNameTypeIEC61360,
-                 data_type: Optional[IEC61360DataType] = None,
+                 data_type: Optional[DataTypeIEC61360] = None,
                  definition: Optional[DefinitionTypeIEC61360] = None,
                  short_name: Optional[ShortNameTypeIEC61360] = None,
                  unit: Optional[str] = None,
                  unit_id: Optional[Reference] = None,
                  source_of_definition: Optional[str] = None,
                  symbol: Optional[str] = None,
-                 value_format: DataTypeDefXsd = datatypes.String,
+                 value_format: Optional[str] = None,
                  value_list: Optional[ValueList] = None,
-                 value: Optional[ValueDataType] = None,
+                 value: Optional[ValueTypeIEC61360] = None,
                  level_types: Iterable[IEC61360LevelType] = ()):
 
         super().__init__()
         self.preferred_name: PreferredNameTypeIEC61360 = preferred_name
         self.short_name: Optional[ShortNameTypeIEC61360] = short_name
-        self.data_type: Optional[IEC61360DataType] = data_type
+        self.data_type: Optional[DataTypeIEC61360] = data_type
         self.definition: Optional[DefinitionTypeIEC61360] = definition
         self._unit: Optional[str] = unit
         self.unit_id: Optional[Reference] = unit_id
@@ -2314,20 +2315,8 @@ class DataSpecificationIEC61360(DataSpecificationContent):
         self._symbol: Optional[str] = symbol
         self.value_list: Optional[ValueList] = value_list
         self.level_types: Set[IEC61360LevelType] = set(level_types)
-        self.value_format: DataTypeDefXsd = value_format
-        self._value: Optional[ValueDataType] = datatypes.trivial_cast(value, self.value_format) if value is not None \
-            else None
-
-    @property
-    def value(self):
-        return self._value
-
-    @value.setter
-    def value(self, value) -> None:
-        if value is None or self.value_format is None:
-            self._value = None
-        else:
-            self._value = datatypes.trivial_cast(value, self.value_format)
+        self.value_format: Optional[str] = value_format
+        self.value: Optional[ValueTypeIEC61360] = value
 
     def _set_unit(self, unit: Optional[str]):
         """
