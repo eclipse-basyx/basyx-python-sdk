@@ -74,15 +74,22 @@ IEC61360_DATA_TYPES: Dict[model.base.IEC61360DataType, str] = {
     model.base.IEC61360DataType.DATE: 'DATE',
     model.base.IEC61360DataType.STRING: 'STRING',
     model.base.IEC61360DataType.STRING_TRANSLATABLE: 'STRING_TRANSLATABLE',
+    model.base.IEC61360DataType.INTEGER_MEASURE: 'INTEGER_MEASURE',
+    model.base.IEC61360DataType.INTEGER_COUNT: 'INTEGER_COUNT',
+    model.base.IEC61360DataType.INTEGER_CURRENCY: 'INTEGER_CURRENCY',
     model.base.IEC61360DataType.REAL_MEASURE: 'REAL_MEASURE',
     model.base.IEC61360DataType.REAL_COUNT: 'REAL_COUNT',
     model.base.IEC61360DataType.REAL_CURRENCY: 'REAL_CURRENCY',
     model.base.IEC61360DataType.BOOLEAN: 'BOOLEAN',
-    model.base.IEC61360DataType.URL: 'URL',
+    model.base.IEC61360DataType.IRI: 'IRI',
+    model.base.IEC61360DataType.IRDI: 'IRDI',
     model.base.IEC61360DataType.RATIONAL: 'RATIONAL',
     model.base.IEC61360DataType.RATIONAL_MEASURE: 'RATIONAL_MEASURE',
     model.base.IEC61360DataType.TIME: 'TIME',
     model.base.IEC61360DataType.TIMESTAMP: 'TIMESTAMP',
+    model.base.IEC61360DataType.HTML: 'HTML',
+    model.base.IEC61360DataType.BLOB: 'BLOB',
+    model.base.IEC61360DataType.FILE: 'FILE',
 }
 
 IEC61360_LEVEL_TYPES: Dict[model.base.IEC61360LevelType, str] = {
