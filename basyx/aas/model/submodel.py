@@ -9,7 +9,7 @@ This module contains everything needed to model Submodels and define Events acco
 """
 
 import abc
-import datetime
+import uuid
 from typing import Optional, Set, Iterable, TYPE_CHECKING, List, Type, TypeVar, Generic, Union
 
 from . import base, datatypes, _string_constraints
@@ -703,6 +703,9 @@ class SubmodelElementList(SubmodelElement, base.UniqueIdShortNamespace, Generic[
                  embedded_data_specifications: Iterable[base.EmbeddedDataSpecification] = ()):
         super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, extension,
                          supplemental_semantic_id, embedded_data_specifications)
+        # Counter to generate a unique idShort whenever a SubmodelElement is added
+        self._uuid_seq: int = 0
+
         # It doesn't really make sense to change any of these properties. thus they are immutable here.
         self._type_value_list_element: Type[_SE] = type_value_list_element
         self._order_relevant: bool = order_relevant
@@ -716,7 +719,9 @@ class SubmodelElementList(SubmodelElement, base.UniqueIdShortNamespace, Generic[
         # Items must be added after the above contraint has been checked. Otherwise, it can lead to errors, since the
         # constraints in _check_constraints() assume that this constraint has been checked.
         self._value: base.OrderedNamespaceSet[_SE] = base.OrderedNamespaceSet(self, [("id_short", True)], (),
-                                                                              self._check_constraints)
+                                                                              item_add_hook=self._check_constraints,
+                                                                              item_id_set_hook=self._generate_id_short,
+                                                                              item_id_del_hook=self._unset_id_short)
         # SubmodelElements need to be added after the assignment of the ordered NamespaceSet, otherwise, if a constraint
         # check fails, Referable.__repr__ may be called for an already-contained item during the AASd-114 check, which
         # in turn tries to access the SubmodelElementLists value / _value attribute, which wouldn't be set yet if all
@@ -729,7 +734,25 @@ class SubmodelElementList(SubmodelElement, base.UniqueIdShortNamespace, Generic[
             self._value.clear()
             raise
 
+    def _generate_id_short(self, new: _SE) -> None:
+        if new.id_short is not None:
+            raise base.AASConstraintViolation(120, "Objects with an id_short may not be added to a "
+                                                   f"SubmodelElementList, got {new!r} with id_short={new.id_short}")
+        # Generate a unique id_short when a SubmodelElement is added, because children of a SubmodelElementList may not
+        # have an id_short. The alternative would be making SubmodelElementList a special kind of base.Namespace without
+        # a unique attribute for child-elements (which contradicts the definition of a Namespace).
+        new.id_short = "generated_submodel_list_hack_" + uuid.uuid1(clock_seq=self._uuid_seq).hex
+        self._uuid_seq += 1
+
+    def _unset_id_short(self, old: _SE) -> None:
+        old.id_short = None
+
     def _check_constraints(self, new: _SE, existing: Iterable[_SE]) -> None:
+        # Since the id_short contains randomness, unset it temporarily for pretty and predictable error messages.
+        # This also prevents the random id_short from remaining set in case a constraint violation is encountered.
+        saved_id_short = new.id_short
+        new.id_short = None
+
         # We can't use isinstance(new, self.type_value_list_element) here, because each subclass of
         # self.type_value_list_element wouldn't raise a ConstraintViolation, when it should.
         # Example: AnnotatedRelationshipElement is a subclass of RelationshipElement
@@ -767,6 +790,9 @@ class SubmodelElementList(SubmodelElement, base.UniqueIdShortNamespace, Generic[
                                                            f"{new.semantic_id!r}, while already contained element "
                                                            f"{item!r} has semantic_id {item.semantic_id!r}, which "
                                                            "aren't equal.")
+
+        # Re-assign id_short
+        new.id_short = saved_id_short
 
     @property
     def value(self) -> base.OrderedNamespaceSet[_SE]:

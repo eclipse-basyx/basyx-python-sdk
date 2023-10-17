@@ -215,7 +215,6 @@
       </aas:submodels>
     </aas:assetAdministrationShell>
     <aas:assetAdministrationShell>
-      <aas:idShort>NotSet</aas:idShort>
       <aas:id>https://acplt.org/Test_AssetAdministrationShell_Mandatory</aas:id>
       <aas:assetInformation>
         <aas:assetKind>Instance</aas:assetKind>
@@ -243,7 +242,6 @@
       </aas:submodels>
     </aas:assetAdministrationShell>
     <aas:assetAdministrationShell>
-      <aas:idShort>NotSet</aas:idShort>
       <aas:id>https://acplt.org/Test_AssetAdministrationShell2_Mandatory</aas:id>
       <aas:assetInformation>
         <aas:assetKind>Instance</aas:assetKind>
@@ -1180,7 +1178,6 @@
               <aas:value>
                 <aas:property>
                   <aas:category>CONSTANT</aas:category>
-                  <aas:idShort>ExampleProperty</aas:idShort>
                   <aas:displayName>
                     <aas:langStringNameType>
                       <aas:language>en-US</aas:language>
@@ -1341,7 +1338,6 @@
                 </aas:property>
                 <aas:property>
                   <aas:category>CONSTANT</aas:category>
-                  <aas:idShort>ExampleProperty2</aas:idShort>
                   <aas:displayName>
                     <aas:langStringNameType>
                       <aas:language>en-US</aas:language>
@@ -1529,7 +1525,6 @@
       </aas:submodelElements>
     </aas:submodel>
     <aas:submodel>
-      <aas:idShort>NotSet</aas:idShort>
       <aas:id>https://acplt.org/Test_Submodel_Mandatory</aas:id>
       <aas:kind>Instance</aas:kind>
       <aas:submodelElements>
@@ -1624,7 +1619,6 @@
           <aas:idShort>ExampleSubmodelList</aas:idShort>
           <aas:value>
             <aas:submodelElementCollection>
-              <aas:idShort>ExampleSubmodelCollection</aas:idShort>
               <aas:kind>Instance</aas:kind>
               <aas:value>
                 <aas:blob>
@@ -1663,7 +1657,6 @@
               </aas:value>
             </aas:submodelElementCollection>
             <aas:submodelElementCollection>
-              <aas:idShort>ExampleSubmodelCollection2</aas:idShort>
               <aas:kind>Instance</aas:kind>
             </aas:submodelElementCollection>
           </aas:value>
@@ -1676,7 +1669,6 @@
       </aas:submodelElements>
     </aas:submodel>
     <aas:submodel>
-      <aas:idShort>NotSet</aas:idShort>
       <aas:id>https://acplt.org/Test_Submodel2_Mandatory</aas:id>
       <aas:kind>Instance</aas:kind>
     </aas:submodel>
@@ -2632,11 +2624,10 @@
               </aas:key>
             </aas:keys>
           </aas:semanticId>
-          <aas:orderRelevant>false</aas:orderRelevant>
+          <aas:orderRelevant>true</aas:orderRelevant>
           <aas:value>
             <aas:submodelElementCollection>
               <aas:category>PARAMETER</aas:category>
-              <aas:idShort>ExampleSubmodelCollection</aas:idShort>
               <aas:description>
                 <aas:langStringTextType>
                   <aas:language>en-US</aas:language>
@@ -2838,7 +2829,6 @@
             </aas:submodelElementCollection>
             <aas:submodelElementCollection>
               <aas:category>PARAMETER</aas:category>
-              <aas:idShort>ExampleSubmodelCollection2</aas:idShort>
               <aas:description>
                 <aas:langStringTextType>
                   <aas:language>en-US</aas:language>
@@ -2895,7 +2885,7 @@
               </aas:key>
             </aas:keys>
           </aas:semanticId>
-          <aas:orderRelevant>false</aas:orderRelevant>
+          <aas:orderRelevant>true</aas:orderRelevant>
           <aas:semanticIdListElement>
             <aas:type>ExternalReference</aas:type>
             <aas:keys>
@@ -3047,7 +3037,6 @@
       </aas:isCaseOf>
     </aas:conceptDescription>
     <aas:conceptDescription>
-      <aas:idShort>NotSet</aas:idShort>
       <aas:id>https://acplt.org/Test_ConceptDescription_Mandatory</aas:id>
     </aas:conceptDescription>
     <aas:conceptDescription>

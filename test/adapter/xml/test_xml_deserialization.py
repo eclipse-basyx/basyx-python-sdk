@@ -258,7 +258,6 @@ class XmlDeserializationTest(unittest.TestCase):
         <aas:assetAdministrationShells>
             <aas:assetAdministrationShell>
                 <aas:id>http://acplt.org/test_aas</aas:id>
-                <aas:idShort>NotSet</aas:idShort>
                 <aas:assetInformation>
                     <aas:assetKind>Instance</aas:assetKind>
                 </aas:assetInformation>
@@ -267,7 +266,6 @@ class XmlDeserializationTest(unittest.TestCase):
         <aas:submodels>
             <aas:submodel>
                 <aas:id>http://acplt.org/test_aas</aas:id>
-                <aas:idShort>NotSet</aas:idShort>
             </aas:submodel>
         </aas:submodels>
         """)

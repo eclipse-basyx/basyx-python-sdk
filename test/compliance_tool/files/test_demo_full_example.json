@@ -225,7 +225,6 @@
             ]
         },
         {
-            "idShort": "NotSet",
             "modelType": "AssetAdministrationShell",
             "id": "https://acplt.org/Test_AssetAdministrationShell_Mandatory",
             "assetInformation": {
@@ -254,7 +253,6 @@
             ]
         },
         {
-            "idShort": "NotSet",
             "modelType": "AssetAdministrationShell",
             "id": "https://acplt.org/Test_AssetAdministrationShell2_Mandatory",
             "assetInformation": {
@@ -1424,7 +1422,6 @@
                             },
                             "value": [
                                 {
-                                    "idShort": "ExampleProperty",
                                     "displayName": [
                                         {
                                             "language": "en-US",
@@ -1595,7 +1592,6 @@
                                     ]
                                 },
                                 {
-                                    "idShort": "ExampleProperty2",
                                     "displayName": [
                                         {
                                             "language": "en-US",
@@ -1657,7 +1653,6 @@
             ]
         },
         {
-            "idShort": "NotSet",
             "modelType": "Submodel",
             "id": "https://acplt.org/Test_Submodel_Mandatory",
             "submodelElements": [
@@ -1754,7 +1749,6 @@
                     "modelType": "SubmodelElementList",
                     "value": [
                         {
-                            "idShort": "ExampleSubmodelCollection",
                             "modelType": "SubmodelElementCollection",
                             "value": [
                                 {
@@ -1796,7 +1790,6 @@
                             ]
                         },
                         {
-                            "idShort": "ExampleSubmodelCollection2",
                             "modelType": "SubmodelElementCollection"
                         }
                     ]
@@ -1809,7 +1802,6 @@
             ]
         },
         {
-            "idShort": "NotSet",
             "modelType": "Submodel",
             "id": "https://acplt.org/Test_Submodel2_Mandatory"
         },
@@ -2757,7 +2749,7 @@
                             }
                         ]
                     },
-                    "orderRelevant": false,
+                    "orderRelevant": true,
                     "category": "PARAMETER",
                     "description": [
                         {
@@ -2782,7 +2774,6 @@
                     "kind": "Template",
                     "value": [
                         {
-                    "idShort": "ExampleSubmodelCollection",
                     "category": "PARAMETER",
                     "description": [
                         {
@@ -2995,7 +2986,6 @@
                     ]
                 },
                         {
-                    "idShort": "ExampleSubmodelCollection2",
                     "category": "PARAMETER",
                     "description": [
                         {
@@ -3033,7 +3023,7 @@
                             }
                         ]
                     },
-                    "orderRelevant": false,
+                    "orderRelevant": true,
                     "category": "PARAMETER",
                     "description": [
                         {
@@ -3208,7 +3198,6 @@
             ]
         },
         {
-            "idShort": "NotSet",
             "modelType": "ConceptDescription",
             "id": "https://acplt.org/Test_ConceptDescription_Mandatory"
         },

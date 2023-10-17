@@ -33,13 +33,12 @@ class KeyTest(unittest.TestCase):
         self.assertEqual(key1.__eq__(ident), NotImplemented)
 
     def test_from_referable(self):
-        mlp1 = model.MultiLanguageProperty("mlp1")
-        mlp2 = model.MultiLanguageProperty("mlp2")
+        mlp1 = model.MultiLanguageProperty(None)
+        mlp2 = model.MultiLanguageProperty(None)
         se_list = model.SubmodelElementList("list", model.MultiLanguageProperty, [mlp1, mlp2])
         self.assertEqual(model.Key(model.KeyTypes.MULTI_LANGUAGE_PROPERTY, "0"), model.Key.from_referable(mlp1))
         self.assertEqual(model.Key(model.KeyTypes.MULTI_LANGUAGE_PROPERTY, "1"), model.Key.from_referable(mlp2))
         del se_list.value[0]
-        mlp1.id_short = None
         self.assertEqual(model.Key(model.KeyTypes.MULTI_LANGUAGE_PROPERTY, "0"), model.Key.from_referable(mlp2))
         with self.assertRaises(ValueError) as cm:
             model.Key.from_referable(mlp1)
@@ -870,7 +869,7 @@ class ModelReferenceTest(unittest.TestCase):
 
     def test_resolve(self) -> None:
         prop = model.Property("prop", model.datatypes.Int)
-        collection = model.SubmodelElementCollection("collection", {prop})
+        collection = model.SubmodelElementCollection(None, {prop})
         list_ = model.SubmodelElementList("list", model.SubmodelElementCollection, {collection})
         submodel = model.Submodel("urn:x-test:submodel", {list_})
 

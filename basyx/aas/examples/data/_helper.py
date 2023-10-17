@@ -135,7 +135,10 @@ class AASDataChecker(DataChecker):
         :param expected_object: The expected referable object
         :return: The value of expression to be used in control statements
         """
-        self.check_attribute_equal(object_, "id_short", expected_object.id_short)
+        # For SubmodelElementLists, the id_shorts of children are randomly generated.
+        # Thus, this check would always fail if enabled.
+        if not isinstance(object_.parent, model.SubmodelElementList):
+            self.check_attribute_equal(object_, "id_short", expected_object.id_short)
         self.check_attribute_equal(object_, "category", expected_object.category)
         self.check_attribute_equal(object_, "description", expected_object.description)
         self.check_attribute_equal(object_, "display_name", expected_object.display_name)
@@ -383,13 +386,14 @@ class AASDataChecker(DataChecker):
         self.check_attribute_equal(object_, 'type_value_list_element', expected_value.type_value_list_element)
         self.check_contained_element_length(object_, 'value', object_.type_value_list_element,
                                             len(expected_value.value))
-        if object_.order_relevant:
-            # compare ordered
-            for se1, se2 in zip(object_.value, expected_value.value):
-                self._check_submodel_element(se1, se2)
-        else:
-            # compare unordered
-            self._check_submodel_elements_equal_unordered(object_, expected_value)
+        if not object_.order_relevant or not expected_value.order_relevant:
+            # It is impossible to compare SubmodelElementLists with order_relevant=False, since it is impossible
+            # to know which element should be compared against which other element.
+            raise NotImplementedError("A SubmodelElementList with order_relevant=False cannot be compared!")
+
+        # compare ordered
+        for se1, se2 in zip(object_.value, expected_value.value):
+            self._check_submodel_element(se1, se2)
 
     def check_relationship_element_equal(self, object_: model.RelationshipElement,
                                          expected_value: model.RelationshipElement):

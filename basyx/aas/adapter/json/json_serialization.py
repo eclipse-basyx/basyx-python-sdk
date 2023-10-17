@@ -120,7 +120,7 @@ class AASToJsonEncoder(json.JSONEncoder):
                 ]
 
         if isinstance(obj, model.Referable):
-            if obj.id_short:
+            if obj.id_short and not isinstance(obj.parent, model.SubmodelElementList):
                 data['idShort'] = obj.id_short
             if obj.display_name:
                 data['displayName'] = obj.display_name
