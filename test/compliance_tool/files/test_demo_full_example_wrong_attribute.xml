@@ -215,7 +215,6 @@
       </aas:submodels>
     </aas:assetAdministrationShell>
     <aas:assetAdministrationShell>
-      <aas:idShort>NotSet</aas:idShort>
       <aas:id>https://acplt.org/Test_AssetAdministrationShell_Mandatory</aas:id>
       <aas:assetInformation>
         <aas:assetKind>Instance</aas:assetKind>
@@ -243,7 +242,6 @@
       </aas:submodels>
     </aas:assetAdministrationShell>
     <aas:assetAdministrationShell>
-      <aas:idShort>NotSet</aas:idShort>
       <aas:id>https://acplt.org/Test_AssetAdministrationShell2_Mandatory</aas:id>
       <aas:assetInformation>
         <aas:assetKind>Instance</aas:assetKind>
@@ -1527,7 +1525,6 @@
       </aas:submodelElements>
     </aas:submodel>
     <aas:submodel>
-      <aas:idShort>NotSet</aas:idShort>
       <aas:id>https://acplt.org/Test_Submodel_Mandatory</aas:id>
       <aas:kind>Instance</aas:kind>
       <aas:submodelElements>
@@ -1672,7 +1669,6 @@
       </aas:submodelElements>
     </aas:submodel>
     <aas:submodel>
-      <aas:idShort>NotSet</aas:idShort>
       <aas:id>https://acplt.org/Test_Submodel2_Mandatory</aas:id>
       <aas:kind>Instance</aas:kind>
     </aas:submodel>
@@ -3041,7 +3037,6 @@
       </aas:isCaseOf>
     </aas:conceptDescription>
     <aas:conceptDescription>
-      <aas:idShort>NotSet</aas:idShort>
       <aas:id>https://acplt.org/Test_ConceptDescription_Mandatory</aas:id>
     </aas:conceptDescription>
     <aas:conceptDescription>
