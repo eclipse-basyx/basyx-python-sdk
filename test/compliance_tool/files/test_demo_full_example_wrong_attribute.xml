@@ -84,7 +84,7 @@
                   <aas:text>This is a DataSpecification for testing purposes</aas:text>
                 </aas:langStringDefinitionTypeIec61360>
               </aas:definition>
-              <aas:valueFormat>xs:string</aas:valueFormat>
+              <aas:valueFormat>M</aas:valueFormat>
               <aas:valueList>
                 <aas:valueReferencePairs>
                   <aas:valueReferencePair>
@@ -1284,7 +1284,7 @@
                               <aas:text>This is a DataSpecification for testing purposes</aas:text>
                             </aas:langStringDefinitionTypeIec61360>
                           </aas:definition>
-                          <aas:valueFormat>xs:string</aas:valueFormat>
+                          <aas:valueFormat>M</aas:valueFormat>
                           <aas:valueList>
                             <aas:valueReferencePairs>
                               <aas:valueReferencePair>
@@ -2970,7 +2970,7 @@
                     <aas:text>This is a DataSpecification for testing purposes</aas:text>
                   </aas:langStringDefinitionTypeIec61360>
                 </aas:definition>
-                <aas:valueFormat>xs:string</aas:valueFormat>
+                <aas:valueFormat>M</aas:valueFormat>
                 <aas:valueList>
                   <aas:valueReferencePairs>
                     <aas:valueReferencePair>

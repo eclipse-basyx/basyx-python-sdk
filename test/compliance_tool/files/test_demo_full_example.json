@@ -173,7 +173,7 @@
                         },
                         "sourceOfDefinition": "http://acplt.org/DataSpec/ExampleDef",
                         "symbol": "SU",
-                        "valueFormat": "xs:string",
+                        "valueFormat": "M",
                         "valueList": {
                             "valueReferencePairs": [
                                 {
@@ -186,8 +186,7 @@
                                                 "value": "http://acplt.org/ValueId/ExampleValueId"
                                             }
                                         ]
-                                    },
-                                    "valueType": "xs:string"
+                                    }
                                 },
                                 {
                                     "value": "exampleValue2",
@@ -199,8 +198,7 @@
                                                 "value": "http://acplt.org/ValueId/ExampleValueId2"
                                             }
                                         ]
-                                    },
-                                    "valueType": "xs:string"
+                                    }
                                 }
                             ]
                         },
@@ -668,7 +666,7 @@
                                         },
                                         "sourceOfDefinition": "http://acplt.org/DataSpec/ExampleDef",
                                         "symbol": "SU",
-                                        "valueFormat": "xs:string",
+                                        "valueFormat": "M",
                                         "valueList": {
                                             "valueReferencePairs": [
                                                 {
@@ -1540,7 +1538,7 @@
                                                 },
                                                 "sourceOfDefinition": "http://acplt.org/DataSpec/ExampleDef",
                                                 "symbol": "SU",
-                                                "valueFormat": "xs:string",
+                                                "valueFormat": "M",
                                                 "valueList": {
                                                     "valueReferencePairs": [
                                                         {
@@ -1553,8 +1551,7 @@
                                                                         "value": "http://acplt.org/ValueId/ExampleValueId"
                                                                     }
                                                                 ]
-                                                            },
-                                                            "valueType": "xs:string"
+                                                            }
                                                         },
                                                         {
                                                             "value": "exampleValue2",
@@ -1566,8 +1563,7 @@
                                                                         "value": "http://acplt.org/ValueId/ExampleValueId2"
                                                                     }
                                                                 ]
-                                                            },
-                                                            "valueType": "xs:string"
+                                                            }
                                                         }
                                                     ]
                                                 },
@@ -3134,7 +3130,7 @@
                             },
                             "sourceOfDefinition": "http://acplt.org/DataSpec/ExampleDef",
                             "symbol": "SU",
-                            "valueFormat": "xs:string",
+                            "valueFormat": "M",
                             "valueList": {
                                 "valueReferencePairs": [
                                     {
@@ -3147,8 +3143,7 @@
                                                     "value": "http://acplt.org/ValueId/ExampleValueId"
                                                 }
                                             ]
-                                        },
-                                        "valueType": "xs:string"
+                                        }
                                     },
                                     {
                                         "value": "exampleValue2",
@@ -3160,8 +3155,7 @@
                                                     "value": "http://acplt.org/ValueId/ExampleValueId2"
                                                 }
                                             ]
-                                        },
-                                        "valueType": "xs:string"
+                                        }
                                     }
                                 ]
                             },

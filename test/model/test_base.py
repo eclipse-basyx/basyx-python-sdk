@@ -1043,15 +1043,12 @@ class ExtensionTest(unittest.TestCase):
 class ValueReferencePairTest(unittest.TestCase):
     def test_set_value(self):
         pair = model.ValueReferencePair(
-            value_type=model.datatypes.Int,
-            value=2,
+            value="2",
             value_id=model.ExternalReference((model.Key(model.KeyTypes.GLOBAL_REFERENCE, 'test'),)))
-        self.assertEqual(pair.value, 2)
-        with self.assertRaises(AttributeError) as cm:
-            pair.value = None
+        self.assertEqual(pair.value, "2")
         self.assertEqual('Value can not be None', str(cm.exception))
-        pair.value = 3
-        self.assertEqual(pair.value, 3)
+        pair.value = "3"
+        self.assertEqual(pair.value, "3")
 
 
 class HasSemanticsTest(unittest.TestCase):

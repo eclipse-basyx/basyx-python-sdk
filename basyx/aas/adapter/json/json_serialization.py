@@ -357,11 +357,12 @@ class AASToJsonEncoder(json.JSONEncoder):
             data_spec['sourceOfDefinition'] = obj.source_of_definition
         if obj.symbol is not None:
             data_spec['symbol'] = obj.symbol
-        data_spec['valueFormat'] = model.datatypes.XSD_TYPE_NAMES[obj.value_format]
+        if obj.value_format is not None:
+            data_spec['valueFormat'] = obj.value_format
         if obj.value_list is not None:
             data_spec['valueList'] = cls._value_list_to_json(obj.value_list)
         if obj.value is not None:
-            data_spec['value'] = model.datatypes.xsd_repr(obj.value) if obj.value is not None else None
+            data_spec['value'] = obj.value
         if obj.level_types:
             data_spec['levelType'] = {v: k in obj.level_types for k, v in _generic.IEC61360_LEVEL_TYPES.items()}
         return data_spec

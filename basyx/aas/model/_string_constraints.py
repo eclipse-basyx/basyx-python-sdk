@@ -92,6 +92,10 @@ def check_short_name_type(value: str, type_name: str = "ShortNameType") -> None:
     return check(value, type_name, 1, 64)
 
 
+def check_value_type_iec61360(value: str, type_name: str = "ValueTypeIEC61360") -> None:
+    return check(value, type_name, 1, 2000)
+
+
 def check_version_type(value: str, type_name: str = "VersionType") -> None:
     return check(value, type_name, 1, 4, re.compile(r"([0-9]|[1-9][0-9]*)"))
 
@@ -170,3 +174,7 @@ def constrain_short_name_type(pub_attr_name: str) -> Callable[[Type[_T]], Type[_
 
 def constrain_version_type(pub_attr_name: str) -> Callable[[Type[_T]], Type[_T]]:
     return constrain_attr(pub_attr_name, check_version_type)
+
+
+def constrain_value_type_iec61360(pub_attr_name: str) -> Callable[[Type[_T]], Type[_T]]:
+    return constrain_attr(pub_attr_name, check_value_type_iec61360)

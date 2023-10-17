@@ -70,26 +70,26 @@ ENTITY_TYPES: Dict[model.EntityType, str] = {
     model.EntityType.CO_MANAGED_ENTITY: 'CoManagedEntity',
     model.EntityType.SELF_MANAGED_ENTITY: 'SelfManagedEntity'}
 
-IEC61360_DATA_TYPES: Dict[model.base.IEC61360DataType, str] = {
-    model.base.IEC61360DataType.DATE: 'DATE',
-    model.base.IEC61360DataType.STRING: 'STRING',
-    model.base.IEC61360DataType.STRING_TRANSLATABLE: 'STRING_TRANSLATABLE',
-    model.base.IEC61360DataType.INTEGER_MEASURE: 'INTEGER_MEASURE',
-    model.base.IEC61360DataType.INTEGER_COUNT: 'INTEGER_COUNT',
-    model.base.IEC61360DataType.INTEGER_CURRENCY: 'INTEGER_CURRENCY',
-    model.base.IEC61360DataType.REAL_MEASURE: 'REAL_MEASURE',
-    model.base.IEC61360DataType.REAL_COUNT: 'REAL_COUNT',
-    model.base.IEC61360DataType.REAL_CURRENCY: 'REAL_CURRENCY',
-    model.base.IEC61360DataType.BOOLEAN: 'BOOLEAN',
-    model.base.IEC61360DataType.IRI: 'IRI',
-    model.base.IEC61360DataType.IRDI: 'IRDI',
-    model.base.IEC61360DataType.RATIONAL: 'RATIONAL',
-    model.base.IEC61360DataType.RATIONAL_MEASURE: 'RATIONAL_MEASURE',
-    model.base.IEC61360DataType.TIME: 'TIME',
-    model.base.IEC61360DataType.TIMESTAMP: 'TIMESTAMP',
-    model.base.IEC61360DataType.HTML: 'HTML',
-    model.base.IEC61360DataType.BLOB: 'BLOB',
-    model.base.IEC61360DataType.FILE: 'FILE',
+IEC61360_DATA_TYPES: Dict[model.base.DataTypeIEC61360, str] = {
+    model.base.DataTypeIEC61360.DATE: 'DATE',
+    model.base.DataTypeIEC61360.STRING: 'STRING',
+    model.base.DataTypeIEC61360.STRING_TRANSLATABLE: 'STRING_TRANSLATABLE',
+    model.base.DataTypeIEC61360.INTEGER_MEASURE: 'INTEGER_MEASURE',
+    model.base.DataTypeIEC61360.INTEGER_COUNT: 'INTEGER_COUNT',
+    model.base.DataTypeIEC61360.INTEGER_CURRENCY: 'INTEGER_CURRENCY',
+    model.base.DataTypeIEC61360.REAL_MEASURE: 'REAL_MEASURE',
+    model.base.DataTypeIEC61360.REAL_COUNT: 'REAL_COUNT',
+    model.base.DataTypeIEC61360.REAL_CURRENCY: 'REAL_CURRENCY',
+    model.base.DataTypeIEC61360.BOOLEAN: 'BOOLEAN',
+    model.base.DataTypeIEC61360.IRI: 'IRI',
+    model.base.DataTypeIEC61360.IRDI: 'IRDI',
+    model.base.DataTypeIEC61360.RATIONAL: 'RATIONAL',
+    model.base.DataTypeIEC61360.RATIONAL_MEASURE: 'RATIONAL_MEASURE',
+    model.base.DataTypeIEC61360.TIME: 'TIME',
+    model.base.DataTypeIEC61360.TIMESTAMP: 'TIMESTAMP',
+    model.base.DataTypeIEC61360.HTML: 'HTML',
+    model.base.DataTypeIEC61360.BLOB: 'BLOB',
+    model.base.DataTypeIEC61360.FILE: 'FILE',
 }
 
 IEC61360_LEVEL_TYPES: Dict[model.base.IEC61360LevelType, str] = {
@@ -107,7 +107,7 @@ STATE_OF_EVENT_INVERSE: Dict[str, model.StateOfEvent] = {v: k for k, v in STATE_
 REFERENCE_TYPES_INVERSE: Dict[str, Type[model.Reference]] = {v: k for k, v in REFERENCE_TYPES.items()}
 KEY_TYPES_INVERSE: Dict[str, model.KeyTypes] = {v: k for k, v in KEY_TYPES.items()}
 ENTITY_TYPES_INVERSE: Dict[str, model.EntityType] = {v: k for k, v in ENTITY_TYPES.items()}
-IEC61360_DATA_TYPES_INVERSE: Dict[str, model.base.IEC61360DataType] = {v: k for k, v in IEC61360_DATA_TYPES.items()}
+IEC61360_DATA_TYPES_INVERSE: Dict[str, model.base.DataTypeIEC61360] = {v: k for k, v in IEC61360_DATA_TYPES.items()}
 IEC61360_LEVEL_TYPES_INVERSE: Dict[str, model.base.IEC61360LevelType] = \
     {v: k for k, v in IEC61360_LEVEL_TYPES.items()}
 
