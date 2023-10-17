@@ -129,7 +129,7 @@
                         ]
                     },
                     "dataSpecificationContent": {
-                        "modelType": "DataSpecificationIEC61360",
+                        "modelType": "DataSpecificationIec61360",
                         "preferredName": [
                             {
                                 "language": "de",
@@ -624,7 +624,7 @@
                                         ]
                                     },
                                     "dataSpecificationContent": {
-                                        "modelType": "DataSpecificationIEC61360",
+                                        "modelType": "DataSpecificationIec61360",
                                         "preferredName": [
                                             {
                                                 "language": "de",
@@ -1496,7 +1496,7 @@
                                                 ]
                                             },
                                             "dataSpecificationContent": {
-                                                "modelType": "DataSpecificationIEC61360",
+                                                "modelType": "DataSpecificationIec61360",
                                                 "preferredName": [
                                                     {
                                                         "language": "de",
@@ -3090,7 +3090,7 @@
                             ]
                         },
                         "dataSpecificationContent": {
-                            "modelType": "DataSpecificationIEC61360",
+                            "modelType": "DataSpecificationIec61360",
                             "preferredName": [
                                 {
                                     "language": "de",
