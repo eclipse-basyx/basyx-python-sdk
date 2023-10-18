@@ -423,8 +423,7 @@ class AASFromJsonDecoder(json.JSONDecoder):
             ret.global_asset_id = _get_ts(dct, 'globalAssetId', str)
         if 'specificAssetIds' in dct:
             for desc_data in _get_ts(dct, "specificAssetIds", list):
-                ret.specific_asset_id.add(cls._construct_specific_asset_id(desc_data,
-                                                                           model.SpecificAssetId))
+                ret.specific_asset_id.add(cls._construct_specific_asset_id(desc_data, model.SpecificAssetId))
         if 'assetType' in dct:
             ret.asset_type = _get_ts(dct, 'assetType', str)
         if 'defaultThumbnail' in dct:
