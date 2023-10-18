@@ -1046,7 +1046,6 @@ class ValueReferencePairTest(unittest.TestCase):
             value="2",
             value_id=model.ExternalReference((model.Key(model.KeyTypes.GLOBAL_REFERENCE, 'test'),)))
         self.assertEqual(pair.value, "2")
-        self.assertEqual('Value can not be None', str(cm.exception))
         pair.value = "3"
         self.assertEqual(pair.value, "3")
 
