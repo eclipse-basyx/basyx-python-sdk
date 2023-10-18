@@ -306,7 +306,7 @@ class AASFromJsonDecoder(json.JSONDecoder):
         return object_class(name=_get_ts(dct, 'name', str),
                             value=_get_ts(dct, 'value', str),
                             external_subject_id=cls._construct_external_reference(
-                                _get_ts(dct, 'externalSubjectId', dict)),
+                                _get_ts(dct, 'externalSubjectId', dict)) if 'externalSubjectId' in dct else None,
                             semantic_id=cls._construct_reference(_get_ts(dct, 'semanticId', dict))
                             if 'semanticId' in dct else None,
                             supplemental_semantic_id=[
