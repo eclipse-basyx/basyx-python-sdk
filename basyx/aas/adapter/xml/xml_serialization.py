@@ -338,7 +338,8 @@ def specific_asset_id_to_xml(obj: model.SpecificAssetId, tag: str = NS_AAS + "sp
     et_asset_information = abstract_classes_to_xml(tag, obj)
     et_asset_information.append(_generate_element(name=NS_AAS + "name", text=obj.name))
     et_asset_information.append(_generate_element(name=NS_AAS + "value", text=obj.value))
-    et_asset_information.append(reference_to_xml(obj.external_subject_id, NS_AAS + "externalSubjectId"))
+    if obj.external_subject_id:
+        et_asset_information.append(reference_to_xml(obj.external_subject_id, NS_AAS + "externalSubjectId"))
 
     return et_asset_information
 

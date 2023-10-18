@@ -2155,7 +2155,7 @@ class SpecificAssetId(HasSemantics):
     def __init__(self,
                  name: LabelType,
                  value: Identifier,
-                 external_subject_id: ExternalReference,
+                 external_subject_id: Optional[ExternalReference] = None,
                  semantic_id: Optional[Reference] = None,
                  supplemental_semantic_id: Iterable[Reference] = ()):
         super().__init__()

@@ -984,10 +984,10 @@ class AASFromXmlDecoder:
                                     **_kwargs: Any) -> model.SpecificAssetId:
         # semantic_id can't be applied by _amend_abstract_attributes because specificAssetId is immutable
         return object_class(
-            external_subject_id=_child_construct_mandatory(element, NS_AAS + "externalSubjectId",
-                                                           cls.construct_external_reference),
             name=_get_text_or_none(element.find(NS_AAS + "name")),
             value=_get_text_or_none(element.find(NS_AAS + "value")),
+            external_subject_id=_failsafe_construct(element.find(NS_AAS + "externalSubjectId"),
+                                                    cls.construct_external_reference, cls.failsafe),
             semantic_id=_failsafe_construct(element.find(NS_AAS + "semanticId"), cls.construct_reference, cls.failsafe)
         )
 
