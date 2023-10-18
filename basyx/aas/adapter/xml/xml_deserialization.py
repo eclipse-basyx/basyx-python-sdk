@@ -1033,8 +1033,8 @@ class AASFromXmlDecoder:
         return submodel
 
     @classmethod
-    def construct_value_reference_pair(cls, element: etree.Element, object_class=model.ValueReferencePair
-                                       , **_kwargs: Any) -> model.ValueReferencePair:
+    def construct_value_reference_pair(cls, element: etree.Element, object_class=model.ValueReferencePair,
+                                       **_kwargs: Any) -> model.ValueReferencePair:
         return object_class(_child_text_mandatory(element, NS_AAS + "value"),
                             _child_construct_mandatory(element, NS_AAS + "valueId", cls.construct_reference))
 
