@@ -225,7 +225,6 @@
             ]
         },
         {
-            "idShort": "NotSet",
             "modelType": "AssetAdministrationShell",
             "id": "https://acplt.org/Test_AssetAdministrationShell_Mandatory",
             "assetInformation": {
@@ -254,7 +253,6 @@
             ]
         },
         {
-            "idShort": "NotSet",
             "modelType": "AssetAdministrationShell",
             "id": "https://acplt.org/Test_AssetAdministrationShell2_Mandatory",
             "assetInformation": {
@@ -1655,7 +1653,6 @@
             ]
         },
         {
-            "idShort": "NotSet",
             "modelType": "Submodel",
             "id": "https://acplt.org/Test_Submodel_Mandatory",
             "submodelElements": [
@@ -1805,7 +1802,6 @@
             ]
         },
         {
-            "idShort": "NotSet",
             "modelType": "Submodel",
             "id": "https://acplt.org/Test_Submodel2_Mandatory"
         },
@@ -3202,7 +3198,6 @@
             ]
         },
         {
-            "idShort": "NotSet",
             "modelType": "ConceptDescription",
             "id": "https://acplt.org/Test_ConceptDescription_Mandatory"
         },
