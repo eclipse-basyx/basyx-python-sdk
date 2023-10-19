@@ -6,12 +6,36 @@
 # SPDX-License-Identifier: MIT
 import os
 import unittest
+import zipfile
+
+import pyecma376_2
 
 from basyx.aas.compliance_tool import compliance_check_aasx as compliance_tool
 from basyx.aas.compliance_tool.state_manager import ComplianceToolStateManager, Status
 
 
 class ComplianceToolAASXTest(unittest.TestCase):
+    def __init__(self, *args, **kwargs):
+        """Create test AASX files."""
+        super().__init__(*args, **kwargs)
+        script_dir = os.path.dirname(__file__)
+        for i in ("test_demo_full_example_json_aasx",
+                  "test_demo_full_example_xml_aasx",
+                  "test_demo_full_example_xml_wrong_attribute_aasx",
+                  "test_empty_aasx"):
+            self._zip_directory(os.path.join(script_dir, "files", i),
+                                os.path.join(script_dir, "files", i.rstrip("_aasx") + ".aasx"))
+
+    @classmethod
+    def _zip_directory(cls, directory_path, zip_file_path):
+        """Zip a directory recursively."""
+        with zipfile.ZipFile(zip_file_path, 'w', zipfile.ZIP_DEFLATED) as zipf:
+            for root, _, files in os.walk(directory_path):
+                for file in files:
+                    file_path = os.path.join(root, file)
+                    arcname = os.path.relpath(file_path, directory_path)
+                    zipf.write(file_path, arcname=arcname)
+
     def test_check_deserialization(self) -> None:
         manager = ComplianceToolStateManager()
         script_dir = os.path.dirname(__file__)
