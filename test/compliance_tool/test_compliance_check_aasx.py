@@ -8,23 +8,34 @@ import os
 import unittest
 import zipfile
 
-import pyecma376_2
-
 from basyx.aas.compliance_tool import compliance_check_aasx as compliance_tool
 from basyx.aas.compliance_tool.state_manager import ComplianceToolStateManager, Status
 
 
 class ComplianceToolAASXTest(unittest.TestCase):
-    def __init__(self, *args, **kwargs):
-        """Create test AASX files."""
-        super().__init__(*args, **kwargs)
-        script_dir = os.path.dirname(__file__)
-        for i in ("test_demo_full_example_json_aasx",
+    AASX_FILES = ("test_demo_full_example_json_aasx",
                   "test_demo_full_example_xml_aasx",
                   "test_demo_full_example_xml_wrong_attribute_aasx",
-                  "test_empty_aasx"):
-            self._zip_directory(os.path.join(script_dir, "files", i),
-                                os.path.join(script_dir, "files", i.rstrip("_aasx") + ".aasx"))
+                  "test_empty_aasx")
+
+    @classmethod
+    def setUpClass(cls):
+        """Zip dirs and create test AASX files."""
+        try:
+            script_dir = os.path.dirname(__file__)
+            for i in cls.AASX_FILES:
+                cls._zip_directory(os.path.join(script_dir, "files", i),
+                                    os.path.join(script_dir, "files", i.rstrip("_aasx") + ".aasx"))
+        except Exception as e:
+            cls.tearDownClass()
+            raise e
+
+    @classmethod
+    def tearDownClass(cls):
+        """Remove created test AASX files."""
+        for i in cls.AASX_FILES:
+            os.remove(os.path.join(os.path.dirname(__file__), "files", i.rstrip("_aasx") + ".aasx"))
+
 
     @classmethod
     def _zip_directory(cls, directory_path, zip_file_path):
