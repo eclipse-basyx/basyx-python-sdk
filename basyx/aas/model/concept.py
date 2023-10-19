@@ -60,7 +60,7 @@ class ConceptDescription(base.Identifiable, base.HasDataSpecification):
     def __init__(self,
                  id_: base.Identifier,
                  is_case_of: Optional[Set[base.Reference]] = None,
-                 id_short: base.NameType = "NotSet",
+                 id_short: Optional[base.NameType] = None,
                  display_name: Optional[base.MultiLanguageNameType] = None,
                  category: Optional[base.NameType] = None,
                  description: Optional[base.MultiLanguageTextType] = None,
