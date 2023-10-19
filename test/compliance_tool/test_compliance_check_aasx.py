@@ -21,21 +21,10 @@ class ComplianceToolAASXTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         """Zip dirs and create test AASX files."""
-        try:
-            script_dir = os.path.dirname(__file__)
-            for i in cls.AASX_FILES:
-                cls._zip_directory(os.path.join(script_dir, "files", i),
-                                   os.path.join(script_dir, "files",
-                                                i.rstrip("_aasx") + ".aasx"))
-        except Exception as e:
-            cls.tearDownClass()
-            raise e
-
-    @classmethod
-    def tearDownClass(cls):
-        """Remove created test AASX files."""
+        script_dir = os.path.dirname(__file__)
         for i in cls.AASX_FILES:
-            os.remove(os.path.join(os.path.dirname(__file__), "files", i.rstrip("_aasx") + ".aasx"))
+            cls._zip_directory(os.path.join(script_dir, "files", i),
+                               os.path.join(script_dir, "files", i.rstrip("_aasx") + ".aasx"))
 
     @classmethod
     def _zip_directory(cls, directory_path, zip_file_path):
