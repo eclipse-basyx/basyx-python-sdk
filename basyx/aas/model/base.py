@@ -2130,6 +2130,9 @@ class SpecificAssetId(HasSemantics):
     A specific asset ID describes a generic supplementary identifying attribute of the asset.
     The specific asset ID is not necessarily globally unique.
 
+    *Constraint AASd-133:* SpecificAssetId/externalSubjectId shall be a global reference,
+        i.e. Reference/type = ExternalReference
+
     :ivar name: Key of the identifier
     :ivar value: The value of the identifier with the corresponding key.
     :ivar external_subject_id: The (external) subject the key belongs to or has meaning to.
@@ -2153,6 +2156,10 @@ class SpecificAssetId(HasSemantics):
             raise ValueError("value is not allowed to be an empty string")
         _string_constraints.check_label_type(name)
         _string_constraints.check_identifier(value)
+        if external_subject_id is not None and not isinstance(external_subject_id, ExternalReference):
+            raise AASConstraintViolation(133, f"external_subject_id shall be a global reference, given: "
+                                              f"{external_subject_id}")
+
         self.name: LabelType
         self.value: Identifier
         self.external_subject_id: ExternalReference
