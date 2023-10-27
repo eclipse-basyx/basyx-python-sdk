@@ -284,7 +284,13 @@
           </xs:restriction>
         </xs:simpleType>
       </xs:element>
-      <xs:element name="specificAssetId" type="specificAssetId_t" minOccurs="0" maxOccurs="1"/>
+      <xs:element name="specificAssetIds" minOccurs="0" maxOccurs="1">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="specificAssetId" type="specificAssetId_t" minOccurs="1" maxOccurs="unbounded"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
     </xs:sequence>
   </xs:group>
   <xs:group name="environment">

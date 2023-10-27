@@ -444,8 +444,12 @@
               "maxLength": 2000,
               "pattern": "^([\\t\\n\\r -\ud7ff\ue000-\ufffd]|\\ud800[\\udc00-\\udfff]|[\\ud801-\\udbfe][\\udc00-\\udfff]|\\udbff[\\udc00-\\udfff])*$"
             },
-            "specificAssetId": {
-              "$ref": "#/definitions/SpecificAssetId"
+            "specificAssetIds": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/SpecificAssetId"
+              },
+              "minItems": 1
             }
           },
           "required": [
