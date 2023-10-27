@@ -454,7 +454,7 @@ class AASDataChecker(DataChecker):
                 return element
         return None
 
-    def _find_specific_asset_id(self, object_: model.SpecificAssetId, search_list: Union[Set, List]) \
+    def _find_specific_asset_id(self, object_: model.SpecificAssetId, search_list: Iterable) \
             -> Union[model.SpecificAssetId, None]:
         """
         Find a SpecificAssetId in an list
@@ -604,25 +604,26 @@ class AASDataChecker(DataChecker):
         self._check_abstract_attributes_submodel_element_equal(object_, expected_value)
         self.check_attribute_equal(object_, 'entity_type', expected_value.entity_type)
         self.check_attribute_equal(object_, 'global_asset_id', expected_value.global_asset_id)
-        if object_.specific_asset_id and expected_value.specific_asset_id:
-            self.check_specific_asset_id(object_.specific_asset_id, expected_value.specific_asset_id)
-        else:
-            if expected_value.specific_asset_id:
-                self.check(expected_value.specific_asset_id is not None,
-                           'SpecificAssetId {} must exist'.format(repr(expected_value.specific_asset_id)),
-                           value=object_.specific_asset_id)
-            else:
-                if object_.specific_asset_id:
-                    self.check(expected_value.specific_asset_id is None, 'Enity {} must not have a '
-                                                                         'specificAssetId'.format(repr(object_)),
-                               value=expected_value.specific_asset_id)
+        self._check_specific_asset_ids_equal(object_.specific_asset_id, expected_value.specific_asset_id, object_)
         self.check_contained_element_length(object_, 'statement', model.SubmodelElement, len(expected_value.statement))
         for expected_element in expected_value.statement:
             element = object_.get_referable(expected_element.id_short)
-            self.check(element is not None, 'Entity {} must exist'.format(repr(expected_element)))
+            self.check(element is not None, f'Entity {repr(expected_element)} must exist')
 
         found_elements = self._find_extra_elements_by_id_short(object_.statement, expected_value.statement)
-        self.check(found_elements == set(), 'Enity {} must not have extra statements'.format(repr(object_)),
+        self.check(found_elements == set(), f'Enity {repr(object_)} must not have extra statements',
+                   value=found_elements)
+
+    def _check_specific_asset_ids_equal(self, object_: Iterable[model.SpecificAssetId],
+                                        expected_value: Iterable[model.SpecificAssetId],
+                                        object_parent):
+        for expected_pair in expected_value:
+            pair = self._find_specific_asset_id(expected_pair, object_)
+            if self.check(pair is not None, f'SpecificAssetId {repr(expected_pair)} must exist'):
+                self.check_specific_asset_id(pair, expected_pair)  # type: ignore
+
+        found_elements = self._find_extra_object(object_, expected_value, model.SpecificAssetId)
+        self.check(found_elements == set(), f'{repr(object_parent)} must not have extra specificAssetIds',
                    value=found_elements)
 
     def _check_event_element_equal(self, object_: model.EventElement, expected_value: model.EventElement):
@@ -722,16 +723,7 @@ class AASDataChecker(DataChecker):
         self.check_attribute_equal(object_, 'global_asset_id', expected_value.global_asset_id)
         self.check_contained_element_length(object_, 'specific_asset_id', model.SpecificAssetId,
                                             len(expected_value.specific_asset_id))
-        for expected_pair in expected_value.specific_asset_id:
-            pair = self._find_specific_asset_id(expected_pair, object_.specific_asset_id)
-            if self.check(pair is not None, 'SpecificAssetId {} must exist'.format(repr(expected_pair))):
-                self.check_specific_asset_id(pair, expected_pair)  # type: ignore
-
-        found_elements = self._find_extra_object(object_.specific_asset_id, expected_value.specific_asset_id,
-                                                 model.SpecificAssetId)
-        self.check(found_elements == set(), '{} must not have extra '
-                                            'specificAssetIds'.format(repr(object_)),
-                   value=found_elements)
+        self._check_specific_asset_ids_equal(object_.specific_asset_id, expected_value.specific_asset_id, object_)
         self.check_attribute_equal(object_, 'asset_type', object_.asset_type)
         if object_.default_thumbnail and expected_value.default_thumbnail:
             self.check_resource_equal(object_.default_thumbnail, expected_value.default_thumbnail)
