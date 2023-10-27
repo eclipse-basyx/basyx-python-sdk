@@ -254,7 +254,8 @@
             "modelType": "AssetAdministrationShell",
             "id": "https://acplt.org/Test_AssetAdministrationShell2_Mandatory",
             "assetInformation": {
-                "assetKind": "Instance"
+                "assetKind": "Instance",
+                "globalAssetId": "http://acplt.org/TestAsset2_Mandatory/"
             }
         },
         {
@@ -718,19 +719,21 @@
                     ],
                     "entityType": "SelfManagedEntity",
                     "globalAssetId": "http://acplt.org/TestAsset/",
-                    "specificAssetId": {
-                        "name": "TestKey",
-                        "value": "TestValue",
-                        "externalSubjectId": {
-                            "type": "ExternalReference",
-                            "keys": [
-                                {
-                                    "type": "GlobalReference",
-                                    "value": "http://acplt.org/SpecificAssetId/"
-                                }
-                            ]
+                    "specificAssetIds": [
+                        {
+                            "name": "TestKey",
+                            "value": "TestValue",
+                            "externalSubjectId": {
+                                "type": "ExternalReference",
+                                "keys": [
+                                    {
+                                        "type": "GlobalReference",
+                                        "value": "http://acplt.org/SpecificAssetId/"
+                                    }
+                                ]
+                            }
                         }
-                    }
+                    ]
                 },
                 {
                     "idShort": "ExampleEntity2",

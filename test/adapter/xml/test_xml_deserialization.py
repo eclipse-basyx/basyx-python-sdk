@@ -81,6 +81,7 @@ class XmlDeserializationTest(unittest.TestCase):
             <aas:assetAdministrationShell>
                 <aas:id>http://acplt.org/test_aas</aas:id>
                 <aas:assetInformation>
+                    <aas:globalAssetId>http://acplt.org/TestAsset/</aas:globalAssetId>
                 </aas:assetInformation>
             </aas:assetAdministrationShell>
         </aas:assetAdministrationShells>
@@ -94,6 +95,7 @@ class XmlDeserializationTest(unittest.TestCase):
                 <aas:id>http://acplt.org/test_aas</aas:id>
                 <aas:assetInformation>
                     <aas:assetKind></aas:assetKind>
+                    <aas:globalAssetId>http://acplt.org/TestAsset/</aas:globalAssetId>
                 </aas:assetInformation>
             </aas:assetAdministrationShell>
         </aas:assetAdministrationShells>
@@ -107,6 +109,7 @@ class XmlDeserializationTest(unittest.TestCase):
                 <aas:id>http://acplt.org/test_aas</aas:id>
                 <aas:assetInformation>
                     <aas:assetKind>invalidKind</aas:assetKind>
+                    <aas:globalAssetId>http://acplt.org/TestAsset/</aas:globalAssetId>
                 </aas:assetInformation>
             </aas:assetAdministrationShell>
         </aas:assetAdministrationShells>
@@ -153,6 +156,7 @@ class XmlDeserializationTest(unittest.TestCase):
                 <aas:id>http://acplt.org/test_aas</aas:id>
                 <aas:assetInformation>
                     <aas:assetKind>Instance</aas:assetKind>
+                    <aas:globalAssetId>http://acplt.org/TestAsset/</aas:globalAssetId>
                 </aas:assetInformation>
                 <aas:derivedFrom>
                     <aas:type>ModelReference</aas:type>
@@ -260,6 +264,7 @@ class XmlDeserializationTest(unittest.TestCase):
                 <aas:id>http://acplt.org/test_aas</aas:id>
                 <aas:assetInformation>
                     <aas:assetKind>Instance</aas:assetKind>
+                    <aas:globalAssetId>http://acplt.org/TestAsset/</aas:globalAssetId>
                 </aas:assetInformation>
             </aas:assetAdministrationShell>
         </aas:assetAdministrationShells>
@@ -375,6 +380,7 @@ class XmlDeserializationStrippedObjectsTest(unittest.TestCase):
             <aas:id>http://acplt.org/test_aas</aas:id>
             <aas:assetInformation>
                 <aas:assetKind>Instance</aas:assetKind>
+                <aas:globalAssetId>http://acplt.org/TestAsset/</aas:globalAssetId>
             </aas:assetInformation>
             <aas:submodels>
                 <aas:reference>

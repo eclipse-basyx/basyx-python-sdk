@@ -244,11 +244,12 @@ def create_example_bill_of_material_submodel() -> model.Submodel:
         entity_type=model.EntityType.SELF_MANAGED_ENTITY,
         statement={submodel_element_property, submodel_element_property2},
         global_asset_id='http://acplt.org/TestAsset/',
-        specific_asset_id=model.SpecificAssetId(name="TestKey",
-                                                value="TestValue",
-                                                external_subject_id=model.ExternalReference(
-                                                           (model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
-                                                                      value='http://acplt.org/SpecificAssetId/'),))),
+        specific_asset_id={
+            model.SpecificAssetId(name="TestKey", value="TestValue",
+                                  external_subject_id=model.ExternalReference(
+                                      (model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
+                                                 value='http://acplt.org/SpecificAssetId/'),))
+                                  )},
         category="PARAMETER",
         description=model.MultiLanguageTextType({
             'en-US': 'Legally valid designation of the natural or judicial person which '
