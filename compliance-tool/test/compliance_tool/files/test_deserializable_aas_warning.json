@@ -8,7 +8,8 @@
 			},
 			"modelType": "AssetAdministrationShell",
 			"assetInformation": {
-                "assetKind": "Instance"
+                "assetKind": "Instance",
+				"globalAssetId": "http://acplt.org/TestAsset/"
             }
 		}
 	]
