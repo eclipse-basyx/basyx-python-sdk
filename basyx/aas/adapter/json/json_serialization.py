@@ -631,7 +631,7 @@ class AASToJsonEncoder(json.JSONEncoder):
         if obj.global_asset_id:
             data['globalAssetId'] = obj.global_asset_id
         if obj.specific_asset_id:
-            data['specificAssetIds'] = obj.specific_asset_id
+            data['specificAssetIds'] = list(obj.specific_asset_id)
         return data
 
     @classmethod

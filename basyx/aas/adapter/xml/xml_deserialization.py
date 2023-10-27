@@ -797,13 +797,17 @@ class AASFromXmlDecoder:
 
     @classmethod
     def construct_entity(cls, element: etree.Element, object_class=model.Entity, **_kwargs: Any) -> model.Entity:
-        global_asset_id = _get_text_or_none(element.find(NS_AAS + "globalAssetId"))
-        specific_asset_id = _failsafe_construct(element.find(NS_AAS + "specificAssetId"),
-                                                cls.construct_specific_asset_id, cls.failsafe)
+        specific_asset_id = set()
+        specific_assset_ids = element.find(NS_AAS + "specificAssetIds")
+        if specific_assset_ids is not None:
+            for id in _child_construct_multiple(specific_assset_ids, NS_AAS + "specificAssetId",
+                                                cls.construct_specific_asset_id, cls.failsafe):
+                specific_asset_id.add(id)
+
         entity = object_class(
             id_short=None,
             entity_type=_child_text_mandatory_mapped(element, NS_AAS + "entityType", ENTITY_TYPES_INVERSE),
-            global_asset_id=global_asset_id,
+            global_asset_id=_get_text_or_none(element.find(NS_AAS + "globalAssetId")),
             specific_asset_id=specific_asset_id)
 
         if not cls.stripped:
@@ -994,17 +998,19 @@ class AASFromXmlDecoder:
     @classmethod
     def construct_asset_information(cls, element: etree.Element, object_class=model.AssetInformation, **_kwargs: Any) \
             -> model.AssetInformation:
-        asset_information = object_class(
-            _child_text_mandatory_mapped(element, NS_AAS + "assetKind", ASSET_KIND_INVERSE),
-        )
-        global_asset_id = _get_text_or_none(element.find(NS_AAS + "globalAssetId"))
-        if global_asset_id is not None:
-            asset_information.global_asset_id = global_asset_id
+        specific_asset_id = set()
         specific_assset_ids = element.find(NS_AAS + "specificAssetIds")
         if specific_assset_ids is not None:
             for id in _child_construct_multiple(specific_assset_ids, NS_AAS + "specificAssetId",
                                                 cls.construct_specific_asset_id, cls.failsafe):
-                asset_information.specific_asset_id.add(id)
+                specific_asset_id.add(id)
+
+        asset_information = object_class(
+            _child_text_mandatory_mapped(element, NS_AAS + "assetKind", ASSET_KIND_INVERSE),
+            global_asset_id=_get_text_or_none(element.find(NS_AAS + "globalAssetId")),
+            specific_asset_id=specific_asset_id,
+        )
+
         asset_type = _get_text_or_none(element.find(NS_AAS + "assetType"))
         if asset_type is not None:
             asset_information.asset_type = asset_type

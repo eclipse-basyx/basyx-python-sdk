@@ -417,13 +417,19 @@ class AASFromJsonDecoder(json.JSONDecoder):
     @classmethod
     def _construct_asset_information(cls, dct: Dict[str, object], object_class=model.AssetInformation)\
             -> model.AssetInformation:
-        ret = object_class(asset_kind=ASSET_KIND_INVERSE[_get_ts(dct, 'assetKind', str)])
-        cls._amend_abstract_attributes(ret, dct)
+        global_asset_id = None
         if 'globalAssetId' in dct:
-            ret.global_asset_id = _get_ts(dct, 'globalAssetId', str)
+            global_asset_id = _get_ts(dct, 'globalAssetId', str)
+        specific_asset_id = set()
         if 'specificAssetIds' in dct:
             for desc_data in _get_ts(dct, "specificAssetIds", list):
-                ret.specific_asset_id.add(cls._construct_specific_asset_id(desc_data, model.SpecificAssetId))
+                specific_asset_id.add(cls._construct_specific_asset_id(desc_data, model.SpecificAssetId))
+
+        ret = object_class(asset_kind=ASSET_KIND_INVERSE[_get_ts(dct, 'assetKind', str)],
+                           global_asset_id=global_asset_id,
+                           specific_asset_id=specific_asset_id)
+        cls._amend_abstract_attributes(ret, dct)
+
         if 'assetType' in dct:
             ret.asset_type = _get_ts(dct, 'assetType', str)
         if 'defaultThumbnail' in dct:
@@ -497,9 +503,10 @@ class AASFromJsonDecoder(json.JSONDecoder):
         global_asset_id = None
         if 'globalAssetId' in dct:
             global_asset_id = _get_ts(dct, 'globalAssetId', str)
-        specific_asset_id = None
+        specific_asset_id = set()
         if 'specificAssetIds' in dct:
-            specific_asset_id = cls._construct_specific_asset_id(_get_ts(dct, 'specificAssetIds', dict))
+            for desc_data in _get_ts(dct, "specificAssetIds", list):
+                specific_asset_id.add(cls._construct_specific_asset_id(desc_data, model.SpecificAssetId))
 
         ret = object_class(id_short=None,
                            entity_type=ENTITY_TYPES_INVERSE[_get_ts(dct, "entityType", str)],
