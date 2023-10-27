@@ -801,7 +801,10 @@ def entity_to_xml(obj: model.Entity,
     if obj.global_asset_id:
         et_entity.append(_generate_element(NS_AAS + "globalAssetId", text=obj.global_asset_id))
     if obj.specific_asset_id:
-        et_entity.append(specific_asset_id_to_xml(obj.specific_asset_id, NS_AAS + "specificAssetId"))
+        et_specific_asset_id = _generate_element(name=NS_AAS + "specificAssetIds")
+        for specific_asset_id in obj.specific_asset_id:
+            et_specific_asset_id.append(specific_asset_id_to_xml(specific_asset_id, NS_AAS + "specificAssetId"))
+        et_entity.append(et_specific_asset_id)
     return et_entity
 
 
