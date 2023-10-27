@@ -29,11 +29,11 @@ class EntityTest(unittest.TestCase):
             str(cm.exception)
         )
 
-        specific_asset_id = model.SpecificAssetId(name="TestKey",
+        specific_asset_id = {model.SpecificAssetId(name="TestKey",
                                                   value="TestValue",
                                                   external_subject_id=model.ExternalReference((model.Key(
                                                                  type_=model.KeyTypes.GLOBAL_REFERENCE,
-                                                                 value='http://acplt.org/SpecificAssetId/'),)))
+                                                                 value='http://acplt.org/SpecificAssetId/'),)))}
         with self.assertRaises(model.AASConstraintViolation) as cm:
             obj3 = model.Entity(id_short='Test', entity_type=model.EntityType.CO_MANAGED_ENTITY,
                                 specific_asset_id=specific_asset_id, statement=())

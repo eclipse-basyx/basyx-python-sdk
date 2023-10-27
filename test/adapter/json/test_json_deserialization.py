@@ -31,7 +31,8 @@ class JsonDeserializationTest(unittest.TestCase):
                         "modelType": "AssetAdministrationShell",
                         "id": "https://acplt.org/Test_Asset",
                         "assetInformation": {
-                            "assetKind": "Instance"
+                            "assetKind": "Instance",
+                            "globalAssetId": "https://acplt.org/Test_AssetId"
                         }
                     }
                 ]
@@ -142,7 +143,8 @@ class JsonDeserializationTest(unittest.TestCase):
                     "modelType": "AssetAdministrationShell",
                     "id": "http://acplt.org/test_aas",
                     "assetInformation": {
-                        "assetKind": "Instance"
+                        "assetKind": "Instance",
+                        "globalAssetId": "https://acplt.org/Test_AssetId"
                     }
                 }],
                 "submodels": [{
