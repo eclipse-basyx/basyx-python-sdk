@@ -73,10 +73,12 @@ class AssetInformation:
             raise base.AASConstraintViolation(
                 131, "An AssetInformation has to have a globalAssetId or a specificAssetId")
 
-    def _get_global_asset_id(self):
+    @property
+    def global_asset_id(self):
         return self._global_asset_id
 
-    def _set_global_asset_id(self, global_asset_id: Optional[base.Identifier]):
+    @global_asset_id.setter
+    def global_asset_id(self, global_asset_id: Optional[base.Identifier]):
         if global_asset_id is None:
             if self.specific_asset_id is None or not self.specific_asset_id:
                 raise base.AASConstraintViolation(
@@ -84,8 +86,6 @@ class AssetInformation:
         else:
             _string_constraints.check_identifier(global_asset_id)
         self._global_asset_id = global_asset_id
-
-    global_asset_id = property(_get_global_asset_id, _set_global_asset_id)
 
     def __repr__(self) -> str:
         return "AssetInformation(assetKind={}, globalAssetId={}, specificAssetId={}, assetType={}, " \

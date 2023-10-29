@@ -1111,8 +1111,7 @@ class Entity(SubmodelElement, base.UniqueIdShortNamespace):
             [] if specific_asset_id is None else specific_asset_id,
             item_del_hook=self._check_constraint_del_spec_asset_id)
         self.global_asset_id: Optional[base.Identifier] = global_asset_id
-        self._entity_type: base.EntityType = entity_type
-        self._validate_asset_ids_for_entity_type(self.entity_type, self.global_asset_id, self.specific_asset_id)
+        self.entity_type: base.EntityType = entity_type
 
     def _check_constraint_del_spec_asset_id(self, _item_to_del: base.SpecificAssetId,
                                             _list: List[base.SpecificAssetId]) -> None:
@@ -1120,17 +1119,21 @@ class Entity(SubmodelElement, base.UniqueIdShortNamespace):
             raise base.AASConstraintViolation(
                 131, "An AssetInformation has to have a globalAssetId or a specificAssetId")
 
-    def _get_entity_type(self) -> base.EntityType:
+    @property
+    def entity_type(self) -> base.EntityType:
         return self._entity_type
 
-    def _set_entity_type(self, entity_type: base.EntityType) -> None:
+    @entity_type.setter
+    def entity_type(self, entity_type: base.EntityType) -> None:
         self._validate_asset_ids_for_entity_type(entity_type, self.global_asset_id, self.specific_asset_id)
         self._entity_type = entity_type
 
-    def _get_global_asset_id(self):
+    @property
+    def global_asset_id(self):
         return self._global_asset_id
 
-    def _set_global_asset_id(self, global_asset_id: Optional[base.Identifier]):
+    @global_asset_id.setter
+    def global_asset_id(self, global_asset_id: Optional[base.Identifier]):
         self._validate_asset_ids_for_entity_type(self.entity_type, global_asset_id, self.specific_asset_id)
         self._global_asset_id = global_asset_id
 
@@ -1146,9 +1149,6 @@ class Entity(SubmodelElement, base.UniqueIdShortNamespace):
                 14, "A co-managed entity has to have neither a globalAssetId nor a specificAssetId")
         if global_asset_id:
             _string_constraints.check_identifier(global_asset_id)
-
-    global_asset_id = property(_get_global_asset_id, _set_global_asset_id)
-    entity_type = property(_get_entity_type, _set_entity_type)
 
 
 class EventElement(SubmodelElement, metaclass=abc.ABCMeta):
