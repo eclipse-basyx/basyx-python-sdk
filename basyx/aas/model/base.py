@@ -599,7 +599,7 @@ class Referable(HasExtension, metaclass=abc.ABCMeta):
                   Default is an empty string, making it use the source of its ancestor, if possible.
     """
     @abc.abstractmethod
-    def __init__(self) -> None:
+    def __init__(self):
         super().__init__()
         self._id_short: Optional[NameType] = None
         self.display_name: Optional[MultiLanguageNameType] = dict()

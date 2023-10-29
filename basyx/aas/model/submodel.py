@@ -1126,7 +1126,7 @@ class Entity(SubmodelElement, base.UniqueIdShortNamespace):
     @entity_type.setter
     def entity_type(self, entity_type: base.EntityType) -> None:
         self._validate_asset_ids_for_entity_type(entity_type, self.global_asset_id, self.specific_asset_id)
-        self._entity_type = entity_type
+        self._entity_type: base.EntityType = entity_type
 
     @property
     def global_asset_id(self):
