@@ -599,7 +599,7 @@ class Referable(HasExtension, metaclass=abc.ABCMeta):
                   Default is an empty string, making it use the source of its ancestor, if possible.
     """
     @abc.abstractmethod
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self._id_short: Optional[NameType] = None
         self.display_name: Optional[MultiLanguageNameType] = dict()
@@ -1258,7 +1258,7 @@ class Identifiable(Referable, metaclass=abc.ABCMeta):
     :ivar ~.id: The globally unique id of the element.
     """
     @abc.abstractmethod
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self.administration: Optional[AdministrativeInformation] = None
         # The id attribute is set by all inheriting classes __init__ functions.
@@ -1520,7 +1520,7 @@ class HasKind(metaclass=abc.ABCMeta):
     :ivar _kind: Kind of the element: either type or instance. Default = :attr:`~ModellingKind.INSTANCE`.
     """
     @abc.abstractmethod
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self._kind: ModellingKind = ModellingKind.INSTANCE
 
@@ -1541,7 +1541,7 @@ class Qualifiable(Namespace, metaclass=abc.ABCMeta):
         qualifiable element.
     """
     @abc.abstractmethod
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self.namespace_element_sets: List[NamespaceSet] = []
         self.qualifier: NamespaceSet[Qualifier]
