@@ -2156,10 +2156,6 @@ class SpecificAssetId(HasSemantics):
             raise ValueError("value is not allowed to be an empty string")
         _string_constraints.check_label_type(name)
         _string_constraints.check_identifier(value)
-        if external_subject_id is not None and not isinstance(external_subject_id, ExternalReference):
-            raise AASConstraintViolation(133, f"external_subject_id shall be a global reference, given: "
-                                              f"{external_subject_id}")
-
         self.name: LabelType
         self.value: Identifier
         self.external_subject_id: ExternalReference
