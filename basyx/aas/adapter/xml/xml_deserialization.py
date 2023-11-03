@@ -534,6 +534,20 @@ class AASFromXmlDecoder:
         return cls.construct_model_reference_expect_type(element, model.Referable, **kwargs)  # type: ignore
 
     @classmethod
+    def _construct_operation_variable(cls, element: etree.Element, **kwargs: Any) -> model.SubmodelElement:
+        """
+        Since we don't implement `OperationVariable`, this constructor discards the wrapping `aas:operationVariable`
+        and `aas:value` and just returns the contained :class:`~aas.model.submodel.SubmodelElement`.
+        """
+        value = _get_child_mandatory(element, NS_AAS + "value")
+        if len(value) == 0:
+            raise KeyError(f"{_element_pretty_identifier(value)} has no submodel element!")
+        if len(value) > 1:
+            logger.warning(f"{_element_pretty_identifier(value)} has more than one submodel element, "
+                           "using the first one...")
+        return cls.construct_submodel_element(value[0], **kwargs)
+
+    @classmethod
     def construct_key(cls, element: etree.Element, object_class=model.Key, **_kwargs: Any) \
             -> model.Key:
         return object_class(
@@ -723,19 +737,6 @@ class AASFromXmlDecoder:
         return data_elements[element.tag](element, **kwargs)
 
     @classmethod
-    def construct_operation_variable(cls, element: etree.Element, object_class=model.OperationVariable,
-                                     **_kwargs: Any) -> model.OperationVariable:
-        value = _get_child_mandatory(element, NS_AAS + "value")
-        if len(value) == 0:
-            raise KeyError(f"{_element_pretty_identifier(value)} has no submodel element!")
-        if len(value) > 1:
-            logger.warning(f"{_element_pretty_identifier(value)} has more than one submodel element, "
-                           "using the first one...")
-        return object_class(
-            _failsafe_construct_mandatory(value[0], cls.construct_submodel_element)
-        )
-
-    @classmethod
     def construct_annotated_relationship_element(cls, element: etree.Element,
                                                  object_class=model.AnnotatedRelationshipElement, **_kwargs: Any) \
             -> model.AnnotatedRelationshipElement:
@@ -860,21 +861,14 @@ class AASFromXmlDecoder:
     def construct_operation(cls, element: etree.Element, object_class=model.Operation, **_kwargs: Any) \
             -> model.Operation:
         operation = object_class(None)
-        input_variables = element.find(NS_AAS + "inputVariables")
-        if input_variables is not None:
-            for input_variable in _child_construct_multiple(input_variables, NS_AAS + "operationVariable",
-                                                            cls.construct_operation_variable, cls.failsafe):
-                operation.input_variable.append(input_variable)
-        output_variables = element.find(NS_AAS + "outputVariables")
-        if output_variables is not None:
-            for output_variable in _child_construct_multiple(output_variables, NS_AAS + "operationVariable",
-                                                             cls.construct_operation_variable, cls.failsafe):
-                operation.output_variable.append(output_variable)
-        in_output_variables = element.find(NS_AAS + "inoutputVariables")
-        if in_output_variables is not None:
-            for in_output_variable in _child_construct_multiple(in_output_variables, NS_AAS + "operationVariable",
-                                                                cls.construct_operation_variable, cls.failsafe):
-                operation.in_output_variable.append(in_output_variable)
+        for tag, target in ((NS_AAS + "inputVariables", operation.input_variable),
+                            (NS_AAS + "outputVariables", operation.output_variable),
+                            (NS_AAS + "inoutputVariables", operation.in_output_variable)):
+            variables = element.find(tag)
+            if variables is not None:
+                for var in _child_construct_multiple(variables, NS_AAS + "operationVariable",
+                                                     cls._construct_operation_variable, cls.failsafe):
+                    target.add(var)
         cls._amend_abstract_attributes(operation, element)
         return operation
 
@@ -1242,7 +1236,6 @@ class XMLConstructables(enum.Enum):
     ADMINISTRATIVE_INFORMATION = enum.auto()
     QUALIFIER = enum.auto()
     SECURITY = enum.auto()
-    OPERATION_VARIABLE = enum.auto()
     ANNOTATED_RELATIONSHIP_ELEMENT = enum.auto()
     BASIC_EVENT_ELEMENT = enum.auto()
     BLOB = enum.auto()
@@ -1312,8 +1305,6 @@ def read_aas_xml_element(file: IO, construct: XMLConstructables, failsafe: bool 
         constructor = decoder_.construct_administrative_information
     elif construct == XMLConstructables.QUALIFIER:
         constructor = decoder_.construct_qualifier
-    elif construct == XMLConstructables.OPERATION_VARIABLE:
-        constructor = decoder_.construct_operation_variable
     elif construct == XMLConstructables.ANNOTATED_RELATIONSHIP_ELEMENT:
         constructor = decoder_.construct_annotated_relationship_element
     elif construct == XMLConstructables.BASIC_EVENT_ELEMENT:

@@ -931,30 +931,24 @@ class AnnotatedRelationshipElement(RelationshipElement, base.UniqueIdShortNamesp
         self.annotation = base.NamespaceSet(self, [("id_short", True)], annotation)
 
 
-class OperationVariable:
-    """
-    An operation variable is part of an operation that is used to define an input or output variable of that operation.
-
-    :ivar value: Describes the needed argument for an operation via a :class:`~.SubmodelElement` of `kind=TYPE`.
-    """
-
-    def __init__(self,
-                 value: SubmodelElement):
-        """
-        TODO: Add instruction what to do after construction
-        """
-        self.value: SubmodelElement = value
-
-
-class Operation(SubmodelElement):
+class Operation(SubmodelElement, base.UniqueIdShortNamespace):
     """
     An operation is a :class:`~.SubmodelElement` with input and output variables.
 
+    In- and output variables are implemented as :class:`SubmodelElements <.SubmodelElement>` directly without the
+    wrapping `OperationVariable`. This makes implementing *Constraint AASd-134* much easier since we can just use normal
+    :class:`NamespaceSets <~aas.model.base.NamespaceSet>`. Furthermore, an `OperationVariable` contains nothing besides
+    a single :class:`~.SubmodelElement` anyway, so implementing it would just make using `Operations` more tedious
+    for no reason.
+
+    *Constraint AASd-134:* For an Operation, the idShort of all inputVariable/value, outputVariable/value,
+                           and inoutputVariable/value shall be unique.
+
     :ivar id_short: Identifying string of the element within its name space. (inherited from
                     :class:`~aas.model.base.Referable`)
-    :ivar input_variable: List of input parameters (:class:`OperationVariables <.OperationVariable>`) of the operation
-    :ivar output_variable: List of output parameters (:class:`OperationVariables <.OperationVariable>`) of the operation
-    :ivar in_output_variable: List of parameters (:class:`OperationVariables <.OperationVariable>`) that are input and
+    :ivar input_variable: List of input parameters (:class:`SubmodelElements <.SubmodelElement>`) of the operation
+    :ivar output_variable: List of output parameters (:class:`SubmodelElements <.SubmodelElement>`) of the operation
+    :ivar in_output_variable: List of parameters (:class:`SubmodelElements <.SubmodelElement>`) that are input and
                               output of the operation
     :ivar display_name: Can be provided in several languages. (inherited from :class:`~aas.model.base.Referable`)
     :ivar category: The category is a value that gives further meta information w.r.t. to the class of the element.
@@ -978,9 +972,9 @@ class Operation(SubmodelElement):
     """
     def __init__(self,
                  id_short: Optional[base.NameType],
-                 input_variable: Optional[List[OperationVariable]] = None,
-                 output_variable:  Optional[List[OperationVariable]] = None,
-                 in_output_variable:  Optional[List[OperationVariable]] = None,
+                 input_variable: Iterable[SubmodelElement] = (),
+                 output_variable: Iterable[SubmodelElement] = (),
+                 in_output_variable: Iterable[SubmodelElement] = (),
                  display_name: Optional[base.MultiLanguageNameType] = None,
                  category: Optional[base.NameType] = None,
                  description: Optional[base.MultiLanguageTextType] = None,
@@ -996,9 +990,9 @@ class Operation(SubmodelElement):
 
         super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, extension,
                          supplemental_semantic_id, embedded_data_specifications)
-        self.input_variable = input_variable if input_variable is not None else []
-        self.output_variable = output_variable if output_variable is not None else []
-        self.in_output_variable = in_output_variable if in_output_variable is not None else []
+        self.input_variable = base.NamespaceSet(self, [("id_short", True)], input_variable)
+        self.output_variable = base.NamespaceSet(self, [("id_short", True)], output_variable)
+        self.in_output_variable = base.NamespaceSet(self, [("id_short", True)], in_output_variable)
 
 
 class Capability(SubmodelElement):

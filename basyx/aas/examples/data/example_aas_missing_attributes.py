@@ -193,20 +193,65 @@ def create_example_submodel() -> model.Submodel:
                                                        value='http://acplt.org/Properties/ExampleProperty'),)),
         qualifier=())
 
-    submodel_element_operation_variable_input = model.OperationVariable(
-        value=operation_variable_property)
+    input_variable_property = model.Property(
+        id_short='ExamplePropertyInput',
+        value_type=model.datatypes.String,
+        value='exampleValue',
+        value_id=model.ExternalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
+                                                    value='http://acplt.org/ValueId/ExampleValueId'),)),
+        display_name=model.MultiLanguageNameType({'en-US': 'ExampleProperty',
+                                                  'de': 'BeispielProperty'}),
+        category='CONSTANT',
+        description=model.MultiLanguageTextType({'en-US': 'Example Property object',
+                                                 'de': 'Beispiel Property Element'}),
+        parent=None,
+        semantic_id=model.ExternalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
+                                                       value='http://acplt.org/Properties/ExamplePropertyInput'),)),
+        qualifier=())
 
-    submodel_element_operation_variable_output = model.OperationVariable(
-        value=operation_variable_property)
+    output_variable_property = model.Property(
+        id_short='ExamplePropertyOutput',
+        value_type=model.datatypes.String,
+        value='exampleValue',
+        value_id=model.ExternalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
+                                                    value='http://acplt.org/ValueId/ExampleValueId'),)),
+        display_name=model.MultiLanguageNameType({'en-US': 'ExampleProperty',
+                                                  'de': 'BeispielProperty'}),
+        category='CONSTANT',
+        description=model.MultiLanguageTextType({'en-US': 'Example Property object',
+                                                 'de': 'Beispiel Property Element'}),
+        parent=None,
+        semantic_id=model.ExternalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
+                                                       value='http://acplt.org/Properties/ExamplePropertyOutput'),)),
+        qualifier=(),
+        extension=(),
+        supplemental_semantic_id=(),
+        embedded_data_specifications=())
 
-    submodel_element_operation_variable_in_output = model.OperationVariable(
-        value=operation_variable_property)
+    in_output_variable_property = model.Property(
+        id_short='ExamplePropertyInOutput',
+        value_type=model.datatypes.String,
+        value='exampleValue',
+        value_id=model.ExternalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
+                                                    value='http://acplt.org/ValueId/ExampleValueId'),)),
+        display_name=model.MultiLanguageNameType({'en-US': 'ExampleProperty',
+                                                  'de': 'BeispielProperty'}),
+        category='CONSTANT',
+        description=model.MultiLanguageTextType({'en-US': 'Example Property object',
+                                                 'de': 'Beispiel Property Element'}),
+        parent=None,
+        semantic_id=model.ExternalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
+                                                       value='http://acplt.org/Properties/ExamplePropertyInOutput'),)),
+        qualifier=(),
+        extension=(),
+        supplemental_semantic_id=(),
+        embedded_data_specifications=())
 
     submodel_element_operation = model.Operation(
         id_short='ExampleOperation',
-        input_variable=[submodel_element_operation_variable_input],
-        output_variable=[submodel_element_operation_variable_output],
-        in_output_variable=[submodel_element_operation_variable_in_output],
+        input_variable=[input_variable_property],
+        output_variable=[output_variable_property],
+        in_output_variable=[in_output_variable_property],
         category='PARAMETER',
         description=model.MultiLanguageTextType({'en-US': 'Example Operation object',
                                                  'de': 'Beispiel Operation Element'}),
