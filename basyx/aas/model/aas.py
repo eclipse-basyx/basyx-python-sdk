@@ -54,15 +54,14 @@ class AssetInformation:
     def __init__(self,
                  asset_kind: base.AssetKind = base.AssetKind.INSTANCE,
                  global_asset_id: Optional[base.Identifier] = None,
-                 specific_asset_id: Optional[Iterable[base.SpecificAssetId]] = None,
+                 specific_asset_id: Iterable[base.SpecificAssetId] = (),
                  asset_type: Optional[base.Identifier] = None,
                  default_thumbnail: Optional[base.Resource] = None):
 
         super().__init__()
         self.asset_kind: base.AssetKind = asset_kind
-        self.specific_asset_id: base.ConstrainedList[base.SpecificAssetId] = base.ConstrainedList(
-            [] if specific_asset_id is None else specific_asset_id,
-            item_del_hook=self._check_constraint_del_spec_asset_id)
+        self.specific_asset_id: base.ConstrainedList[base.SpecificAssetId] = \
+            base.ConstrainedList(specific_asset_id, item_del_hook=self._check_constraint_del_spec_asset_id)
         self.global_asset_id: Optional[base.Identifier] = global_asset_id
         self.asset_type: Optional[base.Identifier] = asset_type
         self.default_thumbnail: Optional[base.Resource] = default_thumbnail

@@ -1091,7 +1091,7 @@ class Entity(SubmodelElement, base.UniqueIdShortNamespace):
                  entity_type: base.EntityType,
                  statement: Iterable[SubmodelElement] = (),
                  global_asset_id: Optional[base.Identifier] = None,
-                 specific_asset_id: Optional[Iterable[base.SpecificAssetId]] = None,
+                 specific_asset_id: Iterable[base.SpecificAssetId] = (),
                  display_name: Optional[base.MultiLanguageNameType] = None,
                  category: Optional[base.NameType] = None,
                  description: Optional[base.MultiLanguageTextType] = None,
@@ -1107,9 +1107,8 @@ class Entity(SubmodelElement, base.UniqueIdShortNamespace):
         super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, extension,
                          supplemental_semantic_id, embedded_data_specifications)
         self.statement = base.NamespaceSet(self, [("id_short", True)], statement)
-        self.specific_asset_id: base.ConstrainedList[base.SpecificAssetId] = base.ConstrainedList(
-            [] if specific_asset_id is None else specific_asset_id,
-            item_del_hook=self._check_constraint_del_spec_asset_id)
+        self.specific_asset_id: base.ConstrainedList[base.SpecificAssetId] = \
+            base.ConstrainedList(specific_asset_id, item_del_hook=self._check_constraint_del_spec_asset_id)
         self.global_asset_id: Optional[base.Identifier] = global_asset_id
         self.entity_type: base.EntityType = entity_type
 
