@@ -277,7 +277,7 @@ def create_example_bill_of_material_submodel() -> model.Submodel:
         entity_type=model.EntityType.CO_MANAGED_ENTITY,
         statement=(),
         global_asset_id=None,
-        specific_asset_id=None,
+        specific_asset_id=(),
         category="PARAMETER",
         description=model.MultiLanguageTextType({
             'en-US': 'Legally valid designation of the natural or judicial person which '

@@ -79,7 +79,7 @@ class AssetInformation:
     @global_asset_id.setter
     def global_asset_id(self, global_asset_id: Optional[base.Identifier]):
         if global_asset_id is None:
-            if self.specific_asset_id is None or not self.specific_asset_id:
+            if not self.specific_asset_id:
                 raise base.AASConstraintViolation(
                     131, "An AssetInformation has to have a globalAssetId or a specificAssetId")
         else:
