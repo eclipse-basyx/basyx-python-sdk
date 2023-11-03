@@ -364,12 +364,14 @@ class AASFromJsonDecoder(json.JSONDecoder):
         return ret
 
     @classmethod
-    def _construct_operation_variable(
-            cls, dct: Dict[str, object], object_class=model.OperationVariable) -> model.OperationVariable:
+    def _construct_operation_variable(cls, dct: Dict[str, object]) -> model.SubmodelElement:
+        """
+        Since we don't implement `OperationVariable`, this constructor discards the wrapping `OperationVariable` object
+        and just returns the contained :class:`~aas.model.submodel.SubmodelElement`.
+        """
         # TODO: remove the following type: ignore comments when mypy supports abstract types for Type[T]
         # see https://github.com/python/mypy/issues/5374
-        ret = object_class(value=_get_ts(dct, 'value', model.SubmodelElement))  # type: ignore
-        return ret
+        return _get_ts(dct, 'value', model.SubmodelElement)  # type: ignore
 
     @classmethod
     def _construct_lang_string_set(cls, lst: List[Dict[str, object]], object_class: Type[LSS]) -> LSS:
@@ -590,7 +592,7 @@ class AASFromJsonDecoder(json.JSONDecoder):
             if json_name in dct:
                 for variable_data in _get_ts(dct, json_name, list):
                     try:
-                        target.append(cls._construct_operation_variable(variable_data))
+                        target.add(cls._construct_operation_variable(variable_data))
                     except (KeyError, TypeError) as e:
                         error_message = "Error while trying to convert JSON object into {} of {}: {}".format(
                             json_name, ret, pprint.pformat(variable_data, depth=2, width=2 ** 14, compact=True))

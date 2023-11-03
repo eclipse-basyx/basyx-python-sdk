@@ -550,17 +550,6 @@ class AASDataChecker(DataChecker):
                 found_elements.add(object_list_element)
         return found_elements
 
-    def _check_operation_variable_equal(self, object_: model.OperationVariable,
-                                        expected_value: model.OperationVariable):
-        """
-        Checks if the given OperationVariable objects are equal
-
-        :param object_: Given OperationVariable object to check
-        :param expected_value: expected OperationVariable object
-        :return:
-        """
-        self._check_submodel_element(object_.value, expected_value.value)
-
     def check_operation_equal(self, object_: model.Operation, expected_value: model.Operation):
         """
         Checks if the given Operation objects are equal
@@ -570,18 +559,13 @@ class AASDataChecker(DataChecker):
         :return:
         """
         self._check_abstract_attributes_submodel_element_equal(object_, expected_value)
-        self.check_contained_element_length(object_, 'input_variable', model.OperationVariable,
-                                            len(expected_value.input_variable))
-        self.check_contained_element_length(object_, 'output_variable', model.OperationVariable,
-                                            len(expected_value.output_variable))
-        self.check_contained_element_length(object_, 'in_output_variable', model.OperationVariable,
-                                            len(expected_value.in_output_variable))
-        for iv1, iv2 in zip(object_.input_variable, expected_value.input_variable):
-            self._check_operation_variable_equal(iv1, iv2)
-        for ov1, ov2 in zip(object_.output_variable, expected_value.output_variable):
-            self._check_operation_variable_equal(ov1, ov2)
-        for iov1, iov2 in zip(object_.in_output_variable, expected_value.in_output_variable):
-            self._check_operation_variable_equal(iov1, iov2)
+        for input_nss, expected_nss, attr_name in (
+                (object_.input_variable, expected_value.input_variable, 'input_variable'),
+                (object_.output_variable, expected_value.output_variable, 'output_variable'),
+                (object_.in_output_variable, expected_value.in_output_variable, 'in_output_variable')):
+            self.check_contained_element_length(object_, attr_name, model.SubmodelElement, len(expected_nss))
+            for var1, var2 in zip(input_nss, expected_nss):
+                self._check_submodel_element(var1, var2)
 
     def check_capability_equal(self, object_: model.Capability, expected_value: model.Capability):
         """

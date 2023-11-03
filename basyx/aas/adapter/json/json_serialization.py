@@ -79,7 +79,6 @@ class AASToJsonEncoder(json.JSONEncoder):
             model.LangStringSet: self._lang_string_set_to_json,
             model.MultiLanguageProperty: self._multi_language_property_to_json,
             model.Operation: self._operation_to_json,
-            model.OperationVariable: self._operation_variable_to_json,
             model.Property: self._property_to_json,
             model.Qualifier: self._qualifier_to_json,
             model.Range: self._range_to_json,
@@ -576,16 +575,17 @@ class AASToJsonEncoder(json.JSONEncoder):
         return data
 
     @classmethod
-    def _operation_variable_to_json(cls, obj: model.OperationVariable) -> Dict[str, object]:
+    def _operation_variable_to_json(cls, obj: model.SubmodelElement) -> Dict[str, object]:
         """
-        serialization of an object from class OperationVariable to json
+        serialization of an object from class SubmodelElement to a json OperationVariable representation
+        Since we don't implement the `OperationVariable` class, which is just a wrapper for a single
+        :class:`~aas.model.submodel.SubmodelElement`, elements are serialized as the `value` attribute of an
+        `operationVariable` object.
 
-        :param obj: object of class OperationVariable
-        :return: dict with the serialized attributes of this object
+        :param obj: object of class `SubmodelElement`
+        :return: `OperationVariable` wrapper containing the serialized `SubmodelElement`
         """
-        data = cls._abstract_classes_to_json(obj)
-        data['value'] = obj.value
-        return data
+        return {'value': obj}
 
     @classmethod
     def _operation_to_json(cls, obj: model.Operation) -> Dict[str, object]:
@@ -596,12 +596,11 @@ class AASToJsonEncoder(json.JSONEncoder):
         :return: dict with the serialized attributes of this object
         """
         data = cls._abstract_classes_to_json(obj)
-        if obj.input_variable:
-            data['inputVariables'] = list(obj.input_variable)
-        if obj.output_variable:
-            data['outputVariables'] = list(obj.output_variable)
-        if obj.in_output_variable:
-            data['inoutputVariables'] = list(obj.in_output_variable)
+        for tag, nss in (('inputVariables', obj.input_variable),
+                         ('outputVariables', obj.output_variable),
+                         ('inoutputVariables', obj.in_output_variable)):
+            if nss:
+                data[tag] = [cls._operation_variable_to_json(obj) for obj in nss]
         return data
 
     @classmethod
