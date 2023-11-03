@@ -83,3 +83,19 @@ class StringConstraintsDecoratorTest(unittest.TestCase):
         dc = self.DummyClass(None)  # type: ignore
         self.assertIsNone(dc.some_attr)
         dc.some_attr = None  # type: ignore
+
+    def test_attribute_name_conflict(self) -> None:
+        # We don't want to overwrite existing attributes in case of a name conflict
+        with self.assertRaises(AttributeError) as cm:
+            @_string_constraints.constrain_revision_type("foo")
+            class DummyClass:
+                foo = property()
+        self.assertEqual("DummyClass already has an attribute named 'foo'", cm.exception.args[0])
+
+        with self.assertRaises(AttributeError) as cm:
+            @_string_constraints.constrain_label_type("bar")
+            class DummyClass2:
+                @property
+                def bar(self):
+                    return "baz"
+        self.assertEqual("DummyClass2 already has an attribute named 'bar'", cm.exception.args[0])

@@ -130,6 +130,8 @@ def constrain_attr(pub_attr_name: str, constraint_check_fn: Callable[[str], None
                 constraint_check_fn(value)
             setattr(self, "_" + pub_attr_name, value)
 
+        if hasattr(decorated_class, pub_attr_name):
+            raise AttributeError(f"{decorated_class.__name__} already has an attribute named '{pub_attr_name}'")
         setattr(decorated_class, pub_attr_name, property(_getter, _setter))
         return decorated_class
 
