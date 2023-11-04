@@ -1048,7 +1048,6 @@ class Capability(SubmodelElement):
                          supplemental_semantic_id, embedded_data_specifications)
 
 
-@_string_constraints.constrain_identifier("global_asset_id")
 class Entity(SubmodelElement, base.UniqueIdShortNamespace):
     """
     An entity is a :class:`~.SubmodelElement` that is used to model entities
