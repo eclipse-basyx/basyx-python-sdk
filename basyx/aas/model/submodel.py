@@ -1133,6 +1133,8 @@ class Entity(SubmodelElement, base.UniqueIdShortNamespace):
     @global_asset_id.setter
     def global_asset_id(self, global_asset_id: Optional[base.Identifier]):
         self._validate_asset_ids_for_entity_type(self.entity_type, global_asset_id, self.specific_asset_id)
+        if global_asset_id is not None:
+            _string_constraints.check_identifier(global_asset_id)
         self._global_asset_id = global_asset_id
 
     @staticmethod
@@ -1145,8 +1147,6 @@ class Entity(SubmodelElement, base.UniqueIdShortNamespace):
         elif entity_type == base.EntityType.CO_MANAGED_ENTITY and (global_asset_id or specific_asset_id):
             raise base.AASConstraintViolation(
                 14, "A co-managed entity has to have neither a globalAssetId nor a specificAssetId")
-        if global_asset_id:
-            _string_constraints.check_identifier(global_asset_id)
 
 
 class EventElement(SubmodelElement, metaclass=abc.ABCMeta):
