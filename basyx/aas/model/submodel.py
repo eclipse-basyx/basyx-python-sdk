@@ -1112,10 +1112,8 @@ class Entity(SubmodelElement, base.UniqueIdShortNamespace):
         self.entity_type: base.EntityType = entity_type
 
     def _check_constraint_del_spec_asset_id(self, _item_to_del: base.SpecificAssetId,
-                                            _list: List[base.SpecificAssetId]) -> None:
-        if self.global_asset_id is None and len(_list) == 1:
-            raise base.AASConstraintViolation(
-                131, "An AssetInformation has to have a globalAssetId or a specificAssetId")
+                                            list_: List[base.SpecificAssetId]) -> None:
+        self._validate_asset_ids_for_entity_type(self.entity_type, self.global_asset_id, len(list_) > 1)
 
     @property
     def entity_type(self) -> base.EntityType:
@@ -1123,7 +1121,7 @@ class Entity(SubmodelElement, base.UniqueIdShortNamespace):
 
     @entity_type.setter
     def entity_type(self, entity_type: base.EntityType) -> None:
-        self._validate_asset_ids_for_entity_type(entity_type, self.global_asset_id, self.specific_asset_id)
+        self._validate_asset_ids_for_entity_type(entity_type, self.global_asset_id, bool(self.specific_asset_id))
         self._entity_type: base.EntityType = entity_type
 
     @property
@@ -1132,7 +1130,7 @@ class Entity(SubmodelElement, base.UniqueIdShortNamespace):
 
     @global_asset_id.setter
     def global_asset_id(self, global_asset_id: Optional[base.Identifier]):
-        self._validate_asset_ids_for_entity_type(self.entity_type, global_asset_id, self.specific_asset_id)
+        self._validate_asset_ids_for_entity_type(self.entity_type, global_asset_id, bool(self.specific_asset_id))
         if global_asset_id is not None:
             _string_constraints.check_identifier(global_asset_id)
         self._global_asset_id = global_asset_id
@@ -1140,11 +1138,13 @@ class Entity(SubmodelElement, base.UniqueIdShortNamespace):
     @staticmethod
     def _validate_asset_ids_for_entity_type(entity_type: base.EntityType,
                                             global_asset_id: Optional[base.Identifier],
-                                            specific_asset_id: Optional[base.ConstrainedList[base.SpecificAssetId]]):
-        if entity_type == base.EntityType.SELF_MANAGED_ENTITY and global_asset_id is None and not specific_asset_id:
+                                            specific_asset_id_nonempty: bool) -> None:
+        if entity_type == base.EntityType.SELF_MANAGED_ENTITY and global_asset_id is None \
+                and not specific_asset_id_nonempty:
             raise base.AASConstraintViolation(
                 14, "A self-managed entity has to have a globalAssetId or a specificAssetId")
-        elif entity_type == base.EntityType.CO_MANAGED_ENTITY and (global_asset_id or specific_asset_id):
+        elif entity_type == base.EntityType.CO_MANAGED_ENTITY and (global_asset_id is not None
+                                                                   or specific_asset_id_nonempty):
             raise base.AASConstraintViolation(
                 14, "A co-managed entity has to have neither a globalAssetId nor a specificAssetId")
 
