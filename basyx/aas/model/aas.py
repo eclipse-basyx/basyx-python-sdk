@@ -67,10 +67,8 @@ class AssetInformation:
         self.default_thumbnail: Optional[base.Resource] = default_thumbnail
 
     def _check_constraint_del_spec_asset_id(self, _item_to_del: base.SpecificAssetId,
-                                            _list: List[base.SpecificAssetId]) -> None:
-        if self.global_asset_id is None and len(_list) == 1:
-            raise base.AASConstraintViolation(
-                131, "An AssetInformation has to have a globalAssetId or a specificAssetId")
+                                            list_: List[base.SpecificAssetId]) -> None:
+        self._validate_asset_ids(self.global_asset_id, len(list_) > 1)
 
     @property
     def global_asset_id(self):
@@ -78,13 +76,16 @@ class AssetInformation:
 
     @global_asset_id.setter
     def global_asset_id(self, global_asset_id: Optional[base.Identifier]):
-        if global_asset_id is None:
-            if not self.specific_asset_id:
-                raise base.AASConstraintViolation(
-                    131, "An AssetInformation has to have a globalAssetId or a specificAssetId")
-        else:
+        self._validate_asset_ids(global_asset_id, bool(self.specific_asset_id))
+        if global_asset_id is not None:
             _string_constraints.check_identifier(global_asset_id)
         self._global_asset_id = global_asset_id
+
+    @staticmethod
+    def _validate_asset_ids(global_asset_id: Optional[base.Identifier], specific_asset_id_nonempty: bool) -> None:
+        if global_asset_id is None and not specific_asset_id_nonempty:
+            raise base.AASConstraintViolation(131,
+                                              "An AssetInformation has to have a globalAssetId or a specificAssetId")
 
     def __repr__(self) -> str:
         return "AssetInformation(assetKind={}, globalAssetId={}, specificAssetId={}, assetType={}, " \
