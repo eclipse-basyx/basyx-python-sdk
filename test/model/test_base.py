@@ -1213,7 +1213,15 @@ class ConstrainedListTest(unittest.TestCase):
         self.assertEqual(c_list, [1, 2, 3])
         with self.assertRaises(ValueError):
             c_list.clear()
-        self.assertEqual(c_list, [1, 2, 3])
+        # the default clear() implementation seems to repeatedly delete the last item until the list is empty
+        # in this case, the last item is 3, which cannot be deleted because it is > 2, thus leaving it unclear whether
+        # clear() really is atomic. to work around this, the list is reversed, making 1 the last item, and attempting
+        # to clear again.
+        c_list.reverse()
+        with self.assertRaises(ValueError):
+            c_list.clear()
+        self.assertEqual(c_list, [3, 2, 1])
+        c_list.reverse()
         del c_list[0:2]
         self.assertEqual(c_list, [3])
 
