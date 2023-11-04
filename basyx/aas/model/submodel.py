@@ -1106,7 +1106,7 @@ class Entity(SubmodelElement, base.UniqueIdShortNamespace):
         super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, extension,
                          supplemental_semantic_id, embedded_data_specifications)
         self.statement = base.NamespaceSet(self, [("id_short", True)], statement)
-        self.specific_asset_id: base.ConstrainedList[base.SpecificAssetId] = \
+        self._specific_asset_id: base.ConstrainedList[base.SpecificAssetId] = \
             base.ConstrainedList(specific_asset_id, item_set_hook=self._check_constraint_set_spec_asset_id,
                                  item_del_hook=self._check_constraint_del_spec_asset_id)
         # assign private attributes, bypassing setters, as constraints will be checked below
@@ -1146,6 +1146,15 @@ class Entity(SubmodelElement, base.UniqueIdShortNamespace):
         if global_asset_id is not None:
             _string_constraints.check_identifier(global_asset_id)
         self._global_asset_id = global_asset_id
+
+    @property
+    def specific_asset_id(self) -> base.ConstrainedList[base.SpecificAssetId]:
+        return self._specific_asset_id
+
+    @specific_asset_id.setter
+    def specific_asset_id(self, specific_asset_id: Iterable[base.SpecificAssetId]) -> None:
+        # constraints are checked via _check_constraint_set_spec_asset_id() in this case
+        self._specific_asset_id[:] = specific_asset_id
 
     @staticmethod
     def _validate_asset_ids_for_entity_type(entity_type: base.EntityType,

@@ -60,7 +60,7 @@ class AssetInformation:
 
         super().__init__()
         self.asset_kind: base.AssetKind = asset_kind
-        self.specific_asset_id: base.ConstrainedList[base.SpecificAssetId] = \
+        self._specific_asset_id: base.ConstrainedList[base.SpecificAssetId] = \
             base.ConstrainedList(specific_asset_id, item_set_hook=self._check_constraint_set_spec_asset_id,
                                  item_del_hook=self._check_constraint_del_spec_asset_id)
         self.global_asset_id: Optional[base.Identifier] = global_asset_id
@@ -87,6 +87,15 @@ class AssetInformation:
         if global_asset_id is not None:
             _string_constraints.check_identifier(global_asset_id)
         self._global_asset_id = global_asset_id
+
+    @property
+    def specific_asset_id(self) -> base.ConstrainedList[base.SpecificAssetId]:
+        return self._specific_asset_id
+
+    @specific_asset_id.setter
+    def specific_asset_id(self, specific_asset_id: Iterable[base.SpecificAssetId]) -> None:
+        # constraints are checked via _check_constraint_set_spec_asset_id() in this case
+        self._specific_asset_id[:] = specific_asset_id
 
     @staticmethod
     def _validate_asset_ids(global_asset_id: Optional[base.Identifier], specific_asset_id_nonempty: bool) -> None:
