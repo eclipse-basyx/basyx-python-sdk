@@ -12,34 +12,133 @@ from basyx.aas import model
 
 
 class EntityTest(unittest.TestCase):
+    def test_aasd_014_init_self_managed(self) -> None:
+        with self.assertRaises(model.AASConstraintViolation) as cm:
+            model.Entity("TestEntity", model.EntityType.SELF_MANAGED_ENTITY)
+        self.assertEqual("A self-managed entity has to have a globalAssetId or a specificAssetId (Constraint AASd-014)",
+                         str(cm.exception))
+        model.Entity("TestEntity", model.EntityType.SELF_MANAGED_ENTITY, global_asset_id="https://acplt.org/TestAsset")
+        model.Entity("TestEntity", model.EntityType.SELF_MANAGED_ENTITY,
+                     specific_asset_id=(model.SpecificAssetId("test", "test"),))
+        model.Entity("TestEntity", model.EntityType.SELF_MANAGED_ENTITY, global_asset_id="https://acplt.org/TestAsset",
+                     specific_asset_id=(model.SpecificAssetId("test", "test"),))
 
-    def test_set_entity(self):
+    def test_aasd_014_init_co_managed(self) -> None:
+        model.Entity("TestEntity", model.EntityType.CO_MANAGED_ENTITY)
         with self.assertRaises(model.AASConstraintViolation) as cm:
-            obj = model.Entity(id_short='Test', entity_type=model.EntityType.SELF_MANAGED_ENTITY, statement=())
-        self.assertIn(
-            'A self-managed entity has to have a globalAssetId or a specificAssetId',
-            str(cm.exception)
-        )
+            model.Entity("TestEntity", model.EntityType.CO_MANAGED_ENTITY,
+                         global_asset_id="https://acplt.org/TestAsset")
+        self.assertEqual("A co-managed entity has to have neither a globalAssetId nor a specificAssetId "
+                         "(Constraint AASd-014)", str(cm.exception))
         with self.assertRaises(model.AASConstraintViolation) as cm:
-            obj2 = model.Entity(id_short='Test', entity_type=model.EntityType.CO_MANAGED_ENTITY,
-                                global_asset_id='http://acplt.org/TestAsset/',
-                                statement=())
-        self.assertIn(
-            'A co-managed entity has to have neither a globalAssetId nor a specificAssetId',
-            str(cm.exception)
-        )
+            model.Entity("TestEntity", model.EntityType.CO_MANAGED_ENTITY,
+                         specific_asset_id=(model.SpecificAssetId("test", "test"),))
+        self.assertEqual("A co-managed entity has to have neither a globalAssetId nor a specificAssetId "
+                         "(Constraint AASd-014)", str(cm.exception))
+        with self.assertRaises(model.AASConstraintViolation) as cm:
+            model.Entity("TestEntity", model.EntityType.CO_MANAGED_ENTITY,
+                         global_asset_id="https://acplt.org/TestAsset",
+                         specific_asset_id=(model.SpecificAssetId("test", "test"),))
+        self.assertEqual("A co-managed entity has to have neither a globalAssetId nor a specificAssetId "
+                         "(Constraint AASd-014)", str(cm.exception))
 
-        specific_asset_id = {model.SpecificAssetId(name="TestKey",
-                                                   value="TestValue",
-                                                   external_subject_id=model.ExternalReference((model.Key(
-                                                       type_=model.KeyTypes.GLOBAL_REFERENCE,
-                                                       value='http://acplt.org/SpecificAssetId/'),)))}
+    def test_aasd_014_set_self_managed(self) -> None:
+        entity = model.Entity("TestEntity", model.EntityType.SELF_MANAGED_ENTITY,
+                              global_asset_id="https://acplt.org/TestAsset",
+                              specific_asset_id=(model.SpecificAssetId("test", "test"),))
+        entity.global_asset_id = None
         with self.assertRaises(model.AASConstraintViolation) as cm:
-            obj3 = model.Entity(id_short='Test', entity_type=model.EntityType.CO_MANAGED_ENTITY,
-                                specific_asset_id=specific_asset_id, statement=())
-        self.assertIn(
-            'A co-managed entity has to have neither a globalAssetId nor a specificAssetId',
-            str(cm.exception))
+            entity.specific_asset_id = model.ConstrainedList(())
+        self.assertEqual("A self-managed entity has to have a globalAssetId or a specificAssetId (Constraint AASd-014)",
+                         str(cm.exception))
+
+        entity = model.Entity("TestEntity", model.EntityType.SELF_MANAGED_ENTITY,
+                              global_asset_id="https://acplt.org/TestAsset",
+                              specific_asset_id=(model.SpecificAssetId("test", "test"),))
+        entity.specific_asset_id = model.ConstrainedList(())
+        with self.assertRaises(model.AASConstraintViolation) as cm:
+            entity.global_asset_id = None
+        self.assertEqual("A self-managed entity has to have a globalAssetId or a specificAssetId (Constraint AASd-014)",
+                         str(cm.exception))
+
+    def test_aasd_014_set_co_managed(self) -> None:
+        entity = model.Entity("TestEntity", model.EntityType.CO_MANAGED_ENTITY)
+        with self.assertRaises(model.AASConstraintViolation) as cm:
+            entity.global_asset_id = "https://acplt.org/TestAsset"
+        self.assertEqual("A co-managed entity has to have neither a globalAssetId nor a specificAssetId "
+                         "(Constraint AASd-014)", str(cm.exception))
+        with self.assertRaises(model.AASConstraintViolation) as cm:
+            entity.specific_asset_id = model.ConstrainedList((model.SpecificAssetId("test", "test"),))
+        self.assertEqual("A co-managed entity has to have neither a globalAssetId nor a specificAssetId "
+                         "(Constraint AASd-014)", str(cm.exception))
+
+    def test_aasd_014_specific_asset_id_add_self_managed(self) -> None:
+        entity = model.Entity("TestEntity", model.EntityType.SELF_MANAGED_ENTITY,
+                              global_asset_id="https://acplt.org/TestAsset")
+        specific_asset_id1 = model.SpecificAssetId("test", "test")
+        specific_asset_id2 = model.SpecificAssetId("test", "test")
+        entity.specific_asset_id.append(specific_asset_id1)
+        entity.specific_asset_id.extend((specific_asset_id2,))
+        self.assertIs(entity.specific_asset_id[0], specific_asset_id1)
+        self.assertIs(entity.specific_asset_id[1], specific_asset_id2)
+
+    def test_aasd_014_specific_asset_id_add_co_managed(self) -> None:
+        entity = model.Entity("TestEntity", model.EntityType.CO_MANAGED_ENTITY)
+        with self.assertRaises(model.AASConstraintViolation) as cm:
+            entity.specific_asset_id.append(model.SpecificAssetId("test", "test"))
+        self.assertEqual("A co-managed entity has to have neither a globalAssetId nor a specificAssetId "
+                         "(Constraint AASd-014)", str(cm.exception))
+        with self.assertRaises(model.AASConstraintViolation) as cm:
+            entity.specific_asset_id.extend((model.SpecificAssetId("test", "test"),))
+        self.assertEqual("A co-managed entity has to have neither a globalAssetId nor a specificAssetId "
+                         "(Constraint AASd-014)", str(cm.exception))
+
+    def test_assd_014_specific_asset_id_set_self_managed(self) -> None:
+        entity = model.Entity("TestEntity", model.EntityType.SELF_MANAGED_ENTITY,
+                              specific_asset_id=(model.SpecificAssetId("test", "test"),))
+        with self.assertRaises(model.AASConstraintViolation) as cm:
+            entity.specific_asset_id[:] = ()
+        self.assertEqual("A self-managed entity has to have a globalAssetId or a specificAssetId (Constraint AASd-014)",
+                         str(cm.exception))
+        specific_asset_id = model.SpecificAssetId("test", "test")
+        self.assertIsNot(entity.specific_asset_id[0], specific_asset_id)
+        entity.specific_asset_id[:] = (specific_asset_id,)
+        self.assertIs(entity.specific_asset_id[0], specific_asset_id)
+        entity.specific_asset_id[0] = model.SpecificAssetId("test", "test")
+        self.assertIsNot(entity.specific_asset_id[0], specific_asset_id)
+
+    def test_assd_014_specific_asset_id_set_co_managed(self) -> None:
+        entity = model.Entity("TestEntity", model.EntityType.CO_MANAGED_ENTITY)
+        with self.assertRaises(model.AASConstraintViolation) as cm:
+            entity.specific_asset_id[:] = (model.SpecificAssetId("test", "test"),)
+        self.assertEqual("A co-managed entity has to have neither a globalAssetId nor a specificAssetId "
+                         "(Constraint AASd-014)", str(cm.exception))
+        entity.specific_asset_id[:] = ()
+
+    def test_aasd_014_specific_asset_id_del_self_managed(self) -> None:
+        specific_asset_id = model.SpecificAssetId("test", "test")
+        entity = model.Entity("TestEntity", model.EntityType.SELF_MANAGED_ENTITY,
+                              specific_asset_id=(model.SpecificAssetId("test", "test"),
+                                                 specific_asset_id))
+        with self.assertRaises(model.AASConstraintViolation) as cm:
+            del entity.specific_asset_id[:]
+        self.assertEqual("A self-managed entity has to have a globalAssetId or a specificAssetId (Constraint AASd-014)",
+                         str(cm.exception))
+        with self.assertRaises(model.AASConstraintViolation) as cm:
+            entity.specific_asset_id.clear()
+        self.assertEqual("A self-managed entity has to have a globalAssetId or a specificAssetId (Constraint AASd-014)",
+                         str(cm.exception))
+        self.assertIsNot(entity.specific_asset_id[0], specific_asset_id)
+        del entity.specific_asset_id[0]
+        self.assertIs(entity.specific_asset_id[0], specific_asset_id)
+        with self.assertRaises(model.AASConstraintViolation) as cm:
+            del entity.specific_asset_id[0]
+        self.assertEqual("A self-managed entity has to have a globalAssetId or a specificAssetId (Constraint AASd-014)",
+                         str(cm.exception))
+
+    def test_aasd_014_specific_asset_id_del_co_managed(self) -> None:
+        entity = model.Entity("TestEntity", model.EntityType.CO_MANAGED_ENTITY)
+        del entity.specific_asset_id[:]
 
 
 class PropertyTest(unittest.TestCase):
