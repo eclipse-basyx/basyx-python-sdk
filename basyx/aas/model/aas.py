@@ -63,7 +63,9 @@ class AssetInformation:
         self._specific_asset_id: base.ConstrainedList[base.SpecificAssetId] = \
             base.ConstrainedList(specific_asset_id, item_set_hook=self._check_constraint_set_spec_asset_id,
                                  item_del_hook=self._check_constraint_del_spec_asset_id)
-        self.global_asset_id: Optional[base.Identifier] = global_asset_id
+        self._global_asset_id: Optional[base.Identifier]
+        # AASd-131 is validated via the global_asset_id setter
+        self.global_asset_id = global_asset_id
         self.asset_type: Optional[base.Identifier] = asset_type
         self.default_thumbnail: Optional[base.Resource] = default_thumbnail
 
@@ -78,11 +80,11 @@ class AssetInformation:
         self._validate_asset_ids(self.global_asset_id, len(list_) > 1)
 
     @property
-    def global_asset_id(self):
+    def global_asset_id(self) -> Optional[base.Identifier]:
         return self._global_asset_id
 
     @global_asset_id.setter
-    def global_asset_id(self, global_asset_id: Optional[base.Identifier]):
+    def global_asset_id(self, global_asset_id: Optional[base.Identifier]) -> None:
         self._validate_asset_ids(global_asset_id, bool(self.specific_asset_id))
         if global_asset_id is not None:
             _string_constraints.check_identifier(global_asset_id)

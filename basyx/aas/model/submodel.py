@@ -1144,11 +1144,11 @@ class Entity(SubmodelElement, base.UniqueIdShortNamespace):
         self._entity_type = entity_type
 
     @property
-    def global_asset_id(self):
+    def global_asset_id(self) -> Optional[base.Identifier]:
         return self._global_asset_id
 
     @global_asset_id.setter
-    def global_asset_id(self, global_asset_id: Optional[base.Identifier]):
+    def global_asset_id(self, global_asset_id: Optional[base.Identifier]) -> None:
         self._validate_asset_ids_for_entity_type(self.entity_type, global_asset_id, bool(self.specific_asset_id))
         if global_asset_id is not None:
             _string_constraints.check_identifier(global_asset_id)
