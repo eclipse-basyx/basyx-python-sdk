@@ -1109,8 +1109,13 @@ class Entity(SubmodelElement, base.UniqueIdShortNamespace):
         self.specific_asset_id: base.ConstrainedList[base.SpecificAssetId] = \
             base.ConstrainedList(specific_asset_id, item_set_hook=self._check_constraint_set_spec_asset_id,
                                  item_del_hook=self._check_constraint_del_spec_asset_id)
-        self.global_asset_id: Optional[base.Identifier] = global_asset_id
-        self.entity_type: base.EntityType = entity_type
+        # assign private attributes, bypassing setters, as constraints will be checked below
+        self._entity_type: base.EntityType = entity_type
+        # use setter for global_asset_id, as it also checks the string constraint,
+        # which hasn't been checked at this point
+        # furthermore, the setter also validates AASd-014
+        self._global_asset_id: Optional[base.Identifier]
+        self.global_asset_id = global_asset_id
 
     def _check_constraint_set_spec_asset_id(self, old: List[base.SpecificAssetId], new: List[base.SpecificAssetId],
                                             list_: List[base.SpecificAssetId]) -> None:
@@ -1129,7 +1134,7 @@ class Entity(SubmodelElement, base.UniqueIdShortNamespace):
     @entity_type.setter
     def entity_type(self, entity_type: base.EntityType) -> None:
         self._validate_asset_ids_for_entity_type(entity_type, self.global_asset_id, bool(self.specific_asset_id))
-        self._entity_type: base.EntityType = entity_type
+        self._entity_type = entity_type
 
     @property
     def global_asset_id(self):
