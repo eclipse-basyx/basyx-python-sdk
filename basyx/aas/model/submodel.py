@@ -1111,11 +1111,18 @@ class Entity(SubmodelElement, base.UniqueIdShortNamespace):
                                  item_del_hook=self._check_constraint_del_spec_asset_id)
         # assign private attributes, bypassing setters, as constraints will be checked below
         self._entity_type: base.EntityType = entity_type
+        # add item_add_hook after items have been added, because checking the constraints requires the global_asset_id
+        # to be set
+        self._specific_asset_id._item_add_hook = self._check_constraint_add_spec_asset_id
         # use setter for global_asset_id, as it also checks the string constraint,
         # which hasn't been checked at this point
         # furthermore, the setter also validates AASd-014
         self._global_asset_id: Optional[base.Identifier]
         self.global_asset_id = global_asset_id
+
+    def _check_constraint_add_spec_asset_id(self, _new: base.SpecificAssetId, _list: List[base.SpecificAssetId]) \
+            -> None:
+        self._validate_asset_ids_for_entity_type(self.entity_type, self.global_asset_id, True)
 
     def _check_constraint_set_spec_asset_id(self, old: List[base.SpecificAssetId], new: List[base.SpecificAssetId],
                                             list_: List[base.SpecificAssetId]) -> None:
