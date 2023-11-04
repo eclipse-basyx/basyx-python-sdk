@@ -1107,9 +1107,16 @@ class Entity(SubmodelElement, base.UniqueIdShortNamespace):
                          supplemental_semantic_id, embedded_data_specifications)
         self.statement = base.NamespaceSet(self, [("id_short", True)], statement)
         self.specific_asset_id: base.ConstrainedList[base.SpecificAssetId] = \
-            base.ConstrainedList(specific_asset_id, item_del_hook=self._check_constraint_del_spec_asset_id)
+            base.ConstrainedList(specific_asset_id, item_set_hook=self._check_constraint_set_spec_asset_id,
+                                 item_del_hook=self._check_constraint_del_spec_asset_id)
         self.global_asset_id: Optional[base.Identifier] = global_asset_id
         self.entity_type: base.EntityType = entity_type
+
+    def _check_constraint_set_spec_asset_id(self, old: List[base.SpecificAssetId], new: List[base.SpecificAssetId],
+                                            list_: List[base.SpecificAssetId]) -> None:
+        self._validate_asset_ids_for_entity_type(self.entity_type, self.global_asset_id,
+                                                 # whether the list is nonempty after the set operation
+                                                 len(old) < len(list_) or len(new) > 0)
 
     def _check_constraint_del_spec_asset_id(self, _item_to_del: base.SpecificAssetId,
                                             list_: List[base.SpecificAssetId]) -> None:

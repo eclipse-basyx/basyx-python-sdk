@@ -61,10 +61,17 @@ class AssetInformation:
         super().__init__()
         self.asset_kind: base.AssetKind = asset_kind
         self.specific_asset_id: base.ConstrainedList[base.SpecificAssetId] = \
-            base.ConstrainedList(specific_asset_id, item_del_hook=self._check_constraint_del_spec_asset_id)
+            base.ConstrainedList(specific_asset_id, item_set_hook=self._check_constraint_set_spec_asset_id,
+                                 item_del_hook=self._check_constraint_del_spec_asset_id)
         self.global_asset_id: Optional[base.Identifier] = global_asset_id
         self.asset_type: Optional[base.Identifier] = asset_type
         self.default_thumbnail: Optional[base.Resource] = default_thumbnail
+
+    def _check_constraint_set_spec_asset_id(self, old: List[base.SpecificAssetId], new: List[base.SpecificAssetId],
+                                            list_: List[base.SpecificAssetId]) -> None:
+        self._validate_asset_ids(self.global_asset_id,
+                                 # whether the list is nonempty after the set operation
+                                 len(old) < len(list_) or len(new) > 0)
 
     def _check_constraint_del_spec_asset_id(self, _item_to_del: base.SpecificAssetId,
                                             list_: List[base.SpecificAssetId]) -> None:
