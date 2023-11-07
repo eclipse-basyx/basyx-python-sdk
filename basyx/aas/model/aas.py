@@ -60,24 +60,26 @@ class AssetInformation:
 
         super().__init__()
         self.asset_kind: base.AssetKind = asset_kind
-        self._specific_asset_id: base.ConstrainedList[base.SpecificAssetId] = \
-            base.ConstrainedList(specific_asset_id, item_set_hook=self._check_constraint_set_spec_asset_id,
-                                 item_del_hook=self._check_constraint_del_spec_asset_id)
-        self._global_asset_id: Optional[base.Identifier]
-        # AASd-131 is validated via the global_asset_id setter
-        self.global_asset_id = global_asset_id
         self.asset_type: Optional[base.Identifier] = asset_type
         self.default_thumbnail: Optional[base.Resource] = default_thumbnail
+        # assign private attributes, bypassing setters, as constraints will be checked below
+        self._specific_asset_id: base.ConstrainedList[base.SpecificAssetId] = base.ConstrainedList(
+            specific_asset_id,
+            item_set_hook=self._check_constraint_set_spec_asset_id,
+            item_del_hook=self._check_constraint_del_spec_asset_id
+        )
+        self._global_asset_id: Optional[base.Identifier] = global_asset_id
+        self._validate_asset_ids(global_asset_id, bool(specific_asset_id))
 
-    def _check_constraint_set_spec_asset_id(self, old: List[base.SpecificAssetId], new: List[base.SpecificAssetId],
-                                            list_: List[base.SpecificAssetId]) -> None:
+    def _check_constraint_set_spec_asset_id(self, items_to_replace: List[base.SpecificAssetId],
+                                            new_items: List[base.SpecificAssetId],
+                                            old_list: List[base.SpecificAssetId]) -> None:
         self._validate_asset_ids(self.global_asset_id,
-                                 # whether the list is nonempty after the set operation
-                                 len(old) < len(list_) or len(new) > 0)
+                                 len(old_list) - len(items_to_replace) + len(new_items) > 0)
 
     def _check_constraint_del_spec_asset_id(self, _item_to_del: base.SpecificAssetId,
-                                            list_: List[base.SpecificAssetId]) -> None:
-        self._validate_asset_ids(self.global_asset_id, len(list_) > 1)
+                                            old_list: List[base.SpecificAssetId]) -> None:
+        self._validate_asset_ids(self.global_asset_id, len(old_list) > 1)
 
     @property
     def global_asset_id(self) -> Optional[base.Identifier]:
@@ -86,8 +88,6 @@ class AssetInformation:
     @global_asset_id.setter
     def global_asset_id(self, global_asset_id: Optional[base.Identifier]) -> None:
         self._validate_asset_ids(global_asset_id, bool(self.specific_asset_id))
-        if global_asset_id is not None:
-            _string_constraints.check_identifier(global_asset_id)
         self._global_asset_id = global_asset_id
 
     @property
@@ -104,6 +104,8 @@ class AssetInformation:
         if global_asset_id is None and not specific_asset_id_nonempty:
             raise base.AASConstraintViolation(131,
                                               "An AssetInformation has to have a globalAssetId or a specificAssetId")
+        if global_asset_id is not None:
+            _string_constraints.check_identifier(global_asset_id)
 
     def __repr__(self) -> str:
         return "AssetInformation(assetKind={}, globalAssetId={}, specificAssetId={}, assetType={}, " \
