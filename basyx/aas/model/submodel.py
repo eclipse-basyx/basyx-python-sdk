@@ -1106,33 +1106,30 @@ class Entity(SubmodelElement, base.UniqueIdShortNamespace):
         super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, extension,
                          supplemental_semantic_id, embedded_data_specifications)
         self.statement = base.NamespaceSet(self, [("id_short", True)], statement)
-        self._specific_asset_id: base.ConstrainedList[base.SpecificAssetId] = \
-            base.ConstrainedList(specific_asset_id, item_set_hook=self._check_constraint_set_spec_asset_id,
-                                 item_del_hook=self._check_constraint_del_spec_asset_id)
         # assign private attributes, bypassing setters, as constraints will be checked below
         self._entity_type: base.EntityType = entity_type
-        # add item_add_hook after items have been added, because checking the constraints requires the global_asset_id
-        # to be set
-        self._specific_asset_id._item_add_hook = self._check_constraint_add_spec_asset_id
-        # use setter for global_asset_id, as it also checks the string constraint,
-        # which hasn't been checked at this point
-        # furthermore, the setter also validates AASd-014
-        self._global_asset_id: Optional[base.Identifier]
-        self.global_asset_id = global_asset_id
+        self._global_asset_id: Optional[base.Identifier] = global_asset_id
+        self._specific_asset_id: base.ConstrainedList[base.SpecificAssetId] = base.ConstrainedList(
+            specific_asset_id,
+            item_add_hook=self._check_constraint_add_spec_asset_id,
+            item_set_hook=self._check_constraint_set_spec_asset_id,
+            item_del_hook=self._check_constraint_del_spec_asset_id
+        )
+        self._validate_asset_ids(entity_type, global_asset_id, bool(specific_asset_id))
 
-    def _check_constraint_add_spec_asset_id(self, _new: base.SpecificAssetId, _list: List[base.SpecificAssetId]) \
-            -> None:
-        self._validate_asset_ids_for_entity_type(self.entity_type, self.global_asset_id, True)
+    def _check_constraint_add_spec_asset_id(self, _new_item: base.SpecificAssetId,
+                                            _old_list: List[base.SpecificAssetId]) -> None:
+        self._validate_asset_ids(self.entity_type, self.global_asset_id, True)
 
-    def _check_constraint_set_spec_asset_id(self, old: List[base.SpecificAssetId], new: List[base.SpecificAssetId],
-                                            list_: List[base.SpecificAssetId]) -> None:
-        self._validate_asset_ids_for_entity_type(self.entity_type, self.global_asset_id,
-                                                 # whether the list is nonempty after the set operation
-                                                 len(old) < len(list_) or len(new) > 0)
+    def _check_constraint_set_spec_asset_id(self, items_to_replace: List[base.SpecificAssetId],
+                                            new_items: List[base.SpecificAssetId],
+                                            old_list: List[base.SpecificAssetId]) -> None:
+        self._validate_asset_ids(self.entity_type, self.global_asset_id,
+                                 len(old_list) - len(items_to_replace) + len(new_items) > 0)
 
     def _check_constraint_del_spec_asset_id(self, _item_to_del: base.SpecificAssetId,
-                                            list_: List[base.SpecificAssetId]) -> None:
-        self._validate_asset_ids_for_entity_type(self.entity_type, self.global_asset_id, len(list_) > 1)
+                                            old_list: List[base.SpecificAssetId]) -> None:
+        self._validate_asset_ids(self.entity_type, self.global_asset_id, len(old_list) > 1)
 
     @property
     def entity_type(self) -> base.EntityType:
@@ -1140,7 +1137,7 @@ class Entity(SubmodelElement, base.UniqueIdShortNamespace):
 
     @entity_type.setter
     def entity_type(self, entity_type: base.EntityType) -> None:
-        self._validate_asset_ids_for_entity_type(entity_type, self.global_asset_id, bool(self.specific_asset_id))
+        self._validate_asset_ids(entity_type, self.global_asset_id, bool(self.specific_asset_id))
         self._entity_type = entity_type
 
     @property
@@ -1149,9 +1146,7 @@ class Entity(SubmodelElement, base.UniqueIdShortNamespace):
 
     @global_asset_id.setter
     def global_asset_id(self, global_asset_id: Optional[base.Identifier]) -> None:
-        self._validate_asset_ids_for_entity_type(self.entity_type, global_asset_id, bool(self.specific_asset_id))
-        if global_asset_id is not None:
-            _string_constraints.check_identifier(global_asset_id)
+        self._validate_asset_ids(self.entity_type, global_asset_id, bool(self.specific_asset_id))
         self._global_asset_id = global_asset_id
 
     @property
@@ -1164,9 +1159,9 @@ class Entity(SubmodelElement, base.UniqueIdShortNamespace):
         self._specific_asset_id[:] = specific_asset_id
 
     @staticmethod
-    def _validate_asset_ids_for_entity_type(entity_type: base.EntityType,
-                                            global_asset_id: Optional[base.Identifier],
-                                            specific_asset_id_nonempty: bool) -> None:
+    def _validate_asset_ids(entity_type: base.EntityType,
+                            global_asset_id: Optional[base.Identifier],
+                            specific_asset_id_nonempty: bool) -> None:
         if entity_type == base.EntityType.SELF_MANAGED_ENTITY and global_asset_id is None \
                 and not specific_asset_id_nonempty:
             raise base.AASConstraintViolation(
@@ -1175,6 +1170,9 @@ class Entity(SubmodelElement, base.UniqueIdShortNamespace):
                                                                    or specific_asset_id_nonempty):
             raise base.AASConstraintViolation(
                 14, "A co-managed entity has to have neither a globalAssetId nor a specificAssetId")
+
+        if global_asset_id is not None:
+            _string_constraints.check_identifier(global_asset_id)
 
 
 class EventElement(SubmodelElement, metaclass=abc.ABCMeta):
