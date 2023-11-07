@@ -1311,6 +1311,10 @@ class ConstrainedList(MutableSequence[_T], Generic[_T]):
                 self._item_add_hook(v, self._list + v_list[:idx])
         self._list = self._list + v_list
 
+    def clear(self) -> None:
+        # clear() repeatedly deletes the last item by default, making it not atomic
+        del self[:]
+
     @overload
     def __getitem__(self, index: int) -> _T: ...
 
