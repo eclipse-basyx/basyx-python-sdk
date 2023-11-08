@@ -374,7 +374,7 @@ class ModelNamespaceTest(unittest.TestCase):
         self.assertEqual(
             "Object with attribute (name='semantic_id', value='ExternalReference(key=(Key("
             "type=GLOBAL_REFERENCE, value=http://acplt.org/Test1),))') is already present in this set of objects "
-            "(Constraint AASd-022)",
+            "(Constraint AASd-000)",
             str(cm.exception))
         self.namespace.set2.add(self.prop5)
         self.namespace.set2.add(self.prop6)
@@ -389,7 +389,7 @@ class ModelNamespaceTest(unittest.TestCase):
         self.assertEqual(
             "Object with attribute (name='semantic_id', value='"
             "ExternalReference(key=(Key(type=GLOBAL_REFERENCE, value=http://acplt.org/Test1),))')"
-            " is already present in another set in the same namespace (Constraint AASd-022)",
+            " is already present in another set in the same namespace (Constraint AASd-000)",
             str(cm.exception))
 
         self.assertIs(self.prop1, self.namespace.set1.get("id_short", "Prop1"))
@@ -456,7 +456,7 @@ class ModelNamespaceTest(unittest.TestCase):
         with self.assertRaises(model.AASConstraintViolation) as cm:
             self.namespace3.set1.add(self.qualifier1alt)
         self.assertEqual("Object with attribute (name='type', value='type1') is already present in this set "
-                         "of objects (Constraint AASd-022)",
+                         "of objects (Constraint AASd-021)",
                          str(cm.exception))
 
     def test_namespaceset_hooks(self) -> None:
