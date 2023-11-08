@@ -1767,9 +1767,9 @@ ATTRIBUTE_TYPES = Union[NameType, Reference, QualifierType]
 
 # TODO: Find a better solution for providing constraint ids
 ATTRIBUTES_CONSTRAINT_IDS = {
-    "id_short": 22, # Referable,
-    "type": 21, # Qualifier,
-    "name": 77, # Extension,
+    "id_short": 22,  # Referable,
+    "type": 21,  # Qualifier,
+    "name": 77,  # Extension,
     # "id_short": 134, # model.OperationVariable
 }
 
