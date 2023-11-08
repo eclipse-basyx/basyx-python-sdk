@@ -1771,10 +1771,10 @@ ATTRIBUTE_TYPES = Union[NameType, Reference, QualifierType]
 
 # TODO: Find a better solution for providing constraint ids
 ATTRIBUTES_CONSTRAINT_IDS = {
-    "id_short": 117, # Referable,
+    "id_short": 22, # Referable,
     "type": 21, # Qualifier,
     "name": 77, # Extension,
-    "semantic_id": 134, # model.OperationVariable
+    # "id_short": 134, # model.OperationVariable
 }
 
 
@@ -1895,7 +1895,7 @@ class NamespaceSet(MutableSet[_NSO], Generic[_NSO]):
                 if hasattr(element, key_attr_name):
                     key_attr_value = self._get_attribute(element, key_attr_name, case_sensitive)
                     self._check_attr_is_not_none(element, key_attr_name, key_attr_value)
-                    self._check_value_is_not_in_backend(key_attr_name, key_attr_value, backend_dict, set_)
+                    self._check_value_is_not_in_backend(element, key_attr_name, key_attr_value, backend_dict, set_)
 
     def _check_attr_is_not_none(self, element: _NSO, attr_name: str, attr):
         if attr is None:
@@ -1905,13 +1905,14 @@ class NamespaceSet(MutableSet[_NSO], Generic[_NSO]):
             else:
                 raise ValueError(f"{element!r} has attribute {attr_name}=None, which is not allowed!")
 
-    def _check_value_is_not_in_backend(self, attr_name: str, attr, backend_dict: Dict, set_: "NamespaceSet"):
+    def _check_value_is_not_in_backend(self, element: _NSO, attr_name: str, attr,
+                                       backend_dict: Dict[ATTRIBUTE_TYPES, _NSO], set_: "NamespaceSet"):
         if attr in backend_dict:
             if set_ is self:
-                text = f"Object with attribute (name='{attr_name}', value='{attr}') " \
+                text = f"Object with attribute (name='{attr_name}', value='{getattr(element, attr_name)}') " \
                        f"is already present in this set of objects"
             else:
-                text = f"Object with attribute (name='{attr_name}', value='{attr}') " \
+                text = f"Object with attribute (name='{attr_name}', value='{getattr(element, attr_name)}') " \
                        f"is already present in another set in the same namespace"
             raise AASConstraintViolation(ATTRIBUTES_CONSTRAINT_IDS.get(attr_name, 0), text)
 
