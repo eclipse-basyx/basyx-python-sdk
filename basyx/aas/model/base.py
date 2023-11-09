@@ -1162,6 +1162,8 @@ class HasDataSpecification(metaclass=abc.ABCMeta):
     element may or shall have. The data specifications used are explicitly specified
     with their global ID.
 
+    *Note:* Please consider, that we have not implemented DataSpecification template class
+
     :ivar embedded_data_specifications: List of :class:`~.EmbeddedDataSpecification`.
     """
     @abc.abstractmethod
