@@ -1758,7 +1758,6 @@
                                 {
                                     "idShort": "ExampleFile",
                                     "modelType": "File",
-                                    "value": null,
                                     "contentType": "application/pdf"
                                 },
                                 {
@@ -1770,16 +1769,13 @@
                                     "idShort": "ExampleProperty",
                                     "category": "PARAMETER",
                                     "modelType": "Property",
-                                    "value": null,
                                     "valueType": "xs:string"
                                 },
                                 {
                                     "idShort": "ExampleRange",
                                     "category": "PARAMETER",
                                     "modelType": "Range",
-                                    "valueType": "xs:int",
-                                    "min": null,
-                                    "max": null
+                                    "valueType": "xs:int"
                                 },
                                 {
                                     "idShort": "ExampleReferenceElement",
@@ -2590,7 +2586,6 @@
                                     ]
                                 },
                                 "kind": "Template",
-                                "value": null,
                                 "valueType": "xs:string"
                             }
                         }
@@ -2621,7 +2616,6 @@
                                     ]
                                 },
                                 "kind": "Template",
-                                "value": null,
                                 "valueType": "xs:string"
                             }
                         }
@@ -2652,7 +2646,6 @@
                                     ]
                                 },
                                 "kind": "Template",
-                                "value": null,
                                 "valueType": "xs:string"
                             }
                         }
@@ -2820,7 +2813,6 @@
                                 ]
                             },
                             "kind": "Template",
-                            "value": null,
                             "valueType": "xs:string"
                         },
                         {
@@ -2873,7 +2865,6 @@
                             },
                             "kind": "Template",
                             "valueType": "xs:int",
-                            "min": null,
                             "max": "100"
                         },
                         {
@@ -2901,8 +2892,7 @@
                             },
                             "kind": "Template",
                             "valueType": "xs:int",
-                            "min": "0",
-                            "max": null
+                            "min": "0"
                         },
                         {
                             "idShort": "ExampleBlob",
@@ -2954,7 +2944,6 @@
                                 ]
                             },
                             "kind": "Template",
-                            "value": null,
                             "contentType": "application/pdf"
                         },
                         {
