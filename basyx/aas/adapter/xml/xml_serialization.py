@@ -277,9 +277,11 @@ def extension_to_xml(obj: model.Extension, tag: str = NS_AAS+"extension") -> etr
                                               text=model.datatypes.XSD_TYPE_NAMES[obj.value_type]))
     if obj.value:
         et_extension.append(_value_to_xml(obj.value, obj.value_type))  # type: ignore # (value_type could be None)
-    for refers_to in obj.refers_to:
-        et_extension.append(reference_to_xml(refers_to, NS_AAS+"refersTo"))
-
+    if obj.refers_to:
+        refers_to = _generate_element(NS_AAS+"refersTo")
+        for reference in obj.refers_to:
+            refers_to.append(reference_to_xml(reference, NS_AAS+"reference"))
+        et_extension.append(refers_to)
     return et_extension
 
 

@@ -355,13 +355,15 @@
               <aas:valueType>xs:string</aas:valueType>
               <aas:value>ExampleExtensionValue</aas:value>
               <aas:refersTo>
-                <aas:type>ModelReference</aas:type>
-                <aas:keys>
-                  <aas:key>
-                    <aas:type>AssetAdministrationShell</aas:type>
-                    <aas:value>http://acplt.org/RefersTo/ExampleRefersTo</aas:value>
-                  </aas:key>
-                </aas:keys>
+                <aas:reference>
+                  <aas:type>ModelReference</aas:type>
+                  <aas:keys>
+                    <aas:key>
+                      <aas:type>AssetAdministrationShell</aas:type>
+                      <aas:value>http://acplt.org/RefersTo/ExampleRefersTo</aas:value>
+                    </aas:key>
+                  </aas:keys>
+                </aas:reference>
               </aas:refersTo>
             </aas:extension>
           </aas:extensions>
