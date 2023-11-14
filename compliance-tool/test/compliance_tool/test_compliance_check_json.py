@@ -48,6 +48,14 @@ class ComplianceToolJsonTest(unittest.TestCase):
         self.assertEqual(Status.SUCCESS, manager.steps[1].status)
         self.assertEqual(Status.SUCCESS, manager.steps[2].status)
 
+        manager.steps = []
+        file_path_5 = os.path.join(script_dir, 'files/test_demo_full_example_wrong_attribute.json')
+        compliance_tool.check_schema(file_path_5, manager)
+        self.assertEqual(3, len(manager.steps))
+        self.assertEqual(Status.SUCCESS, manager.steps[0].status)
+        self.assertEqual(Status.SUCCESS, manager.steps[1].status)
+        self.assertEqual(Status.SUCCESS, manager.steps[2].status)
+
     def test_check_deserialization(self) -> None:
         manager = ComplianceToolStateManager()
         script_dir = os.path.dirname(__file__)
