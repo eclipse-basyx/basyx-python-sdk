@@ -862,7 +862,6 @@
   <xs:group name="submodelElement">
     <xs:sequence>
       <xs:group ref="referable"/>
-      <xs:group ref="hasKind"/>
       <xs:group ref="hasSemantics"/>
       <xs:group ref="qualifiable"/>
       <xs:group ref="hasDataSpecification"/>
