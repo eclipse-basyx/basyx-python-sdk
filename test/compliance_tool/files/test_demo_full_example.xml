@@ -1180,6 +1180,17 @@
                 </aas:keys>
               </aas:semanticId>
               <aas:orderRelevant>true</aas:orderRelevant>
+              <aas:semanticIdListElement>
+                <aas:type>ExternalReference</aas:type>
+                <aas:keys>
+                  <aas:key>
+                    <aas:type>GlobalReference</aas:type>
+                    <aas:value>http://acplt.org/Properties/ExampleProperty</aas:value>
+                  </aas:key>
+                </aas:keys>
+              </aas:semanticIdListElement>
+              <aas:typeValueListElement>Property</aas:typeValueListElement>
+              <aas:valueTypeListElement>xs:string</aas:valueTypeListElement>
               <aas:value>
                 <aas:property>
                   <aas:category>CONSTANT</aas:category>
@@ -1397,17 +1408,6 @@
                   </aas:valueId>
                 </aas:property>
               </aas:value>
-              <aas:semanticIdListElement>
-                <aas:type>ExternalReference</aas:type>
-                <aas:keys>
-                  <aas:key>
-                    <aas:type>GlobalReference</aas:type>
-                    <aas:value>http://acplt.org/Properties/ExampleProperty</aas:value>
-                  </aas:key>
-                </aas:keys>
-              </aas:semanticIdListElement>
-              <aas:typeValueListElement>Property</aas:typeValueListElement>
-              <aas:valueTypeListElement>xs:string</aas:valueTypeListElement>
             </aas:submodelElementList>
             <aas:multiLanguageProperty>
               <aas:category>CONSTANT</aas:category>
@@ -1622,6 +1622,7 @@
         </aas:basicEventElement>
         <aas:submodelElementList>
           <aas:idShort>ExampleSubmodelList</aas:idShort>
+          <aas:typeValueListElement>SubmodelElementCollection</aas:typeValueListElement>
           <aas:value>
             <aas:submodelElementCollection>
               <aas:kind>Instance</aas:kind>
@@ -1665,7 +1666,6 @@
               <aas:kind>Instance</aas:kind>
             </aas:submodelElementCollection>
           </aas:value>
-          <aas:typeValueListElement>SubmodelElementCollection</aas:typeValueListElement>
         </aas:submodelElementList>
         <aas:submodelElementList>
           <aas:idShort>ExampleSubmodelList2</aas:idShort>
@@ -2630,6 +2630,16 @@
             </aas:keys>
           </aas:semanticId>
           <aas:orderRelevant>true</aas:orderRelevant>
+          <aas:semanticIdListElement>
+            <aas:type>ExternalReference</aas:type>
+            <aas:keys>
+              <aas:key>
+                <aas:type>GlobalReference</aas:type>
+                <aas:value>http://acplt.org/SubmodelElementCollections/ExampleSubmodelElementCollection</aas:value>
+              </aas:key>
+            </aas:keys>
+          </aas:semanticIdListElement>
+          <aas:typeValueListElement>SubmodelElementCollection</aas:typeValueListElement>
           <aas:value>
             <aas:submodelElementCollection>
               <aas:category>PARAMETER</aas:category>
@@ -2856,16 +2866,6 @@
               </aas:semanticId>
             </aas:submodelElementCollection>
           </aas:value>
-          <aas:semanticIdListElement>
-            <aas:type>ExternalReference</aas:type>
-            <aas:keys>
-              <aas:key>
-                <aas:type>GlobalReference</aas:type>
-                <aas:value>http://acplt.org/SubmodelElementCollections/ExampleSubmodelElementCollection</aas:value>
-              </aas:key>
-            </aas:keys>
-          </aas:semanticIdListElement>
-          <aas:typeValueListElement>SubmodelElementCollection</aas:typeValueListElement>
         </aas:submodelElementList>
         <aas:submodelElementList>
           <aas:category>PARAMETER</aas:category>
