@@ -589,6 +589,14 @@
       <xs:group ref="abstractLangString"/>
     </xs:sequence>
   </xs:group>
+  <xs:group name="levelType">
+    <xs:sequence>
+      <xs:element name="min" type="xs:boolean"/>
+      <xs:element name="nom" type="xs:boolean"/>
+      <xs:element name="typ" type="xs:boolean"/>
+      <xs:element name="max" type="xs:boolean"/>
+    </xs:sequence>
+  </xs:group>
   <xs:group name="multiLanguageProperty">
     <xs:sequence>
       <xs:group ref="dataElement"/>
@@ -1055,19 +1063,6 @@
       <xs:enumeration value="SubmodelElementList"/>
     </xs:restriction>
   </xs:simpleType>
-  <xs:group name="levelType">
-    <xs:sequence>
-      <xs:element name="min" type="xs:boolean"/>
-      <xs:element name="nom" type="xs:boolean"/>
-      <xs:element name="typ" type="xs:boolean"/>
-      <xs:element name="max" type="xs:boolean"/>
-    </xs:sequence>
-  </xs:group>
-  <xs:complexType name="levelType_t">
-    <xs:sequence>
-      <xs:group ref="levelType"/>
-    </xs:sequence>
-  </xs:complexType>
   <xs:simpleType name="modellingKind_t">
     <xs:restriction base="xs:string">
       <xs:enumeration value="Template"/>
@@ -1244,6 +1239,11 @@
   <xs:complexType name="langStringTextType_t">
     <xs:sequence>
       <xs:group ref="langStringTextType"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="levelType_t">
+    <xs:sequence>
+      <xs:group ref="levelType"/>
     </xs:sequence>
   </xs:complexType>
   <xs:complexType name="multiLanguageProperty_t">
