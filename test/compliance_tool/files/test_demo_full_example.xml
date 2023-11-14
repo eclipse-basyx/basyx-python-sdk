@@ -371,7 +371,6 @@
               <aas:text>Bezeichnung für eine natürliche oder juristische Person, die für die Auslegung, Herstellung und Verpackung sowie die Etikettierung eines Produkts im Hinblick auf das 'Inverkehrbringen' im eigenen Namen verantwortlich ist</aas:text>
             </aas:langStringTextType>
           </aas:description>
-          <aas:kind>Instance</aas:kind>
           <aas:semanticId>
             <aas:type>ExternalReference</aas:type>
             <aas:keys>
@@ -438,7 +437,6 @@
               <aas:text>Bezeichnung für eine natürliche oder juristische Person, die für die Auslegung, Herstellung und Verpackung sowie die Etikettierung eines Produkts im Hinblick auf das 'Inverkehrbringen' im eigenen Namen verantwortlich ist</aas:text>
             </aas:langStringTextType>
           </aas:description>
-          <aas:kind>Instance</aas:kind>
           <aas:semanticId>
             <aas:type>ExternalReference</aas:type>
             <aas:keys>
@@ -520,7 +518,6 @@
               <aas:text>Bezeichnung für eine natürliche oder juristische Person, die für die Auslegung, Herstellung und Verpackung sowie die Etikettierung eines Produkts im Hinblick auf das 'Inverkehrbringen' im eigenen Namen verantwortlich ist</aas:text>
             </aas:langStringTextType>
           </aas:description>
-          <aas:kind>Instance</aas:kind>
           <aas:semanticId>
             <aas:type>ExternalReference</aas:type>
             <aas:keys>
@@ -544,7 +541,6 @@
                   <aas:text>Beispiel Property Element</aas:text>
                 </aas:langStringTextType>
               </aas:description>
-              <aas:kind>Instance</aas:kind>
               <aas:semanticId>
                 <aas:type>ExternalReference</aas:type>
                 <aas:keys>
@@ -579,7 +575,6 @@
                   <aas:text>Beispiel Property Element</aas:text>
                 </aas:langStringTextType>
               </aas:description>
-              <aas:kind>Instance</aas:kind>
               <aas:semanticId>
                 <aas:type>ExternalReference</aas:type>
                 <aas:keys>
@@ -633,7 +628,6 @@
               <aas:text>Bezeichnung für eine natürliche oder juristische Person, die für die Auslegung, Herstellung und Verpackung sowie die Etikettierung eines Produkts im Hinblick auf das 'Inverkehrbringen' im eigenen Namen verantwortlich ist</aas:text>
             </aas:langStringTextType>
           </aas:description>
-          <aas:kind>Instance</aas:kind>
           <aas:semanticId>
             <aas:type>ExternalReference</aas:type>
             <aas:keys>
@@ -697,7 +691,6 @@
               <aas:text>Beispiel RelationshipElement Element</aas:text>
             </aas:langStringTextType>
           </aas:description>
-          <aas:kind>Instance</aas:kind>
           <aas:semanticId>
             <aas:type>ModelReference</aas:type>
             <aas:keys>
@@ -747,7 +740,6 @@
               <aas:text>Beispiel AnnotatedRelationshipElement Element</aas:text>
             </aas:langStringTextType>
           </aas:description>
-          <aas:kind>Instance</aas:kind>
           <aas:semanticId>
             <aas:type>ExternalReference</aas:type>
             <aas:keys>
@@ -787,14 +779,12 @@
             <aas:property>
               <aas:category>PARAMETER</aas:category>
               <aas:idShort>ExampleAnnotatedProperty</aas:idShort>
-              <aas:kind>Instance</aas:kind>
               <aas:valueType>xs:string</aas:valueType>
               <aas:value>exampleValue</aas:value>
             </aas:property>
             <aas:range>
               <aas:category>PARAMETER</aas:category>
               <aas:idShort>ExampleAnnotatedRange</aas:idShort>
-              <aas:kind>Instance</aas:kind>
               <aas:valueType>xs:integer</aas:valueType>
               <aas:min>1</aas:min>
               <aas:max>5</aas:max>
@@ -814,7 +804,6 @@
               <aas:text>Beispiel Operation Element</aas:text>
             </aas:langStringTextType>
           </aas:description>
-          <aas:kind>Instance</aas:kind>
           <aas:semanticId>
             <aas:type>ExternalReference</aas:type>
             <aas:keys>
@@ -850,7 +839,6 @@
                       <aas:text>Beispiel Property Element</aas:text>
                     </aas:langStringTextType>
                   </aas:description>
-                  <aas:kind>Template</aas:kind>
                   <aas:semanticId>
                     <aas:type>ExternalReference</aas:type>
                     <aas:keys>
@@ -901,7 +889,6 @@
                       <aas:text>Beispiel Property Element</aas:text>
                     </aas:langStringTextType>
                   </aas:description>
-                  <aas:kind>Template</aas:kind>
                   <aas:semanticId>
                     <aas:type>ExternalReference</aas:type>
                     <aas:keys>
@@ -952,7 +939,6 @@
                       <aas:text>Beispiel Property Element</aas:text>
                     </aas:langStringTextType>
                   </aas:description>
-                  <aas:kind>Template</aas:kind>
                   <aas:semanticId>
                     <aas:type>ExternalReference</aas:type>
                     <aas:keys>
@@ -991,7 +977,6 @@
               <aas:text>Beispiel Capability Element</aas:text>
             </aas:langStringTextType>
           </aas:description>
-          <aas:kind>Instance</aas:kind>
           <aas:semanticId>
             <aas:type>ExternalReference</aas:type>
             <aas:keys>
@@ -1015,7 +1000,6 @@
               <aas:text>Beispiel BasicEventElement Element</aas:text>
             </aas:langStringTextType>
           </aas:description>
-          <aas:kind>Instance</aas:kind>
           <aas:semanticId>
             <aas:type>ExternalReference</aas:type>
             <aas:keys>
@@ -1067,7 +1051,6 @@
               <aas:text>Beispiel SubmodelElementCollection Element</aas:text>
             </aas:langStringTextType>
           </aas:description>
-          <aas:kind>Instance</aas:kind>
           <aas:semanticId>
             <aas:type>ExternalReference</aas:type>
             <aas:keys>
@@ -1091,7 +1074,6 @@
                   <aas:text>Beispiel Blob Element</aas:text>
                 </aas:langStringTextType>
               </aas:description>
-              <aas:kind>Instance</aas:kind>
               <aas:semanticId>
                 <aas:type>ExternalReference</aas:type>
                 <aas:keys>
@@ -1117,7 +1099,6 @@
                   <aas:text>Beispiel File Element</aas:text>
                 </aas:langStringTextType>
               </aas:description>
-              <aas:kind>Instance</aas:kind>
               <aas:semanticId>
                 <aas:type>ExternalReference</aas:type>
                 <aas:keys>
@@ -1143,7 +1124,6 @@
                   <aas:text>Details of the Asset Administration Shell – Ein Beispiel für eine extern referenzierte Datei</aas:text>
                 </aas:langStringTextType>
               </aas:description>
-              <aas:kind>Instance</aas:kind>
               <aas:semanticId>
                 <aas:type>ExternalReference</aas:type>
                 <aas:keys>
@@ -1169,7 +1149,6 @@
                   <aas:text>Beispiel SubmodelElementList Element</aas:text>
                 </aas:langStringTextType>
               </aas:description>
-              <aas:kind>Instance</aas:kind>
               <aas:semanticId>
                 <aas:type>ExternalReference</aas:type>
                 <aas:keys>
@@ -1214,7 +1193,6 @@
                       <aas:text>Beispiel Property Element</aas:text>
                     </aas:langStringTextType>
                   </aas:description>
-                  <aas:kind>Instance</aas:kind>
                   <aas:semanticId>
                     <aas:type>ExternalReference</aas:type>
                     <aas:keys>
@@ -1374,7 +1352,6 @@
                       <aas:text>Beispiel Property Element</aas:text>
                     </aas:langStringTextType>
                   </aas:description>
-                  <aas:kind>Instance</aas:kind>
                   <aas:semanticId>
                     <aas:type>ExternalReference</aas:type>
                     <aas:keys>
@@ -1422,7 +1399,6 @@
                   <aas:text>Beispiel MultiLanguageProperty Element</aas:text>
                 </aas:langStringTextType>
               </aas:description>
-              <aas:kind>Instance</aas:kind>
               <aas:semanticId>
                 <aas:type>ExternalReference</aas:type>
                 <aas:referredSemanticId>
@@ -1474,7 +1450,6 @@
                   <aas:text>Beispiel Range Element</aas:text>
                 </aas:langStringTextType>
               </aas:description>
-              <aas:kind>Instance</aas:kind>
               <aas:semanticId>
                 <aas:type>ExternalReference</aas:type>
                 <aas:keys>
@@ -1501,7 +1476,6 @@
                   <aas:text>Beispiel Reference Element Element</aas:text>
                 </aas:langStringTextType>
               </aas:description>
-              <aas:kind>Instance</aas:kind>
               <aas:semanticId>
                 <aas:type>ExternalReference</aas:type>
                 <aas:keys>
@@ -1535,7 +1509,6 @@
       <aas:submodelElements>
         <aas:relationshipElement>
           <aas:idShort>ExampleRelationshipElement</aas:idShort>
-          <aas:kind>Instance</aas:kind>
           <aas:first>
             <aas:type>ModelReference</aas:type>
             <aas:keys>
@@ -1565,7 +1538,6 @@
         </aas:relationshipElement>
         <aas:annotatedRelationshipElement>
           <aas:idShort>ExampleAnnotatedRelationshipElement</aas:idShort>
-          <aas:kind>Instance</aas:kind>
           <aas:first>
             <aas:type>ModelReference</aas:type>
             <aas:keys>
@@ -1595,15 +1567,12 @@
         </aas:annotatedRelationshipElement>
         <aas:operation>
           <aas:idShort>ExampleOperation</aas:idShort>
-          <aas:kind>Instance</aas:kind>
         </aas:operation>
         <aas:capability>
           <aas:idShort>ExampleCapability</aas:idShort>
-          <aas:kind>Instance</aas:kind>
         </aas:capability>
         <aas:basicEventElement>
           <aas:idShort>ExampleBasicEventElement</aas:idShort>
-          <aas:kind>Instance</aas:kind>
           <aas:observed>
             <aas:type>ModelReference</aas:type>
             <aas:keys>
@@ -1625,45 +1594,37 @@
           <aas:typeValueListElement>SubmodelElementCollection</aas:typeValueListElement>
           <aas:value>
             <aas:submodelElementCollection>
-              <aas:kind>Instance</aas:kind>
               <aas:value>
                 <aas:blob>
                   <aas:idShort>ExampleBlob</aas:idShort>
-                  <aas:kind>Instance</aas:kind>
                   <aas:value/>
                   <aas:contentType>application/pdf</aas:contentType>
                 </aas:blob>
                 <aas:file>
                   <aas:idShort>ExampleFile</aas:idShort>
-                  <aas:kind>Instance</aas:kind>
                   <aas:contentType>application/pdf</aas:contentType>
                 </aas:file>
                 <aas:multiLanguageProperty>
                   <aas:category>PARAMETER</aas:category>
                   <aas:idShort>ExampleMultiLanguageProperty</aas:idShort>
-                  <aas:kind>Instance</aas:kind>
                 </aas:multiLanguageProperty>
                 <aas:property>
                   <aas:category>PARAMETER</aas:category>
                   <aas:idShort>ExampleProperty</aas:idShort>
-                  <aas:kind>Instance</aas:kind>
                   <aas:valueType>xs:string</aas:valueType>
                 </aas:property>
                 <aas:range>
                   <aas:category>PARAMETER</aas:category>
                   <aas:idShort>ExampleRange</aas:idShort>
-                  <aas:kind>Instance</aas:kind>
                   <aas:valueType>xs:int</aas:valueType>
                 </aas:range>
                 <aas:referenceElement>
                   <aas:category>PARAMETER</aas:category>
                   <aas:idShort>ExampleReferenceElement</aas:idShort>
-                  <aas:kind>Instance</aas:kind>
                 </aas:referenceElement>
               </aas:value>
             </aas:submodelElementCollection>
             <aas:submodelElementCollection>
-              <aas:kind>Instance</aas:kind>
             </aas:submodelElementCollection>
           </aas:value>
         </aas:submodelElementList>
@@ -1718,7 +1679,6 @@
               <aas:text>Beispiel RelationshipElement Element</aas:text>
             </aas:langStringTextType>
           </aas:description>
-          <aas:kind>Instance</aas:kind>
           <aas:semanticId>
             <aas:type>ExternalReference</aas:type>
             <aas:keys>
@@ -1768,7 +1728,6 @@
               <aas:text>Beispiel AnnotatedRelationshipElement Element</aas:text>
             </aas:langStringTextType>
           </aas:description>
-          <aas:kind>Instance</aas:kind>
           <aas:semanticId>
             <aas:type>ExternalReference</aas:type>
             <aas:keys>
@@ -1808,7 +1767,6 @@
             <aas:range>
               <aas:category>PARAMETER</aas:category>
               <aas:idShort>ExampleAnnotatedRange</aas:idShort>
-              <aas:kind>Instance</aas:kind>
               <aas:valueType>xs:integer</aas:valueType>
               <aas:min>1</aas:min>
               <aas:max>5</aas:max>
@@ -1816,7 +1774,6 @@
             <aas:property>
               <aas:category>PARAMETER</aas:category>
               <aas:idShort>ExampleAnnotatedProperty</aas:idShort>
-              <aas:kind>Instance</aas:kind>
               <aas:valueType>xs:string</aas:valueType>
               <aas:value>exampleValue</aas:value>
             </aas:property>
@@ -1835,7 +1792,6 @@
               <aas:text>Beispiel Operation Element</aas:text>
             </aas:langStringTextType>
           </aas:description>
-          <aas:kind>Instance</aas:kind>
           <aas:semanticId>
             <aas:type>ExternalReference</aas:type>
             <aas:keys>
@@ -1871,7 +1827,6 @@
                       <aas:text>Beispiel Property Element</aas:text>
                     </aas:langStringTextType>
                   </aas:description>
-                  <aas:kind>Template</aas:kind>
                   <aas:semanticId>
                     <aas:type>ExternalReference</aas:type>
                     <aas:keys>
@@ -1922,7 +1877,6 @@
                       <aas:text>Beispiel Property Element</aas:text>
                     </aas:langStringTextType>
                   </aas:description>
-                  <aas:kind>Template</aas:kind>
                   <aas:semanticId>
                     <aas:type>ExternalReference</aas:type>
                     <aas:keys>
@@ -1973,7 +1927,6 @@
                       <aas:text>Beispiel Property Element</aas:text>
                     </aas:langStringTextType>
                   </aas:description>
-                  <aas:kind>Template</aas:kind>
                   <aas:semanticId>
                     <aas:type>ExternalReference</aas:type>
                     <aas:keys>
@@ -2012,7 +1965,6 @@
               <aas:text>Beispiel Capability Element</aas:text>
             </aas:langStringTextType>
           </aas:description>
-          <aas:kind>Instance</aas:kind>
           <aas:semanticId>
             <aas:type>ExternalReference</aas:type>
             <aas:keys>
@@ -2036,7 +1988,6 @@
               <aas:text>Beispiel BasicEventElement Element</aas:text>
             </aas:langStringTextType>
           </aas:description>
-          <aas:kind>Instance</aas:kind>
           <aas:semanticId>
             <aas:type>ExternalReference</aas:type>
             <aas:keys>
@@ -2088,7 +2039,6 @@
               <aas:text>Beispiel SubmodelElementCollection Element</aas:text>
             </aas:langStringTextType>
           </aas:description>
-          <aas:kind>Instance</aas:kind>
           <aas:semanticId>
             <aas:type>ExternalReference</aas:type>
             <aas:keys>
@@ -2112,7 +2062,6 @@
                   <aas:text>Beispiel Blob Element</aas:text>
                 </aas:langStringTextType>
               </aas:description>
-              <aas:kind>Instance</aas:kind>
               <aas:semanticId>
                 <aas:type>ExternalReference</aas:type>
                 <aas:keys>
@@ -2138,7 +2087,6 @@
                   <aas:text>Beispiel File Element</aas:text>
                 </aas:langStringTextType>
               </aas:description>
-              <aas:kind>Instance</aas:kind>
               <aas:semanticId>
                 <aas:type>ExternalReference</aas:type>
                 <aas:keys>
@@ -2164,7 +2112,6 @@
                   <aas:text>Beispiel MulitLanguageProperty Element</aas:text>
                 </aas:langStringTextType>
               </aas:description>
-              <aas:kind>Instance</aas:kind>
               <aas:semanticId>
                 <aas:type>ExternalReference</aas:type>
                 <aas:keys>
@@ -2198,7 +2145,6 @@
                   <aas:text>Beispiel Property Element</aas:text>
                 </aas:langStringTextType>
               </aas:description>
-              <aas:kind>Instance</aas:kind>
               <aas:semanticId>
                 <aas:type>ExternalReference</aas:type>
                 <aas:keys>
@@ -2230,7 +2176,6 @@
                   <aas:text>Beispiel Range Element</aas:text>
                 </aas:langStringTextType>
               </aas:description>
-              <aas:kind>Instance</aas:kind>
               <aas:semanticId>
                 <aas:type>ExternalReference</aas:type>
                 <aas:keys>
@@ -2257,7 +2202,6 @@
                   <aas:text>Beispiel Reference Element Element</aas:text>
                 </aas:langStringTextType>
               </aas:description>
-              <aas:kind>Instance</aas:kind>
               <aas:semanticId>
                 <aas:type>ExternalReference</aas:type>
                 <aas:keys>
@@ -2326,7 +2270,6 @@
               <aas:text>Beispiel RelationshipElement Element</aas:text>
             </aas:langStringTextType>
           </aas:description>
-          <aas:kind>Template</aas:kind>
           <aas:semanticId>
             <aas:type>ExternalReference</aas:type>
             <aas:keys>
@@ -2376,7 +2319,6 @@
               <aas:text>Beispiel AnnotatedRelationshipElement Element</aas:text>
             </aas:langStringTextType>
           </aas:description>
-          <aas:kind>Template</aas:kind>
           <aas:semanticId>
             <aas:type>ExternalReference</aas:type>
             <aas:keys>
@@ -2426,7 +2368,6 @@
               <aas:text>Beispiel Operation Element</aas:text>
             </aas:langStringTextType>
           </aas:description>
-          <aas:kind>Template</aas:kind>
           <aas:semanticId>
             <aas:type>ExternalReference</aas:type>
             <aas:keys>
@@ -2452,7 +2393,6 @@
                       <aas:text>Beispiel Property Element</aas:text>
                     </aas:langStringTextType>
                   </aas:description>
-                  <aas:kind>Template</aas:kind>
                   <aas:semanticId>
                     <aas:type>ExternalReference</aas:type>
                     <aas:keys>
@@ -2483,7 +2423,6 @@
                       <aas:text>Beispiel Property Element</aas:text>
                     </aas:langStringTextType>
                   </aas:description>
-                  <aas:kind>Template</aas:kind>
                   <aas:semanticId>
                     <aas:type>ExternalReference</aas:type>
                     <aas:keys>
@@ -2514,7 +2453,6 @@
                       <aas:text>Beispiel Property Element</aas:text>
                     </aas:langStringTextType>
                   </aas:description>
-                  <aas:kind>Template</aas:kind>
                   <aas:semanticId>
                     <aas:type>ExternalReference</aas:type>
                     <aas:keys>
@@ -2543,7 +2481,6 @@
               <aas:text>Beispiel Capability Element</aas:text>
             </aas:langStringTextType>
           </aas:description>
-          <aas:kind>Template</aas:kind>
           <aas:semanticId>
             <aas:type>ExternalReference</aas:type>
             <aas:keys>
@@ -2567,7 +2504,6 @@
               <aas:text>Beispiel BasicEventElement Element</aas:text>
             </aas:langStringTextType>
           </aas:description>
-          <aas:kind>Template</aas:kind>
           <aas:semanticId>
             <aas:type>ExternalReference</aas:type>
             <aas:keys>
@@ -2619,7 +2555,6 @@
               <aas:text>Beispiel SubmodelElementList Element</aas:text>
             </aas:langStringTextType>
           </aas:description>
-          <aas:kind>Template</aas:kind>
           <aas:semanticId>
             <aas:type>ExternalReference</aas:type>
             <aas:keys>
@@ -2653,7 +2588,6 @@
                   <aas:text>Beispiel SubmodelElementCollection Element</aas:text>
                 </aas:langStringTextType>
               </aas:description>
-              <aas:kind>Template</aas:kind>
               <aas:semanticId>
                 <aas:type>ExternalReference</aas:type>
                 <aas:keys>
@@ -2677,7 +2611,6 @@
                       <aas:text>Beispiel Property Element</aas:text>
                     </aas:langStringTextType>
                   </aas:description>
-                  <aas:kind>Template</aas:kind>
                   <aas:semanticId>
                     <aas:type>ExternalReference</aas:type>
                     <aas:keys>
@@ -2702,7 +2635,6 @@
                       <aas:text>Beispiel MulitLanguageProperty Element</aas:text>
                     </aas:langStringTextType>
                   </aas:description>
-                  <aas:kind>Template</aas:kind>
                   <aas:semanticId>
                     <aas:type>ExternalReference</aas:type>
                     <aas:keys>
@@ -2726,7 +2658,6 @@
                       <aas:text>Beispiel Range Element</aas:text>
                     </aas:langStringTextType>
                   </aas:description>
-                  <aas:kind>Template</aas:kind>
                   <aas:semanticId>
                     <aas:type>ExternalReference</aas:type>
                     <aas:keys>
@@ -2752,7 +2683,6 @@
                       <aas:text>Beispiel Range Element</aas:text>
                     </aas:langStringTextType>
                   </aas:description>
-                  <aas:kind>Template</aas:kind>
                   <aas:semanticId>
                     <aas:type>ExternalReference</aas:type>
                     <aas:keys>
@@ -2778,7 +2708,6 @@
                       <aas:text>Beispiel Blob Element</aas:text>
                     </aas:langStringTextType>
                   </aas:description>
-                  <aas:kind>Template</aas:kind>
                   <aas:semanticId>
                     <aas:type>ExternalReference</aas:type>
                     <aas:keys>
@@ -2804,7 +2733,6 @@
                       <aas:text>Beispiel File Element</aas:text>
                     </aas:langStringTextType>
                   </aas:description>
-                  <aas:kind>Template</aas:kind>
                   <aas:semanticId>
                     <aas:type>ExternalReference</aas:type>
                     <aas:keys>
@@ -2829,7 +2757,6 @@
                       <aas:text>Beispiel Reference Element Element</aas:text>
                     </aas:langStringTextType>
                   </aas:description>
-                  <aas:kind>Template</aas:kind>
                   <aas:semanticId>
                     <aas:type>ExternalReference</aas:type>
                     <aas:keys>
@@ -2854,7 +2781,6 @@
                   <aas:text>Beispiel SubmodelElementCollection Element</aas:text>
                 </aas:langStringTextType>
               </aas:description>
-              <aas:kind>Template</aas:kind>
               <aas:semanticId>
                 <aas:type>ExternalReference</aas:type>
                 <aas:keys>
@@ -2880,7 +2806,6 @@
               <aas:text>Beispiel SubmodelElementList Element</aas:text>
             </aas:langStringTextType>
           </aas:description>
-          <aas:kind>Template</aas:kind>
           <aas:semanticId>
             <aas:type>ExternalReference</aas:type>
             <aas:keys>
