@@ -1317,86 +1317,52 @@ def read_aas_xml_element(file: IO, construct: XMLConstructables, failsafe: bool 
     decoder_ = _select_decoder(failsafe, stripped, decoder)
     constructor: Callable[..., object]
 
-    if construct == XMLConstructables.KEY:
-        constructor = decoder_.construct_key
-    elif construct == XMLConstructables.REFERENCE:
-        constructor = decoder_.construct_reference
-    elif construct == XMLConstructables.MODEL_REFERENCE:
-        constructor = decoder_.construct_model_reference
-    elif construct == XMLConstructables.GLOBAL_REFERENCE:
-        constructor = decoder_.construct_external_reference
-    elif construct == XMLConstructables.ADMINISTRATIVE_INFORMATION:
-        constructor = decoder_.construct_administrative_information
-    elif construct == XMLConstructables.QUALIFIER:
-        constructor = decoder_.construct_qualifier
-    elif construct == XMLConstructables.ANNOTATED_RELATIONSHIP_ELEMENT:
-        constructor = decoder_.construct_annotated_relationship_element
-    elif construct == XMLConstructables.BASIC_EVENT_ELEMENT:
-        constructor = decoder_.construct_basic_event_element
-    elif construct == XMLConstructables.BLOB:
-        constructor = decoder_.construct_blob
-    elif construct == XMLConstructables.CAPABILITY:
-        constructor = decoder_.construct_capability
-    elif construct == XMLConstructables.ENTITY:
-        constructor = decoder_.construct_entity
-    elif construct == XMLConstructables.EXTENSION:
-        constructor = decoder_.construct_extension
-    elif construct == XMLConstructables.FILE:
-        constructor = decoder_.construct_file
-    elif construct == XMLConstructables.RESOURCE:
-        constructor = decoder_.construct_resource
-    elif construct == XMLConstructables.MULTI_LANGUAGE_PROPERTY:
-        constructor = decoder_.construct_multi_language_property
-    elif construct == XMLConstructables.OPERATION:
-        constructor = decoder_.construct_operation
-    elif construct == XMLConstructables.PROPERTY:
-        constructor = decoder_.construct_property
-    elif construct == XMLConstructables.RANGE:
-        constructor = decoder_.construct_range
-    elif construct == XMLConstructables.REFERENCE_ELEMENT:
-        constructor = decoder_.construct_reference_element
-    elif construct == XMLConstructables.RELATIONSHIP_ELEMENT:
-        constructor = decoder_.construct_relationship_element
-    elif construct == XMLConstructables.SUBMODEL_ELEMENT_COLLECTION:
-        constructor = decoder_.construct_submodel_element_collection
-    elif construct == XMLConstructables.SUBMODEL_ELEMENT_LIST:
-        constructor = decoder_.construct_submodel_element_list
-    elif construct == XMLConstructables.ASSET_ADMINISTRATION_SHELL:
-        constructor = decoder_.construct_asset_administration_shell
-    elif construct == XMLConstructables.ASSET_INFORMATION:
-        constructor = decoder_.construct_asset_information
-    elif construct == XMLConstructables.SPECIFIC_ASSET_ID:
-        constructor = decoder_.construct_specific_asset_id
-    elif construct == XMLConstructables.SUBMODEL:
-        constructor = decoder_.construct_submodel
-    elif construct == XMLConstructables.VALUE_REFERENCE_PAIR:
-        constructor = decoder_.construct_value_reference_pair
-    elif construct == XMLConstructables.CONCEPT_DESCRIPTION:
-        constructor = decoder_.construct_concept_description
-    elif construct == XMLConstructables.MULTI_LANGUAGE_NAME_TYPE:
-        constructor = decoder_.construct_multi_language_name_type
-    elif construct == XMLConstructables.MULTI_LANGUAGE_TEXT_TYPE:
-        constructor = decoder_.construct_multi_language_text_type
-    elif construct == XMLConstructables.DEFINITION_TYPE_IEC61360:
-        constructor = decoder_.construct_definition_type_iec61360
-    elif construct == XMLConstructables.PREFERRED_NAME_TYPE_IEC61360:
-        constructor = decoder_.construct_preferred_name_type_iec61360
-    elif construct == XMLConstructables.SHORT_NAME_TYPE_IEC61360:
-        constructor = decoder_.construct_short_name_type_iec61360
-    elif construct == XMLConstructables.EMBEDDED_DATA_SPECIFICATION:
-        constructor = decoder_.construct_embedded_data_specification
-    elif construct == XMLConstructables.DATA_SPECIFICATION_IEC61360:
-        constructor = decoder_.construct_data_specification_iec61360
-    # the following constructors decide which constructor to call based on the elements tag
-    elif construct == XMLConstructables.DATA_ELEMENT:
-        constructor = decoder_.construct_data_element
-    elif construct == XMLConstructables.SUBMODEL_ELEMENT:
-        constructor = decoder_.construct_submodel_element
-    elif construct == XMLConstructables.DATA_SPECIFICATION_CONTENT:
-        constructor = decoder_.construct_data_specification_content
-    # type aliases
-    elif construct == XMLConstructables.VALUE_LIST:
-        constructor = decoder_.construct_value_list
+    type_constructors = {
+        XMLConstructables.KEY: decoder_.construct_key,
+        XMLConstructables.REFERENCE: decoder_.construct_reference,
+        XMLConstructables.MODEL_REFERENCE: decoder_.construct_model_reference,
+        XMLConstructables.GLOBAL_REFERENCE: decoder_.construct_external_reference,
+        XMLConstructables.ADMINISTRATIVE_INFORMATION: decoder_.construct_administrative_information,
+        XMLConstructables.QUALIFIER: decoder_.construct_qualifier,
+        XMLConstructables.ANNOTATED_RELATIONSHIP_ELEMENT: decoder_.construct_annotated_relationship_element,
+        XMLConstructables.BASIC_EVENT_ELEMENT: decoder_.construct_basic_event_element,
+        XMLConstructables.BLOB: decoder_.construct_blob,
+        XMLConstructables.CAPABILITY: decoder_.construct_capability,
+        XMLConstructables.ENTITY: decoder_.construct_entity,
+        XMLConstructables.EXTENSION: decoder_.construct_extension,
+        XMLConstructables.FILE: decoder_.construct_file,
+        XMLConstructables.RESOURCE: decoder_.construct_resource,
+        XMLConstructables.MULTI_LANGUAGE_PROPERTY: decoder_.construct_multi_language_property,
+        XMLConstructables.OPERATION: decoder_.construct_operation,
+        XMLConstructables.PROPERTY: decoder_.construct_property,
+        XMLConstructables.RANGE: decoder_.construct_range,
+        XMLConstructables.REFERENCE_ELEMENT: decoder_.construct_reference_element,
+        XMLConstructables.RELATIONSHIP_ELEMENT: decoder_.construct_relationship_element,
+        XMLConstructables.SUBMODEL_ELEMENT_COLLECTION: decoder_.construct_submodel_element_collection,
+        XMLConstructables.SUBMODEL_ELEMENT_LIST: decoder_.construct_submodel_element_list,
+        XMLConstructables.ASSET_ADMINISTRATION_SHELL: decoder_.construct_asset_administration_shell,
+        XMLConstructables.ASSET_INFORMATION: decoder_.construct_asset_information,
+        XMLConstructables.SPECIFIC_ASSET_ID: decoder_.construct_specific_asset_id,
+        XMLConstructables.SUBMODEL: decoder_.construct_submodel,
+        XMLConstructables.VALUE_REFERENCE_PAIR: decoder_.construct_value_reference_pair,
+        XMLConstructables.CONCEPT_DESCRIPTION: decoder_.construct_concept_description,
+        XMLConstructables.MULTI_LANGUAGE_NAME_TYPE: decoder_.construct_multi_language_name_type,
+        XMLConstructables.MULTI_LANGUAGE_TEXT_TYPE: decoder_.construct_multi_language_text_type,
+        XMLConstructables.DEFINITION_TYPE_IEC61360: decoder_.construct_definition_type_iec61360,
+        XMLConstructables.PREFERRED_NAME_TYPE_IEC61360: decoder_.construct_preferred_name_type_iec61360,
+        XMLConstructables.SHORT_NAME_TYPE_IEC61360: decoder_.construct_short_name_type_iec61360,
+        XMLConstructables.EMBEDDED_DATA_SPECIFICATION: decoder_.construct_embedded_data_specification,
+        XMLConstructables.DATA_SPECIFICATION_IEC61360: decoder_.construct_data_specification_iec61360,
+        # the following constructors decide which constructor to call based on the elements tag
+        XMLConstructables.DATA_ELEMENT: decoder_.construct_data_element,
+        XMLConstructables.SUBMODEL_ELEMENT: decoder_.construct_submodel_element,
+        XMLConstructables.DATA_SPECIFICATION_CONTENT: decoder_.construct_data_specification_content,
+        # type aliases
+        XMLConstructables.VALUE_LIST: decoder_.construct_value_list,
+    }
+
+    if construct in type_constructors:
+        constructor = type_constructors[construct]
     else:
         raise ValueError(f"{construct.name} cannot be constructed!")
 
