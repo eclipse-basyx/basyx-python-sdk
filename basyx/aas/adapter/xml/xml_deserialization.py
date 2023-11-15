@@ -1315,9 +1315,8 @@ def read_aas_xml_element(file: IO, construct: XMLConstructables, failsafe: bool 
     :return: The constructed object or None, if an error occurred in failsafe mode.
     """
     decoder_ = _select_decoder(failsafe, stripped, decoder)
-    constructor: Callable[..., object]
 
-    type_constructors = {
+    type_constructors: Dict[XMLConstructables, Callable[..., object]] = {
         XMLConstructables.KEY: decoder_.construct_key,
         XMLConstructables.REFERENCE: decoder_.construct_reference,
         XMLConstructables.MODEL_REFERENCE: decoder_.construct_model_reference,
@@ -1361,6 +1360,7 @@ def read_aas_xml_element(file: IO, construct: XMLConstructables, failsafe: bool 
         XMLConstructables.VALUE_LIST: decoder_.construct_value_list,
     }
 
+    constructor: Callable[..., object]
     if construct in type_constructors:
         constructor = type_constructors[construct]
     else:
