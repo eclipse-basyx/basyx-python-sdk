@@ -1360,10 +1360,8 @@ def read_aas_xml_element(file: IO, construct: XMLConstructables, failsafe: bool 
         XMLConstructables.VALUE_LIST: decoder_.construct_value_list,
     }
 
-    constructor: Callable[..., object]
-    if construct in type_constructors:
-        constructor = type_constructors[construct]
-    else:
+    constructor: Callable[..., object] = type_constructors.get(construct)
+    if constructor is None:
         raise ValueError(f"{construct.name} cannot be constructed!")
 
     element = _parse_xml_document(file, failsafe=decoder_.failsafe)
