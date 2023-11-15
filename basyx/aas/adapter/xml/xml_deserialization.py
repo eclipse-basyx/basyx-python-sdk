@@ -436,52 +436,76 @@ class AASFromXmlDecoder:
         :return: None
         """
         if isinstance(obj, model.Referable):
-            id_short = _get_text_or_none(element.find(NS_AAS + "idShort"))
-            if id_short is not None:
-                obj.id_short = id_short
-            category = _get_text_or_none(element.find(NS_AAS + "category"))
-            display_name = _failsafe_construct(element.find(NS_AAS + "displayName"),
-                                               cls.construct_multi_language_name_type, cls.failsafe)
-            if display_name is not None:
-                obj.display_name = display_name
-            if category is not None:
-                obj.category = category
-            description = _failsafe_construct(element.find(NS_AAS + "description"),
-                                              cls.construct_multi_language_text_type, cls.failsafe)
-            if description is not None:
-                obj.description = description
+            cls._amend_referable_attrs(element, obj)
         if isinstance(obj, model.Identifiable):
-            administration = _failsafe_construct(element.find(NS_AAS + "administration"),
-                                                 cls.construct_administrative_information, cls.failsafe)
-            if administration:
-                obj.administration = administration
+            cls._amend_identifiable_attrs(element, obj)
         if isinstance(obj, model.HasSemantics):
-            semantic_id = _failsafe_construct(element.find(NS_AAS + "semanticId"), cls.construct_reference,
-                                              cls.failsafe)
-            if semantic_id is not None:
-                obj.semantic_id = semantic_id
-            supplemental_semantic_ids = element.find(NS_AAS + "supplementalSemanticIds")
-            if supplemental_semantic_ids is not None:
-                for supplemental_semantic_id in _child_construct_multiple(supplemental_semantic_ids,
-                                                                          NS_AAS + "reference", cls.construct_reference,
-                                                                          cls.failsafe):
-                    obj.supplemental_semantic_id.append(supplemental_semantic_id)
+            cls._amend_has_semantics_attrs(element, obj)
         if isinstance(obj, model.Qualifiable) and not cls.stripped:
-            qualifiers_elem = element.find(NS_AAS + "qualifiers")
-            if qualifiers_elem is not None and len(qualifiers_elem) > 0:
-                for qualifier in _failsafe_construct_multiple(qualifiers_elem, cls.construct_qualifier, cls.failsafe):
-                    obj.qualifier.add(qualifier)
+            cls._amend_qualifiable_attrs(element, obj)
         if isinstance(obj, model.HasDataSpecification) and not cls.stripped:
-            embedded_data_specifications_elem = element.find(NS_AAS + "embeddedDataSpecifications")
-            if embedded_data_specifications_elem is not None:
-                for eds in _failsafe_construct_multiple(embedded_data_specifications_elem,
-                                                        cls.construct_embedded_data_specification, cls.failsafe):
-                    obj.embedded_data_specifications.append(eds)
+            cls.amend_has_data_specification_attrs(element, obj)
         if isinstance(obj, model.HasExtension) and not cls.stripped:
-            extension_elem = element.find(NS_AAS + "extension")
-            if extension_elem is not None:
-                for extension in _failsafe_construct_multiple(extension_elem, cls.construct_extension, cls.failsafe):
-                    obj.extension.add(extension)
+            cls._amend_extension_attrs(element, obj)
+
+    @classmethod
+    def _amend_referable_attrs(cls, element: etree.Element, obj: model.Referable):
+        id_short = _get_text_or_none(element.find(NS_AAS + "idShort"))
+        if id_short is not None:
+            obj.id_short = id_short
+        display_name = _failsafe_construct(element.find(NS_AAS + "displayName"),
+                                           cls.construct_multi_language_name_type, cls.failsafe)
+        if display_name is not None:
+            obj.display_name = display_name
+        category = _get_text_or_none(element.find(NS_AAS + "category"))
+        if category is not None:
+            obj.category = category
+        description = _failsafe_construct(element.find(NS_AAS + "description"),
+                                          cls.construct_multi_language_text_type, cls.failsafe)
+        if description is not None:
+            obj.description = description
+
+    @classmethod
+    def _amend_identifiable_attrs(cls, element: etree.Element, obj: model.Identifiable):
+        administration = _failsafe_construct(element.find(NS_AAS + "administration"),
+                                             cls.construct_administrative_information, cls.failsafe)
+        if administration:
+            obj.administration = administration
+
+    @classmethod
+    def _amend_has_semantics_attrs(cls, element: etree.Element, obj: model.HasSemantics):
+        semantic_id = _failsafe_construct(element.find(NS_AAS + "semanticId"), cls.construct_reference,
+                                          cls.failsafe)
+        if semantic_id is not None:
+            obj.semantic_id = semantic_id
+        supplemental_semantic_ids = element.find(NS_AAS + "supplementalSemanticIds")
+        if supplemental_semantic_ids is not None:
+            for supplemental_semantic_id in _child_construct_multiple(supplemental_semantic_ids,
+                                                                      NS_AAS + "reference", cls.construct_reference,
+                                                                      cls.failsafe):
+                obj.supplemental_semantic_id.append(supplemental_semantic_id)
+
+    @classmethod
+    def _amend_qualifiable_attrs(cls, element: etree.Element, obj: model.Qualifiable):
+        qualifiers_elem = element.find(NS_AAS + "qualifiers")
+        if qualifiers_elem is not None and len(qualifiers_elem) > 0:
+            for qualifier in _failsafe_construct_multiple(qualifiers_elem, cls.construct_qualifier, cls.failsafe):
+                obj.qualifier.add(qualifier)
+
+    @classmethod
+    def amend_has_data_specification_attrs(cls, element: etree.Element, obj: model.HasDataSpecification):
+        embedded_data_specifications_elem = element.find(NS_AAS + "embeddedDataSpecifications")
+        if embedded_data_specifications_elem is not None:
+            for eds in _failsafe_construct_multiple(embedded_data_specifications_elem,
+                                                    cls.construct_embedded_data_specification, cls.failsafe):
+                obj.embedded_data_specifications.append(eds)
+
+    @classmethod
+    def _amend_extension_attrs(cls, element: etree.Element, obj: model.HasExtension):
+        extension_elem = element.find(NS_AAS + "extension")
+        if extension_elem is not None:
+            for extension in _failsafe_construct_multiple(extension_elem, cls.construct_extension, cls.failsafe):
+                obj.extension.add(extension)
 
     @classmethod
     def _construct_relationship_element_internal(cls, element: etree.Element, object_class: Type[RE], **_kwargs: Any) \
