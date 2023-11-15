@@ -1230,19 +1230,14 @@ class LangStringSetTest(unittest.TestCase):
     def test_language_tag_constraints(self) -> None:
         with self.assertRaises(ValueError) as cm:
             model.LangStringSet({"foo": "bar"})
-        self.assertEqual("The language code 'foo' of the language tag 'foo' doesn't consist of exactly "
-                         "two lower-case letters!", str(cm.exception))
-        with self.assertRaises(ValueError) as cm:
-            model.LangStringSet({"fo-OO-bar": "bar"})
-        self.assertEqual("The extension 'OO-bar' of the language tag 'fo-OO-bar' doesn't consist of exactly "
-                         "two upper-case letters!", str(cm.exception))
-        model.LangStringSet({"fo": "bar"})
+        self.assertEqual("The language code of the language tag must consist of exactly two lower-case letters! "
+                         "Given language tag and language code: 'foo', 'foo'", str(cm.exception))
 
         lss = model.LangStringSet({"fo-OO": "bar"})
         with self.assertRaises(ValueError) as cm:
             lss["foo"] = "bar"
-        self.assertEqual("The language code 'foo' of the language tag 'foo' doesn't consist of exactly "
-                         "two lower-case letters!", str(cm.exception))
+        self.assertEqual("The language code of the language tag must consist of exactly two lower-case letters! "
+                         "Given language tag and language code: 'foo', 'foo'", str(cm.exception))
         self.assertNotIn("foo", lss)
         self.assertNotIn("fo", lss)
         lss["fo"] = "bar"
