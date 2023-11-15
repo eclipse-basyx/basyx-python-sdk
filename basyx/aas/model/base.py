@@ -1468,7 +1468,7 @@ class Extension(HasSemantics):
         self.value_type: Optional[DataTypeDefXsd] = value_type
         self._value: Optional[ValueDataType]
         self.value = value
-        self.refers_to: Iterable[ModelReference] = refers_to
+        self.refers_to: Set[ModelReference] = set(refers_to)
         self.semantic_id: Optional[Reference] = semantic_id
         self.supplemental_semantic_id: ConstrainedList[Reference] = ConstrainedList(supplemental_semantic_id)
 
