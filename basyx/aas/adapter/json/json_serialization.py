@@ -62,7 +62,7 @@ class AASToJsonEncoder(json.JSONEncoder):
         :param obj: The object to serialize to json
         :return: The serialized object
         """
-        mapping: Dict[Type, Callable] = {
+        serialization_methods: Dict[Type, Callable] = {
             model.AdministrativeInformation: self._administrative_information_to_json,
             model.AnnotatedRelationshipElement: self._annotated_relationship_element_to_json,
             model.AssetAdministrationShell: self._asset_administration_shell_to_json,
@@ -92,10 +92,10 @@ class AASToJsonEncoder(json.JSONEncoder):
             model.SubmodelElementList: self._submodel_element_list_to_json,
             model.ValueReferencePair: self._value_reference_pair_to_json,
         }
-        for typ in mapping:
+        for typ in serialization_methods:
             if isinstance(obj, typ):
-                mapping_method = mapping[typ]
-                return mapping_method(obj)
+                serialization_method = serialization_methods[typ]
+                return serialization_method(obj)
         return super().default(obj)
 
     @classmethod
@@ -108,47 +108,74 @@ class AASToJsonEncoder(json.JSONEncoder):
         """
         data: Dict[str, object] = {}
         if isinstance(obj, model.HasExtension) and not cls.stripped:
-            if obj.extension:
-                data['extensions'] = list(obj.extension)
+            cls._extend_with_has_extension_attrs(data, obj)
         if isinstance(obj, model.HasDataSpecification) and not cls.stripped:
-            if obj.embedded_data_specifications:
-                data['embeddedDataSpecifications'] = [
-                    {'dataSpecification': spec.data_specification,
-                     'dataSpecificationContent': spec.data_specification_content}
-                    for spec in obj.embedded_data_specifications
-                ]
-
+            cls._extend_with_has_data_specification_specific_attrs(data, obj)
         if isinstance(obj, model.Referable):
-            if obj.id_short and not isinstance(obj.parent, model.SubmodelElementList):
-                data['idShort'] = obj.id_short
-            if obj.display_name:
-                data['displayName'] = obj.display_name
-            if obj.category:
-                data['category'] = obj.category
-            if obj.description:
-                data['description'] = obj.description
-            try:
-                ref_type = next(iter(t for t in inspect.getmro(type(obj)) if t in model.KEY_TYPES_CLASSES))
-            except StopIteration as e:
-                raise TypeError("Object of type {} is Referable but does not inherit from a known AAS type"
-                                .format(obj.__class__.__name__)) from e
-            data['modelType'] = ref_type.__name__
+            cls._extend_with_referable_attrs(data, obj)
         if isinstance(obj, model.Identifiable):
-            data['id'] = obj.id
-            if obj.administration:
-                data['administration'] = obj.administration
+            cls._extend_with_identifiable_attrs(data, obj)
         if isinstance(obj, model.HasSemantics):
-            if obj.semantic_id:
-                data['semanticId'] = obj.semantic_id
-            if obj.supplemental_semantic_id:
-                data['supplementalSemanticIds'] = list(obj.supplemental_semantic_id)
+            cls._extend_with_has_semantics_attrs(data, obj)
         if isinstance(obj, model.HasKind):
-            if obj.kind is model.ModellingKind.TEMPLATE:
-                data['kind'] = _generic.MODELLING_KIND[obj.kind]
+            cls._extend_with_has_kind_attrs(data, obj)
         if isinstance(obj, model.Qualifiable) and not cls.stripped:
-            if obj.qualifier:
-                data['qualifiers'] = list(obj.qualifier)
+            cls._extend_with_qualifiable_attrs(data, obj)
         return data
+
+    @classmethod
+    def _extend_with_has_extension_attrs(cls, data: Dict[str, object], obj: model.HasExtension):
+        if obj.extension:
+            data['extensions'] = list(obj.extension)
+
+    @classmethod
+    def _extend_with_has_data_specification_specific_attrs(cls, data: Dict[str, object], obj: model.HasDataSpecification):
+        if obj.embedded_data_specifications:
+            data['embeddedDataSpecifications'] = [
+                {'dataSpecification': spec.data_specification,
+                 'dataSpecificationContent': spec.data_specification_content}
+                for spec in obj.embedded_data_specifications
+            ]
+
+    @classmethod
+    def _extend_with_referable_attrs(cls, data: Dict[str, object], obj: model.Referable):
+        if obj.id_short and not isinstance(obj.parent, model.SubmodelElementList):
+            data['idShort'] = obj.id_short
+        if obj.display_name:
+            data['displayName'] = obj.display_name
+        if obj.category:
+            data['category'] = obj.category
+        if obj.description:
+            data['description'] = obj.description
+        try:
+            ref_type = next(iter(t for t in inspect.getmro(type(obj)) if t in model.KEY_TYPES_CLASSES))
+        except StopIteration as e:
+            raise TypeError("Object of type {} is Referable but does not inherit from a known AAS type"
+                            .format(obj.__class__.__name__)) from e
+        data['modelType'] = ref_type.__name__
+
+    @classmethod
+    def _extend_with_identifiable_attrs(cls, data: Dict[str, object], obj: model.Identifiable):
+        data['id'] = obj.id
+        if obj.administration:
+            data['administration'] = obj.administration
+
+    @classmethod
+    def _extend_with_has_semantics_attrs(cls, data: Dict[str, object], obj: model.HasSemantics):
+        if obj.semantic_id:
+            data['semanticId'] = obj.semantic_id
+        if obj.supplemental_semantic_id:
+            data['supplementalSemanticIds'] = list(obj.supplemental_semantic_id)
+
+    @classmethod
+    def _extend_with_has_kind_attrs(cls, data: Dict[str, object], obj: model.HasKind):
+        if obj.kind is model.ModellingKind.TEMPLATE:
+            data['kind'] = _generic.MODELLING_KIND[obj.kind]
+
+    @classmethod
+    def _extend_with_qualifiable_attrs(cls, data: Dict[str, object], obj: model.Qualifiable):
+        if obj.qualifier:
+            data['qualifiers'] = list(obj.qualifier)
 
     # #############################################################
     # transformation functions to serialize classes from model.base
