@@ -445,8 +445,6 @@
         "xs:byte",
         "xs:date",
         "xs:dateTime",
-        "xs:dateTimeStamp",
-        "xs:dayTimeDuration",
         "xs:decimal",
         "xs:double",
         "xs:duration",
