@@ -729,16 +729,16 @@ class AASFromXmlDecoder:
         This function doesn't support the object_class parameter.
         Overwrite each individual SubmodelElement/DataElement constructor function instead.
         """
-        submodel_elements: Dict[str, Callable[..., model.SubmodelElement]] = {NS_AAS + k: v for k, v in {
-            "annotatedRelationshipElement": cls.construct_annotated_relationship_element,
-            "basicEventElement": cls.construct_basic_event_element,
-            "capability": cls.construct_capability,
-            "entity": cls.construct_entity,
-            "operation": cls.construct_operation,
-            "relationshipElement": cls.construct_relationship_element,
-            "submodelElementCollection": cls.construct_submodel_element_collection,
-            "submodelElementList": cls.construct_submodel_element_list
-        }.items()}
+        submodel_elements: Dict[str, Callable[..., model.SubmodelElement]] = {
+            f"{NS_AAS}annotatedRelationshipElement": cls.construct_annotated_relationship_element,
+            f"{NS_AAS}basicEventElement": cls.construct_basic_event_element,
+            f"{NS_AAS}capability": cls.construct_capability,
+            f"{NS_AAS}entity": cls.construct_entity,
+            f"{NS_AAS}operation": cls.construct_operation,
+            f"{NS_AAS}relationshipElement": cls.construct_relationship_element,
+            f"{NS_AAS}submodelElementCollection": cls.construct_submodel_element_collection,
+            f"{NS_AAS}submodelElementList": cls.construct_submodel_element_list
+        }
         if element.tag not in submodel_elements:
             return cls.construct_data_element(element, abstract_class_name="SubmodelElement", **kwargs)
         return submodel_elements[element.tag](element, **kwargs)
@@ -750,14 +750,14 @@ class AASFromXmlDecoder:
         This function does not support the object_class parameter.
         Overwrite each individual DataElement constructor function instead.
         """
-        data_elements: Dict[str, Callable[..., model.DataElement]] = {NS_AAS + k: v for k, v in {
-            "blob": cls.construct_blob,
-            "file": cls.construct_file,
-            "multiLanguageProperty": cls.construct_multi_language_property,
-            "property": cls.construct_property,
-            "range": cls.construct_range,
-            "referenceElement": cls.construct_reference_element,
-        }.items()}
+        data_elements: Dict[str, Callable[..., model.DataElement]] = {
+            f"{NS_AAS}blob": cls.construct_blob,
+            f"{NS_AAS}file": cls.construct_file,
+            f"{NS_AAS}multiLanguageProperty": cls.construct_multi_language_property,
+            f"{NS_AAS}property": cls.construct_property,
+            f"{NS_AAS}range": cls.construct_range,
+            f"{NS_AAS}referenceElement": cls.construct_reference_element,
+        }
         if element.tag not in data_elements:
             raise KeyError(_element_pretty_identifier(element) + f" is not a valid {abstract_class_name}!")
         return data_elements[element.tag](element, **kwargs)
@@ -1112,9 +1112,9 @@ class AASFromXmlDecoder:
         Overwrite each individual DataSpecificationContent constructor function instead.
         """
         data_specification_contents: Dict[str, Callable[..., model.DataSpecificationContent]] = \
-            {NS_AAS + k: v for k, v in {
-                "dataSpecificationIec61360": cls.construct_data_specification_iec61360,
-            }.items()}
+            {
+                f"{NS_AAS}dataSpecificationIec61360": cls.construct_data_specification_iec61360,
+            }
         if element.tag not in data_specification_contents:
             raise KeyError(f"{_element_pretty_identifier(element)} is not a valid DataSpecificationContent!")
         return data_specification_contents[element.tag](element, **kwargs)
@@ -1435,12 +1435,10 @@ def read_aas_xml_file_into(object_store: model.AbstractObjectStore[model.Identif
     decoder_ = _select_decoder(failsafe, stripped, decoder)
 
     element_constructors: Dict[str, Callable[..., model.Identifiable]] = {
-        "assetAdministrationShell": decoder_.construct_asset_administration_shell,
-        "conceptDescription": decoder_.construct_concept_description,
-        "submodel": decoder_.construct_submodel
+        f"{NS_AAS}assetAdministrationShell": decoder_.construct_asset_administration_shell,
+        f"{NS_AAS}conceptDescription": decoder_.construct_concept_description,
+        f"{NS_AAS}submodel": decoder_.construct_submodel
     }
-
-    element_constructors = {NS_AAS + k: v for k, v in element_constructors.items()}
 
     root = _parse_xml_document(file, failsafe=decoder_.failsafe, **parser_kwargs)
 
