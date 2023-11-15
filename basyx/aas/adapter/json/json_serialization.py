@@ -129,7 +129,8 @@ class AASToJsonEncoder(json.JSONEncoder):
             data['extensions'] = list(obj.extension)
 
     @classmethod
-    def _extend_with_has_data_specification_specific_attrs(cls, data: Dict[str, object], obj: model.HasDataSpecification):
+    def _extend_with_has_data_specification_specific_attrs(cls, data: Dict[str, object],
+                                                           obj: model.HasDataSpecification):
         if obj.embedded_data_specifications:
             data['embeddedDataSpecifications'] = [
                 {'dataSpecification': spec.data_specification,
