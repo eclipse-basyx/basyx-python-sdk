@@ -288,12 +288,10 @@ class LangStringSet(MutableMapping[str, str]):
     @classmethod
     def _check_language_tag_constraints(cls, ltag: str):
         split = ltag.split("-", 1)
-        if len(split[0]) != 2 or not split[0].isalpha() or not split[0].islower():
-            raise ValueError(f"The language code '{split[0]}' of the language tag '{ltag}' doesn't consist of exactly "
-                             "two lower-case letters!")
-        if len(split) > 1 and (len(split[1]) != 2 or not split[1].isalpha() or not split[1].isupper()):
-            raise ValueError(f"The extension '{split[1]}' of the language tag '{ltag}' doesn't consist of exactly "
-                             "two upper-case letters!")
+        lang_code = split[0]
+        if len(lang_code) != 2 or not lang_code.isalpha() or not lang_code.islower():
+            raise ValueError(f"The language code of the language tag must consist of exactly two lower-case letters! "
+                             f"Given language tag and language code: '{ltag}', '{lang_code}'")
 
     def __getitem__(self, item: str) -> str:
         return self._dict[item]
