@@ -1458,7 +1458,7 @@ class Extension(HasSemantics):
                  name: NameType,
                  value_type: Optional[DataTypeDefXsd] = None,
                  value: Optional[ValueDataType] = None,
-                 refers_to: Iterable[ModelReference] = (),
+                 refers_to: Optional[List[ModelReference]] = None,
                  semantic_id: Optional[Reference] = None,
                  supplemental_semantic_id: Iterable[Reference] = ()):
         super().__init__()
@@ -1468,7 +1468,10 @@ class Extension(HasSemantics):
         self.value_type: Optional[DataTypeDefXsd] = value_type
         self._value: Optional[ValueDataType]
         self.value = value
-        self.refers_to: Iterable[ModelReference] = refers_to
+        if refers_to is None:
+            self.refers_to: List[ModelReference] = []
+        else:
+            self.refers_to = refers_to
         self.semantic_id: Optional[Reference] = semantic_id
         self.supplemental_semantic_id: ConstrainedList[Reference] = ConstrainedList(supplemental_semantic_id)
 
