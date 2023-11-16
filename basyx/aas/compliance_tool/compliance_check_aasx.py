@@ -158,7 +158,7 @@ def check_schema(file_path: str, state_manager: ComplianceToolStateManager) -> N
         reader.close()
 
 
-def check_aas_example(file_path: str, state_manager: ComplianceToolStateManager) -> None:
+def check_aas_example(file_path: str, state_manager: ComplianceToolStateManager, **kwargs) -> None:
     """
     Checks if a file contains all elements of the aas example and reports any issues using the given
     :class:`~aas.compliance_tool.state_manager.ComplianceToolStateManager`
@@ -168,6 +168,7 @@ def check_aas_example(file_path: str, state_manager: ComplianceToolStateManager)
 
     :param file_path: Given file which should be checked
     :param state_manager: :class:`~aas.compliance_tool.state_manager.ComplianceToolStateManager` to log the steps
+    :param kwargs: Additional arguments to pass to :class:`~aas.examples.data._helper.AASDataChecker`
     """
     logger = logging.getLogger('compliance_check')
     logger.addHandler(state_manager)
@@ -189,7 +190,7 @@ def check_aas_example(file_path: str, state_manager: ComplianceToolStateManager)
         state_manager.set_step_status(Status.NOT_EXECUTED)
         return
 
-    checker = AASDataChecker(raise_immediately=False)
+    checker = AASDataChecker(raise_immediately=False, **kwargs)
 
     state_manager.add_step('Check if data is equal to example data')
     example_data = create_example_aas_binding()
@@ -267,7 +268,8 @@ def check_aas_example(file_path: str, state_manager: ComplianceToolStateManager)
         state_manager.set_step_status(Status.SUCCESS)
 
 
-def check_aasx_files_equivalence(file_path_1: str, file_path_2: str, state_manager: ComplianceToolStateManager) -> None:
+def check_aasx_files_equivalence(file_path_1: str, file_path_2: str, state_manager: ComplianceToolStateManager,
+                                 **kwargs) -> None:
     """
     Checks if two aasx files contain the same elements in any order and reports any issues using the given
     :class:`~aas.compliance_tool.state_manager.ComplianceToolStateManager`
@@ -278,6 +280,7 @@ def check_aasx_files_equivalence(file_path_1: str, file_path_2: str, state_manag
     :param file_path_1: Given first file which should be checked
     :param file_path_2: Given second file which should be checked
     :param state_manager: :class:`~aas.compliance_tool.state_manager.ComplianceToolStateManager` to log the steps
+    :param kwargs: Additional arguments to pass to :class:`~aas.examples.data._helper.AASDataChecker`
     """
     logger = logging.getLogger('compliance_check')
     logger.addHandler(state_manager)
@@ -295,7 +298,7 @@ def check_aasx_files_equivalence(file_path_1: str, file_path_2: str, state_manag
         state_manager.set_step_status(Status.NOT_EXECUTED)
         return
 
-    checker = AASDataChecker(raise_immediately=False)
+    checker = AASDataChecker(raise_immediately=False, **kwargs)
     try:
         state_manager.add_step('Check if data in files are equal')
         checker.check_object_store(obj_store_1, obj_store_2)
