@@ -478,9 +478,10 @@ class AASFromXmlDecoder:
                                                         cls.construct_embedded_data_specification, cls.failsafe):
                     obj.embedded_data_specifications.append(eds)
         if isinstance(obj, model.HasExtension) and not cls.stripped:
-            extension_elem = element.find(NS_AAS + "extension")
+            extension_elem = element.find(NS_AAS + "extensions")
             if extension_elem is not None:
-                for extension in _failsafe_construct_multiple(extension_elem, cls.construct_extension, cls.failsafe):
+                for extension in _child_construct_multiple(extension_elem, NS_AAS + "extension",
+                                                           cls.construct_extension, cls.failsafe):
                     obj.extension.add(extension)
 
     @classmethod
