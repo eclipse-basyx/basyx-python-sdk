@@ -83,52 +83,80 @@ def abstract_classes_to_xml(tag: str, obj: object) -> etree.Element:
     """
     elm = _generate_element(tag)
     if isinstance(obj, model.HasExtension):
-        if obj.extension:
-            et_extension = _generate_element(NS_AAS + "extensions")
-            for extension in obj.extension:
-                if isinstance(extension, model.Extension):
-                    et_extension.append(extension_to_xml(extension, tag=NS_AAS + "extension"))
-            elm.append(et_extension)
+        _extend_with_has_extension_attrs(elm, obj)
     if isinstance(obj, model.Referable):
-        if obj.category:
-            elm.append(_generate_element(name=NS_AAS + "category", text=obj.category))
-        if obj.id_short and not isinstance(obj.parent, model.SubmodelElementList):
-            elm.append(_generate_element(name=NS_AAS + "idShort", text=obj.id_short))
-        if obj.display_name:
-            elm.append(lang_string_set_to_xml(obj.display_name, tag=NS_AAS + "displayName"))
-        if obj.description:
-            elm.append(lang_string_set_to_xml(obj.description, tag=NS_AAS + "description"))
+        _extend_with_referable_attrs(elm, obj)
     if isinstance(obj, model.Identifiable):
-        if obj.administration:
-            elm.append(administrative_information_to_xml(obj.administration))
-        elm.append(_generate_element(name=NS_AAS + "id", text=obj.id))
+        _extend_with_identifiable_attrs(elm, obj)
     if isinstance(obj, model.HasKind):
-        if obj.kind is model.ModellingKind.TEMPLATE:
-            elm.append(_generate_element(name=NS_AAS + "kind", text="Template"))
-        else:
-            # then modelling-kind is Instance
-            elm.append(_generate_element(name=NS_AAS + "kind", text="Instance"))
+        _extend_with_has_kind_attrs(elm, obj)
     if isinstance(obj, model.HasSemantics):
-        if obj.semantic_id:
-            elm.append(reference_to_xml(obj.semantic_id, tag=NS_AAS+"semanticId"))
-        if obj.supplemental_semantic_id:
-            et_supplemental_semantic_ids = _generate_element(NS_AAS + "supplementalSemanticIds")
-            for supplemental_semantic_id in obj.supplemental_semantic_id:
-                et_supplemental_semantic_ids.append(reference_to_xml(supplemental_semantic_id, NS_AAS+"reference"))
-            elm.append(et_supplemental_semantic_ids)
+        _extend_with_has_semantics_attrs(elm, obj)
     if isinstance(obj, model.Qualifiable):
-        if obj.qualifier:
-            et_qualifier = _generate_element(NS_AAS + "qualifiers")
-            for qualifier in obj.qualifier:
-                et_qualifier.append(qualifier_to_xml(qualifier, tag=NS_AAS+"qualifier"))
-            elm.append(et_qualifier)
+        _extend_with_qualifiable_attrs(elm, obj)
     if isinstance(obj, model.HasDataSpecification):
-        if obj.embedded_data_specifications:
-            et_embedded_data_specifications = _generate_element(NS_AAS + "embeddedDataSpecifications")
-            for eds in obj.embedded_data_specifications:
-                et_embedded_data_specifications.append(embedded_data_specification_to_xml(eds))
-            elm.append(et_embedded_data_specifications)
+        _extend_with_has_data_specification_attrs(elm, obj)
     return elm
+
+
+def _extend_with_has_extension_attrs(elm: etree.Element, obj: model.HasExtension):
+    if obj.extension:
+        et_extension = _generate_element(NS_AAS + "extensions")
+        for extension in obj.extension:
+            if isinstance(extension, model.Extension):
+                et_extension.append(extension_to_xml(extension, tag=NS_AAS + "extension"))
+        elm.append(et_extension)
+
+
+def _extend_with_referable_attrs(elm: etree.Element, obj: model.Referable):
+    if obj.category:
+        elm.append(_generate_element(name=NS_AAS + "category", text=obj.category))
+    if obj.id_short and not isinstance(obj.parent, model.SubmodelElementList):
+        elm.append(_generate_element(name=NS_AAS + "idShort", text=obj.id_short))
+    if obj.display_name:
+        elm.append(lang_string_set_to_xml(obj.display_name, tag=NS_AAS + "displayName"))
+    if obj.description:
+        elm.append(lang_string_set_to_xml(obj.description, tag=NS_AAS + "description"))
+
+
+def _extend_with_identifiable_attrs(elm: etree.Element, obj: model.Identifiable):
+    if obj.administration:
+        elm.append(administrative_information_to_xml(obj.administration))
+    elm.append(_generate_element(name=NS_AAS + "id", text=obj.id))
+
+
+def _extend_with_has_kind_attrs(elm: etree.Element, obj: model.HasKind):
+    if obj.kind is model.ModellingKind.TEMPLATE:
+        elm.append(_generate_element(name=NS_AAS + "kind", text="Template"))
+    else:
+        # then modelling-kind is Instance
+        elm.append(_generate_element(name=NS_AAS + "kind", text="Instance"))
+
+
+def _extend_with_has_semantics_attrs(elm: etree.Element, obj: model.HasSemantics):
+    if obj.semantic_id:
+        elm.append(reference_to_xml(obj.semantic_id, tag=NS_AAS + "semanticId"))
+    if obj.supplemental_semantic_id:
+        et_supplemental_semantic_ids = _generate_element(NS_AAS + "supplementalSemanticIds")
+        for supplemental_semantic_id in obj.supplemental_semantic_id:
+            et_supplemental_semantic_ids.append(reference_to_xml(supplemental_semantic_id, NS_AAS + "reference"))
+        elm.append(et_supplemental_semantic_ids)
+
+
+def _extend_with_qualifiable_attrs(elm: etree.Element, obj: model.Qualifiable):
+    if obj.qualifier:
+        et_qualifier = _generate_element(NS_AAS + "qualifiers")
+        for qualifier in obj.qualifier:
+            et_qualifier.append(qualifier_to_xml(qualifier, tag=NS_AAS + "qualifier"))
+        elm.append(et_qualifier)
+
+
+def _extend_with_has_data_specification_attrs(elm: etree.Element, obj: model.HasDataSpecification):
+    if obj.embedded_data_specifications:
+        et_embedded_data_specifications = _generate_element(NS_AAS + "embeddedDataSpecifications")
+        for eds in obj.embedded_data_specifications:
+            et_embedded_data_specifications.append(embedded_data_specification_to_xml(eds))
+        elm.append(et_embedded_data_specifications)
 
 
 # ##############################################################
