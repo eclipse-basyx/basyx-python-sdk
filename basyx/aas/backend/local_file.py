@@ -11,7 +11,6 @@ files.
 The :class:`~.LocalFileBackend` takes care of updating and committing objects from and to the files, while the
 :class:`~LocalFileObjectStore` handles adding, deleting and otherwise managing the AAS objects in a specific Directory.
 """
-import copy
 from typing import List, Iterator, Iterable, Union
 import logging
 import json
@@ -103,39 +102,43 @@ class LocalFileObjectStore(model.AbstractObjectStore):
             os.mkdir(self.directory_path)
             logger.info("Creating directory {}".format(self.directory_path))
 
-    def get_identifiable(self, identifier: Union[str, model.Identifier]) -> model.Identifiable:
+    def get_identifiable_by_hash(self, hash_: str) -> model.Identifiable:
         """
-        Retrieve an AAS object from the local file by its :class:`~aas.model.base.Identifier`
-
-        If the :class:`~.aas.model.base.Identifier` is a string, it is assumed that the string is a correct
-        local-file-ID-string (as it is outputted by LocalFileObjectStore._transform_id() )
+        Retrieve an AAS object from the local file by its identifier hash
 
         :raises KeyError: If the respective file could not be found
         """
-        input_identifier = copy.copy(identifier)
-        if isinstance(identifier, model.Identifier):
-            identifier = self._transform_id(identifier)
-
         # Try to get the correct file
         try:
-            with open("{}/{}.json".format(self.directory_path, identifier), "r") as file:
+            with open("{}/{}.json".format(self.directory_path, hash_), "r") as file:
                 data = json.load(file, cls=json_deserialization.AASFromJsonDecoder)
                 obj = data["data"]
                 self.generate_source(obj)
         except FileNotFoundError as e:
-            raise KeyError("No Identifiable with id {} found in local file database".format(input_identifier)) from e
+            raise KeyError("No Identifiable with hash {} found in local file database".format(hash_)) from e
         # If we still have a local replication of that object (since it is referenced from anywhere else), update that
         # replication and return it.
         with self._object_cache_lock:
-            if obj.identification in self._object_cache:
-                old_obj = self._object_cache[obj.identification]
+            if obj.id in self._object_cache:
+                old_obj = self._object_cache[obj.id]
                 # If the source does not match the correct source for this CouchDB backend, the object seems to belong
                 # to another backend now, so we return a fresh copy
                 if old_obj.source == obj.source:
                     old_obj.update_from(obj)
                     return old_obj
-        self._object_cache[obj.identification] = obj
+        self._object_cache[obj.id] = obj
         return obj
+
+    def get_identifiable(self, identifier: model.Identifier) -> model.Identifiable:
+        """
+        Retrieve an AAS object from the local file by its :class:`~aas.model.base.Identifier`
+
+        :raises KeyError: If the respective file could not be found
+        """
+        try:
+            return self.get_identifiable_by_hash(self._transform_id(identifier))
+        except KeyError as e:
+            raise KeyError("No Identifiable with id {} found in local file database".format(identifier)) from e
 
     def add(self, x: model.Identifiable) -> None:
         """
@@ -144,12 +147,12 @@ class LocalFileObjectStore(model.AbstractObjectStore):
         :raises KeyError: If an object with the same id exists already in the object store
         """
         logger.debug("Adding object %s to Local File Store ...", repr(x))
-        if os.path.exists("{}/{}.json".format(self.directory_path, self._transform_id(x.identification))):
-            raise KeyError("Identifiable with id {} already exists in local file database".format(x.identification))
-        with open("{}/{}.json".format(self.directory_path, self._transform_id(x.identification)), "w") as file:
+        if os.path.exists("{}/{}.json".format(self.directory_path, self._transform_id(x.id))):
+            raise KeyError("Identifiable with id {} already exists in local file database".format(x.id))
+        with open("{}/{}.json".format(self.directory_path, self._transform_id(x.id)), "w") as file:
             json.dump({"data": x}, file, cls=json_serialization.AASToJsonEncoder, indent=4)
             with self._object_cache_lock:
-                self._object_cache[x.identification] = x
+                self._object_cache[x.id] = x
             self.generate_source(x)  # Set the source of the object
 
     def discard(self, x: model.Identifiable) -> None:
@@ -161,11 +164,11 @@ class LocalFileObjectStore(model.AbstractObjectStore):
         """
         logger.debug("Deleting object %s from Local File Store database ...", repr(x))
         try:
-            os.remove("{}/{}.json".format(self.directory_path, self._transform_id(x.identification)))
+            os.remove("{}/{}.json".format(self.directory_path, self._transform_id(x.id)))
         except FileNotFoundError as e:
-            raise KeyError("No AAS object with id {} exists in local file database".format(x.identification)) from e
+            raise KeyError("No AAS object with id {} exists in local file database".format(x.id)) from e
         with self._object_cache_lock:
-            del self._object_cache[x.identification]
+            del self._object_cache[x.id]
         x.source = ""
 
     def __contains__(self, x: object) -> bool:
@@ -179,7 +182,7 @@ class LocalFileObjectStore(model.AbstractObjectStore):
         if isinstance(x, model.Identifier):
             identifier = x
         elif isinstance(x, model.Identifiable):
-            identifier = x.identification
+            identifier = x.id
         else:
             return False
         logger.debug("Checking existence of object with id %s in database ...", repr(x))
@@ -203,14 +206,14 @@ class LocalFileObjectStore(model.AbstractObjectStore):
         """
         logger.debug("Iterating over objects in database ...")
         for name in os.listdir(self.directory_path):
-            yield self.get_identifiable(name.rstrip(".json"))
+            yield self.get_identifiable_by_hash(name.rstrip(".json"))
 
     @staticmethod
     def _transform_id(identifier: model.Identifier) -> str:
         """
         Helper method to represent an ASS Identifier as a string to be used as Local file document id
         """
-        return hashlib.sha256("{}-{}".format(identifier.id_type.name, identifier.id).encode("utf-8")).hexdigest()
+        return hashlib.sha256(identifier.encode("utf-8")).hexdigest()
 
     def generate_source(self, identifiable: model.Identifiable) -> str:
         """
@@ -220,7 +223,7 @@ class LocalFileObjectStore(model.AbstractObjectStore):
         """
         source: str = "file://localhost/{}/{}.json".format(
             self.directory_path,
-            self._transform_id(identifiable.identification)
+            self._transform_id(identifiable.id)
         )
         identifiable.source = source
         return source

@@ -1,2 +1,13 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<aas:aasenv xmlns:aas="http://www.admin-shell.io/aas/2/0" xmlns:abac="http://www.admin-shell.io/aas/abac/2/0" xmlns:aas_common="http://www.admin-shell.io/aas_common/2/0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:IEC="http://www.admin-shell.io/IEC61360/2/0" xmlns:xs="http://www.w3.org/2001/XMLSchema"><aas:assetAdministrationShells><aas:submodel><aas:idShort/><aas:identification idType="IRI">https://acplt.org/Test_Submodel2_Mandatory</aas:identification><aas:kind>Instance</aas:kind><aas:submodelElements/></aas:submodel></aas:assetAdministrationShells><aas:assets></aas:assets><aas:submodels></aas:submodels><aas:conceptDescriptions></aas:conceptDescriptions></aas:aasenv>
+<aas:environment xmlns:aas="https://admin-shell.io/aas/3/0">
+    <aas:assetAdministrationShells>
+        <aas:submodel>
+            <aas:idShort/>
+            <aas:id>https://acplt.org/Test_Submodel2_Mandatory</aas:id>
+            <aas:kind>Instance</aas:kind>
+            <aas:submodelElements/>
+        </aas:submodel>
+    </aas:assetAdministrationShells>
+    <aas:conceptDescriptions/>
+    <aas:submodels/>
+</aas:environment>

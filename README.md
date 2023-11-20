@@ -2,18 +2,23 @@
 
 (formerly known as PyI40AAS – Python Industry 4.0 Asset Administration Shell)
 
-The Eclipse BaSyx Python project focuses on providing a Python implementation of the Asset Administration Shell (AAS) for Industry 4.0 Systems,
-compliant with the meta model and interface specification provided in
-[the document “Details of the Asset Administration Shell” (v2.0.1)](https://www.plattform-i40.de/IP/Redaktion/DE/Downloads/Publikation/Details_of_the_Asset_Administration_Shell_Part1_V2.html).
-It currently adheres to version 2.0.1 of the specification.
-An updated version with support for version 3.0RC01 is already in preparation and will be made available on an additional branch of this repository and in a future major release.
+The Eclipse BaSyx Python project focuses on providing a Python implementation of the Asset Administration Shell (AAS) 
+for Industry 4.0 Systems. 
+These are the currently implemented specifications:
+
+| Specification                         | Version                                                                                                                     |
+|---------------------------------------|-----------------------------------------------------------------------------------------------------------------------------|
+| Part 1: Metamodel                     | [v3.0 (01001-3-0)](https://industrialdigitaltwin.org/content-hub/aasspecifications/idta_01001-3-0_metamodel)                |
+| Part 2: API                           | not implemented yet                                                                                                         |
+| Part 3a: Data Specification IEC 61360 | [v3.0 (01003-a-3-0)](https://industrialdigitaltwin.org/content-hub/aasspecifications/idta_01003-a-3-0_data_specification)   |
+| Part 5: Package File Format (AASX)    | [v3.0 (01005-3-0)](https://industrialdigitaltwin.org/content-hub/aasspecifications/idta-01005-3-0_package_file_format_aasx) |
 
 ## Features
 
-* Modelling of AASs as Python objects (according to DotAAS sec. 4)
-    * **except for**: Security extension of the metamodel (according to DotAAS sec. 5), *HasDataSpecification*
-* Reading and writing of AASX package files (according to DotAAS sec. 6)
-* (De-)serialization of AAS objects into/from JSON and XML (according to DotAAS sec. 7) 
+* Modelling of AASs as Python objects
+    * **except for**: *HasDataSpecification*
+* Reading and writing of AASX package files
+* (De-)serialization of AAS objects into/from JSON and XML
 * Storing of AAS objects in CouchDB, Backend infrastructure for easy expansion 
 * Compliance checking of AAS XML and JSON files
 
@@ -53,9 +58,12 @@ Optional production usage dependencies:
 * For using the Compliance Tool to validate JSON files against the JSON Schema: `jsonschema` and its
 dependencies (MIT License, Apache License, PSF License)
 
-Development/testing/example dependencies (see `requirements.txt`):
+Development/testing/documentation/example dependencies (see `requirements.txt`):
 * `jsonschema` and its dependencies (MIT License, Apache License, PSF License)
 * `psutil` (BSD 3-clause License)
+* `Sphinx` and its dependencies (multiple licenses)
+* `sphinx-rtd-theme` and its dependencies
+* `sphinx-argparse` (MIT License)
 
 Dependencies for building the documentation:
 * `Sphinx` and its dependencies (BSD 2-clause License, MIT License, Apache License)
@@ -89,19 +97,17 @@ Create a `Submodel`:
 ```python
 from basyx.aas import model  # Import all BaSyx Python SDK classes from the model package
 
-identifier = model.Identifier('https://acplt.org/Simple_Submodel', model.IdentifierType.IRI)
-submodel = model.Submodel(identification=identifier)
+identifier = 'https://acplt.org/Simple_Submodel'
+submodel = model.Submodel(identifier)
 ```
 
 Create a `Property` and add it to the `Submodel`:
 ```python
-# create a global reference to a semantic description of the property
-semantic_reference = model.Reference(
+# create an external reference to a semantic description of the property
+semantic_reference = model.ExternalReference(
     (model.Key(
-        type_=model.KeyElements.GLOBAL_REFERENCE,
-        local=False,
-        value='http://acplt.org/Properties/SimpleProperty',
-        id_type=model.KeyType.IRI
+        type_=model.KeyTypes.GLOBAL_REFERENCE,
+        value='http://acplt.org/Properties/SimpleProperty'
     ),)
 )
 property = model.Property(

@@ -3,7 +3,7 @@
 # See http://creativecommons.org/publicdomain/zero/1.0/ for more information.
 """
 Tutorial for storing Asset Administration Shells, Submodels and Assets in an ObjectStore and using it for fetching these
-objects by identification and resolving references.
+objects by id and resolving references.
 """
 
 # For managing a larger number of Identifiable AAS objects (AssetAdministrationShells, Assets, Submodels,
@@ -13,55 +13,54 @@ objects by identification and resolving references.
 # `AssetAdministrationShell.submodel` set, etc.
 #
 # Step by Step Guide:
-# step 1: creating Asset, Submodel and Asset Administration Shell objects
-# step 2: storing the data in an ObjectStore for easier handling
-# step 3: retrieving objects from the store by their identifier
-# step 4: using the ObjectStore to resolve a reference
+# Step 1: creating AssetInformation, Submodel and Asset Administration Shell objects
+# Step 2: storing the data in an ObjectStore for easier handling
+# Step 3: retrieving objects from the store by their identifier
+# Step 4: using the ObjectStore to resolve a reference
 
 
 from basyx.aas import model
-from basyx.aas.model import Asset, AssetAdministrationShell, Submodel
+from basyx.aas.model import AssetInformation, AssetAdministrationShell, Submodel
 
 
-###########################################################################
-# Step 1: Creating Asset, Submodel and Asset Administration Shell objects #
-###########################################################################
+######################################################################################
+# Step 1: Creating AssetInformation, Submodel and Asset Administration Shell objects #
+######################################################################################
 
 # For more details, take a look at `tutorial_create_simple_aas.py`
 
-asset = Asset(
-    kind=model.AssetKind.INSTANCE,
-    identification=model.Identifier('https://acplt.org/Simple_Asset', model.IdentifierType.IRI)
+asset_information = AssetInformation(
+    asset_kind=model.AssetKind.INSTANCE,
+    global_asset_id='http://acplt.org/Simple_Asset'
 )
+
 prop = model.Property(
     id_short='ExampleProperty',
     value_type=model.datatypes.String,
     value='exampleValue',
-    semantic_id=model.Reference(
+    semantic_id=model.ExternalReference(
         (model.Key(
-            type_=model.KeyElements.GLOBAL_REFERENCE,
-            local=False,
-            value='http://acplt.org/Properties/SimpleProperty',
-            id_type=model.KeyType.IRI
+            type_=model.KeyTypes.GLOBAL_REFERENCE,
+            value='http://acplt.org/Properties/SimpleProperty'
         ),)
     )
 )
 submodel = Submodel(
-    identification=model.Identifier('https://acplt.org/Simple_Submodel', model.IdentifierType.IRI),
+    id_='https://acplt.org/Simple_Submodel',
     submodel_element={prop}
 )
 aas = AssetAdministrationShell(
-    identification=model.Identifier('https://acplt.org/Simple_AAS', model.IdentifierType.IRI),
-    asset=model.AASReference.from_referable(asset),
-    submodel={model.AASReference.from_referable(submodel)}
+    id_='https://acplt.org/Simple_AAS',
+    asset_information=asset_information,
+    submodel={model.ModelReference.from_referable(submodel)}
 )
 
 
 ##################################################################
-# step 2: Storing the Data in an ObjectStore for Easier Handling #
+# Step 2: Storing the Data in an ObjectStore for Easier Handling #
 ##################################################################
 
-# step 2.1: create an ObjectStore for identifiable objects
+# Step 2.1: create an ObjectStore for identifiable objects
 #
 # In this tutorial, we use a `DictObjectStore`, which is a simple in-memory store: It just keeps track of the Python
 # objects using a dict.
@@ -73,24 +72,23 @@ aas = AssetAdministrationShell(
 # information.
 obj_store: model.DictObjectStore[model.Identifiable] = model.DictObjectStore()
 
-# step 2.2: add asset, submodel and asset administration shell to store
-obj_store.add(asset)
+# step 2.2: add submodel and asset administration shell to store
 obj_store.add(submodel)
 obj_store.add(aas)
 
 
 #################################################################
-# step 3: Retrieving Objects From the Store by Their Identifier #
+# Step 3: Retrieving Objects From the Store by Their Identifier #
 #################################################################
 
 tmp_submodel = obj_store.get_identifiable(
-    model.Identifier('https://acplt.org/Simple_Submodel', model.IdentifierType.IRI))
+    'https://acplt.org/Simple_Submodel')
 
 assert submodel is tmp_submodel
 
 
 ########################################################
-# step 4: Using the ObjectStore to Resolve a Reference #
+# Step 4: Using the ObjectStore to Resolve a Reference #
 ########################################################
 
 # The `aas` object already contains a reference to the submodel.
@@ -102,21 +100,17 @@ submodels = [reference.resolve(obj_store)
 assert submodel is tmp_submodel
 
 # Now, let's manually create a reference to the Property within the submodel. The reference uses two keys, the first one
-# identifying the submodel by its identification, the second one resolving to the Property within the submodel by its
+# identifying the submodel by its id, the second one resolving to the Property within the submodel by its
 # idShort.
-property_reference = model.AASReference(
+property_reference = model.ModelReference(
     (model.Key(
-        type_=model.KeyElements.SUBMODEL,
-        local=True,
-        value='https://acplt.org/Simple_Submodel',
-        id_type=model.KeyType.IRI),
+        type_=model.KeyTypes.SUBMODEL,
+        value='https://acplt.org/Simple_Submodel'),
      model.Key(
-         type_=model.KeyElements.PROPERTY,
-         local=True,
-         value='ExampleProperty',
-         id_type=model.KeyType.IDSHORT),
+         type_=model.KeyTypes.PROPERTY,
+         value='ExampleProperty'),
      ),
-    target_type=model.Property
+    type_=model.Property
 )
 
 # Now, we can resolve this new reference.

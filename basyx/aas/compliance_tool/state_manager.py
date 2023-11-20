@@ -17,6 +17,14 @@ from basyx.aas.examples.data._helper import DataChecker
 
 @enum.unique
 class Status(enum.IntEnum):
+    """
+    Possible Status States:
+
+    :cvar SUCCESS:
+    :cvar SUCCESS_WITH_WARNINGS:
+    :cvar FAILED:
+    :cvar NOT_EXECUTED:
+    """
     SUCCESS = 0
     SUCCESS_WITH_WARNINGS = 1
     FAILED = 2
@@ -25,11 +33,11 @@ class Status(enum.IntEnum):
 
 class Step:
     """
-    A step represents a single test stage in a test protocol of a ComplianceToolStateManager
+    A step represents a single test stage in a test protocol of a :class:`~.ComplianceToolStateManager`
 
     :ivar name: Name of the step
-    :ivar ~.status: status of the step from type Status
-    :ivar log_list: list of LogRecords which belong to this step
+    :ivar ~.status: Status of the step from type Status
+    :ivar log_list: List of `logging.LogRecords` which belong to this step
     """
     def __init__(self, name: str, status: Status, log_list: List[logging.LogRecord]):
         self.name = name

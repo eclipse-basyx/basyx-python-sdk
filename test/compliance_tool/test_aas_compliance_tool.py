@@ -101,13 +101,13 @@ class ComplianceToolTest(unittest.TestCase):
         # test verbose
         output = _run_compliance_tool("e", os.path.join(test_file_path, "test_demo_full_example.json"), "--json", "-v")
         self.assertEqual(0, output.returncode)
-        self.assertNotIn('ERROR', str(output.stdout))
+        self.assertNotIn('ERROR', str(output.stderr))
         self.assertNotIn('INFO', str(output.stdout))
 
         output = _run_compliance_tool("e", os.path.join(test_file_path, "test_demo_full_example.json"), "--json", "-v",
                                       "-v")
         self.assertEqual(0, output.returncode)
-        self.assertNotIn('ERROR', str(output.stdout))
+        self.assertNotIn('ERROR', str(output.stderr))
         self.assertIn('INFO', str(output.stdout))
 
         # test quite
@@ -254,19 +254,38 @@ class ComplianceToolTest(unittest.TestCase):
 
         os.unlink(filename)
 
-    def test_aasx_deseralization(self) -> None:
+    def test_aasx_deseralization_xml(self) -> None:
         test_file_path = os.path.join(os.path.dirname(__file__), 'files')
 
-        output = _run_compliance_tool("d", os.path.join(test_file_path, "test_demo_full_example.aasx"), "--xml",
+        output = _run_compliance_tool("d", os.path.join(test_file_path, "test_demo_full_example_xml.aasx"), "--xml",
                                       "--aasx")
         self.assertEqual(0, output.returncode)
         self.assertIn('SUCCESS:      Open file', str(output.stdout))
         self.assertIn('SUCCESS:      Read file', str(output.stdout))
 
-    def test_aasx_example(self) -> None:
+    def test_aasx_example_xml(self) -> None:
         test_file_path = os.path.join(os.path.dirname(__file__), 'files')
 
-        output = _run_compliance_tool("e", os.path.join(test_file_path, "test_demo_full_example.aasx"), "--xml",
+        output = _run_compliance_tool("e", os.path.join(test_file_path, "test_demo_full_example_xml.aasx"), "--xml",
+                                      "--aasx")
+        self.assertEqual(0, output.returncode)
+        self.assertIn('SUCCESS:      Open file', str(output.stdout))
+        self.assertIn('SUCCESS:      Read file', str(output.stdout))
+        self.assertIn('SUCCESS:      Check if data is equal to example data', str(output.stdout))
+
+    def test_aasx_deseralization_json(self) -> None:
+        test_file_path = os.path.join(os.path.dirname(__file__), 'files')
+
+        output = _run_compliance_tool("d", os.path.join(test_file_path, "test_demo_full_example_json.aasx"), "--json",
+                                      "--aasx")
+        self.assertEqual(0, output.returncode)
+        self.assertIn('SUCCESS:      Open file', str(output.stdout))
+        self.assertIn('SUCCESS:      Read file', str(output.stdout))
+
+    def test_aasx_example_json(self) -> None:
+        test_file_path = os.path.join(os.path.dirname(__file__), 'files')
+
+        output = _run_compliance_tool("e", os.path.join(test_file_path, "test_demo_full_example_json.aasx"), "--json",
                                       "--aasx")
         self.assertEqual(0, output.returncode)
         self.assertIn('SUCCESS:      Open file', str(output.stdout))
@@ -276,8 +295,9 @@ class ComplianceToolTest(unittest.TestCase):
     def test_aasx_file(self) -> None:
         test_file_path = os.path.join(os.path.dirname(__file__), 'files')
 
-        output = _run_compliance_tool("f", os.path.join(test_file_path, "test_demo_full_example.aasx"),
-                                      os.path.join(test_file_path, "test_demo_full_example.aasx"), "--xml", "--aasx")
+        output = _run_compliance_tool("f", os.path.join(test_file_path, "test_demo_full_example_xml.aasx"),
+                                      os.path.join(test_file_path, "test_demo_full_example_xml.aasx"), "--xml",
+                                      "--aasx")
         self.assertEqual(0, output.returncode)
         self.assertIn('SUCCESS:      Open first file', str(output.stdout))
         self.assertIn('SUCCESS:      Read file', str(output.stdout))
