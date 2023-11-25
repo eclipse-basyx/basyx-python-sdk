@@ -82,6 +82,7 @@ def parse_cli_arguments() -> argparse.ArgumentParser:
     group.add_argument('--xml', help="Use AAS xml format when checking or creating files", action='store_true')
     parser.add_argument('-l', '--logfile', help="Log file to be created in addition to output to stdout", default=None)
     parser.add_argument('--aasx', help="Create or read AASX files", action='store_true')
+    parser.add_argument('--dont-check-extensions', help="Don't compare Extensions", action='store_false')
     return parser
 
 
@@ -95,6 +96,10 @@ def main():
     logger = logging.getLogger(__name__)
     logger.propagate = False
     logger.addHandler(manager)
+
+    data_checker_kwargs = {
+        'check_extensions': args.dont_check_extensions
+    }
 
     if args.action == 'create' or args.action == 'c':
         manager.add_step('Create example data')
@@ -126,7 +131,7 @@ def main():
                     cp.title = "Test Title"
 
                     writer.write_aas_objects("/aasx/data.json" if args.json else "/aasx/data.xml",
-                                             [obj.identification for obj in data], data, files,
+                                             [obj.id for obj in data], data, files,
                                              write_json=args.json)
                     writer.write_core_properties(cp)
                 manager.set_step_status(Status.SUCCESS)
@@ -154,19 +159,22 @@ def main():
             compliance_tool_xml.check_deserialization(args.file_1, manager)
     elif args.action == 'example' or args.action == 'e':
         if args.aasx:
-            compliance_tool_aasx.check_aas_example(args.file_1, manager)
+            compliance_tool_aasx.check_aas_example(args.file_1, manager, **data_checker_kwargs)
         elif args.json:
-            compliance_tool_json.check_aas_example(args.file_1, manager)
+            compliance_tool_json.check_aas_example(args.file_1, manager, **data_checker_kwargs)
         elif args.xml:
-            compliance_tool_xml.check_aas_example(args.file_1, manager)
+            compliance_tool_xml.check_aas_example(args.file_1, manager, **data_checker_kwargs)
     elif args.action == 'files' or args.action == 'f':
         if args.file_2:
             if args.aasx:
-                compliance_tool_aasx.check_aasx_files_equivalence(args.file_1, args.file_2, manager)
+                compliance_tool_aasx.check_aasx_files_equivalence(args.file_1, args.file_2, manager,
+                                                                  **data_checker_kwargs)
             elif args.json:
-                compliance_tool_json.check_json_files_equivalence(args.file_1, args.file_2, manager)
+                compliance_tool_json.check_json_files_equivalence(args.file_1, args.file_2, manager,
+                                                                  **data_checker_kwargs)
             elif args.xml:
-                compliance_tool_xml.check_xml_files_equivalence(args.file_1, args.file_2, manager)
+                compliance_tool_xml.check_xml_files_equivalence(args.file_1, args.file_2, manager,
+                                                                **data_checker_kwargs)
         else:
             parser.error("f or files requires two file path.")
             exit()

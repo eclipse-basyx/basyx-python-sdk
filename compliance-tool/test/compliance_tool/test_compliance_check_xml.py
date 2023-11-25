@@ -24,7 +24,15 @@ class ComplianceToolXmlTest(unittest.TestCase):
         self.assertIn("No such file or directory", manager.format_step(0, verbose_level=1))
 
         manager.steps = []
-        file_path_3 = os.path.join(script_dir, 'files/test_missing_submodels.xml')
+        file_path_2 = os.path.join(script_dir, 'files/test_empty.xml')
+        compliance_tool.check_schema(file_path_2, manager)
+        self.assertEqual(3, len(manager.steps))
+        self.assertEqual(Status.SUCCESS, manager.steps[0].status)
+        self.assertEqual(Status.SUCCESS, manager.steps[1].status)
+        self.assertEqual(Status.SUCCESS, manager.steps[2].status)
+
+        manager.steps = []
+        file_path_3 = os.path.join(script_dir, 'files/test_demo_full_example.xml')
         compliance_tool.check_schema(file_path_3, manager)
         self.assertEqual(3, len(manager.steps))
         self.assertEqual(Status.SUCCESS, manager.steps[0].status)
@@ -32,16 +40,8 @@ class ComplianceToolXmlTest(unittest.TestCase):
         self.assertEqual(Status.SUCCESS, manager.steps[2].status)
 
         manager.steps = []
-        file_path_4 = os.path.join(script_dir, 'files/test_empty.xml')
+        file_path_4 = os.path.join(script_dir, 'files/test_demo_full_example_wrong_attribute.xml')
         compliance_tool.check_schema(file_path_4, manager)
-        self.assertEqual(3, len(manager.steps))
-        self.assertEqual(Status.SUCCESS, manager.steps[0].status)
-        self.assertEqual(Status.SUCCESS, manager.steps[1].status)
-        self.assertEqual(Status.SUCCESS, manager.steps[2].status)
-
-        manager.steps = []
-        file_path_5 = os.path.join(script_dir, 'files/test_demo_full_example.xml')
-        compliance_tool.check_schema(file_path_5, manager)
         self.assertEqual(3, len(manager.steps))
         self.assertEqual(Status.SUCCESS, manager.steps[0].status)
         self.assertEqual(Status.SUCCESS, manager.steps[1].status)
@@ -74,7 +74,7 @@ class ComplianceToolXmlTest(unittest.TestCase):
         self.assertEqual(2, len(manager.steps))
         self.assertEqual(Status.SUCCESS, manager.steps[0].status)
         self.assertEqual(Status.FAILED, manager.steps[1].status)
-        self.assertIn("ValueError: A revision requires a version", manager.format_step(1, verbose_level=1))
+        self.assertIn("AASConstraintViolation: A revision requires a version", manager.format_step(1, verbose_level=1))
 
         manager.steps = []
         file_path_4 = os.path.join(script_dir, 'files/test_empty.xml')
@@ -119,11 +119,9 @@ class ComplianceToolXmlTest(unittest.TestCase):
         self.assertEqual(Status.SUCCESS, manager.steps[0].status)
         self.assertEqual(Status.SUCCESS, manager.steps[1].status)
         self.assertEqual(Status.FAILED, manager.steps[2].status)
-        self.assertEqual('FAILED:       Check if data is equal to example data\n - ERROR: Asset administration shell '
-                         'AssetAdministrationShell[Identifier(IRI=https://acplt.org/Test_AssetAdministrationShell)] '
-                         'must exist in given asset administrationshell list ()\n - ERROR: Given asset administration '
-                         'shell list must not have extra asset administration shells (value={AssetAdministrationShell'
-                         '[Identifier(IRI=https://acplt.org/Test_AssetAdministrationShell123)]})',
+        self.assertEqual('FAILED:       Check if data is equal to example data\n - ERROR: Attribute id_short of '
+                         'AssetAdministrationShell[https://acplt.org/Test_AssetAdministrationShell] must be == '
+                         'TestAssetAdministrationShell (value=\'TestAssetAdministrationShell123\')',
                          manager.format_step(2, verbose_level=1))
 
     def test_check_xml_files_equivalence(self) -> None:
@@ -170,11 +168,9 @@ class ComplianceToolXmlTest(unittest.TestCase):
         self.assertEqual(Status.SUCCESS, manager.steps[2].status)
         self.assertEqual(Status.SUCCESS, manager.steps[3].status)
         self.assertEqual(Status.FAILED, manager.steps[4].status)
-        self.assertEqual('FAILED:       Check if data in files are equal\n - ERROR: Asset administration shell '
-                         'AssetAdministrationShell[Identifier(IRI=https://acplt.org/Test_AssetAdministrationShell123)] '
-                         'must exist in given asset administrationshell list ()\n - ERROR: Given asset administration '
-                         'shell list must not have extra asset administration shells (value={AssetAdministrationShell'
-                         '[Identifier(IRI=https://acplt.org/Test_AssetAdministrationShell)]})',
+        self.assertEqual('FAILED:       Check if data in files are equal\n - ERROR: Attribute id_short of '
+                         'AssetAdministrationShell[https://acplt.org/Test_AssetAdministrationShell] must be == '
+                         'TestAssetAdministrationShell123 (value=\'TestAssetAdministrationShell\')',
                          manager.format_step(4, verbose_level=1))
 
         manager.steps = []
@@ -185,9 +181,7 @@ class ComplianceToolXmlTest(unittest.TestCase):
         self.assertEqual(Status.SUCCESS, manager.steps[2].status)
         self.assertEqual(Status.SUCCESS, manager.steps[3].status)
         self.assertEqual(Status.FAILED, manager.steps[4].status)
-        self.assertEqual('FAILED:       Check if data in files are equal\n - ERROR: Asset administration shell '
-                         'AssetAdministrationShell[Identifier(IRI=https://acplt.org/Test_AssetAdministrationShell)] '
-                         'must exist in given asset administrationshell list ()\n - ERROR: Given asset administration '
-                         'shell list must not have extra asset administration shells (value={AssetAdministrationShell'
-                         '[Identifier(IRI=https://acplt.org/Test_AssetAdministrationShell123)]})',
+        self.assertEqual('FAILED:       Check if data in files are equal\n - ERROR: Attribute id_short of '
+                         'AssetAdministrationShell[https://acplt.org/Test_AssetAdministrationShell] must be == '
+                         'TestAssetAdministrationShell (value=\'TestAssetAdministrationShell123\')',
                          manager.format_step(4, verbose_level=1))
