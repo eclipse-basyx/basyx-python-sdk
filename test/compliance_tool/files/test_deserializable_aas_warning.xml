@@ -1,2 +1,16 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<aas:aasenv xmlns:aas="http://www.admin-shell.io/aas/2/0" xmlns:abac="http://www.admin-shell.io/aas/abac/2/0" xmlns:aas_common="http://www.admin-shell.io/aas_common/2/0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:IEC="http://www.admin-shell.io/IEC61360/2/0" xmlns:xs="http://www.w3.org/2001/XMLSchema"><aas:assetAdministrationShells><aas:assetAdministrationShell><aas:idShort>TestAssetAdministrationShell</aas:idShort><aas:identification idType="IRI">https://acplt.org/Test_AssetAdministrationShell</aas:identification><aas:administration><aas:revision>0</aas:revision></aas:administration><aas:assetRef><aas:keys><aas:key idType="IRI" local="false" type="Asset">https://acplt.org/Test_Asset</aas:key></aas:keys></aas:assetRef></aas:assetAdministrationShell></aas:assetAdministrationShells><aas:assets></aas:assets><aas:submodels></aas:submodels><aas:conceptDescriptions></aas:conceptDescriptions></aas:aasenv>
+<aas:environment xmlns:aas="https://admin-shell.io/aas/3/0">
+  <aas:assetAdministrationShells>
+    <aas:assetAdministrationShell>
+      <aas:idShort>TestAssetAdministrationShell</aas:idShort>
+      <aas:administration>
+        <aas:revision>0</aas:revision>
+      </aas:administration>
+      <aas:id>https://acplt.org/Test_AssetAdministrationShell</aas:id>
+      <aas:assetInformation>
+        <aas:assetKind>Instance</aas:assetKind>
+        <aas:globalAssetId>http://acplt.org/TestAsset/</aas:globalAssetId>
+      </aas:assetInformation>
+    </aas:assetAdministrationShell>
+  </aas:assetAdministrationShells>
+</aas:environment>

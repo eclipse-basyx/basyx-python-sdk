@@ -18,44 +18,37 @@ import basyx.aas.adapter.xml
 # restore the AAS objects as Python objects.
 #
 # Step by Step Guide:
-# step 1: creating Asset, Submodel and Asset Administration Shell objects
-# step 2: serializing single objects to JSON
-# step 3: parsing single objects or custom data structures from JSON
-# step 4: writing multiple identifiable objects to a (standard-compliant) JSON/XML file
+# Step 1: creating Submodel and Asset Administration Shell objects
+# Step 2: serializing single objects to JSON
+# Step 3: parsing single objects or custom data structures from JSON
+# Step 4: writing multiple identifiable objects to a (standard-compliant) JSON/XML file
 # Step 5: reading the serialized aas objects from JSON/XML files
 
 
-###########################################################################
-# Step 1: Creating Asset, Submodel and Asset Administration Shell Objects #
-###########################################################################
+####################################################################
+# Step 1: Creating Submodel and Asset Administration Shell Objects #
+####################################################################
 
 # For more details, take a look at `tutorial_create_simple_aas.py`
 
-asset = model.Asset(
-    kind=model.AssetKind.INSTANCE,
-    identification=model.Identifier('https://acplt.org/Simple_Asset', model.IdentifierType.IRI)
-)
 submodel = model.Submodel(
-    identification=model.Identifier('https://acplt.org/Simple_Submodel', model.IdentifierType.IRI),
+    id_='https://acplt.org/Simple_Submodel',
     submodel_element={
         model.Property(
             id_short='ExampleProperty',
             value_type=basyx.aas.model.datatypes.String,
             value='exampleValue',
-            semantic_id=model.Reference(
-                (model.Key(
-                    type_=model.KeyElements.GLOBAL_REFERENCE,
-                    local=False,
-                    value='http://acplt.org/Properties/SimpleProperty',
-                    id_type=model.KeyType.IRI
+            semantic_id=model.ExternalReference((model.Key(
+                    type_=model.KeyTypes.GLOBAL_REFERENCE,
+                    value='http://acplt.org/Properties/SimpleProperty'
                 ),)
             )
         )}
 )
 aashell = model.AssetAdministrationShell(
-    identification=model.Identifier('https://acplt.org/Simple_AAS', model.IdentifierType.IRI),
-    asset=model.AASReference.from_referable(asset),
-    submodel={model.AASReference.from_referable(submodel)}
+    id_='https://acplt.org/Simple_AAS',
+    asset_information=model.AssetInformation(global_asset_id="test"),
+    submodel={model.ModelReference.from_referable(submodel)}
 )
 
 
@@ -75,7 +68,7 @@ aashell.update()
 # dumped data structure.
 aashell_json_string = json.dumps(aashell, cls=basyx.aas.adapter.json.AASToJsonEncoder)
 
-property_json_string = json.dumps(submodel.submodel_element.get_referable('ExampleProperty'),
+property_json_string = json.dumps(submodel.submodel_element.get_object_by_attribute("id_short", 'ExampleProperty'),
                                   cls=basyx.aas.adapter.json.AASToJsonEncoder)
 
 # Using this technique, we can also serialize Python dict and list data structures with nested AAS objects:
@@ -107,12 +100,10 @@ submodel_and_aas = json.loads(json_string, cls=basyx.aas.adapter.json.AASFromJso
 # step 4.1: creating an ObjectStore containing the objects to be serialized
 # For more information, take a look into `tutorial_storage.py`
 obj_store: model.DictObjectStore[model.Identifiable] = model.DictObjectStore()
-obj_store.add(asset)
 obj_store.add(submodel)
 obj_store.add(aashell)
 
 # step 4.2: Again, make sure that the data is up to date
-asset.update()
 submodel.update()
 aashell.update()
 
@@ -154,6 +145,5 @@ with open('data.xml', 'rb') as xml_file:
 
 # step 5.3: Retrieving the objects from the ObjectStore
 # For more information on the availiable techniques, see `tutorial_storage.py`.
-submodel_from_xml = xml_file_data.get_identifiable(model.Identifier('https://acplt.org/Simple_Submodel',
-                                                                    model.IdentifierType.IRI))
+submodel_from_xml = xml_file_data.get_identifiable('https://acplt.org/Simple_Submodel')
 assert isinstance(submodel_from_xml, model.Submodel)

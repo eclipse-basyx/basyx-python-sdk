@@ -15,7 +15,7 @@ class IdentifierGeneratorTest(unittest.TestCase):
     def test_generate_uuid_identifier(self):
         generator = UUIDGenerator()
         identification = generator.generate_id()
-        self.assertRegex(identification.id,
+        self.assertRegex(identification,
                          r"urn:uuid:[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}")
         ids = set()
         for i in range(100):
@@ -38,20 +38,20 @@ class IdentifierGeneratorTest(unittest.TestCase):
         self.assertEqual("http://acplt.org/AAS/", generator.namespace)
 
         identification = generator.generate_id()
-        self.assertEqual(identification.id, "http://acplt.org/AAS/0000")
+        self.assertEqual(identification, "http://acplt.org/AAS/0000")
         provider.add(model.Submodel(identification))
 
         for i in range(10):
             identification = generator.generate_id()
             self.assertNotIn(identification, provider)
             provider.add(model.Submodel(identification))
-        self.assertEqual(identification.id, "http://acplt.org/AAS/0010")
+        self.assertEqual(identification, "http://acplt.org/AAS/0010")
 
         identification = generator.generate_id("Spülmaschine")
-        self.assertEqual(identification.id, "http://acplt.org/AAS/Spülmaschine")
+        self.assertEqual(identification, "http://acplt.org/AAS/Spülmaschine")
         provider.add(model.Submodel(identification))
 
         for i in range(10):
             identification = generator.generate_id("Spülmaschine")
             self.assertNotIn(identification, provider)
-            self.assertNotEqual(identification.id, "http://acplt.org/AAS/Spülmaschine")
+            self.assertNotEqual(identification, "http://acplt.org/AAS/Spülmaschine")

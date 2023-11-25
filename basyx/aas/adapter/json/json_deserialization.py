@@ -36,9 +36,9 @@ import pprint
 from typing import Dict, Callable, TypeVar, Type, List, IO, Optional, Set
 
 from basyx.aas import model
-from .._generic import MODELING_KIND_INVERSE, ASSET_KIND_INVERSE, KEY_ELEMENTS_INVERSE, KEY_TYPES_INVERSE, \
-    IDENTIFIER_TYPES_INVERSE, ENTITY_TYPES_INVERSE, IEC61360_DATA_TYPES_INVERSE, IEC61360_LEVEL_TYPES_INVERSE, \
-    KEY_ELEMENTS_CLASSES_INVERSE
+from .._generic import MODELLING_KIND_INVERSE, ASSET_KIND_INVERSE, KEY_TYPES_INVERSE, ENTITY_TYPES_INVERSE, \
+    IEC61360_DATA_TYPES_INVERSE, IEC61360_LEVEL_TYPES_INVERSE, KEY_TYPES_CLASSES_INVERSE, REFERENCE_TYPES_INVERSE, \
+    DIRECTION_INVERSE, STATE_OF_EVENT_INVERSE, QUALIFIER_KIND_INVERSE
 
 logger = logging.getLogger(__name__)
 
@@ -48,6 +48,7 @@ logger = logging.getLogger(__name__)
 # #############################################################################
 
 T = TypeVar('T')
+LSS = TypeVar('LSS', bound=model.LangStringSet)
 
 
 def _get_ts(dct: Dict[str, object], key: str, type_: Type[T]) -> T:
@@ -127,13 +128,15 @@ class AASFromJsonDecoder(json.JSONDecoder):
 
     .. code-block:: python
 
-        class EnhancedAsset(model.Asset):
+    .. code-block:: python
+
+        class EnhancedSubmodel(model.Submodel):
             pass
 
-        class EnhancedAASDecoder(AASFromJsonDecoder):
+        class EnhancedAASDecoder(StrictAASFromJsonDecoder):
             @classmethod
-            def _construct_asset(cls, dct):
-                return super()._construct_asset(dct, object_class=EnhancedAsset)
+            def _construct_submodel(cls, dct, object_class=EnhancedSubmodel):
+                return super()._construct_submodel(dct, object_class=object_class)
 
 
     :cvar failsafe: If `True` (the default), don't raise Exceptions for missing attributes and wrong types, but instead
@@ -163,37 +166,37 @@ class AASFromJsonDecoder(json.JSONDecoder):
         # function takes a bool parameter `failsafe`, which indicates weather to log errors and skip defective objects
         # instead of raising an Exception.
         AAS_CLASS_PARSERS: Dict[str, Callable[[Dict[str, object]], object]] = {
-            'Asset': cls._construct_asset,
             'AssetAdministrationShell': cls._construct_asset_administration_shell,
-            'View': cls._construct_view,
+            'AssetInformation': cls._construct_asset_information,
+            'SpecificAssetId': cls._construct_specific_asset_id,
             'ConceptDescription': cls._construct_concept_description,
-            'Qualifier': cls._construct_qualifier,
-            'Formula': cls._construct_formula,
+            'Extension': cls._construct_extension,
             'Submodel': cls._construct_submodel,
-            'ConceptDictionary': cls._construct_concept_dictionary,
             'Capability': cls._construct_capability,
             'Entity': cls._construct_entity,
-            'BasicEvent': cls._construct_basic_event,
+            'BasicEventElement': cls._construct_basic_event_element,
             'Operation': cls._construct_operation,
             'RelationshipElement': cls._construct_relationship_element,
             'AnnotatedRelationshipElement': cls._construct_annotated_relationship_element,
             'SubmodelElementCollection': cls._construct_submodel_element_collection,
+            'SubmodelElementList': cls._construct_submodel_element_list,
             'Blob': cls._construct_blob,
             'File': cls._construct_file,
             'MultiLanguageProperty': cls._construct_multi_language_property,
             'Property': cls._construct_property,
             'Range': cls._construct_range,
             'ReferenceElement': cls._construct_reference_element,
+            'DataSpecificationIec61360': cls._construct_data_specification_iec61360,
         }
 
         # Get modelType and constructor function
-        if not isinstance(dct['modelType'], dict) or 'name' not in dct['modelType']:
+        if not isinstance(dct['modelType'], str):
             logger.warning("JSON object has unexpected format of modelType: %s", dct['modelType'])
             # Even in strict mode, we consider 'modelType' attributes of wrong type as non-AAS objects instead of
             #   raising an exception. However, the object's type will probably checked later by read_json_aas_file() or
             #   _expect_type()
             return dct
-        model_type = dct['modelType']['name']
+        model_type = dct['modelType']
         if model_type not in AAS_CLASS_PARSERS:
             if not cls.failsafe:
                 raise TypeError("Found JSON object with modelType=\"%s\", which is not a known AAS class" % model_type)
@@ -203,7 +206,7 @@ class AASFromJsonDecoder(json.JSONDecoder):
         # Use constructor function to transform JSON representation into BaSyx Python SDK model object
         try:
             return AAS_CLASS_PARSERS[model_type](dct)
-        except (KeyError, TypeError) as e:
+        except (KeyError, TypeError, model.AASConstraintViolation) as e:
             error_message = "Error while trying to convert JSON object into {}: {} >>> {}".format(
                 model_type, e, pprint.pformat(dct, depth=2, width=2**14, compact=True))
             if cls.failsafe:
@@ -213,7 +216,7 @@ class AASFromJsonDecoder(json.JSONDecoder):
                 #   constructors for complex objects will skip those items by using _expect_type().
                 return dct
             else:
-                raise type(e)(error_message) from e
+                raise (type(e) if isinstance(e, (KeyError, TypeError)) else TypeError)(error_message) from e
 
     # ##################################################################################################
     # Utility Methods used in constructor methods to add general attributes (from abstract base classes)
@@ -229,35 +232,58 @@ class AASFromJsonDecoder(json.JSONDecoder):
         :param dct: The object's dict representation from JSON
         """
         if isinstance(obj, model.Referable):
-            if 'category' in dct:
-                obj.category = _get_ts(dct, 'category', str)
-            if 'description' in dct:
-                obj.description = cls._construct_lang_string_set(_get_ts(dct, 'description', list))
-        if isinstance(obj, model.Identifiable):
             if 'idShort' in dct:
                 obj.id_short = _get_ts(dct, 'idShort', str)
+            if 'category' in dct:
+                obj.category = _get_ts(dct, 'category', str)
+            if 'displayName' in dct:
+                obj.display_name = cls._construct_lang_string_set(_get_ts(dct, 'displayName', list),
+                                                                  model.MultiLanguageNameType)
+            if 'description' in dct:
+                obj.description = cls._construct_lang_string_set(_get_ts(dct, 'description', list),
+                                                                 model.MultiLanguageTextType)
+        if isinstance(obj, model.Identifiable):
             if 'administration' in dct:
                 obj.administration = cls._construct_administrative_information(_get_ts(dct, 'administration', dict))
         if isinstance(obj, model.HasSemantics):
             if 'semanticId' in dct:
                 obj.semantic_id = cls._construct_reference(_get_ts(dct, 'semanticId', dict))
+            if 'supplementalSemanticIds' in dct:
+                for ref in _get_ts(dct, 'supplementalSemanticIds', list):
+                    obj.supplemental_semantic_id.append(cls._construct_reference(ref))
         # `HasKind` provides only mandatory, immutable attributes; so we cannot do anything here, after object creation.
         # However, the `cls._get_kind()` function may assist by retrieving them from the JSON object
         if isinstance(obj, model.Qualifiable) and not cls.stripped:
             if 'qualifiers' in dct:
-                for constraint in _get_ts(dct, 'qualifiers', list):
-                    if _expect_type(constraint, model.Constraint, str(obj), cls.failsafe):
-                        obj.qualifier.add(constraint)
+                for constraint_dct in _get_ts(dct, 'qualifiers', list):
+                    constraint = cls._construct_qualifier(constraint_dct)
+                    obj.qualifier.add(constraint)
+        if isinstance(obj, model.HasDataSpecification) and not cls.stripped:
+            if 'embeddedDataSpecifications' in dct:
+                for dspec in _get_ts(dct, 'embeddedDataSpecifications', list):
+                    obj.embedded_data_specifications.append(
+                        # TODO: remove the following type: ignore comment when mypy supports abstract types for Type[T]
+                        # see https://github.com/python/mypy/issues/5374
+                        model.EmbeddedDataSpecification(
+                            data_specification=cls._construct_reference(_get_ts(dspec, 'dataSpecification', dict)),
+                            data_specification_content=_get_ts(dspec, 'dataSpecificationContent',
+                                                               model.DataSpecificationContent)  # type: ignore
+                        )
+                    )
+        if isinstance(obj, model.HasExtension) and not cls.stripped:
+            if 'extensions' in dct:
+                for extension in _get_ts(dct, 'extensions', list):
+                    obj.extension.add(cls._construct_extension(extension))
 
     @classmethod
-    def _get_kind(cls, dct: Dict[str, object]) -> model.ModelingKind:
+    def _get_kind(cls, dct: Dict[str, object]) -> model.ModellingKind:
         """
         Utility method to get the kind of an HasKind object from its JSON representation.
 
         :param dct: The object's dict representation from JSON
         :return: The object's `kind` value
         """
-        return MODELING_KIND_INVERSE[_get_ts(dct, "kind", str)] if 'kind' in dct else model.ModelingKind.INSTANCE
+        return MODELLING_KIND_INVERSE[_get_ts(dct, "kind", str)] if 'kind' in dct else model.ModellingKind.INSTANCE
 
     # #############################################################################
     # Helper Constructor Methods starting from here
@@ -269,74 +295,103 @@ class AASFromJsonDecoder(json.JSONDecoder):
 
     @classmethod
     def _construct_key(cls, dct: Dict[str, object], object_class=model.Key) -> model.Key:
-        return object_class(type_=KEY_ELEMENTS_INVERSE[_get_ts(dct, 'type', str)],
-                            id_type=KEY_TYPES_INVERSE[_get_ts(dct, 'idType', str)],
+        return object_class(type_=KEY_TYPES_INVERSE[_get_ts(dct, 'type', str)],
+                            value=_get_ts(dct, 'value', str))
+
+    @classmethod
+    def _construct_specific_asset_id(cls, dct: Dict[str, object], object_class=model.SpecificAssetId) \
+            -> model.SpecificAssetId:
+        # semantic_id can't be applied by _amend_abstract_attributes because specificAssetId is immutable
+        return object_class(name=_get_ts(dct, 'name', str),
                             value=_get_ts(dct, 'value', str),
-                            local=_get_ts(dct, 'local', bool))
+                            external_subject_id=cls._construct_external_reference(
+                                _get_ts(dct, 'externalSubjectId', dict)) if 'externalSubjectId' in dct else None,
+                            semantic_id=cls._construct_reference(_get_ts(dct, 'semanticId', dict))
+                            if 'semanticId' in dct else None,
+                            supplemental_semantic_id=[
+                                cls._construct_reference(ref) for ref in
+                                _get_ts(dct, 'supplementalSemanticIds', list)]
+                            if 'supplementalSemanticIds' in dct else ())
 
     @classmethod
-    def _construct_reference(cls, dct: Dict[str, object], object_class=model.Reference) -> model.Reference:
-        keys = [cls._construct_key(key_data) for key_data in _get_ts(dct, "keys", list)]
-        return object_class(tuple(keys))
+    def _construct_reference(cls, dct: Dict[str, object]) -> model.Reference:
+        reference_type: Type[model.Reference] = REFERENCE_TYPES_INVERSE[_get_ts(dct, 'type', str)]
+        if reference_type is model.ModelReference:
+            return cls._construct_model_reference(dct, model.Referable)  # type: ignore
+        elif reference_type is model.ExternalReference:
+            return cls._construct_external_reference(dct)
+        raise ValueError(f"Unsupported reference type {reference_type}!")
 
     @classmethod
-    def _construct_aas_reference(cls, dct: Dict[str, object], type_: Type[T], object_class=model.AASReference)\
-            -> model.AASReference:
+    def _construct_external_reference(cls, dct: Dict[str, object], object_class=model.ExternalReference)\
+            -> model.ExternalReference:
+        reference_type: Type[model.Reference] = REFERENCE_TYPES_INVERSE[_get_ts(dct, 'type', str)]
+        if reference_type is not model.ExternalReference:
+            raise ValueError(f"Expected a reference of type {model.ExternalReference}, got {reference_type}!")
         keys = [cls._construct_key(key_data) for key_data in _get_ts(dct, "keys", list)]
-        if keys and not issubclass(KEY_ELEMENTS_CLASSES_INVERSE.get(keys[-1].type, type(None)), type_):
+        return object_class(tuple(keys), cls._construct_reference(_get_ts(dct, 'referredSemanticId', dict))
+                            if 'referredSemanticId' in dct else None)
+
+    @classmethod
+    def _construct_model_reference(cls, dct: Dict[str, object], type_: Type[T], object_class=model.ModelReference)\
+            -> model.ModelReference:
+        reference_type: Type[model.Reference] = REFERENCE_TYPES_INVERSE[_get_ts(dct, 'type', str)]
+        if reference_type is not model.ModelReference:
+            raise ValueError(f"Expected a reference of type {model.ModelReference}, got {reference_type}!")
+        keys = [cls._construct_key(key_data) for key_data in _get_ts(dct, "keys", list)]
+        if keys and not issubclass(KEY_TYPES_CLASSES_INVERSE.get(keys[-1].type, type(None)), type_):
             logger.warning("type %s of last key of reference to %s does not match reference type %s",
                            keys[-1].type.name, " / ".join(str(k) for k in keys), type_.__name__)
-        return object_class(tuple(keys), type_)
-
-    @classmethod
-    def _construct_identifier(cls, dct: Dict[str, object], object_class=model.Identifier) -> model.Identifier:
-        return object_class(_get_ts(dct, 'id', str),
-                            IDENTIFIER_TYPES_INVERSE[_get_ts(dct, 'idType', str)])
+        return object_class(tuple(keys), type_, cls._construct_reference(_get_ts(dct, 'referredSemanticId', dict))
+                            if 'referredSemanticId' in dct else None)
 
     @classmethod
     def _construct_administrative_information(
             cls, dct: Dict[str, object], object_class=model.AdministrativeInformation)\
             -> model.AdministrativeInformation:
         ret = object_class()
+        cls._amend_abstract_attributes(ret, dct)
         if 'version' in dct:
             ret.version = _get_ts(dct, 'version', str)
             if 'revision' in dct:
                 ret.revision = _get_ts(dct, 'revision', str)
         elif 'revision' in dct:
             logger.warning("Ignoring 'revision' attribute of AdministrativeInformation object due to missing 'version'")
+        if 'creator' in dct:
+            ret.creator = cls._construct_reference(_get_ts(dct, 'creator', dict))
+        if 'templateId' in dct:
+            ret.template_id = _get_ts(dct, 'templateId', str)
         return ret
 
     @classmethod
-    def _construct_security(cls, _dct: Dict[str, object], object_class=model.Security) -> model.Security:
-        return object_class()
-
-    @classmethod
-    def _construct_operation_variable(
-            cls, dct: Dict[str, object], object_class=model.OperationVariable) -> model.OperationVariable:
+    def _construct_operation_variable(cls, dct: Dict[str, object]) -> model.SubmodelElement:
+        """
+        Since we don't implement `OperationVariable`, this constructor discards the wrapping `OperationVariable` object
+        and just returns the contained :class:`~aas.model.submodel.SubmodelElement`.
+        """
         # TODO: remove the following type: ignore comments when mypy supports abstract types for Type[T]
         # see https://github.com/python/mypy/issues/5374
-        ret = object_class(value=_get_ts(dct, 'value', model.SubmodelElement))  # type: ignore
-        return ret
+        return _get_ts(dct, 'value', model.SubmodelElement)  # type: ignore
 
     @classmethod
-    def _construct_lang_string_set(cls, lst: List[Dict[str, object]]) -> Optional[model.LangStringSet]:
+    def _construct_lang_string_set(cls, lst: List[Dict[str, object]], object_class: Type[LSS]) -> LSS:
         ret = {}
         for desc in lst:
             try:
                 ret[_get_ts(desc, 'language', str)] = _get_ts(desc, 'text', str)
             except (KeyError, TypeError) as e:
-                error_message = "Error while trying to convert JSON object into LangString: {} >>> {}".format(
-                    e, pprint.pformat(desc, depth=2, width=2 ** 14, compact=True))
+                error_message = "Error while trying to convert JSON object into {}: {} >>> {}".format(
+                    object_class.__name__, e, pprint.pformat(desc, depth=2, width=2 ** 14, compact=True))
                 if cls.failsafe:
                     logger.error(error_message, exc_info=e)
                 else:
                     raise type(e)(error_message) from e
-        return ret
+        return object_class(ret)
 
     @classmethod
     def _construct_value_list(cls, dct: Dict[str, object]) -> model.ValueList:
         ret: model.ValueList = set()
-        for element in _get_ts(dct, 'valueReferencePairTypes', list):
+        for element in _get_ts(dct, 'valueReferencePairs', list):
             try:
                 ret.add(cls._construct_value_reference_pair(element))
             except (KeyError, TypeError) as e:
@@ -349,11 +404,9 @@ class AASFromJsonDecoder(json.JSONDecoder):
         return ret
 
     @classmethod
-    def _construct_value_reference_pair(cls, dct: Dict[str, object], object_class=model.ValueReferencePair) -> \
-            model.ValueReferencePair:
-        value_type = model.datatypes.XSD_TYPE_CLASSES[_get_ts(dct, 'valueType', str)]
-        return object_class(value_type=value_type,
-                            value=model.datatypes.from_xsd(_get_ts(dct, 'value', str), value_type),
+    def _construct_value_reference_pair(cls, dct: Dict[str, object],
+                                        object_class=model.ValueReferencePair) -> model.ValueReferencePair:
+        return object_class(value=_get_ts(dct, 'value', str),
                             value_id=cls._construct_reference(_get_ts(dct, 'valueId', dict)))
 
     # #############################################################################
@@ -364,68 +417,47 @@ class AASFromJsonDecoder(json.JSONDecoder):
     # be called from the object_hook() method directly.
 
     @classmethod
-    def _construct_asset(cls, dct: Dict[str, object], object_class=model.Asset) -> model.Asset:
-        ret = object_class(kind=ASSET_KIND_INVERSE[_get_ts(dct, 'kind', str)],
-                           identification=cls._construct_identifier(_get_ts(dct, "identification", dict)))
+    def _construct_asset_information(cls, dct: Dict[str, object], object_class=model.AssetInformation)\
+            -> model.AssetInformation:
+        global_asset_id = None
+        if 'globalAssetId' in dct:
+            global_asset_id = _get_ts(dct, 'globalAssetId', str)
+        specific_asset_id = set()
+        if 'specificAssetIds' in dct:
+            for desc_data in _get_ts(dct, "specificAssetIds", list):
+                specific_asset_id.add(cls._construct_specific_asset_id(desc_data, model.SpecificAssetId))
+
+        ret = object_class(asset_kind=ASSET_KIND_INVERSE[_get_ts(dct, 'assetKind', str)],
+                           global_asset_id=global_asset_id,
+                           specific_asset_id=specific_asset_id)
         cls._amend_abstract_attributes(ret, dct)
-        if 'assetIdentificationModel' in dct:
-            ret.asset_identification_model = cls._construct_aas_reference(
-                _get_ts(dct, 'assetIdentificationModel', dict), model.Submodel)
-        if 'billOfMaterial' in dct:
-            ret.bill_of_material = cls._construct_aas_reference(_get_ts(dct, 'billOfMaterial', dict), model.Submodel)
+
+        if 'assetType' in dct:
+            ret.asset_type = _get_ts(dct, 'assetType', str)
+        if 'defaultThumbnail' in dct:
+            ret.default_thumbnail = cls._construct_resource(_get_ts(dct, 'defaultThumbnail', dict))
         return ret
 
     @classmethod
     def _construct_asset_administration_shell(
             cls, dct: Dict[str, object], object_class=model.AssetAdministrationShell) -> model.AssetAdministrationShell:
         ret = object_class(
-            asset=cls._construct_aas_reference(_get_ts(dct, 'asset', dict), model.Asset),
-            identification=cls._construct_identifier(_get_ts(dct, 'identification', dict)))
+            asset_information=cls._construct_asset_information(_get_ts(dct, 'assetInformation', dict),
+                                                               model.AssetInformation),
+            id_=_get_ts(dct, 'id', str))
         cls._amend_abstract_attributes(ret, dct)
         if not cls.stripped and 'submodels' in dct:
             for sm_data in _get_ts(dct, 'submodels', list):
-                ret.submodel.add(cls._construct_aas_reference(sm_data, model.Submodel))
-        if not cls.stripped and 'views' in dct:
-            for view in _get_ts(dct, 'views', list):
-                if _expect_type(view, model.View, str(ret), cls.failsafe):
-                    ret.view.add(view)
-        if 'conceptDictionaries' in dct:
-            for concept_dictionary in _get_ts(dct, 'conceptDictionaries', list):
-                if _expect_type(concept_dictionary, model.ConceptDictionary, str(ret), cls.failsafe):
-                    ret.concept_dictionary.add(concept_dictionary)
-        if 'security' in dct:
-            ret.security = cls._construct_security(_get_ts(dct, 'security', dict))
+                ret.submodel.add(cls._construct_model_reference(sm_data, model.Submodel))
         if 'derivedFrom' in dct:
-            ret.derived_from = cls._construct_aas_reference(_get_ts(dct, 'derivedFrom', dict),
-                                                            model.AssetAdministrationShell)
-        return ret
-
-    @classmethod
-    def _construct_view(cls, dct: Dict[str, object], object_class=model.View) -> model.View:
-        ret = object_class(_get_ts(dct, 'idShort', str))
-        cls._amend_abstract_attributes(ret, dct)
-        if 'containedElements' in dct:
-            for element_data in _get_ts(dct, 'containedElements', list):
-                # TODO: remove the following type: ignore comments when mypy supports abstract types for Type[T]
-                # see https://github.com/python/mypy/issues/5374
-                ret.contained_element.add(cls._construct_aas_reference(element_data, model.Referable))  # type: ignore
+            ret.derived_from = cls._construct_model_reference(_get_ts(dct, 'derivedFrom', dict),
+                                                              model.AssetAdministrationShell)
         return ret
 
     @classmethod
     def _construct_concept_description(cls, dct: Dict[str, object], object_class=model.ConceptDescription)\
             -> model.ConceptDescription:
-        # Hack to detect IEC61360ConceptDescriptions, which are represented using dataSpecification according to DotAAS
-        ret = None
-        if 'embeddedDataSpecifications' in dct:
-            for dspec in _get_ts(dct, 'embeddedDataSpecifications', list):
-                dspec_ref = cls._construct_reference(_get_ts(dspec, 'dataSpecification', dict))
-                if dspec_ref.key and (dspec_ref.key[0].value ==
-                                      "http://admin-shell.io/DataSpecificationTemplates/DataSpecificationIEC61360/2/0"):
-                    ret = cls._construct_iec61360_concept_description(
-                        dct, _get_ts(dspec, 'dataSpecificationContent', dict))
-        # If this is not a special ConceptDescription, just construct one of the default object_class
-        if ret is None:
-            ret = object_class(identification=cls._construct_identifier(_get_ts(dct, 'identification', dict)))
+        ret = object_class(id_=_get_ts(dct, 'id', str))
         cls._amend_abstract_attributes(ret, dct)
         if 'isCaseOf' in dct:
             for case_data in _get_ts(dct, "isCaseOf", list):
@@ -433,55 +465,55 @@ class AASFromJsonDecoder(json.JSONDecoder):
         return ret
 
     @classmethod
-    def _construct_iec61360_concept_description(cls, dct: Dict[str, object], data_spec: Dict[str, object],
-                                                object_class=model.concept.IEC61360ConceptDescription)\
-            -> model.concept.IEC61360ConceptDescription:
-        ret = object_class(identification=cls._construct_identifier(_get_ts(dct, 'identification', dict)),
-                           preferred_name=cls._construct_lang_string_set(_get_ts(data_spec, 'preferredName', list)))
-        if 'dataType' in data_spec:
-            ret.data_type = IEC61360_DATA_TYPES_INVERSE[_get_ts(data_spec, 'dataType', str)]
-        if 'definition' in data_spec:
-            ret.definition = cls._construct_lang_string_set(_get_ts(data_spec, 'definition', list))
-        if 'shortName' in data_spec:
-            ret.short_name = cls._construct_lang_string_set(_get_ts(data_spec, 'shortName', list))
-        if 'unit' in data_spec:
-            ret.unit = _get_ts(data_spec, 'unit', str)
-        if 'unitId' in data_spec:
-            ret.unit_id = cls._construct_reference(_get_ts(data_spec, 'unitId', dict))
-        if 'sourceOfDefinition' in data_spec:
-            ret.source_of_definition = _get_ts(data_spec, 'sourceOfDefinition', str)
-        if 'symbol' in data_spec:
-            ret.symbol = _get_ts(data_spec, 'symbol', str)
-        if 'valueFormat' in data_spec:
-            ret.value_format = model.datatypes.XSD_TYPE_CLASSES[_get_ts(data_spec, 'valueFormat', str)]
-        if 'valueList' in data_spec:
-            ret.value_list = cls._construct_value_list(_get_ts(data_spec, 'valueList', dict))
-        if 'value' in data_spec:
-            ret.value = model.datatypes.from_xsd(_get_ts(data_spec, 'value', str), ret.value_format)
-        if 'valueId' in data_spec:
-            ret.value_id = cls._construct_reference(_get_ts(data_spec, 'valueId', dict))
-        if 'levelType' in data_spec:
-            ret.level_types = set(IEC61360_LEVEL_TYPES_INVERSE[level_type]
-                                  for level_type in _get_ts(data_spec, 'levelType', list))
-        return ret
-
-    @classmethod
-    def _construct_concept_dictionary(cls, dct: Dict[str, object], object_class=model.ConceptDictionary)\
-            -> model.ConceptDictionary:
-        ret = object_class(_get_ts(dct, "idShort", str))
-        cls._amend_abstract_attributes(ret, dct)
-        if 'conceptDescriptions' in dct:
-            for desc_data in _get_ts(dct, "conceptDescriptions", list):
-                ret.concept_description.add(cls._construct_aas_reference(desc_data, model.ConceptDescription))
+    def _construct_data_specification_iec61360(cls, dct: Dict[str, object],
+                                               object_class=model.base.DataSpecificationIEC61360)\
+            -> model.base.DataSpecificationIEC61360:
+        ret = object_class(preferred_name=cls._construct_lang_string_set(_get_ts(dct, 'preferredName', list),
+                                                                         model.PreferredNameTypeIEC61360))
+        if 'dataType' in dct:
+            ret.data_type = IEC61360_DATA_TYPES_INVERSE[_get_ts(dct, 'dataType', str)]
+        if 'definition' in dct:
+            ret.definition = cls._construct_lang_string_set(_get_ts(dct, 'definition', list),
+                                                            model.DefinitionTypeIEC61360)
+        if 'shortName' in dct:
+            ret.short_name = cls._construct_lang_string_set(_get_ts(dct, 'shortName', list),
+                                                            model.ShortNameTypeIEC61360)
+        if 'unit' in dct:
+            ret.unit = _get_ts(dct, 'unit', str)
+        if 'unitId' in dct:
+            ret.unit_id = cls._construct_reference(_get_ts(dct, 'unitId', dict))
+        if 'sourceOfDefinition' in dct:
+            ret.source_of_definition = _get_ts(dct, 'sourceOfDefinition', str)
+        if 'symbol' in dct:
+            ret.symbol = _get_ts(dct, 'symbol', str)
+        if 'valueFormat' in dct:
+            ret.value_format = _get_ts(dct, 'valueFormat', str)
+        if 'valueList' in dct:
+            ret.value_list = cls._construct_value_list(_get_ts(dct, 'valueList', dict))
+        if 'value' in dct:
+            ret.value = _get_ts(dct, 'value', str)
+        if 'valueId' in dct:
+            ret.value_id = cls._construct_reference(_get_ts(dct, 'valueId', dict))
+        if 'levelType' in dct:
+            for k, v in _get_ts(dct, 'levelType', dict).items():
+                if v:
+                    ret.level_types.add(IEC61360_LEVEL_TYPES_INVERSE[k])
         return ret
 
     @classmethod
     def _construct_entity(cls, dct: Dict[str, object], object_class=model.Entity) -> model.Entity:
-        ret = object_class(id_short=_get_ts(dct, "idShort", str),
+        global_asset_id = None
+        if 'globalAssetId' in dct:
+            global_asset_id = _get_ts(dct, 'globalAssetId', str)
+        specific_asset_id = set()
+        if 'specificAssetIds' in dct:
+            for desc_data in _get_ts(dct, "specificAssetIds", list):
+                specific_asset_id.add(cls._construct_specific_asset_id(desc_data, model.SpecificAssetId))
+
+        ret = object_class(id_short=None,
                            entity_type=ENTITY_TYPES_INVERSE[_get_ts(dct, "entityType", str)],
-                           asset=(cls._construct_aas_reference(_get_ts(dct, 'asset', dict), model.Asset)
-                                  if 'asset' in dct else None),
-                           kind=cls._get_kind(dct))
+                           global_asset_id=global_asset_id,
+                           specific_asset_id=specific_asset_id)
         cls._amend_abstract_attributes(ret, dct)
         if not cls.stripped and 'statements' in dct:
             for element in _get_ts(dct, "statements", list):
@@ -498,29 +530,26 @@ class AASFromJsonDecoder(json.JSONDecoder):
             ret.value = model.datatypes.from_xsd(_get_ts(dct, 'value', str), ret.value_type)
         if 'valueId' in dct:
             ret.value_id = cls._construct_reference(_get_ts(dct, 'valueId', dict))
+        if 'kind' in dct:
+            ret.kind = QUALIFIER_KIND_INVERSE[_get_ts(dct, 'kind', str)]
         return ret
 
     @classmethod
-    def _construct_formula(cls, dct: Dict[str, object], object_class=model.Formula) -> model.Formula:
-        ret = object_class()
+    def _construct_extension(cls, dct: Dict[str, object], object_class=model.Extension) -> model.Extension:
+        ret = object_class(name=_get_ts(dct, 'name', str))
         cls._amend_abstract_attributes(ret, dct)
-        if 'dependsOn' in dct:
-            for dependency_data in _get_ts(dct, 'dependsOn', list):
-                try:
-                    ret.depends_on.add(cls._construct_reference(dependency_data))
-                except (KeyError, TypeError) as e:
-                    error_message = \
-                        "Error while trying to convert JSON object into dependency Reference for {}: {} >>> {}".format(
-                            ret, e, pprint.pformat(dct, depth=2, width=2 ** 14, compact=True))
-                    if cls.failsafe:
-                        logger.error(error_message, exc_info=e)
-                    else:
-                        raise type(e)(error_message) from e
+        if 'valueType' in dct:
+            ret.value_type = model.datatypes.XSD_TYPE_CLASSES[_get_ts(dct, 'valueType', str)]
+        if 'value' in dct:
+            ret.value = model.datatypes.from_xsd(_get_ts(dct, 'value', str), ret.value_type)
+        if 'refersTo' in dct:
+            ret.refers_to = {cls._construct_model_reference(refers_to, model.Referable)  # type: ignore
+                             for refers_to in _get_ts(dct, 'refersTo', list)}
         return ret
 
     @classmethod
     def _construct_submodel(cls, dct: Dict[str, object], object_class=model.Submodel) -> model.Submodel:
-        ret = object_class(identification=cls._construct_identifier(_get_ts(dct, 'identification', dict)),
+        ret = object_class(id_=_get_ts(dct, 'id', str),
                            kind=cls._get_kind(dct))
         cls._amend_abstract_attributes(ret, dct)
         if not cls.stripped and 'submodelElements' in dct:
@@ -531,34 +560,46 @@ class AASFromJsonDecoder(json.JSONDecoder):
 
     @classmethod
     def _construct_capability(cls, dct: Dict[str, object], object_class=model.Capability) -> model.Capability:
-        ret = object_class(id_short=_get_ts(dct, "idShort", str), kind=cls._get_kind(dct))
+        ret = object_class(id_short=None)
         cls._amend_abstract_attributes(ret, dct)
         return ret
 
     @classmethod
-    def _construct_basic_event(cls, dct: Dict[str, object], object_class=model.BasicEvent) -> model.BasicEvent:
+    def _construct_basic_event_element(cls, dct: Dict[str, object], object_class=model.BasicEventElement) \
+            -> model.BasicEventElement:
         # TODO: remove the following type: ignore comments when mypy supports abstract types for Type[T]
         # see https://github.com/python/mypy/issues/5374
-        ret = object_class(id_short=_get_ts(dct, "idShort", str),
-                           observed=cls._construct_aas_reference(_get_ts(dct, 'observed', dict),
-                                                                 model.Referable),  # type: ignore
-                           kind=cls._get_kind(dct))
+        ret = object_class(id_short=None,
+                           observed=cls._construct_model_reference(_get_ts(dct, 'observed', dict),
+                                                                   model.Referable),  # type: ignore
+                           direction=DIRECTION_INVERSE[_get_ts(dct, "direction", str)],
+                           state=STATE_OF_EVENT_INVERSE[_get_ts(dct, "state", str)])
         cls._amend_abstract_attributes(ret, dct)
+        if 'messageTopic' in dct:
+            ret.message_topic = _get_ts(dct, 'messageTopic', str)
+        if 'messageBroker' in dct:
+            ret.message_broker = cls._construct_reference(_get_ts(dct, 'messageBroker', dict))
+        if 'lastUpdate' in dct:
+            ret.last_update = model.datatypes.from_xsd(_get_ts(dct, 'lastUpdate', str), model.datatypes.DateTime)
+        if 'minInterval' in dct:
+            ret.min_interval = model.datatypes.from_xsd(_get_ts(dct, 'minInterval', str), model.datatypes.Duration)
+        if 'maxInterval' in dct:
+            ret.max_interval = model.datatypes.from_xsd(_get_ts(dct, 'maxInterval', str), model.datatypes.Duration)
         return ret
 
     @classmethod
     def _construct_operation(cls, dct: Dict[str, object], object_class=model.Operation) -> model.Operation:
-        ret = object_class(_get_ts(dct, "idShort", str), kind=cls._get_kind(dct))
+        ret = object_class(None)
         cls._amend_abstract_attributes(ret, dct)
 
         # Deserialize variables (they are not Referable, thus we don't
-        for json_name, target in (('inputVariable', ret.input_variable),
-                                  ('outputVariable', ret.output_variable),
-                                  ('inoutputVariable', ret.in_output_variable)):
+        for json_name, target in (('inputVariables', ret.input_variable),
+                                  ('outputVariables', ret.output_variable),
+                                  ('inoutputVariables', ret.in_output_variable)):
             if json_name in dct:
                 for variable_data in _get_ts(dct, json_name, list):
                     try:
-                        target.append(cls._construct_operation_variable(variable_data))
+                        target.add(cls._construct_operation_variable(variable_data))
                     except (KeyError, TypeError) as e:
                         error_message = "Error while trying to convert JSON object into {} of {}: {}".format(
                             json_name, ret, pprint.pformat(variable_data, depth=2, width=2 ** 14, compact=True))
@@ -573,12 +614,9 @@ class AASFromJsonDecoder(json.JSONDecoder):
             cls, dct: Dict[str, object], object_class=model.RelationshipElement) -> model.RelationshipElement:
         # TODO: remove the following type: ignore comments when mypy supports abstract types for Type[T]
         # see https://github.com/python/mypy/issues/5374
-        ret = object_class(id_short=_get_ts(dct, "idShort", str),
-                           first=cls._construct_aas_reference(_get_ts(dct, 'first', dict),
-                                                              model.Referable),  # type: ignore
-                           second=cls._construct_aas_reference(_get_ts(dct, 'second', dict),
-                                                               model.Referable),  # type: ignore
-                           kind=cls._get_kind(dct))
+        ret = object_class(id_short=None,
+                           first=cls._construct_reference(_get_ts(dct, 'first', dict)),
+                           second=cls._construct_reference(_get_ts(dct, 'second', dict)))
         cls._amend_abstract_attributes(ret, dct)
         return ret
 
@@ -589,31 +627,21 @@ class AASFromJsonDecoder(json.JSONDecoder):
         # TODO: remove the following type: ignore comments when mypy supports abstract types for Type[T]
         # see https://github.com/python/mypy/issues/5374
         ret = object_class(
-            id_short=_get_ts(dct, "idShort", str),
-            first=cls._construct_aas_reference(_get_ts(dct, 'first', dict), model.Referable),  # type: ignore
-            second=cls._construct_aas_reference(_get_ts(dct, 'second', dict), model.Referable),  # type: ignore
-            kind=cls._get_kind(dct))
+            id_short=None,
+            first=cls._construct_reference(_get_ts(dct, 'first', dict)),
+            second=cls._construct_reference(_get_ts(dct, 'second', dict)))
         cls._amend_abstract_attributes(ret, dct)
-        if not cls.stripped and 'annotation' in dct:
-            for element in _get_ts(dct, "annotation", list):
+        if not cls.stripped and 'annotations' in dct:
+            for element in _get_ts(dct, 'annotations', list):
                 if _expect_type(element, model.DataElement, str(ret), cls.failsafe):
                     ret.annotation.add(element)
         return ret
 
     @classmethod
-    def _construct_submodel_element_collection(
-            cls,
-            dct: Dict[str, object],
-            object_class_ordered=model.SubmodelElementCollectionOrdered,
-            object_class_unordered=model.SubmodelElementCollectionUnordered)\
+    def _construct_submodel_element_collection(cls, dct: Dict[str, object],
+                                               object_class=model.SubmodelElementCollection)\
             -> model.SubmodelElementCollection:
-        ret: model.SubmodelElementCollection
-        if 'ordered' in dct and _get_ts(dct, 'ordered', bool):
-            ret = object_class_ordered(
-                id_short=_get_ts(dct, "idShort", str), kind=cls._get_kind(dct))
-        else:
-            ret = object_class_unordered(
-                id_short=_get_ts(dct, "idShort", str), kind=cls._get_kind(dct))
+        ret = object_class(id_short=None)
         cls._amend_abstract_attributes(ret, dct)
         if not cls.stripped and 'value' in dct:
             for element in _get_ts(dct, "value", list):
@@ -622,10 +650,34 @@ class AASFromJsonDecoder(json.JSONDecoder):
         return ret
 
     @classmethod
+    def _construct_submodel_element_list(cls, dct: Dict[str, object], object_class=model.SubmodelElementList)\
+            -> model.SubmodelElementList:
+        type_value_list_element = KEY_TYPES_CLASSES_INVERSE[
+            KEY_TYPES_INVERSE[_get_ts(dct, 'typeValueListElement', str)]]
+        if not issubclass(type_value_list_element, model.SubmodelElement):
+            raise ValueError("Expected a SubmodelElementList with a typeValueListElement that is a subclass of"
+                             f"{model.SubmodelElement}, got {type_value_list_element}!")
+        order_relevant = _get_ts(dct, 'orderRelevant', bool) if 'orderRelevant' in dct else True
+        semantic_id_list_element = cls._construct_reference(_get_ts(dct, 'semanticIdListElement', dict))\
+            if 'semanticIdListElement' in dct else None
+        value_type_list_element = model.datatypes.XSD_TYPE_CLASSES[_get_ts(dct, 'valueTypeListElement', str)]\
+            if 'valueTypeListElement' in dct else None
+        ret = object_class(id_short=None,
+                           type_value_list_element=type_value_list_element,
+                           order_relevant=order_relevant,
+                           semantic_id_list_element=semantic_id_list_element,
+                           value_type_list_element=value_type_list_element)
+        cls._amend_abstract_attributes(ret, dct)
+        if not cls.stripped and 'value' in dct:
+            for element in _get_ts(dct, 'value', list):
+                if _expect_type(element, type_value_list_element, str(ret), cls.failsafe):
+                    ret.value.add(element)
+        return ret
+
+    @classmethod
     def _construct_blob(cls, dct: Dict[str, object], object_class=model.Blob) -> model.Blob:
-        ret = object_class(id_short=_get_ts(dct, "idShort", str),
-                           mime_type=_get_ts(dct, "mimeType", str),
-                           kind=cls._get_kind(dct))
+        ret = object_class(id_short=None,
+                           content_type=_get_ts(dct, "contentType", str))
         cls._amend_abstract_attributes(ret, dct)
         if 'value' in dct:
             ret.value = base64.b64decode(_get_ts(dct, 'value', str))
@@ -633,31 +685,37 @@ class AASFromJsonDecoder(json.JSONDecoder):
 
     @classmethod
     def _construct_file(cls, dct: Dict[str, object], object_class=model.File) -> model.File:
-        ret = object_class(id_short=_get_ts(dct, "idShort", str),
+        ret = object_class(id_short=None,
                            value=None,
-                           mime_type=_get_ts(dct, "mimeType", str),
-                           kind=cls._get_kind(dct))
+                           content_type=_get_ts(dct, "contentType", str))
         cls._amend_abstract_attributes(ret, dct)
         if 'value' in dct and dct['value'] is not None:
             ret.value = _get_ts(dct, 'value', str)
         return ret
 
     @classmethod
+    def _construct_resource(cls, dct: Dict[str, object], object_class=model.Resource) -> model.Resource:
+        ret = object_class(path=_get_ts(dct, "path", str))
+        cls._amend_abstract_attributes(ret, dct)
+        if 'contentType' in dct and dct['contentType'] is not None:
+            ret.content_type = _get_ts(dct, 'contentType', str)
+        return ret
+
+    @classmethod
     def _construct_multi_language_property(
             cls, dct: Dict[str, object], object_class=model.MultiLanguageProperty) -> model.MultiLanguageProperty:
-        ret = object_class(id_short=_get_ts(dct, "idShort", str), kind=cls._get_kind(dct))
+        ret = object_class(id_short=None)
         cls._amend_abstract_attributes(ret, dct)
         if 'value' in dct and dct['value'] is not None:
-            ret.value = cls._construct_lang_string_set(_get_ts(dct, 'value', list))
+            ret.value = cls._construct_lang_string_set(_get_ts(dct, 'value', list), model.MultiLanguageTextType)
         if 'valueId' in dct:
             ret.value_id = cls._construct_reference(_get_ts(dct, 'valueId', dict))
         return ret
 
     @classmethod
     def _construct_property(cls, dct: Dict[str, object], object_class=model.Property) -> model.Property:
-        ret = object_class(id_short=_get_ts(dct, "idShort", str),
-                           value_type=model.datatypes.XSD_TYPE_CLASSES[_get_ts(dct, 'valueType', str)],
-                           kind=cls._get_kind(dct))
+        ret = object_class(id_short=None,
+                           value_type=model.datatypes.XSD_TYPE_CLASSES[_get_ts(dct, 'valueType', str)],)
         cls._amend_abstract_attributes(ret, dct)
         if 'value' in dct and dct['value'] is not None:
             ret.value = model.datatypes.from_xsd(_get_ts(dct, 'value', str), ret.value_type)
@@ -667,9 +725,8 @@ class AASFromJsonDecoder(json.JSONDecoder):
 
     @classmethod
     def _construct_range(cls, dct: Dict[str, object], object_class=model.Range) -> model.Range:
-        ret = object_class(id_short=_get_ts(dct, "idShort", str),
-                           value_type=model.datatypes.XSD_TYPE_CLASSES[_get_ts(dct, 'valueType', str)],
-                           kind=cls._get_kind(dct))
+        ret = object_class(id_short=None,
+                           value_type=model.datatypes.XSD_TYPE_CLASSES[_get_ts(dct, 'valueType', str)],)
         cls._amend_abstract_attributes(ret, dct)
         if 'min' in dct and dct['min'] is not None:
             ret.min = model.datatypes.from_xsd(_get_ts(dct, 'min', str), ret.value_type)
@@ -680,9 +737,8 @@ class AASFromJsonDecoder(json.JSONDecoder):
     @classmethod
     def _construct_reference_element(
             cls, dct: Dict[str, object], object_class=model.ReferenceElement) -> model.ReferenceElement:
-        ret = object_class(id_short=_get_ts(dct, "idShort", str),
-                           value=None,
-                           kind=cls._get_kind(dct))
+        ret = object_class(id_short=None,
+                           value=None)
         cls._amend_abstract_attributes(ret, dct)
         if 'value' in dct and dct['value'] is not None:
             ret.value = cls._construct_reference(_get_ts(dct, 'value', dict))
@@ -767,18 +823,12 @@ def read_aas_json_file_into(object_store: model.AbstractObjectStore, file: IO, r
     data = json.load(file, cls=decoder_)
 
     for name, expected_type in (('assetAdministrationShells', model.AssetAdministrationShell),
-                                ('assets', model.Asset),
                                 ('submodels', model.Submodel),
                                 ('conceptDescriptions', model.ConceptDescription)):
         try:
             lst = _get_ts(data, name, list)
-        except (KeyError, TypeError) as e:
-            error_message = "Could not find list '{}' in AAS JSON file".format(name)
-            if decoder_.failsafe:
-                logger.warning(error_message)
-                continue
-            else:
-                raise type(e)(error_message) from e
+        except (KeyError, TypeError):
+            continue
 
         for item in lst:
             error_message = "Expected a {} in list '{}', but found {}".format(
@@ -789,16 +839,16 @@ def read_aas_json_file_into(object_store: model.AbstractObjectStore, file: IO, r
                         logger.warning("{} was in wrong list '{}'; nevertheless, we'll use it".format(item, name))
                     else:
                         raise TypeError(error_message)
-                if item.identification in ret:
+                if item.id in ret:
                     error_message = f"{item} has a duplicate identifier already parsed in the document!"
                     if not decoder_.failsafe:
                         raise KeyError(error_message)
                     logger.error(error_message + " skipping it...")
                     continue
-                existing_element = object_store.get(item.identification)
+                existing_element = object_store.get(item.id)
                 if existing_element is not None:
                     if not replace_existing:
-                        error_message = f"object with identifier {item.identification} already exists " \
+                        error_message = f"object with identifier {item.id} already exists " \
                                         f"in the object store: {existing_element}!"
                         if not ignore_existing:
                             raise KeyError(error_message + f" failed to insert {item}!")
@@ -806,7 +856,7 @@ def read_aas_json_file_into(object_store: model.AbstractObjectStore, file: IO, r
                         continue
                     object_store.discard(existing_element)
                 object_store.add(item)
-                ret.add(item.identification)
+                ret.add(item.id)
             elif decoder_.failsafe:
                 logger.error(error_message)
             else:

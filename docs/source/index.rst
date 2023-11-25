@@ -18,6 +18,7 @@ Welcome to the Eclipse BaSyx Python SDK's documentation!
    examples/index
    compliance_tool/index
    util/index
+   constraints
 
 
 Indices and tables

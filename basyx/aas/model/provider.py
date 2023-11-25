@@ -32,22 +32,23 @@ class AbstractObjectProvider(metaclass=abc.ABCMeta):
         This may include looking up the object's endpoint in a registry and fetching it from an HTTP server or a
         database.
 
-        :param identifier: The :class:`~aas.model.base.Identifier` of the object to return
+        :param identifier: :class:`~aas.model.base.Identifier` of the object to return
         :return: The :class:`~aas.model.base.Identifiable` object (or a proxy object for a remote
-            :class:`~aas.model.base.Identifiable` object)
-        :raises KeyError: If no such :class:`~aas.model.base.Identifiable` can be found
+                 :class:`~aas.model.base.Identifiable` object)
+        :raises KeyError: If no such :class:`~.aas.model.base.Identifiable` can be found
         """
         pass
 
     def get(self, identifier: Identifier, default: Optional[Identifiable] = None) -> Optional[Identifiable]:
         """
-        Find an object in this set by its identification, with fallback parameter
+        Find an object in this set by its :class:`id <aas.model.base.Identifier>`, with fallback parameter
 
-        :param identifier: The :class:`~aas.model.base.Identifier` of the object to return
-        :param default: An object to be returned, if no object with the given identification is found
-        :return: The :class:`~aas.model.base.Identifiable` object with the given identification in the provider.
-                 Otherwise the `default` object
-                 or `None`, if none is given.
+        :param identifier: :class:`~aas.model.base.Identifier` of the object to return
+        :param default: An object to be returned, if no object with the given
+                        :class:`id <aas.model.base.Identifier>` is found
+        :return: The :class:`~aas.model.base.Identifiable` object with the given
+                 :class:`id <aas.model.base.Identifier>` in the provider. Otherwise the `default` object
+                 or None, if none is given.
         """
         try:
             return self.get_identifiable(identifier)
@@ -62,10 +63,13 @@ class AbstractObjectStore(AbstractObjectProvider, MutableSet[_IT], Generic[_IT],
     """
     Abstract baseclass of for container-like objects for storage of :class:`~aas.model.base.Identifiable` objects.
 
-    ObjectStores are special :class:`ObjectProvides <.AbstractObjectProvider` that – in addition to retrieving objects
-    by :class:`~aas.model.base.Identifier` – allow to add and
-    delete objects (i.e. behave like a Python set). This includes local object stores (like :class:`~.DictObjectStore`)
-    and database clients.
+    ObjectStores are special ObjectProvides that – in addition to retrieving objects by
+    :class:`~aas.model.base.Identifier` – allow to add and delete objects (i.e. behave like a Python set).
+    This includes local object stores (like :class:`~.DictObjectStore`) and database
+    :class:`Backends <aas.backend.backends.Backend>`.
+
+    The AbstractObjectStore inherits from the `MutableSet` abstract collections class and therefore implements all the
+    functions of this class.
     """
     @abc.abstractmethod
     def __init__(self):
@@ -91,21 +95,21 @@ class DictObjectStore(AbstractObjectStore[_IT], Generic[_IT]):
         return self._backend[identifier]
 
     def add(self, x: _IT) -> None:
-        if x.identification in self._backend and self._backend.get(x.identification) is not x:
-            raise KeyError("Identifiable object with same identification {} is already stored in this store"
-                           .format(x.identification))
-        self._backend[x.identification] = x
+        if x.id in self._backend and self._backend.get(x.id) is not x:
+            raise KeyError("Identifiable object with same id {} is already stored in this store"
+                           .format(x.id))
+        self._backend[x.id] = x
 
     def discard(self, x: _IT) -> None:
-        if self._backend.get(x.identification) is x:
-            del self._backend[x.identification]
+        if self._backend.get(x.id) is x:
+            del self._backend[x.id]
 
     def __contains__(self, x: object) -> bool:
         if isinstance(x, Identifier):
             return x in self._backend
         if not isinstance(x, Identifiable):
             return False
-        return self._backend.get(x.identification) is x
+        return self._backend.get(x.id) is x
 
     def __len__(self) -> int:
         return len(self._backend)
@@ -118,11 +122,12 @@ class ObjectProviderMultiplexer(AbstractObjectProvider):
     """
     A multiplexer for Providers of :class:`~aas.model.base.Identifiable` objects.
 
-    This class combines multiple Registries of :class:`~aas.model.base.Identifiable` objects into a single one to allow
-    retrieving :class:`~aas.model.base.Identifiable` objects from different sources. It implements the
-    :class:`~.AbstractObjectProvider` interface to be used as registry itself.
+    This class combines multiple registries of :class:`~aas.model.base.Identifiable` objects into a single one to allow
+    retrieving :class:`~aas.model.base.Identifiable` objects from different sources.
+    It implements the :class:`~.AbstractObjectProvider` interface to be used as registry itself.
 
-    :ivar registries: A list of registries to query when looking up an object
+    :ivar registries: A list of :class:`AbstractObjectProviders <.AbstractObjectProvider>` to query when looking up an
+                      object
     """
     def __init__(self, registries: Optional[List[AbstractObjectProvider]] = None):
         self.providers: List[AbstractObjectProvider] = registries if registries is not None else []

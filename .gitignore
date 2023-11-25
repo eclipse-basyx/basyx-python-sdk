@@ -18,6 +18,7 @@
 # Coverage artifacts
 /.coverage
 /htmlcov/
+/docs/build/
 
 # customized config files
 /test/test_config.ini

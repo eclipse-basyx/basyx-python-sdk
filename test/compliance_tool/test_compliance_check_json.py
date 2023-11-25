@@ -30,19 +30,18 @@ class ComplianceToolJsonTest(unittest.TestCase):
         self.assertEqual(Status.SUCCESS, manager.steps[0].status)
         self.assertEqual(Status.FAILED, manager.steps[1].status)
         self.assertEqual(Status.NOT_EXECUTED, manager.steps[2].status)
-        self.assertIn("Expecting ',' delimiter: line 5 column 2 (char 69)", manager.format_step(1, verbose_level=1))
+        self.assertIn("Expecting ',' delimiter: line 4 column 2 (char 54)", manager.format_step(1, verbose_level=1))
 
         manager.steps = []
-        file_path_3 = os.path.join(script_dir, 'files/test_missing_submodels.json')
+        file_path_3 = os.path.join(script_dir, 'files/test_empty.json')
         compliance_tool.check_schema(file_path_3, manager)
         self.assertEqual(3, len(manager.steps))
         self.assertEqual(Status.SUCCESS, manager.steps[0].status)
         self.assertEqual(Status.SUCCESS, manager.steps[1].status)
-        self.assertEqual(Status.FAILED, manager.steps[2].status)
-        self.assertIn("'submodels' is a required property", manager.format_step(2, verbose_level=1))
+        self.assertEqual(Status.SUCCESS, manager.steps[2].status)
 
         manager.steps = []
-        file_path_4 = os.path.join(script_dir, 'files/test_empty.json')
+        file_path_4 = os.path.join(script_dir, 'files/test_demo_full_example.json')
         compliance_tool.check_schema(file_path_4, manager)
         self.assertEqual(3, len(manager.steps))
         self.assertEqual(Status.SUCCESS, manager.steps[0].status)
@@ -50,7 +49,7 @@ class ComplianceToolJsonTest(unittest.TestCase):
         self.assertEqual(Status.SUCCESS, manager.steps[2].status)
 
         manager.steps = []
-        file_path_5 = os.path.join(script_dir, 'files/test_demo_full_example.json')
+        file_path_5 = os.path.join(script_dir, 'files/test_demo_full_example_wrong_attribute.json')
         compliance_tool.check_schema(file_path_5, manager)
         self.assertEqual(3, len(manager.steps))
         self.assertEqual(Status.SUCCESS, manager.steps[0].status)
@@ -129,8 +128,8 @@ class ComplianceToolJsonTest(unittest.TestCase):
         self.assertEqual(Status.SUCCESS, manager.steps[1].status)
         self.assertEqual(Status.FAILED, manager.steps[2].status)
         self.assertEqual('FAILED:       Check if data is equal to example data\n - ERROR: Attribute id_short of '
-                         'AssetAdministrationShell[Identifier(IRI=https://acplt.org/Test_AssetAdministrationShell)] '
-                         'must be == TestAssetAdministrationShell (value=\'TestAssetAdministrationShell123\')',
+                         'AssetAdministrationShell[https://acplt.org/Test_AssetAdministrationShell] must be == '
+                         'TestAssetAdministrationShell (value=\'TestAssetAdministrationShell123\')',
                          manager.format_step(2, verbose_level=1))
 
     def test_check_json_files_equivalence(self) -> None:
@@ -178,8 +177,8 @@ class ComplianceToolJsonTest(unittest.TestCase):
         self.assertEqual(Status.SUCCESS, manager.steps[3].status)
         self.assertEqual(Status.FAILED, manager.steps[4].status)
         self.assertEqual('FAILED:       Check if data in files are equal\n - ERROR: Attribute id_short of '
-                         'AssetAdministrationShell[Identifier(IRI=https://acplt.org/Test_AssetAdministrationShell)] '
-                         'must be == TestAssetAdministrationShell123 (value=\'TestAssetAdministrationShell\')',
+                         'AssetAdministrationShell[https://acplt.org/Test_AssetAdministrationShell] must be == '
+                         'TestAssetAdministrationShell123 (value=\'TestAssetAdministrationShell\')',
                          manager.format_step(4, verbose_level=1))
 
         manager.steps = []
@@ -191,6 +190,6 @@ class ComplianceToolJsonTest(unittest.TestCase):
         self.assertEqual(Status.SUCCESS, manager.steps[3].status)
         self.assertEqual(Status.FAILED, manager.steps[4].status)
         self.assertEqual('FAILED:       Check if data in files are equal\n - ERROR: Attribute id_short of '
-                         'AssetAdministrationShell[Identifier(IRI=https://acplt.org/Test_AssetAdministrationShell)] '
-                         'must be == TestAssetAdministrationShell (value=\'TestAssetAdministrationShell123\')',
+                         'AssetAdministrationShell[https://acplt.org/Test_AssetAdministrationShell] must be == '
+                         'TestAssetAdministrationShell (value=\'TestAssetAdministrationShell123\')',
                          manager.format_step(4, verbose_level=1))
