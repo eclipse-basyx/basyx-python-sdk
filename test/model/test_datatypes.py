@@ -21,12 +21,14 @@ class TestIntTypes(unittest.TestCase):
         self.assertEqual(8, model.datatypes.from_xsd("8", model.datatypes.Long))
         self.assertEqual(9, model.datatypes.from_xsd("9", model.datatypes.Int))
         self.assertEqual(10, model.datatypes.from_xsd("10", model.datatypes.Short))
-        self.assertEqual(-123456789012345678901234567890, model.datatypes.from_xsd("-123456789012345678901234567890", model.datatypes.Integer))
+        self.assertEqual(-123456789012345678901234567890,
+                         model.datatypes.from_xsd("-123456789012345678901234567890", model.datatypes.Integer))
         self.assertEqual(2147483647, model.datatypes.from_xsd("2147483647", model.datatypes.Int))
         self.assertEqual(-2147483648, model.datatypes.from_xsd("-2147483648", model.datatypes.Int))
         self.assertEqual(-32768, model.datatypes.from_xsd("-32768", model.datatypes.Short))
         self.assertEqual(-128, model.datatypes.from_xsd("-128", model.datatypes.Byte))
-        self.assertEqual(-9223372036854775808, model.datatypes.from_xsd("-9223372036854775808", model.datatypes.Long))
+        self.assertEqual(-9223372036854775808,
+                         model.datatypes.from_xsd("-9223372036854775808", model.datatypes.Long))
 
     def test_serialize_int(self) -> None:
         self.assertEqual("5", model.datatypes.xsd_repr(model.datatypes.Integer(5)))
