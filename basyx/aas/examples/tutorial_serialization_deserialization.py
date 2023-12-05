@@ -13,11 +13,11 @@ import basyx.aas.adapter.json
 import basyx.aas.adapter.xml
 
 # 'Details of the Asset Administration Shell' specifies multiple official serialization formats for AAS data. In this
-# tutorial, we show, how the Eclipse BaSyx Python library can be used to serialize AAS objects into JSON or XML and to
-# create JSON/XML files according to the standardized format. It is also demonstrated, how these files can be parsed to
+# tutorial, we show how the Eclipse BaSyx Python library can be used to serialize AAS objects into JSON or XML and to
+# create JSON/XML files, according to the standardized format. It is also demonstrated how these files can be parsed to
 # restore the AAS objects as Python objects.
 #
-# Step by Step Guide:
+# Step-by-Step Guide:
 # Step 1: creating Submodel and Asset Administration Shell objects
 # Step 2: serializing single objects to JSON
 # Step 3: parsing single objects or custom data structures from JSON
@@ -56,7 +56,7 @@ aashell = model.AssetAdministrationShell(
 # Step 2: Serializing Single Objects to JSON #
 ##############################################
 
-# Before serializing the data, we should make sure, it's up to data. This is irrelevant for the static AAS objects in
+# Before serializing the data, we should make sure, it's up-to-date. This is irrelevant for the static AAS objects in
 # this tutorial, but may be important when dealing with dynamic data.
 # See `tutorial_dynamic_model.py` for more information on that topic.
 aashell.update()
@@ -103,7 +103,7 @@ obj_store: model.DictObjectStore[model.Identifiable] = model.DictObjectStore()
 obj_store.add(submodel)
 obj_store.add(aashell)
 
-# step 4.2: Again, make sure that the data is up to date
+# step 4.2: Again, make sure that the data is up-to-date
 submodel.update()
 aashell.update()
 

@@ -30,9 +30,9 @@ import basyx.aas.backend.couchdb
 # Afterwards you can add the new user to the set of "Members" of your new database (via the "Permissions" section in the
 # user interface). Alternatively, you can use the admin credentials with the BaSyx Python SDK (see below).
 
-# Step by Step Guide:
+# Step-by-Step Guide:
 # step 1: connecting to a CouchDB server
-# step 2: storing objects in the CouchDBObjectStore
+# step 2: storing objects in CouchDBObjectStore
 # step 3: updating objects from the CouchDB and committing changes
 
 
@@ -58,7 +58,7 @@ couchdb_password = config['couchdb']['password']
 
 
 # Provide the login credentials to the CouchDB backend.
-# These credetials are used, whenever communication with this CouchDB server is required (either via the
+# These credentials are used whenever communication with this CouchDB server is required either via the
 # CouchDBObjectStore or via the update()/commit() backend.
 basyx.aas.backend.couchdb.register_credentials(couchdb_url, couchdb_user, couchdb_password)
 
@@ -82,7 +82,7 @@ object_store.add(example_submodel2)
 
 
 ###################################################################
-# Step 3: Updating Objects from the CouchDB and Commiting Changes #
+# Step 3: Updating Objects from the CouchDB and Committing Changes #
 ###################################################################
 
 # Since the CouchDBObjectStore has set the `source` attribute of our Submodel objects, we can now use update() and
