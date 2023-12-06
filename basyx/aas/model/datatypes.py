@@ -261,7 +261,8 @@ class Float(float):
 class Long(int):
     def __new__(cls, *args, **kwargs):
         res = int.__new__(cls, *args, **kwargs)
-        if abs(res) > 2**63-1:
+        # [-9223372036854775808, 9223372036854775807]
+        if res > 2**63-1 or res < -2**63:
             raise ValueError("{} is out of the allowed range for type {}".format(res, cls.__name__))
         return res
 
@@ -269,7 +270,8 @@ class Long(int):
 class Int(int):
     def __new__(cls, *args, **kwargs):
         res = int.__new__(cls, *args, **kwargs)
-        if abs(res) > 2**31-1:
+        # [-2147483648, 2147483647]
+        if res > 2**31-1 or res < -2**31:
             raise ValueError("{} is out of the allowed range for type {}".format(res, cls.__name__))
         return res
 
@@ -277,7 +279,8 @@ class Int(int):
 class Short(int):
     def __new__(cls, *args, **kwargs):
         res = int.__new__(cls, *args, **kwargs)
-        if abs(res) > 2**15-1:
+        # [-32768, 32767]
+        if res > 2**15-1 or res < -2**15:
             raise ValueError("{} is out of the allowed range for type {}".format(res, cls.__name__))
         return res
 
@@ -285,7 +288,8 @@ class Short(int):
 class Byte(int):
     def __new__(cls, *args, **kwargs):
         res = int.__new__(cls, *args, **kwargs)
-        if abs(res) > 2**7-1:
+        # [-128,127]
+        if res > 2**7-1 or res < -2**7:
             raise ValueError("{} is out of the allowed range for type {}".format(res, cls.__name__))
         return res
 
