@@ -35,15 +35,15 @@ import hypothesis.strategies
 import random
 import werkzeug.urls
 
-from aas import model
-from aas.adapter.http import WSGIApp, identifier_uri_encode
-from aas.examples.data.example_aas import create_full_example
+from basyx.aas import model
+from basyx.aas.adapter.http import WSGIApp
+from basyx.aas.examples.data.example_aas import create_full_example
 
 from typing import Set
 
 
 def _encode_and_quote(identifier: model.Identifier) -> str:
-    return werkzeug.urls.url_quote(werkzeug.urls.url_quote(identifier_uri_encode(identifier), safe=""), safe="")
+    return werkzeug.urls.url_quote(werkzeug.urls.url_quote(identifier, safe=""), safe="")
 
 
 def _check_transformed(response, case):
@@ -79,9 +79,9 @@ schemathesis.register_string_format("id_short", ID_SHORT_STRATEGY)
 # store identifiers of available AAS and Submodels
 for obj in create_full_example():
     if isinstance(obj, model.AssetAdministrationShell):
-        IDENTIFIER_AAS.add(_encode_and_quote(obj.identification))
+        IDENTIFIER_AAS.add(_encode_and_quote(obj.id))
     if isinstance(obj, model.Submodel):
-        IDENTIFIER_SUBMODEL.add(_encode_and_quote(obj.identification))
+        IDENTIFIER_SUBMODEL.add(_encode_and_quote(obj.id))
 
 # load aas and submodel api specs
 AAS_SCHEMA = schemathesis.from_path(pathlib.Path(__file__).parent / "http-api-oas-aas.yaml",
