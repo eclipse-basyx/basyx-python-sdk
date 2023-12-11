@@ -33,7 +33,7 @@ import pathlib
 import schemathesis
 import hypothesis.strategies
 import random
-import werkzeug.urls
+import werkzeug.urls  # type: ignore
 
 from basyx.aas import model
 from basyx.aas.adapter.http import WSGIApp
