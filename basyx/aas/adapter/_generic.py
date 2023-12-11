@@ -11,7 +11,6 @@ implementation to the respective string and vice versa.
 from typing import Dict, Type
 
 from basyx.aas import model
-import urllib.parse
 
 # XML Namespace definition
 XML_NS_MAP = {"aas": "https://admin-shell.io/aas/3/0"}
@@ -114,18 +113,3 @@ IEC61360_LEVEL_TYPES_INVERSE: Dict[str, model.base.IEC61360LevelType] = \
 
 KEY_TYPES_CLASSES_INVERSE: Dict[model.KeyTypes, Type[model.Referable]] = \
     {v: k for k, v in model.KEY_TYPES_CLASSES.items()}
-
-
-def identifier_uri_encode(id_: model.Identifier) -> str:
-    return IDENTIFIER_TYPES[id_.id_type] + ":" + urllib.parse.quote(id_.id, safe="")
-
-
-def identifier_uri_decode(id_str: str) -> model.Identifier:
-    try:
-        id_type_str, id_ = id_str.split(":", 1)
-    except ValueError as e:
-        raise ValueError(f"Identifier '{id_str}' is not of format 'ID_TYPE:ID'")
-    id_type = IDENTIFIER_TYPES_INVERSE.get(id_type_str)
-    if id_type is None:
-        raise ValueError(f"Identifier Type '{id_type_str}' is invalid")
-    return model.Identifier(urllib.parse.unquote(id_), id_type)
