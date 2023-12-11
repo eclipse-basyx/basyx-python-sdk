@@ -25,10 +25,10 @@ from werkzeug.exceptions import BadRequest, Conflict, NotFound, UnprocessableEnt
 from werkzeug.routing import MapAdapter, Rule, Submount
 from werkzeug.wrappers import Request, Response
 
-from aas import model
+from basyx.aas import model
+from ._generic import XML_NS_MAP
 from .xml import XMLConstructables, read_aas_xml_element, xml_serialization
 from .json import AASToJsonEncoder, StrictAASFromJsonDecoder, StrictStrippedAASFromJsonDecoder
-from ._generic import IDENTIFIER_TYPES, IDENTIFIER_TYPES_INVERSE
 
 from typing import Callable, Dict, Iterator, List, Optional, Type, TypeVar, Union
 
@@ -129,17 +129,17 @@ class XmlResponse(APIResponse):
     def serialize(self, obj: ResponseData, stripped: bool) -> str:
         # TODO: xml serialization doesn't support stripped objects
         if isinstance(obj, Result):
-            response_elem = result_to_xml(obj, nsmap=xml_serialization.NS_MAP)
+            response_elem = result_to_xml(obj, nsmap=XML_NS_MAP)
             etree.cleanup_namespaces(response_elem)
         else:
             if isinstance(obj, list):
-                response_elem = etree.Element("list", nsmap=xml_serialization.NS_MAP)
+                response_elem = etree.Element("list", nsmap=XML_NS_MAP)
                 for obj in obj:
                     response_elem.append(aas_object_to_xml(obj))
                 etree.cleanup_namespaces(response_elem)
             else:
                 # dirty hack to be able to use the namespace prefixes defined in xml_serialization.NS_MAP
-                parent = etree.Element("parent", nsmap=xml_serialization.NS_MAP)
+                parent = etree.Element("parent", nsmap=XML_NS_MAP)
                 response_elem = aas_object_to_xml(obj)
                 parent.append(response_elem)
                 etree.cleanup_namespaces(parent)
@@ -242,8 +242,8 @@ class HTTPApiDecoder:
     type_constructables_map = {
         model.AssetAdministrationShell: XMLConstructables.ASSET_ADMINISTRATION_SHELL,
         model.AssetInformation: XMLConstructables.ASSET_INFORMATION,
-        model.AASReference: XMLConstructables.AAS_REFERENCE,
-        model.IdentifierKeyValuePair: XMLConstructables.IDENTIFIER_KEY_VALUE_PAIR,
+        model.ModelReference: XMLConstructables.MODEL_REFERENCE,
+        model.SpecificAssetId: XMLConstructables.SPECIFIC_ASSET_ID,
         model.Qualifier: XMLConstructables.QUALIFIER,
         model.Submodel: XMLConstructables.SUBMODEL,
         model.SubmodelElement: XMLConstructables.SUBMODEL_ELEMENT
@@ -279,13 +279,13 @@ class HTTPApiDecoder:
             #  that automatically
             constructor: Optional[Callable[..., T]] = None
             args = []
-            if expect_type is model.AASReference:
+            if expect_type is model.ModelReference:
                 constructor = decoder._construct_aas_reference  # type: ignore
                 args.append(model.Submodel)
             elif expect_type is model.AssetInformation:
                 constructor = decoder._construct_asset_information  # type: ignore
-            elif expect_type is model.IdentifierKeyValuePair:
-                constructor = decoder._construct_identifier_key_value_pair  # type: ignore
+            elif expect_type is model.SpecificAssetId:
+                constructor = decoder._construct_specific_asset_id  # type: ignore
 
             if constructor is not None:
                 # construct elements that aren't self-identified
@@ -346,7 +346,7 @@ class Base64UrlJsonConverter(werkzeug.routing.UnicodeConverter):
         super().__init__(url_map)
         self.type: type
         if t == "AASReference":
-            self.type = model.AASReference
+            self.type = model.ModelReference
         else:
             raise ValueError(f"invalid value t={t}")
 
@@ -372,8 +372,7 @@ class IdentifierConverter(werkzeug.routing.UnicodeConverter):
     encoding = "utf-8"
 
     def to_url(self, value: model.Identifier) -> str:
-        return super().to_url(base64.urlsafe_b64encode((IDENTIFIER_TYPES[value.id_type] + ":" + value.id)
-                                                       .encode(self.encoding)))
+        return super().to_url(base64.urlsafe_b64encode(value.encode(self.encoding)))
 
     def to_python(self, value: str) -> model.Identifier:
         value = super().to_python(value)
@@ -383,11 +382,7 @@ class IdentifierConverter(werkzeug.routing.UnicodeConverter):
             raise BadRequest(f"Encoded identifier {value} is invalid base64url!")
         except UnicodeDecodeError:
             raise BadRequest(f"Encoded base64url value is not a valid utf-8 string!")
-        id_type_str, id_ = decoded.split(":", 1)
-        try:
-            return model.Identifier(id_, IDENTIFIER_TYPES_INVERSE[id_type_str])
-        except KeyError:
-            raise BadRequest(f"{id_type_str} is not a valid identifier type!")
+        return decoded
 
 
 class IdShortPathConverter(werkzeug.routing.UnicodeConverter):
@@ -514,7 +509,7 @@ class WSGIApp:
             if isinstance(obj, type_):
                 yield obj
 
-    def _resolve_reference(self, reference: model.AASReference[model.base._RT]) -> model.base._RT:
+    def _resolve_reference(self, reference: model.ModelReference[model.base._RT]) -> model.base._RT:
         try:
             return reference.resolve(self.object_store)
         except (KeyError, TypeError, model.UnexpectedTypeError) as e:
@@ -584,8 +579,8 @@ class WSGIApp:
             aas = filter(lambda shell: shell.id_short == id_short, aas)
         asset_ids = request.args.get("assetIds")
         if asset_ids is not None:
-            kv_pairs = HTTPApiDecoder.json_list(asset_ids, model.IdentifierKeyValuePair, False, False)
-            # TODO: it's currently unclear how to filter with these IdentifierKeyValuePairs
+            spec_asset_ids = HTTPApiDecoder.json_list(asset_ids, model.SpecificAssetId, False, False)
+            # TODO: it's currently unclear how to filter with these SpecificAssetIds
         return response_t(list(aas))
 
     def post_aas(self, request: Request, url_args: Dict, map_adapter: MapAdapter) -> Response:
@@ -594,10 +589,10 @@ class WSGIApp:
         try:
             self.object_store.add(aas)
         except KeyError as e:
-            raise Conflict(f"AssetAdministrationShell with Identifier {aas.identification} already exists!") from e
+            raise Conflict(f"AssetAdministrationShell with Identifier {aas.id} already exists!") from e
         aas.commit()
         created_resource_url = map_adapter.build(self.get_aas, {
-            "aas_id": aas.identification
+            "aas_id": aas.id
         }, force_external=True)
         return response_t(aas, status=201, headers={"Location": created_resource_url})
 
@@ -649,7 +644,7 @@ class WSGIApp:
         aas_identifier = url_args["aas_id"]
         aas = self._get_obj_ts(aas_identifier, model.AssetAdministrationShell)
         aas.update()
-        sm_ref = HTTPApiDecoder.request_body(request, model.AASReference, False)
+        sm_ref = HTTPApiDecoder.request_body(request, model.ModelReference, False)
         if sm_ref in aas.submodel:
             raise Conflict(f"{sm_ref!r} already exists!")
         aas.submodel.add(sm_ref)
@@ -684,10 +679,10 @@ class WSGIApp:
         try:
             self.object_store.add(submodel)
         except KeyError as e:
-            raise Conflict(f"Submodel with Identifier {submodel.identification} already exists!") from e
+            raise Conflict(f"Submodel with Identifier {submodel.id} already exists!") from e
         submodel.commit()
         created_resource_url = map_adapter.build(self.get_submodel, {
-            "submodel_id": submodel.identification
+            "submodel_id": submodel.id
         }, force_external=True)
         return response_t(submodel, status=201, headers={"Location": created_resource_url})
 
@@ -740,15 +735,15 @@ class WSGIApp:
             raise BadRequest(f"{parent!r} is not a namespace, can't add child submodel element!")
         # TODO: remove the following type: ignore comment when mypy supports abstract types for Type[T]
         # see https://github.com/python/mypy/issues/5374
-        new_submodel_element = HTTPApiDecoder.request_body(request, model.SubmodelElement,
-                                                           is_stripped_request(request))  # type: ignore
+        new_submodel_element = HTTPApiDecoder.request_body(request, model.SubmodelElement,  # type: ignore
+                                                           is_stripped_request(request))
         try:
             parent.add_referable(new_submodel_element)
         except KeyError:
             raise Conflict(f"SubmodelElement with idShort {new_submodel_element.id_short} already exists "
                            f"within {parent}!")
         created_resource_url = map_adapter.build(self.get_submodel_submodel_elements_id_short_path, {
-            "submodel_id": submodel.identification,
+            "submodel_id": submodel.id,
             "id_shorts": id_short_path + [new_submodel_element.id_short]
         }, force_external=True)
         return response_t(new_submodel_element, status=201, headers={"Location": created_resource_url})
@@ -762,8 +757,8 @@ class WSGIApp:
         submodel_element = self._get_nested_submodel_element(submodel, url_args["id_shorts"])
         # TODO: remove the following type: ignore comment when mypy supports abstract types for Type[T]
         # see https://github.com/python/mypy/issues/5374
-        new_submodel_element = HTTPApiDecoder.request_body(request, model.SubmodelElement,
-                                                           is_stripped_request(request))  # type: ignore
+        new_submodel_element = HTTPApiDecoder.request_body(request, model.SubmodelElement,  # type: ignore
+                                                           is_stripped_request(request))
         submodel_element.update_from(new_submodel_element)
         submodel_element.commit()
         return response_t()
@@ -869,5 +864,5 @@ class WSGIApp:
 if __name__ == "__main__":
     from werkzeug.serving import run_simple
     # use example_aas_missing_attributes, because the AAS from example_aas has no views
-    from aas.examples.data.example_aas import create_full_example
+    from basyx.aas.examples.data.example_aas import create_full_example
     run_simple("localhost", 8080, WSGIApp(create_full_example()), use_debugger=True, use_reloader=True)
