@@ -275,7 +275,7 @@ class HTTPApiDecoder:
                 raise UnprocessableEntity(f"Expected a single object of type {expect_type.__name__}, got {parsed!r}!")
             # TODO: the following is ugly, but necessary because references aren't self-identified objects
             #  in the json schema
-            # TODO: json deserialization will always create an AASReference[Submodel], xml deserialization determines
+            # TODO: json deserialization will always create an ModelReference[Submodel], xml deserialization determines
             #  that automatically
             constructor: Optional[Callable[..., T]] = None
             args = []
@@ -345,7 +345,7 @@ class Base64UrlJsonConverter(werkzeug.routing.UnicodeConverter):
     def __init__(self, url_map, t: str):
         super().__init__(url_map)
         self.type: type
-        if t == "AASReference":
+        if t == "ModelReference":
             self.type = model.ModelReference
         else:
             raise ValueError(f"invalid value t={t}")
@@ -430,7 +430,7 @@ class WSGIApp:
                             Submount("/submodels", [
                                 Rule("/", methods=["GET"], endpoint=self.get_aas_submodel_refs),
                                 Rule("/", methods=["POST"], endpoint=self.post_aas_submodel_refs),
-                                Rule("/<base64url_json(t=AASReference):submodel_ref>/", methods=["DELETE"],
+                                Rule("/<base64url_json(t=ModelReference):submodel_ref>/", methods=["DELETE"],
                                      endpoint=self.delete_aas_submodel_refs_specific)
                             ])
                         ])
