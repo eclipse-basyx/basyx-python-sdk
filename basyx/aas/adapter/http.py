@@ -863,6 +863,5 @@ class WSGIApp:
 
 if __name__ == "__main__":
     from werkzeug.serving import run_simple  # type: ignore
-    # use example_aas_missing_attributes, because the AAS from example_aas has no views
     from basyx.aas.examples.data.example_aas import create_full_example
     run_simple("localhost", 8080, WSGIApp(create_full_example()), use_debugger=True, use_reloader=True)
