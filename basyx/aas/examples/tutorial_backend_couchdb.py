@@ -81,9 +81,9 @@ object_store.add(example_submodel1)
 object_store.add(example_submodel2)
 
 
-###################################################################
+####################################################################
 # Step 3: Updating Objects from the CouchDB and Committing Changes #
-###################################################################
+####################################################################
 
 # Since the CouchDBObjectStore has set the `source` attribute of our Submodel objects, we can now use update() and
 # commit() to synchronize changes to these objects with the database. The `source` indicates (via its URI scheme) that
