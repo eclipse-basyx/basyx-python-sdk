@@ -22,9 +22,9 @@ from basyx.aas.adapter import aasx
 # step 3: Reading AAS objects and auxiliary files from an AASX package
 
 
-#########################################################################################
+########################################################################################
 # Step 1: Setting up a SupplementaryFileContainer and AAS & submodel with File objects #
-#########################################################################################
+########################################################################################
 
 # Let's first create a basic Asset Administration Shell with a simple submodel.
 # See `tutorial_create_simple_aas.py` for more details.
