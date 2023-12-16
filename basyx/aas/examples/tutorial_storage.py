@@ -97,7 +97,7 @@ submodels = [reference.resolve(obj_store)
              for reference in aas.submodel]
 
 # The first (and only) element of this list should be our example submodel:
-assert submodel is tmp_submodel
+assert submodel is submodels[0]
 
 # Now, let's manually create a reference to the Property within the submodel. The reference uses two keys, the first one
 # identifying the submodel by its id, the second one resolving to the Property within the submodel by its
