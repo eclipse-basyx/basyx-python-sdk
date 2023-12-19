@@ -97,7 +97,7 @@ def _element_pretty_identifier(element: etree.Element) -> str:
     Returns a pretty element identifier for a given XML element.
 
     If the prefix is known, the namespace in the element tag is replaced by the prefix.
-    If additionally also the sourceline is known, is is added as a suffix to name.
+    If additionally also the sourceline is known, it is added as a suffix to name.
     For example, instead of "{http://www.admin-shell.io/aas/2/0}assetAdministrationShell" this function would return
     "aas:assetAdministrationShell on line $line", if both, prefix and sourceline, are known.
 
@@ -106,7 +106,11 @@ def _element_pretty_identifier(element: etree.Element) -> str:
     """
     identifier = element.tag
     if element.prefix is not None:
-        identifier = element.prefix + ":" + element.tag.split("}")[1]
+        # Only replace the namespace by the prefix if it matches our known namespaces,
+        # so the replacement by the prefix doesn't mask errors such as incorrect namespaces.
+        namespace, tag = element.tag.split("}", 1)
+        if namespace[1:] in NS_MAP.values():
+            identifier = element.prefix + ":" + tag
     if element.sourceline is not None:
         identifier += f" on line {element.sourceline}"
     return identifier
