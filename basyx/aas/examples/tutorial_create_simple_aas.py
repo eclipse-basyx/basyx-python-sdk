@@ -2,20 +2,20 @@
 # This work is licensed under a Creative Commons CCZero 1.0 Universal License.
 # See http://creativecommons.org/publicdomain/zero/1.0/ for more information.
 """
-Tutorial for the creation of an simple Asset Administration Shell, containing an AssetInformation object and a Submodel
+Tutorial for the creation of a simple Asset Administration Shell, containing an AssetInformation object and a Submodel
 reference
 """
 
 # Import all Eclipse BaSyx Python SDK classes from model package
 from basyx.aas import model
 
-# In this tutorial, you'll get a step by step guide on how to create an Asset Administration Shell (AAS) and all
+# In this tutorial, you'll get a step-by-step guide on how to create an Asset Administration Shell (AAS) and all
 # required objects within. First, you need an AssetInformation object for which you want to create an AAS. After that,
 # an Asset Administration Shell can be created. Then, it's possible to add Submodels to the AAS. The Submodels can
 # contain SubmodelElements.
 #
-# Step by Step Guide:
-# Step 1: create a simple Asset Administration Shell, containing an AssetInformation object
+# Step-by-Step Guide:
+# Step 1: create a simple Asset Administration Shell, containing AssetInformation object
 # Step 2: create a simple Submodel
 # Step 3: create a simple Property and add it to the Submodel
 
@@ -91,7 +91,7 @@ submodel.submodel_element.add(property_)
 
 # =====================================================================
 # ALTERNATIVE: step 2 and 3 can also be combined in a single statement:
-# Again, we pass the Property to the Submodel's constructor instead of adding it afterwards.
+# Again, we pass the Property to the Submodel's constructor instead of adding it afterward.
 submodel = model.Submodel(
     id_='https://acplt.org/Simple_Submodel',
     submodel_element={

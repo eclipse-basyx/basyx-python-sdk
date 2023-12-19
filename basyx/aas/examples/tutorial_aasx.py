@@ -22,11 +22,11 @@ from basyx.aas.adapter import aasx
 # step 3: Reading AAS objects and auxiliary files from an AASX package
 
 
-#########################################################################################
-# Step 1: Setting up an SupplementaryFileContainer and AAS & submodel with File objects #
-#########################################################################################
+########################################################################################
+# Step 1: Setting up a SupplementaryFileContainer and AAS & submodel with File objects #
+########################################################################################
 
-# Let's first create a basic Asset Adminstration Shell with a simple submodel.
+# Let's first create a basic Asset Administration Shell with a simple submodel.
 # See `tutorial_create_simple_aas.py` for more details.
 
 submodel = model.Submodel(
@@ -52,8 +52,8 @@ unrelated_submodel = model.Submodel(
 object_store = model.DictObjectStore([submodel, aas, unrelated_submodel])
 
 
-# For holding auxiliary files, which will eventually be added to an AASX package, we need an SupplementaryFileContainer.
-# The `DictSupplementaryFileContainer` is a simple SupplementaryFileContainer, that stores the files' contents in simple
+# For holding auxiliary files, which will eventually be added to an AASX package, we need a SupplementaryFileContainer.
+# The `DictSupplementaryFileContainer` is a simple SupplementaryFileContainer that stores the files' contents in simple
 # bytes objects in memory.
 file_store = aasx.DictSupplementaryFileContainer()
 
@@ -62,7 +62,7 @@ file_store = aasx.DictSupplementaryFileContainer()
 # For this purpose, we need to specify the file's name in the SupplementaryFileContainer. This name is used to reference
 # the file in the container and will later be used as the filename in the AASX package file. Thus, this file must begin
 # with a slash and should begin with `/aasx/`. Here, we use `/aasx/suppl/MyExampleFile.pdf`. The
-# SupplementaryFileContainer's add_file() method will ensure uniqueness of the name by adding a suffix if a equally
+# SupplementaryFileContainer's add_file() method will ensure uniqueness of the name by adding a suffix if an equally
 # named file with different contents exists. The final name is returned.
 #
 # In addition, we need to specify the MIME type of the file, which is later used in the metadata of the AASX package.
@@ -99,7 +99,7 @@ with aasx.AASXWriter("MyAASXPackage.aasx") as writer:
     # objects and fetch the referenced auxiliary files from the SupplementaryFileContainer.
     # In order to add more than one AAS to the package, we can simply add more Identifiers to the `aas_ids` list.
     #
-    # ATTENTION: As of Version 3.0 RC01 of Details of the Asset Administration Shell, it is not longer valid to add more
+    # ATTENTION: As of Version 3.0 RC01 of Details of the Asset Administration Shell, it is no longer valid to add more
     # than one "aas-spec" part (JSON/XML part with AAS objects) to an AASX package. Thus, `write_aas` MUST
     # only be called once per AASX package!
     writer.write_aas(aas_ids=['https://acplt.org/Simple_AAS'],
@@ -110,7 +110,7 @@ with aasx.AASXWriter("MyAASXPackage.aasx") as writer:
     # only an AAS and referenced objects) in the AASX package manually. `write_aas_objects()` will also take care of
     # adding referenced auxiliary files by scanning all submodel objects for contained `File` objects.
     #
-    # ATTENTION: As of Version 3.0 RC01 of Details of the Asset Administration Shell, it is not longer valid to add more
+    # ATTENTION: As of Version 3.0 RC01 of Details of the Asset Administration Shell, it is no longer valid to add more
     # than one "aas-spec" part (JSON/XML part with AAS objects) to an AASX package. Thus, `write_all_aas_objects` SHALL
     # only be used as an alternative to `write_aas` and SHALL only be called once!
     objects_to_be_written: model.DictObjectStore[model.Identifiable] = model.DictObjectStore([unrelated_submodel])
@@ -125,7 +125,7 @@ with aasx.AASXWriter("MyAASXPackage.aasx") as writer:
     writer.write_core_properties(meta_data)
 
 # Closing the AASXWriter will write some required parts with relationships and MIME types to the AASX package file and
-# close the package file afterwards. Make sure, to always call `AASXWriter.close()` or use the AASXWriter in a `with`
+# close the package file afterward. Make sure, to always call `AASXWriter.close()` or use the AASXWriter in a `with`
 # statement (as a context manager) as shown above.
 
 
@@ -145,7 +145,7 @@ with aasx.AASXReader("MyAASXPackage.aasx") as reader:
     reader.read_into(object_store=new_object_store,
                      file_store=new_file_store)
 
-    # We can also read the meta data
+    # We can also read the metadata
     new_meta_data = reader.get_core_properties()
 
     # We could also read the thumbnail image, using `reader.get_thumbnail()`

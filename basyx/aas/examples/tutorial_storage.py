@@ -12,7 +12,7 @@ objects by id and resolving references.
 # objects, which can be used to easily get the Submodel objects, which are referenced by the
 # `AssetAdministrationShell.submodel` set, etc.
 #
-# Step by Step Guide:
+# Step-by-Step Guide:
 # Step 1: creating AssetInformation, Submodel and Asset Administration Shell objects
 # Step 2: storing the data in an ObjectStore for easier handling
 # Step 3: retrieving objects from the store by their identifier
@@ -64,8 +64,8 @@ aas = AssetAdministrationShell(
 #
 # In this tutorial, we use a `DictObjectStore`, which is a simple in-memory store: It just keeps track of the Python
 # objects using a dict.
-# This may not be a suitable solution, if you need to manage large numbers of objects or objects must kept in a
-# persistent memory (i.e. on hard disk). In this case, you may chose the `CouchDBObjectStore` from
+# This may not be a suitable solution, if you need to manage large numbers of objects or objects must be kept in a
+# persistent memory (i.e. on hard disk). In this case, you may choose the `CouchDBObjectStore` from
 # `aas.backends.couchdb` to use a CouchDB database server as persistent storage. Both ObjectStore implementations
 # provide the same interface. In addition, the CouchDBObjectStores allows synchronizing the local object with the
 # database via a Backend and the update()/commit() mechanism. See the `tutorial_backend_couchdb.py` for more
