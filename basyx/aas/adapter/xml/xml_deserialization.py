@@ -49,10 +49,12 @@ import base64
 import enum
 
 from typing import Any, Callable, Dict, IO, Iterable, Optional, Set, Tuple, Type, TypeVar
-from .xml_serialization import NS_AAS, NS_ABAC, NS_IEC
+from .xml_serialization import NS_MAP, NS_AAS, NS_ABAC, NS_IEC
 from .._generic import MODELING_KIND_INVERSE, ASSET_KIND_INVERSE, KEY_ELEMENTS_INVERSE, KEY_TYPES_INVERSE, \
     IDENTIFIER_TYPES_INVERSE, ENTITY_TYPES_INVERSE, IEC61360_DATA_TYPES_INVERSE, IEC61360_LEVEL_TYPES_INVERSE, \
     KEY_ELEMENTS_CLASSES_INVERSE
+
+REQUIRED_NAMESPACES: Set[str] = {NS_MAP["aas"]}
 
 logger = logging.getLogger(__name__)
 
@@ -1143,12 +1145,21 @@ def _parse_xml_document(file: IO, failsafe: bool = True, **parser_kwargs: Any) -
     parser = etree.XMLParser(remove_blank_text=True, remove_comments=True, **parser_kwargs)
 
     try:
-        return etree.parse(file, parser).getroot()
+        root = etree.parse(file, parser).getroot()
     except etree.XMLSyntaxError as e:
         if failsafe:
             logger.error(e)
             return None
         raise e
+
+    missing_namespaces: Set[str] = REQUIRED_NAMESPACES - set(root.nsmap.values())
+    if missing_namespaces:
+        error_message = f"The following required namespaces are not declared: {' | '.join(missing_namespaces)}" \
+                        + " - Is the input document of an older version?"
+        if not failsafe:
+            raise KeyError(error_message)
+        logger.error(error_message)
+    return root
 
 
 def _select_decoder(failsafe: bool, stripped: bool, decoder: Optional[Type[AASFromXmlDecoder]]) \
