@@ -119,10 +119,10 @@ class AASXReader:
 
         This function does the main job of reading the AASX file's contents. It traverses the relationships within the
         package to find AAS JSON or XML parts, parses them and adds the contained AAS objects into the provided
-        `object_store`. While doing so, it searches all parsed :class:`Submodels <aas.model.submodel.Submodel>` for
-        :class:`~aas.model.submodel.File` objects to extract the supplementary
+        `object_store`. While doing so, it searches all parsed :class:`Submodels <basyx.aas.model.submodel.SubmodelElement>` for
+        :class:`~basyx.aas.model.submodel.File` objects to extract the supplementary
         files. The referenced supplementary files are added to the given `file_store` and the
-        :class:`~aas.model.submodel.File` objects' values are updated with the absolute name of the supplementary file
+        :class:`~basyx.aas.model.submodel.File` objects' values are updated with the absolute name of the supplementary file
         to allow for robust resolution the file within the
         `file_store` later.
 
@@ -131,10 +131,10 @@ class AASXReader:
         :param file_store: A :class:`SupplementaryFileContainer <.AbstractSupplementaryFileContainer>` to add the
                            embedded supplementary files to
         :param override_existing: If `True`, existing objects in the object store are overridden with objects from the
-            AASX that have the same :class:`~aas.model.base.Identifier`. Default behavior is to skip those objects from
+            AASX that have the same :class:`~basyx.aas.model.base.Identifier`. Default behavior is to skip those objects from
             the AASX.
-        :return: A set of the :class:`Identifiers <aas.model.base.Identifier>` of all
-                 :class:`~aas.model.base.Identifiable` objects parsed from the AASX file
+        :return: A set of the :class:`Identifiers <basyx.aas.model.base.Identifier>` of all
+                 :class:`~basyx.aas.model.base.Identifiable` objects parsed from the AASX file
         """
         # Find AASX-Origin part
         core_rels = self.reader.get_related_parts_by_type()
@@ -323,18 +323,18 @@ class AASXWriter:
                   write_json: bool = False) -> None:
         """
         Convenience method to write one or more
-        :class:`AssetAdministrationShells <aas.model.aas.AssetAdministrationShell>` with all included and referenced
+        :class:`AssetAdministrationShells <basyx.aas.model.aas.AssetAdministrationShell>` with all included and referenced
         objects to the AASX package according to the part name conventions from DotAAS.
 
-        This method takes the AASs' :class:`Identifiers <aas.model.base.Identifier>` (as `aas_ids`) to retrieve the
+        This method takes the AASs' :class:`Identifiers <basyx.aas.model.base.Identifier>` (as `aas_ids`) to retrieve the
         AASs from the given object_store.
-        :class:`References <aas.model.base.Reference>` to :class:`Submodels <aas.model.submodel.Submodel>` and
-        :class:`ConceptDescriptions <aas.model.concept.ConceptDescription>` (via semanticId attributes) are also
+        :class:`References <basyx.aas.model.base.Reference>` to :class:`Submodels <basyx.aas.model.submodel.SubmodelElement>` and
+        :class:`ConceptDescriptions <basyx.aas.model.concept.ConceptDescription>` (via semanticId attributes) are also
         resolved using the
         `object_store`. All of these objects are written to an aas-spec part `/aasx/data.xml` or `/aasx/data.json` in
         the AASX package, compliant to the convention presented in "Details of the Asset Administration Shell".
-        Supplementary files which are referenced by a :class:`~aas.model.submodel.File` object in any of the
-        :class:`Submodels <aas.model.submodel.Submodel>` are also added to the AASX
+        Supplementary files which are referenced by a :class:`~basyx.aas.model.submodel.File` object in any of the
+        :class:`Submodels <basyx.aas.model.submodel.SubmodelElement>` are also added to the AASX
         package.
 
         This method uses `write_all_aas_objects()` to write the AASX part.
@@ -348,21 +348,21 @@ class AASXWriter:
             To write multiple Asset Administration Shells to a single AASX package file, call this method once, passing
             a list of AAS Identifiers to the `aas_ids` parameter.
 
-        :param aas_ids: :class:`~aas.model.base.Identifier` or Iterable of
-            :class:`Identifiers <aas.model.base.Identifier>` of the AAS(s) to be written to the AASX file
+        :param aas_ids: :class:`~basyx.aas.model.base.Identifier` or Iterable of
+            :class:`Identifiers <basyx.aas.model.base.Identifier>` of the AAS(s) to be written to the AASX file
         :param object_store: :class:`ObjectStore <aas.model.provider.AbstractObjectStore>` to retrieve the
-            :class:`~aas.model.base.Identifiable` AAS objects (:class:`~aas.model.aas.AssetAdministrationShell`,
-            :class:`~aas.model.concept.ConceptDescription` and :class:`~aas.model.submodel.Submodel`) from
+            :class:`~basyx.aas.model.base.Identifiable` AAS objects (:class:`~basyx.aas.model.aas.AssetAdministrationShell`,
+            :class:`~basyx.aas.model.concept.ConceptDescription` and :class:`~basyx.aas.model.submodel.SubmodelElement`) from
         :param file_store: :class:`SupplementaryFileContainer <~.AbstractSupplementaryFileContainer>` to retrieve
-            supplementary files from, which are referenced by :class:`~aas.model.submodel.File` objects
-        :param write_json:  If `True`, JSON parts are created for the AAS and each :class:`~aas.model.submodel.Submodel`
+            supplementary files from, which are referenced by :class:`~basyx.aas.model.submodel.File` objects
+        :param write_json:  If `True`, JSON parts are created for the AAS and each :class:`~basyx.aas.model.submodel.SubmodelElement`
             in the AASX package file instead of XML parts. Defaults to `False`.
         :raises KeyError: If one of the AAS could not be retrieved from the object store (unresolvable
-            :class:`Submodels <aas.model.submodel.Submodel>` and
-            :class:`ConceptDescriptions <aas.model.concept.ConceptDescription>` are skipped, logging a warning/info
+            :class:`Submodels <basyx.aas.model.submodel.SubmodelElement>` and
+            :class:`ConceptDescriptions <basyx.aas.model.concept.ConceptDescription>` are skipped, logging a warning/info
             message)
         :raises TypeError: If one of the given AAS ids does not resolve to an AAS (but another
-            :class:`~aas.model.base.Identifiable` object)
+            :class:`~basyx.aas.model.base.Identifiable` object)
         """
         if isinstance(aas_ids, model.Identifier):
             aas_ids = (aas_ids,)
@@ -428,10 +428,10 @@ class AASXWriter:
         """
         A thin wrapper around :meth:`write_all_aas_objects` to ensure downwards compatibility
 
-        This method takes the AAS's :class:`~aas.model.base.Identifier` (as `aas_id`) to retrieve it from the given
+        This method takes the AAS's :class:`~basyx.aas.model.base.Identifier` (as `aas_id`) to retrieve it from the given
         object_store. If the list
         of written objects includes :class:`aas.model.submodel.Submodel` objects, Supplementary files which are
-        referenced by :class:`~aas.model.submodel.File` objects within
+        referenced by :class:`~basyx.aas.model.submodel.File` objects within
         those submodels, are also added to the AASX package.
 
         .. attention::
@@ -442,12 +442,12 @@ class AASXWriter:
         :param part_name: Name of the Part within the AASX package to write the files to. Must be a valid ECMA376-2
             part name and unique within the package. The extension of the part should match the data format (i.e.
             '.json' if `write_json` else '.xml').
-        :param object_ids: A list of :class:`Identifiers <aas.model.base.Identifier>` of the objects to be written to
-            the AASX package. Only these :class:`~aas.model.base.Identifiable` objects (and included
-            :class:`~aas.model.base.Referable` objects) are written to the package.
-        :param object_store: The objects store to retrieve the :class:`~aas.model.base.Identifiable` objects from
+        :param object_ids: A list of :class:`Identifiers <basyx.aas.model.base.Identifier>` of the objects to be written to
+            the AASX package. Only these :class:`~basyx.aas.model.base.Identifiable` objects (and included
+            :class:`~basyx.aas.model.base.Referable` objects) are written to the package.
+        :param object_store: The objects store to retrieve the :class:`~basyx.aas.model.base.Identifiable` objects from
         :param file_store: The :class:`SupplementaryFileContainer <aas.adapter.aasx.AbstractSupplementaryFileContainer>`
-            to retrieve supplementary files from (if there are any :class:`~aas.model.submodel.File`
+            to retrieve supplementary files from (if there are any :class:`~basyx.aas.model.submodel.File`
             objects within the written objects.
         :param write_json: If `True`, the part is written as a JSON file instead of an XML file. Defaults to `False`.
         :param split_part: If `True`, no aas-spec relationship is added from the aasx-origin to this part. You must make
@@ -486,7 +486,7 @@ class AASXWriter:
         This method takes an :class:`ObjectStore <aas.model.provider.AbstractObjectStore>` and writes all contained
         objects into an "aas_env" part in the AASX package. If
         the ObjectStore includes :class:`~aas.model.submodel.Submodel` objects, supplementary files which are
-        referenced by :class:`~aas.model.submodel.File` objects
+        referenced by :class:`~basyx.aas.model.submodel.File` objects
         within those Submodels, are fetched from the `file_store` and added to the AASX package.
 
         .. attention::
@@ -712,7 +712,7 @@ class AbstractSupplementaryFileContainer(metaclass=abc.ABCMeta):
 
     Supplementary files may be PDF files or other binary or textual files, referenced in a File object of an AAS by
     their name. They are used to provide associated documents without embedding their contents (as
-    :class:`~aas.model.submodel.Blob` object) in the AAS.
+    :class:`~basyx.aas.model.submodel.Blob` object) in the AAS.
 
     A SupplementaryFileContainer keeps track of the name and content_type (MIME type) for each file. Additionally it
     allows to resolve name conflicts by comparing the files' contents and providing an alternative name for a dissimilar

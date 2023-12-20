@@ -9,13 +9,13 @@ This module provides a registry and and abstract base class for Backends. A :cla
 synchronize Referable AAS objects or their included data with external data sources such as a remote API or a local
 source for real time data. Each backend provides access to one kind of data source.
 
-The data source of an individual object is specified as an URI in its :attr:`~aas.model.base.Referable.source`
+The data source of an individual object is specified as an URI in its :attr:`~basyx.aas.model.base.Referable.source`
 attribute. The schema part of that URI defines the type of data source and, in consequence, the backend class to use
 for synchronizing this object.
 
 Custom backends for additional types of data sources can be implemented by subclassing the `Backend` class and
 implementing the :meth:`~.Backend.commit_object` and :meth:`~.Backend.update_object` class methods. These are used
-internally by the objects' :meth:`~aas.model.base.Referable.update` and :meth:`~aas.model.base.Referable.commit`
+internally by the objects' :meth:`~basyx.aas.model.base.Referable.update` and :meth:`~basyx.aas.model.base.Referable.commit`
 methods when the backend is applicable for the relevant source URI. Then, the Backend class
 needs to be registered to handle update/commit requests for a specific URI schema, using
 :meth:`~aas.backend.backends.register_backend`.
@@ -35,7 +35,7 @@ class Backend(metaclass=abc.ABCMeta):
     Each Backend class is typically capable of synchronizing (updating/committing) objects with a type of external data
     source, identified by one or more source URI schemas. Custom backends for custom source URI schemas should inherit
     from this class and be registered via :meth:`~aas.backend.backends.register_backend`. to be used by Referable
-    object's :meth:`~aas.model.base.Referable.update` and :meth:`~aas.model.base.Referable.commit` methods when
+    object's :meth:`~basyx.aas.model.base.Referable.update` and :meth:`~basyx.aas.model.base.Referable.commit` methods when
     required.
     """
 
@@ -49,7 +49,7 @@ class Backend(metaclass=abc.ABCMeta):
         Function (class method) to be called when an object shall be committed (local changes pushed to the external
         data source) via this backend implementation.
 
-        It is automatically called by the :meth:`~aas.model.base.Referable.commit` implementation, when the source
+        It is automatically called by the :meth:`~basyx.aas.model.base.Referable.commit` implementation, when the source
         URI of the object or the source URI one of its ancestors in the AAS object containment hierarchy include an
         URI schema for which this
         backend has been registered. Both of the objects are passed to this function: the one which shall be committed
@@ -86,7 +86,7 @@ class Backend(metaclass=abc.ABCMeta):
         Function (class method) to be called when an object shall be updated (local object updated with changes from the
         external data source) via this backend implementation.
 
-        It is automatically called by the :meth:`~aas.model.base.Referable.update` implementation, when the source URI
+        It is automatically called by the :meth:`~basyx.aas.model.base.Referable.update` implementation, when the source URI
         of the object or
         the source URI one of its ancestors in the AAS object containment hierarchy include an URI schema for which this
         backend has been registered. Both of the objects are passed to this function: the one which shall be update

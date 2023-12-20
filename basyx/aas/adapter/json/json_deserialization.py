@@ -21,7 +21,7 @@ Additionally, there's the :meth:`~aas.adapter.json.json_deserialization.read_aas
 complete AAS JSON file, reads its contents and stores the objects in the provided
 :class:`~aas.model.provider.AbstractObjectStore`. :meth:`~aas.adapter.json.json_deserialization.read_aas_json_file` is
 a wrapper for this function. Instead of storing the objects in a given :class:`~aas.model.provider.AbstractObjectStore`,
-it returns a :class:`~aas.model.provider.DictObjectStore` containing parsed objects.
+it returns a :class:`~basyx.aas.model.provider.DictObjectStore` containing parsed objects.
 
 The deserialization is performed in a bottom-up approach: The `object_hook()` method gets called for every parsed JSON
 object (as dict) and checks for existence of the `modelType` attribute. If it is present, the `AAS_CLASS_PARSERS` dict
@@ -367,7 +367,7 @@ class AASFromJsonDecoder(json.JSONDecoder):
     def _construct_operation_variable(cls, dct: Dict[str, object]) -> model.SubmodelElement:
         """
         Since we don't implement `OperationVariable`, this constructor discards the wrapping `OperationVariable` object
-        and just returns the contained :class:`~aas.model.submodel.SubmodelElement`.
+        and just returns the contained :class:`~basyx.aas.model.submodel.SubmodelElement`.
         """
         # TODO: remove the following type: ignore comments when mypy supports abstract types for Type[T]
         # see https://github.com/python/mypy/issues/5374
@@ -814,7 +814,7 @@ def read_aas_json_file_into(object_store: model.AbstractObjectStore, file: IO, r
                      See https://git.rwth-aachen.de/acplt/pyi40aas/-/issues/91
                      This parameter is ignored if a decoder class is specified.
     :param decoder: The decoder class used to decode the JSON objects
-    :return: A set of :class:`Identifiers <aas.model.base.Identifier>` that were added to object_store
+    :return: A set of :class:`Identifiers <basyx.aas.model.base.Identifier>` that were added to object_store
     """
     ret: Set[model.Identifier] = set()
     decoder_ = _select_decoder(failsafe, stripped, decoder)
@@ -867,12 +867,12 @@ def read_aas_json_file_into(object_store: model.AbstractObjectStore, file: IO, r
 def read_aas_json_file(file: IO, **kwargs) -> model.DictObjectStore[model.Identifiable]:
     """
     A wrapper of :meth:`~aas.adapter.json.json_deserialization.read_aas_json_file_into`, that reads all objects in an
-    empty :class:`~aas.model.provider.DictObjectStore`. This function supports the same keyword arguments as
+    empty :class:`~basyx.aas.model.provider.DictObjectStore`. This function supports the same keyword arguments as
     :meth:`~aas.adapter.json.json_deserialization.read_aas_json_file_into`.
 
     :param file: A filename or file-like object to read the JSON-serialized data from
     :param kwargs: Keyword arguments passed to :meth:`~aas.adapter.json.json_deserialization.read_aas_json_file_into`
-    :return: A :class:`~aas.model.provider.DictObjectStore` containing all AAS objects from the JSON file
+    :return: A :class:`~basyx.aas.model.provider.DictObjectStore` containing all AAS objects from the JSON file
     """
     object_store: model.DictObjectStore[model.Identifiable] = model.DictObjectStore()
     read_aas_json_file_into(object_store, file, **kwargs)

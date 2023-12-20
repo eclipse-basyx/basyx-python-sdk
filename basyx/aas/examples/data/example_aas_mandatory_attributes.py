@@ -5,10 +5,10 @@
 #
 # SPDX-License-Identifier: MIT
 """
-Module for the creation of an :class:`ObjectStore <aas.model.provider.DictObjectStore>` with an example
-:class:`~aas.model.aas.AssetAdministrationShell` and example :class:`Submodels <aas.model.submodel.Submodel>`
+Module for the creation of an :class:`ObjectStore <basyx.aas.model.provider.DictObjectStore>` with an example
+:class:`~basyx.aas.model.aas.AssetAdministrationShell` and example :class:`Submodels <basyx.aas.model.submodel.SubmodelElement>`
 and a :class:`~aas.model.concept.ConceptDictionary` containing an
-example :class:`~aas.model.concept.ConceptDescription`. All objects only contain mandatory
+example :class:`~basyx.aas.model.concept.ConceptDescription`. All objects only contain mandatory
 attributes.
 
 To get this object store use the function
@@ -25,11 +25,11 @@ logger = logging.getLogger(__name__)
 
 def create_full_example() -> model.DictObjectStore:
     """
-    Creates an :class:`~.aas.model.provider.DictObjectStore` which is filled with an example
-    :class:`~aas.model.submodel.Submodel`, :class:`~aas.model.concept.ConceptDescription`
-    and :class:`~aas.model.aas.AssetAdministrationShell` using the functions of this module
+    Creates an :class:`~.basyx.aas.model.provider.DictObjectStore` which is filled with an example
+    :class:`~basyx.aas.model.submodel.SubmodelElement`, :class:`~basyx.aas.model.concept.ConceptDescription`
+    and :class:`~basyx.aas.model.aas.AssetAdministrationShell` using the functions of this module
 
-    :return: :class:`~aas.model.provider.DictObjectStore`
+    :return: :class:`~basyx.aas.model.provider.DictObjectStore`
     """
     obj_store: model.DictObjectStore[model.Identifiable] = model.DictObjectStore()
     obj_store.add(create_example_submodel())
@@ -42,8 +42,8 @@ def create_full_example() -> model.DictObjectStore:
 
 def create_example_submodel() -> model.Submodel:
     """
-    Creates an example :class:`~aas.model.submodel.Submodel` containing all kind of
-    :class:`~aas.model.submodel.SubmodelElement` objects where only mandatory attributes are set
+    Creates an example :class:`~basyx.aas.model.submodel.SubmodelElement` containing all kind of
+    :class:`~basyx.aas.model.submodel.SubmodelElement` objects where only mandatory attributes are set
 
     :return: example submodel
     """
@@ -150,7 +150,7 @@ def create_example_submodel() -> model.Submodel:
 
 def create_example_empty_submodel() -> model.Submodel:
     """
-    Creates an example empty :class:`~aas.model.submodel.Submodel` where only the id attribute is set
+    Creates an example empty :class:`~basyx.aas.model.submodel.SubmodelElement` where only the id attribute is set
 
     :return: example submodel
     """
@@ -160,7 +160,7 @@ def create_example_empty_submodel() -> model.Submodel:
 
 def create_example_concept_description() -> model.ConceptDescription:
     """
-    Creates an example :class:`~aas.model.concept.ConceptDescription` where only the id attribute is set
+    Creates an example :class:`~basyx.aas.model.concept.ConceptDescription` where only the id attribute is set
 
     :return: example concept description
     """
@@ -172,8 +172,8 @@ def create_example_concept_description() -> model.ConceptDescription:
 def create_example_asset_administration_shell() -> \
         model.AssetAdministrationShell:
     """
-    Creates an example :class:`~aas.model.aas.AssetAdministrationShell` containing references to the example,
-    the example :class:`~Submodels <aas.model.submodel.Submodel>`.
+    Creates an example :class:`~basyx.aas.model.aas.AssetAdministrationShell` containing references to the example,
+    the example :class:`~Submodels <basyx.aas.model.submodel.SubmodelElement>`.
 
     :return: example asset administration shell
     """
@@ -195,8 +195,8 @@ def create_example_asset_administration_shell() -> \
 
 def create_example_empty_asset_administration_shell() -> model.AssetAdministrationShell:
     """
-    Creates an example empty :class:`~aas.model.aas.AssetAdministrationShell` with just
-    an empty :class:`~aas.model.aas.AssetInformation` and an :class:`~aas.model.base.Identifier`
+    Creates an example empty :class:`~basyx.aas.model.aas.AssetAdministrationShell` with just
+    an empty :class:`~aas.model.aas.AssetInformation` and an :class:`~basyx.aas.model.base.Identifier`
 
     :return: example asset administration shell
     """

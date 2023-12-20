@@ -16,7 +16,7 @@ This module provides the following functions for parsing XML documents:
 - :meth:`~aas.adapter.xml.xml_deserialization.read_aas_xml_file_into` constructs all elements of an XML document and
   stores them in a given :class:`ObjectStore <aas.model.provider.AbstractObjectStore>`
 - :meth:`~aas.adapter.xml.xml_deserialization.read_aas_xml_file` constructs all elements of an XML document and returns
-  them in a :class:`~aas.model.provider.DictObjectStore`
+  them in a :class:`~basyx.aas.model.provider.DictObjectStore`
 
 These functions take a decoder class as keyword argument, which allows parsing in failsafe (default) or non-failsafe
 mode. Parsing stripped elements - used in the HTTP adapter - is also possible. It is also possible to subclass the
@@ -543,7 +543,7 @@ class AASFromXmlDecoder:
     def _construct_operation_variable(cls, element: etree.Element, **kwargs: Any) -> model.SubmodelElement:
         """
         Since we don't implement `OperationVariable`, this constructor discards the wrapping `aas:operationVariable`
-        and `aas:value` and just returns the contained :class:`~aas.model.submodel.SubmodelElement`.
+        and `aas:value` and just returns the contained :class:`~basyx.aas.model.submodel.SubmodelElement`.
         """
         value = _get_child_mandatory(element, NS_AAS + "value")
         if len(value) == 0:
@@ -1407,7 +1407,7 @@ def read_aas_xml_file_into(object_store: model.AbstractObjectStore[model.Identif
     into a given :class:`ObjectStore <aas.model.provider.AbstractObjectStore>`.
 
     :param object_store: The :class:`ObjectStore <aas.model.provider.AbstractObjectStore>` in which the
-                         :class:`~aas.model.base.Identifiable` objects should be stored
+                         :class:`~basyx.aas.model.base.Identifiable` objects should be stored
     :param file: A filename or file-like object to read the XML-serialized data from
     :param replace_existing: Whether to replace existing objects with the same identifier in the object store or not
     :param ignore_existing: Whether to ignore existing objects (e.g. log a message) or raise an error.
@@ -1420,7 +1420,7 @@ def read_aas_xml_file_into(object_store: model.AbstractObjectStore[model.Identif
                      This parameter is ignored if a decoder class is specified.
     :param decoder: The decoder class used to decode the XML elements
     :param parser_kwargs: Keyword arguments passed to the XMLParser constructor
-    :return: A set of :class:`Identifiers <aas.model.base.Identifier>` that were added to object_store
+    :return: A set of :class:`Identifiers <basyx.aas.model.base.Identifier>` that were added to object_store
     """
     ret: Set[model.Identifier] = set()
 
@@ -1474,12 +1474,12 @@ def read_aas_xml_file_into(object_store: model.AbstractObjectStore[model.Identif
 def read_aas_xml_file(file: IO, **kwargs: Any) -> model.DictObjectStore[model.Identifiable]:
     """
     A wrapper of :meth:`~aas.adapter.xml.xml_deserialization.read_aas_xml_file_into`, that reads all objects in an
-    empty :class:`~aas.model.provider.DictObjectStore`. This function supports
+    empty :class:`~basyx.aas.model.provider.DictObjectStore`. This function supports
     the same keyword arguments as :meth:`~aas.adapter.xml.xml_deserialization.read_aas_xml_file_into`.
 
     :param file: A filename or file-like object to read the XML-serialized data from
     :param kwargs: Keyword arguments passed to :meth:`~aas.adapter.xml.xml_deserialization.read_aas_xml_file_into`
-    :return: A :class:`~aas.model.provider.DictObjectStore` containing all AAS objects from the XML file
+    :return: A :class:`~basyx.aas.model.provider.DictObjectStore` containing all AAS objects from the XML file
     """
     object_store: model.DictObjectStore[model.Identifiable] = model.DictObjectStore()
     read_aas_xml_file_into(object_store, file, **kwargs)

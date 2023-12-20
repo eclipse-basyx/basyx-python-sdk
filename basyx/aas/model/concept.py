@@ -38,23 +38,23 @@ class ConceptDescription(base.Identifiable, base.HasDataSpecification):
     *Note:* Compare :attr:`~.ConceptDescription.is_case_of` to is-case-of relationship in ISO 13584-32 & IEC EN 61360
 
     :ivar ~.id: The globally unique id of the element. (inherited from
-                            :class:`~aas.model.base.Identifiable`)
-    :ivar is_case_of: Unordered list of global :class:`References <aas.model.base.Reference>` to external definitions
+                            :class:`~basyx.aas.model.base.Identifiable`)
+    :ivar is_case_of: Unordered list of global :class:`References <basyx.aas.model.base.Reference>` to external definitions
                       the concept is compatible to or was derived from.
     :ivar id_short: Identifying string of the element within its name space. (inherited from
-                    :class:`~aas.model.base.Referable`)
-    :ivar display_name: Can be provided in several languages. (inherited from :class:`~aas.model.base.Referable`)
+                    :class:`~basyx.aas.model.base.Referable`)
+    :ivar display_name: Can be provided in several languages. (inherited from :class:`~basyx.aas.model.base.Referable`)
     :ivar category: The category is a value that gives further meta information w.r.t. to the class of the element.
                     It affects the expected existence of attributes and the applicability of constraints.
-                    (inherited from :class:`~aas.model.base.Referable`)
-    :ivar description: Description or comments on the element. (inherited from :class:`~aas.model.base.Referable`)
+                    (inherited from :class:`~basyx.aas.model.base.Referable`)
+    :ivar description: Description or comments on the element. (inherited from :class:`~basyx.aas.model.base.Referable`)
     :ivar parent: Reference to the next referable parent element of the element. (inherited from
-                  :class:`~aas.model.base.Referable`)
+                  :class:`~basyx.aas.model.base.Referable`)
     :ivar administration: Administrative information of an identifiable element. (inherited from
-                          :class:`~aas.model.base.Identifiable`)
+                          :class:`~basyx.aas.model.base.Identifiable`)
     :ivar embedded_data_specifications: List of Embedded data specification.
     :ivar extension: An extension of the element. (from
-                     :class:`~aas.model.base.HasExtension`)
+                     :class:`~basyx.aas.model.base.HasExtension`)
 """
 
     def __init__(self,

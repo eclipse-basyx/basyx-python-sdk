@@ -118,7 +118,7 @@ def check_deserialization(file_path: str, state_manager: ComplianceToolStateMana
     :param file_path: Given file which should be deserialized
     :param state_manager: :class:`~aas.compliance_tool.state_manager.ComplianceToolStateManager` to log the steps
     :param file_info: Additional information about the file for name of the steps
-    :return: The deserialized :class:`~aas.model.provider.DictObjectStore`
+    :return: The deserialized :class:`~basyx.aas.model.provider.DictObjectStore`
     """
     logger = logging.getLogger('compliance_check')
     logger.addHandler(state_manager)

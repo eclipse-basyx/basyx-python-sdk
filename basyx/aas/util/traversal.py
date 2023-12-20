@@ -16,12 +16,12 @@ from .. import model
 def walk_submodel(collection: Union[model.Submodel, model.SubmodelElementCollection, model.SubmodelElementList]) \
         -> Iterator[model.SubmodelElement]:
     """
-    Traverse the :class:`SubmodelElements <aas.model.submodel.SubmodelElement>` in a
-    :class:`~aas.model.submodel.Submodel`, :class:`~aas.model.submodel.SubmodelElementCollection` or a
-    :class:`~aas.model.submodel.SubmodelElementList` recursively in post-order tree-traversal.
+    Traverse the :class:`SubmodelElements <basyx.aas.model.submodel.SubmodelElement>` in a
+    :class:`~basyx.aas.model.submodel.SubmodelElement`, :class:`~basyx.aas.model.submodel.SubmodelElementCollection` or a
+    :class:`~basyx.aas.model.submodel.SubmodelElementList` recursively in post-order tree-traversal.
 
-    This is a generator function, yielding all the :class:`SubmodelElements <aas.model.submodel.SubmodelElement>`.
-    No :class:`SubmodelElements <aas.model.submodel.SubmodelElement>` should be added, removed or
+    This is a generator function, yielding all the :class:`SubmodelElements <basyx.aas.model.submodel.SubmodelElement>`.
+    No :class:`SubmodelElements <basyx.aas.model.submodel.SubmodelElement>` should be added, removed or
     moved while iterating, as this could result in undefined behaviour.
     """
     elements = collection.submodel_element if isinstance(collection, model.Submodel) else collection.value
@@ -33,11 +33,11 @@ def walk_submodel(collection: Union[model.Submodel, model.SubmodelElementCollect
 
 def walk_semantic_ids_recursive(root: model.Referable) -> Iterator[model.Reference]:
     """
-    Traverse an AAS object hierarchy (e.g. a :class:`~aas.model.submodel.Submodel` with all recursively contained
-    :class:`SubmodelElements <aas.model.submodel.SubmodelElements>`) recursively and return all non-empty (!= None)
+    Traverse an AAS object hierarchy (e.g. a :class:`~basyx.aas.model.submodel.SubmodelElement` with all recursively contained
+    :class:`SubmodelElements <basyx.aas.model.submodel.SubmodelElement>`) recursively and return all non-empty (!= None)
     semanticIds.
 
-    This is a generator function, yielding all the semanticIds. No :class:`~aas.model.base.Referable` objects should be
+    This is a generator function, yielding all the semanticIds. No :class:`~basyx.aas.model.base.Referable` objects should be
     added, removed or moved to/from/in the AAS object hierarchy while iterating, as this could result in undefined
     behaviour.
     """
