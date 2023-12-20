@@ -7,13 +7,14 @@
 # SPDX-License-Identifier: MIT
 
 import setuptools
+from basyx.aas import __version__
 
 with open("README.md", "r", encoding='utf-8') as fh:
     long_description = fh.read()
 
 setuptools.setup(
     name="basyx-python-sdk",
-    version="1.0.0",
+    version=__version__,
     author="The Eclipse BaSyx Authors",
     description="The Eclipse BaSyx Python SDK, an implementation of the Asset Administration Shell for Industry 4.0 "
                 "systems",
