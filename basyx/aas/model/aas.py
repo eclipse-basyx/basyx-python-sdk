@@ -31,16 +31,16 @@ class AssetInformation:
 
     *Constraint AASd-131*:  The globalAssetId or at least one specificAssetId shall be defined for AssetInformation.
 
-    :ivar asset_kind: Denotes whether the Asset is of :class:`~aas.model.base.AssetKind` "TYPE" or "INSTANCE".
+    :ivar asset_kind: Denotes whether the Asset is of :class:`~basyx.aas.model.base.AssetKind` "TYPE" or "INSTANCE".
                       Default is "INSTANCE".
-    :ivar global_asset_id: :class:`~aas.model.base.Identifier` modelling the identifier of the asset the AAS is
+    :ivar global_asset_id: :class:`~basyx.aas.model.base.Identifier` modelling the identifier of the asset the AAS is
                            representing.
                            This attribute is required as soon as the AAS is exchanged via partners in the
                            life cycle of the asset. In a first phase of the life cycle the asset might not yet have a
                            global id but already an internal identifier. The internal identifier would be modelled via
                            :attr:`~.specificAssetId`.
     :ivar specific_asset_id: Additional domain specific, typically proprietary Identifier (Set of
-                             :class:`SpecificAssetIds <aas.model.base.SpecificAssetId>` for the asset like
+                             :class:`SpecificAssetIds <basyx.aas.model.base.SpecificAssetId>` for the asset like
                              e.g. serial number etc.
     :ivar asset_type: In case AssetInformation/assetKind is applicable the AssetInformation/assetType is the asset ID
                       of the type asset of the asset under consideration as identified by
@@ -125,26 +125,26 @@ class AssetAdministrationShell(base.Identifiable, base.UniqueIdShortNamespace, b
     An Asset Administration Shell
 
     :ivar asset_information: :class:`~.AssetInformation` of the asset this AssetAdministrationShell is representing
-    :ivar ~.id: The globally unique id (:class:`~aas.model.base.Identifier`) of the element.
-                            (inherited from :class:`~aas.model.base.Identifiable`)
+    :ivar ~.id: The globally unique id (:class:`~basyx.aas.model.base.Identifier`) of the element.
+                            (inherited from :class:`~basyx.aas.model.base.Identifiable`)
     :ivar id_short: Identifying string of the element within its name space. (inherited from
-                    :class:`~aas.model.base.Referable`)
-    :ivar display_name: Can be provided in several languages. (inherited from :class:`~aas.model.base.Referable`)
+                    :class:`~basyx.aas.model.base.Referable`)
+    :ivar display_name: Can be provided in several languages. (inherited from :class:`~basyx.aas.model.base.Referable`)
     :ivar category: The category is a value that gives further meta information w.r.t. to the class of the element.
                     It affects the expected existence of attributes and the applicability of constraints.
-                    (inherited from :class:`~aas.model.base.Referable`)
-    :ivar description: Description or comments on the element. (inherited from :class:`~aas.model.base.Referable`)
+                    (inherited from :class:`~basyx.aas.model.base.Referable`)
+    :ivar description: Description or comments on the element. (inherited from :class:`~basyx.aas.model.base.Referable`)
     :ivar parent: Reference to the next referable parent element of the element. (inherited from
-                  :class:`~aas.model.base.Referable`)
-    :ivar administration: :class:`~aas.model.base.AdministrativeInformation` of an
-                          :class:`~.aas.model.base.Identifiable` element. (inherited from
-                          :class:`~aas.model.base.Identifiable`)
-    :ivar ~.submodel: Unordered list of :class:`submodels <aas.model.submodel.Submodel>` to describe typically the asset
+                  :class:`~basyx.aas.model.base.Referable`)
+    :ivar administration: :class:`~basyx.aas.model.base.AdministrativeInformation` of an
+                          :class:`~.basyx.aas.model.base.Identifiable` element. (inherited from
+                          :class:`~basyx.aas.model.base.Identifiable`)
+    :ivar ~.submodel: Unordered list of :class:`submodels <basyx.aas.model.submodel.SubmodelElement>` to describe typically the asset
                     of an AAS. (Initialization-parameter: `submodel_`)
-    :ivar derived_from: The :class:`reference <aas.model.base.ModelReference>` to the AAS the AAs was derived from
+    :ivar derived_from: The :class:`reference <basyx.aas.model.base.ModelReference>` to the AAS the AAs was derived from
     :ivar embedded_data_specifications: List of Embedded data specification.
     :ivar extension: An extension of the element.
-                     (from :class:`~aas.model.base.HasExtensions`)
+                     (from :class:`~basyx.aas.model.base.HasExtensions`)
     """
     def __init__(self,
                  asset_information: AssetInformation,

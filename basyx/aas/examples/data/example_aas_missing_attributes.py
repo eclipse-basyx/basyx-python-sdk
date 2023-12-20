@@ -5,7 +5,7 @@
 #
 # SPDX-License-Identifier: MIT
 """
-Module for the creation of an :class:`ObjectStore <aas.model.provider.DictObjectStore>` with missing object attribute
+Module for the creation of an :class:`ObjectStore <basyx.aas.model.provider.DictObjectStore>` with missing object attribute
 combination for testing the serialization
 """
 import datetime
@@ -19,11 +19,11 @@ logger = logging.getLogger(__name__)
 
 def create_full_example() -> model.DictObjectStore:
     """
-    Creates an :class:`~aas.model.provider.DictObjectStore` containing an example :class:`~aas.model.submodel.Submodel`,
-    an example :class:`~aas.model.concept.ConceptDescription` and an example
-    :class:`~aas.model.aas.AssetAdministrationShell`
+    Creates an :class:`~basyx.aas.model.provider.DictObjectStore` containing an example :class:`~basyx.aas.model.submodel.SubmodelElement`,
+    an example :class:`~basyx.aas.model.concept.ConceptDescription` and an example
+    :class:`~basyx.aas.model.aas.AssetAdministrationShell`
 
-    :return: :class:`aas.model.provider.DictObjectStore`
+    :return: :class:`basyx.aas.model.provider.DictObjectStore`
     """
     obj_store: model.DictObjectStore[model.Identifiable] = model.DictObjectStore()
     obj_store.add(create_example_submodel())
@@ -34,8 +34,8 @@ def create_full_example() -> model.DictObjectStore:
 
 def create_example_submodel() -> model.Submodel:
     """
-    Creates an example :class:`~aas.model.submodel.Submodel` containing all kind of
-    :class:`~aas.model.submodel.SubmodelElement`  objects
+    Creates an example :class:`~basyx.aas.model.submodel.SubmodelElement` containing all kind of
+    :class:`~basyx.aas.model.submodel.SubmodelElement`  objects
 
     :return: example submodel
     """
@@ -339,7 +339,7 @@ def create_example_submodel() -> model.Submodel:
 
 def create_example_concept_description() -> model.ConceptDescription:
     """
-    Creates an example :class:`~aas.model.concept.ConceptDescription`
+    Creates an example :class:`~basyx.aas.model.concept.ConceptDescription`
 
     :return: example concept description
     """
@@ -358,8 +358,8 @@ def create_example_concept_description() -> model.ConceptDescription:
 
 def create_example_asset_administration_shell() -> model.AssetAdministrationShell:
     """
-    Creates an example :class:`~aas.model.aas.AssetAdministrationShell` containing a reference to an example
-    :class:`~aas.model.submodel.Submodel`
+    Creates an example :class:`~basyx.aas.model.aas.AssetAdministrationShell` containing a reference to an example
+    :class:`~basyx.aas.model.submodel.SubmodelElement`
 
     :return: example asset administration shell
     """

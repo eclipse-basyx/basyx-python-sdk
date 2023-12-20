@@ -5,7 +5,7 @@
 #
 # SPDX-License-Identifier: MIT
 """
-This module adds the functionality of storing and retrieving :class:`~aas.model.base.Identifiable` objects in a CouchDB.
+This module adds the functionality of storing and retrieving :class:`~basyx.aas.model.base.Identifiable` objects in a CouchDB.
 
 The :class:`~.CouchDBBackend` takes care of updating and committing objects from and to the CouchDB, while the
 :class:`~CouchDBObjectStore` handles adding, deleting and otherwise managing the AAS objects in a specific CouchDB.
@@ -181,7 +181,7 @@ def register_credentials(url: str, username: str, password: str):
     .. Warning::
 
         Do not use this function, while other threads may be accessing the credentials via the
-        :class:`~.CouchDBObjectStore` or update or commit functions of :class:`~.aas.model.base.Referable` objects!
+        :class:`~.CouchDBObjectStore` or update or commit functions of :class:`~.basyx.aas.model.base.Referable` objects!
 
     :param url: Toplevel URL
     :param username: Username to that CouchDB instance
@@ -230,7 +230,7 @@ def delete_couchdb_revision(url: str):
 
 class CouchDBObjectStore(model.AbstractObjectStore):
     """
-    An ObjectStore implementation for :class:`~aas.model.base.Identifiable` BaSyx Python SDK objects backed by a CouchDB
+    An ObjectStore implementation for :class:`~basyx.aas.model.base.Identifiable` BaSyx Python SDK objects backed by a CouchDB
     database server.
 
     All methods of the `CouchDBObjectStore` are blocking, i.e. they stop the current thread's execution until they
@@ -322,7 +322,7 @@ class CouchDBObjectStore(model.AbstractObjectStore):
 
     def get_identifiable(self, identifier: model.Identifier) -> model.Identifiable:
         """
-        Retrieve an AAS object from the CouchDB by its :class:`~aas.model.base.Identifier`
+        Retrieve an AAS object from the CouchDB by its :class:`~basyx.aas.model.base.Identifier`
 
         :raises KeyError: If no such object is stored in the database
         :raises CouchDBError: If error occur during the request to the CouchDB server (see `_do_request()` for details)
@@ -363,7 +363,7 @@ class CouchDBObjectStore(model.AbstractObjectStore):
 
     def discard(self, x: model.Identifiable, safe_delete=False) -> None:
         """
-        Delete an :class:`~aas.model.base.Identifiable` AAS object from the CouchDB database
+        Delete an :class:`~basyx.aas.model.base.Identifiable` AAS object from the CouchDB database
 
         :param x: The object to be deleted
         :param safe_delete: If `True`, only delete the object if it has not been modified in the database in comparison
@@ -417,10 +417,10 @@ class CouchDBObjectStore(model.AbstractObjectStore):
 
     def __contains__(self, x: object) -> bool:
         """
-        Check if an object with the given :class:`~aas.model.base.Identifier` or the same
-        :class:`~aas.model.base.Identifier` as the given object is contained in the CouchDB database
+        Check if an object with the given :class:`~basyx.aas.model.base.Identifier` or the same
+        :class:`~basyx.aas.model.base.Identifier` as the given object is contained in the CouchDB database
 
-        :param x: AAS object :class:`~aas.model.base.Identifier` or :class:`~aas.model.base.Identifiable` AAS object
+        :param x: AAS object :class:`~basyx.aas.model.base.Identifier` or :class:`~basyx.aas.model.base.Identifiable` AAS object
         :return: `True` if such an object exists in the database, `False` otherwise
         :raises CouchDBError: If error occur during the request to the CouchDB server (see `_do_request()` for details)
         """
@@ -454,7 +454,7 @@ class CouchDBObjectStore(model.AbstractObjectStore):
 
     def __iter__(self) -> Iterator[model.Identifiable]:
         """
-        Iterate all :class:`~aas.model.base.Identifiable` objects in the CouchDB database.
+        Iterate all :class:`~basyx.aas.model.base.Identifiable` objects in the CouchDB database.
 
         This method returns a lazy iterator, containing only a list of all identifiers in the database and retrieving
         the identifiable objects on the fly.
@@ -490,7 +490,7 @@ class CouchDBObjectStore(model.AbstractObjectStore):
 
     def generate_source(self, identifiable: model.Identifiable):
         """
-        Generates the source string for an :class:`~aas.model.base.Identifiable` object that is backed by the Couchdb
+        Generates the source string for an :class:`~basyx.aas.model.base.Identifiable` object that is backed by the Couchdb
 
         :param identifiable: Identifiable object
         """

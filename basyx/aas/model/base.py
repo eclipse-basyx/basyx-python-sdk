@@ -51,37 +51,37 @@ class KeyTypes(Enum):
 
     **IdentifiableElements starting from 0**
 
-    :cvar ASSET_ADMINISTRATION_SHELL: :class:`~aas.model.aas.AssetAdministrationShell`
-    :cvar CONCEPT_DESCRIPTION: :class:`~aas.model.concept.ConceptDescription`
-    :cvar SUBMODEL: :class:`~aas.model.submodel.Submodel`
+    :cvar ASSET_ADMINISTRATION_SHELL: :class:`~basyx.aas.model.aas.AssetAdministrationShell`
+    :cvar CONCEPT_DESCRIPTION: :class:`~basyx.aas.model.concept.ConceptDescription`
+    :cvar SUBMODEL: :class:`~basyx.aas.model.submodel.SubmodelElement`
 
     **ReferableElements starting from 1000**
 
     *Note:* DataElement is abstract, i. e. if a key uses :attr:`~.KeyTypes.DATA_ELEMENT` the reference may be
-    :class:`~aas.model.submodel.Property`, :class:`~aas.model.submodel.File` etc.
+    :class:`~basyx.aas.model.submodel.Property`, :class:`~basyx.aas.model.submodel.File` etc.
 
     *Note:* SubmodelElement is abstract, i.e. if a key uses :attr:`~.KeyTypes.SUBMODEL_ELEMENT`
-    the reference may be a :class:`~aas.model.submodel.Property`, a
-    :class:`~aas.model.submodel.SubmodelElementCollection`, an :class:`~aas.model.submodel.Operation` etc.
+    the reference may be a :class:`~basyx.aas.model.submodel.Property`, a
+    :class:`~basyx.aas.model.submodel.SubmodelElementCollection`, an :class:`~basyx.aas.model.submodel.Operation` etc.
 
-    :cvar ANNOTATED_RELATIONSHIP_ELEMENT: :class:`~aas.model.submodel.AnnotatedRelationshipElement`
-    :cvar BASIC_EVENT_ELEMENT: :class:`~aas.model.submodel.BasicEventElement`
-    :cvar BLOB: :class:`~aas.model.submodel.Blob`
-    :cvar CAPABILITY: :class:`~aas.model.submodel.Capability`
-    :cvar DATA_ELEMENT: :class:`~aas.model.submodel.DataElement`
-    :cvar ENTITY: :class:`~aas.model.submodel.Entity`
-    :cvar EVENT_ELEMENT: :class:`~aas.model.submodel.EventElement`, Note: EventElement is abstract
-    :cvar FILE: :class:`~aas.model.submodel.File`
-    :cvar MULTI_LANGUAGE_PROPERTY: :class:`~aas.model.submodel.MultiLanguageProperty` property with a value that can be
+    :cvar ANNOTATED_RELATIONSHIP_ELEMENT: :class:`~basyx.aas.model.submodel.AnnotatedRelationshipElement`
+    :cvar BASIC_EVENT_ELEMENT: :class:`~basyx.aas.model.submodel.BasicEventElement`
+    :cvar BLOB: :class:`~basyx.aas.model.submodel.Blob`
+    :cvar CAPABILITY: :class:`~basyx.aas.model.submodel.Capability`
+    :cvar DATA_ELEMENT: :class:`~basyx.aas.model.submodel.DataElement`
+    :cvar ENTITY: :class:`~basyx.aas.model.submodel.Entity`
+    :cvar EVENT_ELEMENT: :class:`~basyx.aas.model.submodel.EventElement`, Note: EventElement is abstract
+    :cvar FILE: :class:`~basyx.aas.model.submodel.File`
+    :cvar MULTI_LANGUAGE_PROPERTY: :class:`~basyx.aas.model.submodel.MultiLanguageProperty` property with a value that can be
                                    provided in multiple languages
-    :cvar OPERATION: :class:`~aas.model.submodel.Operation`
-    :cvar PROPERTY: :class:`~aas.model.submodel.Property`
-    :cvar RANGE: :class:`~aas.model.submodel.Range` with min and max
-    :cvar REFERENCE_ELEMENT: :class:`~aas.model.submodel.ReferenceElement`
-    :cvar RELATIONSHIP_ELEMENT: :class:`~aas.model.submodel.RelationshipElement`
-    :cvar SUBMODEL_ELEMENT: :class:`~aas.model.submodel.SubmodelElement`
-    :cvar SUBMODEL_ELEMENT_COLLECTION: :class:`~aas.model.submodel.SubmodelElementCollection`
-    :cvar SUBMODEL_ELEMENT_LIST: :class:`~aas.model.submodel.SubmodelElementList`
+    :cvar OPERATION: :class:`~basyx.aas.model.submodel.Operation`
+    :cvar PROPERTY: :class:`~basyx.aas.model.submodel.Property`
+    :cvar RANGE: :class:`~basyx.aas.model.submodel.Range` with min and max
+    :cvar REFERENCE_ELEMENT: :class:`~basyx.aas.model.submodel.ReferenceElement`
+    :cvar RELATIONSHIP_ELEMENT: :class:`~basyx.aas.model.submodel.RelationshipElement`
+    :cvar SUBMODEL_ELEMENT: :class:`~basyx.aas.model.submodel.SubmodelElement`
+    :cvar SUBMODEL_ELEMENT_COLLECTION: :class:`~basyx.aas.model.submodel.SubmodelElementCollection`
+    :cvar SUBMODEL_ELEMENT_LIST: :class:`~basyx.aas.model.submodel.SubmodelElementList`
 
     **KeyTypes starting from 2000**
 
@@ -179,10 +179,10 @@ class EntityType(Enum):
     Enumeration for denoting whether an entity is a self-managed or a co-managed entity
 
     :cvar CO_MANAGED_ENTITY: For co-managed entities there is no separate
-                             :class:`AAS <aas.model.aas.AssetAdministrationShell>`. Co-managed entities need to be part
+                             :class:`AAS <basyx.aas.model.aas.AssetAdministrationShell>`. Co-managed entities need to be part
                              of a self-managed entity
     :cvar SELF_MANAGED_ENTITY: Self-managed entities have their own
-                               :class:`AAS <aas.model.aas.AssetAdministrationShell>`, but can be part of the bill of
+                               :class:`AAS <basyx.aas.model.aas.AssetAdministrationShell>`, but can be part of the bill of
                                material of a composite self-managed entity.
     """
 
@@ -249,7 +249,7 @@ class QualifierKind(Enum):
 @unique
 class Direction(Enum):
     """
-    Direction of an event. Used in :class:`aas.model.submodel.BasicEventElement`.
+    Direction of an event. Used in :class:`basyx.aas.model.submodel.BasicEventElement`.
     """
 
     INPUT = 0
@@ -259,7 +259,7 @@ class Direction(Enum):
 @unique
 class StateOfEvent(Enum):
     """
-    State of an event. Used in :class:`aas.model.submodel.BasicEventElement`.
+    State of an event. Used in :class:`basyx.aas.model.submodel.BasicEventElement`.
     """
 
     ON = 0
@@ -473,7 +473,7 @@ class Namespace(metaclass=abc.ABCMeta):
 
     <<abstract>>
 
-    :ivar namespace_element_sets: List of :class:`NamespaceSets <aas.model.base.NamespaceSet>`
+    :ivar namespace_element_sets: List of :class:`NamespaceSets <basyx.aas.model.base.NamespaceSet>`
     """
     @abc.abstractmethod
     def __init__(self) -> None:
@@ -533,10 +533,10 @@ class HasExtension(Namespace, metaclass=abc.ABCMeta):
 
     TODO: This constraint is not yet implemented, a new Class for CustomSets should be implemented
 
-    :ivar namespace_element_sets: List of :class:`NamespaceSets <aas.model.base.NamespaceSet>`
+    :ivar namespace_element_sets: List of :class:`NamespaceSets <basyx.aas.model.base.NamespaceSet>`
     :ivar extension: A :class:`~.NamespaceSet` of :class:`Extensions <.Extension>` of the element.
-    :ivar _MEMBER_OBJ_TYPE: :class:`_NSO <aas.model.base.Namespace>`
-    :ivar _ATTRIBUTE_NAME: Specific attribute name <aas.model.base.Namespace>`.
+    :ivar _MEMBER_OBJ_TYPE: :class:`_NSO <basyx.aas.model.base.Namespace>`
+    :ivar _ATTRIBUTE_NAME: Specific attribute name <basyx.aas.model.base.Namespace>`.
     """
     @abc.abstractmethod
     def __init__(self) -> None:
@@ -836,7 +836,7 @@ _RT = TypeVar('_RT', bound=Referable)
 
 class UnexpectedTypeError(TypeError):
     """
-    Exception to be raised by :meth:`aas.model.base.ModelReference.resolve` if the retrieved object has not the expected
+    Exception to be raised by :meth:`basyx.aas.model.base.ModelReference.resolve` if the retrieved object has not the expected
     type.
 
     :ivar value: The object of unexpected type
@@ -990,10 +990,10 @@ class ModelReference(Reference, Generic[_RT]):
         """
         Follow the :class:`~.Reference` and retrieve the :class:`~.Referable` object it points to
 
-        :param provider_: :class:`~aas.model.provider.AbstractObjectProvider`
+        :param provider_: :class:`~basyx.aas.model.provider.AbstractObjectProvider`
         :return: The referenced object (or a proxy object for it)
         :raises IndexError: If the list of keys is empty
-        :raises TypeError: If one of the intermediate objects on the path is not a :class:`~aas.model.base.Namespace`
+        :raises TypeError: If one of the intermediate objects on the path is not a :class:`~basyx.aas.model.base.Namespace`
         :raises UnexpectedTypeError: If the retrieved object is not of the expected type (or one of its subclasses). The
                                      object is stored in the `value` attribute of the exception
         :raises KeyError: If the reference could not be resolved
@@ -1072,9 +1072,9 @@ class ModelReference(Reference, Generic[_RT]):
         :class:`~.Identifiable` object. Additionally, the object must be an instance of a known :class:`~.Referable`
         type.
 
-        :param referable: :class:`~aas.model.base.Referable` object to construct the :class:`~.ModelReference` from
+        :param referable: :class:`~basyx.aas.model.base.Referable` object to construct the :class:`~.ModelReference` from
         :returns: Constructed :class:`~.ModelReference`
-        :raises ValueError: If no :class:`~aas.model.base.Identifiable` object is found while traversing the object's
+        :raises ValueError: If no :class:`~basyx.aas.model.base.Identifiable` object is found while traversing the object's
                 ancestors
         """
         # Get the first class from the base classes list (via inspect.getmro), that is contained in KEY_ELEMENTS_CLASSES
@@ -1449,7 +1449,7 @@ class Extension(HasSemantics):
     :ivar semantic_id: The semantic_id defined in the :class:`~.HasSemantics` class.
     :ivar supplemental_semantic_id: Identifier of a supplemental semantic definition of the element. It is called
                                     supplemental semantic ID of the element. (inherited from
-                                    :class:`~aas.model.base.HasSemantics`)
+                                    :class:`~basyx.aas.model.base.HasSemantics`)
     """
 
     def __init__(self,
@@ -1589,7 +1589,7 @@ class Qualifier(HasSemantics):
     :ivar semantic_id: The semantic_id defined in :class:`~.HasSemantics`.
     :ivar supplemental_semantic_id: Identifier of a supplemental semantic definition of the element. It is called
                                     supplemental semantic ID of the element. (inherited from
-                                    :class:`~aas.model.base.HasSemantics`)
+                                    :class:`~basyx.aas.model.base.HasSemantics`)
     """
 
     def __init__(self,
@@ -2170,10 +2170,10 @@ class SpecificAssetId(HasSemantics):
     :ivar semantic_id: Identifier of the semantic definition of the element. It is called semantic id of the
                        element. The semantic id may either reference an external global id or it may reference a
                        referable model element of kind=Type that defines the semantics of the element.
-                       (inherited from :class:`~aas.model.base.HasSemantics`)
+                       (inherited from :class:`~basyx.aas.model.base.HasSemantics`)
     :ivar supplemental_semantic_id: Identifier of a supplemental semantic definition of the element. It is called
                                     supplemental semantic ID of the element. (inherited from
-                                    :class:`~aas.model.base.HasSemantics`)
+                                    :class:`~basyx.aas.model.base.HasSemantics`)
     """
 
     def __init__(self,
@@ -2314,7 +2314,7 @@ class DataSpecificationIEC61360(DataSpecificationContent):
     :ivar data_type: Data type of the data object
     :ivar definition: Definition of the data object
     :ivar parent: Reference to the next referable parent element of the element.
-                  (inherited from :class:`~aas.model.base.Referable`)
+                  (inherited from :class:`~basyx.aas.model.base.Referable`)
     :ivar unit: Optional unit of the data object
     :ivar unit_id: Optional reference to a unit id
     :ivar source_of_definition: Optional source of the definition

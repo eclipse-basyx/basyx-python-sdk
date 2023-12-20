@@ -5,7 +5,7 @@
 #
 # SPDX-License-Identifier: MIT
 """
-This module adds the functionality of storing and retrieving :class:`~aas.model.base.Identifiable` objects in local
+This module adds the functionality of storing and retrieving :class:`~basyx.aas.model.base.Identifiable` objects in local
 files.
 
 The :class:`~.LocalFileBackend` takes care of updating and committing objects from and to the files, while the
@@ -68,7 +68,7 @@ backends.register_backend("file", LocalFileBackend)
 
 class LocalFileObjectStore(model.AbstractObjectStore):
     """
-    An ObjectStore implementation for :class:`~aas.model.base.Identifiable` BaSyx Python SDK objects backed by a local
+    An ObjectStore implementation for :class:`~basyx.aas.model.base.Identifiable` BaSyx Python SDK objects backed by a local
     file based local backend
     """
     def __init__(self, directory_path: str):
@@ -131,7 +131,7 @@ class LocalFileObjectStore(model.AbstractObjectStore):
 
     def get_identifiable(self, identifier: model.Identifier) -> model.Identifiable:
         """
-        Retrieve an AAS object from the local file by its :class:`~aas.model.base.Identifier`
+        Retrieve an AAS object from the local file by its :class:`~basyx.aas.model.base.Identifier`
 
         :raises KeyError: If the respective file could not be found
         """
@@ -157,7 +157,7 @@ class LocalFileObjectStore(model.AbstractObjectStore):
 
     def discard(self, x: model.Identifiable) -> None:
         """
-        Delete an :class:`~aas.model.base.Identifiable` AAS object from the local file store
+        Delete an :class:`~basyx.aas.model.base.Identifiable` AAS object from the local file store
 
         :param x: The object to be deleted
         :raises KeyError: If the object does not exist in the database
@@ -173,10 +173,10 @@ class LocalFileObjectStore(model.AbstractObjectStore):
 
     def __contains__(self, x: object) -> bool:
         """
-        Check if an object with the given :class:`~aas.model.base.Identifier` or the same
-        :class:`~aas.model.base.Identifier` as the given object is contained in the local file database
+        Check if an object with the given :class:`~basyx.aas.model.base.Identifier` or the same
+        :class:`~basyx.aas.model.base.Identifier` as the given object is contained in the local file database
 
-        :param x: AAS object :class:`~aas.model.base.Identifier` or :class:`~aas.model.base.Identifiable` AAS object
+        :param x: AAS object :class:`~basyx.aas.model.base.Identifier` or :class:`~basyx.aas.model.base.Identifiable` AAS object
         :return: `True` if such an object exists in the database, `False` otherwise
         """
         if isinstance(x, model.Identifier):
@@ -199,7 +199,7 @@ class LocalFileObjectStore(model.AbstractObjectStore):
 
     def __iter__(self) -> Iterator[model.Identifiable]:
         """
-        Iterate all :class:`~aas.model.base.Identifiable` objects in the CouchDB database.
+        Iterate all :class:`~basyx.aas.model.base.Identifiable` objects in the CouchDB database.
 
         This method returns an iterator, containing only a list of all identifiers in the database and retrieving
         the identifiable objects on the fly.
@@ -217,7 +217,7 @@ class LocalFileObjectStore(model.AbstractObjectStore):
 
     def generate_source(self, identifiable: model.Identifiable) -> str:
         """
-        Generates the source string for an :class:`~aas.model.base.Identifiable` object that is backed by the File
+        Generates the source string for an :class:`~basyx.aas.model.base.Identifiable` object that is backed by the File
 
         :param identifiable: Identifiable object
         """

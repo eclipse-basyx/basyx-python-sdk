@@ -579,7 +579,7 @@ class AASToJsonEncoder(json.JSONEncoder):
         """
         serialization of an object from class SubmodelElement to a json OperationVariable representation
         Since we don't implement the `OperationVariable` class, which is just a wrapper for a single
-        :class:`~aas.model.submodel.SubmodelElement`, elements are serialized as the `value` attribute of an
+        :class:`~basyx.aas.model.submodel.SubmodelElement`, elements are serialized as the `value` attribute of an
         `operationVariable` object.
 
         :param obj: object of class `SubmodelElement`

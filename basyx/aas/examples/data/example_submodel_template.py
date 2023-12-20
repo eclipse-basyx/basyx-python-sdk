@@ -5,8 +5,8 @@
 #
 # SPDX-License-Identifier: MIT
 """
-Module for the creation of an example :class:`~aas.model.submodel.Submodel` template containing all kind of
-:class:`SubmodelElements <aas.model.submodel.SubmodelElement>` where the kind is
+Module for the creation of an example :class:`~basyx.aas.model.submodel.SubmodelElement` template containing all kind of
+:class:`SubmodelElements <basyx.aas.model.submodel.SubmodelElement>` where the kind is
 always `TEMPLATE`.
 """
 import datetime
@@ -20,8 +20,8 @@ logger = logging.getLogger(__name__)
 
 def create_example_submodel_template() -> model.Submodel:
     """
-    Creates an example :class:`~aas.model.submodel.Submodel` template containing all kind of
-    :class:`~aas.model.submodel.SubmodelElement` objects where the kind is always
+    Creates an example :class:`~basyx.aas.model.submodel.SubmodelElement` template containing all kind of
+    :class:`~basyx.aas.model.submodel.SubmodelElement` objects where the kind is always
     `TEMPLATE`
 
     :return: example submodel

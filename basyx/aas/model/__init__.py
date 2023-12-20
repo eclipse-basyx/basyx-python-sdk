@@ -17,13 +17,13 @@ base.py
     higher level structures.
 
 concept.py
-    :class:`~aas.model.concept.ConceptDescription` from the AAS meta model
-    as well as specialized :class:`ConceptDescriptions <aas.model.concept.ConceptDescription>` like
+    :class:`~basyx.aas.model.concept.ConceptDescription` from the AAS meta model
+    as well as specialized :class:`ConceptDescriptions <basyx.aas.model.concept.ConceptDescription>` like
     :class:`~aas.model.concept.IEC61360ConceptDescription`
 
 provider.py
-    Providers for AAS objects, in order to store and retrieve :class:`~aas.model.base.Identifiable` objects by their
-    :class:`~aas.model.base.Identifier`.
+    Providers for AAS objects, in order to store and retrieve :class:`~basyx.aas.model.base.Identifiable` objects by their
+    :class:`~basyx.aas.model.base.Identifier`.
 
 submodel.py
     Meta-model of the submodels and events.
