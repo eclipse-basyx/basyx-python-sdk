@@ -16,6 +16,7 @@ import datetime
 
 
 sys.path.insert(0, os.path.abspath('../..'))
+from basyx.aas import __version__
 
 
 # -- Project information -----------------------------------------------------
@@ -25,7 +26,7 @@ copyright = str(datetime.datetime.now().year) + ', the Eclipse BaSyx Authors'
 author = 'The Eclipse BaSyx Authors'
 
 # The full version, including alpha/beta/rc tags
-release = '0.2.0'
+release = __version__
 
 
 # -- General configuration ---------------------------------------------------
