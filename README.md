@@ -60,7 +60,6 @@ dependencies (MIT License, Apache License, PSF License)
 
 Development/testing/documentation/example dependencies (see `requirements.txt`):
 * `jsonschema` and its dependencies (MIT License, Apache License, PSF License)
-* `psutil` (BSD 3-clause License)
 * `Sphinx` and its dependencies (multiple licenses)
 * `sphinx-rtd-theme` and its dependencies
 * `sphinx-argparse` (MIT License)
