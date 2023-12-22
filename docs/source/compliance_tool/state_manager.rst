@@ -2,4 +2,3 @@ aas.compliance_tool.state_manager - Store LogRecords in a Compliance Check of th
 =================================================================================================
 
 .. automodule:: basyx.aas.compliance_tool.state_manager
-      :members:

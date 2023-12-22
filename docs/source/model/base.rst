@@ -2,7 +2,6 @@ aas.model.base - Abstract Classes and Basic Structures
 ======================================================
 
 .. automodule:: basyx.aas.model.base
-      :members:
 
 .. class:: LangStringSet
 
