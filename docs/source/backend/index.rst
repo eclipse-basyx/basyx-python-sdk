@@ -9,3 +9,4 @@ basyx.aas.backend - Storing and Retrieving of AAS-objects in Backends
 
    backends
    couchdb
+   local_file
