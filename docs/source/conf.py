@@ -13,6 +13,7 @@
 import os
 import sys
 import datetime
+from sphinx.ext import intersphinx
 
 
 sys.path.insert(0, os.path.abspath('../..'))
@@ -66,6 +67,20 @@ intersphinx_mapping = {
     'dateutil': ('https://dateutil.readthedocs.io/en/stable/', None),
     'lxml': ('https://lxml.de/apidoc/', None)
 }
+
+
+def on_missing_reference(app, env, node, contnode):
+    path = node["reftarget"].split(".")
+    # lxml uses _Element instead of Element and _ElementTree instead of ElementTree in its documentation,
+    # causing missing references if untreated.
+    if len(path) > 2 and path[0:2] == ["lxml", "etree"] and path[2] in {"Element", "ElementTree"}:
+        node["reftarget"] = ".".join(path[0:2] + ["_" + path[2]] + path[3:])
+        return intersphinx.resolve_reference_in_inventory(env, "lxml", node, contnode)
+    return None
+
+
+def setup(app):
+    app.connect("missing-reference", on_missing_reference)
 
 
 # -- Options for HTML output -------------------------------------------------
