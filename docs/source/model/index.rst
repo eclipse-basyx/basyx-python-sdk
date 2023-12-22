@@ -1,7 +1,7 @@
 aas.model - Python Model of the AssetAdministrationShell Metamodel
 ==================================================================
 
-.. automodule:: basyx.aas.model.__init__
+.. automodule:: basyx.aas.model
 
 *Note:* Since the Class-Attributes usually have the same names as the `__init__`-constructor
 parameters, you can assume that you can use the attribute names listed in the documentation for
