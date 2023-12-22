@@ -22,7 +22,7 @@ from basyx.aas import __version__
 # -- Project information -----------------------------------------------------
 
 project = 'Eclipse BaSyx Python SDK'
-copyright = str(datetime.datetime.now().year) + ', the Eclipse BaSyx Authors'
+project_copyright = str(datetime.datetime.now().year) + ', the Eclipse BaSyx Authors'
 author = 'The Eclipse BaSyx Authors'
 
 # The full version, including alpha/beta/rc tags
