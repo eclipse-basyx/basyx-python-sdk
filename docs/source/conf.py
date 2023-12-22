@@ -50,6 +50,9 @@ templates_path = ['_templates']
 # This pattern also affects html_static_path and html_extra_path.
 exclude_patterns = []
 
+# Don't prepend the name of the current module to all classes.
+add_module_names = False
+
 # Include all public documented and undocumented members by default.
 autodoc_default_options = {
     'members': True,
