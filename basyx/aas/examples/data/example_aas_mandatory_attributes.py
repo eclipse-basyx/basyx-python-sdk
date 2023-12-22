@@ -6,8 +6,8 @@
 # SPDX-License-Identifier: MIT
 """
 Module for the creation of an :class:`ObjectStore <basyx.aas.model.provider.DictObjectStore>` with an example
-:class:`~basyx.aas.model.aas.AssetAdministrationShell` and example :class:`Submodels <basyx.aas.model.submodel.Submodel>`
-and a :class:`~aas.model.concept.ConceptDictionary` containing an
+:class:`~basyx.aas.model.aas.AssetAdministrationShell` and example
+:class:`Submodels <basyx.aas.model.submodel.Submodel>` and a :class:`~aas.model.concept.ConceptDictionary` containing an
 example :class:`~basyx.aas.model.concept.ConceptDescription`. All objects only contain mandatory
 attributes.
 

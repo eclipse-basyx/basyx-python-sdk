@@ -39,8 +39,8 @@ class ConceptDescription(base.Identifiable, base.HasDataSpecification):
 
     :ivar ~.id: The globally unique id of the element. (inherited from
                             :class:`~basyx.aas.model.base.Identifiable`)
-    :ivar is_case_of: Unordered list of global :class:`References <basyx.aas.model.base.Reference>` to external definitions
-                      the concept is compatible to or was derived from.
+    :ivar is_case_of: Unordered list of global :class:`References <basyx.aas.model.base.Reference>` to external
+                      definitions the concept is compatible to or was derived from.
     :ivar id_short: Identifying string of the element within its name space. (inherited from
                     :class:`~basyx.aas.model.base.Referable`)
     :ivar display_name: Can be provided in several languages. (inherited from :class:`~basyx.aas.model.base.Referable`)

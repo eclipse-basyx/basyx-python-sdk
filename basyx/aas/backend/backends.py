@@ -15,9 +15,9 @@ for synchronizing this object.
 
 Custom backends for additional types of data sources can be implemented by subclassing the `Backend` class and
 implementing the :meth:`~.Backend.commit_object` and :meth:`~.Backend.update_object` class methods. These are used
-internally by the objects' :meth:`~basyx.aas.model.base.Referable.update` and :meth:`~basyx.aas.model.base.Referable.commit`
-methods when the backend is applicable for the relevant source URI. Then, the Backend class
-needs to be registered to handle update/commit requests for a specific URI schema, using
+internally by the objects' :meth:`~basyx.aas.model.base.Referable.update` and
+:meth:`~basyx.aas.model.base.Referable.commit` methods when the backend is applicable for the relevant source URI.
+Then, the Backend class needs to be registered to handle update/commit requests for a specific URI schema, using
 :meth:`~aas.backend.backends.register_backend`.
 """
 import abc
@@ -35,8 +35,8 @@ class Backend(metaclass=abc.ABCMeta):
     Each Backend class is typically capable of synchronizing (updating/committing) objects with a type of external data
     source, identified by one or more source URI schemas. Custom backends for custom source URI schemas should inherit
     from this class and be registered via :meth:`~aas.backend.backends.register_backend`. to be used by Referable
-    object's :meth:`~basyx.aas.model.base.Referable.update` and :meth:`~basyx.aas.model.base.Referable.commit` methods when
-    required.
+    object's :meth:`~basyx.aas.model.base.Referable.update` and :meth:`~basyx.aas.model.base.Referable.commit` methods
+    when required.
     """
 
     @classmethod
@@ -86,13 +86,13 @@ class Backend(metaclass=abc.ABCMeta):
         Function (class method) to be called when an object shall be updated (local object updated with changes from the
         external data source) via this backend implementation.
 
-        It is automatically called by the :meth:`~basyx.aas.model.base.Referable.update` implementation, when the source URI
-        of the object or
-        the source URI one of its ancestors in the AAS object containment hierarchy include an URI schema for which this
-        backend has been registered. Both of the objects are passed to this function: the one which shall be update
-        (`updated_object`) and its ancestor with the relevant source URI (`store_object`). They may be the same, the
-        updated object has a source with the relevant schema itself. Additionally, the `relative_path` from the
-        `store_object` down to the `updated_object` is provided.
+        It is automatically called by the :meth:`~basyx.aas.model.base.Referable.update` implementation,
+        when the source URI of the object or the source URI one of its ancestors in the AAS object containment hierarchy
+        include an URI schema for which this backend has been registered. Both of the objects are passed
+        to this function: the one which shall be update (`updated_object`) and its ancestor with
+        the relevant source URI (`store_object`). They may be the same, the updated object has a source with
+        the relevant schema itself. Additionally, the `relative_path` from the `store_object` down to
+        the `updated_object` is provided.
 
         The backend MUST ensure to update at least the `updated_object` and all objects contained within it (if any)
         with any changes from the data source. It MAY additionally update other objects (i.e. the `store_object` and any

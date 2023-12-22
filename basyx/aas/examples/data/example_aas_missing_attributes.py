@@ -5,8 +5,8 @@
 #
 # SPDX-License-Identifier: MIT
 """
-Module for the creation of an :class:`ObjectStore <basyx.aas.model.provider.DictObjectStore>` with missing object attribute
-combination for testing the serialization
+Module for the creation of an :class:`ObjectStore <basyx.aas.model.provider.DictObjectStore>` with missing object
+attribute combination for testing the serialization
 """
 import datetime
 import logging
@@ -19,9 +19,9 @@ logger = logging.getLogger(__name__)
 
 def create_full_example() -> model.DictObjectStore:
     """
-    Creates an :class:`~basyx.aas.model.provider.DictObjectStore` containing an example :class:`~basyx.aas.model.submodel.Submodel`,
-    an example :class:`~basyx.aas.model.concept.ConceptDescription` and an example
-    :class:`~basyx.aas.model.aas.AssetAdministrationShell`
+    Creates an :class:`~basyx.aas.model.provider.DictObjectStore` containing an example
+    :class:`~basyx.aas.model.submodel.Submodel`, an example :class:`~basyx.aas.model.concept.ConceptDescription` and an
+    example :class:`~basyx.aas.model.aas.AssetAdministrationShell`
 
     :return: :class:`basyx.aas.model.provider.DictObjectStore`
     """

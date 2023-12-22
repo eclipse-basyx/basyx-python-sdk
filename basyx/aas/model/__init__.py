@@ -22,8 +22,8 @@ concept.py
     :class:`~aas.model.concept.IEC61360ConceptDescription`
 
 provider.py
-    Providers for AAS objects, in order to store and retrieve :class:`~basyx.aas.model.base.Identifiable` objects by their
-    :class:`~basyx.aas.model.base.Identifier`.
+    Providers for AAS objects, in order to store and retrieve :class:`~basyx.aas.model.base.Identifiable` objects by
+    their :class:`~basyx.aas.model.base.Identifier`.
 
 submodel.py
     Meta-model of the submodels and events.

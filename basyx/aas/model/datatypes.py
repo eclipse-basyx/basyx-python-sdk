@@ -16,11 +16,12 @@ meant to be used directly for data values in the context of Asset Administration
 There are three conversion functions for usage in BaSyx Python SDK's model and adapters:
 
 * :meth:`~aas.model.datatypes.xsd_repr` serializes any XSD type from this module into it's lexical representation
-* :meth:`~basyx.aas.model.datatypes.from_xsd` parses an XSD type from its lexical representation (its required to name the
-  type for unambiguous conversion)
-* :meth:`~basyx.aas.model.datatypes.trivial_cast` type-cast a python value into an XSD type, if this is trivially possible.
-  Meant for fixing the type of :class:`Properties' <basyx.aas.model.submodel.Property>` values automatically, esp. for literal
-  values.
+* :meth:`~basyx.aas.model.datatypes.from_xsd` parses an XSD type from its lexical representation (its required to name
+  the type for unambiguous conversion)
+* :meth:`~basyx.aas.model.datatypes.trivial_cast` type-cast a python value into an XSD type,
+  if this is trivially possible.
+  Meant for fixing the type of :class:`Properties' <basyx.aas.model.submodel.Property>` values automatically,
+  esp. for literal values.
 """
 import base64
 import datetime

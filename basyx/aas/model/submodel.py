@@ -542,13 +542,15 @@ class File(DataElement):
 
 class ReferenceElement(DataElement):
     """
-    A reference element is a :class:`DataElement` that defines a :class:`~basyx.aas.model.base.Reference` to another element
-    within the same or another AAS or a :class:`~basyx.aas.model.base.Reference` to an external object or entity.
+    A reference element is a :class:`DataElement` that defines a :class:`~basyx.aas.model.base.Reference` to another
+    element within the same or another AAS or a :class:`~basyx.aas.model.base.Reference` to an external object
+    or entity.
 
     :ivar id_short: Identifying string of the element within its name space. (inherited from
                     :class:`~basyx.aas.model.base.Referable`)
-    :ivar value: :class:`~basyx.aas.model.base.Reference` to any other :class:`~basyx.aas.model.base.Referable` element of the same
-                 or any other AAS or a :class:`~basyx.aas.model.base.Reference` to an external object or entity.
+    :ivar value: :class:`~basyx.aas.model.base.Reference` to any other :class:`~basyx.aas.model.base.Referable` element
+                 of the same or any other AAS or a :class:`~basyx.aas.model.base.Reference` to an external object
+                 or entity.
     :ivar display_name: Can be provided in several languages. (inherited from :class:`~basyx.aas.model.base.Referable`)
     :ivar category: The category is a value that gives further meta information w.r.t. to the class of the element.
                      It affects the expected existence of attributes and the applicability of constraints.
@@ -822,7 +824,8 @@ class SubmodelElementList(SubmodelElement, base.UniqueIdShortNamespace, Generic[
 
 class RelationshipElement(SubmodelElement):
     """
-    A relationship element is used to define a relationship between two :class:`~basyx.aas.model.base.Referable` elements.
+    A relationship element is used to define a relationship between two :class:`~basyx.aas.model.base.Referable`
+    elements.
 
     :ivar id_short: Identifying string of the element within its name space. (inherited from
                     :class:`~basyx.aas.model.base.Referable`)
@@ -937,9 +940,9 @@ class Operation(SubmodelElement, base.UniqueIdShortNamespace):
 
     In- and output variables are implemented as :class:`SubmodelElements <.SubmodelElement>` directly without the
     wrapping `OperationVariable`. This makes implementing *Constraint AASd-134* much easier since we can just use normal
-    :class:`NamespaceSets <~basyx.aas.model.base.NamespaceSet>`. Furthermore, an `OperationVariable` contains nothing besides
-    a single :class:`~.SubmodelElement` anyway, so implementing it would just make using `Operations` more tedious
-    for no reason.
+    :class:`NamespaceSets <~basyx.aas.model.base.NamespaceSet>`. Furthermore, an `OperationVariable` contains nothing
+    besides a single :class:`~.SubmodelElement` anyway, so implementing it would just make using `Operations` more
+    tedious for no reason.
 
     *Constraint AASd-134:* For an Operation, the idShort of all inputVariable/value, outputVariable/value,
                            and inoutputVariable/value shall be unique.
@@ -1055,8 +1058,8 @@ class Entity(SubmodelElement, base.UniqueIdShortNamespace):
     :ivar statement: Unordered list of statements (:class:`SubmodelElements <.SubmodelElement>`) applicable to the
                      entity, typically with a qualified value.
     :ivar global_asset_id: Global :class:`~basyx.aas.model.base.Identifier` of the asset the entity is representing.
-    :ivar specific_asset_id: :class:`~basyx.aas.model.base.Reference` to an identifier key value pair representing a specific
-                             identifier of the asset represented by the asset administration shell.
+    :ivar specific_asset_id: :class:`~basyx.aas.model.base.Reference` to an identifier key value pair representing a
+                             specific identifier of the asset represented by the asset administration shell.
                              See Constraint AASd-014
     :ivar display_name: Can be provided in several languages. (inherited from :class:`~basyx.aas.model.base.Referable`)
     :ivar category: The category is a value that gives further meta information w.r.t. to the class of the element.
@@ -1223,9 +1226,10 @@ class BasicEventElement(EventElement):
 
     :ivar id_short: Identifying string of the element within its name space. (inherited from
                     :class:`~basyx.aas.model.base.Referable`)
-    :ivar observed: :class:`~basyx.aas.model.base.ModelReference` to the Referable, which defines the scope of the event.
-                    Can be :class:`~basyx.aas.model.aas.AssetAdministrationShell`, :class:`~basyx.aas.model.submodel.SubmodelElement`
-                    or :class:`~basyx.aas.model.submodel.SubmodelElement`. Reference to a referable, e.g. a data element
+    :ivar observed: :class:`~basyx.aas.model.base.ModelReference` to the Referable, which defines the scope of
+                    the event. Can be :class:`~basyx.aas.model.aas.AssetAdministrationShell`,
+                    :class:`~basyx.aas.model.submodel.SubmodelElement` or
+                    :class:`~basyx.aas.model.submodel.SubmodelElement`. Reference to a referable, e.g. a data element
                     or a submodel, that is being observed.
     :ivar direction: Direction of event as :class:`~basyx.aas.model.base.Direction`.
     :ivar state: State of event as :class:`~basyx.aas.model.base.StateOfEvent`.
@@ -1234,8 +1238,9 @@ class BasicEventElement(EventElement):
     :ivar message_broker: Information, which outer message infrastructure shall handle messages for the EventElement.
                           Refers to a :class:`~basyx.aas.model.submodel.SubmodelElement`,
                           :class:`~basyx.aas.model.submodel.SubmodelElementList`,
-                          :class:`~basyx.aas.model.submodel.SubmodelElementCollection` or :class:`~basyx.aas.model.submodel.Entity`,
-                          which contains DataElements describing the proprietary specification for the message broker.
+                          :class:`~basyx.aas.model.submodel.SubmodelElementCollection` or
+                          :class:`~basyx.aas.model.submodel.Entity`, which contains DataElements describing the
+                          proprietary specification for the message broker.
                           Note: for different message infrastructure, e.g. OPC UA or MQTT or AMQP, this proprietary
                           specification could be standardized by having respective Submodels.
     :ivar last_update: Timestamp in UTC, when the last event was received (input direction) or sent (output direction).

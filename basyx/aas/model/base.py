@@ -72,8 +72,8 @@ class KeyTypes(Enum):
     :cvar ENTITY: :class:`~basyx.aas.model.submodel.Entity`
     :cvar EVENT_ELEMENT: :class:`~basyx.aas.model.submodel.EventElement`, Note: EventElement is abstract
     :cvar FILE: :class:`~basyx.aas.model.submodel.File`
-    :cvar MULTI_LANGUAGE_PROPERTY: :class:`~basyx.aas.model.submodel.MultiLanguageProperty` property with a value that can be
-                                   provided in multiple languages
+    :cvar MULTI_LANGUAGE_PROPERTY: :class:`~basyx.aas.model.submodel.MultiLanguageProperty` property with a value that
+                                   can be provided in multiple languages
     :cvar OPERATION: :class:`~basyx.aas.model.submodel.Operation`
     :cvar PROPERTY: :class:`~basyx.aas.model.submodel.Property`
     :cvar RANGE: :class:`~basyx.aas.model.submodel.Range` with min and max
@@ -179,11 +179,11 @@ class EntityType(Enum):
     Enumeration for denoting whether an entity is a self-managed or a co-managed entity
 
     :cvar CO_MANAGED_ENTITY: For co-managed entities there is no separate
-                             :class:`AAS <basyx.aas.model.aas.AssetAdministrationShell>`. Co-managed entities need to be part
-                             of a self-managed entity
+                             :class:`AAS <basyx.aas.model.aas.AssetAdministrationShell>`. Co-managed entities need to
+                             be part of a self-managed entity
     :cvar SELF_MANAGED_ENTITY: Self-managed entities have their own
-                               :class:`AAS <basyx.aas.model.aas.AssetAdministrationShell>`, but can be part of the bill of
-                               material of a composite self-managed entity.
+                               :class:`AAS <basyx.aas.model.aas.AssetAdministrationShell>`, but can be part of the bill
+                               of material of a composite self-managed entity.
     """
 
     CO_MANAGED_ENTITY = 0
@@ -836,8 +836,8 @@ _RT = TypeVar('_RT', bound=Referable)
 
 class UnexpectedTypeError(TypeError):
     """
-    Exception to be raised by :meth:`basyx.aas.model.base.ModelReference.resolve` if the retrieved object has not the expected
-    type.
+    Exception to be raised by :meth:`basyx.aas.model.base.ModelReference.resolve` if the retrieved object has not
+    the expected type.
 
     :ivar value: The object of unexpected type
     """
@@ -993,7 +993,8 @@ class ModelReference(Reference, Generic[_RT]):
         :param provider_: :class:`~basyx.aas.model.provider.AbstractObjectProvider`
         :return: The referenced object (or a proxy object for it)
         :raises IndexError: If the list of keys is empty
-        :raises TypeError: If one of the intermediate objects on the path is not a :class:`~basyx.aas.model.base.Namespace`
+        :raises TypeError: If one of the intermediate objects on the path is not a
+                           :class:`~basyx.aas.model.base.Namespace`
         :raises UnexpectedTypeError: If the retrieved object is not of the expected type (or one of its subclasses). The
                                      object is stored in the `value` attribute of the exception
         :raises KeyError: If the reference could not be resolved
@@ -1072,10 +1073,11 @@ class ModelReference(Reference, Generic[_RT]):
         :class:`~.Identifiable` object. Additionally, the object must be an instance of a known :class:`~.Referable`
         type.
 
-        :param referable: :class:`~basyx.aas.model.base.Referable` object to construct the :class:`~.ModelReference` from
+        :param referable: :class:`~basyx.aas.model.base.Referable` object to construct the :class:`~.ModelReference`
+                          from
         :returns: Constructed :class:`~.ModelReference`
-        :raises ValueError: If no :class:`~basyx.aas.model.base.Identifiable` object is found while traversing the object's
-                ancestors
+        :raises ValueError: If no :class:`~basyx.aas.model.base.Identifiable` object is found while traversing the
+                            object's ancestors
         """
         # Get the first class from the base classes list (via inspect.getmro), that is contained in KEY_ELEMENTS_CLASSES
         from . import KEY_TYPES_CLASSES
