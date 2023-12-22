@@ -15,3 +15,4 @@ xml.xml_deserialization - Deserialization from XML to AAS-objects
 
 .. automodule:: basyx.aas.adapter.xml.xml_deserialization
 
+.. autoclass:: LSS
