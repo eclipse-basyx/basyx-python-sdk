@@ -2,5 +2,3 @@ aas.examples.data.example_aas_mandatory_attributes - AAS-objects that only conta
 =======================================================================================================
 
 .. automodule:: basyx.aas.examples.data.example_aas_mandatory_attributes
-      :members:
-
