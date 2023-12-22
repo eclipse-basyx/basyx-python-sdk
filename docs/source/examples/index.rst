@@ -1,5 +1,5 @@
-aas.examples - Example classes
-==============================
+basyx.aas.examples - Example classes
+====================================
 
 .. toctree::
    :maxdepth: 2
