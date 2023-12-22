@@ -1,5 +1,5 @@
-aas.util - Provide helpful utilities
-====================================
+basyx.aas.util - Provide helpful utilities
+==========================================
 
 .. automodule:: basyx.aas.util
 

@@ -1,4 +1,4 @@
-aas.model.concept - ConceptDescription and Dictionary
-=====================================================
+concept - ConceptDescription and Dictionary
+===========================================
 
 .. automodule:: basyx.aas.model.concept

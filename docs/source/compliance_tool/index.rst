@@ -1,5 +1,5 @@
-aas.compliance_tool - Tool for Creating and Checking JSON, XML and AASX Files' compliance
-=========================================================================================
+basyx.aas.compliance_tool - Tool for Creating and Checking JSON, XML and AASX Files' compliance
+===============================================================================================
 
 .. argparse::
     :module: basyx.aas.compliance_tool.cli

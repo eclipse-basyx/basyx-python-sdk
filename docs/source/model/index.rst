@@ -1,5 +1,5 @@
-aas.model - Python Model of the AssetAdministrationShell Metamodel
-==================================================================
+basyx.aas.model - Python Model of the AssetAdministrationShell Metamodel
+========================================================================
 
 .. automodule:: basyx.aas.model
 
