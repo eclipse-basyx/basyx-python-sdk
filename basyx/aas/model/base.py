@@ -53,7 +53,7 @@ class KeyTypes(Enum):
 
     :cvar ASSET_ADMINISTRATION_SHELL: :class:`~basyx.aas.model.aas.AssetAdministrationShell`
     :cvar CONCEPT_DESCRIPTION: :class:`~basyx.aas.model.concept.ConceptDescription`
-    :cvar SUBMODEL: :class:`~basyx.aas.model.submodel.SubmodelElement`
+    :cvar SUBMODEL: :class:`~basyx.aas.model.submodel.Submodel`
 
     **ReferableElements starting from 1000**
 

@@ -521,9 +521,9 @@ def submodel_element_to_xml(obj: model.SubmodelElement) -> etree.Element:
 def submodel_to_xml(obj: model.Submodel,
                     tag: str = NS_AAS+"submodel") -> etree.Element:
     """
-    Serialization of objects of class :class:`~basyx.aas.model.submodel.SubmodelElement` to XML
+    Serialization of objects of class :class:`~basyx.aas.model.submodel.Submodel` to XML
 
-    :param obj: Object of class :class:`~basyx.aas.model.submodel.SubmodelElement`
+    :param obj: Object of class :class:`~basyx.aas.model.submodel.Submodel`
     :param tag: Namespace+Tag of the serialized element (optional). Default is "aas:submodel"
     :return: Serialized ElementTree object
     """

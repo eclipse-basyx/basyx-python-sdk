@@ -49,7 +49,7 @@ _embedded_data_specification_iec61360 = model.EmbeddedDataSpecification(
 
 def create_full_example() -> model.DictObjectStore:
     """
-    Creates an object store which is filled with an example :class:`~basyx.aas.model.submodel.SubmodelElement`,
+    Creates an object store which is filled with an example :class:`~basyx.aas.model.submodel.Submodel`,
     :class:`~basyx.aas.model.concept.ConceptDescription` and :class:`~basyx.aas.model.aas.AssetAdministrationShell`
     using the functions of this module
 
@@ -66,7 +66,7 @@ def create_full_example() -> model.DictObjectStore:
 
 def create_example_asset_identification_submodel() -> model.Submodel:
     """
-    Creates a :class:`~basyx.aas.model.submodel.SubmodelElement` containing two :class:`~basyx.aas.model.submodel.Property` elements
+    Creates a :class:`~basyx.aas.model.submodel.Submodel` containing two :class:`~basyx.aas.model.submodel.Property` elements
     according to 'Verwaltungssschale in der Praxis'
     https://www.plattform-i40.de/PI40/Redaktion/DE/Downloads/Publikation/2019-verwaltungsschale-in-der-praxis.html
 
@@ -198,7 +198,7 @@ def create_example_asset_identification_submodel() -> model.Submodel:
 
 def create_example_bill_of_material_submodel() -> model.Submodel:
     """
-    creates a :class:`~basyx.aas.model.submodel.SubmodelElement` for the bill of material containing two entities one
+    creates a :class:`~basyx.aas.model.submodel.Submodel` for the bill of material containing two entities one
     co-managed and one self-managed
 
     :return: example bill of material submodel
@@ -329,7 +329,7 @@ def create_example_bill_of_material_submodel() -> model.Submodel:
 
 def create_example_submodel() -> model.Submodel:
     """
-    Creates an example :class:`~basyx.aas.model.submodel.SubmodelElement` containing all kind of
+    Creates an example :class:`~basyx.aas.model.submodel.Submodel` containing all kind of
     :class:`~basyx.aas.model.submodel.SubmodelElement` objects
 
     :return: example submodel

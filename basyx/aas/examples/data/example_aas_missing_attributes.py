@@ -19,7 +19,7 @@ logger = logging.getLogger(__name__)
 
 def create_full_example() -> model.DictObjectStore:
     """
-    Creates an :class:`~basyx.aas.model.provider.DictObjectStore` containing an example :class:`~basyx.aas.model.submodel.SubmodelElement`,
+    Creates an :class:`~basyx.aas.model.provider.DictObjectStore` containing an example :class:`~basyx.aas.model.submodel.Submodel`,
     an example :class:`~basyx.aas.model.concept.ConceptDescription` and an example
     :class:`~basyx.aas.model.aas.AssetAdministrationShell`
 
@@ -34,7 +34,7 @@ def create_full_example() -> model.DictObjectStore:
 
 def create_example_submodel() -> model.Submodel:
     """
-    Creates an example :class:`~basyx.aas.model.submodel.SubmodelElement` containing all kind of
+    Creates an example :class:`~basyx.aas.model.submodel.Submodel` containing all kind of
     :class:`~basyx.aas.model.submodel.SubmodelElement`  objects
 
     :return: example submodel
@@ -359,7 +359,7 @@ def create_example_concept_description() -> model.ConceptDescription:
 def create_example_asset_administration_shell() -> model.AssetAdministrationShell:
     """
     Creates an example :class:`~basyx.aas.model.aas.AssetAdministrationShell` containing a reference to an example
-    :class:`~basyx.aas.model.submodel.SubmodelElement`
+    :class:`~basyx.aas.model.submodel.Submodel`
 
     :return: example asset administration shell
     """

@@ -6,7 +6,7 @@
 # SPDX-License-Identifier: MIT
 """
 Module for the creation of an :class:`ObjectStore <basyx.aas.model.provider.DictObjectStore>` with an example
-:class:`~basyx.aas.model.aas.AssetAdministrationShell` and example :class:`Submodels <basyx.aas.model.submodel.SubmodelElement>`
+:class:`~basyx.aas.model.aas.AssetAdministrationShell` and example :class:`Submodels <basyx.aas.model.submodel.Submodel>`
 and a :class:`~aas.model.concept.ConceptDictionary` containing an
 example :class:`~basyx.aas.model.concept.ConceptDescription`. All objects only contain mandatory
 attributes.
@@ -26,7 +26,7 @@ logger = logging.getLogger(__name__)
 def create_full_example() -> model.DictObjectStore:
     """
     Creates an :class:`~.basyx.aas.model.provider.DictObjectStore` which is filled with an example
-    :class:`~basyx.aas.model.submodel.SubmodelElement`, :class:`~basyx.aas.model.concept.ConceptDescription`
+    :class:`~basyx.aas.model.submodel.Submodel`, :class:`~basyx.aas.model.concept.ConceptDescription`
     and :class:`~basyx.aas.model.aas.AssetAdministrationShell` using the functions of this module
 
     :return: :class:`~basyx.aas.model.provider.DictObjectStore`
@@ -42,7 +42,7 @@ def create_full_example() -> model.DictObjectStore:
 
 def create_example_submodel() -> model.Submodel:
     """
-    Creates an example :class:`~basyx.aas.model.submodel.SubmodelElement` containing all kind of
+    Creates an example :class:`~basyx.aas.model.submodel.Submodel` containing all kind of
     :class:`~basyx.aas.model.submodel.SubmodelElement` objects where only mandatory attributes are set
 
     :return: example submodel
@@ -150,7 +150,7 @@ def create_example_submodel() -> model.Submodel:
 
 def create_example_empty_submodel() -> model.Submodel:
     """
-    Creates an example empty :class:`~basyx.aas.model.submodel.SubmodelElement` where only the id attribute is set
+    Creates an example empty :class:`~basyx.aas.model.submodel.Submodel` where only the id attribute is set
 
     :return: example submodel
     """
@@ -173,7 +173,7 @@ def create_example_asset_administration_shell() -> \
         model.AssetAdministrationShell:
     """
     Creates an example :class:`~basyx.aas.model.aas.AssetAdministrationShell` containing references to the example,
-    the example :class:`~Submodels <basyx.aas.model.submodel.SubmodelElement>`.
+    the example :class:`~Submodels <basyx.aas.model.submodel.Submodel>`.
 
     :return: example asset administration shell
     """
