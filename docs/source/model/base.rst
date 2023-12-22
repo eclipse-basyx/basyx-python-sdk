@@ -2,6 +2,13 @@ base - Abstract Classes and Basic Structures
 ============================================
 
 .. automodule:: basyx.aas.model.base
+    :exclude-members: ConstrainedList, LangStringSet
+
+    .. autoclass:: ConstrainedList
+          :exclude-members: clear
+
+    .. autoclass:: LangStringSet
+          :exclude-members: clear
 
 
 Constrained String Datatypes
