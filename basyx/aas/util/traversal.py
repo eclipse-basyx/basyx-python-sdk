@@ -17,7 +17,7 @@ def walk_submodel(collection: Union[model.Submodel, model.SubmodelElementCollect
         -> Iterator[model.SubmodelElement]:
     """
     Traverse the :class:`SubmodelElements <basyx.aas.model.submodel.SubmodelElement>` in a
-    :class:`~basyx.aas.model.submodel.SubmodelElement`, :class:`~basyx.aas.model.submodel.SubmodelElementCollection` or a
+    :class:`~basyx.aas.model.submodel.Submodel`, :class:`~basyx.aas.model.submodel.SubmodelElementCollection` or a
     :class:`~basyx.aas.model.submodel.SubmodelElementList` recursively in post-order tree-traversal.
 
     This is a generator function, yielding all the :class:`SubmodelElements <basyx.aas.model.submodel.SubmodelElement>`.
@@ -33,7 +33,7 @@ def walk_submodel(collection: Union[model.Submodel, model.SubmodelElementCollect
 
 def walk_semantic_ids_recursive(root: model.Referable) -> Iterator[model.Reference]:
     """
-    Traverse an AAS object hierarchy (e.g. a :class:`~basyx.aas.model.submodel.SubmodelElement` with all recursively contained
+    Traverse an AAS object hierarchy (e.g. a :class:`~basyx.aas.model.submodel.Submodel` with all recursively contained
     :class:`SubmodelElements <basyx.aas.model.submodel.SubmodelElement>`) recursively and return all non-empty (!= None)
     semanticIds.
 

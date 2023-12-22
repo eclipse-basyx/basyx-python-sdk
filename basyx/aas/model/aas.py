@@ -139,7 +139,7 @@ class AssetAdministrationShell(base.Identifiable, base.UniqueIdShortNamespace, b
     :ivar administration: :class:`~basyx.aas.model.base.AdministrativeInformation` of an
                           :class:`~.basyx.aas.model.base.Identifiable` element. (inherited from
                           :class:`~basyx.aas.model.base.Identifiable`)
-    :ivar ~.submodel: Unordered list of :class:`submodels <basyx.aas.model.submodel.SubmodelElement>` to describe typically the asset
+    :ivar ~.submodel: Unordered list of :class:`submodels <basyx.aas.model.submodel.Submodel>` to describe typically the asset
                     of an AAS. (Initialization-parameter: `submodel_`)
     :ivar derived_from: The :class:`reference <basyx.aas.model.base.ModelReference>` to the AAS the AAs was derived from
     :ivar embedded_data_specifications: List of Embedded data specification.
