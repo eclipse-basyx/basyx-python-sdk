@@ -1,7 +1,7 @@
 adapter.json - JSON serialization and deserialization
 =====================================================
 
-.. automodule:: basyx.aas.adapter.json.__init__
+.. automodule:: basyx.aas.adapter.json
 
 
 adapter.json.json_serialization: JSON serialization of AAS objects

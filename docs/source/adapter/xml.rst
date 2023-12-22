@@ -1,7 +1,7 @@
 adapter.xml - XML serialization and deserialization
 ===================================================
 
-.. automodule:: basyx.aas.adapter.xml.__init__
+.. automodule:: basyx.aas.adapter.xml
 
 adapter.xml.xml_serialization - Serialization from AAS-objects to XML
 #####################################################################
