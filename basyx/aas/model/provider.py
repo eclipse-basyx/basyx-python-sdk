@@ -6,8 +6,8 @@
 # SPDX-License-Identifier: MIT
 """
 This module implements Registries for the AAS, in order to enable resolving global
-:class:`Identifiers <basyx.aas.model.base.Identifier>`; and mapping :class:`Identifiers <basyx.aas.model.base.Identifier>` to
-:class:`~basyx.aas.model.base.Identifiable` objects.
+:class:`Identifiers <basyx.aas.model.base.Identifier>`; and mapping
+:class:`Identifiers <basyx.aas.model.base.Identifier>` to :class:`~basyx.aas.model.base.Identifiable` objects.
 """
 
 import abc
@@ -122,8 +122,8 @@ class ObjectProviderMultiplexer(AbstractObjectProvider):
     """
     A multiplexer for Providers of :class:`~basyx.aas.model.base.Identifiable` objects.
 
-    This class combines multiple registries of :class:`~basyx.aas.model.base.Identifiable` objects into a single one to allow
-    retrieving :class:`~basyx.aas.model.base.Identifiable` objects from different sources.
+    This class combines multiple registries of :class:`~basyx.aas.model.base.Identifiable` objects into a single one
+    to allow retrieving :class:`~basyx.aas.model.base.Identifiable` objects from different sources.
     It implements the :class:`~.AbstractObjectProvider` interface to be used as registry itself.
 
     :ivar registries: A list of :class:`AbstractObjectProviders <.AbstractObjectProvider>` to query when looking up an

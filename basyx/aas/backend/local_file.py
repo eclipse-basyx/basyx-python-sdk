@@ -5,8 +5,8 @@
 #
 # SPDX-License-Identifier: MIT
 """
-This module adds the functionality of storing and retrieving :class:`~basyx.aas.model.base.Identifiable` objects in local
-files.
+This module adds the functionality of storing and retrieving :class:`~basyx.aas.model.base.Identifiable` objects
+in local files.
 
 The :class:`~.LocalFileBackend` takes care of updating and committing objects from and to the files, while the
 :class:`~LocalFileObjectStore` handles adding, deleting and otherwise managing the AAS objects in a specific Directory.
@@ -68,8 +68,8 @@ backends.register_backend("file", LocalFileBackend)
 
 class LocalFileObjectStore(model.AbstractObjectStore):
     """
-    An ObjectStore implementation for :class:`~basyx.aas.model.base.Identifiable` BaSyx Python SDK objects backed by a local
-    file based local backend
+    An ObjectStore implementation for :class:`~basyx.aas.model.base.Identifiable` BaSyx Python SDK objects backed
+    by a local file based local backend
     """
     def __init__(self, directory_path: str):
         """
@@ -176,7 +176,8 @@ class LocalFileObjectStore(model.AbstractObjectStore):
         Check if an object with the given :class:`~basyx.aas.model.base.Identifier` or the same
         :class:`~basyx.aas.model.base.Identifier` as the given object is contained in the local file database
 
-        :param x: AAS object :class:`~basyx.aas.model.base.Identifier` or :class:`~basyx.aas.model.base.Identifiable` AAS object
+        :param x: AAS object :class:`~basyx.aas.model.base.Identifier` or :class:`~basyx.aas.model.base.Identifiable`
+                  AAS object
         :return: `True` if such an object exists in the database, `False` otherwise
         """
         if isinstance(x, model.Identifier):

@@ -66,8 +66,8 @@ def create_full_example() -> model.DictObjectStore:
 
 def create_example_asset_identification_submodel() -> model.Submodel:
     """
-    Creates a :class:`~basyx.aas.model.submodel.Submodel` containing two :class:`~basyx.aas.model.submodel.Property` elements
-    according to 'Verwaltungssschale in der Praxis'
+    Creates a :class:`~basyx.aas.model.submodel.Submodel` containing two :class:`~basyx.aas.model.submodel.Property`
+    elements according to 'Verwaltungssschale in der Praxis'
     https://www.plattform-i40.de/PI40/Redaktion/DE/Downloads/Publikation/2019-verwaltungsschale-in-der-praxis.html
 
     :return: example asset identification submodel

@@ -37,9 +37,9 @@ def walk_semantic_ids_recursive(root: model.Referable) -> Iterator[model.Referen
     :class:`SubmodelElements <basyx.aas.model.submodel.SubmodelElement>`) recursively and return all non-empty (!= None)
     semanticIds.
 
-    This is a generator function, yielding all the semanticIds. No :class:`~basyx.aas.model.base.Referable` objects should be
-    added, removed or moved to/from/in the AAS object hierarchy while iterating, as this could result in undefined
-    behaviour.
+    This is a generator function, yielding all the semanticIds. No :class:`~basyx.aas.model.base.Referable` objects
+    should be added, removed or moved to/from/in the AAS object hierarchy while iterating, as this could result
+    in undefined behaviour.
     """
     if isinstance(root, model.HasSemantics):
         if root.semantic_id is not None:
