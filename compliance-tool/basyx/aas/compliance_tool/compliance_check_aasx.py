@@ -7,16 +7,9 @@
 """
 Module which offers functions to use in a confirmation tool related to AASX files
 
-:meth:`~aas.compliance_tool.compliance_check_aasx.check_deserialization`: Checks if a AASX file can be deserialized
-
-:meth:`~aas.compliance_tool.compliance_check_aasx.check_aas_example`: Checks if a AASX file consist the data of the
-example data defined in aas.examples.data.example_aas.py
-
-:meth:`~aas.compliance_tool.compliance_check_aasx.check_aasx_files_equivalence`: Checks if two AASX files have the same
-data regardless of their order
-
-All functions reports any issues using the given :class:`~aas.compliance_tool.state_manager.ComplianceToolStateManager`
-by adding new steps and associated LogRecords
+All functions reports any issues using the given
+:class:`~basyx.aas.compliance_tool.state_manager.ComplianceToolStateManager` by adding new steps and associated
+:class:`LogRecords <logging.LogRecord>`
 """
 import datetime
 import logging
@@ -41,7 +34,7 @@ def check_deserialization(file_path: str, state_manager: ComplianceToolStateMana
         -> Tuple[model.DictObjectStore, aasx.DictSupplementaryFileContainer, pyecma376_2.OPCCoreProperties]:
     """
     Read a AASX file and reports any issues using the given
-    :class:`~aas.compliance_tool.state_manager.ComplianceToolStateManager`
+    :class:`~basyx.aas.compliance_tool.state_manager.ComplianceToolStateManager`
 
     Add the steps: `Open {} file' and 'Read {} file`
 
@@ -98,7 +91,7 @@ def check_deserialization(file_path: str, state_manager: ComplianceToolStateMana
 def check_schema(file_path: str, state_manager: ComplianceToolStateManager) -> None:
     """
     Checks a given file against the official json schema and reports any issues using the given
-    :class:`~aas.compliance_tool.state_manager.ComplianceToolStateManager`
+    :class:`~basyx.aas.compliance_tool.state_manager.ComplianceToolStateManager`
 
     Opens the file and checks if the data inside is stored in XML or JSON. Then calls the respective compliance tool
     schema check
@@ -161,14 +154,14 @@ def check_schema(file_path: str, state_manager: ComplianceToolStateManager) -> N
 def check_aas_example(file_path: str, state_manager: ComplianceToolStateManager, **kwargs) -> None:
     """
     Checks if a file contains all elements of the aas example and reports any issues using the given
-    :class:`~aas.compliance_tool.state_manager.ComplianceToolStateManager`
+    :class:`~basyx.aas.compliance_tool.state_manager.ComplianceToolStateManager`
 
-    Calls the :meth:`~aas.compliance_tool.compliance_check_aasx.check_deserialization` and add the steps:
+    Calls the :meth:`~basyx.aas.compliance_tool.compliance_check_aasx.check_deserialization` and add the steps:
     `Check if data is equal to example data`
 
     :param file_path: Given file which should be checked
-    :param state_manager: :class:`~aas.compliance_tool.state_manager.ComplianceToolStateManager` to log the steps
-    :param kwargs: Additional arguments to pass to :class:`~aas.examples.data._helper.AASDataChecker`
+    :param state_manager: :class:`~basyx.aas.compliance_tool.state_manager.ComplianceToolStateManager` to log the steps
+    :param kwargs: Additional arguments to pass to :class:`~basyx.aas.examples.data._helper.AASDataChecker`
     """
     logger = logging.getLogger('compliance_check')
     logger.addHandler(state_manager)
@@ -272,15 +265,15 @@ def check_aasx_files_equivalence(file_path_1: str, file_path_2: str, state_manag
                                  **kwargs) -> None:
     """
     Checks if two aasx files contain the same elements in any order and reports any issues using the given
-    :class:`~aas.compliance_tool.state_manager.ComplianceToolStateManager`
+    :class:`~basyx.aas.compliance_tool.state_manager.ComplianceToolStateManager`
 
-    calls the :meth:`~aas.compliance_tool.compliance_check_aasx.check_deserialization` for each file and add the steps:
-    `Check if data in files are equal`
+    calls the :meth:`~basyx.aas.compliance_tool.compliance_check_aasx.check_deserialization` for each file and add the
+    steps: `Check if data in files are equal`
 
     :param file_path_1: Given first file which should be checked
     :param file_path_2: Given second file which should be checked
-    :param state_manager: :class:`~aas.compliance_tool.state_manager.ComplianceToolStateManager` to log the steps
-    :param kwargs: Additional arguments to pass to :class:`~aas.examples.data._helper.AASDataChecker`
+    :param state_manager: :class:`~basyx.aas.compliance_tool.state_manager.ComplianceToolStateManager` to log the steps
+    :param kwargs: Additional arguments to pass to :class:`~basyx.aas.examples.data._helper.AASDataChecker`
     """
     logger = logging.getLogger('compliance_check')
     logger.addHandler(state_manager)
