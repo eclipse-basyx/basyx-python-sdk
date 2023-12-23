@@ -96,7 +96,12 @@ html_theme = 'sphinx_rtd_theme'
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = []
+html_static_path = ['_static']
+
+# Fix white-space wrapping in tables.
+# See https://github.com/readthedocs/sphinx_rtd_theme/issues/1505
+# Once fixed, this can be removed and '_static' can be removed from html_static_path.
+html_style = 'custom.css'
 
 # Configuration of the 'Edit on GitHub' button at the top right.
 html_context = {
