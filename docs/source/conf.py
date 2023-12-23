@@ -97,3 +97,12 @@ html_theme = 'sphinx_rtd_theme'
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = []
+
+# Configuration of the 'Edit on GitHub' button at the top right.
+html_context = {
+    'display_github': True,
+    'github_user': 'eclipse-basyx',
+    'github_repo': 'basyx-python-sdk',
+    'github_version': release,
+    'conf_py_path': '/docs/source/'
+}
