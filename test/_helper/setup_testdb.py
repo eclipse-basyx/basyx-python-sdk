@@ -8,13 +8,13 @@
 """
 Small helper script to setup a blank CouchDB server with a test database and a test user (e.g. for use in CI)
 
-This script uses the `test/test_config.ini` and `test/test_config.default.ini` files to setup the CouchDB server the way
-the tests will expect it. The admin user and password used to do the setup may be configured via command line:
+This script uses the ``test/test_config.ini`` and ``test/test_config.default.ini`` files to setup the CouchDB server
+the way the tests will expect it. The admin user and password used to do the setup may be configured via command line:
 
     setup_testdb.py -u admin -p admin_password
 
 If no CouchDB server at the configured URL, the script will exit with exit code 1. To avoid the error exit code (for use
-in CI), provide the `--failsafe` option.
+in CI), provide the ``--failsafe`` option.
 """
 import base64
 import configparser

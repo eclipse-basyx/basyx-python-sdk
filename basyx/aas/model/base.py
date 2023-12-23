@@ -57,12 +57,14 @@ class KeyTypes(Enum):
 
     **ReferableElements starting from 1000**
 
-    *Note:* DataElement is abstract, i. e. if a key uses :attr:`~.KeyTypes.DATA_ELEMENT` the reference may be
-    :class:`~basyx.aas.model.submodel.Property`, :class:`~basyx.aas.model.submodel.File` etc.
+    .. note::
+        DataElement is abstract, i. e. if a key uses :attr:`~.KeyTypes.DATA_ELEMENT` the reference may be
+        :class:`~basyx.aas.model.submodel.Property`, :class:`~basyx.aas.model.submodel.File` etc.
 
-    *Note:* SubmodelElement is abstract, i.e. if a key uses :attr:`~.KeyTypes.SUBMODEL_ELEMENT`
-    the reference may be a :class:`~basyx.aas.model.submodel.Property`, a
-    :class:`~basyx.aas.model.submodel.SubmodelElementCollection`, an :class:`~basyx.aas.model.submodel.Operation` etc.
+    .. note::
+        SubmodelElement is abstract, i.e. if a key uses :attr:`~.KeyTypes.SUBMODEL_ELEMENT` the reference may be a
+        :class:`~basyx.aas.model.submodel.Property`, a :class:`~basyx.aas.model.submodel.SubmodelElementCollection`,
+        an :class:`~basyx.aas.model.submodel.Operation` etc.
 
     :cvar ANNOTATED_RELATIONSHIP_ELEMENT: :class:`~basyx.aas.model.submodel.AnnotatedRelationshipElement`
     :cvar BASIC_EVENT_ELEMENT: :class:`~basyx.aas.model.submodel.BasicEventElement`
@@ -194,16 +196,23 @@ class EntityType(Enum):
 class ModellingKind(Enum):
     """
     Enumeration for denoting whether an element is a type or an instance.
-    *Note:* An :attr:`~.ModellingKind.INSTANCE` becomes an individual entity of a template, for example a device model,
-    by defining specific property values.
 
-    *Note:* In an object-oriented view, an instance denotes an object of a template (class).
+    .. note::
+        An ``INSTANCE`` becomes an individual entity of a template, for example a device model,
+        by defining specific property values.
+
+    .. note::
+        In an object-oriented view, an instance denotes an object of a template (class).
 
     :cvar TEMPLATE: Software element which specifies the common attributes shared by all instances of the template
     :cvar INSTANCE: concrete, clearly identifiable component of a certain template.
-        *Note:*  It becomes an individual entity of a template, for example a device model, by defining
+
+    .. note::
+        It becomes an individual entity of a template, for example a device model, by defining
         specific property values.
-        *Note:* In an object-oriented view, an instance denotes an object of a template (class).
+
+    .. note::
+        In an object-oriented view, an instance denotes an object of a template (class).
     """
 
     TEMPLATE = 0
@@ -215,10 +224,13 @@ class AssetKind(Enum):
     """
     Enumeration for denoting whether an asset is a type asset or an instance asset or whether this kind of
     classification is not applicable.
-    *Note:* :attr:`~.AssetKind.INSTANCE` becomes an individual entity of a type, for example a device, by defining
-    specific property values.
 
-    *Note:* In an object oriented view, an instance denotes an object of a class (of a type)
+    .. note::
+        :attr:`~.AssetKind.INSTANCE` becomes an individual entity of a type, for example a device, by defining
+        specific property values.
+
+    .. note::
+        In an object oriented view, an instance denotes an object of a class (of a type)
 
     :cvar TYPE: Type asset
     :cvar INSTANCE: Instance asset
@@ -236,9 +248,9 @@ class QualifierKind(Enum):
 
     :cvar CONCEPT_QUALIFIER: qualifies the semantic definition the element is referring to (HasSemantics/semanticId)
     :cvar TEMPLATE_QUALIFIER: qualifies the elements within a specific submodel on concept level. Template qualifiers
-                              are only applicable to elements with kind="Template"
+                              are only applicable to elements with kind=``Template``
     :cvar VALUE_QUALIFIER: qualifies the value of the element and can change during run-time. Value qualifiers are only
-                           applicable to elements with kind="Instance"
+                           applicable to elements with kind=``Instance``
     """
 
     CONCEPT_QUALIFIER = 0
@@ -320,7 +332,7 @@ class LangStringSet(MutableMapping[str, str]):
 
 class ConstrainedLangStringSet(LangStringSet, metaclass=abc.ABCMeta):
     """
-    A :class:`~.LangStringSet` with constrained values.
+    A :class:`LangStringSet` with constrained values.
     """
     @abc.abstractmethod
     def __init__(self, dict_: Dict[str, str], constraint_check_fn: Callable[[str, str], None]):
@@ -342,8 +354,8 @@ class ConstrainedLangStringSet(LangStringSet, metaclass=abc.ABCMeta):
 
 class MultiLanguageNameType(ConstrainedLangStringSet):
     """
-    A :class:`~.ConstrainedLangStringSet` where each value is a :class:`~.ShortNameType`.
-    See also: :func:`~aas.model._string_constraints.check_short_name_type`
+    A :class:`~.ConstrainedLangStringSet` where each value is a :class:`ShortNameType`.
+    See also: :func:`basyx.aas.model._string_constraints.check_short_name_type`
     """
     def __init__(self, dict_: Dict[str, str]):
         super().__init__(dict_, _string_constraints.check_short_name_type)
@@ -385,9 +397,9 @@ class Key:
     """
     A key is a reference to an element by its id.
 
-    :ivar type_: Denote which kind of entity is referenced. In case type = :attr:`~.KeyTypes.GLOBAL_REFERENCE` then
-                the element is a global unique id. In all other cases the key references a model element of the same or
-                of another AAS. The name of the model element is explicitly listed.
+    :ivar type: Denote which kind of entity is referenced. In case type = :attr:`~.KeyTypes.GLOBAL_REFERENCE` then
+               the element is a global unique id. In all other cases the key references a model element of the same or
+               of another AAS. The name of the model element is explicitly listed.
     :ivar value: The key value, for example an IRDI or IRI
     """
 
@@ -422,11 +434,11 @@ class Key:
     def __hash__(self):
         return hash((self.value, self.type))
 
-    def get_identifier(self) -> Optional["Identifier"]:
+    def get_identifier(self) -> Optional[Identifier]:
         """
-        Get an :class:`~.Identifier` object corresponding to this key, if it is an identifiable key.
+        Get an :class:`Identifier` object corresponding to this key, if it is an identifiable key.
 
-        :return: None if this is no identifiable key, otherwise a corresponding :class:`~.Identifier` string.
+        :return: None if this is no identifiable key, otherwise a corresponding :class:`Identifier` string.
         """
         if not self.type.is_aas_identifiable:
             return None
@@ -529,14 +541,10 @@ class HasExtension(Namespace, metaclass=abc.ABCMeta):
 
     <<abstract>>
 
-    *Constraint AASd-077:* The name of an extension within HasExtensions needs to be unique.
-
-    TODO: This constraint is not yet implemented, a new Class for CustomSets should be implemented
+    **Constraint AASd-077:** The name of an Extension within HasExtensions needs to be unique.
 
     :ivar namespace_element_sets: List of :class:`NamespaceSets <basyx.aas.model.base.NamespaceSet>`
     :ivar extension: A :class:`~.NamespaceSet` of :class:`Extensions <.Extension>` of the element.
-    :ivar _MEMBER_OBJ_TYPE: :class:`_NSO <basyx.aas.model.base.Namespace>`
-    :ivar _ATTRIBUTE_NAME: Specific attribute name <basyx.aas.model.base.Namespace>`.
     """
     @abc.abstractmethod
     def __init__(self) -> None:
@@ -578,15 +586,18 @@ class Referable(HasExtension, metaclass=abc.ABCMeta):
 
     <<abstract>>
 
-    *Constraint AASd-001:* In case of a referable element not being an identifiable element the
-        idShort is mandatory and used for referring to the element in its name space.
-    *Constraint AASd-002:* idShort shall only feature letters, digits, underscore ("_"); starting
-        mandatory with a letter.
-    *Constraint AASd-004:* Add parent in case of non identifiable elements.
-    *Constraint AASd-022:* idShort of non-identifiable referables shall be unique in its namespace (case-sensitive)
+    **Constraint AASd-001:** In case of a referable element not being an identifiable element the
+    idShort is mandatory and used for referring to the element in its name space.
+
+    **Constraint AASd-002:** idShort shall only feature letters, digits, underscore (``_``); starting
+    mandatory with a letter.
+
+    **Constraint AASd-004:** Add parent in case of non identifiable elements.
+
+    **Constraint AASd-022:** idShort of non-identifiable referables shall be unique in its namespace (case-sensitive)
 
     :ivar _id_short: Identifying string of the element within its name space
-    :ivar ~.category: The category is a value that gives further meta information w.r.t. to the class of the element.
+    :ivar category: The category is a value that gives further meta information w.r.t. to the class of the element.
                       It affects the expected existence of attributes and the applicability of constraints.
     :ivar description: Description or comments on the element.
     :ivar parent: Reference (in form of a :class:`~.UniqueIdShortNamespace`) to the next referable parent element
@@ -654,9 +665,11 @@ class Referable(HasExtension, metaclass=abc.ABCMeta):
         """
         Check the input string
 
-        Constraint AASd-002: idShort of Referables shall only feature letters, digits, underscore ("_"); starting
-        mandatory with a letter. I.e. [a-zA-Z][a-zA-Z0-9_]+
-        Constraint AASd-022: idShort of non-identifiable referables shall be unique in its namespace (case-sensitive)
+        **Constraint AASd-002:** idShort of Referables shall only feature letters, digits, underscore (``_``); starting
+        mandatory with a letter. I.e. ``[a-zA-Z][a-zA-Z0-9_]+``
+
+        **Constraint AASd-022:** idShort of non-identifiable referables shall be unique in its namespace
+        (case-sensitive)
 
         :param id_short: Identifying string of the element within its name space
         :raises ValueError: if the constraint is not fulfilled
@@ -714,7 +727,7 @@ class Referable(HasExtension, metaclass=abc.ABCMeta):
         If there is no source in any ancestor, this function will do nothing
 
         :param max_age: Maximum age of the local data in seconds. This method may return early, if the previous update
-                        of the object has been performed less than `max_age` seconds ago.
+                        of the object has been performed less than ``max_age`` seconds ago.
         :param recursive: Also call update on all children of this object. Default is True
         :param _indirect_source: Internal parameter to avoid duplicate updating.
         :raises backends.BackendError: If no appropriate backend or the data source is not available
@@ -775,7 +788,7 @@ class Referable(HasExtension, metaclass=abc.ABCMeta):
         Internal function to updates the object's attributes from another object of a similar type.
 
         This function should not be used directly. It is typically used by backend implementations (database adapters,
-        protocol clients, etc.) to update the object's data, after `update()` has been called.
+        protocol clients, etc.) to update the object's data, after ``update()`` has been called.
 
         :param other: The object to update from
         :param update_source: Update the source attribute with the other's source attribute. This is not propagated
@@ -859,8 +872,8 @@ class Reference(metaclass=abc.ABCMeta):
 
     <<abstract>>
 
-    *Constraint AASd-121:* For References the value of Key/type of the first key of Reference/keys shall be one of
-        GloballyIdentifiables.
+    **Constraint AASd-121:** For References the value of Key/type of the first key of Reference/keys shall be one of
+    GloballyIdentifiables.
 
     :ivar key: Ordered list of unique reference in its name space, each key referencing an element. The complete
                list of keys may for example be concatenated to a path that then gives unique access to an element
@@ -903,11 +916,12 @@ class ExternalReference(Reference):
     A reference is an ordered list of keys, each key referencing an element. The complete list of keys may for
     example be concatenated to a path that then gives unique access to an element or entity.
 
-    *Constraint AASd-122:* For external references, i.e. References with Reference/type = ExternalReference,
-        the value of Key/type of the first key of Reference/keys shall be one of GenericGloballyIdentifiables.
-    *Constraint AASd-124:* For external references, i.e. References with Reference/type = ExternalReference,
-        the last key of Reference/keys shall be either one of GenericGloballyIdentifiables
-        or one of GenericFragmentKeys.
+    **Constraint AASd-122:** For external references, i.e. References with Reference/type = ExternalReference,
+    the value of Key/type of the first key of Reference/keys shall be one of GenericGloballyIdentifiables.
+
+    **Constraint AASd-124:** For external references, i.e. References with Reference/type = ExternalReference,
+    the last key of Reference/keys shall be either one of GenericGloballyIdentifiables
+    or one of GenericFragmentKeys.
 
     :ivar key: Ordered list of unique reference in its name space, each key referencing an element. The complete
                list of keys may for example be concatenated to a path that then gives unique access to an element
@@ -936,27 +950,31 @@ class ModelReference(Reference, Generic[_RT]):
 
     This is a special construct of the implementation to allow typed references and de-referencing.
 
-    *Constraint AASd-123:* For model references, i.e. References with Reference/type = ModelReference,
-        the value of Key/type of the first key of Reference/keys shall be one of AasIdentifiables.
-    *Constraint AASd-125:* For model references, i.e. References with Reference/type = ModelReference with more than
-        one key in Reference/keys, the value of Key/type of each of the keys following the first key of Reference/keys
-        shall be one of FragmentKeys.
-    *Constraint AASd-126:* For model references, i.e. References with Reference/type = ModelReference with more than
-        one key in Reference/keys, the value of Key/type of the last Key in the reference key chain may be one of
-        GenericFragmentKeys, or no key at all shall have a value out of GenericFragmentKeys.
-    *Constraint AASd-127:* For model references, i.e. References with Reference/type = ModelReference with more than
-        one key in Reference/keys, a key with Key/type FragmentReference shall be preceded by a key with Key/type
-        File or Blob. All other AAS fragments, i.e. Key/type values out of AasSubmodelElements,
-        do not support fragments.
-    *Constraint AASd-128:* For model references the Key/value of a Key preceded by a Key with
-                           Key/type=SubmodelElementList is an integer number denoting the position in the array of the
-                           submodel element list.
+    **Constraint AASd-123:** For model references, i.e. References with Reference/type = ModelReference,
+    the value of Key/type of the first key of Reference/keys shall be one of AasIdentifiables.
+
+    **Constraint AASd-125:** For model references, i.e. References with Reference/type = ModelReference with more than
+    one key in Reference/keys, the value of Key/type of each of the keys following the first key of Reference/keys
+    shall be one of FragmentKeys.
+
+    **Constraint AASd-126:** For model references, i.e. References with Reference/type = ModelReference with more than
+    one key in Reference/keys, the value of Key/type of the last Key in the reference key chain may be one of
+    GenericFragmentKeys, or no key at all shall have a value out of GenericFragmentKeys.
+
+    **Constraint AASd-127:** For model references, i.e. References with Reference/type = ModelReference with more than
+    one key in Reference/keys, a key with Key/type FragmentReference shall be preceded by a key with Key/type
+    File or Blob. All other AAS fragments, i.e. Key/type values out of AasSubmodelElements,
+    do not support fragments.
+
+    **Constraint AASd-128:** For model references the Key/value of a Key preceded by a Key with
+    Key/type=SubmodelElementList is an integer number denoting the position in the array of the
+    submodel element list.
 
     :ivar key: Ordered list of unique :class:`Keys <.Key>` in its name space, each key referencing an element.
                The complete list of keys may for example be concatenated to a path that then gives unique access to an
                element or entity.
-    :ivar ~.type: The type of the referenced object (additional parameter, not from the AAS Metamodel)
-                  *Initialization parameter:* `type_`
+    :ivar type: The type of the referenced object (additional parameter, not from the AAS Metamodel)
+                  *Initialization parameter:* ``type_``
     :ivar referred_semantic_id: SemanticId of the referenced model element. For external references there typically is
                                 no semantic id.
     """
@@ -996,7 +1014,7 @@ class ModelReference(Reference, Generic[_RT]):
         :raises TypeError: If one of the intermediate objects on the path is not a
                            :class:`~basyx.aas.model.base.Namespace`
         :raises UnexpectedTypeError: If the retrieved object is not of the expected type (or one of its subclasses). The
-                                     object is stored in the `value` attribute of the exception
+                                     object is stored in the ``value`` attribute of the exception
         :raises KeyError: If the reference could not be resolved
         """
 
@@ -1045,10 +1063,10 @@ class ModelReference(Reference, Generic[_RT]):
 
     def get_identifier(self) -> Identifier:
         """
-        Retrieve the :class:`~.Identifier` of the :class:`~.Identifiable` object, which is referenced or in which the
+        Retrieve the :class:`Identifier` of the :class:`~.Identifiable` object, which is referenced or in which the
         referenced :class:`~.Referable` is contained.
 
-        :returns: :class:`~.Identifier`
+        :returns: :class:`Identifier`
         :raises ValueError: If this :class:`~.ModelReference` does not include a Key of AasIdentifiable type
         """
         try:
@@ -1123,12 +1141,10 @@ class DataSpecificationContent:
     which additional attributes shall be added to the element instance that references
     the data specification template and meta information about the template itself.
 
-    *Constraint AASc-3a-050:* If the `Data_specification_IEC_61360` is used
-        for an element, the value of `Has_data_specification.embedded_data_specifications`
-        shall contain the external reference to the IRI of the corresponding data specification
-        template
-        https://admin-shell.io/DataSpecificationTemplates/DataSpecificationIEC61360/3/0
-
+    **Constraint AASc-3a-050:** If the ``Data_specification_IEC_61360`` is used
+    for an element, the value of ``HasDataSpecification.embedded_data_specifications``
+    shall contain the external reference to the IRI of the corresponding data specification
+    template ``https://admin-shell.io/DataSpecificationTemplates/DataSpecificationIEC61360/3/0``
     """
     @abc.abstractmethod
     def __init__(self):
@@ -1162,7 +1178,8 @@ class HasDataSpecification(metaclass=abc.ABCMeta):
     element may or shall have. The data specifications used are explicitly specified
     with their global ID.
 
-    *Note:* Please consider, that we have not implemented DataSpecification template class
+    .. warning::
+        Please consider, that we do not implement the DataSpecification template class.
 
     :ivar embedded_data_specifications: List of :class:`~.EmbeddedDataSpecification`.
     """
@@ -1180,26 +1197,28 @@ class AdministrativeInformation(HasDataSpecification):
     """
     Administrative meta-information for an element like version information.
 
-    *Constraint AASd-005:* If AdministrativeInformation/version is not specified then also
-        AdministrativeInformation/revision shall be unspecified. This means, a revision
-        requires a version. if there is no version there is no revision neither. Revision is
-        optional.
+    **Constraint AASd-005:** If AdministrativeInformation/version is not specified then also
+    AdministrativeInformation/revision shall be unspecified. This means, a revision
+    requires a version. if there is no version there is no revision neither. Revision is
+    optional.
 
     :ivar version: Version of the element.
     :ivar revision: Revision of the element.
     :ivar creator: The subject ID of the subject responsible for making the element
     :ivar template_id: Identifier of the template that guided the creation of the element
-
-    *Note:*  In case of a submodel, the template ID is the identifier of the submodel template that guided the
-      creation of the submodel.
-
-    *Note:* The submodel template ID is not relevant for validation. Here, the Submodel/semanticId shall be used
-
-    *Note:* Usage of the template ID is not restricted to submodel instances.
-      The creation of submodel templates can also be guided by another submodel template.
-
     :ivar embedded_data_specifications: List of Embedded data specification.
      used by the element.
+
+    .. note::
+        In case of a submodel, the template ID is the identifier of the submodel template that guided the
+        creation of the submodel.
+
+    .. note::
+        The submodel template ID is not relevant for validation. Here, the Submodel/semanticId shall be used
+
+    .. note::
+        Usage of the template ID is not restricted to submodel instances.
+        The creation of submodel templates can also be guided by another submodel template.
     """
 
     def __init__(self,
@@ -1252,12 +1271,12 @@ class AdministrativeInformation(HasDataSpecification):
 @_string_constraints.constrain_identifier("id")
 class Identifiable(Referable, metaclass=abc.ABCMeta):
     """
-    An element that has a globally unique :class:`~.Identifier`.
+    An element that has a globally unique :class:`Identifier`.
 
     <<abstract>>
 
     :ivar administration: :class:`~.AdministrativeInformation` of an identifiable element.
-    :ivar ~.id: The globally unique id of the element.
+    :ivar id: The globally unique id of the element.
     """
     @abc.abstractmethod
     def __init__(self) -> None:
@@ -1276,19 +1295,19 @@ _T = TypeVar("_T")
 class ConstrainedList(MutableSequence[_T], Generic[_T]):
     """
     A type of list that can be constrained by hooks, useful when implementing AASd constraints. This list can be
-    initialized with an `item_add_hook`, `item_set_hook` and an `item_del_hook`.
+    initialized with an ``item_add_hook``, ``item_set_hook`` and an ``item_del_hook``.
 
     The item_add_hook is called every time an item is added to the list. It is passed the item that is added and
     all items currently contained in the list.
 
-    The `item_set_hook` is called every time one or multiple items are overwritten with one or multiple new items, à la
-    `list[i] = new_item` or `list[i:j] = new_items`. It is passed the item(s) about to replaced, the new item(s) and all
-    items currently contained in the list.
-    Note that this can also be used to clear the list, e.g. `list[:] = []`. Thus, to ensure that a list is never empty,
-    `item_set_hook` must be used in addition to `item_del_hook`.
+    The ``item_set_hook`` is called every time one or multiple items are overwritten with one or multiple new items,
+    à la ``list[i] = new_item`` or ``list[i:j] = new_items``. It is passed the item(s) about to replaced, the new
+    item(s) and all items currently contained in the list.
+    Note that this can also be used to clear the list, e.g. ``list[:] = []``. Thus, to ensure that a list is never
+    empty, ``item_set_hook`` must be used in addition to ``item_del_hook``.
 
-    Finally, `item_del_hook` is called whenever an item is removed from the list, (e.g. via `.remove()`, `.pop()` or
-    `del list[i]`. It is passed the item about to be deleted and the current list elements.
+    Finally, ``item_del_hook`` is called whenever an item is removed from the list, (e.g. via ``.remove()``, ``.pop()``
+    or ``del list[i]``. It is passed the item about to be deleted and the current list elements.
     """
 
     def __init__(self, items: Iterable[_T], item_add_hook: Optional[Callable[[_T, List[_T]], None]] = None,
@@ -1383,8 +1402,8 @@ class HasSemantics(metaclass=abc.ABCMeta):
 
     <<abstract>>
 
-    *Constraint AASd-118:* If a supplemental semantic ID (HasSemantics/supplementalSemanticId) is defined,
-        there shall also be a main semantic ID (HasSemantics/semanticId).
+    **Constraint AASd-118:** If a supplemental semantic ID (HasSemantics/supplementalSemanticId) is defined,
+    there shall also be a main semantic ID (HasSemantics/semanticId).
 
     :ivar semantic_id: Identifier of the semantic definition of the element. It is called semantic id of the element.
                        The semantic id may either reference an external global id or it may reference a referable model
@@ -1445,8 +1464,8 @@ class Extension(HasSemantics):
     Single extension of an element
 
     :ivar name: An extension of the element.
-    :ivar value_type: Type (:class:`~.DataTypeDefXsd`) of the value of the extension. Default: xsd:string
-    :ivar value: Value (:class:`~.ValueDataType`) of the extension
+    :ivar value_type: Type (:class:`DataTypeDefXsd`) of the value of the extension. Default: xsd:string
+    :ivar value: Value (:class:`ValueDataType`) of the extension
     :ivar refers_to: An iterable of :class:`~.ModelReference` to elements the extension refers to
     :ivar semantic_id: The semantic_id defined in the :class:`~.HasSemantics` class.
     :ivar supplemental_semantic_id: Identifier of a supplemental semantic definition of the element. It is called
@@ -1533,14 +1552,14 @@ class HasKind(metaclass=abc.ABCMeta):
 
 class Qualifiable(Namespace, metaclass=abc.ABCMeta):
     """
-    Abstract baseclass for all objects which form a Namespace to hold :class:`~.Qualifier` objects and resolve them by
+    Abstract baseclass for all objects which form a Namespace to hold :class:`Qualifier` objects and resolve them by
     their type.
 
     <<abstract>>
 
     :ivar namespace_element_sets: A list of all :class:`NamespaceSets <.NamespaceSet>` of this Namespace
-    :ivar qualifier: Unordered list of :class:`Qualifiers <~.Qualifier>` that gives additional qualification of a
-        qualifiable element.
+    :ivar qualifier: Unordered list of :class:`Qualifiers <Qualifier>` that gives additional qualification of a
+                     qualifiable element.
     """
     @abc.abstractmethod
     def __init__(self) -> None:
@@ -1579,14 +1598,15 @@ class Qualifier(HasSemantics):
     """
     A qualifier is a type-value pair that makes additional statements w.r.t. the value of the element.
 
-    *Constraint AASd-006:* If both, the value and the valueId of a Qualifier are present, the value needs
-        to be identical to the value of the referenced coded value in Qualifier/valueId.
-    *Constraint AASd-020:* The value of Qualifier/value shall be consistent with the
-        data type as defined in Qualifier/valueType.
+    **Constraint AASd-006:** If both, the value and the valueId of a Qualifier are present, the value needs
+    to be identical to the value of the referenced coded value in Qualifier/valueId.
 
-    :ivar type: The type (:class:`~.QualifierType`) of the qualifier that is applied to the element.
-    :ivar value_type: Data type (:class:`~.DataTypeDefXsd`) of the qualifier value
-    :ivar value: The value (:class:`~.ValueDataType`) of the qualifier.
+    **Constraint AASd-020:** The value of Qualifier/value shall be consistent with the
+    data type as defined in Qualifier/valueType.
+
+    :ivar type: The type (:class:`QualifierType`) of the qualifier that is applied to the element.
+    :ivar value_type: Data type (:class:`DataTypeDefXsd`) of the qualifier value
+    :ivar value: The value (:class:`ValueDataType`) of the qualifier.
     :ivar value_id: :class:`~.Reference` to the global unique id of a coded value.
     :ivar semantic_id: The semantic_id defined in :class:`~.HasSemantics`.
     :ivar supplemental_semantic_id: Identifier of a supplemental semantic definition of the element. It is called
@@ -1685,7 +1705,7 @@ class UniqueIdShortNamespace(Namespace, metaclass=abc.ABCMeta):
     Abstract baseclass for all objects which form a Namespace to hold :class:`~.Referable` objects and resolve them by
     their id_short.
 
-    A Namespace can contain multiple :class:`NamespaceSets <~.NamespaceSet>`, which contain :class:`~.Referable` objects
+    A Namespace can contain multiple :class:`NamespaceSets <NamespaceSet>`, which contain :class:`~.Referable` objects
     of different types. However, the id_short of each object must be unique across all NamespaceSets of one Namespace.
 
 
@@ -1719,7 +1739,7 @@ class UniqueIdShortNamespace(Namespace, metaclass=abc.ABCMeta):
 
     def remove_referable(self, id_short: NameType) -> None:
         """
-        Remove a :class:`~.Referable` from this Namespace by its `id_short`
+        Remove a :class:`~.Referable` from this Namespace by its ``id_short``
 
         :param id_short: id_short
         :raises KeyError: If no such :class:`~.Referable` can be found
@@ -1785,13 +1805,13 @@ class NamespaceSet(MutableSet[_NSO], Generic[_NSO]):
     Helper class for storing AAS objects of a given type in a Namespace and find them by their unique attribute.
 
     This class behaves much like a set of AAS objects of a defined type, but uses dicts internally to rapidly
-    find those objects by their unique attribute. Additionally, it manages the `parent` attribute of the stored
+    find those objects by their unique attribute. Additionally, it manages the ``parent`` attribute of the stored
     AAS objects and ensures the uniqueness of their attribute within the Namespace.
 
-    Use `add()`, `remove()`, `pop()`, `discard()`, `clear()`, `len()`, `x in` checks and iteration  just like on a
-    normal set of AAS objects. To get an AAS object by its attribute, use `get_object()` or `get()` (the latter one
-    allows a default argument and returns None instead of raising a KeyError). As a bonus, the `x in` check supports
-    checking for existence of attribute *or* a concrete AAS object.
+    Use ``add()``, ``remove()``, ``pop()``, ``discard()``, ``clear()``, ``len()``, ``x in`` checks and iteration  just
+    like on a normal set of AAS objects. To get an AAS object by its attribute, use ``get_object()`` or ``get()``
+    (the latter one allows a default argument and returns None instead of raising a KeyError). As a bonus, the ``x in``
+    check supports checking for existence of attribute *or* a concrete AAS object.
 
     :ivar parent: The Namespace this set belongs to
 
@@ -1802,7 +1822,7 @@ class NamespaceSet(MutableSet[_NSO], Generic[_NSO]):
         indicates if the attribute should be matched case-sensitive (true) or case-insensitive (false)
     :param items: A given list of AAS items to be added to the set
 
-    :raises KeyError: When `items` contains multiple objects with same unique attribute
+    :raises KeyError: When ``items`` contains multiple objects with same unique attribute
     """
     def __init__(self, parent: Union[UniqueIdShortNamespace, UniqueSemanticIdNamespace, Qualifiable, HasExtension],
                  attribute_names: List[Tuple[str, bool]], items: Iterable[_NSO] = (),
@@ -1812,7 +1832,7 @@ class NamespaceSet(MutableSet[_NSO], Generic[_NSO]):
         """
         Initialize a new NamespaceSet.
 
-        This initializer automatically takes care of adding this set to the `namespace_element_sets` list of the
+        This initializer automatically takes care of adding this set to the ``namespace_element_sets`` list of the
         Namespace.
 
         :param parent: The Namespace this set belongs to
@@ -1827,7 +1847,7 @@ class NamespaceSet(MutableSet[_NSO], Generic[_NSO]):
         :param item_id_del_hook: A function that is called for each item removed from this NamespaceSet. Used in
                                  SubmodelElementList to unset id_shorts on removal. Should not be used for
                                  constraint checking, as the hook is called after removal.
-        :raises AASConstraintViolation: When `items` contains multiple objects with same unique attribute or when an
+        :raises AASConstraintViolation: When ``items`` contains multiple objects with same unique attribute or when an
                                         item doesn't has an identifying attribute
         """
         self.parent = parent
@@ -1989,7 +2009,7 @@ class NamespaceSet(MutableSet[_NSO], Generic[_NSO]):
         :param attribute_name: name of the attribute to search for
         :param attribute_value: value of the attribute to search for
         :param default: An object to be returned, if no object with the given attribute is found
-        :return: The AAS object with the given attribute in the set. Otherwise the `default` object or None, if
+        :return: The AAS object with the given attribute in the set. Otherwise the ``default`` object or None, if
                  none is given.
         """
         backend, case_sensitive = self._backend[attribute_name]
@@ -2056,7 +2076,7 @@ class OrderedNamespaceSet(NamespaceSet[_NSO], MutableSequence[_NSO], Generic[_NS
         """
         Initialize a new OrderedNamespaceSet.
 
-        This initializer automatically takes care of adding this set to the `namespace_element_sets` list of the
+        This initializer automatically takes care of adding this set to the ``namespace_element_sets`` list of the
         Namespace.
 
         :param parent: The Namespace this set belongs to
@@ -2071,7 +2091,7 @@ class OrderedNamespaceSet(NamespaceSet[_NSO], MutableSequence[_NSO], Generic[_NS
         :param item_id_del_hook: A function that is called for each item removed from this NamespaceSet. Used in
                                  SubmodelElementList to unset id_shorts on removal. Should not be used for
                                  constraint checking, as the hook is called after removal.
-        :raises AASConstraintViolation: When `items` contains multiple objects with same unique attribute or when an
+        :raises AASConstraintViolation: When ``items`` contains multiple objects with same unique attribute or when an
                                         item doesn't has an identifying attribute
         """
         self._order: List[_NSO] = []
@@ -2163,8 +2183,8 @@ class SpecificAssetId(HasSemantics):
     A specific asset ID describes a generic supplementary identifying attribute of the asset.
     The specific asset ID is not necessarily globally unique.
 
-    *Constraint AASd-133:* SpecificAssetId/externalSubjectId shall be a global reference,
-        i.e. Reference/type = ExternalReference
+    **Constraint AASd-133:** SpecificAssetId/externalSubjectId shall be a global reference,
+    i.e. Reference/type = ExternalReference
 
     :ivar name: Key of the identifier
     :ivar value: The value of the identifier with the corresponding key.
@@ -2245,7 +2265,7 @@ class AASConstraintViolation(Exception):
 @unique
 class DataTypeIEC61360(Enum):
     """
-    Data types for data_type in :class:`DataSpecificationIEC61360 <.IEC61360ConceptDescription>`
+    Data types for data_type in :class:`DataSpecificationIEC61360`
     The data types are:
 
     :cvar DATE:
@@ -2292,7 +2312,7 @@ class DataTypeIEC61360(Enum):
 @unique
 class IEC61360LevelType(Enum):
     """
-    Level types for the level_type in :class:`DataSpecificationIEC61360 <.IEC61360ConceptDescription>`
+    Level types for the level_type in :class:`DataSpecificationIEC61360`
     The level types are:
 
     :cvar MIN:

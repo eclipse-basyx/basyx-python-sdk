@@ -31,7 +31,7 @@ class LocalFileBackend(backends.Backend):
     """
     This Backend stores each Identifiable object as a single JSON document as a local file in a directory.
     Each document's id is build from the object's identifier using a SHA256 sum of its identifiable; the document's
-    contents comprise a single property "data", containing the JSON serialization of the BaSyx Python SDK object. The
+    contents comprise a single property ``data``, containing the JSON serialization of the BaSyx Python SDK object. The
     :ref:`adapter.json <adapter.json.__init__>` package is used for serialization and deserialization of objects.
     """
 
@@ -178,7 +178,7 @@ class LocalFileObjectStore(model.AbstractObjectStore):
 
         :param x: AAS object :class:`~basyx.aas.model.base.Identifier` or :class:`~basyx.aas.model.base.Identifiable`
                   AAS object
-        :return: `True` if such an object exists in the database, `False` otherwise
+        :return: ``True`` if such an object exists in the database, ``False`` otherwise
         """
         if isinstance(x, model.Identifier):
             identifier = x

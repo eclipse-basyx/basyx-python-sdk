@@ -47,7 +47,7 @@ class AbstractObjectProvider(metaclass=abc.ABCMeta):
         :param default: An object to be returned, if no object with the given
                         :class:`id <basyx.aas.model.base.Identifier>` is found
         :return: The :class:`~basyx.aas.model.base.Identifiable` object with the given
-                 :class:`id <basyx.aas.model.base.Identifier>` in the provider. Otherwise the `default` object
+                 :class:`id <basyx.aas.model.base.Identifier>` in the provider. Otherwise the ``default`` object
                  or None, if none is given.
         """
         try:
@@ -68,8 +68,8 @@ class AbstractObjectStore(AbstractObjectProvider, MutableSet[_IT], Generic[_IT],
     This includes local object stores (like :class:`~.DictObjectStore`) and database
     :class:`Backends <basyx.aas.backend.backends.Backend>`.
 
-    The AbstractObjectStore inherits from the `MutableSet` abstract collections class and therefore implements all the
-    functions of this class.
+    The AbstractObjectStore inherits from the :class:`~collections.abc.MutableSet` abstract collections class and
+    therefore implements all the functions of this class.
     """
     @abc.abstractmethod
     def __init__(self):

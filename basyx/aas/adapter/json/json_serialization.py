@@ -9,21 +9,21 @@
 
 Module for serializing Asset Administration Shell objects to the official JSON format
 
-The module provides an custom JSONEncoder classes :class:`~.AASToJsonEncoder` and :class:`~.AASToJsonEncoderStripped`
-to be used with the Python standard `json` module. While the former serializes objects as defined in the specification,
-the latter serializes stripped objects, excluding some attributes
+The module provides an custom JSONEncoder classes :class:`AASToJsonEncoder` and :class:`StrippedAASToJsonEncoder`
+to be used with the Python standard :mod:`json` module. While the former serializes objects as defined in the
+specification, the latter serializes stripped objects, excluding some attributes
 (see https://git.rwth-aachen.de/acplt/pyi40aas/-/issues/91).
 Each class contains a custom :meth:`~.AASToJsonEncoder.default` function which converts BaSyx Python SDK objects to
 simple python types for an automatic JSON serialization.
-To simplify the usage of this module, the :meth:`~.write_aas_json_file` and :meth:`~.object_store_to_json` are provided.
-The former is used to serialize a given :class:`~aas.model.provider.AbstractObjectStore` to a file, while the latter
-serializes the object store to a string and returns it.
+To simplify the usage of this module, the :meth:`write_aas_json_file` and :meth:`object_store_to_json` are provided.
+The former is used to serialize a given :class:`~basyx.aas.model.provider.AbstractObjectStore` to a file, while the
+latter serializes the object store to a string and returns it.
 
 The serialization is performed in an iterative approach: The :meth:`~.AASToJsonEncoder.default` function gets called for
 every object and checks if an object is an BaSyx Python SDK object. In this case, it calls a special function for the
 respective BaSyx Python SDK class which converts the object (but not the contained objects) into a simple Python dict,
 which is serializable. Any contained  BaSyx Python SDK objects are included into the dict as they are to be converted
-later on. The special helper function :meth:`~.AASToJsonEncoder._abstract_classes_to_json` is called by most of the
+later on. The special helper function ``_abstract_classes_to_json`` is called by most of the
 conversion functions to handle all the attributes of abstract base classes.
 """
 import base64
@@ -37,10 +37,10 @@ from .. import _generic
 
 class AASToJsonEncoder(json.JSONEncoder):
     """
-    Custom JSON Encoder class to use the `json` module for serializing Asset Administration Shell data into the
+    Custom JSON Encoder class to use the :mod:`json` module for serializing Asset Administration Shell data into the
     official JSON format
 
-    The class overrides the `default()` method to transform BaSyx Python SDK objects into dicts that may be serialized
+    The class overrides the ``default()`` method to transform BaSyx Python SDK objects into dicts that may be serialized
     by the standard encode method.
 
     Typical usage:
@@ -50,14 +50,14 @@ class AASToJsonEncoder(json.JSONEncoder):
         json_string = json.dumps(data, cls=AASToJsonEncoder)
 
     :cvar stripped: If True, the JSON objects will be serialized in a stripped manner, excluding some attributes.
-                    Defaults to `False`.
+                    Defaults to ``False``.
                     See https://git.rwth-aachen.de/acplt/pyi40aas/-/issues/91
     """
     stripped = False
 
     def default(self, obj: object) -> object:
         """
-        The overwritten `default` method for `json.JSONEncoder`
+        The overwritten ``default`` method for :class:`json.JSONEncoder`
 
         :param obj: The object to serialize to json
         :return: The serialized object
@@ -578,12 +578,13 @@ class AASToJsonEncoder(json.JSONEncoder):
     def _operation_variable_to_json(cls, obj: model.SubmodelElement) -> Dict[str, object]:
         """
         serialization of an object from class SubmodelElement to a json OperationVariable representation
-        Since we don't implement the `OperationVariable` class, which is just a wrapper for a single
-        :class:`~basyx.aas.model.submodel.SubmodelElement`, elements are serialized as the `value` attribute of an
-        `operationVariable` object.
+        Since we don't implement the ``OperationVariable`` class, which is just a wrapper for a single
+        :class:`~basyx.aas.model.submodel.SubmodelElement`, elements are serialized as the ``value`` attribute of an
+        ``operationVariable`` object.
 
-        :param obj: object of class `SubmodelElement`
-        :return: `OperationVariable` wrapper containing the serialized `SubmodelElement`
+        :param obj: object of class :class:`~basyx.aas.model.submodel.SubmodelElement`
+        :return: ``OperationVariable`` wrapper containing the serialized
+                 :class:`~basyx.aas.model.submodel.SubmodelElement`
         """
         return {'value': obj}
 
@@ -718,13 +719,13 @@ def object_store_to_json(data: model.AbstractObjectStore, stripped: bool = False
     Create a json serialization of a set of AAS objects according to 'Details of the Asset Administration Shell',
     chapter 5.5
 
-    :param data: :class:`ObjectStore <aas.model.provider.AbstractObjectStore>` which contains different objects of the
-                 AAS meta model which should be serialized to a JSON file
+    :param data: :class:`ObjectStore <basyx.aas.model.provider.AbstractObjectStore>` which contains different objects of
+                 the AAS meta model which should be serialized to a JSON file
     :param stripped: If true, objects are serialized to stripped json objects.
                      See https://git.rwth-aachen.de/acplt/pyi40aas/-/issues/91
                      This parameter is ignored if an encoder class is specified.
     :param encoder: The encoder class used to encode the JSON objects
-    :param kwargs: Additional keyword arguments to be passed to `json.dumps()`
+    :param kwargs: Additional keyword arguments to be passed to :func:`json.dumps`
     """
     encoder_ = _select_encoder(stripped, encoder)
     # serialize object to json
@@ -738,8 +739,8 @@ def write_aas_json_file(file: IO, data: model.AbstractObjectStore, stripped: boo
     Administration Shell', chapter 5.5
 
     :param file: A file-like object to write the JSON-serialized data to
-    :param data: :class:`ObjectStore <aas.model.provider.AbstractObjectStore>` which contains different objects of the
-                 AAS meta model which should be serialized to a JSON file
+    :param data: :class:`ObjectStore <basyx.aas.model.provider.AbstractObjectStore>` which contains different objects of
+                 the AAS meta model which should be serialized to a JSON file
     :param stripped: If `True`, objects are serialized to stripped json objects.
                      See https://git.rwth-aachen.de/acplt/pyi40aas/-/issues/91
                      This parameter is ignored if an encoder class is specified.

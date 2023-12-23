@@ -11,11 +11,11 @@ Module for serializing Asset Administration Shell data to the official XML forma
 
 How to use:
 
-- For generating an XML-File from a :class:`~aas.model.provider.AbstractObjectStore`, check out the function
-  :meth:`~aas.adapter.xml.xml_serialization.write_aas_xml_file`.
+- For generating an XML-File from a :class:`~basyx.aas.model.provider.AbstractObjectStore`, check out the function
+  :func:`write_aas_xml_file`.
 - For serializing any object to an XML fragment, that fits the XML specification from 'Details of the
-  Asset Administration Shell', chapter 5.4, check out `<your_object_class_name_here>_to_xml()`. These functions return
-  an :class:`xml.etree.ElementTree.Element` object to be serialized into XML.
+  Asset Administration Shell', chapter 5.4, check out ``<class_name>_to_xml()``. These functions return
+  an :class:`~lxml.etree.Element` object to be serialized into XML.
 """
 
 from lxml import etree  # type: ignore
@@ -36,12 +36,12 @@ def _generate_element(name: str,
                       text: Optional[str] = None,
                       attributes: Optional[Dict] = None) -> etree.Element:
     """
-    generate an ElementTree.Element object
+    generate an :class:`~lxml.etree.Element` object
 
     :param name: namespace+tag_name of the element
     :param text: Text of the element. Default is None
-    :param attributes: Attributes of the elements in form of a dict {"attribute_name": "attribute_content"}
-    :return: ElementTree.Element object
+    :param attributes: Attributes of the elements in form of a dict ``{"attribute_name": "attribute_content"}``
+    :return: :class:`~lxml.etree.Element` object
     """
     et_element = etree.Element(name)
     if text:
@@ -56,8 +56,8 @@ def boolean_to_xml(obj: bool) -> str:
     """
     Serialize a boolean to XML
 
-    :param obj: Boolean (`True`, `False`)
-    :return: String in the XML accepted form (`'true'`, `'false'`)
+    :param obj: Boolean (``True``, ``False``)
+    :return: String in the XML accepted form (``true``, ``false``)
     """
     if obj:
         return "true"
@@ -72,7 +72,7 @@ def boolean_to_xml(obj: bool) -> str:
 
 def abstract_classes_to_xml(tag: str, obj: object) -> etree.Element:
     """
-    Generates an XML element and adds attributes of abstract base classes of `obj`.
+    Generates an XML element and adds attributes of abstract base classes of ``obj``.
 
     If the object obj is inheriting from any abstract AAS class, this function adds all the serialized information of
     those abstract classes to the generated element.
@@ -140,12 +140,12 @@ def _value_to_xml(value: model.ValueDataType,
                   value_type: model.DataTypeDefXsd,
                   tag: str = NS_AAS+"value") -> etree.Element:
     """
-    Serialization of objects of class ValueDataType to XML
+    Serialization of objects of :class:`~basyx.aas.model.base.ValueDataType` to XML
 
-    :param value: model.ValueDataType object
-    :param value_type: Corresponding model.DataTypeDefXsd
-    :param tag: tag of the serialized ValueDataType object
-    :return: Serialized ElementTree.Element object
+    :param value: :class:`~basyx.aas.model.base.ValueDataType` object
+    :param value_type: Corresponding :class:`~basyx.aas.model.base.DataTypeDefXsd`
+    :param tag: tag of the serialized :class:`~basyx.aas.model.base.ValueDataType` object
+    :return: Serialized :class:`~lxml.etree.Element` object
     """
     # todo: add "{NS_XSI+"type": "xs:"+model.datatypes.XSD_TYPE_NAMES[value_type]}" as attribute, if the schema allows
     #  it
@@ -156,11 +156,11 @@ def _value_to_xml(value: model.ValueDataType,
 
 def lang_string_set_to_xml(obj: model.LangStringSet, tag: str) -> etree.Element:
     """
-    Serialization of objects of class :class:`~aas.model.base.LangStringSet` to XML
+    Serialization of objects of class :class:`~basyx.aas.model.base.LangStringSet` to XML
 
-    :param obj: Object of class :class:`~aas.model.base.LangStringSet`
+    :param obj: Object of class :class:`~basyx.aas.model.base.LangStringSet`
     :param tag: Namespace+Tag name of the returned XML element.
-    :return: Serialized ElementTree object
+    :return: Serialized :class:`~lxml.etree.Element` object
     """
     LANG_STRING_SET_TAGS: Dict[Type[model.LangStringSet], str] = {k: NS_AAS + v for k, v in {
         model.MultiLanguageNameType: "langStringNameType",
@@ -184,8 +184,8 @@ def administrative_information_to_xml(obj: model.AdministrativeInformation,
     Serialization of objects of class :class:`~basyx.aas.model.base.AdministrativeInformation` to XML
 
     :param obj: Object of class :class:`~basyx.aas.model.base.AdministrativeInformation`
-    :param tag: Namespace+Tag of the serialized element. Default is "aas:administration"
-    :return: Serialized ElementTree object
+    :param tag: Namespace+Tag of the serialized element. Default is ``aas:administration``
+    :return: Serialized :class:`~lxml.etree.Element` object
     """
     et_administration = abstract_classes_to_xml(tag, obj)
     if obj.version:
@@ -204,7 +204,7 @@ def data_element_to_xml(obj: model.DataElement) -> etree.Element:
     Serialization of objects of class :class:`~basyx.aas.model.submodel.DataElement` to XML
 
     :param obj: Object of class :class:`~basyx.aas.model.submodel.DataElement`
-    :return: Serialized ElementTree element
+    :return: Serialized :class:`~lxml.etree.Element` object
     """
     if isinstance(obj, model.MultiLanguageProperty):
         return multi_language_property_to_xml(obj)
@@ -225,8 +225,8 @@ def reference_to_xml(obj: model.Reference, tag: str = NS_AAS+"reference") -> etr
     Serialization of objects of class :class:`~basyx.aas.model.base.Reference` to XML
 
     :param obj: Object of class :class:`~basyx.aas.model.base.Reference`
-    :param tag: Namespace+Tag of the returned element. Default is "aas:reference"
-    :return: Serialized ElementTree
+    :param tag: Namespace+Tag of the returned element. Default is ``aas:reference``
+    :return: Serialized :class:`~lxml.etree.Element` object
     """
     et_reference = _generate_element(tag)
     et_reference.append(_generate_element(NS_AAS + "type", text=_generic.REFERENCE_TYPES[obj.__class__]))
@@ -245,11 +245,11 @@ def reference_to_xml(obj: model.Reference, tag: str = NS_AAS+"reference") -> etr
 
 def qualifier_to_xml(obj: model.Qualifier, tag: str = NS_AAS+"qualifier") -> etree.Element:
     """
-    Serialization of objects of class :class:`~aas.model.base.Qualifier` to XML
+    Serialization of objects of class :class:`~basyx.aas.model.base.Qualifier` to XML
 
-    :param obj: Object of class :class:`~aas.model.base.Qualifier`
-    :param tag: Namespace+Tag of the serialized ElementTree object. Default is "aas:qualifier"
-    :return: Serialized ElementTreeObject
+    :param obj: Object of class :class:`~basyx.aas.model.base.Qualifier`
+    :param tag: Namespace+Tag of the serialized ElementTree object. Default is ``aas:qualifier``
+    :return: Serialized :class:`~lxml.etree.Element` object
     """
     et_qualifier = abstract_classes_to_xml(tag, obj)
     et_qualifier.append(_generate_element(NS_AAS + "kind", text=_generic.QUALIFIER_KIND[obj.kind]))
@@ -264,11 +264,11 @@ def qualifier_to_xml(obj: model.Qualifier, tag: str = NS_AAS+"qualifier") -> etr
 
 def extension_to_xml(obj: model.Extension, tag: str = NS_AAS+"extension") -> etree.Element:
     """
-    Serialization of objects of class :class:`~aas.model.base.Extension` to XML
+    Serialization of objects of class :class:`~basyx.aas.model.base.Extension` to XML
 
-    :param obj: Object of class :class:`~aas.model.base.Extension`
-    :param tag: Namespace+Tag of the serialized ElementTree object. Default is "aas:extension"
-    :return: Serialized ElementTreeObject
+    :param obj: Object of class :class:`~basyx.aas.model.base.Extension`
+    :param tag: Namespace+Tag of the serialized ElementTree object. Default is ``aas:extension``
+    :return: Serialized :class:`~lxml.etree.Element` object
     """
     et_extension = abstract_classes_to_xml(tag, obj)
     et_extension.append(_generate_element(NS_AAS + "name", text=obj.name))
@@ -288,14 +288,11 @@ def extension_to_xml(obj: model.Extension, tag: str = NS_AAS+"extension") -> etr
 def value_reference_pair_to_xml(obj: model.ValueReferencePair,
                                 tag: str = NS_AAS+"valueReferencePair") -> etree.Element:
     """
-    Serialization of objects of class :class:`~aas.model.base.ValueReferencePair` to XML
+    Serialization of objects of class :class:`~basyx.aas.model.base.ValueReferencePair` to XML
 
-    todo: couldn't find it in the official schema, so guessing how to implement serialization
-          check namespace, tag and correct serialization
-
-    :param obj: Object of class :class:`~aas.model.base.ValueReferencePair`
-    :param tag: Namespace+Tag of the serialized element. Default is "aas:valueReferencePair"
-    :return: Serialized ElementTree object
+    :param obj: Object of class :class:`~basyx.aas.model.base.ValueReferencePair`
+    :param tag: Namespace+Tag of the serialized element. Default is ``aas:valueReferencePair``
+    :return: Serialized :class:`~lxml.etree.Element` object
     """
     et_vrp = _generate_element(tag)
     # TODO: value_type isn't used at all by _value_to_xml(), thus we can ignore the type here for now
@@ -307,13 +304,13 @@ def value_reference_pair_to_xml(obj: model.ValueReferencePair,
 def value_list_to_xml(obj: model.ValueList,
                       tag: str = NS_AAS+"valueList") -> etree.Element:
     """
-    Serialization of objects of class :class:`~aas.model.base.ValueList` to XML
+    Serialization of objects of class :class:`~basyx.aas.model.base.ValueList` to XML
 
     todo: couldn't find it in the official schema, so guessing how to implement serialization
 
-    :param obj: Object of class :class:`~aas.model.base.ValueList`
-    :param tag: Namespace+Tag of the serialized element. Default is "aas:valueList"
-    :return: Serialized ElementTree object
+    :param obj: Object of class :class:`~basyx.aas.model.base.ValueList`
+    :param tag: Namespace+Tag of the serialized element. Default is ``aas:valueList``
+    :return: Serialized :class:`~lxml.etree.Element` object
     """
     et_value_list = _generate_element(tag)
     et_value_reference_pairs = _generate_element(NS_AAS+"valueReferencePairs")
@@ -334,8 +331,8 @@ def specific_asset_id_to_xml(obj: model.SpecificAssetId, tag: str = NS_AAS + "sp
     Serialization of objects of class :class:`~basyx.aas.model.base.SpecificAssetId` to XML
 
     :param obj: Object of class :class:`~basyx.aas.model.base.SpecificAssetId`
-    :param tag: Namespace+Tag of the ElementTree object. Default is "aas:identifierKeyValuePair"
-    :return: Serialized ElementTree object
+    :param tag: Namespace+Tag of the ElementTree object. Default is ``aas:identifierKeyValuePair``
+    :return: Serialized :class:`~lxml.etree.Element` object
     """
     et_asset_information = abstract_classes_to_xml(tag, obj)
     et_asset_information.append(_generate_element(name=NS_AAS + "name", text=obj.name))
@@ -348,11 +345,11 @@ def specific_asset_id_to_xml(obj: model.SpecificAssetId, tag: str = NS_AAS + "sp
 
 def asset_information_to_xml(obj: model.AssetInformation, tag: str = NS_AAS+"assetInformation") -> etree.Element:
     """
-    Serialization of objects of class :class:`~aas.model.aas.AssetInformation` to XML
+    Serialization of objects of class :class:`~basyx.aas.model.aas.AssetInformation` to XML
 
-    :param obj: Object of class :class:`~aas.model.aas.AssetInformation`
-    :param tag: Namespace+Tag of the ElementTree object. Default is "aas:assetInformation"
-    :return: Serialized ElementTree object
+    :param obj: Object of class :class:`~basyx.aas.model.aas.AssetInformation`
+    :param tag: Namespace+Tag of the ElementTree object. Default is ``aas:assetInformation``
+    :return: Serialized :class:`~lxml.etree.Element` object
     """
     et_asset_information = abstract_classes_to_xml(tag, obj)
     et_asset_information.append(_generate_element(name=NS_AAS + "assetKind", text=_generic.ASSET_KIND[obj.asset_kind]))
@@ -377,8 +374,8 @@ def concept_description_to_xml(obj: model.ConceptDescription,
     Serialization of objects of class :class:`~basyx.aas.model.concept.ConceptDescription` to XML
 
     :param obj: Object of class :class:`~basyx.aas.model.concept.ConceptDescription`
-    :param tag: Namespace+Tag of the ElementTree object. Default is "aas:conceptDescription"
-    :return: Serialized ElementTree object
+    :param tag: Namespace+Tag of the ElementTree object. Default is ``aas:conceptDescription``
+    :return: Serialized :class:`~lxml.etree.Element` object
     """
     et_concept_description = abstract_classes_to_xml(tag, obj)
     if obj.is_case_of:
@@ -392,11 +389,11 @@ def concept_description_to_xml(obj: model.ConceptDescription,
 def embedded_data_specification_to_xml(obj: model.EmbeddedDataSpecification,
                                        tag: str = NS_AAS+"embeddedDataSpecification") -> etree.Element:
     """
-    Serialization of objects of class :class:`~aas.model.base.EmbeddedDataSpecification` to XML
+    Serialization of objects of class :class:`~basyx.aas.model.base.EmbeddedDataSpecification` to XML
 
-    :param obj: Object of class :class:`~aas.model.base.EmbeddedDataSpecification`
-    :param tag: Namespace+Tag of the ElementTree object. Default is "aas:embeddedDataSpecification"
-    :return: Serialized ElementTree object
+    :param obj: Object of class :class:`~basyx.aas.model.base.EmbeddedDataSpecification`
+    :param tag: Namespace+Tag of the ElementTree object. Default is ``aas:embeddedDataSpecification``
+    :return: Serialized :class:`~lxml.etree.Element` object
     """
     et_embedded_data_specification = abstract_classes_to_xml(tag, obj)
     et_embedded_data_specification.append(reference_to_xml(obj.data_specification, tag=NS_AAS + "dataSpecification"))
@@ -407,11 +404,11 @@ def embedded_data_specification_to_xml(obj: model.EmbeddedDataSpecification,
 def data_specification_content_to_xml(obj: model.DataSpecificationContent,
                                       tag: str = NS_AAS+"dataSpecificationContent") -> etree.Element:
     """
-    Serialization of objects of class :class:`~aas.model.base.DataSpecificationContent` to XML
+    Serialization of objects of class :class:`~basyx.aas.model.base.DataSpecificationContent` to XML
 
-    :param obj: Object of class :class:`~aas.model.base.DataSpecificationContent`
-    :param tag: Namespace+Tag of the ElementTree object. Default is "aas:dataSpecificationContent"
-    :return: Serialized ElementTree object
+    :param obj: Object of class :class:`~basyx.aas.model.base.DataSpecificationContent`
+    :param tag: Namespace+Tag of the ElementTree object. Default is ``aas:dataSpecificationContent``
+    :return: Serialized :class:`~lxml.etree.Element` object
     """
     et_data_specification_content = abstract_classes_to_xml(tag, obj)
     if isinstance(obj, model.DataSpecificationIEC61360):
@@ -424,11 +421,11 @@ def data_specification_content_to_xml(obj: model.DataSpecificationContent,
 def data_specification_iec61360_to_xml(obj: model.DataSpecificationIEC61360,
                                        tag: str = NS_AAS+"dataSpecificationIec61360") -> etree.Element:
     """
-    Serialization of objects of class :class:`~aas.model.base.DataSpecificationIEC61360` to XML
+    Serialization of objects of class :class:`~basyx.aas.model.base.DataSpecificationIEC61360` to XML
 
-    :param obj: Object of class :class:`~aas.model.base.DataSpecificationIEC61360`
-    :param tag: Namespace+Tag of the ElementTree object. Default is "aas:dataSpecificationIec61360"
-    :return: Serialized ElementTree object
+    :param obj: Object of class :class:`~basyx.aas.model.base.DataSpecificationIEC61360`
+    :param tag: Namespace+Tag of the ElementTree object. Default is ``aas:dataSpecificationIec61360``
+    :return: Serialized :class:`~lxml.etree.Element` object
     """
     et_data_specification_iec61360 = abstract_classes_to_xml(tag, obj)
     et_data_specification_iec61360.append(lang_string_set_to_xml(obj.preferred_name, NS_AAS + "preferredName"))
@@ -471,8 +468,8 @@ def asset_administration_shell_to_xml(obj: model.AssetAdministrationShell,
     Serialization of objects of class :class:`~basyx.aas.model.aas.AssetAdministrationShell` to XML
 
     :param obj: Object of class :class:`~basyx.aas.model.aas.AssetAdministrationShell`
-    :param tag: Namespace+Tag of the ElementTree object. Default is "aas:assetAdministrationShell"
-    :return: Serialized ElementTree object
+    :param tag: Namespace+Tag of the ElementTree object. Default is ``aas:assetAdministrationShell``
+    :return: Serialized :class:`~lxml.etree.Element` object
     """
     et_aas = abstract_classes_to_xml(tag, obj)
     if obj.derived_from:
@@ -496,7 +493,7 @@ def submodel_element_to_xml(obj: model.SubmodelElement) -> etree.Element:
     Serialization of objects of class :class:`~basyx.aas.model.submodel.SubmodelElement` to XML
 
     :param obj: Object of class :class:`~basyx.aas.model.submodel.SubmodelElement`
-    :return: Serialized ElementTree object
+    :return: Serialized :class:`~lxml.etree.Element` object
     """
     if isinstance(obj, model.DataElement):
         return data_element_to_xml(obj)
@@ -524,8 +521,8 @@ def submodel_to_xml(obj: model.Submodel,
     Serialization of objects of class :class:`~basyx.aas.model.submodel.Submodel` to XML
 
     :param obj: Object of class :class:`~basyx.aas.model.submodel.Submodel`
-    :param tag: Namespace+Tag of the serialized element (optional). Default is "aas:submodel"
-    :return: Serialized ElementTree object
+    :param tag: Namespace+Tag of the serialized element (optional). Default is ``aas:submodel``
+    :return: Serialized :class:`~lxml.etree.Element` object
     """
     et_submodel = abstract_classes_to_xml(tag, obj)
     if obj.submodel_element:
@@ -542,8 +539,8 @@ def property_to_xml(obj: model.Property,
     Serialization of objects of class :class:`~basyx.aas.model.submodel.Property` to XML
 
     :param obj: Object of class :class:`~basyx.aas.model.submodel.Property`
-    :param tag: Namespace+Tag of the serialized element (optional). Default is "aas:property"
-    :return: Serialized ElementTree object
+    :param tag: Namespace+Tag of the serialized element (optional). Default is ``aas:property``
+    :return: Serialized :class:`~lxml.etree.Element` object
     """
     et_property = abstract_classes_to_xml(tag, obj)
     et_property.append(_generate_element(NS_AAS + "valueType", text=model.datatypes.XSD_TYPE_NAMES[obj.value_type]))
@@ -560,8 +557,8 @@ def multi_language_property_to_xml(obj: model.MultiLanguageProperty,
     Serialization of objects of class :class:`~basyx.aas.model.submodel.MultiLanguageProperty` to XML
 
     :param obj: Object of class :class:`~basyx.aas.model.submodel.MultiLanguageProperty`
-    :param tag: Namespace+Tag of the serialized element (optional). Default is "aas:multiLanguageProperty"
-    :return: Serialized ElementTree object
+    :param tag: Namespace+Tag of the serialized element (optional). Default is ``aas:multiLanguageProperty``
+    :return: Serialized :class:`~lxml.etree.Element` object
     """
     et_multi_language_property = abstract_classes_to_xml(tag, obj)
     if obj.value:
@@ -577,8 +574,8 @@ def range_to_xml(obj: model.Range,
     Serialization of objects of class :class:`~basyx.aas.model.submodel.Range` to XML
 
     :param obj: Object of class :class:`~basyx.aas.model.submodel.Range`
-    :param tag: Namespace+Tag of the serialized element (optional). Default is "aas:range"
-    :return: Serialized ElementTree object
+    :param tag: Namespace+Tag of the serialized element (optional). Default is ``aas:range``
+    :return: Serialized :class:`~lxml.etree.Element` object
     """
     et_range = abstract_classes_to_xml(tag, obj)
     et_range.append(_generate_element(name=NS_AAS + "valueType",
@@ -596,8 +593,8 @@ def blob_to_xml(obj: model.Blob,
     Serialization of objects of class :class:`~basyx.aas.model.submodel.Blob` to XML
 
     :param obj: Object of class :class:`~basyx.aas.model.submodel.Blob`
-    :param tag: Namespace+Tag of the serialized element. Default is "blob"
-    :return: Serialized ElementTree object
+    :param tag: Namespace+Tag of the serialized element. Default is ``aas:blob``
+    :return: Serialized :class:`~lxml.etree.Element` object
     """
     et_blob = abstract_classes_to_xml(tag, obj)
     et_value = etree.Element(NS_AAS + "value")
@@ -614,8 +611,8 @@ def file_to_xml(obj: model.File,
     Serialization of objects of class :class:`~basyx.aas.model.submodel.File` to XML
 
     :param obj: Object of class :class:`~basyx.aas.model.submodel.File`
-    :param tag: Namespace+Tag of the serialized element. Default is "aas:file"
-    :return: Serialized ElementTree object
+    :param tag: Namespace+Tag of the serialized element. Default is ``aas:file``
+    :return: Serialized :class:`~lxml.etree.Element` object
     """
     et_file = abstract_classes_to_xml(tag, obj)
     if obj.value:
@@ -627,11 +624,11 @@ def file_to_xml(obj: model.File,
 def resource_to_xml(obj: model.Resource,
                     tag: str = NS_AAS+"resource") -> etree.Element:
     """
-    Serialization of objects of class :class:`~aas.model.base.Resource` to XML
+    Serialization of objects of class :class:`~basyx.aas.model.base.Resource` to XML
 
-    :param obj: Object of class :class:`~aas.model.base.Resource`
-    :param tag: Namespace+Tag of the serialized element. Default is "aas:resource"
-    :return: Serialized ElementTree object
+    :param obj: Object of class :class:`~basyx.aas.model.base.Resource`
+    :param tag: Namespace+Tag of the serialized element. Default is ``aas:resource``
+    :return: Serialized :class:`~lxml.etree.Element` object
     """
     et_resource = abstract_classes_to_xml(tag, obj)
     et_resource.append(_generate_element(NS_AAS + "path", text=obj.path))
@@ -646,8 +643,8 @@ def reference_element_to_xml(obj: model.ReferenceElement,
     Serialization of objects of class :class:`~basyx.aas.model.submodel.ReferenceElement` to XMl
 
     :param obj: Object of class :class:`~basyx.aas.model.submodel.ReferenceElement`
-    :param tag: Namespace+Tag of the serialized element (optional). Default is "aas:referenceElement"
-    :return: Serialized ElementTree object
+    :param tag: Namespace+Tag of the serialized element (optional). Default is ``aas:referenceElement``
+    :return: Serialized :class:`~lxml.etree.Element` object
     """
     et_reference_element = abstract_classes_to_xml(tag, obj)
     if obj.value:
@@ -660,11 +657,9 @@ def submodel_element_collection_to_xml(obj: model.SubmodelElementCollection,
     """
     Serialization of objects of class :class:`~basyx.aas.model.submodel.SubmodelElementCollection` to XML
 
-    Note that we do not have parameter "allowDuplicates" in out implementation
-
     :param obj: Object of class :class:`~basyx.aas.model.submodel.SubmodelElementCollection`
-    :param tag: Namespace+Tag of the serialized element (optional). Default is "aas:submodelElementCollection"
-    :return: Serialized ElementTree object
+    :param tag: Namespace+Tag of the serialized element (optional). Default is ``aas:submodelElementCollection``
+    :return: Serialized :class:`~lxml.etree.Element` object
     """
     et_submodel_element_collection = abstract_classes_to_xml(tag, obj)
     if obj.value:
@@ -677,6 +672,13 @@ def submodel_element_collection_to_xml(obj: model.SubmodelElementCollection,
 
 def submodel_element_list_to_xml(obj: model.SubmodelElementList,
                                  tag: str = NS_AAS+"submodelElementList") -> etree.Element:
+    """
+    Serialization of objects of class :class:`~basyx.aas.model.submodel.SubmodelElementList` to XML
+
+    :param obj: Object of class :class:`~basyx.aas.model.submodel.SubmodelElementList`
+    :param tag: Namespace+Tag of the serialized element (optional). Default is ``aas:submodelElementList``
+    :return: Serialized :class:`~lxml.etree.Element` object
+    """
     et_submodel_element_list = abstract_classes_to_xml(tag, obj)
     et_submodel_element_list.append(_generate_element(NS_AAS + "orderRelevant", boolean_to_xml(obj.order_relevant)))
     if obj.semantic_id_list_element is not None:
@@ -701,8 +703,8 @@ def relationship_element_to_xml(obj: model.RelationshipElement,
     Serialization of objects of class :class:`~basyx.aas.model.submodel.RelationshipElement` to XML
 
     :param obj: Object of class :class:`~basyx.aas.model.submodel.RelationshipElement`
-    :param tag: Namespace+Tag of the serialized element (optional). Default is "aas:relationshipElement"
-    :return: Serialized ELementTree object
+    :param tag: Namespace+Tag of the serialized element (optional). Default is ``aas:relationshipElement``
+    :return: Serialized :class:`~lxml.etree.Element` object
     """
     et_relationship_element = abstract_classes_to_xml(tag, obj)
     et_relationship_element.append(reference_to_xml(obj.first, NS_AAS+"first"))
@@ -716,8 +718,8 @@ def annotated_relationship_element_to_xml(obj: model.AnnotatedRelationshipElemen
     Serialization of objects of class :class:`~basyx.aas.model.submodel.AnnotatedRelationshipElement` to XML
 
     :param obj: Object of class :class:`~basyx.aas.model.submodel.AnnotatedRelationshipElement`
-    :param tag: Namespace+Tag of the serialized element (optional): Default is "aas:annotatedRelationshipElement"
-    :return: Serialized ElementTree object
+    :param tag: Namespace+Tag of the serialized element (optional): Default is ``aas:annotatedRelationshipElement``
+    :return: Serialized :class:`~lxml.etree.Element` object
     """
     et_annotated_relationship_element = relationship_element_to_xml(obj, tag)
     if obj.annotation:
@@ -731,13 +733,13 @@ def annotated_relationship_element_to_xml(obj: model.AnnotatedRelationshipElemen
 def operation_variable_to_xml(obj: model.SubmodelElement, tag: str = NS_AAS+"operationVariable") -> etree.Element:
     """
     Serialization of :class:`~basyx.aas.model.submodel.SubmodelElement` to the XML OperationVariable representation
-    Since we don't implement the `OperationVariable` class, which is just a wrapper for a single
-    :class:`~basyx.aas.model.submodel.SubmodelElement`, elements are serialized as the `aas:value` child of an
-    `aas:operationVariable` element.
+    Since we don't implement the ``OperationVariable`` class, which is just a wrapper for a single
+    :class:`~basyx.aas.model.submodel.SubmodelElement`, elements are serialized as the ``aas:value`` child of an
+    ``aas:operationVariable`` element.
 
     :param obj: Object of class :class:`~basyx.aas.model.submodel.SubmodelElement`
-    :param tag: Namespace+Tag of the serialized element (optional). Default is "aas:operationVariable"
-    :return: Serialized ElementTree object
+    :param tag: Namespace+Tag of the serialized element (optional). Default is ``aas:operationVariable``
+    :return: Serialized :class:`~lxml.etree.Element` object
     """
     et_operation_variable = _generate_element(tag)
     et_value = _generate_element(NS_AAS+"value")
@@ -752,8 +754,8 @@ def operation_to_xml(obj: model.Operation,
     Serialization of objects of class :class:`~basyx.aas.model.submodel.Operation` to XML
 
     :param obj: Object of class :class:`~basyx.aas.model.submodel.Operation`
-    :param tag: Namespace+Tag of the serialized element (optional). Default is "aas:operation"
-    :return: Serialized ElementTree object
+    :param tag: Namespace+Tag of the serialized element (optional). Default is ``aas:operation``
+    :return: Serialized :class:`~lxml.etree.Element` object
     """
     et_operation = abstract_classes_to_xml(tag, obj)
     for tag, nss in ((NS_AAS+"inputVariables", obj.input_variable),
@@ -773,8 +775,8 @@ def capability_to_xml(obj: model.Capability,
     Serialization of objects of class :class:`~basyx.aas.model.submodel.Capability` to XML
 
     :param obj: Object of class :class:`~basyx.aas.model.submodel.Capability`
-    :param tag: Namespace+Tag of the serialized element, default is "aas:capability"
-    :return: Serialized ElementTree object
+    :param tag: Namespace+Tag of the serialized element, default is ``aas:capability``
+    :return: Serialized :class:`~lxml.etree.Element` object
     """
     return abstract_classes_to_xml(tag, obj)
 
@@ -785,8 +787,8 @@ def entity_to_xml(obj: model.Entity,
     Serialization of objects of class :class:`~basyx.aas.model.submodel.Entity` to XML
 
     :param obj: Object of class :class:`~basyx.aas.model.submodel.Entity`
-    :param tag: Namespace+Tag of the serialized element (optional). Default is "aas:entity"
-    :return: Serialized ElementTree object
+    :param tag: Namespace+Tag of the serialized element (optional). Default is ``aas:entity``
+    :return: Serialized :class:`~lxml.etree.Element` object
     """
     et_entity = abstract_classes_to_xml(tag, obj)
     if obj.statement:
@@ -810,8 +812,8 @@ def basic_event_element_to_xml(obj: model.BasicEventElement, tag: str = NS_AAS+"
     Serialization of objects of class :class:`~basyx.aas.model.submodel.BasicEventElement` to XML
 
     :param obj: Object of class :class:`~basyx.aas.model.submodel.BasicEventElement`
-    :param tag: Namespace+Tag of the serialized element (optional). Default is "aas:basicEventElement"
-    :return: Serialized ElementTree object
+    :param tag: Namespace+Tag of the serialized element (optional). Default is ``aas:basicEventElement``
+    :return: Serialized :class:`~lxml.etree.Element` object
     """
     et_basic_event_element = abstract_classes_to_xml(tag, obj)
     et_basic_event_element.append(reference_to_xml(obj.observed, NS_AAS+"observed"))
@@ -846,9 +848,9 @@ def write_aas_xml_file(file: IO,
     Administration Shell', chapter 5.4
 
     :param file: A file-like object to write the XML-serialized data to
-    :param data: :class:`ObjectStore <aas.model.provider.AbstractObjectStore>` which contains different objects of the
-                 AAS meta model which should be serialized to an XML file
-    :param kwargs: Additional keyword arguments to be passed to `tree.write()`
+    :param data: :class:`ObjectStore <basyx.aas.model.provider.AbstractObjectStore>` which contains different objects of
+                 the AAS meta model which should be serialized to an XML file
+    :param kwargs: Additional keyword arguments to be passed to :meth:`~lxml.etree.ElementTree.write`
     """
     # separate different kind of objects
     asset_administration_shells = []

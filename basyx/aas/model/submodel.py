@@ -22,11 +22,12 @@ class SubmodelElement(base.Referable, base.Qualifiable, base.HasSemantics,
     """
     A submodel element is an element suitable for the description and differentiation of assets.
 
-    *Note:* The concept of type and instance applies to submodel elements. :class:`Properties <.Property>` are special
-    submodel elements. The property types are defined in dictionaries (like the IEC Common Data Dictionary or eCl\\@ss),
-    they do not have a value. The property type (`kind=Type`) is also called data element type in some standards.
-    The property instances (`kind=Instance`) typically have a value. A property instance is also called
-    property-value pair in certain standards.
+    .. note::
+        The concept of type and instance applies to submodel elements. :class:`Properties <.Property>` are special
+        submodel elements. The property types are defined in dictionaries (like the IEC Common Data Dictionary or
+        eCl\\@ss), they do not have a value. The property type (``kind=Type``) is also called data element type in some
+        standards. The property instances (``kind=Instance``) typically have a value. A property instance is also called
+        property-value pair in certain standards.
 
     :ivar id_short: Identifying string of the element within its name space. (inherited from
                     :class:`~basyx.aas.model.base.Referable`)
@@ -89,8 +90,7 @@ class Submodel(base.Identifiable, base.HasSemantics, base.HasKind, base.Qualifia
     into distinguishable parts. Each submodel refers to a well-defined domain or subject matter. Submodels can become
     standardized and thus become submodel types. Submodels can have different life-cycles.
 
-    :ivar ~.id: The globally unique id of the element.
-                            (inherited from :class:`~basyx.aas.model.base.Identifiable`)
+    :ivar id: The globally unique id of the element. (inherited from :class:`~basyx.aas.model.base.Identifiable`)
     :ivar submodel_element: Unordered list of :class:`SubmodelElements <.SubmodelElement>`
     :ivar id_short: Identifying string of the element within its name space. (inherited from
                     :class:`~basyx.aas.model.base.Referable`)
@@ -109,8 +109,8 @@ class Submodel(base.Identifiable, base.HasSemantics, base.HasKind, base.Qualifia
                        (inherited from :class:`~basyx.aas.model.base.HasSemantics`)
     :ivar qualifier: Unordered list of Qualifiers that gives additional qualification of a qualifiable element.
                      (from :class:`~basyx.aas.model.base.Qualifiable`)
-    :ivar kind: Kind of the element: Either `TYPE` or `INSTANCE`. Default is `INSTANCE`. (inherited from
-                :class:`aas.model.base.HasKind`)
+    :ivar kind: Kind of the element: Either ``TYPE`` or ``INSTANCE``. Default is ``INSTANCE``. (inherited from
+                :class:`~basyx.aas.model.base.HasKind`)
     :ivar extension: An extension of the element. (inherited from
                      :class:`basyx.aas.model.base.HasExtension`)
     :ivar supplemental_semantic_id: Identifier of a supplemental semantic definition of the element. It is called
@@ -225,8 +225,8 @@ class Property(DataElement):
     """
     A property is a :class:`DataElement` that has a single value.
 
-    *Constraint AASd-007:* If both, the value and the valueId of a Qualifier are present,
-        the value needs to be identical to the value of the referenced coded value in Qualifier/valueId.
+    **Constraint AASd-007:** If both, the value and the valueId of a Qualifier are present,
+    the value needs to be identical to the value of the referenced coded value in Qualifier/valueId.
 
     :ivar id_short: Identifying string of the element within its name space. (inherited from
                     :class:`~basyx.aas.model.base.Referable`)
@@ -295,9 +295,9 @@ class MultiLanguageProperty(DataElement):
     """
     A multi language property is a :class:`~.DataElement` that has a multi language value.
 
-    *Constraint AASd-012*: if both the MultiLanguageProperty/value and the MultiLanguageProperty/valueId are present,
-        the meaning must be the same for each string in a specific language,
-        as specified inMultiLanguageProperty/valueId.
+    **Constraint AASd-012:** if both the MultiLanguageProperty/value and the MultiLanguageProperty/valueId are present,
+    the meaning must be the same for each string in a specific language,
+    as specified inMultiLanguageProperty/valueId.
 
     :ivar id_short: Identifying string of the element within its name space. (inherited from
                     :class:`~basyx.aas.model.base.Referable`)
@@ -351,8 +351,8 @@ class Range(DataElement):
     """
     A range is a :class:`~.DataElement` that has a range value.
 
-    *Constraint AASd-013:* In case of a range with `kind=Instance` either the min or the max value or both
-        need to be defined
+    **Constraint AASd-013:** In case of a range with ``kind=Instance`` either the min or the max value or both
+    need to be defined
 
     :ivar id_short: Identifying string of the element within its name space. (inherited from
                     :class:`~basyx.aas.model.base.Referable`)
@@ -434,7 +434,8 @@ class Blob(DataElement):
     A BLOB is a :class:`~.DataElement` that represents a file that is contained with its source code in the value
     attribute.
 
-    *Note:* In contrast to the file property the file content is stored directly as value in the Blob data element.
+    .. note::
+        In contrast to the file property the file content is stored directly as value in the Blob data element.
 
     :ivar id_short: Identifying string of the element within its name space. (inherited from
                     :class:`~basyx.aas.model.base.Referable`)
@@ -646,17 +647,21 @@ class SubmodelElementList(SubmodelElement, base.UniqueIdShortNamespace, Generic[
     A submodel element list is an ordered list of :class:`SubmodelElements <.SubmodelElement>`.
     The numbering starts with Zero (0).
 
-    *Constraint AASd-107:* If a first level child element in a :class:`SubmodelElementList` has a semanticId it shall be
-        identical to SubmodelElementList/semanticIdListElement.
-    *Constraint AASd-114:* If two first level child elements in a :class:`SubmodelElementList` have a semanticId then
-        they shall be identical.
-    *Constraint AASd-115:* If a first level child element in a :class:`SubmodelElementList` does not specify a
-        semanticId, the value is assumed to be identical to SubmodelElementList/semanticIdListElement.
-    *Constraint AASd-108:* All first level child elements in a :class:`SubmodelElementList` shall have the same
-        submodel element type as specified in SubmodelElementList/typeValueListElement.
-    *Constraint AASd-109:* If SubmodelElementList/typeValueListElement is equal to Property or Range,
-        SubmodelElementList/valueTypeListElement shall be set and all first level child elements in the
-        :class:`SubmodelElementList` shall have the value type as specified in SubmodelElementList/valueTypeListElement.
+    **Constraint AASd-107:** If a first level child element in a :class:`SubmodelElementList` has a semanticId it shall
+    be identical to SubmodelElementList/semanticIdListElement.
+
+    **Constraint AASd-114:** If two first level child elements in a :class:`SubmodelElementList` have a semanticId then
+    they shall be identical.
+
+    **Constraint AASd-115:** If a first level child element in a :class:`SubmodelElementList` does not specify a
+    semanticId, the value is assumed to be identical to SubmodelElementList/semanticIdListElement.
+
+    **Constraint AASd-108:** All first level child elements in a :class:`SubmodelElementList` shall have the same
+    submodel element type as specified in SubmodelElementList/typeValueListElement.
+
+    **Constraint AASd-109:** If SubmodelElementList/typeValueListElement is equal to Property or Range,
+    SubmodelElementList/valueTypeListElement shall be set and all first level child elements in the
+    :class:`SubmodelElementList` shall have the value type as specified in SubmodelElementList/valueTypeListElement.
 
     :ivar id_short: Identifying string of the element within its name space. (inherited from
                     :class:`~basyx.aas.model.base.Referable`)
@@ -939,13 +944,13 @@ class Operation(SubmodelElement, base.UniqueIdShortNamespace):
     An operation is a :class:`~.SubmodelElement` with input and output variables.
 
     In- and output variables are implemented as :class:`SubmodelElements <.SubmodelElement>` directly without the
-    wrapping `OperationVariable`. This makes implementing *Constraint AASd-134* much easier since we can just use normal
-    :class:`NamespaceSets <~basyx.aas.model.base.NamespaceSet>`. Furthermore, an `OperationVariable` contains nothing
-    besides a single :class:`~.SubmodelElement` anyway, so implementing it would just make using `Operations` more
-    tedious for no reason.
+    wrapping ``OperationVariable``. This makes implementing *Constraint AASd-134* much easier since we can just
+    use normal :class:`NamespaceSets <basyx.aas.model.base.NamespaceSet>`. Furthermore, an ``OperationVariable``
+    contains nothing besides a single :class:`~.SubmodelElement` anyway, so implementing it would just make using
+    ``Operations`` more tedious for no reason.
 
-    *Constraint AASd-134:* For an Operation, the idShort of all inputVariable/value, outputVariable/value,
-                           and inoutputVariable/value shall be unique.
+    **Constraint AASd-134:** For an Operation, the idShort of all inputVariable/value, outputVariable/value,
+    and inoutputVariable/value shall be unique.
 
     :ivar id_short: Identifying string of the element within its name space. (inherited from
                     :class:`~basyx.aas.model.base.Referable`)
@@ -1049,8 +1054,8 @@ class Entity(SubmodelElement, base.UniqueIdShortNamespace):
     """
     An entity is a :class:`~.SubmodelElement` that is used to model entities
 
-    *Constraint AASd-014:* global_asset_id or specific_asset_id must be set if :attr:`~.entity_type` is set to
-        :attr:`~.EntityType.SELF_MANAGED_ENTITY`. They must be empty otherwise.
+    **Constraint AASd-014:** global_asset_id or specific_asset_id must be set if ``entity_type`` is set to
+    :attr:`~basyx.aas.model.base.EntityType.SELF_MANAGED_ENTITY`. They must be empty otherwise.
 
     :ivar id_short: Identifying string of the element within its name space. (inherited from
                     :class:`~basyx.aas.model.base.Referable`)
@@ -1060,7 +1065,7 @@ class Entity(SubmodelElement, base.UniqueIdShortNamespace):
     :ivar global_asset_id: Global :class:`~basyx.aas.model.base.Identifier` of the asset the entity is representing.
     :ivar specific_asset_id: :class:`~basyx.aas.model.base.Reference` to an identifier key value pair representing a
                              specific identifier of the asset represented by the asset administration shell.
-                             See Constraint AASd-014
+                             See *Constraint AASd-014*
     :ivar display_name: Can be provided in several languages. (inherited from :class:`~basyx.aas.model.base.Referable`)
     :ivar category: The category is a value that gives further meta information w.r.t. to the class of the element.
                      It affects the expected existence of attributes and the applicability of constraints.
@@ -1239,10 +1244,12 @@ class BasicEventElement(EventElement):
                           Refers to a :class:`~basyx.aas.model.submodel.SubmodelElement`,
                           :class:`~basyx.aas.model.submodel.SubmodelElementList`,
                           :class:`~basyx.aas.model.submodel.SubmodelElementCollection` or
-                          :class:`~basyx.aas.model.submodel.Entity`, which contains DataElements describing the
-                          proprietary specification for the message broker.
-                          Note: for different message infrastructure, e.g. OPC UA or MQTT or AMQP, this proprietary
-                          specification could be standardized by having respective Submodels.
+                          :class:`~basyx.aas.model.submodel.Entity`, which contains DataElements describing
+                          the proprietary specification for the message broker.
+
+                          .. note::
+                            For different message infrastructure, e.g. OPC UA or MQTT or AMQP, this proprietary
+                            specification could be standardized by having respective Submodels.
     :ivar last_update: Timestamp in UTC, when the last event was received (input direction) or sent (output direction).
     :ivar min_interval: For input direction, reports on the maximum frequency, the software entity behind the respective
                         Referable can handle input events. For output events, specifies the maximum frequency of

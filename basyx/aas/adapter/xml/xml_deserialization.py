@@ -11,12 +11,11 @@ Module for deserializing Asset Administration Shell data from the official XML f
 
 This module provides the following functions for parsing XML documents:
 
-- :meth:`~aas.adapter.xml.xml_deserialization.read_aas_xml_element` constructs a single object from an XML document
-  containing a single element
-- :meth:`~aas.adapter.xml.xml_deserialization.read_aas_xml_file_into` constructs all elements of an XML document and
-  stores them in a given :class:`ObjectStore <aas.model.provider.AbstractObjectStore>`
-- :meth:`~aas.adapter.xml.xml_deserialization.read_aas_xml_file` constructs all elements of an XML document and returns
-  them in a :class:`~basyx.aas.model.provider.DictObjectStore`
+- :func:`read_aas_xml_element` constructs a single object from an XML document containing a single element
+- :func:`read_aas_xml_file_into` constructs all elements of an XML document and stores them in a given
+  :class:`ObjectStore <basyx.aas.model.provider.AbstractObjectStore>`
+- :func:`read_aas_xml_file` constructs all elements of an XML document and returns them in a
+  :class:`~basyx.aas.model.provider.DictObjectStore`
 
 These functions take a decoder class as keyword argument, which allows parsing in failsafe (default) or non-failsafe
 mode. Parsing stripped elements - used in the HTTP adapter - is also possible. It is also possible to subclass the
@@ -24,8 +23,8 @@ default decoder class and provide an own decoder.
 
 In failsafe mode errors regarding missing attributes and elements or invalid values are caught and logged.
 In non-failsafe mode any error would abort parsing.
-Error handling is done only by `_failsafe_construct()` in this module. Nearly all constructor functions are called
-by other constructor functions via `_failsafe_construct()`, so an error chain is constructed in the error case,
+Error handling is done only by ``_failsafe_construct()`` in this module. Nearly all constructor functions are called
+by other constructor functions via ``_failsafe_construct()``, so an error chain is constructed in the error case,
 which allows printing stacktrace-like error messages like the following in the error case (in failsafe mode of course):
 
 
@@ -65,13 +64,13 @@ LSS = TypeVar("LSS", bound=model.LangStringSet)
 
 def _str_to_bool(string: str) -> bool:
     """
-    XML only allows "false" and "true" (case-sensitive) as valid values for a boolean.
+    XML only allows ``false`` and ``true`` (case-sensitive) as valid values for a boolean.
 
-    This function checks the string and raises a ValueError if the string is neither "true" nor "false".
+    This function checks the string and raises a ValueError if the string is neither ``true`` nor ``false``.
 
-    :param string: String representation of a boolean. ("true" or "false")
+    :param string: String representation of a boolean. (``true`` or ``false``)
     :return: The respective boolean value.
-    :raises ValueError: If string is neither "true" nor "false".
+    :raises ValueError: If string is neither ``true`` nor ``false``.
     """
     if string not in ("true", "false"):
         raise ValueError(f"{string} is not a valid boolean! Only true and false are allowed.")
@@ -424,7 +423,7 @@ class AASFromXmlDecoder:
 
     It parses XML documents in a failsafe manner, meaning any errors encountered will be logged and invalid XML elements
     will be skipped.
-    Most member functions support the `object_class` parameter. It was introduced so they can be overwritten
+    Most member functions support the ``object_class`` parameter. It was introduced so they can be overwritten
     in subclasses, which allows constructing instances of subtypes.
     """
     failsafe = True
@@ -542,7 +541,7 @@ class AASFromXmlDecoder:
     @classmethod
     def _construct_operation_variable(cls, element: etree.Element, **kwargs: Any) -> model.SubmodelElement:
         """
-        Since we don't implement `OperationVariable`, this constructor discards the wrapping `aas:operationVariable`
+        Since we don't implement ``OperationVariable``, this constructor discards the wrapping `aas:operationVariable`
         and `aas:value` and just returns the contained :class:`~basyx.aas.model.submodel.SubmodelElement`.
         """
         value = _get_child_mandatory(element, NS_AAS + "value")
@@ -1404,18 +1403,18 @@ def read_aas_xml_file_into(object_store: model.AbstractObjectStore[model.Identif
                            **parser_kwargs: Any) -> Set[model.Identifier]:
     """
     Read an Asset Administration Shell XML file according to 'Details of the Asset Administration Shell', chapter 5.4
-    into a given :class:`ObjectStore <aas.model.provider.AbstractObjectStore>`.
+    into a given :class:`ObjectStore <basyx.aas.model.provider.AbstractObjectStore>`.
 
-    :param object_store: The :class:`ObjectStore <aas.model.provider.AbstractObjectStore>` in which the
+    :param object_store: The :class:`ObjectStore <basyx.aas.model.provider.AbstractObjectStore>` in which the
                          :class:`~basyx.aas.model.base.Identifiable` objects should be stored
     :param file: A filename or file-like object to read the XML-serialized data from
     :param replace_existing: Whether to replace existing objects with the same identifier in the object store or not
     :param ignore_existing: Whether to ignore existing objects (e.g. log a message) or raise an error.
                             This parameter is ignored if replace_existing is True.
-    :param failsafe: If `True`, the document is parsed in a failsafe way: missing attributes and elements are logged
+    :param failsafe: If ``True``, the document is parsed in a failsafe way: missing attributes and elements are logged
                      instead of causing exceptions. Defect objects are skipped.
                      This parameter is ignored if a decoder class is specified.
-    :param stripped: If `True`, stripped XML elements are parsed.
+    :param stripped: If ``True``, stripped XML elements are parsed.
                      See https://git.rwth-aachen.de/acplt/pyi40aas/-/issues/91
                      This parameter is ignored if a decoder class is specified.
     :param decoder: The decoder class used to decode the XML elements
@@ -1473,12 +1472,12 @@ def read_aas_xml_file_into(object_store: model.AbstractObjectStore[model.Identif
 
 def read_aas_xml_file(file: IO, **kwargs: Any) -> model.DictObjectStore[model.Identifiable]:
     """
-    A wrapper of :meth:`~aas.adapter.xml.xml_deserialization.read_aas_xml_file_into`, that reads all objects in an
+    A wrapper of :meth:`~basyx.aas.adapter.xml.xml_deserialization.read_aas_xml_file_into`, that reads all objects in an
     empty :class:`~basyx.aas.model.provider.DictObjectStore`. This function supports
-    the same keyword arguments as :meth:`~aas.adapter.xml.xml_deserialization.read_aas_xml_file_into`.
+    the same keyword arguments as :meth:`~basyx.aas.adapter.xml.xml_deserialization.read_aas_xml_file_into`.
 
     :param file: A filename or file-like object to read the XML-serialized data from
-    :param kwargs: Keyword arguments passed to :meth:`~aas.adapter.xml.xml_deserialization.read_aas_xml_file_into`
+    :param kwargs: Keyword arguments passed to :meth:`~basyx.aas.adapter.xml.xml_deserialization.read_aas_xml_file_into`
     :return: A :class:`~basyx.aas.model.provider.DictObjectStore` containing all AAS objects from the XML file
     """
     object_store: model.DictObjectStore[model.Identifiable] = model.DictObjectStore()

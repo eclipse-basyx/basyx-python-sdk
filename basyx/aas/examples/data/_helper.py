@@ -6,6 +6,9 @@
 # SPDX-License-Identifier: MIT
 """
 Helper classes for checking two objects for completeness and correctness and reporting the check results.
+
+.. warning::
+    This module is intended for internal use only.
 """
 import pprint
 from typing import List, NamedTuple, Iterator, Dict, Any, Type, Union, Set, Iterable, TypeVar
@@ -34,6 +37,8 @@ class DataChecker:
 
     Typical usage:
 
+    .. code-block:: python
+
         data = {'a': 1, 'b': 2}
         dc = DataChecker()
         dc.check(len(data) > 0, "data is not empty")
@@ -55,7 +60,7 @@ class DataChecker:
 
     def check(self, expression: bool, expectation: str, **kwargs) -> bool:
         """
-        Checks if `expression` is True and adds / stores the check result for later analysis.
+        Checks if ``expression`` is True and adds / stores the check result for later analysis.
 
         :param expression: The boolean to be checked for
         :param expectation: A string describing, what the data was expected to look like (for later listing of
@@ -969,7 +974,7 @@ class AASDataChecker(DataChecker):
 
     def check_attribute_equal(self, object_: object, attribute_name: str, expected_value: object, **kwargs) -> bool:
         """
-        Checks if the value of the attribute in object_ is the same as expected_value and adds / stores the
+        Checks if the value of the attribute in ``object_`` is the same as ``expected_value`` and adds / stores the
         check result for later analysis.
 
         :param object_: The object of which the attribute shall be checked
@@ -995,13 +1000,12 @@ class AASDataChecker(DataChecker):
 
     def check_element_in(self, object_: model.Referable, parent: object, **kwargs) -> bool:
         """
-        Checks if object_ exist in parent and adds / stores the check result for later analysis.
+        Checks if ``object_`` exist in ``parent`` and adds / stores the check result for later analysis.
 
         :param object_: The object which shall be in parent
-        :param parent: The parent in which object_ shall be exist
+        :param parent: The parent in which ``object_`` shall be exist
         :param kwargs: Relevant values to add to the check result for further analysis (e.g. the compared values)
         :return: The value of expression to be used in control statements
-        Existence check: <path to object> must exist in <object class> (<path to object>)
         """
         return self.check(object_.parent == parent,
                           "{} must exist in {}s".format(repr(object_), repr(parent)),
@@ -1010,7 +1014,7 @@ class AASDataChecker(DataChecker):
     def check_contained_element_length(self, object_: object, attribute_name: str, class_name: Type,
                                        length: int, **kwargs) -> bool:
         """
-        Checks if the object_ has <lenght> elements of class <class_name> in attribute <attribute_name> and
+        Checks if the ``object_`` has ``lenght`` elements of class ``class_name`` in attribute ``attribute_name`` and
         adds / stores the check result for later analysis.
 
         :param object_: The object of which the attribute shall be checked
@@ -1032,10 +1036,10 @@ class AASDataChecker(DataChecker):
 
     def check_is_instance(self, object_: object, class_name: Type, **kwargs) -> bool:
         """
-        Checks if the value of the attribute in object_ is None and adds / stores the check result for later analysis.
+        Checks if ``object_`` is of type ``class_name`` and adds / stores the check result for later analysis.
 
         :param object_: The object of which the attribute shall be checked
-        :param class_name: The class name which the object_ shall be
+        :param class_name: The class name which the ``object_`` shall be
         :param kwargs: Relevant values to add to the check result for further analysis (e.g. the compared values)
         :return: The value of expression to be used in control statements
         """
@@ -1046,7 +1050,8 @@ class AASDataChecker(DataChecker):
 
     def check_attribute_is_none(self, object_: object, attribute_name: str, **kwargs) -> bool:
         """
-        Checks if the value of the attribute in object_ is None and adds / stores the check result for later analysis.
+        Checks if the value of the attribute in ``object_`` is :class:`None` and adds / stores the check result for
+        later analysis.
 
         :param object_: The object of which the attribute shall be checked
         :param attribute_name: The name of the attribute in the given object which shall be checked
