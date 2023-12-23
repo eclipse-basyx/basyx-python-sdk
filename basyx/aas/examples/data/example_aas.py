@@ -8,7 +8,7 @@
 Module for the creation of an :class:`ObjectStore <basyx.aas.model.provider.DictObjectStore>` with an example asset
 administration shell and example submodels and an example concept description
 
-To get this object store use the function :meth:`~aas.examples.data.example_aas.create_full_example`.
+To get this object store use the function :meth:`~basyx.aas.examples.data.example_aas.create_full_example`.
 If you want to get single example objects or want to get more information use the other functions.
 """
 import datetime
@@ -792,7 +792,7 @@ def create_example_asset_administration_shell() -> \
         model.AssetAdministrationShell:
     """
     Creates an :class:`~basyx.aas.model.aas.AssetAdministrationShell` with references to an example
-    :class:`~aas.model.submodel.Submodel`.
+    :class:`~basyx.aas.model.submodel.Submodel`.
 
     :return: example :class:`~basyx.aas.model.aas.AssetAdministrationShell`
     """

@@ -7,7 +7,7 @@
 """
 Module for the creation of an example :class:`~basyx.aas.model.submodel.Submodel` template containing all kind of
 :class:`SubmodelElements <basyx.aas.model.submodel.SubmodelElement>` where the kind is
-always `TEMPLATE`.
+always ``TEMPLATE``.
 """
 import datetime
 import logging
@@ -22,7 +22,7 @@ def create_example_submodel_template() -> model.Submodel:
     """
     Creates an example :class:`~basyx.aas.model.submodel.Submodel` template containing all kind of
     :class:`~basyx.aas.model.submodel.SubmodelElement` objects where the kind is always
-    `TEMPLATE`
+    ``TEMPLATE``
 
     :return: example submodel
     """

@@ -9,13 +9,13 @@ This module defines native Python types for all simple built-in XSD datatypes, a
 them from/into their lexical XML representation.
 
 See https://www.w3.org/TR/xmlschema-2/#built-in-datatypes for the XSD simple type hierarchy and more information on the
-datatypes. All types from this type hierarchy (except for `token` and its descendants) are implemented or aliased in
+datatypes. All types from this type hierarchy (except for ``token`` and its descendants) are implemented or aliased in
 this module using their pythonized: Duration, DateTime, GMonthDay, String, Integer, Decimal, Short …. These types are
 meant to be used directly for data values in the context of Asset Administration Shells.
 
 There are three conversion functions for usage in BaSyx Python SDK's model and adapters:
 
-* :meth:`~aas.model.datatypes.xsd_repr` serializes any XSD type from this module into it's lexical representation
+* :meth:`~basyx.aas.model.datatypes.xsd_repr` serializes any XSD type from this module into its lexical representation
 * :meth:`~basyx.aas.model.datatypes.from_xsd` parses an XSD type from its lexical representation (its required to name
   the type for unambiguous conversion)
 * :meth:`~basyx.aas.model.datatypes.trivial_cast` type-cast a python value into an XSD type,
@@ -404,9 +404,9 @@ def trivial_cast(value, type_: Type[AnyXSDType]) -> AnyXSDType:  # workaround. W
     However, we want to stay strongly typed, so we only allow this type-cast if it is trivial to do, i.e. does not
     change the value's semantics. Examples, where this holds true:
 
-    * int → :class:`basyx.aas.model.datatypes.Int` (if the value is in the expected range)
-    * bytes → :class:`basyx.aas.model.datatypes.Base64Binary`
-    * datetime.date → :class:`aas.model.datatypes.Date`
+    * int → :class:`~basyx.aas.model.datatypes.Int` (if the value is in the expected range)
+    * bytes → :class:`~basyx.aas.model.datatypes.Base64Binary`
+    * datetime.date → :class:`~basyx.aas.model.datatypes.Date`
 
     Yet, it is not allowed to cast float → :class:`basyx.aas.model.datatypes.Int`.
 

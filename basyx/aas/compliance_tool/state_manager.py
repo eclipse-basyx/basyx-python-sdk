@@ -5,8 +5,8 @@
 #
 # SPDX-License-Identifier: MIT
 """
-This module defines a :class:`~.ComplianceToolStateManager` to store `logging.LogRecords` for single steps in a
-compliance check of the compliance tool
+This module defines a :class:`~.ComplianceToolStateManager` to store :class:`LogRecords <logging.LogRecord>`
+for single steps in a compliance check of the compliance tool
 """
 import logging
 import enum
@@ -36,8 +36,8 @@ class Step:
     A step represents a single test stage in a test protocol of a :class:`~.ComplianceToolStateManager`
 
     :ivar name: Name of the step
-    :ivar ~.status: Status of the step from type Status
-    :ivar log_list: List of `logging.LogRecords` which belong to this step
+    :ivar status: Status of the step from type Status
+    :ivar log_list: List of :class:`LogRecords <logging.LogRecord>` which belong to this step
     """
     def __init__(self, name: str, status: Status, log_list: List[logging.LogRecord]):
         self.name = name
@@ -55,7 +55,7 @@ class ComplianceToolStateManager(logging.Handler):
         - Set the step status from log
         - Add logs to a step by hand
         - Add logs to a step from a data checker
-        - Be used as a `logging.Handler` which adds logs to the current step
+        - Be used as a :class:`logging.Handler` which adds logs to the current step
 
     Example of a ComplianceTest for a schema check:
 
@@ -101,9 +101,9 @@ class ComplianceToolStateManager(logging.Handler):
 
     def add_log_record(self, record: logging.LogRecord) -> None:
         """
-        Adds a `logging.LogRecord` to the log list of the actual :class:`~.Step`
+        Adds a :class:`~logging.LogRecord` to the log list of the actual :class:`~.Step`
 
-        :param record: `logging.LogRecord` which should be added to the current :class:`~.Step`
+        :param record: :class:`~logging.LogRecord` which should be added to the current :class:`~.Step`
         """
         self.steps[-1].log_list.append(record)
 
@@ -123,13 +123,13 @@ class ComplianceToolStateManager(logging.Handler):
 
     def add_log_records_from_data_checker(self, data_checker: DataChecker) -> None:
         """
-        Sets the status of the current :class:`~.Step` and convert the checks to `logging.LogRecords` and adds these to
-        the current :class:`~.Step`
+        Sets the status of the current :class:`~.Step` and convert the checks to
+        :class:`LogRecords <logging.LogRecord>` and adds these to the current :class:`~.Step`
 
-        :class:`~.Step`: FAILED if the :class:`~aas.examples.data._helper.DataChecker` consist at least one failed
+        :class:`~.Step`: FAILED if the :class:`~basyx.aas.examples.data._helper.DataChecker` consist at least one failed
         check otherwise SUCCESS
 
-        :param data_checker: :class:`~aas.examples.data._helper.DataChecker` which checks should be added to the
+        :param data_checker: :class:`~basyx.aas.examples.data._helper.DataChecker` which checks should be added to the
             current :class:`~.Step`
         """
         self.steps[-1].status = Status.SUCCESS if not any(True for _ in data_checker.failed_checks) else Status.FAILED
@@ -149,22 +149,24 @@ class ComplianceToolStateManager(logging.Handler):
 
     def get_error_logs_from_step(self, index: int) -> List[logging.LogRecord]:
         """
-        Returns a list of `logging.LogRecords` of a step where the log level is `logging.ERROR` or `logging.WARNING`
+        Returns a list of :class:`LogRecords <logging.LogRecord>` of a step where the log level
+        is :data:`~logging.ERROR` or :data:`~logging.WARNING`
 
         :param index: Step index in the Step list of the manager
-        :return: List of LogRecords with log level `logging.ERROR` or `logging.WARNING`
+        :return: List of LogRecords with log level :data:`~logging.ERROR` or :data:`~logging.WARNING`
         """
         return [x for x in self.steps[index].log_list if x.levelno >= logging.WARNING]
 
     def format_step(self, index: int, verbose_level: int = 0) -> str:
         """
-        Creates a string for the step containing the status, the step name and the `logging.LogRecords` if wanted
+        Creates a string for the step containing the status, the step name and
+        the :class:`LogRecords <logging.LogRecord>` if wanted
 
         :param index:  Step index in the step list of the manager
         :param verbose_level: Decision which kind of LogRecords should be in the string
 
                                 - 0: No LogRecords
-                                - 1: Only LogRecords with log level >= logging.WARNING
+                                - 1: Only LogRecords with log level >= :data:`~logging.WARNING`
                                 - 2: All LogRecords
 
         :return: formatted string of the step
@@ -190,13 +192,13 @@ class ComplianceToolStateManager(logging.Handler):
 
     def format_state_manager(self, verbose_level: int = 0) -> str:
         """
-        Creates a report with all executed steps: Containing the status, the step name and the `logging.LogRecords` if
-        wanted
+        Creates a report with all executed steps: Containing the status, the step name and
+        the :class:`LogRecords <logging.LogRecord>` if wanted
 
         :param verbose_level: Decision which kind of LogRecords should be in the string
 
                                 - 0: No LogRecords
-                                - 1: Only LogRecords with log level >= logging.WARNING
+                                - 1: Only LogRecords with log level >= :data:`~logging.WARNING`
                                 - 2: All LogRecords
 
         :return: formatted report
@@ -207,8 +209,9 @@ class ComplianceToolStateManager(logging.Handler):
 
     def emit(self, record: logging.LogRecord):
         """
-        `logging.Handler` function for adding `logging.LogRecords` from a `logger` to the current :class:`~.Step`
+        :class:`~logging.Handler` function for adding :class:`LogRecords <logging.LogRecord>` from a ``logger``
+        to the current :class:`~.Step`
 
-        :param record: `logging.LogRecord` which should be added
+        :param record: :class:`~logging.LogRecord` which should be added
         """
         self.steps[-1].log_list.append(record)

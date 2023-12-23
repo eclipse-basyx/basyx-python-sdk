@@ -5,8 +5,7 @@
 #
 # SPDX-License-Identifier: MIT
 """
-This module contains the class :class:`~.ConceptDescription` from the AAS meta model
-as well as specialized :class:`ConceptDescriptions <.ConceptDescription>` like :class:`~.IEC61360ConceptDescription`.
+This module contains the class :class:`~.ConceptDescription` from the AAS meta model.
 """
 from typing import Optional, Set, Iterable, List
 
@@ -35,10 +34,10 @@ class ConceptDescription(base.Identifiable, base.HasDataSpecification):
 
     The description of the concept should follow a standardized schema (realized as data specification template).
 
-    *Note:* Compare :attr:`~.ConceptDescription.is_case_of` to is-case-of relationship in ISO 13584-32 & IEC EN 61360
+    .. note::
+        Compare ``is_case_of`` to is-case-of relationship in ISO 13584-32 & IEC EN 61360
 
-    :ivar ~.id: The globally unique id of the element. (inherited from
-                            :class:`~basyx.aas.model.base.Identifiable`)
+    :ivar id: The globally unique id of the element. (inherited from :class:`~basyx.aas.model.base.Identifiable`)
     :ivar is_case_of: Unordered list of global :class:`References <basyx.aas.model.base.Reference>` to external
                       definitions the concept is compatible to or was derived from.
     :ivar id_short: Identifying string of the element within its name space. (inherited from

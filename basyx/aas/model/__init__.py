@@ -5,28 +5,7 @@ specialized Concept Descriptions) are imported into this top-level package, for 
 
 .. code-block:: python
 
-    from aas.model import AssetAdministrationShell, Submodel, Property
-
-The different modules are:
-
-aas.py
-    The main module, implementing high-level structures, such as AssetAdministrationShell and ConceptDictionary.
-
-base.py
-    Basic structures of the model, including all abstract classes and enumerations. This provides inheritance for the
-    higher level structures.
-
-concept.py
-    :class:`~basyx.aas.model.concept.ConceptDescription` from the AAS meta model
-    as well as specialized :class:`ConceptDescriptions <basyx.aas.model.concept.ConceptDescription>` like
-    :class:`~aas.model.concept.IEC61360ConceptDescription`
-
-provider.py
-    Providers for AAS objects, in order to store and retrieve :class:`~basyx.aas.model.base.Identifiable` objects by
-    their :class:`~basyx.aas.model.base.Identifier`.
-
-submodel.py
-    Meta-model of the submodels and events.
+    from basyx.aas.model import AssetAdministrationShell, Submodel, Property
 """
 
 from .aas import *

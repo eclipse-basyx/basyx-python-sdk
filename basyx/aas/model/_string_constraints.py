@@ -5,19 +5,26 @@
 #
 # SPDX-License-Identifier: MIT
 """
-This module implements constraint functions for the listed constrained string types and is meant for internal use only.
+This module implements constraint functions for the listed constrained string types.
 All types are constrained in length (min and max), RevisionType and VersionType are additionally constrained
-by a regular expression. The following types aliased in the base module are constrained:
-- ContentType
-- Identifier
-- LabelType
-- MessageTopicType
-- NameType
-- PathType
-- RevisionType
-- ShortNameType
-- QualifierType
-- VersionType
+by a regular expression.
+
+.. warning::
+    This module is intended for internal use only.
+
+The following types aliased in the :mod:`~basyx.aas.model.base` module are constrained:
+
+- :class:`~basyx.aas.model.base.ContentType`
+- :class:`~basyx.aas.model.base.Identifier`
+- :class:`~basyx.aas.model.base.LabelType`
+- :class:`~basyx.aas.model.base.MessageTopicType`
+- :class:`~basyx.aas.model.base.NameType`
+- :class:`~basyx.aas.model.base.PathType`
+- :class:`~basyx.aas.model.base.RevisionType`
+- :class:`~basyx.aas.model.base.ShortNameType`
+- :class:`~basyx.aas.model.base.QualifierType`
+- :class:`~basyx.aas.model.base.VersionType`
+- :class:`~basyx.aas.model.base.ValueTypeIEC61360`
 """
 
 import re
@@ -103,14 +110,14 @@ def check_version_type(value: str, type_name: str = "VersionType") -> None:
 def create_check_function(min_length: int = 0, max_length: Optional[int] = None, pattern: Optional[re.Pattern] = None) \
         -> Callable[[str, str], None]:
     """
-    Returns a new `check_type` function with mandatory `type_name` for the given min_length, max_length and pattern
+    Returns a new ``check_type`` function with mandatory ``type_name`` for the given min_length, max_length and pattern
     constraints.
 
-    This is the type-independent alternative to :func:`~.check_content_type`, :func:`~.check_identifier`, etc.
-    It is used for the definition of the :class:`ConstrainedLangStringSets <aas.model.base.ConstrainedLangStringSet>`,
-    as a "Basic" constrained string type only exists for :class:`~aas.model.base.MultiLanguageNameType`, where all
-    values are :class:`ShortNames <aas.model.base.ShortNameType>`. All other
-    :class:`:class:`ConstrainedLangStringSets <aas.model.base.ConstrainedLangStringSet>` use custom constraints.
+    This is the type-independent alternative to :func:`~.check_content_type`, :func:`~.check_identifier`, etc. It is
+    used for the definition of the :class:`ConstrainedLangStringSets <basyx.aas.model.base.ConstrainedLangStringSet>`,
+    as a "Basic" constrained string type only exists for :class:`~basyx.aas.model.base.MultiLanguageNameType`, where all
+    values are :class:`ShortNames <basyx.aas.model.base.ShortNameType>`. All other
+    :class:`:class:`ConstrainedLangStringSets <basyx.aas.model.base.ConstrainedLangStringSet>` use custom constraints.
     """
     def check_fn(value: str, type_name: str) -> None:
         return check(value, type_name, min_length, max_length, pattern)

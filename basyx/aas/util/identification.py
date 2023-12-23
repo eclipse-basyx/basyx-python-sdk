@@ -67,7 +67,7 @@ class NamespaceIRIGenerator(AbstractIdentifierGenerator):
 
     :ivar namespace: The IRI Namespace to generate Identifiers in. It must be a valid IRI (starting with a
                      scheme) and end on either #, /, or = to form a reasonable namespace.
-    :ivar ~.provider: An :class:`~basyx.aas.model.provider.AbstractObjectProvider` to check existence of
+    :ivar provider: An :class:`~basyx.aas.model.provider.AbstractObjectProvider` to check existence of
         :class:`Identifiers <basyx.aas.model.base.Identifier>`
     """
     def __init__(self, namespace: str, provider: model.AbstractObjectProvider):

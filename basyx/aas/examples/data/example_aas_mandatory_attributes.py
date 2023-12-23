@@ -6,13 +6,11 @@
 # SPDX-License-Identifier: MIT
 """
 Module for the creation of an :class:`ObjectStore <basyx.aas.model.provider.DictObjectStore>` with an example
-:class:`~basyx.aas.model.aas.AssetAdministrationShell` and example
-:class:`Submodels <basyx.aas.model.submodel.Submodel>` and a :class:`~aas.model.concept.ConceptDictionary` containing an
-example :class:`~basyx.aas.model.concept.ConceptDescription`. All objects only contain mandatory
-attributes.
+:class:`~basyx.aas.model.aas.AssetAdministrationShell`, example :class:`Submodels <basyx.aas.model.submodel.Submodel>`
+and an example :class:`~basyx.aas.model.concept.ConceptDescription`. All objects only contain mandatory attributes.
 
 To get this object store use the function
-:meth:`~aas.examples.data.example_aas_mandatory_attributes.create_full_example`. If you want to get single example
+:meth:`~basyx.aas.examples.data.example_aas_mandatory_attributes.create_full_example`. If you want to get single example
 objects or want to get more information use the other functions.
 """
 import logging
@@ -196,9 +194,9 @@ def create_example_asset_administration_shell() -> \
 def create_example_empty_asset_administration_shell() -> model.AssetAdministrationShell:
     """
     Creates an example empty :class:`~basyx.aas.model.aas.AssetAdministrationShell` with just
-    an empty :class:`~aas.model.aas.AssetInformation` and an :class:`~basyx.aas.model.base.Identifier`
+    an empty :class:`~basyx.aas.model.aas.AssetInformation` and an :class:`~basyx.aas.model.base.Identifier`
 
-    :return: example asset administration shell
+    :return: example :class:`~basyx.aas.model.aas.AssetAdministrationShell`
     """
     asset_administration_shell = model.AssetAdministrationShell(
         asset_information=model.AssetInformation(
