@@ -40,7 +40,7 @@ setuptools.setup(
             "aas-compliance-check = basyx.aas.compliance_tool.cli:main"
         ]
     },
-    python_requires='>=3.7',
+    python_requires='>=3.8',
     install_requires=[
         'python-dateutil>=2.8,<3',
         'lxml>=4.2,<5',
