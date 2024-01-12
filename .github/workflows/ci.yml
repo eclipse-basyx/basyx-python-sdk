@@ -3,14 +3,14 @@ name: ci
 on: [push, pull_request]
 
 env:
-  X_PYTHON_VERSION: "3.10"
+  X_PYTHON_VERSION: "3.12"
 
 jobs:
   test:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.7", "3.9", "3.11"]
+        python-version: ["3.8", "3.10", "3.12"]
     env:
       COUCHDB_ADMIN_PASSWORD: "yo0Quai3"
     services:
