@@ -779,14 +779,15 @@ class SubmodelElementList(SubmodelElement, base.UniqueIdShortNamespace, Generic[
                                                    f"semantic_id, got {new!r} with semantic_id={new.semantic_id!r}")
 
         # If we got here we know that `new` is an instance of type_value_list_element and that type_value_list_element
-        # is either Property or Range. Thus, `new` must have the value_type property. Ignore the type here because
-        # the typechecker doesn't get it.
+        # is either Property or Range. Thus, `new` must have the value_type property.
+        # Furthermore, value_type_list_element cannot be None, as this is already checked in __init__().
+        # Ignore the types here because the typechecker doesn't get it.
         if self.type_value_list_element in (Property, Range) \
                 and new.value_type is not self.value_type_list_element:  # type: ignore
             raise base.AASConstraintViolation(109, "All first level elements must have the value_type "  # type: ignore
                                                    "specified by value_type_list_element="
-                                                   f"{self.value_type_list_element.__name__}, got {new!r} with "
-                                                   f"value_type={new.value_type.__name__}")  # type: ignore
+                                                   f"{self.value_type_list_element.__name__}, got "  # type: ignore
+                                                   f"{new!r} with value_type={new.value_type.__name__}")  # type: ignore
 
         # If semantic_id_list_element is not None that would already enforce the semantic_id for all first level
         # elements. Thus, we only need to perform this check if semantic_id_list_element is None.
