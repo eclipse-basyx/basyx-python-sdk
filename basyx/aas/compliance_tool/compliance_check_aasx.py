@@ -63,7 +63,7 @@ def check_deserialization(file_path: str, state_manager: ComplianceToolStateMana
         # open given file
         reader = aasx.AASXReader(file_path)
         state_manager.set_step_status_from_log()
-    except ValueError as error:
+    except (FileNotFoundError, ValueError) as error:
         logger.error(error)
         state_manager.set_step_status_from_log()
         state_manager.add_step('Read file')
