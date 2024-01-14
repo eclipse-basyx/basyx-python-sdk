@@ -69,13 +69,16 @@ class AASXReader:
         closing under any circumstances.
 
         :param file: A filename, file path or an open file-like object in binary mode
+        :raises FileNotFoundError: If the file does not exist
         :raises ValueError: If the file is not a valid OPC zip package
         """
         try:
             logger.debug("Opening {} as AASX pacakge for reading ...".format(file))
             self.reader = pyecma376_2.ZipPackageReader(file)
+        except FileNotFoundError:
+            raise
         except Exception as e:
-            raise ValueError("{} is not a valid ECMA376-2 (OPC) file".format(file)) from e
+            raise ValueError("{} is not a valid ECMA376-2 (OPC) file: {}".format(file, e)) from e
 
     def get_core_properties(self) -> pyecma376_2.OPCCoreProperties:
         """
