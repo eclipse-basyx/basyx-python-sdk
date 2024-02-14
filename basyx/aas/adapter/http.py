@@ -9,6 +9,9 @@
 # "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
 # specific language governing permissions and limitations under the License.
 
+# TODO: remove this once the werkzeug type annotations have been fixed
+# https://github.com/pallets/werkzeug/issues/2836
+# mypy: disable-error-code="arg-type"
 
 import abc
 import base64
@@ -17,20 +20,21 @@ import datetime
 import enum
 import io
 import json
+
 from lxml import etree  # type: ignore
-import werkzeug.exceptions  # type: ignore
-import werkzeug.routing  # type: ignore
-import werkzeug.urls  # type: ignore
+import werkzeug.exceptions
+import werkzeug.routing
+import werkzeug.urls
 from werkzeug.exceptions import BadRequest, Conflict, NotFound, UnprocessableEntity
 from werkzeug.routing import MapAdapter, Rule, Submount
-from werkzeug.wrappers import Request, Response  # type: ignore
+from werkzeug.wrappers import Request, Response
 
 from basyx.aas import model
 from ._generic import XML_NS_MAP
 from .xml import XMLConstructables, read_aas_xml_element, xml_serialization
 from .json import AASToJsonEncoder, StrictAASFromJsonDecoder, StrictStrippedAASFromJsonDecoder
 
-from typing import Callable, Dict, Iterator, List, Optional, Type, TypeVar, Union
+from typing import Callable, Dict, Iterable, Iterator, List, Optional, Type, TypeVar, Union
 
 
 # TODO: support the path/reference/etc. parameter
@@ -49,12 +53,12 @@ class MessageType(enum.Enum):
 
 
 class Message:
-    def __init__(self, code: str, text: str, type_: MessageType = MessageType.UNDEFINED,
+    def __init__(self, code: str, text: str, message_type: MessageType = MessageType.UNDEFINED,
                  timestamp: Optional[datetime.datetime] = None):
-        self.code = code
-        self.text = text
-        self.messageType = type_
-        self.timestamp = timestamp if timestamp is not None else datetime.datetime.utcnow()
+        self.code: str = code
+        self.text: str = text
+        self.message_type: MessageType = message_type
+        self.timestamp: datetime.datetime = timestamp if timestamp is not None else datetime.datetime.utcnow()
 
 
 class Result:
@@ -76,7 +80,7 @@ class ResultToJsonEncoder(AASToJsonEncoder):
     @classmethod
     def _message_to_json(cls, message: Message) -> Dict[str, object]:
         return {
-            "messageType": message.messageType,
+            "messageType": message.message_type,
             "text": message.text,
             "code": message.code,
             "timestamp": message.timestamp.isoformat()
@@ -167,7 +171,7 @@ def result_to_xml(result: Result, **kwargs) -> etree.Element:
 def message_to_xml(message: Message) -> etree.Element:
     message_elem = etree.Element("message")
     message_type_elem = etree.Element("messageType")
-    message_type_elem.text = str(message.messageType)
+    message_type_elem.text = str(message.message_type)
     text_elem = etree.Element("text")
     text_elem.text = message.text
     code_elem = etree.Element("code")
@@ -494,8 +498,9 @@ class WSGIApp:
             "base64url_json": Base64UrlJsonConverter
         })
 
-    def __call__(self, environ, start_response):
-        response = self.handle_request(Request(environ))
+    # TODO: the parameters can be typed via builtin wsgiref with Python 3.11+
+    def __call__(self, environ, start_response) -> Iterable[bytes]:
+        response: Response = self.handle_request(Request(environ))
         return response(environ, start_response)
 
     def _get_obj_ts(self, identifier: model.Identifier, type_: Type[model.provider._IT]) -> model.provider._IT:
@@ -558,7 +563,7 @@ class WSGIApp:
             endpoint, values = map_adapter.match()
             if endpoint is None:
                 raise werkzeug.exceptions.NotImplemented("This route is not yet implemented.")
-            return endpoint(request, values, map_adapter=map_adapter)
+            return endpoint(request, values, map_adapter=map_adapter)  # type: ignore[operator]
         # any raised error that leaves this function will cause a 500 internal server error
         # so catch raised http exceptions and return them
         except werkzeug.exceptions.NotAcceptable as e:
@@ -862,6 +867,6 @@ class WSGIApp:
 
 
 if __name__ == "__main__":
-    from werkzeug.serving import run_simple  # type: ignore
+    from werkzeug.serving import run_simple
     from basyx.aas.examples.data.example_aas import create_full_example
     run_simple("localhost", 8080, WSGIApp(create_full_example()), use_debugger=True, use_reloader=True)
