@@ -29,12 +29,12 @@ and offer an automatically generated python unittest TestCase.
 # TODO: add id_short format to schemata
 
 import os
+import random
 import pathlib
 import urllib.parse
 
 import schemathesis
 import hypothesis.strategies
-import random
 
 from basyx.aas import model
 from basyx.aas.adapter.http import WSGIApp

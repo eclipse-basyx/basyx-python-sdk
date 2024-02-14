@@ -196,7 +196,6 @@ def aas_object_to_xml(obj: object) -> etree.Element:
         return xml_serialization.reference_to_xml(obj)
     if isinstance(obj, model.Submodel):
         return xml_serialization.submodel_to_xml(obj)
-    # TODO: xml serialization needs a constraint_to_xml() function
     if isinstance(obj, model.Qualifier):
         return xml_serialization.qualifier_to_xml(obj)
     if isinstance(obj, model.SubmodelElement):
