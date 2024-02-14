@@ -46,6 +46,6 @@ setuptools.setup(
         'lxml>=4.2,<5',
         'urllib3>=1.26,<2.0',
         'pyecma376-2>=0.2.4',
-        'Werkzeug>=1.0.1,<2'
+        'Werkzeug~=3.0'
     ]
 )

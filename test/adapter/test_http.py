@@ -30,10 +30,11 @@ and offer an automatically generated python unittest TestCase.
 
 import os
 import pathlib
+import urllib.parse
+
 import schemathesis
 import hypothesis.strategies
 import random
-import werkzeug.urls  # type: ignore
 
 from basyx.aas import model
 from basyx.aas.adapter.http import WSGIApp
@@ -43,7 +44,7 @@ from typing import Set
 
 
 def _encode_and_quote(identifier: model.Identifier) -> str:
-    return werkzeug.urls.url_quote(werkzeug.urls.url_quote(identifier, safe=""), safe="")
+    return urllib.parse.quote(urllib.parse.quote(identifier, safe=""), safe="")
 
 
 def _check_transformed(response, case):
