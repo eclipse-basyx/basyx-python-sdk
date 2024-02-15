@@ -6,7 +6,7 @@
 # SPDX-License-Identifier: MIT
 
 # TODO: remove this once the werkzeug type annotations have been fixed
-# https://github.com/pallets/werkzeug/issues/2836
+#  https://github.com/pallets/werkzeug/issues/2836
 # mypy: disable-error-code="arg-type"
 
 import abc
@@ -558,6 +558,8 @@ class WSGIApp:
             endpoint, values = map_adapter.match()
             if endpoint is None:
                 raise werkzeug.exceptions.NotImplemented("This route is not yet implemented.")
+            # TODO: remove this 'type: ignore' comment once the werkzeug type annotations have been fixed
+            #  https://github.com/pallets/werkzeug/issues/2836
             return endpoint(request, values, map_adapter=map_adapter)  # type: ignore[operator]
         # any raised error that leaves this function will cause a 500 internal server error
         # so catch raised http exceptions and return them
