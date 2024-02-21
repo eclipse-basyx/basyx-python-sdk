@@ -421,17 +421,13 @@ class WSGIApp:
                         Rule("/", methods=["GET"], endpoint=self.get_aas),
                         Rule("/", methods=["PUT"], endpoint=self.put_aas),
                         Rule("/", methods=["DELETE"], endpoint=self.delete_aas),
-                        Submount("/aas", [
-                            Rule("/", methods=["GET"], endpoint=self.get_aas),
-                            Rule("/", methods=["PUT"], endpoint=self.put_aas),
-                            Rule("/asset-information", methods=["GET"], endpoint=self.get_aas_asset_information),
-                            Rule("/asset-information", methods=["PUT"], endpoint=self.put_aas_asset_information),
-                            Submount("/submodels", [
-                                Rule("/", methods=["GET"], endpoint=self.get_aas_submodel_refs),
-                                Rule("/", methods=["POST"], endpoint=self.post_aas_submodel_refs),
-                                Rule("/<base64url_json(t=ModelReference):submodel_ref>/", methods=["DELETE"],
-                                     endpoint=self.delete_aas_submodel_refs_specific)
-                            ])
+                        Rule("/asset-information", methods=["GET"], endpoint=self.get_aas_asset_information),
+                        Rule("/asset-information", methods=["PUT"], endpoint=self.put_aas_asset_information),
+                        Submount("/submodels", [
+                            Rule("/", methods=["GET"], endpoint=self.get_aas_submodel_refs),
+                            Rule("/", methods=["POST"], endpoint=self.post_aas_submodel_refs),
+                            Rule("/<base64url_json(t=ModelReference):submodel_ref>/", methods=["DELETE"],
+                                 endpoint=self.delete_aas_submodel_refs_specific)
                         ])
                     ])
                 ]),
