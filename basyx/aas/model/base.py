@@ -659,6 +659,32 @@ class Referable(HasExtension, metaclass=abc.ABCMeta):
     def _get_category(self) -> Optional[NameType]:
         return self._category
 
+    @classmethod
+    def validate_id_short(cls, id_short: NameType) -> None:
+        """
+        Validates an id_short against Constraint AASd-002 and :class:`NameType` restrictions.
+
+        **Constraint AASd-002:** idShort of Referables shall only feature letters, digits, underscore (``_``); starting
+        mandatory with a letter. I.e. ``[a-zA-Z][a-zA-Z0-9_]+``
+
+        :param id_short: The id_short to validate
+        :raises ValueError: If the id_short doesn't comply to the constraints imposed by :class:`NameType`
+            (see :func:`~basyx.aas.model._string_constraints.check_name_type`).
+        :raises AASConstraintViolation: If the id_short doesn't comply to Constraint AASd-002.
+        """
+        _string_constraints.check_name_type(id_short)
+        test_id_short: NameType = str(id_short)
+        if not re.fullmatch("[a-zA-Z0-9_]*", test_id_short):
+            raise AASConstraintViolation(
+                2,
+                "The id_short must contain only letters, digits and underscore"
+            )
+        if not test_id_short[0].isalpha():
+            raise AASConstraintViolation(
+                2,
+                "The id_short must start with a letter"
+            )
+
     category = property(_get_category, _set_category)
 
     def _set_id_short(self, id_short: Optional[NameType]):
@@ -672,25 +698,16 @@ class Referable(HasExtension, metaclass=abc.ABCMeta):
         (case-sensitive)
 
         :param id_short: Identifying string of the element within its name space
-        :raises ValueError: if the constraint is not fulfilled
-        :raises KeyError: if the new idShort causes a name collision in the parent Namespace
+        :raises ValueError: If the id_short doesn't comply to the constraints imposed by :class:`NameType`
+            (see :func:`~basyx.aas.model._string_constraints.check_name_type`).
+        :raises AASConstraintViolation: If the new idShort causes a name collision in the parent Namespace or if the
+            id_short doesn't comply to Constraint AASd-002.
         """
 
         if id_short == self.id_short:
             return
         if id_short is not None:
-            _string_constraints.check_name_type(id_short)
-            test_id_short: NameType = str(id_short)
-            if not re.fullmatch("[a-zA-Z0-9_]*", test_id_short):
-                raise AASConstraintViolation(
-                    2,
-                    "The id_short must contain only letters, digits and underscore"
-                )
-            if not test_id_short[0].isalpha():
-                raise AASConstraintViolation(
-                    2,
-                    "The id_short must start with a letter"
-                )
+            self.validate_id_short(id_short)
 
         if self.parent is not None:
             if id_short is None:
