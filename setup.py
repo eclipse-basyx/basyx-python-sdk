@@ -25,8 +25,6 @@ setuptools.setup(
     zip_safe=False,
     package_data={
         "basyx": ["py.typed"],
-        "basyx.aas.adapter.json": ["aasJSONSchema.json"],
-        "basyx.aas.adapter.xml": ["AAS.xsd"],
         "basyx.aas.examples.data": ["TestFile.pdf"],
     },
     classifiers=[
