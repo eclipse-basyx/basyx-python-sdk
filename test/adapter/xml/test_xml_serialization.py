@@ -5,15 +5,19 @@
 #
 # SPDX-License-Identifier: MIT
 import io
+import os
 import unittest
 
 from lxml import etree  # type: ignore
 
 from basyx.aas import model
-from basyx.aas.adapter.xml import write_aas_xml_file, xml_serialization, XML_SCHEMA_FILE
+from basyx.aas.adapter.xml import write_aas_xml_file, xml_serialization
 
 from basyx.aas.examples.data import example_aas_missing_attributes, example_aas, \
     example_submodel_template, example_aas_mandatory_attributes
+
+
+XML_SCHEMA_FILE = os.path.join(os.path.dirname(__file__), 'aasXMLSchema.xsd')
 
 
 class XMLSerializationTest(unittest.TestCase):

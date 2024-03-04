@@ -4,18 +4,21 @@
 # the LICENSE file of this project.
 #
 # SPDX-License-Identifier: MIT
-
+import os
 import io
 import unittest
 import json
 
 from basyx.aas import model
-from basyx.aas.adapter.json import AASToJsonEncoder, StrippedAASToJsonEncoder, write_aas_json_file, JSON_SCHEMA_FILE
+from basyx.aas.adapter.json import AASToJsonEncoder, StrippedAASToJsonEncoder, write_aas_json_file
 from jsonschema import validate  # type: ignore
 from typing import Set, Union
 
 from basyx.aas.examples.data import example_aas_missing_attributes, example_aas, \
     example_aas_mandatory_attributes, example_submodel_template, create_example
+
+
+JSON_SCHEMA_FILE = os.path.join(os.path.dirname(__file__), 'aasJSONSchema.json')
 
 
 class JsonSerializationTest(unittest.TestCase):
