@@ -16,7 +16,6 @@ Welcome to the Eclipse BaSyx Python SDK's documentation!
    adapter/index
    backend/index
    examples/index
-   compliance_tool/index
    util/index
    constraints
 
