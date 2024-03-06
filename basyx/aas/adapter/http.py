@@ -380,7 +380,7 @@ class IdentifierConverter(werkzeug.routing.UnicodeConverter):
         except binascii.Error:
             raise BadRequest(f"Encoded identifier {value} is invalid base64url!")
         except UnicodeDecodeError:
-            raise BadRequest(f"Encoded base64url value is not a valid utf-8 string!")
+            raise BadRequest(f"Encoded base64url value is not a valid {self.encoding} string!")
         return decoded
 
 
