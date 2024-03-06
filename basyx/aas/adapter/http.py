@@ -413,7 +413,7 @@ class WSGIApp:
     def __init__(self, object_store: model.AbstractObjectStore):
         self.object_store: model.AbstractObjectStore = object_store
         self.url_map = werkzeug.routing.Map([
-            Submount("/api/v1", [
+            Submount("/api/v3.0", [
                 Submount("/shells", [
                     Rule("/", methods=["GET"], endpoint=self.get_aas_all),
                     Rule("/", methods=["POST"], endpoint=self.post_aas),
