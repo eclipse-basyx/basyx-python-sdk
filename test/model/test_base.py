@@ -981,9 +981,15 @@ class ModelReferenceTest(unittest.TestCase):
         self.assertEqual("'Referable with id_short prop_false not found in "
                          "SubmodelElementCollection[urn:x-test:submodel / list[0]]'", str(cm_8.exception))
 
+        ref9 = model.ModelReference((model.Key(model.KeyTypes.SUBMODEL, "urn:x-test:submodel"),
+                                     model.Key(model.KeyTypes.SUBMODEL_ELEMENT_COLLECTION, "list"),
+                                     model.Key(model.KeyTypes.SUBMODEL_ELEMENT_COLLECTION, "collection")),
+                                    model.SubmodelElementCollection)
+
         with self.assertRaises(ValueError) as cm_9:
-            ref9 = model.ModelReference((), model.Submodel)
-        self.assertEqual('A reference must have at least one key!', str(cm_9.exception))
+            ref9.resolve(DummyObjectProvider())
+        self.assertEqual("Cannot resolve 'collection' at SubmodelElementList[urn:x-test:submodel / list], "
+                         "because it is not a numeric index!", str(cm_9.exception))
 
     def test_get_identifier(self) -> None:
         ref = model.ModelReference((model.Key(model.KeyTypes.SUBMODEL, "urn:x-test:x"),), model.Submodel)
