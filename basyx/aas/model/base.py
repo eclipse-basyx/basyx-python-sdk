@@ -866,7 +866,7 @@ _RT = TypeVar('_RT', bound=Referable)
 
 class UnexpectedTypeError(TypeError):
     """
-    Exception to be raised by :meth:`basyx.aas.model.base.ModelReference.resolve` if the retrieved object has not
+    Exception to be raised by :meth:`.ModelReference.resolve` if the retrieved object has not
     the expected type.
 
     :ivar value: The object of unexpected type
@@ -1029,7 +1029,7 @@ class ModelReference(Reference, Generic[_RT]):
         :return: The referenced object (or a proxy object for it)
         :raises IndexError: If the list of keys is empty
         :raises TypeError: If one of the intermediate objects on the path is not a
-                           :class:`~basyx.aas.model.base.Namespace`
+                           :class:`~.UniqueIdShortNamespace`
         :raises ValueError: If a non-numeric index is given to resolve in a
                             :class:`~basyx.aas.model.submodel.SubmodelElementList`
         :raises UnexpectedTypeError: If the retrieved object is not of the expected type (or one of its subclasses). The
