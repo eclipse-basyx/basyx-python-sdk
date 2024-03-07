@@ -358,6 +358,9 @@ class ModelNamespaceTest(unittest.TestCase):
         self.prop7 = model.Property("Prop2", model.datatypes.Int, semantic_id=self.propSemanticID3)
         self.prop8 = model.Property("ProP2", model.datatypes.Int, semantic_id=self.propSemanticID3)
         self.prop1alt = model.Property("Prop1", model.datatypes.Int, semantic_id=self.propSemanticID)
+        self.collection1 = model.SubmodelElementCollection(None)
+        self.list1 = model.SubmodelElementList("List1", model.SubmodelElementCollection,
+                                               semantic_id=self.propSemanticID)
         self.qualifier1 = model.Qualifier("type1", model.datatypes.Int, 1, semantic_id=self.propSemanticID)
         self.qualifier2 = model.Qualifier("type2", model.datatypes.Int, 1, semantic_id=self.propSemanticID2)
         self.qualifier1alt = model.Qualifier("type1", model.datatypes.Int, 1, semantic_id=self.propSemanticID)
@@ -583,6 +586,26 @@ class ModelNamespaceTest(unittest.TestCase):
         with self.assertRaises(KeyError) as cm4:
             namespace.remove_referable("Prop2")
         self.assertEqual("'Referable with id_short Prop2 not found in this namespace'", str(cm4.exception))
+
+    def test_id_short_path_resolution(self) -> None:
+        self.namespace.set2.add(self.list1)
+        self.list1.add_referable(self.collection1)
+        self.collection1.add_referable(self.prop1)
+
+        with self.assertRaises(ValueError) as cm:
+            self.namespace.get_referable(["List1", "a"])
+        self.assertEqual("Cannot resolve 'a', because it is not a numeric index!", str(cm.exception))
+
+        with self.assertRaises(KeyError) as cm_2:
+            self.namespace.get_referable(["List1", "0", "Prop2"])
+        self.assertEqual("'Referable with id_short Prop2 not found in this namespace'", str(cm_2.exception))
+
+        with self.assertRaises(TypeError) as cm_3:
+            self.namespace.get_referable(["List1", "0", "Prop1", "Test"])
+        self.assertEqual("Cannot resolve id_short or index 'Test', because it is not a UniqueIdShortNamespace!",
+                         str(cm_3.exception))
+
+        self.namespace.get_referable(["List1", "0", "Prop1"])
 
     def test_renaming(self) -> None:
         self.namespace.set2.add(self.prop1)
@@ -887,7 +910,7 @@ class ModelReferenceTest(unittest.TestCase):
                                     model.Property)
         with self.assertRaises(KeyError) as cm:
             ref1.resolve(DummyObjectProvider())
-        self.assertEqual("'Could not resolve id_short lst at urn:x-test:submodel'", str(cm.exception))
+        self.assertEqual("'Referable with id_short lst not found in this namespace'", str(cm.exception))
 
         ref2 = model.ModelReference((model.Key(model.KeyTypes.SUBMODEL, "urn:x-test:submodel"),
                                      model.Key(model.KeyTypes.SUBMODEL_ELEMENT_LIST, "list"),
@@ -896,7 +919,7 @@ class ModelReferenceTest(unittest.TestCase):
                                     model.Property)
         with self.assertRaises(KeyError) as cm_2:
             ref2.resolve(DummyObjectProvider())
-        self.assertEqual("'Could not resolve index 99 at urn:x-test:submodel / list'", str(cm_2.exception))
+        self.assertEqual("'Referable with index 99 not found in this namespace'", str(cm_2.exception))
 
         ref3 = model.ModelReference((model.Key(model.KeyTypes.SUBMODEL, "urn:x-test:submodel"),
                                      model.Key(model.KeyTypes.SUBMODEL_ELEMENT_LIST, "list"),
@@ -913,8 +936,8 @@ class ModelReferenceTest(unittest.TestCase):
                                     model.Property)
         with self.assertRaises(TypeError) as cm_3:
             ref4.resolve(DummyObjectProvider())
-        self.assertEqual("Object retrieved at urn:x-test:submodel / list[0] / prop is not a Namespace",
-                         str(cm_3.exception))
+        self.assertEqual("Cannot resolve id_short or index 'prop', "
+                         "because it is not a UniqueIdShortNamespace!", str(cm_3.exception))
 
         with self.assertRaises(AttributeError) as cm_4:
             ref1.key[2].value = "prop1"
@@ -944,8 +967,7 @@ class ModelReferenceTest(unittest.TestCase):
 
         with self.assertRaises(KeyError) as cm_8:
             ref8.resolve(DummyObjectProvider())
-        self.assertEqual("'Could not resolve id_short prop_false at urn:x-test:submodel / list[0]'",
-                         str(cm_8.exception))
+        self.assertEqual("'Referable with id_short prop_false not found in this namespace'", str(cm_8.exception))
 
         with self.assertRaises(ValueError) as cm_9:
             ref9 = model.ModelReference((), model.Submodel)
