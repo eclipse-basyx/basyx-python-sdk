@@ -503,7 +503,7 @@ class Namespace(metaclass=abc.ABCMeta):
                 return ns_set.get_object_by_attribute(attribute_name, attribute)
             except KeyError:
                 continue
-        raise KeyError(f"{object_type.__name__} with {attribute_name} {attribute} not found in this namespace")
+        raise KeyError(f"{object_type.__name__} with {attribute_name} {attribute} not found in {self!r}")
 
     def _add_object(self, attribute_name: str, obj: _NSO) -> None:
         """
@@ -531,7 +531,7 @@ class Namespace(metaclass=abc.ABCMeta):
                     return
                 except KeyError:
                     continue
-        raise KeyError(f"{object_type.__name__} with {attribute_name} {attribute} not found in this namespace")
+        raise KeyError(f"{object_type.__name__} with {attribute_name} {attribute} not found in {self!r}")
 
 
 class HasExtension(Namespace, metaclass=abc.ABCMeta):
@@ -1737,7 +1737,7 @@ class UniqueIdShortNamespace(Namespace, metaclass=abc.ABCMeta):
             # This is redundant on first iteration, but it's a negligible overhead.
             # Also, ModelReference.resolve() relies on this check.
             if not isinstance(item, UniqueIdShortNamespace):
-                raise TypeError(f"Cannot resolve id_short or index '{id_}', "
+                raise TypeError(f"Cannot resolve id_short or index '{id_}' at {item!r}, "
                                 f"because it is not a {UniqueIdShortNamespace.__name__}!")
             is_submodel_element_list = isinstance(item, SubmodelElementList)
             try:
@@ -1749,10 +1749,10 @@ class UniqueIdShortNamespace(Namespace, metaclass=abc.ABCMeta):
                 else:
                     item = item._get_object(Referable, "id_short", id_)  # type: ignore[type-abstract]
             except ValueError as e:
-                raise ValueError(f"Cannot resolve '{id_}', because it is not a numeric index!") from e
+                raise ValueError(f"Cannot resolve '{id_}' at {item!r}, because it is not a numeric index!") from e
             except (KeyError, IndexError) as e:
-                raise KeyError("Referable with {} {} not found in this namespace".format(
-                    "index" if is_submodel_element_list else "id_short", id_)) from e
+                raise KeyError("Referable with {} {} not found in {}".format(
+                    "index" if is_submodel_element_list else "id_short", id_, repr(item))) from e
         # All UniqueIdShortNamespaces are Referables, and we only ever assign Referable to item.
         return item  # type: ignore[return-value]
 
