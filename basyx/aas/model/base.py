@@ -1040,7 +1040,7 @@ class ModelReference(Reference, Generic[_RT]):
         # For ModelReferences, the first key must be an AasIdentifiable. So resolve the first key via the provider.
         identifier: Optional[Identifier] = self.key[0].get_identifier()
         if identifier is None:
-            raise AssertionError("Retrieving the identifier of the first key failed.")
+            raise AssertionError(f"Retrieving the identifier of the first {self.key[0]!r} failed.")
 
         try:
             item: Referable = provider_.get_identifiable(identifier)
