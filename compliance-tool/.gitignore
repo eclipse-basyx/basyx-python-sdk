@@ -22,3 +22,6 @@
 
 # customized config files
 /test/test_config.ini
+
+# Do not ship the dynamicylly packaged aasx files in the `test/files`
+/test/files/*.aasx
