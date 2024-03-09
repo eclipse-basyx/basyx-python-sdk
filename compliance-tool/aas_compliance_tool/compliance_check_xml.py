@@ -25,6 +25,7 @@ from .state_manager import ComplianceToolStateManager, Status
 
 XML_SCHEMA_FILE = os.path.join(os.path.dirname(__file__), 'schemas/aasXMLSchema.xsd')
 
+
 def check_schema(file_path: str, state_manager: ComplianceToolStateManager) -> None:
     """
     Checks a given file against the official xml schema and reports any issues using the given
