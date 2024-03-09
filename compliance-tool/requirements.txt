@@ -1,0 +1,2 @@
+pyecma376-2>=0.2.4
+basyx-python-sdk>=1.0.0
