@@ -25,7 +25,7 @@ jobs:
         pip install -r requirements.txt
     - name: Test with coverage + unittest
       run: |
-        coverage run --source=basyx -m unittest
+        coverage run --source=aas_compliance_tool -m unittest
     - name: Report test coverage
       if: ${{ always() }}
       run: |
@@ -47,10 +47,10 @@ jobs:
         pip install -r requirements.txt
     - name: Check typing with MyPy
       run: |
-        mypy basyx test
+        mypy aas_compliance_tool test
     - name: Check code style with PyCodestyle
       run: |
-        pycodestyle --count --max-line-length 120 basyx test
+        pycodestyle --count --max-line-length 120 aas_compliance_tool test
 
   readme-codeblocks:
     runs-on: ubuntu-latest
