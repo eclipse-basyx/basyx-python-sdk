@@ -11,17 +11,19 @@ All functions reports any issues using the given
 :class:`~basyx.aas.compliance_tool.state_manager.ComplianceToolStateManager` by adding new steps and associated
 :class:`LogRecords <logging.LogRecord>`
 """
-
+import os
 from lxml import etree  # type: ignore
 import logging
 from typing import Optional
 
-from .. import model
-from ..adapter.xml import xml_deserialization, XML_SCHEMA_FILE
-from ..examples.data import example_aas, create_example
-from ..examples.data._helper import AASDataChecker
+from basyx.aas import model
+from basyx.aas.adapter.xml import xml_deserialization
+from basyx.aas.examples.data import example_aas, create_example
+from basyx.aas.examples.data._helper import AASDataChecker
 from .state_manager import ComplianceToolStateManager, Status
 
+
+XML_SCHEMA_FILE = os.path.join(os.path.dirname(__file__), 'schemas/aasXMLSchema.xsd')
 
 def check_schema(file_path: str, state_manager: ComplianceToolStateManager) -> None:
     """

@@ -17,7 +17,6 @@ import logging
 
 import pyecma376_2
 
-from basyx.aas import model
 from basyx.aas.adapter import aasx
 from basyx.aas.adapter.xml import write_aas_xml_file
 from basyx.aas.compliance_tool import compliance_check_xml as compliance_tool_xml, \

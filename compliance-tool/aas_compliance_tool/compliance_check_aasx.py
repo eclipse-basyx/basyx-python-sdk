@@ -20,12 +20,12 @@ from lxml import etree  # type: ignore
 import pyecma376_2
 
 from . import compliance_check_json, compliance_check_xml
-from .. import model
-from ..adapter import aasx
-from ..adapter.xml import xml_deserialization
-from ..adapter.json import json_deserialization
-from ..examples.data import example_aas, create_example_aas_binding
-from ..examples.data._helper import AASDataChecker, DataChecker
+from basyx.aas import model
+from basyx.aas.adapter import aasx
+from basyx.aas.adapter.xml import xml_deserialization
+from basyx.aas.adapter.json import json_deserialization
+from basyx.aas.examples.data import example_aas, create_example_aas_binding
+from basyx.aas.examples.data._helper import AASDataChecker, DataChecker
 from .state_manager import ComplianceToolStateManager, Status
 
 

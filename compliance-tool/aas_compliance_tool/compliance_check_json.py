@@ -11,15 +11,19 @@ All functions reports any issues using the given
 :class:`~basyx.aas.compliance_tool.state_manager.ComplianceToolStateManager` by adding new steps and associated
 :class:`LogRecords <logging.LogRecord>`
 """
+import os
 import json
 import logging
 from typing import Optional, IO
 
-from .. import model
-from ..adapter.json import json_deserialization, JSON_SCHEMA_FILE
-from ..examples.data import example_aas, create_example
-from ..examples.data._helper import AASDataChecker
+from basyx.aas import (model)
+from basyx.aas.adapter.json import json_deserialization
+from basyx.aas.examples.data import example_aas, create_example
+from basyx.aas.examples.data._helper import AASDataChecker
 from .state_manager import ComplianceToolStateManager, Status
+
+
+JSON_SCHEMA_FILE = os.path.join(os.path.dirname(__file__), 'schemas/aasJSONSchema.json')
 
 
 def check_schema(file_path: str, state_manager: ComplianceToolStateManager) -> None:
