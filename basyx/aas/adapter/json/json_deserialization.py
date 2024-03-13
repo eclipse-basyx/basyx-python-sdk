@@ -815,6 +815,13 @@ def read_aas_json_file_into(object_store: model.AbstractObjectStore, file: PathO
                      See https://git.rwth-aachen.de/acplt/pyi40aas/-/issues/91
                      This parameter is ignored if a decoder class is specified.
     :param decoder: The decoder class used to decode the JSON objects
+    :raises KeyError: **Non-failsafe**: Encountered a duplicate identifier
+    :raises KeyError: Encountered an identifier that already exists in the given ``object_store`` with both
+                     ``replace_existing`` and ``ignore_existing`` set to ``False``
+    :raises (~basyx.aas.model.base.AASConstraintViolation, KeyError, ValueError, TypeError): **Non-failsafe**:
+        Errors during construction of the objects
+    :raises TypeError: **Non-failsafe**: Encountered an element in the wrong list
+                                         (e.g. an AssetAdministrationShell in ``submodels``)
     :return: A set of :class:`Identifiers <basyx.aas.model.base.Identifier>` that were added to object_store
     """
     ret: Set[model.Identifier] = set()
@@ -884,6 +891,11 @@ def read_aas_json_file(file: PathOrIO, **kwargs) -> model.DictObjectStore[model.
 
     :param file: A filename or file-like object to read the JSON-serialized data from
     :param kwargs: Keyword arguments passed to :meth:`read_aas_json_file_into`
+    :raises KeyError: **Non-failsafe**: Encountered a duplicate identifier
+    :raises (~basyx.aas.model.base.AASConstraintViolation, KeyError, ValueError, TypeError): **Non-failsafe**:
+        Errors during construction of the objects
+    :raises TypeError: **Non-failsafe**: Encountered an element in the wrong list
+                                         (e.g. an AssetAdministrationShell in ``submodels``)
     :return: A :class:`~basyx.aas.model.provider.DictObjectStore` containing all AAS objects from the JSON file
     """
     object_store: model.DictObjectStore[model.Identifiable] = model.DictObjectStore()
