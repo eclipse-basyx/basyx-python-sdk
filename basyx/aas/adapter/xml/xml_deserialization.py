@@ -1194,6 +1194,8 @@ def _parse_xml_document(file: PathOrIO, failsafe: bool = True, **parser_kwargs: 
     :param failsafe: If True, the file is parsed in a failsafe way: Instead of raising an Exception if the document
                      is malformed, parsing is aborted, an error is logged and None is returned
     :param parser_kwargs: Keyword arguments passed to the XMLParser constructor
+    :raises ~lxml.etree.XMLSyntaxError: **Non-failsafe**: If the given file(-handle) has invalid XML
+    :raises KeyError: **Non-failsafe**: If a required namespace has not been declared on the XML document
     :return: The root element of the element tree
     """
 
@@ -1293,7 +1295,7 @@ def read_aas_xml_element(file: PathOrIO, construct: XMLConstructables, failsafe:
                          decoder: Optional[Type[AASFromXmlDecoder]] = None, **constructor_kwargs) -> Optional[object]:
     """
     Construct a single object from an XML string. The namespaces have to be declared on the object itself, since there
-    is no surrounding aasenv element.
+    is no surrounding environment element.
 
     :param file: A filename or file-like object to read the XML-serialized data from
     :param construct: A member of the enum :class:`~.XMLConstructables`, specifying which type to construct.
@@ -1305,6 +1307,10 @@ def read_aas_xml_element(file: PathOrIO, construct: XMLConstructables, failsafe:
                      This parameter is ignored if a decoder class is specified.
     :param decoder: The decoder class used to decode the XML elements
     :param constructor_kwargs: Keyword arguments passed to the constructor function
+    :raises ~lxml.etree.XMLSyntaxError: **Non-failsafe**: If the given file(-handle) has invalid XML
+    :raises KeyError: **Non-failsafe**: If a required namespace has not been declared on the XML document
+    :raises (~basyx.aas.model.base.AASConstraintViolation, KeyError, ValueError): **Non-failsafe**: Errors during
+                                                                                  construction of the objects
     :return: The constructed object or None, if an error occurred in failsafe mode.
     """
     decoder_ = _select_decoder(failsafe, stripped, decoder)
@@ -1419,6 +1425,14 @@ def read_aas_xml_file_into(object_store: model.AbstractObjectStore[model.Identif
                      This parameter is ignored if a decoder class is specified.
     :param decoder: The decoder class used to decode the XML elements
     :param parser_kwargs: Keyword arguments passed to the XMLParser constructor
+    :raises ~lxml.etree.XMLSyntaxError: **Non-failsafe**: If the given file(-handle) has invalid XML
+    :raises KeyError: **Non-failsafe**: If a required namespace has not been declared on the XML document
+    :raises KeyError: **Non-failsafe**: Encountered a duplicate identifier
+    :raises KeyError: Encountered an identifier that already exists in the given ``object_store`` with both
+                     ``replace_existing`` and ``ignore_existing`` set to ``False``
+    :raises (~basyx.aas.model.base.AASConstraintViolation, KeyError, ValueError): **Non-failsafe**: Errors during
+                                                                                  construction of the objects
+    :raises TypeError: **Non-failsafe**: Encountered an undefined top-level list (e.g. ``<aas:submodels1>``)
     :return: A set of :class:`Identifiers <basyx.aas.model.base.Identifier>` that were added to object_store
     """
     ret: Set[model.Identifier] = set()
@@ -1478,6 +1492,12 @@ def read_aas_xml_file(file: PathOrIO, **kwargs: Any) -> model.DictObjectStore[mo
 
     :param file: A filename or file-like object to read the XML-serialized data from
     :param kwargs: Keyword arguments passed to :meth:`~basyx.aas.adapter.xml.xml_deserialization.read_aas_xml_file_into`
+    :raises ~lxml.etree.XMLSyntaxError: **Non-failsafe**: If the given file(-handle) has invalid XML
+    :raises KeyError: **Non-failsafe**: If a required namespace has not been declared on the XML document
+    :raises KeyError: **Non-failsafe**: Encountered a duplicate identifier
+    :raises (~basyx.aas.model.base.AASConstraintViolation, KeyError, ValueError): **Non-failsafe**: Errors during
+                                                                                  construction of the objects
+    :raises TypeError: **Non-failsafe**: Encountered an undefined top-level list (e.g. ``<aas:submodels1>``)
     :return: A :class:`~basyx.aas.model.provider.DictObjectStore` containing all AAS objects from the XML file
     """
     object_store: model.DictObjectStore[model.Identifiable] = model.DictObjectStore()
