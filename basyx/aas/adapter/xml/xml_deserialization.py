@@ -315,8 +315,8 @@ def _failsafe_construct_mandatory(element: etree.Element, constructor: Callable[
     """
     constructed = _failsafe_construct(element, constructor, False, **kwargs)
     if constructed is None:
-        raise TypeError("The result of a non-failsafe _failsafe_construct() call was None! "
-                        "This is a bug in the Eclipse BaSyx Python SDK XML deserialization, please report it!")
+        raise AssertionError("The result of a non-failsafe _failsafe_construct() call was None! "
+                             "This is a bug in the Eclipse BaSyx Python SDK XML deserialization, please report it!")
     return constructed
 
 
