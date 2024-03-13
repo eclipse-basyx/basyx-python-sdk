@@ -108,18 +108,13 @@ submodel.update()
 aashell.update()
 
 # step 4.3: writing the contents of the ObjectStore to a JSON file
-# Heads up! It is important to open the file in text-mode with utf-8 encoding!
-with open('data.json', 'w', encoding='utf-8') as json_file:
-    basyx.aas.adapter.json.write_aas_json_file(json_file, obj_store)
+basyx.aas.adapter.json.write_aas_json_file('data.json', obj_store)
 
 # We can pass the additional keyword argument `indent=4` to `write_aas_json_file()` to format the JSON file in a more
 # human-readable (but much more space-consuming) manner.
 
 # step 4.4: writing the contents of the ObjectStore to an XML file
-# Heads up! For writing XML files -- in contrast to writing JSON --, the file must be opened in binary mode! The XML
-# writer will handle character encoding internally.
-with open('data.xml', 'wb') as xml_file:
-    basyx.aas.adapter.xml.write_aas_xml_file(xml_file, obj_store)
+basyx.aas.adapter.xml.write_aas_xml_file('data.xml', obj_store)
 
 
 ##################################################################
@@ -127,19 +122,13 @@ with open('data.xml', 'wb') as xml_file:
 ##################################################################
 
 # step 5.1: reading contents of the JSON file as an ObjectStore
-# Heads up! It is important to open the file in text-mode with utf-8 encoding! Using 'utf-8-sig' is recommended to
-# handle unicode Byte Order Marks (BOM) correctly.
-with open('data.json', encoding='utf-8-sig') as json_file:
-    json_file_data = basyx.aas.adapter.json.read_aas_json_file(json_file)
+json_file_data = basyx.aas.adapter.json.read_aas_json_file('data.json')
 
 # By passing the `failsafe=False` argument to `read_aas_json_file()`, we can switch to the `StrictAASFromJsonDecoder`
 # (see step 3) for a stricter error reporting.
 
 # step 5.2: reading contents of the XML file as an ObjectStore
-# Heads up! For reading XML files -- in contrast to reading JSON --, the file must be opened in binary mode! The XML
-# writer will handle character encoding internally.
-with open('data.xml', 'rb') as xml_file:
-    xml_file_data = basyx.aas.adapter.xml.read_aas_xml_file(xml_file)
+xml_file_data = basyx.aas.adapter.xml.read_aas_xml_file('data.xml')
 
 # Again, we can use `failsafe=False` for switching on stricter error reporting in the parser.
 

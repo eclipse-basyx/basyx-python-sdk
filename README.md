@@ -130,8 +130,7 @@ from basyx.aas.adapter.xml import write_aas_xml_file
 
 data: model.DictObjectStore[model.Identifiable] = model.DictObjectStore()
 data.add(submodel)
-with open('Simple_Submodel.xml', 'wb') as f:
-    write_aas_xml_file(file=f, data=data)
+write_aas_xml_file(file='Simple_Submodel.xml', data=data)
 ```
 
 
