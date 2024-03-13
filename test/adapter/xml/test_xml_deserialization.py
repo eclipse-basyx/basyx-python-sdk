@@ -18,10 +18,7 @@ from typing import Iterable, Type, Union
 
 
 def _xml_wrap(xml: str) -> str:
-    return \
-        """<?xml version="1.0" encoding="utf-8" ?>""" \
-        f"""<aas:aasenv xmlns:aas="{XML_NS_MAP["aas"]}"> """ \
-        + xml + """</aas:aasenv>"""
+    return f'<aas:environment xmlns:aas="{XML_NS_MAP["aas"]}">{xml}</aas:environment>'
 
 
 def _root_cause(exception: BaseException) -> BaseException:
@@ -44,11 +41,11 @@ class XmlDeserializationTest(unittest.TestCase):
         """
         if isinstance(strings, str):
             strings = [strings]
-        bytes_io = io.BytesIO(xml.encode("utf-8"))
+        string_io = io.StringIO(xml)
         with self.assertLogs(logging.getLogger(), level=log_level) as log_ctx:
-            read_aas_xml_file(bytes_io, failsafe=True)
+            read_aas_xml_file(string_io, failsafe=True)
         with self.assertRaises(error_type) as err_ctx:
-            read_aas_xml_file(bytes_io, failsafe=False)
+            read_aas_xml_file(string_io, failsafe=False)
         cause = _root_cause(err_ctx.exception)
         for s in strings:
             self.assertIn(s, log_ctx.output[0])
@@ -142,7 +139,7 @@ class XmlDeserializationTest(unittest.TestCase):
         </aas:submodels>
         """)
         # should get parsed successfully
-        object_store = read_aas_xml_file(io.BytesIO(xml.encode("utf-8")), failsafe=False)
+        object_store = read_aas_xml_file(io.StringIO(xml), failsafe=False)
         # modelling kind should default to INSTANCE
         submodel = object_store.pop()
         self.assertIsInstance(submodel, model.Submodel)
@@ -171,7 +168,7 @@ class XmlDeserializationTest(unittest.TestCase):
         </aas:assetAdministrationShells>
         """)
         with self.assertLogs(logging.getLogger(), level=logging.WARNING) as context:
-            read_aas_xml_file(io.BytesIO(xml.encode("utf-8")), failsafe=False)
+            read_aas_xml_file(io.StringIO(xml), failsafe=False)
         for s in ("SUBMODEL", "http://acplt.org/test_ref", "AssetAdministrationShell"):
             self.assertIn(s, context.output[0])
 
@@ -254,7 +251,7 @@ class XmlDeserializationTest(unittest.TestCase):
         </aas:submodels>
         """)
         with self.assertLogs(logging.getLogger(), level=logging.WARNING) as context:
-            read_aas_xml_file(io.BytesIO(xml.encode("utf-8")), failsafe=False)
+            read_aas_xml_file(io.StringIO(xml), failsafe=False)
         self.assertIn("aas:value", context.output[0])
         self.assertIn("more than one submodel element", context.output[0])
 
@@ -294,10 +291,10 @@ class XmlDeserializationTest(unittest.TestCase):
             </aas:submodel>
         </aas:submodels>
         """)
-        bytes_io = io.BytesIO(xml.encode("utf-8"))
+        string_io = io.StringIO(xml)
 
         object_store = get_clean_store()
-        identifiers = read_aas_xml_file_into(object_store, bytes_io, replace_existing=True, ignore_existing=False)
+        identifiers = read_aas_xml_file_into(object_store, string_io, replace_existing=True, ignore_existing=False)
         self.assertEqual(identifiers.pop(), sm_id)
         submodel = object_store.pop()
         self.assertIsInstance(submodel, model.Submodel)
@@ -305,7 +302,7 @@ class XmlDeserializationTest(unittest.TestCase):
 
         object_store = get_clean_store()
         with self.assertLogs(logging.getLogger(), level=logging.INFO) as log_ctx:
-            identifiers = read_aas_xml_file_into(object_store, bytes_io, replace_existing=False, ignore_existing=True)
+            identifiers = read_aas_xml_file_into(object_store, string_io, replace_existing=False, ignore_existing=True)
         self.assertEqual(len(identifiers), 0)
         self.assertIn("already exists in the object store", log_ctx.output[0])
         submodel = object_store.pop()
@@ -314,7 +311,7 @@ class XmlDeserializationTest(unittest.TestCase):
 
         object_store = get_clean_store()
         with self.assertRaises(KeyError) as err_ctx:
-            identifiers = read_aas_xml_file_into(object_store, bytes_io, replace_existing=False, ignore_existing=False)
+            identifiers = read_aas_xml_file_into(object_store, string_io, replace_existing=False, ignore_existing=False)
         self.assertEqual(len(identifiers), 0)
         cause = _root_cause(err_ctx.exception)
         self.assertIn("already exists in the object store", str(cause))
@@ -328,9 +325,9 @@ class XmlDeserializationTest(unittest.TestCase):
             <aas:id>http://acplt.org/test_submodel</aas:id>
         </aas:submodel>
         """
-        bytes_io = io.BytesIO(xml.encode("utf-8"))
+        string_io = io.StringIO(xml)
 
-        submodel = read_aas_xml_element(bytes_io, XMLConstructables.SUBMODEL)
+        submodel = read_aas_xml_element(string_io, XMLConstructables.SUBMODEL)
         self.assertIsInstance(submodel, model.Submodel)
 
 
@@ -358,10 +355,10 @@ class XmlDeserializationStrippedObjectsTest(unittest.TestCase):
             </aas:qualifiers>
         </aas:submodel>
         """
-        bytes_io = io.BytesIO(xml.encode("utf-8"))
+        string_io = io.StringIO(xml)
 
         # check if XML with qualifiers can be parsed successfully
-        submodel = read_aas_xml_element(bytes_io, XMLConstructables.SUBMODEL, failsafe=False)
+        submodel = read_aas_xml_element(string_io, XMLConstructables.SUBMODEL, failsafe=False)
         self.assertIsInstance(submodel, model.Submodel)
         assert isinstance(submodel, model.Submodel)
         self.assertEqual(len(submodel.qualifier), 1)
@@ -369,7 +366,7 @@ class XmlDeserializationStrippedObjectsTest(unittest.TestCase):
         self.assertEqual(len(operation.qualifier), 1)
 
         # check if qualifiers are ignored in stripped mode
-        submodel = read_aas_xml_element(bytes_io, XMLConstructables.SUBMODEL, failsafe=False, stripped=True)
+        submodel = read_aas_xml_element(string_io, XMLConstructables.SUBMODEL, failsafe=False, stripped=True)
         self.assertIsInstance(submodel, model.Submodel)
         assert isinstance(submodel, model.Submodel)
         self.assertEqual(len(submodel.qualifier), 0)
@@ -396,16 +393,16 @@ class XmlDeserializationStrippedObjectsTest(unittest.TestCase):
             </aas:submodels>
         </aas:assetAdministrationShell>
         """
-        bytes_io = io.BytesIO(xml.encode("utf-8"))
+        string_io = io.StringIO(xml)
 
         # check if XML with submodels can be parsed successfully
-        aas = read_aas_xml_element(bytes_io, XMLConstructables.ASSET_ADMINISTRATION_SHELL, failsafe=False)
+        aas = read_aas_xml_element(string_io, XMLConstructables.ASSET_ADMINISTRATION_SHELL, failsafe=False)
         self.assertIsInstance(aas, model.AssetAdministrationShell)
         assert isinstance(aas, model.AssetAdministrationShell)
         self.assertEqual(len(aas.submodel), 1)
 
         # check if submodels are ignored in stripped mode
-        aas = read_aas_xml_element(bytes_io, XMLConstructables.ASSET_ADMINISTRATION_SHELL, failsafe=False,
+        aas = read_aas_xml_element(string_io, XMLConstructables.ASSET_ADMINISTRATION_SHELL, failsafe=False,
                                    stripped=True)
         self.assertIsInstance(aas, model.AssetAdministrationShell)
         assert isinstance(aas, model.AssetAdministrationShell)
@@ -430,9 +427,9 @@ class XmlDeserializationDerivingTest(unittest.TestCase):
             <aas:id>http://acplt.org/test_stripped_submodel</aas:id>
         </aas:submodel>
         """
-        bytes_io = io.BytesIO(xml.encode("utf-8"))
+        string_io = io.StringIO(xml)
 
-        submodel = read_aas_xml_element(bytes_io, XMLConstructables.SUBMODEL, decoder=EnhancedAASDecoder)
+        submodel = read_aas_xml_element(string_io, XMLConstructables.SUBMODEL, decoder=EnhancedAASDecoder)
         self.assertIsInstance(submodel, EnhancedSubmodel)
         assert isinstance(submodel, EnhancedSubmodel)
         self.assertEqual(submodel.enhanced_attribute, "fancy!")
