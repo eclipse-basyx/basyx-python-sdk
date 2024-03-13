@@ -1249,7 +1249,7 @@ class XMLConstructables(enum.Enum):
     KEY = enum.auto()
     REFERENCE = enum.auto()
     MODEL_REFERENCE = enum.auto()
-    GLOBAL_REFERENCE = enum.auto()
+    EXTERNAL_REFERENCE = enum.auto()
     ADMINISTRATIVE_INFORMATION = enum.auto()
     QUALIFIER = enum.auto()
     SECURITY = enum.auto()
@@ -1316,7 +1316,7 @@ def read_aas_xml_element(file: IO, construct: XMLConstructables, failsafe: bool 
         constructor = decoder_.construct_reference
     elif construct == XMLConstructables.MODEL_REFERENCE:
         constructor = decoder_.construct_model_reference
-    elif construct == XMLConstructables.GLOBAL_REFERENCE:
+    elif construct == XMLConstructables.EXTERNAL_REFERENCE:
         constructor = decoder_.construct_external_reference
     elif construct == XMLConstructables.ADMINISTRATIVE_INFORMATION:
         constructor = decoder_.construct_administrative_information
