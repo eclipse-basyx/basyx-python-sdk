@@ -11,7 +11,8 @@ This package contains functionality for serialization and deserialization of BaS
 """
 import os.path
 
-from .xml_serialization import write_aas_xml_file
+from .xml_serialization import object_store_to_xml_element, write_aas_xml_file, object_to_xml_element, \
+    write_aas_xml_element
 from .xml_deserialization import AASFromXmlDecoder, StrictAASFromXmlDecoder, StrippedAASFromXmlDecoder, \
     StrictStrippedAASFromXmlDecoder, XMLConstructables, read_aas_xml_file, read_aas_xml_file_into, read_aas_xml_element
 

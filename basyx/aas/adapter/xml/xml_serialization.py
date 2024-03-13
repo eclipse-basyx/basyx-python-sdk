@@ -14,8 +14,10 @@ How to use:
 - For generating an XML-File from a :class:`~basyx.aas.model.provider.AbstractObjectStore`, check out the function
   :func:`write_aas_xml_file`.
 - For serializing any object to an XML fragment, that fits the XML specification from 'Details of the
-  Asset Administration Shell', chapter 5.4, check out ``<class_name>_to_xml()``. These functions return
-  an :class:`~lxml.etree.Element` object to be serialized into XML.
+  Asset Administration Shell', chapter 5.4, you can either use :func:`object_to_xml_element`, which serializes a given
+  object and returns it as :class:`~lxml.etree.Element`, **or** :func:`write_aas_xml_element`, which does the same
+  thing, but writes the :class:`~lxml.etree.Element` to a file instead of returning it.
+  As a third alternative, you can also use the functions ``<class_name>_to_xml()`` directly.
 
 .. attention::
     Unlike the XML deserialization and the JSON (de-)serialization, the XML serialization only supports
@@ -30,7 +32,7 @@ How to use:
 """
 
 from lxml import etree  # type: ignore
-from typing import Dict, Optional, Type
+from typing import Callable, Dict, Optional, Type
 import base64
 
 from basyx.aas import model
@@ -231,6 +233,20 @@ def data_element_to_xml(obj: model.DataElement) -> etree.Element:
         return reference_element_to_xml(obj)
 
 
+def key_to_xml(obj: model.Key, tag: str = NS_AAS+"key") -> etree.Element:
+    """
+    Serialization of objects of class :class:`~basyx.aas.model.base.Key` to XML
+
+    :param obj: Object of class :class:`~basyx.aas.model.base.Key`
+    :param tag: Namespace+Tag of the returned element. Default is ``aas:key``
+    :return: Serialized :class:`~lxml.etree.Element` object
+    """
+    et_key = _generate_element(tag)
+    et_key.append(_generate_element(name=NS_AAS + "type", text=_generic.KEY_TYPES[obj.type]))
+    et_key.append(_generate_element(name=NS_AAS + "value", text=obj.value))
+    return et_key
+
+
 def reference_to_xml(obj: model.Reference, tag: str = NS_AAS+"reference") -> etree.Element:
     """
     Serialization of objects of class :class:`~basyx.aas.model.base.Reference` to XML
@@ -245,10 +261,7 @@ def reference_to_xml(obj: model.Reference, tag: str = NS_AAS+"reference") -> etr
         et_reference.append(reference_to_xml(obj.referred_semantic_id, NS_AAS + "referredSemanticId"))
     et_keys = _generate_element(name=NS_AAS + "keys")
     for aas_key in obj.key:
-        et_key = _generate_element(name=NS_AAS + "key")
-        et_key.append(_generate_element(name=NS_AAS + "type", text=_generic.KEY_TYPES[aas_key.type]))
-        et_key.append(_generate_element(name=NS_AAS + "value", text=aas_key.value))
-        et_keys.append(et_key)
+        et_keys.append(key_to_xml(aas_key))
     et_reference.append(et_keys)
 
     return et_reference
@@ -850,18 +863,114 @@ def basic_event_element_to_xml(obj: model.BasicEventElement, tag: str = NS_AAS+"
 # general functions
 # ##############################################################
 
+def _write_element(file: _generic.PathOrBinaryIO, element: etree.Element, **kwargs) -> None:
+    etree.ElementTree(element).write(file, encoding="UTF-8", xml_declaration=True, method="xml", **kwargs)
 
-def write_aas_xml_file(file: _generic.PathOrBinaryIO,
-                       data: model.AbstractObjectStore,
-                       **kwargs) -> None:
+
+def object_to_xml_element(obj: object) -> etree.Element:
     """
-    Write a set of AAS objects to an Asset Administration Shell XML file according to 'Details of the Asset
-    Administration Shell', chapter 5.4
+    Serialize a single object to an :class:`~lxml.etree.Element`.
+
+    :param obj: The object to serialize
+    """
+    serialization_func: Callable[..., etree.Element]
+
+    if isinstance(obj, model.Key):
+        serialization_func = key_to_xml
+    elif isinstance(obj, model.Reference):
+        serialization_func = reference_to_xml
+    elif isinstance(obj, model.Reference):
+        serialization_func = reference_to_xml
+    elif isinstance(obj, model.AdministrativeInformation):
+        serialization_func = administrative_information_to_xml
+    elif isinstance(obj, model.Qualifier):
+        serialization_func = qualifier_to_xml
+    elif isinstance(obj, model.AnnotatedRelationshipElement):
+        serialization_func = annotated_relationship_element_to_xml
+    elif isinstance(obj, model.BasicEventElement):
+        serialization_func = basic_event_element_to_xml
+    elif isinstance(obj, model.Blob):
+        serialization_func = blob_to_xml
+    elif isinstance(obj, model.Capability):
+        serialization_func = capability_to_xml
+    elif isinstance(obj, model.Entity):
+        serialization_func = entity_to_xml
+    elif isinstance(obj, model.Extension):
+        serialization_func = extension_to_xml
+    elif isinstance(obj, model.File):
+        serialization_func = file_to_xml
+    elif isinstance(obj, model.Resource):
+        serialization_func = resource_to_xml
+    elif isinstance(obj, model.MultiLanguageProperty):
+        serialization_func = multi_language_property_to_xml
+    elif isinstance(obj, model.Operation):
+        serialization_func = operation_to_xml
+    elif isinstance(obj, model.Property):
+        serialization_func = property_to_xml
+    elif isinstance(obj, model.Range):
+        serialization_func = range_to_xml
+    elif isinstance(obj, model.ReferenceElement):
+        serialization_func = reference_element_to_xml
+    elif isinstance(obj, model.RelationshipElement):
+        serialization_func = relationship_element_to_xml
+    elif isinstance(obj, model.SubmodelElementCollection):
+        serialization_func = submodel_element_collection_to_xml
+    elif isinstance(obj, model.SubmodelElementList):
+        serialization_func = submodel_element_list_to_xml
+    elif isinstance(obj, model.AssetAdministrationShell):
+        serialization_func = asset_administration_shell_to_xml
+    elif isinstance(obj, model.AssetInformation):
+        serialization_func = asset_information_to_xml
+    elif isinstance(obj, model.SpecificAssetId):
+        serialization_func = specific_asset_id_to_xml
+    elif isinstance(obj, model.Submodel):
+        serialization_func = submodel_to_xml
+    elif isinstance(obj, model.ValueReferencePair):
+        serialization_func = value_reference_pair_to_xml
+    elif isinstance(obj, model.ConceptDescription):
+        serialization_func = concept_description_to_xml
+    elif isinstance(obj, model.LangStringSet):
+        serialization_func = lang_string_set_to_xml
+    elif isinstance(obj, model.EmbeddedDataSpecification):
+        serialization_func = embedded_data_specification_to_xml
+    elif isinstance(obj, model.DataSpecificationIEC61360):
+        serialization_func = data_specification_iec61360_to_xml
+    # generic serialization using the functions for abstract classes
+    elif isinstance(obj, model.DataElement):
+        serialization_func = data_element_to_xml
+    elif isinstance(obj, model.SubmodelElement):
+        serialization_func = submodel_to_xml
+    elif isinstance(obj, model.DataSpecificationContent):
+        serialization_func = data_specification_content_to_xml
+    # type aliases
+    elif isinstance(obj, model.ValueList):
+        serialization_func = value_list_to_xml
+    else:
+        raise ValueError(f"{obj!r} cannot be serialized!")
+
+    return serialization_func(obj)
+
+
+def write_aas_xml_element(file: _generic.PathOrBinaryIO, obj: object, **kwargs) -> None:
+    """
+    Serialize a single object to XML. Namespace declarations are added to the object itself, as there is no surrounding
+    environment element.
 
     :param file: A filename or file-like object to write the XML-serialized data to
+    :param obj: The object to serialize
+    :param kwargs: Additional keyword arguments to be passed to :meth:`~lxml.etree.ElementTree.write`
+    """
+    return _write_element(file, object_to_xml_element(obj), **kwargs)
+
+
+def object_store_to_xml_element(data: model.AbstractObjectStore) -> etree.Element:
+    """
+    Serialize a set of AAS objects to an Asset Administration Shell as :class:`~lxml.etree.Element`.
+    This function is used internally by :meth:`write_aas_xml_file` and shouldn't be
+    called directly for most use-cases.
+
     :param data: :class:`ObjectStore <basyx.aas.model.provider.AbstractObjectStore>` which contains different objects of
                  the AAS meta model which should be serialized to an XML file
-    :param kwargs: Additional keyword arguments to be passed to :meth:`~lxml.etree.ElementTree.write`
     """
     # separate different kind of objects
     asset_administration_shells = []
@@ -893,5 +1002,19 @@ def write_aas_xml_file(file: _generic.PathOrBinaryIO,
             et_concept_descriptions.append(concept_description_to_xml(con_obj))
         root.append(et_concept_descriptions)
 
-    tree = etree.ElementTree(root)
-    tree.write(file, encoding="UTF-8", xml_declaration=True, method="xml", **kwargs)
+    return root
+
+
+def write_aas_xml_file(file: _generic.PathOrBinaryIO,
+                       data: model.AbstractObjectStore,
+                       **kwargs) -> None:
+    """
+    Write a set of AAS objects to an Asset Administration Shell XML file according to 'Details of the Asset
+    Administration Shell', chapter 5.4
+
+    :param file: A filename or file-like object to write the XML-serialized data to
+    :param data: :class:`ObjectStore <basyx.aas.model.provider.AbstractObjectStore>` which contains different objects of
+                 the AAS meta model which should be serialized to an XML file
+    :param kwargs: Additional keyword arguments to be passed to :meth:`~lxml.etree.ElementTree.write`
+    """
+    return _write_element(file, object_store_to_xml_element(data), **kwargs)
