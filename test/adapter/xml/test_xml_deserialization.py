@@ -333,6 +333,22 @@ class XmlDeserializationTest(unittest.TestCase):
         submodel = read_aas_xml_element(bytes_io, XMLConstructables.SUBMODEL)
         self.assertIsInstance(submodel, model.Submodel)
 
+    def test_no_namespace_prefix(self) -> None:
+        def xml(id_: str) -> str:
+            return f"""
+            <environment xmlns="{XML_NS_MAP["aas"]}">
+                <submodels>
+                    <submodel>
+                        <id>{id_}</id>
+                    </submodel>
+                </submodels>
+            </environment>
+            """
+
+        self._assertInExceptionAndLog(xml(""), f'{{{XML_NS_MAP["aas"]}}}id on line 5 has no text', KeyError,
+                                      logging.ERROR)
+        read_aas_xml_file(io.StringIO(xml("urn:x-test:test-submodel")))
+
 
 class XmlDeserializationStrippedObjectsTest(unittest.TestCase):
     def test_stripped_qualifiable(self) -> None:
