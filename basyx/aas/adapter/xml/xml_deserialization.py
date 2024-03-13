@@ -47,10 +47,10 @@ import logging
 import base64
 import enum
 
-from typing import Any, Callable, Dict, IO, Iterable, Optional, Set, Tuple, Type, TypeVar
+from typing import Any, Callable, Dict, Iterable, Optional, Set, Tuple, Type, TypeVar
 from .._generic import XML_NS_MAP, XML_NS_AAS, MODELLING_KIND_INVERSE, ASSET_KIND_INVERSE, KEY_TYPES_INVERSE, \
     ENTITY_TYPES_INVERSE, IEC61360_DATA_TYPES_INVERSE, IEC61360_LEVEL_TYPES_INVERSE, KEY_TYPES_CLASSES_INVERSE, \
-    REFERENCE_TYPES_INVERSE, DIRECTION_INVERSE, STATE_OF_EVENT_INVERSE, QUALIFIER_KIND_INVERSE
+    REFERENCE_TYPES_INVERSE, DIRECTION_INVERSE, STATE_OF_EVENT_INVERSE, QUALIFIER_KIND_INVERSE, PathOrIO
 
 NS_AAS = XML_NS_AAS
 REQUIRED_NAMESPACES: Set[str] = {XML_NS_MAP["aas"]}
@@ -1186,7 +1186,7 @@ class StrictStrippedAASFromXmlDecoder(StrictAASFromXmlDecoder, StrippedAASFromXm
     pass
 
 
-def _parse_xml_document(file: IO, failsafe: bool = True, **parser_kwargs: Any) -> Optional[etree.Element]:
+def _parse_xml_document(file: PathOrIO, failsafe: bool = True, **parser_kwargs: Any) -> Optional[etree.Element]:
     """
     Parse an XML document into an element tree
 
@@ -1289,7 +1289,7 @@ class XMLConstructables(enum.Enum):
     DATA_SPECIFICATION_IEC61360 = enum.auto()
 
 
-def read_aas_xml_element(file: IO, construct: XMLConstructables, failsafe: bool = True, stripped: bool = False,
+def read_aas_xml_element(file: PathOrIO, construct: XMLConstructables, failsafe: bool = True, stripped: bool = False,
                          decoder: Optional[Type[AASFromXmlDecoder]] = None, **constructor_kwargs) -> Optional[object]:
     """
     Construct a single object from an XML string. The namespaces have to be declared on the object itself, since there
@@ -1397,7 +1397,7 @@ def read_aas_xml_element(file: IO, construct: XMLConstructables, failsafe: bool 
     return _failsafe_construct(element, constructor, decoder_.failsafe, **constructor_kwargs)
 
 
-def read_aas_xml_file_into(object_store: model.AbstractObjectStore[model.Identifiable], file: IO,
+def read_aas_xml_file_into(object_store: model.AbstractObjectStore[model.Identifiable], file: PathOrIO,
                            replace_existing: bool = False, ignore_existing: bool = False, failsafe: bool = True,
                            stripped: bool = False, decoder: Optional[Type[AASFromXmlDecoder]] = None,
                            **parser_kwargs: Any) -> Set[model.Identifier]:
@@ -1470,7 +1470,7 @@ def read_aas_xml_file_into(object_store: model.AbstractObjectStore[model.Identif
     return ret
 
 
-def read_aas_xml_file(file: IO, **kwargs: Any) -> model.DictObjectStore[model.Identifiable]:
+def read_aas_xml_file(file: PathOrIO, **kwargs: Any) -> model.DictObjectStore[model.Identifiable]:
     """
     A wrapper of :meth:`~basyx.aas.adapter.xml.xml_deserialization.read_aas_xml_file_into`, that reads all objects in an
     empty :class:`~basyx.aas.model.provider.DictObjectStore`. This function supports

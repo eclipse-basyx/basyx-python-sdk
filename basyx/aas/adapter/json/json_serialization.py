@@ -27,8 +27,10 @@ later on. The special helper function ``_abstract_classes_to_json`` is called by
 conversion functions to handle all the attributes of abstract base classes.
 """
 import base64
+import contextlib
 import inspect
-from typing import List, Dict, IO, Optional, Type, Callable
+import io
+from typing import ContextManager, List, Dict, Optional, TextIO, Type, Callable, get_args
 import json
 
 from basyx.aas import model
@@ -732,13 +734,21 @@ def object_store_to_json(data: model.AbstractObjectStore, stripped: bool = False
     return json.dumps(_create_dict(data), cls=encoder_, **kwargs)
 
 
-def write_aas_json_file(file: IO, data: model.AbstractObjectStore, stripped: bool = False,
+class _DetachingTextIOWrapper(io.TextIOWrapper):
+    """
+    Like :class:`io.TextIOWrapper`, but detaches on context exit instead of closing the wrapped buffer.
+    """
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.detach()
+
+
+def write_aas_json_file(file: _generic.PathOrIO, data: model.AbstractObjectStore, stripped: bool = False,
                         encoder: Optional[Type[AASToJsonEncoder]] = None, **kwargs) -> None:
     """
     Write a set of AAS objects to an Asset Administration Shell JSON file according to 'Details of the Asset
     Administration Shell', chapter 5.5
 
-    :param file: A file-like object to write the JSON-serialized data to
+    :param file: A filename or file-like object to write the JSON-serialized data to
     :param data: :class:`ObjectStore <basyx.aas.model.provider.AbstractObjectStore>` which contains different objects of
                  the AAS meta model which should be serialized to a JSON file
     :param stripped: If `True`, objects are serialized to stripped json objects.
@@ -748,5 +758,21 @@ def write_aas_json_file(file: IO, data: model.AbstractObjectStore, stripped: boo
     :param kwargs: Additional keyword arguments to be passed to `json.dump()`
     """
     encoder_ = _select_encoder(stripped, encoder)
+
+    # json.dump() only accepts TextIO
+    cm: ContextManager[TextIO]
+    if isinstance(file, get_args(_generic.Path)):
+        # 'file' is a path, needs to be opened first
+        cm = open(file, "w", encoding="utf-8")
+    elif not hasattr(file, "encoding"):
+        # only TextIO has this attribute, so this must be BinaryIO, which needs to be wrapped
+        # mypy seems to have issues narrowing the type due to get_args()
+        cm = _DetachingTextIOWrapper(file, "utf-8", write_through=True)  # type: ignore[arg-type]
+    else:
+        # we already got TextIO, nothing needs to be done
+        # mypy seems to have issues narrowing the type due to get_args()
+        cm = contextlib.nullcontext(file)  # type: ignore[arg-type]
+
     # serialize object to json
-    json.dump(_create_dict(data), file, cls=encoder_, **kwargs)
+    with cm as fp:
+        json.dump(_create_dict(data), fp, cls=encoder_, **kwargs)

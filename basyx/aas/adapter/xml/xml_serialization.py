@@ -16,10 +16,21 @@ How to use:
 - For serializing any object to an XML fragment, that fits the XML specification from 'Details of the
   Asset Administration Shell', chapter 5.4, check out ``<class_name>_to_xml()``. These functions return
   an :class:`~lxml.etree.Element` object to be serialized into XML.
+
+.. attention::
+    Unlike the XML deserialization and the JSON (de-)serialization, the XML serialization only supports
+    :class:`~typing.BinaryIO` and not :class:`~typing.TextIO`. Thus, if you open files by yourself, you have to open
+    them in binary mode, see the mode table of :func:`open`.
+
+    .. code:: python
+
+        # wb = open for writing + binary mode
+        with open("example.xml", "wb") as fp:
+            write_aas_xml_file(fp, object_store)
 """
 
 from lxml import etree  # type: ignore
-from typing import Dict, IO, Optional, Type
+from typing import Dict, Optional, Type
 import base64
 
 from basyx.aas import model
@@ -840,14 +851,14 @@ def basic_event_element_to_xml(obj: model.BasicEventElement, tag: str = NS_AAS+"
 # ##############################################################
 
 
-def write_aas_xml_file(file: IO,
+def write_aas_xml_file(file: _generic.PathOrBinaryIO,
                        data: model.AbstractObjectStore,
                        **kwargs) -> None:
     """
     Write a set of AAS objects to an Asset Administration Shell XML file according to 'Details of the Asset
     Administration Shell', chapter 5.4
 
-    :param file: A file-like object to write the XML-serialized data to
+    :param file: A filename or file-like object to write the XML-serialized data to
     :param data: :class:`ObjectStore <basyx.aas.model.provider.AbstractObjectStore>` which contains different objects of
                  the AAS meta model which should be serialized to an XML file
     :param kwargs: Additional keyword arguments to be passed to :meth:`~lxml.etree.ElementTree.write`
