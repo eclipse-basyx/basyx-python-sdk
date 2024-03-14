@@ -13,6 +13,7 @@ jobs:
         python-version: ["3.8", "3.10", "3.12"]
     env:
       COUCHDB_ADMIN_PASSWORD: "yo0Quai3"
+      AAS_SPECS_RELEASE_TAG: "V3.0.7"
     services:
       couchdb:
         image: couchdb:3
@@ -28,6 +29,11 @@ jobs:
       uses: actions/setup-python@v2
       with:
         python-version: ${{ matrix.python-version }}
+    - name: Collect schema files from aas-specs
+      run: |
+        mkdir -p ./test/adapter/schema
+        curl -sSL -o ./test/adapter/schema/aasJSONSchema.json https://raw.githubusercontent.com/admin-shell-io/aas-specs/${{ env.AAS_SPECS_RELEASE_TAG }}/schemas/json/aas.json
+        curl -sSL -o ./test/adapter/schema/aasXMLSchema.xsd https://raw.githubusercontent.com/admin-shell-io/aas-specs/${{ env.AAS_SPECS_RELEASE_TAG }}/schemas/xml/AAS.xsd
     - name: Install Python dependencies
       run: |
         python -m pip install --upgrade pip
