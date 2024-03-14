@@ -17,7 +17,7 @@ from basyx.aas.examples.data import example_aas_missing_attributes, example_aas,
     example_submodel_template, example_aas_mandatory_attributes
 
 
-XML_SCHEMA_FILE = os.path.join(os.path.dirname(__file__), 'aasXMLSchema.xsd')
+XML_SCHEMA_FILE = os.path.join(os.path.dirname(__file__), '../schemas/aasXMLSchema.xsd')
 
 
 class XMLSerializationTest(unittest.TestCase):
@@ -48,6 +48,11 @@ class XMLSerializationTest(unittest.TestCase):
 
 
 class XMLSerializationSchemaTest(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        if not os.path.exists(XML_SCHEMA_FILE):
+            raise unittest.SkipTest(f"XSD schema does not exist at {XML_SCHEMA_FILE}, skipping test")
+
     def test_random_object_serialization(self) -> None:
         aas_identifier = "AAS1"
         submodel_key = (model.Key(model.KeyTypes.SUBMODEL, "SM1"),)

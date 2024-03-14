@@ -22,3 +22,5 @@
 
 # customized config files
 /test/test_config.ini
+# Schema files needed for testing
+/test/adapter/schemas

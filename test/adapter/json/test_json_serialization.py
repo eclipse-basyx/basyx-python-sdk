@@ -18,7 +18,7 @@ from basyx.aas.examples.data import example_aas_missing_attributes, example_aas,
     example_aas_mandatory_attributes, example_submodel_template, create_example
 
 
-JSON_SCHEMA_FILE = os.path.join(os.path.dirname(__file__), 'aasJSONSchema.json')
+JSON_SCHEMA_FILE = os.path.join(os.path.dirname(__file__), '../schemas/aasJSONSchema.json')
 
 
 class JsonSerializationTest(unittest.TestCase):
@@ -48,6 +48,11 @@ class JsonSerializationTest(unittest.TestCase):
 
 
 class JsonSerializationSchemaTest(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        if not os.path.exists(JSON_SCHEMA_FILE):
+            raise unittest.SkipTest(f"JSON Schema does not exist at {JSON_SCHEMA_FILE}, skipping test")
+
     def test_random_object_serialization(self) -> None:
         aas_identifier = "AAS1"
         submodel_key = (model.Key(model.KeyTypes.SUBMODEL, "SM1"),)
