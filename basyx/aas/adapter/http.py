@@ -767,12 +767,10 @@ class WSGIApp:
         submodel = self._get_obj_ts(url_args["submodel_id"], model.Submodel)
         submodel.update()
         id_short_path: List[str] = url_args["id_shorts"]
-        parent: model.UniqueIdShortNamespace = submodel
-        if len(id_short_path) > 1:
-            parent = self._expect_namespace(
-                self._get_nested_submodel_element(submodel, id_short_path[:-1]),
-                id_short_path[-1]
-            )
+        parent: model.UniqueIdShortNamespace = self._expect_namespace(
+            self._get_submodel_or_nested_submodel_element(submodel, id_short_path[:-1]),
+            id_short_path[-1]
+        )
         self._namespace_submodel_element_op(parent, parent.remove_referable, id_short_path[-1])
         return response_t()
 
