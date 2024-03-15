@@ -285,9 +285,11 @@ class AASXWriter:
                              file_store)
             writer.write_core_properties(cp)
 
-    **Attention:** The AASXWriter must always be closed using the :meth:`~.AASXWriter.close` method or its context
-    manager functionality (as shown above). Otherwise the resulting AASX file will lack important data structures
-    and will not be readable.
+    .. attention::
+
+        The AASXWriter must always be closed using the :meth:`~.AASXWriter.close` method or its context manager
+        functionality (as shown above). Otherwise, the resulting AASX file will lack important data structures
+        and will not be readable.
     """
     AASX_ORIGIN_PART_NAME = "/aasx/aasx-origin"
 

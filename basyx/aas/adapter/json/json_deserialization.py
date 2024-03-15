@@ -30,15 +30,16 @@ Embedded objects that should have a ``modelType`` themselves are expected to be 
 Other embedded objects are converted using a number of helper constructor methods.
 """
 import base64
+import contextlib
 import json
 import logging
 import pprint
-from typing import Dict, Callable, TypeVar, Type, List, IO, Optional, Set
+from typing import Dict, Callable, ContextManager, TypeVar, Type, List, IO, Optional, Set, get_args
 
 from basyx.aas import model
 from .._generic import MODELLING_KIND_INVERSE, ASSET_KIND_INVERSE, KEY_TYPES_INVERSE, ENTITY_TYPES_INVERSE, \
     IEC61360_DATA_TYPES_INVERSE, IEC61360_LEVEL_TYPES_INVERSE, KEY_TYPES_CLASSES_INVERSE, REFERENCE_TYPES_INVERSE, \
-    DIRECTION_INVERSE, STATE_OF_EVENT_INVERSE, QUALIFIER_KIND_INVERSE
+    DIRECTION_INVERSE, STATE_OF_EVENT_INVERSE, QUALIFIER_KIND_INVERSE, PathOrIO, Path
 
 logger = logging.getLogger(__name__)
 
@@ -794,7 +795,7 @@ def _select_decoder(failsafe: bool, stripped: bool, decoder: Optional[Type[AASFr
         return StrictAASFromJsonDecoder
 
 
-def read_aas_json_file_into(object_store: model.AbstractObjectStore, file: IO, replace_existing: bool = False,
+def read_aas_json_file_into(object_store: model.AbstractObjectStore, file: PathOrIO, replace_existing: bool = False,
                             ignore_existing: bool = False, failsafe: bool = True, stripped: bool = False,
                             decoder: Optional[Type[AASFromJsonDecoder]] = None) -> Set[model.Identifier]:
     """
@@ -803,7 +804,7 @@ def read_aas_json_file_into(object_store: model.AbstractObjectStore, file: IO, r
 
     :param object_store: The :class:`ObjectStore <basyx.aas.model.provider.AbstractObjectStore>` in which the
                          identifiable objects should be stored
-    :param file: A file-like object to read the JSON-serialized data from
+    :param file: A filename or file-like object to read the JSON-serialized data from
     :param replace_existing: Whether to replace existing objects with the same identifier in the object store or not
     :param ignore_existing: Whether to ignore existing objects (e.g. log a message) or raise an error.
                             This parameter is ignored if replace_existing is ``True``.
@@ -814,13 +815,31 @@ def read_aas_json_file_into(object_store: model.AbstractObjectStore, file: IO, r
                      See https://git.rwth-aachen.de/acplt/pyi40aas/-/issues/91
                      This parameter is ignored if a decoder class is specified.
     :param decoder: The decoder class used to decode the JSON objects
+    :raises KeyError: **Non-failsafe**: Encountered a duplicate identifier
+    :raises KeyError: Encountered an identifier that already exists in the given ``object_store`` with both
+                     ``replace_existing`` and ``ignore_existing`` set to ``False``
+    :raises (~basyx.aas.model.base.AASConstraintViolation, KeyError, ValueError, TypeError): **Non-failsafe**:
+        Errors during construction of the objects
+    :raises TypeError: **Non-failsafe**: Encountered an element in the wrong list
+                                         (e.g. an AssetAdministrationShell in ``submodels``)
     :return: A set of :class:`Identifiers <basyx.aas.model.base.Identifier>` that were added to object_store
     """
     ret: Set[model.Identifier] = set()
     decoder_ = _select_decoder(failsafe, stripped, decoder)
 
+    # json.load() accepts TextIO and BinaryIO
+    cm: ContextManager[IO]
+    if isinstance(file, get_args(Path)):
+        # 'file' is a path, needs to be opened first
+        cm = open(file, "r", encoding="utf-8-sig")
+    else:
+        # 'file' is not a path, thus it must already be IO
+        # mypy seems to have issues narrowing the type due to get_args()
+        cm = contextlib.nullcontext(file)  # type: ignore[arg-type]
+
     # read, parse and convert JSON file
-    data = json.load(file, cls=decoder_)
+    with cm as fp:
+        data = json.load(fp, cls=decoder_)
 
     for name, expected_type in (('assetAdministrationShells', model.AssetAdministrationShell),
                                 ('submodels', model.Submodel),
@@ -864,7 +883,7 @@ def read_aas_json_file_into(object_store: model.AbstractObjectStore, file: IO, r
     return ret
 
 
-def read_aas_json_file(file: IO, **kwargs) -> model.DictObjectStore[model.Identifiable]:
+def read_aas_json_file(file: PathOrIO, **kwargs) -> model.DictObjectStore[model.Identifiable]:
     """
     A wrapper of :meth:`~basyx.aas.adapter.json.json_deserialization.read_aas_json_file_into`, that reads all objects
     in an empty :class:`~basyx.aas.model.provider.DictObjectStore`. This function supports the same keyword arguments as
@@ -872,6 +891,11 @@ def read_aas_json_file(file: IO, **kwargs) -> model.DictObjectStore[model.Identi
 
     :param file: A filename or file-like object to read the JSON-serialized data from
     :param kwargs: Keyword arguments passed to :meth:`read_aas_json_file_into`
+    :raises KeyError: **Non-failsafe**: Encountered a duplicate identifier
+    :raises (~basyx.aas.model.base.AASConstraintViolation, KeyError, ValueError, TypeError): **Non-failsafe**:
+        Errors during construction of the objects
+    :raises TypeError: **Non-failsafe**: Encountered an element in the wrong list
+                                         (e.g. an AssetAdministrationShell in ``submodels``)
     :return: A :class:`~basyx.aas.model.provider.DictObjectStore` containing all AAS objects from the JSON file
     """
     object_store: model.DictObjectStore[model.Identifiable] = model.DictObjectStore()

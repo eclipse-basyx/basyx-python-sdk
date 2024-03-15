@@ -503,7 +503,7 @@ class Namespace(metaclass=abc.ABCMeta):
                 return ns_set.get_object_by_attribute(attribute_name, attribute)
             except KeyError:
                 continue
-        raise KeyError(f"{object_type.__name__} with {attribute_name} {attribute} not found in this namespace")
+        raise KeyError(f"{object_type.__name__} with {attribute_name} {attribute} not found in {self!r}")
 
     def _add_object(self, attribute_name: str, obj: _NSO) -> None:
         """
@@ -531,7 +531,7 @@ class Namespace(metaclass=abc.ABCMeta):
                     return
                 except KeyError:
                     continue
-        raise KeyError(f"{object_type.__name__} with {attribute_name} {attribute} not found in this namespace")
+        raise KeyError(f"{object_type.__name__} with {attribute_name} {attribute} not found in {self!r}")
 
 
 class HasExtension(Namespace, metaclass=abc.ABCMeta):
@@ -659,6 +659,32 @@ class Referable(HasExtension, metaclass=abc.ABCMeta):
     def _get_category(self) -> Optional[NameType]:
         return self._category
 
+    @classmethod
+    def validate_id_short(cls, id_short: NameType) -> None:
+        """
+        Validates an id_short against Constraint AASd-002 and :class:`NameType` restrictions.
+
+        **Constraint AASd-002:** idShort of Referables shall only feature letters, digits, underscore (``_``); starting
+        mandatory with a letter. I.e. ``[a-zA-Z][a-zA-Z0-9_]+``
+
+        :param id_short: The id_short to validate
+        :raises ValueError: If the id_short doesn't comply to the constraints imposed by :class:`NameType`
+            (see :func:`~basyx.aas.model._string_constraints.check_name_type`).
+        :raises AASConstraintViolation: If the id_short doesn't comply to Constraint AASd-002.
+        """
+        _string_constraints.check_name_type(id_short)
+        test_id_short: NameType = str(id_short)
+        if not re.fullmatch("[a-zA-Z0-9_]*", test_id_short):
+            raise AASConstraintViolation(
+                2,
+                "The id_short must contain only letters, digits and underscore"
+            )
+        if not test_id_short[0].isalpha():
+            raise AASConstraintViolation(
+                2,
+                "The id_short must start with a letter"
+            )
+
     category = property(_get_category, _set_category)
 
     def _set_id_short(self, id_short: Optional[NameType]):
@@ -672,25 +698,16 @@ class Referable(HasExtension, metaclass=abc.ABCMeta):
         (case-sensitive)
 
         :param id_short: Identifying string of the element within its name space
-        :raises ValueError: if the constraint is not fulfilled
-        :raises KeyError: if the new idShort causes a name collision in the parent Namespace
+        :raises ValueError: If the id_short doesn't comply to the constraints imposed by :class:`NameType`
+            (see :func:`~basyx.aas.model._string_constraints.check_name_type`).
+        :raises AASConstraintViolation: If the new idShort causes a name collision in the parent Namespace or if the
+            id_short doesn't comply to Constraint AASd-002.
         """
 
         if id_short == self.id_short:
             return
         if id_short is not None:
-            _string_constraints.check_name_type(id_short)
-            test_id_short: NameType = str(id_short)
-            if not re.fullmatch("[a-zA-Z0-9_]*", test_id_short):
-                raise AASConstraintViolation(
-                    2,
-                    "The id_short must contain only letters, digits and underscore"
-                )
-            if not test_id_short[0].isalpha():
-                raise AASConstraintViolation(
-                    2,
-                    "The id_short must start with a letter"
-                )
+            self.validate_id_short(id_short)
 
         if self.parent is not None:
             if id_short is None:
@@ -849,7 +866,7 @@ _RT = TypeVar('_RT', bound=Referable)
 
 class UnexpectedTypeError(TypeError):
     """
-    Exception to be raised by :meth:`basyx.aas.model.base.ModelReference.resolve` if the retrieved object has not
+    Exception to be raised by :meth:`.ModelReference.resolve` if the retrieved object has not
     the expected type.
 
     :ivar value: The object of unexpected type
@@ -1012,48 +1029,30 @@ class ModelReference(Reference, Generic[_RT]):
         :return: The referenced object (or a proxy object for it)
         :raises IndexError: If the list of keys is empty
         :raises TypeError: If one of the intermediate objects on the path is not a
-                           :class:`~basyx.aas.model.base.Namespace`
+                           :class:`~.UniqueIdShortNamespace`
+        :raises ValueError: If a non-numeric index is given to resolve in a
+                            :class:`~basyx.aas.model.submodel.SubmodelElementList`
         :raises UnexpectedTypeError: If the retrieved object is not of the expected type (or one of its subclasses). The
                                      object is stored in the ``value`` attribute of the exception
         :raises KeyError: If the reference could not be resolved
         """
 
-        from . import SubmodelElementList
-
         # For ModelReferences, the first key must be an AasIdentifiable. So resolve the first key via the provider.
         identifier: Optional[Identifier] = self.key[0].get_identifier()
         if identifier is None:
-            raise AssertionError("Retrieving the identifier of the first key failed.")
+            raise AssertionError(f"Retrieving the identifier of the first {self.key[0]!r} failed.")
 
-        resolved_keys: List[str] = []  # for more helpful error messages
         try:
             item: Referable = provider_.get_identifiable(identifier)
         except KeyError as e:
             raise KeyError("Could not resolve identifier {}".format(identifier)) from e
-        resolved_keys.append(str(identifier))
 
-        # All keys following the first must not reference identifiables (AASd-125). Thus, we can just follow the path
-        # recursively.
-        for key in self.key[1:]:
-            if not isinstance(item, UniqueIdShortNamespace):
-                raise TypeError("Object retrieved at {} is not a Namespace".format(" / ".join(resolved_keys)))
-            is_submodel_element_list = isinstance(item, SubmodelElementList)
-            try:
-                if is_submodel_element_list:
-                    # The key's value must be numeric, since this is checked for keys following keys of type
-                    # SUBMODEL_ELEMENT_LIST on construction of ModelReferences.
-                    # Additionally item is known to be a SubmodelElementList which supports __getitem__ because we're in
-                    # the `is_submodel_element_list` branch, but mypy doesn't infer types based on isinstance checks
-                    # stored in boolean variables.
-                    item = item.value[int(key.value)]  # type: ignore
-                    resolved_keys[-1] += f"[{key.value}]"
-                else:
-                    item = item.get_referable(key.value)
-                    resolved_keys.append(item.id_short)
-            except (KeyError, IndexError) as e:
-                raise KeyError("Could not resolve {} {} at {}".format(
-                    "index" if is_submodel_element_list else "id_short", key.value, " / ".join(resolved_keys)))\
-                    from e
+        # All keys following the first must not reference identifiables (AASd-125). Thus, we can just resolve the
+        # id_short path via get_referable().
+        # This is cursed af, but at least it keeps the code DRY. get_referable() will check the type of self in the
+        # first iteration, so we can ignore the type here.
+        item = UniqueIdShortNamespace.get_referable(item,  # type: ignore[arg-type]
+                                                    map(lambda k: k.value, self.key[1:]))
 
         # Check type
         if not isinstance(item, self.type):
@@ -1717,15 +1716,45 @@ class UniqueIdShortNamespace(Namespace, metaclass=abc.ABCMeta):
         super().__init__()
         self.namespace_element_sets: List[NamespaceSet] = []
 
-    def get_referable(self, id_short: NameType) -> Referable:
+    def get_referable(self, id_short: Union[NameType, Iterable[NameType]]) -> Referable:
         """
-        Find a :class:`~.Referable` in this Namespace by its id_short
+        Find a :class:`~.Referable` in this Namespace by its id_short or by its id_short path.
+        The id_short path may contain :class:`~basyx.aas.model.submodel.SubmodelElementList` indices.
 
-        :param id_short: id_short
+        :param id_short: id_short or id_short path as any :class:`Iterable`
         :returns: :class:`~.Referable`
+        :raises TypeError: If one of the intermediate objects on the path is not a
+                           :class:`~.UniqueIdShortNamespace`
+        :raises ValueError: If a non-numeric index is given to resolve in a
+                            :class:`~basyx.aas.model.submodel.SubmodelElementList`
         :raises KeyError: If no such :class:`~.Referable` can be found
         """
-        return super()._get_object(Referable, "id_short", id_short)  # type: ignore
+        from .submodel import SubmodelElementList
+        if isinstance(id_short, NameType):
+            id_short = [id_short]
+        item: Union[UniqueIdShortNamespace, Referable] = self
+        for id_ in id_short:
+            # This is redundant on first iteration, but it's a negligible overhead.
+            # Also, ModelReference.resolve() relies on this check.
+            if not isinstance(item, UniqueIdShortNamespace):
+                raise TypeError(f"Cannot resolve id_short or index '{id_}' at {item!r}, "
+                                f"because it is not a {UniqueIdShortNamespace.__name__}!")
+            is_submodel_element_list = isinstance(item, SubmodelElementList)
+            try:
+                if is_submodel_element_list:
+                    # item is known to be a SubmodelElementList which supports __getitem__ because we're in
+                    # the `is_submodel_element_list` branch, but mypy doesn't infer types based on isinstance checks
+                    # stored in boolean variables.
+                    item = item.value[int(id_)]  # type: ignore
+                else:
+                    item = item._get_object(Referable, "id_short", id_)  # type: ignore[type-abstract]
+            except ValueError as e:
+                raise ValueError(f"Cannot resolve '{id_}' at {item!r}, because it is not a numeric index!") from e
+            except (KeyError, IndexError) as e:
+                raise KeyError("Referable with {} {} not found in {}".format(
+                    "index" if is_submodel_element_list else "id_short", id_, repr(item))) from e
+        # All UniqueIdShortNamespaces are Referables, and we only ever assign Referable to item.
+        return item  # type: ignore[return-value]
 
     def add_referable(self, referable: Referable) -> None:
         """
