@@ -279,12 +279,12 @@ class HTTPApiDecoder:
             constructor: Optional[Callable[..., T]] = None
             args = []
             if expect_type is model.ModelReference:
-                constructor = decoder._construct_aas_reference  # type: ignore
+                constructor = decoder._construct_model_reference  # type: ignore[assignment]
                 args.append(model.Submodel)
             elif expect_type is model.AssetInformation:
-                constructor = decoder._construct_asset_information  # type: ignore
+                constructor = decoder._construct_asset_information  # type: ignore[assignment]
             elif expect_type is model.SpecificAssetId:
-                constructor = decoder._construct_specific_asset_id  # type: ignore
+                constructor = decoder._construct_specific_asset_id  # type: ignore[assignment]
 
             if constructor is not None:
                 # construct elements that aren't self-identified
