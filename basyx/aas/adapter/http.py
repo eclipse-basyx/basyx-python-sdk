@@ -387,21 +387,15 @@ class IdentifierConverter(werkzeug.routing.UnicodeConverter):
 class IdShortPathConverter(werkzeug.routing.UnicodeConverter):
     id_short_sep = "."
 
-    @classmethod
-    def validate_id_short(cls, id_short: str) -> bool:
-        try:
-            model.MultiLanguageProperty(id_short)
-        except model.AASConstraintViolation:
-            return False
-        return True
-
     def to_url(self, value: List[str]) -> str:
         return super().to_url(self.id_short_sep.join(id_short for id_short in value))
 
     def to_python(self, value: str) -> List[str]:
         id_shorts = super().to_python(value).split(self.id_short_sep)
         for id_short in id_shorts:
-            if not self.validate_id_short(id_short):
+            try:
+                model.Referable.validate_id_short(id_short)
+            except (ValueError, model.AASConstraintViolation):
                 raise BadRequest(f"{id_short} is not a valid id_short!")
         return id_shorts
 
