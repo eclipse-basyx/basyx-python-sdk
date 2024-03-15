@@ -27,7 +27,7 @@ from werkzeug.wrappers import Request, Response
 
 from basyx.aas import model
 from ._generic import XML_NS_MAP
-from .xml import XMLConstructables, read_aas_xml_element, xml_serialization
+from .xml import XMLConstructables, read_aas_xml_element, xml_serialization, object_to_xml_element
 from .json import AASToJsonEncoder, StrictAASFromJsonDecoder, StrictStrippedAASFromJsonDecoder
 
 from typing import Callable, Dict, Iterable, Iterator, List, Optional, Type, TypeVar, Union
@@ -135,12 +135,12 @@ class XmlResponse(APIResponse):
             if isinstance(obj, list):
                 response_elem = etree.Element("list", nsmap=XML_NS_MAP)
                 for obj in obj:
-                    response_elem.append(aas_object_to_xml(obj))
+                    response_elem.append(object_to_xml_element(obj))
                 etree.cleanup_namespaces(response_elem)
             else:
                 # dirty hack to be able to use the namespace prefixes defined in xml_serialization.NS_MAP
                 parent = etree.Element("parent", nsmap=XML_NS_MAP)
-                response_elem = aas_object_to_xml(obj)
+                response_elem = object_to_xml_element(obj)
                 parent.append(response_elem)
                 etree.cleanup_namespaces(parent)
         return etree.tostring(response_elem, xml_declaration=True, encoding="utf-8")
@@ -180,23 +180,6 @@ def message_to_xml(message: Message) -> etree.Element:
     message_elem.append(code_elem)
     message_elem.append(timestamp_elem)
     return message_elem
-
-
-def aas_object_to_xml(obj: object) -> etree.Element:
-    # TODO: a similar function should be implemented in the xml serialization
-    if isinstance(obj, model.AssetAdministrationShell):
-        return xml_serialization.asset_administration_shell_to_xml(obj)
-    if isinstance(obj, model.AssetInformation):
-        return xml_serialization.asset_information_to_xml(obj)
-    if isinstance(obj, model.Reference):
-        return xml_serialization.reference_to_xml(obj)
-    if isinstance(obj, model.Submodel):
-        return xml_serialization.submodel_to_xml(obj)
-    if isinstance(obj, model.Qualifier):
-        return xml_serialization.qualifier_to_xml(obj)
-    if isinstance(obj, model.SubmodelElement):
-        return xml_serialization.submodel_element_to_xml(obj)
-    raise TypeError(f"Serializing {type(obj).__name__} to XML is not supported!")
 
 
 def get_response_type(request: Request) -> Type[APIResponse]:
