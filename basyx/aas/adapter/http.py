@@ -514,17 +514,19 @@ class WSGIApp:
     @classmethod
     def _get_nested_submodel_element(cls, namespace: model.UniqueIdShortNamespace, id_shorts: List[str]) \
             -> model.SubmodelElement:
-        current_namespace: Union[model.UniqueIdShortNamespace, model.SubmodelElement] = namespace
-        for id_short in id_shorts:
-            current_namespace = cls._expect_namespace(current_namespace, id_short)
-            next_obj = cls._namespace_submodel_element_op(current_namespace, current_namespace.get_referable, id_short)
-            if not isinstance(next_obj, model.SubmodelElement):
-                raise werkzeug.exceptions.InternalServerError(f"{next_obj}, child of {current_namespace!r}, "
-                                                              f"is not a submodel element!")
-            current_namespace = next_obj
-        if not isinstance(current_namespace, model.SubmodelElement):
+        if not id_shorts:
             raise ValueError("No id_shorts specified!")
-        return current_namespace
+
+        try:
+            ret = namespace.get_referable(id_shorts)
+        except KeyError as e:
+            raise NotFound(e.args[0])
+        except (TypeError, ValueError) as e:
+            raise BadRequest(e.args[0])
+
+        if not isinstance(ret, model.SubmodelElement):
+            raise BadRequest(f"{ret!r} is not a submodel element!")
+        return ret
 
     @classmethod
     def _get_submodel_or_nested_submodel_element(cls, submodel: model.Submodel, id_shorts: List[str]) \
