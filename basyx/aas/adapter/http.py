@@ -438,47 +438,43 @@ class WSGIApp:
                         Rule("/", methods=["GET"], endpoint=self.get_submodel),
                         Rule("/", methods=["PUT"], endpoint=self.put_submodel),
                         Rule("/", methods=["DELETE"], endpoint=self.delete_submodel),
-                        Submount("/submodel", [
-                            Rule("/", methods=["GET"], endpoint=self.get_submodel),
-                            Rule("/", methods=["PUT"], endpoint=self.put_submodel),
-                            Submount("/submodel-elements", [
-                                Rule("/", methods=["GET"], endpoint=self.get_submodel_submodel_elements),
+                        Submount("/submodel-elements", [
+                            Rule("/", methods=["GET"], endpoint=self.get_submodel_submodel_elements),
+                            Rule("/", methods=["POST"],
+                                 endpoint=self.post_submodel_submodel_elements_id_short_path),
+                            Submount("/<id_short_path:id_shorts>", [
+                                Rule("/", methods=["GET"],
+                                     endpoint=self.get_submodel_submodel_elements_id_short_path),
                                 Rule("/", methods=["POST"],
                                      endpoint=self.post_submodel_submodel_elements_id_short_path),
-                                Submount("/<id_short_path:id_shorts>", [
+                                Rule("/", methods=["PUT"],
+                                     endpoint=self.put_submodel_submodel_elements_id_short_path),
+                                Rule("/", methods=["DELETE"],
+                                     endpoint=self.delete_submodel_submodel_elements_id_short_path),
+                                Submount("/constraints", [
                                     Rule("/", methods=["GET"],
-                                         endpoint=self.get_submodel_submodel_elements_id_short_path),
+                                         endpoint=self.get_submodel_submodel_element_constraints),
                                     Rule("/", methods=["POST"],
-                                         endpoint=self.post_submodel_submodel_elements_id_short_path),
-                                    Rule("/", methods=["PUT"],
-                                         endpoint=self.put_submodel_submodel_elements_id_short_path),
-                                    Rule("/", methods=["DELETE"],
-                                         endpoint=self.delete_submodel_submodel_elements_id_short_path),
-                                    Submount("/constraints", [
-                                        Rule("/", methods=["GET"],
-                                             endpoint=self.get_submodel_submodel_element_constraints),
-                                        Rule("/", methods=["POST"],
-                                             endpoint=self.post_submodel_submodel_element_constraints),
-                                        Rule("/<path:qualifier_type>/", methods=["GET"],
-                                             endpoint=self.get_submodel_submodel_element_constraints),
-                                        Rule("/<path:qualifier_type>/", methods=["PUT"],
-                                             endpoint=self.put_submodel_submodel_element_constraints),
-                                        Rule("/<path:qualifier_type>/", methods=["DELETE"],
-                                             endpoint=self.delete_submodel_submodel_element_constraints),
-                                    ])
-                                ]),
+                                         endpoint=self.post_submodel_submodel_element_constraints),
+                                    Rule("/<path:qualifier_type>/", methods=["GET"],
+                                         endpoint=self.get_submodel_submodel_element_constraints),
+                                    Rule("/<path:qualifier_type>/", methods=["PUT"],
+                                         endpoint=self.put_submodel_submodel_element_constraints),
+                                    Rule("/<path:qualifier_type>/", methods=["DELETE"],
+                                         endpoint=self.delete_submodel_submodel_element_constraints),
+                                ])
                             ]),
-                            Submount("/constraints", [
-                                Rule("/", methods=["GET"], endpoint=self.get_submodel_submodel_element_constraints),
-                                Rule("/", methods=["POST"],
-                                     endpoint=self.post_submodel_submodel_element_constraints),
-                                Rule("/<path:qualifier_type>/", methods=["GET"],
-                                     endpoint=self.get_submodel_submodel_element_constraints),
-                                Rule("/<path:qualifier_type>/", methods=["PUT"],
-                                     endpoint=self.put_submodel_submodel_element_constraints),
-                                Rule("/<path:qualifier_type>/", methods=["DELETE"],
-                                     endpoint=self.delete_submodel_submodel_element_constraints),
-                            ])
+                        ]),
+                        Submount("/constraints", [
+                            Rule("/", methods=["GET"], endpoint=self.get_submodel_submodel_element_constraints),
+                            Rule("/", methods=["POST"],
+                                 endpoint=self.post_submodel_submodel_element_constraints),
+                            Rule("/<path:qualifier_type>/", methods=["GET"],
+                                 endpoint=self.get_submodel_submodel_element_constraints),
+                            Rule("/<path:qualifier_type>/", methods=["PUT"],
+                                 endpoint=self.put_submodel_submodel_element_constraints),
+                            Rule("/<path:qualifier_type>/", methods=["DELETE"],
+                                 endpoint=self.delete_submodel_submodel_element_constraints),
                         ])
                     ])
                 ])
