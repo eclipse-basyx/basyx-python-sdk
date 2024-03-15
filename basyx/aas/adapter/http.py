@@ -376,7 +376,11 @@ class IdentifierConverter(werkzeug.routing.UnicodeConverter):
     def to_python(self, value: str) -> model.Identifier:
         value = super().to_python(value)
         try:
-            decoded = base64.urlsafe_b64decode(super().to_python(value)).decode(self.encoding)
+            # If the requester omits the base64 padding, an exception will be raised.
+            # However, Python doesn't complain about too much padding,
+            # thus we simply always append two padding characters (==).
+            # See also: https://stackoverflow.com/a/49459036/4780052
+            decoded = base64.urlsafe_b64decode(super().to_python(value) + "==").decode(self.encoding)
         except binascii.Error:
             raise BadRequest(f"Encoded identifier {value} is invalid base64url!")
         except UnicodeDecodeError:
