@@ -727,7 +727,8 @@ class WSGIApp:
             if semantic_id is not None:
                 spec_semantic_id = HTTPApiDecoder.base64json(semantic_id, model.Reference, False)
                 submodels = filter(lambda sm: sm.semantic_id == spec_semantic_id, submodels)
-        references: Iterator[model.ModelReference] = [model.ModelReference.from_referable(submodel) for submodel in submodels]
+        references: list[model.ModelReference] = [model.ModelReference.from_referable(submodel)
+                                                  for submodel in submodels]
         return response_t(list(references), stripped=is_stripped_request(request))
 
     # --------- SUBMODEL ROUTES ---------
@@ -788,8 +789,8 @@ class WSGIApp:
         response_t = get_response_type(request)
         submodel = self._get_obj_ts(url_args["submodel_id"], model.Submodel)
         submodel.update()
-        references: Iterator[model.ModelReference] = [model.ModelReference.from_referable(element) for element in
-                                                      submodel.submodel_element]
+        references: list[model.ModelReference] = [model.ModelReference.from_referable(element) for element in
+                                                  submodel.submodel_element]
         return response_t(list(references), stripped=is_stripped_request(request))
 
     def get_submodel_submodel_elements_id_short_path(self, request: Request, url_args: Dict, **_kwargs) -> Response:
@@ -809,7 +810,8 @@ class WSGIApp:
         submodel_element = self._get_nested_submodel_element(submodel, url_args["id_shorts"])
         return response_t(submodel_element, stripped=True)
 
-    def get_submodel_submodel_elements_id_short_path_reference(self, request: Request, url_args: Dict, **_kwargs) -> Response:
+    def get_submodel_submodel_elements_id_short_path_reference(self, request: Request, url_args: Dict, **_kwargs)\
+            -> Response:
         # TODO: support content, extent parameters
         response_t = get_response_type(request)
         submodel = self._get_obj_ts(url_args["submodel_id"], model.Submodel)
