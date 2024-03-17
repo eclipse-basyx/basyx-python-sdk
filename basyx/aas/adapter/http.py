@@ -662,7 +662,7 @@ class WSGIApp:
 
     def delete_submodel(self, request: Request, url_args: Dict, **_kwargs) -> Response:
         response_t = get_response_type(request)
-        self.object_store.remove(self._get_obj_ts(url_args["aas_id"], model.Submodel))
+        self.object_store.remove(self._get_obj_ts(url_args["submodel_id"], model.Submodel))
         return response_t()
 
     # --------- SUBMODEL ROUTES ---------
