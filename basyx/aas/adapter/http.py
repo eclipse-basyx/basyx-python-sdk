@@ -228,8 +228,11 @@ class HTTPApiDecoder:
         model.SpecificAssetId: XMLConstructables.SPECIFIC_ASSET_ID,
         model.Qualifier: XMLConstructables.QUALIFIER,
         model.Submodel: XMLConstructables.SUBMODEL,
-        model.SubmodelElement: XMLConstructables.SUBMODEL_ELEMENT
+        model.SubmodelElement: XMLConstructables.SUBMODEL_ELEMENT,
+        model.Reference: XMLConstructables.REFERENCE
     }
+
+    encoding = "utf-8"
 
     @classmethod
     def check_type_supportance(cls, type_: type):
@@ -241,6 +244,18 @@ class HTTPApiDecoder:
         if not isinstance(obj, type_):
             raise UnprocessableEntity(f"Object {obj!r} is not of type {type_.__name__}!")
         return obj
+
+    @classmethod
+    def base64_decode(cls, data: Union[str, bytes]) -> str:
+        try:
+            # If the requester omits the base64 padding, an exception will be raised.
+            # However, Python doesn't complain about too much padding,
+            # thus we simply always append two padding characters (==).
+            # See also: https://stackoverflow.com/a/49459036/4780052
+            decoded = base64.urlsafe_b64decode(data + "==").decode(cls.encoding)
+        except binascii.Error:
+            raise BadRequest(f"Encoded data {str(data)} is invalid base64url!")
+        return decoded
 
     @classmethod
     def json_list(cls, data: Union[str, bytes], expect_type: Type[T], stripped: bool, expect_single: bool) -> List[T]:
@@ -268,6 +283,9 @@ class HTTPApiDecoder:
                 constructor = decoder._construct_asset_information  # type: ignore[assignment]
             elif expect_type is model.SpecificAssetId:
                 constructor = decoder._construct_specific_asset_id  # type: ignore[assignment]
+            elif expect_type is model.Reference:
+                constructor = decoder._construct_model_reference  # type: ignore[assignment]
+                args.append(model.Submodel)
 
             if constructor is not None:
                 # construct elements that aren't self-identified
@@ -279,7 +297,18 @@ class HTTPApiDecoder:
         return [cls.assert_type(obj, expect_type) for obj in parsed]
 
     @classmethod
+    def base64json_list(cls, data: Union[str, bytes], expect_type: Type[T], stripped: bool, expect_single: bool)\
+            -> List[T]:
+        data = cls.base64_decode(data)
+        return cls.json_list(data, expect_type, stripped, expect_single)
+
+    @classmethod
     def json(cls, data: Union[str, bytes], expect_type: Type[T], stripped: bool) -> T:
+        return cls.json_list(data, expect_type, stripped, True)[0]
+
+    @classmethod
+    def base64json(cls, data: Union[str, bytes], expect_type: Type[T], stripped: bool) -> T:
+        data = cls.base64_decode(data)
         return cls.json_list(data, expect_type, stripped, True)[0]
 
     @classmethod
@@ -553,7 +582,7 @@ class WSGIApp:
             aas = filter(lambda shell: shell.id_short == id_short, aas)
         asset_ids = request.args.get("assetIds")
         if asset_ids is not None:
-            spec_asset_ids = HTTPApiDecoder.json_list(asset_ids, model.SpecificAssetId, False, False)
+            spec_asset_ids = HTTPApiDecoder.base64json_list(asset_ids, model.SpecificAssetId, False, False)
             # TODO: it's currently unclear how to filter with these SpecificAssetIds
         return response_t(list(aas))
 
@@ -643,9 +672,12 @@ class WSGIApp:
         id_short = request.args.get("idShort")
         if id_short is not None:
             submodels = filter(lambda sm: sm.id_short == id_short, submodels)
-        # TODO: filter by semantic id
-        # semantic_id = request.args.get("semanticId")
-        return response_t(list(submodels))
+        semantic_id = request.args.get("semanticId")
+        if semantic_id is not None:
+            if semantic_id is not None:
+                spec_semantic_id = HTTPApiDecoder.base64json(semantic_id, model.Reference, False)
+                submodels = filter(lambda sm: sm.semantic_id == spec_semantic_id, submodels)
+        return response_t(list(submodels), stripped=is_stripped_request(request))
 
     def post_submodel(self, request: Request, url_args: Dict, map_adapter: MapAdapter) -> Response:
         response_t = get_response_type(request)
@@ -665,7 +697,6 @@ class WSGIApp:
         self.object_store.remove(self._get_obj_ts(url_args["submodel_id"], model.Submodel))
         return response_t()
 
-    # --------- SUBMODEL ROUTES ---------
     def get_submodel(self, request: Request, url_args: Dict, **_kwargs) -> Response:
         # TODO: support content, extent parameters
         response_t = get_response_type(request)
