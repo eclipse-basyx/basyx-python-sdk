@@ -678,8 +678,7 @@ class WSGIApp:
         raise NotFound(f"The AAS {aas!r} doesn't have the reference {url_args['submodel_ref']!r}!")
 
     # ------ SUBMODEL REPO ROUTES -------
-    def get_submodel_all(self, request: Request, url_args: Dict, **_kwargs) -> Response:
-        response_t = get_response_type(request)
+    def _get_submodels_python(self, request: Request, url_args: Dict) -> Iterator[model.Submodel]:
         submodels: Iterator[model.Submodel] = self._get_all_obj_of_type(model.Submodel)
         id_short = request.args.get("idShort")
         if id_short is not None:
@@ -689,6 +688,11 @@ class WSGIApp:
             if semantic_id is not None:
                 spec_semantic_id = HTTPApiDecoder.base64json(semantic_id, model.Reference, False)
                 submodels = filter(lambda sm: sm.semantic_id == spec_semantic_id, submodels)
+        return submodels
+
+    def get_submodel_all(self, request: Request, url_args: Dict, **_kwargs) -> Response:
+        response_t = get_response_type(request)
+        submodels = self._get_submodels_python(request, url_args)
         return response_t(list(submodels), stripped=is_stripped_request(request))
 
     def post_submodel(self, request: Request, url_args: Dict, map_adapter: MapAdapter) -> Response:
@@ -706,27 +710,12 @@ class WSGIApp:
 
     def get_allsubmodels_metadata(self, request: Request, url_args: Dict, **_kwargs) -> Response:
         response_t = get_response_type(request)
-        submodels: Iterator[model.Submodel] = self._get_all_obj_of_type(model.Submodel)
-        id_short = request.args.get("idShort")
-        if id_short is not None:
-            submodels = filter(lambda sm: sm.id_short == id_short, submodels)
-        semantic_id = request.args.get("semanticId")
-        if semantic_id is not None:
-            spec_semantic_id = HTTPApiDecoder.base64json(semantic_id, model.Reference, False)
-            submodels = filter(lambda sm: sm.semantic_id == spec_semantic_id, submodels)
+        submodels = self._get_submodels_python(request, url_args)
         return response_t(list(submodels), stripped=True)
 
     def get_allsubmodels_reference(self, request: Request, url_args: Dict, **_kwargs) -> Response:
         response_t = get_response_type(request)
-        submodels: Iterator[model.Submodel] = self._get_all_obj_of_type(model.Submodel)
-        id_short = request.args.get("idShort")
-        if id_short is not None:
-            submodels = filter(lambda sm: sm.id_short == id_short, submodels)
-        semantic_id = request.args.get("semanticId")
-        if semantic_id is not None:
-            if semantic_id is not None:
-                spec_semantic_id = HTTPApiDecoder.base64json(semantic_id, model.Reference, False)
-                submodels = filter(lambda sm: sm.semantic_id == spec_semantic_id, submodels)
+        submodels = self._get_submodels_python(request, url_args)
         references: list[model.ModelReference] = [model.ModelReference.from_referable(submodel)
                                                   for submodel in submodels]
         return response_t(list(references), stripped=is_stripped_request(request))
@@ -738,31 +727,33 @@ class WSGIApp:
         self.object_store.remove(self._get_obj_ts(url_args["submodel_id"], model.Submodel))
         return response_t()
 
+    def _get_submodel_python(self, url_args: Dict) -> model.Submodel:
+        # TODO: support content, extent parameters
+        submodel = self._get_obj_ts(url_args["submodel_id"], model.Submodel)
+        submodel.update()
+        return submodel
+
     def get_submodel(self, request: Request, url_args: Dict, **_kwargs) -> Response:
         # TODO: support content, extent parameters
         response_t = get_response_type(request)
-        submodel = self._get_obj_ts(url_args["submodel_id"], model.Submodel)
-        submodel.update()
+        submodel = self._get_submodel_python(url_args)
         return response_t(submodel, stripped=is_stripped_request(request))
 
     def get_submodels_metadata(self, request: Request, url_args: Dict, **_kwargs) -> Response:
         response_t = get_response_type(request)
-        submodel = self._get_obj_ts(url_args["submodel_id"], model.Submodel)
-        submodel.update()
+        submodel = self._get_submodel_python(url_args)
         return response_t(submodel, stripped=True)
 
     def get_submodels_reference(self, request: Request, url_args: Dict, **_kwargs) -> Response:
         # TODO: support content, extent parameters
         response_t = get_response_type(request)
-        submodel = self._get_obj_ts(url_args["submodel_id"], model.Submodel)
-        submodel.update()
+        submodel = self._get_submodel_python(url_args)
         reference = model.ModelReference.from_referable(submodel)
         return response_t(reference, stripped=is_stripped_request(request))
 
     def put_submodel(self, request: Request, url_args: Dict, **_kwargs) -> Response:
         response_t = get_response_type(request)
-        submodel = self._get_obj_ts(url_args["submodel_id"], model.Submodel)
-        submodel.update()
+        submodel = self._get_submodel_python(url_args)
         submodel.update_from(HTTPApiDecoder.request_body(request, model.Submodel, is_stripped_request(request)))
         submodel.commit()
         return response_t()
@@ -771,61 +762,57 @@ class WSGIApp:
         # TODO: the parentPath parameter is unnecessary for this route and should be removed from the spec
         # TODO: support content, extent, semanticId parameters
         response_t = get_response_type(request)
-        submodel = self._get_obj_ts(url_args["submodel_id"], model.Submodel)
-        submodel.update()
+        submodel = self._get_submodel_python(url_args)
         return response_t(list(submodel.submodel_element), stripped=is_stripped_request(request))
 
     def get_submodel_submodel_elements_metadata(self, request: Request, url_args: Dict, **_kwargs) -> Response:
         # TODO: the parentPath parameter is unnecessary for this route and should be removed from the spec
         # TODO: support content, extent, semanticId parameters
         response_t = get_response_type(request)
-        submodel = self._get_obj_ts(url_args["submodel_id"], model.Submodel)
-        submodel.update()
+        submodel = self._get_submodel_python(url_args)
         return response_t(list(submodel.submodel_element), stripped=True)
 
     def get_submodel_submodel_elements_reference(self, request: Request, url_args: Dict, **_kwargs) -> Response:
         # TODO: the parentPath parameter is unnecessary for this route and should be removed from the spec
         # TODO: support content, extent, semanticId parameters
         response_t = get_response_type(request)
-        submodel = self._get_obj_ts(url_args["submodel_id"], model.Submodel)
-        submodel.update()
+        submodel = self._get_submodel_python(url_args)
         references: list[model.ModelReference] = [model.ModelReference.from_referable(element) for element in
                                                   submodel.submodel_element]
         return response_t(list(references), stripped=is_stripped_request(request))
 
+    def _get_submodel_submodel_elements_id_short_path_python(self, url_args: Dict) \
+            -> model.SubmodelElement:
+        # TODO: support content, extent parameters
+        submodel = self._get_submodel_python(url_args)
+        submodel_element = self._get_nested_submodel_element(submodel, url_args["id_shorts"])
+        return submodel_element
+
     def get_submodel_submodel_elements_id_short_path(self, request: Request, url_args: Dict, **_kwargs) -> Response:
         # TODO: support content, extent parameters
         response_t = get_response_type(request)
-        submodel = self._get_obj_ts(url_args["submodel_id"], model.Submodel)
-        submodel.update()
-        submodel_element = self._get_nested_submodel_element(submodel, url_args["id_shorts"])
+        submodel_element = self._get_submodel_submodel_elements_id_short_path_python(url_args)
         return response_t(submodel_element, stripped=is_stripped_request(request))
 
     def get_submodel_submodel_elements_id_short_path_metadata(self, request: Request, url_args: Dict, **_kwargs) \
             -> Response:
         # TODO: support content, extent parameters
         response_t = get_response_type(request)
-        submodel = self._get_obj_ts(url_args["submodel_id"], model.Submodel)
-        submodel.update()
-        submodel_element = self._get_nested_submodel_element(submodel, url_args["id_shorts"])
+        submodel_element = self._get_submodel_submodel_elements_id_short_path_python(url_args)
         return response_t(submodel_element, stripped=True)
 
     def get_submodel_submodel_elements_id_short_path_reference(self, request: Request, url_args: Dict, **_kwargs)\
             -> Response:
         # TODO: support content, extent parameters
         response_t = get_response_type(request)
-        submodel = self._get_obj_ts(url_args["submodel_id"], model.Submodel)
-        submodel.update()
-        submodel_element = self._get_nested_submodel_element(submodel, url_args["id_shorts"])
+        submodel_element = self._get_submodel_submodel_elements_id_short_path_python(url_args)
         reference = model.ModelReference.from_referable(submodel_element)
         return response_t(reference, stripped=is_stripped_request(request))
 
     def post_submodel_submodel_elements_id_short_path(self, request: Request, url_args: Dict, map_adapter: MapAdapter):
         # TODO: support content, extent parameter
         response_t = get_response_type(request)
-        submodel_identifier = url_args["submodel_id"]
-        submodel = self._get_obj_ts(submodel_identifier, model.Submodel)
-        submodel.update()
+        submodel = self._get_submodel_python(url_args)
         id_short_path = url_args.get("id_shorts", [])
         parent = self._get_submodel_or_nested_submodel_element(submodel, id_short_path)
         if not isinstance(parent, model.UniqueIdShortNamespace):
@@ -848,10 +835,7 @@ class WSGIApp:
     def put_submodel_submodel_elements_id_short_path(self, request: Request, url_args: Dict, **_kwargs) -> Response:
         # TODO: support content, extent parameter
         response_t = get_response_type(request)
-        submodel_identifier = url_args["submodel_id"]
-        submodel = self._get_obj_ts(submodel_identifier, model.Submodel)
-        submodel.update()
-        submodel_element = self._get_nested_submodel_element(submodel, url_args["id_shorts"])
+        submodel_element = self._get_submodel_submodel_elements_id_short_path_python(url_args)
         # TODO: remove the following type: ignore comment when mypy supports abstract types for Type[T]
         # see https://github.com/python/mypy/issues/5374
         new_submodel_element = HTTPApiDecoder.request_body(request, model.SubmodelElement,  # type: ignore
@@ -863,8 +847,7 @@ class WSGIApp:
     def delete_submodel_submodel_elements_id_short_path(self, request: Request, url_args: Dict, **_kwargs) \
             -> Response:
         response_t = get_response_type(request)
-        submodel = self._get_obj_ts(url_args["submodel_id"], model.Submodel)
-        submodel.update()
+        submodel = self._get_submodel_python(url_args)
         id_short_path: List[str] = url_args["id_shorts"]
         parent: model.UniqueIdShortNamespace = self._expect_namespace(
             self._get_submodel_or_nested_submodel_element(submodel, id_short_path[:-1]),
@@ -876,8 +859,7 @@ class WSGIApp:
     def get_submodel_submodel_element_constraints(self, request: Request, url_args: Dict, **_kwargs) \
             -> Response:
         response_t = get_response_type(request)
-        submodel = self._get_obj_ts(url_args["submodel_id"], model.Submodel)
-        submodel.update()
+        submodel = self._get_submodel_python(url_args)
         sm_or_se = self._get_submodel_or_nested_submodel_element(submodel, url_args.get("id_shorts", []))
         qualifier_type = url_args.get("qualifier_type")
         if qualifier_type is None:
@@ -891,8 +873,7 @@ class WSGIApp:
             -> Response:
         response_t = get_response_type(request)
         submodel_identifier = url_args["submodel_id"]
-        submodel = self._get_obj_ts(submodel_identifier, model.Submodel)
-        submodel.update()
+        submodel = self._get_submodel_python(url_args)
         id_shorts: List[str] = url_args.get("id_shorts", [])
         sm_or_se = self._get_submodel_or_nested_submodel_element(submodel, id_shorts)
         qualifier = HTTPApiDecoder.request_body(request, model.Qualifier, is_stripped_request(request))
@@ -911,8 +892,7 @@ class WSGIApp:
             -> Response:
         response_t = get_response_type(request)
         submodel_identifier = url_args["submodel_id"]
-        submodel = self._get_obj_ts(submodel_identifier, model.Submodel)
-        submodel.update()
+        submodel = self._get_submodel_python(url_args)
         id_shorts: List[str] = url_args.get("id_shorts", [])
         sm_or_se = self._get_submodel_or_nested_submodel_element(submodel, id_shorts)
         new_qualifier = HTTPApiDecoder.request_body(request, model.Qualifier, is_stripped_request(request))
@@ -942,9 +922,7 @@ class WSGIApp:
     def delete_submodel_submodel_element_constraints(self, request: Request, url_args: Dict, **_kwargs) \
             -> Response:
         response_t = get_response_type(request)
-        submodel_identifier = url_args["submodel_id"]
-        submodel = self._get_obj_ts(submodel_identifier, model.Submodel)
-        submodel.update()
+        submodel = self._get_submodel_python(url_args)
         id_shorts: List[str] = url_args.get("id_shorts", [])
         sm_or_se = self._get_submodel_or_nested_submodel_element(submodel, id_shorts)
         qualifier_type = url_args["qualifier_type"]
