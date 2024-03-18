@@ -823,7 +823,7 @@ class WSGIApp:
                                                            is_stripped_request(request))
         try:
             parent.add_referable(new_submodel_element)
-        except KeyError:
+        except model.AASConstraintViolation:
             raise Conflict(f"SubmodelElement with idShort {new_submodel_element.id_short} already exists "
                            f"within {parent}!")
         created_resource_url = map_adapter.build(self.get_submodel_submodel_elements_id_short_path, {
