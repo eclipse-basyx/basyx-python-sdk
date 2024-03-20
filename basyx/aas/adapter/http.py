@@ -143,7 +143,7 @@ class XmlResponse(APIResponse):
                 response_elem = object_to_xml_element(obj)
                 parent.append(response_elem)
                 etree.cleanup_namespaces(parent)
-        return etree.tostring(response_elem, xml_declaration=True, encoding=BASE64URL_ENCODING)
+        return etree.tostring(response_elem, xml_declaration=True, encoding="utf-8")
 
 
 class XmlResponseAlt(XmlResponse):
