@@ -400,7 +400,7 @@ class WSGIApp:
                         Submount("/submodel-refs", [
                             Rule("/", methods=["GET"], endpoint=self.get_aas_submodel_refs),
                             Rule("/", methods=["POST"], endpoint=self.post_aas_submodel_refs),
-                            Rule("/<identifier:submodel_id>", methods=["DELETE"],
+                            Rule("/<identifier:submodel_id>/", methods=["DELETE"],
                                  endpoint=self.delete_aas_submodel_refs_specific)
                         ])
                     ])
