@@ -531,6 +531,16 @@ class WSGIApp:
         except KeyError as e:
             raise NotFound(f"Submodel element with id_short {arg} not found in {namespace!r}") from e
 
+    @classmethod
+    def _get_submodel_reference(cls, aas: model.AssetAdministrationShell, submodel_id: model.NameType) \
+            -> model.ModelReference[model.Submodel]:
+        # TODO: this is currently O(n), could be O(1) as aas.submodel, but keys would have to precisely match, as they
+        #  are hashed including their KeyType
+        for ref in aas.submodel:
+            if ref.get_identifier() == submodel_id:
+                return ref
+        raise NotFound(f"The AAS {aas!r} doesn't have a submodel reference to {submodel_id!r}!")
+
     def _get_submodels(self, request: Request) -> Iterator[model.Submodel]:
         submodels: Iterator[model.Submodel] = self._get_all_obj_of_type(model.Submodel)
         id_short = request.args.get("idShort")
@@ -659,12 +669,9 @@ class WSGIApp:
         response_t = get_response_type(request)
         aas = self._get_obj_ts(url_args["aas_id"], model.AssetAdministrationShell)
         aas.update()
-        for sm_ref in aas.submodel:
-            if sm_ref.get_identifier() == url_args["submodel_id"]:
-                aas.submodel.remove(sm_ref)
-                aas.commit()
-                return response_t()
-        raise NotFound(f"The AAS {aas!r} doesn't have a submodel reference to {url_args['submodel_id']!r}!")
+        aas.submodel.remove(self._get_submodel_reference(aas, url_args["submodel_id"]))
+        aas.commit()
+        return response_t()
 
     # ------ SUBMODEL REPO ROUTES -------
     def get_submodel_all(self, request: Request, url_args: Dict, **_kwargs) -> Response:
