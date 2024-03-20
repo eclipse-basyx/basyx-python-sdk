@@ -320,6 +320,15 @@ class HTTPApiDecoder:
             return cls.json(request.get_data(), expect_type, stripped)
         return cls.xml(request.get_data(), expect_type, stripped)
 
+    @staticmethod
+    def decode_specific_asset_ids(encoded_ids: str):
+        # Decoding from base64url and transforming to JSON
+        decoded_json = base64.urlsafe_b64decode(encoded_ids + '===').decode('utf-8')
+        # Assuming the JSON represents a list of SpecificAssetId objects
+        specific_asset_ids = json.loads(decoded_json)
+        # Transform the list of dictionaries into SpecificAssetId instances
+        return [model.SpecificAssetId(**id_dict) for id_dict in specific_asset_ids]
+
 
 class Base64UrlJsonConverter(werkzeug.routing.UnicodeConverter):
     encoding = "utf-8"
@@ -548,14 +557,23 @@ class WSGIApp:
     def get_aas_all(self, request: Request, url_args: Dict, **_kwargs) -> Response:
         response_t = get_response_type(request)
         aas: Iterator[model.AssetAdministrationShell] = self._get_all_obj_of_type(model.AssetAdministrationShell)
+
+        # Filter by 'idShort' if the parameter is provided in the request
         id_short = request.args.get("idShort")
         if id_short is not None:
             aas = filter(lambda shell: shell.id_short == id_short, aas)
+
+        # Filtering by base64url encoded SpecificAssetIds if provided
         asset_ids = request.args.get("assetIds")
         if asset_ids is not None:
-            spec_asset_ids = HTTPApiDecoder.json_list(asset_ids, model.SpecificAssetId, False, False)
-            # TODO: it's currently unclear how to filter with these SpecificAssetIds
-        return response_t(list(aas))
+            # Use the new method to decode and instantiate SpecificAssetIds
+            spec_asset_ids = HTTPApiDecoder.decode_specific_asset_ids(asset_ids)
+            # Filter the AAS based on these SpecificAssetIds
+            aas = filter(lambda shell: all(
+                spec_id in [id_.identifier for id_ in shell.specific_asset_ids] for spec_id in spec_asset_ids), aas)
+
+        aas_list = list(aas)
+        return response_t(aas_list)
 
     def post_aas(self, request: Request, url_args: Dict, map_adapter: MapAdapter) -> Response:
         response_t = get_response_type(request)
