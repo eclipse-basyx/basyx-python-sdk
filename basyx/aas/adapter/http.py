@@ -143,7 +143,7 @@ class XmlResponse(APIResponse):
                 response_elem = object_to_xml_element(obj)
                 parent.append(response_elem)
                 etree.cleanup_namespaces(parent)
-        return etree.tostring(response_elem, xml_declaration=True, encoding=ENCODING)
+        return etree.tostring(response_elem, xml_declaration=True, encoding=BASE64URL_ENCODING)
 
 
 class XmlResponseAlt(XmlResponse):
@@ -218,7 +218,7 @@ def is_stripped_request(request: Request) -> bool:
 
 T = TypeVar("T")
 
-ENCODING = "utf-8"
+BASE64URL_ENCODING = "utf-8"
 
 
 def base64url_decode(data: str) -> str:
@@ -227,12 +227,17 @@ def base64url_decode(data: str) -> str:
         # However, Python doesn't complain about too much padding,
         # thus we simply always append two padding characters (==).
         # See also: https://stackoverflow.com/a/49459036/4780052
-        decoded = base64.urlsafe_b64decode(data + "==").decode(ENCODING)
+        decoded = base64.urlsafe_b64decode(data + "==").decode(BASE64URL_ENCODING)
     except binascii.Error:
-        raise BadRequest(f"Encoded data {str(data)} is invalid base64url!")
+        raise BadRequest(f"Encoded data {data} is invalid base64url!")
     except UnicodeDecodeError:
-        raise BadRequest(f"Encoded base64url value is not a valid utf-8 string!")
+        raise BadRequest(f"Encoded base64url value is not a valid {BASE64URL_ENCODING} string!")
     return decoded
+
+
+def base64url_encode(data: str) -> bytes:
+    encoded = base64.urlsafe_b64encode(data.encode(BASE64URL_ENCODING))
+    return encoded
 
 
 class HTTPApiDecoder:
@@ -287,7 +292,6 @@ class HTTPApiDecoder:
                 constructor = decoder._construct_specific_asset_id  # type: ignore[assignment]
             elif expect_type is model.Reference:
                 constructor = decoder._construct_reference   # type: ignore[assignment]
-                args.append(model.Submodel)
 
             if constructor is not None:
                 # construct elements that aren't self-identified
@@ -299,7 +303,7 @@ class HTTPApiDecoder:
         return [cls.assert_type(obj, expect_type) for obj in parsed]
 
     @classmethod
-    def base64urljson_list(cls, data: Union[str, bytes], expect_type: Type[T], stripped: bool, expect_single: bool)\
+    def base64urljson_list(cls, data: str, expect_type: Type[T], stripped: bool, expect_single: bool)\
             -> List[T]:
         data = base64url_decode(data)
         return cls.json_list(data, expect_type, stripped, expect_single)
@@ -309,7 +313,7 @@ class HTTPApiDecoder:
         return cls.json_list(data, expect_type, stripped, True)[0]
 
     @classmethod
-    def base64urljson(cls, data: Union[str, bytes], expect_type: Type[T], stripped: bool) -> T:
+    def base64urljson(cls, data: str, expect_type: Type[T], stripped: bool) -> T:
         data = base64url_decode(data)
         return cls.json_list(data, expect_type, stripped, True)[0]
 
@@ -363,7 +367,7 @@ class Base64UrlJsonConverter(werkzeug.routing.UnicodeConverter):
             raise ValueError(f"invalid value t={t}")
 
     def to_url(self, value: object) -> str:
-        return super().to_url(base64.urlsafe_b64encode(json.dumps(value, cls=AASToJsonEncoder).encode(ENCODING)))
+        return super().to_url(base64url_encode(json.dumps(value, cls=AASToJsonEncoder)))
 
     def to_python(self, value: str) -> object:
         value = super().to_python(value)
@@ -377,7 +381,7 @@ class Base64UrlJsonConverter(werkzeug.routing.UnicodeConverter):
 class IdentifierConverter(werkzeug.routing.UnicodeConverter):
 
     def to_url(self, value: model.Identifier) -> str:
-        return super().to_url(base64.urlsafe_b64encode(value.encode(ENCODING)))
+        return super().to_url(base64url_encode(value))
 
     def to_python(self, value: str) -> model.Identifier:
         value = super().to_python(value)
@@ -557,19 +561,18 @@ class WSGIApp:
             submodels = filter(lambda sm: sm.id_short == id_short, submodels)
         semantic_id = request.args.get("semanticId")
         if semantic_id is not None:
-            spec_semantic_id = HTTPApiDecoder.base64urljson(semantic_id, model.Reference, False)
+            spec_semantic_id = (HTTPApiDecoder.base64urljson
+                                (semantic_id, model.Reference, False))  # type: ignore[type-abstract]
             submodels = filter(lambda sm: sm.semantic_id == spec_semantic_id, submodels)
         return submodels
 
     def _get_submodel(self, url_args: Dict) -> model.Submodel:
-        # TODO: support content, extent parameters
         submodel = self._get_obj_ts(url_args["submodel_id"], model.Submodel)
         submodel.update()
         return submodel
 
     def _get_submodel_submodel_elements_id_short_path(self, url_args: Dict) \
             -> model.SubmodelElement:
-        # TODO: support content, extent parameters
         submodel = self._get_submodel(url_args)
         submodel_element = self._get_nested_submodel_element(submodel, url_args["id_shorts"])
         return submodel_element
@@ -725,7 +728,6 @@ class WSGIApp:
         return response_t()
 
     def get_submodel(self, request: Request, url_args: Dict, **_kwargs) -> Response:
-        # TODO: support content, extent parameters
         response_t = get_response_type(request)
         submodel = self._get_submodel(url_args)
         return response_t(submodel, stripped=is_stripped_request(request))
@@ -736,7 +738,6 @@ class WSGIApp:
         return response_t(submodel, stripped=True)
 
     def get_submodels_reference(self, request: Request, url_args: Dict, **_kwargs) -> Response:
-        # TODO: support content, extent parameters
         response_t = get_response_type(request)
         submodel = self._get_submodel(url_args)
         reference = model.ModelReference.from_referable(submodel)
@@ -773,28 +774,24 @@ class WSGIApp:
         return response_t(references, stripped=is_stripped_request(request))
 
     def get_submodel_submodel_elements_id_short_path(self, request: Request, url_args: Dict, **_kwargs) -> Response:
-        # TODO: support content, extent parameters
         response_t = get_response_type(request)
         submodel_element = self._get_submodel_submodel_elements_id_short_path(url_args)
         return response_t(submodel_element, stripped=is_stripped_request(request))
 
     def get_submodel_submodel_elements_id_short_path_metadata(self, request: Request, url_args: Dict, **_kwargs) \
             -> Response:
-        # TODO: support content, extent parameters
         response_t = get_response_type(request)
         submodel_element = self._get_submodel_submodel_elements_id_short_path(url_args)
         return response_t(submodel_element, stripped=True)
 
     def get_submodel_submodel_elements_id_short_path_reference(self, request: Request, url_args: Dict, **_kwargs)\
             -> Response:
-        # TODO: support content, extent parameters
         response_t = get_response_type(request)
         submodel_element = self._get_submodel_submodel_elements_id_short_path(url_args)
         reference = model.ModelReference.from_referable(submodel_element)
         return response_t(reference, stripped=is_stripped_request(request))
 
     def post_submodel_submodel_elements_id_short_path(self, request: Request, url_args: Dict, map_adapter: MapAdapter):
-        # TODO: support content, extent parameter
         response_t = get_response_type(request)
         submodel = self._get_submodel(url_args)
         id_short_path = url_args.get("id_shorts", [])
@@ -819,7 +816,6 @@ class WSGIApp:
         return response_t(new_submodel_element, status=201, headers={"Location": created_resource_url})
 
     def put_submodel_submodel_elements_id_short_path(self, request: Request, url_args: Dict, **_kwargs) -> Response:
-        # TODO: support content, extent parameter
         response_t = get_response_type(request)
         submodel_element = self._get_submodel_submodel_elements_id_short_path(url_args)
         # TODO: remove the following type: ignore comment when mypy supports abstract types for Type[T]
