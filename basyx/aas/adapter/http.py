@@ -235,8 +235,8 @@ def base64url_decode(data: str) -> str:
     return decoded
 
 
-def base64url_encode(data: str) -> bytes:
-    encoded = base64.urlsafe_b64encode(data.encode(BASE64URL_ENCODING))
+def base64url_encode(data: str) -> str:
+    encoded = base64.urlsafe_b64encode(data.encode(BASE64URL_ENCODING)).decode("ascii")
     return encoded
 
 
