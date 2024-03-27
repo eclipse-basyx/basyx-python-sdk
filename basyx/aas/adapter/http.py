@@ -356,28 +356,6 @@ class HTTPApiDecoder:
         return cls.xml(request.get_data(), expect_type, stripped)
 
 
-class Base64UrlJsonConverter(werkzeug.routing.UnicodeConverter):
-
-    def __init__(self, url_map, t: str):
-        super().__init__(url_map)
-        self.type: type
-        if t == "ModelReference":
-            self.type = model.ModelReference
-        else:
-            raise ValueError(f"invalid value t={t}")
-
-    def to_url(self, value: object) -> str:
-        return super().to_url(base64url_encode(json.dumps(value, cls=AASToJsonEncoder)))
-
-    def to_python(self, value: str) -> object:
-        value = super().to_python(value)
-        decoded = base64url_decode(super().to_python(value))
-        try:
-            return HTTPApiDecoder.json(decoded, self.type, False)
-        except json.JSONDecodeError:
-            raise BadRequest(f"{decoded} is not a valid json string!")
-
-
 class IdentifierConverter(werkzeug.routing.UnicodeConverter):
 
     def to_url(self, value: model.Identifier) -> str:
@@ -419,10 +397,10 @@ class WSGIApp:
                         Rule("/", methods=["DELETE"], endpoint=self.delete_aas),
                         Rule("/asset-information", methods=["GET"], endpoint=self.get_aas_asset_information),
                         Rule("/asset-information", methods=["PUT"], endpoint=self.put_aas_asset_information),
-                        Submount("/submodels", [
+                        Submount("/submodel-refs", [
                             Rule("/", methods=["GET"], endpoint=self.get_aas_submodel_refs),
                             Rule("/", methods=["POST"], endpoint=self.post_aas_submodel_refs),
-                            Rule("/<base64url_json(t=ModelReference):submodel_ref>/", methods=["DELETE"],
+                            Rule("/<identifier:submodel_id>/", methods=["DELETE"],
                                  endpoint=self.delete_aas_submodel_refs_specific)
                         ])
                     ])
@@ -489,8 +467,7 @@ class WSGIApp:
             ])
         ], converters={
             "identifier": IdentifierConverter,
-            "id_short_path": IdShortPathConverter,
-            "base64url_json": Base64UrlJsonConverter
+            "id_short_path": IdShortPathConverter
         })
 
     # TODO: the parameters can be typed via builtin wsgiref with Python 3.11+
@@ -553,6 +530,16 @@ class WSGIApp:
             return op(arg)
         except KeyError as e:
             raise NotFound(f"Submodel element with id_short {arg} not found in {namespace!r}") from e
+
+    @classmethod
+    def _get_submodel_reference(cls, aas: model.AssetAdministrationShell, submodel_id: model.NameType) \
+            -> model.ModelReference[model.Submodel]:
+        # TODO: this is currently O(n), could be O(1) as aas.submodel, but keys would have to precisely match, as they
+        #  are hashed including their KeyType
+        for ref in aas.submodel:
+            if ref.get_identifier() == submodel_id:
+                return ref
+        raise NotFound(f"The AAS {aas!r} doesn't have a submodel reference to {submodel_id!r}!")
 
     def _get_submodels(self, request: Request) -> Iterator[model.Submodel]:
         submodels: Iterator[model.Submodel] = self._get_all_obj_of_type(model.Submodel)
@@ -682,12 +669,9 @@ class WSGIApp:
         response_t = get_response_type(request)
         aas = self._get_obj_ts(url_args["aas_id"], model.AssetAdministrationShell)
         aas.update()
-        for sm_ref in aas.submodel:
-            if sm_ref == url_args["submodel_ref"]:
-                aas.submodel.remove(sm_ref)
-                aas.commit()
-                return response_t()
-        raise NotFound(f"The AAS {aas!r} doesn't have the reference {url_args['submodel_ref']!r}!")
+        aas.submodel.remove(self._get_submodel_reference(aas, url_args["submodel_id"]))
+        aas.commit()
+        return response_t()
 
     # ------ SUBMODEL REPO ROUTES -------
     def get_submodel_all(self, request: Request, url_args: Dict, **_kwargs) -> Response:
