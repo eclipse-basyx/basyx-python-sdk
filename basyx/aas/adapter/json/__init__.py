@@ -16,10 +16,7 @@ object. A function :meth:`~basyx.aas.adapter.json.json_deserialization.read_aas_
 AAS objects within a JSON file and return them as BaSyx Python SDK
 :class:`ObjectStore <basyx.aas.model.provider.AbstractObjectStore>`.
 """
-import os.path
 
 from .json_serialization import AASToJsonEncoder, StrippedAASToJsonEncoder, write_aas_json_file, object_store_to_json
 from .json_deserialization import AASFromJsonDecoder, StrictAASFromJsonDecoder, StrippedAASFromJsonDecoder, \
     StrictStrippedAASFromJsonDecoder, read_aas_json_file, read_aas_json_file_into
-
-JSON_SCHEMA_FILE = os.path.join(os.path.dirname(__file__), 'aasJSONSchema.json')

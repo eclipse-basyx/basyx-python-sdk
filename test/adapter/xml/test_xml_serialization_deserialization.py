@@ -9,7 +9,8 @@ import io
 import unittest
 
 from basyx.aas import model
-from basyx.aas.adapter.xml import write_aas_xml_file, read_aas_xml_file
+from basyx.aas.adapter.xml import write_aas_xml_file, read_aas_xml_file, write_aas_xml_element, read_aas_xml_element, \
+    XMLConstructables
 
 from basyx.aas.examples.data import example_aas_missing_attributes, example_aas, \
     example_aas_mandatory_attributes, example_submodel_template, create_example
@@ -53,3 +54,15 @@ class XMLSerializationDeserializationTest(unittest.TestCase):
         object_store = _serialize_and_deserialize(data)
         checker = AASDataChecker(raise_immediately=True)
         checker.check_object_store(object_store, data)
+
+
+class XMLSerializationDeserializationSingleObjectTest(unittest.TestCase):
+    def test_submodel_serialization_deserialization(self) -> None:
+        submodel: model.Submodel = example_submodel_template.create_example_submodel_template()
+        bytes_io = io.BytesIO()
+        write_aas_xml_element(bytes_io, submodel)
+        bytes_io.seek(0)
+        submodel2: model.Submodel = read_aas_xml_element(bytes_io,  # type: ignore[assignment]
+                                                         XMLConstructables.SUBMODEL, failsafe=False)
+        checker = AASDataChecker(raise_immediately=True)
+        checker.check_submodel_equal(submodel2, submodel)

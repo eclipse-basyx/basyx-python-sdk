@@ -25,15 +25,13 @@ setuptools.setup(
     zip_safe=False,
     package_data={
         "basyx": ["py.typed"],
-        "basyx.aas.adapter.json": ["aasJSONSchema.json"],
-        "basyx.aas.adapter.xml": ["AAS.xsd"],
         "basyx.aas.examples.data": ["TestFile.pdf"],
     },
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
-        "Development Status :: 3 - Alpha",
+        "Development Status :: 5 - Production/Stable",
     ],
     entry_points={
         'console_scripts': [

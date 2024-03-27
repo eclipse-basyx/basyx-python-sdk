@@ -16,6 +16,8 @@ from basyx.aas.examples.data import example_aas_missing_attributes, example_aas,
     example_aas_mandatory_attributes, example_submodel_template, create_example
 from basyx.aas.examples.data._helper import AASDataChecker
 
+from typing import Iterable, IO
+
 
 class JsonSerializationDeserializationTest(unittest.TestCase):
     def test_random_object_serialization_deserialization(self) -> None:
@@ -41,15 +43,17 @@ class JsonSerializationDeserializationTest(unittest.TestCase):
         json_object_store = read_aas_json_file(io.StringIO(json_data), failsafe=False)
 
     def test_example_serialization_deserialization(self) -> None:
-        data = example_aas.create_full_example()
-        file = io.StringIO()
-        write_aas_json_file(file=file, data=data)
+        # test with TextIO and BinaryIO, which should both be supported
+        t: Iterable[IO] = (io.StringIO(), io.BytesIO())
+        for file in t:
+            data = example_aas.create_full_example()
+            write_aas_json_file(file=file, data=data)
 
-        # try deserializing the json string into a DictObjectStore of AAS objects with help of the json module
-        file.seek(0)
-        json_object_store = read_aas_json_file(file, failsafe=False)
-        checker = AASDataChecker(raise_immediately=True)
-        example_aas.check_full_example(checker, json_object_store)
+            # try deserializing the json string into a DictObjectStore of AAS objects with help of the json module
+            file.seek(0)
+            json_object_store = read_aas_json_file(file, failsafe=False)
+            checker = AASDataChecker(raise_immediately=True)
+            example_aas.check_full_example(checker, json_object_store)
 
 
 class JsonSerializationDeserializationTest2(unittest.TestCase):
