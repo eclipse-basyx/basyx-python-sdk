@@ -395,8 +395,10 @@ class WSGIApp:
                         Rule("/", methods=["GET"], endpoint=self.get_aas),
                         Rule("/", methods=["PUT"], endpoint=self.put_aas),
                         Rule("/", methods=["DELETE"], endpoint=self.delete_aas),
-                        Rule("/asset-information", methods=["GET"], endpoint=self.get_aas_asset_information),
-                        Rule("/asset-information", methods=["PUT"], endpoint=self.put_aas_asset_information),
+                        Submount("/asset-information", [
+                            Rule("/", methods=["GET"], endpoint=self.get_aas_asset_information),
+                            Rule("/", methods=["PUT"], endpoint=self.put_aas_asset_information),
+                        ]),
                         Submount("/submodel-refs", [
                             Rule("/", methods=["GET"], endpoint=self.get_aas_submodel_refs),
                             Rule("/", methods=["POST"], endpoint=self.post_aas_submodel_refs),
