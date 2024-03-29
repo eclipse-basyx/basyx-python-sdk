@@ -292,6 +292,8 @@ class HTTPApiDecoder:
                 constructor = decoder._construct_specific_asset_id  # type: ignore[assignment]
             elif expect_type is model.Reference:
                 constructor = decoder._construct_reference   # type: ignore[assignment]
+            elif expect_type is model.Qualifier:
+                constructor = decoder._construct_qualifier  # type: ignore[assignment]
 
             if constructor is not None:
                 # construct elements that aren't self-identified
