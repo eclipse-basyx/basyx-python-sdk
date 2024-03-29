@@ -534,6 +534,13 @@ class WSGIApp:
             raise NotFound(f"Submodel element with id_short {arg} not found in {namespace!r}") from e
 
     @classmethod
+    def _qualifiable_qualifier_op(cls, qualifiable: model.Qualifiable, op: Callable[[str], T], arg: str) -> T:
+        try:
+            return op(arg)
+        except KeyError as e:
+            raise NotFound(f"Qualifier with type {arg!r} not found in {qualifiable!r}") from e
+
+    @classmethod
     def _get_submodel_reference(cls, aas: model.AssetAdministrationShell, submodel_id: model.NameType) \
             -> model.ModelReference[model.Submodel]:
         # TODO: this is currently O(n), could be O(1) as aas.submodel, but keys would have to precisely match, as they
@@ -832,10 +839,7 @@ class WSGIApp:
         qualifier_type = url_args.get("qualifier_type")
         if qualifier_type is None:
             return response_t(list(sm_or_se.qualifier))
-        try:
-            return response_t(sm_or_se.get_qualifier_by_type(qualifier_type))
-        except KeyError:
-            raise NotFound(f"No constraint with type {qualifier_type} found in {sm_or_se}")
+        return response_t(self._qualifiable_qualifier_op(sm_or_se, sm_or_se.get_qualifier_by_type, qualifier_type))
 
     def post_submodel_submodel_element_qualifiers(self, request: Request, url_args: Dict, map_adapter: MapAdapter) \
             -> Response:
@@ -865,13 +869,7 @@ class WSGIApp:
         sm_or_se = self._get_submodel_or_nested_submodel_element(submodel, id_shorts)
         new_qualifier = HTTPApiDecoder.request_body(request, model.Qualifier, is_stripped_request(request))
         qualifier_type = url_args["qualifier_type"]
-        try:
-            qualifier = sm_or_se.get_qualifier_by_type(qualifier_type)
-        except KeyError:
-            raise NotFound(f"No constraint with type {qualifier_type} found in {sm_or_se}")
-        if type(qualifier) is not type(new_qualifier):
-            raise UnprocessableEntity(f"Type of new qualifier {new_qualifier} doesn't not match "
-                                      f"the current submodel element {qualifier}")
+        qualifier = self._qualifiable_qualifier_op(sm_or_se, sm_or_se.get_qualifier_by_type, qualifier_type)
         qualifier_type_changed = qualifier_type != new_qualifier.type
         if qualifier_type_changed and sm_or_se.qualifier.contains_id("type", new_qualifier.type):
             raise Conflict(f"A qualifier of type {new_qualifier.type} already exists for {sm_or_se}")
@@ -894,10 +892,7 @@ class WSGIApp:
         id_shorts: List[str] = url_args.get("id_shorts", [])
         sm_or_se = self._get_submodel_or_nested_submodel_element(submodel, id_shorts)
         qualifier_type = url_args["qualifier_type"]
-        try:
-            sm_or_se.remove_qualifier_by_type(qualifier_type)
-        except KeyError:
-            raise NotFound(f"No constraint with type {qualifier_type} found in {sm_or_se}")
+        self._qualifiable_qualifier_op(sm_or_se, sm_or_se.remove_qualifier_by_type, qualifier_type)
         sm_or_se.commit()
         return response_t()
 
