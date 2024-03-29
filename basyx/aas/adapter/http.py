@@ -872,7 +872,7 @@ class WSGIApp:
         qualifier = self._qualifiable_qualifier_op(sm_or_se, sm_or_se.get_qualifier_by_type, qualifier_type)
         qualifier_type_changed = qualifier_type != new_qualifier.type
         if qualifier_type_changed and sm_or_se.qualifier.contains_id("type", new_qualifier.type):
-            raise Conflict(f"A qualifier of type {new_qualifier.type} already exists for {sm_or_se}")
+            raise Conflict(f"A qualifier of type {new_qualifier.type!r} already exists for {sm_or_se!r}")
         sm_or_se.remove_qualifier_by_type(qualifier.type)
         sm_or_se.qualifier.add(new_qualifier)
         sm_or_se.commit()
