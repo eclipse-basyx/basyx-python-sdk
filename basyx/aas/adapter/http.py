@@ -437,30 +437,30 @@ class WSGIApp:
                                      endpoint=self.get_submodel_submodel_elements_id_short_path_metadata),
                                 Rule("/$reference/", methods=["GET"],
                                      endpoint=self.get_submodel_submodel_elements_id_short_path_reference),
-                                Submount("/constraints", [
+                                Submount("/qualifiers", [
                                     Rule("/", methods=["GET"],
-                                         endpoint=self.get_submodel_submodel_element_constraints),
+                                         endpoint=self.get_submodel_submodel_element_qualifiers),
                                     Rule("/", methods=["POST"],
-                                         endpoint=self.post_submodel_submodel_element_constraints),
-                                    Rule("/<path:qualifier_type>/", methods=["GET"],
-                                         endpoint=self.get_submodel_submodel_element_constraints),
-                                    Rule("/<path:qualifier_type>/", methods=["PUT"],
-                                         endpoint=self.put_submodel_submodel_element_constraints),
-                                    Rule("/<path:qualifier_type>/", methods=["DELETE"],
-                                         endpoint=self.delete_submodel_submodel_element_constraints),
+                                         endpoint=self.post_submodel_submodel_element_qualifiers),
+                                    Rule("/<identifier:qualifier_type>/", methods=["GET"],
+                                         endpoint=self.get_submodel_submodel_element_qualifiers),
+                                    Rule("/<identifier:qualifier_type>/", methods=["PUT"],
+                                         endpoint=self.put_submodel_submodel_element_qualifiers),
+                                    Rule("/<identifier:qualifier_type>/", methods=["DELETE"],
+                                         endpoint=self.delete_submodel_submodel_element_qualifiers),
                                 ])
                             ]),
                         ]),
-                        Submount("/constraints", [
-                            Rule("/", methods=["GET"], endpoint=self.get_submodel_submodel_element_constraints),
+                        Submount("/qualifiers", [
+                            Rule("/", methods=["GET"], endpoint=self.get_submodel_submodel_element_qualifiers),
                             Rule("/", methods=["POST"],
-                                 endpoint=self.post_submodel_submodel_element_constraints),
-                            Rule("/<path:qualifier_type>/", methods=["GET"],
-                                 endpoint=self.get_submodel_submodel_element_constraints),
-                            Rule("/<path:qualifier_type>/", methods=["PUT"],
-                                 endpoint=self.put_submodel_submodel_element_constraints),
-                            Rule("/<path:qualifier_type>/", methods=["DELETE"],
-                                 endpoint=self.delete_submodel_submodel_element_constraints),
+                                 endpoint=self.post_submodel_submodel_element_qualifiers),
+                            Rule("/<identifier:qualifier_type>/", methods=["GET"],
+                                 endpoint=self.get_submodel_submodel_element_qualifiers),
+                            Rule("/<identifier:qualifier_type>/", methods=["PUT"],
+                                 endpoint=self.put_submodel_submodel_element_qualifiers),
+                            Rule("/<identifier:qualifier_type>/", methods=["DELETE"],
+                                 endpoint=self.delete_submodel_submodel_element_qualifiers),
                         ])
                     ])
                 ])
@@ -822,7 +822,7 @@ class WSGIApp:
         self._namespace_submodel_element_op(parent, parent.remove_referable, id_short_path[-1])
         return response_t()
 
-    def get_submodel_submodel_element_constraints(self, request: Request, url_args: Dict, **_kwargs) \
+    def get_submodel_submodel_element_qualifiers(self, request: Request, url_args: Dict, **_kwargs) \
             -> Response:
         response_t = get_response_type(request)
         submodel = self._get_submodel(url_args)
@@ -835,7 +835,7 @@ class WSGIApp:
         except KeyError:
             raise NotFound(f"No constraint with type {qualifier_type} found in {sm_or_se}")
 
-    def post_submodel_submodel_element_constraints(self, request: Request, url_args: Dict, map_adapter: MapAdapter) \
+    def post_submodel_submodel_element_qualifiers(self, request: Request, url_args: Dict, map_adapter: MapAdapter) \
             -> Response:
         response_t = get_response_type(request)
         submodel_identifier = url_args["submodel_id"]
@@ -847,14 +847,14 @@ class WSGIApp:
             raise Conflict(f"Qualifier with type {qualifier.type} already exists!")
         sm_or_se.qualifier.add(qualifier)
         sm_or_se.commit()
-        created_resource_url = map_adapter.build(self.get_submodel_submodel_element_constraints, {
+        created_resource_url = map_adapter.build(self.get_submodel_submodel_element_qualifiers, {
             "submodel_id": submodel_identifier,
             "id_shorts": id_shorts if len(id_shorts) != 0 else None,
             "qualifier_type": qualifier.type
         }, force_external=True)
         return response_t(qualifier, status=201, headers={"Location": created_resource_url})
 
-    def put_submodel_submodel_element_constraints(self, request: Request, url_args: Dict, map_adapter: MapAdapter) \
+    def put_submodel_submodel_element_qualifiers(self, request: Request, url_args: Dict, map_adapter: MapAdapter) \
             -> Response:
         response_t = get_response_type(request)
         submodel_identifier = url_args["submodel_id"]
@@ -877,7 +877,7 @@ class WSGIApp:
         sm_or_se.qualifier.add(new_qualifier)
         sm_or_se.commit()
         if qualifier_type_changed:
-            created_resource_url = map_adapter.build(self.get_submodel_submodel_element_constraints, {
+            created_resource_url = map_adapter.build(self.get_submodel_submodel_element_qualifiers, {
                 "submodel_id": submodel_identifier,
                 "id_shorts": id_shorts if len(id_shorts) != 0 else None,
                 "qualifier_type": new_qualifier.type
@@ -885,7 +885,7 @@ class WSGIApp:
             return response_t(new_qualifier, status=201, headers={"Location": created_resource_url})
         return response_t(new_qualifier)
 
-    def delete_submodel_submodel_element_constraints(self, request: Request, url_args: Dict, **_kwargs) \
+    def delete_submodel_submodel_element_qualifiers(self, request: Request, url_args: Dict, **_kwargs) \
             -> Response:
         response_t = get_response_type(request)
         submodel = self._get_submodel(url_args)
