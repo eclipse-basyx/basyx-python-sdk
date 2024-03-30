@@ -12,7 +12,7 @@ It uses the [HTTP Adapter][1] and the [Local-File Backend][2] of the [BaSyx Pyth
 ## Building
 The container image can be built via:
 ```
-$ docker build -t basyx-python-sdk-http-server .
+$ docker buildx build -t basyx-python-sdk-http-server .
 ```
 
 ## Running
