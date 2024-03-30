@@ -11,5 +11,4 @@ ENV UWSGI_PROCESSES 1
 RUN pip install --no-cache-dir git+https://github.com/rwth-iat/basyx-python-sdk@feature/http_api
 
 COPY ./app /app
-
-COPY ./nginx-body-buffer-size.conf /etc/nginx/conf.d/body-buffer-size.conf
+COPY ./nginx /etc/nginx/conf.d
