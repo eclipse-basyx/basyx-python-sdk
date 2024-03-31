@@ -21,6 +21,7 @@ from lxml import etree  # type: ignore
 import werkzeug.exceptions
 import werkzeug.routing
 import werkzeug.urls
+import werkzeug.utils
 from werkzeug.exceptions import BadRequest, Conflict, NotFound, UnprocessableEntity
 from werkzeug.routing import MapAdapter, Rule, Submount
 from werkzeug.wrappers import Request, Response
@@ -402,6 +403,12 @@ class WSGIApp:
                             Rule("/", methods=["POST"], endpoint=self.post_aas_submodel_refs),
                             Rule("/<identifier:submodel_id>/", methods=["DELETE"],
                                  endpoint=self.delete_aas_submodel_refs_specific)
+                        ]),
+                        Submount("/submodels/<identifier:submodel_id>", [
+                            Rule("/", methods=["PUT"], endpoint=self.put_aas_submodel_refs_submodel),
+                            Rule("/", methods=["DELETE"], endpoint=self.delete_aas_submodel_refs_submodel),
+                            Rule("/", endpoint=self.aas_submodel_refs_redirect),
+                            Rule("/<path:path>/", endpoint=self.aas_submodel_refs_redirect)
                         ])
                     ])
                 ]),
@@ -672,6 +679,49 @@ class WSGIApp:
         aas.submodel.remove(self._get_submodel_reference(aas, url_args["submodel_id"]))
         aas.commit()
         return response_t()
+
+    def put_aas_submodel_refs_submodel(self, request: Request, url_args: Dict, **_kwargs) -> Response:
+        response_t = get_response_type(request)
+        aas = self._get_obj_ts(url_args["aas_id"], model.AssetAdministrationShell)
+        aas.update()
+        sm_ref = self._get_submodel_reference(aas, url_args["submodel_id"])
+        submodel = self._resolve_reference(sm_ref)
+        new_submodel = HTTPApiDecoder.request_body(request, model.Submodel, is_stripped_request(request))
+        # determine whether the id changed in advance, in case something goes wrong while updating the submodel
+        id_changed: bool = submodel.id != new_submodel.id
+        # TODO: https://github.com/eclipse-basyx/basyx-python-sdk/issues/216
+        submodel.update_from(new_submodel)
+        submodel.commit()
+        if id_changed:
+            aas.submodel.remove(sm_ref)
+            aas.submodel.add(model.ModelReference.from_referable(submodel))
+            aas.commit()
+        return response_t()
+
+    def delete_aas_submodel_refs_submodel(self, request: Request, url_args: Dict, **_kwargs) -> Response:
+        response_t = get_response_type(request)
+        aas = self._get_obj_ts(url_args["aas_id"], model.AssetAdministrationShell)
+        aas.update()
+        sm_ref = self._get_submodel_reference(aas, url_args["submodel_id"])
+        submodel = self._resolve_reference(sm_ref)
+        self.object_store.remove(submodel)
+        aas.submodel.remove(sm_ref)
+        aas.commit()
+        return response_t()
+
+    def aas_submodel_refs_redirect(self, request: Request, url_args: Dict, map_adapter: MapAdapter) -> Response:
+        aas = self._get_obj_ts(url_args["aas_id"], model.AssetAdministrationShell)
+        aas.update()
+        # the following makes sure the reference exists
+        self._get_submodel_reference(aas, url_args["submodel_id"])
+        redirect_url = map_adapter.build(self.get_submodel, {
+            "submodel_id": url_args["submodel_id"]
+        }, force_external=True)
+        if "path" in url_args:
+            redirect_url += url_args["path"] + "/"
+        if request.query_string:
+            redirect_url += "?" + request.query_string.decode("ascii")
+        return werkzeug.utils.redirect(redirect_url, 307)
 
     # ------ SUBMODEL REPO ROUTES -------
     def get_submodel_all(self, request: Request, url_args: Dict, **_kwargs) -> Response:
