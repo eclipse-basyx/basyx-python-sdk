@@ -293,6 +293,8 @@ class HTTPApiDecoder:
                 constructor = decoder._construct_specific_asset_id  # type: ignore[assignment]
             elif expect_type is model.Reference:
                 constructor = decoder._construct_reference   # type: ignore[assignment]
+            elif expect_type is model.Qualifier:
+                constructor = decoder._construct_qualifier  # type: ignore[assignment]
 
             if constructor is not None:
                 # construct elements that aren't self-identified
@@ -446,30 +448,30 @@ class WSGIApp:
                                      endpoint=self.get_submodel_submodel_elements_id_short_path_metadata),
                                 Rule("/$reference/", methods=["GET"],
                                      endpoint=self.get_submodel_submodel_elements_id_short_path_reference),
-                                Submount("/constraints", [
+                                Submount("/qualifiers", [
                                     Rule("/", methods=["GET"],
-                                         endpoint=self.get_submodel_submodel_element_constraints),
+                                         endpoint=self.get_submodel_submodel_element_qualifiers),
                                     Rule("/", methods=["POST"],
-                                         endpoint=self.post_submodel_submodel_element_constraints),
-                                    Rule("/<path:qualifier_type>/", methods=["GET"],
-                                         endpoint=self.get_submodel_submodel_element_constraints),
-                                    Rule("/<path:qualifier_type>/", methods=["PUT"],
-                                         endpoint=self.put_submodel_submodel_element_constraints),
-                                    Rule("/<path:qualifier_type>/", methods=["DELETE"],
-                                         endpoint=self.delete_submodel_submodel_element_constraints),
+                                         endpoint=self.post_submodel_submodel_element_qualifiers),
+                                    Rule("/<identifier:qualifier_type>/", methods=["GET"],
+                                         endpoint=self.get_submodel_submodel_element_qualifiers),
+                                    Rule("/<identifier:qualifier_type>/", methods=["PUT"],
+                                         endpoint=self.put_submodel_submodel_element_qualifiers),
+                                    Rule("/<identifier:qualifier_type>/", methods=["DELETE"],
+                                         endpoint=self.delete_submodel_submodel_element_qualifiers),
                                 ])
                             ]),
                         ]),
-                        Submount("/constraints", [
-                            Rule("/", methods=["GET"], endpoint=self.get_submodel_submodel_element_constraints),
+                        Submount("/qualifiers", [
+                            Rule("/", methods=["GET"], endpoint=self.get_submodel_submodel_element_qualifiers),
                             Rule("/", methods=["POST"],
-                                 endpoint=self.post_submodel_submodel_element_constraints),
-                            Rule("/<path:qualifier_type>/", methods=["GET"],
-                                 endpoint=self.get_submodel_submodel_element_constraints),
-                            Rule("/<path:qualifier_type>/", methods=["PUT"],
-                                 endpoint=self.put_submodel_submodel_element_constraints),
-                            Rule("/<path:qualifier_type>/", methods=["DELETE"],
-                                 endpoint=self.delete_submodel_submodel_element_constraints),
+                                 endpoint=self.post_submodel_submodel_element_qualifiers),
+                            Rule("/<identifier:qualifier_type>/", methods=["GET"],
+                                 endpoint=self.get_submodel_submodel_element_qualifiers),
+                            Rule("/<identifier:qualifier_type>/", methods=["PUT"],
+                                 endpoint=self.put_submodel_submodel_element_qualifiers),
+                            Rule("/<identifier:qualifier_type>/", methods=["DELETE"],
+                                 endpoint=self.delete_submodel_submodel_element_qualifiers),
                         ])
                     ])
                 ])
@@ -539,6 +541,13 @@ class WSGIApp:
             return op(arg)
         except KeyError as e:
             raise NotFound(f"Submodel element with id_short {arg} not found in {namespace!r}") from e
+
+    @classmethod
+    def _qualifiable_qualifier_op(cls, qualifiable: model.Qualifiable, op: Callable[[str], T], arg: str) -> T:
+        try:
+            return op(arg)
+        except KeyError as e:
+            raise NotFound(f"Qualifier with type {arg!r} not found in {qualifiable!r}") from e
 
     @classmethod
     def _get_submodel_reference(cls, aas: model.AssetAdministrationShell, submodel_id: model.NameType) \
@@ -874,7 +883,7 @@ class WSGIApp:
         self._namespace_submodel_element_op(parent, parent.remove_referable, id_short_path[-1])
         return response_t()
 
-    def get_submodel_submodel_element_constraints(self, request: Request, url_args: Dict, **_kwargs) \
+    def get_submodel_submodel_element_qualifiers(self, request: Request, url_args: Dict, **_kwargs) \
             -> Response:
         response_t = get_response_type(request)
         submodel = self._get_submodel(url_args)
@@ -882,12 +891,9 @@ class WSGIApp:
         qualifier_type = url_args.get("qualifier_type")
         if qualifier_type is None:
             return response_t(list(sm_or_se.qualifier))
-        try:
-            return response_t(sm_or_se.get_qualifier_by_type(qualifier_type))
-        except KeyError:
-            raise NotFound(f"No constraint with type {qualifier_type} found in {sm_or_se}")
+        return response_t(self._qualifiable_qualifier_op(sm_or_se, sm_or_se.get_qualifier_by_type, qualifier_type))
 
-    def post_submodel_submodel_element_constraints(self, request: Request, url_args: Dict, map_adapter: MapAdapter) \
+    def post_submodel_submodel_element_qualifiers(self, request: Request, url_args: Dict, map_adapter: MapAdapter) \
             -> Response:
         response_t = get_response_type(request)
         submodel_identifier = url_args["submodel_id"]
@@ -899,14 +905,14 @@ class WSGIApp:
             raise Conflict(f"Qualifier with type {qualifier.type} already exists!")
         sm_or_se.qualifier.add(qualifier)
         sm_or_se.commit()
-        created_resource_url = map_adapter.build(self.get_submodel_submodel_element_constraints, {
+        created_resource_url = map_adapter.build(self.get_submodel_submodel_element_qualifiers, {
             "submodel_id": submodel_identifier,
             "id_shorts": id_shorts if len(id_shorts) != 0 else None,
             "qualifier_type": qualifier.type
         }, force_external=True)
         return response_t(qualifier, status=201, headers={"Location": created_resource_url})
 
-    def put_submodel_submodel_element_constraints(self, request: Request, url_args: Dict, map_adapter: MapAdapter) \
+    def put_submodel_submodel_element_qualifiers(self, request: Request, url_args: Dict, map_adapter: MapAdapter) \
             -> Response:
         response_t = get_response_type(request)
         submodel_identifier = url_args["submodel_id"]
@@ -915,21 +921,15 @@ class WSGIApp:
         sm_or_se = self._get_submodel_or_nested_submodel_element(submodel, id_shorts)
         new_qualifier = HTTPApiDecoder.request_body(request, model.Qualifier, is_stripped_request(request))
         qualifier_type = url_args["qualifier_type"]
-        try:
-            qualifier = sm_or_se.get_qualifier_by_type(qualifier_type)
-        except KeyError:
-            raise NotFound(f"No constraint with type {qualifier_type} found in {sm_or_se}")
-        if type(qualifier) is not type(new_qualifier):
-            raise UnprocessableEntity(f"Type of new qualifier {new_qualifier} doesn't not match "
-                                      f"the current submodel element {qualifier}")
+        qualifier = self._qualifiable_qualifier_op(sm_or_se, sm_or_se.get_qualifier_by_type, qualifier_type)
         qualifier_type_changed = qualifier_type != new_qualifier.type
         if qualifier_type_changed and sm_or_se.qualifier.contains_id("type", new_qualifier.type):
-            raise Conflict(f"A qualifier of type {new_qualifier.type} already exists for {sm_or_se}")
+            raise Conflict(f"A qualifier of type {new_qualifier.type!r} already exists for {sm_or_se!r}")
         sm_or_se.remove_qualifier_by_type(qualifier.type)
         sm_or_se.qualifier.add(new_qualifier)
         sm_or_se.commit()
         if qualifier_type_changed:
-            created_resource_url = map_adapter.build(self.get_submodel_submodel_element_constraints, {
+            created_resource_url = map_adapter.build(self.get_submodel_submodel_element_qualifiers, {
                 "submodel_id": submodel_identifier,
                 "id_shorts": id_shorts if len(id_shorts) != 0 else None,
                 "qualifier_type": new_qualifier.type
@@ -937,17 +937,14 @@ class WSGIApp:
             return response_t(new_qualifier, status=201, headers={"Location": created_resource_url})
         return response_t(new_qualifier)
 
-    def delete_submodel_submodel_element_constraints(self, request: Request, url_args: Dict, **_kwargs) \
+    def delete_submodel_submodel_element_qualifiers(self, request: Request, url_args: Dict, **_kwargs) \
             -> Response:
         response_t = get_response_type(request)
         submodel = self._get_submodel(url_args)
         id_shorts: List[str] = url_args.get("id_shorts", [])
         sm_or_se = self._get_submodel_or_nested_submodel_element(submodel, id_shorts)
         qualifier_type = url_args["qualifier_type"]
-        try:
-            sm_or_se.remove_qualifier_by_type(qualifier_type)
-        except KeyError:
-            raise NotFound(f"No constraint with type {qualifier_type} found in {sm_or_se}")
+        self._qualifiable_qualifier_op(sm_or_se, sm_or_se.remove_qualifier_by_type, qualifier_type)
         sm_or_se.commit()
         return response_t()
 
