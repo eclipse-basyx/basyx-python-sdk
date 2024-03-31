@@ -359,7 +359,7 @@ class HTTPApiDecoder:
         return cls.xml(request.get_data(), expect_type, stripped)
 
 
-class IdentifierConverter(werkzeug.routing.UnicodeConverter):
+class Base64URLConverter(werkzeug.routing.UnicodeConverter):
 
     def to_url(self, value: model.Identifier) -> str:
         return super().to_url(base64url_encode(value))
@@ -394,7 +394,7 @@ class WSGIApp:
                 Submount("/shells", [
                     Rule("/", methods=["GET"], endpoint=self.get_aas_all),
                     Rule("/", methods=["POST"], endpoint=self.post_aas),
-                    Submount("/<identifier:aas_id>", [
+                    Submount("/<base64url:aas_id>", [
                         Rule("/", methods=["GET"], endpoint=self.get_aas),
                         Rule("/", methods=["PUT"], endpoint=self.put_aas),
                         Rule("/", methods=["DELETE"], endpoint=self.delete_aas),
@@ -405,10 +405,10 @@ class WSGIApp:
                         Submount("/submodel-refs", [
                             Rule("/", methods=["GET"], endpoint=self.get_aas_submodel_refs),
                             Rule("/", methods=["POST"], endpoint=self.post_aas_submodel_refs),
-                            Rule("/<identifier:submodel_id>/", methods=["DELETE"],
+                            Rule("/<base64url:submodel_id>/", methods=["DELETE"],
                                  endpoint=self.delete_aas_submodel_refs_specific)
                         ]),
-                        Submount("/submodels/<identifier:submodel_id>", [
+                        Submount("/submodels/<base64url:submodel_id>", [
                             Rule("/", methods=["PUT"], endpoint=self.put_aas_submodel_refs_submodel),
                             Rule("/", methods=["DELETE"], endpoint=self.delete_aas_submodel_refs_submodel),
                             Rule("/", endpoint=self.aas_submodel_refs_redirect),
@@ -421,7 +421,7 @@ class WSGIApp:
                     Rule("/", methods=["POST"], endpoint=self.post_submodel),
                     Rule("/$metadata/", methods=["GET"], endpoint=self.get_submodel_all_metadata),
                     Rule("/$reference/", methods=["GET"], endpoint=self.get_submodel_all_reference),
-                    Submount("/<identifier:submodel_id>", [
+                    Submount("/<base64url:submodel_id>", [
                         Rule("/", methods=["GET"], endpoint=self.get_submodel),
                         Rule("/", methods=["PUT"], endpoint=self.put_submodel),
                         Rule("/", methods=["DELETE"], endpoint=self.delete_submodel),
@@ -453,11 +453,11 @@ class WSGIApp:
                                          endpoint=self.get_submodel_submodel_element_qualifiers),
                                     Rule("/", methods=["POST"],
                                          endpoint=self.post_submodel_submodel_element_qualifiers),
-                                    Rule("/<identifier:qualifier_type>/", methods=["GET"],
+                                    Rule("/<base64url:qualifier_type>/", methods=["GET"],
                                          endpoint=self.get_submodel_submodel_element_qualifiers),
-                                    Rule("/<identifier:qualifier_type>/", methods=["PUT"],
+                                    Rule("/<base64url:qualifier_type>/", methods=["PUT"],
                                          endpoint=self.put_submodel_submodel_element_qualifiers),
-                                    Rule("/<identifier:qualifier_type>/", methods=["DELETE"],
+                                    Rule("/<base64url:qualifier_type>/", methods=["DELETE"],
                                          endpoint=self.delete_submodel_submodel_element_qualifiers),
                                 ])
                             ]),
@@ -466,18 +466,18 @@ class WSGIApp:
                             Rule("/", methods=["GET"], endpoint=self.get_submodel_submodel_element_qualifiers),
                             Rule("/", methods=["POST"],
                                  endpoint=self.post_submodel_submodel_element_qualifiers),
-                            Rule("/<identifier:qualifier_type>/", methods=["GET"],
+                            Rule("/<base64url:qualifier_type>/", methods=["GET"],
                                  endpoint=self.get_submodel_submodel_element_qualifiers),
-                            Rule("/<identifier:qualifier_type>/", methods=["PUT"],
+                            Rule("/<base64url:qualifier_type>/", methods=["PUT"],
                                  endpoint=self.put_submodel_submodel_element_qualifiers),
-                            Rule("/<identifier:qualifier_type>/", methods=["DELETE"],
+                            Rule("/<base64url:qualifier_type>/", methods=["DELETE"],
                                  endpoint=self.delete_submodel_submodel_element_qualifiers),
                         ])
                     ])
                 ])
             ])
         ], converters={
-            "identifier": IdentifierConverter,
+            "base64url": Base64URLConverter,
             "id_short_path": IdShortPathConverter
         })
 
