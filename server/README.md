@@ -1,6 +1,6 @@
 # Eclipse BaSyx Python SDK - HTTP Server
 
-This repository contains a Dockerfile to spin up an exemplary DotAAS HTTP/REST server with ease.
+This repository contains a Dockerfile to spin up an exemplary HTTP/REST server following the [Specification of the AAS Part 2 API](https://industrialdigitaltwin.org/content-hub/aasspecifications/idta_01002-3-0_application_programming_interfaces) with ease.
 The server currently implements the following interfaces:
 
 - [Asset Administration Shell Repository Service][4]
