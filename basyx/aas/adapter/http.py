@@ -605,15 +605,32 @@ class WSGIApp:
     # ------ AAS REPO ROUTES -------
     def get_aas_all(self, request: Request, url_args: Dict, **_kwargs) -> Response:
         response_t = get_response_type(request)
-        aas: Iterator[model.AssetAdministrationShell] = self._get_all_obj_of_type(model.AssetAdministrationShell)
+        aas_iterable: Iterator[model.AssetAdministrationShell] = self._get_all_obj_of_type(
+            model.AssetAdministrationShell)
+
+        # Filter by 'idShort' if provided in the request
         id_short = request.args.get("idShort")
         if id_short is not None:
-            aas = filter(lambda shell: shell.id_short == id_short, aas)
+            aas_iterable = filter(lambda shell: shell.id_short == id_short, aas_iterable)
+
+        # Filtering by base64url encoded SpecificAssetIds if provided
         asset_ids = request.args.get("assetIds")
         if asset_ids is not None:
+            # Decode and instantiate SpecificAssetIds
             spec_asset_ids = HTTPApiDecoder.base64urljson_list(asset_ids, model.SpecificAssetId, False, False)
-            # TODO: it's currently unclear how to filter with these SpecificAssetIds
-        return response_t(list(aas))
+            # Filter AAS based on these SpecificAssetIds
+            aas_iterable = filter(lambda shell: any(
+                asset_id_matches(spec_asset_id, shell.asset_information.specific_asset_ids)
+                for spec_asset_id in spec_asset_ids), aas_iterable)
+
+        return response_t(list(aas_iterable))
+
+    def asset_id_matches(spec_asset_id, specific_asset_ids):
+        """Checks if a specific asset ID matches any within a list."""
+        return any(
+            spec_asset_id.name == asset_id['name'] and spec_asset_id.value == asset_id['value']
+            for asset_id in specific_asset_ids
+        )
 
     def post_aas(self, request: Request, url_args: Dict, map_adapter: MapAdapter) -> Response:
         response_t = get_response_type(request)
