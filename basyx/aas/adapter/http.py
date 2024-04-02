@@ -624,7 +624,8 @@ class WSGIApp:
         asset_ids = request.args.getlist("assetIds")
         if asset_ids is not None:
             # Decode and instantiate SpecificAssetIds
-            spec_asset_ids = map(lambda asset_id: HTTPApiDecoder.base64urljson(asset_id, model.SpecificAssetId, False), asset_ids)
+            spec_asset_ids = map(lambda asset_id: HTTPApiDecoder.base64urljson(asset_id, model.SpecificAssetId,
+                                                                               False), asset_ids)
             # Filter AAS based on these SpecificAssetIds
             aas_iterable = filter(lambda shell: all(
                 asset_id_matches(spec_asset_id, shell.asset_information.specific_asset_id)
