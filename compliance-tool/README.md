@@ -1,5 +1,5 @@
 # AAS Compliance Tool
-An AAS compliance checker based on the Eclipse BaSyx Python SDK for testing xml and json files.
+An AAS compliance checker based on the [Eclipse BaSyx Python SDK](https://github.com/eclipse-basyx/basyx-python-sdk) for testing XML and JSON files.
 Following functionalities are supported:
 
 * create an xml or json file compliant to the official schema containing example Asset Administration Shell elements
