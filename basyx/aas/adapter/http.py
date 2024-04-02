@@ -604,6 +604,13 @@ class WSGIApp:
 
     # ------ AAS REPO ROUTES -------
     def get_aas_all(self, request: Request, url_args: Dict, **_kwargs) -> Response:
+        def asset_id_matches(spec_asset_id, specific_asset_ids):
+            """Checks if a specific asset ID matches any within a list."""
+            return any(
+                spec_asset_id == asset_id
+                for asset_id in specific_asset_ids
+            )
+
         response_t = get_response_type(request)
         aas_iterable: Iterator[model.AssetAdministrationShell] = self._get_all_obj_of_type(
             model.AssetAdministrationShell)
@@ -614,23 +621,16 @@ class WSGIApp:
             aas_iterable = filter(lambda shell: shell.id_short == id_short, aas_iterable)
 
         # Filtering by base64url encoded SpecificAssetIds if provided
-        asset_ids = request.args.get("assetIds")
+        asset_ids = request.args.getlist("assetIds")
         if asset_ids is not None:
             # Decode and instantiate SpecificAssetIds
-            spec_asset_ids = HTTPApiDecoder.base64urljson_list(asset_ids, model.SpecificAssetId, False, False)
+            spec_asset_ids = map(lambda asset_id: HTTPApiDecoder.base64urljson(asset_id, model.SpecificAssetId, False), asset_ids)
             # Filter AAS based on these SpecificAssetIds
-            aas_iterable = filter(lambda shell: any(
-                asset_id_matches(spec_asset_id, shell.asset_information.specific_asset_ids)
+            aas_iterable = filter(lambda shell: all(
+                asset_id_matches(spec_asset_id, shell.asset_information.specific_asset_id)
                 for spec_asset_id in spec_asset_ids), aas_iterable)
 
         return response_t(list(aas_iterable))
-
-    def asset_id_matches(spec_asset_id, specific_asset_ids):
-        """Checks if a specific asset ID matches any within a list."""
-        return any(
-            spec_asset_id.name == asset_id['name'] and spec_asset_id.value == asset_id['value']
-            for asset_id in specific_asset_ids
-        )
 
     def post_aas(self, request: Request, url_args: Dict, map_adapter: MapAdapter) -> Response:
         response_t = get_response_type(request)
