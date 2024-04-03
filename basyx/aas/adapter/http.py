@@ -445,6 +445,14 @@ class WSGIApp:
                                      endpoint=self.get_submodel_submodel_elements_id_short_path_metadata),
                                 Rule("/$reference/", methods=["GET"],
                                      endpoint=self.get_submodel_submodel_elements_id_short_path_reference),
+                                Submount("/attachment", [
+                                    Rule("/", methods=["GET"],
+                                         endpoint=self.get_submodel_submodel_element_attachment),
+                                    Rule("/", methods=["PUT"],
+                                         endpoint=self.put_submodel_submodel_element_attachment),
+                                    Rule("/", methods=["DELETE"],
+                                         endpoint=self.delete_submodel_submodel_element_attachment),
+                                ]),
                                 Submount("/qualifiers", [
                                     Rule("/", methods=["GET"],
                                          endpoint=self.get_submodel_submodel_element_qualifiers),
@@ -874,6 +882,45 @@ class WSGIApp:
         )
         self._namespace_submodel_element_op(parent, parent.remove_referable, id_short_path[-1])
         return response_t()
+
+    def get_submodel_submodel_element_attachment(self, request: Request, url_args: Dict, **_kwargs) \
+            -> Response:
+        submodel_element = self._get_submodel_submodel_elements_id_short_path(url_args)
+        if isinstance(submodel_element, model.Blob):
+            return Response(submodel_element.value, content_type=submodel_element.content_type)
+        elif isinstance(submodel_element, model.File):
+            try:
+                with open(submodel_element.value, 'rb') as file:
+                    file_content = file.read()
+                return Response(file_content, content_type=submodel_element.content_type)
+            except FileNotFoundError:
+                return Response("File not found", status=404)
+            except Exception as e:
+                return Response("Internal server error", status=500)
+        return Response("Unsupported submodel element type", status=400)
+
+    def put_submodel_submodel_element_attachment(self, request: Request, url_args: Dict, **_kwargs) -> Response:
+        submodel_element = self._get_submodel_submodel_elements_id_short_path(url_args)
+        if 'file' in request.files:
+            file_storage: FileStorage = request.files['file']
+            if isinstance(submodel_element, model.Blob):
+                submodel_element.value = file_storage.read()
+            submodel_element.commit()
+            return Response("File uploaded successfully", status=200)
+        elif 'path' in request.form:
+            if isinstance(submodel_element, model.File):
+                submodel_element.value = request.form['path']
+            submodel_element.commit()
+            return Response("Path uploaded successfully", status=200)
+        else:
+            return Response("No file or path provided", status=400)
+
+    def delete_submodel_submodel_element_attachment(self, request: Request, url_args: Dict, **_kwargs) \
+            -> Response:
+        submodel_element = self._get_submodel_submodel_elements_id_short_path(url_args)
+        submodel_element.value = None
+        submodel_element.commit()
+        return Response("File content deleted successfully", status=200)
 
     def get_submodel_submodel_element_qualifiers(self, request: Request, url_args: Dict, **_kwargs) \
             -> Response:
