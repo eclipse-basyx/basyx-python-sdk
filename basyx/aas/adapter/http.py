@@ -34,9 +34,6 @@ from .json import AASToJsonEncoder, StrictAASFromJsonDecoder, StrictStrippedAASF
 from typing import Callable, Dict, Iterable, Iterator, List, Optional, Type, TypeVar, Union
 
 
-# TODO: support the path/reference/etc. parameter
-
-
 @enum.unique
 class MessageType(enum.Enum):
     UNDEFINED = enum.auto()
@@ -649,13 +646,11 @@ class WSGIApp:
 
     # --------- AAS ROUTES ---------
     def get_aas(self, request: Request, url_args: Dict, **_kwargs) -> Response:
-        # TODO: support content parameter
         response_t = get_response_type(request)
         aas = self._get_shell(url_args)
         return response_t(aas, stripped=is_stripped_request(request))
 
     def put_aas(self, request: Request, url_args: Dict, **_kwargs) -> Response:
-        # TODO: support content parameter
         response_t = get_response_type(request)
         aas = self._get_shell(url_args)
         aas.update_from(HTTPApiDecoder.request_body(request, model.AssetAdministrationShell,
@@ -799,22 +794,16 @@ class WSGIApp:
         return response_t()
 
     def get_submodel_submodel_elements(self, request: Request, url_args: Dict, **_kwargs) -> Response:
-        # TODO: the parentPath parameter is unnecessary for this route and should be removed from the spec
-        # TODO: support content, extent, semanticId parameters
         response_t = get_response_type(request)
         submodel = self._get_submodel(url_args)
         return response_t(list(submodel.submodel_element), stripped=is_stripped_request(request))
 
     def get_submodel_submodel_elements_metadata(self, request: Request, url_args: Dict, **_kwargs) -> Response:
-        # TODO: the parentPath parameter is unnecessary for this route and should be removed from the spec
-        # TODO: support content, extent, semanticId parameters
         response_t = get_response_type(request)
         submodel = self._get_submodel(url_args)
         return response_t(list(submodel.submodel_element), stripped=True)
 
     def get_submodel_submodel_elements_reference(self, request: Request, url_args: Dict, **_kwargs) -> Response:
-        # TODO: the parentPath parameter is unnecessary for this route and should be removed from the spec
-        # TODO: support content, extent, semanticId parameters
         response_t = get_response_type(request)
         submodel = self._get_submodel(url_args)
         references: list[model.ModelReference] = [model.ModelReference.from_referable(element) for element in
