@@ -391,10 +391,12 @@ class WSGIApp:
                 Submount("/shells", [
                     Rule("/", methods=["GET"], endpoint=self.get_aas_all),
                     Rule("/", methods=["POST"], endpoint=self.post_aas),
+                    Rule("/$reference/", methods=["GET"], endpoint=self.get_aas_all_reference),
                     Submount("/<base64url:aas_id>", [
                         Rule("/", methods=["GET"], endpoint=self.get_aas),
                         Rule("/", methods=["PUT"], endpoint=self.put_aas),
                         Rule("/", methods=["DELETE"], endpoint=self.delete_aas),
+                        Rule("/$reference/", methods=["GET"], endpoint=self.get_aas_reference),
                         Submount("/asset-information", [
                             Rule("/", methods=["GET"], endpoint=self.get_aas_asset_information),
                             Rule("/", methods=["PUT"], endpoint=self.put_aas_asset_information),
@@ -639,16 +641,24 @@ class WSGIApp:
         }, force_external=True)
         return response_t(aas, status=201, headers={"Location": created_resource_url})
 
-    def delete_aas(self, request: Request, url_args: Dict, **_kwargs) -> Response:
+    def get_aas_all_reference(self, request: Request, url_args: Dict, **_kwargs) -> Response:
         response_t = get_response_type(request)
-        self.object_store.remove(self._get_shell(url_args))
-        return response_t()
+        aashells = self._get_shells(request)
+        references: list[model.ModelReference] = [model.ModelReference.from_referable(aas)
+                                                  for aas in aashells]
+        return response_t(references)
 
     # --------- AAS ROUTES ---------
     def get_aas(self, request: Request, url_args: Dict, **_kwargs) -> Response:
         response_t = get_response_type(request)
         aas = self._get_shell(url_args)
-        return response_t(aas, stripped=is_stripped_request(request))
+        return response_t(aas)
+
+    def get_aas_reference(self, request: Request, url_args: Dict, **_kwargs) -> Response:
+        response_t = get_response_type(request)
+        aas = self._get_shell(url_args)
+        reference = model.ModelReference.from_referable(aas)
+        return response_t(reference)
 
     def put_aas(self, request: Request, url_args: Dict, **_kwargs) -> Response:
         response_t = get_response_type(request)
@@ -656,6 +666,11 @@ class WSGIApp:
         aas.update_from(HTTPApiDecoder.request_body(request, model.AssetAdministrationShell,
                                                     is_stripped_request(request)))
         aas.commit()
+        return response_t()
+
+    def delete_aas(self, request: Request, url_args: Dict, **_kwargs) -> Response:
+        response_t = get_response_type(request)
+        self.object_store.remove(self._get_shell(url_args))
         return response_t()
 
     def get_aas_asset_information(self, request: Request, url_args: Dict, **_kwargs) -> Response:
