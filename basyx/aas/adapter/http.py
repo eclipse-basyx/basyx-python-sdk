@@ -25,6 +25,7 @@ import werkzeug.utils
 from werkzeug.exceptions import BadRequest, Conflict, NotFound, UnprocessableEntity
 from werkzeug.routing import MapAdapter, Rule, Submount
 from werkzeug.wrappers import Request, Response
+from werkzeug.datastructures import FileStorage
 
 from basyx.aas import model
 from ._generic import XML_NS_MAP
@@ -447,6 +448,14 @@ class WSGIApp:
                                      endpoint=self.get_submodel_submodel_elements_id_short_path_metadata),
                                 Rule("/$reference/", methods=["GET"],
                                      endpoint=self.get_submodel_submodel_elements_id_short_path_reference),
+                                Submount("/attachment", [
+                                    Rule("/", methods=["GET"],
+                                         endpoint=self.get_submodel_submodel_element_attachment),
+                                    Rule("/", methods=["PUT"],
+                                         endpoint=self.put_submodel_submodel_element_attachment),
+                                    Rule("/", methods=["DELETE"],
+                                         endpoint=self.delete_submodel_submodel_element_attachment),
+                                ]),
                                 Submount("/qualifiers", [
                                     Rule("/", methods=["GET"],
                                          endpoint=self.get_submodel_submodel_element_qualifiers),
@@ -888,6 +897,35 @@ class WSGIApp:
             id_short_path[-1]
         )
         self._namespace_submodel_element_op(parent, parent.remove_referable, id_short_path[-1])
+        return response_t()
+
+    def get_submodel_submodel_element_attachment(self, request: Request, url_args: Dict, **_kwargs) \
+            -> Response:
+        submodel_element = self._get_submodel_submodel_elements_id_short_path(url_args)
+        if not isinstance(submodel_element, model.Blob):
+            raise BadRequest(f"{submodel_element!r} is not a blob, no file content to download!")
+        return Response(submodel_element.value, content_type=submodel_element.content_type)
+
+    def put_submodel_submodel_element_attachment(self, request: Request, url_args: Dict, **_kwargs) -> Response:
+        response_t = get_response_type(request)
+        submodel_element = self._get_submodel_submodel_elements_id_short_path(url_args)
+        file_storage: Optional[FileStorage] = request.files.get('file')
+        if file_storage is None:
+            raise BadRequest(f"Missing file to upload")
+        if not isinstance(submodel_element, model.Blob):
+            raise BadRequest(f"{submodel_element!r} is not a blob, no file content to update!")
+        submodel_element.value = file_storage.read()
+        submodel_element.commit()
+        return response_t()
+
+    def delete_submodel_submodel_element_attachment(self, request: Request, url_args: Dict, **_kwargs) \
+            -> Response:
+        response_t = get_response_type(request)
+        submodel_element = self._get_submodel_submodel_elements_id_short_path(url_args)
+        if not isinstance(submodel_element, model.Blob):
+            raise BadRequest(f"{submodel_element!r} is not a blob, no file content to delete!")
+        submodel_element.value = None
+        submodel_element.commit()
         return response_t()
 
     def get_submodel_submodel_element_qualifiers(self, request: Request, url_args: Dict, **_kwargs) \
