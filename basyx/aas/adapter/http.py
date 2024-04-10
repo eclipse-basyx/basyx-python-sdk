@@ -21,7 +21,6 @@ from lxml import etree  # type: ignore
 import werkzeug.exceptions
 import werkzeug.routing
 import werkzeug.urls
-import werkzeug.utils
 from werkzeug.exceptions import BadRequest, Conflict, NotFound, UnprocessableEntity
 from werkzeug.routing import MapAdapter, Rule, Submount
 from werkzeug.wrappers import Request, Response
@@ -293,8 +292,6 @@ class HTTPApiDecoder:
                 constructor = decoder._construct_specific_asset_id  # type: ignore[assignment]
             elif expect_type is model.Reference:
                 constructor = decoder._construct_reference   # type: ignore[assignment]
-            elif expect_type is model.Qualifier:
-                constructor = decoder._construct_qualifier  # type: ignore[assignment]
 
             if constructor is not None:
                 # construct elements that aren't self-identified
@@ -359,7 +356,7 @@ class HTTPApiDecoder:
         return cls.xml(request.get_data(), expect_type, stripped)
 
 
-class Base64URLConverter(werkzeug.routing.UnicodeConverter):
+class IdentifierConverter(werkzeug.routing.UnicodeConverter):
 
     def to_url(self, value: model.Identifier) -> str:
         return super().to_url(base64url_encode(value))
@@ -394,25 +391,17 @@ class WSGIApp:
                 Submount("/shells", [
                     Rule("/", methods=["GET"], endpoint=self.get_aas_all),
                     Rule("/", methods=["POST"], endpoint=self.post_aas),
-                    Submount("/<base64url:aas_id>", [
+                    Submount("/<identifier:aas_id>", [
                         Rule("/", methods=["GET"], endpoint=self.get_aas),
                         Rule("/", methods=["PUT"], endpoint=self.put_aas),
                         Rule("/", methods=["DELETE"], endpoint=self.delete_aas),
-                        Submount("/asset-information", [
-                            Rule("/", methods=["GET"], endpoint=self.get_aas_asset_information),
-                            Rule("/", methods=["PUT"], endpoint=self.put_aas_asset_information),
-                        ]),
+                        Rule("/asset-information", methods=["GET"], endpoint=self.get_aas_asset_information),
+                        Rule("/asset-information", methods=["PUT"], endpoint=self.put_aas_asset_information),
                         Submount("/submodel-refs", [
                             Rule("/", methods=["GET"], endpoint=self.get_aas_submodel_refs),
                             Rule("/", methods=["POST"], endpoint=self.post_aas_submodel_refs),
-                            Rule("/<base64url:submodel_id>/", methods=["DELETE"],
+                            Rule("/<identifier:submodel_id>/", methods=["DELETE"],
                                  endpoint=self.delete_aas_submodel_refs_specific)
-                        ]),
-                        Submount("/submodels/<base64url:submodel_id>", [
-                            Rule("/", methods=["PUT"], endpoint=self.put_aas_submodel_refs_submodel),
-                            Rule("/", methods=["DELETE"], endpoint=self.delete_aas_submodel_refs_submodel),
-                            Rule("/", endpoint=self.aas_submodel_refs_redirect),
-                            Rule("/<path:path>/", endpoint=self.aas_submodel_refs_redirect)
                         ])
                     ])
                 ]),
@@ -421,7 +410,7 @@ class WSGIApp:
                     Rule("/", methods=["POST"], endpoint=self.post_submodel),
                     Rule("/$metadata/", methods=["GET"], endpoint=self.get_submodel_all_metadata),
                     Rule("/$reference/", methods=["GET"], endpoint=self.get_submodel_all_reference),
-                    Submount("/<base64url:submodel_id>", [
+                    Submount("/<identifier:submodel_id>", [
                         Rule("/", methods=["GET"], endpoint=self.get_submodel),
                         Rule("/", methods=["PUT"], endpoint=self.put_submodel),
                         Rule("/", methods=["DELETE"], endpoint=self.delete_submodel),
@@ -448,36 +437,36 @@ class WSGIApp:
                                      endpoint=self.get_submodel_submodel_elements_id_short_path_metadata),
                                 Rule("/$reference/", methods=["GET"],
                                      endpoint=self.get_submodel_submodel_elements_id_short_path_reference),
-                                Submount("/qualifiers", [
+                                Submount("/constraints", [
                                     Rule("/", methods=["GET"],
-                                         endpoint=self.get_submodel_submodel_element_qualifiers),
+                                         endpoint=self.get_submodel_submodel_element_constraints),
                                     Rule("/", methods=["POST"],
-                                         endpoint=self.post_submodel_submodel_element_qualifiers),
-                                    Rule("/<base64url:qualifier_type>/", methods=["GET"],
-                                         endpoint=self.get_submodel_submodel_element_qualifiers),
-                                    Rule("/<base64url:qualifier_type>/", methods=["PUT"],
-                                         endpoint=self.put_submodel_submodel_element_qualifiers),
-                                    Rule("/<base64url:qualifier_type>/", methods=["DELETE"],
-                                         endpoint=self.delete_submodel_submodel_element_qualifiers),
+                                         endpoint=self.post_submodel_submodel_element_constraints),
+                                    Rule("/<path:qualifier_type>/", methods=["GET"],
+                                         endpoint=self.get_submodel_submodel_element_constraints),
+                                    Rule("/<path:qualifier_type>/", methods=["PUT"],
+                                         endpoint=self.put_submodel_submodel_element_constraints),
+                                    Rule("/<path:qualifier_type>/", methods=["DELETE"],
+                                         endpoint=self.delete_submodel_submodel_element_constraints),
                                 ])
                             ]),
                         ]),
-                        Submount("/qualifiers", [
-                            Rule("/", methods=["GET"], endpoint=self.get_submodel_submodel_element_qualifiers),
+                        Submount("/constraints", [
+                            Rule("/", methods=["GET"], endpoint=self.get_submodel_submodel_element_constraints),
                             Rule("/", methods=["POST"],
-                                 endpoint=self.post_submodel_submodel_element_qualifiers),
-                            Rule("/<base64url:qualifier_type>/", methods=["GET"],
-                                 endpoint=self.get_submodel_submodel_element_qualifiers),
-                            Rule("/<base64url:qualifier_type>/", methods=["PUT"],
-                                 endpoint=self.put_submodel_submodel_element_qualifiers),
-                            Rule("/<base64url:qualifier_type>/", methods=["DELETE"],
-                                 endpoint=self.delete_submodel_submodel_element_qualifiers),
+                                 endpoint=self.post_submodel_submodel_element_constraints),
+                            Rule("/<path:qualifier_type>/", methods=["GET"],
+                                 endpoint=self.get_submodel_submodel_element_constraints),
+                            Rule("/<path:qualifier_type>/", methods=["PUT"],
+                                 endpoint=self.put_submodel_submodel_element_constraints),
+                            Rule("/<path:qualifier_type>/", methods=["DELETE"],
+                                 endpoint=self.delete_submodel_submodel_element_constraints),
                         ])
                     ])
                 ])
             ])
         ], converters={
-            "base64url": Base64URLConverter,
+            "identifier": IdentifierConverter,
             "id_short_path": IdShortPathConverter
         })
 
@@ -543,17 +532,9 @@ class WSGIApp:
             raise NotFound(f"Submodel element with id_short {arg} not found in {namespace!r}") from e
 
     @classmethod
-    def _qualifiable_qualifier_op(cls, qualifiable: model.Qualifiable, op: Callable[[str], T], arg: str) -> T:
-        try:
-            return op(arg)
-        except KeyError as e:
-            raise NotFound(f"Qualifier with type {arg!r} not found in {qualifiable!r}") from e
-
-    @classmethod
     def _get_submodel_reference(cls, aas: model.AssetAdministrationShell, submodel_id: model.NameType) \
             -> model.ModelReference[model.Submodel]:
-        # TODO: this is currently O(n), could be O(1) as aas.submodel, but keys would have to precisely match, as they
-        #  are hashed including their KeyType
+
         for ref in aas.submodel:
             if ref.get_identifier() == submodel_id:
                 return ref
@@ -604,13 +585,6 @@ class WSGIApp:
 
     # ------ AAS REPO ROUTES -------
     def get_aas_all(self, request: Request, url_args: Dict, **_kwargs) -> Response:
-        def asset_id_matches(spec_asset_id, specific_asset_ids):
-            """Checks if a specific asset ID matches any within a list."""
-            return any(
-                spec_asset_id == asset_id
-                for asset_id in specific_asset_ids
-            )
-
         response_t = get_response_type(request)
         aas_iterable: Iterator[model.AssetAdministrationShell] = self._get_all_obj_of_type(
             model.AssetAdministrationShell)
@@ -621,15 +595,20 @@ class WSGIApp:
             aas_iterable = filter(lambda shell: shell.id_short == id_short, aas_iterable)
 
         # Filtering by base64url encoded SpecificAssetIds if provided
-        asset_ids = request.args.getlist("assetIds")
+        asset_ids = request.args.get("assetIds")
         if asset_ids is not None:
             # Decode and instantiate SpecificAssetIds
-            spec_asset_ids = map(lambda asset_id: HTTPApiDecoder.base64urljson(asset_id, model.SpecificAssetId,
-                                                                               False), asset_ids)
-            # Filter AAS based on these SpecificAssetIds
-            aas_iterable = filter(lambda shell: all(
-                asset_id_matches(spec_asset_id, shell.asset_information.specific_asset_id)
-                for spec_asset_id in spec_asset_ids), aas_iterable)
+            spec_asset_ids = HTTPApiDecoder.base64urljson_list(asset_ids, model.SpecificAssetId, False, False)
+
+            # Filter AAS based on these SpecificAssetIds within their AssetInformation
+            def asset_id_matches(aas, spec_asset_ids):
+                # Assuming 'asset_information.specific_asset_ids' correctly refers to the list of specific asset IDs
+                return all(
+                    any(said.value == spec_asset_id.value for said in aas.asset_information.specific_asset_ids)
+                    for spec_asset_id in spec_asset_ids
+                )
+
+            aas_iterable = filter(lambda aas: asset_id_matches(aas, spec_asset_ids), aas_iterable)
 
         return response_t(list(aas_iterable))
 
@@ -708,49 +687,6 @@ class WSGIApp:
         aas.submodel.remove(self._get_submodel_reference(aas, url_args["submodel_id"]))
         aas.commit()
         return response_t()
-
-    def put_aas_submodel_refs_submodel(self, request: Request, url_args: Dict, **_kwargs) -> Response:
-        response_t = get_response_type(request)
-        aas = self._get_obj_ts(url_args["aas_id"], model.AssetAdministrationShell)
-        aas.update()
-        sm_ref = self._get_submodel_reference(aas, url_args["submodel_id"])
-        submodel = self._resolve_reference(sm_ref)
-        new_submodel = HTTPApiDecoder.request_body(request, model.Submodel, is_stripped_request(request))
-        # determine whether the id changed in advance, in case something goes wrong while updating the submodel
-        id_changed: bool = submodel.id != new_submodel.id
-        # TODO: https://github.com/eclipse-basyx/basyx-python-sdk/issues/216
-        submodel.update_from(new_submodel)
-        submodel.commit()
-        if id_changed:
-            aas.submodel.remove(sm_ref)
-            aas.submodel.add(model.ModelReference.from_referable(submodel))
-            aas.commit()
-        return response_t()
-
-    def delete_aas_submodel_refs_submodel(self, request: Request, url_args: Dict, **_kwargs) -> Response:
-        response_t = get_response_type(request)
-        aas = self._get_obj_ts(url_args["aas_id"], model.AssetAdministrationShell)
-        aas.update()
-        sm_ref = self._get_submodel_reference(aas, url_args["submodel_id"])
-        submodel = self._resolve_reference(sm_ref)
-        self.object_store.remove(submodel)
-        aas.submodel.remove(sm_ref)
-        aas.commit()
-        return response_t()
-
-    def aas_submodel_refs_redirect(self, request: Request, url_args: Dict, map_adapter: MapAdapter) -> Response:
-        aas = self._get_obj_ts(url_args["aas_id"], model.AssetAdministrationShell)
-        aas.update()
-        # the following makes sure the reference exists
-        self._get_submodel_reference(aas, url_args["submodel_id"])
-        redirect_url = map_adapter.build(self.get_submodel, {
-            "submodel_id": url_args["submodel_id"]
-        }, force_external=True)
-        if "path" in url_args:
-            redirect_url += url_args["path"] + "/"
-        if request.query_string:
-            redirect_url += "?" + request.query_string.decode("ascii")
-        return werkzeug.utils.redirect(redirect_url, 307)
 
     # ------ SUBMODEL REPO ROUTES -------
     def get_submodel_all(self, request: Request, url_args: Dict, **_kwargs) -> Response:
@@ -901,7 +837,7 @@ class WSGIApp:
         self._namespace_submodel_element_op(parent, parent.remove_referable, id_short_path[-1])
         return response_t()
 
-    def get_submodel_submodel_element_qualifiers(self, request: Request, url_args: Dict, **_kwargs) \
+    def get_submodel_submodel_element_constraints(self, request: Request, url_args: Dict, **_kwargs) \
             -> Response:
         response_t = get_response_type(request)
         submodel = self._get_submodel(url_args)
@@ -909,9 +845,12 @@ class WSGIApp:
         qualifier_type = url_args.get("qualifier_type")
         if qualifier_type is None:
             return response_t(list(sm_or_se.qualifier))
-        return response_t(self._qualifiable_qualifier_op(sm_or_se, sm_or_se.get_qualifier_by_type, qualifier_type))
+        try:
+            return response_t(sm_or_se.get_qualifier_by_type(qualifier_type))
+        except KeyError:
+            raise NotFound(f"No constraint with type {qualifier_type} found in {sm_or_se}")
 
-    def post_submodel_submodel_element_qualifiers(self, request: Request, url_args: Dict, map_adapter: MapAdapter) \
+    def post_submodel_submodel_element_constraints(self, request: Request, url_args: Dict, map_adapter: MapAdapter) \
             -> Response:
         response_t = get_response_type(request)
         submodel_identifier = url_args["submodel_id"]
@@ -923,14 +862,14 @@ class WSGIApp:
             raise Conflict(f"Qualifier with type {qualifier.type} already exists!")
         sm_or_se.qualifier.add(qualifier)
         sm_or_se.commit()
-        created_resource_url = map_adapter.build(self.get_submodel_submodel_element_qualifiers, {
+        created_resource_url = map_adapter.build(self.get_submodel_submodel_element_constraints, {
             "submodel_id": submodel_identifier,
             "id_shorts": id_shorts if len(id_shorts) != 0 else None,
             "qualifier_type": qualifier.type
         }, force_external=True)
         return response_t(qualifier, status=201, headers={"Location": created_resource_url})
 
-    def put_submodel_submodel_element_qualifiers(self, request: Request, url_args: Dict, map_adapter: MapAdapter) \
+    def put_submodel_submodel_element_constraints(self, request: Request, url_args: Dict, map_adapter: MapAdapter) \
             -> Response:
         response_t = get_response_type(request)
         submodel_identifier = url_args["submodel_id"]
@@ -939,15 +878,21 @@ class WSGIApp:
         sm_or_se = self._get_submodel_or_nested_submodel_element(submodel, id_shorts)
         new_qualifier = HTTPApiDecoder.request_body(request, model.Qualifier, is_stripped_request(request))
         qualifier_type = url_args["qualifier_type"]
-        qualifier = self._qualifiable_qualifier_op(sm_or_se, sm_or_se.get_qualifier_by_type, qualifier_type)
+        try:
+            qualifier = sm_or_se.get_qualifier_by_type(qualifier_type)
+        except KeyError:
+            raise NotFound(f"No constraint with type {qualifier_type} found in {sm_or_se}")
+        if type(qualifier) is not type(new_qualifier):
+            raise UnprocessableEntity(f"Type of new qualifier {new_qualifier} doesn't not match "
+                                      f"the current submodel element {qualifier}")
         qualifier_type_changed = qualifier_type != new_qualifier.type
         if qualifier_type_changed and sm_or_se.qualifier.contains_id("type", new_qualifier.type):
-            raise Conflict(f"A qualifier of type {new_qualifier.type!r} already exists for {sm_or_se!r}")
+            raise Conflict(f"A qualifier of type {new_qualifier.type} already exists for {sm_or_se}")
         sm_or_se.remove_qualifier_by_type(qualifier.type)
         sm_or_se.qualifier.add(new_qualifier)
         sm_or_se.commit()
         if qualifier_type_changed:
-            created_resource_url = map_adapter.build(self.get_submodel_submodel_element_qualifiers, {
+            created_resource_url = map_adapter.build(self.get_submodel_submodel_element_constraints, {
                 "submodel_id": submodel_identifier,
                 "id_shorts": id_shorts if len(id_shorts) != 0 else None,
                 "qualifier_type": new_qualifier.type
@@ -955,14 +900,17 @@ class WSGIApp:
             return response_t(new_qualifier, status=201, headers={"Location": created_resource_url})
         return response_t(new_qualifier)
 
-    def delete_submodel_submodel_element_qualifiers(self, request: Request, url_args: Dict, **_kwargs) \
+    def delete_submodel_submodel_element_constraints(self, request: Request, url_args: Dict, **_kwargs) \
             -> Response:
         response_t = get_response_type(request)
         submodel = self._get_submodel(url_args)
         id_shorts: List[str] = url_args.get("id_shorts", [])
         sm_or_se = self._get_submodel_or_nested_submodel_element(submodel, id_shorts)
         qualifier_type = url_args["qualifier_type"]
-        self._qualifiable_qualifier_op(sm_or_se, sm_or_se.remove_qualifier_by_type, qualifier_type)
+        try:
+            sm_or_se.remove_qualifier_by_type(qualifier_type)
+        except KeyError:
+            raise NotFound(f"No constraint with type {qualifier_type} found in {sm_or_se}")
         sm_or_se.commit()
         return response_t()
 
