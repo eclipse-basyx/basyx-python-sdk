@@ -1,7 +1,7 @@
 Eclipse BaSyx Python SDK
 ========================
 
-Copyright 2019-2022 the Eclipse BaSyx Authors.
+Copyright 2019-2024 the Eclipse BaSyx Authors.
 
 The Eclipse BaSyx Python SDK was started as a Python implementation of the Industry 4.0 Asset Administration Shell
 under the name of PyI40AAS at the Chair of Process Control Engineering, RWTH Aachen University
@@ -13,18 +13,3 @@ Declared Project License
 ------------------------
 The artifacts of this project are made available under the terms of the MIT License.
 Please refer to the LICENSE file for more information.
-
-
-Third-party Work in this Repository
------------------------------------
-This project includes XSD and JSON Schema files, developed at
-Plattform Industrie 4.0, Bundesministerium für Wirtschaft und Energie (https://www.plattform-i40.de)
-
-Published in "Details of the Asset Administration Shell – Part 1"
-at https://www.plattform-i40.de/PI40/Redaktion/DE/Downloads/Publikation/Details-of-the-Asset-Administration-Shell-Part1.html
-
-under the terms of the Creative Commons Attribution-NoDerivs 3.0 Germany License (CC BY-ND 3.0 DE)
-https://creativecommons.org/licenses/by-nd/3.0/de/deed.en
-
-These files are located at `basyx/aas/adapter/json/aasJSONSchema.json` and
-`basyx/aas/adapter/xml/{AAS,AAS_ABAC,IEC61360}.xsd`.
