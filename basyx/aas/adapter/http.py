@@ -32,7 +32,7 @@ from ._generic import XML_NS_MAP
 from .xml import XMLConstructables, read_aas_xml_element, xml_serialization, object_to_xml_element
 from .json import AASToJsonEncoder, StrictAASFromJsonDecoder, StrictStrippedAASFromJsonDecoder
 
-from typing import Callable, Dict, Iterable, Iterator, List, Optional, Type, TypeVar, Union, Tuple
+from typing import Callable, Dict, Iterable, Iterator, List, Optional, Type, TypeVar, Union, Tuple, Any
 
 
 @enum.unique
@@ -157,6 +157,7 @@ class XmlResponse(APIResponse):
         # Serialize the XML tree to a string
         xml_str = etree.tostring(root_elem, xml_declaration=True, encoding="utf-8")
         return xml_str
+
 
 class XmlResponseAlt(XmlResponse):
     def __init__(self, *args, content_type="text/xml", **kwargs):
@@ -611,15 +612,15 @@ class WSGIApp:
         # Apply pagination
         start_index = cursor
         end_index = cursor + limit
-        paginated_submodels = submodels[start_index:end_index]
+        paginated_submodels: Iterator[model.Submodel] = iter(submodels[start_index:end_index])
         id_short = request.args.get("idShort")
         if id_short is not None:
             paginated_submodels = filter(lambda sm: sm.id_short == id_short, paginated_submodels)
         semantic_id = request.args.get("semanticId")
         if semantic_id is not None:
-            spec_semantic_id = HTTPApiDecoder.base64urljson(semantic_id, model.Reference, False)
+            spec_semantic_id = HTTPApiDecoder.base64urljson(semantic_id, model.Reference, False)  # type: ignore
             paginated_submodels = filter(lambda sm: sm.semantic_id == spec_semantic_id, paginated_submodels)
-        return [paginated_submodels, end_index]
+        return (paginated_submodels, end_index)
 
     def _get_submodel(self, url_args: Dict) -> model.Submodel:
         return self._get_obj_ts(url_args["submodel_id"], model.Submodel)
@@ -634,7 +635,7 @@ class WSGIApp:
         start_index = cursor
         end_index = cursor + limit
         paginated_submodelelements = submodelelements[start_index:end_index]
-        return [paginated_submodelelements, end_index]
+        return (paginated_submodelelements, end_index)
 
     def _get_submodel_submodel_elements_id_short_path(self, url_args: Dict) \
             -> model.SubmodelElement:
