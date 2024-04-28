@@ -120,15 +120,12 @@ class JsonResponse(APIResponse):
 
     def serialize(self, obj: ResponseData, cursor: Optional[int], stripped: bool) -> str:
         if cursor is None:
-            return json.dumps(
-                obj,
-                cls=StrippedResultToJsonEncoder if stripped else ResultToJsonEncoder,
-                separators=(",", ":")
-            )
-        data: Dict[str, Any] = {
-            "paging_metadata": {"cursor": cursor},
-            "result": obj
-        }
+            data = obj
+        else:
+            data = {
+                "paging_metadata": {"cursor": cursor},
+                "result": obj
+            }
         return json.dumps(
             data,
             cls=StrippedResultToJsonEncoder if stripped else ResultToJsonEncoder,
@@ -141,26 +138,21 @@ class XmlResponse(APIResponse):
         super().__init__(*args, **kwargs, content_type=content_type)
 
     def serialize(self, obj: ResponseData, cursor: Optional[int], stripped: bool) -> str:
-        # Create the root XML element
         root_elem = etree.Element("response", nsmap=XML_NS_MAP)
         if cursor is not None:
-            # Add the cursor as an attribute of the root element
             root_elem.set("cursor", str(cursor))
-        # Serialize the obj to XML
         if isinstance(obj, Result):
-            obj_elem = result_to_xml(obj, **XML_NS_MAP)  # Assuming XML_NS_MAP is a namespace mapping
+            result_elem = result_to_xml(obj, **XML_NS_MAP)
+            root_elem.append(result_elem)
         elif isinstance(obj, list):
-            obj_elem = etree.Element("list", nsmap=XML_NS_MAP)
             for item in obj:
                 item_elem = object_to_xml_element(item)
-                obj_elem.append(item_elem)
+                root_elem.append(item_elem)
         else:
             obj_elem = object_to_xml_element(obj)
-        # Add the obj XML element to the root
-        root_elem.append(obj_elem)
-        # Clean up namespaces
+            for child in obj_elem:
+                root_elem.append(child)
         etree.cleanup_namespaces(root_elem)
-        # Serialize the XML tree to a string
         xml_str = etree.tostring(root_elem, xml_declaration=True, encoding="utf-8")
         return xml_str
 
@@ -590,7 +582,7 @@ class WSGIApp:
         raise NotFound(f"The AAS {aas!r} doesn't have a submodel reference to {submodel_id!r}!")
 
     @classmethod
-    def _get_slice(cls, request: Request, iterator: Iterator) -> Tuple[Iterator, int]:
+    def _get_slice(cls, request: Request, iterator: Iterator[T]) -> Tuple[Iterator[T], int]:
         limit = request.args.get('limit', type=int, default=10)
         cursor = request.args.get('cursor', type=int, default=0)
         start_index = cursor
@@ -628,7 +620,8 @@ class WSGIApp:
             submodels = filter(lambda sm: sm.id_short == id_short, submodels)
         semantic_id = request.args.get("semanticId")
         if semantic_id is not None:
-            spec_semantic_id = HTTPApiDecoder.base64urljson(semantic_id, model.Reference, False)  # type: ignore
+            spec_semantic_id = HTTPApiDecoder.base64urljson(
+                semantic_id, model.Reference, False)  # type: ignore[type-abstract]
             submodels = filter(lambda sm: sm.semantic_id == spec_semantic_id, submodels)
         paginated_submodels, end_index = self._get_slice(request, submodels)
         return paginated_submodels, end_index
@@ -637,10 +630,11 @@ class WSGIApp:
         return self._get_obj_ts(url_args["submodel_id"], model.Submodel)
 
     def _get_submodel_submodel_elements(self, request: Request, url_args: Dict) ->\
-            Tuple[List[model.SubmodelElement], int]:
+            Tuple[Iterator[model.SubmodelElement], int]:
         submodel = self._get_submodel(url_args)
-        paginated_submodelelements, end_index = self._get_slice(request, submodel.submodel_element)
-        return list(paginated_submodelelements), end_index
+        paginated_submodel_elements: Iterator[model.SubmodelElement]
+        paginated_submodel_elements, end_index = self._get_slice(request, submodel.submodel_element)
+        return paginated_submodel_elements, end_index
 
     def _get_submodel_submodel_elements_id_short_path(self, url_args: Dict) \
             -> model.SubmodelElement:
@@ -734,6 +728,7 @@ class WSGIApp:
     def get_aas_submodel_refs(self, request: Request, url_args: Dict, **_kwargs) -> Response:
         response_t = get_response_type(request)
         aas = self._get_shell(url_args)
+        submodel_refs: Iterator[model.ModelReference[model.Submodel]]
         submodel_refs, cursor = self._get_slice(request, aas.submodel)
         return response_t(list(submodel_refs), cursor=cursor)
 
@@ -857,19 +852,19 @@ class WSGIApp:
 
     def get_submodel_submodel_elements(self, request: Request, url_args: Dict, **_kwargs) -> Response:
         response_t = get_response_type(request)
-        submodelelements, cursor = self._get_submodel_submodel_elements(request, url_args)
-        return response_t(submodelelements, cursor=cursor, stripped=is_stripped_request(request))
+        submodel_elements, cursor = self._get_submodel_submodel_elements(request, url_args)
+        return response_t(list(submodel_elements), cursor=cursor, stripped=is_stripped_request(request))
 
     def get_submodel_submodel_elements_metadata(self, request: Request, url_args: Dict, **_kwargs) -> Response:
         response_t = get_response_type(request)
-        submodelelements, cursor = self._get_submodel_submodel_elements(request, url_args)
-        return response_t(submodelelements, cursor=cursor, stripped=True)
+        submodel_elements, cursor = self._get_submodel_submodel_elements(request, url_args)
+        return response_t(list(submodel_elements), cursor=cursor, stripped=True)
 
     def get_submodel_submodel_elements_reference(self, request: Request, url_args: Dict, **_kwargs) -> Response:
         response_t = get_response_type(request)
-        submodelelements, cursor = self._get_submodel_submodel_elements(request, url_args)
+        submodel_elements, cursor = self._get_submodel_submodel_elements(request, url_args)
         references: list[model.ModelReference] = [model.ModelReference.from_referable(element) for element in
-                                                  submodelelements]
+                                                  list(submodel_elements)]
         return response_t(references, cursor=cursor, stripped=is_stripped_request(request))
 
     def get_submodel_submodel_elements_id_short_path(self, request: Request, url_args: Dict, **_kwargs) -> Response:
