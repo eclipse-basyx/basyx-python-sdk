@@ -143,7 +143,8 @@ class XmlResponse(APIResponse):
             root_elem.set("cursor", str(cursor))
         if isinstance(obj, Result):
             result_elem = result_to_xml(obj, **XML_NS_MAP)
-            root_elem.append(result_elem)
+            for child in result_elem:
+                root_elem.append(child)
         elif isinstance(obj, list):
             for item in obj:
                 item_elem = object_to_xml_element(item)
@@ -585,6 +586,10 @@ class WSGIApp:
     def _get_slice(cls, request: Request, iterator: Iterator[T]) -> Tuple[Iterator[T], int]:
         limit = request.args.get('limit', type=int, default=10)
         cursor = request.args.get('cursor', type=int, default=0)
+        limit_str= request.args.get('limit', type=str, default="10")
+        cursor_str= request.args.get('cursor', type=str, default="0")
+        if not limit_str.isdigit() or not cursor_str.isdigit():
+            raise BadRequest("Cursor and limit must be positive integers!")
         start_index = cursor
         end_index = cursor + limit
         paginated_slice = itertools.islice(iterator, start_index, end_index)
