@@ -78,7 +78,6 @@ class LocalFileObjectStore(model.AbstractObjectStore):
 
         :param directory_path: Path to the local file backend (the path where you want to store your AAS JSON files)
         """
-        super().__init__()
         self.directory_path: str = directory_path.rstrip("/")
 
         # A dictionary of weak references to local replications of stored objects. Objects are kept in this cache as
