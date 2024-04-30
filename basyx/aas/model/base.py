@@ -2377,7 +2377,6 @@ class DataSpecificationIEC61360(DataSpecificationContent):
                  value: Optional[ValueTypeIEC61360] = None,
                  level_types: Iterable[IEC61360LevelType] = ()):
 
-        super().__init__()
         self.preferred_name: PreferredNameTypeIEC61360 = preferred_name
         self.short_name: Optional[ShortNameTypeIEC61360] = short_name
         self.data_type: Optional[DataTypeIEC61360] = data_type
