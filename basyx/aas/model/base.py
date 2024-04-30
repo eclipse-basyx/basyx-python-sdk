@@ -867,7 +867,6 @@ class Formula(Constraint):
         """
         TODO: Add instruction what to do after construction
         """
-        super().__init__()
         self.depends_on: Set[Reference] = set() if depends_on is None else depends_on
 
 
@@ -894,7 +893,6 @@ class Qualifier(Constraint, HasSemantics):
         """
         TODO: Add instruction what to do after construction
         """
-        super().__init__()
         self.type: QualifierType = type_
         self.value_type: Type[datatypes.AnyXSDType] = value_type
         self._value: Optional[ValueDataType] = datatypes.trivial_cast(value, value_type) if value is not None else None
