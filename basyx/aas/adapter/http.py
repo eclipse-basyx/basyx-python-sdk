@@ -584,11 +584,13 @@ class WSGIApp:
 
     @classmethod
     def _get_slice(cls, request: Request, iterator: Iterator[T]) -> Tuple[Iterator[T], int]:
-        limit = request.args.get('limit', type=int, default=10)
-        cursor = request.args.get('cursor', type=int, default=0)
-        limit_str= request.args.get('limit', type=str, default="10")
-        cursor_str= request.args.get('cursor', type=str, default="0")
-        if not limit_str.isdigit() or not cursor_str.isdigit():
+        limit = request.args.get('limit', default="10")
+        cursor = request.args.get('cursor', default="0")
+        try:
+            limit, cursor = int(limit), int(cursor)
+            if limit < 0 or cursor < 0:
+                raise ValueError
+        except ValueError:
             raise BadRequest("Cursor and limit must be positive integers!")
         start_index = cursor
         end_index = cursor + limit
