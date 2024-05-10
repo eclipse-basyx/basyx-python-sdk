@@ -82,7 +82,6 @@ class DictObjectStore(AbstractObjectStore[_IT], Generic[_IT]):
     :class:`~aas.model.base.Identifier` → :class:`~aas.model.base.Identifiable`
     """
     def __init__(self, objects: Iterable[_IT] = ()) -> None:
-        super().__init__()
         self._backend: Dict[Identifier, _IT] = {}
         for x in objects:
             self.add(x)
