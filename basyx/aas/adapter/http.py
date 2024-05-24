@@ -402,6 +402,12 @@ class WSGIApp:
         self.object_store: model.AbstractObjectStore = object_store
         self.url_map = werkzeug.routing.Map([
             Submount("/api/v3.0", [
+                Submount("/serialization", [
+                    Rule("/", methods=["GET"], endpoint=self.not_implemented)
+                ]),
+                Submount("/description", [
+                    Rule("/", methods=["GET"], endpoint=self.not_implemented)
+                ]),
                 Submount("/shells", [
                     Rule("/", methods=["GET"], endpoint=self.get_aas_all),
                     Rule("/", methods=["POST"], endpoint=self.post_aas),
@@ -414,6 +420,11 @@ class WSGIApp:
                         Submount("/asset-information", [
                             Rule("/", methods=["GET"], endpoint=self.get_aas_asset_information),
                             Rule("/", methods=["PUT"], endpoint=self.put_aas_asset_information),
+                            Submount("/thumbnail", [
+                                Rule("/", methods=["GET"], endpoint=self.not_implemented),
+                                Rule("/", methods=["PUT"], endpoint=self.not_implemented),
+                                Rule("/", methods=["DELETE"], endpoint=self.not_implemented)
+                            ])
                         ]),
                         Submount("/submodel-refs", [
                             Rule("/", methods=["GET"], endpoint=self.get_aas_submodel_refs),
@@ -434,12 +445,19 @@ class WSGIApp:
                     Rule("/", methods=["POST"], endpoint=self.post_submodel),
                     Rule("/$metadata/", methods=["GET"], endpoint=self.get_submodel_all_metadata),
                     Rule("/$reference/", methods=["GET"], endpoint=self.get_submodel_all_reference),
+                    Rule("/$value/", methods=["GET"], endpoint=self.not_implemented),
+                    Rule("/$path/", methods=["GET"], endpoint=self.not_implemented),
                     Submount("/<base64url:submodel_id>", [
                         Rule("/", methods=["GET"], endpoint=self.get_submodel),
                         Rule("/", methods=["PUT"], endpoint=self.put_submodel),
                         Rule("/", methods=["DELETE"], endpoint=self.delete_submodel),
+                        Rule("/", methods=["PATCH"], endpoint=self.not_implemented),
                         Rule("/$metadata/", methods=["GET"], endpoint=self.get_submodels_metadata),
+                        Rule("/$metadata/", methods=["PATCH"], endpoint=self.not_implemented),
+                        Rule("/$value/", methods=["GET"], endpoint=self.not_implemented),
+                        Rule("/$value/", methods=["PATCH"], endpoint=self.not_implemented),
                         Rule("/$reference/", methods=["GET"], endpoint=self.get_submodels_reference),
+                        Rule("/$path/", methods=["GET"], endpoint=self.not_implemented),
                         Submount("/submodel-elements", [
                             Rule("/", methods=["GET"], endpoint=self.get_submodel_submodel_elements),
                             Rule("/", methods=["POST"],
@@ -448,6 +466,8 @@ class WSGIApp:
                                  endpoint=self.get_submodel_submodel_elements_metadata),
                             Rule("/$reference/", methods=["GET"],
                                  endpoint=self.get_submodel_submodel_elements_reference),
+                            Rule("/$value/", methods=["GET"], endpoint=self.not_implemented),
+                            Rule("/$path/", methods=["GET"], endpoint=self.not_implemented),
                             Submount("/<id_short_path:id_shorts>", [
                                 Rule("/", methods=["GET"],
                                      endpoint=self.get_submodel_submodel_elements_id_short_path),
@@ -457,17 +477,40 @@ class WSGIApp:
                                      endpoint=self.put_submodel_submodel_elements_id_short_path),
                                 Rule("/", methods=["DELETE"],
                                      endpoint=self.delete_submodel_submodel_elements_id_short_path),
+                                Rule("/", methods=["PATCH"], endpoint=self.not_implemented),
                                 Rule("/$metadata/", methods=["GET"],
                                      endpoint=self.get_submodel_submodel_elements_id_short_path_metadata),
+                                Rule("/$metadata/", methods=["PATCH"], endpoint=self.not_implemented),
                                 Rule("/$reference/", methods=["GET"],
                                      endpoint=self.get_submodel_submodel_elements_id_short_path_reference),
+                                Rule("/$value/", methods=["GET"], endpoint=self.not_implemented),
+                                Rule("/$value/", methods=["PATCH"], endpoint=self.not_implemented),
+                                Rule("/$path/", methods=["GET"], endpoint=self.not_implemented),
                                 Submount("/attachment", [
                                     Rule("/", methods=["GET"],
                                          endpoint=self.get_submodel_submodel_element_attachment),
                                     Rule("/", methods=["PUT"],
                                          endpoint=self.put_submodel_submodel_element_attachment),
                                     Rule("/", methods=["DELETE"],
-                                         endpoint=self.delete_submodel_submodel_element_attachment),
+                                         endpoint=self.delete_submodel_submodel_element_attachment)
+                                ]),
+                                Submount("/invoke", [
+                                    Rule("/", methods=["POST"], endpoint=self.not_implemented),
+                                    Rule("/$value/", methods=["POST"], endpoint=self.not_implemented)
+                                ]),
+                                Submount("/invoke-async", [
+                                    Rule("/", methods=["POST"], endpoint=self.not_implemented),
+                                    Rule("/$value/", methods=["POST"], endpoint=self.not_implemented)
+                                ]),
+                                Submount("/operation-status", [
+                                    Rule("/<base64url:handleId>/", methods=["GET"],
+                                         endpoint=self.not_implemented)
+                                ]),
+                                Submount("/operation-results", [
+                                    Rule("/<base64url:handleId>/", methods=["GET"],
+                                         endpoint=self.not_implemented),
+                                    Rule("/<base64url:handleId>/$value/", methods=["GET"],
+                                         endpoint=self.not_implemented)
                                 ]),
                                 Submount("/qualifiers", [
                                     Rule("/", methods=["GET"],
@@ -479,9 +522,9 @@ class WSGIApp:
                                     Rule("/<base64url:qualifier_type>/", methods=["PUT"],
                                          endpoint=self.put_submodel_submodel_element_qualifiers),
                                     Rule("/<base64url:qualifier_type>/", methods=["DELETE"],
-                                         endpoint=self.delete_submodel_submodel_element_qualifiers),
+                                         endpoint=self.delete_submodel_submodel_element_qualifiers)
                                 ])
-                            ]),
+                            ])
                         ]),
                         Submount("/qualifiers", [
                             Rule("/", methods=["GET"], endpoint=self.get_submodel_submodel_element_qualifiers),
@@ -492,7 +535,7 @@ class WSGIApp:
                             Rule("/<base64url:qualifier_type>/", methods=["PUT"],
                                  endpoint=self.put_submodel_submodel_element_qualifiers),
                             Rule("/<base64url:qualifier_type>/", methods=["DELETE"],
-                                 endpoint=self.delete_submodel_submodel_element_qualifiers),
+                                 endpoint=self.delete_submodel_submodel_element_qualifiers)
                         ])
                     ])
                 ])
@@ -584,10 +627,10 @@ class WSGIApp:
 
     @classmethod
     def _get_slice(cls, request: Request, iterator: Iterator[T]) -> Tuple[Iterator[T], int]:
-        limit = request.args.get('limit', default="10")
-        cursor = request.args.get('cursor', default="0")
+        limit_str = request.args.get('limit', default="10")
+        cursor_str = request.args.get('cursor', default="0")
         try:
-            limit, cursor = int(limit), int(cursor)
+            limit, cursor = int(limit_str), int(cursor_str)
             if limit < 0 or cursor < 0:
                 raise ValueError
         except ValueError:
@@ -668,6 +711,11 @@ class WSGIApp:
                 return http_exception_to_response(e, get_response_type(request))
             except werkzeug.exceptions.NotAcceptable as e:
                 return e
+
+    # ------ all not implemented ROUTES -------
+    def not_implemented(self, request: Request, url_args: Dict, **_kwargs) -> Response:
+        raise werkzeug.exceptions.NotImplemented(f"This route is not implemented!")
+
 
     # ------ AAS REPO ROUTES -------
     def get_aas_all(self, request: Request, url_args: Dict, **_kwargs) -> Response:
