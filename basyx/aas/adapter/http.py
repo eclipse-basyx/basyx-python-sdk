@@ -716,7 +716,6 @@ class WSGIApp:
     def not_implemented(self, request: Request, url_args: Dict, **_kwargs) -> Response:
         raise werkzeug.exceptions.NotImplemented(f"This route is not implemented!")
 
-
     # ------ AAS REPO ROUTES -------
     def get_aas_all(self, request: Request, url_args: Dict, **_kwargs) -> Response:
         response_t = get_response_type(request)
