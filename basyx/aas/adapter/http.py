@@ -23,7 +23,7 @@ import werkzeug.exceptions
 import werkzeug.routing
 import werkzeug.urls
 import werkzeug.utils
-from werkzeug.exceptions import BadRequest, Conflict, NotFound, UnprocessableEntity, NotImplemented
+from werkzeug.exceptions import BadRequest, Conflict, NotFound, UnprocessableEntity
 from werkzeug.routing import MapAdapter, Rule, Submount
 from werkzeug.wrappers import Request, Response
 from werkzeug.datastructures import FileStorage
@@ -714,9 +714,8 @@ class WSGIApp:
 
     # ------ all not implemented ROUTES -------
     def not_implemented(self, request: Request, url_args: Dict, **_kwargs) -> Response:
-        response_t = get_response_type(request)
-        raise NotImplemented(f"This route is not implemented!")
-        return response_t()
+        raise werkzeug.exceptions.NotImplemented(f"This route is not implemented!")
+
 
     # ------ AAS REPO ROUTES -------
     def get_aas_all(self, request: Request, url_args: Dict, **_kwargs) -> Response:
