@@ -1,4 +1,4 @@
-# Copyright (c) 2022 the Eclipse BaSyx Authors
+# Copyright (c) 2023 the Eclipse BaSyx Authors
 #
 # This program and the accompanying materials are made available under the terms of the MIT License, available in
 # the LICENSE file of this project.
@@ -77,7 +77,6 @@ class LocalFileObjectStore(model.AbstractObjectStore):
 
         :param directory_path: Path to the local file backend (the path where you want to store your AAS JSON files)
         """
-        super().__init__()
         self.directory_path: str = directory_path.rstrip("/")
 
         # A dictionary of weak references to local replications of stored objects. Objects are kept in this cache as

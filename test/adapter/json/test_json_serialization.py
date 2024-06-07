@@ -1,21 +1,24 @@
-# Copyright (c) 2020 the Eclipse BaSyx Authors
+# Copyright (c) 2023 the Eclipse BaSyx Authors
 #
 # This program and the accompanying materials are made available under the terms of the MIT License, available in
 # the LICENSE file of this project.
 #
 # SPDX-License-Identifier: MIT
-
+import os
 import io
 import unittest
 import json
 
 from basyx.aas import model
-from basyx.aas.adapter.json import AASToJsonEncoder, StrippedAASToJsonEncoder, write_aas_json_file, JSON_SCHEMA_FILE
+from basyx.aas.adapter.json import AASToJsonEncoder, StrippedAASToJsonEncoder, write_aas_json_file
 from jsonschema import validate  # type: ignore
 from typing import Set, Union
 
 from basyx.aas.examples.data import example_aas_missing_attributes, example_aas, \
     example_aas_mandatory_attributes, example_submodel_template, create_example
+
+
+JSON_SCHEMA_FILE = os.path.join(os.path.dirname(__file__), '../schemas/aasJSONSchema.json')
 
 
 class JsonSerializationTest(unittest.TestCase):
@@ -45,6 +48,11 @@ class JsonSerializationTest(unittest.TestCase):
 
 
 class JsonSerializationSchemaTest(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        if not os.path.exists(JSON_SCHEMA_FILE):
+            raise unittest.SkipTest(f"JSON Schema does not exist at {JSON_SCHEMA_FILE}, skipping test")
+
     def test_random_object_serialization(self) -> None:
         aas_identifier = "AAS1"
         submodel_key = (model.Key(model.KeyTypes.SUBMODEL, "SM1"),)

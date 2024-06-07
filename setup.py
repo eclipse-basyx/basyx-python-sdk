@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright (c) 2019-2021 the Eclipse BaSyx Authors
+# Copyright (c) 2019-2024 the Eclipse BaSyx Authors
 #
 # This program and the accompanying materials are made available under the terms of the MIT License, available in
 # the LICENSE file of this project.
@@ -25,8 +25,6 @@ setuptools.setup(
     zip_safe=False,
     package_data={
         "basyx": ["py.typed"],
-        "basyx.aas.adapter.json": ["aasJSONSchema.json"],
-        "basyx.aas.adapter.xml": ["AAS.xsd"],
         "basyx.aas.examples.data": ["TestFile.pdf"],
     },
     classifiers=[

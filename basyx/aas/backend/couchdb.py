@@ -1,4 +1,4 @@
-# Copyright (c) 2020 the Eclipse BaSyx Authors
+# Copyright (c) 2023 the Eclipse BaSyx Authors
 #
 # This program and the accompanying materials are made available under the terms of the MIT License, available in
 # the LICENSE file of this project.
@@ -246,7 +246,6 @@ class CouchDBObjectStore(model.AbstractObjectStore):
         :param url: URL to the CouchDB
         :param database: Name of the Database inside the CouchDB
         """
-        super().__init__()
         self.url: str = url
         self.database_name: str = database
 

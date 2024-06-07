@@ -1,4 +1,4 @@
-# Copyright (c) 2020 the Eclipse BaSyx Authors
+# Copyright (c) 2023 the Eclipse BaSyx Authors
 #
 # This program and the accompanying materials are made available under the terms of the MIT License, available in
 # the LICENSE file of this project.
@@ -86,7 +86,6 @@ class DictObjectStore(AbstractObjectStore[_IT], Generic[_IT]):
     :class:`~basyx.aas.model.base.Identifier` → :class:`~basyx.aas.model.base.Identifiable`
     """
     def __init__(self, objects: Iterable[_IT] = ()) -> None:
-        super().__init__()
         self._backend: Dict[Identifier, _IT] = {}
         for x in objects:
             self.add(x)

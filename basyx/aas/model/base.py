@@ -1,4 +1,4 @@
-# Copyright (c) 2020 the Eclipse BaSyx Authors
+# Copyright (c) 2023 the Eclipse BaSyx Authors
 #
 # This program and the accompanying materials are made available under the terms of the MIT License, available in
 # the LICENSE file of this project.
@@ -2389,7 +2389,6 @@ class DataSpecificationIEC61360(DataSpecificationContent):
                  value: Optional[ValueTypeIEC61360] = None,
                  level_types: Iterable[IEC61360LevelType] = ()):
 
-        super().__init__()
         self.preferred_name: PreferredNameTypeIEC61360 = preferred_name
         self.short_name: Optional[ShortNameTypeIEC61360] = short_name
         self.data_type: Optional[DataTypeIEC61360] = data_type
