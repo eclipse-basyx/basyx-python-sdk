@@ -398,10 +398,10 @@ class IdShortPathConverter(werkzeug.routing.UnicodeConverter):
 
 
 class WSGIApp:
-    def __init__(self, object_store: model.AbstractObjectStore):
+    def __init__(self, object_store: model.AbstractObjectStore, base_path: str = "/api/v3.0"):
         self.object_store: model.AbstractObjectStore = object_store
         self.url_map = werkzeug.routing.Map([
-            Submount("/api/v3.0", [
+            Submount(base_path, [
                 Submount("/serialization", [
                     Rule("/", methods=["GET"], endpoint=self.not_implemented)
                 ]),
