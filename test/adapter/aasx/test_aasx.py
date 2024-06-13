@@ -54,6 +54,23 @@ class TestAASXUtils(unittest.TestCase):
         container.write_file("/TestFile.pdf", file_content)
         self.assertEqual(hashlib.sha1(file_content.getvalue()).hexdigest(), "78450a66f59d74c073bf6858db340090ea72a8b1")
 
+        # Add same file again with different content_type to test reference counting
+        with open(__file__, 'rb') as f:
+            duplicate_file = container.add_file("/TestFile.pdf", f, "image/jpeg")
+        self.assertIn(duplicate_file, container)
+
+        # Delete files
+        container.delete_file(new_name)
+        self.assertNotIn(new_name, container)
+        # File should still be accessible
+        container.write_file(duplicate_file, file_content)
+
+        container.delete_file(duplicate_file)
+        self.assertNotIn(duplicate_file, container)
+        # File should now not be accessible anymore
+        with self.assertRaises(KeyError):
+            container.write_file(duplicate_file, file_content)
+
 
 class AASXWriterTest(unittest.TestCase):
     def test_writing_reading_example_aas(self) -> None:
