@@ -29,6 +29,11 @@ Putting it all together, the container can be started via the following command:
 $ docker run -p 8080:80 -v ./storage:/storage basyx-python-sdk-http-server
 ```
 
+Since Windows uses backslashes instead of forward slashes in paths, you'll have to adjust the path to the storage directory there:
+```
+> docker run -p 8080:80 -v .\storage:/storage basyx-python-sdk-http-server
+```
+
 [1]: https://github.com/eclipse-basyx/basyx-python-sdk/pull/238
 [2]: https://basyx-python-sdk.readthedocs.io/en/latest/backend/local_file.html
 [3]: https://github.com/eclipse-basyx/basyx-python-sdk
