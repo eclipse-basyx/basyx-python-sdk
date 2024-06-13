@@ -1,6 +1,6 @@
 # Eclipse BaSyx Python SDK - HTTP Server
 
-This repository contains a Dockerfile to spin up an exemplary HTTP/REST server following the [Specification of the AAS Part 2 API](https://industrialdigitaltwin.org/content-hub/aasspecifications/idta_01002-3-0_application_programming_interfaces) with ease.
+This repository contains a Dockerfile to spin up an exemplary HTTP/REST server following the [Specification of the AAS Part 2 API][6] with ease.
 The server currently implements the following interfaces:
 
 - [Asset Administration Shell Repository Service][4]
@@ -39,3 +39,4 @@ Since Windows uses backslashes instead of forward slashes in paths, you'll have 
 [3]: https://github.com/eclipse-basyx/basyx-python-sdk
 [4]: https://app.swaggerhub.com/apis/Plattform_i40/AssetAdministrationShellRepositoryServiceSpecification/V3.0.1_SSP-001
 [5]: https://app.swaggerhub.com/apis/Plattform_i40/SubmodelRepositoryServiceSpecification/V3.0.1_SSP-001
+[6]: https://industrialdigitaltwin.org/content-hub/aasspecifications/idta_01002-3-0_application_programming_interfaces
