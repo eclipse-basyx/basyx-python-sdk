@@ -779,6 +779,13 @@ class AbstractSupplementaryFileContainer(metaclass=abc.ABCMeta):
         pass  # pragma: no cover
 
     @abc.abstractmethod
+    def delete_file(self, name: str) -> None:
+        """
+        Deletes a file from this SupplementaryFileContainer given its name.
+        """
+        pass  # pragma: no cover
+
+    @abc.abstractmethod
     def __contains__(self, item: str) -> bool:
         """
         Check if a file with the given name is stored in this SupplementaryFileContainer.
@@ -802,18 +809,23 @@ class DictSupplementaryFileContainer(AbstractSupplementaryFileContainer):
         self._store: Dict[bytes, bytes] = {}
         # Maps file names to (sha256, content_type)
         self._name_map: Dict[str, Tuple[bytes, str]] = {}
+        # Tracks the number of references to _store keys,
+        # i.e. the number of different filenames referring to the same file
+        self._store_refcount: Dict[bytes, int] = {}
 
     def add_file(self, name: str, file: IO[bytes], content_type: str) -> str:
         data = file.read()
         hash = hashlib.sha256(data).digest()
         if hash not in self._store:
             self._store[hash] = data
+            self._store_refcount[hash] = 0
         name_map_data = (hash, content_type)
         new_name = name
         i = 1
         while True:
             if new_name not in self._name_map:
                 self._name_map[new_name] = name_map_data
+                self._store_refcount[hash] += 1
                 return new_name
             elif self._name_map[new_name] == name_map_data:
                 return new_name
@@ -838,6 +850,16 @@ class DictSupplementaryFileContainer(AbstractSupplementaryFileContainer):
 
     def write_file(self, name: str, file: IO[bytes]) -> None:
         file.write(self._store[self._name_map[name][0]])
+
+    def delete_file(self, name: str) -> None:
+        # The number of different files with the same content are kept track of via _store_refcount.
+        # The contents are only deleted, once the refcount reaches zero.
+        hash: bytes = self._name_map[name][0]
+        self._store_refcount[hash] -= 1
+        if self._store_refcount[hash] == 0:
+            del self._store[hash]
+            del self._store_refcount[hash]
+        del self._name_map[name]
 
     def __contains__(self, item: object) -> bool:
         return item in self._name_map
