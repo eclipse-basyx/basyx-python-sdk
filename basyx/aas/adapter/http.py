@@ -32,6 +32,7 @@ from basyx.aas import model
 from ._generic import XML_NS_MAP
 from .xml import XMLConstructables, read_aas_xml_element, xml_serialization, object_to_xml_element
 from .json import AASToJsonEncoder, StrictAASFromJsonDecoder, StrictStrippedAASFromJsonDecoder
+from . import aasx
 
 from typing import Callable, Dict, Iterable, Iterator, List, Optional, Type, TypeVar, Union, Tuple, Any
 
@@ -398,8 +399,9 @@ class IdShortPathConverter(werkzeug.routing.UnicodeConverter):
 
 
 class WSGIApp:
-    def __init__(self, object_store: model.AbstractObjectStore):
+    def __init__(self, object_store: model.AbstractObjectStore, file_store: aasx.AbstractSupplementaryFileContainer):
         self.object_store: model.AbstractObjectStore = object_store
+        self.file_store: aasx.AbstractSupplementaryFileContainer = file_store
         self.url_map = werkzeug.routing.Map([
             Submount("/api/v3.0", [
                 Submount("/serialization", [
@@ -989,19 +991,55 @@ class WSGIApp:
     def get_submodel_submodel_element_attachment(self, request: Request, url_args: Dict, **_kwargs) \
             -> Response:
         submodel_element = self._get_submodel_submodel_elements_id_short_path(url_args)
-        if not isinstance(submodel_element, model.Blob):
-            raise BadRequest(f"{submodel_element!r} is not a blob, no file content to download!")
-        return Response(submodel_element.value, content_type=submodel_element.content_type)
+        if not isinstance(submodel_element, (model.Blob, model.File)):
+            raise BadRequest(f"{submodel_element!r} is not a Blob or File, no file content to download!")
+        if submodel_element.value is None:
+            raise NotFound(f"{submodel_element!r} has no attachment!")
+
+        value: bytes
+        if isinstance(submodel_element, model.Blob):
+            value = submodel_element.value
+        else:
+            if not submodel_element.value.startswith("/"):
+                raise BadRequest(f"{submodel_element!r} references an external file: {submodel_element.value}")
+            bytes_io = io.BytesIO()
+            try:
+                self.file_store.write_file(submodel_element.value, bytes_io)
+            except KeyError:
+                raise NotFound(f"No such file: {submodel_element.value}")
+            value = bytes_io.getvalue()
+
+        # Blob and File both have the content_type attribute
+        return Response(value, content_type=submodel_element.content_type)  # type: ignore[attr-defined]
 
     def put_submodel_submodel_element_attachment(self, request: Request, url_args: Dict, **_kwargs) -> Response:
         response_t = get_response_type(request)
         submodel_element = self._get_submodel_submodel_elements_id_short_path(url_args)
+
+        # spec allows PUT only for File, not for Blob
+        if not isinstance(submodel_element, model.File):
+            raise BadRequest(f"{submodel_element!r} is not a File, no file content to update!")
+
+        if submodel_element.value is not None:
+            raise Conflict(f"{submodel_element!r} already references a file!")
+
+        filename = request.form.get('fileName')
+        if filename is None:
+            raise BadRequest(f"No 'fileName' specified!")
+
+        if not filename.startswith("/"):
+            raise BadRequest(f"Given 'fileName' doesn't start with a slash (/): {filename}")
+
         file_storage: Optional[FileStorage] = request.files.get('file')
         if file_storage is None:
             raise BadRequest(f"Missing file to upload")
-        if not isinstance(submodel_element, model.Blob):
-            raise BadRequest(f"{submodel_element!r} is not a blob, no file content to update!")
-        submodel_element.value = file_storage.read()
+
+        if file_storage.mimetype != submodel_element.content_type:
+            raise werkzeug.exceptions.UnsupportedMediaType(
+                f"Request body is of type {file_storage.mimetype!r}, "
+                f"while {submodel_element!r} has content_type {submodel_element.content_type!r}!")
+
+        submodel_element.value = self.file_store.add_file(filename, file_storage.stream, submodel_element.content_type)
         submodel_element.commit()
         return response_t()
 
@@ -1009,9 +1047,23 @@ class WSGIApp:
             -> Response:
         response_t = get_response_type(request)
         submodel_element = self._get_submodel_submodel_elements_id_short_path(url_args)
-        if not isinstance(submodel_element, model.Blob):
-            raise BadRequest(f"{submodel_element!r} is not a blob, no file content to delete!")
-        submodel_element.value = None
+        if not isinstance(submodel_element, (model.Blob, model.File)):
+            raise BadRequest(f"{submodel_element!r} is not a Blob or File, no file content to delete!")
+
+        if submodel_element.value is None:
+            raise NotFound(f"{submodel_element!r} has no attachment!")
+
+        if isinstance(submodel_element, model.Blob):
+            submodel_element.value = None
+        else:
+            if not submodel_element.value.startswith("/"):
+                raise BadRequest(f"{submodel_element!r} references an external file: {submodel_element.value}")
+            try:
+                self.file_store.delete_file(submodel_element.value)
+            except KeyError:
+                pass
+            submodel_element.value = None
+
         submodel_element.commit()
         return response_t()
 
@@ -1084,4 +1136,5 @@ class WSGIApp:
 if __name__ == "__main__":
     from werkzeug.serving import run_simple
     from basyx.aas.examples.data.example_aas import create_full_example
-    run_simple("localhost", 8080, WSGIApp(create_full_example()), use_debugger=True, use_reloader=True)
+    run_simple("localhost", 8080, WSGIApp(create_full_example(), aasx.DictSupplementaryFileContainer()),
+               use_debugger=True, use_reloader=True)

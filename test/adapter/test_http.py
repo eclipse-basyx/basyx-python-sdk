@@ -33,6 +33,7 @@ import schemathesis
 import hypothesis.strategies
 
 from basyx.aas import model
+from basyx.aas.adapter.aasx import DictSupplementaryFileContainer
 from basyx.aas.adapter.http import WSGIApp
 from basyx.aas.examples.data.example_aas import create_full_example
 
@@ -82,10 +83,10 @@ for obj in create_full_example():
 
 # load aas and submodel api specs
 AAS_SCHEMA = schemathesis.from_path(pathlib.Path(__file__).parent / "http-api-oas-aas.yaml",
-                                    app=WSGIApp(create_full_example()))
+                                    app=WSGIApp(create_full_example(), DictSupplementaryFileContainer()))
 
 SUBMODEL_SCHEMA = schemathesis.from_path(pathlib.Path(__file__).parent / "http-api-oas-submodel.yaml",
-                                         app=WSGIApp(create_full_example()))
+                                         app=WSGIApp(create_full_example(), DictSupplementaryFileContainer()))
 
 
 class APIWorkflowAAS(AAS_SCHEMA.as_state_machine()):  # type: ignore
