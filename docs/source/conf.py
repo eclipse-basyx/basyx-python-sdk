@@ -13,7 +13,6 @@
 import os
 import sys
 import datetime
-from sphinx.ext import intersphinx
 
 
 sys.path.insert(0, os.path.abspath('../..'))
@@ -75,11 +74,6 @@ def on_missing_reference(app, env, node, contnode):
     #  see: https://github.com/rwth-iat/PyECMA376-2/issues/3
     if path[0] == "pyecma376_2":
         return contnode
-    # lxml uses _Element instead of Element and _ElementTree instead of ElementTree in its documentation,
-    # causing missing references if untreated.
-    if len(path) > 2 and path[0:2] == ["lxml", "etree"] and path[2] in {"Element", "ElementTree"}:
-        node["reftarget"] = ".".join(path[0:2] + ["_" + path[2]] + path[3:])
-        return intersphinx.resolve_reference_in_inventory(env, "lxml", node, contnode)
     return None
 
 
