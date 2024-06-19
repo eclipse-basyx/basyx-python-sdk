@@ -71,7 +71,8 @@ intersphinx_mapping = {
 
 def on_missing_reference(app, env, node, contnode):
     path = node["reftarget"].split(".")
-    # pyecma376_2 doesn't have a documentation we can link to, so suppress missing reference warnings.
+    # TODO: pyecma376_2 doesn't have a documentation we can link to, so suppress missing reference warnings.
+    #  see: https://github.com/rwth-iat/PyECMA376-2/issues/3
     if path[0] == "pyecma376_2":
         return contnode
     # lxml uses _Element instead of Element and _ElementTree instead of ElementTree in its documentation,
