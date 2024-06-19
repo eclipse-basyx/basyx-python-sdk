@@ -13,7 +13,7 @@ from basyx.aas import model
 from basyx.aas.adapter.xml import StrictAASFromXmlDecoder, XMLConstructables, read_aas_xml_file, \
     read_aas_xml_file_into, read_aas_xml_element
 from basyx.aas.adapter._generic import XML_NS_MAP
-from lxml import etree  # type: ignore
+from lxml import etree
 from typing import Iterable, Type, Union
 
 
@@ -434,7 +434,7 @@ class XmlDeserializationDerivingTest(unittest.TestCase):
 
         class EnhancedAASDecoder(StrictAASFromXmlDecoder):
             @classmethod
-            def construct_submodel(cls, element: etree.Element, object_class=EnhancedSubmodel, **kwargs) \
+            def construct_submodel(cls, element: etree._Element, object_class=EnhancedSubmodel, **kwargs) \
                     -> model.Submodel:
                 return super().construct_submodel(element, object_class=object_class, **kwargs)
 
