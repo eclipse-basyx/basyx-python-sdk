@@ -5,10 +5,6 @@
 #
 # SPDX-License-Identifier: MIT
 
-# TODO: remove this once the werkzeug type annotations have been fixed
-#  https://github.com/pallets/werkzeug/issues/2836
-# mypy: disable-error-code="arg-type"
-
 import abc
 import base64
 import binascii
@@ -18,7 +14,7 @@ import io
 import json
 import itertools
 
-from lxml import etree  # type: ignore
+from lxml import etree
 import werkzeug.exceptions
 import werkzeug.routing
 import werkzeug.urls
@@ -629,7 +625,7 @@ class WSGIApp:
         raise NotFound(f"The AAS {aas!r} doesn't have a submodel reference to {submodel_id!r}!")
 
     @classmethod
-    def _get_slice(cls, request: Request, iterator: Iterator[T]) -> Tuple[Iterator[T], int]:
+    def _get_slice(cls, request: Request, iterator: Iterable[T]) -> Tuple[Iterator[T], int]:
         limit_str = request.args.get('limit', default="10")
         cursor_str = request.args.get('cursor', default="0")
         try:
@@ -701,9 +697,7 @@ class WSGIApp:
             endpoint, values = map_adapter.match()
             if endpoint is None:
                 raise werkzeug.exceptions.NotImplemented("This route is not yet implemented.")
-            # TODO: remove this 'type: ignore' comment once the werkzeug type annotations have been fixed
-            #  https://github.com/pallets/werkzeug/issues/2836
-            return endpoint(request, values, map_adapter=map_adapter)  # type: ignore[operator]
+            return endpoint(request, values, map_adapter=map_adapter)
         # any raised error that leaves this function will cause a 500 internal server error
         # so catch raised http exceptions and return them
         except werkzeug.exceptions.NotAcceptable as e:
@@ -951,7 +945,8 @@ class WSGIApp:
             raise BadRequest(f"{parent!r} is not a namespace, can't add child submodel element!")
         # TODO: remove the following type: ignore comment when mypy supports abstract types for Type[T]
         # see https://github.com/python/mypy/issues/5374
-        new_submodel_element = HTTPApiDecoder.request_body(request, model.SubmodelElement,  # type: ignore
+        new_submodel_element = HTTPApiDecoder.request_body(request,
+                                                           model.SubmodelElement,  # type: ignore[type-abstract]
                                                            is_stripped_request(request))
         try:
             parent.add_referable(new_submodel_element)
@@ -971,7 +966,8 @@ class WSGIApp:
         submodel_element = self._get_submodel_submodel_elements_id_short_path(url_args)
         # TODO: remove the following type: ignore comment when mypy supports abstract types for Type[T]
         # see https://github.com/python/mypy/issues/5374
-        new_submodel_element = HTTPApiDecoder.request_body(request, model.SubmodelElement,  # type: ignore
+        new_submodel_element = HTTPApiDecoder.request_body(request,
+                                                           model.SubmodelElement,  # type: ignore[type-abstract]
                                                            is_stripped_request(request))
         submodel_element.update_from(new_submodel_element)
         submodel_element.commit()
