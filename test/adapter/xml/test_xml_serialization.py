@@ -8,7 +8,7 @@ import io
 import os
 import unittest
 
-from lxml import etree  # type: ignore
+from lxml import etree
 
 from basyx.aas import model
 from basyx.aas.adapter.xml import write_aas_xml_file, xml_serialization

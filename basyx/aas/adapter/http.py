@@ -5,10 +5,6 @@
 #
 # SPDX-License-Identifier: MIT
 
-# TODO: remove this once the werkzeug type annotations have been fixed
-#  https://github.com/pallets/werkzeug/issues/2836
-# mypy: disable-error-code="arg-type"
-
 import abc
 import base64
 import binascii
@@ -18,7 +14,7 @@ import io
 import json
 import itertools
 
-from lxml import etree  # type: ignore
+from lxml import etree
 import werkzeug.exceptions
 import werkzeug.routing
 import werkzeug.urls
@@ -156,7 +152,7 @@ class XmlResponse(APIResponse):
                 root_elem.append(child)
         etree.cleanup_namespaces(root_elem)
         xml_str = etree.tostring(root_elem, xml_declaration=True, encoding="utf-8")
-        return xml_str
+        return xml_str  # type: ignore[return-value]
 
 
 class XmlResponseAlt(XmlResponse):
@@ -164,7 +160,7 @@ class XmlResponseAlt(XmlResponse):
         super().__init__(*args, **kwargs, content_type=content_type)
 
 
-def result_to_xml(result: Result, **kwargs) -> etree.Element:
+def result_to_xml(result: Result, **kwargs) -> etree._Element:
     result_elem = etree.Element("result", **kwargs)
     success_elem = etree.Element("success")
     success_elem.text = xml_serialization.boolean_to_xml(result.success)
@@ -177,7 +173,7 @@ def result_to_xml(result: Result, **kwargs) -> etree.Element:
     return result_elem
 
 
-def message_to_xml(message: Message) -> etree.Element:
+def message_to_xml(message: Message) -> etree._Element:
     message_elem = etree.Element("message")
     message_type_elem = etree.Element("messageType")
     message_type_elem.text = str(message.message_type)
@@ -629,7 +625,7 @@ class WSGIApp:
         raise NotFound(f"The AAS {aas!r} doesn't have a submodel reference to {submodel_id!r}!")
 
     @classmethod
-    def _get_slice(cls, request: Request, iterator: Iterator[T]) -> Tuple[Iterator[T], int]:
+    def _get_slice(cls, request: Request, iterator: Iterable[T]) -> Tuple[Iterator[T], int]:
         limit_str = request.args.get('limit', default="10")
         cursor_str = request.args.get('cursor', default="0")
         try:
@@ -702,6 +698,7 @@ class WSGIApp:
             # TODO: remove this 'type: ignore' comment once the werkzeug type annotations have been fixed
             #  https://github.com/pallets/werkzeug/issues/2836
             return endpoint(request, values, map_adapter=map_adapter)  # type: ignore[operator]
+
         # any raised error that leaves this function will cause a 500 internal server error
         # so catch raised http exceptions and return them
         except werkzeug.exceptions.NotAcceptable as e:
@@ -949,7 +946,8 @@ class WSGIApp:
             raise BadRequest(f"{parent!r} is not a namespace, can't add child submodel element!")
         # TODO: remove the following type: ignore comment when mypy supports abstract types for Type[T]
         # see https://github.com/python/mypy/issues/5374
-        new_submodel_element = HTTPApiDecoder.request_body(request, model.SubmodelElement,  # type: ignore
+        new_submodel_element = HTTPApiDecoder.request_body(request,
+                                                           model.SubmodelElement,  # type: ignore[type-abstract]
                                                            is_stripped_request(request))
         try:
             parent.add_referable(new_submodel_element)
@@ -969,7 +967,8 @@ class WSGIApp:
         submodel_element = self._get_submodel_submodel_elements_id_short_path(url_args)
         # TODO: remove the following type: ignore comment when mypy supports abstract types for Type[T]
         # see https://github.com/python/mypy/issues/5374
-        new_submodel_element = HTTPApiDecoder.request_body(request, model.SubmodelElement,  # type: ignore
+        new_submodel_element = HTTPApiDecoder.request_body(request,
+                                                           model.SubmodelElement,  # type: ignore[type-abstract]
                                                            is_stripped_request(request))
         submodel_element.update_from(new_submodel_element)
         submodel_element.commit()
