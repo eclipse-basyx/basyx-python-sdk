@@ -156,7 +156,7 @@ class XmlResponse(APIResponse):
                 root_elem.append(child)
         etree.cleanup_namespaces(root_elem)
         xml_str = etree.tostring(root_elem, xml_declaration=True, encoding="utf-8")
-        return xml_str
+        return xml_str  # type: ignore[return-value]
 
 
 class XmlResponseAlt(XmlResponse):
@@ -164,7 +164,7 @@ class XmlResponseAlt(XmlResponse):
         super().__init__(*args, **kwargs, content_type=content_type)
 
 
-def result_to_xml(result: Result, **kwargs) -> etree.Element:
+def result_to_xml(result: Result, **kwargs) -> etree._Element:
     result_elem = etree.Element("result", **kwargs)
     success_elem = etree.Element("success")
     success_elem.text = xml_serialization.boolean_to_xml(result.success)
@@ -177,7 +177,7 @@ def result_to_xml(result: Result, **kwargs) -> etree.Element:
     return result_elem
 
 
-def message_to_xml(message: Message) -> etree.Element:
+def message_to_xml(message: Message) -> etree._Element:
     message_elem = etree.Element("message")
     message_type_elem = etree.Element("messageType")
     message_type_elem.text = str(message.message_type)
