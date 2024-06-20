@@ -695,9 +695,10 @@ class WSGIApp:
         map_adapter: MapAdapter = self.url_map.bind_to_environ(request.environ)
         try:
             endpoint, values = map_adapter.match()
-            if endpoint is None:
-                raise werkzeug.exceptions.NotImplemented("This route is not yet implemented.")
-            return endpoint(request, values, map_adapter=map_adapter)
+            # TODO: remove this 'type: ignore' comment once the werkzeug type annotations have been fixed
+            #  https://github.com/pallets/werkzeug/issues/2836
+            return endpoint(request, values, map_adapter=map_adapter)  # type: ignore[operator]
+
         # any raised error that leaves this function will cause a 500 internal server error
         # so catch raised http exceptions and return them
         except werkzeug.exceptions.NotAcceptable as e:
