@@ -8,9 +8,5 @@ setup(
         "basyx": ["py.typed"],
         "basyx.aas.examples.data": ["TestFile.pdf"],
     },
-    entry_points={
-        'console_scripts': [
-            "aas-compliance-check=basyx.aas.compliance_tool.cli:main"
-        ]
-    },
+
 )

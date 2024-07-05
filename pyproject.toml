@@ -4,10 +4,10 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "basyx-python-sdk"
-version = "0.1.0"  # Replace with your actual version
+version = "1.0.0"  # actual version
 description = "The Eclipse BaSyx Python SDK, an implementation of the Asset Administration Shell for Industry 4.0 systems"
 authors = [
-    {name = "The Eclipse BaSyx Authors", email = "example@example.com"}  # Replace with a real email
+    {name = "The Eclipse BaSyx Authors", email = "h.jannatabadi@iat.rwth-aachen.de"}  # actual authors
 ]
 readme = "README.md"
 license = {file = "LICENSE"}
@@ -17,19 +17,18 @@ classifiers = [
     "Operating System :: OS Independent",
     "Development Status :: 5 - Production/Stable",
 ]
-requires-python = ">=3.6"
+requires-python = ">=3.8"
 dependencies = [
-    "python-dateutil>=2.8,<3",
+    "jsonschema~=4.7",
     "lxml>=4.2,<5",
-    "urllib3>=1.26,<2.0",
+    "python-dateutil>=2.8,<3.0",
     "pyecma376-2>=0.2.4",
+    "urllib3>=1.26,<2.0",
+    "lxml-stubs~=0.5.1",
 ]
 
 [project.urls]
 Homepage = "https://github.com/eclipse-basyx/basyx-python-sdk"
-
-[project.scripts]
-aas-compliance-check = "basyx.aas.compliance_tool.cli:main"
 
 [tool.setuptools.packages.find]
 exclude = ["test", "test.*"]
