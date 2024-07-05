@@ -37,6 +37,7 @@ jobs:
     - name: Install Python dependencies
       run: |
         python -m pip install --upgrade pip
+        pip install .[dev]
         pip install coverage
         pip install -r requirements.txt
     - name: Setup test config and CouchDB database server

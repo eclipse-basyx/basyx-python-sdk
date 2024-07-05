@@ -5,3 +5,7 @@ types-python-dateutil
 pyecma376-2>=0.2.4
 urllib3>=1.26,<2.0
 lxml-stubs~=0.5.1
+
+jsonschema~=4.7
+types-python-dateutil
+lxml-stubs~=0.5.1
