@@ -401,139 +401,123 @@ class WSGIApp:
         self.file_store: aasx.AbstractSupplementaryFileContainer = file_store
         self.url_map = werkzeug.routing.Map([
             Submount(base_path, [
-                Submount("/serialization", [
-                    Rule("/", methods=["GET"], endpoint=self.not_implemented)
-                ]),
-                Submount("/description", [
-                    Rule("/", methods=["GET"], endpoint=self.not_implemented)
-                ]),
+                Rule("/serialization", methods=["GET"], endpoint=self.not_implemented),
+                Rule("/description", methods=["GET"], endpoint=self.not_implemented),
+                Rule("/shells", methods=["GET"], endpoint=self.get_aas_all),
+                Rule("/shells", methods=["POST"], endpoint=self.post_aas),
                 Submount("/shells", [
-                    Rule("/", methods=["GET"], endpoint=self.get_aas_all),
-                    Rule("/", methods=["POST"], endpoint=self.post_aas),
-                    Rule("/$reference/", methods=["GET"], endpoint=self.get_aas_all_reference),
+                    Rule("/$reference", methods=["GET"], endpoint=self.get_aas_all_reference),
+                    Rule("/<base64url:aas_id>", methods=["GET"], endpoint=self.get_aas),
+                    Rule("/<base64url:aas_id>", methods=["PUT"], endpoint=self.put_aas),
+                    Rule("/<base64url:aas_id>", methods=["DELETE"], endpoint=self.delete_aas),
                     Submount("/<base64url:aas_id>", [
-                        Rule("/", methods=["GET"], endpoint=self.get_aas),
-                        Rule("/", methods=["PUT"], endpoint=self.put_aas),
-                        Rule("/", methods=["DELETE"], endpoint=self.delete_aas),
-                        Rule("/$reference/", methods=["GET"], endpoint=self.get_aas_reference),
-                        Submount("/asset-information", [
-                            Rule("/", methods=["GET"], endpoint=self.get_aas_asset_information),
-                            Rule("/", methods=["PUT"], endpoint=self.put_aas_asset_information),
-                            Submount("/thumbnail", [
-                                Rule("/", methods=["GET"], endpoint=self.not_implemented),
-                                Rule("/", methods=["PUT"], endpoint=self.not_implemented),
-                                Rule("/", methods=["DELETE"], endpoint=self.not_implemented)
-                            ])
-                        ]),
-                        Submount("/submodel-refs", [
-                            Rule("/", methods=["GET"], endpoint=self.get_aas_submodel_refs),
-                            Rule("/", methods=["POST"], endpoint=self.post_aas_submodel_refs),
-                            Rule("/<base64url:submodel_id>/", methods=["DELETE"],
-                                 endpoint=self.delete_aas_submodel_refs_specific)
-                        ]),
-                        Submount("/submodels/<base64url:submodel_id>", [
-                            Rule("/", methods=["PUT"], endpoint=self.put_aas_submodel_refs_submodel),
-                            Rule("/", methods=["DELETE"], endpoint=self.delete_aas_submodel_refs_submodel),
-                            Rule("/", endpoint=self.aas_submodel_refs_redirect),
-                            Rule("/<path:path>/", endpoint=self.aas_submodel_refs_redirect)
+                        Rule("/$reference", methods=["GET"], endpoint=self.get_aas_reference),
+                        Rule("/asset-information", methods=["GET"], endpoint=self.get_aas_asset_information),
+                        Rule("/asset-information", methods=["PUT"], endpoint=self.put_aas_asset_information),
+                        Rule("/asset-information/thumbnail", methods=["GET", "PUT", "DELETE"],
+                             endpoint=self.not_implemented),
+                        Rule("/submodel-refs", methods=["GET"], endpoint=self.get_aas_submodel_refs),
+                        Rule("/submodel-refs", methods=["POST"], endpoint=self.post_aas_submodel_refs),
+                        Rule("/submodel-refs/<base64url:submodel_id>", methods=["DELETE"],
+                             endpoint=self.delete_aas_submodel_refs_specific),
+                        Submount("/submodels", [
+                            Rule("/<base64url:submodel_id>", methods=["PUT"],
+                                 endpoint=self.put_aas_submodel_refs_submodel),
+                            Rule("/<base64url:submodel_id>", methods=["DELETE"],
+                                 endpoint=self.delete_aas_submodel_refs_submodel),
+                            Rule("/<base64url:submodel_id>", endpoint=self.aas_submodel_refs_redirect),
+                            Rule("/<base64url:submodel_id>/<path:path>", endpoint=self.aas_submodel_refs_redirect)
                         ])
                     ])
                 ]),
+                Rule("/submodels", methods=["GET"], endpoint=self.get_submodel_all),
+                Rule("/submodels", methods=["POST"], endpoint=self.post_submodel),
                 Submount("/submodels", [
-                    Rule("/", methods=["GET"], endpoint=self.get_submodel_all),
-                    Rule("/", methods=["POST"], endpoint=self.post_submodel),
-                    Rule("/$metadata/", methods=["GET"], endpoint=self.get_submodel_all_metadata),
-                    Rule("/$reference/", methods=["GET"], endpoint=self.get_submodel_all_reference),
-                    Rule("/$value/", methods=["GET"], endpoint=self.not_implemented),
-                    Rule("/$path/", methods=["GET"], endpoint=self.not_implemented),
+                    Rule("/$metadata", methods=["GET"], endpoint=self.get_submodel_all_metadata),
+                    Rule("/$reference", methods=["GET"], endpoint=self.get_submodel_all_reference),
+                    Rule("/$value", methods=["GET"], endpoint=self.not_implemented),
+                    Rule("/$path", methods=["GET"], endpoint=self.not_implemented),
+                    Rule("/<base64url:submodel_id>", methods=["GET"], endpoint=self.get_submodel),
+                    Rule("/<base64url:submodel_id>", methods=["PUT"], endpoint=self.put_submodel),
+                    Rule("/<base64url:submodel_id>", methods=["DELETE"], endpoint=self.delete_submodel),
+                    Rule("/<base64url:submodel_id>", methods=["PATCH"], endpoint=self.not_implemented),
                     Submount("/<base64url:submodel_id>", [
-                        Rule("/", methods=["GET"], endpoint=self.get_submodel),
-                        Rule("/", methods=["PUT"], endpoint=self.put_submodel),
-                        Rule("/", methods=["DELETE"], endpoint=self.delete_submodel),
-                        Rule("/", methods=["PATCH"], endpoint=self.not_implemented),
-                        Rule("/$metadata/", methods=["GET"], endpoint=self.get_submodels_metadata),
-                        Rule("/$metadata/", methods=["PATCH"], endpoint=self.not_implemented),
-                        Rule("/$value/", methods=["GET"], endpoint=self.not_implemented),
-                        Rule("/$value/", methods=["PATCH"], endpoint=self.not_implemented),
-                        Rule("/$reference/", methods=["GET"], endpoint=self.get_submodels_reference),
-                        Rule("/$path/", methods=["GET"], endpoint=self.not_implemented),
+                        Rule("/$metadata", methods=["GET"], endpoint=self.get_submodels_metadata),
+                        Rule("/$metadata", methods=["PATCH"], endpoint=self.not_implemented),
+                        Rule("/$value", methods=["GET"], endpoint=self.not_implemented),
+                        Rule("/$value", methods=["PATCH"], endpoint=self.not_implemented),
+                        Rule("/$reference", methods=["GET"], endpoint=self.get_submodels_reference),
+                        Rule("/$path", methods=["GET"], endpoint=self.not_implemented),
+                        Rule("/submodel-elements", methods=["GET"], endpoint=self.get_submodel_submodel_elements),
+                        Rule("/submodel-elements", methods=["POST"],
+                             endpoint=self.post_submodel_submodel_elements_id_short_path),
                         Submount("/submodel-elements", [
-                            Rule("/", methods=["GET"], endpoint=self.get_submodel_submodel_elements),
-                            Rule("/", methods=["POST"],
-                                 endpoint=self.post_submodel_submodel_elements_id_short_path),
-                            Rule("/$metadata/", methods=["GET"],
+                            Rule("/$metadata", methods=["GET"],
                                  endpoint=self.get_submodel_submodel_elements_metadata),
-                            Rule("/$reference/", methods=["GET"],
+                            Rule("/$reference", methods=["GET"],
                                  endpoint=self.get_submodel_submodel_elements_reference),
-                            Rule("/$value/", methods=["GET"], endpoint=self.not_implemented),
-                            Rule("/$path/", methods=["GET"], endpoint=self.not_implemented),
+                            Rule("/$value", methods=["GET"], endpoint=self.not_implemented),
+                            Rule("/$path", methods=["GET"], endpoint=self.not_implemented),
+                            Rule("/<id_short_path:id_shorts>", methods=["GET"],
+                                 endpoint=self.get_submodel_submodel_elements_id_short_path),
+                            Rule("/<id_short_path:id_shorts>", methods=["POST"],
+                                 endpoint=self.post_submodel_submodel_elements_id_short_path),
+                            Rule("/<id_short_path:id_shorts>", methods=["PUT"],
+                                 endpoint=self.put_submodel_submodel_elements_id_short_path),
+                            Rule("/<id_short_path:id_shorts>", methods=["DELETE"],
+                                 endpoint=self.delete_submodel_submodel_elements_id_short_path),
+                            Rule("/<id_short_path:id_shorts>", methods=["PATCH"], endpoint=self.not_implemented),
                             Submount("/<id_short_path:id_shorts>", [
-                                Rule("/", methods=["GET"],
-                                     endpoint=self.get_submodel_submodel_elements_id_short_path),
-                                Rule("/", methods=["POST"],
-                                     endpoint=self.post_submodel_submodel_elements_id_short_path),
-                                Rule("/", methods=["PUT"],
-                                     endpoint=self.put_submodel_submodel_elements_id_short_path),
-                                Rule("/", methods=["DELETE"],
-                                     endpoint=self.delete_submodel_submodel_elements_id_short_path),
-                                Rule("/", methods=["PATCH"], endpoint=self.not_implemented),
-                                Rule("/$metadata/", methods=["GET"],
+                                Rule("/$metadata", methods=["GET"],
                                      endpoint=self.get_submodel_submodel_elements_id_short_path_metadata),
-                                Rule("/$metadata/", methods=["PATCH"], endpoint=self.not_implemented),
-                                Rule("/$reference/", methods=["GET"],
+                                Rule("/$metadata", methods=["PATCH"], endpoint=self.not_implemented),
+                                Rule("/$reference", methods=["GET"],
                                      endpoint=self.get_submodel_submodel_elements_id_short_path_reference),
-                                Rule("/$value/", methods=["GET"], endpoint=self.not_implemented),
-                                Rule("/$value/", methods=["PATCH"], endpoint=self.not_implemented),
-                                Rule("/$path/", methods=["GET"], endpoint=self.not_implemented),
-                                Submount("/attachment", [
-                                    Rule("/", methods=["GET"],
-                                         endpoint=self.get_submodel_submodel_element_attachment),
-                                    Rule("/", methods=["PUT"],
-                                         endpoint=self.put_submodel_submodel_element_attachment),
-                                    Rule("/", methods=["DELETE"],
-                                         endpoint=self.delete_submodel_submodel_element_attachment)
-                                ]),
-                                Submount("/invoke", [
-                                    Rule("/", methods=["POST"], endpoint=self.not_implemented),
-                                    Rule("/$value/", methods=["POST"], endpoint=self.not_implemented)
-                                ]),
-                                Submount("/invoke-async", [
-                                    Rule("/", methods=["POST"], endpoint=self.not_implemented),
-                                    Rule("/$value/", methods=["POST"], endpoint=self.not_implemented)
-                                ]),
-                                Submount("/operation-status", [
-                                    Rule("/<base64url:handleId>/", methods=["GET"],
-                                         endpoint=self.not_implemented)
-                                ]),
+                                Rule("/$value", methods=["GET"], endpoint=self.not_implemented),
+                                Rule("/$value", methods=["PATCH"], endpoint=self.not_implemented),
+                                Rule("/$path", methods=["GET"], endpoint=self.not_implemented),
+                                Rule("/attachment", methods=["GET"],
+                                     endpoint=self.get_submodel_submodel_element_attachment),
+                                Rule("/attachment", methods=["PUT"],
+                                     endpoint=self.put_submodel_submodel_element_attachment),
+                                Rule("/attachment", methods=["DELETE"],
+                                     endpoint=self.delete_submodel_submodel_element_attachment),
+                                Rule("/invoke", methods=["POST"], endpoint=self.not_implemented),
+                                Rule("/invoke/$value", methods=["POST"], endpoint=self.not_implemented),
+                                Rule("/invoke-async", methods=["POST"], endpoint=self.not_implemented),
+                                Rule("/invoke-async/$value", methods=["POST"], endpoint=self.not_implemented),
+                                Rule("/operation-status/<base64url:handleId>", methods=["GET"],
+                                     endpoint=self.not_implemented),
                                 Submount("/operation-results", [
-                                    Rule("/<base64url:handleId>/", methods=["GET"],
+                                    Rule("/<base64url:handleId>", methods=["GET"],
                                          endpoint=self.not_implemented),
-                                    Rule("/<base64url:handleId>/$value/", methods=["GET"],
+                                    Rule("/<base64url:handleId>/$value", methods=["GET"],
                                          endpoint=self.not_implemented)
                                 ]),
+                                Rule("/qualifiers", methods=["GET"],
+                                     endpoint=self.get_submodel_submodel_element_qualifiers),
+                                Rule("/qualifiers", methods=["POST"],
+                                     endpoint=self.post_submodel_submodel_element_qualifiers),
                                 Submount("/qualifiers", [
-                                    Rule("/", methods=["GET"],
+                                    Rule("/<base64url:qualifier_type>", methods=["GET"],
                                          endpoint=self.get_submodel_submodel_element_qualifiers),
-                                    Rule("/", methods=["POST"],
-                                         endpoint=self.post_submodel_submodel_element_qualifiers),
-                                    Rule("/<base64url:qualifier_type>/", methods=["GET"],
-                                         endpoint=self.get_submodel_submodel_element_qualifiers),
-                                    Rule("/<base64url:qualifier_type>/", methods=["PUT"],
+                                    Rule("/<base64url:qualifier_type>", methods=["PUT"],
                                          endpoint=self.put_submodel_submodel_element_qualifiers),
-                                    Rule("/<base64url:qualifier_type>/", methods=["DELETE"],
+                                    Rule("/<base64url:qualifier_type>", methods=["DELETE"],
                                          endpoint=self.delete_submodel_submodel_element_qualifiers)
                                 ])
                             ])
                         ]),
+                        Rule("/qualifiers", methods=["GET"],
+                             endpoint=self.get_submodel_submodel_element_qualifiers),
+                        Rule("/qualifiers", methods=["POST"],
+                             endpoint=self.post_submodel_submodel_element_qualifiers),
                         Submount("/qualifiers", [
-                            Rule("/", methods=["GET"], endpoint=self.get_submodel_submodel_element_qualifiers),
-                            Rule("/", methods=["POST"],
-                                 endpoint=self.post_submodel_submodel_element_qualifiers),
-                            Rule("/<base64url:qualifier_type>/", methods=["GET"],
+                            Rule("/<base64url:qualifier_type>", methods=["GET"],
                                  endpoint=self.get_submodel_submodel_element_qualifiers),
-                            Rule("/<base64url:qualifier_type>/", methods=["PUT"],
+                            Rule("/<base64url:qualifier_type>", methods=["PUT"],
                                  endpoint=self.put_submodel_submodel_element_qualifiers),
-                            Rule("/<base64url:qualifier_type>/", methods=["DELETE"],
+                            Rule("/<base64url:qualifier_type>", methods=["DELETE"],
                                  endpoint=self.delete_submodel_submodel_element_qualifiers)
                         ])
                     ])
@@ -542,7 +526,7 @@ class WSGIApp:
         ], converters={
             "base64url": Base64URLConverter,
             "id_short_path": IdShortPathConverter
-        })
+        }, strict_slashes=False)
 
     # TODO: the parameters can be typed via builtin wsgiref with Python 3.11+
     def __call__(self, environ, start_response) -> Iterable[bytes]:
