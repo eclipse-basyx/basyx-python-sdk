@@ -7,7 +7,7 @@ name = "basyx-python-sdk"
 version = "1.0.0"  # actual version
 description = "The Eclipse BaSyx Python SDK, an implementation of the Asset Administration Shell for Industry 4.0 systems"
 authors = [
-    {name = "The Eclipse BaSyx Authors", email = "h.jannatabadi@iat.rwth-aachen.de"}  # actual authors
+    {name = "The Eclipse BaSyx Authors", email = "admins@iat.rwth-aachen.de"}  # authors
 ]
 readme = "README.md"
 license = {file = "LICENSE"}
