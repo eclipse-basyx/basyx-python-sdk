@@ -61,6 +61,7 @@ The BaSyx Python SDK requires the following Python packages to be installed for 
 * `python-dateutil` (BSD 3-clause License)
 * `pyecma376-2` (Apache License v2.0)
 * `urllib3` (MIT License)
+* `Werkzeug` (BSD 3-clause License)
 
 Optional production usage dependencies:
 * For using the Compliance Tool to validate JSON files against the JSON Schema: `jsonschema` and its
