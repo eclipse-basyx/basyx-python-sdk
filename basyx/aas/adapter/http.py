@@ -382,7 +382,7 @@ class IdShortPathConverter(werkzeug.routing.UnicodeConverter):
     id_short_sep = "."
 
     def to_url(self, value: List[str]) -> str:
-        return super().to_url(self.id_short_sep.join(id_short for id_short in value))
+        return super().to_url(self.id_short_sep.join(value))
 
     def to_python(self, value: str) -> List[str]:
         id_shorts = super().to_python(value).split(self.id_short_sep)
