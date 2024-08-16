@@ -1,0 +1,2017 @@
+openapi: 3.0.0
+info:
+  version: "1"
+  title: PyI40AAS REST API
+  description: "REST API Specification for the [PyI40AAS framework](https://git.rwth-aachen.de/acplt/pyi40aas).  
+
+
+  **Submodel Interface**
+
+
+  Any identifier/identification objects are encoded as follows `{identifierType}:URIencode(URIencode({identifier}))`, e.g. `IRI:http:%252F%252Facplt.org%252Fasset`."
+  contact:
+    name: "Michael Thies, Torben Miny, Leon Möller"
+  license:
+    name: Use under Eclipse Public License 2.0
+    url: "https://www.eclipse.org/legal/epl-2.0/"
+servers:
+  - url: http://{authority}/{basePath}/{api-version}
+    description: This is the Server to access the Asset Administration Shell
+    variables:
+      authority:
+        default: localhost:8080
+        description: The authority is the server url (made of IP-Address or DNS-Name, user information, and/or port information) of the hosting environment for the Asset Administration Shell
+      basePath:
+        default: api
+        description: The basePath variable is additional path information for the hosting environment. It may contain the name of an aggregation point like 'shells' and/or API version information and/or tenant-id information, etc.
+      api-version:
+        default: v1
+        description: The Version of the API-Specification
+paths:
+  "/":
+    get:
+      summary: "Returns the stripped Submodel (without SubmodelElements and Constraints (property: qualifiers))"
+      operationId: ReadSubmodel
+      responses:
+        "200":
+          description: Success
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/SubmodelResult"
+        "404":
+          description: No Submodel found
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/BaseResult"
+      tags:
+        - Submodel Interface
+  "/constraints/":
+    get:
+      summary: Returns all Constraints of the current Submodel
+      operationId: ReadSubmodelConstraints
+      responses:
+        "200":
+          description: Success
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/ConstraintListResult"
+        "404":
+          description: Submodel not found
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/BaseResult"
+      tags:
+        - Submodel Interface
+    post:
+      summary: Adds a new Constraint to the Submodel
+      operationId: CreateSubmodelConstraint
+      requestBody:
+        description: The Constraint to create
+        required: true
+        content:
+          "application/json":
+            schema:
+              $ref: "#/components/schemas/Constraint"
+      responses:
+        "201":
+          description: Success
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/ConstraintResult"
+          headers:
+            Location:
+              description: The URL of the created Constraint
+              schema:
+                type: string
+          links:
+            ReadSubmodelQualifierByType:
+              $ref: "#/components/links/ReadSubmodelQualifierByType"
+            UpdateSubmodelQualifierByType:
+              $ref: "#/components/links/UpdateSubmodelQualifierByType"
+            DeleteSubmodelQualifierByType:
+              $ref: "#/components/links/DeleteSubmodelQualifierByType"
+        "404":
+          description: Submodel not found
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/BaseResult"
+        "409":
+          description: "When trying to add a qualifier: Qualifier with same type already exists"
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/BaseResult"
+        "422":
+          description: Request body is not a valid Qualifier
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/BaseResult"
+      tags:
+        - Submodel Interface
+  "/constraints/{qualifier-type}/":
+    parameters:
+      - name: qualifier-type
+        in: path
+        description: The type of the Qualifier
+        required: true
+        schema:
+          type: string
+    get:
+      summary: Retrieves a specific Qualifier of the Submodel's constraints (Formulas cannot be referred to yet)
+      operationId: ReadSubmodelConstraint
+      responses:
+        "200":
+          description: Success
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/ConstraintResult"
+          links:
+            ReadSubmodelQualifierByType:
+              $ref: "#/components/links/ReadSubmodelQualifierByType"
+            UpdateSubmodelQualifierByType:
+              $ref: "#/components/links/UpdateSubmodelQualifierByType"
+            DeleteSubmodelQualifierByType:
+              $ref: "#/components/links/DeleteSubmodelQualifierByType"
+        "404":
+          description: Submodel or Constraint not found
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/BaseResult"
+      tags:
+        - Submodel Interface
+    put:
+      summary: Updates an existing Qualifier in the Submodel (Formulas cannot be referred to yet)
+      operationId: UpdateSubmodelConstraint
+      requestBody:
+        description: The Qualifier used to overwrite the existing Qualifier
+        required: true
+        content:
+          "application/json":
+            schema:
+              $ref: "#/components/schemas/Qualifier"
+      responses:
+        "200":
+          description: Success
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/ConstraintResult"
+          links:
+            ReadSubmodelQualifierByType:
+              $ref: "#/components/links/ReadSubmodelQualifierByType"
+            UpdateSubmodelQualifierByType:
+              $ref: "#/components/links/UpdateSubmodelQualifierByType"
+            DeleteSubmodelQualifierByType:
+              $ref: "#/components/links/DeleteSubmodelQualifierByType"
+        "201":
+          description: Success (type changed)
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/ConstraintResult"
+          headers:
+            Location:
+              description: The new URL of the Qualifier
+              schema:
+                type: string
+          links:
+            ReadSubmodelQualifierByType:
+              $ref: "#/components/links/ReadSubmodelQualifierByType"
+            UpdateSubmodelQualifierByType:
+              $ref: "#/components/links/UpdateSubmodelQualifierByType"
+            DeleteSubmodelQualifierByType:
+              $ref: "#/components/links/DeleteSubmodelQualifierByType"
+        "404":
+          description: Submodel or Constraint not found
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/BaseResult"
+        "409":
+          description: type changed and new type already exists
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/BaseResult"
+        "422":
+          description: Request body is not a valid Qualifier
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/BaseResult"
+      tags:
+        - Submodel Interface
+    delete:
+      summary: Deletes an existing Qualifier from the Submodel (Formulas cannot be referred to yet)
+      operationId: DeleteSubmodelConstraint
+      responses:
+        "200":
+          description: Success
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/BaseResult"
+        "404":
+          description: Submodel or Constraint not found
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/BaseResult"
+      tags:
+        - Submodel Interface
+  "/submodelElements/":
+    get:
+      summary: Returns all SubmodelElements of the current Submodel
+      operationId: ReadSubmodelSubmodelElements
+      responses:
+        "200":
+          description: Success
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/SubmodelElementListResult"
+        "404":
+          description: Submodel not found
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/BaseResult"
+      tags:
+        - Submodel Interface
+    post:
+      summary: Adds a new SubmodelElement to the Submodel
+      operationId: CreateSubmodelSubmodelElement
+      requestBody:
+        description: The SubmodelElement to create
+        required: true
+        content:
+          "application/json":
+            schema:
+              $ref: "#/components/schemas/SubmodelElement"
+      responses:
+        "201":
+          description: Success
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/SubmodelElementResult"
+          headers:
+            Location:
+              description: The URL of the created SubmodelElement
+              schema:
+                type: string
+          links:
+            ReadSubmodelSubmodelElementByIdShortAfterPost:
+              $ref: "#/components/links/ReadSubmodelSubmodelElementByIdShortAfterPost"
+            UpdateSubmodelSubmodelElementByIdShortAfterPost:
+              $ref: "#/components/links/UpdateSubmodelSubmodelElementByIdShortAfterPost"
+            DeleteSubmodelSubmodelElementByIdShortAfterPost:
+              $ref: "#/components/links/DeleteSubmodelSubmodelElementByIdShortAfterPost"
+        "404":
+          description: Submodel not found
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/BaseResult"
+        "409":
+          description: SubmodelElement with same idShort already exists
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/BaseResult"
+        "422":
+          description: Request body is not a valid SubmodelElement
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/BaseResult"
+      tags:
+        - Submodel Interface
+  "/{idShort-path}/":
+    parameters:
+      - name: idShort-path
+        in: path
+        description: A /-separated concatenation of !-prefixed idShorts
+        required: true
+        schema:
+          type: string
+    get:
+      summary: Returns the (stripped) (nested) SubmodelElement
+      operationId: ReadSubmodelSubmodelElement
+      responses:
+        "200":
+          description: Success
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/SubmodelElementListResult"
+        "400":
+          description: Invalid idShort
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/BaseResult"
+        "404":
+          description: Submodel or any SubmodelElement referred by idShort-path not found
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/BaseResult"
+      tags:
+        - Submodel Interface
+    put:
+      summary: Updates a nested SubmodelElement
+      operationId: UpdateSubmodelSubmodelElement
+      requestBody:
+        description: The SubmodelElement used to overwrite the existing SubmodelElement
+        required: true
+        content:
+          "application/json":
+            schema:
+              $ref: "#/components/schemas/SubmodelElement"
+      responses:
+        "200":
+          description: Success
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/SubmodelElementResult"
+        "201":
+          description: Success (idShort changed)
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/SubmodelElementResult"
+          headers:
+            Location:
+              description: The new URL of the SubmodelElement
+              schema:
+                type: string
+        "400":
+          description: Invalid idShort
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/BaseResult"
+        "404":
+          description: Submodel or any SubmodelElement referred by idShort-path not found
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/BaseResult"
+        "409":
+          description: idShort changed and new idShort already exists
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/BaseResult"
+        "422":
+          description: Request body is not a valid SubmodelElement **or** the type of the new SubmodelElement differs from the existing one
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/BaseResult"
+      tags:
+        - Submodel Interface
+    delete:
+      summary: Deletes a specific (nested) SubmodelElement from the Submodel
+      operationId: DeleteSubmodelSubmodelElement
+      responses:
+        "200":
+          description: Success
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/BaseResult"
+        "400":
+          description: Invalid idShort
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/BaseResult"
+        "404":
+          description: Submodel or any SubmodelElement referred by idShort-path not found
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/BaseResult"
+      tags:
+        - Submodel Interface
+  "/{idShort-path}/value/":
+    parameters:
+      - name: idShort-path
+        in: path
+        description: A /-separated concatenation of !-prefixed idShorts
+        required: true
+        schema:
+          type: string
+    get:
+      summary: If the (nested) SubmodelElement is a SubmodelElementCollection, return contained (stripped) SubmodelElements
+      operationId: ReadSubmodelSubmodelElementValue
+      responses:
+        "200":
+          description: Success
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/BaseResult"
+        "400":
+          description: Invalid idShort or SubmodelElement exists, but is not a SubmodelElementCollection, so /value is not possible
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/BaseResult"
+        "404":
+          description: Submodel or any SubmodelElement referred by idShort-path not found
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/BaseResult"
+      tags:
+        - Submodel Interface
+    post:
+      summary: If the (nested) SubmodelElement is a SubmodelElementCollection, add a SubmodelElement to its value
+      operationId: CreateSubmodelSubmodelElementValue
+      requestBody:
+        description: The SubmodelElement to create
+        required: true
+        content:
+          "application/json":
+            schema:
+              $ref: "#/components/schemas/SubmodelElement"
+      responses:
+        "201":
+          description: Success
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/SubmodelElementResult"
+          headers:
+            Location:
+              description: The URL of the created SubmodelElement
+              schema:
+                type: string
+          links:
+            ReadSubmodelSubmodelElementByIdShortAfterPostWithPath:
+              $ref: "#/components/links/ReadSubmodelSubmodelElementByIdShortAfterPostWithPath"
+            UpdateSubmodelSubmodelElementByIdShortAfterPostWithPath:
+              $ref: "#/components/links/UpdateSubmodelSubmodelElementByIdShortAfterPostWithPath"
+            DeleteSubmodelSubmodelElementByIdShortAfterPostWithPath:
+              $ref: "#/components/links/DeleteSubmodelSubmodelElementByIdShortAfterPostWithPath"
+        "400":
+          description: Invalid idShort or SubmodelElement exists, but is not a SubmodelElementCollection, so /value is not possible
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/BaseResult"
+        "404":
+          description: Submodel or any SubmodelElement referred by idShort-path not found
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/BaseResult"
+        "409":
+          description: SubmodelElement with same idShort already exists
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/BaseResult"
+        "422":
+          description: Request body is not a valid SubmodelElement
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/BaseResult"
+      tags:
+        - Submodel Interface
+  "/{idShort-path}/annotation/":
+    parameters:
+      - name: idShort-path
+        in: path
+        description: A /-separated concatenation of !-prefixed idShorts
+        required: true
+        schema:
+          type: string
+    get:
+      summary: If the (nested) SubmodelElement is an AnnotatedRelationshipElement, return contained (stripped) SubmodelElements
+      operationId: ReadSubmodelSubmodelElementAnnotation
+      responses:
+        "200":
+          description: Success
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/SubmodelElementListResult"
+        "400":
+          description: Invalid idShort or SubmodelElement exists, but is not an AnnotatedRelationshipElement, so /annotation is not possible
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/BaseResult"
+        "404":
+          description: Submodel or any SubmodelElement referred by idShort-path not found
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/BaseResult"
+      tags:
+        - Submodel Interface
+    post:
+      summary: If the (nested) SubmodelElement is an AnnotatedRelationshipElement, add a SubmodelElement to its annotation
+      operationId: CreateSubmodelSubmodelElementAnnotation
+      requestBody:
+        description: The SubmodelElement to create
+        required: true
+        content:
+          "application/json":
+            schema:
+              $ref: "#/components/schemas/SubmodelElement"
+      responses:
+        "201":
+          description: Success
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/SubmodelElementResult"
+          headers:
+            Location:
+              description: The URL of the created SubmodelElement
+              schema:
+                type: string
+          links:
+            ReadSubmodelSubmodelElementByIdShortAfterPostWithPath:
+              $ref: "#/components/links/ReadSubmodelSubmodelElementByIdShortAfterPostWithPath"
+            UpdateSubmodelSubmodelElementByIdShortAfterPostWithPath:
+              $ref: "#/components/links/UpdateSubmodelSubmodelElementByIdShortAfterPostWithPath"
+            DeleteSubmodelSubmodelElementByIdShortAfterPostWithPath:
+              $ref: "#/components/links/DeleteSubmodelSubmodelElementByIdShortAfterPostWithPath"
+        "400":
+          description: Invalid idShort or SubmodelElement exists, but is not an AnnotatedRelationshipElement, so /annotation is not possible
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/BaseResult"
+        "404":
+          description: Submodel or any SubmodelElement referred by idShort-path not found
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/BaseResult"
+        "409":
+          description: SubmodelElement with given idShort already exists
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/BaseResult"
+        "422":
+          description: Request body is not a valid SubmodelElement
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/BaseResult"
+      tags:
+        - Submodel Interface
+  "/{idShort-path}/statement/":
+    parameters:
+      - name: idShort-path
+        in: path
+        description: A /-separated concatenation of !-prefixed idShorts
+        required: true
+        schema:
+          type: string
+    get:
+      summary: If the (nested) SubmodelElement is an Entity, return contained (stripped) SubmodelElements
+      operationId: ReadSubmodelSubmodelElementStatement
+      responses:
+        "200":
+          description: Success
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/SubmodelElementListResult"
+        "400":
+          description: Invalid idShort or SubmodelElement exists, but is not an Entity, so /statement is not possible.
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/BaseResult"
+        "404":
+          description: Submodel or any SubmodelElement referred by idShort-path not found
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/BaseResult"
+      tags:
+        - Submodel Interface
+    post:
+      summary: If the (nested) SubmodelElement is an Entity, add a SubmodelElement to its statement
+      operationId: CreateSubmodelSubmodelElementStatement
+      requestBody:
+        description: The SubmodelElement to create
+        required: true
+        content:
+          "application/json":
+            schema:
+              $ref: "#/components/schemas/SubmodelElement"
+      responses:
+        "201":
+          description: Success
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/SubmodelElementResult"
+          headers:
+            Location:
+              description: The URL of the created SubmodelElement
+              schema:
+                type: string
+          links:
+            ReadSubmodelSubmodelElementByIdShortAfterPostWithPath:
+              $ref: "#/components/links/ReadSubmodelSubmodelElementByIdShortAfterPostWithPath"
+            UpdateSubmodelSubmodelElementByIdShortAfterPostWithPath:
+              $ref: "#/components/links/UpdateSubmodelSubmodelElementByIdShortAfterPostWithPath"
+            DeleteSubmodelSubmodelElementByIdShortAfterPostWithPath:
+              $ref: "#/components/links/DeleteSubmodelSubmodelElementByIdShortAfterPostWithPath"
+        "400":
+          description: Invalid idShort or SubmodelElement exists, but is not an Entity, so /statement is not possible
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/BaseResult"
+        "404":
+          description: Submodel or any SubmodelElement referred by idShort-path not found
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/BaseResult"
+        "409":
+          description: SubmodelElement with same idShort already exists
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/BaseResult"
+        "422":
+          description: Request body is not a valid SubmodelElement
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/BaseResult"
+      tags:
+        - Submodel Interface
+  "/{idShort-path}/constraints/":
+    parameters:
+      - name: idShort-path
+        in: path
+        description: A /-separated concatenation of !-prefixed idShorts
+        required: true
+        schema:
+          type: string
+    get:
+      summary: Returns all Constraints of the (nested) SubmodelElement
+      operationId: ReadSubmodelSubmodelElementConstraints
+      responses:
+        "200":
+          description: Success
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/ConstraintListResult"
+        "400":
+          description: Invalid idShort
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/BaseResult"
+        "404":
+          description: Submodel or any SubmodelElement referred by idShort-path not found
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/BaseResult"
+      tags:
+        - Submodel Interface
+    post:
+      summary: Adds a new Constraint to the (nested) SubmodelElement
+      operationId: CreateSubmodelSubmodelElementConstraint
+      requestBody:
+        description: The Constraint to create
+        required: true
+        content:
+          "application/json":
+            schema:
+              $ref: "#/components/schemas/Constraint"
+      responses:
+        "201":
+          description: Success
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/ConstraintResult"
+          headers:
+            Location:
+              description: The URL of the created Constraint
+              schema:
+                type: string
+          links:
+            ReadSubmodelSubmodelElementQualifierByType:
+              $ref: "#/components/links/ReadSubmodelSubmodelElementQualifierByType"
+            UpdateSubmodelSubmodelElementQualifierByType:
+              $ref: "#/components/links/UpdateSubmodelSubmodelElementQualifierByType"
+            DeleteSubmodelSubmodelElementQualifierByType:
+              $ref: "#/components/links/DeleteSubmodelSubmodelElementQualifierByType"
+        "400":
+          description: Invalid idShort
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/BaseResult"
+        "404":
+          description: Submodel or any SubmodelElement referred by idShort-path not found
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/BaseResult"
+        "409":
+          description: "When trying to add a qualifier: Qualifier with specified type already exists"
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/BaseResult"
+        "422":
+          description: Request body is not a valid Qualifier
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/BaseResult"
+      tags:
+        - Submodel Interface
+  "/{idShort-path}/constraints/{qualifier-type}/":
+    parameters:
+      - name: idShort-path
+        in: path
+        description: A /-separated concatenation of !-prefixed idShorts
+        required: true
+        schema:
+          type: string
+      - name: qualifier-type
+        in: path
+        description: "Type of the qualifier"
+        required: true
+        schema:
+          type: string
+    get:
+      summary: Retrieves a specific Qualifier of the (nested) SubmodelElements's Constraints (Formulas cannot be referred to yet)
+      operationId: ReadSubmodelSubmodelElementConstraint
+      responses:
+        "200":
+          description: Success
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/ConstraintResult"
+          links:
+            ReadSubmodelSubmodelElementQualifierByType:
+              $ref: "#/components/links/ReadSubmodelSubmodelElementQualifierByType"
+            UpdateSubmodelSubmodelElementQualifierByType:
+              $ref: "#/components/links/UpdateSubmodelSubmodelElementQualifierByType"
+            DeleteSubmodelSubmodelElementQualifierByType:
+              $ref: "#/components/links/DeleteSubmodelSubmodelElementQualifierByType"
+        "400":
+          description: Invalid idShort
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/BaseResult"
+        "404":
+          description: Submodel, Qualifier or any SubmodelElement referred by idShort-path not found
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/BaseResult"
+      tags:
+        - Submodel Interface
+    put:
+      summary: Updates an existing Qualifier in the (nested) SubmodelElement (Formulas cannot be referred to yet)
+      operationId: UpdateSubmodelSubmodelElementConstraint
+      requestBody:
+        description: The Qualifier used to overwrite the existing Qualifier
+        required: true
+        content:
+          "application/json":
+            schema:
+              $ref: "#/components/schemas/Qualifier"
+      responses:
+        "200":
+          description: Success
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/ConstraintResult"
+          links:
+            ReadSubmodelSubmodelElementQualifierByType:
+              $ref: "#/components/links/ReadSubmodelSubmodelElementQualifierByType"
+            UpdateSubmodelSubmodelElementQualifierByType:
+              $ref: "#/components/links/UpdateSubmodelSubmodelElementQualifierByType"
+            DeleteSubmodelSubmodelElementQualifierByType:
+              $ref: "#/components/links/DeleteSubmodelSubmodelElementQualifierByType"
+        "201":
+          description: Success (type changed)
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/ConstraintResult"
+          headers:
+            Location:
+              description: The new URL of the Qualifier
+              schema:
+                type: string
+          links:
+            ReadSubmodelSubmodelElementQualifierByType:
+              $ref: "#/components/links/ReadSubmodelSubmodelElementQualifierByType"
+            UpdateSubmodelSubmodelElementQualifierByType:
+              $ref: "#/components/links/UpdateSubmodelSubmodelElementQualifierByType"
+            DeleteSubmodelSubmodelElementQualifierByType:
+              $ref: "#/components/links/DeleteSubmodelSubmodelElementQualifierByType"
+        "400":
+          description: Invalid idShort
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/BaseResult"
+        "404":
+          description: Submodel, Qualifier or any SubmodelElement referred by idShort-path not found
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/BaseResult"
+        "409":
+          description: type changed and new type already exists
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/BaseResult"
+        "422":
+          description: Request body is not a valid Qualifier
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/BaseResult"
+      tags:
+        - Submodel Interface
+    delete:
+      summary: Deletes an existing Qualifier from the (nested) SubmodelElement (Formulas cannot be referred to yet)
+      operationId: DeleteSubmodelSubmodelElementConstraint
+      responses:
+        "200":
+          description: Success
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/BaseResult"
+        "400":
+          description: Invalid idShort
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/BaseResult"
+        "404":
+          description: Submodel, Qualifier or any SubmodelElement referred by idShort-path not found
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/BaseResult"
+      tags:
+        - Submodel Interface
+components:
+  links:
+    ReadSubmodelQualifierByType:
+      description: The `type` of the returned Qualifier can be used to read the Qualifier.
+      operationId: ReadSubmodelConstraint
+      parameters:
+        qualifier-type: "$response.body#/data/type"
+    UpdateSubmodelQualifierByType:
+      description: The `type` of the returned Qualifier can be used to update the Qualifier.
+      operationId: UpdateSubmodelConstraint
+      parameters:
+        qualifier-type: "$response.body#/data/type"
+    DeleteSubmodelQualifierByType:
+      description: The `type` of the returned Qualifier can be used to delete the Qualifier.
+      operationId: DeleteSubmodelConstraint
+      parameters:
+        qualifier-type: "$response.body#/data/type"
+    ReadSubmodelSubmodelElementByIdShortAfterPost:
+      description: The `idShort` of the returned SubmodelElement can be used to read the SubmodelElement.
+      operationId: ReadSubmodelSubmodelElement
+      parameters:
+        idShort-path: "!{$response.body#/data/idShort}"
+    UpdateSubmodelSubmodelElementByIdShortAfterPost:
+      description: The `idShort` of the returned SubmodelElement can be used to update the SubmodelElement.
+      operationId: UpdateSubmodelSubmodelElement
+      parameters:
+        idShort-path: "!{$response.body#/data/idShort}"
+    DeleteSubmodelSubmodelElementByIdShortAfterPost:
+      description: The `idShort` of the returned SubmodelElement can be used to delete the SubmodelElement.
+      operationId: DeleteSubmodelSubmodelElement
+      parameters:
+        idShort-path: "!{$response.body#/data/idShort}"
+    ReadSubmodelSubmodelElementByIdShortAfterPostWithPath:
+      description: The `idShort` of the returned SubmodelElement can be used to read the SubmodelElement.
+      operationId: ReadSubmodelSubmodelElement
+      parameters:
+        idShort-path: "{$request.path.idShort-path}/!{$response.body#/data/idShort}"
+    UpdateSubmodelSubmodelElementByIdShortAfterPostWithPath:
+      description: The `idShort` of the returned SubmodelElement can be used to update the SubmodelElement.
+      operationId: UpdateSubmodelSubmodelElement
+      parameters:
+        idShort-path: "{$request.path.idShort-path}/!{$response.body#/data/idShort}"
+    DeleteSubmodelSubmodelElementByIdShortAfterPostWithPath:
+      description: The `idShort` of the returned SubmodelElement can be used to delete the SubmodelElement.
+      operationId: DeleteSubmodelSubmodelElement
+      parameters:
+        idShort-path: "{$request.path.idShort-path}/!{$response.body#/data/idShort}"
+    ReadSubmodelSubmodelElementQualifierByType:
+      description: The `type` of the returned Qualifier can be used to read the Qualifier.
+      operationId: ReadSubmodelSubmodelElementConstraint
+      parameters:
+        idShort-path: "$request.path.idShort-path"
+        qualifier-type: "$response.body#/type"
+    UpdateSubmodelSubmodelElementQualifierByType:
+      description: The `type` of the returned Qualifier can be used to update the Qualifier.
+      operationId: UpdateSubmodelSubmodelElementConstraint
+      parameters:
+        idShort-path: "$request.path.idShort-path"
+        qualifier-type: "$response.body#/type"
+    DeleteSubmodelSubmodelElementQualifierByType:
+      description: The `type` of the returned Qualifier can be used to delete the Qualifier.
+      operationId: DeleteSubmodelSubmodelElementConstraint
+      parameters:
+        idShort-path: "$request.path.idShort-path"
+        qualifier-type: "$response.body#/type"
+  schemas:
+    BaseResult:
+      type: object
+      properties:
+        success:
+          type: boolean
+        error:
+          type: object
+          nullable: true
+          properties:
+            type:
+              enum:
+                - Unspecified
+                - Debug
+                - Information
+                - Warning
+                - Error
+                - Fatal
+                - Exception
+              type: string
+            code:
+              type: string
+            text:
+              type: string
+        data:
+          nullable: true
+    AssetAdministrationShellResult:
+      allOf:
+        - $ref: "#/components/schemas/BaseResult"
+        - properties:
+            data:
+              $ref: "#/components/schemas/StrippedAssetAdministrationShell"
+            error:
+              nullable: true
+    ReferenceResult:
+      allOf:
+        - $ref: "#/components/schemas/BaseResult"
+        - properties:
+            data:
+              $ref: "#/components/schemas/Reference"
+            error:
+              nullable: true
+    ReferenceListResult:
+      allOf:
+        - $ref: "#/components/schemas/BaseResult"
+        - properties:
+            data:
+              type: array
+              items:
+                $ref: "#/components/schemas/Reference"
+            error:
+              nullable: true
+    ViewResult:
+      allOf:
+        - $ref: "#/components/schemas/BaseResult"
+        - properties:
+            data:
+              $ref: "#/components/schemas/View"
+            error:
+              nullable: true
+    ViewListResult:
+      allOf:
+        - $ref: "#/components/schemas/BaseResult"
+        - properties:
+            data:
+              type: array
+              items:
+                $ref: "#/components/schemas/View"
+            error:
+              nullable: true
+    SubmodelResult:
+      allOf:
+        - $ref: "#/components/schemas/BaseResult"
+        - properties:
+            data:
+              $ref: "#/components/schemas/StrippedSubmodel"
+            error:
+              nullable: true
+    SubmodelElementResult:
+      allOf:
+        - $ref: "#/components/schemas/BaseResult"
+        - properties:
+            data:
+              $ref: "#/components/schemas/StrippedSubmodelElement"
+            error:
+              nullable: true
+    SubmodelElementListResult:
+      allOf:
+        - $ref: "#/components/schemas/BaseResult"
+        - properties:
+            data:
+              type: array
+              items:
+                $ref: "#/components/schemas/StrippedSubmodelElement"
+            error:
+              nullable: true
+    ConstraintResult:
+      allOf:
+        - $ref: "#/components/schemas/BaseResult"
+        - properties:
+            data:
+              $ref: "#/components/schemas/Constraint"
+            error:
+              nullable: true
+    ConstraintListResult:
+      allOf:
+        - $ref: "#/components/schemas/BaseResult"
+        - properties:
+            data:
+              type: array
+              items:
+                $ref: "#/components/schemas/Constraint"
+            error:
+              nullable: true
+    StrippedAssetAdministrationShell:
+      allOf:
+        - $ref: "#/components/schemas/AssetAdministrationShell"
+        - properties:
+            views:
+              not: {}
+            submodels:
+              not: {}
+            conceptDictionaries:
+              not: {}
+    StrippedSubmodel:
+      allOf:
+        - $ref: "#/components/schemas/Submodel"
+        - properties:
+            submodelElements:
+              not: {}
+            qualifiers:
+              not: {}
+    StrippedSubmodelElement:
+      allOf:
+        - $ref: "#/components/schemas/SubmodelElement"
+        - properties:
+            qualifiers:
+              not: {}
+    Referable:
+      allOf:
+        - $ref: '#/components/schemas/HasExtensions'
+        - properties:
+            idShort:
+              type: string
+            category:
+              type: string
+            displayName:
+              type: string
+            description:
+              type: array
+              items:
+                $ref: '#/components/schemas/LangString'
+            modelType:
+              $ref: '#/components/schemas/ModelType'
+          required:
+            - modelType
+    Identifiable:
+      allOf:
+        - $ref: '#/components/schemas/Referable'
+        - properties:
+            identification:
+              $ref: '#/components/schemas/Identifier'
+            administration:
+              $ref: '#/components/schemas/AdministrativeInformation'
+          required:
+            - identification
+    Qualifiable:
+      type: object
+      properties:
+        qualifiers:
+          type: array
+          items:
+            $ref: '#/components/schemas/Constraint'
+    HasSemantics:
+      type: object
+      properties:
+        semanticId:
+          $ref: '#/components/schemas/Reference'
+    HasDataSpecification:
+      type: object
+      properties:
+        embeddedDataSpecifications:
+          type: array
+          items:
+            $ref: '#/components/schemas/EmbeddedDataSpecification'
+    HasExtensions:
+      type: object
+      properties:
+        extensions:
+          type: array
+          items:
+            $ref: '#/components/schemas/Extension'
+    Extension:
+      allOf:
+        - $ref: '#/components/schemas/HasSemantics'
+        - properties:
+            name:
+              type: string
+            valueType:
+              type: string
+              enum:
+                - anyUri
+                - base64Binary
+                - boolean
+                - date
+                - dateTime
+                - dateTimeStamp
+                - decimal
+                - integer
+                - long
+                - int
+                - short
+                - byte
+                - nonNegativeInteger
+                - positiveInteger
+                - unsignedLong
+                - unsignedInt
+                - unsignedShort
+                - unsignedByte
+                - nonPositiveInteger
+                - negativeInteger
+                - double
+                - duration
+                - dayTimeDuration
+                - yearMonthDuration
+                - float
+                - gDay
+                - gMonth
+                - gMonthDay
+                - gYear
+                - gYearMonth
+                - hexBinary
+                - NOTATION
+                - QName
+                - string
+                - normalizedString
+                - token
+                - language
+                - Name
+                - NCName
+                - ENTITY
+                - ID
+                - IDREF
+                - NMTOKEN
+                - time
+            value:
+              type: string
+            refersTo:
+              $ref: '#/components/schemas/Reference'
+          required:
+            - name
+    AssetAdministrationShell:
+      allOf:
+        - $ref: '#/components/schemas/Identifiable'
+        - $ref: '#/components/schemas/HasDataSpecification'
+        - properties:
+            derivedFrom:
+              $ref: '#/components/schemas/Reference'
+            assetInformation:
+              $ref: '#/components/schemas/AssetInformation'
+            submodels:
+              type: array
+              items:
+                $ref: '#/components/schemas/Reference'
+            views:
+              type: array
+              items:
+                $ref: '#/components/schemas/View'
+            security:
+              $ref: '#/components/schemas/Security'
+          required:
+            - assetInformation
+    Identifier:
+      type: object
+      properties:
+        id:
+          type: string
+        idType:
+          $ref: '#/components/schemas/KeyType'
+      required:
+        - id
+        - idType
+    KeyType:
+      type: string
+      enum:
+        - Custom
+        - IRDI
+        - IRI
+        - IdShort
+        - FragmentId
+    AdministrativeInformation:
+      type: object
+      properties:
+        version:
+          type: string
+        revision:
+          type: string
+    LangString:
+      type: object
+      properties:
+        language:
+          type: string
+        text:
+          type: string
+      required:
+        - language
+        - text
+    Reference:
+      type: object
+      properties:
+        keys:
+          type: array
+          items:
+            $ref: '#/components/schemas/Key'
+      required:
+        - keys
+    Key:
+      type: object
+      properties:
+        type:
+          $ref: '#/components/schemas/KeyElements'
+        idType:
+          $ref: '#/components/schemas/KeyType'
+        value:
+          type: string
+      required:
+        - type
+        - idType
+        - value
+    KeyElements:
+      type: string
+      enum:
+        - Asset
+        - AssetAdministrationShell
+        - ConceptDescription
+        - Submodel
+        - AccessPermissionRule
+        - AnnotatedRelationshipElement
+        - BasicEvent
+        - Blob
+        - Capability
+        - DataElement
+        - File
+        - Entity
+        - Event
+        - MultiLanguageProperty
+        - Operation
+        - Property
+        - Range
+        - ReferenceElement
+        - RelationshipElement
+        - SubmodelElement
+        - SubmodelElementCollection
+        - View
+        - GlobalReference
+        - FragmentReference
+    ModelTypes:
+      type: string
+      enum:
+        - Asset
+        - AssetAdministrationShell
+        - ConceptDescription
+        - Submodel
+        - AccessPermissionRule
+        - AnnotatedRelationshipElement
+        - BasicEvent
+        - Blob
+        - Capability
+        - DataElement
+        - File
+        - Entity
+        - Event
+        - MultiLanguageProperty
+        - Operation
+        - Property
+        - Range
+        - ReferenceElement
+        - RelationshipElement
+        - SubmodelElement
+        - SubmodelElementCollection
+        - View
+        - GlobalReference
+        - FragmentReference
+        - Constraint
+        - Formula
+        - Qualifier
+    ModelType:
+      type: object
+      properties:
+        name:
+          $ref: '#/components/schemas/ModelTypes'
+      required:
+        - name
+    EmbeddedDataSpecification:
+      type: object
+      properties:
+        dataSpecification:
+          $ref: '#/components/schemas/Reference'
+        dataSpecificationContent:
+          $ref: '#/components/schemas/DataSpecificationContent'
+      required:
+        - dataSpecification
+        - dataSpecificationContent
+    DataSpecificationContent:
+      oneOf:
+        - $ref: '#/components/schemas/DataSpecificationIEC61360Content'
+        - $ref: '#/components/schemas/DataSpecificationPhysicalUnitContent'
+    DataSpecificationPhysicalUnitContent:
+      type: object
+      properties:
+        unitName:
+          type: string
+        unitSymbol:
+          type: string
+        definition:
+          type: array
+          items:
+            $ref: '#/components/schemas/LangString'
+        siNotation:
+          type: string
+        siName:
+          type: string
+        dinNotation:
+          type: string
+        eceName:
+          type: string
+        eceCode:
+          type: string
+        nistName:
+          type: string
+        sourceOfDefinition:
+          type: string
+        conversionFactor:
+          type: string
+        registrationAuthorityId:
+          type: string
+        supplier:
+          type: string
+      required:
+        - unitName
+        - unitSymbol
+        - definition
+    DataSpecificationIEC61360Content:
+      allOf:
+        - $ref: '#/components/schemas/ValueObject'
+        - type: object
+          properties:
+            dataType:
+              enum:
+                - DATE
+                - STRING
+                - STRING_TRANSLATABLE
+                - REAL_MEASURE
+                - REAL_COUNT
+                - REAL_CURRENCY
+                - BOOLEAN
+                - URL
+                - RATIONAL
+                - RATIONAL_MEASURE
+                - TIME
+                - TIMESTAMP
+                - INTEGER_COUNT
+                - INTEGER_MEASURE
+                - INTEGER_CURRENCY
+            definition:
+              type: array
+              items:
+                $ref: '#/components/schemas/LangString'
+            preferredName:
+              type: array
+              items:
+                $ref: '#/components/schemas/LangString'
+            shortName:
+              type: array
+              items:
+                $ref: '#/components/schemas/LangString'
+            sourceOfDefinition:
+              type: string
+            symbol:
+              type: string
+            unit:
+              type: string
+            unitId:
+              $ref: '#/components/schemas/Reference'
+            valueFormat:
+              type: string
+            valueList:
+              $ref: '#/components/schemas/ValueList'
+            levelType:
+              type: array
+              items:
+                $ref: '#/components/schemas/LevelType'
+          required:
+            - preferredName
+    LevelType:
+      type: string
+      enum:
+        - Min
+        - Max
+        - Nom
+        - Typ
+    ValueList:
+      type: object
+      properties:
+        valueReferencePairTypes:
+          type: array
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/ValueReferencePairType'
+      required:
+        - valueReferencePairTypes
+    ValueReferencePairType:
+      allOf:
+        - $ref: '#/components/schemas/ValueObject'
+    ValueObject:
+      type: object
+      properties:
+        value:
+          type: string
+        valueId:
+          $ref: '#/components/schemas/Reference'
+        valueType:
+          type: string
+          enum:
+            - anyUri
+            - base64Binary
+            - boolean
+            - date
+            - dateTime
+            - dateTimeStamp
+            - decimal
+            - integer
+            - long
+            - int
+            - short
+            - byte
+            - nonNegativeInteger
+            - positiveInteger
+            - unsignedLong
+            - unsignedInt
+            - unsignedShort
+            - unsignedByte
+            - nonPositiveInteger
+            - negativeInteger
+            - double
+            - duration
+            - dayTimeDuration
+            - yearMonthDuration
+            - float
+            - gDay
+            - gMonth
+            - gMonthDay
+            - gYear
+            - gYearMonth
+            - hexBinary
+            - NOTATION
+            - QName
+            - string
+            - normalizedString
+            - token
+            - language
+            - Name
+            - NCName
+            - ENTITY
+            - ID
+            - IDREF
+            - NMTOKEN
+            - time
+    Asset:
+      allOf:
+        - $ref: '#/components/schemas/Identifiable'
+        - $ref: '#/components/schemas/HasDataSpecification'
+    AssetInformation:
+      allOf:
+        - properties:
+            assetKind:
+              $ref: '#/components/schemas/AssetKind'
+            globalAssetId:
+              $ref: '#/components/schemas/Reference'
+            externalAssetIds:
+              type: array
+              items:
+                $ref: '#/components/schemas/IdentifierKeyValuePair'
+            billOfMaterial:
+              type: array
+              items:
+                $ref: '#/components/schemas/Reference'
+            thumbnail:
+              $ref: '#/components/schemas/File'
+          required:
+            - assetKind
+    IdentifierKeyValuePair:
+      allOf:
+        - $ref: '#/components/schemas/HasSemantics'
+        - properties:
+            key:
+              type: string
+            value:
+              type: string
+            subjectId:
+              $ref: '#/components/schemas/Reference'
+          required:
+            - key
+            - value
+            - subjectId
+    AssetKind:
+      type: string
+      enum:
+        - Type
+        - Instance
+    ModelingKind:
+      type: string
+      enum:
+        - Template
+        - Instance
+    Submodel:
+      allOf:
+        - $ref: '#/components/schemas/Identifiable'
+        - $ref: '#/components/schemas/HasDataSpecification'
+        - $ref: '#/components/schemas/Qualifiable'
+        - $ref: '#/components/schemas/HasSemantics'
+        - properties:
+            kind:
+              $ref: '#/components/schemas/ModelingKind'
+            submodelElements:
+              type: array
+              items:
+                $ref: '#/components/schemas/SubmodelElement'
+    Constraint:
+      type: object
+      properties:
+        modelType:
+          $ref: '#/components/schemas/ModelType'
+      required:
+        - modelType
+    Operation:
+      allOf:
+        - $ref: '#/components/schemas/SubmodelElement'
+        - properties:
+            inputVariable:
+              type: array
+              items:
+                $ref: '#/components/schemas/OperationVariable'
+            outputVariable:
+              type: array
+              items:
+                $ref: '#/components/schemas/OperationVariable'
+            inoutputVariable:
+              type: array
+              items:
+                $ref: '#/components/schemas/OperationVariable'
+    OperationVariable:
+      type: object
+      properties:
+        value:
+          oneOf:
+            - $ref: '#/components/schemas/Blob'
+            - $ref: '#/components/schemas/File'
+            - $ref: '#/components/schemas/Capability'
+            - $ref: '#/components/schemas/Entity'
+            - $ref: '#/components/schemas/Event'
+            - $ref: '#/components/schemas/BasicEvent'
+            - $ref: '#/components/schemas/MultiLanguageProperty'
+            - $ref: '#/components/schemas/Operation'
+            - $ref: '#/components/schemas/Property'
+            - $ref: '#/components/schemas/Range'
+            - $ref: '#/components/schemas/ReferenceElement'
+            - $ref: '#/components/schemas/RelationshipElement'
+            - $ref: '#/components/schemas/SubmodelElementCollection'
+      required:
+        - value
+    SubmodelElement:
+      allOf:
+        - $ref: '#/components/schemas/Referable'
+        - $ref: '#/components/schemas/HasDataSpecification'
+        - $ref: '#/components/schemas/HasSemantics'
+        - $ref: '#/components/schemas/Qualifiable'
+        - properties:
+            kind:
+              $ref: '#/components/schemas/ModelingKind'
+            idShort:
+              type: string
+          required:
+            - idShort
+    Event:
+      allOf:
+        - $ref: '#/components/schemas/SubmodelElement'
+    BasicEvent:
+      allOf:
+        - $ref: '#/components/schemas/Event'
+        - properties:
+            observed:
+              $ref: '#/components/schemas/Reference'
+          required:
+            - observed
+    EntityType:
+      type: string
+      enum:
+        - CoManagedEntity
+        - SelfManagedEntity
+    Entity:
+      allOf:
+        - $ref: '#/components/schemas/SubmodelElement'
+        - properties:
+            statements:
+              type: array
+              items:
+                $ref: '#/components/schemas/SubmodelElement'
+            entityType:
+              $ref: '#/components/schemas/EntityType'
+            globalAssetId:
+              $ref: '#/components/schemas/Reference'
+            specificAssetIds:
+              $ref: '#/components/schemas/IdentifierKeyValuePair'
+          required:
+            - entityType
+    View:
+      allOf:
+        - $ref: '#/components/schemas/Referable'
+        - $ref: '#/components/schemas/HasDataSpecification'
+        - $ref: '#/components/schemas/HasSemantics'
+        - properties:
+            containedElements:
+              type: array
+              items:
+                $ref: '#/components/schemas/Reference'
+    ConceptDescription:
+      allOf:
+        - $ref: '#/components/schemas/Identifiable'
+        - $ref: '#/components/schemas/HasDataSpecification'
+        - properties:
+            isCaseOf:
+              type: array
+              items:
+                $ref: '#/components/schemas/Reference'
+    Capability:
+      allOf:
+        - $ref: '#/components/schemas/SubmodelElement'
+    Property:
+      allOf:
+        - $ref: '#/components/schemas/SubmodelElement'
+        - $ref: '#/components/schemas/ValueObject'
+    Range:
+      allOf:
+        - $ref: '#/components/schemas/SubmodelElement'
+        - properties:
+            valueType:
+              type: string
+              enum:
+                - anyUri
+                - base64Binary
+                - boolean
+                - date
+                - dateTime
+                - dateTimeStamp
+                - decimal
+                - integer
+                - long
+                - int
+                - short
+                - byte
+                - nonNegativeInteger
+                - positiveInteger
+                - unsignedLong
+                - unsignedInt
+                - unsignedShort
+                - unsignedByte
+                - nonPositiveInteger
+                - negativeInteger
+                - double
+                - duration
+                - dayTimeDuration
+                - yearMonthDuration
+                - float
+                - gDay
+                - gMonth
+                - gMonthDay
+                - gYear
+                - gYearMonth
+                - hexBinary
+                - NOTATION
+                - QName
+                - string
+                - normalizedString
+                - token
+                - language
+                - Name
+                - NCName
+                - ENTITY
+                - ID
+                - IDREF
+                - NMTOKEN
+                - time
+            min:
+              type: string
+            max:
+              type: string
+          required:
+            - valueType
+    MultiLanguageProperty:
+      allOf:
+        - $ref: '#/components/schemas/SubmodelElement'
+        - properties:
+            value:
+              type: array
+              items:
+                $ref: '#/components/schemas/LangString'
+            valueId:
+              $ref: '#/components/schemas/Reference'
+    File:
+      allOf:
+        - $ref: '#/components/schemas/SubmodelElement'
+        - properties:
+            value:
+              type: string
+            mimeType:
+              type: string
+          required:
+            - mimeType
+    Blob:
+      allOf:
+        - $ref: '#/components/schemas/SubmodelElement'
+        - properties:
+            value:
+              type: string
+            mimeType:
+              type: string
+          required:
+            - mimeType
+    ReferenceElement:
+      allOf:
+        - $ref: '#/components/schemas/SubmodelElement'
+        - properties:
+            value:
+              $ref: '#/components/schemas/Reference'
+    SubmodelElementCollection:
+      allOf:
+        - $ref: '#/components/schemas/SubmodelElement'
+        - properties:
+            value:
+              type: array
+              items:
+                oneOf:
+                  - $ref: '#/components/schemas/Blob'
+                  - $ref: '#/components/schemas/File'
+                  - $ref: '#/components/schemas/Capability'
+                  - $ref: '#/components/schemas/Entity'
+                  - $ref: '#/components/schemas/Event'
+                  - $ref: '#/components/schemas/BasicEvent'
+                  - $ref: '#/components/schemas/MultiLanguageProperty'
+                  - $ref: '#/components/schemas/Operation'
+                  - $ref: '#/components/schemas/Property'
+                  - $ref: '#/components/schemas/Range'
+                  - $ref: '#/components/schemas/ReferenceElement'
+                  - $ref: '#/components/schemas/RelationshipElement'
+                  - $ref: '#/components/schemas/SubmodelElementCollection'
+            allowDuplicates:
+              type: boolean
+            ordered:
+              type: boolean
+    RelationshipElement:
+      allOf:
+        - $ref: '#/components/schemas/SubmodelElement'
+        - properties:
+            first:
+              $ref: '#/components/schemas/Reference'
+            second:
+              $ref: '#/components/schemas/Reference'
+          required:
+            - first
+            - second
+    AnnotatedRelationshipElement:
+      allOf:
+        - $ref: '#/components/schemas/RelationshipElement'
+        - properties:
+            annotation:
+              type: array
+              items:
+                oneOf:
+                  - $ref: '#/components/schemas/Blob'
+                  - $ref: '#/components/schemas/File'
+                  - $ref: '#/components/schemas/MultiLanguageProperty'
+                  - $ref: '#/components/schemas/Property'
+                  - $ref: '#/components/schemas/Range'
+                  - $ref: '#/components/schemas/ReferenceElement'
+    Qualifier:
+      allOf:
+        - $ref: '#/components/schemas/Constraint'
+        - $ref: '#/components/schemas/HasSemantics'
+        - $ref: '#/components/schemas/ValueObject'
+        - properties:
+            type:
+              type: string
+          required:
+            - type
+    Formula:
+      allOf:
+        - $ref: '#/components/schemas/Constraint'
+        - properties:
+            dependsOn:
+              type: array
+              items:
+                $ref: '#/components/schemas/Reference'
+    Security:
+      type: object
+      properties:
+        accessControlPolicyPoints:
+          $ref: '#/components/schemas/AccessControlPolicyPoints'
+        certificate:
+          type: array
+          items:
+            oneOf:
+              - $ref: '#/components/schemas/BlobCertificate'
+        requiredCertificateExtension:
+          type: array
+          items:
+            $ref: '#/components/schemas/Reference'
+      required:
+        - accessControlPolicyPoints
+    Certificate:
+      type: object
+    BlobCertificate:
+      allOf:
+        - $ref: '#/components/schemas/Certificate'
+        - properties:
+            blobCertificate:
+              $ref: '#/components/schemas/Blob'
+            containedExtension:
+              type: array
+              items:
+                $ref: '#/components/schemas/Reference'
+            lastCertificate:
+              type: boolean
+    AccessControlPolicyPoints:
+      type: object
+      properties:
+        policyAdministrationPoint:
+          $ref: '#/components/schemas/PolicyAdministrationPoint'
+        policyDecisionPoint:
+          $ref: '#/components/schemas/PolicyDecisionPoint'
+        policyEnforcementPoint:
+          $ref: '#/components/schemas/PolicyEnforcementPoint'
+        policyInformationPoints:
+          $ref: '#/components/schemas/PolicyInformationPoints'
+      required:
+        - policyAdministrationPoint
+        - policyDecisionPoint
+        - policyEnforcementPoint
+    PolicyAdministrationPoint:
+      type: object
+      properties:
+        localAccessControl:
+          $ref: '#/components/schemas/AccessControl'
+        externalAccessControl:
+          type: boolean
+      required:
+        - externalAccessControl
+    PolicyInformationPoints:
+      type: object
+      properties:
+        internalInformationPoint:
+          type: array
+          items:
+            $ref: '#/components/schemas/Reference'
+        externalInformationPoint:
+          type: boolean
+      required:
+        - externalInformationPoint
+    PolicyEnforcementPoint:
+      type: object
+      properties:
+        externalPolicyEnforcementPoint:
+          type: boolean
+      required:
+        - externalPolicyEnforcementPoint
+    PolicyDecisionPoint:
+      type: object
+      properties:
+        externalPolicyDecisionPoints:
+          type: boolean
+      required:
+        - externalPolicyDecisionPoints
+    AccessControl:
+      type: object
+      properties:
+        selectableSubjectAttributes:
+          $ref: '#/components/schemas/Reference'
+        defaultSubjectAttributes:
+          $ref: '#/components/schemas/Reference'
+        selectablePermissions:
+          $ref: '#/components/schemas/Reference'
+        defaultPermissions:
+          $ref: '#/components/schemas/Reference'
+        selectableEnvironmentAttributes:
+          $ref: '#/components/schemas/Reference'
+        defaultEnvironmentAttributes:
+          $ref: '#/components/schemas/Reference'
+        accessPermissionRule:
+          type: array
+          items:
+            $ref: '#/components/schemas/AccessPermissionRule'
+    AccessPermissionRule:
+      allOf:
+        - $ref: '#/components/schemas/Referable'
+        - $ref: '#/components/schemas/Qualifiable'
+        - properties:
+            targetSubjectAttributes:
+              type: array
+              items:
+                $ref: '#/components/schemas/SubjectAttributes'
+              minItems: 1
+            permissionsPerObject:
+              type: array
+              items:
+                $ref: '#/components/schemas/PermissionsPerObject'
+          required:
+            - targetSubjectAttributes
+    SubjectAttributes:
+      type: object
+      properties:
+        subjectAttributes:
+          type: array
+          items:
+            $ref: '#/components/schemas/Reference'
+          minItems: 1
+    PermissionsPerObject:
+      type: object
+      properties:
+        object:
+          $ref: '#/components/schemas/Reference'
+        targetObjectAttributes:
+          $ref: '#/components/schemas/ObjectAttributes'
+        permission:
+          type: array
+          items:
+            $ref: '#/components/schemas/Permission'
+    ObjectAttributes:
+      type: object
+      properties:
+        objectAttribute:
+          type: array
+          items:
+            $ref: '#/components/schemas/Property'
+          minItems: 1
+    Permission:
+      type: object
+      properties:
+        permission:
+          $ref: '#/components/schemas/Reference'
+        kindOfPermission:
+          type: string
+          enum:
+            - Allow
+            - Deny
+            - NotApplicable
+            - Undefined
+      required:
+        - permission
+        - kindOfPermission
