@@ -504,7 +504,8 @@ class AASFromXmlDecoder:
     def _amend_extension_attrs(cls, element: etree.Element, obj: model.HasExtension):
         extension_elem = element.find(NS_AAS + "extensions")
         if extension_elem is not None:
-            for extension in _child_construct_multiple(extension_elem, NS_AAS + "extension", cls.construct_extension, cls.failsafe):
+            for extension in _child_construct_multiple(extension_elem, NS_AAS + "extension",
+                                                       cls.construct_extension, cls.failsafe):
                 obj.extension.add(extension)
 
     @classmethod
