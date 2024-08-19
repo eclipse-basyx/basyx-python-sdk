@@ -51,7 +51,7 @@ class XmlDeserializationTest(unittest.TestCase):
             read_aas_xml_file(bytes_io, failsafe=False)
         cause = _root_cause(err_ctx.exception)
         for s in strings:
-            self.assertIn(s, log_ctx.output[0])  # type: ignore
+            self.assertIn(s, log_ctx.output[0])
             self.assertIn(s, str(cause))
 
     def test_malformed_xml(self) -> None:
@@ -173,7 +173,7 @@ class XmlDeserializationTest(unittest.TestCase):
         with self.assertLogs(logging.getLogger(), level=logging.WARNING) as context:
             read_aas_xml_file(io.BytesIO(xml.encode("utf-8")), failsafe=False)
         for s in ("SUBMODEL", "http://acplt.org/test_ref", "AssetAdministrationShell"):
-            self.assertIn(s, context.output[0])  # type: ignore
+            self.assertIn(s, context.output[0])
 
     def test_invalid_submodel_element(self) -> None:
         xml = _xml_wrap("""
@@ -221,7 +221,7 @@ class XmlDeserializationTest(unittest.TestCase):
             </aas:submodel>
         </aas:submodels>
         """)
-        self._assertInExceptionAndLog(xml, "aas:value", KeyError, logging.ERROR)
+        self._assertInExceptionAndLog(xml, ["aas:value", "has no submodel element"], KeyError, logging.ERROR)
 
     def test_operation_variable_too_many_submodel_elements(self) -> None:
         # TODO: simplify this should our suggestion regarding the XML schema get accepted
@@ -255,7 +255,8 @@ class XmlDeserializationTest(unittest.TestCase):
         """)
         with self.assertLogs(logging.getLogger(), level=logging.WARNING) as context:
             read_aas_xml_file(io.BytesIO(xml.encode("utf-8")), failsafe=False)
-        self.assertIn("aas:value", context.output[0])  # type: ignore
+        self.assertIn("aas:value", context.output[0])
+        self.assertIn("more than one submodel element", context.output[0])
 
     def test_duplicate_identifier(self) -> None:
         xml = _xml_wrap("""
@@ -306,7 +307,7 @@ class XmlDeserializationTest(unittest.TestCase):
         with self.assertLogs(logging.getLogger(), level=logging.INFO) as log_ctx:
             identifiers = read_aas_xml_file_into(object_store, bytes_io, replace_existing=False, ignore_existing=True)
         self.assertEqual(len(identifiers), 0)
-        self.assertIn("already exists in the object store", log_ctx.output[0])  # type: ignore
+        self.assertIn("already exists in the object store", log_ctx.output[0])
         submodel = object_store.pop()
         self.assertIsInstance(submodel, model.Submodel)
         self.assertEqual(submodel.id_short, "test123")

@@ -305,9 +305,11 @@ def extension_to_xml(obj: model.Extension, tag: str = NS_AAS+"extension") -> etr
                                               text=model.datatypes.XSD_TYPE_NAMES[obj.value_type]))
     if obj.value:
         et_extension.append(_value_to_xml(obj.value, obj.value_type))  # type: ignore # (value_type could be None)
-    for refers_to in obj.refers_to:
-        et_extension.append(reference_to_xml(refers_to, NS_AAS+"refersTo"))
-
+    if len(obj.refers_to) > 0:
+        refers_to = _generate_element(NS_AAS+"refersTo")
+        for reference in obj.refers_to:
+            refers_to.append(reference_to_xml(reference, NS_AAS+"reference"))
+        et_extension.append(refers_to)
     return et_extension
 
 
@@ -705,11 +707,6 @@ def submodel_element_list_to_xml(obj: model.SubmodelElementList,
                                  tag: str = NS_AAS+"submodelElementList") -> etree.Element:
     et_submodel_element_list = abstract_classes_to_xml(tag, obj)
     et_submodel_element_list.append(_generate_element(NS_AAS + "orderRelevant", boolean_to_xml(obj.order_relevant)))
-    if len(obj.value) > 0:
-        et_value = _generate_element(NS_AAS + "value")
-        for se in obj.value:
-            et_value.append(submodel_element_to_xml(se))
-        et_submodel_element_list.append(et_value)
     if obj.semantic_id_list_element is not None:
         et_submodel_element_list.append(reference_to_xml(obj.semantic_id_list_element,
                                                          NS_AAS + "semanticIdListElement"))
@@ -718,6 +715,11 @@ def submodel_element_list_to_xml(obj: model.SubmodelElementList,
     if obj.value_type_list_element is not None:
         et_submodel_element_list.append(_generate_element(NS_AAS + "valueTypeListElement",
                                                           model.datatypes.XSD_TYPE_NAMES[obj.value_type_list_element]))
+    if len(obj.value) > 0:
+        et_value = _generate_element(NS_AAS + "value")
+        for se in obj.value:
+            et_value.append(submodel_element_to_xml(se))
+        et_submodel_element_list.append(et_value)
     return et_submodel_element_list
 
 

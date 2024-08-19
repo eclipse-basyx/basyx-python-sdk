@@ -567,8 +567,8 @@ class AASFromJsonDecoder(json.JSONDecoder):
         if 'value' in dct:
             ret.value = model.datatypes.from_xsd(_get_ts(dct, 'value', str), ret.value_type)
         if 'refersTo' in dct:
-            ret.refers_to = [cls._construct_model_reference(refers_to, model.Referable)  # type: ignore
-                             for refers_to in _get_ts(dct, 'refersTo', list)]
+            ret.refers_to = {cls._construct_model_reference(refers_to, model.Referable)  # type: ignore
+                             for refers_to in _get_ts(dct, 'refersTo', list)}
         return ret
 
     @classmethod
