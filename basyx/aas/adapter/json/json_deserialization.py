@@ -70,7 +70,7 @@ def _get_ts(dct: Dict[str, object], key: str, type_: Type[T]) -> T:
     return val
 
 
-def _is_of_type(object_: object, type_: Type, context: str, failsafe: bool) -> bool:
+def _validate_type(object_: object, type_: Type, context: str, failsafe: bool) -> bool:
     """
     Helper function to check type of an embedded object.
 
@@ -541,7 +541,7 @@ class AASFromJsonDecoder(json.JSONDecoder):
         cls._amend_abstract_attributes(ret, dct)
         if not cls.stripped and 'statements' in dct:
             for element in _get_ts(dct, "statements", list):
-                if _is_of_type(element, model.SubmodelElement, str(ret), cls.failsafe):
+                if _validate_type(element, model.SubmodelElement, str(ret), cls.failsafe):
                     ret.statement.add(element)
         return ret
 
@@ -578,7 +578,7 @@ class AASFromJsonDecoder(json.JSONDecoder):
         cls._amend_abstract_attributes(ret, dct)
         if not cls.stripped and 'submodelElements' in dct:
             for element in _get_ts(dct, "submodelElements", list):
-                if _is_of_type(element, model.SubmodelElement, str(ret), cls.failsafe):
+                if _validate_type(element, model.SubmodelElement, str(ret), cls.failsafe):
                     ret.submodel_element.add(element)
         return ret
 
@@ -657,7 +657,7 @@ class AASFromJsonDecoder(json.JSONDecoder):
         cls._amend_abstract_attributes(ret, dct)
         if not cls.stripped and 'annotations' in dct:
             for element in _get_ts(dct, 'annotations', list):
-                if _is_of_type(element, model.DataElement, str(ret), cls.failsafe):
+                if _validate_type(element, model.DataElement, str(ret), cls.failsafe):
                     ret.annotation.add(element)
         return ret
 
@@ -669,7 +669,7 @@ class AASFromJsonDecoder(json.JSONDecoder):
         cls._amend_abstract_attributes(ret, dct)
         if not cls.stripped and 'value' in dct:
             for element in _get_ts(dct, "value", list):
-                if _is_of_type(element, model.SubmodelElement, str(ret), cls.failsafe):
+                if _validate_type(element, model.SubmodelElement, str(ret), cls.failsafe):
                     ret.value.add(element)
         return ret
 
@@ -694,7 +694,7 @@ class AASFromJsonDecoder(json.JSONDecoder):
         cls._amend_abstract_attributes(ret, dct)
         if not cls.stripped and 'value' in dct:
             for element in _get_ts(dct, 'value', list):
-                if _is_of_type(element, type_value_list_element, str(ret), cls.failsafe):
+                if _validate_type(element, type_value_list_element, str(ret), cls.failsafe):
                     ret.value.add(element)
         return ret
 
