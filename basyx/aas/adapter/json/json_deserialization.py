@@ -70,7 +70,7 @@ def _get_ts(dct: Dict[str, object], key: str, type_: Type[T]) -> T:
     return val
 
 
-def _expect_type(object_: object, type_: Type, context: str, failsafe: bool) -> bool:
+def _validate_type(object_: object, type_: Type, context: str, failsafe: bool) -> bool:
     """
     Helper function to check type of an embedded object.
 
@@ -232,48 +232,72 @@ class AASFromJsonDecoder(json.JSONDecoder):
         :param dct: The object's dict representation from JSON
         """
         if isinstance(obj, model.Referable):
-            if 'idShort' in dct:
-                obj.id_short = _get_ts(dct, 'idShort', str)
-            if 'category' in dct:
-                obj.category = _get_ts(dct, 'category', str)
-            if 'displayName' in dct:
-                obj.display_name = cls._construct_lang_string_set(_get_ts(dct, 'displayName', list),
-                                                                  model.MultiLanguageNameType)
-            if 'description' in dct:
-                obj.description = cls._construct_lang_string_set(_get_ts(dct, 'description', list),
-                                                                 model.MultiLanguageTextType)
+            cls._amend_referable_attrs(obj, dct)
         if isinstance(obj, model.Identifiable):
-            if 'administration' in dct:
-                obj.administration = cls._construct_administrative_information(_get_ts(dct, 'administration', dict))
+            cls._amend_identifiable_attrs(obj, dct)
         if isinstance(obj, model.HasSemantics):
-            if 'semanticId' in dct:
-                obj.semantic_id = cls._construct_reference(_get_ts(dct, 'semanticId', dict))
-            if 'supplementalSemanticIds' in dct:
-                for ref in _get_ts(dct, 'supplementalSemanticIds', list):
-                    obj.supplemental_semantic_id.append(cls._construct_reference(ref))
+            cls._amend_has_semantics_attrs(obj, dct)
         # `HasKind` provides only mandatory, immutable attributes; so we cannot do anything here, after object creation.
         # However, the `cls._get_kind()` function may assist by retrieving them from the JSON object
         if isinstance(obj, model.Qualifiable) and not cls.stripped:
-            if 'qualifiers' in dct:
-                for constraint_dct in _get_ts(dct, 'qualifiers', list):
-                    constraint = cls._construct_qualifier(constraint_dct)
-                    obj.qualifier.add(constraint)
+            cls._amend_qualifiable_attrs(obj, dct)
         if isinstance(obj, model.HasDataSpecification) and not cls.stripped:
-            if 'embeddedDataSpecifications' in dct:
-                for dspec in _get_ts(dct, 'embeddedDataSpecifications', list):
-                    obj.embedded_data_specifications.append(
-                        # TODO: remove the following type: ignore comment when mypy supports abstract types for Type[T]
-                        # see https://github.com/python/mypy/issues/5374
-                        model.EmbeddedDataSpecification(
-                            data_specification=cls._construct_reference(_get_ts(dspec, 'dataSpecification', dict)),
-                            data_specification_content=_get_ts(dspec, 'dataSpecificationContent',
-                                                               model.DataSpecificationContent)  # type: ignore
-                        )
-                    )
+            cls._amend_has_data_specification_attrs(obj, dct)
         if isinstance(obj, model.HasExtension) and not cls.stripped:
-            if 'extensions' in dct:
-                for extension in _get_ts(dct, 'extensions', list):
-                    obj.extension.add(cls._construct_extension(extension))
+            cls._amend_has_extension_attrs(obj, dct)
+
+    @classmethod
+    def _amend_referable_attrs(cls, obj: model.Referable, dct: Dict[str, object]):
+        if 'idShort' in dct:
+            obj.id_short = _get_ts(dct, 'idShort', str)
+        if 'category' in dct:
+            obj.category = _get_ts(dct, 'category', str)
+        if 'displayName' in dct:
+            obj.display_name = cls._construct_lang_string_set(_get_ts(dct, 'displayName', list),
+                                                              model.MultiLanguageNameType)
+        if 'description' in dct:
+            obj.description = cls._construct_lang_string_set(_get_ts(dct, 'description', list),
+                                                             model.MultiLanguageTextType)
+
+    @classmethod
+    def _amend_identifiable_attrs(cls, obj: model.Identifiable, dct: Dict[str, object]):
+        if 'administration' in dct:
+            obj.administration = cls._construct_administrative_information(_get_ts(dct, 'administration', dict))
+
+    @classmethod
+    def _amend_has_semantics_attrs(cls, obj: model.HasSemantics, dct: Dict[str, object]):
+        if 'semanticId' in dct:
+            obj.semantic_id = cls._construct_reference(_get_ts(dct, 'semanticId', dict))
+        if 'supplementalSemanticIds' in dct:
+            for ref in _get_ts(dct, 'supplementalSemanticIds', list):
+                obj.supplemental_semantic_id.append(cls._construct_reference(ref))
+
+    @classmethod
+    def _amend_qualifiable_attrs(cls, obj: model.Qualifiable, dct: Dict[str, object]):
+        if 'qualifiers' in dct:
+            for constraint_dct in _get_ts(dct, 'qualifiers', list):
+                constraint = cls._construct_qualifier(constraint_dct)
+                obj.qualifier.add(constraint)
+
+    @classmethod
+    def _amend_has_data_specification_attrs(cls, obj: model.HasDataSpecification, dct: Dict[str, object]):
+        if 'embeddedDataSpecifications' in dct:
+            for dspec in _get_ts(dct, 'embeddedDataSpecifications', list):
+                obj.embedded_data_specifications.append(
+                    # TODO: remove the following type: ignore comment when mypy supports abstract types for Type[T]
+                    # see https://github.com/python/mypy/issues/5374
+                    model.EmbeddedDataSpecification(
+                        data_specification=cls._construct_reference(_get_ts(dspec, 'dataSpecification', dict)),
+                        data_specification_content=_get_ts(dspec, 'dataSpecificationContent',
+                                                           model.DataSpecificationContent)  # type: ignore
+                    )
+                )
+
+    @classmethod
+    def _amend_has_extension_attrs(cls, obj: model.HasExtension, dct: Dict[str, object]):
+        if 'extensions' in dct:
+            for extension in _get_ts(dct, 'extensions', list):
+                obj.extension.add(cls._construct_extension(extension))
 
     @classmethod
     def _get_kind(cls, dct: Dict[str, object]) -> model.ModellingKind:
@@ -517,7 +541,7 @@ class AASFromJsonDecoder(json.JSONDecoder):
         cls._amend_abstract_attributes(ret, dct)
         if not cls.stripped and 'statements' in dct:
             for element in _get_ts(dct, "statements", list):
-                if _expect_type(element, model.SubmodelElement, str(ret), cls.failsafe):
+                if _validate_type(element, model.SubmodelElement, str(ret), cls.failsafe):
                     ret.statement.add(element)
         return ret
 
@@ -554,7 +578,7 @@ class AASFromJsonDecoder(json.JSONDecoder):
         cls._amend_abstract_attributes(ret, dct)
         if not cls.stripped and 'submodelElements' in dct:
             for element in _get_ts(dct, "submodelElements", list):
-                if _expect_type(element, model.SubmodelElement, str(ret), cls.failsafe):
+                if _validate_type(element, model.SubmodelElement, str(ret), cls.failsafe):
                     ret.submodel_element.add(element)
         return ret
 
@@ -633,7 +657,7 @@ class AASFromJsonDecoder(json.JSONDecoder):
         cls._amend_abstract_attributes(ret, dct)
         if not cls.stripped and 'annotations' in dct:
             for element in _get_ts(dct, 'annotations', list):
-                if _expect_type(element, model.DataElement, str(ret), cls.failsafe):
+                if _validate_type(element, model.DataElement, str(ret), cls.failsafe):
                     ret.annotation.add(element)
         return ret
 
@@ -645,7 +669,7 @@ class AASFromJsonDecoder(json.JSONDecoder):
         cls._amend_abstract_attributes(ret, dct)
         if not cls.stripped and 'value' in dct:
             for element in _get_ts(dct, "value", list):
-                if _expect_type(element, model.SubmodelElement, str(ret), cls.failsafe):
+                if _validate_type(element, model.SubmodelElement, str(ret), cls.failsafe):
                     ret.value.add(element)
         return ret
 
@@ -670,7 +694,7 @@ class AASFromJsonDecoder(json.JSONDecoder):
         cls._amend_abstract_attributes(ret, dct)
         if not cls.stripped and 'value' in dct:
             for element in _get_ts(dct, 'value', list):
-                if _expect_type(element, type_value_list_element, str(ret), cls.failsafe):
+                if _validate_type(element, type_value_list_element, str(ret), cls.failsafe):
                     ret.value.add(element)
         return ret
 

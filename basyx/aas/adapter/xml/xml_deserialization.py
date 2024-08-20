@@ -436,53 +436,77 @@ class AASFromXmlDecoder:
         :return: None
         """
         if isinstance(obj, model.Referable):
-            id_short = _get_text_or_none(element.find(NS_AAS + "idShort"))
-            if id_short is not None:
-                obj.id_short = id_short
-            category = _get_text_or_none(element.find(NS_AAS + "category"))
-            display_name = _failsafe_construct(element.find(NS_AAS + "displayName"),
-                                               cls.construct_multi_language_name_type, cls.failsafe)
-            if display_name is not None:
-                obj.display_name = display_name
-            if category is not None:
-                obj.category = category
-            description = _failsafe_construct(element.find(NS_AAS + "description"),
-                                              cls.construct_multi_language_text_type, cls.failsafe)
-            if description is not None:
-                obj.description = description
+            cls._amend_referable_attrs(element, obj)
         if isinstance(obj, model.Identifiable):
-            administration = _failsafe_construct(element.find(NS_AAS + "administration"),
-                                                 cls.construct_administrative_information, cls.failsafe)
-            if administration:
-                obj.administration = administration
+            cls._amend_identifiable_attrs(element, obj)
         if isinstance(obj, model.HasSemantics):
-            semantic_id = _failsafe_construct(element.find(NS_AAS + "semanticId"), cls.construct_reference,
-                                              cls.failsafe)
-            if semantic_id is not None:
-                obj.semantic_id = semantic_id
-            supplemental_semantic_ids = element.find(NS_AAS + "supplementalSemanticIds")
-            if supplemental_semantic_ids is not None:
-                for supplemental_semantic_id in _child_construct_multiple(supplemental_semantic_ids,
-                                                                          NS_AAS + "reference", cls.construct_reference,
-                                                                          cls.failsafe):
-                    obj.supplemental_semantic_id.append(supplemental_semantic_id)
+            cls._amend_has_semantics_attrs(element, obj)
         if isinstance(obj, model.Qualifiable) and not cls.stripped:
-            qualifiers_elem = element.find(NS_AAS + "qualifiers")
-            if qualifiers_elem is not None and len(qualifiers_elem) > 0:
-                for qualifier in _failsafe_construct_multiple(qualifiers_elem, cls.construct_qualifier, cls.failsafe):
-                    obj.qualifier.add(qualifier)
+            cls._amend_qualifiable_attrs(element, obj)
         if isinstance(obj, model.HasDataSpecification) and not cls.stripped:
-            embedded_data_specifications_elem = element.find(NS_AAS + "embeddedDataSpecifications")
-            if embedded_data_specifications_elem is not None:
-                for eds in _failsafe_construct_multiple(embedded_data_specifications_elem,
-                                                        cls.construct_embedded_data_specification, cls.failsafe):
-                    obj.embedded_data_specifications.append(eds)
+            cls.amend_has_data_specification_attrs(element, obj)
         if isinstance(obj, model.HasExtension) and not cls.stripped:
-            extension_elem = element.find(NS_AAS + "extensions")
-            if extension_elem is not None:
-                for extension in _child_construct_multiple(extension_elem, NS_AAS + "extension",
-                                                           cls.construct_extension, cls.failsafe):
-                    obj.extension.add(extension)
+            cls._amend_extension_attrs(element, obj)
+
+    @classmethod
+    def _amend_referable_attrs(cls, element: etree.Element, obj: model.Referable):
+        id_short = _get_text_or_none(element.find(NS_AAS + "idShort"))
+        if id_short is not None:
+            obj.id_short = id_short
+        display_name = _failsafe_construct(element.find(NS_AAS + "displayName"),
+                                           cls.construct_multi_language_name_type, cls.failsafe)
+        if display_name is not None:
+            obj.display_name = display_name
+        category = _get_text_or_none(element.find(NS_AAS + "category"))
+        if category is not None:
+            obj.category = category
+        description = _failsafe_construct(element.find(NS_AAS + "description"),
+                                          cls.construct_multi_language_text_type, cls.failsafe)
+        if description is not None:
+            obj.description = description
+
+    @classmethod
+    def _amend_identifiable_attrs(cls, element: etree.Element, obj: model.Identifiable):
+        administration = _failsafe_construct(element.find(NS_AAS + "administration"),
+                                             cls.construct_administrative_information, cls.failsafe)
+        if administration:
+            obj.administration = administration
+
+    @classmethod
+    def _amend_has_semantics_attrs(cls, element: etree.Element, obj: model.HasSemantics):
+        semantic_id = _failsafe_construct(element.find(NS_AAS + "semanticId"), cls.construct_reference,
+                                          cls.failsafe)
+        if semantic_id is not None:
+            obj.semantic_id = semantic_id
+        supplemental_semantic_ids = element.find(NS_AAS + "supplementalSemanticIds")
+        if supplemental_semantic_ids is not None:
+            for supplemental_semantic_id in _child_construct_multiple(supplemental_semantic_ids,
+                                                                      NS_AAS + "reference", cls.construct_reference,
+                                                                      cls.failsafe):
+                obj.supplemental_semantic_id.append(supplemental_semantic_id)
+
+    @classmethod
+    def _amend_qualifiable_attrs(cls, element: etree.Element, obj: model.Qualifiable):
+        qualifiers_elem = element.find(NS_AAS + "qualifiers")
+        if qualifiers_elem is not None and len(qualifiers_elem) > 0:
+            for qualifier in _failsafe_construct_multiple(qualifiers_elem, cls.construct_qualifier, cls.failsafe):
+                obj.qualifier.add(qualifier)
+
+    @classmethod
+    def amend_has_data_specification_attrs(cls, element: etree.Element, obj: model.HasDataSpecification):
+        embedded_data_specifications_elem = element.find(NS_AAS + "embeddedDataSpecifications")
+        if embedded_data_specifications_elem is not None:
+            for eds in _failsafe_construct_multiple(embedded_data_specifications_elem,
+                                                    cls.construct_embedded_data_specification, cls.failsafe):
+                obj.embedded_data_specifications.append(eds)
+
+    @classmethod
+    def _amend_extension_attrs(cls, element: etree.Element, obj: model.HasExtension):
+        extension_elem = element.find(NS_AAS + "extensions")
+        if extension_elem is not None:
+            for extension in _child_construct_multiple(extension_elem, NS_AAS + "extension",
+                                                       cls.construct_extension, cls.failsafe):
+                obj.extension.add(extension)
 
     @classmethod
     def _construct_relationship_element_internal(cls, element: etree.Element, object_class: Type[RE], **_kwargs: Any) \
@@ -707,16 +731,16 @@ class AASFromXmlDecoder:
         This function doesn't support the object_class parameter.
         Overwrite each individual SubmodelElement/DataElement constructor function instead.
         """
-        submodel_elements: Dict[str, Callable[..., model.SubmodelElement]] = {NS_AAS + k: v for k, v in {
-            "annotatedRelationshipElement": cls.construct_annotated_relationship_element,
-            "basicEventElement": cls.construct_basic_event_element,
-            "capability": cls.construct_capability,
-            "entity": cls.construct_entity,
-            "operation": cls.construct_operation,
-            "relationshipElement": cls.construct_relationship_element,
-            "submodelElementCollection": cls.construct_submodel_element_collection,
-            "submodelElementList": cls.construct_submodel_element_list
-        }.items()}
+        submodel_elements: Dict[str, Callable[..., model.SubmodelElement]] = {
+            f"{NS_AAS}annotatedRelationshipElement": cls.construct_annotated_relationship_element,
+            f"{NS_AAS}basicEventElement": cls.construct_basic_event_element,
+            f"{NS_AAS}capability": cls.construct_capability,
+            f"{NS_AAS}entity": cls.construct_entity,
+            f"{NS_AAS}operation": cls.construct_operation,
+            f"{NS_AAS}relationshipElement": cls.construct_relationship_element,
+            f"{NS_AAS}submodelElementCollection": cls.construct_submodel_element_collection,
+            f"{NS_AAS}submodelElementList": cls.construct_submodel_element_list
+        }
         if element.tag not in submodel_elements:
             return cls.construct_data_element(element, abstract_class_name="SubmodelElement", **kwargs)
         return submodel_elements[element.tag](element, **kwargs)
@@ -728,14 +752,14 @@ class AASFromXmlDecoder:
         This function does not support the object_class parameter.
         Overwrite each individual DataElement constructor function instead.
         """
-        data_elements: Dict[str, Callable[..., model.DataElement]] = {NS_AAS + k: v for k, v in {
-            "blob": cls.construct_blob,
-            "file": cls.construct_file,
-            "multiLanguageProperty": cls.construct_multi_language_property,
-            "property": cls.construct_property,
-            "range": cls.construct_range,
-            "referenceElement": cls.construct_reference_element,
-        }.items()}
+        data_elements: Dict[str, Callable[..., model.DataElement]] = {
+            f"{NS_AAS}blob": cls.construct_blob,
+            f"{NS_AAS}file": cls.construct_file,
+            f"{NS_AAS}multiLanguageProperty": cls.construct_multi_language_property,
+            f"{NS_AAS}property": cls.construct_property,
+            f"{NS_AAS}range": cls.construct_range,
+            f"{NS_AAS}referenceElement": cls.construct_reference_element,
+        }
         if element.tag not in data_elements:
             raise KeyError(_element_pretty_identifier(element) + f" is not a valid {abstract_class_name}!")
         return data_elements[element.tag](element, **kwargs)
@@ -1090,9 +1114,9 @@ class AASFromXmlDecoder:
         Overwrite each individual DataSpecificationContent constructor function instead.
         """
         data_specification_contents: Dict[str, Callable[..., model.DataSpecificationContent]] = \
-            {NS_AAS + k: v for k, v in {
-                "dataSpecificationIec61360": cls.construct_data_specification_iec61360,
-            }.items()}
+            {
+                f"{NS_AAS}dataSpecificationIec61360": cls.construct_data_specification_iec61360,
+            }
         if element.tag not in data_specification_contents:
             raise KeyError(f"{_element_pretty_identifier(element)} is not a valid DataSpecificationContent!")
         return data_specification_contents[element.tag](element, **kwargs)
@@ -1295,89 +1319,53 @@ def read_aas_xml_element(file: IO, construct: XMLConstructables, failsafe: bool 
     :return: The constructed object or None, if an error occurred in failsafe mode.
     """
     decoder_ = _select_decoder(failsafe, stripped, decoder)
-    constructor: Callable[..., object]
 
-    if construct == XMLConstructables.KEY:
-        constructor = decoder_.construct_key
-    elif construct == XMLConstructables.REFERENCE:
-        constructor = decoder_.construct_reference
-    elif construct == XMLConstructables.MODEL_REFERENCE:
-        constructor = decoder_.construct_model_reference
-    elif construct == XMLConstructables.GLOBAL_REFERENCE:
-        constructor = decoder_.construct_external_reference
-    elif construct == XMLConstructables.ADMINISTRATIVE_INFORMATION:
-        constructor = decoder_.construct_administrative_information
-    elif construct == XMLConstructables.QUALIFIER:
-        constructor = decoder_.construct_qualifier
-    elif construct == XMLConstructables.ANNOTATED_RELATIONSHIP_ELEMENT:
-        constructor = decoder_.construct_annotated_relationship_element
-    elif construct == XMLConstructables.BASIC_EVENT_ELEMENT:
-        constructor = decoder_.construct_basic_event_element
-    elif construct == XMLConstructables.BLOB:
-        constructor = decoder_.construct_blob
-    elif construct == XMLConstructables.CAPABILITY:
-        constructor = decoder_.construct_capability
-    elif construct == XMLConstructables.ENTITY:
-        constructor = decoder_.construct_entity
-    elif construct == XMLConstructables.EXTENSION:
-        constructor = decoder_.construct_extension
-    elif construct == XMLConstructables.FILE:
-        constructor = decoder_.construct_file
-    elif construct == XMLConstructables.RESOURCE:
-        constructor = decoder_.construct_resource
-    elif construct == XMLConstructables.MULTI_LANGUAGE_PROPERTY:
-        constructor = decoder_.construct_multi_language_property
-    elif construct == XMLConstructables.OPERATION:
-        constructor = decoder_.construct_operation
-    elif construct == XMLConstructables.PROPERTY:
-        constructor = decoder_.construct_property
-    elif construct == XMLConstructables.RANGE:
-        constructor = decoder_.construct_range
-    elif construct == XMLConstructables.REFERENCE_ELEMENT:
-        constructor = decoder_.construct_reference_element
-    elif construct == XMLConstructables.RELATIONSHIP_ELEMENT:
-        constructor = decoder_.construct_relationship_element
-    elif construct == XMLConstructables.SUBMODEL_ELEMENT_COLLECTION:
-        constructor = decoder_.construct_submodel_element_collection
-    elif construct == XMLConstructables.SUBMODEL_ELEMENT_LIST:
-        constructor = decoder_.construct_submodel_element_list
-    elif construct == XMLConstructables.ASSET_ADMINISTRATION_SHELL:
-        constructor = decoder_.construct_asset_administration_shell
-    elif construct == XMLConstructables.ASSET_INFORMATION:
-        constructor = decoder_.construct_asset_information
-    elif construct == XMLConstructables.SPECIFIC_ASSET_ID:
-        constructor = decoder_.construct_specific_asset_id
-    elif construct == XMLConstructables.SUBMODEL:
-        constructor = decoder_.construct_submodel
-    elif construct == XMLConstructables.VALUE_REFERENCE_PAIR:
-        constructor = decoder_.construct_value_reference_pair
-    elif construct == XMLConstructables.CONCEPT_DESCRIPTION:
-        constructor = decoder_.construct_concept_description
-    elif construct == XMLConstructables.MULTI_LANGUAGE_NAME_TYPE:
-        constructor = decoder_.construct_multi_language_name_type
-    elif construct == XMLConstructables.MULTI_LANGUAGE_TEXT_TYPE:
-        constructor = decoder_.construct_multi_language_text_type
-    elif construct == XMLConstructables.DEFINITION_TYPE_IEC61360:
-        constructor = decoder_.construct_definition_type_iec61360
-    elif construct == XMLConstructables.PREFERRED_NAME_TYPE_IEC61360:
-        constructor = decoder_.construct_preferred_name_type_iec61360
-    elif construct == XMLConstructables.SHORT_NAME_TYPE_IEC61360:
-        constructor = decoder_.construct_short_name_type_iec61360
-    elif construct == XMLConstructables.EMBEDDED_DATA_SPECIFICATION:
-        constructor = decoder_.construct_embedded_data_specification
-    elif construct == XMLConstructables.DATA_SPECIFICATION_IEC61360:
-        constructor = decoder_.construct_data_specification_iec61360
-    # the following constructors decide which constructor to call based on the elements tag
-    elif construct == XMLConstructables.DATA_ELEMENT:
-        constructor = decoder_.construct_data_element
-    elif construct == XMLConstructables.SUBMODEL_ELEMENT:
-        constructor = decoder_.construct_submodel_element
-    elif construct == XMLConstructables.DATA_SPECIFICATION_CONTENT:
-        constructor = decoder_.construct_data_specification_content
-    # type aliases
-    elif construct == XMLConstructables.VALUE_LIST:
-        constructor = decoder_.construct_value_list
-    else:
+    type_constructors: Dict[XMLConstructables, Callable[..., object]] = {
+        XMLConstructables.KEY: decoder_.construct_key,
+        XMLConstructables.REFERENCE: decoder_.construct_reference,
+        XMLConstructables.MODEL_REFERENCE: decoder_.construct_model_reference,
+        XMLConstructables.GLOBAL_REFERENCE: decoder_.construct_external_reference,
+        XMLConstructables.ADMINISTRATIVE_INFORMATION: decoder_.construct_administrative_information,
+        XMLConstructables.QUALIFIER: decoder_.construct_qualifier,
+        XMLConstructables.ANNOTATED_RELATIONSHIP_ELEMENT: decoder_.construct_annotated_relationship_element,
+        XMLConstructables.BASIC_EVENT_ELEMENT: decoder_.construct_basic_event_element,
+        XMLConstructables.BLOB: decoder_.construct_blob,
+        XMLConstructables.CAPABILITY: decoder_.construct_capability,
+        XMLConstructables.ENTITY: decoder_.construct_entity,
+        XMLConstructables.EXTENSION: decoder_.construct_extension,
+        XMLConstructables.FILE: decoder_.construct_file,
+        XMLConstructables.RESOURCE: decoder_.construct_resource,
+        XMLConstructables.MULTI_LANGUAGE_PROPERTY: decoder_.construct_multi_language_property,
+        XMLConstructables.OPERATION: decoder_.construct_operation,
+        XMLConstructables.PROPERTY: decoder_.construct_property,
+        XMLConstructables.RANGE: decoder_.construct_range,
+        XMLConstructables.REFERENCE_ELEMENT: decoder_.construct_reference_element,
+        XMLConstructables.RELATIONSHIP_ELEMENT: decoder_.construct_relationship_element,
+        XMLConstructables.SUBMODEL_ELEMENT_COLLECTION: decoder_.construct_submodel_element_collection,
+        XMLConstructables.SUBMODEL_ELEMENT_LIST: decoder_.construct_submodel_element_list,
+        XMLConstructables.ASSET_ADMINISTRATION_SHELL: decoder_.construct_asset_administration_shell,
+        XMLConstructables.ASSET_INFORMATION: decoder_.construct_asset_information,
+        XMLConstructables.SPECIFIC_ASSET_ID: decoder_.construct_specific_asset_id,
+        XMLConstructables.SUBMODEL: decoder_.construct_submodel,
+        XMLConstructables.VALUE_REFERENCE_PAIR: decoder_.construct_value_reference_pair,
+        XMLConstructables.CONCEPT_DESCRIPTION: decoder_.construct_concept_description,
+        XMLConstructables.MULTI_LANGUAGE_NAME_TYPE: decoder_.construct_multi_language_name_type,
+        XMLConstructables.MULTI_LANGUAGE_TEXT_TYPE: decoder_.construct_multi_language_text_type,
+        XMLConstructables.DEFINITION_TYPE_IEC61360: decoder_.construct_definition_type_iec61360,
+        XMLConstructables.PREFERRED_NAME_TYPE_IEC61360: decoder_.construct_preferred_name_type_iec61360,
+        XMLConstructables.SHORT_NAME_TYPE_IEC61360: decoder_.construct_short_name_type_iec61360,
+        XMLConstructables.EMBEDDED_DATA_SPECIFICATION: decoder_.construct_embedded_data_specification,
+        XMLConstructables.DATA_SPECIFICATION_IEC61360: decoder_.construct_data_specification_iec61360,
+        # the following constructors decide which constructor to call based on the elements tag
+        XMLConstructables.DATA_ELEMENT: decoder_.construct_data_element,
+        XMLConstructables.SUBMODEL_ELEMENT: decoder_.construct_submodel_element,
+        XMLConstructables.DATA_SPECIFICATION_CONTENT: decoder_.construct_data_specification_content,
+        # type aliases
+        XMLConstructables.VALUE_LIST: decoder_.construct_value_list,
+    }
+
+    constructor: Optional[Callable[..., object]] = type_constructors.get(construct)
+    if constructor is None:
         raise ValueError(f"{construct.name} cannot be constructed!")
 
     element = _parse_xml_document(file, failsafe=decoder_.failsafe)
@@ -1413,12 +1401,10 @@ def read_aas_xml_file_into(object_store: model.AbstractObjectStore[model.Identif
     decoder_ = _select_decoder(failsafe, stripped, decoder)
 
     element_constructors: Dict[str, Callable[..., model.Identifiable]] = {
-        "assetAdministrationShell": decoder_.construct_asset_administration_shell,
-        "conceptDescription": decoder_.construct_concept_description,
-        "submodel": decoder_.construct_submodel
+        f"{NS_AAS}assetAdministrationShell": decoder_.construct_asset_administration_shell,
+        f"{NS_AAS}conceptDescription": decoder_.construct_concept_description,
+        f"{NS_AAS}submodel": decoder_.construct_submodel
     }
-
-    element_constructors = {NS_AAS + k: v for k, v in element_constructors.items()}
 
     root = _parse_xml_document(file, failsafe=decoder_.failsafe, **parser_kwargs)
 
