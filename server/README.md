@@ -1,0 +1,54 @@
+# Eclipse BaSyx Python SDK - HTTP Server
+
+This repository contains a Dockerfile to spin up an exemplary HTTP/REST server following the [Specification of the AAS Part 2 API][6] with ease.
+The server currently implements the following interfaces:
+
+- [Asset Administration Shell Repository Service][4]
+- [Submodel Repository Service][5]
+
+It uses the [HTTP API][1] and the [AASX Adapter][7] of the [BaSyx Python SDK][3], to serve AASX files from a given directory.
+The AASX files are only read, chages won't persist.
+
+Alternatively, the container can also be told to use the [Local-File Backend][2] instead, which stores AAS and Submodels as individual JSON files and allows for persistent changes (except supplementary files, i.e. files referenced by `File` submodel elements).
+See [below](#options) on how to configure this.
+
+## Building
+The container image can be built via:
+```
+$ docker buildx build -t basyx-python-sdk-http-server .
+```
+
+## Running
+Because the server uses the [Local-File Backend][2], the container needs to be provided with the directory `/storage` to store AAS and Submodel JSON files.
+This directory can be mapped via the `-v` option from another image or a local directory.
+To map the directory `storage` inside the container, `-v ./storage:/storage` can be used.
+The directory `storage` will be created in the current working directory, if it doesn't already exist.
+
+The HTTP server inside the container listens on port 80 by default.
+To expose it on the host on port 8080, use the option `-p 8080:80` when running it.
+
+Putting it all together, the container can be started via the following command:
+```
+$ docker run -p 8080:80 -v ./storage:/storage basyx-python-sdk-http-server
+```
+
+Since Windows uses backslashes instead of forward slashes in paths, you'll have to adjust the path to the storage directory there:
+```
+> docker run -p 8080:80 -v .\storage:/storage basyx-python-sdk-http-server
+```
+
+## Options
+The container can be configured via environment variables:
+- `API_BASE_PATH` determines the base path under which all other API paths are made available. Default: `/api/v3.0`
+- `STORAGE_TYPE` can be one of `AASX` or `LOCAL_FILE`:
+  - When set to `AASX` (the default), the server will read and serve AASX files from the storage directory. The AASX files are not modified, all changes done via the API are only stored in memory.
+  - When instead set to `LOCAL_FILE`, the server makes use of the [LocalFileBackend][2], where AAS and Submodels are persistently stored as JSON files. Supplementary files, i.e. files referenced by `File` submodel elements, are not stored in this case.
+- `STORAGE_PATH` sets the directory to read the files from *within the container*. If you bind your files to a directory different from the default `/storage`, you can use this variable to adjust the server accordingly.
+
+[1]: https://github.com/eclipse-basyx/basyx-python-sdk/pull/238
+[2]: https://basyx-python-sdk.readthedocs.io/en/latest/backend/local_file.html
+[3]: https://github.com/eclipse-basyx/basyx-python-sdk
+[4]: https://app.swaggerhub.com/apis/Plattform_i40/AssetAdministrationShellRepositoryServiceSpecification/V3.0.1_SSP-001
+[5]: https://app.swaggerhub.com/apis/Plattform_i40/SubmodelRepositoryServiceSpecification/V3.0.1_SSP-001
+[6]: https://industrialdigitaltwin.org/content-hub/aasspecifications/idta_01002-3-0_application_programming_interfaces
+[7]: https://basyx-python-sdk.readthedocs.io/en/latest/adapter/aasx.html#adapter-aasx
