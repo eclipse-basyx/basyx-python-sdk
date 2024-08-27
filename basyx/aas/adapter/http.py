@@ -550,7 +550,14 @@ class WSGIApp:
                                  endpoint=self.delete_submodel_submodel_element_qualifiers)
                         ])
                     ])
-                ])
+                ]),
+                Rule("/concept-descriptions", methods=["GET"], endpoint=self.get_concept_description_all),
+                Rule("/concept-descriptions", methods=["POST"], endpoint=self.post_concept_description),
+                Submount("/concept-descriptions", [
+                    Rule("/<base64url:concept_id>", methods=["GET"], endpoint=self.get_concept_description),
+                    Rule("/<base64url:concept_id>", methods=["PUT"], endpoint=self.put_concept_description),
+                    Rule("/<base64url:concept_id>", methods=["DELETE"], endpoint=self.delete_concept_description),
+                ]),
             ])
         ], converters={
             "base64url": Base64URLConverter,
@@ -730,8 +737,8 @@ class WSGIApp:
     # ------ AAS REPO ROUTES -------
     def get_aas_all(self, request: Request, url_args: Dict, **_kwargs) -> Response:
         response_t = get_response_type(request)
-        aashels, cursor = self._get_shells(request)
-        return response_t(list(aashels), cursor=cursor)
+        aashells, cursor = self._get_shells(request)
+        return response_t(list(aashells), cursor=cursor)
 
     def post_aas(self, request: Request, url_args: Dict, map_adapter: MapAdapter) -> Response:
         response_t = get_response_type(request)
@@ -1143,9 +1150,53 @@ class WSGIApp:
         sm_or_se.commit()
         return response_t()
 
+    # --------- CONCEPT DESCRIPTION ROUTES ---------
+    def get_concept_description_all(self, request: Request, url_args: Dict, **_kwargs) -> Response:
+        response_t = get_response_type(request)
+        concept_descriptions: Iterator[model.ConceptDescription] = self._get_all_obj_of_type(model.ConceptDescription)
+        concept_descriptions, cursor = self._get_slice(request, concept_descriptions)
+        return response_t(list(concept_descriptions), cursor=cursor, stripped=is_stripped_request(request))
+
+    def post_concept_description(self, request: Request, url_args: Dict, map_adapter: MapAdapter) -> Response:
+        response_t = get_response_type(request)
+        concept_description = HTTPApiDecoder.request_body(request, model.ConceptDescription, is_stripped_request(request))
+        try:
+            self.object_store.add(concept_description)
+        except KeyError as e:
+            raise Conflict(f"ConceptDescription with Identifier {concept_description.id} already exists!") from e
+        concept_description.commit()
+        created_resource_url = map_adapter.build(self.get_concept_description, {
+            "concept_id": concept_description.id
+        }, force_external=True)
+        return response_t(concept_description, status=201, headers={"Location": created_resource_url})
+
+    def get_concept_description(self, request: Request, url_args: Dict, **_kwargs) -> Response:
+        response_t = get_response_type(request)
+        concept_description = self._get_concept_description(url_args)
+        return response_t(concept_description, stripped=is_stripped_request(request))
+
+    def _get_concept_description(self, url_args):
+        return self._get_obj_ts(url_args["concept_id"], model.ConceptDescription)
+
+    def put_concept_description(self, request: Request, url_args: Dict, **_kwargs) -> Response:
+        response_t = get_response_type(request)
+        concept_description = self._get_concept_description(url_args)
+        concept_description.update_from(HTTPApiDecoder.request_body(request, model.ConceptDescription,
+                                                                    is_stripped_request(request)))
+        concept_description.commit()
+        return response_t()
+
+    def delete_concept_description(self, request: Request, url_args: Dict, **_kwargs) -> Response:
+        response_t = get_response_type(request)
+        self.object_store.remove(self._get_concept_description(url_args))
+        return response_t()
+
 
 if __name__ == "__main__":
     from werkzeug.serving import run_simple
     from basyx.aas.examples.data.example_aas import create_full_example
     run_simple("localhost", 8080, WSGIApp(create_full_example(), aasx.DictSupplementaryFileContainer()),
                use_debugger=True, use_reloader=True)
+
+
+# Commit msg: Add CD-Repo routes to the server
