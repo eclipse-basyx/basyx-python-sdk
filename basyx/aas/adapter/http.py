@@ -604,12 +604,11 @@ class WSGIApp:
             raise BadRequest(f"{ret!r} is not a submodel element!")
         return ret
 
-    @classmethod
-    def _get_submodel_or_nested_submodel_element(cls, url_args: Dict) -> Union[model.Submodel, model.SubmodelElement]:
-        submodel = cls._get_submodel(url_args)
+    def _get_submodel_or_nested_submodel_element(self, url_args: Dict) -> Union[model.Submodel, model.SubmodelElement]:
+        submodel = self._get_submodel(url_args)
         id_shorts: List[str] = url_args.get("id_shorts", [])
         try:
-            return cls._get_nested_submodel_element(submodel, id_shorts)
+            return self._get_nested_submodel_element(submodel, id_shorts)
         except ValueError:
             return submodel
 
