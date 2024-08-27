@@ -605,8 +605,9 @@ class WSGIApp:
         return ret
 
     @classmethod
-    def _get_submodel_or_nested_submodel_element(cls, submodel: model.Submodel, id_shorts: List[str]) \
-            -> Union[model.Submodel, model.SubmodelElement]:
+    def _get_submodel_or_nested_submodel_element(cls, url_args: Dict) -> Union[model.Submodel, model.SubmodelElement]:
+        submodel = cls._get_submodel(url_args)
+        id_shorts: List[str] = url_args.get("id_shorts", [])
         try:
             return cls._get_nested_submodel_element(submodel, id_shorts)
         except ValueError:
@@ -951,9 +952,7 @@ class WSGIApp:
     def post_submodel_submodel_elements_id_short_path(self, request: Request, url_args: Dict,
                                                       response_t: Type[APIResponse],
                                                       map_adapter: MapAdapter):
-        submodel = self._get_submodel(url_args)
-        id_short_path = url_args.get("id_shorts", [])
-        parent = self._get_submodel_or_nested_submodel_element(submodel, id_short_path)
+        parent = self._get_submodel_or_nested_submodel_element(url_args)
         if not isinstance(parent, model.UniqueIdShortNamespace):
             raise BadRequest(f"{parent!r} is not a namespace, can't add child submodel element!")
         # TODO: remove the following type: ignore comment when mypy supports abstract types for Type[T]
@@ -968,6 +967,8 @@ class WSGIApp:
                 raise
             raise Conflict(f"SubmodelElement with idShort {new_submodel_element.id_short} already exists "
                            f"within {parent}!")
+        submodel = self._get_submodel(url_args)
+        id_short_path = url_args.get("id_shorts", [])
         created_resource_url = map_adapter.build(self.get_submodel_submodel_elements_id_short_path, {
             "submodel_id": submodel.id,
             "id_shorts": id_short_path + [new_submodel_element.id_short]
@@ -990,13 +991,9 @@ class WSGIApp:
     def delete_submodel_submodel_elements_id_short_path(self, request: Request, url_args: Dict,
                                                         response_t: Type[APIResponse],
                                                         **_kwargs) -> Response:
-        submodel = self._get_submodel(url_args)
-        id_short_path: List[str] = url_args["id_shorts"]
-        parent: model.UniqueIdShortNamespace = self._expect_namespace(
-            self._get_submodel_or_nested_submodel_element(submodel, id_short_path[:-1]),
-            id_short_path[-1]
-        )
-        self._namespace_submodel_element_op(parent, parent.remove_referable, id_short_path[-1])
+        sm_or_se = self._get_submodel_or_nested_submodel_element(url_args)
+        parent: model.UniqueIdShortNamespace = self._expect_namespace(sm_or_se.parent, sm_or_se.id_short)
+        self._namespace_submodel_element_op(parent, parent.remove_referable, sm_or_se.id_short)
         return response_t()
 
     def get_submodel_submodel_element_attachment(self, request: Request, url_args: Dict, **_kwargs) -> Response:
@@ -1075,8 +1072,7 @@ class WSGIApp:
 
     def get_submodel_submodel_element_qualifiers(self, request: Request, url_args: Dict, response_t: Type[APIResponse],
                                                  **_kwargs) -> Response:
-        submodel = self._get_submodel(url_args)
-        sm_or_se = self._get_submodel_or_nested_submodel_element(submodel, url_args.get("id_shorts", []))
+        sm_or_se = self._get_submodel_or_nested_submodel_element(url_args)
         qualifier_type = url_args.get("qualifier_type")
         if qualifier_type is None:
             return response_t(list(sm_or_se.qualifier))
@@ -1084,28 +1080,22 @@ class WSGIApp:
 
     def post_submodel_submodel_element_qualifiers(self, request: Request, url_args: Dict, response_t: Type[APIResponse],
                                                   map_adapter: MapAdapter) -> Response:
-        submodel_identifier = url_args["submodel_id"]
-        submodel = self._get_submodel(url_args)
-        id_shorts: List[str] = url_args.get("id_shorts", [])
-        sm_or_se = self._get_submodel_or_nested_submodel_element(submodel, id_shorts)
+        sm_or_se = self._get_submodel_or_nested_submodel_element(url_args)
         qualifier = HTTPApiDecoder.request_body(request, model.Qualifier, is_stripped_request(request))
         if sm_or_se.qualifier.contains_id("type", qualifier.type):
             raise Conflict(f"Qualifier with type {qualifier.type} already exists!")
         sm_or_se.qualifier.add(qualifier)
         sm_or_se.commit()
         created_resource_url = map_adapter.build(self.get_submodel_submodel_element_qualifiers, {
-            "submodel_id": submodel_identifier,
-            "id_shorts": id_shorts if len(id_shorts) != 0 else None,
+            "submodel_id": url_args["submodel_id"],
+            "id_shorts": url_args.get("id_shorts") or None,
             "qualifier_type": qualifier.type
         }, force_external=True)
         return response_t(qualifier, status=201, headers={"Location": created_resource_url})
 
     def put_submodel_submodel_element_qualifiers(self, request: Request, url_args: Dict, response_t: Type[APIResponse],
                                                  map_adapter: MapAdapter) -> Response:
-        submodel_identifier = url_args["submodel_id"]
-        submodel = self._get_submodel(url_args)
-        id_shorts: List[str] = url_args.get("id_shorts", [])
-        sm_or_se = self._get_submodel_or_nested_submodel_element(submodel, id_shorts)
+        sm_or_se = self._get_submodel_or_nested_submodel_element(url_args)
         new_qualifier = HTTPApiDecoder.request_body(request, model.Qualifier, is_stripped_request(request))
         qualifier_type = url_args["qualifier_type"]
         qualifier = self._qualifiable_qualifier_op(sm_or_se, sm_or_se.get_qualifier_by_type, qualifier_type)
@@ -1117,8 +1107,8 @@ class WSGIApp:
         sm_or_se.commit()
         if qualifier_type_changed:
             created_resource_url = map_adapter.build(self.get_submodel_submodel_element_qualifiers, {
-                "submodel_id": submodel_identifier,
-                "id_shorts": id_shorts if len(id_shorts) != 0 else None,
+                "submodel_id": url_args["submodel_id"],
+                "id_shorts": url_args.get("id_shorts") or None,
                 "qualifier_type": new_qualifier.type
             }, force_external=True)
             return response_t(new_qualifier, status=201, headers={"Location": created_resource_url})
@@ -1127,9 +1117,7 @@ class WSGIApp:
     def delete_submodel_submodel_element_qualifiers(self, request: Request, url_args: Dict,
                                                     response_t: Type[APIResponse],
                                                     **_kwargs) -> Response:
-        submodel = self._get_submodel(url_args)
-        id_shorts: List[str] = url_args.get("id_shorts", [])
-        sm_or_se = self._get_submodel_or_nested_submodel_element(submodel, id_shorts)
+        sm_or_se = self._get_submodel_or_nested_submodel_element(url_args)
         qualifier_type = url_args["qualifier_type"]
         self._qualifiable_qualifier_op(sm_or_se, sm_or_se.remove_qualifier_by_type, qualifier_type)
         sm_or_se.commit()
