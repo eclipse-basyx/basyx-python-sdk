@@ -1159,7 +1159,8 @@ class WSGIApp:
 
     def post_concept_description(self, request: Request, url_args: Dict, map_adapter: MapAdapter) -> Response:
         response_t = get_response_type(request)
-        concept_description = HTTPApiDecoder.request_body(request, model.ConceptDescription, is_stripped_request(request))
+        concept_description = HTTPApiDecoder.request_body(request, model.ConceptDescription,
+                                                          is_stripped_request(request))
         try:
             self.object_store.add(concept_description)
         except KeyError as e:
@@ -1197,6 +1198,3 @@ if __name__ == "__main__":
     from basyx.aas.examples.data.example_aas import create_full_example
     run_simple("localhost", 8080, WSGIApp(create_full_example(), aasx.DictSupplementaryFileContainer()),
                use_debugger=True, use_reloader=True)
-
-
-# Commit msg: Add CD-Repo routes to the server
