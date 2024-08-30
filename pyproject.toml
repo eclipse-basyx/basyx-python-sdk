@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "basyx-python-sdk"
-version = "0.1.0"
+version = "1.0.0"
 description = "The Eclipse BaSyx Python SDK, an implementation of the Asset Administration Shell for Industry 4.0 systems"
 authors = [
     { name = "The Eclipse BaSyx Authors", email = "admins@iat.rwth-aachen.de" }
@@ -27,10 +27,11 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = [
-    "pytest>=6.0",
-    "flake8>=3.8",
+    "mypy",
+    "pycodestyle",
+    "codeblocks",
     "coverage",
-    # Add any other development dependencies here
+    # You may want to keep other necessary development dependencies here
 ]
 
 [project.urls]
@@ -46,4 +47,3 @@ basyx = ["py.typed"]
 [tool.setuptools.exclude-package-data]
 "*" = ["test", "test.*"]
 
-[tool.setuptools_scm]
