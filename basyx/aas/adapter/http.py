@@ -59,7 +59,7 @@ from .xml import XMLConstructables, read_aas_xml_element, xml_serialization, obj
 from .json import AASToJsonEncoder, StrictAASFromJsonDecoder, StrictStrippedAASFromJsonDecoder
 from . import aasx
 
-from typing import Callable, Dict, Iterable, Iterator, List, Optional, Type, TypeVar, Union, Tuple, Any
+from typing import Callable, Dict, Iterable, Iterator, List, Optional, Type, TypeVar, Union, Tuple
 
 
 @enum.unique
@@ -230,7 +230,7 @@ def get_response_type(request: Request) -> Type[APIResponse]:
         return JsonResponse
     mime_type = request.accept_mimetypes.best_match(response_types)
     if mime_type is None:
-        raise werkzeug.exceptions.NotAcceptable(f"This server supports the following content types: "
+        raise werkzeug.exceptions.NotAcceptable("This server supports the following content types: "
                                                 + ", ".join(response_types.keys()))
     return response_types[mime_type]
 
@@ -329,7 +329,7 @@ class HTTPApiDecoder:
             elif expect_type is model.SpecificAssetId:
                 constructor = decoder._construct_specific_asset_id  # type: ignore[assignment]
             elif expect_type is model.Reference:
-                constructor = decoder._construct_reference   # type: ignore[assignment]
+                constructor = decoder._construct_reference  # type: ignore[assignment]
             elif expect_type is model.Qualifier:
                 constructor = decoder._construct_qualifier  # type: ignore[assignment]
 
@@ -343,8 +343,7 @@ class HTTPApiDecoder:
         return [cls.assert_type(obj, expect_type) for obj in parsed]
 
     @classmethod
-    def base64urljson_list(cls, data: str, expect_type: Type[T], stripped: bool, expect_single: bool)\
-            -> List[T]:
+    def base64urljson_list(cls, data: str, expect_type: Type[T], stripped: bool, expect_single: bool) -> List[T]:
         data = base64url_decode(data)
         return cls.json_list(data, expect_type, stripped, expect_single)
 
@@ -605,11 +604,11 @@ class WSGIApp:
             raise BadRequest(f"{ret!r} is not a submodel element!")
         return ret
 
-    @classmethod
-    def _get_submodel_or_nested_submodel_element(cls, submodel: model.Submodel, id_shorts: List[str]) \
-            -> Union[model.Submodel, model.SubmodelElement]:
+    def _get_submodel_or_nested_submodel_element(self, url_args: Dict) -> Union[model.Submodel, model.SubmodelElement]:
+        submodel = self._get_submodel(url_args)
+        id_shorts: List[str] = url_args.get("id_shorts", [])
         try:
-            return cls._get_nested_submodel_element(submodel, id_shorts)
+            return self._get_nested_submodel_element(submodel, id_shorts)
         except ValueError:
             return submodel
 
@@ -674,7 +673,7 @@ class WSGIApp:
                 map(lambda asset_id: HTTPApiDecoder.base64urljson(asset_id, model.SpecificAssetId, False), asset_ids))
             # Filter AAS based on these SpecificAssetIds
             aas = filter(lambda shell: all(specific_asset_id in shell.asset_information.specific_asset_id
-                         for specific_asset_id in specific_asset_ids), aas)
+                                           for specific_asset_id in specific_asset_ids), aas)
 
         paginated_aas, end_index = self._get_slice(request, aas)
         return paginated_aas, end_index
@@ -698,50 +697,50 @@ class WSGIApp:
     def _get_submodel(self, url_args: Dict) -> model.Submodel:
         return self._get_obj_ts(url_args["submodel_id"], model.Submodel)
 
-    def _get_submodel_submodel_elements(self, request: Request, url_args: Dict) ->\
+    def _get_submodel_submodel_elements(self, request: Request, url_args: Dict) -> \
             Tuple[Iterator[model.SubmodelElement], int]:
         submodel = self._get_submodel(url_args)
         paginated_submodel_elements: Iterator[model.SubmodelElement]
         paginated_submodel_elements, end_index = self._get_slice(request, submodel.submodel_element)
         return paginated_submodel_elements, end_index
 
-    def _get_submodel_submodel_elements_id_short_path(self, url_args: Dict) \
-            -> model.SubmodelElement:
+    def _get_submodel_submodel_elements_id_short_path(self, url_args: Dict) -> model.SubmodelElement:
         submodel = self._get_submodel(url_args)
         submodel_element = self._get_nested_submodel_element(submodel, url_args["id_shorts"])
         return submodel_element
 
+    def _get_concept_description(self, url_args):
+        return self._get_obj_ts(url_args["concept_id"], model.ConceptDescription)
+
     def handle_request(self, request: Request):
         map_adapter: MapAdapter = self.url_map.bind_to_environ(request.environ)
+        try:
+            response_t = get_response_type(request)
+        except werkzeug.exceptions.NotAcceptable as e:
+            return e
+
         try:
             endpoint, values = map_adapter.match()
             # TODO: remove this 'type: ignore' comment once the werkzeug type annotations have been fixed
             #  https://github.com/pallets/werkzeug/issues/2836
-            return endpoint(request, values, map_adapter=map_adapter)  # type: ignore[operator]
+            return endpoint(request, values, response_t=response_t, map_adapter=map_adapter)  # type: ignore[operator]
 
         # any raised error that leaves this function will cause a 500 internal server error
         # so catch raised http exceptions and return them
-        except werkzeug.exceptions.NotAcceptable as e:
-            return e
         except werkzeug.exceptions.HTTPException as e:
-            try:
-                # get_response_type() may raise a NotAcceptable error, so we have to handle that
-                return http_exception_to_response(e, get_response_type(request))
-            except werkzeug.exceptions.NotAcceptable as e:
-                return e
+            return http_exception_to_response(e, response_t)
 
     # ------ all not implemented ROUTES -------
     def not_implemented(self, request: Request, url_args: Dict, **_kwargs) -> Response:
-        raise werkzeug.exceptions.NotImplemented(f"This route is not implemented!")
+        raise werkzeug.exceptions.NotImplemented("This route is not implemented!")
 
     # ------ AAS REPO ROUTES -------
-    def get_aas_all(self, request: Request, url_args: Dict, **_kwargs) -> Response:
-        response_t = get_response_type(request)
+    def get_aas_all(self, request: Request, url_args: Dict, response_t: Type[APIResponse], **_kwargs) -> Response:
         aashells, cursor = self._get_shells(request)
         return response_t(list(aashells), cursor=cursor)
 
-    def post_aas(self, request: Request, url_args: Dict, map_adapter: MapAdapter) -> Response:
-        response_t = get_response_type(request)
+    def post_aas(self, request: Request, url_args: Dict, response_t: Type[APIResponse],
+                 map_adapter: MapAdapter) -> Response:
         aas = HTTPApiDecoder.request_body(request, model.AssetAdministrationShell, False)
         try:
             self.object_store.add(aas)
@@ -753,59 +752,56 @@ class WSGIApp:
         }, force_external=True)
         return response_t(aas, status=201, headers={"Location": created_resource_url})
 
-    def get_aas_all_reference(self, request: Request, url_args: Dict, **_kwargs) -> Response:
-        response_t = get_response_type(request)
+    def get_aas_all_reference(self, request: Request, url_args: Dict, response_t: Type[APIResponse],
+                              **_kwargs) -> Response:
         aashells, cursor = self._get_shells(request)
         references: list[model.ModelReference] = [model.ModelReference.from_referable(aas)
                                                   for aas in aashells]
         return response_t(references, cursor=cursor)
 
     # --------- AAS ROUTES ---------
-    def get_aas(self, request: Request, url_args: Dict, **_kwargs) -> Response:
-        response_t = get_response_type(request)
+    def get_aas(self, request: Request, url_args: Dict, response_t: Type[APIResponse], **_kwargs) -> Response:
         aas = self._get_shell(url_args)
         return response_t(aas)
 
-    def get_aas_reference(self, request: Request, url_args: Dict, **_kwargs) -> Response:
-        response_t = get_response_type(request)
+    def get_aas_reference(self, request: Request, url_args: Dict, response_t: Type[APIResponse], **_kwargs) -> Response:
         aas = self._get_shell(url_args)
         reference = model.ModelReference.from_referable(aas)
         return response_t(reference)
 
-    def put_aas(self, request: Request, url_args: Dict, **_kwargs) -> Response:
-        response_t = get_response_type(request)
+    def put_aas(self, request: Request, url_args: Dict, response_t: Type[APIResponse], **_kwargs) -> Response:
         aas = self._get_shell(url_args)
         aas.update_from(HTTPApiDecoder.request_body(request, model.AssetAdministrationShell,
                                                     is_stripped_request(request)))
         aas.commit()
         return response_t()
 
-    def delete_aas(self, request: Request, url_args: Dict, **_kwargs) -> Response:
-        response_t = get_response_type(request)
-        self.object_store.remove(self._get_shell(url_args))
+    def delete_aas(self, request: Request, url_args: Dict, response_t: Type[APIResponse], **_kwargs) -> Response:
+        aas = self._get_shell(url_args)
+        self.object_store.remove(aas)
         return response_t()
 
-    def get_aas_asset_information(self, request: Request, url_args: Dict, **_kwargs) -> Response:
-        response_t = get_response_type(request)
+    def get_aas_asset_information(self, request: Request, url_args: Dict, response_t: Type[APIResponse],
+                                  **_kwargs) -> Response:
         aas = self._get_shell(url_args)
         return response_t(aas.asset_information)
 
-    def put_aas_asset_information(self, request: Request, url_args: Dict, **_kwargs) -> Response:
-        response_t = get_response_type(request)
+    def put_aas_asset_information(self, request: Request, url_args: Dict, response_t: Type[APIResponse],
+                                  **_kwargs) -> Response:
         aas = self._get_shell(url_args)
         aas.asset_information = HTTPApiDecoder.request_body(request, model.AssetInformation, False)
         aas.commit()
         return response_t()
 
-    def get_aas_submodel_refs(self, request: Request, url_args: Dict, **_kwargs) -> Response:
-        response_t = get_response_type(request)
+    def get_aas_submodel_refs(self, request: Request, url_args: Dict, response_t: Type[APIResponse],
+                              **_kwargs) -> Response:
         aas = self._get_shell(url_args)
         submodel_refs: Iterator[model.ModelReference[model.Submodel]]
         submodel_refs, cursor = self._get_slice(request, aas.submodel)
         return response_t(list(submodel_refs), cursor=cursor)
 
-    def post_aas_submodel_refs(self, request: Request, url_args: Dict, **_kwargs) -> Response:
-        response_t = get_response_type(request)
+    def post_aas_submodel_refs(self, request: Request, url_args: Dict, response_t: Type[APIResponse],
+                               **_kwargs) -> Response:
         aas = self._get_shell(url_args)
         sm_ref = HTTPApiDecoder.request_body(request, model.ModelReference, False)
         if sm_ref in aas.submodel:
@@ -814,15 +810,15 @@ class WSGIApp:
         aas.commit()
         return response_t(sm_ref, status=201)
 
-    def delete_aas_submodel_refs_specific(self, request: Request, url_args: Dict, **_kwargs) -> Response:
-        response_t = get_response_type(request)
+    def delete_aas_submodel_refs_specific(self, request: Request, url_args: Dict, response_t: Type[APIResponse],
+                                          **_kwargs) -> Response:
         aas = self._get_shell(url_args)
         aas.submodel.remove(self._get_submodel_reference(aas, url_args["submodel_id"]))
         aas.commit()
         return response_t()
 
-    def put_aas_submodel_refs_submodel(self, request: Request, url_args: Dict, **_kwargs) -> Response:
-        response_t = get_response_type(request)
+    def put_aas_submodel_refs_submodel(self, request: Request, url_args: Dict, response_t: Type[APIResponse],
+                                       **_kwargs) -> Response:
         aas = self._get_shell(url_args)
         sm_ref = self._get_submodel_reference(aas, url_args["submodel_id"])
         submodel = self._resolve_reference(sm_ref)
@@ -838,8 +834,8 @@ class WSGIApp:
             aas.commit()
         return response_t()
 
-    def delete_aas_submodel_refs_submodel(self, request: Request, url_args: Dict, **_kwargs) -> Response:
-        response_t = get_response_type(request)
+    def delete_aas_submodel_refs_submodel(self, request: Request, url_args: Dict, response_t: Type[APIResponse],
+                                          **_kwargs) -> Response:
         aas = self._get_shell(url_args)
         sm_ref = self._get_submodel_reference(aas, url_args["submodel_id"])
         submodel = self._resolve_reference(sm_ref)
@@ -862,13 +858,12 @@ class WSGIApp:
         return werkzeug.utils.redirect(redirect_url, 307)
 
     # ------ SUBMODEL REPO ROUTES -------
-    def get_submodel_all(self, request: Request, url_args: Dict, **_kwargs) -> Response:
-        response_t = get_response_type(request)
+    def get_submodel_all(self, request: Request, url_args: Dict, response_t: Type[APIResponse], **_kwargs) -> Response:
         submodels, cursor = self._get_submodels(request)
         return response_t(list(submodels), cursor=cursor, stripped=is_stripped_request(request))
 
-    def post_submodel(self, request: Request, url_args: Dict, map_adapter: MapAdapter) -> Response:
-        response_t = get_response_type(request)
+    def post_submodel(self, request: Request, url_args: Dict, response_t: Type[APIResponse],
+                      map_adapter: MapAdapter) -> Response:
         submodel = HTTPApiDecoder.request_body(request, model.Submodel, is_stripped_request(request))
         try:
             self.object_store.add(submodel)
@@ -880,13 +875,13 @@ class WSGIApp:
         }, force_external=True)
         return response_t(submodel, status=201, headers={"Location": created_resource_url})
 
-    def get_submodel_all_metadata(self, request: Request, url_args: Dict, **_kwargs) -> Response:
-        response_t = get_response_type(request)
+    def get_submodel_all_metadata(self, request: Request, url_args: Dict, response_t: Type[APIResponse],
+                                  **_kwargs) -> Response:
         submodels, cursor = self._get_submodels(request)
         return response_t(list(submodels), cursor=cursor, stripped=True)
 
-    def get_submodel_all_reference(self, request: Request, url_args: Dict, **_kwargs) -> Response:
-        response_t = get_response_type(request)
+    def get_submodel_all_reference(self, request: Request, url_args: Dict, response_t: Type[APIResponse],
+                                   **_kwargs) -> Response:
         submodels, cursor = self._get_submodels(request)
         references: list[model.ModelReference] = [model.ModelReference.from_referable(submodel)
                                                   for submodel in submodels]
@@ -894,74 +889,69 @@ class WSGIApp:
 
     # --------- SUBMODEL ROUTES ---------
 
-    def delete_submodel(self, request: Request, url_args: Dict, **_kwargs) -> Response:
-        response_t = get_response_type(request)
+    def delete_submodel(self, request: Request, url_args: Dict, response_t: Type[APIResponse], **_kwargs) -> Response:
         self.object_store.remove(self._get_obj_ts(url_args["submodel_id"], model.Submodel))
         return response_t()
 
-    def get_submodel(self, request: Request, url_args: Dict, **_kwargs) -> Response:
-        response_t = get_response_type(request)
+    def get_submodel(self, request: Request, url_args: Dict, response_t: Type[APIResponse], **_kwargs) -> Response:
         submodel = self._get_submodel(url_args)
         return response_t(submodel, stripped=is_stripped_request(request))
 
-    def get_submodels_metadata(self, request: Request, url_args: Dict, **_kwargs) -> Response:
-        response_t = get_response_type(request)
+    def get_submodels_metadata(self, request: Request, url_args: Dict, response_t: Type[APIResponse],
+                               **_kwargs) -> Response:
         submodel = self._get_submodel(url_args)
         return response_t(submodel, stripped=True)
 
-    def get_submodels_reference(self, request: Request, url_args: Dict, **_kwargs) -> Response:
-        response_t = get_response_type(request)
+    def get_submodels_reference(self, request: Request, url_args: Dict, response_t: Type[APIResponse],
+                                **_kwargs) -> Response:
         submodel = self._get_submodel(url_args)
         reference = model.ModelReference.from_referable(submodel)
         return response_t(reference, stripped=is_stripped_request(request))
 
-    def put_submodel(self, request: Request, url_args: Dict, **_kwargs) -> Response:
-        response_t = get_response_type(request)
+    def put_submodel(self, request: Request, url_args: Dict, response_t: Type[APIResponse], **_kwargs) -> Response:
         submodel = self._get_submodel(url_args)
         submodel.update_from(HTTPApiDecoder.request_body(request, model.Submodel, is_stripped_request(request)))
         submodel.commit()
         return response_t()
 
-    def get_submodel_submodel_elements(self, request: Request, url_args: Dict, **_kwargs) -> Response:
-        response_t = get_response_type(request)
+    def get_submodel_submodel_elements(self, request: Request, url_args: Dict, response_t: Type[APIResponse],
+                                       **_kwargs) -> Response:
         submodel_elements, cursor = self._get_submodel_submodel_elements(request, url_args)
         return response_t(list(submodel_elements), cursor=cursor, stripped=is_stripped_request(request))
 
-    def get_submodel_submodel_elements_metadata(self, request: Request, url_args: Dict, **_kwargs) -> Response:
-        response_t = get_response_type(request)
+    def get_submodel_submodel_elements_metadata(self, request: Request, url_args: Dict, response_t: Type[APIResponse],
+                                                **_kwargs) -> Response:
         submodel_elements, cursor = self._get_submodel_submodel_elements(request, url_args)
         return response_t(list(submodel_elements), cursor=cursor, stripped=True)
 
-    def get_submodel_submodel_elements_reference(self, request: Request, url_args: Dict, **_kwargs) -> Response:
-        response_t = get_response_type(request)
+    def get_submodel_submodel_elements_reference(self, request: Request, url_args: Dict, response_t: Type[APIResponse],
+                                                 **_kwargs) -> Response:
         submodel_elements, cursor = self._get_submodel_submodel_elements(request, url_args)
         references: list[model.ModelReference] = [model.ModelReference.from_referable(element) for element in
                                                   list(submodel_elements)]
         return response_t(references, cursor=cursor, stripped=is_stripped_request(request))
 
-    def get_submodel_submodel_elements_id_short_path(self, request: Request, url_args: Dict, **_kwargs) -> Response:
-        response_t = get_response_type(request)
+    def get_submodel_submodel_elements_id_short_path(self, request: Request, url_args: Dict,
+                                                     response_t: Type[APIResponse],
+                                                     **_kwargs) -> Response:
         submodel_element = self._get_submodel_submodel_elements_id_short_path(url_args)
         return response_t(submodel_element, stripped=is_stripped_request(request))
 
-    def get_submodel_submodel_elements_id_short_path_metadata(self, request: Request, url_args: Dict, **_kwargs) \
-            -> Response:
-        response_t = get_response_type(request)
+    def get_submodel_submodel_elements_id_short_path_metadata(self, request: Request, url_args: Dict,
+                                                              response_t: Type[APIResponse], **_kwargs) -> Response:
         submodel_element = self._get_submodel_submodel_elements_id_short_path(url_args)
         return response_t(submodel_element, stripped=True)
 
-    def get_submodel_submodel_elements_id_short_path_reference(self, request: Request, url_args: Dict, **_kwargs)\
-            -> Response:
-        response_t = get_response_type(request)
+    def get_submodel_submodel_elements_id_short_path_reference(self, request: Request, url_args: Dict,
+                                                               response_t: Type[APIResponse], **_kwargs) -> Response:
         submodel_element = self._get_submodel_submodel_elements_id_short_path(url_args)
         reference = model.ModelReference.from_referable(submodel_element)
         return response_t(reference, stripped=is_stripped_request(request))
 
-    def post_submodel_submodel_elements_id_short_path(self, request: Request, url_args: Dict, map_adapter: MapAdapter):
-        response_t = get_response_type(request)
-        submodel = self._get_submodel(url_args)
-        id_short_path = url_args.get("id_shorts", [])
-        parent = self._get_submodel_or_nested_submodel_element(submodel, id_short_path)
+    def post_submodel_submodel_elements_id_short_path(self, request: Request, url_args: Dict,
+                                                      response_t: Type[APIResponse],
+                                                      map_adapter: MapAdapter):
+        parent = self._get_submodel_or_nested_submodel_element(url_args)
         if not isinstance(parent, model.UniqueIdShortNamespace):
             raise BadRequest(f"{parent!r} is not a namespace, can't add child submodel element!")
         # TODO: remove the following type: ignore comment when mypy supports abstract types for Type[T]
@@ -976,14 +966,17 @@ class WSGIApp:
                 raise
             raise Conflict(f"SubmodelElement with idShort {new_submodel_element.id_short} already exists "
                            f"within {parent}!")
+        submodel = self._get_submodel(url_args)
+        id_short_path = url_args.get("id_shorts", [])
         created_resource_url = map_adapter.build(self.get_submodel_submodel_elements_id_short_path, {
             "submodel_id": submodel.id,
             "id_shorts": id_short_path + [new_submodel_element.id_short]
         }, force_external=True)
         return response_t(new_submodel_element, status=201, headers={"Location": created_resource_url})
 
-    def put_submodel_submodel_elements_id_short_path(self, request: Request, url_args: Dict, **_kwargs) -> Response:
-        response_t = get_response_type(request)
+    def put_submodel_submodel_elements_id_short_path(self, request: Request, url_args: Dict,
+                                                     response_t: Type[APIResponse],
+                                                     **_kwargs) -> Response:
         submodel_element = self._get_submodel_submodel_elements_id_short_path(url_args)
         # TODO: remove the following type: ignore comment when mypy supports abstract types for Type[T]
         # see https://github.com/python/mypy/issues/5374
@@ -994,20 +987,15 @@ class WSGIApp:
         submodel_element.commit()
         return response_t()
 
-    def delete_submodel_submodel_elements_id_short_path(self, request: Request, url_args: Dict, **_kwargs) \
-            -> Response:
-        response_t = get_response_type(request)
-        submodel = self._get_submodel(url_args)
-        id_short_path: List[str] = url_args["id_shorts"]
-        parent: model.UniqueIdShortNamespace = self._expect_namespace(
-            self._get_submodel_or_nested_submodel_element(submodel, id_short_path[:-1]),
-            id_short_path[-1]
-        )
-        self._namespace_submodel_element_op(parent, parent.remove_referable, id_short_path[-1])
+    def delete_submodel_submodel_elements_id_short_path(self, request: Request, url_args: Dict,
+                                                        response_t: Type[APIResponse],
+                                                        **_kwargs) -> Response:
+        sm_or_se = self._get_submodel_or_nested_submodel_element(url_args)
+        parent: model.UniqueIdShortNamespace = self._expect_namespace(sm_or_se.parent, sm_or_se.id_short)
+        self._namespace_submodel_element_op(parent, parent.remove_referable, sm_or_se.id_short)
         return response_t()
 
-    def get_submodel_submodel_element_attachment(self, request: Request, url_args: Dict, **_kwargs) \
-            -> Response:
+    def get_submodel_submodel_element_attachment(self, request: Request, url_args: Dict, **_kwargs) -> Response:
         submodel_element = self._get_submodel_submodel_elements_id_short_path(url_args)
         if not isinstance(submodel_element, (model.Blob, model.File)):
             raise BadRequest(f"{submodel_element!r} is not a Blob or File, no file content to download!")
@@ -1030,29 +1018,26 @@ class WSGIApp:
         # Blob and File both have the content_type attribute
         return Response(value, content_type=submodel_element.content_type)  # type: ignore[attr-defined]
 
-    def put_submodel_submodel_element_attachment(self, request: Request, url_args: Dict, **_kwargs) -> Response:
-        response_t = get_response_type(request)
+    def put_submodel_submodel_element_attachment(self, request: Request, url_args: Dict, response_t: Type[APIResponse],
+                                                 **_kwargs) -> Response:
         submodel_element = self._get_submodel_submodel_elements_id_short_path(url_args)
 
         # spec allows PUT only for File, not for Blob
         if not isinstance(submodel_element, model.File):
             raise BadRequest(f"{submodel_element!r} is not a File, no file content to update!")
-
-        if submodel_element.value is not None:
+        elif submodel_element.value is not None:
             raise Conflict(f"{submodel_element!r} already references a file!")
 
         filename = request.form.get('fileName')
         if filename is None:
-            raise BadRequest(f"No 'fileName' specified!")
-
-        if not filename.startswith("/"):
+            raise BadRequest("No 'fileName' specified!")
+        elif not filename.startswith("/"):
             raise BadRequest(f"Given 'fileName' doesn't start with a slash (/): {filename}")
 
         file_storage: Optional[FileStorage] = request.files.get('file')
         if file_storage is None:
-            raise BadRequest(f"Missing file to upload")
-
-        if file_storage.mimetype != submodel_element.content_type:
+            raise BadRequest("Missing file to upload")
+        elif file_storage.mimetype != submodel_element.content_type:
             raise werkzeug.exceptions.UnsupportedMediaType(
                 f"Request body is of type {file_storage.mimetype!r}, "
                 f"while {submodel_element!r} has content_type {submodel_element.content_type!r}!")
@@ -1061,14 +1046,13 @@ class WSGIApp:
         submodel_element.commit()
         return response_t()
 
-    def delete_submodel_submodel_element_attachment(self, request: Request, url_args: Dict, **_kwargs) \
-            -> Response:
-        response_t = get_response_type(request)
+    def delete_submodel_submodel_element_attachment(self, request: Request, url_args: Dict,
+                                                    response_t: Type[APIResponse],
+                                                    **_kwargs) -> Response:
         submodel_element = self._get_submodel_submodel_elements_id_short_path(url_args)
         if not isinstance(submodel_element, (model.Blob, model.File)):
             raise BadRequest(f"{submodel_element!r} is not a Blob or File, no file content to delete!")
-
-        if submodel_element.value is None:
+        elif submodel_element.value is None:
             raise NotFound(f"{submodel_element!r} has no attachment!")
 
         if isinstance(submodel_element, model.Blob):
@@ -1085,42 +1069,32 @@ class WSGIApp:
         submodel_element.commit()
         return response_t()
 
-    def get_submodel_submodel_element_qualifiers(self, request: Request, url_args: Dict, **_kwargs) \
-            -> Response:
-        response_t = get_response_type(request)
-        submodel = self._get_submodel(url_args)
-        sm_or_se = self._get_submodel_or_nested_submodel_element(submodel, url_args.get("id_shorts", []))
+    def get_submodel_submodel_element_qualifiers(self, request: Request, url_args: Dict, response_t: Type[APIResponse],
+                                                 **_kwargs) -> Response:
+        sm_or_se = self._get_submodel_or_nested_submodel_element(url_args)
         qualifier_type = url_args.get("qualifier_type")
         if qualifier_type is None:
             return response_t(list(sm_or_se.qualifier))
         return response_t(self._qualifiable_qualifier_op(sm_or_se, sm_or_se.get_qualifier_by_type, qualifier_type))
 
-    def post_submodel_submodel_element_qualifiers(self, request: Request, url_args: Dict, map_adapter: MapAdapter) \
-            -> Response:
-        response_t = get_response_type(request)
-        submodel_identifier = url_args["submodel_id"]
-        submodel = self._get_submodel(url_args)
-        id_shorts: List[str] = url_args.get("id_shorts", [])
-        sm_or_se = self._get_submodel_or_nested_submodel_element(submodel, id_shorts)
+    def post_submodel_submodel_element_qualifiers(self, request: Request, url_args: Dict, response_t: Type[APIResponse],
+                                                  map_adapter: MapAdapter) -> Response:
+        sm_or_se = self._get_submodel_or_nested_submodel_element(url_args)
         qualifier = HTTPApiDecoder.request_body(request, model.Qualifier, is_stripped_request(request))
         if sm_or_se.qualifier.contains_id("type", qualifier.type):
             raise Conflict(f"Qualifier with type {qualifier.type} already exists!")
         sm_or_se.qualifier.add(qualifier)
         sm_or_se.commit()
         created_resource_url = map_adapter.build(self.get_submodel_submodel_element_qualifiers, {
-            "submodel_id": submodel_identifier,
-            "id_shorts": id_shorts if len(id_shorts) != 0 else None,
+            "submodel_id": url_args["submodel_id"],
+            "id_shorts": url_args.get("id_shorts") or None,
             "qualifier_type": qualifier.type
         }, force_external=True)
         return response_t(qualifier, status=201, headers={"Location": created_resource_url})
 
-    def put_submodel_submodel_element_qualifiers(self, request: Request, url_args: Dict, map_adapter: MapAdapter) \
-            -> Response:
-        response_t = get_response_type(request)
-        submodel_identifier = url_args["submodel_id"]
-        submodel = self._get_submodel(url_args)
-        id_shorts: List[str] = url_args.get("id_shorts", [])
-        sm_or_se = self._get_submodel_or_nested_submodel_element(submodel, id_shorts)
+    def put_submodel_submodel_element_qualifiers(self, request: Request, url_args: Dict, response_t: Type[APIResponse],
+                                                 map_adapter: MapAdapter) -> Response:
+        sm_or_se = self._get_submodel_or_nested_submodel_element(url_args)
         new_qualifier = HTTPApiDecoder.request_body(request, model.Qualifier, is_stripped_request(request))
         qualifier_type = url_args["qualifier_type"]
         qualifier = self._qualifiable_qualifier_op(sm_or_se, sm_or_se.get_qualifier_by_type, qualifier_type)
@@ -1132,33 +1106,31 @@ class WSGIApp:
         sm_or_se.commit()
         if qualifier_type_changed:
             created_resource_url = map_adapter.build(self.get_submodel_submodel_element_qualifiers, {
-                "submodel_id": submodel_identifier,
-                "id_shorts": id_shorts if len(id_shorts) != 0 else None,
+                "submodel_id": url_args["submodel_id"],
+                "id_shorts": url_args.get("id_shorts") or None,
                 "qualifier_type": new_qualifier.type
             }, force_external=True)
             return response_t(new_qualifier, status=201, headers={"Location": created_resource_url})
         return response_t(new_qualifier)
 
-    def delete_submodel_submodel_element_qualifiers(self, request: Request, url_args: Dict, **_kwargs) \
-            -> Response:
-        response_t = get_response_type(request)
-        submodel = self._get_submodel(url_args)
-        id_shorts: List[str] = url_args.get("id_shorts", [])
-        sm_or_se = self._get_submodel_or_nested_submodel_element(submodel, id_shorts)
+    def delete_submodel_submodel_element_qualifiers(self, request: Request, url_args: Dict,
+                                                    response_t: Type[APIResponse],
+                                                    **_kwargs) -> Response:
+        sm_or_se = self._get_submodel_or_nested_submodel_element(url_args)
         qualifier_type = url_args["qualifier_type"]
         self._qualifiable_qualifier_op(sm_or_se, sm_or_se.remove_qualifier_by_type, qualifier_type)
         sm_or_se.commit()
         return response_t()
 
     # --------- CONCEPT DESCRIPTION ROUTES ---------
-    def get_concept_description_all(self, request: Request, url_args: Dict, **_kwargs) -> Response:
-        response_t = get_response_type(request)
+    def get_concept_description_all(self, request: Request, url_args: Dict, response_t: Type[APIResponse],
+                                    **_kwargs) -> Response:
         concept_descriptions: Iterator[model.ConceptDescription] = self._get_all_obj_of_type(model.ConceptDescription)
         concept_descriptions, cursor = self._get_slice(request, concept_descriptions)
         return response_t(list(concept_descriptions), cursor=cursor, stripped=is_stripped_request(request))
 
-    def post_concept_description(self, request: Request, url_args: Dict, map_adapter: MapAdapter) -> Response:
-        response_t = get_response_type(request)
+    def post_concept_description(self, request: Request, url_args: Dict, response_t: Type[APIResponse],
+                                 map_adapter: MapAdapter) -> Response:
         concept_description = HTTPApiDecoder.request_body(request, model.ConceptDescription,
                                                           is_stripped_request(request))
         try:
@@ -1171,24 +1143,21 @@ class WSGIApp:
         }, force_external=True)
         return response_t(concept_description, status=201, headers={"Location": created_resource_url})
 
-    def get_concept_description(self, request: Request, url_args: Dict, **_kwargs) -> Response:
-        response_t = get_response_type(request)
+    def get_concept_description(self, request: Request, url_args: Dict, response_t: Type[APIResponse],
+                                **_kwargs) -> Response:
         concept_description = self._get_concept_description(url_args)
         return response_t(concept_description, stripped=is_stripped_request(request))
 
-    def _get_concept_description(self, url_args):
-        return self._get_obj_ts(url_args["concept_id"], model.ConceptDescription)
-
-    def put_concept_description(self, request: Request, url_args: Dict, **_kwargs) -> Response:
-        response_t = get_response_type(request)
+    def put_concept_description(self, request: Request, url_args: Dict, response_t: Type[APIResponse],
+                                **_kwargs) -> Response:
         concept_description = self._get_concept_description(url_args)
         concept_description.update_from(HTTPApiDecoder.request_body(request, model.ConceptDescription,
                                                                     is_stripped_request(request)))
         concept_description.commit()
         return response_t()
 
-    def delete_concept_description(self, request: Request, url_args: Dict, **_kwargs) -> Response:
-        response_t = get_response_type(request)
+    def delete_concept_description(self, request: Request, url_args: Dict, response_t: Type[APIResponse],
+                                   **_kwargs) -> Response:
         self.object_store.remove(self._get_concept_description(url_args))
         return response_t()
 
@@ -1196,5 +1165,6 @@ class WSGIApp:
 if __name__ == "__main__":
     from werkzeug.serving import run_simple
     from basyx.aas.examples.data.example_aas import create_full_example
+
     run_simple("localhost", 8080, WSGIApp(create_full_example(), aasx.DictSupplementaryFileContainer()),
                use_debugger=True, use_reloader=True)
