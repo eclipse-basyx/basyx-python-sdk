@@ -31,7 +31,6 @@ dev = [
     "pycodestyle",
     "codeblocks",
     "coverage",
-    # You may want to keep other necessary development dependencies here
 ]
 
 [project.urls]
