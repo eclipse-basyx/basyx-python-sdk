@@ -78,6 +78,17 @@ class Date(datetime.date):
         other_tzinfo = other.tzinfo if hasattr(other, 'tzinfo') else None  # type: ignore
         return datetime.date.__eq__(self, other) and self.tzinfo == other_tzinfo
 
+    def __copy__(self):
+        cls = self.__class__
+        result = cls.__new__(cls, self.year, self.month, self.day, self.tzinfo)
+        return result
+
+    def __deepcopy__(self, memo):
+        cls = self.__class__
+        result = cls.__new__(cls, self.year, self.month, self.day, self.tzinfo)
+        memo[id(self)] = result
+        return result
+
     # TODO override comparsion operators
     # TODO add into_datetime function
     # TODO add includes(:DateTime) -> bool function
