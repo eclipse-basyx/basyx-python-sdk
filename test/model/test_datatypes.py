@@ -7,6 +7,7 @@
 import datetime
 import math
 import unittest
+import copy
 
 import dateutil
 
@@ -176,6 +177,13 @@ class TestDateTimeTypes(unittest.TestCase):
         with self.assertRaises(ValueError) as cm:
             model.datatypes.from_xsd("10-10", model.datatypes.GYearMonth)
         self.assertEqual("Value is not a valid XSD GYearMonth string", str(cm.exception))
+
+    def test_copy_date(self) -> None:
+        date = model.datatypes.Date(2020, 1, 24)
+        date_copy_shallow = copy.copy(date)
+        self.assertEqual(date, date_copy_shallow)
+        date_copy_deep = copy.deepcopy(date)
+        self.assertEqual(date, date_copy_deep)
 
     def test_serialize_partial_dates(self) -> None:
         self.assertEqual("2019", model.datatypes.xsd_repr(model.datatypes.GYear(2019)))
