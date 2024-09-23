@@ -6,12 +6,12 @@ The Eclipse BaSyx Python project focuses on providing a Python implementation of
 for Industry 4.0 Systems. 
 These are the currently implemented specifications:
 
-| Specification                         | Version                                                                                                                                                                                                 |
-|---------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Part 1: Metamodel                     | [v3.0 (01001-3-0)](https://industrialdigitaltwin.org/en/content-hub/aasspecifications/specification-of-the-asset-administration-shell-part-1-metamodel-idta-number-01001-3-0-1)                         |
-| Part 2: API                           | not implemented yet                                                                                                                                                                                     |
-| Part 3a: Data Specification IEC 61360 | [v3.0 (01003-a-3-0)](https://industrialdigitaltwin.org/en/content-hub/aasspecifications/specification-of-the-asset-administration-shell-part-3a-data-specification-iec-61360-idta-number-01003-a-3-0-2) |
-| Part 5: Package File Format (AASX)    | [v3.0 (01005-3-0)](https://industrialdigitaltwin.org/en/content-hub/aasspecifications/specification-of-the-asset-administration-shell-part-5-package-file-format-aasx-idta-number-01005-3-0-1)          |
+| Specification                         | Version                                                                                                                                                                         |
+|---------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Part 1: Metamodel                     | [v3.0 (01001-3-0)](https://industrialdigitaltwin.org/wp-content/uploads/2023/06/IDTA-01001-3-0_SpecificationAssetAdministrationShell_Part1_Metamodel.pdf)                       |
+| Part 2: API                           | not implemented yet                                                                                                                                                             |
+| Part 3a: Data Specification IEC 61360 | [v3.0 (01003-a-3-0)](https://industrialdigitaltwin.org/wp-content/uploads/2023/04/IDTA-01003-a-3-0_SpecificationAssetAdministrationShell_Part3a_DataSpecification_IEC61360.pdf) |
+| Part 5: Package File Format (AASX)    | [v3.0 (01005-3-0)](https://industrialdigitaltwin.org/wp-content/uploads/2023/04/IDTA-01005-3-0_SpecificationAssetAdministrationShell_Part5_AASXPackageFileFormat.pdf)           |
 
 ## Features
 
