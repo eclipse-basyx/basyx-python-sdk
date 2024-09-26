@@ -3,6 +3,9 @@ lxml>=4.2,<5
 python-dateutil>=2.8,<3.0
 types-python-dateutil
 pyecma376-2>=0.2.4
-urllib3>=1.26,<2.0
+urllib3>=1.26,<3
+Werkzeug>=3.0.3,<4
+schemathesis~=3.7
+hypothesis~=6.13
 lxml-stubs~=0.5.1
 

@@ -12,6 +12,7 @@ import unittest
 from basyx.aas import model
 from basyx.aas.adapter.xml import StrictAASFromXmlDecoder, XMLConstructables, read_aas_xml_file, \
     read_aas_xml_file_into, read_aas_xml_element
+from basyx.aas.adapter.xml.xml_deserialization import _tag_replace_namespace
 from basyx.aas.adapter._generic import XML_NS_MAP
 from lxml import etree
 from typing import Iterable, Type, Union
@@ -449,3 +450,29 @@ class XmlDeserializationDerivingTest(unittest.TestCase):
         self.assertIsInstance(submodel, EnhancedSubmodel)
         assert isinstance(submodel, EnhancedSubmodel)
         self.assertEqual(submodel.enhanced_attribute, "fancy!")
+
+
+class TestTagReplaceNamespace(unittest.TestCase):
+    def test_known_namespace(self):
+        tag = '{https://admin-shell.io/aas/3/0}tag'
+        expected = 'aas:tag'
+        self.assertEqual(_tag_replace_namespace(tag, XML_NS_MAP), expected)
+
+    def test_empty_prefix(self):
+        # Empty prefix should not be replaced as otherwise it would apply everywhere
+        tag = '{https://admin-shell.io/aas/3/0}tag'
+        nsmap = {"": "https://admin-shell.io/aas/3/0"}
+        expected = '{https://admin-shell.io/aas/3/0}tag'
+        self.assertEqual(_tag_replace_namespace(tag, nsmap), expected)
+
+    def test_empty_namespace(self):
+        # Empty namespaces should also have no effect
+        tag = '{https://admin-shell.io/aas/3/0}tag'
+        nsmap = {"aas": ""}
+        expected = '{https://admin-shell.io/aas/3/0}tag'
+        self.assertEqual(_tag_replace_namespace(tag, nsmap), expected)
+
+    def test_unknown_namespace(self):
+        tag = '{http://unknownnamespace.com}unknown'
+        expected = '{http://unknownnamespace.com}unknown'  # Unknown namespace should remain unchanged
+        self.assertEqual(_tag_replace_namespace(tag, XML_NS_MAP), expected)
