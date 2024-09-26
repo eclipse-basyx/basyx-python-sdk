@@ -4,7 +4,6 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "basyx-python-sdk"
-version = "1.0.0"
 description = "The Eclipse BaSyx Python SDK, an implementation of the Asset Administration Shell for Industry 4.0 systems"
 authors = [
     { name = "The Eclipse BaSyx Authors", email = "admins@iat.rwth-aachen.de" }
@@ -21,9 +20,15 @@ requires-python = ">=3.8"
 dependencies = [
     "python-dateutil>=2.8,<3",
     "lxml>=4.2,<5",
-    "urllib3>=1.26,<2.0",
+    "urllib3>=1.26,<3",
     "pyecma376-2>=0.2.4"
 ]
+# This line indicates that the version is dynamically determined
+dynamic = ["version"]
+
+[tool.setuptools_scm]
+# This section configures setuptools_scm
+write_to = "basyx/version.py"  # Optional: creates a version.py file in your package
 
 [project.optional-dependencies]
 dev = [
@@ -31,7 +36,6 @@ dev = [
     "pycodestyle",
     "codeblocks",
     "coverage",
-    # You may want to keep other necessary development dependencies here
 ]
 
 [project.urls]
@@ -46,4 +50,3 @@ basyx = ["py.typed"]
 
 [tool.setuptools.exclude-package-data]
 "*" = ["test", "test.*"]
-
