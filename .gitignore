@@ -1,50 +1,24 @@
-# Python caching
-**/__pycache__/
-*.pyc
-/.mypy_cache/
-
-# Typical virtualenv dir
-/venv/
-
-# IDE settings
-/.idea/
-
-# Python distribution artifacts
-/build/
-/dist/
-/*.egg-info/
-/docs/build/
-
-# Coverage artifacts
-/.coverage
-/htmlcov/
-/docs/build/
-/.hypothesis/
-
-# customized config files
-/test/test_config.ini
-# Schema files needed for testing
-/test/adapter/schemas
-
-
 # Python build artifacts
 __pycache__/
 *.py[cod]
-*$py.class
 *.so
-.Python
 build/
-develop-eggs/
 dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
 *.egg-info/
-.installed.cfg
-*.egg
+.eggs/
+
+# Virtual environment
+venv/
+env/
+
+# IDE specific files
+.vscode/
+.idea/
+
+# Temporary files
+*.tmp
+*.bak
+*.swp
+
+# Project specific
+basyx/version.py
