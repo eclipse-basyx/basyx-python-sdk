@@ -23,12 +23,15 @@ dependencies = [
     "urllib3>=1.26,<3",
     "pyecma376-2>=0.2.4"
 ]
-# This line indicates that the version is dynamically determined
+
 dynamic = ["version"]
 
 [tool.setuptools_scm]
-# This section configures setuptools_scm
-write_to = "basyx/version.py"  # Optional: creates a version.py file in your package
+# Configure setuptools_scm for version management:
+# - Automatically infers the version number from the most recent git tag
+# - Generates a version.py file in the package directory
+# - Allows for automatic versioning between releases (e.g., 1.0.1.dev4+g12345)
+write_to = "basyx/version.py"  
 
 [project.optional-dependencies]
 dev = [
