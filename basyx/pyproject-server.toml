@@ -1,11 +1,11 @@
 [build-system]
-requires = ["setuptools>=45", "wheel", "setuptools_scm[toml]>=6.2"]
+requires = ["setuptools>=45", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "basyx-python-sdk"
+name = "basyx-python-sdk-server"
 version = "1.0.0"
-description = "The Eclipse BaSyx Python SDK, an implementation of the Asset Administration Shell for Industry 4.0 systems"
+description = "The Server for the BaSyx-Python-SDK"
 authors = [
     { name = "The Eclipse BaSyx Authors", email = "admins@iat.rwth-aachen.de" }
 ]
@@ -15,34 +15,27 @@ classifiers = [
     "Programming Language :: Python :: 3",
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
-    "Development Status :: 5 - Production/Stable"
 ]
 requires-python = ">=3.8"
 dependencies = [
-    "python-dateutil>=2.8,<3",
-    "lxml>=4.2,<5",
-    "urllib3>=1.26,<3",
-    "pyecma376-2>=0.2.4"
+    "Flask>=2.0,<3.0",
 ]
 
 [project.optional-dependencies]
 dev = [
     "mypy",
-    "pycodestyle",
-    "codeblocks",
+    "pytest",
     "coverage",
 ]
 
-[project.urls]
-"Homepage" = "https://github.com/eclipse-basyx/basyx-python-sdk"
-
 [tool.setuptools]
-packages = ["basyx"]
+packages = ["basyx.server"]
 
 [tool.setuptools.package-data]
-basyx = ["py.typed"]
-"basyx.aas.examples.data" = ["TestFile.pdf"]
+basyx.server = ["py.typed"]
 
 [tool.setuptools.exclude-package-data]
 "*" = ["test", "test.*"]
 
+[tool.mypy]
+files = ["basyx/server"]
