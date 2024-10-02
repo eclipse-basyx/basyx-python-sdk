@@ -1,0 +1,41 @@
+[build-system]
+requires = ["setuptools>=45", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "basyx-python-sdk-server"
+version = "1.0.0"
+description = "The Server for the BaSyx-Python-SDK"
+authors = [
+    { name = "The Eclipse BaSyx Authors", email = "admins@iat.rwth-aachen.de" }
+]
+readme = "README.md"
+license = { file = "LICENSE" }
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+requires-python = ">=3.8"
+dependencies = [
+    "Flask>=2.0,<3.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "mypy",
+    "pytest",
+    "coverage",
+]
+
+[tool.setuptools]
+packages = ["basyx.server"]
+
+[tool.setuptools.package-data]
+basyx.server = ["py.typed"]
+
+[tool.setuptools.exclude-package-data]
+"*" = ["test", "test.*"]
+
+[tool.mypy]
+files = ["basyx/server"]

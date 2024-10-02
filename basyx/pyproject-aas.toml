@@ -46,3 +46,6 @@ basyx = ["py.typed"]
 [tool.setuptools.exclude-package-data]
 "*" = ["test", "test.*"]
 
+[tool.mypy]
+files = ["basyx/aas"]
+
