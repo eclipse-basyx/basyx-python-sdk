@@ -8,3 +8,4 @@ Werkzeug>=3.0.3,<4
 schemathesis~=3.7
 hypothesis~=6.13
 lxml-stubs~=0.5.1
+
