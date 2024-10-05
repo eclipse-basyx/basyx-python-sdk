@@ -1,17 +1,10 @@
 """
 .. _adapter.rdf.__init__:
 
-This package contains functionality for serialization and deserialization of BaSyx Python SDK objects into/from XML.
+This package contains functionality for serialization and deserialization of BaSyx Python SDK objects into RDF.
 
-:ref:`xml_serialization <adapter.xml.xml_serialization>`: The module offers a function to write an
+:ref:`rdf_serialization <adapter.xml.rdf_serialization>`: The module offers a function to write an
 :class:`ObjectStore <basyx.aas.model.provider.AbstractObjectStore>` to a given file.
-
-:ref:`xml_deserialization <adapter.xml.xml_deserialization>`: The module offers a function to create an
-:class:`ObjectStore <basyx.aas.model.provider.AbstractObjectStore>` from a given xml document.
 """
 
 from .rdf_serialization import AASToRDFEncoder, object_store_to_rdf, write_aas_rdf_file
-#object_to_xml_element, \
-#    write_aas_xml_element
-# from .xml_deserialization import AASFromXmlDecoder, StrictAASFromXmlDecoder, StrippedAASFromXmlDecoder, \
-#    StrictStrippedAASFromXmlDecoder, XMLConstructables, read_aas_xml_file, read_aas_xml_file_into, read_aas_xml_element
