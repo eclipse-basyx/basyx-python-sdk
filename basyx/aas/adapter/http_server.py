@@ -149,7 +149,7 @@ class JsonResponse(APIResponse):
             data = obj
         else:
             data = {
-                "paging_metadata": {"cursor": cursor},
+                "paging_metadata": {"cursor": str(cursor)},
                 "result": obj
             }
         return json.dumps(
