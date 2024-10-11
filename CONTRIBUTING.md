@@ -127,7 +127,7 @@ Additionally, we use [PEP 484 -- Type Hints](https://www.python.org/dev/peps/pep
 Before submitting any changes, make sure to let `mypy` and `pycodestyle` check your code and run the unit tests with
 Python's builtin `unittest`. To install the required tools, use:
 ```bash
-pip install mypy pycodestyle
+pip install .[dev]
 ```
 
 Running all checks:
