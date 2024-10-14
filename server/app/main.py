@@ -8,7 +8,7 @@ from basyx.aas.adapter import aasx
 from basyx.aas.backend.local_file import LocalFileObjectStore
 from basyx.aas.adapter.http import WSGIApp
 
-storage_path = os.getenv("STORAGE_PATH", "storage")
+storage_path = os.getenv("STORAGE_PATH", "/storage")
 storage_type = os.getenv("STORAGE_TYPE", "LOCAL_FILE_READ_ONLY")
 base_path = os.getenv("API_BASE_PATH")
 
