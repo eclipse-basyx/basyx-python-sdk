@@ -149,7 +149,7 @@ class JsonResponse(APIResponse):
             data = obj
         else:
             data = {
-                "paging_metadata": {"cursor": cursor},
+                "paging_metadata": {"cursor": str(cursor)},
                 "result": obj
             }
         return json.dumps(
@@ -226,7 +226,7 @@ def get_response_type(request: Request) -> Type[APIResponse]:
         "application/xml": XmlResponse,
         "text/xml": XmlResponseAlt
     }
-    if len(request.accept_mimetypes) == 0:
+    if len(request.accept_mimetypes) == 0 or request.accept_mimetypes.best in (None, "*/*"):
         return JsonResponse
     mime_type = request.accept_mimetypes.best_match(response_types)
     if mime_type is None:
