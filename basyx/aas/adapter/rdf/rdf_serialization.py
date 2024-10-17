@@ -70,7 +70,7 @@ class AASToRDFEncoder():
         else:
             return "false"
 
-    def _abstract_classes_to_rdf(self, obj: object, parent: URIRef | BNode) -> None:
+    def _abstract_classes_to_rdf(self, obj: object, parent: Union[URIRef, BNode]) -> None:
         """
         Adds attributes of abstract base classes of ``obj``.
 
