@@ -70,7 +70,7 @@ class AASToRDFEncoder():
         else:
             return "false"
 
-    def _abstract_classes_to_rdf(self, obj: object, parent: URIRef) -> None:
+    def _abstract_classes_to_rdf(self, obj: object, parent: URIRef | BNode) -> None:
         """
         Adds attributes of abstract base classes of ``obj``.
 
@@ -816,7 +816,7 @@ def object_store_to_rdf(data: model.AbstractObjectStore) -> str:
     return encoder.graph.serialize(format="turtle")
 
 
-def write_aas_rdf_file(file: _generic.PathOrIO,
+def write_aas_rdf_file(file: _generic.PathOrIOGraph,
                        data: model.AbstractObjectStore,
                        **kwargs) -> None:
     """
@@ -830,5 +830,5 @@ def write_aas_rdf_file(file: _generic.PathOrIO,
     """
     encoder = AASToRDFEncoder()
     encoder.object_store_to_rdflib_graph(data)
-    encoder.graph.serialize("test_output.ttl", format="turtle")
-    return encoder.graph.serialize(destination=file, format="turtle", **kwargs)
+    # encoder.graph.serialize("test_output.ttl", format="turtle")
+    encoder.graph.serialize(destination=file, format="turtle", **kwargs)

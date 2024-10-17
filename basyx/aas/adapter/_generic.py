@@ -9,6 +9,7 @@ The dicts defined in this module are used in the json and xml modules to transla
 implementation to the respective string and vice versa.
 """
 import os
+import pathlib
 from typing import BinaryIO, Dict, IO, Type, Union
 
 from basyx.aas import model
@@ -18,6 +19,8 @@ from basyx.aas import model
 Path = Union[str, bytes, os.PathLike]
 PathOrBinaryIO = Union[Path, BinaryIO]
 PathOrIO = Union[Path, IO]  # IO is TextIO or BinaryIO
+PathOrIOGraph = Union[str, pathlib.PurePath, IO[bytes]]
+
 
 # XML Namespace definition
 XML_NS_MAP = {"aas": "https://admin-shell.io/aas/3/0"}
