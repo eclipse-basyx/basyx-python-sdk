@@ -7,13 +7,19 @@ env:
 
 jobs:
   test:
+    # This job runs the unittests on the python versions specified down at the matrix
     runs-on: ubuntu-latest
     strategy:
       matrix:
         python-version: ["3.8", "3.10", "3.12"]
     env:
       COUCHDB_ADMIN_PASSWORD: "yo0Quai3"
-      AAS_SPECS_RELEASE_TAG: "V3.0.7"
+      # (2024-10-11, s-heppner)
+      # Specify the tag of the released schema files from https://github.com/admin-shell-io/aas-specs/releases
+      # that you want to use to test the serialization adapter against.
+      # Currently, we need to update this manually, however I'm afraid this is not possible to automatically infer,
+      # since it's heavily dependant of the version of the AAS specification we support.
+      AAS_SPECS_RELEASE_TAG: "IDTA-01001-3-0-1_schemasV3.0.8"
     services:
       couchdb:
         image: couchdb:3
@@ -22,7 +28,6 @@ jobs:
         env:
           COUCHDB_USER: "admin"
           COUCHDB_PASSWORD: ${{ env.COUCHDB_ADMIN_PASSWORD }}
-
     steps:
     - uses: actions/checkout@v2
     - name: Set up Python ${{ matrix.python-version }}
@@ -37,8 +42,7 @@ jobs:
     - name: Install Python dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install coverage
-        pip install -r requirements.txt
+        pip install .[dev]
     - name: Setup test config and CouchDB database server
       run: |
         python test/_helper/setup_testdb.py -u "admin" -p "$COUCHDB_ADMIN_PASSWORD"
@@ -51,8 +55,8 @@ jobs:
         coverage report -m
 
   static-analysis:
+    # This job runs static code analysis, namely pycodestyle and mypy
     runs-on: ubuntu-latest
-
     steps:
     - uses: actions/checkout@v2
     - name: Set up Python ${{ env.X_PYTHON_VERSION }}
@@ -62,8 +66,7 @@ jobs:
     - name: Install Python dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install pycodestyle mypy
-        pip install -r requirements.txt
+        pip install .[dev]
     - name: Check typing with MyPy
       run: |
         mypy basyx test
@@ -72,8 +75,8 @@ jobs:
         pycodestyle --count --max-line-length 120 basyx test
 
   readme-codeblocks:
+    # This job runs the same static code analysis (mypy and pycodestyle) on the codeblocks in our docstrings.
     runs-on: ubuntu-latest
-
     steps:
     - uses: actions/checkout@v2
     - name: Set up Python ${{ env.X_PYTHON_VERSION }}
@@ -83,8 +86,7 @@ jobs:
     - name: Install Python dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install pycodestyle mypy codeblocks
-        pip install -r requirements.txt
+        pip install .[dev]
     - name: Check typing with MyPy
       run: |
         mypy <(codeblocks python README.md)
@@ -96,8 +98,8 @@ jobs:
         codeblocks python README.md | python
 
   docs:
+    # This job checks, if the automatically generated documentation using sphinx can be compiled
     runs-on: ubuntu-latest
-
     steps:
     - uses: actions/checkout@v2
     - name: Set up Python ${{ env.X_PYTHON_VERSION }}
@@ -107,15 +109,15 @@ jobs:
     - name: Install Python dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install -r requirements.txt
+        pip install .
         pip install -r docs/add-requirements.txt
     - name: Check documentation for errors
       run: |
         SPHINXOPTS="-a -E -n -W --keep-going" make -C docs html
 
   package:
+    # This job checks if we can build our SDK package
     runs-on: ubuntu-latest
-
     steps:
     - uses: actions/checkout@v2
     - name: Set up Python ${{ env.X_PYTHON_VERSION }}
@@ -125,7 +127,7 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install setuptools wheel build
+        pip install build
     - name: Create source and wheel dist
       run: |
         python -m build

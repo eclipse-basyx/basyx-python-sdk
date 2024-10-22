@@ -25,3 +25,6 @@
 /test/test_config.ini
 # Schema files needed for testing
 /test/adapter/schemas
+
+# Ignore dynamically generated version file
+basyx/version.py
