@@ -6,7 +6,7 @@ env:
   X_PYTHON_VERSION: "3.12"
 
 jobs:
-  test:
+  sdk-test:
     # This job runs the unittests on the python versions specified down at the matrix
     runs-on: ubuntu-latest
     strategy:
@@ -28,6 +28,9 @@ jobs:
         env:
           COUCHDB_USER: "admin"
           COUCHDB_PASSWORD: ${{ env.COUCHDB_ADMIN_PASSWORD }}
+    defaults:
+      run:
+        working-directory: ./sdk
     steps:
     - uses: actions/checkout@v2
     - name: Set up Python ${{ matrix.python-version }}
@@ -54,9 +57,12 @@ jobs:
       run: |
         coverage report -m
 
-  static-analysis:
+  sdk-static-analysis:
     # This job runs static code analysis, namely pycodestyle and mypy
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./sdk
     steps:
     - uses: actions/checkout@v2
     - name: Set up Python ${{ env.X_PYTHON_VERSION }}
@@ -74,9 +80,12 @@ jobs:
       run: |
         pycodestyle --count --max-line-length 120 basyx test
 
-  readme-codeblocks:
+  sdk-readme-codeblocks:
     # This job runs the same static code analysis (mypy and pycodestyle) on the codeblocks in our docstrings.
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./sdk
     steps:
     - uses: actions/checkout@v2
     - name: Set up Python ${{ env.X_PYTHON_VERSION }}
@@ -97,9 +106,12 @@ jobs:
       run: |
         codeblocks python README.md | python
 
-  docs:
+  sdk-docs:
     # This job checks, if the automatically generated documentation using sphinx can be compiled
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./sdk
     steps:
     - uses: actions/checkout@v2
     - name: Set up Python ${{ env.X_PYTHON_VERSION }}
@@ -115,9 +127,12 @@ jobs:
       run: |
         SPHINXOPTS="-a -E -n -W --keep-going" make -C docs html
 
-  package:
+  sdk-package:
     # This job checks if we can build our SDK package
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./sdk
     steps:
     - uses: actions/checkout@v2
     - name: Set up Python ${{ env.X_PYTHON_VERSION }}
