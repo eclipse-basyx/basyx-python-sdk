@@ -16,7 +16,8 @@ build-backend = "setuptools.build_meta"
 # from basyx.version import version
 # print(f"Project version: {version}")
 # ```
-write_to = "basyx/version.py"
+root = ".."  # Defines the path to the root of the repository
+version_file = "basyx/version.py"
 
 [project]
 name = "basyx-python-sdk"
