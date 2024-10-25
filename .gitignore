@@ -4,27 +4,27 @@
 /.mypy_cache/
 
 # Typical virtualenv dir
-/venv/
+venv/
 
 # IDE settings
-/.idea/
+.idea/
 
 # Python distribution artifacts
-/build/
-/dist/
-/*.egg-info/
-/docs/build/
+build/
+dist/
+*.egg-info/
+docs/build/
 
 # Coverage artifacts
-/.coverage
-/htmlcov/
-/docs/build/
-/.hypothesis/
+.coverage
+htmlcov/
+docs/build/
+.hypothesis/
 
 # customized config files
-/test/test_config.ini
+sdk/test/test_config.ini
 # Schema files needed for testing
-/test/adapter/schemas
+sdk/test/adapter/schemas
 
 # Ignore dynamically generated version file
-basyx/version.py
+sdk/basyx/version.py
