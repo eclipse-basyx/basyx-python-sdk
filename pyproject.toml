@@ -1,10 +1,26 @@
 [build-system]
-requires = ["setuptools>=45", "wheel", "setuptools_scm[toml]>=6.2"]
+requires = [
+    "setuptools>=45",
+    "wheel",
+    "setuptools_scm[toml]>=6.2"
+]
 build-backend = "setuptools.build_meta"
+
+[tool.setuptools_scm]
+# Configure setuptools_scm for version management:
+# - Automatically infers the version number from the most recent git tag
+# - Generates a version.py file in the package directory
+# - Allows for automatic versioning between releases (e.g., 1.0.1.dev4+g12345)
+# If you want to use the version anywhere in the code, use
+# ```
+# from basyx.version import version
+# print(f"Project version: {version}")
+# ```
+write_to = "basyx/version.py"
 
 [project]
 name = "basyx-python-sdk"
-version = "1.0.0"
+dynamic = ["version"]
 description = "The Eclipse BaSyx Python SDK, an implementation of the Asset Administration Shell for Industry 4.0 systems"
 authors = [
     { name = "The Eclipse BaSyx Authors", email = "admins@iat.rwth-aachen.de" }
@@ -19,10 +35,16 @@ classifiers = [
 ]
 requires-python = ">=3.8"
 dependencies = [
-    "python-dateutil>=2.8,<3",
+    "jsonschema~=4.7",
     "lxml>=4.2,<5",
+    "python-dateutil>=2.8,<3",
+    "types-python-dateutil",
+    "pyecma376-2>=0.2.4",
     "urllib3>=1.26,<3",
-    "pyecma376-2>=0.2.4"
+    "Werkzeug>=3.0.3,<4",
+    "schemathesis~=3.7",
+    "hypothesis~=6.13",
+    "lxml-stubs~=0.5.1",
 ]
 
 [project.optional-dependencies]
@@ -37,12 +59,8 @@ dev = [
 "Homepage" = "https://github.com/eclipse-basyx/basyx-python-sdk"
 
 [tool.setuptools]
-packages = ["basyx"]
+packages = { find = { include = ["basyx*"], exclude = ["test*"] } }
 
 [tool.setuptools.package-data]
 basyx = ["py.typed"]
 "basyx.aas.examples.data" = ["TestFile.pdf"]
-
-[tool.setuptools.exclude-package-data]
-"*" = ["test", "test.*"]
-
