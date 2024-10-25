@@ -3,15 +3,7 @@
 (formerly known as PyI40AAS – Python Industry 4.0 Asset Administration Shell)
 
 The Eclipse BaSyx Python project focuses on providing a Python implementation of the Asset Administration Shell (AAS) 
-for Industry 4.0 Systems. 
-These are the currently implemented specifications:
-
-| Specification                         | Version                                                                                                                                                                         |
-|---------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Part 1: Metamodel                     | [v3.0 (01001-3-0)](https://industrialdigitaltwin.org/wp-content/uploads/2023/06/IDTA-01001-3-0_SpecificationAssetAdministrationShell_Part1_Metamodel.pdf)                       |
-| Part 2: API                           | not implemented yet                                                                                                                                                             |
-| Part 3a: Data Specification IEC 61360 | [v3.0 (01003-a-3-0)](https://industrialdigitaltwin.org/wp-content/uploads/2023/04/IDTA-01003-a-3-0_SpecificationAssetAdministrationShell_Part3a_DataSpecification_IEC61360.pdf) |
-| Part 5: Package File Format (AASX)    | [v3.0 (01005-3-0)](https://industrialdigitaltwin.org/wp-content/uploads/2023/04/IDTA-01005-3-0_SpecificationAssetAdministrationShell_Part5_AASXPackageFileFormat.pdf)           |
+for Industry 4.0 Systems.
 
 ## Features
 
@@ -42,16 +34,6 @@ SPDX-License-Identifier: MIT
 
 For more information, especially considering the licenses of included third-party works, please consult the `NOTICE`
 file.
-
-## Release Schedule
-
-The Eclipse BaSyx-Python SDK Team evaluates bi-monthly the newly added commits to the main branch towards the need 
-of releasing a new version.
-If decided the changes warrant a release, it is initiated, using semantic versioning for the new release number.
-If the changes do not warrant a release, the decision is postponed to the next meeting.
-
-Additionally, security fixes may be released at any point.
-
 
 ## Dependencies
 
@@ -152,12 +134,3 @@ A detailed, complete API documentation is available on Read the Docs: https://ba
 ### Compliance Tool
 
 The compliance tool functionality moved to [github.com/rwth-iat/aas-compliance-tool](https://github.com/rwth-iat/aas-compliance-tool).
-
-## Contributing
-
-For contributing with issues and code, please see our [Contribution Guideline](CONTRIBUTING.md).
-
-### Eclipse Contributor Agreement
-
-To contribute code to this project you need to sign the [Eclipse Contributor Agreement (ECA)](https://www.eclipse.org/legal/ECA.php).
-This is done by creating an Eclipse account for your git e-mail address and then submitting the following form: https://accounts.eclipse.org/user/eca
