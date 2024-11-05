@@ -155,7 +155,7 @@ jobs:
         python-version: ["3.8", "3.10", "3.12"]
     defaults:
       run:
-        working-directory: ./compliance-tool
+        working-directory: ./compliance_tool
 
     steps:
     - uses: actions/checkout@v2
@@ -182,7 +182,7 @@ jobs:
 
     defaults:
       run:
-        working-directory: ./compliance-tool
+        working-directory: ./compliance_tool
     steps:
     - uses: actions/checkout@v2
     - name: Set up Python ${{ env.X_PYTHON_VERSION }}
@@ -207,7 +207,7 @@ jobs:
 
     defaults:
       run:
-        working-directory: ./compliance-tool
+        working-directory: ./compliance_tool
     steps:
     - uses: actions/checkout@v2
     - name: Set up Python ${{ env.X_PYTHON_VERSION }}
@@ -230,12 +230,12 @@ jobs:
         codeblocks python README.md | python
 
   compliance-tool-package:
-    # This job checks if we can build our compliance-tool package
+    # This job checks if we can build our compliance_tool package
     runs-on: ubuntu-latest
 
     defaults:
       run:
-        working-directory: ./compliance-tool
+        working-directory: ./compliance_tool
     steps:
     - uses: actions/checkout@v2
     - name: Set up Python ${{ env.X_PYTHON_VERSION }}
