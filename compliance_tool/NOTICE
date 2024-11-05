@@ -1,0 +1,18 @@
+Declared Project License
+------------------------
+The artifacts of this project are made available under the terms of the MIT License.
+Please refer to the LICENSE file for more information.
+
+
+Third-party Work in this Repository
+-----------------------------------
+This project includes XSD and JSON Schema files, developed by IDTA and published
+at https://github.com/admin-shell-io/aas-specs/
+
+under the terms of the Creative Commons Attribution 4.0 International (CC-BY-4.0)
+https://github.com/admin-shell-io/aas-specs/?tab=CC-BY-4.0-1-ov-file#readme
+
+These files are located at 
+- `aas_compliance_tool/schemas/aasJSONSchema.json` and
+- `aas_compliance_tool/schemas/aasXMLSchema.xsd`.
+
