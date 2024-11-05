@@ -254,7 +254,8 @@ class AASToRDFEncoder():
         if obj.value_type:
             self.graph.add((extension, self.aas["Extension/valueType"], self.aas[f"DataTypeDefXsd/{model.datatypes.XSD_TYPE_NAMES[obj.value_type]}"]))
         if obj.value:
-            self._value_to_rdf(obj.value, obj.value_type, extension, self.aas["Extension/value"])
+            # Todo: Figure out why mypy complains about this function call and not about others
+            self._value_to_rdf(obj.value, obj.value_type, extension, self.aas["Extension/value"])  # type: ignore
         if len(obj.refers_to) > 0:
             for reference in obj.refers_to:
                 self._reference_to_rdf(reference, extension, self.aas["Extension/refersTo"])
