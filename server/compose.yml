@@ -2,6 +2,6 @@ services:
   app:
     build: .
     ports:
-    - 8080:80 
+    - "8080:80"
     volumes:
-      - ./storage:/app/storage
+      - ./storage:/storage
