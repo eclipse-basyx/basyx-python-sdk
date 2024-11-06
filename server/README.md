@@ -58,7 +58,9 @@ Per default, the server will use the `LOCAL_FILE_READ_ONLY` storage type and ser
 ```
 $ docker run -p 8080:80 -v ./storage2:/storage2 -e API_BASE_PATH=/api/v3.1 -e STORAGE_TYPE=LOCAL_FILE_BACKEND -e STORAGE_PATH=/storage2 basyx-python-sdk-http-server
 ```
+## Acknowledgments
 
+This Dockerfile is inspired by the [tiangolo/uwsgi-nginx-docker][10] repository.
 
 [1]: https://github.com/eclipse-basyx/basyx-python-sdk/pull/238
 [2]: https://basyx-python-sdk.readthedocs.io/en/latest/backend/local_file.html
@@ -69,3 +71,4 @@ $ docker run -p 8080:80 -v ./storage2:/storage2 -e API_BASE_PATH=/api/v3.1 -e ST
 [7]: https://basyx-python-sdk.readthedocs.io/en/latest/adapter/aasx.html#adapter-aasx
 [8]: https://basyx-python-sdk.readthedocs.io/en/latest/adapter/json.html
 [9]: https://basyx-python-sdk.readthedocs.io/en/latest/adapter/xml.html
+[10]: https://github.com/tiangolo/uwsgi-nginx-docker
