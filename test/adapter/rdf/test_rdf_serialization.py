@@ -14,7 +14,8 @@ from pyshacl import validate
 from basyx.aas import model
 from basyx.aas.adapter.rdf import write_aas_rdf_file
 
-from basyx.aas.examples.data import example_submodel_template, example_aas_mandatory_attributes, example_aas_missing_attributes, example_aas
+from basyx.aas.examples.data import example_submodel_template, example_aas_mandatory_attributes, \
+    example_aas_missing_attributes, example_aas
 
 RDF_ONTOLOGY_FILE = os.path.join(os.path.dirname(__file__), '../schemas/aasRDFOntology.ttl')
 RDF_SHACL_SCHEMA_FILE = os.path.join(os.path.dirname(__file__), '../schemas/aasRDFShaclSchema.ttl')
@@ -56,15 +57,15 @@ def validate_graph(data_graph: io.BytesIO):
 
     # validate serialization against schema
     conforms, results_graph, results_text = validate(
-                data_graph=data_graph,       # Passing the BytesIO object here
-                shacl_graph=shacl_graph,    # The SHACL graph
-                ont_graph=aas_graph,
-                data_graph_format="turtle",  # Specify the format for the data graph (since it's serialized)
-                inference='both',            # Optional: perform RDFS inference
-                abort_on_first=True,         # Don't continue validation after finding an error
-                allow_infos=True,            # Allow informational messages
-                allow_warnings=True,          # Allow warnings
-                advanced=True)
+        data_graph=data_graph,  # Passing the BytesIO object here
+        shacl_graph=shacl_graph,  # The SHACL graph
+        ont_graph=aas_graph,
+        data_graph_format="turtle",  # Specify the format for the data graph (since it's serialized)
+        inference='both',  # Optional: perform RDFS inference
+        abort_on_first=True,  # Don't continue validation after finding an error
+        allow_infos=True,  # Allow informational messages
+        allow_warnings=True,  # Allow warnings
+        advanced=True)
     # print("Conforms:", conforms)
     # print("Validation Results:\n", results_text)
     assert conforms is True
@@ -84,7 +85,7 @@ class RDFSerializationSchemaTest(unittest.TestCase):
         submodel_reference = model.ModelReference(submodel_key, model.Submodel)
         submodel = model.Submodel(submodel_identifier,
                                   semantic_id=model.ExternalReference((model.Key(model.KeyTypes.GLOBAL_REFERENCE,
-                                                                       "http://acplt.org/TestSemanticId"),)))
+                                                                                 "http://acplt.org/TestSemanticId"),)))
         test_aas = model.AssetAdministrationShell(model.AssetInformation(global_asset_id="test"),
                                                   aas_identifier, submodel={submodel_reference})
 
