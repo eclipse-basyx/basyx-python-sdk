@@ -46,7 +46,7 @@ dependencies = [
     "hypothesis~=6.13",
     "lxml-stubs~=0.5.1",
     "rdflib~=7.0.0",
-    "pyshacl~=0.26.0"
+    "pyshacl~=0.27.0"
 ]
 
 [project.optional-dependencies]
