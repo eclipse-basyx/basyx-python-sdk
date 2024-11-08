@@ -168,7 +168,6 @@ class ReferableTest(unittest.TestCase):
         submodel.add_qualifier(qualifier)
         submodel.add_extension(extension)
         submodel.add_referable(collection)
-        submodel.commit()
 
         self.assertEqual(next(iter(submodel.qualifier)), qualifier)
         self.assertEqual(next(iter(submodel.extension)), extension)
@@ -195,7 +194,6 @@ class ReferableTest(unittest.TestCase):
             next(iter(submodel.submodel_element))
         with self.assertRaises(StopIteration):
             next(iter(collection.value))
-        submodel.commit()
 
 
 class ExampleNamespaceReferable(model.UniqueIdShortNamespace, model.UniqueSemanticIdNamespace, model.Identifiable):
