@@ -26,45 +26,6 @@ from basyx.aas import model
 logger = logging.getLogger(__name__)
 
 
-class LocalFileBackend(backends.Backend):
-    """
-    This Backend stores each Identifiable object as a single JSON document as a local file in a directory.
-    Each document's id is build from the object's identifier using a SHA256 sum of its identifiable; the document's
-    contents comprise a single property ``data``, containing the JSON serialization of the BaSyx Python SDK object. The
-    :ref:`adapter.json <adapter.json.__init__>` package is used for serialization and deserialization of objects.
-    """
-
-    @classmethod
-    def update_object(cls,
-                      updated_object: model.Referable,
-                      store_object: model.Referable,
-                      relative_path: List[str]) -> None:
-
-        if not isinstance(store_object, model.Identifiable):
-            raise FileBackendSourceError("The given store_object is not Identifiable, therefore cannot be found "
-                                         "in the FileBackend")
-        file_name: str = store_object.source.replace("file://localhost/", "")
-        with open(file_name, "r") as file:
-            data = json.load(file, cls=json_deserialization.AASFromJsonDecoder)
-            updated_store_object = data["data"]
-            store_object.update_from(updated_store_object)
-
-    @classmethod
-    def commit_object(cls,
-                      committed_object: model.Referable,
-                      store_object: model.Referable,
-                      relative_path: List[str]) -> None:
-        if not isinstance(store_object, model.Identifiable):
-            raise FileBackendSourceError("The given store_object is not Identifiable, therefore cannot be found "
-                                         "in the FileBackend")
-        file_name: str = store_object.source.replace("file://localhost/", "")
-        with open(file_name, "w") as file:
-            json.dump({'data': store_object}, file, cls=json_serialization.AASToJsonEncoder, indent=4)
-
-
-backends.register_backend("file", LocalFileBackend)
-
-
 class LocalFileObjectStore(model.AbstractObjectStore):
     """
     An ObjectStore implementation for :class:`~basyx.aas.model.base.Identifiable` BaSyx Python SDK objects backed
