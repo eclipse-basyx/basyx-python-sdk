@@ -80,11 +80,8 @@ class LocalFileObjectStore(model.AbstractObjectStore):
         with self._object_cache_lock:
             if obj.id in self._object_cache:
                 old_obj = self._object_cache[obj.id]
-                # If the source does not match the correct source for this CouchDB backend, the object seems to belong
-                # to another backend now, so we return a fresh copy
-                if old_obj.source == obj.source:
-                    old_obj.update_from(obj)
-                    return old_obj
+                old_obj.update_from(obj)
+                return old_obj
         self._object_cache[obj.id] = obj
         return obj
 
