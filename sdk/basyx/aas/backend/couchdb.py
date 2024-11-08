@@ -8,8 +8,7 @@
 This module adds the functionality of storing and retrieving :class:`~basyx.aas.model.base.Identifiable` objects
 in a CouchDB.
 
-The :class:`~.CouchDBBackend` takes care of updating and committing objects from and to the CouchDB, while the
-:class:`~CouchDBObjectStore` handles adding, deleting and otherwise managing the AAS objects in a specific CouchDB.
+The :class:`~CouchDBObjectStore` handles adding, deleting and otherwise managing the AAS objects in a specific CouchDB.
 """
 import threading
 import weakref

@@ -8,8 +8,8 @@
 This module adds the functionality of storing and retrieving :class:`~basyx.aas.model.base.Identifiable` objects
 in local files.
 
-The :class:`~.LocalFileBackend` takes care of updating and committing objects from and to the files, while the
-:class:`~LocalFileObjectStore` handles adding, deleting and otherwise managing the AAS objects in a specific Directory.
+The :class:`~LocalFileObjectStore` handles adding, deleting and otherwise managing
+the AAS objects in a specific Directory.
 """
 from typing import List, Iterator, Iterable, Union
 import logging
