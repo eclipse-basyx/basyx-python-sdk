@@ -1134,6 +1134,7 @@ class WSGIApp:
         concept_description = self._get_concept_description(url_args)
         concept_description.update_from(HTTPApiDecoder.request_body(request, model.ConceptDescription,
                                                                     is_stripped_request(request)))
+        return response_t()
 
     def delete_concept_description(self, request: Request, url_args: Dict, response_t: Type[APIResponse],
                                    **_kwargs) -> Response:

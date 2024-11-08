@@ -158,7 +158,6 @@ class ReferableTest(unittest.TestCase):
 
     def test_update_commit_qualifier_extension_semantic_id(self):
         submodel = model.Submodel("https://acplt.org/Test_Submodel")
-        submodel.update()
         qualifier = model.Qualifier("test", model.datatypes.String)
         extension = model.Extension("test")
         collection = model.SubmodelElementCollection("test")
