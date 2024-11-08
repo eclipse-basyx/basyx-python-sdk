@@ -41,8 +41,7 @@ def register_credentials(url: str, username: str, password: str):
     .. Warning::
 
         Do not use this function, while other threads may be accessing the credentials via the
-        :class:`~.CouchDBObjectStore` or update or commit functions of :class:`~.basyx.aas.model.base.Referable`
-        objects!
+        :class:`~.CouchDBObjectStore`!
 
     :param url: Toplevel URL
     :param username: Username to that CouchDB instance
