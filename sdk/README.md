@@ -69,7 +69,7 @@ pip install basyx-python-sdk
 
 For working with the current development version, you can also install the package directly from GitHub, using Pip's Git feature:
 ```bash
-pip install git+https://github.com/eclipse-basyx/basyx-python-sdk.git@main
+pip install --no-cache-dir git+https://github.com/eclipse-basyx/basyx-python-sdk@main#subdirectory=sdk
 ```
 
 You may want to use a Python's `venv` or a similar tool to install BaSyx Python SDK and its dependencies only in a project-specific local environment. 
