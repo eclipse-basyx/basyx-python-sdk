@@ -72,7 +72,6 @@ class LocalFileObjectStore(model.AbstractObjectStore):
             with open("{}/{}.json".format(self.directory_path, hash_), "r") as file:
                 data = json.load(file, cls=json_deserialization.AASFromJsonDecoder)
                 obj = data["data"]
-                self.generate_source(obj)
         except FileNotFoundError as e:
             raise KeyError("No Identifiable with hash {} found in local file database".format(hash_)) from e
         # If we still have a local replication of that object (since it is referenced from anywhere else), update that
@@ -109,7 +108,6 @@ class LocalFileObjectStore(model.AbstractObjectStore):
             json.dump({"data": x}, file, cls=json_serialization.AASToJsonEncoder, indent=4)
             with self._object_cache_lock:
                 self._object_cache[x.id] = x
-            self.generate_source(x)  # Set the source of the object
 
     def discard(self, x: model.Identifiable) -> None:
         """
@@ -125,7 +123,6 @@ class LocalFileObjectStore(model.AbstractObjectStore):
             raise KeyError("No AAS object with id {} exists in local file database".format(x.id)) from e
         with self._object_cache_lock:
             del self._object_cache[x.id]
-        x.source = ""
 
     def __contains__(self, x: object) -> bool:
         """
@@ -171,23 +168,3 @@ class LocalFileObjectStore(model.AbstractObjectStore):
         Helper method to represent an ASS Identifier as a string to be used as Local file document id
         """
         return hashlib.sha256(identifier.encode("utf-8")).hexdigest()
-
-    def generate_source(self, identifiable: model.Identifiable) -> str:
-        """
-        Generates the source string for an :class:`~basyx.aas.model.base.Identifiable` object that is backed by the File
-
-        :param identifiable: Identifiable object
-        """
-        source: str = "file://localhost/{}/{}.json".format(
-            self.directory_path,
-            self._transform_id(identifiable.id)
-        )
-        identifiable.source = source
-        return source
-
-
-class FileBackendSourceError(Exception):
-    """
-    Raised, if the given object's source is not resolvable as a local file
-    """
-    pass
