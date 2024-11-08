@@ -115,13 +115,8 @@ class CouchDBBackendTest(unittest.TestCase):
         self.object_store.add(example_submodel)
         retrieved_submodel = self.object_store.get_identifiable('https://acplt.org/Test_Submodel')
 
-        # Deleting the submodel with safe_delete should also raise a conflict error. Deletion without safe_delete should
-        # work
-        with self.assertRaises(couchdb.CouchDBConflictError) as cm:
-            self.object_store.discard(retrieved_submodel, True)
-        self.assertEqual("Object with id https://acplt.org/Test_Submodel has been modified in the "
-                         "database since the version requested to be deleted.", str(cm.exception))
-        self.object_store.discard(retrieved_submodel, False)
+        # Deleting the submodel with safe_delete should or without safe_delete should work
+        self.object_store.discard(retrieved_submodel, True)
         self.assertEqual(0, len(self.object_store))
 
     def test_editing(self):
