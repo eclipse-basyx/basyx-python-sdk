@@ -127,7 +127,7 @@ class CouchDBObjectStore(model.AbstractObjectStore):
         """
 
         try:
-            self.do_request("{}/{}".format(self.url, self.database_name), 'HEAD')
+            self._do_request("{}/{}".format(self.url, self.database_name), 'HEAD')
         except CouchDBServerError as e:
             # If an HTTPError is raised, re-raise it, unless it is a 404 error and we are requested to create the
             # database
@@ -139,7 +139,7 @@ class CouchDBObjectStore(model.AbstractObjectStore):
 
         # Create database
         logger.info("Creating CouchDB database %s/%s ...", self.url, self.database_name)
-        self.do_request("{}/{}".format(self.url, self.database_name), 'PUT')
+        self._do_request("{}/{}".format(self.url, self.database_name), 'PUT')
 
     def get_identifiable_by_couchdb_id(self, couchdb_id: str) -> model.Identifiable:
         """
@@ -152,7 +152,7 @@ class CouchDBObjectStore(model.AbstractObjectStore):
         # Create and issue HTTP request (raises HTTPError on status != 200)
 
         try:
-            data = self.do_request(
+            data = self._do_request(
                 "{}/{}/{}".format(self.url, self.database_name, urllib.parse.quote(couchdb_id, safe='')))
         except CouchDBServerError as e:
             if e.code == 404:
@@ -205,7 +205,7 @@ class CouchDBObjectStore(model.AbstractObjectStore):
         # Create and issue HTTP request (raises HTTPError on status != 200)
 
         try:
-            response = self.do_request(
+            response = self._do_request(
                 "{}/{}/{}".format(self.url, self.database_name, self._transform_id(x.id)),
                 'PUT',
                 {'Content-type': 'application/json'},
@@ -247,7 +247,7 @@ class CouchDBObjectStore(model.AbstractObjectStore):
             # ETag response header
             try:
                 logger.debug("fetching the current object revision for deletion ...")
-                headers = self.do_request(
+                headers = self._do_request(
                     "{}/{}/{}".format(self.url, self.database_name, self._transform_id(x.id)), 'HEAD')
                 rev = headers['ETag'][1:-1]
             except CouchDBServerError as e:
@@ -256,7 +256,7 @@ class CouchDBObjectStore(model.AbstractObjectStore):
                         from e
                 raise
         try:
-            self.do_request(
+            self._do_request(
                 "{}/{}/{}?rev={}".format(self.url, self.database_name, self._transform_id(x.id), rev),
                 'DELETE')
         except CouchDBServerError as e:
@@ -274,8 +274,8 @@ class CouchDBObjectStore(model.AbstractObjectStore):
             del self._object_cache[x.id]
 
     @classmethod
-    def do_request(cls, url: str, method: str = "GET", additional_headers: Dict[str, str] = {},
-                   body: Optional[bytes] = None) -> MutableMapping[str, Any]:
+    def _do_request(cls, url: str, method: str = "GET", additional_headers: Dict[str, str] = {},
+                    body: Optional[bytes] = None) -> MutableMapping[str, Any]:
         """
         Perform an HTTP(S) request to the CouchDBServer, parse the result and handle errors
 
@@ -352,7 +352,7 @@ class CouchDBObjectStore(model.AbstractObjectStore):
         logger.debug("Checking existence of object with id %s in database ...", repr(x))
 
         try:
-            self.do_request(
+            self._do_request(
                 "{}/{}/{}".format(self.url, self.database_name, self._transform_id(identifier)), 'HEAD')
         except CouchDBServerError as e:
             if e.code == 404:
@@ -369,7 +369,7 @@ class CouchDBObjectStore(model.AbstractObjectStore):
                               (see ``_do_request()`` for details)
         """
         logger.debug("Fetching number of documents from database ...")
-        data = self.do_request("{}/{}".format(self.url, self.database_name))
+        data = self._do_request("{}/{}".format(self.url, self.database_name))
         return data['doc_count']
 
     def __iter__(self) -> Iterator[model.Identifiable]:
@@ -394,7 +394,7 @@ class CouchDBObjectStore(model.AbstractObjectStore):
 
         # Fetch a list of all ids and construct Iterator object
         logger.debug("Creating iterator over objects in database ...")
-        data = self.do_request("{}/{}/_all_docs".format(self.url, self.database_name))
+        data = self._do_request("{}/{}/_all_docs".format(self.url, self.database_name))
         return CouchDBIdentifiableIterator(self, (row['id'] for row in data['rows']))
 
     @staticmethod
