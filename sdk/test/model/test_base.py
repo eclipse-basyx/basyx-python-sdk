@@ -66,7 +66,6 @@ def generate_example_referable_tree() -> model.Referable:
     Generates an example referable tree, built like this:
 
         example_grandparent -> example_parent -> example_referable -> example_child -> example_grandchild
-        example_grandparent and example_grandchild both have an nonempty source, pointing to the mock-backend
 
     :return: example_referable
     """
@@ -92,9 +91,6 @@ def generate_example_referable_tree() -> model.Referable:
     example_referable = generate_example_referable_with_namespace("exampleReferable", example_child)
     example_parent = generate_example_referable_with_namespace("exampleParent", example_referable)
     example_grandparent = generate_example_referable_with_namespace("exampleGrandparent", example_parent)
-
-    example_grandchild.source = "mockScheme:exampleGrandchild"
-    example_grandparent.source = "mockScheme:exampleGrandparent"
 
     return example_referable
 
@@ -159,17 +155,6 @@ class ReferableTest(unittest.TestCase):
         # Check Namespace & parent consistency
         self.assertIs(example_submodel.namespace_element_sets[0], example_submodel.submodel_element)
         self.assertIs(example_relel.parent, example_submodel)
-
-        # Test source update
-        example_relel.source = "scheme:OldRelElSource"
-        other_submodel.source = "scheme:NewSource"
-        other_relel.source = "scheme:NewRelElSource"
-
-        example_submodel.update_from(other_submodel)
-        # Sources of the object itself should not be updated by default
-        self.assertEqual("", example_submodel.source)
-        # Sources of embedded objects should always be updated
-        self.assertEqual("scheme:NewRelElSource", example_relel.source)
 
     def test_update_commit_qualifier_extension_semantic_id(self):
         submodel = model.Submodel("https://acplt.org/Test_Submodel")
