@@ -18,7 +18,6 @@ from typing import List, Optional, Set, TypeVar, MutableSet, Generic, Iterable, 
 import re
 
 from . import datatypes, _string_constraints
-from ..backend import backends
 
 if TYPE_CHECKING:
     from . import provider
