@@ -1548,6 +1548,10 @@ class HasKind(metaclass=abc.ABCMeta):
     def kind(self):
         return self._kind
 
+    @kind.setter
+    def kind(self, value: ModellingKind):
+        self._kind = value
+
 
 class Qualifiable(Namespace, metaclass=abc.ABCMeta):
     """
