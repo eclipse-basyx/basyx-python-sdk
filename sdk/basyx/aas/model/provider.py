@@ -11,7 +11,7 @@ This module implements Registries for the AAS, in order to enable resolving glob
 """
 
 import abc
-from typing import MutableSet, Iterator, Generic, TypeVar, Dict, List, Optional, Iterable
+from typing import MutableSet, Iterator, Generic, TypeVar, Dict, List, Optional, Iterable, Set
 
 from .base import Identifier, Identifiable
 
@@ -115,6 +115,56 @@ class DictObjectStore(AbstractObjectStore[_IT], Generic[_IT]):
 
     def __iter__(self) -> Iterator[_IT]:
         return iter(self._backend.values())
+
+
+class SetObjectStore(AbstractObjectStore[_IT], Generic[_IT]):
+    """
+    A local in-memory object store for :class:`~basyx.aas.model.base.Identifiable` objects, backed by a set
+    """
+    def __init__(self, objects: Iterable[_IT] = ()) -> None:
+        self._backend: Set[_IT] = set()
+        for x in objects:
+            self.add(x)
+
+    def get_identifiable(self, identifier: Identifier) -> _IT:
+        for x in self._backend:
+            if x.id == identifier:
+                return x
+        raise KeyError(identifier)
+
+    def add(self, x: _IT) -> None:
+        if x in self:
+            # Object is already in store
+            return
+        try:
+            self.get_identifiable(x.id)
+        except KeyError:
+            self._backend.add(x)
+        else:
+            raise KeyError(f"Identifiable object with same id {x.id} is already stored in this store")
+
+    def discard(self, x: _IT) -> None:
+        self._backend.discard(x)
+
+    def remove(self, x: _IT) -> None:
+        self._backend.remove(x)
+
+    def __contains__(self, x: object) -> bool:
+        if isinstance(x, Identifier):
+            try:
+                self.get_identifiable(x)
+                return True
+            except KeyError:
+                return False
+        if not isinstance(x, Identifiable):
+            return False
+        return x in self._backend
+
+    def __len__(self) -> int:
+        return len(self._backend)
+
+    def __iter__(self) -> Iterator[_IT]:
+        return iter(self._backend)
 
 
 class ObjectProviderMultiplexer(AbstractObjectProvider):
