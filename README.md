@@ -49,7 +49,7 @@ Additionally, security fixes may be released at any point.
 
 ## Contributing
 
-For contributing with issues and code, please see our [Contribution Guideline](../CONTRIBUTING.md).
+For contributing with issues and code, please see our [Contribution Guideline](./CONTRIBUTING.md).
 
 ### Eclipse Contributor Agreement
 
