@@ -130,6 +130,10 @@ Python's builtin `unittest`. To install the required tools, use:
 pip install .[dev]
 ```
 
+> [!note]
+> The `.` denotes the current directory and needs to be the directory the `pyproject.toml` is located in.
+> Therefore, you need to run this command and the ones below in the `/sdk` directory (relative to the repository root).
+
 Running all checks:
 ```bash
 mypy basyx test
