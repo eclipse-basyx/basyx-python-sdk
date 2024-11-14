@@ -84,7 +84,7 @@ def check_name_type(value: str, type_name: str = "NameType") -> None:
 
 
 def check_path_type(value: str, type_name: str = "PathType") -> None:
-    return check_identifier(value, type_name)
+    return check(value, type_name, 1, 2000)
 
 
 def check_qualifier_type(value: str, type_name: str = "QualifierType") -> None:
