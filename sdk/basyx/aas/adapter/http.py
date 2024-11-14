@@ -80,7 +80,8 @@ class Message:
         self.code: str = code
         self.text: str = text
         self.message_type: MessageType = message_type
-        self.timestamp: datetime.datetime = timestamp if timestamp is not None else datetime.datetime.now(datetime.UTC)
+        self.timestamp: datetime.datetime = timestamp if timestamp is not None \
+            else datetime.datetime.now(datetime.timezone.utc)
 
 
 class Result:
