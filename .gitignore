@@ -28,3 +28,6 @@ sdk/test/adapter/schemas
 
 # Ignore dynamically generated version file
 sdk/basyx/version.py
+
+# ignore the content of the server storage
+server/storage/
