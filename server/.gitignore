@@ -1,5 +1,0 @@
-# Ignore the default AAS storage directory
-storage/
-
-# Ignore PyCharm IDE configuration
-.idea
