@@ -58,6 +58,34 @@ Per default, the server will use the `LOCAL_FILE_READ_ONLY` storage type and ser
 ```
 $ docker run -p 8080:80 -v ./storage2:/storage2 -e API_BASE_PATH=/api/v3.1 -e STORAGE_TYPE=LOCAL_FILE_BACKEND -e STORAGE_PATH=/storage2 basyx-python-sdk-http-server
 ```
+
+## Building and running the image with docker-compose
+
+The container image can also be built via:
+```
+$ docker-compose build
+```
+
+And then run using:
+```
+$ docker-compose up
+```
+
+This is the exemplary `docker-compose` file of this repository:
+````yaml
+services:
+  app:
+    build: .
+    ports:
+    - "8080:80"
+    volumes:
+      - ./storage:/storage
+
+````
+
+Here files are read from `/storage` and the server can be accessed at http://localhost:8080/api/v3.0/ from your host system. 
+To get a different setup this compose.yaml file can be adapted and expanded.
+
 ## Acknowledgments
 
 This Dockerfile is inspired by the [tiangolo/uwsgi-nginx-docker][10] repository.
