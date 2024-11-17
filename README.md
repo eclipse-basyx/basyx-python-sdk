@@ -17,7 +17,7 @@ These are the currently implemented specifications:
 ## Features
 This repository is structured into separate packages. 
 The `sdk` directory provides the AAS metamodel as Python objects and fundamental functionalities to handle AAS.
-The `server` is to be determined.
+The `server` implements a specification-compliant Docker HTTP server for AASs
 The `compliance_tool` is to be determined.
 
 * [SDK](./sdk/README.md):
