@@ -163,7 +163,7 @@ jobs:
            docker run -d -p 8080:80 -v ./storage:/storage basyx-python-sdk-http-server
       - name: Test the container
         run: |
-          http://localhost:8080/api/v3.0/shells
+          curl http://localhost:8080/api/v3.0/shells
       - name: Stop the container
         run: |
           docker ps -q --filter "ancestor=basyx-python-sdk-http-server" | xargs -r docker stop
