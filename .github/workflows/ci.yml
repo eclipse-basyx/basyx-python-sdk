@@ -32,9 +32,9 @@ jobs:
       run:
         working-directory: ./sdk
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
     - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v4
       with:
         python-version: ${{ matrix.python-version }}
     - name: Collect schema files from aas-specs
@@ -64,9 +64,9 @@ jobs:
       run:
         working-directory: ./sdk
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
     - name: Set up Python ${{ env.X_PYTHON_VERSION }}
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v4
       with:
         python-version: ${{ env.X_PYTHON_VERSION }}
     - name: Install Python dependencies
@@ -87,9 +87,9 @@ jobs:
       run:
         working-directory: ./sdk
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
     - name: Set up Python ${{ env.X_PYTHON_VERSION }}
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v4
       with:
         python-version: ${{ env.X_PYTHON_VERSION }}
     - name: Install Python dependencies
@@ -113,9 +113,9 @@ jobs:
       run:
         working-directory: ./sdk
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
     - name: Set up Python ${{ env.X_PYTHON_VERSION }}
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v4
       with:
         python-version: ${{ env.X_PYTHON_VERSION }}
     - name: Install Python dependencies
@@ -134,9 +134,9 @@ jobs:
       run:
         working-directory: ./sdk
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
     - name: Set up Python ${{ env.X_PYTHON_VERSION }}
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v4
       with:
         python-version: ${{ env.X_PYTHON_VERSION }}
     - name: Install dependencies
@@ -154,7 +154,7 @@ jobs:
       run:
         working-directory: ./server
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: Build the Docker image
         run: |
           docker buildx build -t basyx-python-sdk-http-server .
