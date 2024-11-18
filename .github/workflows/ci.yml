@@ -160,7 +160,7 @@ jobs:
           docker buildx build -t basyx-python-sdk-http-server .
       - name: Run container
         run: |
-          docker run -p 8080:80 -v ./storage:/storage basyx-python-sdk-http-server
+           docker run -d -p 8080:80 -v ./storage:/storage basyx-python-sdk-http-server
       - name: Test the container
         run: |
           curl http://localhost:8080
