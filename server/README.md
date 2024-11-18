@@ -66,7 +66,7 @@ The container image can also be built and run via:
 $ docker compose up
 ```
 
-This is the exemplary `docker-compose` file of this repository:
+This is the exemplary `docker-compose` file for the server:
 ````yaml
 services:
   app:
