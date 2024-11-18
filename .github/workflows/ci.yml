@@ -161,13 +161,6 @@ jobs:
       - name: Run container
         run: |
            docker run -d -p 8080:80 -v ./storage:/storage basyx-python-sdk-http-server
-      - name: Wait for the container to be ready
-        run: |
-          for i in {1..10}; do
-            curl -s http://localhost:8080/api/v3.0/shells && break
-            echo "Waiting for server to be ready..."
-            sleep 2
-          done
       - name: Stop the container
         run: |
           docker ps -q --filter "ancestor=basyx-python-sdk-http-server" | xargs -r docker stop
