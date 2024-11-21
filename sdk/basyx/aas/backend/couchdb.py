@@ -107,7 +107,7 @@ class CouchDBBackend(backends.Backend):
         return url
 
     @classmethod
-    def do_request(cls, url: str, method: str = "GET", additional_headers: Dict[str, str] = {},
+    def do_request(cls, url: str, method: str = "GET", additional_headers: Optional[Dict[str, str]] = None,
                    body: Optional[bytes] = None) -> MutableMapping[str, Any]:
         """
         Perform an HTTP(S) request to the CouchDBServer, parse the result and handle errors
@@ -126,7 +126,7 @@ class CouchDBBackend(backends.Backend):
         headers = urllib3.make_headers(keep_alive=True, accept_encoding=True,
                                        basic_auth="{}:{}".format(*auth) if auth else None)
         headers['Accept'] = 'application/json'
-        headers.update(additional_headers)
+        headers.update(additional_headers if additional_headers is not None else {})
         try:
             response = _http_pool_manager.request(method, url, headers=headers, body=body)
         except (urllib3.exceptions.TimeoutError, urllib3.exceptions.SSLError, urllib3.exceptions.ProtocolError) as e:
