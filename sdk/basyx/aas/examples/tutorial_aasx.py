@@ -95,7 +95,7 @@ with aasx.AASXWriter("MyAASXPackage.aasx") as writer:
     # Write the AAS and everything belonging to it to the AASX package
     # The `write_aas()` method will automatically fetch the AAS object with the given id
     # and all referenced Submodel objects from the ObjectStore. It will also scan every object for
-    # semanticIds referencing ConceptDescription, fetch them from the ObjectStore, and scan all sbmodels for `File`
+    # semanticIds referencing ConceptDescription, fetch them from the ObjectStore, and scan all submodels for `File`
     # objects and fetch the referenced auxiliary files from the SupplementaryFileContainer.
     # In order to add more than one AAS to the package, we can simply add more Identifiers to the `aas_ids` list.
     #

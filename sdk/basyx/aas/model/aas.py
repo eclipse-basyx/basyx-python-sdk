@@ -5,7 +5,7 @@
 #
 # SPDX-License-Identifier: MIT
 """
-The main module of the AAS meta-model. It is used to define the class structures of high level elements such as
+The main module of the AAS metamodel. It is used to define the class structures of high level elements such as
 AssetAdministrationShell.
 """
 
@@ -18,7 +18,7 @@ from .submodel import Submodel
 @_string_constraints.constrain_identifier("asset_type")
 class AssetInformation:
     """
-    In AssetInformation identifying meta data of the asset that is represented by an AAS is defined.
+    In AssetInformation identifying metadata of the asset that is represented by an AAS is defined.
 
     The asset may either represent an asset type or an asset instance.
     The asset has a globally unique identifier plus – if needed – additional domain specific (proprietary)
@@ -36,7 +36,7 @@ class AssetInformation:
                            global id but already an internal identifier. The internal identifier would be modelled via
                            :attr:`~.specific_asset_id`.
     :ivar specific_asset_id: Additional domain specific, typically proprietary Identifier (Set of
-                             :class:`SpecificAssetIds <basyx.aas.model.base.SpecificAssetId>` for the asset like
+                             :class:`SpecificAssetIds <basyx.aas.model.base.SpecificAssetId>`) for the asset like
                              e.g. serial number etc.
     :ivar asset_type: In case AssetInformation/assetKind is applicable the AssetInformation/assetType is the asset ID
                       of the type asset of the asset under consideration as identified by
@@ -139,7 +139,8 @@ class AssetAdministrationShell(base.Identifiable, base.UniqueIdShortNamespace, b
                           :class:`~basyx.aas.model.base.Identifiable`)
     :ivar submodel: Unordered list of :class:`~basyx.aas.model.base.ModelReference` to
                     :class:`~basyx.aas.model.submodel.Submodel` to describe typically the asset of an AAS.
-    :ivar derived_from: The :class:`reference <basyx.aas.model.base.ModelReference>` to the AAS the AAs was derived from
+    :ivar derived_from: The :class:`reference <basyx.aas.model.base.ModelReference>` to the AAS
+                        from which it was derived.
     :ivar embedded_data_specifications: List of Embedded data specification.
     :ivar extension: An extension of the element.
                      (from :class:`~basyx.aas.model.base.HasExtension`)

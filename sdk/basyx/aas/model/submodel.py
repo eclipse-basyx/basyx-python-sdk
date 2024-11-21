@@ -87,7 +87,7 @@ class Submodel(base.Identifiable, base.HasSemantics, base.HasKind, base.Qualifia
     A Submodel defines a specific aspect of the asset represented by the AAS.
 
     A submodel is used to structure the virtual representation and technical functionality of an Administration Shell
-    into distinguishable parts. Each submodel refers to a well-defined domain or subject matter. Submodels can become
+    into distinguishable parts. Each submodel refers to a well-defined domain or subject. Submodels can become
     standardized and thus become submodel types. Submodels can have different life-cycles.
 
     :ivar id: The globally unique id of the element. (inherited from :class:`~basyx.aas.model.base.Identifiable`)
@@ -440,7 +440,7 @@ class Blob(DataElement):
     :ivar id_short: Identifying string of the element within its name space. (inherited from
                     :class:`~basyx.aas.model.base.Referable`)
     :ivar content_type: Mime type of the content of the BLOB. The mime type states which file extension the file has.
-                     Valid values are e.g. “application/json”, “application/xls”, ”image/jpg”. The allowed values
+                     Valid values are e.g. "application/json", "application/xls", "image/jpg". The allowed values
                      are defined as in RFC2046.
     :ivar value: The value of the BLOB instance of a blob data element.
     :ivar display_name: Can be provided in several languages. (inherited from :class:`~basyx.aas.model.base.Referable`)
@@ -723,7 +723,7 @@ class SubmodelElementList(SubmodelElement, base.UniqueIdShortNamespace, Generic[
             raise base.AASConstraintViolation(109, f"type_value_list_element={self.type_value_list_element.__name__}, "
                                                    "but value_type_list_element is not set!")
 
-        # Items must be added after the above contraint has been checked. Otherwise, it can lead to errors, since the
+        # Items must be added after the above constraint has been checked. Otherwise, it can lead to errors, since the
         # constraints in _check_constraints() assume that this constraint has been checked.
         self._value: base.OrderedNamespaceSet[_SE] = base.OrderedNamespaceSet(self, [("id_short", True)], (),
                                                                               item_add_hook=self._check_constraints,

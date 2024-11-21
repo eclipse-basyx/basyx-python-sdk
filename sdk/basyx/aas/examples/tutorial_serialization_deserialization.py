@@ -133,6 +133,6 @@ xml_file_data = basyx.aas.adapter.xml.read_aas_xml_file('data.xml')
 # Again, we can use `failsafe=False` for switching on stricter error reporting in the parser.
 
 # step 5.3: Retrieving the objects from the ObjectStore
-# For more information on the availiable techniques, see `tutorial_storage.py`.
+# For more information on the available techniques, see `tutorial_storage.py`.
 submodel_from_xml = xml_file_data.get_identifiable('https://acplt.org/Simple_Submodel')
 assert isinstance(submodel_from_xml, model.Submodel)
