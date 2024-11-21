@@ -219,6 +219,21 @@ def _get_text_or_none(element: Optional[etree._Element]) -> Optional[str]:
     return element.text if element is not None else None
 
 
+def _get_text_or_empty_string_or_none(element: Optional[etree._Element]) -> Optional[str]:
+    """
+    Returns element.text or "" if the element has no text
+    or None, if the element is None.
+
+    :param element: The xml element or None.
+    :return: The text of the xml element if the xml element is not None and if the xml element has a text.
+             Empty string if the xml element has no text.
+             None otherwise.
+    """
+    if element is None:
+        return None
+    return element.text if element.text is not None else ""
+
+
 def _get_text_mapped_or_none(element: Optional[etree._Element], dct: Dict[str, T]) -> Optional[T]:
     """
     Returns dct[element.text] or None, if the element is None, has no text or the text is not in dct.
@@ -677,7 +692,7 @@ class AASFromXmlDecoder:
         kind = _get_text_mapped_or_none(element.find(NS_AAS + "kind"), QUALIFIER_KIND_INVERSE)
         if kind is not None:
             qualifier.kind = kind
-        value = _get_text_or_none(element.find(NS_AAS + "value"))
+        value = _get_text_or_empty_string_or_none(element.find(NS_AAS + "value"))
         if value is not None:
             qualifier.value = model.datatypes.from_xsd(value, qualifier.value_type)
         value_id = _failsafe_construct(element.find(NS_AAS + "valueId"), cls.construct_reference, cls.failsafe)
@@ -694,7 +709,7 @@ class AASFromXmlDecoder:
         value_type = _get_text_or_none(element.find(NS_AAS + "valueType"))
         if value_type is not None:
             extension.value_type = model.datatypes.XSD_TYPE_CLASSES[value_type]
-        value = _get_text_or_none(element.find(NS_AAS + "value"))
+        value = _get_text_or_empty_string_or_none(element.find(NS_AAS + "value"))
         if value is not None:
             extension.value = model.datatypes.from_xsd(value, extension.value_type)
         refers_to = element.find(NS_AAS + "refersTo")
@@ -886,7 +901,7 @@ class AASFromXmlDecoder:
             None,
             value_type=_child_text_mandatory_mapped(element, NS_AAS + "valueType", model.datatypes.XSD_TYPE_CLASSES)
         )
-        value = _get_text_or_none(element.find(NS_AAS + "value"))
+        value = _get_text_or_empty_string_or_none(element.find(NS_AAS + "value"))
         if value is not None:
             property_.value = model.datatypes.from_xsd(value, property_.value_type)
         value_id = _failsafe_construct(element.find(NS_AAS + "valueId"), cls.construct_reference, cls.failsafe)
@@ -901,10 +916,10 @@ class AASFromXmlDecoder:
             None,
             value_type=_child_text_mandatory_mapped(element, NS_AAS + "valueType", model.datatypes.XSD_TYPE_CLASSES)
         )
-        max_ = _get_text_or_none(element.find(NS_AAS + "max"))
+        max_ = _get_text_or_empty_string_or_none(element.find(NS_AAS + "max"))
         if max_ is not None:
             range_.max = model.datatypes.from_xsd(max_, range_.value_type)
-        min_ = _get_text_or_none(element.find(NS_AAS + "min"))
+        min_ = _get_text_or_empty_string_or_none(element.find(NS_AAS + "min"))
         if min_ is not None:
             range_.min = model.datatypes.from_xsd(min_, range_.value_type)
         cls._amend_abstract_attributes(range_, element)
