@@ -12,8 +12,8 @@ Module for deserializing Asset Administration Shell data from the official JSON 
 The module provides custom JSONDecoder classes :class:`~.AASFromJsonDecoder` and :class:`~.StrictAASFromJsonDecoder` to
 be used with the Python standard :mod:`json` module.
 
-Furthermore, it provides two classes :class:`~basyx.aas.adapter.json.json_deserialization.StrippedAASFromJsonDecoder` and
-:class:`~basyx.aas.adapter.json.json_deserialization.StrictStrippedAASFromJsonDecoder` for parsing stripped
+Furthermore, it provides two classes :class:`~basyx.aas.adapter.json.json_deserialization.StrippedAASFromJsonDecoder`
+and :class:`~basyx.aas.adapter.json.json_deserialization.StrictStrippedAASFromJsonDecoder` for parsing stripped
 JSON objects, which are used in the http adapter (see https://git.rwth-aachen.de/acplt/pyi40aas/-/issues/91).
 The classes contain a custom :meth:`~basyx.aas.adapter.json.json_deserialization.AASFromJsonDecoder.object_hook`
 function to detect encoded AAS objects within the JSON data and convert them to BaSyx Python SDK objects while parsing.
