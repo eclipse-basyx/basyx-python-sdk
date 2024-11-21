@@ -9,7 +9,6 @@ and XML files.
 import json
 
 from basyx.aas import model
-import basyx.aas.adapter.json
 import basyx.aas.adapter.xml
 
 # 'Details of the Asset Administration Shell' specifies multiple official serialization formats for AAS data. In this
@@ -58,7 +57,6 @@ aashell = model.AssetAdministrationShell(
 
 # Before serializing the data, we should make sure, it's up-to-date. This is irrelevant for the static AAS objects in
 # this tutorial, but may be important when dealing with dynamic data.
-# See `tutorial_dynamic_model.py` for more information on that topic.
 aashell.update()
 
 # `AASToJsonEncoder` from the `aas.adapter.json` module is a custom JSONEncoder class for serializing
