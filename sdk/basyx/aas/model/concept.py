@@ -5,7 +5,7 @@
 #
 # SPDX-License-Identifier: MIT
 """
-This module contains the class :class:`~.ConceptDescription` from the AAS meta model.
+This module contains the class :class:`~.ConceptDescription` from the AAS metamodel.
 """
 from typing import Optional, Set, Iterable, List
 

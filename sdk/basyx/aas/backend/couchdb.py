@@ -300,7 +300,7 @@ class CouchDBObjectStore(model.AbstractObjectStore):
                 raise KeyError("No Identifiable with couchdb-id {} found in CouchDB database".format(couchdb_id)) from e
             raise
 
-        # Add CouchDB meta data (for later commits) to object
+        # Add CouchDB metadata (for later commits) to object
         obj = data['data']
         if not isinstance(obj, model.Identifiable):
             raise CouchDBResponseError("The CouchDB document with id {} does not contain an identifiable AAS object."
@@ -491,7 +491,7 @@ class CouchDBObjectStore(model.AbstractObjectStore):
         """
         Helper method to represent an ASS Identifier as a string to be used as CouchDB document id
 
-        :param url_quote: If True, the result id string is url-encoded to be used in a HTTP request URL
+        :param url_quote: If True, the result id string is url-encoded to be used in an HTTP request URL
         """
         if url_quote:
             identifier = urllib.parse.quote(identifier, safe='')
@@ -542,6 +542,5 @@ class CouchDBServerError(CouchDBError):
 
 
 class CouchDBConflictError(CouchDBError):
-    """Exception raised when an object could not be committed due to an concurrent
-    modification in the database"""
+    """Exception raised when an object could not be committed due to a concurrent modification in the database"""
     pass

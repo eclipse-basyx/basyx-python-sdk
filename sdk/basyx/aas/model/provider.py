@@ -47,7 +47,7 @@ class AbstractObjectProvider(metaclass=abc.ABCMeta):
         :param default: An object to be returned, if no object with the given
                         :class:`id <basyx.aas.model.base.Identifier>` is found
         :return: The :class:`~basyx.aas.model.base.Identifiable` object with the given
-                 :class:`id <basyx.aas.model.base.Identifier>` in the provider. Otherwise the ``default`` object
+                 :class:`id <basyx.aas.model.base.Identifier>` in the provider. Otherwise, the ``default`` object
                  or None, if none is given.
         """
         try:

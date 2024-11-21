@@ -67,7 +67,7 @@ def create_full_example() -> model.DictObjectStore:
 def create_example_asset_identification_submodel() -> model.Submodel:
     """
     Creates a :class:`~basyx.aas.model.submodel.Submodel` containing two :class:`~basyx.aas.model.submodel.Property`
-    elements according to 'Verwaltungssschale in der Praxis'
+    elements according to 'Verwaltungsschale in der Praxis'
     https://www.plattform-i40.de/PI40/Redaktion/DE/Downloads/Publikation/2019-verwaltungsschale-in-der-praxis.html
 
     :return: example asset identification submodel
@@ -105,7 +105,7 @@ def create_example_asset_identification_submodel() -> model.Submodel:
                                                    value='http://acplt.org/RefersTo/ExampleRefersTo'),),
                                         model.AssetAdministrationShell)],)
 
-    # Property-Element conform to 'Verwaltungssschale in der Praxis' page 41 ManufacturerName:
+    # Property-Element conform to 'Verwaltungsschale in der Praxis' page 41 ManufacturerName:
     # https://www.plattform-i40.de/PI40/Redaktion/DE/Downloads/Publikation/2019-verwaltungsschale-in-der-praxis.html
     identification_submodel_element_manufacturer_name = model.Property(
         id_short='ManufacturerName',
@@ -133,7 +133,7 @@ def create_example_asset_identification_submodel() -> model.Submodel:
         embedded_data_specifications=()
     )
 
-    # Property-Element conform to 'Verwaltungssschale in der Praxis' page 44 InstanceId:
+    # Property-Element conform to 'Verwaltungsschale in der Praxis' page 44 InstanceId:
     # https://www.plattform-i40.de/PI40/Redaktion/DE/Downloads/Publikation/2019-verwaltungsschale-in-der-praxis.html
     identification_submodel_element_instance_id = model.Property(
         id_short='InstanceId',
@@ -309,7 +309,7 @@ def create_example_bill_of_material_submodel() -> model.Submodel:
         category=None,
         description=model.MultiLanguageTextType({
             'en-US': 'An example bill of material submodel for the test application',
-            'de': 'Ein Beispiel-BillofMaterial-Submodel für eine Test-Anwendung'
+            'de': 'Ein Beispiel-BillOfMaterial-Submodel für eine Test-Anwendung'
         }),
         parent=None,
         administration=model.AdministrativeInformation(version='9',
@@ -384,7 +384,7 @@ def create_example_submodel() -> model.Submodel:
     submodel_element_multi_language_property = model.MultiLanguageProperty(
         id_short='ExampleMultiLanguageProperty',
         value=model.MultiLanguageTextType({'en-US': 'Example value of a MultiLanguageProperty element',
-                                           'de': 'Beispielswert für ein MulitLanguageProperty-Element'}),
+                                           'de': 'Beispielwert für ein MultitLanguageProperty-Element'}),
         value_id=model.ExternalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
                                                     value='http://acplt.org/ValueId/ExampleMultiLanguageValueId'),)),
         category='CONSTANT',
@@ -864,7 +864,7 @@ def create_example_asset_administration_shell() -> \
 
 
 ##############################################################################
-# check functions for checking if an given object is the same as the example #
+# check functions for checking if a given object is the same as the example #
 ##############################################################################
 def check_example_asset_identification_submodel(checker: AASDataChecker, submodel: model.Submodel) -> None:
     expected_submodel = create_example_asset_identification_submodel()
