@@ -384,7 +384,7 @@ def create_example_submodel() -> model.Submodel:
     submodel_element_multi_language_property = model.MultiLanguageProperty(
         id_short='ExampleMultiLanguageProperty',
         value=model.MultiLanguageTextType({'en-US': 'Example value of a MultiLanguageProperty element',
-                                           'de': 'Beispielwert für ein MultitLanguageProperty-Element'}),
+                                           'de': 'Beispielwert für ein MultiLanguageProperty-Element'}),
         value_id=model.ExternalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
                                                     value='http://acplt.org/ValueId/ExampleMultiLanguageValueId'),)),
         category='CONSTANT',
