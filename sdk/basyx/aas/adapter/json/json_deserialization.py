@@ -613,8 +613,6 @@ class AASFromJsonDecoder(json.JSONDecoder):
     @classmethod
     def _construct_relationship_element(
             cls, dct: Dict[str, object], object_class=model.RelationshipElement) -> model.RelationshipElement:
-        # TODO: remove the following type: ignore comments when mypy supports abstract types for Type[T]
-        # see https://github.com/python/mypy/issues/5374
         ret = object_class(id_short=None,
                            first=cls._construct_reference(_get_ts(dct, 'first', dict)),
                            second=cls._construct_reference(_get_ts(dct, 'second', dict)))
@@ -625,8 +623,6 @@ class AASFromJsonDecoder(json.JSONDecoder):
     def _construct_annotated_relationship_element(
             cls, dct: Dict[str, object], object_class=model.AnnotatedRelationshipElement)\
             -> model.AnnotatedRelationshipElement:
-        # TODO: remove the following type: ignore comments when mypy supports abstract types for Type[T]
-        # see https://github.com/python/mypy/issues/5374
         ret = object_class(
             id_short=None,
             first=cls._construct_reference(_get_ts(dct, 'first', dict)),
