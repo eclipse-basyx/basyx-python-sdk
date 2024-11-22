@@ -263,10 +263,12 @@ class AASFromJsonDecoder(json.JSONDecoder):
             if 'embeddedDataSpecifications' in dct:
                 for dspec in _get_ts(dct, 'embeddedDataSpecifications', list):
                     obj.embedded_data_specifications.append(
+                        # TODO: remove the following type: ignore comment when mypy supports abstract types for Type[T]
+                        # see https://github.com/python/mypy/issues/5374
                         model.EmbeddedDataSpecification(
                             data_specification=cls._construct_reference(_get_ts(dspec, 'dataSpecification', dict)),
                             data_specification_content=_get_ts(dspec, 'dataSpecificationContent',
-                                                               model.DataSpecificationContent)
+                                                               model.DataSpecificationContent)  # type: ignore
                         )
                     )
         if isinstance(obj, model.HasExtension) and not cls.stripped:
@@ -368,7 +370,9 @@ class AASFromJsonDecoder(json.JSONDecoder):
         Since we don't implement ``OperationVariable``, this constructor discards the wrapping ``OperationVariable``
         object and just returns the contained :class:`~basyx.aas.model.submodel.SubmodelElement`.
         """
-        return _get_ts(dct, 'value', model.SubmodelElement)
+        # TODO: remove the following type: ignore comments when mypy supports abstract types for Type[T]
+        # see https://github.com/python/mypy/issues/5374
+        return _get_ts(dct, 'value', model.SubmodelElement)  # type: ignore
 
     @classmethod
     def _construct_lang_string_set(cls, lst: List[Dict[str, object]], object_class: Type[LSS]) -> LSS:
@@ -564,9 +568,11 @@ class AASFromJsonDecoder(json.JSONDecoder):
     @classmethod
     def _construct_basic_event_element(cls, dct: Dict[str, object], object_class=model.BasicEventElement) \
             -> model.BasicEventElement:
+        # TODO: remove the following type: ignore comments when mypy supports abstract types for Type[T]
+        # see https://github.com/python/mypy/issues/5374
         ret = object_class(id_short=None,
                            observed=cls._construct_model_reference(_get_ts(dct, 'observed', dict),
-                                                                   model.Referable),
+                                                                   model.Referable),  # type: ignore
                            direction=DIRECTION_INVERSE[_get_ts(dct, "direction", str)],
                            state=STATE_OF_EVENT_INVERSE[_get_ts(dct, "state", str)])
         cls._amend_abstract_attributes(ret, dct)
@@ -607,6 +613,8 @@ class AASFromJsonDecoder(json.JSONDecoder):
     @classmethod
     def _construct_relationship_element(
             cls, dct: Dict[str, object], object_class=model.RelationshipElement) -> model.RelationshipElement:
+        # TODO: remove the following type: ignore comments when mypy supports abstract types for Type[T]
+        # see https://github.com/python/mypy/issues/5374
         ret = object_class(id_short=None,
                            first=cls._construct_reference(_get_ts(dct, 'first', dict)),
                            second=cls._construct_reference(_get_ts(dct, 'second', dict)))
@@ -617,6 +625,8 @@ class AASFromJsonDecoder(json.JSONDecoder):
     def _construct_annotated_relationship_element(
             cls, dct: Dict[str, object], object_class=model.AnnotatedRelationshipElement)\
             -> model.AnnotatedRelationshipElement:
+        # TODO: remove the following type: ignore comments when mypy supports abstract types for Type[T]
+        # see https://github.com/python/mypy/issues/5374
         ret = object_class(
             id_short=None,
             first=cls._construct_reference(_get_ts(dct, 'first', dict)),
