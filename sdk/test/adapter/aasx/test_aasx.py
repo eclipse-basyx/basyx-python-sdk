@@ -19,13 +19,6 @@ from basyx.aas.examples.data import example_aas, example_aas_mandatory_attribute
 
 
 class TestAASXUtils(unittest.TestCase):
-    def test_name_friendlyfier(self) -> None:
-        friendlyfier = aasx.NameFriendlyfier()
-        name1 = friendlyfier.get_friendly_name("http://example.com/AAS-a")
-        self.assertEqual("http___example_com_AAS_a", name1)
-        name2 = friendlyfier.get_friendly_name("http://example.com/AAS+a")
-        self.assertEqual("http___example_com_AAS_a_1", name2)
-
     def test_supplementary_file_container(self) -> None:
         container = aasx.DictSupplementaryFileContainer()
         with open(os.path.join(os.path.dirname(__file__), 'TestFile.pdf'), 'rb') as f:
