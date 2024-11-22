@@ -721,9 +721,7 @@ class WSGIApp:
 
         try:
             endpoint, values = map_adapter.match()
-            # TODO: remove this 'type: ignore' comment once the werkzeug type annotations have been fixed
-            #  https://github.com/pallets/werkzeug/issues/2836
-            return endpoint(request, values, response_t=response_t, map_adapter=map_adapter)  # type: ignore[operator]
+            return endpoint(request, values, response_t=response_t, map_adapter=map_adapter)
 
         # any raised error that leaves this function will cause a 500 internal server error
         # so catch raised http exceptions and return them
