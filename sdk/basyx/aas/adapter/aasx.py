@@ -662,56 +662,6 @@ class AASXWriter:
         self.writer.write_relationships(package_relationships)
 
 
-# TODO remove in future version.
-#   Not required anymore since changes from DotAAS version 2.0.1 to 3.0RC01
-class NameFriendlyfier:
-    """
-    A simple helper class to create unique "AAS friendly names" according to DotAAS, section 7.6.
-
-    Objects of this class store the already created friendly names to avoid name collisions within one set of names.
-    """
-    RE_NON_ALPHANUMERICAL = re.compile(r"[^a-zA-Z0-9]")
-
-    def __init__(self) -> None:
-        self.issued_names: Set[str] = set()
-
-    def get_friendly_name(self, identifier: model.Identifier):
-        """
-        Generate a friendly name from an AAS identifier.
-
-        TODO: This information is outdated. The whole class is no longer needed.
-
-        According to section 7.6 of "Details of the Asset Administration Shell", all non-alphanumerical characters are
-        replaced with underscores. We also replace all non-ASCII characters to generate valid URIs as the result.
-        If this replacement results in a collision with a previously generated friendly name of this NameFriendlifier,
-        a number is appended with underscore to the friendly name.
-
-        Example:
-
-        .. code-block:: python
-
-            friendlyfier = NameFriendlyfier()
-            friendlyfier.get_friendly_name("http://example.com/AAS-a")
-             > "http___example_com_AAS_a"
-
-            friendlyfier.get_friendly_name("http://example.com/AAS+a")
-             >  "http___example_com_AAS_a_1"
-
-        """
-        # friendlify name
-        raw_name = self.RE_NON_ALPHANUMERICAL.sub('_', identifier)
-
-        # Unify name (avoid collisions)
-        amended_name = raw_name
-        i = 1
-        while amended_name in self.issued_names:
-            amended_name = "{}_{}".format(raw_name, i)
-            i += 1
-
-        self.issued_names.add(amended_name)
-        return amended_name
-
-
 class AbstractSupplementaryFileContainer(metaclass=abc.ABCMeta):
     """
     Abstract interface for containers of supplementary files for AASs.
