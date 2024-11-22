@@ -147,17 +147,19 @@ class AASXReader:
 
         read_identifiables: Set[model.Identifier] = set()
 
+        no_aas_files_found = True
         # Iterate AAS files
-        for aas_part in self.reader.get_related_parts_by_type(aasx_origin_part)[
-                RELATIONSHIP_TYPE_AAS_SPEC]:
+        for aas_part in self.reader.get_related_parts_by_type(aasx_origin_part)[RELATIONSHIP_TYPE_AAS_SPEC]:
+            no_aas_files_found = False
             self._read_aas_part_into(aas_part, object_store, file_store,
                                      read_identifiables, override_existing, **kwargs)
 
             # Iterate split parts of AAS file
-            for split_part in self.reader.get_related_parts_by_type(aas_part)[
-                    RELATIONSHIP_TYPE_AAS_SPEC_SPLIT]:
+            for split_part in self.reader.get_related_parts_by_type(aas_part)[RELATIONSHIP_TYPE_AAS_SPEC_SPLIT]:
                 self._read_aas_part_into(split_part, object_store, file_store,
                                          read_identifiables, override_existing, **kwargs)
+        if no_aas_files_found:
+            logger.warning("No AAS files found in AASX package")
 
         return read_identifiables
 
