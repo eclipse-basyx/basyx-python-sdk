@@ -721,9 +721,7 @@ class WSGIApp:
 
         try:
             endpoint, values = map_adapter.match()
-            # TODO: remove this 'type: ignore' comment once the werkzeug type annotations have been fixed
-            #  https://github.com/pallets/werkzeug/issues/2836
-            return endpoint(request, values, response_t=response_t, map_adapter=map_adapter)  # type: ignore[operator]
+            return endpoint(request, values, response_t=response_t, map_adapter=map_adapter)
 
         # any raised error that leaves this function will cause a 500 internal server error
         # so catch raised http exceptions and return them
@@ -954,10 +952,8 @@ class WSGIApp:
         parent = self._get_submodel_or_nested_submodel_element(url_args)
         if not isinstance(parent, model.UniqueIdShortNamespace):
             raise BadRequest(f"{parent!r} is not a namespace, can't add child submodel element!")
-        # TODO: remove the following type: ignore comment when mypy supports abstract types for Type[T]
-        # see https://github.com/python/mypy/issues/5374
         new_submodel_element = HTTPApiDecoder.request_body(request,
-                                                           model.SubmodelElement,  # type: ignore[type-abstract]
+                                                           model.SubmodelElement,
                                                            is_stripped_request(request))
         try:
             parent.add_referable(new_submodel_element)
@@ -978,10 +974,8 @@ class WSGIApp:
                                                      response_t: Type[APIResponse],
                                                      **_kwargs) -> Response:
         submodel_element = self._get_submodel_submodel_elements_id_short_path(url_args)
-        # TODO: remove the following type: ignore comment when mypy supports abstract types for Type[T]
-        # see https://github.com/python/mypy/issues/5374
         new_submodel_element = HTTPApiDecoder.request_body(request,
-                                                           model.SubmodelElement,  # type: ignore[type-abstract]
+                                                           model.SubmodelElement,
                                                            is_stripped_request(request))
         submodel_element.update_from(new_submodel_element)
         submodel_element.commit()

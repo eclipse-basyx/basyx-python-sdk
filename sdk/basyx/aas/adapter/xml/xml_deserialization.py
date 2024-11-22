@@ -534,9 +534,7 @@ class AASFromXmlDecoder:
         """
         Helper function. Doesn't support the object_class parameter. Overwrite construct_aas_reference instead.
         """
-        # TODO: remove the following type: ignore comments when mypy supports abstract types for Type[T]
-        # see https://github.com/python/mypy/issues/5374
-        return cls.construct_model_reference_expect_type(element, model.Referable, **kwargs)  # type: ignore
+        return cls.construct_model_reference_expect_type(element, model.Referable, **kwargs)
 
     @classmethod
     def _construct_operation_variable(cls, element: etree._Element, **kwargs: Any) -> model.SubmodelElement:
@@ -590,9 +588,7 @@ class AASFromXmlDecoder:
         """
         _expect_reference_type(element, model.ModelReference)
         keys = cls._construct_key_tuple(element)
-        # TODO: remove the following type: ignore comments when mypy supports abstract types for Type[T]
-        # see https://github.com/python/mypy/issues/5374
-        type_: Type[model.Referable] = model.Referable  # type: ignore
+        type_: Type[model.Referable] = model.Referable
         if len(keys) > 0:
             type_ = KEY_TYPES_CLASSES_INVERSE.get(keys[-1].type, model.Referable)  # type: ignore
         return object_class(keys, type_, _failsafe_construct(element.find(NS_AAS + "referredSemanticId"),
