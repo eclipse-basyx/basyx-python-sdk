@@ -121,7 +121,10 @@ The following guidelines are for the commit or PR message text:
 
 ## Codestyle and Testing
 
-Our code follows the [PEP 8 -- Style Guide for Python Code](https://www.python.org/dev/peps/pep-0008/).
+Our code follows the [PEP 8 -- Style Guide for Python Code](https://www.python.org/dev/peps/pep-0008/)
+with the following exceptions:
+- Line length is allowed to be up to 120 characters, though lines up to 100 characters are preferred.
+
 Additionally, we use [PEP 484 -- Type Hints](https://www.python.org/dev/peps/pep-0484/) throughout the code to enable type checking the code.
 
 Before submitting any changes, make sure to let `mypy` and `pycodestyle` check your code and run the unit tests with
