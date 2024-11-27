@@ -164,7 +164,7 @@ jobs:
       - name: Wait for container and server initialization
         run: |
           timeout 30s bash -c '
-            until docker logs basyx-python-server 2>&1 | grep -q "INFO success: quit_on_failure entered RUNNING states"; do
+            until docker logs basyx-python-server 2>&1 | grep -q "INFO success: quit_on_failure entered RUNNING state"; do
               sleep 2
             done
           '
