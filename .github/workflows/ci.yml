@@ -160,7 +160,7 @@ jobs:
           docker build -t basyx-python-server .
       - name: Run container
         run: |
-           docker run -d --name basyx-python-server
+           docker run -d --name basyx-python-server basyx-python-server
       - name: Wait for container and server initialization
         run: |
           timeout 30s bash -c '
