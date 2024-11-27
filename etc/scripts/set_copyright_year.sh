@@ -12,7 +12,8 @@
 
 while read -rd $'\0' year file; do
     # Extract the first year from the copyright notice
-    current_year=$(sed -n '1,2s/^\(# Copyright (c) \)[^0-9]*\([0-9]\{4\}\)\([^\n]*\)/\2/p' "$file")
+    current_year=$(sed -n '1,2s/^\(# Copyright (c) \)\([[:digit:]]\{4,\}\).*/\2/p' "$file")
+
 
     if $CHECK_MODE && [[ "$current_year" != "$year" ]]; then
         echo "Error: Copyright year mismatch in file $file. Expected $year, found $current_year."
