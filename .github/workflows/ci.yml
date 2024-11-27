@@ -159,4 +159,4 @@ jobs:
     - name: Run copyright check
       run: |
         chmod +x ./etc/scripts/set_copyright_year.sh
-        CHECK_MODE=true ./etc/scripts/set_copyright_year.sh
+        ./etc/scripts/set_copyright_year.sh --check

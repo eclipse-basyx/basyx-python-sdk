@@ -9,10 +9,20 @@
 #
 # The script will check the first two lines for a copyright
 # notice (in case the first line is a shebang).
+#
+# Run this script with --check to have it raise an error if it
+# change anything.
 
 
+# Set CHECK_MODE based on whether --check is passed
+    CHECK_MODE=false
+    if [[ "$1" == "--check" ]]; then
+        CHECK_MODE=true
+        shift # Remove --check from the arguments
+    fi
 
 while read -rd $'\0' year file; do
+
     # Extract the first year from the copyright notice
     current_year=$(sed -n '1,2s/^\(# Copyright (c) \)\([[:digit:]]\{4,\}\).*/\2/p' "$file")
 
