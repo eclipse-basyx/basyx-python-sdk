@@ -11,5 +11,17 @@
 # notice (in case the first line is a shebang).
 
 while read -rd $'\0' year file; do
-    sed -i "1,2s/^\(# Copyright (c) \)[[:digit:]]\{4,\}/\1$year/" "$file"
+    # Extract the first year from the copyright notice
+    current_year=$(sed -n '1,2s/^\(# Copyright (c) \)[^0-9]*\([0-9]\{4\}\)\([^\n]*\)/\2/p' "$file")
+
+    if $CHECK_MODE && [[ "$current_year" != "$year" ]]; then
+        echo "Error: Copyright year mismatch in file $file. Expected $year, found $current_year."
+        exit 1
+    fi
+
+    if ! $CHECK_MODE && [[ "$current_year" != "$year" ]]; then
+        sed -i "1,2s/^\(# Copyright (c) \)[[:digit:]]\{4,\}/\1$year/" "$file"
+        echo "Updated copyright year in $file"
+    fi
 done < <(git ls-files -z "$@" | xargs -0I{} git log -1 -z --format="%ad {}" --date="format:%Y" "{}")
+
