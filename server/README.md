@@ -61,17 +61,12 @@ $ docker run -p 8080:80 -v ./storage2:/storage2 -e API_BASE_PATH=/api/v3.1 -e ST
 
 ## Building and running the image with docker-compose
 
-The container image can also be built via:
+The container image can also be built and run via:
 ```
-$ docker-compose build
-```
-
-And then run using:
-```
-$ docker-compose up
+$ docker compose up
 ```
 
-This is the exemplary `docker-compose` file of this repository:
+This is the exemplary `docker-compose` file for the server:
 ````yaml
 services:
   app:
