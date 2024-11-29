@@ -844,7 +844,7 @@ class WSGIApp:
         aas.commit()
         return response_t()
 
-    def aas_submodel_refs_redirect(self, request: Request, url_args: Dict, map_adapter: MapAdapter) -> Response:
+    def aas_submodel_refs_redirect(self, request: Request, url_args: Dict, map_adapter: MapAdapter, **_kwargs) -> Response:
         aas = self._get_shell(url_args)
         # the following makes sure the reference exists
         self._get_submodel_reference(aas, url_args["submodel_id"])
