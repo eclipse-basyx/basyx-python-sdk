@@ -64,7 +64,7 @@ jobs:
       run:
         working-directory: ./sdk
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
     - name: Verify Matrix Version matches Global Version
       run: |
         if [ "${{ matrix.python-version }}" != "${{ env.X_PYTHON_MIN_VERSION }}" ] && [ "${{ matrix.python-version }}" != "${{ env.X_PYTHON_MAX_VERSION }}" ]; then
@@ -72,7 +72,7 @@ jobs:
           exit 1
         fi
     - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v4
       with:
         python-version: ${{ matrix.python-version }}
     - name: Collect schema files from aas-specs
@@ -102,7 +102,7 @@ jobs:
       run:
         working-directory: ./sdk
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
     - name: Set up Python ${{ env.X_PYTHON_MIN_VERSION }}
       uses: actions/setup-python@v2
       with:
@@ -125,7 +125,7 @@ jobs:
       run:
         working-directory: ./sdk
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
     - name: Set up Python ${{ env.X_PYTHON_MIN_VERSION }}
       uses: actions/setup-python@v2
       with:
@@ -151,7 +151,7 @@ jobs:
       run:
         working-directory: ./sdk
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
     - name: Set up Python ${{ env.X_PYTHON_MIN_VERSION }}
       uses: actions/setup-python@v2
       with:
@@ -172,7 +172,7 @@ jobs:
       run:
         working-directory: ./sdk
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
     - name: Set up Python ${{ env.X_PYTHON_MIN_VERSION }}
       uses: actions/setup-python@v2
       with:
@@ -184,3 +184,31 @@ jobs:
     - name: Create source and wheel dist
       run: |
         python -m build
+
+  server-package:
+    # This job checks if we can build our server package
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./server
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build the Docker image
+        run: |
+          docker build -t basyx-python-server .
+      - name: Run container
+        run: |
+           docker run -d --name basyx-python-server basyx-python-server
+      - name: Wait for container and server initialization
+        run: |
+          timeout 30s bash -c '
+            until docker logs basyx-python-server 2>&1 | grep -q "INFO success: quit_on_failure entered RUNNING state"; do
+              sleep 2
+            done
+          '
+      - name: Check if container is running
+        run: |
+          docker inspect --format='{{.State.Running}}' basyx-python-server | grep true
+      - name: Stop and remove the container
+        run: |
+          docker stop basyx-python-server && docker rm basyx-python-server

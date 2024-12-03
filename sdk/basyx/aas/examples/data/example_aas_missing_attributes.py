@@ -59,11 +59,11 @@ def create_example_submodel() -> model.Submodel:
     submodel_element_multi_language_property = model.MultiLanguageProperty(
         id_short='ExampleMultiLanguageProperty',
         value=model.MultiLanguageTextType({'en-US': 'Example value of a MultiLanguageProperty element',
-                                           'de': 'Beispielswert für ein MulitLanguageProperty-Element'}),
+                                           'de': 'Beispielwert für ein MultiLanguageProperty-Element'}),
         value_id=None,  # TODO
         category='CONSTANT',
         description=model.MultiLanguageTextType({'en-US': 'Example MultiLanguageProperty object',
-                                                 'de': 'Beispiel MulitLanguageProperty Element'}),
+                                                 'de': 'Beispiel MultiLanguageProperty Element'}),
         parent=None,
         semantic_id=model.ExternalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
                                                        value='http://acplt.org/MultiLanguageProperties/'
@@ -396,7 +396,7 @@ def create_example_asset_administration_shell() -> model.AssetAdministrationShel
 
 
 ##############################################################################
-# check functions for checking if an given object is the same as the example #
+# check functions for checking if a given object is the same as the example #
 ##############################################################################
 def check_example_concept_description(checker: AASDataChecker, concept_description: model.ConceptDescription) -> None:
     expected_concept_description = create_example_concept_description()

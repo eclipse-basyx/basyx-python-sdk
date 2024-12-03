@@ -49,7 +49,7 @@ if args.admin_user is not None:
         ('%s:%s' % (args.admin_user, args.admin_password)).encode('ascii')).decode("ascii")
 
 
-# Check if CouchDB server is avaliable
+# Check if CouchDB server is available
 request = urllib.request.Request(
     TEST_CONFIG['couchdb']['url'],
     headers=default_headers,

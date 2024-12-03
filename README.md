@@ -17,17 +17,18 @@ These are the currently implemented specifications:
 ## Features
 This repository is structured into separate packages. 
 The `sdk` directory provides the AAS metamodel as Python objects and fundamental functionalities to handle AAS.
-The `server` is to be determined.
+The `server` implements a specification-compliant Docker HTTP server for AASs.
 The `compliance_tool` is to be determined.
 
-* SDK
+* [SDK](./sdk/README.md):
   * Modelling of AASs as Python objects
-      * **except for**: *HasDataSpecification*
   * Reading and writing of AASX package files
   * (De-)serialization of AAS objects into/from JSON and XML
   * Storing of AAS objects in CouchDB, Backend infrastructure for easy expansion 
   * Compliance checking of AAS XML and JSON files
-* Server (tbd)
+* [Server](./server/README.md): Docker Image of a specification compliant HTTP Server implementing the interfaces:
+  * Asset Administration Shell Repository
+  * Submodel Repository
 * Compliance Tool (tbd)
 
 ## License

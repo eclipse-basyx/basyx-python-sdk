@@ -82,11 +82,11 @@ class AASXReader:
 
     def get_core_properties(self) -> pyecma376_2.OPCCoreProperties:
         """
-        Retrieve the OPC Core Properties (meta data) of the AASX package file.
+        Retrieve the OPC Core Properties (metadata) of the AASX package file.
 
-        If no meta data is provided in the package file, an emtpy OPCCoreProperties object is returned.
+        If no metadata is provided in the package file, an emtpy OPCCoreProperties object is returned.
 
-        :return: The AASX package's meta data
+        :return: The AASX package's metadata
         """
         return self.reader.get_core_properties()
 
@@ -147,17 +147,19 @@ class AASXReader:
 
         read_identifiables: Set[model.Identifier] = set()
 
+        no_aas_files_found = True
         # Iterate AAS files
-        for aas_part in self.reader.get_related_parts_by_type(aasx_origin_part)[
-                RELATIONSHIP_TYPE_AAS_SPEC]:
+        for aas_part in self.reader.get_related_parts_by_type(aasx_origin_part)[RELATIONSHIP_TYPE_AAS_SPEC]:
+            no_aas_files_found = False
             self._read_aas_part_into(aas_part, object_store, file_store,
                                      read_identifiables, override_existing, **kwargs)
 
             # Iterate split parts of AAS file
-            for split_part in self.reader.get_related_parts_by_type(aas_part)[
-                    RELATIONSHIP_TYPE_AAS_SPEC_SPLIT]:
+            for split_part in self.reader.get_related_parts_by_type(aas_part)[RELATIONSHIP_TYPE_AAS_SPEC_SPLIT]:
                 self._read_aas_part_into(split_part, object_store, file_store,
                                          read_identifiables, override_existing, **kwargs)
+        if no_aas_files_found:
+            logger.warning("No AAS files found in AASX package")
 
         return read_identifiables
 
@@ -191,7 +193,7 @@ class AASXReader:
         :param read_identifiables: A set of Identifiers of objects which have already been read. New objects'
             Identifiers are added to this set. Objects with already known Identifiers are skipped silently.
         :param override_existing: If True, existing objects in the object store are overridden with objects from the
-            AASX that have the same Identifer. Default behavior is to skip those objects from the AASX.
+            AASX that have the same Identifier. Default behavior is to skip those objects from the AASX.
         """
         for obj in self._parse_aas_part(part_name, **kwargs):
             if obj.id in read_identifiables:
@@ -380,7 +382,7 @@ class AASXWriter:
             except KeyError:
                 raise
             if not isinstance(aas, model.AssetAdministrationShell):
-                raise TypeError(f"Identifier {aas_id} does not belong to an AssetAdminstrationShell object but to "
+                raise TypeError(f"Identifier {aas_id} does not belong to an AssetAdministrationShell object but to "
                                 f"{aas!r}")
 
             # Add the AssetAdministrationShell object to the data part
@@ -407,10 +409,10 @@ class AASXWriter:
                 try:
                     cd = semantic_id.resolve(object_store)
                 except KeyError:
-                    logger.info("ConceptDescription for semantidId %s not found in object store.", str(semantic_id))
+                    logger.info("ConceptDescription for semanticId %s not found in object store.", str(semantic_id))
                     continue
                 except model.UnexpectedTypeError as e:
-                    logger.error("semantidId %s resolves to %s, which is not a ConceptDescription",
+                    logger.error("semanticId %s resolves to %s, which is not a ConceptDescription",
                                  str(semantic_id), e.value)
                     continue
                 concept_descriptions.append(cd)
@@ -457,7 +459,7 @@ class AASXWriter:
         :param write_json: If ``True``, the part is written as a JSON file instead of an XML file. Defaults to
             ``False``.
         :param split_part: If ``True``, no aas-spec relationship is added from the aasx-origin to this part. You must
-            make sure to reference it via a aas-spec-split relationship from another aas-spec part
+            make sure to reference it via an aas-spec-split relationship from another aas-spec part
         :param additional_relationships: Optional OPC/ECMA376 relationships which should originate at the AAS object
             part to be written, in addition to the aas-suppl relationships which are created automatically.
         """
@@ -508,7 +510,7 @@ class AASXWriter:
             ``File`` objects within the written objects.
         :param write_json: If True, the part is written as a JSON file instead of an XML file. Defaults to False.
         :param split_part: If True, no aas-spec relationship is added from the aasx-origin to this part. You must make
-            sure to reference it via a aas-spec-split relationship from another aas-spec part
+            sure to reference it via an aas-spec-split relationship from another aas-spec part
         :param additional_relationships: Optional OPC/ECMA376 relationships which should originate at the AAS object
             part to be written, in addition to the aas-suppl relationships which are created automatically.
         """
@@ -574,12 +576,12 @@ class AASXWriter:
 
     def write_core_properties(self, core_properties: pyecma376_2.OPCCoreProperties):
         """
-        Write OPC Core Properties (meta data) to the AASX package file.
+        Write OPC Core Properties (metadata) to the AASX package file.
 
         .. Attention::
             This method may only be called once for each AASXWriter!
 
-        :param core_properties: The OPCCoreProperties object with the meta data to be written to the package file
+        :param core_properties: The OPCCoreProperties object with the metadata to be written to the package file
         """
         if self._properties_part is not None:
             raise RuntimeError("Core Properties have already been written.")
@@ -662,56 +664,6 @@ class AASXWriter:
         self.writer.write_relationships(package_relationships)
 
 
-# TODO remove in future version.
-#   Not required anymore since changes from DotAAS version 2.0.1 to 3.0RC01
-class NameFriendlyfier:
-    """
-    A simple helper class to create unique "AAS friendly names" according to DotAAS, section 7.6.
-
-    Objects of this class store the already created friendly names to avoid name collisions within one set of names.
-    """
-    RE_NON_ALPHANUMERICAL = re.compile(r"[^a-zA-Z0-9]")
-
-    def __init__(self) -> None:
-        self.issued_names: Set[str] = set()
-
-    def get_friendly_name(self, identifier: model.Identifier):
-        """
-        Generate a friendly name from an AAS identifier.
-
-        TODO: This information is outdated. The whole class is no longer needed.
-
-        According to section 7.6 of "Details of the Asset Administration Shell", all non-alphanumerical characters are
-        replaced with underscores. We also replace all non-ASCII characters to generate valid URIs as the result.
-        If this replacement results in a collision with a previously generated friendly name of this NameFriendlifier,
-        a number is appended with underscore to the friendly name.
-
-        Example:
-
-        .. code-block:: python
-
-            friendlyfier = NameFriendlyfier()
-            friendlyfier.get_friendly_name("http://example.com/AAS-a")
-             > "http___example_com_AAS_a"
-
-            friendlyfier.get_friendly_name("http://example.com/AAS+a")
-             >  "http___example_com_AAS_a_1"
-
-        """
-        # friendlify name
-        raw_name = self.RE_NON_ALPHANUMERICAL.sub('_', identifier)
-
-        # Unify name (avoid collisions)
-        amended_name = raw_name
-        i = 1
-        while amended_name in self.issued_names:
-            amended_name = "{}_{}".format(raw_name, i)
-            i += 1
-
-        self.issued_names.add(amended_name)
-        return amended_name
-
-
 class AbstractSupplementaryFileContainer(metaclass=abc.ABCMeta):
     """
     Abstract interface for containers of supplementary files for AASs.
@@ -720,7 +672,7 @@ class AbstractSupplementaryFileContainer(metaclass=abc.ABCMeta):
     their name. They are used to provide associated documents without embedding their contents (as
     :class:`~basyx.aas.model.submodel.Blob` object) in the AAS.
 
-    A SupplementaryFileContainer keeps track of the name and content_type (MIME type) for each file. Additionally it
+    A SupplementaryFileContainer keeps track of the name and content_type (MIME type) for each file. Additionally, it
     allows to resolve name conflicts by comparing the files' contents and providing an alternative name for a dissimilar
     new file. It also provides each files sha256 hash sum to allow name conflict checking in other classes (e.g. when
     writing AASX files).
@@ -738,7 +690,7 @@ class AbstractSupplementaryFileContainer(metaclass=abc.ABCMeta):
         :param name: The file's proposed name. Should start with a '/'. Should not contain URI-encoded '/' or '\'
         :param file: A binary file-like opened for reading the file contents
         :param content_type: The file's content_type
-        :return: The file name as stored in the SupplementaryFileContainer. Typically ``name`` or a modified version of
+        :return: The file name as stored in the SupplementaryFileContainer. Typically, ``name`` or a modified version of
             ``name`` to resolve conflicts.
         """
         pass  # pragma: no cover

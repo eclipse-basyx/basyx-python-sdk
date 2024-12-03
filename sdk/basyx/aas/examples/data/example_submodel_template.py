@@ -45,7 +45,7 @@ def create_example_submodel_template() -> model.Submodel:
         value_id=None,  # TODO
         category='CONSTANT',
         description=model.MultiLanguageTextType({'en-US': 'Example MultiLanguageProperty object',
-                                                 'de': 'Beispiel MulitLanguageProperty Element'}),
+                                                 'de': 'Beispiel MultiLanguageProperty Element'}),
         parent=None,
         semantic_id=model.ExternalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
                                                        value='http://acplt.org/MultiLanguageProperties/'
@@ -332,7 +332,7 @@ def create_example_submodel_template() -> model.Submodel:
 
 
 ##############################################################################
-# check functions for checking if an given object is the same as the example #
+# check functions for checking if a given object is the same as the example #
 ##############################################################################
 def check_example_submodel(checker: AASDataChecker, submodel: model.Submodel) -> None:
     expected_submodel = create_example_submodel_template()
