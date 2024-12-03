@@ -350,7 +350,7 @@ def value_list_to_xml(obj: model.ValueList,
 # ##############################################################
 
 
-def specific_asset_id_to_xml(obj: model.SpecificAssetId, tag: str = NS_AAS + "specifidAssetId") \
+def specific_asset_id_to_xml(obj: model.SpecificAssetId, tag: str = NS_AAS + "specificAssetId") \
         -> etree._Element:
     """
     Serialization of objects of class :class:`~basyx.aas.model.base.SpecificAssetId` to XML
@@ -972,7 +972,7 @@ def object_store_to_xml_element(data: model.AbstractObjectStore) -> etree._Eleme
     called directly for most use-cases.
 
     :param data: :class:`ObjectStore <basyx.aas.model.provider.AbstractObjectStore>` which contains different objects of
-                 the AAS meta model which should be serialized to an XML file
+                 the AAS metamodel which should be serialized to an XML file
     """
     # separate different kind of objects
     asset_administration_shells = []
@@ -1016,7 +1016,7 @@ def write_aas_xml_file(file: _generic.PathOrBinaryIO,
 
     :param file: A filename or file-like object to write the XML-serialized data to
     :param data: :class:`ObjectStore <basyx.aas.model.provider.AbstractObjectStore>` which contains different objects of
-                 the AAS meta model which should be serialized to an XML file
+                 the AAS metamodel which should be serialized to an XML file
     :param kwargs: Additional keyword arguments to be passed to :meth:`~lxml.etree._ElementTree.write`
     """
     return _write_element(file, object_store_to_xml_element(data), **kwargs)

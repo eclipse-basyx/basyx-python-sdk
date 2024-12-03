@@ -107,7 +107,7 @@ class CouchDBBackend(backends.Backend):
         return url
 
     @classmethod
-    def do_request(cls, url: str, method: str = "GET", additional_headers: Dict[str, str] = {},
+    def do_request(cls, url: str, method: str = "GET", additional_headers: Optional[Dict[str, str]] = None,
                    body: Optional[bytes] = None) -> MutableMapping[str, Any]:
         """
         Perform an HTTP(S) request to the CouchDBServer, parse the result and handle errors
@@ -126,7 +126,7 @@ class CouchDBBackend(backends.Backend):
         headers = urllib3.make_headers(keep_alive=True, accept_encoding=True,
                                        basic_auth="{}:{}".format(*auth) if auth else None)
         headers['Accept'] = 'application/json'
-        headers.update(additional_headers)
+        headers.update(additional_headers if additional_headers is not None else {})
         try:
             response = _http_pool_manager.request(method, url, headers=headers, body=body)
         except (urllib3.exceptions.TimeoutError, urllib3.exceptions.SSLError, urllib3.exceptions.ProtocolError) as e:
@@ -300,7 +300,7 @@ class CouchDBObjectStore(model.AbstractObjectStore):
                 raise KeyError("No Identifiable with couchdb-id {} found in CouchDB database".format(couchdb_id)) from e
             raise
 
-        # Add CouchDB meta data (for later commits) to object
+        # Add CouchDB metadata (for later commits) to object
         obj = data['data']
         if not isinstance(obj, model.Identifiable):
             raise CouchDBResponseError("The CouchDB document with id {} does not contain an identifiable AAS object."
@@ -491,7 +491,7 @@ class CouchDBObjectStore(model.AbstractObjectStore):
         """
         Helper method to represent an ASS Identifier as a string to be used as CouchDB document id
 
-        :param url_quote: If True, the result id string is url-encoded to be used in a HTTP request URL
+        :param url_quote: If True, the result id string is url-encoded to be used in an HTTP request URL
         """
         if url_quote:
             identifier = urllib.parse.quote(identifier, safe='')
@@ -542,6 +542,5 @@ class CouchDBServerError(CouchDBError):
 
 
 class CouchDBConflictError(CouchDBError):
-    """Exception raised when an object could not be committed due to an concurrent
-    modification in the database"""
+    """Exception raised when an object could not be committed due to a concurrent modification in the database"""
     pass

@@ -89,7 +89,7 @@ class Date(datetime.date):
         memo[id(self)] = result
         return result
 
-    # TODO override comparsion operators
+    # TODO override comparison operators
     # TODO add into_datetime function
     # TODO add includes(:DateTime) -> bool function
 
@@ -118,7 +118,7 @@ class GYearMonth:
             return NotImplemented
         return self.year == other.year and self.month == other.month and self.tzinfo == other.tzinfo
 
-    # TODO override comparsion operators
+    # TODO override comparison operators
     # TODO add includes(:Union[DateTime, Date]) -> bool function
 
 
@@ -143,7 +143,7 @@ class GYear:
             return NotImplemented
         return self.year == other.year and self.tzinfo == other.tzinfo
 
-    # TODO override comparsion operators
+    # TODO override comparison operators
     # TODO add includes(:Union[DateTime, Date]) -> bool function
 
 
@@ -173,7 +173,7 @@ class GMonthDay:
             return NotImplemented
         return self.month == other.month and self.day == other.day and self.tzinfo == other.tzinfo
 
-    # TODO override comparsion operators
+    # TODO override comparison operators
     # TODO add includes(:Union[DateTime, Date]) -> bool function
 
 
@@ -200,7 +200,7 @@ class GDay:
             return NotImplemented
         return self.day == other.day and self.tzinfo == other.tzinfo
 
-    # TODO override comparsion operators
+    # TODO override comparison operators
     # TODO add includes(:Union[DateTime, Date]) -> bool function
 
 
@@ -227,7 +227,7 @@ class GMonth:
             return NotImplemented
         return self.month == other.month and self.tzinfo == other.tzinfo
 
-    # TODO override comparsion operators
+    # TODO override comparison operators
     # TODO add includes(:Union[DateTime, Date]) -> bool function
 
 
@@ -527,7 +527,7 @@ def from_xsd(value: str, type_: Type[AnyXSDType]) -> AnyXSDType:  # workaround. 
     Parse an XSD type value from its lexical representation
 
     :param value: Lexical representation
-    :param type_: The expected XSD type (from this module). It is required to chose the correct conversion.
+    :param type_: The expected XSD type (from this module). It is required to choose the correct conversion.
     """
     if type_ is Boolean:
         return _parse_xsd_bool(value)

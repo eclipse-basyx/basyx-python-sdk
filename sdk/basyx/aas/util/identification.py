@@ -109,7 +109,7 @@ class NamespaceIRIGenerator(AbstractIdentifierGenerator):
 
 # Reserved IRI characters according to https://tools.ietf.org/html/rfc3987#section-2.2
 # minus '/', '?', '=', '&', '#', which can be used in a path, querystring and fragment
-# plus unallowed characters (see) https://stackoverflow.com/a/36667242/10315508
+# plus not allowed characters (see) https://stackoverflow.com/a/36667242/10315508
 _iri_segment_quote_table_tmpl: Dict[Union[str, int], Optional[str]] = {
     c: '%{:02X}'.format(c.encode()[0])
     for c in [

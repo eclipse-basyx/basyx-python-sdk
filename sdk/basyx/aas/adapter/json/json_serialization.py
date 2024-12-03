@@ -9,7 +9,7 @@
 
 Module for serializing Asset Administration Shell objects to the official JSON format
 
-The module provides an custom JSONEncoder classes :class:`AASToJsonEncoder` and :class:`StrippedAASToJsonEncoder`
+The module provides a custom JSONEncoder classes :class:`AASToJsonEncoder` and :class:`StrippedAASToJsonEncoder`
 to be used with the Python standard :mod:`json` module. While the former serializes objects as defined in the
 specification, the latter serializes stripped objects, excluding some attributes
 (see https://git.rwth-aachen.de/acplt/pyi40aas/-/issues/91).
@@ -103,7 +103,7 @@ class AASToJsonEncoder(json.JSONEncoder):
     @classmethod
     def _abstract_classes_to_json(cls, obj: object) -> Dict[str, object]:
         """
-        transformation function to serialize abstract classes from model.base which are inherited by many classes
+        Transformation function to serialize abstract classes from model.base which are inherited by many classes
 
         :param obj: object which must be serialized
         :return: dict with the serialized attributes of the abstract classes this object inherits from
@@ -722,7 +722,7 @@ def object_store_to_json(data: model.AbstractObjectStore, stripped: bool = False
     chapter 5.5
 
     :param data: :class:`ObjectStore <basyx.aas.model.provider.AbstractObjectStore>` which contains different objects of
-                 the AAS meta model which should be serialized to a JSON file
+                 the AAS metamodel which should be serialized to a JSON file
     :param stripped: If true, objects are serialized to stripped json objects.
                      See https://git.rwth-aachen.de/acplt/pyi40aas/-/issues/91
                      This parameter is ignored if an encoder class is specified.
@@ -750,7 +750,7 @@ def write_aas_json_file(file: _generic.PathOrIO, data: model.AbstractObjectStore
 
     :param file: A filename or file-like object to write the JSON-serialized data to
     :param data: :class:`ObjectStore <basyx.aas.model.provider.AbstractObjectStore>` which contains different objects of
-                 the AAS meta model which should be serialized to a JSON file
+                 the AAS metamodel which should be serialized to a JSON file
     :param stripped: If `True`, objects are serialized to stripped json objects.
                      See https://git.rwth-aachen.de/acplt/pyi40aas/-/issues/91
                      This parameter is ignored if an encoder class is specified.

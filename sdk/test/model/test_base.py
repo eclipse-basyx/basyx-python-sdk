@@ -835,7 +835,7 @@ class ModelReferenceTest(unittest.TestCase):
                 model.Key(model.KeyTypes.FRAGMENT_REFERENCE, "urn:x-test:x"))
         with self.assertRaises(model.AASConstraintViolation) as cm:
             model.ModelReference(keys, model.Property)
-        self.assertEqual(f"{keys[-1]!r} is not preceeded by a key of type File or Blob, but {keys[1]!r}"
+        self.assertEqual(f"{keys[-1]!r} is not preceded by a key of type File or Blob, but {keys[1]!r}"
                          f" (Constraint AASd-127)", str(cm.exception))
         keys = (keys[0], model.Key(model.KeyTypes.BLOB, "urn:x-test:x"), keys[2])
         model.ModelReference(keys, model.Blob)
