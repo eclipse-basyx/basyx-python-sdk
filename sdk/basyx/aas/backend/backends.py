@@ -5,11 +5,11 @@
 #
 # SPDX-License-Identifier: MIT
 """
-This module provides a registry and and abstract base class for Backends. A :class:`~.Backend` is a class that allows to
+This module provides a registry and abstract base class for Backends. A :class:`~.Backend` is a class that allows to
 synchronize Referable AAS objects or their included data with external data sources such as a remote API or a local
 source for real time data. Each backend provides access to one kind of data source.
 
-The data source of an individual object is specified as an URI in its ``source`` attribute. The schema part of that URI
+The data source of an individual object is specified as a URI in its ``source`` attribute. The schema part of that URI
 defines the type of data source and, in consequence, the backend class to use for synchronizing this object.
 
 Custom backends for additional types of data sources can be implemented by subclassing :class:`Backend` and
@@ -49,7 +49,7 @@ class Backend(metaclass=abc.ABCMeta):
         data source) via this backend implementation.
 
         It is automatically called by the :meth:`~basyx.aas.model.base.Referable.commit` implementation, when the source
-        URI of the object or the source URI one of its ancestors in the AAS object containment hierarchy include an
+        URI of the object or the source URI one of its ancestors in the AAS object containment hierarchy include a
         URI schema for which this
         backend has been registered. Both of the objects are passed to this function: the one which shall be committed
         (``committed_object``) and its ancestor with the relevant source URI (``store_object``). They may be the same,
@@ -88,7 +88,7 @@ class Backend(metaclass=abc.ABCMeta):
 
         It is automatically called by the :meth:`~basyx.aas.model.base.Referable.update` implementation,
         when the source URI of the object or the source URI one of its ancestors in the AAS object containment hierarchy
-        include an URI schema for which this backend has been registered. Both of the objects are passed
+        include a URI schema for which this backend has been registered. Both of the objects are passed
         to this function: the one which shall be update (``updated_object``) and its ancestor with
         the relevant source URI (``store_object``). They may be the same, the updated object has a source with
         the relevant schema itself. Additionally, the ``relative_path`` from the ``store_object`` down to

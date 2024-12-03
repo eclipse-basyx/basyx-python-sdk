@@ -489,10 +489,10 @@ class AASDataChecker(DataChecker):
 
     def _find_reference(self, object_: model.Reference, search_list: Iterable) -> Union[model.Reference, None]:
         """
-        Find a reference in an list
+        Find a reference in a list
 
-        :param object_: Given reference which should be find in list
-        :param search_list: List in which the given reference should be find
+        :param object_: Given reference which should be found in list
+        :param search_list: List in which the given reference should be found
         :return: the searched reference if found else none
         """
         for element in search_list:
@@ -503,10 +503,10 @@ class AASDataChecker(DataChecker):
     def _find_specific_asset_id(self, object_: model.SpecificAssetId, search_list: Iterable) \
             -> Union[model.SpecificAssetId, None]:
         """
-        Find a SpecificAssetId in an list
+        Find a SpecificAssetId in a list
 
-        :param object_: Given SpecificAssetId which should be find in list
-        :param search_list: List in which the given SpecificAssetId should be find
+        :param object_: Given SpecificAssetId which should be found in list
+        :param search_list: List in which the given SpecificAssetId should be found
         :return: the searched SpecificAssetId if found else none
         """
         for element in search_list:
@@ -516,10 +516,10 @@ class AASDataChecker(DataChecker):
 
     def _find_element_by_attribute(self, object_: object, search_list: Iterable, *attribute: str) -> object:
         """
-        Find an element in an list
+        Find an element in a list
 
-        :param object_: Given object which should be find in list
-        :param search_list: List in which the given object should be find
+        :param object_: Given object which should be found in list
+        :param search_list: List in which the given object should be found
         :param attribute: List of attributes on which the comparison should be done
         :return:
         """
@@ -536,11 +536,11 @@ class AASDataChecker(DataChecker):
     def _find_extra_object(self, object_list: Iterable, search_list: Iterable,
                            type_) -> Union[Set, None]:
         """
-        Find extra object that are in object_list but noch in search_list
+        Find extra objects that are in object_list but still in search_list
 
         :param object_list: List which could contain more objects than the search_list has
         :param search_list: List which should be searched
-        :param type_: type of objects which should be find
+        :param type_: type of objects which should be found
         :return: Set of objects that are in object_list but not in search_list
         """
         found_elements = set()
@@ -666,7 +666,7 @@ class AASDataChecker(DataChecker):
 
         found_elements = self._find_extra_namespace_set_elements_by_id_short(object_.statement,
                                                                              expected_value.statement)
-        self.check(found_elements == set(), f'Enity {repr(object_)} must not have extra statements',
+        self.check(found_elements == set(), f'Entity {repr(object_)} must not have extra statements',
                    value=found_elements)
 
     def _check_specific_asset_ids_equal(self, object_: Iterable[model.SpecificAssetId],
@@ -1003,7 +1003,7 @@ class AASDataChecker(DataChecker):
         Checks if ``object_`` exist in ``parent`` and adds / stores the check result for later analysis.
 
         :param object_: The object which shall be in parent
-        :param parent: The parent in which ``object_`` shall be exist
+        :param parent: The parent in which ``object_`` shall exist
         :param kwargs: Relevant values to add to the check result for further analysis (e.g. the compared values)
         :return: The value of expression to be used in control statements
         """
@@ -1014,7 +1014,7 @@ class AASDataChecker(DataChecker):
     def check_contained_element_length(self, object_: object, attribute_name: str, class_name: Type,
                                        length: int, **kwargs) -> bool:
         """
-        Checks if the ``object_`` has ``lenght`` elements of class ``class_name`` in attribute ``attribute_name`` and
+        Checks if the ``object_`` has ``length`` elements of class ``class_name`` in attribute ``attribute_name`` and
         adds / stores the check result for later analysis.
 
         :param object_: The object of which the attribute shall be checked

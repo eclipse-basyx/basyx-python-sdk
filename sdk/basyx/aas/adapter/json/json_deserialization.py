@@ -12,8 +12,8 @@ Module for deserializing Asset Administration Shell data from the official JSON 
 The module provides custom JSONDecoder classes :class:`~.AASFromJsonDecoder` and :class:`~.StrictAASFromJsonDecoder` to
 be used with the Python standard :mod:`json` module.
 
-Furthermore it provides two classes :class:`~basyx.aas.adapter.json.json_deserialization.StrippedAASFromJsonDecoder` and
-:class:`~basyx.aas.adapter.json.json_deserialization.StrictStrippedAASFromJsonDecoder` for parsing stripped
+Furthermore, it provides two classes :class:`~basyx.aas.adapter.json.json_deserialization.StrippedAASFromJsonDecoder`
+and :class:`~basyx.aas.adapter.json.json_deserialization.StrictStrippedAASFromJsonDecoder` for parsing stripped
 JSON objects, which are used in the http adapter (see https://git.rwth-aachen.de/acplt/pyi40aas/-/issues/91).
 The classes contain a custom :meth:`~basyx.aas.adapter.json.json_deserialization.AASFromJsonDecoder.object_hook`
 function to detect encoded AAS objects within the JSON data and convert them to BaSyx Python SDK objects while parsing.
@@ -83,12 +83,12 @@ def _expect_type(object_: object, type_: Type, context: str, failsafe: bool) -> 
       if _expect_type(element, model.SubmodelElement, str(submodel), failsafe):
           submodel.submodel_element.add(element)
 
-    :param object_: The object to by type-checked
+    :param object_: The object to be type-checked
     :param type_: The expected type
     :param context: A string to add to the exception message / log message, that describes the context in that the
                     object has been found
     :param failsafe: Log error and return false instead of raising a TypeError
-    :return: True if the
+    :return: True if the object is of the expected type
     :raises TypeError: If the object is not of the expected type and the failsafe mode is not active
     """
     if isinstance(object_, type_):
@@ -226,7 +226,7 @@ class AASFromJsonDecoder(json.JSONDecoder):
     @classmethod
     def _amend_abstract_attributes(cls, obj: object, dct: Dict[str, object]) -> None:
         """
-        Utility method to add the optional attributes of the abstract meta classes Referable, Identifiable,
+        Utility method to add the optional attributes of the abstract metaclasses Referable, Identifiable,
         HasSemantics, HasKind and Qualifiable to an object inheriting from any of these classes, if present
 
         :param obj: The object to amend its attributes
@@ -414,7 +414,7 @@ class AASFromJsonDecoder(json.JSONDecoder):
     # Direct Constructor Methods (for classes with `modelType`) starting from here
     # #############################################################################
 
-    # These constructor methods create objects that *are* identified by a 'modelType' JSON attribute, so they can be
+    # These constructor methods create objects that *are* identified by a 'modelType' JSON attribute, so they can
     # be called from the object_hook() method directly.
 
     @classmethod
@@ -613,8 +613,6 @@ class AASFromJsonDecoder(json.JSONDecoder):
     @classmethod
     def _construct_relationship_element(
             cls, dct: Dict[str, object], object_class=model.RelationshipElement) -> model.RelationshipElement:
-        # TODO: remove the following type: ignore comments when mypy supports abstract types for Type[T]
-        # see https://github.com/python/mypy/issues/5374
         ret = object_class(id_short=None,
                            first=cls._construct_reference(_get_ts(dct, 'first', dict)),
                            second=cls._construct_reference(_get_ts(dct, 'second', dict)))
@@ -625,8 +623,6 @@ class AASFromJsonDecoder(json.JSONDecoder):
     def _construct_annotated_relationship_element(
             cls, dct: Dict[str, object], object_class=model.AnnotatedRelationshipElement)\
             -> model.AnnotatedRelationshipElement:
-        # TODO: remove the following type: ignore comments when mypy supports abstract types for Type[T]
-        # see https://github.com/python/mypy/issues/5374
         ret = object_class(
             id_short=None,
             first=cls._construct_reference(_get_ts(dct, 'first', dict)),
