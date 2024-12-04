@@ -402,6 +402,8 @@ class AASXWriter:
         concept_descriptions: List[model.ConceptDescription] = []
         for identifiable in objects_to_be_written:
             for semantic_id in traversal.walk_semantic_ids_recursive(identifiable):
+                if isinstance(semantic_id, model.ExternalReference):
+                    continue
                 if not isinstance(semantic_id, model.ModelReference) \
                         or semantic_id.type is not model.ConceptDescription:
                     logger.info("semanticId %s does not reference a ConceptDescription.", str(semantic_id))
