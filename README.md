@@ -29,7 +29,8 @@ The `compliance_tool` is to be determined.
 * [Server](./server/README.md): Docker Image of a specification compliant HTTP Server implementing the interfaces:
   * Asset Administration Shell Repository
   * Submodel Repository
-* Compliance Tool (tbd)
+* [Compliance Tool](./compliance_tool/README.md): A command-line tool for checking compliance of JSON and XML files
+  to the specification of the AAS
 
 ## License
 
