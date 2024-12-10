@@ -1,0 +1,27 @@
+# Python caching
+**/__pycache__/
+*.pyc
+/.mypy_cache/
+
+# Typical virtualenv dir
+/venv/
+
+# IDE settings
+/.idea/
+
+# Python distribution artifacts
+/build/
+/dist/
+/*.egg-info/
+/docs/build/
+
+# Coverage artifacts
+/.coverage
+/htmlcov/
+/docs/build/
+
+# customized config files
+/test/test_config.ini
+
+# Do not ship the dynamicylly packaged aasx files in the `test/files`
+/test/files/*.aasx
