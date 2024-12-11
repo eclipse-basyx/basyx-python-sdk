@@ -22,8 +22,11 @@ jobs:
         python -m pip install --upgrade pip
         pip install build
     - name: Create source and wheel dist
+      # (2024-12-11, s-heppner)
+      # The PyPI Action expects the dist files in a toplevel `/dist` directory,
+      # so we have to specify this as output directory here.
       run: |
-        python -m build
+        python -m build --outdir ../dist
     - name: Publish distribution to PyPI
       uses: pypa/gh-action-pypi-publish@release/v1
       with:
