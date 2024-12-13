@@ -185,7 +185,7 @@ jobs:
       run: |
         python -m build
 
-  sdk-check-copyright:
+  repository-check-copyright:
     # This job checks that the copyright year in the header of all files is up to date
     runs-on: ubuntu-latest
     steps:
