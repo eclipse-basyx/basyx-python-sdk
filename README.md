@@ -24,12 +24,15 @@ The `compliance_tool` is to be determined.
   * Modelling of AASs as Python objects
   * Reading and writing of AASX package files
   * (De-)serialization of AAS objects into/from JSON and XML
+  * Experimental serialization to RDF (see branch [Experimental/Adapter/RDF](https://github.com/eclipse-basyx/basyx-python-sdk/tree/Experimental/Adapter/RDF/basyx/aas/adapter/rdf)).
+    Please refer to discussion of PR [#308](https://github.com/eclipse-basyx/basyx-python-sdk/pull/308) for the reasoning behind keeping this feature experimental. 
   * Storing of AAS objects in CouchDB, Backend infrastructure for easy expansion 
   * Compliance checking of AAS XML and JSON files
 * [Server](./server/README.md): Docker Image of a specification compliant HTTP Server implementing the interfaces:
   * Asset Administration Shell Repository
   * Submodel Repository
-* Compliance Tool (tbd)
+* [Compliance Tool](./compliance_tool/README.md): A command-line tool for checking compliance of JSON and XML files
+  to the specification of the AAS
 
 ## License
 
