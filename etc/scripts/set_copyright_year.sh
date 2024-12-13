@@ -11,7 +11,7 @@
 # notice (in case the first line is a shebang).
 #
 # Run this script with --check to have it raise an error if it
-# change anything.
+# would change anything.
 
 
 # Set CHECK_MODE based on whether --check is passed
