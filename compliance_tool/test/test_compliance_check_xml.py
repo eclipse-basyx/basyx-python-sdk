@@ -7,8 +7,8 @@
 import os
 import unittest
 
-from compliance_tool.aas_compliance_tool import compliance_check_xml as compliance_tool
-from compliance_tool.aas_compliance_tool.state_manager import ComplianceToolStateManager, Status
+from aas_compliance_tool import compliance_check_xml as compliance_tool
+from aas_compliance_tool.state_manager import ComplianceToolStateManager, Status
 
 
 class ComplianceToolXmlTest(unittest.TestCase):

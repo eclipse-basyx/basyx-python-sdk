@@ -7,7 +7,7 @@
 import logging
 import unittest
 
-from compliance_tool.aas_compliance_tool.state_manager import ComplianceToolStateManager, Status
+from aas_compliance_tool.state_manager import ComplianceToolStateManager, Status
 from basyx.aas.examples.data._helper import DataChecker
 
 

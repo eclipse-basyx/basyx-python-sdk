@@ -13,8 +13,6 @@ import unittest
 import io
 
 import tempfile
-
-import compliance_tool
 from basyx.aas import model
 from basyx.aas.adapter import aasx
 from basyx.aas.adapter.json import read_aas_json_file
