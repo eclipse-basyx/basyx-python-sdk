@@ -28,6 +28,11 @@ def _run_compliance_tool(*compliance_tool_args, **kwargs) -> subprocess.Complete
     Positional arguments are passed to the compliance tool, while keyword arguments are passed to subprocess.run().
     """
     env = os.environ.copy()
+    parent_dir = os.path.join(
+        os.path.dirname(os.path.dirname(__file__)),
+        'aas_compliance_tool'
+    )
+    env["PYTHONPATH"] = parent_dir + os.pathsep + env.get("PYTHONPATH", "")
     compliance_tool_path = os.path.join(
         os.path.dirname(os.path.dirname(__file__)),
         'aas_compliance_tool',
