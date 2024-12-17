@@ -20,7 +20,7 @@ from basyx.aas import (model)
 from basyx.aas.adapter.json import json_deserialization
 from basyx.aas.examples.data import example_aas, create_example
 from basyx.aas.examples.data._helper import AASDataChecker
-from .state_manager import ComplianceToolStateManager, Status
+from aas_compliance_tool.state_manager import ComplianceToolStateManager, Status
 
 
 JSON_SCHEMA_FILE = os.path.join(os.path.dirname(__file__), 'schemas/aasJSONSchema.json')
