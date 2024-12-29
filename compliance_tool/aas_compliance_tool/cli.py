@@ -71,7 +71,7 @@ def parse_cli_arguments() -> argparse.ArgumentParser:
                              'f or file_compare: checks if two given files contain the same aas elements in any order')
     parser.add_argument('file_1', help="path to file 1")
     parser.add_argument('file_2', nargs='?', default=None, help="path to file 2: is required if action f or files is "
-                                                                "choosen")
+                                                                "chosen")
     parser.add_argument('-v', '--verbose', help="Print detailed information for each check. Multiple -v options "
                                                 "increase the verbosity. 1: Detailed error information, 2: Additional "
                                                 "detailed success information", action='count', default=0)
