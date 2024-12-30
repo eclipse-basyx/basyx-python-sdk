@@ -205,9 +205,9 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
     - name: Install Python dependencies
+      # since the sdks dependencies are currently a superset of compliance-tools this is sufficient.
       run: |
         python -m pip install --upgrade pip
-      # since the sdks dependencies are currently a superset of compliance-tools this is sufficient.
         pip install ../sdk[dev]
     - name: Test with coverage + unittest
       run: |
@@ -231,9 +231,9 @@ jobs:
       with:
         python-version: ${{ env.X_PYTHON_VERSION }}
     - name: Install Python dependencies
+      # since the sdks dependencies are currently a superset of compliance-tools this is sufficient.
       run: |
         python -m pip install --upgrade pip
-      # since the sdks dependencies are currently a superset of compliance-tools this is sufficient.
         pip install ../sdk[dev]
     - name: Check typing with MyPy
       run: |
@@ -256,9 +256,9 @@ jobs:
       with:
         python-version: ${{ env.X_PYTHON_VERSION }}
     - name: Install Python dependencies
+      # since the sdks dependencies are currently a superset of compliance-tools this is sufficient.
       run: |
         python -m pip install --upgrade pip
-      # since the sdks dependencies are currently a superset of compliance-tools this is sufficient.
         pip install ../sdk[dev]
     - name: Check typing with MyPy
       run: |
