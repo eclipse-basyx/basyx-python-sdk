@@ -29,12 +29,14 @@ jobs:
             ${{ env.X_PYTHON_MIN_VERSION }} \
             ${{ env.X_PYTHON_MAX_VERSION }}
 
-      - name: Check Python Versions coincide with the SDKs pyproject.toml
+      - name: Check Python Versions coincide with all pyproject.toml Files
         run: |
-          python check_python_versions_coincide.py \
-            ../../sdk/pyproject.toml \
-            ${{ env.X_PYTHON_MIN_VERSION }} \
-            ${{ env.X_PYTHON_MAX_VERSION }}
+          for file in ../../sdk/pyproject.toml ../../compliance_tool/pyproject.toml; do
+            python check_python_versions_coincide.py \
+              $file \
+              ${{ env.X_PYTHON_MIN_VERSION }} \
+              ${{ env.X_PYTHON_MAX_VERSION }}
+          done
 
       # Todo: Check other pyproject.toml here as well, as we add them
 
