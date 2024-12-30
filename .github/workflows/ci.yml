@@ -14,9 +14,9 @@ jobs:
       run:
         working-directory: ./etc/scripts
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: Set up Python ${{ env.X_PYTHON_MIN_VERSION }}
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v5
         with:
           python-version: ${{ env.X_PYTHON_MIN_VERSION }}
       - name: Install Python dependencies
@@ -74,7 +74,7 @@ jobs:
           exit 1
         fi
     - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
         python-version: ${{ matrix.python-version }}
     - name: Collect schema files from aas-specs
@@ -106,7 +106,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Set up Python ${{ env.X_PYTHON_MIN_VERSION }}
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v5
       with:
         python-version: ${{ env.X_PYTHON_MIN_VERSION }}
     - name: Install Python dependencies
@@ -129,7 +129,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Set up Python ${{ env.X_PYTHON_MIN_VERSION }}
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v5
       with:
         python-version: ${{ env.X_PYTHON_MIN_VERSION }}
     - name: Install Python dependencies
@@ -155,7 +155,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Set up Python ${{ env.X_PYTHON_MIN_VERSION }}
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v5
       with:
         python-version: ${{ env.X_PYTHON_MIN_VERSION }}
     - name: Install Python dependencies
@@ -176,7 +176,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Set up Python ${{ env.X_PYTHON_MIN_VERSION }}
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v5
       with:
         python-version: ${{ env.X_PYTHON_MIN_VERSION }}
     - name: Install dependencies
@@ -199,16 +199,16 @@ jobs:
         working-directory: ./compliance_tool
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
     - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v5
       with:
         python-version: ${{ matrix.python-version }}
     - name: Install Python dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install coverage
-        pip install -r requirements.txt
+      # since the sdks dependencies are currently a superset of compliance-tools this is sufficient.
+        pip install ../sdk[dev]
     - name: Test with coverage + unittest
       run: |
         coverage run --source=aas_compliance_tool -m unittest
@@ -225,16 +225,16 @@ jobs:
       run:
         working-directory: ./compliance_tool
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
     - name: Set up Python ${{ env.X_PYTHON_VERSION }}
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v5
       with:
         python-version: ${{ env.X_PYTHON_VERSION }}
     - name: Install Python dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install pycodestyle mypy
-        pip install -r requirements.txt
+      # since the sdks dependencies are currently a superset of compliance-tools this is sufficient.
+        pip install ../sdk[dev]
     - name: Check typing with MyPy
       run: |
         mypy ./aas_compliance_tool test
@@ -250,16 +250,16 @@ jobs:
       run:
         working-directory: ./compliance_tool
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
     - name: Set up Python ${{ env.X_PYTHON_VERSION }}
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v5
       with:
         python-version: ${{ env.X_PYTHON_VERSION }}
     - name: Install Python dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install pycodestyle mypy codeblocks
-        pip install -r requirements.txt
+      # since the sdks dependencies are currently a superset of compliance-tools this is sufficient.
+        pip install ../sdk[dev]
     - name: Check typing with MyPy
       run: |
         mypy <(codeblocks python README.md)
@@ -278,9 +278,9 @@ jobs:
       run:
         working-directory: ./compliance_tool
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
     - name: Set up Python ${{ env.X_PYTHON_VERSION }}
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v5
       with:
         python-version: ${{ env.X_PYTHON_VERSION }}
     - name: Install dependencies
