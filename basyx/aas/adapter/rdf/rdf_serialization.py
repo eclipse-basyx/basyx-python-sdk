@@ -28,7 +28,7 @@ from rdflib.namespace import OWL, RDF, Namespace, XSD
 from basyx.aas import model
 from .. import _generic
 
-NS_AAS = _generic.XML_NS_MAP["aas"]
+NS_AAS = _generic.XML_NS_MAP["aas"]+"/"
 
 
 class AASToRDFEncoder():
