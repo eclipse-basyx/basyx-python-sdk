@@ -205,10 +205,11 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
     - name: Install Python dependencies
-      # since the sdks dependencies are currently a superset of compliance-tools this is sufficient.
+      # install the local sdk in editable mode so it does not get overwritten
       run: |
         python -m pip install --upgrade pip
-        pip install ../sdk[dev]
+        pip install -e ../sdk[dev]
+        pip install .[dev]
     - name: Test with coverage + unittest
       run: |
         coverage run --source=aas_compliance_tool -m unittest
@@ -231,10 +232,11 @@ jobs:
       with:
         python-version: ${{ env.X_PYTHON_VERSION }}
     - name: Install Python dependencies
-      # since the sdks dependencies are currently a superset of compliance-tools this is sufficient.
+      # install the local sdk in editable mode so it does not get overwritten
       run: |
         python -m pip install --upgrade pip
-        pip install ../sdk[dev]
+        pip install -e ../sdk[dev]
+        pip install .[dev]
     - name: Check typing with MyPy
       run: |
         mypy ./aas_compliance_tool test
@@ -256,10 +258,11 @@ jobs:
       with:
         python-version: ${{ env.X_PYTHON_VERSION }}
     - name: Install Python dependencies
-      # since the sdks dependencies are currently a superset of compliance-tools this is sufficient.
+      # install the local sdk in editable mode so it does not get overwritten
       run: |
         python -m pip install --upgrade pip
-        pip install ../sdk[dev]
+        pip install -e ../sdk[dev]
+        pip install .[dev]
     - name: Check typing with MyPy
       run: |
         mypy <(codeblocks python README.md)

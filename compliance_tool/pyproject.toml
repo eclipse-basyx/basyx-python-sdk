@@ -48,6 +48,9 @@ dev = [
     "codeblocks",
     "coverage",
 ]
+# if you want local changes to the sdk to affect the compliance-tool first install
+# only this with pip install .[local-sdk] --no-deps then install the other requirements
+local-sdk = ["-e ../sdk"]
 
 [project.urls]
 "Homepage" = "https://github.com/eclipse-basyx/basyx-python-sdk"
