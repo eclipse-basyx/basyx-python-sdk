@@ -185,6 +185,110 @@ jobs:
       run: |
         python -m build
 
+
+  compliance-tool-test:
+    # This job runs the unittests on the python versions specified down at the matrix
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.9", "3.12"]
+    defaults:
+      run:
+        working-directory: ./compliance_tool
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Install Python dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install coverage
+        pip install -r requirements.txt
+    - name: Test with coverage + unittest
+      run: |
+        coverage run --source=aas_compliance_tool -m unittest
+    - name: Report test coverage
+      if: ${{ always() }}
+      run: |
+        coverage report -m
+
+  compliance-tool-static-analysis:
+    # This job runs static code analysis, namely pycodestyle and mypy
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: ./compliance_tool
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python ${{ env.X_PYTHON_MIN_VERSION }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ env.X_PYTHON_MIN_VERSION }}
+    - name: Install Python dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install pycodestyle mypy
+        pip install -r requirements.txt
+    - name: Check typing with MyPy
+      run: |
+        mypy ./aas_compliance_tool test
+    - name: Check code style with PyCodestyle
+      run: |
+        pycodestyle --count --max-line-length 120 ./aas_compliance_tool test
+
+  compliance-tool-readme-codeblocks:
+    # This job runs the same static code analysis (mypy and pycodestyle) on the codeblocks in our docstrings.
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: ./compliance_tool
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python ${{ env.X_PYTHON_MIN_VERSION }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ env.X_PYTHON_MIN_VERSION }}
+    - name: Install Python dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install pycodestyle mypy codeblocks
+        pip install -r requirements.txt
+    - name: Check typing with MyPy
+      run: |
+        mypy <(codeblocks python README.md)
+    - name: Check code style with PyCodestyle
+      run: |
+        codeblocks --wrap python README.md | pycodestyle --count --max-line-length 120 -
+    - name: Run readme codeblocks with Python
+      run: |
+        codeblocks python README.md | python
+
+  compliance-tool-package:
+    # This job checks if we can build our compliance_tool package
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: ./compliance_tool
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python ${{ env.X_PYTHON_MIN_VERSION }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ env.X_PYTHON_MIN_VERSION }}
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install setuptools wheel
+    - name: Create source and wheel dist
+      run: |
+        python setup.py sdist bdist_wheel
+
   server-package:
     # This job checks if we can build our server package
     runs-on: ubuntu-latest
@@ -212,3 +316,4 @@ jobs:
       - name: Stop and remove the container
         run: |
           docker stop basyx-python-server && docker rm basyx-python-server
+
