@@ -410,10 +410,11 @@ class AASXWriter:
                 try:
                     cd = semantic_id.resolve(object_store)
                 except KeyError:
-                    logger.warning("ConceptDescription for semanticId %s not found in object store.", str(semantic_id))
+                    logger.warning("ConceptDescription for semanticId %s not found in object store. Skipping it.",
+                                   str(semantic_id))
                     continue
                 except model.UnexpectedTypeError as e:
-                    logger.error("semanticId %s resolves to %s, which is not a ConceptDescription",
+                    logger.error("semanticId %s resolves to %s, which is not a ConceptDescription. Skipping it.",
                                  str(semantic_id), e.value)
                     continue
                 concept_descriptions.append(cd)

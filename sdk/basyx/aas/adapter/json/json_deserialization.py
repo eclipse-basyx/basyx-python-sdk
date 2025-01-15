@@ -347,6 +347,7 @@ class AASFromJsonDecoder(json.JSONDecoder):
         # Infer type the model refence points to using `last_key_type` instead of `type_`.
         # `type_` is often a `model.Referable`, which is more abstract than e.g. a `model.ConceptDescription`,
         # leading to information loss while deserializing.
+        # TODO Remove this fix, when this function is called with correct `type_`
         return object_class(tuple(keys), last_key_type,
                             cls._construct_reference(_get_ts(dct, 'referredSemanticId', dict))
                             if 'referredSemanticId' in dct else None)
