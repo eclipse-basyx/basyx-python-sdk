@@ -193,7 +193,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.8", "3.10", "3.12"]
+        python-version: ["3.9", "3.12"]
     defaults:
       run:
         working-directory: ./compliance_tool
@@ -227,10 +227,10 @@ jobs:
         working-directory: ./compliance_tool
     steps:
     - uses: actions/checkout@v4
-    - name: Set up Python ${{ env.X_PYTHON_VERSION }}
+    - name: Set up Python ${{ env.X_PYTHON_MIN_VERSION }}
       uses: actions/setup-python@v5
       with:
-        python-version: ${{ env.X_PYTHON_VERSION }}
+        python-version: ${{ env.X_PYTHON_MIN_VERSION }}
     - name: Install Python dependencies
       # install the local sdk in editable mode so it does not get overwritten
       run: |
@@ -253,10 +253,10 @@ jobs:
         working-directory: ./compliance_tool
     steps:
     - uses: actions/checkout@v4
-    - name: Set up Python ${{ env.X_PYTHON_VERSION }}
+    - name: Set up Python ${{ env.X_PYTHON_MIN_VERSION }}
       uses: actions/setup-python@v5
       with:
-        python-version: ${{ env.X_PYTHON_VERSION }}
+        python-version: ${{ env.X_PYTHON_MIN_VERSION }}
     - name: Install Python dependencies
       # install the local sdk in editable mode so it does not get overwritten
       run: |
@@ -282,10 +282,10 @@ jobs:
         working-directory: ./compliance_tool
     steps:
     - uses: actions/checkout@v4
-    - name: Set up Python ${{ env.X_PYTHON_VERSION }}
+    - name: Set up Python ${{ env.X_PYTHON_MIN_VERSION }}
       uses: actions/setup-python@v5
       with:
-        python-version: ${{ env.X_PYTHON_VERSION }}
+        python-version: ${{ env.X_PYTHON_MIN_VERSION }}
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
