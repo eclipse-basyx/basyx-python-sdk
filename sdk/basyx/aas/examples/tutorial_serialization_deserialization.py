@@ -9,8 +9,8 @@ and XML files.
 import json
 
 from basyx.aas import model
-import basyx.aas.adapter.json
 import basyx.aas.adapter.xml
+import basyx.aas.adapter.json
 
 # 'Details of the Asset Administration Shell' specifies multiple official serialization formats for AAS data. In this
 # tutorial, we show how the Eclipse BaSyx Python library can be used to serialize AAS objects into JSON or XML and to
@@ -58,7 +58,6 @@ aashell = model.AssetAdministrationShell(
 
 # Before serializing the data, we should make sure, it's up-to-date. This is irrelevant for the static AAS objects in
 # this tutorial, but may be important when dealing with dynamic data.
-# See `tutorial_dynamic_model.py` for more information on that topic.
 aashell.update()
 
 # `AASToJsonEncoder` from the `aas.adapter.json` module is a custom JSONEncoder class for serializing
@@ -133,6 +132,6 @@ xml_file_data = basyx.aas.adapter.xml.read_aas_xml_file('data.xml')
 # Again, we can use `failsafe=False` for switching on stricter error reporting in the parser.
 
 # step 5.3: Retrieving the objects from the ObjectStore
-# For more information on the availiable techniques, see `tutorial_storage.py`.
+# For more information on the available techniques, see `tutorial_storage.py`.
 submodel_from_xml = xml_file_data.get_identifiable('https://acplt.org/Simple_Submodel')
 assert isinstance(submodel_from_xml, model.Submodel)

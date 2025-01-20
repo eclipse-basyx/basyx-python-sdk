@@ -206,7 +206,7 @@ def create_example_empty_asset_administration_shell() -> model.AssetAdministrati
 
 
 ##############################################################################
-# check functions for checking if an given object is the same as the example #
+# check functions for checking if a given object is the same as the example #
 ##############################################################################
 def check_example_concept_description(checker: AASDataChecker, concept_description: model.ConceptDescription) -> None:
     expected_concept_description = create_example_concept_description()

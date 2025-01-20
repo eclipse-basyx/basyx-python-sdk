@@ -1,0 +1,2 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Target="/aasx/aasx-origin" Id="r1" Type="http://admin-shell.io/aasx/relationships/aasx-origin" TargetMode="Internal"></Relationship><Relationship Target="/docProps/core.xml" Id="r2" Type="http://schemas.openxmlformats.org/package/2006/relationships/metadata/core-properties" TargetMode="Internal"></Relationship></Relationships>

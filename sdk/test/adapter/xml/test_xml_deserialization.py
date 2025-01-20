@@ -200,8 +200,6 @@ class XmlDeserializationTest(unittest.TestCase):
         self._assertInExceptionAndLog(xml, ["aas:qualifier", "has no child aas:type"], KeyError, logging.ERROR)
 
     def test_operation_variable_no_submodel_element(self) -> None:
-        # TODO: simplify this should our suggestion regarding the XML schema get accepted
-        # https://git.rwth-aachen.de/acplt/pyi40aas/-/issues/57
         xml = _xml_wrap("""
         <aas:submodels>
             <aas:submodel>
@@ -222,8 +220,6 @@ class XmlDeserializationTest(unittest.TestCase):
         self._assertInExceptionAndLog(xml, ["aas:value", "has no submodel element"], KeyError, logging.ERROR)
 
     def test_operation_variable_too_many_submodel_elements(self) -> None:
-        # TODO: simplify this should our suggestion regarding the XML schema get accepted
-        # https://git.rwth-aachen.de/acplt/pyi40aas/-/issues/57
         xml = _xml_wrap("""
         <aas:submodels>
             <aas:submodel>

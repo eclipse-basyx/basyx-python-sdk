@@ -208,7 +208,7 @@ def _get_text_or_none(element: Optional[etree._Element]) -> Optional[str]:
     A helper function for getting the text of an element, when it's not clear whether the element exists or not.
 
     This function is useful whenever the text of an optional child element is needed.
-    Then the text can be get with: text = _get_text_or_none(element.find("childElement")
+    Then the text can be gotten with: text = _get_text_or_none(element.find("childElement")
     element.find() returns either the element or None, if it doesn't exist. This is why this function accepts
     an optional element, to reduce the amount of code in the constructor functions below.
 
@@ -217,6 +217,21 @@ def _get_text_or_none(element: Optional[etree._Element]) -> Optional[str]:
              None otherwise.
     """
     return element.text if element is not None else None
+
+
+def _get_text_or_empty_string_or_none(element: Optional[etree._Element]) -> Optional[str]:
+    """
+    Returns element.text or "" if the element has no text
+    or None, if the element is None.
+
+    :param element: The xml element or None.
+    :return: The text of the xml element if the xml element is not None and if the xml element has a text.
+             Empty string if the xml element has no text.
+             None otherwise.
+    """
+    if element is None:
+        return None
+    return element.text if element.text is not None else ""
 
 
 def _get_text_mapped_or_none(element: Optional[etree._Element], dct: Dict[str, T]) -> Optional[T]:
@@ -274,7 +289,7 @@ def _failsafe_construct(element: Optional[etree._Element], constructor: Callable
     This is the only function of this module where exceptions are caught.
     This is why constructor functions should (in almost all cases) call other constructor functions using this function,
     so errors can be caught and logged in failsafe mode.
-    The functions accepts None as a valid value for element for the same reason _get_text_or_none() does, so it can be
+    The function accepts None as a valid value for element for the same reason _get_text_or_none() does, so it can be
     called like _failsafe_construct(element.find("childElement"), ...), since element.find() can return None.
     This function will also return None in this case.
 
@@ -423,7 +438,7 @@ class AASFromXmlDecoder:
 
     It parses XML documents in a failsafe manner, meaning any errors encountered will be logged and invalid XML elements
     will be skipped.
-    Most member functions support the ``object_class`` parameter. It was introduced so they can be overwritten
+    Most member functions support the ``object_class`` parameter. It was introduced, so they can be overwritten
     in subclasses, which allows constructing instances of subtypes.
     """
     failsafe = True
@@ -677,7 +692,7 @@ class AASFromXmlDecoder:
         kind = _get_text_mapped_or_none(element.find(NS_AAS + "kind"), QUALIFIER_KIND_INVERSE)
         if kind is not None:
             qualifier.kind = kind
-        value = _get_text_or_none(element.find(NS_AAS + "value"))
+        value = _get_text_or_empty_string_or_none(element.find(NS_AAS + "value"))
         if value is not None:
             qualifier.value = model.datatypes.from_xsd(value, qualifier.value_type)
         value_id = _failsafe_construct(element.find(NS_AAS + "valueId"), cls.construct_reference, cls.failsafe)
@@ -694,7 +709,7 @@ class AASFromXmlDecoder:
         value_type = _get_text_or_none(element.find(NS_AAS + "valueType"))
         if value_type is not None:
             extension.value_type = model.datatypes.XSD_TYPE_CLASSES[value_type]
-        value = _get_text_or_none(element.find(NS_AAS + "value"))
+        value = _get_text_or_empty_string_or_none(element.find(NS_AAS + "value"))
         if value is not None:
             extension.value = model.datatypes.from_xsd(value, extension.value_type)
         refers_to = element.find(NS_AAS + "refersTo")
@@ -807,9 +822,9 @@ class AASFromXmlDecoder:
     @classmethod
     def construct_entity(cls, element: etree._Element, object_class=model.Entity, **_kwargs: Any) -> model.Entity:
         specific_asset_id = set()
-        specific_assset_ids = element.find(NS_AAS + "specificAssetIds")
-        if specific_assset_ids is not None:
-            for id in _child_construct_multiple(specific_assset_ids, NS_AAS + "specificAssetId",
+        specific_asset_ids = element.find(NS_AAS + "specificAssetIds")
+        if specific_asset_ids is not None:
+            for id in _child_construct_multiple(specific_asset_ids, NS_AAS + "specificAssetId",
                                                 cls.construct_specific_asset_id, cls.failsafe):
                 specific_asset_id.add(id)
 
@@ -886,7 +901,7 @@ class AASFromXmlDecoder:
             None,
             value_type=_child_text_mandatory_mapped(element, NS_AAS + "valueType", model.datatypes.XSD_TYPE_CLASSES)
         )
-        value = _get_text_or_none(element.find(NS_AAS + "value"))
+        value = _get_text_or_empty_string_or_none(element.find(NS_AAS + "value"))
         if value is not None:
             property_.value = model.datatypes.from_xsd(value, property_.value_type)
         value_id = _failsafe_construct(element.find(NS_AAS + "valueId"), cls.construct_reference, cls.failsafe)
@@ -901,10 +916,10 @@ class AASFromXmlDecoder:
             None,
             value_type=_child_text_mandatory_mapped(element, NS_AAS + "valueType", model.datatypes.XSD_TYPE_CLASSES)
         )
-        max_ = _get_text_or_none(element.find(NS_AAS + "max"))
+        max_ = _get_text_or_empty_string_or_none(element.find(NS_AAS + "max"))
         if max_ is not None:
             range_.max = model.datatypes.from_xsd(max_, range_.value_type)
-        min_ = _get_text_or_none(element.find(NS_AAS + "min"))
+        min_ = _get_text_or_empty_string_or_none(element.find(NS_AAS + "min"))
         if min_ is not None:
             range_.min = model.datatypes.from_xsd(min_, range_.value_type)
         cls._amend_abstract_attributes(range_, element)
@@ -1002,9 +1017,9 @@ class AASFromXmlDecoder:
     def construct_asset_information(cls, element: etree._Element, object_class=model.AssetInformation, **_kwargs: Any) \
             -> model.AssetInformation:
         specific_asset_id = set()
-        specific_assset_ids = element.find(NS_AAS + "specificAssetIds")
-        if specific_assset_ids is not None:
-            for id in _child_construct_multiple(specific_assset_ids, NS_AAS + "specificAssetId",
+        specific_asset_ids = element.find(NS_AAS + "specificAssetIds")
+        if specific_asset_ids is not None:
+            for id in _child_construct_multiple(specific_asset_ids, NS_AAS + "specificAssetId",
                                                 cls.construct_specific_asset_id, cls.failsafe):
                 specific_asset_id.add(id)
 
@@ -1119,9 +1134,9 @@ class AASFromXmlDecoder:
         unit_id = _failsafe_construct(element.find(NS_AAS + "unitId"), cls.construct_reference, cls.failsafe)
         if unit_id is not None:
             ds_iec.unit_id = unit_id
-        source_of_definiion = _get_text_or_none(element.find(NS_AAS + "sourceOfDefinition"))
-        if source_of_definiion is not None:
-            ds_iec.source_of_definition = source_of_definiion
+        source_of_definition = _get_text_or_none(element.find(NS_AAS + "sourceOfDefinition"))
+        if source_of_definition is not None:
+            ds_iec.source_of_definition = source_of_definition
         symbol = _get_text_or_none(element.find(NS_AAS + "symbol"))
         if symbol is not None:
             ds_iec.symbol = symbol
