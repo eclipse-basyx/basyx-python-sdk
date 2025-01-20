@@ -80,7 +80,8 @@ class Message:
         self.code: str = code
         self.text: str = text
         self.message_type: MessageType = message_type
-        self.timestamp: datetime.datetime = timestamp if timestamp is not None else datetime.datetime.now(datetime.UTC)
+        self.timestamp: datetime.datetime = timestamp if timestamp is not None \
+            else datetime.datetime.now(datetime.timezone.utc)
 
 
 class Result:
@@ -719,9 +720,7 @@ class WSGIApp:
 
         try:
             endpoint, values = map_adapter.match()
-            # TODO: remove this 'type: ignore' comment once the werkzeug type annotations have been fixed
-            #  https://github.com/pallets/werkzeug/issues/2836
-            return endpoint(request, values, response_t=response_t, map_adapter=map_adapter)  # type: ignore[operator]
+            return endpoint(request, values, response_t=response_t, map_adapter=map_adapter)
 
         # any raised error that leaves this function will cause a 500 internal server error
         # so catch raised http exceptions and return them
@@ -834,7 +833,8 @@ class WSGIApp:
         aas.submodel.remove(sm_ref)
         return response_t()
 
-    def aas_submodel_refs_redirect(self, request: Request, url_args: Dict, map_adapter: MapAdapter) -> Response:
+    def aas_submodel_refs_redirect(self, request: Request, url_args: Dict, map_adapter: MapAdapter,
+                                   **_kwargs) -> Response:
         aas = self._get_shell(url_args)
         # the following makes sure the reference exists
         self._get_submodel_reference(aas, url_args["submodel_id"])

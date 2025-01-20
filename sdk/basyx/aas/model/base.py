@@ -5,7 +5,7 @@
 #
 # SPDX-License-Identifier: MIT
 """
-This module implements the basic structures of the AAS meta-model, including the abstract classes and enums needed for
+This module implements the basic structures of the AAS metamodel, including the abstract classes and enums needed for
 the higher level classes to inherit from.
 """
 
@@ -28,7 +28,7 @@ ValueList = Set["ValueReferencePair"]
 BlobType = bytes
 
 # The following string aliases are constrained by the decorator functions defined in the string_constraints module,
-# wherever they are used for a instance attributes.
+# wherever they are used for an instance attributes.
 ContentType = str  # any mimetype as in RFC2046
 Identifier = str
 LabelType = str
@@ -57,7 +57,7 @@ class KeyTypes(Enum):
     **ReferableElements starting from 1000**
 
     .. note::
-        DataElement is abstract, i. e. if a key uses :attr:`~.KeyTypes.DATA_ELEMENT` the reference may be
+        DataElement is abstract, i.e. if a key uses :attr:`~.KeyTypes.DATA_ELEMENT` the reference may be
         :class:`~basyx.aas.model.submodel.Property`, :class:`~basyx.aas.model.submodel.File` etc.
 
     .. note::
@@ -229,7 +229,7 @@ class AssetKind(Enum):
         specific property values.
 
     .. note::
-        In an object oriented view, an instance denotes an object of a class (of a type)
+        In an object-oriented view, an instance denotes an object of a class (of a type)
 
     :cvar TYPE: Type asset
     :cvar INSTANCE: Instance asset
@@ -282,9 +282,9 @@ class LangStringSet(MutableMapping[str, str]):
     A mapping of language code to string. Must be non-empty.
 
     langString is an RDF data type. A langString is a value tagged with a language code. RDF requires
-    IETF BCP 4723 language tags, i.e. simple two-letter language tags for Locales like “de” conformant to ISO 639-1
-    are allowed as well as language tags plus extension like “de-DE” for country code, dialect etc. like in “en-US” or
-    “en-GB” for English (United Kingdom) and English (United States). IETF language tags are referencing ISO 639,
+    IETF BCP 4723 language tags, i.e. simple two-letter language tags for Locales like "de" conformant to ISO 639-1
+    are allowed as well as language tags plus extension like "de-DE" for country code, dialect etc. like in "en-US" or
+    "en-GB" for English (United Kingdom) and English (United States). IETF language tags are referencing ISO 639,
     ISO 3166 and ISO 15924.
     """
     def __init__(self, dict_: Dict[str, str]):
@@ -591,7 +591,7 @@ class Referable(HasExtension, metaclass=abc.ABCMeta):
     **Constraint AASd-002:** idShort shall only feature letters, digits, underscore (``_``); starting
     mandatory with a letter.
 
-    **Constraint AASd-004:** Add parent in case of non identifiable elements.
+    **Constraint AASd-004:** Add parent in case of non-identifiable elements.
 
     **Constraint AASd-022:** idShort of non-identifiable referables shall be unique in its namespace (case-sensitive)
 
@@ -724,7 +724,7 @@ class Referable(HasExtension, metaclass=abc.ABCMeta):
             self._id_short = id_short
             for set_ in set_add_list:
                 set_.add(self)
-        # Redundant to the line above. However this way, we make sure that we really update the _id_short
+        # Redundant to the line above. However, this way, we make sure that we really update the _id_short
         self._id_short = id_short
 
     def update_from(self, other: "Referable"):
@@ -900,7 +900,7 @@ class ModelReference(Reference, Generic[_RT]):
                                                       f"but the last key of the chain is not: {key[-1]!r}")
         for pk, k in zip(key, key[1:]):
             if k.type == KeyTypes.FRAGMENT_REFERENCE and pk.type not in (KeyTypes.BLOB, KeyTypes.FILE):
-                raise AASConstraintViolation(127, f"{k!r} is not preceeded by a key of type File or Blob, but {pk!r}")
+                raise AASConstraintViolation(127, f"{k!r} is not preceded by a key of type File or Blob, but {pk!r}")
             if pk.type == KeyTypes.SUBMODEL_ELEMENT_LIST and not k.value.isnumeric():
                 raise AASConstraintViolation(128, f"Key {pk!r} references a SubmodelElementList, "
                                                   f"but the value of the succeeding key ({k!r}) is not a non-negative "
@@ -1007,7 +1007,7 @@ class ModelReference(Reference, Generic[_RT]):
 @_string_constraints.constrain_path_type("path")
 class Resource:
     """
-    Resource represents an address to a file (a locator). The value is an URI that can represent an absolute or relative
+    Resource represents an address to a file (a locator). The value is a URI that can represent an absolute or relative
     path.
 
     :ivar path: Path and name of the resource (with file extension). The path can be absolute or relative.
@@ -1334,7 +1334,7 @@ class HasSemantics(metaclass=abc.ABCMeta):
             self._semantic_id = semantic_id
             for set_ in set_add_list:
                 set_.add(self)
-        # Redundant to the line above. However this way, we make sure that we really update the _semantic_id
+        # Redundant to the line above. However, this way, we make sure that we really update the _semantic_id
         self._semantic_id = semantic_id
 
     @property
@@ -1414,7 +1414,7 @@ class Extension(HasSemantics):
             self._name = name
             for set_ in set_add_list:
                 set_.add(self)
-        # Redundant to the line above. However this way, we make sure that we really update the _name
+        # Redundant to the line above. However, this way, we make sure that we really update the _name
         self._name = name
 
 
@@ -1435,6 +1435,10 @@ class HasKind(metaclass=abc.ABCMeta):
     @property
     def kind(self):
         return self._kind
+
+    @kind.setter
+    def kind(self, value: ModellingKind):
+        self._kind = value
 
 
 class Qualifiable(Namespace, metaclass=abc.ABCMeta):
@@ -1557,7 +1561,7 @@ class Qualifier(HasSemantics):
             self._type = type_
             for set_ in set_add_list:
                 set_.add(self)
-        # Redundant to the line above. However this way, we make sure that we really update the _type
+        # Redundant to the line above. However, this way, we make sure that we really update the _type
         self._type = type_
 
 
@@ -1676,10 +1680,10 @@ class UniqueIdShortNamespace(Namespace, metaclass=abc.ABCMeta):
 
 class UniqueSemanticIdNamespace(Namespace, metaclass=abc.ABCMeta):
     """
-    Abstract baseclass for all objects which form a Namespace to hold HasSemantics objects and resolve them by their
+    Abstract baseclass for all objects which form a Namespace to hold HasSemantics objects and resolve them by
     their semantic_id.
 
-    A Namespace can contain multiple NamespaceSets, which contain HasSemantics objects of different types. However, the
+    A Namespace can contain multiple NamespaceSets, which contain HasSemantics objects of different types. However,
     the semantic_id of each object must be unique across all NamespaceSets of one Namespace.
 
     :ivar namespace_element_sets: A list of all NamespaceSets of this Namespace
@@ -1691,7 +1695,7 @@ class UniqueSemanticIdNamespace(Namespace, metaclass=abc.ABCMeta):
 
     def get_object_by_semantic_id(self, semantic_id: Reference) -> HasSemantics:
         """
-        Find an HasSemantics in this Namespaces by its semantic_id
+        Find a HasSemantics in these Namespaces by its semantic_id
 
         :raises KeyError: If no such HasSemantics can be found
         """
@@ -1765,7 +1769,7 @@ class NamespaceSet(MutableSet[_NSO], Generic[_NSO]):
                                  SubmodelElementList to unset id_shorts on removal. Should not be used for
                                  constraint checking, as the hook is called after removal.
         :raises AASConstraintViolation: When ``items`` contains multiple objects with same unique attribute or when an
-                                        item doesn't has an identifying attribute
+                                        item doesn't have an identifying attribute
         """
         self.parent = parent
         parent.namespace_element_sets.append(self)
@@ -1926,7 +1930,7 @@ class NamespaceSet(MutableSet[_NSO], Generic[_NSO]):
         :param attribute_name: name of the attribute to search for
         :param attribute_value: value of the attribute to search for
         :param default: An object to be returned, if no object with the given attribute is found
-        :return: The AAS object with the given attribute in the set. Otherwise the ``default`` object or None, if
+        :return: The AAS object with the given attribute in the set. Otherwise, the ``default`` object or None, if
                  none is given.
         """
         backend, case_sensitive = self._backend[attribute_name]
@@ -1981,7 +1985,7 @@ class OrderedNamespaceSet(NamespaceSet[_NSO], MutableSequence[_NSO], Generic[_NS
     A specialized version of :class:`~.NamespaceSet`, that keeps track of the order of the stored
     :class:`~.Referable` objects.
 
-    Additionally to the MutableSet interface of :class:`~.NamespaceSet`, this class provides a set-like interface
+    Additionally, to the MutableSet interface of :class:`~.NamespaceSet`, this class provides a set-like interface
     (actually it is derived from MutableSequence). However, we don't permit duplicate entries in the ordered list of
     objects.
     """
@@ -2009,7 +2013,7 @@ class OrderedNamespaceSet(NamespaceSet[_NSO], MutableSequence[_NSO], Generic[_NS
                                  SubmodelElementList to unset id_shorts on removal. Should not be used for
                                  constraint checking, as the hook is called after removal.
         :raises AASConstraintViolation: When ``items`` contains multiple objects with same unique attribute or when an
-                                        item doesn't has an identifying attribute
+                                        item doesn't have an identifying attribute
         """
         self._order: List[_NSO] = []
         super().__init__(parent, attribute_names, items, item_add_hook, item_id_set_hook, item_id_del_hook)

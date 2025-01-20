@@ -3,15 +3,47 @@ name: ci
 on: [push, pull_request]
 
 env:
-  X_PYTHON_VERSION: "3.12"
+  X_PYTHON_MIN_VERSION: "3.9"
+  X_PYTHON_MAX_VERSION: "3.12"
 
 jobs:
+  check-python-versions:
+    # This job checks that the Python Versions we support match and are not End of Life
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./etc/scripts
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python ${{ env.X_PYTHON_MIN_VERSION }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ env.X_PYTHON_MIN_VERSION }}
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r ./check_python_versions_requirements.txt
+      - name: Check Supported Python Versions
+        run: |
+          python check_python_versions_supported.py \
+            ${{ env.X_PYTHON_MIN_VERSION }} \
+            ${{ env.X_PYTHON_MAX_VERSION }}
+
+      - name: Check Python Versions coincide with the SDKs pyproject.toml
+        run: |
+          python check_python_versions_coincide.py \
+            ../../sdk/pyproject.toml \
+            ${{ env.X_PYTHON_MIN_VERSION }} \
+            ${{ env.X_PYTHON_MAX_VERSION }}
+
+      # Todo: Check other pyproject.toml here as well, as we add them
+
   sdk-test:
     # This job runs the unittests on the python versions specified down at the matrix
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.8", "3.10", "3.12"]
+        python-version: ["3.9", "3.12"]
     env:
       COUCHDB_ADMIN_PASSWORD: "yo0Quai3"
       # (2024-10-11, s-heppner)
@@ -32,9 +64,15 @@ jobs:
       run:
         working-directory: ./sdk
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
+    - name: Verify Matrix Version matches Global Version
+      run: |
+        if [ "${{ matrix.python-version }}" != "${{ env.X_PYTHON_MIN_VERSION }}" ] && [ "${{ matrix.python-version }}" != "${{ env.X_PYTHON_MAX_VERSION }}" ]; then
+          echo "Error: Matrix version ${{ matrix.python-version }} does not match global version."
+          exit 1
+        fi
     - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v4
       with:
         python-version: ${{ matrix.python-version }}
     - name: Collect schema files from aas-specs
@@ -64,11 +102,11 @@ jobs:
       run:
         working-directory: ./sdk
     steps:
-    - uses: actions/checkout@v2
-    - name: Set up Python ${{ env.X_PYTHON_VERSION }}
+    - uses: actions/checkout@v4
+    - name: Set up Python ${{ env.X_PYTHON_MIN_VERSION }}
       uses: actions/setup-python@v2
       with:
-        python-version: ${{ env.X_PYTHON_VERSION }}
+        python-version: ${{ env.X_PYTHON_MIN_VERSION }}
     - name: Install Python dependencies
       run: |
         python -m pip install --upgrade pip
@@ -87,11 +125,11 @@ jobs:
       run:
         working-directory: ./sdk
     steps:
-    - uses: actions/checkout@v2
-    - name: Set up Python ${{ env.X_PYTHON_VERSION }}
+    - uses: actions/checkout@v4
+    - name: Set up Python ${{ env.X_PYTHON_MIN_VERSION }}
       uses: actions/setup-python@v2
       with:
-        python-version: ${{ env.X_PYTHON_VERSION }}
+        python-version: ${{ env.X_PYTHON_MIN_VERSION }}
     - name: Install Python dependencies
       run: |
         python -m pip install --upgrade pip
@@ -113,11 +151,11 @@ jobs:
       run:
         working-directory: ./sdk
     steps:
-    - uses: actions/checkout@v2
-    - name: Set up Python ${{ env.X_PYTHON_VERSION }}
+    - uses: actions/checkout@v4
+    - name: Set up Python ${{ env.X_PYTHON_MIN_VERSION }}
       uses: actions/setup-python@v2
       with:
-        python-version: ${{ env.X_PYTHON_VERSION }}
+        python-version: ${{ env.X_PYTHON_MIN_VERSION }}
     - name: Install Python dependencies
       run: |
         python -m pip install --upgrade pip
@@ -134,11 +172,11 @@ jobs:
       run:
         working-directory: ./sdk
     steps:
-    - uses: actions/checkout@v2
-    - name: Set up Python ${{ env.X_PYTHON_VERSION }}
+    - uses: actions/checkout@v4
+    - name: Set up Python ${{ env.X_PYTHON_MIN_VERSION }}
       uses: actions/setup-python@v2
       with:
-        python-version: ${{ env.X_PYTHON_VERSION }}
+        python-version: ${{ env.X_PYTHON_MIN_VERSION }}
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
@@ -146,3 +184,136 @@ jobs:
     - name: Create source and wheel dist
       run: |
         python -m build
+
+
+  compliance-tool-test:
+    # This job runs the unittests on the python versions specified down at the matrix
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.9", "3.12"]
+    defaults:
+      run:
+        working-directory: ./compliance_tool
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Install Python dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install coverage
+        pip install -r requirements.txt
+    - name: Test with coverage + unittest
+      run: |
+        coverage run --source=aas_compliance_tool -m unittest
+    - name: Report test coverage
+      if: ${{ always() }}
+      run: |
+        coverage report -m
+
+  compliance-tool-static-analysis:
+    # This job runs static code analysis, namely pycodestyle and mypy
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: ./compliance_tool
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python ${{ env.X_PYTHON_MIN_VERSION }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ env.X_PYTHON_MIN_VERSION }}
+    - name: Install Python dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install pycodestyle mypy
+        pip install -r requirements.txt
+    - name: Check typing with MyPy
+      run: |
+        mypy ./aas_compliance_tool test
+    - name: Check code style with PyCodestyle
+      run: |
+        pycodestyle --count --max-line-length 120 ./aas_compliance_tool test
+
+  compliance-tool-readme-codeblocks:
+    # This job runs the same static code analysis (mypy and pycodestyle) on the codeblocks in our docstrings.
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: ./compliance_tool
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python ${{ env.X_PYTHON_MIN_VERSION }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ env.X_PYTHON_MIN_VERSION }}
+    - name: Install Python dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install pycodestyle mypy codeblocks
+        pip install -r requirements.txt
+    - name: Check typing with MyPy
+      run: |
+        mypy <(codeblocks python README.md)
+    - name: Check code style with PyCodestyle
+      run: |
+        codeblocks --wrap python README.md | pycodestyle --count --max-line-length 120 -
+    - name: Run readme codeblocks with Python
+      run: |
+        codeblocks python README.md | python
+
+  compliance-tool-package:
+    # This job checks if we can build our compliance_tool package
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: ./compliance_tool
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python ${{ env.X_PYTHON_MIN_VERSION }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ env.X_PYTHON_MIN_VERSION }}
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install setuptools wheel
+    - name: Create source and wheel dist
+      run: |
+        python setup.py sdist bdist_wheel
+
+  server-package:
+    # This job checks if we can build our server package
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./server
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build the Docker image
+        run: |
+          docker build -t basyx-python-server .
+      - name: Run container
+        run: |
+           docker run -d --name basyx-python-server basyx-python-server
+      - name: Wait for container and server initialization
+        run: |
+          timeout 30s bash -c '
+            until docker logs basyx-python-server 2>&1 | grep -q "INFO success: quit_on_failure entered RUNNING state"; do
+              sleep 2
+            done
+          '
+      - name: Check if container is running
+        run: |
+          docker inspect --format='{{.State.Running}}' basyx-python-server | grep true
+      - name: Stop and remove the container
+        run: |
+          docker stop basyx-python-server && docker rm basyx-python-server
+

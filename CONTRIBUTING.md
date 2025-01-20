@@ -94,7 +94,7 @@ the further steps via the comments.
 In order to effectively communicate, there are some conventions to respect when writing
 commit messages and pull requests.
 
-Similarily to when creating an issue, the commit title, as well as the PR title should 
+Similarly to when creating an issue, the commit title, as well as the PR title should 
 be as short as possible, ideally 72 characters or fewer using imperative language.
 If a specific module is affected, please mention it at the beginning of the title.
 
@@ -121,7 +121,10 @@ The following guidelines are for the commit or PR message text:
 
 ## Codestyle and Testing
 
-Our code follows the [PEP 8 -- Style Guide for Python Code](https://www.python.org/dev/peps/pep-0008/).
+Our code follows the [PEP 8 -- Style Guide for Python Code](https://www.python.org/dev/peps/pep-0008/)
+with the following exceptions:
+- Line length is allowed to be up to 120 characters, though lines up to 100 characters are preferred.
+
 Additionally, we use [PEP 484 -- Type Hints](https://www.python.org/dev/peps/pep-0484/) throughout the code to enable type checking the code.
 
 Before submitting any changes, make sure to let `mypy` and `pycodestyle` check your code and run the unit tests with
@@ -129,6 +132,10 @@ Python's builtin `unittest`. To install the required tools, use:
 ```bash
 pip install .[dev]
 ```
+
+> [!note]
+> The `.` denotes the current directory and needs to be the directory the `pyproject.toml` is located in.
+> Therefore, you need to run this command and the ones below in the `/sdk` directory (relative to the repository root).
 
 Running all checks:
 ```bash
