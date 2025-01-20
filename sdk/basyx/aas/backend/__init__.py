@@ -1,3 +1,3 @@
 """
-This module implements a standardized way of integrating data from existing systems into AAS objects.
+This module implements a standardized way of persisting AAS objects using various backends.
 """

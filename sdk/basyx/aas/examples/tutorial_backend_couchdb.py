@@ -74,6 +74,7 @@ example_submodel2 = basyx.aas.examples.data.example_aas.create_example_bill_of_m
 object_store.add(example_submodel1)
 object_store.add(example_submodel2)
 
+# For more information on how to use `ObjectStore`s in general, please refer to `tutorial_storage.py`.
 
 ############
 # Clean up #
