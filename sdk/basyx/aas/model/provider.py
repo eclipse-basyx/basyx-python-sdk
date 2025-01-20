@@ -84,6 +84,15 @@ class DictObjectStore(AbstractObjectStore[_IT], Generic[_IT]):
     """
     A local in-memory object store for :class:`~basyx.aas.model.base.Identifiable` objects, backed by a dict, mapping
     :class:`~basyx.aas.model.base.Identifier` → :class:`~basyx.aas.model.base.Identifiable`
+
+    .. note::
+        The `DictObjectStore` provides efficient retrieval of objects by their :class:`~basyx.aas.model.base.Identifier`
+        However, since object stores are not referenced via the parent attribute, the mapping is not updated
+        if the :class:`~basyx.aas.model.base.Identifier` of an :class:`~basyx.aas.model.base.Identifiable` changes.
+        For more details, see [issue #216](https://github.com/eclipse-basyx/basyx-python-sdk/issues/216).
+        As a result, the `DictObjectStore` is unsuitable for storing objects whose
+        :class:`~basyx.aas.model.base.Identifier` may change.
+        In such cases, consider using a :class:`~.SetObjectStore` instead.
     """
     def __init__(self, objects: Iterable[_IT] = ()) -> None:
         self._backend: Dict[Identifier, _IT] = {}
@@ -120,6 +129,14 @@ class DictObjectStore(AbstractObjectStore[_IT], Generic[_IT]):
 class SetObjectStore(AbstractObjectStore[_IT], Generic[_IT]):
     """
     A local in-memory object store for :class:`~basyx.aas.model.base.Identifiable` objects, backed by a set
+
+    .. note::
+        The `SetObjectStore` is slower than the `DictObjectStore` for retrieval of objects, because it has to iterate
+        over all objects to find the one with the correct :class:`~basyx.aas.model.base.Identifier`.
+        On the other hand, the `SetObjectStore` is more secure, because it is less affected by changes in the
+        :class:`~basyx.aas.model.base.Identifier` of an :class:`~basyx.aas.model.base.Identifiable` object.
+        Therefore, the `SetObjectStore` is suitable for storing objects whose :class:`~basyx.aas.model.base.Identifier`
+        may change.
     """
     def __init__(self, objects: Iterable[_IT] = ()) -> None:
         self._backend: Set[_IT] = set()
