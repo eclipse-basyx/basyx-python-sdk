@@ -28,14 +28,11 @@ class LocalFileBackendTest(unittest.TestCase):
         finally:
             shutil.rmtree(store_path)
 
-    # def test_object_store_add(self):
-    #     test_object = create_example_submodel()
-    #     self.object_store.add(test_object)
-    #     # TODO: Adapt this test
-    #     self.assertEqual(
-    #         test_object.source,
-    #         source_core+"fd787262b2743360f7ad03a3b4e9187e4c088aa37303448c9c43fe4c973dac53.json"
-    #     )
+    def test_object_store_add(self):
+        test_object = create_example_submodel()
+        self.object_store.add(test_object)
+        # Note that this test is only checking that there are no errors during adding.
+        # The actual logic is tested together with retrieval in `test_retrieval`.
 
     def test_retrieval(self):
         test_object = create_example_submodel()
@@ -107,7 +104,3 @@ class LocalFileBackendTest(unittest.TestCase):
             self.object_store.discard(retrieved_submodel)
         self.assertEqual("'No AAS object with id https://acplt.org/Test_Submodel exists in "
                          "local file database'", str(cm.exception))
-
-    def test_editing(self):
-        test_object = create_example_submodel()
-        self.object_store.add(test_object)

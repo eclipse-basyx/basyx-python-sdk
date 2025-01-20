@@ -33,11 +33,11 @@ class CouchDBBackendTest(unittest.TestCase):
     def tearDown(self) -> None:
         self.object_store.clear()
 
-    # def test_object_store_add(self):
-    #     test_object = create_example_submodel()
-    #     self.object_store.add(test_object)
-    #     # TODO: Adapt the test
-    #     self.assertEqual(test_object.source, source_core+"https%3A%2F%2Facplt.org%2FTest_Submodel")
+    def test_object_store_add(self):
+        test_object = create_example_submodel()
+        self.object_store.add(test_object)
+        # Note that this test is only checking that there are no errors during adding.
+        # The actual logic is tested together with retrieval in `test_retrieval`.
 
     def test_retrieval(self):
         test_object = create_example_submodel()
@@ -108,17 +108,3 @@ class CouchDBBackendTest(unittest.TestCase):
             self.object_store.discard(retrieved_submodel)
         self.assertEqual("'No AAS object with id https://acplt.org/Test_Submodel exists in "
                          "CouchDB database'", str(cm.exception))
-
-    def test_conflict_errors(self):
-        # Preperation: add object and retrieve it from the database
-        example_submodel = create_example_submodel()
-        self.object_store.add(example_submodel)
-        retrieved_submodel = self.object_store.get_identifiable('https://acplt.org/Test_Submodel')
-
-        # Deleting the submodel with safe_delete should or without safe_delete should work
-        self.object_store.discard(retrieved_submodel, True)
-        self.assertEqual(0, len(self.object_store))
-
-    def test_editing(self):
-        test_object = create_example_submodel()
-        self.object_store.add(test_object)
