@@ -40,5 +40,5 @@ while read -rd $'\0' year file; do
         sed -i "1,2s/^\(# Copyright (c) \)[[:digit:]]\{4,\}/\1$year/" "$file"
         echo "Updated copyright year in $file"
     fi
-done < <(git ls-files -z "$@" | xargs -0I{} git log -1 -z --format="%ad {}" --date="format:%Y" "{}")
+done < <(git ls-files -z "$@" | xargs -0I{} git log -1 -z --format="%cd {}" --date="format:%Y" "{}")
 
