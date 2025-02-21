@@ -185,13 +185,29 @@ jobs:
       run: |
         python -m build
 
+  repository-check-copyright:
+    # This job checks that the copyright year in the header of all files is up to date
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0  # Ensure full history is available
+    - name: Install required dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y bash git
+    - name: Run copyright check
+      run: |
+        chmod +x ./etc/scripts/set_copyright_year.sh
+        ./etc/scripts/set_copyright_year.sh --check
+
 
   compliance-tool-test:
     # This job runs the unittests on the python versions specified down at the matrix
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.8", "3.10", "3.12"]
+        python-version: ["3.9", "3.12"]
     defaults:
       run:
         working-directory: ./compliance_tool
@@ -224,10 +240,10 @@ jobs:
         working-directory: ./compliance_tool
     steps:
     - uses: actions/checkout@v2
-    - name: Set up Python ${{ env.X_PYTHON_VERSION }}
+    - name: Set up Python ${{ env.X_PYTHON_MIN_VERSION }}
       uses: actions/setup-python@v2
       with:
-        python-version: ${{ env.X_PYTHON_VERSION }}
+        python-version: ${{ env.X_PYTHON_MIN_VERSION }}
     - name: Install Python dependencies
       run: |
         python -m pip install --upgrade pip
@@ -249,10 +265,10 @@ jobs:
         working-directory: ./compliance_tool
     steps:
     - uses: actions/checkout@v2
-    - name: Set up Python ${{ env.X_PYTHON_VERSION }}
+    - name: Set up Python ${{ env.X_PYTHON_MIN_VERSION }}
       uses: actions/setup-python@v2
       with:
-        python-version: ${{ env.X_PYTHON_VERSION }}
+        python-version: ${{ env.X_PYTHON_MIN_VERSION }}
     - name: Install Python dependencies
       run: |
         python -m pip install --upgrade pip
@@ -277,10 +293,10 @@ jobs:
         working-directory: ./compliance_tool
     steps:
     - uses: actions/checkout@v2
-    - name: Set up Python ${{ env.X_PYTHON_VERSION }}
+    - name: Set up Python ${{ env.X_PYTHON_MIN_VERSION }}
       uses: actions/setup-python@v2
       with:
-        python-version: ${{ env.X_PYTHON_VERSION }}
+        python-version: ${{ env.X_PYTHON_MIN_VERSION }}
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
