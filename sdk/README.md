@@ -44,17 +44,17 @@ The BaSyx Python SDK requires the following Python packages to be installed for 
 * `pyecma376-2` (Apache License v2.0)
 * `urllib3` (MIT License)
 * `Werkzeug` (BSD 3-clause License)
-* `jsonschema` (MIT License, Apache License, PSF License)
-* `types-python-dateutil` (Apache License v2.0)
-* `schemathesis` (MIT License)
-* `hypothesis` (MPL v2.0)
-* `lxml-stubs` (Apache License)
 
 Development/testing/documentation/example dependencies:
 * `mypy` (MIT License)
 * `pycodestyle` (MIT License)
 * `codeblocks` (Apache License v2.0)
 * `coverage` (Apache License v2.0)
+* `jsonschema` (MIT License, Apache License, PSF License)
+* `schemathesis` (MIT License)
+* `hypothesis` (MPL v2.0)
+* `lxml-stubs` (Apache License)
+* `types-python-dateutil` (Apache License v2.0)
 
 Dependencies for building the documentation (see `docs/add-requirements.txt`):
 * `Sphinx` and its dependencies (BSD 2-clause License, MIT License, Apache License)
