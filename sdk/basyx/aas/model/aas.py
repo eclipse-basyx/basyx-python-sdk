@@ -172,3 +172,14 @@ class AssetAdministrationShell(base.Identifiable, base.UniqueIdShortNamespace, b
         self.submodel: Set[base.ModelReference[Submodel]] = set() if submodel is None else submodel
         self.embedded_data_specifications: List[base.EmbeddedDataSpecification] = list(embedded_data_specifications)
         self.extension = base.NamespaceSet(self, [("name", True)], extension)
+
+class AssetLink:
+
+    def __init__(self, name: base.LabelType, value: base.Identifier):
+        if not name:
+            raise ValueError("AssetLink 'name' must be a non-empty string.")
+        if not value:
+            raise ValueError("AssetLink 'value' must be a non-empty string.")
+        self.name = name
+        self.value = value
+        

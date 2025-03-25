@@ -93,6 +93,11 @@ class AASToJsonEncoder(json.JSONEncoder):
             model.SubmodelElementCollection: self._submodel_element_collection_to_json,
             model.SubmodelElementList: self._submodel_element_list_to_json,
             model.ValueReferencePair: self._value_reference_pair_to_json,
+            model.AssetAdministrationShellDescriptor: self._asset_administration_shell_descriptor_to_json,
+            model.SubmodelDescriptor: self._submodel_descriptor_to_json,
+            model.Endpoint: self._endpoint_to_json,
+            model.ProtocolInformation: self._protocol_information_to_json,
+            model.AssetLink: self._asset_link_to_json
         }
         for typ in mapping:
             if isinstance(obj, typ):
@@ -150,6 +155,14 @@ class AASToJsonEncoder(json.JSONEncoder):
         if isinstance(obj, model.Qualifiable) and not cls.stripped:
             if obj.qualifier:
                 data['qualifiers'] = list(obj.qualifier)
+        if isinstance(obj, model.Descriptor):
+            if obj.description:
+                data['description'] = obj.description
+            if obj.display_name:
+                data['displayName'] = obj.display_name
+            if obj.extension:
+                data['extensions'] = list(obj.extension)
+
         return data
 
     # #############################################################
@@ -670,6 +683,92 @@ class AASToJsonEncoder(json.JSONEncoder):
             data['maxInterval'] = model.datatypes.xsd_repr(obj.max_interval)
         return data
 
+    @classmethod
+    def _asset_administration_shell_descriptor_to_json(cls, obj: model.AssetAdministrationShellDescriptor) -> Dict[str, object]:
+        """
+        serialization of an object from class AssetAdministrationShell to json
+
+        :param obj: object of class AssetAdministrationShell
+        :return: dict with the serialized attributes of this object
+        """
+        data = cls._abstract_classes_to_json(obj)
+        data.update(cls._namespace_to_json(obj))
+        data['id'] = obj.id
+        if obj.administration:
+            data['administration'] = obj.administration
+        if obj.asset_kind:
+            data['assetKind'] = _generic.ASSET_KIND[obj.asset_kind]
+        if obj.asset_type:
+            data['assetType'] = obj.asset_type
+        if obj.global_asset_id:
+            data['globalAssetId'] = obj.global_asset_id
+        if obj.specific_asset_id:
+            data['specificAssetIds'] = list(obj.specific_asset_id)
+        if obj.endpoints:
+            data['endpoints'] = list(obj.endpoints)
+        if obj.id_short:
+            data['idShort'] = obj.id_short
+        if obj.submodel_descriptors:
+            data['submodelDescriptors'] = list(obj.submodel_descriptors)
+        return data
+
+    @classmethod
+    def _protocol_information_to_json(cls,
+                                      obj: model.ProtocolInformation) -> \
+            Dict[str, object]:
+        data = cls._abstract_classes_to_json(obj)
+
+        data['href'] = obj.href
+        if obj.endpoint_protocol:
+            data['endpointProtocol'] = obj.endpoint_protocol
+        if obj.endpoint_protocol_version:
+            data['endpointProtocolVersion'] = obj.endpoint_protocol_version
+        if obj.subprotocol:
+            data['subprotocol'] = obj.subprotocol
+        if obj.subprotocol_body:
+            data['subprotocolBody'] = obj.subprotocol_body
+        if obj.subprotocol_body_encoding:
+            data['subprotocolBodyEncoding'] = obj.subprotocol_body_encoding
+
+        return data
+
+
+    @classmethod
+    def _endpoint_to_json(cls, obj: model.Endpoint) -> Dict[
+        str, object]:
+        data = cls._abstract_classes_to_json(obj)
+        data['protocolInformation'] = cls._protocol_information_to_json(
+                obj.protocol_information)
+        data['interface'] = obj.interface
+        return data
+
+    @classmethod
+    def _submodel_descriptor_to_json(cls, obj: model.SubmodelDescriptor) -> Dict[str, object]:
+        """
+        serialization of an object from class Submodel to json
+
+        :param obj: object of class Submodel
+        :return: dict with the serialized attributes of this object
+        """
+        data = cls._abstract_classes_to_json(obj)
+        data['id'] = obj.id
+        data['endpoints'] = [cls._endpoint_to_json(ep) for ep in
+                             obj.endpoints]
+        if obj.id_short:
+            data['idShort'] = obj.id_short
+        if obj.administration:
+            data['administration'] = obj.administration
+        if obj.semantic_id:
+            data['semanticId'] = obj.semantic_id
+        if obj.supplemental_semantic_id:
+            data['supplementalSemanticIds'] = list(obj.supplemental_semantic_id)
+        return data
+    @classmethod
+    def _asset_link_to_json(cls, obj: model.AssetLink) -> Dict[str, object]:
+        data = cls._abstract_classes_to_json(obj)
+        data['name'] = obj.name
+        data['value'] = obj.value
+        return data
 
 class StrippedAASToJsonEncoder(AASToJsonEncoder):
     """
@@ -698,6 +797,9 @@ def _create_dict(data: model.AbstractObjectStore) -> dict:
     asset_administration_shells: List[model.AssetAdministrationShell] = []
     submodels: List[model.Submodel] = []
     concept_descriptions: List[model.ConceptDescription] = []
+    asset_administration_shell_descriptors: List[model.AssetAdministrationShellDescriptor] = []
+    submodel_descriptors: List[model.SubmodelDescriptor] = []
+    assets_links: List[model.AssetLink] = []
     for obj in data:
         if isinstance(obj, model.AssetAdministrationShell):
             asset_administration_shells.append(obj)
@@ -705,6 +807,12 @@ def _create_dict(data: model.AbstractObjectStore) -> dict:
             submodels.append(obj)
         elif isinstance(obj, model.ConceptDescription):
             concept_descriptions.append(obj)
+        elif isinstance(obj, model.AssetAdministrationShellDescriptor):
+            asset_administration_shell_descriptors.append(obj)
+        elif isinstance(obj, model.SubmodelDescriptor):
+            submodel_descriptors.append(obj)
+        elif isinstance(obj, model.AssetLink):
+            assets_links.append(obj)
     dict_: Dict[str, List] = {}
     if asset_administration_shells:
         dict_['assetAdministrationShells'] = asset_administration_shells
@@ -712,6 +820,12 @@ def _create_dict(data: model.AbstractObjectStore) -> dict:
         dict_['submodels'] = submodels
     if concept_descriptions:
         dict_['conceptDescriptions'] = concept_descriptions
+    if asset_administration_shell_descriptors:
+        dict_['assetAdministrationShellDescriptors'] = asset_administration_shell_descriptors
+    if submodel_descriptors:
+        dict_['submodelDescriptors'] = submodel_descriptors
+    if assets_links:
+        dict_['assetLinks'] = assets_links
     return dict_
 
 

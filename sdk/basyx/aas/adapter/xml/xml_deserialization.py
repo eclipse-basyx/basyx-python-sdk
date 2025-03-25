@@ -1181,7 +1181,58 @@ class AASFromXmlDecoder:
                     ds_iec.level_types.add(IEC61360_LEVEL_TYPES_INVERSE[tag])
         cls._amend_abstract_attributes(ds_iec, element)
         return ds_iec
+    @classmethod
+    def construct_asset_administration_shell_descriptor(cls, element: etree._Element, object_class=model.AssetAdministrationShellDescriptor,
+                                                        **_kwargs: Any) -> model.AssetAdministrationShellDescriptor:
+        id_value = _child_text_mandatory(element, NS_AAS + "id")
+        id_short = _child_text_mandatory(element, NS_AAS + "idShort")
+        endpoints_elem = element.find(NS_AAS + "endpoints")
+        endpoints: List[str] = []
+        if endpoints_elem is not None:
+            endpoints = [child.text.strip() for child in endpoints_elem.findall(NS_AAS + "endpoint") if child.text]
 
+        asset_kind = _child_text_mandatory(element, NS_AAS + "assetKind")
+
+        specific_asset_ids_elem = element.find(NS_AAS + "specificAssetIds")
+        specific_asset_ids: List[Dict[str, Any]] = []
+        if specific_asset_ids_elem is not None:
+            for sid_elem in specific_asset_ids_elem.findall(NS_AAS + "specificAssetId"):
+                name = sid_elem.findtext(NS_AAS + "name")
+                value = sid_elem.findtext(NS_AAS + "value")
+                if name is not None and value is not None:
+                    specific_asset_ids.append({"name": name.strip(), "value": value.strip()})
+
+        descriptor = object_class(
+            id=id_value,
+            id_short=id_short,
+            endpoints=endpoints,
+            asset_kind=asset_kind,
+            specific_asset_ids=specific_asset_ids
+        )
+
+        cls._amend_abstract_attributes(descriptor, element)
+        return descriptor
+    @classmethod
+    def construct_submodel_descriptor(cls, element: etree._Element, object_class=model.SubmodelDescriptor,
+                                      **_kwargs: Any) -> model.SubmodelDescriptor:
+        submodel_id = _child_text_mandatory(element, NS_AAS + "id")
+        id_short = _child_text_mandatory(element, NS_AAS + "idShort")
+
+        endpoints_elem = element.find(NS_AAS + "endpoints")
+        endpoints: List[str] = []
+        if endpoints_elem is not None:
+            endpoints = [child.text.strip() for child in endpoints_elem.findall(NS_AAS + "endpoint") if child.text]
+
+        # Hier können weitere optionale Felder verarbeitet werden, z.B. semanticId, etc.
+
+        submodel_descriptor = object_class(
+            id=submodel_id,
+            id_short=id_short,
+            endpoints=endpoints
+        )
+
+        cls._amend_abstract_attributes(submodel_descriptor, element)
+        return submodel_descriptor
 
 class StrictAASFromXmlDecoder(AASFromXmlDecoder):
     """
@@ -1307,6 +1358,9 @@ class XMLConstructables(enum.Enum):
     EMBEDDED_DATA_SPECIFICATION = enum.auto()
     DATA_SPECIFICATION_CONTENT = enum.auto()
     DATA_SPECIFICATION_IEC61360 = enum.auto()
+    ASSET_ADMINISTRATION_SHELL_DESCRIPTOR = enum.auto()
+    SUBMODEL_DESCRIPTOR = enum.auto()
+    ASSET_LINK = enum.auto()
 
 
 def read_aas_xml_element(file: PathOrIO, construct: XMLConstructables, failsafe: bool = True, stripped: bool = False,
@@ -1414,6 +1468,10 @@ def read_aas_xml_element(file: PathOrIO, construct: XMLConstructables, failsafe:
     # type aliases
     elif construct == XMLConstructables.VALUE_LIST:
         constructor = decoder_.construct_value_list
+    elif construct == XMLConstructables.ASSET_ADMINISTRATION_SHELL_DESCRIPTOR:
+        constructor = decoder_.construct_asset_administration_shell_descriptor
+    elif construct == XMLConstructables.SUBMODEL_DESCRIPTOR:
+        constructor = decoder_.construct_submodel_descriptor
     else:
         raise ValueError(f"{construct.name} cannot be constructed!")
 

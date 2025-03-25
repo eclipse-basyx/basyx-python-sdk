@@ -7,14 +7,16 @@ specialized Concept Descriptions) are imported into this top-level package, for 
 
     from basyx.aas.model import AssetAdministrationShell, Submodel, Property
 """
-
+from __future__ import absolute_import
 from .aas import *
 from .base import *
 from .submodel import *
 from .provider import *
 from .concept import ConceptDescription
 from . import datatypes
-
+from .aas_descriptor import AssetAdministrationShellDescriptor
+from .descriptor import *
+from .submodel_descriptor import SubmodelDescriptor
 # A mapping of BaSyx Python SDK implementation classes to the corresponding `KeyTypes` enum members for all classes
 # that are covered by this enum.
 KEY_TYPES_CLASSES: Dict[Type[Referable], KeyTypes] = {

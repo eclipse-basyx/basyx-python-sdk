@@ -289,7 +289,10 @@ class HTTPApiDecoder:
         model.Qualifier: XMLConstructables.QUALIFIER,
         model.Submodel: XMLConstructables.SUBMODEL,
         model.SubmodelElement: XMLConstructables.SUBMODEL_ELEMENT,
-        model.Reference: XMLConstructables.REFERENCE
+        model.Reference: XMLConstructables.REFERENCE,
+        model.AssetAdministrationShellDescriptor: XMLConstructables.ASSET_ADMINISTRATION_SHELL_DESCRIPTOR,
+        model.SubmodelDescriptor: XMLConstructables.SUBMODEL_DESCRIPTOR,
+        model.AssetLink: XMLConstructables.ASSET_LINK,
     }
 
     @classmethod
@@ -333,6 +336,12 @@ class HTTPApiDecoder:
                 constructor = decoder._construct_reference  # type: ignore[assignment]
             elif expect_type is model.Qualifier:
                 constructor = decoder._construct_qualifier  # type: ignore[assignment]
+            elif expect_type is model.AssetAdministrationShellDescriptor:
+                constructor = decoder._construct_asset_administration_shell_descriptor
+            elif expect_type is model.SubmodelDescriptor:
+                constructor = decoder._construct_submodel_descriptor
+            elif expect_type is model.AssetLink:
+                constructor = decoder._construct_asset_link
 
             if constructor is not None:
                 # construct elements that aren't self-identified
@@ -394,7 +403,42 @@ class HTTPApiDecoder:
         if request.mimetype == "application/json":
             return cls.json(request.get_data(), expect_type, stripped)
         return cls.xml(request.get_data(), expect_type, stripped)
+    @classmethod
+    def request_body_list(cls, request: Request, expect_type: Type[T], stripped: bool) -> T:
+        """
+        Deserializes the request body to an instance (or list of instances)
+        of the expected type.
+        """
+        valid_content_types = ("application/json", "application/xml", "text/xml")
 
+        if request.mimetype not in valid_content_types:
+            raise werkzeug.exceptions.UnsupportedMediaType(
+                f"Invalid content-type: {request.mimetype}! Supported types: " + ", ".join(valid_content_types)
+            )
+
+        if request.mimetype == "application/json":
+            raw_data = request.get_data()
+            try:
+                parsed = json.loads(raw_data)
+            except Exception as e:
+                raise werkzeug.exceptions.BadRequest(f"Invalid JSON: {e}")
+            # Prüfe, ob parsed ein Array ist:
+            if isinstance(parsed, list):
+                # Für jedes Element wird die Konvertierung angewandt.
+                return [cls._convert_single_json_item(item, expect_type, stripped) for item in parsed]  # type: ignore
+            else:
+                return cls._convert_single_json_item(parsed, expect_type, stripped)
+        else:
+            return cls.xml(request.get_data(), expect_type, stripped)
+
+    @classmethod
+    def _convert_single_json_item(cls, data: any, expect_type: Type[T], stripped: bool) -> T:
+        """
+        Konvertiert ein einzelnes JSON-Objekt (als Python-Dict) in ein Objekt vom Typ expect_type.
+        Hierbei wird das Dictionary zuerst wieder in einen JSON-String serialisiert und als Bytes übergeben.
+        """
+        json_bytes = json.dumps(data).encode("utf-8")
+        return cls.json(json_bytes, expect_type, stripped)
 
 class Base64URLConverter(werkzeug.routing.UnicodeConverter):
 
