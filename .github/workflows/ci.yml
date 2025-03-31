@@ -320,7 +320,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Build the Docker image
         run: |
-          docker build -t basyx-python-server .
+          docker build -t basyx-python-server -f Dockerfile ..
       - name: Run container
         run: |
            docker run -d --name basyx-python-server basyx-python-server

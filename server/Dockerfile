@@ -40,9 +40,9 @@ ENTRYPOINT ["/entrypoint.sh"]
 
 ENV SETUPTOOLS_SCM_PRETEND_VERSION=1.0.0
 
-COPY . /all
+COPY ./sdk /sdk
 COPY ./server/app /app
 WORKDIR /app
-RUN pip install ../all/sdk[dev]
+RUN pip install ../sdk
 
 CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.ini"]
