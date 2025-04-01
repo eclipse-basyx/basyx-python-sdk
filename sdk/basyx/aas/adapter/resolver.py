@@ -36,7 +36,7 @@ from .http import Base64URLConverter, APIResponse, XmlResponse, JsonResponse, Xm
 
 from .http import get_response_type, http_exception_to_response, is_stripped_request
 
-from typing import Callable, Dict, Iterable, Iterator, List, Optional, Type, TypeVar, Union, Tuple
+from typing import Callable, Dict, Iterable, Iterator, List, Optional, Type, TypeVar, Union, Tuple, Set
 
 
 T = TypeVar("T")
@@ -44,12 +44,14 @@ T = TypeVar("T")
 BASE64URL_ENCODING = "utf-8"
 
 # Klasse, die das externe Mapping verwaltet
-
+from basyx.aas import model
 
 class ResolverAPI:
     def __init__(self, object_store: model.AbstractObjectStore,
                  base_path: str = "/api/v3.0"):
         self.object_store: model.AbstractObjectStore = object_store
+        self.aas_to_assets: Dict[model.Identifier, Set[model.SpecificAssetId]] = {}
+        self.asset_to_aas: Dict[model.SpecificAssetId, Set[model.Identifier]] = {}
         self.url_map = werkzeug.routing.Map([
             Submount(base_path, [
                 Rule("/lookup/shellsByAssetLink", methods=["POST"],
@@ -129,7 +131,6 @@ class ResolverAPI:
             endpoint, values = map_adapter.match()
             return endpoint(request, values, response_t=response_t,
                             map_adapter=map_adapter)
-
         # any raised error that leaves this function will cause a 500 internal server error
         # so catch raised http exceptions and return them
         except werkzeug.exceptions.HTTPException as e:
@@ -142,25 +143,14 @@ class ResolverAPI:
         Returns a list of Asset Administration Shell IDs linked to specific asset identifiers or the global asset ID
         """
         asset_links = HTTPApiDecoder.request_body_list(request, model.AssetLink,
-                                                      True)
-
-        matching_aas_ids = []
+                                                       False)
+        matching_aas_ids = set()
         for asset_link in asset_links:
-            if asset_link.name == "globalAssetId":
-                for aas in self._get_all_obj_of_type(
-                            model.AssetAdministrationShell):
-                    if aas.asset_information.global_asset_id == asset_link.value:
-                            matching_aas_ids.append(aas.id_)
-            else:
-                for aas in self._get_all_obj_of_type(
-                            model.AssetAdministrationShell):
-                    for specific_asset_id in aas.asset_information.specific_asset_id:
-                        if specific_asset_id.name == asset_link.name and specific_asset_id.value == asset_link.value:
-                            matching_aas_ids.append(aas.id)
-
-        paginated_ids, end_index = self._get_slice(request, iter(
-                matching_aas_ids))
-        return response_t(matching_aas_ids, cursor=end_index)
+            for asset_id, aas_ids in self.asset_to_aas.items():
+                if asset_link.name==asset_id.name and asset_link.value==asset_id.value:
+                    matching_aas_ids=aas_ids
+        matching_aas_ids = list(matching_aas_ids)
+        return response_t(matching_aas_ids)
 
     def get_all_asset_links_by_id(self, request: Request,
                                   url_args: Dict,
@@ -171,22 +161,12 @@ class ResolverAPI:
         The global asset ID is returned as specific asset ID with "name" equal to "globalAssetId" (see Constraint AASd-116).
         """
         aas_identifier = url_args.get("aas_id")
-        try:
-            aas = self._get_obj_ts(aas_identifier,
-                                   model.AssetAdministrationShell)
-        except NotFound:
-            raise NotFound(
-                f"Asset Administration Shell with ID '{aas_identifier}' not found.")
-
-        specific_asset_ids = list(aas.asset_information.specific_asset_id)
-
-        if aas.asset_information.global_asset_id:
-            specific_asset_ids.append(model.SpecificAssetId(
-                name="globalAssetId",
-                value=aas.asset_information.global_asset_id
-            ))
-        
-        return response_t(specific_asset_ids)
+        matching_asset_ids = set()
+        for ass_id, asset_ids in self.aas_to_assets.items():
+            if ass_id==aas_identifier:
+                matching_asset_ids=asset_ids
+        matching_asset_ids = list(matching_asset_ids)
+        return response_t(matching_asset_ids)
 
     def post_all_asset_links_by_id(self, request: Request,
                                    url_args: Dict,
@@ -196,30 +176,29 @@ class ResolverAPI:
         Creates specific asset identifiers linked to an Asset Administration Shell to edit discoverable content.
         """
         aas_identifier = url_args.get("aas_id")
-
-        # Try to retrieve the Asset Administration Shell by its identifier
-        try:
-            aas = self._get_obj_ts(aas_identifier,
-                                   model.AssetAdministrationShell)
-        except NotFound:
-            raise NotFound(
-                f"Asset Administration Shell with ID '{aas_identifier}' not found.")
-
         # Decode the request body to retrieve specific asset identifiers
         specific_asset_ids = HTTPApiDecoder.request_body_list(
-                request, model.SpecificAssetId, False)
+            request, model.SpecificAssetId, False)
 
-        # Check for conflicts with existing specific asset identifiers
-        existing_ids = {id.value for id in
-                        aas.asset_information.specific_asset_id}
+        # Ensure the aas_identifier exists in the dictionary
+        if aas_identifier not in self.aas_to_assets:
+            self.aas_to_assets[aas_identifier] = set()
+
+        # Add specific asset IDs to the aas_to_assets dictionary
+        asset_ids = self.aas_to_assets[aas_identifier]
         for specific_asset_id in specific_asset_ids:
-            if specific_asset_id.value in existing_ids:
-                raise Conflict(
-                    f"Specific asset identifier with value '{specific_asset_id.value}' already exists.")
-            else:
-                aas.asset_information.specific_asset_id.add(specific_asset_id)
+            asset_ids.add(specific_asset_id)
 
-        return response_t(specific_asset_ids)
+        # Update asset_to_aas dictionary
+        for specific_asset_id in specific_asset_ids:
+            if specific_asset_id not in self.asset_to_aas:
+                self.asset_to_aas[specific_asset_id] = set()
+            self.asset_to_aas[specific_asset_id].add(aas_identifier)
+
+        # Convert sets to lists for JSON serialization
+        serializable_aas_to_assets = {key: list(value) for key, value in self.aas_to_assets.items()}
+
+        return response_t(serializable_aas_to_assets)
 
     def delete_all_asset_links_by_id(self, request: Request,
                                      url_args: Dict,
@@ -229,20 +208,20 @@ class ResolverAPI:
         Deletes all specific asset identifiers linked to an Asset Administration Shell to edit discoverable content.
         """
         aas_identifier = url_args.get("aas_id")
+        # Ensure the aas_identifier exists in the dictionary
+        if aas_identifier in self.aas_to_assets:
+            # Remove the links from aas_to_asset dictionary
+            del self.aas_to_assets[aas_identifier]
 
-        # Try to retrieve the Asset Administration Shell by its identifier
-        try:
-            aas = self._get_obj_ts(aas_identifier,
-                                   model.AssetAdministrationShell)
-        except NotFound:
-            raise NotFound(
-                f"Asset Administration Shell with ID '{aas_identifier}' not found.")
+        # Remove the aas_identifier from asset_to_aas dictionary
+        for asset_id, aas_ids in list(self.asset_to_aas.items()):
+            if aas_identifier in aas_ids:
+                aas_ids.discard(aas_identifier)
+                # Clean up empty sets
+                if not aas_ids:
+                    del self.asset_to_aas[asset_id]
 
-        # Clear all specific asset identifiers from the AAS
-        aas.asset_information.specific_asset_id.clear()
-
-        # Return 204 No Content response
-        return Response(status=204)
+        return response_t()
 
 
 if __name__ == "__main__":
