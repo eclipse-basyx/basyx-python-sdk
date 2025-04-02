@@ -42,6 +42,7 @@ import enum
 import io
 import json
 import itertools
+import urllib
 
 from lxml import etree
 import werkzeug.exceptions
@@ -673,14 +674,28 @@ class WSGIApp:
             aas = filter(lambda shell: shell.id_short == id_short, aas)
 
         asset_ids = request.args.getlist("assetIds")
-        if asset_ids is not None:
-            # Decode and instantiate SpecificAssetIds
-            # This needs to be a list, otherwise we can only iterate it once.
-            specific_asset_ids: List[model.SpecificAssetId] = list(
-                map(lambda asset_id: HTTPApiDecoder.base64urljson(asset_id, model.SpecificAssetId, False), asset_ids))
-            # Filter AAS based on these SpecificAssetIds
-            aas = filter(lambda shell: all(specific_asset_id in shell.asset_information.specific_asset_id
-                                           for specific_asset_id in specific_asset_ids), aas)
+
+        if asset_ids:
+            specific_asset_ids = []
+            global_asset_ids = []
+
+            for asset_id in asset_ids:
+                try:
+                    # Try decoding as SpecificAssetId
+                    decoded_specific_id = HTTPApiDecoder.base64urljson(asset_id, model.SpecificAssetId, False)
+                    specific_asset_ids.append(decoded_specific_id)
+                except BadRequest:
+                    # If decoding fails, treat it as a globalAssetId
+                    decoded_specific_id = base64url_decode(asset_id)
+                    global_asset_ids.append(decoded_specific_id)
+
+            # Filter AAS based on both SpecificAssetIds and globalAssetIds
+            aas = filter(lambda shell: (
+                    (not specific_asset_ids or all(specific_asset_id in shell.asset_information.specific_asset_id
+                                                   for specific_asset_id in specific_asset_ids)) and
+                    (len(global_asset_ids) <= 1 and
+                    (not global_asset_ids or  shell.asset_information.global_asset_id in global_asset_ids))
+            ), aas)
 
         paginated_aas, end_index = self._get_slice(request, aas)
         return paginated_aas, end_index
