@@ -8,33 +8,20 @@
 This module implements the "Specification of the Asset Administration Shell Part 2 Application Programming Interfaces".
 """
 
-import abc
 import base64
-import binascii
 import datetime
-import enum
 import io
 import json
 import itertools
 
-from lxml import etree
 import werkzeug.exceptions
 import werkzeug.routing
-import werkzeug.urls
-import werkzeug.utils
 from werkzeug.exceptions import BadRequest, Conflict, NotFound, UnprocessableEntity
 from werkzeug.routing import MapAdapter, Rule, Submount
 from werkzeug.wrappers import Request, Response
-from werkzeug.datastructures import FileStorage
 
 from basyx.aas import model
-from ._generic import XML_NS_MAP
-from .xml import XMLConstructables, read_aas_xml_element, xml_serialization, object_to_xml_element
-from .json import AASToJsonEncoder, StrictAASFromJsonDecoder, StrictStrippedAASFromJsonDecoder
-from . import aasx
-from .http import Base64URLConverter, APIResponse, XmlResponse, JsonResponse, XmlResponseAlt, Message, MessageType, Result, HTTPApiDecoder
-
-from .http import get_response_type, http_exception_to_response, is_stripped_request
+from .http import Base64URLConverter, APIResponse, XmlResponse, JsonResponse, XmlResponseAlt, Message, MessageType, Result, HTTPApiDecoder, get_response_type, http_exception_to_response, is_stripped_request
 
 from typing import Callable, Dict, Iterable, Iterator, List, Optional, Type, TypeVar, Union, Tuple, Set
 
@@ -73,22 +60,6 @@ class ResolverAPI:
         response: Response = self.handle_request(Request(environ))
         return response(environ, start_response)
 
-    def _get_obj_ts(self, identifier: model.Identifier, type_: Type[
-        model.provider._IT]) -> model.provider._IT:
-        identifiable = self.object_store.get(identifier)
-        if not isinstance(identifiable, type_):
-            raise NotFound(
-                f"No {type_.__name__} with {identifier} found!")
-        identifiable.update()
-        return identifiable
-
-    def _get_all_obj_of_type(self, type_: Type[model.provider._IT]) -> \
-            Iterator[model.provider._IT]:
-        for obj in self.object_store:
-            if isinstance(obj, type_):
-                obj.update()
-                yield obj
-
     @classmethod
     def _get_slice(cls, request: Request, iterator: Iterable[T]) -> Tuple[Iterator[T], int]:
         limit_str = request.args.get('limit', default="10")
@@ -103,22 +74,6 @@ class ResolverAPI:
         end_index = cursor + limit
         paginated_slice = itertools.islice(iterator, start_index, end_index)
         return paginated_slice, end_index
-
-    def _get_assets(self, request: Request) -> Tuple[
-        Iterator[model.SpecificAssetId], int]:
-        specific_asset_ids: Iterator[
-            model.SpecificAssetId] = self._get_all_obj_of_type(
-            model.SpecificAssetId)
-
-        asset_name = request.args.get("name")
-        if asset_name is not None:
-            specific_asset_ids = filter(
-                lambda asset: asset.name == asset_name,
-                specific_asset_ids)
-
-        paginated_assets, end_index = self._get_slice(request,
-                                                      specific_asset_ids)
-        return paginated_assets, end_index
 
     def handle_request(self, request: Request):
         map_adapter: MapAdapter = self.url_map.bind_to_environ(
@@ -150,7 +105,9 @@ class ResolverAPI:
                 if asset_link.name==asset_id.name and asset_link.value==asset_id.value:
                     matching_aas_ids=aas_ids
         matching_aas_ids = list(matching_aas_ids)
-        return response_t(matching_aas_ids)
+        paginated_slice, cursor= self._get_slice(request, matching_aas_ids)
+
+        return response_t(list(paginated_slice), cursor=cursor)
 
     def get_all_asset_links_by_id(self, request: Request,
                                   url_args: Dict,
@@ -222,7 +179,6 @@ class ResolverAPI:
                     del self.asset_to_aas[asset_id]
 
         return response_t()
-
 
 if __name__ == "__main__":
     from werkzeug.serving import run_simple
