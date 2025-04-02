@@ -686,8 +686,8 @@ class WSGIApp:
                     specific_asset_ids.append(decoded_specific_id)
                 except BadRequest:
                     # If decoding fails, treat it as a globalAssetId
-                    decoded_specific_id = base64url_decode(asset_id)
-                    global_asset_ids.append(decoded_specific_id)
+                    decoded_global_id = base64url_decode(asset_id)
+                    global_asset_ids.append(decoded_global_id)
 
             # Filter AAS based on both SpecificAssetIds and globalAssetIds
             aas = filter(lambda shell: (
