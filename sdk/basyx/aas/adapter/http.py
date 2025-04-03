@@ -680,14 +680,17 @@ class WSGIApp:
             global_asset_ids = []
 
             for asset_id in asset_ids:
-                try:
-                    # Try decoding as SpecificAssetId
-                    decoded_specific_id = HTTPApiDecoder.base64urljson(asset_id, model.SpecificAssetId, False)
+                asset_id_json = base64url_decode(asset_id)
+                asset_dict = json.loads(asset_id_json)
+                name = asset_dict["name"]
+                value = asset_dict["value"]
+
+                if name == "specificAssetId":
+                    decoded_specific_id = HTTPApiDecoder.json_list(value, model.SpecificAssetId,
+                                                                   False, True)[0]
                     specific_asset_ids.append(decoded_specific_id)
-                except BadRequest:
-                    # If decoding fails, treat it as a globalAssetId
-                    decoded_global_id = base64url_decode(asset_id)
-                    global_asset_ids.append(decoded_global_id)
+                elif name == "globalAssetId":
+                    global_asset_ids.append(value)
 
             # Filter AAS based on both SpecificAssetIds and globalAssetIds
             aas = filter(lambda shell: (
