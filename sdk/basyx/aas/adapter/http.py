@@ -654,13 +654,13 @@ class WSGIApp:
     @classmethod
     def _get_slice(cls, request: Request, iterator: Iterable[T]) -> Tuple[Iterator[T], int]:
         limit_str = request.args.get('limit', default="10")
-        cursor_str = request.args.get('cursor', default="0")
+        cursor_str = request.args.get('cursor', default="1")
         try:
-            limit, cursor = int(limit_str), int(cursor_str)
+            limit, cursor = int(limit_str), int(cursor_str) - 1  # cursor is 1-indexed
             if limit < 0 or cursor < 0:
                 raise ValueError
         except ValueError:
-            raise BadRequest("Cursor and limit must be positive integers!")
+            raise BadRequest("Limit can not be negative, cursor must be positive!")
         start_index = cursor
         end_index = cursor + limit
         paginated_slice = itertools.islice(iterator, start_index, end_index)
