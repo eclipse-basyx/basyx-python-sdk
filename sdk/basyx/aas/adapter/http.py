@@ -694,7 +694,7 @@ class WSGIApp:
                     (not specific_asset_ids or all(specific_asset_id in shell.asset_information.specific_asset_id
                                                    for specific_asset_id in specific_asset_ids)) and
                     (len(global_asset_ids) <= 1 and
-                    (not global_asset_ids or  shell.asset_information.global_asset_id in global_asset_ids))
+                        (not global_asset_ids or shell.asset_information.global_asset_id in global_asset_ids))
             ), aas)
 
         paginated_aas, end_index = self._get_slice(request, aas)
