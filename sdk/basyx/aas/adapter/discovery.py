@@ -7,6 +7,8 @@ from werkzeug.routing import MapAdapter, Rule, Submount
 from .http import Base64URLConverter, APIResponse, XmlResponse, JsonResponse, XmlResponseAlt, Message, MessageType, Result, HTTPApiDecoder, get_response_type, http_exception_to_response, is_stripped_request
 from typing import Callable, Dict, Iterable, Iterator, List, Optional, Type, TypeVar, Union, Tuple, Set
 
+import abc
+
 import copy
 from pymongo import MongoClient
 from pymongo.collection import Collection
@@ -19,7 +21,12 @@ def specific_asset_to_json_obj(asset_id: model.SpecificAssetId) -> dict:
     json_str = AASToJsonEncoder().encode(asset_id)
     return json.loads(json_str)
 
-class InMemoryDiscoveryStore:
+class AbstractDiscoveryStore(metaclass=abc.ABCMeta):
+    @abc.abstractmethod
+    def __init__(self):
+        pass
+
+class InMemoryDiscoveryStore(AbstractDiscoveryStore):
     def __init__(self):
         self.aas_to_assets: Dict[model.Identifier, Set[model.SpecificAssetId]] = {}
         self.asset_to_aas: Dict[model.SpecificAssetId, Set[model.Identifier]] = {}
@@ -65,7 +72,7 @@ class InMemoryDiscoveryStore:
         if asset_key in self.asset_to_aas:
             self.asset_to_aas[asset_key].discard(aas_key)
 
-class MongoDiscoveryStore:
+class MongoDiscoveryStore(AbstractDiscoveryStore):
     def __init__(self,
                  uri: str = "mongodb://localhost:27017",
                  db_name: str = "basyx",
@@ -130,9 +137,8 @@ BASE64URL_ENCODING = "utf-8"
 
 class DiscoveryAPI:
     def __init__(self,
-                 base_path: str = "/api/v3.0",
-                 persistent_store: MongoDiscoveryStore = None):
-        self.persistent_store = persistent_store or InMemoryDiscoveryStore()
+                 persistent_store: AbstractDiscoveryStore, base_path: str = "/api/v3.0"):
+        self.persistent_store: AbstractDiscoveryStore = persistent_store
         self.url_map = werkzeug.routing.Map([
             Submount(base_path, [
                 Rule("/lookup/shellsByAssetLink", methods=["POST"],
@@ -213,12 +219,8 @@ class DiscoveryAPI:
         for key in list(self.persistent_store.asset_to_aas.keys()):
             self.persistent_store.asset_to_aas[key].discard(aas_identifier)
         return response_t()
-"""""
+
 if __name__ == "__main__":
     from werkzeug.serving import run_simple
-    persistent_store = MongoDiscoveryStore(uri="mongodb://localhost:27017", db_name="basyx_registry")
-   # run_simple("localhost", 8084, ResolverAPI(),
-             #  use_debugger=True, use_reloader=True)
-    run_simple("localhost", 8084, ResolverAPI(persistent_store=persistent_store),
+    run_simple("localhost", 8084, DiscoveryAPI(InMemoryDiscoveryStore()),
                use_debugger=True, use_reloader=True)
-"""
