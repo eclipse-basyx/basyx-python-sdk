@@ -1,85 +1,51 @@
-# Eclipse BaSyx Python SDK - HTTP Server
+# Eclipse BaSyx Python SDK - Dicovery Service
 
-This package contains a Dockerfile to spin up an exemplary HTTP/REST server following the [Specification of the AAS Part 2 API][6] with ease.
-The server currently implements the following interfaces:
+This is a Python-based implementation of the **BaSyx Asset Administration Shell (AAS) Discovery Service**.
+It provides basic discovery functionality for AAS IDs and their corresponding assets, as specified in the official [Discovery Service Specification v3.1.0_SSP-001](https://app.swaggerhub.com/apis/Plattform_i40/DiscoveryServiceSpecification/V3.1.0_SSP-001).
 
-- [Asset Administration Shell Repository Service][4]
-- [Submodel Repository Service][5]
+## Overview
 
-It uses the [HTTP API][1] and the [AASX][7], [JSON][8], and [XML][9] Adapters of the [BaSyx Python SDK][3], to serve regarding files from a given directory.
-The files are only read, changes won't persist.
+The Discovery Service is a core component in the Asset Administration Shell ecosystem. Its main responsibility is to store and retrieve relations between AAS identifiers and asset identifiers. It acts as a lookup service for resolving asset-related queries to corresponding AAS.
 
-Alternatively, the container can also be told to use the [Local-File Backend][2] instead, which stores AAS and Submodels as individual JSON files and allows for persistent changes (except supplementary files, i.e. files referenced by `File` submodel elements).
-See [below](#options) on how to configure this.
+This implementation supports:
 
-## Building
-The container image can be built via:
-```
-$ docker buildx build -t basyx-python-sdk-http-server .
-```
+- Adding links between AAS and assets
+- Querying AAS by asset links
+- Querying asset links by AAS ID
+- Removing AAS-related asset links
+- Configurable in-memory or MongoDB-based persistent storage
 
-## Running
+## Features
 
-### Storage
-The container needs to be provided with the directory `/storage` to store AAS and Submodel files: AASX, JSON, XML or JSON files of Local-File Backend.
+| Feature                                      | Description                                                                 |
+|---------------------------------------------|-----------------------------------------------------------------------------|
+| `add_asset_links`                           | Register specific asset identifiers linked to an AAS                        |
+| `get_asset_links_by_aas`                    | Retrieve asset links associated with an AAS                                |
+| `search_aas_by_asset_link`                  | Find AAS identifiers by providing asset link values                        |
+| `remove_asset_links_for_aas`                | Delete all asset links associated with a specific AAS                      |
 
-This directory can be mapped via the `-v` option from another image or a local directory.
-To map the directory `storage` inside the container, `-v ./storage:/storage` can be used.
-The directory `storage` will be created in the current working directory, if it doesn't already exist.
+## Specification Compliance
 
-### Port
-The HTTP server inside the container listens on port 80 by default.
-To expose it on the host on port 8080, use the option `-p 8080:80` when running it.
+- Complies with: **Discovery Service Specification v3.1.0_SSP-001**
 
-### Options
-The container can be configured via environment variables:
-- `API_BASE_PATH` determines the base path under which all other API paths are made available.
-  Default: `/api/v3.0`
-- `STORAGE_TYPE` can be one of `LOCAL_FILE_READ_ONLY` or `LOCAL_FILE_BACKEND`:
-  - When set to `LOCAL_FILE_READ_ONLY` (the default), the server will read and serve AASX, JSON, XML files from the storage directory.
-    The files are not modified, all changes done via the API are only stored in memory.
-  - When instead set to `LOCAL_FILE`, the server makes use of the [LocalFileBackend][2], where AAS and Submodels are persistently stored as JSON files.
-    Supplementary files, i.e. files referenced by `File` submodel elements, are not stored in this case.
-- `STORAGE_PATH` sets the directory to read the files from *within the container*. If you bind your files to a directory different from the default `/storage`, you can use this variable to adjust the server accordingly.
+## Configuration
 
-### Running Examples
+The service can be configured to use either:
 
-Putting it all together, the container can be started via the following command:
-```
-$ docker run -p 8080:80 -v ./storage:/storage basyx-python-sdk-http-server
-```
+- **In-memory storage** (default): Temporary data storage that resets on service restart.
+- **MongoDB storage**: Persistent backend storage using MongoDB.
 
-Since Windows uses backslashes instead of forward slashes in paths, you'll have to adjust the path to the storage directory there:
-```
-> docker run -p 8080:80 -v .\storage:/storage basyx-python-sdk-http-server
-```
+### Configuration via Environment Variables
 
-Per default, the server will use the `LOCAL_FILE_READ_ONLY` storage type and serve the API under `/api/v3.0` and read files from `/storage`. If you want to change this, you can do so like this:
-```
-$ docker run -p 8080:80 -v ./storage2:/storage2 -e API_BASE_PATH=/api/v3.1 -e STORAGE_TYPE=LOCAL_FILE_BACKEND -e STORAGE_PATH=/storage2 basyx-python-sdk-http-server
-```
+| Variable        | Description                                | Default                 |
+|----------------|--------------------------------------------|-------------------------|
+| `STORAGE_TYPE` | `inmemory` or `mongodb`                    | `inmemory`              |
+| `MONGODB_URI`  | MongoDB connection URI                     | `mongodb://localhost:27017` |
+| `MONGODB_DBNAME` | Name of the MongoDB database               | `basyx_registry`        |
 
-## Building and running the image with docker-compose
+## Deployment via Docker
 
-The container image can also be built and run via:
-```
-$ docker compose up
-```
-
-This is the exemplary `docker-compose` file for the server:
-````yaml
-services:
-  app:
-    build: .
-    ports:
-    - "8080:80"
-    volumes:
-      - ./storage:/storage
-
-````
-
-Here files are read from `/storage` and the server can be accessed at http://localhost:8080/api/v3.0/ from your host system. 
-To get a different setup this compose.yaml file can be adapted and expanded.
+A `Dockerfile` and `docker-compose.yml` are provided for simple deployment.
 
 ## Acknowledgments
 

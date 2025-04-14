@@ -3,5 +3,3 @@ services:
     build: .
     ports:
     - "8084:80"
-    volumes:
-      - ./storage:/storage
