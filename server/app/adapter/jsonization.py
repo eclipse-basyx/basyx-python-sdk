@@ -58,14 +58,12 @@ class ServerAASFromJsonDecoder(AASFromJsonDecoder):
         if 'administration' in dct:
             ret.administration = cls._construct_administrative_information(_get_ts(dct, 'administration', dict))
         if 'assetkind' in dct:
-            # FIXME
-            asset_kind = ASSET_KIND_INVERSE[_get_ts(dct, 'assetKind', str)]
+            ret.asset_kind = ASSET_KIND_INVERSE[_get_ts(dct, 'assetKind', str)]
         if 'assetType' in dct:
             ret.asset_type = _get_ts(dct, 'assetType', str)
         global_asset_id = None
         if 'globalAssetId' in dct:
-            # FIXME
-            global_asset_id = _get_ts(dct, 'globalAssetId', str)
+            ret.global_asset_id = _get_ts(dct, 'globalAssetId', str)
         specific_asset_id = set()
         if 'specificAssetIds' in dct:
             for desc_data in _get_ts(dct, "specificAssetIds", list):
