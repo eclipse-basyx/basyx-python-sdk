@@ -57,6 +57,40 @@ class AASToJsonEncoder(json.JSONEncoder):
     """
     stripped = False
 
+    @classmethod
+    def _get_aas_class_serializers(cls) -> Dict[Type, Callable]:
+        mapping: Dict[Type, Callable] = {
+            model.AdministrativeInformation: cls._administrative_information_to_json,
+            model.AnnotatedRelationshipElement: cls._annotated_relationship_element_to_json,
+            model.AssetAdministrationShell: cls._asset_administration_shell_to_json,
+            model.AssetInformation: cls._asset_information_to_json,
+            model.BasicEventElement: cls._basic_event_element_to_json,
+            model.Blob: cls._blob_to_json,
+            model.Capability: cls._capability_to_json,
+            model.ConceptDescription: cls._concept_description_to_json,
+            model.DataSpecificationIEC61360: cls._data_specification_iec61360_to_json,
+            model.Entity: cls._entity_to_json,
+            model.Extension: cls._extension_to_json,
+            model.File: cls._file_to_json,
+            model.Key: cls._key_to_json,
+            model.LangStringSet: cls._lang_string_set_to_json,
+            model.MultiLanguageProperty: cls._multi_language_property_to_json,
+            model.Operation: cls._operation_to_json,
+            model.Property: cls._property_to_json,
+            model.Qualifier: cls._qualifier_to_json,
+            model.Range: cls._range_to_json,
+            model.Reference: cls._reference_to_json,
+            model.ReferenceElement: cls._reference_element_to_json,
+            model.RelationshipElement: cls._relationship_element_to_json,
+            model.Resource: cls._resource_to_json,
+            model.SpecificAssetId: cls._specific_asset_id_to_json,
+            model.Submodel: cls._submodel_to_json,
+            model.SubmodelElementCollection: cls._submodel_element_collection_to_json,
+            model.SubmodelElementList: cls._submodel_element_list_to_json,
+            model.ValueReferencePair: cls._value_reference_pair_to_json,
+        }
+        return mapping
+
     def default(self, obj: object) -> object:
         """
         The overwritten ``default`` method for :class:`json.JSONEncoder`
@@ -64,36 +98,7 @@ class AASToJsonEncoder(json.JSONEncoder):
         :param obj: The object to serialize to json
         :return: The serialized object
         """
-        mapping: Dict[Type, Callable] = {
-            model.AdministrativeInformation: self._administrative_information_to_json,
-            model.AnnotatedRelationshipElement: self._annotated_relationship_element_to_json,
-            model.AssetAdministrationShell: self._asset_administration_shell_to_json,
-            model.AssetInformation: self._asset_information_to_json,
-            model.BasicEventElement: self._basic_event_element_to_json,
-            model.Blob: self._blob_to_json,
-            model.Capability: self._capability_to_json,
-            model.ConceptDescription: self._concept_description_to_json,
-            model.DataSpecificationIEC61360: self._data_specification_iec61360_to_json,
-            model.Entity: self._entity_to_json,
-            model.Extension: self._extension_to_json,
-            model.File: self._file_to_json,
-            model.Key: self._key_to_json,
-            model.LangStringSet: self._lang_string_set_to_json,
-            model.MultiLanguageProperty: self._multi_language_property_to_json,
-            model.Operation: self._operation_to_json,
-            model.Property: self._property_to_json,
-            model.Qualifier: self._qualifier_to_json,
-            model.Range: self._range_to_json,
-            model.Reference: self._reference_to_json,
-            model.ReferenceElement: self._reference_element_to_json,
-            model.RelationshipElement: self._relationship_element_to_json,
-            model.Resource: self._resource_to_json,
-            model.SpecificAssetId: self._specific_asset_id_to_json,
-            model.Submodel: self._submodel_to_json,
-            model.SubmodelElementCollection: self._submodel_element_collection_to_json,
-            model.SubmodelElementList: self._submodel_element_list_to_json,
-            model.ValueReferencePair: self._value_reference_pair_to_json,
-        }
+        mapping = self._get_aas_class_serializers()
         for typ in mapping:
             if isinstance(obj, typ):
                 mapping_method = mapping[typ]

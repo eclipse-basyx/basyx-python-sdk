@@ -222,53 +222,17 @@ def read_server_aas_json_file_into(object_store: model.AbstractObjectStore, file
 
 class ServerAASToJsonEncoder(AASToJsonEncoder):
 
-    def default(self, obj: object) -> object:
-        """
-        The overwritten ``default`` method for :class:`json.JSONEncoder`
-
-        :param obj: The object to serialize to json
-        :return: The serialized object
-        """
-        mapping: Dict[Type, Callable] = {
-            model.AdministrativeInformation: self._administrative_information_to_json,
-            model.AnnotatedRelationshipElement: self._annotated_relationship_element_to_json,
-            model.AssetAdministrationShell: self._asset_administration_shell_to_json,
-            model.AssetInformation: self._asset_information_to_json,
-            model.BasicEventElement: self._basic_event_element_to_json,
-            model.Blob: self._blob_to_json,
-            model.Capability: self._capability_to_json,
-            model.ConceptDescription: self._concept_description_to_json,
-            model.DataSpecificationIEC61360: self._data_specification_iec61360_to_json,
-            model.Entity: self._entity_to_json,
-            model.Extension: self._extension_to_json,
-            model.File: self._file_to_json,
-            model.Key: self._key_to_json,
-            model.LangStringSet: self._lang_string_set_to_json,
-            model.MultiLanguageProperty: self._multi_language_property_to_json,
-            model.Operation: self._operation_to_json,
-            model.Property: self._property_to_json,
-            model.Qualifier: self._qualifier_to_json,
-            model.Range: self._range_to_json,
-            model.Reference: self._reference_to_json,
-            model.ReferenceElement: self._reference_element_to_json,
-            model.RelationshipElement: self._relationship_element_to_json,
-            model.Resource: self._resource_to_json,
-            model.SpecificAssetId: self._specific_asset_id_to_json,
-            model.Submodel: self._submodel_to_json,
-            model.SubmodelElementCollection: self._submodel_element_collection_to_json,
-            model.SubmodelElementList: self._submodel_element_list_to_json,
-            model.ValueReferencePair: self._value_reference_pair_to_json,
-            server_model.AssetAdministrationShellDescriptor: self._asset_administration_shell_descriptor_to_json,
-            server_model.SubmodelDescriptor: self._submodel_descriptor_to_json,
-            server_model.Endpoint: self._endpoint_to_json,
-            server_model.ProtocolInformation: self._protocol_information_to_json,
-            server_model.AssetLink: self._asset_link_to_json
-        }
-        for typ in mapping:
-            if isinstance(obj, typ):
-                mapping_method = mapping[typ]
-                return mapping_method(obj)
-        return super().default(obj)
+    @classmethod
+    def _get_aas_class_serializers(cls) -> Dict[Type, Callable]:
+        serializers = super()._get_aas_class_serializers()
+        serializers.update({
+            server_model.AssetAdministrationShellDescriptor: cls._asset_administration_shell_descriptor_to_json,
+            server_model.SubmodelDescriptor: cls._submodel_descriptor_to_json,
+            server_model.Endpoint: cls._endpoint_to_json,
+            server_model.ProtocolInformation: cls._protocol_information_to_json,
+            server_model.AssetLink: cls._asset_link_to_json
+        })
+        return serializers
 
     @classmethod
     def _abstract_classes_to_json(cls, obj: object) -> Dict[str, object]:
