@@ -39,7 +39,7 @@ from typing import Dict, Callable, ContextManager, TypeVar, Type, List, IO, Opti
 from basyx.aas import model
 from .._generic import MODELLING_KIND_INVERSE, ASSET_KIND_INVERSE, KEY_TYPES_INVERSE, ENTITY_TYPES_INVERSE, \
     IEC61360_DATA_TYPES_INVERSE, IEC61360_LEVEL_TYPES_INVERSE, KEY_TYPES_CLASSES_INVERSE, REFERENCE_TYPES_INVERSE, \
-    DIRECTION_INVERSE, STATE_OF_EVENT_INVERSE, QUALIFIER_KIND_INVERSE, PathOrIO, Path
+    DIRECTION_INVERSE, STATE_OF_EVENT_INVERSE, QUALIFIER_KIND_INVERSE, PathOrIO, Path, JSON_AAS_TOP_LEVEL_KEYS_TO_TYPES
 
 logger = logging.getLogger(__name__)
 
@@ -808,17 +808,10 @@ def _select_decoder(failsafe: bool, stripped: bool, decoder: Optional[Type[AASFr
         return StrictAASFromJsonDecoder
 
 
-KEYS_TO_TYPES = (
-    ('assetAdministrationShells', model.AssetAdministrationShell),
-    ('submodels', model.Submodel),
-    ('conceptDescriptions', model.ConceptDescription)
-)
-
-
 def read_aas_json_file_into(object_store: model.AbstractObjectStore, file: PathOrIO, replace_existing: bool = False,
                             ignore_existing: bool = False, failsafe: bool = True, stripped: bool = False,
                             decoder: Optional[Type[AASFromJsonDecoder]] = None,
-                            keys_to_types: Iterable[Tuple[str, any]] = KEYS_TO_TYPES) -> Set[model.Identifier]:
+                            keys_to_types: Iterable[Tuple[str, any]] = JSON_AAS_TOP_LEVEL_KEYS_TO_TYPES) -> Set[model.Identifier]:
     """
     Read an Asset Administration Shell JSON file according to 'Details of the Asset Administration Shell', chapter 5.5
     into a given object store.

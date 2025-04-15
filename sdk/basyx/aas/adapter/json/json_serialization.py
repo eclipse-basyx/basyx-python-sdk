@@ -30,11 +30,12 @@ import base64
 import contextlib
 import inspect
 import io
-from typing import ContextManager, List, Dict, Optional, TextIO, Type, Callable, get_args
+from typing import ContextManager, List, Dict, Optional, TextIO, Type, Callable, get_args, Iterable, Tuple
 import json
 
 from basyx.aas import model
 from .. import _generic
+from .._generic import JSON_AAS_TOP_LEVEL_KEYS_TO_TYPES
 
 
 class AASToJsonEncoder(json.JSONEncoder):
@@ -698,26 +699,33 @@ def _select_encoder(stripped: bool, encoder: Optional[Type[AASToJsonEncoder]] = 
     return AASToJsonEncoder if not stripped else StrippedAASToJsonEncoder
 
 
-def _create_dict(data: model.AbstractObjectStore) -> dict:
-    # separate different kind of objects
-    asset_administration_shells: List[model.AssetAdministrationShell] = []
-    submodels: List[model.Submodel] = []
-    concept_descriptions: List[model.ConceptDescription] = []
+def _create_dict(data: model.AbstractObjectStore,
+                 keys_to_types: Iterable[Tuple[str, Type]] = JSON_AAS_TOP_LEVEL_KEYS_TO_TYPES) -> Dict[str, List[object]]:
+    """
+    Categorizes objects from an AbstractObjectStore into a dictionary based on their types.
+
+    This function iterates over the objects in the provided AbstractObjectStore and groups them into lists
+    based on their types, as defined in the `keys_to_types` mapping. The resulting dictionary contains
+    keys corresponding to the names in `keys_to_types` and values as lists of objects of the respective types.
+
+    :param data: An AbstractObjectStore containing objects to be categorized.
+    :param keys_to_types: An iterable of tuples where each tuple contains:
+                          - A string key representing the category name.
+                          - A type to match objects against.
+    :return: A dictionary where keys are category names and values are lists of objects of the corresponding types.
+    """
+    objects = {}
+
     for obj in data:
-        if isinstance(obj, model.AssetAdministrationShell):
-            asset_administration_shells.append(obj)
-        elif isinstance(obj, model.Submodel):
-            submodels.append(obj)
-        elif isinstance(obj, model.ConceptDescription):
-            concept_descriptions.append(obj)
-    dict_: Dict[str, List] = {}
-    if asset_administration_shells:
-        dict_['assetAdministrationShells'] = asset_administration_shells
-    if submodels:
-        dict_['submodels'] = submodels
-    if concept_descriptions:
-        dict_['conceptDescriptions'] = concept_descriptions
-    return dict_
+        # Iterate through the mapping of category names to expected types
+        for name, expected_type in keys_to_types:
+            # Check if the object matches the expected type
+            if isinstance(obj, expected_type):
+                # Add the object to the appropriate category in the dictionary
+                objects.setdefault(name, [])
+                objects[name].append(obj)
+                break  # Exit the inner loop once a match is found
+    return objects
 
 
 def object_store_to_json(data: model.AbstractObjectStore, stripped: bool = False,

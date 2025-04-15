@@ -5,7 +5,7 @@ from basyx.aas import model
 from basyx.aas.adapter import _generic
 from basyx.aas.adapter._generic import ASSET_KIND_INVERSE, PathOrIO
 from basyx.aas.adapter.json import AASToJsonEncoder
-from basyx.aas.adapter.json.json_deserialization import _get_ts, AASFromJsonDecoder, KEYS_TO_TYPES, \
+from basyx.aas.adapter.json.json_deserialization import _get_ts, AASFromJsonDecoder, JSON_AAS_TOP_LEVEL_KEYS_TO_TYPES, \
     read_aas_json_file_into
 
 import logging
@@ -13,6 +13,11 @@ from typing import Callable
 
 
 logger = logging.getLogger(__name__)
+
+JSON_SERVER_AAS_TOP_LEVEL_KEYS_TO_TYPES = JSON_AAS_TOP_LEVEL_KEYS_TO_TYPES + (
+    ('assetAdministrationShellDescriptors', server_model.AssetAdministrationShellDescriptor),
+    ('submodelDescriptors', server_model.SubmodelDescriptor)
+)
 
 
 class ServerAASFromJsonDecoder(AASFromJsonDecoder):
@@ -208,14 +213,9 @@ class ServerStrictStrippedAASFromJsonDecoder(ServerStrictAASFromJsonDecoder, Ser
 def read_server_aas_json_file_into(object_store: model.AbstractObjectStore, file: PathOrIO, replace_existing: bool = False,
                             ignore_existing: bool = False, failsafe: bool = True, stripped: bool = False,
                             decoder: Optional[Type[AASFromJsonDecoder]] = None) -> Set[model.Identifier]:
-    keys_to_types = list(KEYS_TO_TYPES)
-    keys_to_types.extend([
-        ('assetAdministrationShellDescriptors', server_model.AssetAdministrationShellDescriptor),
-        ('submodelDescriptors', server_model.SubmodelDescriptor)
-    ])
     return read_aas_json_file_into(object_store=object_store, file=file, replace_existing=replace_existing,
                                    ignore_existing=ignore_existing, failsafe=failsafe, stripped=stripped,
-                                   decoder=decoder, keys_to_types=keys_to_types)
+                                   decoder=decoder, keys_to_types=JSON_SERVER_AAS_TOP_LEVEL_KEYS_TO_TYPES)
 
 
 class ServerAASToJsonEncoder(AASToJsonEncoder):
@@ -242,9 +242,7 @@ class ServerAASToJsonEncoder(AASToJsonEncoder):
                 data['displayName'] = obj.display_name
             if obj.extension:
                 data['extensions'] = list(obj.extension)
-
         return data
-
 
     @classmethod
     def _asset_administration_shell_descriptor_to_json(cls, obj: server_model.AssetAdministrationShellDescriptor) -> Dict[str, object]:
