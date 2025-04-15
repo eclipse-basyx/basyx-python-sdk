@@ -1,7 +1,11 @@
 import itertools
 import werkzeug.exceptions
 from werkzeug.wrappers import Request, Response
+
+import server.app.server_model
 from basyx.aas import model
+from server.app import server_model
+from server.app.adapter.jsonization import ServerAASToJsonEncoder
 from .http import APIResponse, http_exception_to_response, get_response_type, HTTPApiDecoder
 from werkzeug.routing import MapAdapter, Rule, Submount
 from .http import Base64URLConverter, APIResponse, XmlResponse, JsonResponse, XmlResponseAlt, Message, MessageType, Result, HTTPApiDecoder, get_response_type, http_exception_to_response, is_stripped_request
@@ -14,11 +18,10 @@ from pymongo import MongoClient
 from pymongo.collection import Collection
 
 import json
-from basyx.aas.adapter.json import AASToJsonEncoder
 
 def specific_asset_to_json_obj(asset_id: model.SpecificAssetId) -> dict:
     # Encode the asset to a JSON string and then decode to a dict.
-    json_str = AASToJsonEncoder().encode(asset_id)
+    json_str = ServerAASToJsonEncoder().encode(asset_id)
     return json.loads(json_str)
 
 class AbstractDiscoveryStore(metaclass=abc.ABCMeta):
@@ -50,7 +53,7 @@ class InMemoryDiscoveryStore(AbstractDiscoveryStore):
         if key in self.aas_to_assets:
             del self.aas_to_assets[key]
 
-    def search_aas_by_asset_link(self, asset_link: model.AssetLink) -> List[str]:
+    def search_aas_by_asset_link(self, asset_link: server_model.AssetLink) -> List[str]:
         result = []
         for asset_key, aas_ids in self.asset_to_aas.items():
             expected_key = f"{asset_link.name}:{asset_link.value}"
@@ -104,7 +107,7 @@ class MongoDiscoveryStore(AbstractDiscoveryStore):
         key = aas_identifier
         self.coll_aas_to_assets.delete_one({"_id": key})
 
-    def search_aas_by_asset_link(self, asset_link: model.AssetLink) -> List[str]:
+    def search_aas_by_asset_link(self, asset_link: server_model.AssetLink) -> List[str]:
         # Query MongoDB for specificAssetIds where 'name' and 'value' match
         doc = self.coll_asset_to_aas.find_one({
             "name": asset_link.name,
@@ -190,7 +193,7 @@ class DiscoveryAPI:
             return http_exception_to_response(e, response_t)
 
     def search_all_aas_ids_by_asset_link(self, request: Request, url_args: dict, response_t: type, **_kwargs) -> Response:
-        asset_links = HTTPApiDecoder.request_body_list(request, model.AssetLink, False)
+        asset_links = HTTPApiDecoder.request_body_list(request, server_model.AssetLink, False)
         matching_aas_keys = set()
         for asset_link in asset_links:
             aas_keys = self.persistent_store.search_aas_by_asset_link(asset_link)

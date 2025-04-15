@@ -53,11 +53,16 @@ from werkzeug.routing import MapAdapter, Rule, Submount
 from werkzeug.wrappers import Request, Response
 from werkzeug.datastructures import FileStorage
 
+import server.app.server_model as server_model
 from basyx.aas import model
-from ._generic import XML_NS_MAP
-from .xml import XMLConstructables, read_aas_xml_element, xml_serialization, object_to_xml_element
-from .json import AASToJsonEncoder, StrictAASFromJsonDecoder, StrictStrippedAASFromJsonDecoder
-from . import aasx
+from basyx.aas.adapter._generic import XML_NS_MAP
+
+from basyx.aas.adapter import aasx
+
+from basyx.aas.adapter.xml import xml_serialization, XMLConstructables
+
+from server.app.adapter.xmlization import ServerXMLConstructables, read_server_aas_xml_element
+from server.app.adapter.jsonization import ServerAASToJsonEncoder, ServerStrictAASFromJsonDecoder, ServerStrictStrippedAASFromJsonDecoder
 
 from typing import Callable, Dict, Iterable, Iterator, List, Optional, Type, TypeVar, Union, Tuple
 
@@ -92,7 +97,7 @@ class Result:
         self.messages: List[Message] = messages
 
 
-class ResultToJsonEncoder(AASToJsonEncoder):
+class ResultToJsonEncoder(ServerAASToJsonEncoder):
     @classmethod
     def _result_to_json(cls, result: Result) -> Dict[str, object]:
         return {
@@ -174,10 +179,10 @@ class XmlResponse(APIResponse):
                 root_elem.append(child)
         elif isinstance(obj, list):
             for item in obj:
-                item_elem = object_to_xml_element(item)
+                item_elem = xml_serialization.object_to_xml_element(item)
                 root_elem.append(item_elem)
         else:
-            obj_elem = object_to_xml_element(obj)
+            obj_elem = xml_serialization.object_to_xml_element(obj)
             for child in obj_elem:
                 root_elem.append(child)
         etree.cleanup_namespaces(root_elem)
@@ -290,9 +295,9 @@ class HTTPApiDecoder:
         model.Submodel: XMLConstructables.SUBMODEL,
         model.SubmodelElement: XMLConstructables.SUBMODEL_ELEMENT,
         model.Reference: XMLConstructables.REFERENCE,
-        model.AssetAdministrationShellDescriptor: XMLConstructables.ASSET_ADMINISTRATION_SHELL_DESCRIPTOR,
-        model.SubmodelDescriptor: XMLConstructables.SUBMODEL_DESCRIPTOR,
-        model.AssetLink: XMLConstructables.ASSET_LINK,
+        server_model.AssetAdministrationShellDescriptor: ServerXMLConstructables.ASSET_ADMINISTRATION_SHELL_DESCRIPTOR,
+        server_model.SubmodelDescriptor: ServerXMLConstructables.SUBMODEL_DESCRIPTOR,
+        server_model.AssetLink: ServerXMLConstructables.ASSET_LINK,
     }
 
     @classmethod
@@ -309,8 +314,8 @@ class HTTPApiDecoder:
     @classmethod
     def json_list(cls, data: Union[str, bytes], expect_type: Type[T], stripped: bool, expect_single: bool) -> List[T]:
         cls.check_type_supportance(expect_type)
-        decoder: Type[StrictAASFromJsonDecoder] = StrictStrippedAASFromJsonDecoder if stripped \
-            else StrictAASFromJsonDecoder
+        decoder: Type[ServerStrictAASFromJsonDecoder] = ServerStrictStrippedAASFromJsonDecoder if stripped \
+            else ServerStrictAASFromJsonDecoder
         try:
             parsed = json.loads(data, cls=decoder)
             if not isinstance(parsed, list):
@@ -340,7 +345,7 @@ class HTTPApiDecoder:
                 constructor = decoder._construct_asset_administration_shell_descriptor
             elif expect_type is model.SubmodelDescriptor:
                 constructor = decoder._construct_submodel_descriptor
-            elif expect_type is model.AssetLink:
+            elif expect_type is server_model.AssetLink:
                 constructor = decoder._construct_asset_link
 
             if constructor is not None:
@@ -371,8 +376,8 @@ class HTTPApiDecoder:
         cls.check_type_supportance(expect_type)
         try:
             xml_data = io.BytesIO(data)
-            rv = read_aas_xml_element(xml_data, cls.type_constructables_map[expect_type],
-                                      stripped=stripped, failsafe=False)
+            rv = read_server_aas_xml_element(xml_data, cls.type_constructables_map[expect_type],
+                                             stripped=stripped, failsafe=False)
         except (KeyError, ValueError) as e:
             # xml deserialization creates an error chain. since we only return one error, return the root cause
             f: BaseException = e

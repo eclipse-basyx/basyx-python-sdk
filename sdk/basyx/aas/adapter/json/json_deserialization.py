@@ -34,7 +34,6 @@ import contextlib
 import json
 import logging
 import pprint
-from abc import abstractmethod
 from typing import Dict, Callable, ContextManager, TypeVar, Type, List, IO, Optional, Set, get_args
 
 from basyx.aas import model
@@ -189,9 +188,6 @@ class AASFromJsonDecoder(json.JSONDecoder):
             'Range': cls._construct_range,
             'ReferenceElement': cls._construct_reference_element,
             'DataSpecificationIec61360': cls._construct_data_specification_iec61360,
-            'AssetAdministrationShellDescriptor': cls._construct_asset_administration_shell_descriptor,
-            'SubmodelDescriptor': cls._construct_submodel_descriptor,
-            'AssetLink': cls._construct_asset_link,
         }
 
         # Get modelType and constructor function
@@ -279,16 +275,7 @@ class AASFromJsonDecoder(json.JSONDecoder):
             if 'extensions' in dct:
                 for extension in _get_ts(dct, 'extensions', list):
                     obj.extension.add(cls._construct_extension(extension))
-        if isinstance(obj, model.Descriptor):
-            if 'description' in dct:
-                obj.description = cls._construct_lang_string_set(_get_ts(dct, 'description', list),
-                                                                 model.MultiLanguageTextType)
-            if 'displayName' in dct:
-                obj.display_name = cls._construct_lang_string_set(_get_ts(dct, 'displayName', list),
-                                                                  model.MultiLanguageNameType)
-            if 'extensions' in dct:
-                for extension in _get_ts(dct, 'extensions', list):
-                    obj.extension.add(cls._construct_extension(extension))
+
     @classmethod
     def _get_kind(cls, dct: Dict[str, object]) -> model.ModellingKind:
         """
@@ -760,134 +747,6 @@ class AASFromJsonDecoder(json.JSONDecoder):
             ret.value = cls._construct_reference(_get_ts(dct, 'value', dict))
         return ret
 
-    @classmethod
-    def _construct_asset_administration_shell_descriptor(
-            cls, dct: Dict[str, object], object_class=model.AssetAdministrationShellDescriptor) -> model.AssetAdministrationShellDescriptor:
-        ret = object_class(id_=_get_ts(dct, 'id', str))
-        cls._amend_abstract_attributes(ret, dct)
-        if 'administration' in dct:
-            ret.administration = cls._construct_administrative_information(_get_ts(dct, 'administration', dict))
-        if 'assetkind' in dct:
-            asset_kind=ASSET_KIND_INVERSE[_get_ts(dct, 'assetKind', str)]
-        if 'assetType' in dct:
-            ret.asset_type = _get_ts(dct, 'assetType', str)
-        global_asset_id = None
-        if 'globalAssetId' in dct:
-           global_asset_id = _get_ts(dct, 'globalAssetId', str)
-        specific_asset_id = set()
-        if 'specificAssetIds' in dct:
-            for desc_data in _get_ts(dct, "specificAssetIds", list):
-                specific_asset_id.add(cls._construct_specific_asset_id(desc_data, model.SpecificAssetId))
-        if 'endpoints' in dct:
-            for endpoint_dct in _get_ts(dct, 'endpoints', list):
-                if 'protocolInformation' in endpoint_dct:
-                    ret.endpoints.append(
-                        cls._construct_endpoint(endpoint_dct,
-                                                model.Endpoint))
-                elif 'href' in endpoint_dct:
-                    protocol_info = model.ProtocolInformation(
-                        href=_get_ts(endpoint_dct['href'], 'href', str),
-                        endpoint_protocol=_get_ts(endpoint_dct['href'],
-                                                  'endpointProtocol',
-                                                  str) if 'endpointProtocol' in
-                                                          endpoint_dct[
-                                                              'href'] else None,
-                        endpoint_protocol_version=_get_ts(
-                            endpoint_dct['href'],
-                            'endpointProtocolVersion',
-                            list) if 'endpointProtocolVersion' in
-                                     endpoint_dct['href'] else None
-                    )
-                    ret.endpoints.append(model.Endpoint(
-                        protocol_information=protocol_info,
-                        interface=_get_ts(endpoint_dct, 'interface',
-                                          str)))
-        if 'idShort' in dct:
-            ret.id_short = _get_ts(dct, 'idShort', str)
-        if 'submodelDescriptors' in dct:
-            ret.submodel_descriptors = cls._construct_submodel_descriptor(_get_ts(dct, 'submodelDescriptors', list), model.SubmodelDescriptor)
-        return ret
-
-    @classmethod
-    def _construct_protocol_information(cls, dct: Dict[str, object],
-                                        object_class=model.ProtocolInformation) -> model.ProtocolInformation:
-        ret = object_class(
-            href=_get_ts(dct, 'href', str),
-            endpoint_protocol=_get_ts(dct, 'endpointProtocol',
-                                      str) if 'endpointProtocol' in dct else None,
-            endpoint_protocol_version=_get_ts(dct,
-                                              'endpointProtocolVersion',
-                                              list) if 'endpointProtocolVersion' in dct else None,
-            subprotocol=_get_ts(dct, 'subprotocol',
-                                str) if 'subprotocol' in dct else None,
-            subprotocol_body=_get_ts(dct, 'subprotocolBody',
-                                     str) if 'subprotocolBody' in dct else None,
-            subprotocol_body_encoding=_get_ts(dct,
-                                              'subprotocolBodyEncoding',
-                                              str) if 'subprotocolBodyEncoding' in dct else None
-        )
-        return ret
-
-    @classmethod
-    def _construct_endpoint(cls, dct: Dict[str, object],
-                            object_class=model.Endpoint) -> model.Endpoint:
-        ret = object_class(
-            protocol_information=cls._construct_protocol_information(
-                _get_ts(dct, 'protocolInformation', dict),
-                model.ProtocolInformation
-            ),
-            interface=_get_ts(dct, 'interface',
-                              str)
-        )
-        cls._amend_abstract_attributes(ret, dct)
-        return ret
-    
-    @classmethod
-    def _construct_submodel_descriptor(
-            cls, dct: Dict[str, object], object_class=model.SubmodelDescriptor) -> model.SubmodelDescriptor:
-        ret = object_class(id_=_get_ts(dct, 'id', str),
-                           endpoints=[])
-        cls._amend_abstract_attributes(ret, dct)
-        for endpoint_dct in _get_ts(dct, 'endpoints', list):
-            if 'protocolInformation' in endpoint_dct:
-                ret.endpoints.append(
-                    cls._construct_endpoint(endpoint_dct,
-                                            model.Endpoint))
-            elif 'href' in endpoint_dct:
-                protocol_info = model.ProtocolInformation(
-                    href=_get_ts(endpoint_dct['href'], 'href', str),
-                    endpoint_protocol=_get_ts(endpoint_dct['href'],
-                                              'endpointProtocol',
-                                              str) if 'endpointProtocol' in
-                                                      endpoint_dct[
-                                                          'href'] else None,
-                    endpoint_protocol_version=_get_ts(
-                        endpoint_dct['href'],
-                        'endpointProtocolVersion',
-                        list) if 'endpointProtocolVersion' in
-                                 endpoint_dct['href'] else None
-                )
-                ret.endpoints.append(model.Endpoint(
-                    protocol_information=protocol_info,
-                    interface=_get_ts(endpoint_dct, 'interface',
-                                      str)))
-        if 'administration' in dct:
-            ret.administration = cls._construct_administrative_information(
-                _get_ts(dct, 'administration', dict))
-        if 'idShort' in dct:
-            ret.id_short = _get_ts(dct, 'idShort', str)
-        if 'semanticId' in dct:
-            ret.semantic_id = cls._construct_reference(_get_ts(dct, 'semanticId', dict))
-        if 'supplementalSemanticIds' in dct:
-            for ref in _get_ts(dct, 'supplementalSemanticIds', list):
-                ret.supplemental_semantic_id.append(cls._construct_reference(ref))
-        return ret
-    @classmethod
-    def _construct_asset_link (
-            cls, dct: Dict[str, object], object_class=model.AssetLink) -> model.AssetLink:
-        ret = object_class(name=_get_ts(dct, 'name', str),
-                           value=_get_ts(dct, 'value', str))
-        return ret
 
 class StrictAASFromJsonDecoder(AASFromJsonDecoder):
     """
@@ -986,9 +845,7 @@ def read_aas_json_file_into(object_store: model.AbstractObjectStore, file: PathO
 
     for name, expected_type in (('assetAdministrationShells', model.AssetAdministrationShell),
                                 ('submodels', model.Submodel),
-                                ('conceptDescriptions', model.ConceptDescription),
-                                ('assetAdministrationShellDescriptors', model.AssetAdministrationShellDescriptor),
-                                ('submodelDescriptors', model.SubmodelDescriptor)):
+                                ('conceptDescriptions', model.ConceptDescription)):
         try:
             lst = _get_ts(data, name, list)
         except (KeyError, TypeError):

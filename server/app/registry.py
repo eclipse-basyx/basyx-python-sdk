@@ -8,34 +8,23 @@
 This module implements the "Specification of the Asset Administration Shell Part 2 Application Programming Interfaces".
 """
 
-import abc
-import base64
-import binascii
-import datetime
-import enum
-import io
-import json
 import itertools
 
-from lxml import etree
 import werkzeug.exceptions
 import werkzeug.routing
 import werkzeug.urls
 import werkzeug.utils
-from werkzeug.exceptions import BadRequest, Conflict, NotFound, UnprocessableEntity
+from werkzeug.exceptions import BadRequest, Conflict, NotFound
 from werkzeug.routing import MapAdapter, Rule, Submount
 from werkzeug.wrappers import Request, Response
-from werkzeug.datastructures import FileStorage
 
 from basyx.aas import model
-from ._generic import XML_NS_MAP
-from .xml import XMLConstructables, read_aas_xml_element, xml_serialization, object_to_xml_element
-from .json import AASToJsonEncoder, StrictAASFromJsonDecoder, StrictStrippedAASFromJsonDecoder
-from . import aasx
+import server.app.server_model as server_model
+
 from .http import APIResponse, XmlResponse, JsonResponse, XmlResponseAlt, Message, MessageType, Result, HTTPApiDecoder
 from .http import Base64URLConverter
 
-from typing import Callable, Dict, Iterable, Iterator, List, Optional, Type, TypeVar, Union, Tuple
+from typing import Dict, Iterable, Iterator, List, Type, TypeVar, Tuple
 
 def get_response_type(request: Request) -> Type[APIResponse]:
     response_types: Dict[str, Type[APIResponse]] = {
@@ -134,12 +123,12 @@ class RegistryAPI:
         paginated_slice = itertools.islice(iterator, start_index, end_index)
         return paginated_slice, end_index
 
-    def _get_descriptors(self, request: "Request") -> Tuple[Iterator[model.AssetAdministrationShellDescriptor], int]:
+    def _get_descriptors(self, request: "Request") -> Tuple[Iterator[server_model.AssetAdministrationShellDescriptor], int]:
         """
         Returns all Asset Administration Shell Descriptors
         """
-        descriptors: Iterator[model.AssetAdministrationShellDescriptor] = self._get_all_obj_of_type(
-            model.AssetAdministrationShellDescriptor
+        descriptors: Iterator[server_model.AssetAdministrationShellDescriptor] = self._get_all_obj_of_type(
+            server_model.AssetAdministrationShellDescriptor
         )
 
         id_short = request.args.get("idShort")
@@ -162,14 +151,14 @@ class RegistryAPI:
         paginated_descriptors, end_index = self._get_slice(request, descriptors)
         return paginated_descriptors, end_index
 
-    def _get_descriptor(self, url_args: Dict) -> model.AssetAdministrationShellDescriptor:
-        return self._get_obj_ts(url_args["aas_id"], model.AssetAdministrationShellDescriptor)
+    def _get_descriptor(self, url_args: Dict) -> server_model.AssetAdministrationShellDescriptor:
+        return self._get_obj_ts(url_args["aas_id"], server_model.AssetAdministrationShellDescriptor)
 
-    def _get_submodel_descriptors(self, request: Request) -> Tuple[Iterator[model.SubmodelDescriptor], int]:
-        submodel_descriptors: Iterator[model.Submodel] = self._get_all_obj_of_type(model.SubmodelDescriptor)
+    def _get_submodel_descriptors(self, request: Request) -> Tuple[Iterator[server_model.SubmodelDescriptor], int]:
+        submodel_descriptors: Iterator[model.Submodel] = self._get_all_obj_of_type(server_model.SubmodelDescriptor)
         id_short = request.args.get("idShort")
         if id_short is not None:
-            submodel_descriptors= filter(lambda sm: sm.id_short == id_short, submodels)
+            submodel_descriptors = filter(lambda sm: sm.id_short == id_short, submodel_descriptors)
         semantic_id = request.args.get("semanticId")
         if semantic_id is not None:
             spec_semantic_id = HTTPApiDecoder.base64urljson(
@@ -178,8 +167,8 @@ class RegistryAPI:
         paginated_submodel_descriptors, end_index = self._get_slice(request, submodel_descriptors)
         return paginated_submodel_descriptors, end_index
 
-    def _get_submodel_descriptor(self, url_args: Dict) -> model.SubmodelDescriptor:
-        return self._get_obj_ts(url_args["submodel_id"], model.SubmodelDescriptor)
+    def _get_submodel_descriptor(self, url_args: Dict) -> server_model.SubmodelDescriptor:
+        return self._get_obj_ts(url_args["submodel_id"], server_model.SubmodelDescriptor)
 
     def handle_request(self, request: Request):
         map_adapter: MapAdapter = self.url_map.bind_to_environ(request.environ)
@@ -199,12 +188,12 @@ class RegistryAPI:
 
     # ------ AAS REGISTRY ROUTES -------
     def get_aas_descriptors_all(self, request: Request, url_args: Dict, response_t: Type[APIResponse], **_kwargs) -> Response:
-        aasdescriptors, cursor = self._get_descriptors(request)
-        return response_t(list(aasdescriptors), cursor=cursor)
+        aas_descriptors, cursor = self._get_descriptors(request)
+        return response_t(list(aas_descriptors), cursor=cursor)
 
     def post_aas_descriptor(self, request: Request, url_args: Dict, response_t: Type[APIResponse],
                  map_adapter: MapAdapter) -> Response:
-        descriptor = HTTPApiDecoder.request_body(request, model.AssetAdministrationShellDescriptor, False)
+        descriptor = HTTPApiDecoder.request_body(request, server_model.AssetAdministrationShellDescriptor, False)
         try:
             self.object_store.add(descriptor)
         except KeyError as e:
@@ -221,7 +210,7 @@ class RegistryAPI:
 
     def put_aas_descriptor(self, request: Request, url_args: Dict, response_t: Type[APIResponse], **_kwargs) -> Response:
         descriptor = self._get_descriptor(url_args)
-        descriptor.update_from(HTTPApiDecoder.request_body(request, model.AssetAdministrationShellDescriptor,
+        descriptor.update_from(HTTPApiDecoder.request_body(request, server_model.AssetAdministrationShellDescriptor,
                                                     is_stripped_request(request)))
         descriptor.commit()
         return response_t()
@@ -267,7 +256,7 @@ class RegistryAPI:
                                                    map_adapter: MapAdapter) -> Response:
         aas_descriptor = self._get_descriptor(url_args)
         submodel_descriptor = HTTPApiDecoder.request_body(request,
-                                                          model.SubmodelDescriptor,
+                                                          server_model.SubmodelDescriptor,
                                                           is_stripped_request(
                                                               request))
         if any(sd.id == submodel_descriptor.id for sd in
@@ -301,7 +290,7 @@ class RegistryAPI:
                 f"Submodel Descriptor with Identifier {submodel_id} not found in AssetAdministrationShell!")
         submodel_descriptor.update_from(
             HTTPApiDecoder.request_body(request,
-                                        model.SubmodelDescriptor,
+                                        server_model.SubmodelDescriptor,
                                         is_stripped_request(request)))
         aas_descriptor.commit()
         return response_t()
@@ -336,7 +325,7 @@ class RegistryAPI:
 
     def post_submodel_descriptor(self, request: Request, url_args: Dict, response_t: Type[APIResponse],
                                  map_adapter: MapAdapter) -> Response:
-        submodel_descriptor = HTTPApiDecoder.request_body(request, model.SubmodelDescriptor, is_stripped_request(request))
+        submodel_descriptor = HTTPApiDecoder.request_body(request, server_model.SubmodelDescriptor, is_stripped_request(request))
         try:
             self.object_store.add(submodel_descriptor)
         except KeyError as e:
@@ -350,12 +339,12 @@ class RegistryAPI:
 
     def put_submodel_descriptor_by_id(self, request: Request, url_args: Dict, response_t: Type[APIResponse], **_kwargs) -> Response:
         submodel_descriptor = self._get_submodel_descriptor(url_args)
-        submodel_descriptor.update_from(HTTPApiDecoder.request_body(request, model.SubmodelDescriptor, is_stripped_request(request)))
+        submodel_descriptor.update_from(HTTPApiDecoder.request_body(request, server_model.SubmodelDescriptor, is_stripped_request(request)))
         submodel_descriptor.commit()
         return response_t()
 
     def delete_submodel_descriptor_by_id(self, request: Request, url_args: Dict, response_t: Type[APIResponse], **_kwargs) -> Response:
-        self.object_store.remove(self._get_obj_ts(url_args["submodel_id"], model.SubmodelDescriptor))
+        self.object_store.remove(self._get_obj_ts(url_args["submodel_id"], server_model.SubmodelDescriptor))
         return response_t()
 
 
