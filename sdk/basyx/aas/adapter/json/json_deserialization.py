@@ -154,19 +154,20 @@ class AASFromJsonDecoder(json.JSONDecoder):
         json.JSONDecoder.__init__(self, object_hook=self.object_hook, *args, **kwargs)
 
     @classmethod
-    def object_hook(cls, dct: Dict[str, object]) -> object:
-        # Check if JSON object seems to be a deserializable AAS object (i.e. it has a modelType). Otherwise, the JSON
-        #   object is returned as is, so it's possible to mix AAS objects with other data within a JSON structure.
-        if 'modelType' not in dct:
-            return dct
+    def _get_aas_class_parsers(cls) -> Dict[str, Callable[[Dict[str, object]], object]]:
+        """
+        Returns the dictionary of AAS class parsers.
 
-        # The following dict specifies a constructor method for all AAS classes that may be identified using the
-        # ``modelType`` attribute in their JSON representation. Each of those constructor functions takes the JSON
-        # representation of an object and tries to construct a Python object from it. Embedded objects that have a
-        # modelType themselves are expected to be converted to the correct PythonType already. Additionally, each
-        # function takes a bool parameter ``failsafe``, which indicates weather to log errors and skip defective objects
-        # instead of raising an Exception.
-        AAS_CLASS_PARSERS: Dict[str, Callable[[Dict[str, object]], object]] = {
+        The following dict specifies a constructor method for all AAS classes that may be identified using the
+        ``modelType`` attribute in their JSON representation. Each of those constructor functions takes the JSON
+        representation of an object and tries to construct a Python object from it. Embedded objects that have a
+        modelType themselves are expected to be converted to the correct PythonType already. Additionally, each
+        function takes a bool parameter ``failsafe``, which indicates weather to log errors and skip defective objects
+        instead of raising an Exception.
+
+        :return: The dictionary of AAS class parsers
+        """
+        aas_class_parsers: Dict[str, Callable[[Dict[str, object]], object]] = {
             'AssetAdministrationShell': cls._construct_asset_administration_shell,
             'AssetInformation': cls._construct_asset_information,
             'SpecificAssetId': cls._construct_specific_asset_id,
@@ -189,6 +190,16 @@ class AASFromJsonDecoder(json.JSONDecoder):
             'ReferenceElement': cls._construct_reference_element,
             'DataSpecificationIec61360': cls._construct_data_specification_iec61360,
         }
+        return aas_class_parsers
+
+    @classmethod
+    def object_hook(cls, dct: Dict[str, object]) -> object:
+        # Check if JSON object seems to be a deserializable AAS object (i.e. it has a modelType). Otherwise, the JSON
+        #   object is returned as is, so it's possible to mix AAS objects with other data within a JSON structure.
+        if 'modelType' not in dct:
+            return dct
+
+        AAS_CLASS_PARSERS = cls._get_aas_class_parsers()
 
         # Get modelType and constructor function
         if not isinstance(dct['modelType'], str):

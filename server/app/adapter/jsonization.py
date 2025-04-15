@@ -9,7 +9,6 @@ from basyx.aas.adapter.json.json_deserialization import _get_ts, AASFromJsonDeco
 
 import json
 import logging
-import pprint
 from typing import Callable
 
 import contextlib
@@ -20,73 +19,16 @@ logger = logging.getLogger(__name__)
 
 class ServerAASFromJsonDecoder(AASFromJsonDecoder):
     @classmethod
-    def object_hook(cls, dct: Dict[str, object]) -> object:
-        # Check if JSON object seems to be a deserializable AAS object (i.e. it has a modelType). Otherwise, the JSON
-        #   object is returned as is, so it's possible to mix AAS objects with other data within a JSON structure.
-        if 'modelType' not in dct:
-            return dct
-
-        # The following dict specifies a constructor method for all AAS classes that may be identified using the
-        # ``modelType`` attribute in their JSON representation. Each of those constructor functions takes the JSON
-        # representation of an object and tries to construct a Python object from it. Embedded objects that have a
-        # modelType themselves are expected to be converted to the correct PythonType already. Additionally, each
-        # function takes a bool parameter ``failsafe``, which indicates weather to log errors and skip defective objects
-        # instead of raising an Exception.
-        AAS_CLASS_PARSERS: Dict[str, Callable[[Dict[str, object]], object]] = {
-            'AssetAdministrationShell': cls._construct_asset_administration_shell,
-            'AssetInformation': cls._construct_asset_information,
-            'SpecificAssetId': cls._construct_specific_asset_id,
-            'ConceptDescription': cls._construct_concept_description,
-            'Extension': cls._construct_extension,
-            'Submodel': cls._construct_submodel,
-            'Capability': cls._construct_capability,
-            'Entity': cls._construct_entity,
-            'BasicEventElement': cls._construct_basic_event_element,
-            'Operation': cls._construct_operation,
-            'RelationshipElement': cls._construct_relationship_element,
-            'AnnotatedRelationshipElement': cls._construct_annotated_relationship_element,
-            'SubmodelElementCollection': cls._construct_submodel_element_collection,
-            'SubmodelElementList': cls._construct_submodel_element_list,
-            'Blob': cls._construct_blob,
-            'File': cls._construct_file,
-            'MultiLanguageProperty': cls._construct_multi_language_property,
-            'Property': cls._construct_property,
-            'Range': cls._construct_range,
-            'ReferenceElement': cls._construct_reference_element,
-            'DataSpecificationIec61360': cls._construct_data_specification_iec61360,
+    def _get_aas_class_parsers(cls) -> Dict[str, Callable[[Dict[str, object]], object]]:
+        aas_class_parsers = super()._get_aas_class_parsers()
+        aas_class_parsers.update({
             'AssetAdministrationShellDescriptor': cls._construct_asset_administration_shell_descriptor,
             'SubmodelDescriptor': cls._construct_submodel_descriptor,
             'AssetLink': cls._construct_asset_link,
-        }
-
-        # Get modelType and constructor function
-        if not isinstance(dct['modelType'], str):
-            logger.warning("JSON object has unexpected format of modelType: %s", dct['modelType'])
-            # Even in strict mode, we consider 'modelType' attributes of wrong type as non-AAS objects instead of
-            #   raising an exception. However, the object's type will probably checked later by read_json_aas_file() or
-            #   _expect_type()
-            return dct
-        model_type = dct['modelType']
-        if model_type not in AAS_CLASS_PARSERS:
-            if not cls.failsafe:
-                raise TypeError("Found JSON object with modelType=\"%s\", which is not a known AAS class" % model_type)
-            logger.error("Found JSON object with modelType=\"%s\", which is not a known AAS class", model_type)
-            return dct
-
-        # Use constructor function to transform JSON representation into BaSyx Python SDK model object
-        try:
-            return AAS_CLASS_PARSERS[model_type](dct)
-        except (KeyError, TypeError, model.AASConstraintViolation) as e:
-            error_message = "Error while trying to convert JSON object into {}: {} >>> {}".format(
-                model_type, e, pprint.pformat(dct, depth=2, width=2 ** 14, compact=True))
-            if cls.failsafe:
-                logger.error(error_message, exc_info=e)
-                # In failsafe mode, we return the raw JSON object dict, if there were errors while parsing an object, so
-                #   a client application is able to handle this data. The read_json_aas_file() function and all
-                #   constructors for complex objects will skip those items by using _expect_type().
-                return dct
-            else:
-                raise (type(e) if isinstance(e, (KeyError, TypeError)) else TypeError)(error_message) from e
+            'ProtocolInformation': cls._construct_protocol_information,
+            'Endpoint': cls._construct_endpoint
+        })
+        return aas_class_parsers
 
     # ##################################################################################################
     # Utility Methods used in constructor methods to add general attributes (from abstract base classes)
