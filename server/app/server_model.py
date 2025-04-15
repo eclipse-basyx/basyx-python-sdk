@@ -142,8 +142,17 @@ class Descriptor(metaclass=abc.ABCMeta):
     def update(self):
         pass
 
-    def update_from(self, other: "Referable", update_source: bool = False):
-        pass
+    def update_from(self, other: "Descriptor", update_source: bool = False):
+        """
+        Updates the descriptor's attributes from another descriptor.
+
+        :param other: The descriptor to update from.
+        :param update_source: Placeholder for compatibility; not used in this context.
+        """
+        for attr in vars(other):
+            if attr == "id":
+                continue  # Skip updating the unique identifier of the AAS
+            setattr(self, attr, getattr(other, attr))
 
 
 class SubmodelDescriptor(Descriptor):
