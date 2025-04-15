@@ -1,17 +1,15 @@
-from typing import Dict, Set, ContextManager, IO, get_args, Optional, Type, List
+from typing import Dict, Set, Optional, Type, List
 
 import server.app.server_model as server_model
 from basyx.aas import model
 from basyx.aas.adapter import _generic
-from basyx.aas.adapter._generic import ASSET_KIND_INVERSE, Path, PathOrIO
+from basyx.aas.adapter._generic import ASSET_KIND_INVERSE, PathOrIO
 from basyx.aas.adapter.json import AASToJsonEncoder
-from basyx.aas.adapter.json.json_deserialization import _get_ts, AASFromJsonDecoder, _select_decoder
+from basyx.aas.adapter.json.json_deserialization import _get_ts, AASFromJsonDecoder, KEYS_TO_TYPES, \
+    read_aas_json_file_into
 
-import json
 import logging
 from typing import Callable
-
-import contextlib
 
 
 logger = logging.getLogger(__name__)
@@ -209,94 +207,17 @@ class ServerStrictStrippedAASFromJsonDecoder(ServerStrictAASFromJsonDecoder, Ser
     pass
 
 
-def read_aas_json_file_into(object_store: model.AbstractObjectStore, file: PathOrIO, replace_existing: bool = False,
+def read_server_aas_json_file_into(object_store: model.AbstractObjectStore, file: PathOrIO, replace_existing: bool = False,
                             ignore_existing: bool = False, failsafe: bool = True, stripped: bool = False,
                             decoder: Optional[Type[AASFromJsonDecoder]] = None) -> Set[model.Identifier]:
-    """
-    Read an Asset Administration Shell JSON file according to 'Details of the Asset Administration Shell', chapter 5.5
-    into a given object store.
-
-    :param object_store: The :class:`ObjectStore <basyx.aas.model.provider.AbstractObjectStore>` in which the
-                         identifiable objects should be stored
-    :param file: A filename or file-like object to read the JSON-serialized data from
-    :param replace_existing: Whether to replace existing objects with the same identifier in the object store or not
-    :param ignore_existing: Whether to ignore existing objects (e.g. log a message) or raise an error.
-                            This parameter is ignored if replace_existing is ``True``.
-    :param failsafe: If ``True``, the document is parsed in a failsafe way: Missing attributes and elements are logged
-                     instead of causing exceptions. Defect objects are skipped.
-                     This parameter is ignored if a decoder class is specified.
-    :param stripped: If ``True``, stripped JSON objects are parsed.
-                     See https://git.rwth-aachen.de/acplt/pyi40aas/-/issues/91
-                     This parameter is ignored if a decoder class is specified.
-    :param decoder: The decoder class used to decode the JSON objects
-    :raises KeyError: **Non-failsafe**: Encountered a duplicate identifier
-    :raises KeyError: Encountered an identifier that already exists in the given ``object_store`` with both
-                     ``replace_existing`` and ``ignore_existing`` set to ``False``
-    :raises (~basyx.aas.model.base.AASConstraintViolation, KeyError, ValueError, TypeError): **Non-failsafe**:
-        Errors during construction of the objects
-    :raises TypeError: **Non-failsafe**: Encountered an element in the wrong list
-                                         (e.g. an AssetAdministrationShell in ``submodels``)
-    :return: A set of :class:`Identifiers <basyx.aas.model.base.Identifier>` that were added to object_store
-    """
-    ret: Set[model.Identifier] = set()
-    decoder_ = _select_decoder(failsafe, stripped, decoder)
-
-    # json.load() accepts TextIO and BinaryIO
-    cm: ContextManager[IO]
-    if isinstance(file, get_args(Path)):
-        # 'file' is a path, needs to be opened first
-        cm = open(file, "r", encoding="utf-8-sig")
-    else:
-        # 'file' is not a path, thus it must already be IO
-        # mypy seems to have issues narrowing the type due to get_args()
-        cm = contextlib.nullcontext(file)  # type: ignore[arg-type]
-
-    # read, parse and convert JSON file
-    with cm as fp:
-        data = json.load(fp, cls=decoder_)
-
-    for name, expected_type in (('assetAdministrationShells', model.AssetAdministrationShell),
-                                ('submodels', model.Submodel),
-                                ('conceptDescriptions', model.ConceptDescription),
-                                ('assetAdministrationShellDescriptors', server_model.AssetAdministrationShellDescriptor),
-                                ('submodelDescriptors', server_model.SubmodelDescriptor)):
-        try:
-            lst = _get_ts(data, name, list)
-        except (KeyError, TypeError):
-            continue
-
-        for item in lst:
-            error_message = "Expected a {} in list '{}', but found {}".format(
-                expected_type.__name__, name, repr(item))
-            if isinstance(item, model.Identifiable):
-                if not isinstance(item, expected_type):
-                    if decoder_.failsafe:
-                        logger.warning("{} was in wrong list '{}'; nevertheless, we'll use it".format(item, name))
-                    else:
-                        raise TypeError(error_message)
-                if item.id in ret:
-                    error_message = f"{item} has a duplicate identifier already parsed in the document!"
-                    if not decoder_.failsafe:
-                        raise KeyError(error_message)
-                    logger.error(error_message + " skipping it...")
-                    continue
-                existing_element = object_store.get(item.id)
-                if existing_element is not None:
-                    if not replace_existing:
-                        error_message = f"object with identifier {item.id} already exists " \
-                                        f"in the object store: {existing_element}!"
-                        if not ignore_existing:
-                            raise KeyError(error_message + f" failed to insert {item}!")
-                        logger.info(error_message + f" skipping insertion of {item}...")
-                        continue
-                    object_store.discard(existing_element)
-                object_store.add(item)
-                ret.add(item.id)
-            elif decoder_.failsafe:
-                logger.error(error_message)
-            else:
-                raise TypeError(error_message)
-    return ret
+    keys_to_types = list(KEYS_TO_TYPES)
+    keys_to_types.extend([
+        ('assetAdministrationShellDescriptors', server_model.AssetAdministrationShellDescriptor),
+        ('submodelDescriptors', server_model.SubmodelDescriptor)
+    ])
+    return read_aas_json_file_into(object_store=object_store, file=file, replace_existing=replace_existing,
+                                   ignore_existing=ignore_existing, failsafe=failsafe, stripped=stripped,
+                                   decoder=decoder, keys_to_types=keys_to_types)
 
 
 class ServerAASToJsonEncoder(AASToJsonEncoder):

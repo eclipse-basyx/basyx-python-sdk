@@ -34,7 +34,7 @@ import contextlib
 import json
 import logging
 import pprint
-from typing import Dict, Callable, ContextManager, TypeVar, Type, List, IO, Optional, Set, get_args
+from typing import Dict, Callable, ContextManager, TypeVar, Type, List, IO, Optional, Set, get_args, Tuple, Iterable
 
 from basyx.aas import model
 from .._generic import MODELLING_KIND_INVERSE, ASSET_KIND_INVERSE, KEY_TYPES_INVERSE, ENTITY_TYPES_INVERSE, \
@@ -808,9 +808,17 @@ def _select_decoder(failsafe: bool, stripped: bool, decoder: Optional[Type[AASFr
         return StrictAASFromJsonDecoder
 
 
+KEYS_TO_TYPES = (
+    ('assetAdministrationShells', model.AssetAdministrationShell),
+    ('submodels', model.Submodel),
+    ('conceptDescriptions', model.ConceptDescription)
+)
+
+
 def read_aas_json_file_into(object_store: model.AbstractObjectStore, file: PathOrIO, replace_existing: bool = False,
                             ignore_existing: bool = False, failsafe: bool = True, stripped: bool = False,
-                            decoder: Optional[Type[AASFromJsonDecoder]] = None) -> Set[model.Identifier]:
+                            decoder: Optional[Type[AASFromJsonDecoder]] = None,
+                            keys_to_types: Iterable[Tuple[str, any]] = KEYS_TO_TYPES) -> Set[model.Identifier]:
     """
     Read an Asset Administration Shell JSON file according to 'Details of the Asset Administration Shell', chapter 5.5
     into a given object store.
@@ -828,6 +836,7 @@ def read_aas_json_file_into(object_store: model.AbstractObjectStore, file: PathO
                      See https://git.rwth-aachen.de/acplt/pyi40aas/-/issues/91
                      This parameter is ignored if a decoder class is specified.
     :param decoder: The decoder class used to decode the JSON objects
+    :param keys_to_types: A dictionary of JSON keys to expected types. This is used to check the type of the objects
     :raises KeyError: **Non-failsafe**: Encountered a duplicate identifier
     :raises KeyError: Encountered an identifier that already exists in the given ``object_store`` with both
                      ``replace_existing`` and ``ignore_existing`` set to ``False``
@@ -854,45 +863,38 @@ def read_aas_json_file_into(object_store: model.AbstractObjectStore, file: PathO
     with cm as fp:
         data = json.load(fp, cls=decoder_)
 
-    for name, expected_type in (('assetAdministrationShells', model.AssetAdministrationShell),
-                                ('submodels', model.Submodel),
-                                ('conceptDescriptions', model.ConceptDescription)):
+    for name, expected_type in keys_to_types:
         try:
             lst = _get_ts(data, name, list)
         except (KeyError, TypeError):
             continue
 
         for item in lst:
-            error_message = "Expected a {} in list '{}', but found {}".format(
-                expected_type.__name__, name, repr(item))
-            if isinstance(item, model.Identifiable):
-                if not isinstance(item, expected_type):
-                    if decoder_.failsafe:
-                        logger.warning("{} was in wrong list '{}'; nevertheless, we'll use it".format(item, name))
-                    else:
-                        raise TypeError(error_message)
-                if item.id in ret:
-                    error_message = f"{item} has a duplicate identifier already parsed in the document!"
-                    if not decoder_.failsafe:
-                        raise KeyError(error_message)
-                    logger.error(error_message + " skipping it...")
+            if not isinstance(item, expected_type):
+                if not decoder_.failsafe:
+                    raise TypeError(f"{item} was in the wrong list '{name}'")
+                logger.warning(f"{item} was in the wrong list '{name}'; nevertheless, we'll use it")
+
+            if item.id in ret:
+                error_msg = f"{item} has a duplicate identifier already parsed in the document!"
+                if not decoder_.failsafe:
+                    raise KeyError(error_msg)
+                logger.error(f"{error_msg} skipping it...")
+                continue
+
+            existing_element = object_store.get(item.id)
+            if existing_element is not None:
+                if not replace_existing:
+                    error_msg = f"Object with id '{item.id}' already exists in store: {existing_element}!"
+                    if not ignore_existing:
+                        raise KeyError(f"{error_msg} Failed to insert {item}!")
+                    logger.info(f"{error_msg}; Skipping {item}...")
                     continue
-                existing_element = object_store.get(item.id)
-                if existing_element is not None:
-                    if not replace_existing:
-                        error_message = f"object with identifier {item.id} already exists " \
-                                        f"in the object store: {existing_element}!"
-                        if not ignore_existing:
-                            raise KeyError(error_message + f" failed to insert {item}!")
-                        logger.info(error_message + f" skipping insertion of {item}...")
-                        continue
-                    object_store.discard(existing_element)
-                object_store.add(item)
-                ret.add(item.id)
-            elif decoder_.failsafe:
-                logger.error(error_message)
-            else:
-                raise TypeError(error_message)
+                object_store.discard(existing_element)
+
+            object_store.add(item)
+            ret.add(item.id)
+
     return ret
 
 
