@@ -138,7 +138,7 @@ class XmlResponse(APIResponse):
         if cursor is not None:
             root_elem.set("cursor", str(cursor))
         if isinstance(obj, Result):
-            result_elem = result_to_xml(obj, **XML_NS_MAP)
+            result_elem = self.result_to_xml(obj, **XML_NS_MAP)
             for child in result_elem:
                 root_elem.append(child)
         elif isinstance(obj, list):
@@ -153,41 +153,41 @@ class XmlResponse(APIResponse):
         xml_str = etree.tostring(root_elem, xml_declaration=True, encoding="utf-8")
         return xml_str  # type: ignore[return-value]
 
+    @classmethod
+    def result_to_xml(cls, result: Result, **kwargs) -> etree._Element:
+        result_elem = etree.Element("result", **kwargs)
+        success_elem = etree.Element("success")
+        success_elem.text = xml_serialization.boolean_to_xml(result.success)
+        messages_elem = etree.Element("messages")
+        for message in result.messages:
+            messages_elem.append(cls.message_to_xml(message))
+
+        result_elem.append(success_elem)
+        result_elem.append(messages_elem)
+        return result_elem
+
+    @classmethod
+    def message_to_xml(cls, message: Message) -> etree._Element:
+        message_elem = etree.Element("message")
+        message_type_elem = etree.Element("messageType")
+        message_type_elem.text = str(message.message_type)
+        text_elem = etree.Element("text")
+        text_elem.text = message.text
+        code_elem = etree.Element("code")
+        code_elem.text = message.code
+        timestamp_elem = etree.Element("timestamp")
+        timestamp_elem.text = message.timestamp.isoformat()
+
+        message_elem.append(message_type_elem)
+        message_elem.append(text_elem)
+        message_elem.append(code_elem)
+        message_elem.append(timestamp_elem)
+        return message_elem
+
 
 class XmlResponseAlt(XmlResponse):
     def __init__(self, *args, content_type="text/xml", **kwargs):
         super().__init__(*args, **kwargs, content_type=content_type)
-
-
-def result_to_xml(result: Result, **kwargs) -> etree._Element:
-    result_elem = etree.Element("result", **kwargs)
-    success_elem = etree.Element("success")
-    success_elem.text = xml_serialization.boolean_to_xml(result.success)
-    messages_elem = etree.Element("messages")
-    for message in result.messages:
-        messages_elem.append(message_to_xml(message))
-
-    result_elem.append(success_elem)
-    result_elem.append(messages_elem)
-    return result_elem
-
-
-def message_to_xml(message: Message) -> etree._Element:
-    message_elem = etree.Element("message")
-    message_type_elem = etree.Element("messageType")
-    message_type_elem.text = str(message.message_type)
-    text_elem = etree.Element("text")
-    text_elem.text = message.text
-    code_elem = etree.Element("code")
-    code_elem.text = message.code
-    timestamp_elem = etree.Element("timestamp")
-    timestamp_elem.text = message.timestamp.isoformat()
-
-    message_elem.append(message_type_elem)
-    message_elem.append(text_elem)
-    message_elem.append(code_elem)
-    message_elem.append(timestamp_elem)
-    return message_elem
 
 
 def get_response_type(request: Request) -> Type[APIResponse]:
