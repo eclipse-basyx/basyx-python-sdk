@@ -1,16 +1,15 @@
-import itertools
 import werkzeug.exceptions
 from werkzeug.wrappers import Request, Response
 
 from basyx.aas import model
+from server.app.interfaces.base import BaseWSGIApp
 
 from .. import server_model
 from ..adapter.jsonization import ServerAASToJsonEncoder
 
-from werkzeug.routing import MapAdapter, Rule, Submount
+from werkzeug.routing import Rule, Submount
 from ..http_api_helpers import Base64URLConverter, HTTPApiDecoder
-from ..response import get_response_type, http_exception_to_response
-from typing import Dict, Iterable, List, TypeVar, Set
+from typing import Dict, List, Set
 
 import abc
 
@@ -133,12 +132,7 @@ class MongoDiscoveryStore(AbstractDiscoveryStore):
         )
 
 
-
-T = TypeVar("T")
-
-BASE64URL_ENCODING = "utf-8"
-
-class DiscoveryAPI:
+class DiscoveryAPI(BaseWSGIApp):
     def __init__(self,
                  persistent_store: AbstractDiscoveryStore, base_path: str = "/api/v3.0"):
         self.persistent_store: AbstractDiscoveryStore = persistent_store
@@ -158,39 +152,6 @@ class DiscoveryAPI:
         ], converters={
             "base64url": Base64URLConverter
         }, strict_slashes=False)
-
-    def __call__(self, environ, start_response) -> Iterable[bytes]:
-        response: Response = self.handle_request(Request(environ))
-        return response(environ, start_response)
-
-    def _get_slice(self, request: Request, iterator):
-        limit_str = request.args.get('limit', default="10")
-        cursor_str = request.args.get('cursor', default="0")
-        try:
-            limit, cursor = int(limit_str), int(cursor_str)
-            if limit < 0 or cursor < 0:
-                raise ValueError
-        except ValueError:
-            raise werkzeug.exceptions.BadRequest("Cursor and limit must be positive integers!")
-        paginated_slice = itertools.islice(iterator, cursor, cursor + limit)
-        return paginated_slice, cursor + limit
-
-
-    def handle_request(self, request: Request):
-        map_adapter: MapAdapter = self.url_map.bind_to_environ(
-            request.environ)
-        try:
-            response_t = get_response_type(request)
-        except werkzeug.exceptions.NotAcceptable as e:
-            return e
-        try:
-            endpoint, values = map_adapter.match()
-            return endpoint(request, values, response_t=response_t,
-                            map_adapter=map_adapter)
-        # any raised error that leaves this function will cause a 500 internal server error
-        # so catch raised http exceptions and return them
-        except werkzeug.exceptions.HTTPException as e:
-            return http_exception_to_response(e, response_t)
 
     def search_all_aas_ids_by_asset_link(self, request: Request, url_args: dict, response_t: type, **_kwargs) -> Response:
         asset_links = HTTPApiDecoder.request_body_list(request, server_model.AssetLink, False)

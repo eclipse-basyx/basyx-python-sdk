@@ -8,59 +8,25 @@
 This module implements the "Specification of the Asset Administration Shell Part 2 Application Programming Interfaces".
 """
 
-import itertools
-
 import werkzeug.exceptions
 import werkzeug.routing
 import werkzeug.urls
 import werkzeug.utils
-from werkzeug.exceptions import BadRequest, Conflict, NotFound
+from werkzeug.exceptions import Conflict, NotFound
 from werkzeug.routing import MapAdapter, Rule, Submount
 from werkzeug.wrappers import Request, Response
 
 from basyx.aas import model
 import server.app.server_model as server_model
+from server.app.interfaces.base import ObjectStoreWSGIApp
 
-from ..http_api_helpers import HTTPApiDecoder, Base64URLConverter
-from server.app.response import APIResponse, JsonResponse, XmlResponse, XmlResponseAlt, Result, MessageType, Message
+from ..http_api_helpers import HTTPApiDecoder, Base64URLConverter, is_stripped_request
+from server.app.response import APIResponse
 
-from typing import Dict, Iterable, Iterator, List, Type, TypeVar, Tuple
+from typing import Dict, Iterator, List, Type, Tuple
 
-def get_response_type(request: Request) -> Type[APIResponse]:
-    response_types: Dict[str, Type[APIResponse]] = {
-        "application/json": JsonResponse,
-        "application/xml": XmlResponse,
-        "text/xml": XmlResponseAlt
-    }
-    if len(request.accept_mimetypes) == 0 or request.accept_mimetypes.best in (None, "*/*"):
-        return JsonResponse
-    mime_type = request.accept_mimetypes.best_match(response_types)
-    if mime_type is None:
-        raise werkzeug.exceptions.NotAcceptable("This server supports the following content types: "
-                                                + ", ".join(response_types.keys()))
-    return response_types[mime_type]
 
-def http_exception_to_response(exception: werkzeug.exceptions.HTTPException, response_type: Type[APIResponse]) \
-        -> APIResponse:
-    headers = exception.get_headers()
-    location = exception.get_response().location
-    if location is not None:
-        headers.append(("Location", location))
-    if exception.code and exception.code >= 400:
-        message = Message(type(exception).__name__, exception.description if exception.description is not None else "",
-                          MessageType.ERROR)
-        result = Result(False, [message])
-    else:
-        result = Result(False)
-    return response_type(result, status=exception.code, headers=headers)
-
-def is_stripped_request(request: Request) -> bool:
-    return request.args.get("level") == "core"
-
-T = TypeVar("T")
-
-BASE64URL_ENCODING = "utf-8"
-class RegistryAPI:
+class RegistryAPI(ObjectStoreWSGIApp):
     def __init__(self, object_store: model.AbstractObjectStore, base_path: str = "/api/v3.0"):
         self.object_store: model.AbstractObjectStore = object_store
         self.url_map = werkzeug.routing.Map([
@@ -92,36 +58,6 @@ class RegistryAPI:
         ], converters={
             "base64url": Base64URLConverter
         }, strict_slashes=False)
-
-    def __call__(self, environ, start_response) -> Iterable[bytes]:
-        response: Response = self.handle_request(Request(environ))
-        return response(environ, start_response)
-    def _get_obj_ts(self, identifier: model.Identifier, type_: Type[model.provider._IT]) -> model.provider._IT:
-        identifiable = self.object_store.get(identifier)
-        if not isinstance(identifiable, type_):
-            raise NotFound(f"No {type_.__name__} with {identifier} found!")
-        identifiable.update()
-        return identifiable
-
-    def _get_all_obj_of_type(self, type_: Type[model.provider._IT]) -> Iterator[model.provider._IT]:
-        for obj in self.object_store:
-            if isinstance(obj, type_):
-                obj.update()
-                yield obj
-    @classmethod
-    def _get_slice(cls, request: Request, iterator: Iterable[T]) -> Tuple[Iterator[T], int]:
-        limit_str = request.args.get('limit', default="10")
-        cursor_str = request.args.get('cursor', default="0")
-        try:
-            limit, cursor = int(limit_str), int(cursor_str)
-            if limit < 0 or cursor < 0:
-                raise ValueError
-        except ValueError:
-            raise BadRequest("Cursor and limit must be positive integers!")
-        start_index = cursor
-        end_index = cursor + limit
-        paginated_slice = itertools.islice(iterator, start_index, end_index)
-        return paginated_slice, end_index
 
     def _get_descriptors(self, request: "Request") -> Tuple[Iterator[server_model.AssetAdministrationShellDescriptor], int]:
         """
@@ -169,22 +105,6 @@ class RegistryAPI:
 
     def _get_submodel_descriptor(self, url_args: Dict) -> server_model.SubmodelDescriptor:
         return self._get_obj_ts(url_args["submodel_id"], server_model.SubmodelDescriptor)
-
-    def handle_request(self, request: Request):
-        map_adapter: MapAdapter = self.url_map.bind_to_environ(request.environ)
-        try:
-            response_t = get_response_type(request)
-        except werkzeug.exceptions.NotAcceptable as e:
-            return e
-
-        try:
-            endpoint, values = map_adapter.match()
-            return endpoint(request, values, response_t=response_t, map_adapter=map_adapter)
-
-        # any raised error that leaves this function will cause a 500 internal server error
-        # so catch raised http exceptions and return them
-        except werkzeug.exceptions.HTTPException as e:
-            return http_exception_to_response(e, response_t)
 
     # ------ AAS REGISTRY ROUTES -------
     def get_aas_descriptors_all(self, request: Request, url_args: Dict, response_t: Type[APIResponse], **_kwargs) -> Response:

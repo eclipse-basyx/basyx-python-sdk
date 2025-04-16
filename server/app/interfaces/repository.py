@@ -42,11 +42,12 @@ from werkzeug.routing import Submount, Rule, MapAdapter
 
 from basyx.aas import model
 from basyx.aas.adapter import aasx
+from .base import ObjectStoreWSGIApp
 from ..http_api_helpers import Base64URLConverter, IdShortPathConverter, T, HTTPApiDecoder, is_stripped_request
-from server.app.response import APIResponse, get_response_type, http_exception_to_response
+from server.app.response import APIResponse
 
 
-class WSGIApp:
+class WSGIApp(ObjectStoreWSGIApp):
     def __init__(self, object_store: model.AbstractObjectStore, file_store: aasx.AbstractSupplementaryFileContainer,
                  base_path: str = "/api/v3.0"):
         self.object_store: model.AbstractObjectStore = object_store
@@ -158,24 +159,6 @@ class WSGIApp:
             "id_short_path": IdShortPathConverter
         }, strict_slashes=False)
 
-    # TODO: the parameters can be typed via builtin wsgiref with Python 3.11+
-    def __call__(self, environ, start_response) -> Iterable[bytes]:
-        response: Response = self.handle_request(Request(environ))
-        return response(environ, start_response)
-
-    def _get_obj_ts(self, identifier: model.Identifier, type_: Type[model.provider._IT]) -> model.provider._IT:
-        identifiable = self.object_store.get(identifier)
-        if not isinstance(identifiable, type_):
-            raise NotFound(f"No {type_.__name__} with {identifier} found!")
-        identifiable.update()
-        return identifiable
-
-    def _get_all_obj_of_type(self, type_: Type[model.provider._IT]) -> Iterator[model.provider._IT]:
-        for obj in self.object_store:
-            if isinstance(obj, type_):
-                obj.update()
-                yield obj
-
     def _resolve_reference(self, reference: model.ModelReference[model.base._RT]) -> model.base._RT:
         try:
             return reference.resolve(self.object_store)
@@ -238,21 +221,6 @@ class WSGIApp:
                 return ref
         raise NotFound(f"The AAS {aas!r} doesn't have a submodel reference to {submodel_id!r}!")
 
-    @classmethod
-    def _get_slice(cls, request: Request, iterator: Iterable[T]) -> Tuple[Iterator[T], int]:
-        limit_str = request.args.get('limit', default="10")
-        cursor_str = request.args.get('cursor', default="0")
-        try:
-            limit, cursor = int(limit_str), int(cursor_str)
-            if limit < 0 or cursor < 0:
-                raise ValueError
-        except ValueError:
-            raise BadRequest("Cursor and limit must be positive integers!")
-        start_index = cursor
-        end_index = cursor + limit
-        paginated_slice = itertools.islice(iterator, start_index, end_index)
-        return paginated_slice, end_index
-
     def _get_shells(self, request: Request) -> Tuple[Iterator[model.AssetAdministrationShell], int]:
         aas: Iterator[model.AssetAdministrationShell] = self._get_all_obj_of_type(model.AssetAdministrationShell)
 
@@ -306,22 +274,6 @@ class WSGIApp:
 
     def _get_concept_description(self, url_args):
         return self._get_obj_ts(url_args["concept_id"], model.ConceptDescription)
-
-    def handle_request(self, request: Request):
-        map_adapter: MapAdapter = self.url_map.bind_to_environ(request.environ)
-        try:
-            response_t = get_response_type(request)
-        except werkzeug.exceptions.NotAcceptable as e:
-            return e
-
-        try:
-            endpoint, values = map_adapter.match()
-            return endpoint(request, values, response_t=response_t, map_adapter=map_adapter)
-
-        # any raised error that leaves this function will cause a 500 internal server error
-        # so catch raised http exceptions and return them
-        except werkzeug.exceptions.HTTPException as e:
-            return http_exception_to_response(e, response_t)
 
     # ------ all not implemented ROUTES -------
     def not_implemented(self, request: Request, url_args: Dict, **_kwargs) -> Response:

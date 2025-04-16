@@ -7,6 +7,7 @@
 import base64
 import binascii
 import io
+import itertools
 import json
 
 from lxml import etree
@@ -21,11 +22,11 @@ from basyx.aas import model
 
 from basyx.aas.adapter.xml import XMLConstructables
 
-import server_model
+from . import server_model
 from .adapter.xmlization import ServerXMLConstructables, read_server_aas_xml_element
 from .adapter.jsonization import ServerStrictAASFromJsonDecoder, ServerStrictStrippedAASFromJsonDecoder
 
-from typing import Callable, List, Optional, Type, TypeVar, Union
+from typing import Callable, List, Optional, Type, TypeVar, Union, Iterable, Tuple, Iterator
 
 
 def is_stripped_request(request: Request) -> bool:
