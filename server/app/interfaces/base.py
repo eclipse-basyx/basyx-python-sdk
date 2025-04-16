@@ -10,8 +10,8 @@ from werkzeug.routing import MapAdapter
 
 from basyx.aas import model
 from basyx.aas.model import AbstractObjectStore
-from ..http_api_helpers import T
-from server.app.response import get_response_type, http_exception_to_response
+from server.app.api_utils.http_api_helpers import T
+from server.app.api_utils.response import get_response_type, http_exception_to_response
 
 
 class BaseWSGIApp:

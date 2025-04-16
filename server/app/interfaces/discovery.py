@@ -8,7 +8,7 @@ from .. import server_model
 from ..adapter.jsonization import ServerAASToJsonEncoder
 
 from werkzeug.routing import Rule, Submount
-from ..http_api_helpers import Base64URLConverter, HTTPApiDecoder
+from server.app.api_utils.http_api_helpers import Base64URLConverter, HTTPApiDecoder
 from typing import Dict, List, Set
 
 import abc

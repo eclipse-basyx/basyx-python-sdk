@@ -29,8 +29,7 @@ However, several features and routes are currently not supported:
 """
 
 import io
-import itertools
-from typing import Iterable, Type, Iterator, List, Dict, Union, Callable, Tuple, Optional
+from typing import Type, Iterator, List, Dict, Union, Callable, Tuple, Optional
 
 import werkzeug.exceptions
 import werkzeug.routing
@@ -43,8 +42,8 @@ from werkzeug.routing import Submount, Rule, MapAdapter
 from basyx.aas import model
 from basyx.aas.adapter import aasx
 from .base import ObjectStoreWSGIApp
-from ..http_api_helpers import Base64URLConverter, IdShortPathConverter, T, HTTPApiDecoder, is_stripped_request
-from server.app.response import APIResponse
+from server.app.api_utils.http_api_helpers import Base64URLConverter, IdShortPathConverter, T, HTTPApiDecoder, is_stripped_request
+from server.app.api_utils.response import APIResponse
 
 
 class WSGIApp(ObjectStoreWSGIApp):

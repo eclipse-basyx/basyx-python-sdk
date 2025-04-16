@@ -20,8 +20,8 @@ from basyx.aas import model
 import server.app.server_model as server_model
 from server.app.interfaces.base import ObjectStoreWSGIApp
 
-from ..http_api_helpers import HTTPApiDecoder, Base64URLConverter, is_stripped_request
-from server.app.response import APIResponse
+from server.app.api_utils.http_api_helpers import HTTPApiDecoder, Base64URLConverter, is_stripped_request
+from server.app.api_utils.response import APIResponse
 
 from typing import Dict, Iterator, List, Type, Tuple
 

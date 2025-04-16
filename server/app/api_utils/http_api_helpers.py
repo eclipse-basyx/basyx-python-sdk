@@ -22,9 +22,9 @@ from basyx.aas import model
 
 from basyx.aas.adapter.xml import XMLConstructables
 
-from . import server_model
-from .adapter.xmlization import ServerXMLConstructables, read_server_aas_xml_element
-from .adapter.jsonization import ServerStrictAASFromJsonDecoder, ServerStrictStrippedAASFromJsonDecoder
+from server.app import server_model
+from server.app.adapter.xmlization import ServerXMLConstructables, read_server_aas_xml_element
+from server.app.adapter.jsonization import ServerStrictAASFromJsonDecoder, ServerStrictStrippedAASFromJsonDecoder
 
 from typing import Callable, List, Optional, Type, TypeVar, Union, Iterable, Tuple, Iterator
 
