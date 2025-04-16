@@ -2,13 +2,14 @@ import itertools
 import werkzeug.exceptions
 from werkzeug.wrappers import Request, Response
 
-import server.app.server_model
 from basyx.aas import model
-from server.app import server_model
-from server.app.adapter.jsonization import ServerAASToJsonEncoder
-from .http_api_helpers import APIResponse, http_exception_to_response, get_response_type, HTTPApiDecoder
+
+from .. import server_model
+from ..adapter.jsonization import ServerAASToJsonEncoder
+from ..http_api_helpers import APIResponse, http_exception_to_response, get_response_type, HTTPApiDecoder
+
 from werkzeug.routing import MapAdapter, Rule, Submount
-from .http_api_helpers import Base64URLConverter, APIResponse, XmlResponse, JsonResponse, XmlResponseAlt, Message, MessageType, Result, HTTPApiDecoder, get_response_type, http_exception_to_response, is_stripped_request
+from ..http_api_helpers import Base64URLConverter, APIResponse, XmlResponse, JsonResponse, XmlResponseAlt, Message, MessageType, Result, HTTPApiDecoder, get_response_type, http_exception_to_response, is_stripped_request
 from typing import Callable, Dict, Iterable, Iterator, List, Optional, Type, TypeVar, Union, Tuple, Set
 
 import abc
