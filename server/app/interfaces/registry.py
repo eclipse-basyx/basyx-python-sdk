@@ -21,8 +21,8 @@ from werkzeug.wrappers import Request, Response
 from basyx.aas import model
 import server.app.server_model as server_model
 
-from ..http_api_helpers import APIResponse, XmlResponse, JsonResponse, XmlResponseAlt, Message, MessageType, Result, HTTPApiDecoder
-from ..http_api_helpers import Base64URLConverter
+from ..http_api_helpers import HTTPApiDecoder, Base64URLConverter
+from server.app.response import APIResponse, JsonResponse, XmlResponse, XmlResponseAlt, Result, MessageType, Message
 
 from typing import Dict, Iterable, Iterator, List, Type, TypeVar, Tuple
 

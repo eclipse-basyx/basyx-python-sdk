@@ -42,8 +42,8 @@ from werkzeug.routing import Submount, Rule, MapAdapter
 
 from basyx.aas import model
 from basyx.aas.adapter import aasx
-from ..http_api_helpers import Base64URLConverter, IdShortPathConverter, T, HTTPApiDecoder, get_response_type, \
-    http_exception_to_response, APIResponse, is_stripped_request
+from ..http_api_helpers import Base64URLConverter, IdShortPathConverter, T, HTTPApiDecoder, is_stripped_request
+from server.app.response import APIResponse, get_response_type, http_exception_to_response
 
 
 class WSGIApp:
