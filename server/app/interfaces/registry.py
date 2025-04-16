@@ -8,6 +8,8 @@
 This module implements the "Specification of the Asset Administration Shell Part 2 Application Programming Interfaces".
 """
 
+from typing import Dict, Iterator, List, Type, Tuple
+
 import werkzeug.exceptions
 import werkzeug.routing
 import werkzeug.urls
@@ -16,14 +18,11 @@ from werkzeug.exceptions import Conflict, NotFound
 from werkzeug.routing import MapAdapter, Rule, Submount
 from werkzeug.wrappers import Request, Response
 
-from basyx.aas import model
 import server.app.server_model as server_model
-from server.app.interfaces.base import ObjectStoreWSGIApp
-
+from basyx.aas import model
 from server.app.api_utils.http_api_helpers import HTTPApiDecoder, Base64URLConverter, is_stripped_request
 from server.app.api_utils.response import APIResponse
-
-from typing import Dict, Iterator, List, Type, Tuple
+from server.app.interfaces.base import ObjectStoreWSGIApp
 
 
 class RegistryAPI(ObjectStoreWSGIApp):
@@ -38,12 +37,17 @@ class RegistryAPI(ObjectStoreWSGIApp):
                     Rule("/<base64url:aas_id>", methods=["PUT"], endpoint=self.put_aas_descriptor),
                     Rule("/<base64url:aas_id>", methods=["DELETE"], endpoint=self.delete_aas_descriptor),
                     Submount("/<base64url:aas_id>", [
-                        Rule("/submodel-descriptors", methods=["GET"], endpoint=self.get_all_submodel_descriptors_through_superpath),
-                        Rule("/submodel-descriptors", methods=["POST"], endpoint=self.post_submodel_descriptor_through_superpath),
+                        Rule("/submodel-descriptors", methods=["GET"],
+                             endpoint=self.get_all_submodel_descriptors_through_superpath),
+                        Rule("/submodel-descriptors", methods=["POST"],
+                             endpoint=self.post_submodel_descriptor_through_superpath),
                         Submount("/submodel-descriptors", [
-                            Rule("/<base64url:submodel_id>", methods=["GET"], endpoint=self.get_submodel_descriptor_by_id_through_superpath),
-                            Rule("/<base64url:submodel_id>", methods=["PUT"], endpoint=self.put_submodel_descriptor_by_id_through_superpath),
-                            Rule("/<base64url:submodel_id>", methods=["DELETE"], endpoint=self.delete_submodel_descriptor_by_id_through_superpath),
+                            Rule("/<base64url:submodel_id>", methods=["GET"],
+                                 endpoint=self.get_submodel_descriptor_by_id_through_superpath),
+                            Rule("/<base64url:submodel_id>", methods=["PUT"],
+                                 endpoint=self.put_submodel_descriptor_by_id_through_superpath),
+                            Rule("/<base64url:submodel_id>", methods=["DELETE"],
+                                 endpoint=self.delete_submodel_descriptor_by_id_through_superpath),
                         ])
                     ])
                 ]),
@@ -52,14 +56,16 @@ class RegistryAPI(ObjectStoreWSGIApp):
                 Submount("/submodel-descriptors", [
                     Rule("/<base64url:submodel_id>", methods=["GET"], endpoint=self.get_submodel_descriptor_by_id),
                     Rule("/<base64url:submodel_id>", methods=["PUT"], endpoint=self.put_submodel_descriptor_by_id),
-                    Rule("/<base64url:submodel_id>", methods=["DELETE"], endpoint=self.delete_submodel_descriptor_by_id),
+                    Rule("/<base64url:submodel_id>", methods=["DELETE"],
+                         endpoint=self.delete_submodel_descriptor_by_id),
                 ])
             ])
         ], converters={
             "base64url": Base64URLConverter
         }, strict_slashes=False)
 
-    def _get_descriptors(self, request: "Request") -> Tuple[Iterator[server_model.AssetAdministrationShellDescriptor], int]:
+    def _get_descriptors(self, request: "Request") -> Tuple[
+        Iterator[server_model.AssetAdministrationShellDescriptor], int]:
         """
         Returns all Asset Administration Shell Descriptors
         """
@@ -107,12 +113,13 @@ class RegistryAPI(ObjectStoreWSGIApp):
         return self._get_obj_ts(url_args["submodel_id"], server_model.SubmodelDescriptor)
 
     # ------ AAS REGISTRY ROUTES -------
-    def get_aas_descriptors_all(self, request: Request, url_args: Dict, response_t: Type[APIResponse], **_kwargs) -> Response:
+    def get_aas_descriptors_all(self, request: Request, url_args: Dict, response_t: Type[APIResponse],
+                                **_kwargs) -> Response:
         aas_descriptors, cursor = self._get_descriptors(request)
         return response_t(list(aas_descriptors), cursor=cursor)
 
     def post_aas_descriptor(self, request: Request, url_args: Dict, response_t: Type[APIResponse],
-                 map_adapter: MapAdapter) -> Response:
+                            map_adapter: MapAdapter) -> Response:
         descriptor = HTTPApiDecoder.request_body(request, server_model.AssetAdministrationShellDescriptor, False)
         try:
             self.object_store.add(descriptor)
@@ -124,18 +131,21 @@ class RegistryAPI(ObjectStoreWSGIApp):
         }, force_external=True)
         return response_t(descriptor, status=201, headers={"Location": created_resource_url})
 
-    def get_aas_descriptor(self, request: Request, url_args: Dict, response_t: Type[APIResponse], **_kwargs) -> Response:
+    def get_aas_descriptor(self, request: Request, url_args: Dict, response_t: Type[APIResponse],
+                           **_kwargs) -> Response:
         descriptor = self._get_descriptor(url_args)
         return response_t(descriptor)
 
-    def put_aas_descriptor(self, request: Request, url_args: Dict, response_t: Type[APIResponse], **_kwargs) -> Response:
+    def put_aas_descriptor(self, request: Request, url_args: Dict, response_t: Type[APIResponse],
+                           **_kwargs) -> Response:
         descriptor = self._get_descriptor(url_args)
         descriptor.update_from(HTTPApiDecoder.request_body(request, server_model.AssetAdministrationShellDescriptor,
-                                                    is_stripped_request(request)))
+                                                           is_stripped_request(request)))
         descriptor.commit()
         return response_t()
 
-    def delete_aas_descriptor(self, request: Request, url_args: Dict, response_t: Type[APIResponse], **_kwargs) -> Response:
+    def delete_aas_descriptor(self, request: Request, url_args: Dict, response_t: Type[APIResponse],
+                              **_kwargs) -> Response:
         descriptor = self._get_descriptor(url_args)
         self.object_store.remove(descriptor)
         return response_t()
@@ -233,19 +243,20 @@ class RegistryAPI(ObjectStoreWSGIApp):
         return response_t()
 
     # ------ Submodel REGISTRY ROUTES -------
-    def get_all_submodel_descriptors(self, request: Request, url_args: Dict, response_t: Type[APIResponse], **_kwargs) -> Response:
+    def get_all_submodel_descriptors(self, request: Request, url_args: Dict, response_t: Type[APIResponse],
+                                     **_kwargs) -> Response:
         submodel_descriptors, cursor = self._get_submodel_descriptors(request)
         return response_t(list(submodel_descriptors), cursor=cursor, stripped=is_stripped_request(request))
 
-
-    def get_submodel_descriptor_by_id(self, request: Request, url_args: Dict, response_t: Type[APIResponse], **_kwargs) -> Response:
+    def get_submodel_descriptor_by_id(self, request: Request, url_args: Dict, response_t: Type[APIResponse],
+                                      **_kwargs) -> Response:
         submodel_descriptor = self._get_submodel_descriptor(url_args)
         return response_t(submodel_descriptor, stripped=is_stripped_request(request))
 
-
     def post_submodel_descriptor(self, request: Request, url_args: Dict, response_t: Type[APIResponse],
                                  map_adapter: MapAdapter) -> Response:
-        submodel_descriptor = HTTPApiDecoder.request_body(request, server_model.SubmodelDescriptor, is_stripped_request(request))
+        submodel_descriptor = HTTPApiDecoder.request_body(request, server_model.SubmodelDescriptor,
+                                                          is_stripped_request(request))
         try:
             self.object_store.add(submodel_descriptor)
         except KeyError as e:
@@ -256,14 +267,16 @@ class RegistryAPI(ObjectStoreWSGIApp):
         }, force_external=True)
         return response_t(submodel_descriptor, status=201, headers={"Location": created_resource_url})
 
-
-    def put_submodel_descriptor_by_id(self, request: Request, url_args: Dict, response_t: Type[APIResponse], **_kwargs) -> Response:
+    def put_submodel_descriptor_by_id(self, request: Request, url_args: Dict, response_t: Type[APIResponse],
+                                      **_kwargs) -> Response:
         submodel_descriptor = self._get_submodel_descriptor(url_args)
-        submodel_descriptor.update_from(HTTPApiDecoder.request_body(request, server_model.SubmodelDescriptor, is_stripped_request(request)))
+        submodel_descriptor.update_from(
+            HTTPApiDecoder.request_body(request, server_model.SubmodelDescriptor, is_stripped_request(request)))
         submodel_descriptor.commit()
         return response_t()
 
-    def delete_submodel_descriptor_by_id(self, request: Request, url_args: Dict, response_t: Type[APIResponse], **_kwargs) -> Response:
+    def delete_submodel_descriptor_by_id(self, request: Request, url_args: Dict, response_t: Type[APIResponse],
+                                         **_kwargs) -> Response:
         self.object_store.remove(self._get_obj_ts(url_args["submodel_id"], server_model.SubmodelDescriptor))
         return response_t()
 

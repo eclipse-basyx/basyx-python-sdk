@@ -1,4 +1,4 @@
-from typing import Dict, Set, Optional, Type, List
+from typing import Dict, Set, Optional, Type
 
 import server.app.server_model as server_model
 from basyx.aas import model
@@ -10,7 +10,6 @@ from basyx.aas.adapter.json.json_deserialization import _get_ts, AASFromJsonDeco
 
 import logging
 from typing import Callable
-
 
 logger = logging.getLogger(__name__)
 
@@ -138,7 +137,8 @@ class ServerAASFromJsonDecoder(AASFromJsonDecoder):
 
     @classmethod
     def _construct_submodel_descriptor(
-            cls, dct: Dict[str, object], object_class=server_model.SubmodelDescriptor) -> server_model.SubmodelDescriptor:
+            cls, dct: Dict[str, object],
+            object_class=server_model.SubmodelDescriptor) -> server_model.SubmodelDescriptor:
         ret = object_class(id_=_get_ts(dct, 'id', str),
                            endpoints=[])
         cls._amend_abstract_attributes(ret, dct)
@@ -210,9 +210,10 @@ class ServerStrictStrippedAASFromJsonDecoder(ServerStrictAASFromJsonDecoder, Ser
     pass
 
 
-def read_server_aas_json_file_into(object_store: model.AbstractObjectStore, file: PathOrIO, replace_existing: bool = False,
-                            ignore_existing: bool = False, failsafe: bool = True, stripped: bool = False,
-                            decoder: Optional[Type[AASFromJsonDecoder]] = None) -> Set[model.Identifier]:
+def read_server_aas_json_file_into(object_store: model.AbstractObjectStore, file: PathOrIO,
+                                   replace_existing: bool = False,
+                                   ignore_existing: bool = False, failsafe: bool = True, stripped: bool = False,
+                                   decoder: Optional[Type[AASFromJsonDecoder]] = None) -> Set[model.Identifier]:
     return read_aas_json_file_into(object_store=object_store, file=file, replace_existing=replace_existing,
                                    ignore_existing=ignore_existing, failsafe=failsafe, stripped=stripped,
                                    decoder=decoder, keys_to_types=JSON_SERVER_AAS_TOP_LEVEL_KEYS_TO_TYPES)
@@ -245,7 +246,8 @@ class ServerAASToJsonEncoder(AASToJsonEncoder):
         return data
 
     @classmethod
-    def _asset_administration_shell_descriptor_to_json(cls, obj: server_model.AssetAdministrationShellDescriptor) -> Dict[str, object]:
+    def _asset_administration_shell_descriptor_to_json(cls, obj: server_model.AssetAdministrationShellDescriptor) -> \
+            Dict[str, object]:
         """
         serialization of an object from class AssetAdministrationShell to json
 
@@ -296,7 +298,7 @@ class ServerAASToJsonEncoder(AASToJsonEncoder):
     def _endpoint_to_json(cls, obj: server_model.Endpoint) -> Dict[str, object]:
         data = cls._abstract_classes_to_json(obj)
         data['protocolInformation'] = cls._protocol_information_to_json(
-                obj.protocol_information)
+            obj.protocol_information)
         data['interface'] = obj.interface
         return data
 

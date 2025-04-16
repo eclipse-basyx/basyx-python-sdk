@@ -148,6 +148,7 @@ class ResultToJsonEncoder(ServerAASToJsonEncoder):
             "success": result.success,
             "messages": result.messages
         }
+
     @classmethod
     def _message_to_json(cls, message: Message) -> Dict[str, object]:
         return {

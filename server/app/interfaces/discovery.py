@@ -1,32 +1,31 @@
+import abc
+import json
+from typing import Dict, List, Set
+
 import werkzeug.exceptions
+from pymongo import MongoClient
+from pymongo.collection import Collection
+from werkzeug.routing import Rule, Submount
 from werkzeug.wrappers import Request, Response
 
 from basyx.aas import model
+from server.app.api_utils.http_api_helpers import Base64URLConverter, HTTPApiDecoder
 from server.app.interfaces.base import BaseWSGIApp
-
 from .. import server_model
 from ..adapter.jsonization import ServerAASToJsonEncoder
 
-from werkzeug.routing import Rule, Submount
-from server.app.api_utils.http_api_helpers import Base64URLConverter, HTTPApiDecoder
-from typing import Dict, List, Set
-
-import abc
-
-from pymongo import MongoClient
-from pymongo.collection import Collection
-
-import json
 
 def specific_asset_to_json_obj(asset_id: model.SpecificAssetId) -> dict:
     # Encode the asset to a JSON string and then decode to a dict.
     json_str = ServerAASToJsonEncoder().encode(asset_id)
     return json.loads(json_str)
 
+
 class AbstractDiscoveryStore(metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def __init__(self):
         pass
+
 
 class InMemoryDiscoveryStore(AbstractDiscoveryStore):
     def __init__(self):
@@ -73,6 +72,7 @@ class InMemoryDiscoveryStore(AbstractDiscoveryStore):
         aas_key = aas_identifier
         if asset_key in self.asset_to_aas:
             self.asset_to_aas[asset_key].discard(aas_key)
+
 
 class MongoDiscoveryStore(AbstractDiscoveryStore):
     def __init__(self,
@@ -153,7 +153,8 @@ class DiscoveryAPI(BaseWSGIApp):
             "base64url": Base64URLConverter
         }, strict_slashes=False)
 
-    def search_all_aas_ids_by_asset_link(self, request: Request, url_args: dict, response_t: type, **_kwargs) -> Response:
+    def search_all_aas_ids_by_asset_link(self, request: Request, url_args: dict, response_t: type,
+                                         **_kwargs) -> Response:
         asset_links = HTTPApiDecoder.request_body_list(request, server_model.AssetLink, False)
         matching_aas_keys = set()
         for asset_link in asset_links:
@@ -184,7 +185,9 @@ class DiscoveryAPI(BaseWSGIApp):
             self.persistent_store.asset_to_aas[key].discard(aas_identifier)
         return response_t()
 
+
 if __name__ == "__main__":
     from werkzeug.serving import run_simple
+
     run_simple("localhost", 8084, DiscoveryAPI(InMemoryDiscoveryStore()),
                use_debugger=True, use_reloader=True)

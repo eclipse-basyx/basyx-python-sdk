@@ -2,7 +2,6 @@ from __future__ import absolute_import
 
 import re
 from enum import Enum
-
 from typing import Optional, List
 
 from basyx.aas.model import base
@@ -106,5 +105,3 @@ class Endpoint:
             raise ValueError("Invalid value for `protocol_information`, must not be `None`")  # noqa: E501
 
         self._protocol_information = protocol_information
-
-

@@ -7,7 +7,6 @@
 import base64
 import binascii
 import io
-import itertools
 import json
 
 from lxml import etree
@@ -26,7 +25,7 @@ from server.app import server_model
 from server.app.adapter.xmlization import ServerXMLConstructables, read_server_aas_xml_element
 from server.app.adapter.jsonization import ServerStrictAASFromJsonDecoder, ServerStrictStrippedAASFromJsonDecoder
 
-from typing import Callable, List, Optional, Type, TypeVar, Union, Iterable, Tuple, Iterator
+from typing import Callable, List, Optional, Type, TypeVar, Union
 
 
 def is_stripped_request(request: Request) -> bool:
@@ -108,7 +107,8 @@ class HTTPApiDecoder:
                 model.SpecificAssetId: decoder._construct_specific_asset_id,  # type: ignore[assignment]
                 model.Reference: decoder._construct_reference,  # type: ignore[assignment]
                 model.Qualifier: decoder._construct_qualifier,  # type: ignore[assignment]
-                server_model.AssetAdministrationShellDescriptor: decoder._construct_asset_administration_shell_descriptor,  # type: ignore[assignment]
+                server_model.AssetAdministrationShellDescriptor:
+                    decoder._construct_asset_administration_shell_descriptor,  # type: ignore[assignment]
                 server_model.SubmodelDescriptor: decoder._construct_submodel_descriptor,  # type: ignore[assignment]
                 server_model.AssetLink: decoder._construct_asset_link,  # type: ignore[assignment]
             }
@@ -178,6 +178,7 @@ class HTTPApiDecoder:
         if request.mimetype == "application/json":
             return cls.json(request.get_data(), expect_type, stripped)
         return cls.xml(request.get_data(), expect_type, stripped)
+
     @classmethod
     def request_body_list(cls, request: Request, expect_type: Type[T], stripped: bool) -> T:
         """
