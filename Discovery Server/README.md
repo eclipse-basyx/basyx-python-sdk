@@ -17,12 +17,12 @@ This implementation supports:
 
 ## Features
 
-| Feature                                      | Description                                                                 |
-|---------------------------------------------|-----------------------------------------------------------------------------|
-| `add_asset_links`                           | Register specific asset identifiers linked to an AAS                        |
-| `get_asset_links_by_aas`                    | Retrieve asset links associated with an AAS                                |
-| `search_aas_by_asset_link`                  | Find AAS identifiers by providing asset link values                        |
-| `remove_asset_links_for_aas`                | Delete all asset links associated with a specific AAS                      |
+| Feature                                      | Description                                           |
+|---------------------------------------------|-------------------------------------------------------|
+| `add_asset_links`                           | Register specific asset ids linked to an AAS          |
+| `get_all_specific_asset_ids_by_aas_id`      | Retrieve specific asset ids associated with an AAS    |
+| `search_aas_by_asset_link`                  | Find AAS identifiers by providing asset link values   |
+| `remove_asset_links_for_aas`                | Delete all asset links associated with a specific AAS |
 
 ## Specification Compliance
 

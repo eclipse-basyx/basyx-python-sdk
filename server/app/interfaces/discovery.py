@@ -1,6 +1,6 @@
 import abc
 import json
-from typing import Dict, List, Set
+from typing import Dict, List, Set, Any
 
 import werkzeug.exceptions
 from pymongo import MongoClient
@@ -14,64 +14,85 @@ from server.app.interfaces.base import BaseWSGIApp
 from .. import server_model
 from ..adapter.jsonization import ServerAASToJsonEncoder
 
-
-def specific_asset_to_json_obj(asset_id: model.SpecificAssetId) -> dict:
-    # Encode the asset to a JSON string and then decode to a dict.
-    json_str = ServerAASToJsonEncoder().encode(asset_id)
-    return json.loads(json_str)
-
-
 class AbstractDiscoveryStore(metaclass=abc.ABCMeta):
+    aas_id_to_asset_ids: Any
+    asset_id_to_aas_ids: Any
+
     @abc.abstractmethod
     def __init__(self):
         pass
 
+    @abc.abstractmethod
+    def get_all_specific_asset_ids_by_aas_id(self, aas_id: model.Identifier) -> List[model.SpecificAssetId]:
+        pass
+    
+    @abc.abstractmethod
+    def add_specific_asset_ids_to_aas(self, aas_id: model.Identifier, asset_ids: List[model.SpecificAssetId]) -> None:
+        pass
+    
+    @abc.abstractmethod
+    def delete_specific_asset_ids_by_aas_id(self, aas_id: model.Identifier) -> None:
+        pass
+    
+    @abc.abstractmethod
+    def search_aas_ids_by_asset_link(self, asset_link: server_model.AssetLink) -> List[model.Identifier]:
+        pass
+    
+    @abc.abstractmethod
+    def _add_aas_id_to_specific_asset_id(self, asset_id: model.SpecificAssetId, aas_identifier: model.Identifier) -> None:
+        pass
+
+    @abc.abstractmethod
+    def remove_aas_from_asset_link(self, asset_id: model.SpecificAssetId, aas_id: model.Identifier) -> None:
+        pass
+
+
 
 class InMemoryDiscoveryStore(AbstractDiscoveryStore):
     def __init__(self):
-        self.aas_to_assets: Dict[model.Identifier, Set[model.SpecificAssetId]] = {}
-        self.asset_to_aas: Dict[model.SpecificAssetId, Set[model.Identifier]] = {}
+        self.aas_id_to_asset_ids: Dict[model.Identifier, Set[model.SpecificAssetId]] = {}
+        self.asset_id_to_aas_ids: Dict[model.SpecificAssetId, Set[model.Identifier]] = {}
 
-    def get_asset_links_by_aas(self, aas_identifier: model.Identifier) -> List[dict]:
-        key = aas_identifier
-        return list(self.aas_to_assets.get(key, set()))
+    def get_all_specific_asset_ids_by_aas_id(self, aas_id: model.Identifier) -> List[model.SpecificAssetId]:
+        return list(self.aas_id_to_asset_ids.get(aas_id, set()))
 
-    def add_asset_links(self, aas_identifier: model.Identifier, asset_ids: List[model.SpecificAssetId]) -> None:
-        key = aas_identifier
-        serialized_assets = [specific_asset_to_json_obj(aid) for aid in asset_ids]
-        if key in self.aas_to_assets:
+    def add_specific_asset_ids_to_aas(self, aas_id: model.Identifier,
+                                      asset_ids: List[model.SpecificAssetId]) -> None:
+        serialized_assets = [ServerAASToJsonEncoder.default(asset_id) for asset_id in asset_ids]
+        if aas_id in self.aas_id_to_asset_ids:
             for asset in serialized_assets:
-                if asset not in self.aas_to_assets[key]:
-                    self.aas_to_assets[key].append(asset)
+                if asset not in self.aas_id_to_asset_ids[aas_id]:
+                    self.aas_id_to_asset_ids[aas_id].append(asset)
         else:
-            self.aas_to_assets[key] = serialized_assets[:]
+            self.aas_id_to_asset_ids[aas_id] = serialized_assets[:]
 
-    def delete_asset_links_by_aas(self, aas_identifier: model.Identifier) -> None:
-        key = aas_identifier
-        if key in self.aas_to_assets:
-            del self.aas_to_assets[key]
+    def delete_specific_asset_ids_by_aas_id(self, aas_id: model.Identifier) -> None:
+        key = aas_id
+        if key in self.aas_id_to_asset_ids:
+            del self.aas_id_to_asset_ids[key]
 
-    def search_aas_by_asset_link(self, asset_link: server_model.AssetLink) -> List[str]:
+    def search_aas_ids_by_asset_link(self, asset_link: server_model.AssetLink) -> List[model.Identifier]:
         result = []
-        for asset_key, aas_ids in self.asset_to_aas.items():
+        for asset_key, aas_ids in self.asset_id_to_aas_ids.items():
             expected_key = f"{asset_link.name}:{asset_link.value}"
             if asset_key == expected_key:
                 result.extend(list(aas_ids))
         return result
 
-    def add_aas_for_asset_link(self, asset_id: model.SpecificAssetId, aas_identifier: model.Identifier) -> None:
+    def _add_aas_id_to_specific_asset_id(self, asset_id: model.SpecificAssetId, aas_id: model.Identifier) -> None:
         asset_key = f"{asset_id.name}:{asset_id.value}"
-        aas_key = aas_identifier
-        if asset_key in self.asset_to_aas:
-            self.asset_to_aas[asset_key].add(aas_key)
+        aas_key = aas_id
+        # FIXME
+        if asset_key in self.asset_id_to_aas_ids:
+            self.asset_id_to_aas_ids[asset_key].add(aas_key)
         else:
-            self.asset_to_aas[asset_key] = {aas_key}
+            self.asset_id_to_aas_ids[asset_key] = {aas_key}
 
-    def remove_aas_from_asset_link(self, asset_id: model.SpecificAssetId, aas_identifier: model.Identifier) -> None:
+    def remove_aas_from_asset_link(self, asset_id: model.SpecificAssetId, aas_id: model.Identifier) -> None:
         asset_key = f"{asset_id.name}:{asset_id.value}"
-        aas_key = aas_identifier
-        if asset_key in self.asset_to_aas:
-            self.asset_to_aas[asset_key].discard(aas_key)
+        aas_key = aas_id
+        if asset_key in self.asset_id_to_aas_ids:
+            self.asset_id_to_aas_ids[asset_key].discard(aas_key)
 
 
 class MongoDiscoveryStore(AbstractDiscoveryStore):
@@ -87,26 +108,26 @@ class MongoDiscoveryStore(AbstractDiscoveryStore):
         # Create an index for fast asset reverse lookups.
         self.coll_asset_to_aas.create_index("_id")
 
-    def get_asset_links_by_aas(self, aas_identifier: model.Identifier) -> List[dict]:
-        key = aas_identifier
+    def get_all_specific_asset_ids_by_aas_id(self, aas_id: model.Identifier) -> List[model.SpecificAssetId]:
+        key = aas_id
         doc = self.coll_aas_to_assets.find_one({"_id": key})
         return doc["asset_ids"] if doc and "asset_ids" in doc else []
 
-    def add_asset_links(self, aas_identifier: model.Identifier, asset_ids: List[model.SpecificAssetId]) -> None:
-        key = aas_identifier
+    def add_specific_asset_ids_to_aas(self, aas_id: model.Identifier, asset_ids: List[model.SpecificAssetId]) -> None:
+        key = aas_id
         # Convert each SpecificAssetId using the serialization helper.
-        serializable_assets = [specific_asset_to_json_obj(aid) for aid in asset_ids]
+        serializable_assets = [ServerAASToJsonEncoder.default(asset_id) for asset_id in asset_ids]
         self.coll_aas_to_assets.update_one(
             {"_id": key},
             {"$addToSet": {"asset_ids": {"$each": serializable_assets}}},
             upsert=True
         )
 
-    def delete_asset_links_by_aas(self, aas_identifier: model.Identifier) -> None:
-        key = aas_identifier
+    def delete_specific_asset_ids_by_aas_id(self, aas_id: model.Identifier) -> None:
+        key = aas_id
         self.coll_aas_to_assets.delete_one({"_id": key})
 
-    def search_aas_by_asset_link(self, asset_link: server_model.AssetLink) -> List[str]:
+    def search_aas_ids_by_asset_link(self, asset_link: server_model.AssetLink) -> List[model.Identifier]:
         # Query MongoDB for specificAssetIds where 'name' and 'value' match
         doc = self.coll_asset_to_aas.find_one({
             "name": asset_link.name,
@@ -114,18 +135,17 @@ class MongoDiscoveryStore(AbstractDiscoveryStore):
         })
         return doc["aas_ids"] if doc and "aas_ids" in doc else []
 
-    def add_aas_for_asset_link(self, asset_id: model.SpecificAssetId, aas_identifier: model.Identifier) -> None:
-        asset_key = str(specific_asset_to_json_obj(asset_id))
-        aas_key = aas_identifier
+    def _add_aas_id_to_specific_asset_id(self, asset_id: model.SpecificAssetId, aas_id: model.Identifier) -> None:
+        asset_key = str(ServerAASToJsonEncoder.default(asset_id))
         self.coll_asset_to_aas.update_one(
             {"_id": asset_key},
-            {"$addToSet": {"aas_ids": aas_key}},
+            {"$addToSet": {"aas_ids": aas_id}},
             upsert=True
         )
 
-    def remove_aas_from_asset_link(self, asset_id: model.SpecificAssetId, aas_identifier: model.Identifier) -> None:
-        asset_key = str(specific_asset_to_json_obj(asset_id))
-        aas_key = aas_identifier
+    def remove_aas_from_asset_link(self, asset_id: model.SpecificAssetId, aas_id: model.Identifier) -> None:
+        asset_key = str(ServerAASToJsonEncoder.default(asset_id))
+        aas_key = aas_id
         self.coll_asset_to_aas.update_one(
             {"_id": asset_key},
             {"$pull": {"aas_ids": aas_key}}
@@ -142,7 +162,7 @@ class DiscoveryAPI(BaseWSGIApp):
                      endpoint=self.search_all_aas_ids_by_asset_link),
                 Submount("/lookup/shells", [
                     Rule("/<base64url:aas_id>", methods=["GET"],
-                         endpoint=self.get_all_asset_links_by_id),
+                         endpoint=self.get_all_specific_asset_ids_by_aas_id),
                     Rule("/<base64url:aas_id>", methods=["POST"],
                          endpoint=self.post_all_asset_links_by_id),
                     Rule("/<base64url:aas_id>", methods=["DELETE"],
@@ -158,31 +178,31 @@ class DiscoveryAPI(BaseWSGIApp):
         asset_links = HTTPApiDecoder.request_body_list(request, server_model.AssetLink, False)
         matching_aas_keys = set()
         for asset_link in asset_links:
-            aas_keys = self.persistent_store.search_aas_by_asset_link(asset_link)
+            aas_keys = self.persistent_store.search_aas_ids_by_asset_link(asset_link)
             matching_aas_keys.update(aas_keys)
         matching_aas_keys = list(matching_aas_keys)
         paginated_slice, cursor = self._get_slice(request, matching_aas_keys)
         return response_t(list(paginated_slice), cursor=cursor)
 
-    def get_all_asset_links_by_id(self, request: Request, url_args: dict, response_t: type, **_kwargs) -> Response:
+    def get_all_specific_asset_ids_by_aas_id(self, request: Request, url_args: dict, response_t: type, **_kwargs) -> Response:
         aas_identifier = url_args.get("aas_id")
-        asset_ids = self.persistent_store.get_asset_links_by_aas(aas_identifier)
+        asset_ids = self.persistent_store.get_all_specific_asset_ids_by_aas_id(aas_identifier)
         return response_t(asset_ids)
 
     def post_all_asset_links_by_id(self, request: Request, url_args: dict, response_t: type, **_kwargs) -> Response:
         aas_identifier = url_args.get("aas_id")
         specific_asset_ids = HTTPApiDecoder.request_body_list(request, model.SpecificAssetId, False)
-        self.persistent_store.add_asset_links(aas_identifier, specific_asset_ids)
+        self.persistent_store.add_specific_asset_ids_to_aas(aas_identifier, specific_asset_ids)
         for asset_id in specific_asset_ids:
-            self.persistent_store.add_aas_for_asset_link(asset_id, aas_identifier)
-        updated = {aas_identifier: self.persistent_store.get_asset_links_by_aas(aas_identifier)}
+            self.persistent_store._add_aas_id_to_specific_asset_id(asset_id, aas_identifier)
+        updated = {aas_identifier: self.persistent_store.get_all_specific_asset_ids_by_aas_id(aas_identifier)}
         return response_t(updated)
 
     def delete_all_asset_links_by_id(self, request: Request, url_args: dict, response_t: type, **_kwargs) -> Response:
         aas_identifier = url_args.get("aas_id")
-        self.persistent_store.delete_asset_links_by_aas(aas_identifier)
-        for key in list(self.persistent_store.asset_to_aas.keys()):
-            self.persistent_store.asset_to_aas[key].discard(aas_identifier)
+        self.persistent_store.delete_specific_asset_ids_by_aas_id(aas_identifier)
+        for key in list(self.persistent_store.asset_id_to_aas_ids.keys()):
+            self.persistent_store.asset_id_to_aas_ids[key].discard(aas_identifier)
         return response_t()
 
 
