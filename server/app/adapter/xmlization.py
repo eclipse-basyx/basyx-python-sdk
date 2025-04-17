@@ -34,11 +34,11 @@ class ServerAASFromXmlDecoder(AASFromXmlDecoder):
                     specific_asset_ids.append({"name": name.strip(), "value": value.strip()})
 
         descriptor = object_class(
-            id=id_value,
+            id_=id_value,
             id_short=id_short,
             endpoints=endpoints,
             asset_kind=asset_kind,
-            specific_asset_ids=specific_asset_ids
+            specific_asset_id=specific_asset_ids
         )
 
         cls._amend_abstract_attributes(descriptor, element)
@@ -58,7 +58,7 @@ class ServerAASFromXmlDecoder(AASFromXmlDecoder):
         # Hier können weitere optionale Felder verarbeitet werden, z.B. semanticId, etc.
 
         submodel_descriptor = object_class(
-            id=submodel_id,
+            id_=submodel_id,
             id_short=id_short,
             endpoints=endpoints
         )

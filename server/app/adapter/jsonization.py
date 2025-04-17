@@ -59,7 +59,7 @@ class ServerAASFromJsonDecoder(AASFromJsonDecoder):
         cls._amend_abstract_attributes(ret, dct)
         if 'administration' in dct:
             ret.administration = cls._construct_administrative_information(_get_ts(dct, 'administration', dict))
-        if 'assetkind' in dct:
+        if 'assetKind' in dct:
             ret.asset_kind = ASSET_KIND_INVERSE[_get_ts(dct, 'assetKind', str)]
         if 'assetType' in dct:
             ret.asset_type = _get_ts(dct, 'assetType', str)
