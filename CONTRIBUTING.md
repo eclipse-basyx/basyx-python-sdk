@@ -119,16 +119,41 @@ The following guidelines are for the commit or PR message text:
   via `https://link/to.pdf#Page=123`
 - Optionally, where applicable reference respective issues: `Fixes #123`
 
-## Codestyle and Testing
+## Code Quality
 
+The Eclipse BaSyx Python project emphasizes high code quality.
+To achieve this, we apply best practices where possible and have developed an extensive suite of tests that are 
+expected to pass for each Pull Request to the project. 
+
+### Codestyle
 Our code follows the [PEP 8 -- Style Guide for Python Code](https://www.python.org/dev/peps/pep-0008/)
 with the following exceptions:
 - Line length is allowed to be up to 120 characters, though lines up to 100 characters are preferred.
 
 Additionally, we use [PEP 484 -- Type Hints](https://www.python.org/dev/peps/pep-0484/) throughout the code to enable type checking the code.
 
-Before submitting any changes, make sure to let `mypy` and `pycodestyle` check your code and run the unit tests with
-Python's builtin `unittest`. To install the required tools, use:
+Before submitting any changes to the SDK, make sure to let `mypy` and `pycodestyle` check your code and run the unit 
+tests with Python's builtin `unittest`. 
+
+### Testing
+There are many automated checks implemented in the CI pipelines of this project, all of which are expected to pass 
+before new code can be added:
+
+- We check that the Python packages can be built.
+- We run the developed unittests and aim for a code coverage of at least 80%.
+- We perform static code analysis for type-checking and codestyle, not just in the code itself, but also in codeblocks 
+  that are inside docstrings and the `README.md`.
+- We check that the automatically generated developer documentation compiles.
+- We check that the Python Versions we support match between the different subprojects in the monorepository and are 
+  not End of Life.
+- We check that the year in the copyright headers in each file (stemming from the license) is correct.
+
+> [!note]
+> We strongly suggest to run the tests locally, before submitting a Pull Request, in order to accelerate the review 
+> process. 
+
+### Testing the SDK
+For testing the SDK locally on your machine, you can install the required tools like so:
 ```bash
 pip install .[dev]
 ```
@@ -142,12 +167,51 @@ Running all checks:
 mypy basyx test
 pycodestyle --max-line-length 120 basyx test
 python -m unittest
-```
-
-We aim to cover our code with test by at least 80%. To check test coverage, you can use `coverage`:
-
-```bash
-pip install coverage
 coverage run --source basyx --branch -m unittest
 coverage report -m
 ```
+
+We aim to cover our code with tests by at least 80%.
+
+This should help you sort out the most important bugs in your code.
+Note that there are more checks that run in the CI once you open a Pull Request.
+If you want to run the additional checks, please refer to the [CI definition](./.github/workflows/ci.yml).
+
+### Testing the Server
+Currently, the automated server tests are still under development. 
+To test that the server is working, we expect to at least be able to build the docker images and run a container
+of it without error. 
+
+For that, you need to have Docker installed on your system. 
+In the directory with the `Dockerfile`: 
+```bash
+docker build -t basyx-python-server .
+docker run --name basyx-python-server basyx-python-server
+```
+Wait until you see the line:
+```
+INFO success: quit_on_failure entered RUNNING state
+```
+
+### Testing the Compliance Tool
+For the Compliance Tool, you can install the required tools like this (from the `./compliance_tool` directory):
+```bash
+pip install -e ../sdk[dev]
+pip install .[dev]
+```
+The first line installs the SDK and its dependencies, the second the developer dependencies for the compliance tool
+itself.
+
+Then you can run the checks via:
+```bash
+mypy basyx test
+pycodestyle --max-line-length 120 basyx test
+python -m unittest
+coverage run --source basyx --branch -m unittest
+coverage report -m
+```
+
+We aim to cover our code with tests by at least 80%.
+This should help you sort out the most important bugs in your code.
+Note that there are more checks that run in the CI once you open a Pull Request.
+If you want to run the additional checks, please refer to the [CI definition](./.github/workflows/ci.yml).
