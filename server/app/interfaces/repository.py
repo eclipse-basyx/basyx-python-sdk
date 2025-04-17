@@ -257,7 +257,7 @@ class WSGIApp(ObjectStoreWSGIApp):
             # Decode and instantiate SpecificAssetIds
             # This needs to be a list, otherwise we can only iterate it once.
             specific_asset_ids: List[model.SpecificAssetId] = list(
-                map(lambda asset_id: HTTPApiDecoder.base64urljson(asset_id, model.SpecificAssetId, False), asset_ids))
+                map(lambda asset_id: HTTPApiDecoder.base64url_json(asset_id, model.SpecificAssetId, False), asset_ids))
             # Filter AAS based on these SpecificAssetIds
             aas = filter(lambda shell: all(specific_asset_id in shell.asset_information.specific_asset_id
                                            for specific_asset_id in specific_asset_ids), aas)
@@ -275,7 +275,7 @@ class WSGIApp(ObjectStoreWSGIApp):
             submodels = filter(lambda sm: sm.id_short == id_short, submodels)
         semantic_id = request.args.get("semanticId")
         if semantic_id is not None:
-            spec_semantic_id = HTTPApiDecoder.base64urljson(
+            spec_semantic_id = HTTPApiDecoder.base64url_json(
                 semantic_id, model.Reference, False)  # type: ignore[type-abstract]
             submodels = filter(lambda sm: sm.semantic_id == spec_semantic_id, submodels)
         paginated_submodels, end_index = self._get_slice(request, submodels)

@@ -74,7 +74,7 @@ class HTTPApiDecoder:
     }
 
     @classmethod
-    def check_type_supportance(cls, type_: type):
+    def check_type_support(cls, type_: type):
         if type_ not in cls.type_constructables_map:
             raise TypeError(f"Parsing {type_} is not supported!")
 
@@ -86,7 +86,7 @@ class HTTPApiDecoder:
 
     @classmethod
     def json_list(cls, data: Union[str, bytes], expect_type: Type[T], stripped: bool, expect_single: bool) -> List[T]:
-        cls.check_type_supportance(expect_type)
+        cls.check_type_support(expect_type)
         decoder: Type[ServerStrictAASFromJsonDecoder] = ServerStrictStrippedAASFromJsonDecoder if stripped \
             else ServerStrictAASFromJsonDecoder
         try:
@@ -128,7 +128,7 @@ class HTTPApiDecoder:
         return [cls.assert_type(obj, expect_type) for obj in parsed]
 
     @classmethod
-    def base64urljson_list(cls, data: str, expect_type: Type[T], stripped: bool, expect_single: bool) -> List[T]:
+    def base64url_json_list(cls, data: str, expect_type: Type[T], stripped: bool, expect_single: bool) -> List[T]:
         data = base64url_decode(data)
         return cls.json_list(data, expect_type, stripped, expect_single)
 
@@ -137,13 +137,13 @@ class HTTPApiDecoder:
         return cls.json_list(data, expect_type, stripped, True)[0]
 
     @classmethod
-    def base64urljson(cls, data: str, expect_type: Type[T], stripped: bool) -> T:
+    def base64url_json(cls, data: str, expect_type: Type[T], stripped: bool) -> T:
         data = base64url_decode(data)
         return cls.json_list(data, expect_type, stripped, True)[0]
 
     @classmethod
     def xml(cls, data: bytes, expect_type: Type[T], stripped: bool) -> T:
-        cls.check_type_supportance(expect_type)
+        cls.check_type_support(expect_type)
         try:
             xml_data = io.BytesIO(data)
             rv = read_server_aas_xml_element(xml_data, cls.type_constructables_map[expect_type],
@@ -180,11 +180,12 @@ class HTTPApiDecoder:
         return cls.xml(request.get_data(), expect_type, stripped)
 
     @classmethod
-    def request_body_list(cls, request: Request, expect_type: Type[T], stripped: bool) -> T:
+    def request_body_list(cls, request: Request, expect_type: Type[T], stripped: bool) -> List[T]:
         """
         Deserializes the request body to an instance (or list of instances)
         of the expected type.
         """
+        # TODO: Refactor this method and request_body to avoid code duplication
         valid_content_types = ("application/json", "application/xml", "text/xml")
 
         if request.mimetype not in valid_content_types:

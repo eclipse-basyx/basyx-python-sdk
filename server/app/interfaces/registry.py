@@ -81,7 +81,7 @@ class RegistryAPI(ObjectStoreWSGIApp):
         if asset_ids:
             # Decode und Instanziierung der SpecificAssetIds
             specific_asset_ids: List[model.SpecificAssetId] = list(
-                map(lambda asset_id: HTTPApiDecoder.base64urljson(asset_id, model.SpecificAssetId, False), asset_ids)
+                map(lambda asset_id: HTTPApiDecoder.base64url_json(asset_id, model.SpecificAssetId, False), asset_ids)
             )
             # Filtere anhand der übergebenen SpecificAssetIds
             descriptors = filter(
@@ -103,7 +103,7 @@ class RegistryAPI(ObjectStoreWSGIApp):
             submodel_descriptors = filter(lambda sm: sm.id_short == id_short, submodel_descriptors)
         semantic_id = request.args.get("semanticId")
         if semantic_id is not None:
-            spec_semantic_id = HTTPApiDecoder.base64urljson(
+            spec_semantic_id = HTTPApiDecoder.base64url_json(
                 semantic_id, model.Reference, False)  # type: ignore[type-abstract]
             submodel_descriptors = filter(lambda sm: sm.semantic_id == spec_semantic_id, submodel_descriptors)
         paginated_submodel_descriptors, end_index = self._get_slice(request, submodel_descriptors)
