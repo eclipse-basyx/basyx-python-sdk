@@ -19,10 +19,9 @@ from werkzeug.wrappers import Request
 
 from basyx.aas import model
 
-from basyx.aas.adapter.xml import XMLConstructables
+from basyx.aas.adapter.xml import XMLConstructables, read_aas_xml_element
 
 from server.app import server_model
-from server.app.adapter.xmlization import ServerXMLConstructables, read_server_aas_xml_element
 from server.app.adapter.jsonization import ServerStrictAASFromJsonDecoder, ServerStrictStrippedAASFromJsonDecoder
 
 from typing import Callable, List, Optional, Type, TypeVar, Union
@@ -67,15 +66,16 @@ class HTTPApiDecoder:
         model.Submodel: XMLConstructables.SUBMODEL,
         model.SubmodelElement: XMLConstructables.SUBMODEL_ELEMENT,
         model.Reference: XMLConstructables.REFERENCE,
-
-        server_model.AssetAdministrationShellDescriptor: ServerXMLConstructables.ASSET_ADMINISTRATION_SHELL_DESCRIPTOR,
-        server_model.SubmodelDescriptor: ServerXMLConstructables.SUBMODEL_DESCRIPTOR,
-        server_model.AssetLink: ServerXMLConstructables.ASSET_LINK,
     }
 
     @classmethod
     def check_type_support(cls, type_: type):
-        if type_ not in cls.type_constructables_map:
+        tolerated_types = (
+            server_model.AssetAdministrationShellDescriptor,
+            server_model.SubmodelDescriptor,
+            server_model.AssetLink,
+        )
+        if type_ not in cls.type_constructables_map and type_ not in tolerated_types:
             raise TypeError(f"Parsing {type_} is not supported!")
 
     @classmethod
@@ -146,7 +146,7 @@ class HTTPApiDecoder:
         cls.check_type_support(expect_type)
         try:
             xml_data = io.BytesIO(data)
-            rv = read_server_aas_xml_element(xml_data, cls.type_constructables_map[expect_type],
+            rv = read_aas_xml_element(xml_data, cls.type_constructables_map[expect_type],
                                              stripped=stripped, failsafe=False)
         except (KeyError, ValueError) as e:
             # xml deserialization creates an error chain. since we only return one error, return the root cause
