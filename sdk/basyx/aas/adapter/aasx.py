@@ -238,12 +238,12 @@ class AASXReader:
         if content_type.split(";")[0] in ("text/xml", "application/xml") or content_type == "" and extension == "xml":
             logger.debug("Parsing AAS objects from XML stream in OPC part {} ...".format(part_name))
             with self.reader.open_part(part_name) as p:
-                return read_aas_xml_file(p, failsafe, **kwargs)
+                return read_aas_xml_file(p, failsafe=failsafe, **kwargs)
         elif content_type.split(";")[0] in ("text/json", "application/json") \
                 or content_type == "" and extension == "json":
             logger.debug("Parsing AAS objects from JSON stream in OPC part {} ...".format(part_name))
             with self.reader.open_part(part_name) as p:
-                return read_aas_json_file(io.TextIOWrapper(p, encoding='utf-8-sig'), failsafe, **kwargs)
+                return read_aas_json_file(io.TextIOWrapper(p, encoding='utf-8-sig'), failsafe=failsafe, **kwargs)
         else:
             error_message = ("Could not determine part format of AASX part {} (Content Type: {}, extension: {}"
                              .format(part_name, content_type, extension))
