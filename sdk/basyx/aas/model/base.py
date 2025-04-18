@@ -829,7 +829,20 @@ class Referable(HasExtension, metaclass=abc.ABCMeta):
                 # update the elements of the NameSpaceSet
                 getattr(self, name).update_nss_from(attr)
             else:
-                setattr(self, name, attr)  # that variable is not a NameSpaceSet, so it isn't Referable
+                try:
+                    # Check if this is a property and if it has no setter
+                    prop = getattr(type(self), name, None)
+                    if isinstance(prop, property) and prop.fset is None:
+                        # Attempt to set the underlying private attribute instead
+                        private_name = f"_{name}"
+                        if hasattr(self, private_name):
+                            setattr(self, private_name, attr)
+                        else:
+                            raise AttributeError(f"underlying object has no attribute {private_name}")
+                    else:
+                        setattr(self, name, attr)
+                except AttributeError:
+                    raise
 
     def commit(self) -> None:
         """
