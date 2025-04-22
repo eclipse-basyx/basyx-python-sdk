@@ -18,6 +18,8 @@ from server.app.interfaces.base import BaseWSGIApp
 from .. import server_model
 from ..adapter.jsonization import ServerAASToJsonEncoder
 
+encoder=ServerAASToJsonEncoder()
+
 class AbstractDiscoveryStore(metaclass=abc.ABCMeta):
     aas_id_to_asset_ids: Any
     asset_id_to_aas_ids: Any
@@ -47,7 +49,7 @@ class AbstractDiscoveryStore(metaclass=abc.ABCMeta):
         pass
 
     @abc.abstractmethod
-    def remove_aas_from_asset_link(self, asset_id: model.SpecificAssetId, aas_id: model.Identifier) -> None:
+    def _delete_aas_id_from_specific_asset_ids(self, asset_id: model.SpecificAssetId, aas_id: model.Identifier) -> None:
         pass
 
 
@@ -62,7 +64,7 @@ class InMemoryDiscoveryStore(AbstractDiscoveryStore):
 
     def add_specific_asset_ids_to_aas(self, aas_id: model.Identifier,
                                       asset_ids: List[model.SpecificAssetId]) -> None:
-        serialized_assets = [ServerAASToJsonEncoder.default(asset_id) for asset_id in asset_ids]
+        serialized_assets = [encoder.default(asset_id) for asset_id in asset_ids]
         if aas_id in self.aas_id_to_asset_ids:
             for asset in serialized_assets:
                 if asset not in self.aas_id_to_asset_ids[aas_id]:
@@ -85,18 +87,15 @@ class InMemoryDiscoveryStore(AbstractDiscoveryStore):
 
     def _add_aas_id_to_specific_asset_id(self, asset_id: model.SpecificAssetId, aas_id: model.Identifier) -> None:
         asset_key = f"{asset_id.name}:{asset_id.value}"
-        aas_key = aas_id
-        # FIXME
         if asset_key in self.asset_id_to_aas_ids:
-            self.asset_id_to_aas_ids[asset_key].add(aas_key)
+            self.asset_id_to_aas_ids[asset_key].add(aas_id)
         else:
-            self.asset_id_to_aas_ids[asset_key] = {aas_key}
+            self.asset_id_to_aas_ids[asset_key] = {aas_id}
 
-    def remove_aas_from_asset_link(self, asset_id: model.SpecificAssetId, aas_id: model.Identifier) -> None:
+    def _delete_aas_id_from_specific_asset_ids(self, asset_id: model.SpecificAssetId, aas_id: model.Identifier) -> None:
         asset_key = f"{asset_id.name}:{asset_id.value}"
-        aas_key = aas_id
         if asset_key in self.asset_id_to_aas_ids:
-            self.asset_id_to_aas_ids[asset_key].discard(aas_key)
+            self.asset_id_to_aas_ids[asset_key].discard(aas_id)
 
 
 class MongoDiscoveryStore(AbstractDiscoveryStore):
@@ -120,7 +119,7 @@ class MongoDiscoveryStore(AbstractDiscoveryStore):
     def add_specific_asset_ids_to_aas(self, aas_id: model.Identifier, asset_ids: List[model.SpecificAssetId]) -> None:
         key = aas_id
         # Convert each SpecificAssetId using the serialization helper.
-        serializable_assets = [ServerAASToJsonEncoder.default(asset_id) for asset_id in asset_ids]
+        serializable_assets = [encoder.default(asset_id) for asset_id in asset_ids]
         self.coll_aas_to_assets.update_one(
             {"_id": key},
             {"$addToSet": {"asset_ids": {"$each": serializable_assets}}},
@@ -140,19 +139,18 @@ class MongoDiscoveryStore(AbstractDiscoveryStore):
         return doc["aas_ids"] if doc and "aas_ids" in doc else []
 
     def _add_aas_id_to_specific_asset_id(self, asset_id: model.SpecificAssetId, aas_id: model.Identifier) -> None:
-        asset_key = str(ServerAASToJsonEncoder.default(asset_id))
+        asset_key = str(encoder.default(asset_id))
         self.coll_asset_to_aas.update_one(
             {"_id": asset_key},
             {"$addToSet": {"aas_ids": aas_id}},
             upsert=True
         )
 
-    def remove_aas_from_asset_link(self, asset_id: model.SpecificAssetId, aas_id: model.Identifier) -> None:
-        asset_key = str(ServerAASToJsonEncoder.default(asset_id))
-        aas_key = aas_id
+    def _delete_aas_id_from_specific_asset_ids(self, asset_id: model.SpecificAssetId, aas_id: model.Identifier) -> None:
+        asset_key = str(encoder.default(asset_id))
         self.coll_asset_to_aas.update_one(
             {"_id": asset_key},
-            {"$pull": {"aas_ids": aas_key}}
+            {"$pull": {"aas_ids": aas_id}}
         )
 
 
