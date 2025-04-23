@@ -39,7 +39,9 @@ from ..util import traversal
 
 logger = logging.getLogger(__name__)
 
-RELATIONSHIP_TYPE_AASX_ORIGIN = "http://admin-shell.io/aasx/relationships/aasx-origin"
+RELATIONSHIP_TYPE_AASX_ORIGIN = ("http://admin-shell.io/aasx/relationships/aasx-origin",
+                                 "http://www.admin-shell.io/aasx/relationships/aasx-origin")  # Fallback
+
 RELATIONSHIP_TYPE_AAS_SPEC = "http://admin-shell.io/aasx/relationships/aas-spec"
 RELATIONSHIP_TYPE_AAS_SPEC_SPLIT = "http://admin-shell.io/aasx/relationships/aas-spec-split"
 RELATIONSHIP_TYPE_AAS_SUPL = "http://admin-shell.io/aasx/relationships/aas-suppl"
@@ -140,10 +142,14 @@ class AASXReader:
         """
         # Find AASX-Origin part
         core_rels = self.reader.get_related_parts_by_type()
-        try:
-            aasx_origin_part = core_rels[RELATIONSHIP_TYPE_AASX_ORIGIN][0]
-        except IndexError as e:
-            raise ValueError("Not a valid AASX file: aasx-origin Relationship is missing.") from e
+        for rel_type in RELATIONSHIP_TYPE_AASX_ORIGIN:
+            if rel_type in core_rels:
+                print(rel_type[0])
+                aasx_origin_part = core_rels[rel_type][0]
+                break
+        else:
+            raise ValueError("Not a valid AASX file: aasx-origin Relationship is missing.")
+        
 
         read_identifiables: Set[model.Identifier] = set()
 
