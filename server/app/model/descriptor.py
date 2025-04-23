@@ -4,7 +4,7 @@ import abc
 from typing import Optional, Iterable, List
 
 from basyx.aas import model
-from server.app.server_model.endpoint import Endpoint
+from server.app.model.endpoint import Endpoint
 
 
 class Descriptor(model.HasExtension, metaclass=abc.ABCMeta):

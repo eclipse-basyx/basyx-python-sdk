@@ -18,7 +18,7 @@ from basyx.aas import model
 from basyx.aas.adapter._generic import XML_NS_MAP
 from basyx.aas.adapter.xml import xml_serialization, XMLConstructables, read_aas_xml_element
 from basyx.aas.model import AbstractObjectStore
-from server.app import server_model
+from server.app import model as server_model
 from server.app.adapter.jsonization import ServerAASToJsonEncoder, ServerStrictAASFromJsonDecoder, \
     ServerStrictStrippedAASFromJsonDecoder
 from server.app.util.converters import base64url_decode

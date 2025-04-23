@@ -15,7 +15,7 @@ from werkzeug.wrappers import Request, Response
 from basyx.aas import model
 from server.app.util.converters import Base64URLConverter
 from server.app.interfaces.base import BaseWSGIApp, HTTPApiDecoder
-from .. import server_model as server_model
+from .. import model as server_model
 from ..adapter.jsonization import ServerAASToJsonEncoder
 
 encoder=ServerAASToJsonEncoder()
