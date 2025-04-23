@@ -14,8 +14,8 @@ from werkzeug.wrappers import Request, Response
 
 import server.app.server_model as server_model
 from basyx.aas import model
-from server.app.api_utils.http_api_helpers import HTTPApiDecoder, Base64URLConverter, is_stripped_request
-from server.app.interfaces.base import ObjectStoreWSGIApp, APIResponse
+from server.app.util.converters import Base64URLConverter
+from server.app.interfaces.base import ObjectStoreWSGIApp, APIResponse, is_stripped_request, HTTPApiDecoder
 
 
 class RegistryAPI(ObjectStoreWSGIApp):

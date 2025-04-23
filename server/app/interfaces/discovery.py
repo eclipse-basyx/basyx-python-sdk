@@ -13,9 +13,9 @@ from werkzeug.routing import Rule, Submount
 from werkzeug.wrappers import Request, Response
 
 from basyx.aas import model
-from server.app.api_utils.http_api_helpers import Base64URLConverter, HTTPApiDecoder
-from server.app.interfaces.base import BaseWSGIApp
-from .. import server_model
+from server.app.util.converters import Base64URLConverter
+from server.app.interfaces.base import BaseWSGIApp, HTTPApiDecoder
+from .. import server_model as server_model
 from ..adapter.jsonization import ServerAASToJsonEncoder
 
 encoder=ServerAASToJsonEncoder()
