@@ -43,8 +43,7 @@ from basyx.aas import model
 from basyx.aas.adapter import aasx
 from server.app.api_utils.http_api_helpers import Base64URLConverter, IdShortPathConverter, T, HTTPApiDecoder, \
     is_stripped_request
-from server.app.api_utils.response import APIResponse
-from .base import ObjectStoreWSGIApp
+from .base import ObjectStoreWSGIApp, APIResponse
 
 
 class WSGIApp(ObjectStoreWSGIApp):
