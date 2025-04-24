@@ -97,8 +97,11 @@ class ServerAASFromJsonDecoder(AASFromJsonDecoder):
         if 'idShort' in dct:
             ret.id_short = _get_ts(dct, 'idShort', str)
         if 'submodelDescriptors' in dct:
-            ret.submodel_descriptors = cls._construct_submodel_descriptor(_get_ts(dct, 'submodelDescriptors', list),
-                                                                          server_model.SubmodelDescriptor)
+            for sm_dct in _get_ts(dct, 'submodelDescriptors', list):
+                ret.submodel_descriptors.append(cls._construct_submodel_descriptor(
+                        sm_dct,
+                        server_model.SubmodelDescriptor
+                    ))
         return ret
 
     @classmethod
