@@ -802,7 +802,7 @@ class Referable(HasExtension, metaclass=abc.ABCMeta):
 
     def update_from(self, other: "Referable", update_source: bool = False):
         """
-        Internal function to updates the object's attributes from another object of a similar type.
+        Internal function to update the object's attributes from a different version of the exact same object.
 
         This function should not be used directly. It is typically used by backend implementations (database adapters,
         protocol clients, etc.) to update the object's data, after ``update()`` has been called.
@@ -829,20 +829,13 @@ class Referable(HasExtension, metaclass=abc.ABCMeta):
                 # update the elements of the NameSpaceSet
                 getattr(self, name).update_nss_from(attr)
             else:
-                try:
-                    # Check if this is a property and if it has no setter
-                    prop = getattr(type(self), name, None)
-                    if isinstance(prop, property) and prop.fset is None:
-                        # Attempt to set the underlying private attribute instead
-                        private_name = f"_{name}"
-                        if hasattr(self, private_name):
-                            setattr(self, private_name, attr)
-                        else:
-                            raise AttributeError(f"underlying object has no attribute {private_name}")
-                    else:
-                        setattr(self, name, attr)
-                except AttributeError:
-                    raise
+                # Check if this is a property and if it has no setter
+                prop = getattr(type(self), name, None)
+                if isinstance(prop, property) and prop.fset is None:
+                    if getattr(self, name) != attr:
+                        raise ValueError(f"property {name} is immutable but has changed between versions of the object")
+                else:
+                    setattr(self, name, attr)
 
     def commit(self) -> None:
         """
