@@ -8,13 +8,13 @@ import werkzeug.exceptions
 import werkzeug.routing
 import werkzeug.urls
 import werkzeug.utils
-from werkzeug.exceptions import Conflict, NotFound
+from werkzeug.exceptions import Conflict, NotFound, BadRequest
 from werkzeug.routing import MapAdapter, Rule, Submount
 from werkzeug.wrappers import Request, Response
 
 import server.app.model as server_model
 from basyx.aas import model
-from server.app.util.converters import Base64URLConverter
+from server.app.util.converters import Base64URLConverter, base64url_decode
 from server.app.interfaces.base import ObjectStoreWSGIApp, APIResponse, is_stripped_request, HTTPApiDecoder
 
 
@@ -64,20 +64,26 @@ class RegistryAPI(ObjectStoreWSGIApp):
             server_model.AssetAdministrationShellDescriptor
         )
 
-        id_short = request.args.get("idShort")
-        if id_short is not None:
-            descriptors = filter(lambda desc: desc.id_short == id_short, descriptors)
-
-        asset_ids = request.args.getlist("assetIds")
-        if asset_ids is not None:
-            # Decode and instantiate SpecificAssetIds
-            specific_asset_ids: List[model.SpecificAssetId] = list(
-                map(lambda asset_id: HTTPApiDecoder.base64url_json(asset_id, model.SpecificAssetId, False), asset_ids)
-            )
-            #  Filter AAS based on these SpecificAssetIds
+        asset_kind = request.args.get("assetKind")
+        if asset_kind is not None:
+            try:
+                asset_kind = model.AssetKind[asset_kind]
+            except KeyError:
+                raise BadRequest(f"Invalid assetKind '{asset_kind}', must be one of {list(model.AssetKind.__members__)}")
             descriptors = filter(
-                lambda desc: all(specific_asset_id in desc.specific_asset_id
-                                 for specific_asset_id in specific_asset_ids),
+                lambda desc: desc.asset_kind == asset_kind,
+                descriptors
+            )
+
+        asset_type = request.args.get("assetType")
+        if asset_type is not None:
+            asset_type = base64url_decode(asset_type)
+            try:
+                asset_type = model.Identifier(asset_type)
+            except Exception:
+                raise BadRequest(f"Invalid assetType: '{asset_type}'")
+            descriptors = filter(
+                lambda desc: desc.asset_type == asset_type,
                 descriptors
             )
 
@@ -89,14 +95,6 @@ class RegistryAPI(ObjectStoreWSGIApp):
 
     def _get_all_submodel_descriptors(self, request: Request) -> Tuple[Iterator[server_model.SubmodelDescriptor], int]:
         submodel_descriptors: Iterator[server_model.SubmodelDescriptor] = self._get_all_obj_of_type(server_model.SubmodelDescriptor)
-        id_short = request.args.get("idShort")
-        if id_short is not None:
-            submodel_descriptors = filter(lambda sm: sm.id_short == id_short, submodel_descriptors)
-        semantic_id = request.args.get("semanticId")
-        if semantic_id is not None:
-            spec_semantic_id = HTTPApiDecoder.base64url_json(
-                semantic_id, model.Reference, False)  # type: ignore[type-abstract]
-            submodel_descriptors = filter(lambda sm: sm.semantic_id == spec_semantic_id, submodel_descriptors)
         paginated_submodel_descriptors, end_index = self._get_slice(request, submodel_descriptors)
         return paginated_submodel_descriptors, end_index
 
