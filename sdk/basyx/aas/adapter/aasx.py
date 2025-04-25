@@ -45,7 +45,39 @@ RELATIONSHIP_TYPE_AAS_SPEC_SPLIT = "http://admin-shell.io/aasx/relationships/aas
 RELATIONSHIP_TYPE_AAS_SUPL = "http://admin-shell.io/aasx/relationships/aas-suppl"
 
 
-class AASXReader:
+class FailsafeConfigurable:
+    """
+    A base class for enabling or disabling failsafe behavior in readers, writers,
+    or other components that perform parsing or serialization.
+
+    This class provides a standard mechanism to configure and access a `failsafe` flag
+    that can be used to control whether errors should raise exceptions or be handled
+    more leniently (e.g., logged and skipped).
+
+    Subclasses can use the `failsafe` attribute directly or call `set_failsafe()` to update it.
+
+    :param failsafe: If ``True``, operate in failsafe mode by suppressing exceptions and logging errors instead.
+                     If ``False``, raise exceptions on critical issues.
+    """
+
+    def __init__(self, failsafe: bool = True):
+        """
+        Initialize the failsafe configuration.
+
+        :param failsafe: Initial value for the failsafe behavior.
+        """
+        self.failsafe = failsafe
+
+    def set_failsafe(self, enabled: bool):
+        """
+        Enable or disable failsafe behavior.
+
+        :param enabled: If ``True``, enables failsafe mode. If ``False``, disables it.
+        """
+        self.failsafe = enabled
+
+
+class AASXReader(FailsafeConfigurable):
     """
     An AASXReader wraps an existing AASX package file to allow reading its contents and metadata.
 
@@ -60,7 +92,7 @@ class AASXReader:
             reader.read_into(objects, files)
 
     """
-    def __init__(self, file: Union[os.PathLike, str, IO]):
+    def __init__(self, file: Union[os.PathLike, str, IO], failsafe: bool = True):
         """
         Open an AASX reader for the given filename or file handle
 
@@ -69,9 +101,12 @@ class AASXReader:
         closing under any circumstances.
 
         :param file: A filename, file path or an open file-like object in binary mode
+        :param failsafe: If ``True``, the document is parsed in a failsafe way: Missing attributes and elements are
+            logged instead of causing exceptions. Defect objects are skipped.
         :raises FileNotFoundError: If the file does not exist
         :raises ValueError: If the file is not a valid OPC zip package
         """
+        super().__init__(failsafe)
         try:
             logger.debug("Opening {} as AASX pacakge for reading ...".format(file))
             self.reader = pyecma376_2.ZipPackageReader(file)
@@ -115,7 +150,7 @@ class AASXReader:
 
     def read_into(self, object_store: model.AbstractObjectStore,
                   file_store: "AbstractSupplementaryFileContainer",
-                  override_existing: bool = False, failsafe: bool = True, **kwargs) -> Set[model.Identifier]:
+                  override_existing: bool = False, **kwargs) -> Set[model.Identifier]:
         """
         Read the contents of the AASX package and add them into a given
         :class:`ObjectStore <basyx.aas.model.provider.AbstractObjectStore>`
@@ -135,8 +170,6 @@ class AASXReader:
         :param override_existing: If ``True``, existing objects in the object store are overridden with objects from the
             AASX that have the same :class:`~basyx.aas.model.base.Identifier`. Default behavior is to skip those objects
             from the AASX.
-        :param failsafe: If ``True``, the document is parsed in a failsafe way: Missing attributes and elements are
-            logged instead of causing exceptions. Defect objects are skipped.
         :return: A set of the :class:`Identifiers <basyx.aas.model.base.Identifier>` of all
                  :class:`~basyx.aas.model.base.Identifiable` objects parsed from the AASX file
         """
@@ -154,14 +187,14 @@ class AASXReader:
         for aas_part in self.reader.get_related_parts_by_type(aasx_origin_part)[RELATIONSHIP_TYPE_AAS_SPEC]:
             no_aas_files_found = False
             self._read_aas_part_into(aas_part, object_store, file_store,
-                                     read_identifiables, override_existing, failsafe, **kwargs)
+                                     read_identifiables, override_existing, **kwargs)
 
             # Iterate split parts of AAS file
             for split_part in self.reader.get_related_parts_by_type(aas_part)[RELATIONSHIP_TYPE_AAS_SPEC_SPLIT]:
                 self._read_aas_part_into(split_part, object_store, file_store,
-                                         read_identifiables, override_existing, failsafe, **kwargs)
+                                         read_identifiables, override_existing, **kwargs)
         if no_aas_files_found:
-            if failsafe:
+            if self.failsafe:
                 logger.warning("No AAS files found in AASX package")
             else:
                 raise ValueError("No AAS files found in AASX package")
@@ -184,8 +217,7 @@ class AASXReader:
                             object_store: model.AbstractObjectStore,
                             file_store: "AbstractSupplementaryFileContainer",
                             read_identifiables: Set[model.Identifier],
-                            override_existing: bool,
-                            failsafe: bool = True, **kwargs) -> None:
+                            override_existing: bool, **kwargs) -> None:
         """
         Helper function for :meth:`read_into()` to read and process the contents of an AAS-spec part of the AASX file.
 
@@ -198,8 +230,6 @@ class AASXReader:
             from a File object of this part
         :param read_identifiables: A set of Identifiers of objects which have already been read. New objects'
             Identifiers are added to this set. Objects with already known Identifiers are skipped silently.
-        :param failsafe: If ``True``, the document is parsed in a failsafe way: Missing attributes and elements are
-            logged instead of causing exceptions. Defect objects are skipped.
         :param override_existing: If True, existing objects in the object store are overridden with objects from the
             AASX that have the same Identifier. Default behavior is to skip those objects from the AASX.
         """
@@ -211,7 +241,7 @@ class AASXReader:
                     logger.info("Overriding existing object in  ObjectStore with {} ...".format(obj))
                     object_store.discard(obj)
                 else:
-                    if failsafe:
+                    if self.failsafe:
                         logger.warning("Skipping {}, since an object with the same id is already contained in the "
                                        "ObjectStore".format(obj))
                         continue
@@ -222,15 +252,13 @@ class AASXReader:
             if isinstance(obj, model.Submodel):
                 self._collect_supplementary_files(part_name, obj, file_store)
 
-    def _parse_aas_part(self, part_name: str, failsafe: bool = True, **kwargs) -> model.DictObjectStore:
+    def _parse_aas_part(self, part_name: str, **kwargs) -> model.DictObjectStore:
         """
         Helper function to parse the AAS objects from a single JSON or XML part of the AASX package.
 
         This method chooses and calls the correct parser.
 
         :param part_name: The OPC part name of the part to be parsed
-        :param failsafe: If ``True``, the document is parsed in a failsafe way: Missing attributes and elements are
-            logged instead of causing exceptions. Defect objects are skipped.
         :return: A DictObjectStore containing the parsed AAS objects
         """
         content_type = self.reader.get_content_type(part_name)
@@ -238,16 +266,16 @@ class AASXReader:
         if content_type.split(";")[0] in ("text/xml", "application/xml") or content_type == "" and extension == "xml":
             logger.debug("Parsing AAS objects from XML stream in OPC part {} ...".format(part_name))
             with self.reader.open_part(part_name) as p:
-                return read_aas_xml_file(p, failsafe=failsafe, **kwargs)
+                return read_aas_xml_file(p, failsafe=self.failsafe, **kwargs)
         elif content_type.split(";")[0] in ("text/json", "application/json") \
                 or content_type == "" and extension == "json":
             logger.debug("Parsing AAS objects from JSON stream in OPC part {} ...".format(part_name))
             with self.reader.open_part(part_name) as p:
-                return read_aas_json_file(io.TextIOWrapper(p, encoding='utf-8-sig'), failsafe=failsafe, **kwargs)
+                return read_aas_json_file(io.TextIOWrapper(p, encoding='utf-8-sig'), failsafe=self.failsafe, **kwargs)
         else:
             error_message = ("Could not determine part format of AASX part {} (Content Type: {}, extension: {}"
                              .format(part_name, content_type, extension))
-            if failsafe:
+            if self.failsafe:
                 logger.error(error_message)
             else:
                 raise ValueError(error_message)
@@ -282,7 +310,7 @@ class AASXReader:
                 element.value = final_name
 
 
-class AASXWriter:
+class AASXWriter(FailsafeConfigurable):
     """
     An AASXWriter wraps a new AASX package file to write its contents to it piece by piece.
 
@@ -312,7 +340,7 @@ class AASXWriter:
     """
     AASX_ORIGIN_PART_NAME = "/aasx/aasx-origin"
 
-    def __init__(self, file: Union[os.PathLike, str, IO]):
+    def __init__(self, file: Union[os.PathLike, str, IO], failsafe: bool = True):
         """
         Create a new AASX package in the given file and open the AASXWriter to add contents to the package.
 
@@ -320,8 +348,11 @@ class AASXWriter:
         AAS parts to the file and close the underlying ZIP file writer. You may also use the AASXWriter as a context
         manager to ensure closing under any circumstances.
 
+        :param failsafe: If ``True``, the document is written in a failsafe way: Missing attributes and elements are
+            logged instead of causing exceptions. Defect objects are skipped.
         :param file: filename, path, or binary file handle opened for writing
         """
+        super().__init__(failsafe)
         # names of aas-spec parts, used by `_write_aasx_origin_relationships()`
         self._aas_part_names: List[str] = []
         # name of the thumbnail part (if any)
@@ -343,8 +374,7 @@ class AASXWriter:
                   aas_ids: Union[model.Identifier, Iterable[model.Identifier]],
                   object_store: model.AbstractObjectStore,
                   file_store: "AbstractSupplementaryFileContainer",
-                  write_json: bool = False,
-                  failsafe: bool = True) -> None:
+                  write_json: bool = False) -> None:
         """
         Convenience method to write one or more
         :class:`AssetAdministrationShells <basyx.aas.model.aas.AssetAdministrationShell>` with all included
@@ -382,8 +412,6 @@ class AASXWriter:
         :param write_json:  If ``True``, JSON parts are created for the AAS and each
             :class:`~basyx.aas.model.submodel.Submodel` in the AASX package file instead of XML parts.
             Defaults to ``False``.
-        :param failsafe: If ``True``, the document is written in a failsafe way: Missing attributes and elements are
-            logged instead of causing exceptions. Defect objects are skipped.
         :raises KeyError: If one of the AAS could not be retrieved from the object store (unresolvable
             :class:`Submodels <basyx.aas.model.submodel.Submodel>` and
             :class:`ConceptDescriptions <basyx.aas.model.concept.ConceptDescription>` are skipped, logging a
@@ -402,7 +430,7 @@ class AASXWriter:
                     raise TypeError(f"Identifier {aas_id} does not belong to an AssetAdministrationShell object but to "
                                     f"{aas!r}")
             except (KeyError, TypeError) as e:
-                if failsafe:
+                if self.failsafe:
                     logger.warning(f"Skipping AAS {aas_id}: {e}")
                     continue
                 else:
@@ -416,7 +444,7 @@ class AASXWriter:
                 try:
                     submodel = submodel_ref.resolve(object_store)
                 except KeyError:
-                    if failsafe:
+                    if self.failsafe:
                         logger.warning("Could not find submodel %s. Skipping it.", str(submodel_ref))
                         continue
                     else:
@@ -436,14 +464,14 @@ class AASXWriter:
                 try:
                     cd = semantic_id.resolve(object_store)
                 except KeyError:
-                    if failsafe:
+                    if self.failsafe:
                         logger.warning("ConceptDescription for semanticId %s not found in object store. Skipping it.",
                                        str(semantic_id))
                         continue
                     else:
                         raise KeyError(f"ConceptDescription for semanticId {semantic_id!r} not found in object store.")
                 except model.UnexpectedTypeError as e:
-                    if failsafe:
+                    if self.failsafe:
                         logger.error("semanticId %s resolves to %s, which is not a ConceptDescription. Skipping it.",
                                      str(semantic_id), e.value)
                         continue
@@ -455,7 +483,7 @@ class AASXWriter:
 
         # Write AAS data part
         self.write_all_aas_objects("/aasx/data.{}".format("json" if write_json else "xml"),
-                                   objects_to_be_written, file_store, write_json, failsafe=failsafe)
+                                   objects_to_be_written, file_store, write_json)
 
     # TODO remove `method` parameter in future version.
     #   Not actually required since you can always create a local dict
@@ -466,8 +494,7 @@ class AASXWriter:
                           file_store: "AbstractSupplementaryFileContainer",
                           write_json: bool = False,
                           split_part: bool = False,
-                          additional_relationships: Iterable[pyecma376_2.OPCRelationship] = (),
-                          failsafe: bool = True) -> None:
+                          additional_relationships: Iterable[pyecma376_2.OPCRelationship] = ()) -> None:
         """
         A thin wrapper around :meth:`write_all_aas_objects` to ensure downwards compatibility
 
@@ -498,8 +525,6 @@ class AASXWriter:
             make sure to reference it via an aas-spec-split relationship from another aas-spec part
         :param additional_relationships: Optional OPC/ECMA376 relationships which should originate at the AAS object
             part to be written, in addition to the aas-suppl relationships which are created automatically.
-        :param failsafe: If ``True``, the document is written in a failsafe way: Missing attributes and elements are
-            logged instead of causing exceptions. Defect objects are skipped.
         """
         logger.debug("Writing AASX part {} with AAS objects ...".format(part_name))
 
@@ -510,15 +535,14 @@ class AASXWriter:
             try:
                 the_object = object_store.get_identifiable(identifier)
             except KeyError:
-                if failsafe:
+                if self.failsafe:
                     logger.error("Could not find object {} in ObjectStore".format(identifier))
                     continue
                 else:
                     raise KeyError(f"Could not find object {identifier!r} in ObjectStore")
             objects.add(the_object)
 
-        self.write_all_aas_objects(part_name, objects, file_store, write_json, split_part, additional_relationships,
-                                   failsafe)
+        self.write_all_aas_objects(part_name, objects, file_store, write_json, split_part, additional_relationships)
 
     # TODO remove `split_part` parameter in future version.
     #   Not required anymore since changes from DotAAS version 2.0.1 to 3.0RC01
@@ -528,8 +552,7 @@ class AASXWriter:
                               file_store: "AbstractSupplementaryFileContainer",
                               write_json: bool = False,
                               split_part: bool = False,
-                              additional_relationships: Iterable[pyecma376_2.OPCRelationship] = (),
-                              failsafe: bool = True) -> None:
+                              additional_relationships: Iterable[pyecma376_2.OPCRelationship] = ()) -> None:
         """
         Write all AAS objects in a given :class:`ObjectStore <basyx.aas.model.provider.AbstractObjectStore>` to an XML
         or JSON part in the AASX package and add the referenced supplementary files to the package.
@@ -556,8 +579,6 @@ class AASXWriter:
             sure to reference it via an aas-spec-split relationship from another aas-spec part
         :param additional_relationships: Optional OPC/ECMA376 relationships which should originate at the AAS object
             part to be written, in addition to the aas-suppl relationships which are created automatically.
-        :param failsafe: If ``True``, the document is written in a failsafe way: Missing attributes and elements are
-            logged instead of causing exceptions. Defect objects are skipped.
         """
         logger.debug("Writing AASX part {} with AAS objects ...".format(part_name))
         supplementary_files: List[str] = []
@@ -593,7 +614,7 @@ class AASXWriter:
                 content_type = file_store.get_content_type(file_name)
                 hash = file_store.get_sha256(file_name)
             except KeyError:
-                if failsafe:
+                if self.failsafe:
                     logger.warning("Could not find file {} in file store.".format(file_name))
                     continue
                 else:
@@ -602,7 +623,7 @@ class AASXWriter:
             if self._supplementary_part_names.get(file_name) == hash:
                 continue
             elif file_name in self._supplementary_part_names:
-                if failsafe:
+                if self.failsafe:
                     logger.error("Trying to write supplementary file {} to AASX twice with different contents"
                                  .format(file_name))
                 else:
