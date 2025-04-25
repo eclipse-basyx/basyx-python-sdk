@@ -23,6 +23,7 @@ class RegistryAPI(ObjectStoreWSGIApp):
         self.object_store: model.AbstractObjectStore = object_store
         self.url_map = werkzeug.routing.Map([
             Submount(base_path, [
+                Rule("/description", methods=["GET"], endpoint=self.get_self_description),
                 Rule("/shell-descriptors", methods=["GET"], endpoint=self.get_all_aas_descriptors),
                 Rule("/shell-descriptors", methods=["POST"], endpoint=self.post_aas_descriptor),
                 Submount("/shell-descriptors", [
@@ -100,6 +101,17 @@ class RegistryAPI(ObjectStoreWSGIApp):
 
     def _get_submodel_descriptor(self, url_args: Dict) -> server_model.SubmodelDescriptor:
         return self._get_obj_ts(url_args["submodel_id"], server_model.SubmodelDescriptor)
+
+    # ------ COMMON ROUTES -------
+    def get_self_description(self, request: Request, url_args: Dict, response_t: Type[APIResponse],
+                             **_kwargs) -> Response:
+        service_description = server_model.ServiceDescription(profiles=[
+            server_model.ServiceSpecificationProfileEnum.AAS_REGISTRY_FULL,
+            server_model.ServiceSpecificationProfileEnum.AAS_REGISTRY_READ,
+            server_model.ServiceSpecificationProfileEnum.SUBMODEL_REGISTRY_FULL,
+            server_model.ServiceSpecificationProfileEnum.SUBMODEL_REGISTRY_READ
+        ])
+        return response_t(service_description.to_dict())
 
     # ------ AAS REGISTRY ROUTES -------
     def get_all_aas_descriptors(self, request: Request, url_args: Dict, response_t: Type[APIResponse],
