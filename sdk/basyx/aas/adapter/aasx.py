@@ -142,13 +142,14 @@ class AASXReader:
         """
         # Find AASX-Origin part
         core_rels = self.reader.get_related_parts_by_type()
-        for rel_type in RELATIONSHIP_TYPE_AASX_ORIGIN:
-            if rel_type in core_rels:
-                aasx_origin_part = core_rels[rel_type][0]
-                logger.warning("SPECIFICATION VIOLATED: The Relationship-URL in your AASX file is not valid as per IDTA specification. Please adhere to the specification.")
-                break
-        else:
+        found_rel_type = next((rel for rel in RELATIONSHIP_TYPE_AASX_ORIGIN if rel in core_rels), None)
+        if found_rel_type is None:
             raise ValueError("Not a valid AASX file: aasx-origin Relationship is missing.")
+        aasx_origin_part = core_rels[found_rel_type][0]
+        if found_rel_type == "http://www.admin-shell.io/aasx/relationships/aasx-origin":
+            logger.warning(
+                "SPECIFICATION VIOLATED: The Relationship-URL in your AASX file is not valid as per IDTA specification. Please adhere to the specification."
+            )
         
         read_identifiables: Set[model.Identifier] = set()
 
