@@ -39,9 +39,7 @@ from ..util import traversal
 
 logger = logging.getLogger(__name__)
 
-RELATIONSHIP_TYPE_AASX_ORIGIN = ("http://admin-shell.io/aasx/relationships/aasx-origin",
-                                 "http://www.admin-shell.io/aasx/relationships/aasx-origin")  # Fallback
-
+RELATIONSHIP_TYPE_AASX_ORIGIN = "http://admin-shell.io/aasx/relationships/aasx-origin"
 RELATIONSHIP_TYPE_AAS_SPEC = "http://admin-shell.io/aasx/relationships/aas-spec"
 RELATIONSHIP_TYPE_AAS_SPEC_SPLIT = "http://admin-shell.io/aasx/relationships/aas-spec-split"
 RELATIONSHIP_TYPE_AAS_SUPL = "http://admin-shell.io/aasx/relationships/aas-suppl"
@@ -142,15 +140,24 @@ class AASXReader:
         """
         # Find AASX-Origin part
         core_rels = self.reader.get_related_parts_by_type()
-        found_rel_type = next((rel for rel in RELATIONSHIP_TYPE_AASX_ORIGIN if rel in core_rels), None)
-        if found_rel_type is None:
-            raise ValueError("Not a valid AASX file: aasx-origin Relationship is missing.")
-        aasx_origin_part = core_rels[found_rel_type][0]
-        if found_rel_type == "http://www.admin-shell.io/aasx/relationships/aasx-origin":
-            logger.warning(
-                "SPECIFICATION VIOLATED: The Relationship-URL in your AASX file is not valid as per IDTA specification. Please adhere to the specification."
-            )
-        
+        try:
+            aasx_origin_part = core_rels[RELATIONSHIP_TYPE_AASX_ORIGIN][0]
+        except IndexError as e:
+            if core_rels.get("http://www.admin-shell.io/aasx/relationships/aasx-origin"):
+                # Since there are many AASX files with this (wrong) relationship URls in the wild, we make an exception
+                # and try to read it anyway. However, we notify the user that this may lead to data loss, since it is
+                # highly likely that the other relationship URLs are also wrong in that file.
+                # See also [#383](https://github.com/eclipse-basyx/basyx-python-sdk/issues/383) for the discussion.
+                logger.warning("SPECIFICATION VIOLATED: The Relationship-URL in your AASX file "
+                               "('http://www.admin-shell.io/aasx/relationships/aasx-origin') "
+                               "is not valid, it should be 'http://admin-shell.io/aasx/relationships/aasx-origin'. "
+                               "We try to read the AASX file anyway, but this cannot guaranteed in the future,"
+                               "and the file may not be fully readable, so data losses may occur."
+                               "Please fix this and/or notify the source of the AASX.")
+                aasx_origin_part = core_rels["http://www.admin-shell.io/aasx/relationships/aasx-origin"][0]
+            else:
+                raise ValueError("Not a valid AASX file: aasx-origin Relationship is missing.") from e
+
         read_identifiables: Set[model.Identifier] = set()
 
         no_aas_files_found = True
