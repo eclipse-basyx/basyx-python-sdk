@@ -154,10 +154,10 @@ jobs:
         working-directory: ./sdk
     steps:
     - uses: actions/checkout@v4
-    - name: Set up Python ${{ env.X_PYTHON_MIN_VERSION }}
+    - name: Set up Python ${{ env.X_PYTHON_MAX_VERSION }}
       uses: actions/setup-python@v5
       with:
-        python-version: ${{ env.X_PYTHON_MIN_VERSION }}
+        python-version: ${{ env.X_PYTHON_MAX_VERSION }}
     - name: Install Python dependencies
       run: |
         python -m pip install --upgrade pip
