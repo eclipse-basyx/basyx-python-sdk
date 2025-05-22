@@ -1,7 +1,0 @@
-services:
-  app:
-    build: .
-    ports:
-    - "8083:80"
-    volumes:
-      - ./storage:/storage
