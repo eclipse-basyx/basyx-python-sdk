@@ -1,3 +1,9 @@
+# Copyright (c) 2025 the Eclipse BaSyx Authors
+#
+# This program and the accompanying materials are made available under the terms of the MIT License, available in
+# the LICENSE file of this project.
+#
+# SPDX-License-Identifier: MIT
 import abc
 import datetime
 import enum
