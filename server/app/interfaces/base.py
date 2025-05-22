@@ -11,7 +11,7 @@ import werkzeug.routing
 import werkzeug.utils
 from lxml import etree
 from werkzeug import Response, Request
-from werkzeug.exceptions import NotFound, BadRequest, UnprocessableEntity
+from werkzeug.exceptions import NotFound, BadRequest
 from werkzeug.routing import MapAdapter
 
 from basyx.aas import model
@@ -195,13 +195,13 @@ class BaseWSGIApp:
     @classmethod
     def _get_slice(cls, request: Request, iterator: Iterable[T]) -> Tuple[Iterator[T], int]:
         limit_str = request.args.get('limit', default="10")
-        cursor_str = request.args.get('cursor', default="0")
+        cursor_str = request.args.get('cursor', default="1")
         try:
-            limit, cursor = int(limit_str), int(cursor_str)
+            limit, cursor = int(limit_str), int(cursor_str) - 1  # cursor is 1-indexed
             if limit < 0 or cursor < 0:
                 raise ValueError
         except ValueError:
-            raise BadRequest("Cursor and limit must be positive integers!")
+            raise BadRequest("Limit can not be negative, cursor must be positive!")
         start_index = cursor
         end_index = cursor + limit
         paginated_slice = itertools.islice(iterator, start_index, end_index)
@@ -292,7 +292,7 @@ class HTTPApiDecoder:
     @classmethod
     def assert_type(cls, obj: object, type_: Type[T]) -> T:
         if not isinstance(obj, type_):
-            raise UnprocessableEntity(f"Object {obj!r} is not of type {type_.__name__}!")
+            raise BadRequest(f"Object {obj!r} is not of type {type_.__name__}!")
         return obj
 
     @classmethod
@@ -303,9 +303,9 @@ class HTTPApiDecoder:
         try:
             parsed = json.loads(data, cls=decoder)
             if isinstance(parsed, list) and expect_single:
-                raise UnprocessableEntity(f"Expected a single object of type {expect_type.__name__}, got {parsed!r}!")
+                raise BadRequest(f"Expected a single object of type {expect_type.__name__}, got {parsed!r}!")
             if not isinstance(parsed, list) and not expect_single:
-                raise UnprocessableEntity(f"Expected List[{expect_type.__name__}], got {parsed!r}!")
+                raise BadRequest(f"Expected List[{expect_type.__name__}], got {parsed!r}!")
             parsed = [parsed] if not isinstance(parsed, list) else parsed
 
             # TODO: the following is ugly, but necessary because references aren't self-identified objects
@@ -330,7 +330,7 @@ class HTTPApiDecoder:
                 return [constructor(obj, *args) for obj in parsed]
 
         except (KeyError, ValueError, TypeError, json.JSONDecodeError, model.AASConstraintViolation) as e:
-            raise UnprocessableEntity(str(e)) from e
+            raise BadRequest(str(e)) from e
 
         return [cls.assert_type(obj, expect_type) for obj in parsed]
 
@@ -360,9 +360,9 @@ class HTTPApiDecoder:
             f: BaseException = e
             while f.__cause__ is not None:
                 f = f.__cause__
-            raise UnprocessableEntity(str(f)) from e
+            raise BadRequest(str(f)) from e
         except (etree.XMLSyntaxError, model.AASConstraintViolation) as e:
-            raise UnprocessableEntity(str(e)) from e
+            raise BadRequest(str(e)) from e
         return cls.assert_type(rv, expect_type)
 
     @classmethod
@@ -426,5 +426,10 @@ class HTTPApiDecoder:
 
 
 def is_stripped_request(request: Request) -> bool:
-    return request.args.get("level") == "core"
-
+    level = request.args.get("level")
+    if level not in {"deep", "core", None}:
+        raise BadRequest(f"Level {level} is not a valid level!")
+    extent = request.args.get("extent")
+    if extent is not None:
+        raise werkzeug.exceptions.NotImplemented(f"The parameter extent is not yet implemented for this server!")
+    return level == "core"
