@@ -1,3 +1,9 @@
+# Copyright (c) 2025 the Eclipse BaSyx Authors
+#
+# This program and the accompanying materials are made available under the terms of the MIT License, available in
+# the LICENSE file of this project.
+#
+# SPDX-License-Identifier: MIT
 """
 This module implements the "Specification of the Asset Administration Shell Part 2 Application Programming Interfaces".
 However, several features and routes are currently not supported:
@@ -29,6 +35,9 @@ However, several features and routes are currently not supported:
 """
 
 import io
+import json
+import itertools
+import urllib
 from typing import Type, Iterator, List, Dict, Union, Callable, Tuple, Optional
 
 import werkzeug.exceptions
@@ -251,14 +260,31 @@ class WSGIApp(ObjectStoreWSGIApp):
             aas = filter(lambda shell: shell.id_short == id_short, aas)
 
         asset_ids = request.args.getlist("assetIds")
-        if asset_ids is not None:
-            # Decode and instantiate SpecificAssetIds
-            # This needs to be a list, otherwise we can only iterate it once.
-            specific_asset_ids: List[model.SpecificAssetId] = list(
-                map(lambda asset_id: HTTPApiDecoder.base64url_json(asset_id, model.SpecificAssetId, False), asset_ids))
-            # Filter AAS based on these SpecificAssetIds
-            aas = filter(lambda shell: all(specific_asset_id in shell.asset_information.specific_asset_id
-                                           for specific_asset_id in specific_asset_ids), aas)
+
+        if asset_ids:
+            specific_asset_ids = []
+            global_asset_ids = []
+
+            for asset_id in asset_ids:
+                asset_id_json = base64url_decode(asset_id)
+                asset_dict = json.loads(asset_id_json)
+                name = asset_dict["name"]
+                value = asset_dict["value"]
+
+                if name == "specificAssetId":
+                    decoded_specific_id = HTTPApiDecoder.json_list(value, model.SpecificAssetId,
+                                                                   False, True)[0]
+                    specific_asset_ids.append(decoded_specific_id)
+                elif name == "globalAssetId":
+                    global_asset_ids.append(value)
+
+            # Filter AAS based on both SpecificAssetIds and globalAssetIds
+            aas = filter(lambda shell: (
+                    (not specific_asset_ids or all(specific_asset_id in shell.asset_information.specific_asset_id
+                                                   for specific_asset_id in specific_asset_ids)) and
+                    (len(global_asset_ids) <= 1 and
+                        (not global_asset_ids or shell.asset_information.global_asset_id in global_asset_ids))
+            ), aas)
 
         paginated_aas, end_index = self._get_slice(request, aas)
         return paginated_aas, end_index
@@ -411,7 +437,7 @@ class WSGIApp(ObjectStoreWSGIApp):
         aas.commit()
         return response_t()
 
-    def aas_submodel_refs_redirect(self, request: Request, url_args: Dict, map_adapter: MapAdapter,
+    def aas_submodel_refs_redirect(self, request: Request, url_args: Dict, map_adapter: MapAdapter, response_t=None,
                                    **_kwargs) -> Response:
         aas = self._get_shell(url_args)
         # the following makes sure the reference exists
@@ -420,7 +446,7 @@ class WSGIApp(ObjectStoreWSGIApp):
             "submodel_id": url_args["submodel_id"]
         }, force_external=True)
         if "path" in url_args:
-            redirect_url += url_args["path"] + "/"
+            redirect_url += "/" + url_args["path"]
         if request.query_string:
             redirect_url += "?" + request.query_string.decode("ascii")
         return werkzeug.utils.redirect(redirect_url, 307)
@@ -508,6 +534,8 @@ class WSGIApp(ObjectStoreWSGIApp):
     def get_submodel_submodel_elements_id_short_path_metadata(self, request: Request, url_args: Dict,
                                                               response_t: Type[APIResponse], **_kwargs) -> Response:
         submodel_element = self._get_submodel_submodel_elements_id_short_path(url_args)
+        if isinstance(submodel_element, model.Capability) or isinstance(submodel_element, model.Operation):
+            raise BadRequest(f"{submodel_element.id_short} does not allow the content modifier metadata!")
         return response_t(submodel_element, stripped=True)
 
     def get_submodel_submodel_elements_id_short_path_reference(self, request: Request, url_args: Dict,
