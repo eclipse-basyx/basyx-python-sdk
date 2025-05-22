@@ -34,7 +34,7 @@ import hypothesis.strategies
 
 from basyx.aas import model
 from basyx.aas.adapter.aasx import DictSupplementaryFileContainer
-from basyx.aas.adapter.http import WSGIApp
+from server.app.interfaces.repository import WSGIApp
 from basyx.aas.examples.data.example_aas import create_full_example
 
 from typing import Set
