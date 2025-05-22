@@ -32,6 +32,3 @@ compliance_tool/aas_compliance_tool/version.py
 
 # ignore the content of the server storage
 server/storage/
-
-# local testing file, do not commit
-test.py
