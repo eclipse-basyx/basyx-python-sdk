@@ -1502,13 +1502,16 @@ def read_aas_xml_file_into(object_store: model.AbstractObjectStore[model.Identif
     return ret
 
 
-def read_aas_xml_file(file: PathOrIO, **kwargs: Any) -> model.DictObjectStore[model.Identifiable]:
+def read_aas_xml_file(file: PathOrIO, failsafe: bool = True, **kwargs: Any)\
+        -> model.DictObjectStore[model.Identifiable]:
     """
     A wrapper of :meth:`~basyx.aas.adapter.xml.xml_deserialization.read_aas_xml_file_into`, that reads all objects in an
     empty :class:`~basyx.aas.model.provider.DictObjectStore`. This function supports
     the same keyword arguments as :meth:`~basyx.aas.adapter.xml.xml_deserialization.read_aas_xml_file_into`.
 
     :param file: A filename or file-like object to read the XML-serialized data from
+    :param failsafe: If ``True``, the document is parsed in a failsafe way: Missing attributes and elements are logged
+        instead of causing exceptions. Defect objects are skipped.
     :param kwargs: Keyword arguments passed to :meth:`~basyx.aas.adapter.xml.xml_deserialization.read_aas_xml_file_into`
     :raises ~lxml.etree.XMLSyntaxError: **Non-failsafe**: If the given file(-handle) has invalid XML
     :raises KeyError: **Non-failsafe**: If a required namespace has not been declared on the XML document
@@ -1519,5 +1522,5 @@ def read_aas_xml_file(file: PathOrIO, **kwargs: Any) -> model.DictObjectStore[mo
     :return: A :class:`~basyx.aas.model.provider.DictObjectStore` containing all AAS objects from the XML file
     """
     object_store: model.DictObjectStore[model.Identifiable] = model.DictObjectStore()
-    read_aas_xml_file_into(object_store, file, **kwargs)
+    read_aas_xml_file_into(object_store, file, failsafe=failsafe, **kwargs)
     return object_store
