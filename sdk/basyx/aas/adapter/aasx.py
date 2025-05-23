@@ -45,39 +45,7 @@ RELATIONSHIP_TYPE_AAS_SPEC_SPLIT = "http://admin-shell.io/aasx/relationships/aas
 RELATIONSHIP_TYPE_AAS_SUPL = "http://admin-shell.io/aasx/relationships/aas-suppl"
 
 
-class FailsafeConfigurable:
-    """
-    A base class for enabling or disabling failsafe behavior in readers, writers,
-    or other components that perform parsing or serialization.
-
-    This class provides a standard mechanism to configure and access a `failsafe` flag
-    that can be used to control whether errors should raise exceptions or be handled
-    more leniently (e.g., logged and skipped).
-
-    Subclasses can use the `failsafe` attribute directly or call `set_failsafe()` to update it.
-
-    :param failsafe: If ``True``, operate in failsafe mode by suppressing exceptions and logging errors instead.
-                     If ``False``, raise exceptions on critical issues.
-    """
-
-    def __init__(self, failsafe: bool = True):
-        """
-        Initialize the failsafe configuration.
-
-        :param failsafe: Initial value for the failsafe behavior.
-        """
-        self.failsafe = failsafe
-
-    def set_failsafe(self, enabled: bool):
-        """
-        Enable or disable failsafe behavior.
-
-        :param enabled: If ``True``, enables failsafe mode. If ``False``, disables it.
-        """
-        self.failsafe = enabled
-
-
-class AASXReader(FailsafeConfigurable):
+class AASXReader():
     """
     An AASXReader wraps an existing AASX package file to allow reading its contents and metadata.
 
@@ -106,7 +74,7 @@ class AASXReader(FailsafeConfigurable):
         :raises FileNotFoundError: If the file does not exist
         :raises ValueError: If the file is not a valid OPC zip package
         """
-        super().__init__(failsafe)
+        self.failsafe = failsafe
         try:
             logger.debug("Opening {} as AASX pacakge for reading ...".format(file))
             self.reader = pyecma376_2.ZipPackageReader(file)
@@ -310,7 +278,7 @@ class AASXReader(FailsafeConfigurable):
                 element.value = final_name
 
 
-class AASXWriter(FailsafeConfigurable):
+class AASXWriter():
     """
     An AASXWriter wraps a new AASX package file to write its contents to it piece by piece.
 
@@ -352,7 +320,7 @@ class AASXWriter(FailsafeConfigurable):
             logged instead of causing exceptions. Defect objects are skipped.
         :param file: filename, path, or binary file handle opened for writing
         """
-        super().__init__(failsafe)
+        self.failsafe = failsafe
         # names of aas-spec parts, used by `_write_aasx_origin_relationships()`
         self._aas_part_names: List[str] = []
         # name of the thumbnail part (if any)
@@ -431,7 +399,7 @@ class AASXWriter(FailsafeConfigurable):
                                     f"{aas!r}")
             except (KeyError, TypeError) as e:
                 if self.failsafe:
-                    logger.warning(f"Skipping AAS {aas_id}: {e}")
+                    logger.error(f"Skipping AAS {aas_id}: {e}")
                     continue
                 else:
                     raise
