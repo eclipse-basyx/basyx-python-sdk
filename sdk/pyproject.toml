@@ -53,6 +53,11 @@ dev = [
     "types-python-dateutil",
     "lxml-stubs~=0.5.1",
 ]
+docs= [
+    "sphinx~=8.2",
+    "sphinx-rtd-theme~=3.0",
+    "sphinx-argparse~=0.5.0"
+]
 
 [project.urls]
 "Homepage" = "https://github.com/eclipse-basyx/basyx-python-sdk"

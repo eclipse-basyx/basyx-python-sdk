@@ -161,8 +161,7 @@ jobs:
     - name: Install Python dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install .
-        pip install -r docs/add-requirements.txt
+        pip install .[docs]
     - name: Check documentation for errors
       run: |
         SPHINXOPTS="-a -E -n -W --keep-going" make -C docs html
