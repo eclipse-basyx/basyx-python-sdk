@@ -28,7 +28,6 @@ import io
 import itertools
 import logging
 import os
-import re
 from typing import Dict, Tuple, IO, Union, List, Set, Optional, Iterable, Iterator
 
 from .xml import read_aas_xml_file, write_aas_xml_file
@@ -45,7 +44,7 @@ RELATIONSHIP_TYPE_AAS_SPEC_SPLIT = "http://admin-shell.io/aasx/relationships/aas
 RELATIONSHIP_TYPE_AAS_SUPL = "http://admin-shell.io/aasx/relationships/aas-suppl"
 
 
-class AASXReader():
+class AASXReader:
     """
     An AASXReader wraps an existing AASX package file to allow reading its contents and metadata.
 
@@ -74,14 +73,14 @@ class AASXReader():
         :raises FileNotFoundError: If the file does not exist
         :raises ValueError: If the file is not a valid OPC zip package
         """
-        self.failsafe = failsafe
+        self.failsafe: bool = failsafe
         try:
-            logger.debug("Opening {} as AASX pacakge for reading ...".format(file))
+            logger.debug(f"Opening {file} as AASX package for reading ...")
             self.reader = pyecma376_2.ZipPackageReader(file)
         except FileNotFoundError:
             raise
         except Exception as e:
-            raise ValueError("{} is not a valid ECMA376-2 (OPC) file: {}".format(file, e)) from e
+            raise ValueError(f"{file} is not a valid ECMA376-2 (OPC) file: {e}") from e
 
     def get_core_properties(self) -> pyecma376_2.OPCCoreProperties:
         """
@@ -135,7 +134,7 @@ class AASXReader():
                              objects from the AASX file to
         :param file_store: A :class:`SupplementaryFileContainer <.AbstractSupplementaryFileContainer>` to add the
                            embedded supplementary files to
-        :param override_existing: If ``True``, existing objects in the object store are overridden with objects from the
+        :param override_existing: If ``True``, existing objects in the ObjectStore are overridden with objects from the
             AASX that have the same :class:`~basyx.aas.model.base.Identifier`. Default behavior is to skip those objects
             from the AASX.
         :return: A set of the :class:`Identifiers <basyx.aas.model.base.Identifier>` of all
@@ -198,7 +197,7 @@ class AASXReader():
             from a File object of this part
         :param read_identifiables: A set of Identifiers of objects which have already been read. New objects'
             Identifiers are added to this set. Objects with already known Identifiers are skipped silently.
-        :param override_existing: If True, existing objects in the object store are overridden with objects from the
+        :param override_existing: If True, existing objects in the ObjectStore are overridden with objects from the
             AASX that have the same Identifier. Default behavior is to skip those objects from the AASX.
         """
         for obj in self._parse_aas_part(part_name, **kwargs):
@@ -206,15 +205,15 @@ class AASXReader():
                 continue
             if obj.id in object_store:
                 if override_existing:
-                    logger.info("Overriding existing object in  ObjectStore with {} ...".format(obj))
+                    logger.info(f"Overriding existing object in  ObjectStore with {obj} ...")
                     object_store.discard(obj)
                 else:
                     if self.failsafe:
-                        logger.warning("Skipping {}, since an object with the same id is already contained in the "
-                                       "ObjectStore".format(obj))
+                        logger.warning(f"Skipping {obj}, since an object with the same id is already contained in the "
+                                       "ObjectStore")
                         continue
                     else:
-                        raise ValueError("Object with id {} is already contained in the ObjectStore".format(obj))
+                        raise ValueError(f"Object with id {obj} is already contained in the ObjectStore")
             object_store.add(obj)
             read_identifiables.add(obj.id)
             if isinstance(obj, model.Submodel):
@@ -232,17 +231,17 @@ class AASXReader():
         content_type = self.reader.get_content_type(part_name)
         extension = part_name.split("/")[-1].split(".")[-1]
         if content_type.split(";")[0] in ("text/xml", "application/xml") or content_type == "" and extension == "xml":
-            logger.debug("Parsing AAS objects from XML stream in OPC part {} ...".format(part_name))
+            logger.debug(f"Parsing AAS objects from XML stream in OPC part {part_name} ...")
             with self.reader.open_part(part_name) as p:
                 return read_aas_xml_file(p, failsafe=self.failsafe, **kwargs)
         elif content_type.split(";")[0] in ("text/json", "application/json") \
                 or content_type == "" and extension == "json":
-            logger.debug("Parsing AAS objects from JSON stream in OPC part {} ...".format(part_name))
+            logger.debug(f"Parsing AAS objects from JSON stream in OPC part {part_name} ...")
             with self.reader.open_part(part_name) as p:
                 return read_aas_json_file(io.TextIOWrapper(p, encoding='utf-8-sig'), failsafe=self.failsafe, **kwargs)
         else:
-            error_message = ("Could not determine part format of AASX part {} (Content Type: {}, extension: {}"
-                             .format(part_name, content_type, extension))
+            error_message = (f"Could not determine part format of AASX part {part_name} (Content Type: {content_type},"
+                             f" extension: {extension}")
             if self.failsafe:
                 logger.error(error_message)
             else:
@@ -255,7 +254,7 @@ class AASXReader():
         Helper function to search File objects within a single parsed Submodel, extract the referenced supplementary
         files and update the File object's values with the absolute path.
 
-        :param part_name: The OPC part name of the part the submodel has been parsed from. This is used to resolve
+        :param part_name: The OPC part name of the part the Submodel has been parsed from. This is used to resolve
             relative file paths.
         :param submodel: The Submodel to process
         :param file_store: The SupplementaryFileContainer to add the extracted supplementary files to
@@ -268,17 +267,17 @@ class AASXReader():
                 # to refer to files within the AASX package. Thus, we must skip all other types of URIs (esp. absolute
                 # URIs and network-path references)
                 if element.value.startswith('//') or ':' in element.value.split('/')[0]:
-                    logger.info("Skipping supplementary file %s, since it seems to be an absolute URI or network-path "
-                                "URI reference", element.value)
+                    logger.info(f"Skipping supplementary file {element.value}, since it seems to be an absolute URI or "
+                                f"network-path URI reference")
                     continue
                 absolute_name = pyecma376_2.package_model.part_realpath(element.value, part_name)
-                logger.debug("Reading supplementary file {} from AASX package ...".format(absolute_name))
+                logger.debug(f"Reading supplementary file {absolute_name} from AASX package ...")
                 with self.reader.open_part(absolute_name) as p:
                     final_name = file_store.add_file(absolute_name, p, self.reader.get_content_type(absolute_name))
                 element.value = final_name
 
 
-class AASXWriter():
+class AASXWriter:
     """
     An AASXWriter wraps a new AASX package file to write its contents to it piece by piece.
 
@@ -320,7 +319,7 @@ class AASXWriter():
             logged instead of causing exceptions. Defect objects are skipped.
         :param file: filename, path, or binary file handle opened for writing
         """
-        self.failsafe = failsafe
+        self.failsafe: bool = failsafe
         # names of aas-spec parts, used by `_write_aasx_origin_relationships()`
         self._aas_part_names: List[str] = []
         # name of the thumbnail part (if any)
@@ -380,7 +379,7 @@ class AASXWriter():
         :param write_json:  If ``True``, JSON parts are created for the AAS and each
             :class:`~basyx.aas.model.submodel.Submodel` in the AASX package file instead of XML parts.
             Defaults to ``False``.
-        :raises KeyError: If one of the AAS could not be retrieved from the object store (unresolvable
+        :raises KeyError: If one of the AAS could not be retrieved from the ObjectStore (unresolvable
             :class:`Submodels <basyx.aas.model.submodel.Submodel>` and
             :class:`ConceptDescriptions <basyx.aas.model.concept.ConceptDescription>` are skipped, logging a
             warning/info message)
@@ -413,10 +412,10 @@ class AASXWriter():
                     submodel = submodel_ref.resolve(object_store)
                 except KeyError:
                     if self.failsafe:
-                        logger.warning("Could not find submodel %s. Skipping it.", str(submodel_ref))
+                        logger.warning(f"Could not find Submodel {submodel_ref}. Skipping it.")
                         continue
                     else:
-                        raise KeyError(f"Could not find submodel {submodel_ref!r}")
+                        raise KeyError(f"Could not find Submodel {submodel_ref!r}")
                 objects_to_be_written.add(submodel)
 
         # Traverse object tree and check if semanticIds are referencing to existing ConceptDescriptions in the
@@ -433,15 +432,15 @@ class AASXWriter():
                     cd = semantic_id.resolve(object_store)
                 except KeyError:
                     if self.failsafe:
-                        logger.warning("ConceptDescription for semanticId %s not found in object store. Skipping it.",
-                                       str(semantic_id))
+                        logger.warning(f"ConceptDescription for semanticId {semantic_id} not found in ObjectStore. "
+                                       f"Skipping it.")
                         continue
                     else:
-                        raise KeyError(f"ConceptDescription for semanticId {semantic_id!r} not found in object store.")
+                        raise KeyError(f"ConceptDescription for semanticId {semantic_id!r} not found in ObjectStore.")
                 except model.UnexpectedTypeError as e:
                     if self.failsafe:
-                        logger.error("semanticId %s resolves to %s, which is not a ConceptDescription. Skipping it.",
-                                     str(semantic_id), e.value)
+                        logger.error(f"semanticId {semantic_id} resolves to {e.value}, "
+                                     f"which is not a ConceptDescription. Skipping it.")
                         continue
                     else:
                         raise TypeError(f"semanticId {semantic_id!r} resolves to {e.value!r}, which is not a"
@@ -469,7 +468,7 @@ class AASXWriter():
         This method takes the AAS's :class:`~basyx.aas.model.base.Identifier` (as ``aas_id``) to retrieve it
         from the given object_store. If the list of written objects includes :class:`~basyx.aas.model.submodel.Submodel`
         objects, Supplementary files which are referenced by :class:`~basyx.aas.model.submodel.File` objects within
-        those submodels, are also added to the AASX package.
+        those Submodels, are also added to the AASX package.
 
         .. attention::
 
@@ -494,7 +493,7 @@ class AASXWriter():
         :param additional_relationships: Optional OPC/ECMA376 relationships which should originate at the AAS object
             part to be written, in addition to the aas-suppl relationships which are created automatically.
         """
-        logger.debug("Writing AASX part {} with AAS objects ...".format(part_name))
+        logger.debug(f"Writing AASX part {part_name} with AAS objects ...")
 
         objects: model.DictObjectStore[model.Identifiable] = model.DictObjectStore()
 
@@ -504,7 +503,7 @@ class AASXWriter():
                 the_object = object_store.get_identifiable(identifier)
             except KeyError:
                 if self.failsafe:
-                    logger.error("Could not find object {} in ObjectStore".format(identifier))
+                    logger.error(f"Could not find object {identifier} in ObjectStore")
                     continue
                 else:
                     raise KeyError(f"Could not find object {identifier!r} in ObjectStore")
@@ -548,7 +547,7 @@ class AASXWriter():
         :param additional_relationships: Optional OPC/ECMA376 relationships which should originate at the AAS object
             part to be written, in addition to the aas-suppl relationships which are created automatically.
         """
-        logger.debug("Writing AASX part {} with AAS objects ...".format(part_name))
+        logger.debug(f"Writing AASX part {part_name} with AAS objects ...")
         supplementary_files: List[str] = []
 
         # Retrieve objects and scan for referenced supplementary files
@@ -575,7 +574,7 @@ class AASXWriter():
             else:
                 write_aas_xml_file(p, objects)
 
-        # Write submodel's supplementary files to AASX file
+        # Write Submodel's supplementary files to AASX file
         supplementary_file_names = []
         for file_name in supplementary_files:
             try:
@@ -583,28 +582,28 @@ class AASXWriter():
                 hash = file_store.get_sha256(file_name)
             except KeyError:
                 if self.failsafe:
-                    logger.warning("Could not find file {} in file store.".format(file_name))
+                    logger.warning(f"Could not find file {file_name} in FileStore.")
                     continue
                 else:
-                    raise KeyError(f"Could not find file {file_name} in file store.")
+                    raise KeyError(f"Could not find file {file_name} in FileStore.")
             # Check if this supplementary file has already been written to the AASX package or has a name conflict
             if self._supplementary_part_names.get(file_name) == hash:
                 continue
             elif file_name in self._supplementary_part_names:
                 if self.failsafe:
-                    logger.error("Trying to write supplementary file {} to AASX twice with different contents"
-                                 .format(file_name))
+                    logger.error(f"Trying to write supplementary file {file_name} to AASX "
+                                 f"twice with different contents")
                 else:
                     raise ValueError(f"Trying to write supplementary file {file_name} to AASX twice with"
                                      f" different contents")
-            logger.debug("Writing supplementary file {} to AASX package ...".format(file_name))
+            logger.debug(f"Writing supplementary file {file_name} to AASX package ...")
             with self.writer.open_part(file_name, content_type) as p:
                 file_store.write_file(file_name, p)
             supplementary_file_names.append(pyecma376_2.package_model.normalize_part_name(file_name))
             self._supplementary_part_names[file_name] = hash
 
-        # Add relationships from submodel to supplementary parts
-        logger.debug("Writing aas-suppl relationships for AAS object part {} to AASX package ...".format(part_name))
+        # Add relationships from Submodel to supplementary parts
+        logger.debug(f"Writing aas-suppl relationships for AAS object part {part_name} to AASX package ...")
         self.writer.write_relationships(
             itertools.chain(
                 (pyecma376_2.OPCRelationship("r{}".format(i),
@@ -643,7 +642,7 @@ class AASXWriter():
         :param content_type: OPC content type (MIME type) of the image file
         """
         if self._thumbnail_part is not None:
-            raise RuntimeError("package thumbnail has already been written to {}.".format(self._thumbnail_part))
+            raise RuntimeError(f"package thumbnail has already been written to {self._thumbnail_part}.")
         with self.writer.open_part(name, content_type) as p:
             p.write(data)
         self._thumbnail_part = name
