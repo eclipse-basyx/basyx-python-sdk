@@ -37,7 +37,8 @@ class JsonDeserializationTest(unittest.TestCase):
                     }
                 ]
             }"""
-        with self.assertRaisesRegex(TypeError, r"submodels.*AssetAdministrationShell"):
+        with self.assertRaisesRegex(TypeError, r"AssetAdministrationShell.* was "
+                                               r"in the wrong list 'submodels'"):
             read_aas_json_file(io.StringIO(data), failsafe=False)
         with self.assertLogs(logging.getLogger(), level=logging.WARNING) as cm:
             read_aas_json_file(io.StringIO(data), failsafe=True)
@@ -54,7 +55,8 @@ class JsonDeserializationTest(unittest.TestCase):
                     { "x": "foo" }
                 ]
             }"""
-        with self.assertRaisesRegex(TypeError, r"submodels.*'foo'"):
+        with self.assertRaisesRegex(TypeError, r"\{\s?'x':\s?'foo'\s?\} was in"
+                                               r" the wrong list 'submodels'"):
             read_aas_json_file(io.StringIO(data), failsafe=False)
         with self.assertLogs(logging.getLogger(), level=logging.WARNING) as cm:
             read_aas_json_file(io.StringIO(data), failsafe=True)
@@ -196,7 +198,7 @@ class JsonDeserializationTest(unittest.TestCase):
         with self.assertLogs(logging.getLogger(), level=logging.INFO) as log_ctx:
             identifiers = read_aas_json_file_into(object_store, string_io, replace_existing=False, ignore_existing=True)
         self.assertEqual(len(identifiers), 0)
-        self.assertIn("already exists in the object store", log_ctx.output[0])  # type: ignore
+        self.assertIn("already exists in store", log_ctx.output[0])  # type: ignore
         submodel = object_store.pop()
         self.assertIsInstance(submodel, model.Submodel)
         self.assertEqual(submodel.id_short, "test123")
@@ -204,7 +206,7 @@ class JsonDeserializationTest(unittest.TestCase):
         string_io.seek(0)
 
         object_store = get_clean_store()
-        with self.assertRaisesRegex(KeyError, r"already exists in the object store"):
+        with self.assertRaisesRegex(KeyError, r"already exists in store"):
             identifiers = read_aas_json_file_into(object_store, string_io, replace_existing=False,
                                                   ignore_existing=False)
         self.assertEqual(len(identifiers), 0)

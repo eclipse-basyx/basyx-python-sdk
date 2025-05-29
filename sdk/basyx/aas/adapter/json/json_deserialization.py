@@ -34,7 +34,8 @@ import contextlib
 import json
 import logging
 import pprint
-from typing import Dict, Callable, ContextManager, TypeVar, Type, List, IO, Optional, Set, get_args, Tuple, Iterable
+from typing import (Dict, Callable, ContextManager, TypeVar, Type,
+                    List, IO, Optional, Set, get_args, Tuple, Iterable, Any)
 
 from basyx.aas import model
 from .._generic import MODELLING_KIND_INVERSE, ASSET_KIND_INVERSE, KEY_TYPES_INVERSE, ENTITY_TYPES_INVERSE, \
@@ -811,7 +812,7 @@ def _select_decoder(failsafe: bool, stripped: bool, decoder: Optional[Type[AASFr
 def read_aas_json_file_into(object_store: model.AbstractObjectStore, file: PathOrIO, replace_existing: bool = False,
                             ignore_existing: bool = False, failsafe: bool = True, stripped: bool = False,
                             decoder: Optional[Type[AASFromJsonDecoder]] = None,
-                            keys_to_types: Iterable[Tuple[str, any]] = JSON_AAS_TOP_LEVEL_KEYS_TO_TYPES) -> Set[model.Identifier]:
+                            keys_to_types: Iterable[Tuple[str, Any]] = JSON_AAS_TOP_LEVEL_KEYS_TO_TYPES) -> Set[model.Identifier]:
     """
     Read an Asset Administration Shell JSON file according to 'Details of the Asset Administration Shell', chapter 5.5
     into a given object store.
