@@ -885,13 +885,15 @@ def read_aas_json_file_into(object_store: model.AbstractObjectStore, file: PathO
     return ret
 
 
-def read_aas_json_file(file: PathOrIO, **kwargs) -> model.DictObjectStore[model.Identifiable]:
+def read_aas_json_file(file: PathOrIO, failsafe: bool = True, **kwargs) -> model.DictObjectStore[model.Identifiable]:
     """
     A wrapper of :meth:`~basyx.aas.adapter.json.json_deserialization.read_aas_json_file_into`, that reads all objects
     in an empty :class:`~basyx.aas.model.provider.DictObjectStore`. This function supports the same keyword arguments as
     :meth:`~basyx.aas.adapter.json.json_deserialization.read_aas_json_file_into`.
 
     :param file: A filename or file-like object to read the JSON-serialized data from
+    :param failsafe: If ``True``, the document is parsed in a failsafe way: Missing attributes and elements are logged
+        instead of causing exceptions. Defect objects are skipped.
     :param kwargs: Keyword arguments passed to :meth:`read_aas_json_file_into`
     :raises KeyError: **Non-failsafe**: Encountered a duplicate identifier
     :raises (~basyx.aas.model.base.AASConstraintViolation, KeyError, ValueError, TypeError): **Non-failsafe**:
@@ -901,5 +903,5 @@ def read_aas_json_file(file: PathOrIO, **kwargs) -> model.DictObjectStore[model.
     :return: A :class:`~basyx.aas.model.provider.DictObjectStore` containing all AAS objects from the JSON file
     """
     object_store: model.DictObjectStore[model.Identifiable] = model.DictObjectStore()
-    read_aas_json_file_into(object_store, file, **kwargs)
+    read_aas_json_file_into(object_store, file, failsafe=failsafe, **kwargs)
     return object_store
