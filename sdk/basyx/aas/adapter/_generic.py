@@ -19,6 +19,13 @@ Path = Union[str, bytes, os.PathLike]
 PathOrBinaryIO = Union[Path, BinaryIO]
 PathOrIO = Union[Path, IO]  # IO is TextIO or BinaryIO
 
+# JSON top-level keys and their corresponding model classes
+JSON_AAS_TOP_LEVEL_KEYS_TO_TYPES = (
+    ('assetAdministrationShells', model.AssetAdministrationShell),
+    ('submodels', model.Submodel),
+    ('conceptDescriptions', model.ConceptDescription),
+)
+
 # XML Namespace definition
 XML_NS_MAP = {"aas": "https://admin-shell.io/aas/3/0"}
 XML_NS_AAS = "{" + XML_NS_MAP["aas"] + "}"
