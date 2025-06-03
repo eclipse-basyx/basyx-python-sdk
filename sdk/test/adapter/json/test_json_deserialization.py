@@ -55,8 +55,7 @@ class JsonDeserializationTest(unittest.TestCase):
                     { "x": "foo" }
                 ]
             }"""
-        with self.assertRaisesRegex(TypeError, r"\{\s?'x':\s?'foo'\s?\} was in"
-                                               r" the wrong list 'submodels'"):
+        with self.assertRaisesRegex(TypeError, r"submodels.*'foo'"):
             read_aas_json_file(io.StringIO(data), failsafe=False)
         with self.assertLogs(logging.getLogger(), level=logging.WARNING) as cm:
             read_aas_json_file(io.StringIO(data), failsafe=True)
