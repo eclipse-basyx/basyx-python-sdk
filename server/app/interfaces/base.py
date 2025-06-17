@@ -22,9 +22,11 @@ from werkzeug.routing import MapAdapter
 
 from basyx.aas import model
 from basyx.aas.adapter._generic import XML_NS_MAP
-from basyx.aas.adapter.json import StrictStrippedAASFromJsonDecoder, StrictAASFromJsonDecoder, AASToJsonEncoder
 from basyx.aas.adapter.xml import xml_serialization, XMLConstructables, read_aas_xml_element
 from basyx.aas.model import AbstractObjectStore
+from server.app import model as server_model
+from server.app.adapter.jsonization import ServerAASToJsonEncoder, ServerStrictAASFromJsonDecoder, \
+    ServerStrictStrippedAASFromJsonDecoder
 from server.app.util.converters import base64url_decode
 
 
@@ -159,7 +161,7 @@ class XmlResponseAlt(XmlResponse):
         super().__init__(*args, **kwargs, content_type=content_type)
 
 
-class ResultToJsonEncoder(AASToJsonEncoder):
+class ResultToJsonEncoder(ServerAASToJsonEncoder):
     @classmethod
     def _result_to_json(cls, result: Result) -> Dict[str, object]:
         return {
@@ -292,7 +294,12 @@ class HTTPApiDecoder:
 
     @classmethod
     def check_type_support(cls, type_: type):
-        if type_ not in cls.type_constructables_map:
+        tolerated_types = (
+            server_model.AssetAdministrationShellDescriptor,
+            server_model.SubmodelDescriptor,
+            server_model.AssetLink,
+        )
+        if type_ not in cls.type_constructables_map and type_ not in tolerated_types:
             raise TypeError(f"Parsing {type_} is not supported!")
 
     @classmethod
@@ -304,8 +311,8 @@ class HTTPApiDecoder:
     @classmethod
     def json_list(cls, data: Union[str, bytes], expect_type: Type[T], stripped: bool, expect_single: bool) -> List[T]:
         cls.check_type_support(expect_type)
-        decoder: Type[StrictAASFromJsonDecoder] = StrictStrippedAASFromJsonDecoder if stripped \
-            else StrictAASFromJsonDecoder
+        decoder: Type[ServerStrictAASFromJsonDecoder] = ServerStrictStrippedAASFromJsonDecoder if stripped \
+            else ServerStrictAASFromJsonDecoder
         try:
             parsed = json.loads(data, cls=decoder)
             if isinstance(parsed, list) and expect_single:
@@ -324,6 +331,10 @@ class HTTPApiDecoder:
                 model.SpecificAssetId: decoder._construct_specific_asset_id,  # type: ignore[assignment]
                 model.Reference: decoder._construct_reference,  # type: ignore[assignment]
                 model.Qualifier: decoder._construct_qualifier,  # type: ignore[assignment]
+                server_model.AssetAdministrationShellDescriptor:
+                    decoder._construct_asset_administration_shell_descriptor,  # type: ignore[assignment]
+                server_model.SubmodelDescriptor: decoder._construct_submodel_descriptor,  # type: ignore[assignment]
+                server_model.AssetLink: decoder._construct_asset_link,  # type: ignore[assignment]
             }
 
             constructor: Optional[Callable[..., T]] = mapping.get(expect_type)
