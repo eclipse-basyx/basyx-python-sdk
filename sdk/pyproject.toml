@@ -20,7 +20,7 @@ root = ".."  # Defines the path to the root of the repository
 version_file = "basyx/version.py"
 
 [project]
-    name = "basyx-python-sdk"
+name = "basyx-python-sdk"
 dynamic = ["version"]
 description = "The Eclipse BaSyx Python SDK, an implementation of the Asset Administration Shell for Industry 4.0 systems"
 authors = [

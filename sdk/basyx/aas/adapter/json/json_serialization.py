@@ -700,7 +700,8 @@ def _select_encoder(stripped: bool, encoder: Optional[Type[AASToJsonEncoder]] = 
 
 
 def _create_dict(data: model.AbstractObjectStore,
-                 keys_to_types: Iterable[Tuple[str, Type]] = JSON_AAS_TOP_LEVEL_KEYS_TO_TYPES) -> Dict[str, List[object]]:
+                 keys_to_types: Iterable[Tuple[str, Type]] = JSON_AAS_TOP_LEVEL_KEYS_TO_TYPES) \
+        -> Dict[str, List[model.Identifiable]]:
     """
     Categorizes objects from an AbstractObjectStore into a dictionary based on their types.
 
@@ -714,7 +715,7 @@ def _create_dict(data: model.AbstractObjectStore,
                           - A type to match objects against.
     :return: A dictionary where keys are category names and values are lists of objects of the corresponding types.
     """
-    objects = {}
+    objects: Dict[str, List[model.Identifiable]] = {}
 
     for obj in data:
         # Iterate through the mapping of category names to expected types
