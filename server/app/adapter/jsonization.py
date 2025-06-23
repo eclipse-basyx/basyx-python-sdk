@@ -2,10 +2,9 @@ from typing import Dict, Set, Optional, Type
 
 import server.app.model as server_model
 from basyx.aas import model
-from basyx.aas.adapter import _generic
-from basyx.aas.adapter._generic import ASSET_KIND_INVERSE, PathOrIO
+from basyx.aas.adapter._generic import ASSET_KIND_INVERSE, PathOrIO, ASSET_KIND, JSON_AAS_TOP_LEVEL_KEYS_TO_TYPES
 from basyx.aas.adapter.json import AASToJsonEncoder
-from basyx.aas.adapter.json.json_deserialization import _get_ts, AASFromJsonDecoder, JSON_AAS_TOP_LEVEL_KEYS_TO_TYPES, \
+from basyx.aas.adapter.json.json_deserialization import _get_ts, AASFromJsonDecoder,  \
     read_aas_json_file_into
 
 import logging
@@ -263,7 +262,7 @@ class ServerAASToJsonEncoder(AASToJsonEncoder):
         if obj.administration:
             data['administration'] = obj.administration
         if obj.asset_kind:
-            data['assetKind'] = _generic.ASSET_KIND[obj.asset_kind]
+            data['assetKind'] = ASSET_KIND[obj.asset_kind]
         if obj.asset_type:
             data['assetType'] = obj.asset_type
         if obj.global_asset_id:

@@ -3,7 +3,6 @@ This module implements the Discovery interface defined in the 'Specification of 
 """
 
 import abc
-import json
 from typing import Dict, List, Set, Any
 
 import werkzeug.exceptions
