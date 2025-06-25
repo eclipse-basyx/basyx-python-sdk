@@ -18,6 +18,8 @@ The container image can be built via:
 $ docker build -t basyx-python-server -f Dockerfile ..
 ```
 
+Note that when cloning this repository on Windows, Git may convert the line separators to CRLF. This breaks `entrypoint.sh` and `stop-supervisor.sh`. Ensure both files use LF line separators before building. 
+
 ## Running
 
 ### Storage
@@ -77,11 +79,12 @@ services:
     - "8080:80"
     volumes:
       - ./storage:/storage
-
 ````
 
 Here files are read from `/storage` and the server can be accessed at http://localhost:8080/api/v3.0/ from your host system. 
 To get a different setup this compose.yaml file can be adapted and expanded.
+
+Note that the `Dockerfile` has to be specified explicitly, as the build context must be set to the parent directory of `/server` to allow access to the local `/sdk`.
 
 ## Acknowledgments
 
