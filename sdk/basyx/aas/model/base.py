@@ -1504,7 +1504,7 @@ class Extension(HasSemantics):
         self.value = value
         self.refers_to: Set[ModelReference] = set(refers_to)
         self.semantic_id: Optional[Reference] = semantic_id
-        self.supplemental_semantic_id: ConstrainedList[Reference] = ConstrainedList(supplemental_semantic_id)
+        self.supplemental_semantic_id = ConstrainedList(supplemental_semantic_id)
 
     def __repr__(self) -> str:
         return "Extension(name={})".format(self.name)
@@ -1653,7 +1653,7 @@ class Qualifier(HasSemantics):
         self.value_id: Optional[Reference] = value_id
         self.kind: QualifierKind = kind
         self.semantic_id: Optional[Reference] = semantic_id
-        self.supplemental_semantic_id: ConstrainedList[Reference] = ConstrainedList(supplemental_semantic_id)
+        self.supplemental_semantic_id = ConstrainedList(supplemental_semantic_id)
 
     def __repr__(self) -> str:
         return "Qualifier(type={})".format(self.type)

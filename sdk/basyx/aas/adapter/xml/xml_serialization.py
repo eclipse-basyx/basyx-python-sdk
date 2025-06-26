@@ -875,82 +875,78 @@ def object_to_xml_element(obj: object) -> etree._Element:
 
     :param obj: The object to serialize
     """
-    serialization_func: Callable[..., etree._Element]
-
     if isinstance(obj, model.Key):
-        serialization_func = key_to_xml
+        return key_to_xml(obj)
     elif isinstance(obj, model.Reference):
-        serialization_func = reference_to_xml
-    elif isinstance(obj, model.Reference):
-        serialization_func = reference_to_xml
+        return reference_to_xml(obj)
     elif isinstance(obj, model.AdministrativeInformation):
-        serialization_func = administrative_information_to_xml
+        return administrative_information_to_xml(obj)
     elif isinstance(obj, model.Qualifier):
-        serialization_func = qualifier_to_xml
+        return qualifier_to_xml(obj)
     elif isinstance(obj, model.AnnotatedRelationshipElement):
-        serialization_func = annotated_relationship_element_to_xml
+        return annotated_relationship_element_to_xml(obj)
     elif isinstance(obj, model.BasicEventElement):
-        serialization_func = basic_event_element_to_xml
+        return basic_event_element_to_xml(obj)
     elif isinstance(obj, model.Blob):
-        serialization_func = blob_to_xml
+        return blob_to_xml(obj)
     elif isinstance(obj, model.Capability):
-        serialization_func = capability_to_xml
+        return capability_to_xml(obj)
     elif isinstance(obj, model.Entity):
-        serialization_func = entity_to_xml
+        return entity_to_xml(obj)
     elif isinstance(obj, model.Extension):
-        serialization_func = extension_to_xml
+        return extension_to_xml(obj)
     elif isinstance(obj, model.File):
-        serialization_func = file_to_xml
+        return file_to_xml(obj)
     elif isinstance(obj, model.Resource):
-        serialization_func = resource_to_xml
+        return resource_to_xml(obj)
     elif isinstance(obj, model.MultiLanguageProperty):
-        serialization_func = multi_language_property_to_xml
+        return multi_language_property_to_xml(obj)
     elif isinstance(obj, model.Operation):
-        serialization_func = operation_to_xml
+        return operation_to_xml(obj)
     elif isinstance(obj, model.Property):
-        serialization_func = property_to_xml
+        return property_to_xml(obj)
     elif isinstance(obj, model.Range):
-        serialization_func = range_to_xml
+        return range_to_xml(obj)
     elif isinstance(obj, model.ReferenceElement):
-        serialization_func = reference_element_to_xml
+        return reference_element_to_xml(obj)
     elif isinstance(obj, model.RelationshipElement):
-        serialization_func = relationship_element_to_xml
+        return relationship_element_to_xml(obj)
     elif isinstance(obj, model.SubmodelElementCollection):
-        serialization_func = submodel_element_collection_to_xml
+        return submodel_element_collection_to_xml(obj)
     elif isinstance(obj, model.SubmodelElementList):
-        serialization_func = submodel_element_list_to_xml
+        return submodel_element_list_to_xml(obj)
     elif isinstance(obj, model.AssetAdministrationShell):
-        serialization_func = asset_administration_shell_to_xml
+        return asset_administration_shell_to_xml(obj)
     elif isinstance(obj, model.AssetInformation):
-        serialization_func = asset_information_to_xml
+        return asset_information_to_xml(obj)
     elif isinstance(obj, model.SpecificAssetId):
-        serialization_func = specific_asset_id_to_xml
+        return specific_asset_id_to_xml(obj)
     elif isinstance(obj, model.Submodel):
-        serialization_func = submodel_to_xml
+        return submodel_to_xml(obj)
     elif isinstance(obj, model.ValueReferencePair):
-        serialization_func = value_reference_pair_to_xml
+        return value_reference_pair_to_xml(obj)
     elif isinstance(obj, model.ConceptDescription):
-        serialization_func = concept_description_to_xml
+        return concept_description_to_xml(obj)
     elif isinstance(obj, model.LangStringSet):
-        serialization_func = lang_string_set_to_xml
+        # FIXME: `lang_string_set_to_xml` expects `tag` parameter, `tag` doesn't have default value
+        # Issue: https://github.com/eclipse-basyx/basyx-python-sdk/issues/397
+        return lang_string_set_to_xml(obj) # type: ignore[call-arg]
     elif isinstance(obj, model.EmbeddedDataSpecification):
-        serialization_func = embedded_data_specification_to_xml
+        return embedded_data_specification_to_xml(obj)
     elif isinstance(obj, model.DataSpecificationIEC61360):
-        serialization_func = data_specification_iec61360_to_xml
+        return data_specification_iec61360_to_xml(obj)
     # generic serialization using the functions for abstract classes
     elif isinstance(obj, model.DataElement):
-        serialization_func = data_element_to_xml
+        return data_element_to_xml(obj)
     elif isinstance(obj, model.SubmodelElement):
-        serialization_func = submodel_to_xml
+        return submodel_element_to_xml(obj)
     elif isinstance(obj, model.DataSpecificationContent):
-        serialization_func = data_specification_content_to_xml
+        return data_specification_content_to_xml(obj)
     # type aliases
     elif isinstance(obj, model.ValueList):
-        serialization_func = value_list_to_xml
+        return value_list_to_xml(obj)
     else:
         raise ValueError(f"{obj!r} cannot be serialized!")
-
-    return serialization_func(obj)
 
 
 def write_aas_xml_element(file: _generic.PathOrBinaryIO, obj: object, **kwargs) -> None:
