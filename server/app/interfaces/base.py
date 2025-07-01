@@ -32,7 +32,6 @@ except ImportError:
     from util.converters import base64url_decode
 
 
-
 T = TypeVar("T")
 
 
@@ -282,6 +281,7 @@ class ObjectStoreWSGIApp(BaseWSGIApp):
         identifiable.update()
         return identifiable
 
+
 class HTTPApiDecoder:
     # these are the types we can construct (well, only the ones we need)
     type_constructables_map = {
@@ -365,7 +365,7 @@ class HTTPApiDecoder:
         try:
             xml_data = io.BytesIO(data)
             rv = read_aas_xml_element(xml_data, cls.type_constructables_map[expect_type],
-                                             stripped=stripped, failsafe=False)
+                                      stripped=stripped, failsafe=False)
         except (KeyError, ValueError) as e:
             # xml deserialization creates an error chain. since we only return one error, return the root cause
             f: BaseException = e

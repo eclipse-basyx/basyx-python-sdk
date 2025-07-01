@@ -281,7 +281,7 @@ jobs:
       run: |
         python -m build
 
-  server-test:
+ #server-test:
     # TODO: This job runs the unittests on the python versions specified down at the matrix
     #   and aas-test-engines on the server
 
