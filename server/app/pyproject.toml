@@ -36,8 +36,6 @@ classifiers = [
 ]
 requires-python = ">=3.9"
 dependencies = [
-    # While we install the sdk locally, this dependency needs to be commented out
-    # "basyx-python-sdk>=1.2.0,<2", #TODO: Think about the version
     "urllib3>=1.26,<3",
     "Werkzeug>=3.0.3,<4",
 ]
@@ -47,11 +45,9 @@ dev = [
     "mypy",
     "pycodestyle",
     "codeblocks",
-    "coverage",
     "schemathesis~=3.7",
     "jsonschema~=4.7",
     "hypothesis~=6.13",
-    "types-python-dateutil",
 ]
 
 [project.urls]
