@@ -255,10 +255,10 @@ jobs:
         pip install .[dev]
     - name: Check typing with MyPy
       run: |
-        mypy ./aas_compliance_tool test
+        mypy aas_compliance_tool test
     - name: Check code style with PyCodestyle
       run: |
-        pycodestyle --count --max-line-length 120 ./aas_compliance_tool test
+        pycodestyle --count --max-line-length 120 aas_compliance_tool test
 
   compliance-tool-package:
     # This job checks if we can build our compliance_tool package
@@ -306,10 +306,10 @@ jobs:
         pip install .[dev]
     - name: Check typing with MyPy
       run: |
-        mypy ./server test
+        mypy app test
     - name: Check code style with PyCodestyle
       run: |
-        pycodestyle --count --max-line-length 120 ./server test
+        pycodestyle --count --max-line-length 120 app test
 
   server-package:
     # This job checks if we can build our server package
