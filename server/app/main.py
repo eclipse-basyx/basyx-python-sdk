@@ -6,7 +6,7 @@ from basyx.aas import model, adapter
 from basyx.aas.adapter import aasx
 
 from basyx.aas.backend.local_file import LocalFileObjectStore
-from server.app.interfaces.repository import WSGIApp
+from interfaces.repository import WSGIApp
 
 storage_path = os.getenv("STORAGE_PATH", "/storage")
 storage_type = os.getenv("STORAGE_TYPE", "LOCAL_FILE_READ_ONLY")
@@ -44,3 +44,6 @@ elif storage_type in "LOCAL_FILE_READ_ONLY":
 else:
     print(f"STORAGE_TYPE must be either LOCAL_FILE or LOCAL_FILE_READ_ONLY! Current value: {storage_type}",
           file=sys.stderr)
+
+
+

@@ -48,7 +48,11 @@ from werkzeug.routing import Submount, Rule, MapAdapter
 
 from basyx.aas import model
 from basyx.aas.adapter import aasx
-from server.app.util.converters import Base64URLConverter, IdShortPathConverter, base64url_decode
+# Test if we are in the docker file. If so app is our working directory.
+try:
+    from app.util.converters import Base64URLConverter, IdShortPathConverter, base64url_decode
+except ImportError:
+    from util.converters import Base64URLConverter, IdShortPathConverter, base64url_decode
 from .base import ObjectStoreWSGIApp, APIResponse, is_stripped_request, HTTPApiDecoder, T
 
 

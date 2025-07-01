@@ -17,7 +17,7 @@ build-backend = "setuptools.build_meta"
 # print(f"Project version: {version}")
 # ```
 root = ".."  # Defines the path to the root of the repository
-version_file = "app/version.py"
+version_file = "version.py"
 
 [project]
 name = "basyx-python-server"
@@ -36,7 +36,8 @@ classifiers = [
 ]
 requires-python = ">=3.9"
 dependencies = [
-    "basyx-python-sdk", #TODO: Think about the version
+    # While we install the sdk locally, this dependency needs to be commented out
+    # "basyx-python-sdk>=1.2.0,<2", #TODO: Think about the version
     "urllib3>=1.26,<3",
     "Werkzeug>=3.0.3,<4",
 ]
@@ -57,7 +58,7 @@ dev = [
 "Homepage" = "https://github.com/eclipse-basyx/basyx-python-sdk"
 
 [tool.setuptools]
-packages = { find = { include = ["basyx*"], exclude = ["test*"] } }
+packages = { find = { exclude = ["test*"] } }
 
 [tool.setuptools.package-data]
 app = ["py.typed"]

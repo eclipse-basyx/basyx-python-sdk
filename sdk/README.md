@@ -42,8 +42,7 @@ The BaSyx Python SDK requires the following Python packages to be installed for 
 * `lxml` (BSD 3-clause License, using `libxml2` under MIT License)
 * `python-dateutil` (BSD 3-clause License)
 * `pyecma376-2` (Apache License v2.0)
-* `urllib3` (MIT License)
-* `Werkzeug` (BSD 3-clause License)
+
 
 Development/testing/documentation/example dependencies:
 * `mypy` (MIT License)

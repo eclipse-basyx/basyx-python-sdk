@@ -44,5 +44,6 @@ COPY ./sdk /sdk
 COPY ./server/app /app
 WORKDIR /app
 RUN pip install ../sdk
+RUN pip install .
 
 CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.ini"]
