@@ -10,7 +10,7 @@ import enum
 import io
 import itertools
 import json
-from typing import Iterable, Type, Iterator, Tuple, Optional, List, Union, Dict, Callable, TypeVar
+from typing import Iterable, Type, Iterator, Tuple, Optional, List, Union, Dict, Callable, TypeVar, Any
 
 import werkzeug.exceptions
 import werkzeug.routing
@@ -320,14 +320,14 @@ class HTTPApiDecoder:
             # TODO: json deserialization will always create an ModelReference[Submodel], xml deserialization determines
             #  that automatically
             mapping = {
-                model.ModelReference: decoder._construct_model_reference,  # type: ignore[assignment]
-                model.AssetInformation: decoder._construct_asset_information,  # type: ignore[assignment]
-                model.SpecificAssetId: decoder._construct_specific_asset_id,  # type: ignore[assignment]
-                model.Reference: decoder._construct_reference,  # type: ignore[assignment]
-                model.Qualifier: decoder._construct_qualifier,  # type: ignore[assignment]
+                model.ModelReference: decoder._construct_model_reference,
+                model.AssetInformation: decoder._construct_asset_information,
+                model.SpecificAssetId: decoder._construct_specific_asset_id,
+                model.Reference: decoder._construct_reference,
+                model.Qualifier: decoder._construct_qualifier,
             }
 
-            constructor: Optional[Callable[..., T]] = mapping.get(expect_type)
+            constructor: Optional[Callable[..., T]] = mapping.get(expect_type) # type: ignore[assignment]
             args = []
             if expect_type is model.ModelReference:
                 args.append(model.Submodel)
@@ -418,12 +418,12 @@ class HTTPApiDecoder:
                 # Für jedes Element wird die Konvertierung angewandt.
                 return [cls._convert_single_json_item(item, expect_type, stripped) for item in parsed]  # type: ignore
             else:
-                return cls._convert_single_json_item(parsed, expect_type, stripped)
+                return [cls._convert_single_json_item(parsed, expect_type, stripped)]
         else:
-            return cls.xml(request.get_data(), expect_type, stripped)
+            return [cls.xml(request.get_data(), expect_type, stripped)]
 
     @classmethod
-    def _convert_single_json_item(cls, data: any, expect_type: Type[T], stripped: bool) -> T:
+    def _convert_single_json_item(cls, data: Any, expect_type: Type[T], stripped: bool) -> T:
         """
         Converts a single JSON-Object (as a Python-Dict) to an object of type expect_type.
         Here the dictionary is first serialized back to a JSON-string and returned as bytes.
