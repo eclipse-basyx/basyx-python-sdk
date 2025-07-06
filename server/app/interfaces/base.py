@@ -429,8 +429,8 @@ class HTTPApiDecoder:
     @classmethod
     def _convert_single_json_item(cls, data: any, expect_type: Type[T], stripped: bool) -> T:
         """
-        Konvertiert ein einzelnes JSON-Objekt (als Python-Dict) in ein Objekt vom Typ expect_type.
-        Hierbei wird das Dictionary zuerst wieder in einen JSON-String serialisiert und als Bytes übergeben.
+        Converts a single JSON-Object (as a Python-Dict) to an object of type expect_type.
+        Here the dictionary is first serialized back to a JSON-string and returned as bytes.
         """
         json_bytes = json.dumps(data).encode("utf-8")
         return cls.json(json_bytes, expect_type, stripped)

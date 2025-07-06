@@ -4,6 +4,13 @@
 # the LICENSE file of this project.
 #
 # SPDX-License-Identifier: MIT
+"""
+This module contains helper classes for converting various types between our Python SDK types
+and the HTTP-API formats, such as:
+- Base64URLConverter
+- IdShortPathConverter
+"""
+
 import base64
 import binascii
 
@@ -38,16 +45,29 @@ def base64url_encode(data: str) -> str:
 
 
 class Base64URLConverter(werkzeug.routing.UnicodeConverter):
+    """
+       A custom URL converter for Werkzeug routing that encodes and decodes
+       Identifiers using Base64 URL-safe encoding.
+    """
     def to_url(self, value: model.Identifier) -> str:
         return super().to_url(base64url_encode(value))
 
     def to_python(self, value: str) -> model.Identifier:
         value = super().to_python(value)
-        decoded = base64url_decode(super().to_python(value))
+        decoded = base64url_decode(value)
         return decoded
 
 
 class IdShortPathConverter(werkzeug.routing.UnicodeConverter):
+    """
+        A custom Werkzeug URL converter for handling id_short_sep-separated idShort paths.
+
+        This converter joins a list of idShort strings into an id_short_sep-separated path for URLs
+        (e.g., ["submodel", "element"] -> "submodel.element") and parses incoming URL paths
+        back into a list, validating each idShort.
+
+        :cvar id_short_sep: Separator used to join and split idShort segments.
+        """
     id_short_sep = "."
 
     def to_url(self, value: List[str]) -> str:
