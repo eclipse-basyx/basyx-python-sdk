@@ -303,13 +303,13 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install ../sdk
-        pip install .[dev]
+        pip install ./app[dev]
     - name: Check typing with MyPy
       run: |
-        mypy app test
+        mypy app
     - name: Check code style with PyCodestyle
       run: |
-        pycodestyle --count --max-line-length 120 app test
+        pycodestyle --count --max-line-length 120 app
 
   server-package:
     # This job checks if we can build our server package
