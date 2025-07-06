@@ -16,7 +16,7 @@ build-backend = "setuptools.build_meta"
 # from app.version import version
 # print(f"Project version: {version}")
 # ```
-root = ".."  # Defines the path to the root of the repository
+root = "../.."  # Defines the path to the root of the repository
 version_file = "version.py"
 
 [project]
