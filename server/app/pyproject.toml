@@ -13,7 +13,7 @@ build-backend = "setuptools.build_meta"
 # - Allows for automatic versioning between releases (e.g., 1.0.1.dev4+g12345)
 # If you want to use the version anywhere in the code, use
 # ```
-# from basyx.version import version
+# from app.version import version
 # print(f"Project version: {version}")
 # ```
 root = ".."  # Defines the path to the root of the repository
