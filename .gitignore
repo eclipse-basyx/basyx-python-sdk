@@ -32,3 +32,5 @@ compliance_tool/aas_compliance_tool/version.py
 
 # ignore the content of the server storage
 server/storage/
+test.py/
+Json2RegoRulesConverter.py
