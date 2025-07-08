@@ -1,0 +1,71 @@
+{
+  "id": "https://example.org/aas/motor",
+  "endpoints": [
+    {
+      "protocolInformation": {
+        "href": "https://localhost:1234/api/v3.0/aas",
+        "endpointProtocol": "HTTP",
+        "endpointProtocolVersion": [
+          "1.1"
+        ]
+      },
+      "interface": "AAS-3.0"
+    },
+    {
+      "protocolInformation": {
+        "href": "opc.tcp://localhost:4840"
+      },
+      "interface": "AAS-3.0"
+    },
+    {
+      "protocolInformation": {
+        "href": "https://localhost:5678",
+        "endpointProtocol": "HTTP",
+        "endpointProtocolVersion": [
+          "1.1"
+        ],
+        "subprotocol": "OPC UA Basic SOAP",
+        "subprotocolBody": "ns=2;s=MyAAS",
+        "subprotocolBodyEncoding": "application/soap+xml"
+      },
+      "interface": "AAS-3.0"
+    }
+  ],
+  "submodelDescriptors":[
+    {
+      "id": "https://admin-shell.io/zvei/nameplate/1/0/Nameplate",
+      "endpoints": [
+        {
+          "href": {
+            "href": "https://localhost:1234/api/v3.0/submodel",
+            "endpointProtocol": "HTTP",
+            "endpointProtocolVersion": [
+              "1.1"
+            ]
+          },
+          "interface": "AAS-3.0"
+        },
+        {
+          "protocolInformation": {
+            "href": "opc.tcp://localhost:4840"
+          },
+          "interface": "AAS-3.0"
+        },
+        {
+          "protocolInformation": {
+            "href": "https://localhost:5678",
+            "endpointProtocol": "HTTP",
+            "endpointProtocolVersion": [
+              "1.1"
+            ],
+            "subprotocol": "OPC UA Basic SOAP",
+            "subprotocolBody": "ns=2;s=MyAAS",
+            "subprotocolBodyEncoding": "application/soap+xml"
+          },
+          "interface": "AAS-3.0"
+        }
+      ]
+    }
+  	
+  ]
+}

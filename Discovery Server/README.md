@@ -1,4 +1,4 @@
-# Eclipse BaSyx Python SDK - Dicovery Service
+# Eclipse BaSyx Python SDK - Discovery Service
 
 This is a Python-based implementation of the **BaSyx Asset Administration Shell (AAS) Discovery Service**.
 It provides basic discovery functionality for AAS IDs and their corresponding assets, as specified in the official [Discovery Service Specification v3.1.0_SSP-001](https://app.swaggerhub.com/apis/Plattform_i40/DiscoveryServiceSpecification/V3.1.0_SSP-001).

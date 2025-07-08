@@ -1,6 +1,8 @@
 services:
   app:
-    build: .
+    build:
+      context: ..
+      dockerfile: registry_server/Dockerfile
     ports:
     - "8083:80"
     volumes:

@@ -1,0 +1,101 @@
+{
+  "AllAccessPermissionRules": {
+    "rules": [
+      {
+        "ACL": {
+          "ATTRIBUTES": [
+            {
+              "CLAIM": "Roles"
+            }
+          ],
+          "RIGHTS": [
+            "READ",
+            "WRITE"
+          ],
+          "ACCESS": "ALLOW"
+        },
+        "OBJECTS": [
+          {
+            "IDENTIFIABLE": "(Submodel)*"
+          }
+        ],
+        "FORMULA": {
+          "$and": [
+            {
+              "$or": [
+                {
+                  "$eq": [
+                    {
+                      "$field": "$sm#semanticId"
+                    },
+                    {
+                      "$strVal": "SemanticID-Nameplate"
+                    }
+                  ]
+                },
+                {
+                  "$eq": [
+                    {
+                      "$field": "$sm#semanticId"
+                    },
+                    {
+                      "$strVal": "SemanticID-TechnicalData"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "$eq": [
+                {
+                  "$attribute": {
+                    "CLAIM": "Role"
+                  }
+                },
+                {
+                  "$strVal": "admin"
+                }
+              ]
+            },
+            {
+              "$regex": [
+                {
+                  "$attribute": {
+                    "REFERENCE": "(Submodel)*#Id"
+                  }
+                },
+                {
+                  "$strVal": "^https://company1.com/.*$"
+                }
+              ]
+            },
+            {
+              "$ge": [
+                {
+                  "$attribute": {
+                    "GLOBAL": "UTCNOW"
+                  }
+                },
+                {
+                  "$timeVal": "09:00"
+                }
+              ]
+            },
+            {
+              "$le": [
+                {
+                  "$attribute": {
+                    "GLOBAL": "UTCNOW"
+                  }
+                },
+                {
+                  "$timeVal": "17:00"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    ]
+  }
+}
