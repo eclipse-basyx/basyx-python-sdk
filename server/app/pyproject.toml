@@ -48,6 +48,7 @@ dev = [
     "schemathesis~=3.7",
     "jsonschema~=4.7",
     "hypothesis~=6.13",
+    "lxml-stubs~=0.5.1",
 ]
 
 [project.urls]
