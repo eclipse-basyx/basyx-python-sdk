@@ -58,3 +58,6 @@ packages = { find = { exclude = ["test*"] } }
 
 [tool.setuptools.package-data]
 app = ["py.typed"]
+
+[tool.mypy]
+exclude = "build/"

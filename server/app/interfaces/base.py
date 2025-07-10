@@ -327,7 +327,7 @@ class HTTPApiDecoder:
                 model.Qualifier: decoder._construct_qualifier,
             }
 
-            constructor: Optional[Callable[..., T]] = mapping.get(expect_type) # type: ignore[assignment]
+            constructor: Optional[Callable[..., T]] = mapping.get(expect_type)  # type: ignore[assignment]
             args = []
             if expect_type is model.ModelReference:
                 args.append(model.Submodel)
