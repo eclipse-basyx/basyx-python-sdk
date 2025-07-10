@@ -48,7 +48,7 @@ from werkzeug.routing import Submount, Rule, MapAdapter
 
 from basyx.aas import model
 from basyx.aas.adapter import aasx
-from util.converters import Base64URLConverter, IdShortPathConverter, base64url_decode
+from util.converters import IdentifierToBase64URLConverter, IdShortPathConverter, base64url_decode
 from .base import ObjectStoreWSGIApp, APIResponse, is_stripped_request, HTTPApiDecoder, T
 
 
@@ -184,7 +184,7 @@ class WSGIApp(ObjectStoreWSGIApp):
                 ]),
             ])
         ], converters={
-            "base64url": Base64URLConverter,
+            "base64url": IdentifierToBase64URLConverter,
             "id_short_path": IdShortPathConverter
         }, strict_slashes=False)
 

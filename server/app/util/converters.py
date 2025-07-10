@@ -44,7 +44,7 @@ def base64url_encode(data: str) -> str:
     return encoded
 
 
-class Base64URLConverter(werkzeug.routing.UnicodeConverter):
+class IdentifierToBase64URLConverter(werkzeug.routing.UnicodeConverter):
     """
        A custom URL converter for Werkzeug routing that encodes and decodes
        Identifiers using Base64 URL-safe encoding.
