@@ -291,7 +291,7 @@ jobs:
 
     defaults:
       run:
-        working-directory: ./app
+        working-directory: ./server/app
     steps:
     - uses: actions/checkout@v4
     - name: Set up Python ${{ env.X_PYTHON_MIN_VERSION }}
