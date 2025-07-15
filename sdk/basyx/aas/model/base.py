@@ -802,7 +802,7 @@ class Referable(HasExtension, metaclass=abc.ABCMeta):
 
     def update_from(self, other: "Referable", update_source: bool = False):
         """
-        Internal function to updates the object's attributes from another object of a similar type.
+        Internal function to update the object's attributes from a different version of the exact same object.
 
         This function should not be used directly. It is typically used by backend implementations (database adapters,
         protocol clients, etc.) to update the object's data, after ``update()`` has been called.
@@ -811,15 +811,31 @@ class Referable(HasExtension, metaclass=abc.ABCMeta):
         :param update_source: Update the source attribute with the other's source attribute. This is not propagated
                               recursively
         """
-        for name, var in vars(other).items():
-            # do not update the parent, namespace_element_sets or source (depending on update_source parameter)
-            if name in ("parent", "namespace_element_sets") or name == "source" and not update_source:
+        for name in dir(other):
+            # Skip private and protected attributes
+            if name.startswith('_'):
                 continue
-            if isinstance(var, NamespaceSet):
+
+            # Do not update 'parent', 'namespace_element_sets', or 'source' (depending on update_source parameter)
+            if name in ("parent", "namespace_element_sets") or (name == "source" and not update_source):
+                continue
+
+            # Skip methods
+            attr = getattr(other, name)
+            if callable(attr):
+                continue
+
+            if isinstance(attr, NamespaceSet):
                 # update the elements of the NameSpaceSet
-                vars(self)[name].update_nss_from(var)
+                getattr(self, name).update_nss_from(attr)
             else:
-                vars(self)[name] = var  # that variable is not a NameSpaceSet, so it isn't Referable
+                # Check if this is a property and if it has no setter
+                prop = getattr(type(self), name, None)
+                if isinstance(prop, property) and prop.fset is None:
+                    if getattr(self, name) != attr:
+                        raise ValueError(f"property {name} is immutable but has changed between versions of the object")
+                else:
+                    setattr(self, name, attr)
 
     def commit(self) -> None:
         """
