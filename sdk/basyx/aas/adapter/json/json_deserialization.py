@@ -34,12 +34,13 @@ import contextlib
 import json
 import logging
 import pprint
-from typing import Dict, Callable, ContextManager, TypeVar, Type, List, IO, Optional, Set, get_args
+from typing import (Dict, Callable, ContextManager, TypeVar, Type,
+                    List, IO, Optional, Set, get_args, Tuple, Iterable, Any)
 
 from basyx.aas import model
 from .._generic import MODELLING_KIND_INVERSE, ASSET_KIND_INVERSE, KEY_TYPES_INVERSE, ENTITY_TYPES_INVERSE, \
     IEC61360_DATA_TYPES_INVERSE, IEC61360_LEVEL_TYPES_INVERSE, KEY_TYPES_CLASSES_INVERSE, REFERENCE_TYPES_INVERSE, \
-    DIRECTION_INVERSE, STATE_OF_EVENT_INVERSE, QUALIFIER_KIND_INVERSE, PathOrIO, Path
+    DIRECTION_INVERSE, STATE_OF_EVENT_INVERSE, QUALIFIER_KIND_INVERSE, PathOrIO, Path, JSON_AAS_TOP_LEVEL_KEYS_TO_TYPES
 
 logger = logging.getLogger(__name__)
 
@@ -154,19 +155,20 @@ class AASFromJsonDecoder(json.JSONDecoder):
         json.JSONDecoder.__init__(self, object_hook=self.object_hook, *args, **kwargs)
 
     @classmethod
-    def object_hook(cls, dct: Dict[str, object]) -> object:
-        # Check if JSON object seems to be a deserializable AAS object (i.e. it has a modelType). Otherwise, the JSON
-        #   object is returned as is, so it's possible to mix AAS objects with other data within a JSON structure.
-        if 'modelType' not in dct:
-            return dct
+    def _get_aas_class_parsers(cls) -> Dict[str, Callable[[Dict[str, object]], object]]:
+        """
+        Returns the dictionary of AAS class parsers.
 
-        # The following dict specifies a constructor method for all AAS classes that may be identified using the
-        # ``modelType`` attribute in their JSON representation. Each of those constructor functions takes the JSON
-        # representation of an object and tries to construct a Python object from it. Embedded objects that have a
-        # modelType themselves are expected to be converted to the correct PythonType already. Additionally, each
-        # function takes a bool parameter ``failsafe``, which indicates weather to log errors and skip defective objects
-        # instead of raising an Exception.
-        AAS_CLASS_PARSERS: Dict[str, Callable[[Dict[str, object]], object]] = {
+        The following dict specifies a constructor method for all AAS classes that may be identified using the
+        ``modelType`` attribute in their JSON representation. Each of those constructor functions takes the JSON
+        representation of an object and tries to construct a Python object from it. Embedded objects that have a
+        modelType themselves are expected to be converted to the correct PythonType already. Additionally, each
+        function takes a bool parameter ``failsafe``, which indicates weather to log errors and skip defective objects
+        instead of raising an Exception.
+
+        :return: The dictionary of AAS class parsers
+        """
+        aas_class_parsers: Dict[str, Callable[[Dict[str, object]], object]] = {
             'AssetAdministrationShell': cls._construct_asset_administration_shell,
             'AssetInformation': cls._construct_asset_information,
             'SpecificAssetId': cls._construct_specific_asset_id,
@@ -189,6 +191,16 @@ class AASFromJsonDecoder(json.JSONDecoder):
             'ReferenceElement': cls._construct_reference_element,
             'DataSpecificationIec61360': cls._construct_data_specification_iec61360,
         }
+        return aas_class_parsers
+
+    @classmethod
+    def object_hook(cls, dct: Dict[str, object]) -> object:
+        # Check if JSON object seems to be a deserializable AAS object (i.e. it has a modelType). Otherwise, the JSON
+        #   object is returned as is, so it's possible to mix AAS objects with other data within a JSON structure.
+        if 'modelType' not in dct:
+            return dct
+
+        AAS_CLASS_PARSERS = cls._get_aas_class_parsers()
 
         # Get modelType and constructor function
         if not isinstance(dct['modelType'], str):
@@ -799,7 +811,9 @@ def _select_decoder(failsafe: bool, stripped: bool, decoder: Optional[Type[AASFr
 
 def read_aas_json_file_into(object_store: model.AbstractObjectStore, file: PathOrIO, replace_existing: bool = False,
                             ignore_existing: bool = False, failsafe: bool = True, stripped: bool = False,
-                            decoder: Optional[Type[AASFromJsonDecoder]] = None) -> Set[model.Identifier]:
+                            decoder: Optional[Type[AASFromJsonDecoder]] = None,
+                            keys_to_types: Iterable[Tuple[str, Any]] = JSON_AAS_TOP_LEVEL_KEYS_TO_TYPES) \
+        -> Set[model.Identifier]:
     """
     Read an Asset Administration Shell JSON file according to 'Details of the Asset Administration Shell', chapter 5.5
     into a given object store.
@@ -817,6 +831,7 @@ def read_aas_json_file_into(object_store: model.AbstractObjectStore, file: PathO
                      See https://git.rwth-aachen.de/acplt/pyi40aas/-/issues/91
                      This parameter is ignored if a decoder class is specified.
     :param decoder: The decoder class used to decode the JSON objects
+    :param keys_to_types: A dictionary of JSON keys to expected types. This is used to check the type of the objects
     :raises KeyError: **Non-failsafe**: Encountered a duplicate identifier
     :raises KeyError: Encountered an identifier that already exists in the given ``object_store`` with both
                      ``replace_existing`` and ``ignore_existing`` set to ``False``
@@ -843,45 +858,43 @@ def read_aas_json_file_into(object_store: model.AbstractObjectStore, file: PathO
     with cm as fp:
         data = json.load(fp, cls=decoder_)
 
-    for name, expected_type in (('assetAdministrationShells', model.AssetAdministrationShell),
-                                ('submodels', model.Submodel),
-                                ('conceptDescriptions', model.ConceptDescription)):
+    for name, expected_type in keys_to_types:
         try:
             lst = _get_ts(data, name, list)
         except (KeyError, TypeError):
             continue
 
         for item in lst:
-            error_message = "Expected a {} in list '{}', but found {}".format(
-                expected_type.__name__, name, repr(item))
+            error_msg = f"Expected a {expected_type.__name__} in list '{name}', but found {repr(item)}."
             if isinstance(item, model.Identifiable):
                 if not isinstance(item, expected_type):
-                    if decoder_.failsafe:
-                        logger.warning("{} was in wrong list '{}'; nevertheless, we'll use it".format(item, name))
-                    else:
-                        raise TypeError(error_message)
-                if item.id in ret:
-                    error_message = f"{item} has a duplicate identifier already parsed in the document!"
                     if not decoder_.failsafe:
-                        raise KeyError(error_message)
-                    logger.error(error_message + " skipping it...")
+                        raise TypeError(f"{item} was in the wrong list '{name}'")
+                    logger.warning(f"{item} was in the wrong list '{name}'; nevertheless, we'll use it")
+
+                if item.id in ret:
+                    error_msg = f"{item} has a duplicate identifier already parsed in the document!"
+                    if not decoder_.failsafe:
+                        raise KeyError(error_msg)
+                    logger.error(f"{error_msg} Skipping it...")
                     continue
+
                 existing_element = object_store.get(item.id)
                 if existing_element is not None:
                     if not replace_existing:
-                        error_message = f"object with identifier {item.id} already exists " \
-                                        f"in the object store: {existing_element}!"
+                        error_msg = f"Object with id '{item.id}' already exists in store: {existing_element}!"
                         if not ignore_existing:
-                            raise KeyError(error_message + f" failed to insert {item}!")
-                        logger.info(error_message + f" skipping insertion of {item}...")
+                            raise KeyError(f"{error_msg} Failed to insert {item}!")
+                        logger.info(f"{error_msg} Skipping {item}...")
                         continue
                     object_store.discard(existing_element)
+
                 object_store.add(item)
                 ret.add(item.id)
             elif decoder_.failsafe:
-                logger.error(error_message)
+                logger.error(f"{error_msg} Skipping it...")
             else:
-                raise TypeError(error_message)
+                raise TypeError(error_msg)
     return ret
 
 

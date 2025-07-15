@@ -34,403 +34,25 @@ However, several features and routes are currently not supported:
    - `GET /submodels/{submodelIdentifier}/submodel-elements/{idShortPath}/operation-results/{handleId}/$value`
 """
 
-import abc
-import base64
-import binascii
-import datetime
-import enum
 import io
 import json
-import itertools
-import urllib
+from typing import Type, Iterator, List, Dict, Union, Callable, Tuple, Optional
 
-from lxml import etree
 import werkzeug.exceptions
 import werkzeug.routing
-import werkzeug.urls
 import werkzeug.utils
-from werkzeug.exceptions import BadRequest, Conflict, NotFound
-from werkzeug.routing import MapAdapter, Rule, Submount
-from werkzeug.wrappers import Request, Response
+from werkzeug import Response, Request
 from werkzeug.datastructures import FileStorage
+from werkzeug.exceptions import NotFound, BadRequest, Conflict
+from werkzeug.routing import Submount, Rule, MapAdapter
 
 from basyx.aas import model
-from ._generic import XML_NS_MAP
-from .xml import XMLConstructables, read_aas_xml_element, xml_serialization, object_to_xml_element
-from .json import AASToJsonEncoder, StrictAASFromJsonDecoder, StrictStrippedAASFromJsonDecoder
-from . import aasx
+from basyx.aas.adapter import aasx
+from util.converters import IdentifierToBase64URLConverter, IdShortPathConverter, base64url_decode
+from .base import ObjectStoreWSGIApp, APIResponse, is_stripped_request, HTTPApiDecoder, T
 
-from typing import Callable, Dict, Iterable, Iterator, List, Optional, Type, TypeVar, Union, Tuple
 
-
-@enum.unique
-class MessageType(enum.Enum):
-    UNDEFINED = enum.auto()
-    INFO = enum.auto()
-    WARNING = enum.auto()
-    ERROR = enum.auto()
-    EXCEPTION = enum.auto()
-
-    def __str__(self):
-        return self.name.capitalize()
-
-
-class Message:
-    def __init__(self, code: str, text: str, message_type: MessageType = MessageType.UNDEFINED,
-                 timestamp: Optional[datetime.datetime] = None):
-        self.code: str = code
-        self.text: str = text
-        self.message_type: MessageType = message_type
-        self.timestamp: datetime.datetime = timestamp if timestamp is not None \
-            else datetime.datetime.now(datetime.timezone.utc)
-
-
-class Result:
-    def __init__(self, success: bool, messages: Optional[List[Message]] = None):
-        if messages is None:
-            messages = []
-        self.success: bool = success
-        self.messages: List[Message] = messages
-
-
-class ResultToJsonEncoder(AASToJsonEncoder):
-    @classmethod
-    def _result_to_json(cls, result: Result) -> Dict[str, object]:
-        return {
-            "success": result.success,
-            "messages": result.messages
-        }
-
-    @classmethod
-    def _message_to_json(cls, message: Message) -> Dict[str, object]:
-        return {
-            "messageType": message.message_type,
-            "text": message.text,
-            "code": message.code,
-            "timestamp": message.timestamp.isoformat()
-        }
-
-    def default(self, obj: object) -> object:
-        if isinstance(obj, Result):
-            return self._result_to_json(obj)
-        if isinstance(obj, Message):
-            return self._message_to_json(obj)
-        if isinstance(obj, MessageType):
-            return str(obj)
-        return super().default(obj)
-
-
-class StrippedResultToJsonEncoder(ResultToJsonEncoder):
-    stripped = True
-
-
-ResponseData = Union[Result, object, List[object]]
-
-
-class APIResponse(abc.ABC, Response):
-    @abc.abstractmethod
-    def __init__(self, obj: Optional[ResponseData] = None, cursor: Optional[int] = None,
-                 stripped: bool = False, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        if obj is None:
-            self.status_code = 204
-        else:
-            self.data = self.serialize(obj, cursor, stripped)
-
-    @abc.abstractmethod
-    def serialize(self, obj: ResponseData, cursor: Optional[int], stripped: bool) -> str:
-        pass
-
-
-class JsonResponse(APIResponse):
-    def __init__(self, *args, content_type="application/json", **kwargs):
-        super().__init__(*args, **kwargs, content_type=content_type)
-
-    def serialize(self, obj: ResponseData, cursor: Optional[int], stripped: bool) -> str:
-        if cursor is None:
-            data = obj
-        else:
-            data = {
-                "paging_metadata": {"cursor": str(cursor)},
-                "result": obj
-            }
-        return json.dumps(
-            data,
-            cls=StrippedResultToJsonEncoder if stripped else ResultToJsonEncoder,
-            separators=(",", ":")
-        )
-
-
-class XmlResponse(APIResponse):
-    def __init__(self, *args, content_type="application/xml", **kwargs):
-        super().__init__(*args, **kwargs, content_type=content_type)
-
-    def serialize(self, obj: ResponseData, cursor: Optional[int], stripped: bool) -> str:
-        root_elem = etree.Element("response", nsmap=XML_NS_MAP)
-        if cursor is not None:
-            root_elem.set("cursor", str(cursor))
-        if isinstance(obj, Result):
-            result_elem = result_to_xml(obj, **XML_NS_MAP)
-            for child in result_elem:
-                root_elem.append(child)
-        elif isinstance(obj, list):
-            for item in obj:
-                item_elem = object_to_xml_element(item)
-                root_elem.append(item_elem)
-        else:
-            obj_elem = object_to_xml_element(obj)
-            for child in obj_elem:
-                root_elem.append(child)
-        etree.cleanup_namespaces(root_elem)
-        xml_str = etree.tostring(root_elem, xml_declaration=True, encoding="utf-8")
-        return xml_str  # type: ignore[return-value]
-
-
-class XmlResponseAlt(XmlResponse):
-    def __init__(self, *args, content_type="text/xml", **kwargs):
-        super().__init__(*args, **kwargs, content_type=content_type)
-
-
-def result_to_xml(result: Result, **kwargs) -> etree._Element:
-    result_elem = etree.Element("result", **kwargs)
-    success_elem = etree.Element("success")
-    success_elem.text = xml_serialization.boolean_to_xml(result.success)
-    messages_elem = etree.Element("messages")
-    for message in result.messages:
-        messages_elem.append(message_to_xml(message))
-
-    result_elem.append(success_elem)
-    result_elem.append(messages_elem)
-    return result_elem
-
-
-def message_to_xml(message: Message) -> etree._Element:
-    message_elem = etree.Element("message")
-    message_type_elem = etree.Element("messageType")
-    message_type_elem.text = str(message.message_type)
-    text_elem = etree.Element("text")
-    text_elem.text = message.text
-    code_elem = etree.Element("code")
-    code_elem.text = message.code
-    timestamp_elem = etree.Element("timestamp")
-    timestamp_elem.text = message.timestamp.isoformat()
-
-    message_elem.append(message_type_elem)
-    message_elem.append(text_elem)
-    message_elem.append(code_elem)
-    message_elem.append(timestamp_elem)
-    return message_elem
-
-
-def get_response_type(request: Request) -> Type[APIResponse]:
-    response_types: Dict[str, Type[APIResponse]] = {
-        "application/json": JsonResponse,
-        "application/xml": XmlResponse,
-        "text/xml": XmlResponseAlt
-    }
-    if len(request.accept_mimetypes) == 0 or request.accept_mimetypes.best in (None, "*/*"):
-        return JsonResponse
-    mime_type = request.accept_mimetypes.best_match(response_types)
-    if mime_type is None:
-        raise werkzeug.exceptions.NotAcceptable("This server supports the following content types: "
-                                                + ", ".join(response_types.keys()))
-    return response_types[mime_type]
-
-
-def http_exception_to_response(exception: werkzeug.exceptions.HTTPException, response_type: Type[APIResponse]) \
-        -> APIResponse:
-    headers = exception.get_headers()
-    location = exception.get_response().location
-    if location is not None:
-        headers.append(("Location", location))
-    if exception.code and exception.code >= 400:
-        message = Message(type(exception).__name__, exception.description if exception.description is not None else "",
-                          MessageType.ERROR)
-        result = Result(False, [message])
-    else:
-        result = Result(False)
-    return response_type(result, status=exception.code, headers=headers)
-
-
-def is_stripped_request(request: Request) -> bool:
-    level = request.args.get("level")
-    if level not in {"deep", "core", None}:
-        raise BadRequest(f"Level {level} is not a valid level!")
-    extent = request.args.get("extent")
-    if extent is not None:
-        raise werkzeug.exceptions.NotImplemented(f"The parameter extent is not yet implemented for this server!")
-    return level == "core"
-
-
-T = TypeVar("T")
-
-BASE64URL_ENCODING = "utf-8"
-
-
-def base64url_decode(data: str) -> str:
-    try:
-        # If the requester omits the base64 padding, an exception will be raised.
-        # However, Python doesn't complain about too much padding,
-        # thus we simply always append two padding characters (==).
-        # See also: https://stackoverflow.com/a/49459036/4780052
-        decoded = base64.urlsafe_b64decode(data + "==").decode(BASE64URL_ENCODING)
-    except binascii.Error:
-        raise BadRequest(f"Encoded data {data} is invalid base64url!")
-    except UnicodeDecodeError:
-        raise BadRequest(f"Encoded base64url value is not a valid {BASE64URL_ENCODING} string!")
-    return decoded
-
-
-def base64url_encode(data: str) -> str:
-    encoded = base64.urlsafe_b64encode(data.encode(BASE64URL_ENCODING)).decode("ascii")
-    return encoded
-
-
-class HTTPApiDecoder:
-    # these are the types we can construct (well, only the ones we need)
-    type_constructables_map = {
-        model.AssetAdministrationShell: XMLConstructables.ASSET_ADMINISTRATION_SHELL,
-        model.AssetInformation: XMLConstructables.ASSET_INFORMATION,
-        model.ModelReference: XMLConstructables.MODEL_REFERENCE,
-        model.SpecificAssetId: XMLConstructables.SPECIFIC_ASSET_ID,
-        model.Qualifier: XMLConstructables.QUALIFIER,
-        model.Submodel: XMLConstructables.SUBMODEL,
-        model.SubmodelElement: XMLConstructables.SUBMODEL_ELEMENT,
-        model.Reference: XMLConstructables.REFERENCE
-    }
-
-    @classmethod
-    def check_type_supportance(cls, type_: type):
-        if type_ not in cls.type_constructables_map:
-            raise TypeError(f"Parsing {type_} is not supported!")
-
-    @classmethod
-    def assert_type(cls, obj: object, type_: Type[T]) -> T:
-        if not isinstance(obj, type_):
-            raise BadRequest(f"Object {obj!r} is not of type {type_.__name__}!")
-        return obj
-
-    @classmethod
-    def json_list(cls, data: Union[str, bytes], expect_type: Type[T], stripped: bool, expect_single: bool) -> List[T]:
-        cls.check_type_supportance(expect_type)
-        decoder: Type[StrictAASFromJsonDecoder] = StrictStrippedAASFromJsonDecoder if stripped \
-            else StrictAASFromJsonDecoder
-        try:
-            parsed = json.loads(data, cls=decoder)
-            if not isinstance(parsed, list):
-                if not expect_single:
-                    raise BadRequest(f"Expected List[{expect_type.__name__}], got {parsed!r}!")
-                parsed = [parsed]
-            elif expect_single:
-                raise BadRequest(f"Expected a single object of type {expect_type.__name__}, got {parsed!r}!")
-            # TODO: the following is ugly, but necessary because references aren't self-identified objects
-            #  in the json schema
-            # TODO: json deserialization will always create an ModelReference[Submodel], xml deserialization determines
-            #  that automatically
-            constructor: Optional[Callable[..., T]] = None
-            args = []
-            if expect_type is model.ModelReference:
-                constructor = decoder._construct_model_reference  # type: ignore[assignment]
-                args.append(model.Submodel)
-            elif expect_type is model.AssetInformation:
-                constructor = decoder._construct_asset_information  # type: ignore[assignment]
-            elif expect_type is model.SpecificAssetId:
-                constructor = decoder._construct_specific_asset_id  # type: ignore[assignment]
-            elif expect_type is model.Reference:
-                constructor = decoder._construct_reference  # type: ignore[assignment]
-            elif expect_type is model.Qualifier:
-                constructor = decoder._construct_qualifier  # type: ignore[assignment]
-
-            if constructor is not None:
-                # construct elements that aren't self-identified
-                return [constructor(obj, *args) for obj in parsed]
-
-        except (KeyError, ValueError, TypeError, json.JSONDecodeError, model.AASConstraintViolation) as e:
-            raise BadRequest(str(e)) from e
-
-        return [cls.assert_type(obj, expect_type) for obj in parsed]
-
-    @classmethod
-    def base64urljson_list(cls, data: str, expect_type: Type[T], stripped: bool, expect_single: bool) -> List[T]:
-        data = base64url_decode(data)
-        return cls.json_list(data, expect_type, stripped, expect_single)
-
-    @classmethod
-    def json(cls, data: Union[str, bytes], expect_type: Type[T], stripped: bool) -> T:
-        return cls.json_list(data, expect_type, stripped, True)[0]
-
-    @classmethod
-    def base64urljson(cls, data: str, expect_type: Type[T], stripped: bool) -> T:
-        data = base64url_decode(data)
-        return cls.json_list(data, expect_type, stripped, True)[0]
-
-    @classmethod
-    def xml(cls, data: bytes, expect_type: Type[T], stripped: bool) -> T:
-        cls.check_type_supportance(expect_type)
-        try:
-            xml_data = io.BytesIO(data)
-            rv = read_aas_xml_element(xml_data, cls.type_constructables_map[expect_type],
-                                      stripped=stripped, failsafe=False)
-        except (KeyError, ValueError) as e:
-            # xml deserialization creates an error chain. since we only return one error, return the root cause
-            f: BaseException = e
-            while f.__cause__ is not None:
-                f = f.__cause__
-            raise BadRequest(str(f)) from e
-        except (etree.XMLSyntaxError, model.AASConstraintViolation) as e:
-            raise BadRequest(str(e)) from e
-        return cls.assert_type(rv, expect_type)
-
-    @classmethod
-    def request_body(cls, request: Request, expect_type: Type[T], stripped: bool) -> T:
-        """
-        TODO: werkzeug documentation recommends checking the content length before retrieving the body to prevent
-              running out of memory. but it doesn't state how to check the content length
-              also: what would be a reasonable maximum content length? the request body isn't limited by the xml/json
-              schema
-            In the meeting (25.11.2020) we discussed, this may refer to a reverse proxy in front of this WSGI app,
-            which should limit the maximum content length.
-        """
-        valid_content_types = ("application/json", "application/xml", "text/xml")
-
-        if request.mimetype not in valid_content_types:
-            raise werkzeug.exceptions.UnsupportedMediaType(
-                f"Invalid content-type: {request.mimetype}! Supported types: "
-                + ", ".join(valid_content_types))
-
-        if request.mimetype == "application/json":
-            return cls.json(request.get_data(), expect_type, stripped)
-        return cls.xml(request.get_data(), expect_type, stripped)
-
-
-class Base64URLConverter(werkzeug.routing.UnicodeConverter):
-
-    def to_url(self, value: model.Identifier) -> str:
-        return super().to_url(base64url_encode(value))
-
-    def to_python(self, value: str) -> model.Identifier:
-        value = super().to_python(value)
-        decoded = base64url_decode(super().to_python(value))
-        return decoded
-
-
-class IdShortPathConverter(werkzeug.routing.UnicodeConverter):
-    id_short_sep = "."
-
-    def to_url(self, value: List[str]) -> str:
-        return super().to_url(self.id_short_sep.join(value))
-
-    def to_python(self, value: str) -> List[str]:
-        id_shorts = super().to_python(value).split(self.id_short_sep)
-        for id_short in id_shorts:
-            try:
-                model.Referable.validate_id_short(id_short)
-            except (ValueError, model.AASConstraintViolation):
-                raise BadRequest(f"{id_short} is not a valid id_short!")
-        return id_shorts
-
-
-class WSGIApp:
+class WSGIApp(ObjectStoreWSGIApp):
     def __init__(self, object_store: model.AbstractObjectStore, file_store: aasx.AbstractSupplementaryFileContainer,
                  base_path: str = "/api/v3.0"):
         self.object_store: model.AbstractObjectStore = object_store
@@ -488,8 +110,7 @@ class WSGIApp:
                         Rule("/submodel-elements", methods=["POST"],
                              endpoint=self.post_submodel_submodel_elements_id_short_path),
                         Submount("/submodel-elements", [
-                            Rule("/$metadata", methods=["GET"],
-                                 endpoint=self.get_submodel_submodel_elements_metadata),
+                            Rule("/$metadata", methods=["GET"], endpoint=self.get_submodel_submodel_elements_metadata),
                             Rule("/$reference", methods=["GET"],
                                  endpoint=self.get_submodel_submodel_elements_reference),
                             Rule("/$value", methods=["GET"], endpoint=self.not_implemented),
@@ -525,10 +146,8 @@ class WSGIApp:
                                 Rule("/operation-status/<base64url:handleId>", methods=["GET"],
                                      endpoint=self.not_implemented),
                                 Submount("/operation-results", [
-                                    Rule("/<base64url:handleId>", methods=["GET"],
-                                         endpoint=self.not_implemented),
-                                    Rule("/<base64url:handleId>/$value", methods=["GET"],
-                                         endpoint=self.not_implemented)
+                                    Rule("/<base64url:handleId>", methods=["GET"], endpoint=self.not_implemented),
+                                    Rule("/<base64url:handleId>/$value", methods=["GET"], endpoint=self.not_implemented)
                                 ]),
                                 Rule("/qualifiers", methods=["GET"],
                                      endpoint=self.get_submodel_submodel_element_qualifiers),
@@ -544,10 +163,8 @@ class WSGIApp:
                                 ])
                             ])
                         ]),
-                        Rule("/qualifiers", methods=["GET"],
-                             endpoint=self.get_submodel_submodel_element_qualifiers),
-                        Rule("/qualifiers", methods=["POST"],
-                             endpoint=self.post_submodel_submodel_element_qualifiers),
+                        Rule("/qualifiers", methods=["GET"], endpoint=self.get_submodel_submodel_element_qualifiers),
+                        Rule("/qualifiers", methods=["POST"], endpoint=self.post_submodel_submodel_element_qualifiers),
                         Submount("/qualifiers", [
                             Rule("/<base64url:qualifier_type>", methods=["GET"],
                                  endpoint=self.get_submodel_submodel_element_qualifiers),
@@ -567,27 +184,9 @@ class WSGIApp:
                 ]),
             ])
         ], converters={
-            "base64url": Base64URLConverter,
+            "base64url": IdentifierToBase64URLConverter,
             "id_short_path": IdShortPathConverter
         }, strict_slashes=False)
-
-    # TODO: the parameters can be typed via builtin wsgiref with Python 3.11+
-    def __call__(self, environ, start_response) -> Iterable[bytes]:
-        response: Response = self.handle_request(Request(environ))
-        return response(environ, start_response)
-
-    def _get_obj_ts(self, identifier: model.Identifier, type_: Type[model.provider._IT]) -> model.provider._IT:
-        identifiable = self.object_store.get(identifier)
-        if not isinstance(identifiable, type_):
-            raise NotFound(f"No {type_.__name__} with {identifier} found!")
-        identifiable.update()
-        return identifiable
-
-    def _get_all_obj_of_type(self, type_: Type[model.provider._IT]) -> Iterator[model.provider._IT]:
-        for obj in self.object_store:
-            if isinstance(obj, type_):
-                obj.update()
-                yield obj
 
     def _resolve_reference(self, reference: model.ModelReference[model.base._RT]) -> model.base._RT:
         try:
@@ -651,21 +250,6 @@ class WSGIApp:
                 return ref
         raise NotFound(f"The AAS {aas!r} doesn't have a submodel reference to {submodel_id!r}!")
 
-    @classmethod
-    def _get_slice(cls, request: Request, iterator: Iterable[T]) -> Tuple[Iterator[T], int]:
-        limit_str = request.args.get('limit', default="10")
-        cursor_str = request.args.get('cursor', default="1")
-        try:
-            limit, cursor = int(limit_str), int(cursor_str) - 1  # cursor is 1-indexed
-            if limit < 0 or cursor < 0:
-                raise ValueError
-        except ValueError:
-            raise BadRequest("Limit can not be negative, cursor must be positive!")
-        start_index = cursor
-        end_index = cursor + limit
-        paginated_slice = itertools.islice(iterator, start_index, end_index)
-        return paginated_slice, end_index
-
     def _get_shells(self, request: Request) -> Tuple[Iterator[model.AssetAdministrationShell], int]:
         aas: Iterator[model.AssetAdministrationShell] = self._get_all_obj_of_type(model.AssetAdministrationShell)
 
@@ -713,7 +297,7 @@ class WSGIApp:
             submodels = filter(lambda sm: sm.id_short == id_short, submodels)
         semantic_id = request.args.get("semanticId")
         if semantic_id is not None:
-            spec_semantic_id = HTTPApiDecoder.base64urljson(
+            spec_semantic_id = HTTPApiDecoder.base64url_json(
                 semantic_id, model.Reference, False)  # type: ignore[type-abstract]
             submodels = filter(lambda sm: sm.semantic_id == spec_semantic_id, submodels)
         paginated_submodels, end_index = self._get_slice(request, submodels)
@@ -736,22 +320,6 @@ class WSGIApp:
 
     def _get_concept_description(self, url_args):
         return self._get_obj_ts(url_args["concept_id"], model.ConceptDescription)
-
-    def handle_request(self, request: Request):
-        map_adapter: MapAdapter = self.url_map.bind_to_environ(request.environ)
-        try:
-            response_t = get_response_type(request)
-        except werkzeug.exceptions.NotAcceptable as e:
-            return e
-
-        try:
-            endpoint, values = map_adapter.match()
-            return endpoint(request, values, response_t=response_t, map_adapter=map_adapter)
-
-        # any raised error that leaves this function will cause a 500 internal server error
-        # so catch raised http exceptions and return them
-        except werkzeug.exceptions.HTTPException as e:
-            return http_exception_to_response(e, response_t)
 
     # ------ all not implemented ROUTES -------
     def not_implemented(self, request: Request, url_args: Dict, **_kwargs) -> Response:
