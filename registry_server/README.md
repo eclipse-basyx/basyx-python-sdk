@@ -19,7 +19,7 @@ The Registry Service provides the endpoint for a given AAS-ID or Submodel-ID. Su
 | **PutAssetAdministrationShellDescriptorById**    | Update an existing AAS descriptor                              | `PUT http://localhost:8083/api/v3.0/shell-descriptors/{aasIdentifier}`                                              |
 | **DeleteAssetAdministrationShellDescriptorById** | Delete an AAS descriptor by ID                                 | `DELETE http://localhost:8083/api/v3.0/shell-descriptors/{aasIdentifier}`                                           |
 | **GetSubmodelDescriptorsThroughSuperPath**       | Return all submodel descriptors under AAS descriptor           | `GET http://localhost:8083/api/v3.0/shell-descriptors/{aasIdentifier}/submodel-descriptors`                         |
-| **PostSubmodelDescriptorThroughSuperPath**       | Register/create a new submodel descriptor under AAS descriptor | `Post http://localhost:8083/api/v3.0/shell-descriptors/{aasIdentifier}/submodel-descriptors`                        |
+| **PostSubmodelDescriptorThroughSuperPath**       | Register/create a new submodel descriptor under AAS descriptor | `POST http://localhost:8083/api/v3.0/shell-descriptors/{aasIdentifier}/submodel-descriptors`                        |
 | **GetSubmodelDescriptorThroughSuperPath**        | Return a specific submodel descriptor under AAS descriptor     | `GET http://localhost:8083/api/v3.0/shell-descriptors/{aasIdentifier}/submodel-descriptors/{submodelIdentifier}`    |
 | **PutSubmodelDescriptorThroughSuperPath**        | Update a specific submodel descriptor under AAS descriptor     | `PUT http://localhost:8083/api/v3.0/shell-descriptors/{aasIdentifier}/submodel-descriptors/{submodelIdentifier}`    |
 | **DeleteSubmodelDescriptorThroughSuperPath**     | Delete a specific submodel descriptor under AAS descriptor     | `DELETE http://localhost:8083/api/v3.0/shell-descriptors/{aasIdentifier}/submodel-descriptors/{submodelIdentifier}` |
@@ -29,7 +29,7 @@ The Registry Service provides the endpoint for a given AAS-ID or Submodel-ID. Su
 | Function                         | Description                                                  | Example URL                                                                       |
 |----------------------------------|--------------------------------------------------------------|-----------------------------------------------------------------------------------|
 | **GetAllSubmodelDescriptors**    | Return all submodel descriptors                              | `GET http://localhost:8083/api/v3.0/submodel-descriptors`                         |
-| **PostSubmodelDescriptor**       | Register/create a new submodel descriptor                    | `Post http://localhost:8083/api/v3.0/submodel-descriptors`                        |
+| **PostSubmodelDescriptor**       | Register/create a new submodel descriptor                    | `POST http://localhost:8083/api/v3.0/submodel-descriptors`                        |
 | **GetSubmodelDescriptorById**    | Return a specific submodel descriptor                        | `GET http://localhost:8083/api/v3.0/submodel-descriptors/{submodelIdentifier}`    |
 | **PutSubmodelDescriptorById**    | Update a specific submodel descriptor                        | `PUT http://localhost:8083/api/v3.0/submodel-descriptors/{submodelIdentifier}`    |
 | **DeleteSubmodelDescriptorById** | Delete a specific submodel descriptor                        | `DELETE http://localhost:8083/api/v3.0/submodel-descriptors/{submodelIdentifier}` |
@@ -37,24 +37,16 @@ The Registry Service provides the endpoint for a given AAS-ID or Submodel-ID. Su
 
 
 
-## Specification Compliance
-
-- Complies with: **Asset Administration Shell Registry Service Specification v3.1.0_SSP-001** and **Submodel Registry Service Specification v3.1.0_SSP-001**
-
 ## Configuration
 
-The service can be configured to use either:
+The container can be configured via environment variables:
 
-- **In-memory storage** (default): Temporary data storage that resets on service restart.
-- **MongoDB storage**: Persistent backend storage using MongoDB.
+- `API_BASE_PATH` determines the base path under which all other API paths are made available. Default: `/api/v3.0`
+- `STORAGE_TYPE` can be one of `LOCAL_FILE_READ_ONLY` or `LOCAL_FILE_BACKEND`:
+  - When set to `LOCAL_FILE_READ_ONLY` (the default), the server will read and serve JSON files from the storage directory. The files are not modified, all changes done via the API are only stored in memory.
+  - When instead set to `LOCAL_FILE_BACKEND`, the server makes use of the [LocalFileBackend](https://github.com/eclipse-basyx/basyx-python-sdk/tree/main/backend/basyx_backend/local_file), where AAS and Submodels descriptors are persistently stored as JSON files.
+- `STORAGE_PATH` sets the directory to read the files from *within the container*. If you bind your files to a directory different from the default `/storage`, you can use this variable to adjust the server accordingly.
 
-### Configuration via Environment Variables
-
-| Variable        | Description                                | Default                 |
-|----------------|--------------------------------------------|-------------------------|
-| `STORAGE_TYPE` | `inmemory` or `mongodb`                    | `inmemory`              |
-| `MONGODB_URI`  | MongoDB connection URI                     | `mongodb://localhost:27017` |
-| `MONGODB_DBNAME` | Name of the MongoDB database               | `basyx_registry`        |
 
 ## Deployment via Docker
 
