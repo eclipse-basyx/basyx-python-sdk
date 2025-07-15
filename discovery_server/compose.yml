@@ -1,0 +1,9 @@
+services:
+  app:
+    build:
+      context: ..
+      dockerfile: discovery_server/Dockerfile
+    ports:
+    - "8084:80"
+    environment:
+      - STORAGE_TYPE=inmemory

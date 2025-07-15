@@ -1,0 +1,62 @@
+[
+  {
+    "semanticId": {
+      "type": "ExternalReference",
+      "keys": [
+        {
+          "type": "GlobalReference",
+          "value": "ud800;udbff3udbffUud800Bud800qudbffhudbffTd6^dnTudbff5?Aoudbff36Xud800>udbffUudbff<ud800Wkpud800;udbff5nC;ud800:I7udbff?ud800gudbffLPJudbff\\YemTudbffhudbffV/budbff?6udbff09O=*ud800UWQ14369ud800<,ud800pgud800V[.USud800FqsjTudbffO7>\"Hjeud800Fudbff;udbffC?5q]udbff8aIudbffkp[?sud800kXljub;Gudbffqud8003ud8005udbff[>Z6d_udbffO=hxs R9<_pudbffo"
+        }
+      ],
+      "referredSemanticId": {
+        "type": "ExternalReference",
+        "keys": [
+          {
+            "type": "GlobalReference",
+            "value": "ooOud800pqudbfffud800b:4udbffiudbff<P5ud800Pudbff?#udbff[Mudbff?Pet_ud800Wudbff4udbff\\ud800Gudbff@fKN;'ud800E*qud800:ud8003pdudbffpud800aNud800H@nHud800Xudbff^udbffuudbffnl:udbffKudbffr"
+          }
+        ]
+      }
+    },
+    "supplementalSemanticIds": [
+      {
+        "type": "ExternalReference",
+        "keys": [
+          {
+            "type": "GlobalReference",
+            "value": "Ft2ud800lud800Yud800?Mpud800judbffNudbffl"
+          }
+        ],
+        "referredSemanticId": {
+          "type": "ExternalReference",
+          "keys": [
+            {
+              "type": "GlobalReference",
+              "value": "NYA=ud800U3EDFud800kud800ixTqud800MudbffMZ?ud800iAnuHGTud800EudbffPud800=ud800?udbff3AKoxkudbffX-ud800Zudbff2MNud800mudbffI2ud800dfV*udbffNnud800\\ud800Gsdud800Pud8004=seud800nudbff>udbffd_ud800sJudbffOudbffiB:udbff@pEudbffM;8ud800mS;udbff3ud800q8udbff^udbffmDhFttgudbffrudbffhudbffrEud800e"
+            }
+          ]
+        }
+      }
+    ],
+    "name": "ud800Vud800?ud800tudbff1Ah_ud8003udbffZud800d5WAud800ScMIud800e>",
+    "value": "udbffBudbffSud800<D3mudbff4ud800Rudbffhudbff@HudbffRud8008udbffD%udbffGudbffH/:mS,Q?`ud800YudbffLdehNuCudbffW<_Zqud800MI5@udbff9[:>udbffn%ud800kudbffa:Tcfudbff?udbff?ud8005udbffZudbff_ud800iud800qq.@Zud800jml<ud800m>udbffFB<:Wfud800=audbffludbffailudbff?ud800uLudbff7ud800GJqG'ud800kudbffrudbff>>RudbffQudbff=udbffQS]UudbffOZS",
+    "externalSubjectId": {
+      "type": "ExternalReference",
+      "keys": [
+        {
+          "type": "GlobalReference",
+          "value": "^7<\\agVu_%ud800:pD<-ud800j9udbffkiKCudbffVudbffjudbffDudbffiudbffZsud800WhLG:tQfLP"
+        }
+      ],
+      "referredSemanticId": {
+        "type": "ExternalReference",
+        "keys": [
+          {
+            "type": "GlobalReference",
+            "value": "]Pud800DudbffY[0Y<gudbffJudbffcud800nud8007oudbffMudbff3f[rud800@9ud800Kudbff?6]$qud800D:1KGfudbffUud800Aud800?udbffsj<hWud800`udbff2ud800oud800Zud800EArudbffjud800Fudbff:rSudbffJud800[udbffZudbffeudbffnRR`ud8003udbffGud800R"
+          }
+        ]
+      }
+    }
+  }
+]
