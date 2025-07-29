@@ -13,6 +13,7 @@ Alternatively, the container can also be told to use the [Local-File Backend][2]
 See [below](#options) on how to configure this.
 
 ## Building
+
 The container image can be built via:
 ```
 $ docker build -t basyx-python-server -f Dockerfile ..
@@ -23,6 +24,7 @@ Note that when cloning this repository on Windows, Git may convert the line sepa
 ## Running
 
 ### Storage
+
 The container needs to be provided with the directory `/storage` to store AAS and Submodel files: AASX, JSON, XML or JSON files of Local-File Backend.
 
 This directory can be mapped via the `-v` option from another image or a local directory.
@@ -30,10 +32,12 @@ To map the directory `storage` inside the container, `-v ./storage:/storage` can
 The directory `storage` will be created in the current working directory, if it doesn't already exist.
 
 ### Port
+
 The HTTP server inside the container listens on port 80 by default.
 To expose it on the host on port 8080, use the option `-p 8080:80` when running it.
 
 ### Options
+
 The container can be configured via environment variables:
 - `API_BASE_PATH` determines the base path under which all other API paths are made available.
   Default: `/api/v3.0`
@@ -61,15 +65,15 @@ Per default, the server will use the `LOCAL_FILE_READ_ONLY` storage type and ser
 $ docker run -p 8080:80 -v ./storage2:/storage2 -e API_BASE_PATH=/api/v3.1 -e STORAGE_TYPE=LOCAL_FILE_BACKEND -e STORAGE_PATH=/storage2 basyx-python-server
 ```
 
-## Building and running the image with docker-compose
+## Building and Running the Image with Docker Compose
 
 The container image can also be built and run via:
 ```
 $ docker compose up
 ```
 
-This is the exemplary `docker-compose` file for the server:
-````yaml
+This is the exemplary `compose.yml` file for the server:
+```yaml
 services:
   app:
     build:
@@ -79,12 +83,52 @@ services:
     - "8080:80"
     volumes:
       - ./storage:/storage
-````
+```
 
 Here files are read from `/storage` and the server can be accessed at http://localhost:8080/api/v3.0/ from your host system. 
 To get a different setup this compose.yaml file can be adapted and expanded.
 
 Note that the `Dockerfile` has to be specified explicitly, as the build context must be set to the parent directory of `/server` to allow access to the local `/sdk`.
+
+## Running without Docker (Expert Development Only)
+
+The server can also be run directly on the host system without Docker, NGINX and supervisord. Although this is slower than the initial setup and not suitable for production, it may be useful for expert development.
+
+> [!warning]
+> Not supported for production systems!
+
+The setup must be run on Linux or via WSL, as uWSGI is not properly supported on Windows.
+
+1. Install the required system packages.
+   ```bash
+   $ sudo apt update && sudo apt upgrade -y
+   $ sudo apt install python3 python3-pip python3-venv
+   ```
+
+2. Create and activate a Python virtual environment.
+   ```bash
+   $ python3 -m venv .venv
+   $ source .venv/bin/activate
+   ```
+
+3. Install uWSGI, the local SDK and the local server package.
+   ```bash
+   $ pip install uwsgi
+   $ export SETUPTOOLS_SCM_PRETEND_VERSION=1.0.0
+   $ pip install ../sdk
+   $ pip install ./app
+   ```
+   
+   Note that `export` only applies to the current shell session.
+
+4. Create the storage folder and start the server.
+   ```bash
+   $ mkdir -p ./storage
+   $ export STORAGE_PATH=./storage
+   $ uwsgi --http :8080 --wsgi-file app/main.py
+   ```
+
+As usual, files are read from `/storage` and the server can be accessed at http://localhost:8080/api/v3.0/ from your host system. 
 
 ## Acknowledgments
 
