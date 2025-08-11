@@ -90,45 +90,25 @@ To get a different setup this compose.yaml file can be adapted and expanded.
 
 Note that the `Dockerfile` has to be specified explicitly, as the build context must be set to the parent directory of `/server` to allow access to the local `/sdk`.
 
-## Running without Docker (Expert Development Only)
+## Running without Docker (Debugging Only)
 
-The server can also be run directly on the host system without Docker, NGINX and supervisord. Although this is slower than the initial setup and not suitable for production, it may be useful for expert development.
+The server can also be run directly on the host system without Docker, NGINX and supervisord. Although this is not suitable for production, it may be useful for debugging.
 
 > [!warning]
 > Not supported for production systems!
 
-The setup must be run on Linux or via WSL, as uWSGI is not properly supported on Windows.
-
-1. Install the required system packages.
+1. Install the local SDK and the local server package.
    ```bash
-   $ sudo apt update && sudo apt upgrade -y
-   $ sudo apt install python3 python3-pip python3-venv
-   ```
-
-2. Create and activate a Python virtual environment.
-   ```bash
-   $ python3 -m venv .venv
-   $ source .venv/bin/activate
-   ```
-
-3. Install uWSGI, the local SDK and the local server package.
-   ```bash
-   $ pip install uwsgi
-   $ export SETUPTOOLS_SCM_PRETEND_VERSION=1.0.0
    $ pip install ../sdk
    $ pip install ./app
    ```
-   
-   Note that `export` only applies to the current shell session.
 
-4. Create the storage folder and start the server.
+2. Run the server by executing the main function in [`./app/interfaces/repository.py`](./app/interfaces/repository.py) from within the current folder.
    ```bash
-   $ mkdir -p ./storage
-   $ export STORAGE_PATH=./storage
-   $ uwsgi --http :8080 --wsgi-file app/main.py
+   $ python -m app.interfaces.repository
    ```
 
-As usual, files are read from `/storage` and the server can be accessed at http://localhost:8080/api/v3.0/ from your host system. 
+The server can be accessed at http://localhost:8080/api/v3.0/ from your host system. 
 
 ## Acknowledgments
 
