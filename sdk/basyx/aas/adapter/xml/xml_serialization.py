@@ -883,38 +883,10 @@ def object_to_xml_element(obj: object) -> etree._Element:
         return administrative_information_to_xml(obj)
     elif isinstance(obj, model.Qualifier):
         return qualifier_to_xml(obj)
-    elif isinstance(obj, model.AnnotatedRelationshipElement):
-        return annotated_relationship_element_to_xml(obj)
-    elif isinstance(obj, model.BasicEventElement):
-        return basic_event_element_to_xml(obj)
-    elif isinstance(obj, model.Blob):
-        return blob_to_xml(obj)
-    elif isinstance(obj, model.Capability):
-        return capability_to_xml(obj)
-    elif isinstance(obj, model.Entity):
-        return entity_to_xml(obj)
     elif isinstance(obj, model.Extension):
         return extension_to_xml(obj)
-    elif isinstance(obj, model.File):
-        return file_to_xml(obj)
     elif isinstance(obj, model.Resource):
         return resource_to_xml(obj)
-    elif isinstance(obj, model.MultiLanguageProperty):
-        return multi_language_property_to_xml(obj)
-    elif isinstance(obj, model.Operation):
-        return operation_to_xml(obj)
-    elif isinstance(obj, model.Property):
-        return property_to_xml(obj)
-    elif isinstance(obj, model.Range):
-        return range_to_xml(obj)
-    elif isinstance(obj, model.ReferenceElement):
-        return reference_element_to_xml(obj)
-    elif isinstance(obj, model.RelationshipElement):
-        return relationship_element_to_xml(obj)
-    elif isinstance(obj, model.SubmodelElementCollection):
-        return submodel_element_collection_to_xml(obj)
-    elif isinstance(obj, model.SubmodelElementList):
-        return submodel_element_list_to_xml(obj)
     elif isinstance(obj, model.AssetAdministrationShell):
         return asset_administration_shell_to_xml(obj)
     elif isinstance(obj, model.AssetInformation):
@@ -936,8 +908,6 @@ def object_to_xml_element(obj: object) -> etree._Element:
     elif isinstance(obj, model.DataSpecificationIEC61360):
         return data_specification_iec61360_to_xml(obj)
     # generic serialization using the functions for abstract classes
-    elif isinstance(obj, model.DataElement):
-        return data_element_to_xml(obj)
     elif isinstance(obj, model.SubmodelElement):
         return submodel_element_to_xml(obj)
     elif isinstance(obj, model.DataSpecificationContent):
