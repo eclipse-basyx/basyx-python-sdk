@@ -1,4 +1,4 @@
-# Copyright (c) 2023 the Eclipse BaSyx Authors
+# Copyright (c) 2025 the Eclipse BaSyx Authors
 #
 # This program and the accompanying materials are made available under the terms of the MIT License, available in
 # the LICENSE file of this project.
@@ -18,6 +18,13 @@ from basyx.aas import model
 Path = Union[str, bytes, os.PathLike]
 PathOrBinaryIO = Union[Path, BinaryIO]
 PathOrIO = Union[Path, IO]  # IO is TextIO or BinaryIO
+
+# JSON top-level keys and their corresponding model classes
+JSON_AAS_TOP_LEVEL_KEYS_TO_TYPES = (
+    ('assetAdministrationShells', model.AssetAdministrationShell),
+    ('submodels', model.Submodel),
+    ('conceptDescriptions', model.ConceptDescription),
+)
 
 # XML Namespace definition
 XML_NS_MAP = {"aas": "https://admin-shell.io/aas/3/0"}

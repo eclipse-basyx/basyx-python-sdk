@@ -1,4 +1,4 @@
-# Copyright (c) 2024 the Eclipse BaSyx Authors
+# Copyright (c) 2025 the Eclipse BaSyx Authors
 #
 # This program and the accompanying materials are made available under the terms of the MIT License, available in
 # the LICENSE file of this project.
@@ -76,8 +76,7 @@ class SubmodelElement(base.Referable, base.Qualifiable, base.HasSemantics,
         self.semantic_id: Optional[base.Reference] = semantic_id
         self.qualifier = base.NamespaceSet(self, [("type", True)], qualifier)
         self.extension = base.NamespaceSet(self, [("name", True)], extension)
-        self.supplemental_semantic_id: base.ConstrainedList[base.Reference] = \
-            base.ConstrainedList(supplemental_semantic_id)
+        self.supplemental_semantic_id = base.ConstrainedList(supplemental_semantic_id)
         self.embedded_data_specifications: List[base.EmbeddedDataSpecification] = list(embedded_data_specifications)
 
 
@@ -147,8 +146,7 @@ class Submodel(base.Identifiable, base.HasSemantics, base.HasKind, base.Qualifia
         self.qualifier = base.NamespaceSet(self, [("type", True)], qualifier)
         self._kind: base.ModellingKind = kind
         self.extension = base.NamespaceSet(self, [("name", True)], extension)
-        self.supplemental_semantic_id: base.ConstrainedList[base.Reference] = \
-            base.ConstrainedList(supplemental_semantic_id)
+        self.supplemental_semantic_id = base.ConstrainedList(supplemental_semantic_id)
         self.embedded_data_specifications: List[base.EmbeddedDataSpecification] = list(embedded_data_specifications)
 
 

@@ -13,16 +13,16 @@ build-backend = "setuptools.build_meta"
 # - Allows for automatic versioning between releases (e.g., 1.0.1.dev4+g12345)
 # If you want to use the version anywhere in the code, use
 # ```
-# from basyx.version import version
+# from app.version import version
 # print(f"Project version: {version}")
 # ```
-root = ".."  # Defines the path to the root of the repository
-version_file = "basyx/version.py"
+root = "../.."  # Defines the path to the root of the repository
+version_file = "version.py"
 
 [project]
-name = "basyx-python-sdk"
+name = "basyx-python-server"
 dynamic = ["version"]
-description = "The Eclipse BaSyx Python SDK, an implementation of the Asset Administration Shell for Industry 4.0 systems"
+description = "The Eclipse BaSyx Python Server, an implementation of the BaSyx AAS Server" #FIXME
 authors = [
     { name = "The Eclipse BaSyx Authors", email = "admins@iat.rwth-aachen.de" }
 ]
@@ -36,9 +36,8 @@ classifiers = [
 ]
 requires-python = ">=3.9"
 dependencies = [
-    "lxml>=5.3",
-    "python-dateutil>=2.8,<3",
-    "pyecma376-2>=1.0.1"
+    "urllib3>=1.26,<3",
+    "Werkzeug>=3.0.3,<4",
 ]
 
 [project.optional-dependencies]
@@ -46,25 +45,20 @@ dev = [
     "mypy",
     "pycodestyle",
     "codeblocks",
-    "coverage",
     "schemathesis~=3.7",
     "jsonschema~=4.7",
     "hypothesis~=6.13",
-    "types-python-dateutil",
     "lxml-stubs~=0.5.1",
-]
-docs= [
-    "sphinx~=8.2",
-    "sphinx-rtd-theme~=3.0",
-    "sphinx-argparse~=0.5.0"
 ]
 
 [project.urls]
 "Homepage" = "https://github.com/eclipse-basyx/basyx-python-sdk"
 
 [tool.setuptools]
-packages = { find = { include = ["basyx*"], exclude = ["test*"] } }
+packages = { find = { exclude = ["test*"] } }
 
 [tool.setuptools.package-data]
-basyx = ["py.typed"]
-"basyx.aas.examples.data" = ["TestFile.pdf"]
+app = ["py.typed"]
+
+[tool.mypy]
+exclude = "build/"

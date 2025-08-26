@@ -13,14 +13,18 @@ Alternatively, the container can also be told to use the [Local-File Backend][2]
 See [below](#options) on how to configure this.
 
 ## Building
+
 The container image can be built via:
 ```
-$ docker buildx build -t basyx-python-sdk-http-server .
+$ docker build -t basyx-python-server -f Dockerfile ..
 ```
+
+Note that when cloning this repository on Windows, Git may convert the line separators to CRLF. This breaks `entrypoint.sh` and `stop-supervisor.sh`. Ensure both files use LF line separators before building. 
 
 ## Running
 
 ### Storage
+
 The container needs to be provided with the directory `/storage` to store AAS and Submodel files: AASX, JSON, XML or JSON files of Local-File Backend.
 
 This directory can be mapped via the `-v` option from another image or a local directory.
@@ -28,10 +32,12 @@ To map the directory `storage` inside the container, `-v ./storage:/storage` can
 The directory `storage` will be created in the current working directory, if it doesn't already exist.
 
 ### Port
+
 The HTTP server inside the container listens on port 80 by default.
 To expose it on the host on port 8080, use the option `-p 8080:80` when running it.
 
 ### Options
+
 The container can be configured via environment variables:
 - `API_BASE_PATH` determines the base path under which all other API paths are made available.
   Default: `/api/v3.0`
@@ -46,40 +52,63 @@ The container can be configured via environment variables:
 
 Putting it all together, the container can be started via the following command:
 ```
-$ docker run -p 8080:80 -v ./storage:/storage basyx-python-sdk-http-server
+$ docker run -p 8080:80 -v ./storage:/storage basyx-python-server
 ```
 
 Since Windows uses backslashes instead of forward slashes in paths, you'll have to adjust the path to the storage directory there:
 ```
-> docker run -p 8080:80 -v .\storage:/storage basyx-python-sdk-http-server
+> docker run -p 8080:80 -v .\storage:/storage basyx-python-server
 ```
 
 Per default, the server will use the `LOCAL_FILE_READ_ONLY` storage type and serve the API under `/api/v3.0` and read files from `/storage`. If you want to change this, you can do so like this:
 ```
-$ docker run -p 8080:80 -v ./storage2:/storage2 -e API_BASE_PATH=/api/v3.1 -e STORAGE_TYPE=LOCAL_FILE_BACKEND -e STORAGE_PATH=/storage2 basyx-python-sdk-http-server
+$ docker run -p 8080:80 -v ./storage2:/storage2 -e API_BASE_PATH=/api/v3.1 -e STORAGE_TYPE=LOCAL_FILE_BACKEND -e STORAGE_PATH=/storage2 basyx-python-server
 ```
 
-## Building and running the image with docker-compose
+## Building and Running the Image with Docker Compose
 
 The container image can also be built and run via:
 ```
 $ docker compose up
 ```
 
-This is the exemplary `docker-compose` file for the server:
-````yaml
+This is the exemplary `compose.yml` file for the server:
+```yaml
 services:
   app:
-    build: .
+    build:
+      context: ..
+      dockerfile: server/Dockerfile
     ports:
     - "8080:80"
     volumes:
       - ./storage:/storage
-
-````
+```
 
 Here files are read from `/storage` and the server can be accessed at http://localhost:8080/api/v3.0/ from your host system. 
 To get a different setup this compose.yaml file can be adapted and expanded.
+
+Note that the `Dockerfile` has to be specified explicitly, as the build context must be set to the parent directory of `/server` to allow access to the local `/sdk`.
+
+## Running without Docker (Debugging Only)
+
+The server can also be run directly on the host system without Docker, NGINX and supervisord. Although this is not suitable for production, it may be useful for debugging.
+
+> [!warning]
+> Not supported for production systems!
+
+1. Install the local SDK and the local server package.
+   ```bash
+   $ pip install ../sdk
+   $ pip install ./app
+   ```
+
+2. Run the server by executing the main function in [`./app/interfaces/repository.py`](./app/interfaces/repository.py) from within the current folder.
+   ```bash
+   $ python -m app.interfaces.repository
+   ```
+
+The server can be accessed at http://localhost:8080/api/v3.0/ from your host system. 
 
 ## Acknowledgments
 

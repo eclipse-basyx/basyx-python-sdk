@@ -1,4 +1,4 @@
-# Copyright (c) 2023 the Eclipse BaSyx Authors
+# Copyright (c) 2025 the Eclipse BaSyx Authors
 #
 # This program and the accompanying materials are made available under the terms of the MIT License, available in
 # the LICENSE file of this project.
@@ -729,22 +729,38 @@ class Referable(HasExtension, metaclass=abc.ABCMeta):
 
     def update_from(self, other: "Referable"):
         """
-        Internal function to updates the object's attributes from another object of a similar type.
+        Internal function to update the object's attributes from a different version of the exact same object.
 
         This function should not be used directly. It is typically used by backend implementations (database adapters,
         protocol clients, etc.) to update the object's data, after ``update()`` has been called.
 
         :param other: The object to update from
         """
-        for name, var in vars(other).items():
-            # do not update the parent or namespace_element_sets
-            if name in ("parent", "namespace_element_sets"):
+        for name in dir(other):
+            # Skip private and protected attributes
+            if name.startswith('_'):
                 continue
-            if isinstance(var, NamespaceSet):
+
+            # Do not update 'parent', 'namespace_element_sets', or 'source' (depending on update_source parameter)
+            if name in ("parent", "namespace_element_sets") or (name == "source" and not update_source):
+                continue
+
+            # Skip methods
+            attr = getattr(other, name)
+            if callable(attr):
+                continue
+
+            if isinstance(attr, NamespaceSet):
                 # update the elements of the NameSpaceSet
-                vars(self)[name].update_nss_from(var)
+                getattr(self, name).update_nss_from(attr)
             else:
-                vars(self)[name] = var  # that variable is not a NameSpaceSet, so it isn't Referable
+                # Check if this is a property and if it has no setter
+                prop = getattr(type(self), name, None)
+                if isinstance(prop, property) and prop.fset is None:
+                    if getattr(self, name) != attr:
+                        raise ValueError(f"property {name} is immutable but has changed between versions of the object")
+                else:
+                    setattr(self, name, attr)
 
     id_short = property(_get_id_short, _set_id_short)
 
@@ -1376,7 +1392,7 @@ class Extension(HasSemantics):
         self.value = value
         self.refers_to: Set[ModelReference] = set(refers_to)
         self.semantic_id: Optional[Reference] = semantic_id
-        self.supplemental_semantic_id: ConstrainedList[Reference] = ConstrainedList(supplemental_semantic_id)
+        self.supplemental_semantic_id = ConstrainedList(supplemental_semantic_id)
 
     def __repr__(self) -> str:
         return "Extension(name={})".format(self.name)
@@ -1525,7 +1541,7 @@ class Qualifier(HasSemantics):
         self.value_id: Optional[Reference] = value_id
         self.kind: QualifierKind = kind
         self.semantic_id: Optional[Reference] = semantic_id
-        self.supplemental_semantic_id: ConstrainedList[Reference] = ConstrainedList(supplemental_semantic_id)
+        self.supplemental_semantic_id = ConstrainedList(supplemental_semantic_id)
 
     def __repr__(self) -> str:
         return "Qualifier(type={})".format(self.type)

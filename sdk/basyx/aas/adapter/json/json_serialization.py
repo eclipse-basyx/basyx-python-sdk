@@ -1,4 +1,4 @@
-# Copyright (c) 2023 the Eclipse BaSyx Authors
+# Copyright (c) 2025 the Eclipse BaSyx Authors
 #
 # This program and the accompanying materials are made available under the terms of the MIT License, available in
 # the LICENSE file of this project.
@@ -30,11 +30,12 @@ import base64
 import contextlib
 import inspect
 import io
-from typing import ContextManager, List, Dict, Optional, TextIO, Type, Callable, get_args
+from typing import ContextManager, List, Dict, Optional, TextIO, Type, Callable, get_args, Iterable, Tuple
 import json
 
 from basyx.aas import model
 from .. import _generic
+from .._generic import JSON_AAS_TOP_LEVEL_KEYS_TO_TYPES
 
 
 class AASToJsonEncoder(json.JSONEncoder):
@@ -57,6 +58,40 @@ class AASToJsonEncoder(json.JSONEncoder):
     """
     stripped = False
 
+    @classmethod
+    def _get_aas_class_serializers(cls) -> Dict[Type, Callable]:
+        mapping: Dict[Type, Callable] = {
+            model.AdministrativeInformation: cls._administrative_information_to_json,
+            model.AnnotatedRelationshipElement: cls._annotated_relationship_element_to_json,
+            model.AssetAdministrationShell: cls._asset_administration_shell_to_json,
+            model.AssetInformation: cls._asset_information_to_json,
+            model.BasicEventElement: cls._basic_event_element_to_json,
+            model.Blob: cls._blob_to_json,
+            model.Capability: cls._capability_to_json,
+            model.ConceptDescription: cls._concept_description_to_json,
+            model.DataSpecificationIEC61360: cls._data_specification_iec61360_to_json,
+            model.Entity: cls._entity_to_json,
+            model.Extension: cls._extension_to_json,
+            model.File: cls._file_to_json,
+            model.Key: cls._key_to_json,
+            model.LangStringSet: cls._lang_string_set_to_json,
+            model.MultiLanguageProperty: cls._multi_language_property_to_json,
+            model.Operation: cls._operation_to_json,
+            model.Property: cls._property_to_json,
+            model.Qualifier: cls._qualifier_to_json,
+            model.Range: cls._range_to_json,
+            model.Reference: cls._reference_to_json,
+            model.ReferenceElement: cls._reference_element_to_json,
+            model.RelationshipElement: cls._relationship_element_to_json,
+            model.Resource: cls._resource_to_json,
+            model.SpecificAssetId: cls._specific_asset_id_to_json,
+            model.Submodel: cls._submodel_to_json,
+            model.SubmodelElementCollection: cls._submodel_element_collection_to_json,
+            model.SubmodelElementList: cls._submodel_element_list_to_json,
+            model.ValueReferencePair: cls._value_reference_pair_to_json,
+        }
+        return mapping
+
     def default(self, obj: object) -> object:
         """
         The overwritten ``default`` method for :class:`json.JSONEncoder`
@@ -64,36 +99,7 @@ class AASToJsonEncoder(json.JSONEncoder):
         :param obj: The object to serialize to json
         :return: The serialized object
         """
-        mapping: Dict[Type, Callable] = {
-            model.AdministrativeInformation: self._administrative_information_to_json,
-            model.AnnotatedRelationshipElement: self._annotated_relationship_element_to_json,
-            model.AssetAdministrationShell: self._asset_administration_shell_to_json,
-            model.AssetInformation: self._asset_information_to_json,
-            model.BasicEventElement: self._basic_event_element_to_json,
-            model.Blob: self._blob_to_json,
-            model.Capability: self._capability_to_json,
-            model.ConceptDescription: self._concept_description_to_json,
-            model.DataSpecificationIEC61360: self._data_specification_iec61360_to_json,
-            model.Entity: self._entity_to_json,
-            model.Extension: self._extension_to_json,
-            model.File: self._file_to_json,
-            model.Key: self._key_to_json,
-            model.LangStringSet: self._lang_string_set_to_json,
-            model.MultiLanguageProperty: self._multi_language_property_to_json,
-            model.Operation: self._operation_to_json,
-            model.Property: self._property_to_json,
-            model.Qualifier: self._qualifier_to_json,
-            model.Range: self._range_to_json,
-            model.Reference: self._reference_to_json,
-            model.ReferenceElement: self._reference_element_to_json,
-            model.RelationshipElement: self._relationship_element_to_json,
-            model.Resource: self._resource_to_json,
-            model.SpecificAssetId: self._specific_asset_id_to_json,
-            model.Submodel: self._submodel_to_json,
-            model.SubmodelElementCollection: self._submodel_element_collection_to_json,
-            model.SubmodelElementList: self._submodel_element_list_to_json,
-            model.ValueReferencePair: self._value_reference_pair_to_json,
-        }
+        mapping = self._get_aas_class_serializers()
         for typ in mapping:
             if isinstance(obj, typ):
                 mapping_method = mapping[typ]
@@ -693,26 +699,34 @@ def _select_encoder(stripped: bool, encoder: Optional[Type[AASToJsonEncoder]] = 
     return AASToJsonEncoder if not stripped else StrippedAASToJsonEncoder
 
 
-def _create_dict(data: model.AbstractObjectStore) -> dict:
-    # separate different kind of objects
-    asset_administration_shells: List[model.AssetAdministrationShell] = []
-    submodels: List[model.Submodel] = []
-    concept_descriptions: List[model.ConceptDescription] = []
+def _create_dict(data: model.AbstractObjectStore,
+                 keys_to_types: Iterable[Tuple[str, Type]] = JSON_AAS_TOP_LEVEL_KEYS_TO_TYPES) \
+        -> Dict[str, List[model.Identifiable]]:
+    """
+    Categorizes objects from an AbstractObjectStore into a dictionary based on their types.
+
+    This function iterates over the objects in the provided AbstractObjectStore and groups them into lists
+    based on their types, as defined in the `keys_to_types` mapping. The resulting dictionary contains
+    keys corresponding to the names in `keys_to_types` and values as lists of objects of the respective types.
+
+    :param data: An AbstractObjectStore containing objects to be categorized.
+    :param keys_to_types: An iterable of tuples where each tuple contains:
+                          - A string key representing the category name.
+                          - A type to match objects against.
+    :return: A dictionary where keys are category names and values are lists of objects of the corresponding types.
+    """
+    objects: Dict[str, List[model.Identifiable]] = {}
+
     for obj in data:
-        if isinstance(obj, model.AssetAdministrationShell):
-            asset_administration_shells.append(obj)
-        elif isinstance(obj, model.Submodel):
-            submodels.append(obj)
-        elif isinstance(obj, model.ConceptDescription):
-            concept_descriptions.append(obj)
-    dict_: Dict[str, List] = {}
-    if asset_administration_shells:
-        dict_['assetAdministrationShells'] = asset_administration_shells
-    if submodels:
-        dict_['submodels'] = submodels
-    if concept_descriptions:
-        dict_['conceptDescriptions'] = concept_descriptions
-    return dict_
+        # Iterate through the mapping of category names to expected types
+        for name, expected_type in keys_to_types:
+            # Check if the object matches the expected type
+            if isinstance(obj, expected_type):
+                # Add the object to the appropriate category in the dictionary
+                objects.setdefault(name, [])
+                objects[name].append(obj)
+                break  # Exit the inner loop once a match is found
+    return objects
 
 
 def object_store_to_json(data: model.AbstractObjectStore, stripped: bool = False,
