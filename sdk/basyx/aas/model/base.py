@@ -732,7 +732,7 @@ class Referable(HasExtension, metaclass=abc.ABCMeta):
         Internal function to update the object's attributes from a different version of the exact same object.
 
         This function should not be used directly. It is typically used by backend implementations (database adapters,
-        protocol clients, etc.) to update the object's data, after ``update()`` has been called.
+        protocol clients, etc.) to update the object's data, after ``update_nss_from()`` has been called.
 
         :param other: The object to update from
         """
@@ -741,8 +741,8 @@ class Referable(HasExtension, metaclass=abc.ABCMeta):
             if name.startswith('_'):
                 continue
 
-            # Do not update 'parent', 'namespace_element_sets', or 'source' (depending on update_source parameter)
-            if name in ("parent", "namespace_element_sets") or (name == "source" and not update_source):
+            # Do not update 'parent', 'namespace_element_sets'
+            if name in ("parent", "namespace_element_sets"):
                 continue
 
             # Skip methods

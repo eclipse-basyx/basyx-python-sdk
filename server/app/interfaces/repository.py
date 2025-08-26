@@ -36,7 +36,7 @@ However, several features and routes are currently not supported:
 
 import io
 import json
-from typing import Type, Iterator, List, Dict, Union, Callable, Tuple, Optional
+from typing import Type, Iterator, List, Dict, Union, Callable, Tuple, Optional, Iterable
 
 import werkzeug.exceptions
 import werkzeug.routing
