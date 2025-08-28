@@ -454,25 +454,35 @@ class Key:
         """
         # Get the `type` by finding the first class from the base classes list (via inspect.getmro), that is contained
         # in KEY_ELEMENTS_CLASSES
-        from . import KEY_TYPES_CLASSES, SubmodelElementList
+        from . import SubmodelElementList
+        key_type = Key._get_key_type_for_referable(referable)
+        key_value = Key._get_key_value_for_referable(referable)
+        return Key(key_type, key_value)
+
+    @staticmethod
+    def _get_key_type_for_referable(referable: "Referable") -> KeyTypes:
+        from . import KEY_TYPES_CLASSES, find_registered_referable_type_in_key_types_classes
         try:
-            key_type = next(iter(KEY_TYPES_CLASSES[t]
-                                 for t in inspect.getmro(type(referable))
-                                 if t in KEY_TYPES_CLASSES))
+            ref_type = find_registered_referable_type_in_key_types_classes(referable)
+            key_type = KEY_TYPES_CLASSES[ref_type]
         except StopIteration:
             key_type = KeyTypes.PROPERTY
+        return key_type
 
+    @staticmethod
+    def _get_key_value_for_referable(referable: "Referable") -> str:
+        from . import SubmodelElementList
         if isinstance(referable, Identifiable):
-            return Key(key_type, referable.id)
+            return referable.id
         elif isinstance(referable.parent, SubmodelElementList):
             try:
-                return Key(key_type, str(referable.parent.value.index(referable)))  # type: ignore
+                return str(referable.parent.value.index(referable))  # type: ignore
             except ValueError as e:
                 raise ValueError(f"Object {referable!r} is not contained within its parent {referable.parent!r}") from e
         else:
             if referable.id_short is None:
-                raise ValueError(f"Can't create Key for {referable!r} without an id_short!")
-            return Key(key_type, referable.id_short)
+                raise ValueError(f"Can't create Key value for {referable!r} without an id_short!")
+            return referable.id_short
 
 
 _NSO = TypeVar('_NSO', bound=Union["Referable", "Qualifier", "HasSemantics", "Extension"])
@@ -1113,18 +1123,17 @@ class ModelReference(Reference, Generic[_RT]):
                             object's ancestors
         """
         # Get the first class from the base classes list (via inspect.getmro), that is contained in KEY_ELEMENTS_CLASSES
-        from . import KEY_TYPES_CLASSES
+        from . import find_registered_referable_type_in_key_types_classes
         try:
-            ref_type = next(iter(t for t in inspect.getmro(type(referable)) if t in KEY_TYPES_CLASSES))
+            ref_type = find_registered_referable_type_in_key_types_classes(referable)
         except StopIteration:
             ref_type = Referable
 
         ref: Referable = referable
         keys: List[Key] = []
         while True:
-            keys.append(Key.from_referable(ref))
+            keys.insert(0, Key.from_referable(ref))
             if isinstance(ref, Identifiable):
-                keys.reverse()
                 return ModelReference(tuple(keys), ref_type)
             if ref.parent is None or not isinstance(ref.parent, Referable):
                 raise ValueError("The given Referable object is not embedded within an Identifiable object")

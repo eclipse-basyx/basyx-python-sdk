@@ -42,7 +42,7 @@ class KeyTest(unittest.TestCase):
         self.assertEqual(model.Key(model.KeyTypes.MULTI_LANGUAGE_PROPERTY, "0"), model.Key.from_referable(mlp2))
         with self.assertRaises(ValueError) as cm:
             model.Key.from_referable(mlp1)
-        self.assertEqual("Can't create Key for MultiLanguageProperty without an id_short!", str(cm.exception))
+        self.assertEqual("Can't create Key value for MultiLanguageProperty without an id_short!", str(cm.exception))
         mlp1.id_short = "mlp1"
         self.assertEqual(model.Key(model.KeyTypes.MULTI_LANGUAGE_PROPERTY, "mlp1"), model.Key.from_referable(mlp1))
 

@@ -39,3 +39,8 @@ KEY_TYPES_CLASSES: Dict[Type[Referable], KeyTypes] = {
     RelationshipElement: KeyTypes.RELATIONSHIP_ELEMENT,
     SubmodelElement: KeyTypes.SUBMODEL_ELEMENT,  # type: ignore
 }
+
+
+def find_registered_referable_type_in_key_types_classes(referable: Referable) -> Type[Referable]:
+    ref_type = next(iter(t for t in inspect.getmro(type(referable)) if t in KEY_TYPES_CLASSES))
+    return ref_type
