@@ -630,26 +630,54 @@ class Referable(HasExtension, metaclass=abc.ABCMeta):
         self.source: str = ""
 
     def __repr__(self) -> str:
-        reversed_path = []
+        root = self.get_identifiable_root()
+        id_short_path = self.get_id_short_path()
+        item_cls_name = self.__class__.__name__
+
+        if root is not None:
+            return f"{item_cls_name}[{root.id} / {id_short_path}]"
+        else:
+            return f"{item_cls_name}[{id_short_path}]"
+
+    def get_identifiable_root(self) -> Optional["Identifiable"]:
+        """
+        Get the root :class:`~.Identifiable` of this referable, if it exists.
+
+        :return: The root :class:`~.Identifiable` or None if no such root exists
+        """
+        item = self  # type: Any
+        while item is not None:
+            if isinstance(item, Identifiable):
+                return item
+            elif isinstance(item, Referable):
+                item = item.parent
+            else:
+                raise AttributeError('Referable must have an identifiable as root object and only parents that are '
+                                     'referable')
+        return None
+
+    def get_id_short_path(self) -> str:
+        """
+        Get the id_short path of this referable, i.e. the id_short of this referable and all its parents.
+
+        :return: The id_short path as a string, e.g. "MySubmodelElementCollection.MySubProperty1"
+        """
+        path = []
         item = self  # type: Any
         if item.id_short is not None:
             from .submodel import SubmodelElementList
-            while item is not None:
-                if isinstance(item, Identifiable):
-                    reversed_path.append(item.id)
-                    break
-                elif isinstance(item, Referable):
+            while item is not None and not isinstance(item, Identifiable):
+                if isinstance(item, Referable):
                     if isinstance(item.parent, SubmodelElementList):
-                        reversed_path.append(f"{item.parent.id_short}[{item.parent.value.index(item)}]")
-                        item = item.parent
+                        path.insert(0, f"[{item.parent.value.index(item)}]")
                     else:
-                        reversed_path.append(item.id_short)
+                        path.insert(0, item.id_short)
                     item = item.parent
                 else:
                     raise AttributeError('Referable must have an identifiable as root object and only parents that are '
                                          'referable')
+        return ".".join(path).replace(".[", "[") if path else ""
 
-        return self.__class__.__name__ + ("[{}]".format(" / ".join(reversed(reversed_path))) if reversed_path else "")
 
     def _get_id_short(self) -> Optional[NameType]:
         return self._id_short

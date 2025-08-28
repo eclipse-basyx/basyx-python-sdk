@@ -52,7 +52,7 @@ class ExampleReferable(model.Referable):
         super().__init__()
 
 
-class ExampleRefereableWithNamespace(model.Referable, model.UniqueIdShortNamespace):
+class ExampleReferableWithNamespace(model.Referable, model.UniqueIdShortNamespace):
     def __init__(self):
         super().__init__()
 
@@ -98,7 +98,7 @@ def generate_example_referable_tree() -> model.Referable:
         :param child: Child to be added to the namespace sets of the Referable
         :return: The generated Referable
         """
-        referable = ExampleRefereableWithNamespace()
+        referable = ExampleReferableWithNamespace()
         referable.id_short = id_short
         if child:
             namespace_set = model.NamespaceSet(parent=referable, attribute_names=[("id_short", True)],
@@ -156,6 +156,92 @@ class ReferableTest(unittest.TestCase):
             ref.__repr__()
         self.assertEqual('Referable must have an identifiable as root object and only parents that are referable',
                          str(cm.exception))
+
+    def test_get_identifiable_root(self):
+        ref_with_no_parent = ExampleReferableWithNamespace()
+        ref_with_no_parent.id_short = "NotNone"
+
+        identifiable = ExampleIdentifiable()
+
+        ref_child = ExampleReferable()
+        ref_child.id_short = "Child"
+        ref_child.parent = identifiable
+
+        list1 = model.SubmodelElementList("List1", model.SubmodelElementList)
+        list2 = model.SubmodelElementList(None, model.Property, value_type_list_element=model.datatypes.Int)
+        prop1 = model.Property(None, model.datatypes.Int)
+
+        list1.parent = ref_child
+        list1.add_referable(list2)
+        list2.add_referable(prop1)
+
+        self.assertIs(ref_with_no_parent.get_identifiable_root(), None)
+        self.assertIs(identifiable.get_identifiable_root(), identifiable)
+        self.assertIs(ref_child.get_identifiable_root(), identifiable)
+        self.assertIs(list1.get_identifiable_root(), identifiable)
+        self.assertIs(list2.get_identifiable_root(), identifiable)
+        self.assertIs(prop1.get_identifiable_root(), identifiable)
+
+    def test_get_id_short_path(self):
+        """
+        Tests the get_id_short_path() method of Referable objects.
+
+        Example structure:
+        - SMC: MySubmodelElementCollection
+            - Property: MySubProperty1
+            - Property: MySubProperty2
+            - SMC: MySubSubmodelElementCollection
+                - Property: MySubSubProperty1
+                - Property: MySubSubProperty2
+            - SML: MySubSubmodelElementList1
+                - Property: "MySubTestValue1"
+                - Property: "MySubTestValue2"
+            - SML: MySubSubmodelElementList2
+                - SML: MySubSubmodelElementList3
+                    - SMC: MySubmodelElementCollectionInSML3
+                        - Property: "MySubTestValue3"
+        """
+        MySubmodelElementCollection = model.SubmodelElementCollection("MySubmodelElementCollection")
+        MySubProperty1 = model.Property("MySubProperty1", model.datatypes.String)
+        MySubProperty2 = model.Property("MySubProperty2", model.datatypes.String)
+        MySubSubmodelElementCollection = model.SubmodelElementCollection("MySubSubmodelElementCollection")
+        MySubSubProperty1 = model.Property("MySubSubProperty1", model.datatypes.String)
+        MySubSubProperty2 = model.Property("MySubSubProperty2", model.datatypes.String)
+        MySubSubmodelElementList1 = model.SubmodelElementList("MySubSubmodelElementList1", model.Property, value_type_list_element=model.datatypes.String)
+        MySubTestValue1 = model.Property(None, model.datatypes.String)
+        MySubTestValue2 = model.Property(None, model.datatypes.String)
+        MySubSubmodelElementList2 = model.SubmodelElementList("MySubSubmodelElementList2", model.SubmodelElementList)
+        MySubSubmodelElementList3 = model.SubmodelElementList(None, model.SubmodelElementCollection)
+        MySubmodelElementCollectionInSML3 = model.SubmodelElementCollection(None)
+        MySubTestValue3 = model.Property("MySubTestValue3", model.datatypes.String)
+
+        MySubmodelElementCollection.add_referable(MySubProperty1)
+        MySubmodelElementCollection.add_referable(MySubProperty2)
+        MySubmodelElementCollection.add_referable(MySubSubmodelElementCollection)
+        MySubSubmodelElementCollection.add_referable(MySubSubProperty1)
+        MySubSubmodelElementCollection.add_referable(MySubSubProperty2)
+        MySubmodelElementCollection.add_referable(MySubSubmodelElementList1)
+        MySubSubmodelElementList1.add_referable(MySubTestValue1)
+        MySubSubmodelElementList1.add_referable(MySubTestValue2)
+        MySubmodelElementCollection.add_referable(MySubSubmodelElementList2)
+        MySubSubmodelElementList2.add_referable(MySubSubmodelElementList3)
+        MySubSubmodelElementList3.add_referable(MySubmodelElementCollectionInSML3)
+        MySubmodelElementCollectionInSML3.add_referable(MySubTestValue3)
+
+        self.assertEqual(MySubmodelElementCollection.get_id_short_path(), "MySubmodelElementCollection")
+        self.assertEqual(MySubProperty1.get_id_short_path(), "MySubmodelElementCollection.MySubProperty1")
+        self.assertEqual(MySubProperty2.get_id_short_path(), "MySubmodelElementCollection.MySubProperty2")
+        self.assertEqual(MySubSubmodelElementCollection.get_id_short_path(), "MySubmodelElementCollection.MySubSubmodelElementCollection")
+        self.assertEqual(MySubSubProperty1.get_id_short_path(), "MySubmodelElementCollection.MySubSubmodelElementCollection.MySubSubProperty1")
+        self.assertEqual(MySubSubProperty2.get_id_short_path(), "MySubmodelElementCollection.MySubSubmodelElementCollection.MySubSubProperty2")
+        self.assertEqual(MySubSubmodelElementList1.get_id_short_path(), "MySubmodelElementCollection.MySubSubmodelElementList1")
+        self.assertEqual(MySubTestValue1.get_id_short_path(), "MySubmodelElementCollection.MySubSubmodelElementList1[0]")
+        self.assertEqual(MySubTestValue2.get_id_short_path(), "MySubmodelElementCollection.MySubSubmodelElementList1[1]")
+        self.assertEqual(MySubSubmodelElementList2.get_id_short_path(), "MySubmodelElementCollection.MySubSubmodelElementList2")
+        self.assertEqual(MySubSubmodelElementList3.get_id_short_path(), "MySubmodelElementCollection.MySubSubmodelElementList2[0]")
+        self.assertEqual(MySubmodelElementCollectionInSML3.get_id_short_path(), "MySubmodelElementCollection.MySubSubmodelElementList2[0][0]")
+        self.assertEqual(MySubTestValue3.get_id_short_path(), "MySubmodelElementCollection.MySubSubmodelElementList2[0][0].MySubTestValue3")
+
 
     def test_update(self):
         backends.register_backend("mockScheme", MockBackend)
