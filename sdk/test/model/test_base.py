@@ -242,7 +242,6 @@ class ReferableTest(unittest.TestCase):
         self.assertEqual(MySubmodelElementCollectionInSML3.get_id_short_path(), "MySubmodelElementCollection.MySubSubmodelElementList2[0][0]")
         self.assertEqual(MySubTestValue3.get_id_short_path(), "MySubmodelElementCollection.MySubSubmodelElementList2[0][0].MySubTestValue3")
 
-
     def test_update(self):
         backends.register_backend("mockScheme", MockBackend)
         example_referable = generate_example_referable_tree()
