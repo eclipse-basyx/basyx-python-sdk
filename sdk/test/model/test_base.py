@@ -207,7 +207,8 @@ class ReferableTest(unittest.TestCase):
         MySubSubmodelElementCollection = model.SubmodelElementCollection("MySubSubmodelElementCollection")
         MySubSubProperty1 = model.Property("MySubSubProperty1", model.datatypes.String)
         MySubSubProperty2 = model.Property("MySubSubProperty2", model.datatypes.String)
-        MySubSubmodelElementList1 = model.SubmodelElementList("MySubSubmodelElementList1", model.Property, value_type_list_element=model.datatypes.String)
+        MySubSubmodelElementList1 = model.SubmodelElementList("MySubSubmodelElementList1", model.Property,
+                                                              value_type_list_element=model.datatypes.String)
         MySubTestValue1 = model.Property(None, model.datatypes.String)
         MySubTestValue2 = model.Property(None, model.datatypes.String)
         MySubSubmodelElementList2 = model.SubmodelElementList("MySubSubmodelElementList2", model.SubmodelElementList)
@@ -241,7 +242,7 @@ class ReferableTest(unittest.TestCase):
             MySubSubmodelElementList2: "MySubmodelElementCollection.MySubSubmodelElementList2",
             MySubSubmodelElementList3: "MySubmodelElementCollection.MySubSubmodelElementList2[0]",
             MySubmodelElementCollectionInSML3: "MySubmodelElementCollection.MySubSubmodelElementList2[0][0]",
-            MySubTestValue3:"MySubmodelElementCollection.MySubSubmodelElementList2[0][0].MySubTestValue3",
+            MySubTestValue3: "MySubmodelElementCollection.MySubSubmodelElementList2[0][0].MySubTestValue3",
         }
         for referable, expected_path in expected_id_short_paths.items():
             self.assertEqual(referable.get_id_short_path(), expected_path)
