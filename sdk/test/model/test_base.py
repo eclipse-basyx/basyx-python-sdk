@@ -228,19 +228,23 @@ class ReferableTest(unittest.TestCase):
         MySubSubmodelElementList3.add_referable(MySubmodelElementCollectionInSML3)
         MySubmodelElementCollectionInSML3.add_referable(MySubTestValue3)
 
-        self.assertEqual(MySubmodelElementCollection.get_id_short_path(), "MySubmodelElementCollection")
-        self.assertEqual(MySubProperty1.get_id_short_path(), "MySubmodelElementCollection.MySubProperty1")
-        self.assertEqual(MySubProperty2.get_id_short_path(), "MySubmodelElementCollection.MySubProperty2")
-        self.assertEqual(MySubSubmodelElementCollection.get_id_short_path(), "MySubmodelElementCollection.MySubSubmodelElementCollection")
-        self.assertEqual(MySubSubProperty1.get_id_short_path(), "MySubmodelElementCollection.MySubSubmodelElementCollection.MySubSubProperty1")
-        self.assertEqual(MySubSubProperty2.get_id_short_path(), "MySubmodelElementCollection.MySubSubmodelElementCollection.MySubSubProperty2")
-        self.assertEqual(MySubSubmodelElementList1.get_id_short_path(), "MySubmodelElementCollection.MySubSubmodelElementList1")
-        self.assertEqual(MySubTestValue1.get_id_short_path(), "MySubmodelElementCollection.MySubSubmodelElementList1[0]")
-        self.assertEqual(MySubTestValue2.get_id_short_path(), "MySubmodelElementCollection.MySubSubmodelElementList1[1]")
-        self.assertEqual(MySubSubmodelElementList2.get_id_short_path(), "MySubmodelElementCollection.MySubSubmodelElementList2")
-        self.assertEqual(MySubSubmodelElementList3.get_id_short_path(), "MySubmodelElementCollection.MySubSubmodelElementList2[0]")
-        self.assertEqual(MySubmodelElementCollectionInSML3.get_id_short_path(), "MySubmodelElementCollection.MySubSubmodelElementList2[0][0]")
-        self.assertEqual(MySubTestValue3.get_id_short_path(), "MySubmodelElementCollection.MySubSubmodelElementList2[0][0].MySubTestValue3")
+        expected_id_short_paths = {
+            MySubmodelElementCollection: "MySubmodelElementCollection",
+            MySubProperty1: "MySubmodelElementCollection.MySubProperty1",
+            MySubProperty2: "MySubmodelElementCollection.MySubProperty2",
+            MySubSubmodelElementCollection: "MySubmodelElementCollection.MySubSubmodelElementCollection",
+            MySubSubProperty1: "MySubmodelElementCollection.MySubSubmodelElementCollection.MySubSubProperty1",
+            MySubSubProperty2: "MySubmodelElementCollection.MySubSubmodelElementCollection.MySubSubProperty2",
+            MySubSubmodelElementList1: "MySubmodelElementCollection.MySubSubmodelElementList1",
+            MySubTestValue1: "MySubmodelElementCollection.MySubSubmodelElementList1[0]",
+            MySubTestValue2: "MySubmodelElementCollection.MySubSubmodelElementList1[1]",
+            MySubSubmodelElementList2: "MySubmodelElementCollection.MySubSubmodelElementList2",
+            MySubSubmodelElementList3: "MySubmodelElementCollection.MySubSubmodelElementList2[0]",
+            MySubmodelElementCollectionInSML3: "MySubmodelElementCollection.MySubSubmodelElementList2[0][0]",
+            MySubTestValue3:"MySubmodelElementCollection.MySubSubmodelElementList2[0][0].MySubTestValue3",
+        }
+        for referable, expected_path in expected_id_short_paths.items():
+            self.assertEqual(referable.get_id_short_path(), expected_path)
 
     def test_update(self):
         backends.register_backend("mockScheme", MockBackend)

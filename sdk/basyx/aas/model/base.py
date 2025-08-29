@@ -680,7 +680,6 @@ class Referable(HasExtension, metaclass=abc.ABCMeta):
                                          'referable')
         return ".".join(path).replace(".[", "[") if path else ""
 
-
     def _get_id_short(self) -> Optional[NameType]:
         return self._id_short
 
