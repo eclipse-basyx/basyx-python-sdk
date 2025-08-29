@@ -41,6 +41,6 @@ KEY_TYPES_CLASSES: Dict[Type[Referable], KeyTypes] = {
 }
 
 
-def find_registered_referable_type_in_key_types_classes(referable: Referable) -> Type[Referable]:
+def find_registered_referable_type_in_key_types_classes(referable: Referable) -> type:
     ref_type = next(iter(t for t in inspect.getmro(type(referable)) if t in KEY_TYPES_CLASSES))
     return ref_type

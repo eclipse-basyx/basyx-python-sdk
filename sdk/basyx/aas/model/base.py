@@ -662,7 +662,7 @@ class Referable(HasExtension, metaclass=abc.ABCMeta):
 
         :return: The id_short path as a string, e.g. "MySubmodelElementCollection.MySubProperty1"
         """
-        path = []
+        path: List[str] = []
         item = self  # type: Any
         if item.id_short is not None:
             from .submodel import SubmodelElementList
