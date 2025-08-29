@@ -695,7 +695,7 @@ class ModelNamespaceTest(unittest.TestCase):
         with self.assertRaises(TypeError) as cm_3:
             self.namespace.get_referable(["List1", "0", "Prop1", "Test"])
         self.assertEqual("Cannot resolve id_short or index 'Test' at "
-                         f"Property[{self.namespace.id} / List1[0] / Prop1], "
+                         f"Property[{self.namespace.id} / List1[0].Prop1], "
                          "because it is not a UniqueIdShortNamespace!", str(cm_3.exception))
 
         self.namespace.get_referable(["List1", "0", "Prop1"])
@@ -782,7 +782,7 @@ class ModelNamespaceTest(unittest.TestCase):
         se_collection.add_referable(property)
         with self.assertRaises(model.AASConstraintViolation) as cm:
             property.id_short = None
-        self.assertEqual("id_short of Property[foo / property] cannot be unset, since it is already contained in "
+        self.assertEqual("id_short of Property[foo.property] cannot be unset, since it is already contained in "
                          "SubmodelElementCollection[foo] (Constraint AASd-117)", str(cm.exception))
         property.id_short = "bar"
 
@@ -1033,7 +1033,7 @@ class ModelReferenceTest(unittest.TestCase):
                                     model.Property)
         with self.assertRaises(TypeError) as cm_3:
             ref4.resolve(DummyObjectProvider())
-        self.assertEqual("Cannot resolve id_short or index 'prop' at Property[urn:x-test:submodel / list[0] / prop], "
+        self.assertEqual("Cannot resolve id_short or index 'prop' at Property[urn:x-test:submodel / list[0].prop], "
                          "because it is not a UniqueIdShortNamespace!", str(cm_3.exception))
 
         with self.assertRaises(AttributeError) as cm_4:

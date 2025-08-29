@@ -634,10 +634,12 @@ class Referable(HasExtension, metaclass=abc.ABCMeta):
         id_short_path = self.get_id_short_path()
         item_cls_name = self.__class__.__name__
 
-        if root is not None:
-            return f"{item_cls_name}[{root.id} / {id_short_path}]"
+        if root is None:
+            item_path = f"[{id_short_path}]" if id_short_path else ""
         else:
-            return f"{item_cls_name}[{id_short_path}]"
+            item_path = f"[{root.id} / {id_short_path}]" if id_short_path else f"[{root.id}]"
+
+        return f"{item_cls_name}{item_path}"
 
     def get_identifiable_root(self) -> Optional["Identifiable"]:
         """
