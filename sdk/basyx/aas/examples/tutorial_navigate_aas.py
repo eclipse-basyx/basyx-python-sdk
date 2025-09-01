@@ -6,6 +6,7 @@ Tutorial for navigating a Submodel's hierarchy using IdShorts and IdShortPaths.
 """
 
 from basyx.aas import model
+from typing import cast
 
 # In this tutorial, you will learn how to create a Submodel with different kinds of SubmodelElements and how to navigate
 # through them using IdShorts and IdShortPaths.
@@ -108,33 +109,66 @@ submodel.submodel_element.add(my_collection_list)
 #########################################################################
 
 # Step 2.1: Access a single Property via its IdShort
-my_property = submodel.get_referable("MyProperty")
+my_property = cast(model.Property, submodel.get_referable("MyProperty"))
 print(f"my_property: id_short = {my_property.id_short}, value = {my_property.value}\n")
 
 # Step 2.2.1: Access a Property within a Property Collection step by step via its IdShort
-my_property_collection = submodel.get_referable("MyPropertyCollection")
-my_property_collection_0 = my_property_collection.get_referable("MyProperty0")
-print(f"my_property_collection_0: id_short = {my_property_collection_0}, value = {my_property_collection_0.value}")
+my_property_collection = cast(model.SubmodelElementCollection, submodel.get_referable("MyPropertyCollection"))
+my_property_collection_property_0 = cast(model.Property, my_property_collection.get_referable("MyProperty0"))
+print(
+    f"my_property_collection_property_0: "
+    f"id_short = {my_property_collection_property_0}, "
+    f"value = {my_property_collection_property_0.value}"
+)
 
 # Step 2.2.2: Access a Property within a Property Collection via its IdShortPath
-my_property_collection_1 = submodel.get_referable(["MyPropertyCollection", "MyProperty1"])
-print(f"my_property_collection_1: id_short = {my_property_collection_1}, value = {my_property_collection_1.value}\n")
+my_property_collection_property_1 = cast(
+    model.Property,
+    submodel.get_referable(["MyPropertyCollection", "MyProperty1"])
+)
+print(
+    f"my_property_collection_property_1: "
+    f"id_short = {my_property_collection_property_1}, "
+    f"value = {my_property_collection_property_1.value}\n"
+)
 
 # Step 2.3.1: Access a Property within a Property List step by step via its index
-my_property_list = submodel.get_referable("MyPropertyList")
-my_property_list_0 = my_property_list.get_referable("0")
-print(f"my_property_list_0: id_short = {my_property_list_0}, value = {my_property_list_0.value}")
+my_property_list = cast(model.SubmodelElementList, submodel.get_referable("MyPropertyList"))
+my_property_list_property_0 = cast(model.Property, my_property_list.get_referable("0"))
+print(
+    f"my_property_list_property_0: "
+    f"id_short = {my_property_list_property_0}, "
+    f"value = {my_property_list_property_0.value}"
+)
 
 # Step 2.3.2: Access a Property within a Property List via its IdShortPath
-my_property_list_1 = submodel.get_referable(["MyPropertyList", "1"])
-print(f"my_property_list_1: id_short = {my_property_list_1}, value = {my_property_list_1.value}\n")
+my_property_list_property_1 = cast(model.Property, submodel.get_referable(["MyPropertyList", "1"]))
+print(
+    f"my_property_list_property_1: "
+    f"id_short = {my_property_list_property_1}, "
+    f"value = {my_property_list_property_1.value}\n"
+)
 
 # Step 2.4.1: Access a Property within a Collection List step by step via its index and IdShort
-my_collection_list = submodel.get_referable("MyCollectionList")
-my_collection_list_0 = my_collection_list.get_referable("0")
-my_collection_list_0_0 = my_collection_list_0.get_referable("MyProperty")
-print(f"my_collection_list_0_0: id_short = {my_collection_list_0_0}, value = {my_collection_list_0_0.value}")
+my_collection_list = cast(model.SubmodelElementList, submodel.get_referable("MyCollectionList"))
+my_collection_list_collection_0 = cast(model.SubmodelElementCollection, my_collection_list.get_referable("0"))
+my_collection_list_collection_0_property_0 = cast(
+    model.Property,
+    my_collection_list_collection_0.get_referable("MyProperty")
+)
+print(
+    f"my_collection_list_collection_0_property_0: "
+    f"id_short = {my_collection_list_collection_0_property_0}, "
+    f"value = {my_collection_list_collection_0_property_0.value}"
+)
 
 # Step 2.4.2: Access a Property within a Collection List via its IdShortPath
-my_collection_list_2_0 = submodel.get_referable(["MyCollectionList", "2", "MyProperty"])
-print(f"my_collection_list_2_0: id_short = {my_collection_list_2_0}, value = {my_collection_list_2_0.value}")
+my_collection_list_collection_2_property_0 = cast(
+    model.Property,
+    submodel.get_referable(["MyCollectionList", "2", "MyProperty"])
+)
+print(
+    f"my_collection_list_collection_2_property_0: "
+    f"id_short = {my_collection_list_collection_2_property_0}, "
+    f"value = {my_collection_list_collection_2_property_0.value}"
+)
