@@ -727,7 +727,7 @@ class Referable(HasExtension, metaclass=abc.ABCMeta):
         """
         id_shorts_and_indexes = []
         for part in id_short_path.split("."):
-            id_short = part[0:part.find('[')]
+            id_short = part[0:part.find('[')] if '[' in part else part
             id_shorts_and_indexes.append(id_short)
 
             indexes_part = part.removeprefix(id_short)
