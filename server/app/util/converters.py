@@ -60,24 +60,20 @@ class IdentifierToBase64URLConverter(werkzeug.routing.UnicodeConverter):
 
 class IdShortPathConverter(werkzeug.routing.UnicodeConverter):
     """
-        A custom Werkzeug URL converter for handling id_short_sep-separated idShort paths.
+        A custom Werkzeug URL converter for handling dot-separated idShort paths and indexes.
 
         This converter joins a list of idShort strings into an id_short_sep-separated path for URLs
-        (e.g., ["submodel", "element"] -> "submodel.element") and parses incoming URL paths
+        (e.g., ["submodel", "element", "1"] -> "submodel.element[1]") and parses incoming URL paths
         back into a list, validating each idShort.
-
-        :cvar id_short_sep: Separator used to join and split idShort segments.
         """
-    id_short_sep = "."
 
     def to_url(self, value: List[str]) -> str:
-        return super().to_url(self.id_short_sep.join(value))
+        id_short_path = model.Referable.build_id_short_path(value)
+        return super().to_url(id_short_path)
 
     def to_python(self, value: str) -> List[str]:
-        id_shorts = super().to_python(value).split(self.id_short_sep)
-        for id_short in id_shorts:
-            try:
-                model.Referable.validate_id_short(id_short)
-            except (ValueError, model.AASConstraintViolation):
-                raise BadRequest(f"{id_short} is not a valid id_short!")
-        return id_shorts
+        try:
+            parsed_id_short_path = model.Referable.parse_id_short_path(value)
+        except (ValueError, model.AASConstraintViolation) as e:
+            raise BadRequest(f"{value} is not a valid id_short!") from e
+        return parsed_id_short_path

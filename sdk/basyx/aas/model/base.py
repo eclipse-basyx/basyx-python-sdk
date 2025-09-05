@@ -631,7 +631,10 @@ class Referable(HasExtension, metaclass=abc.ABCMeta):
 
     def __repr__(self) -> str:
         root = self.get_identifiable_root()
-        id_short_path = self.get_id_short_path()
+        try:
+            id_short_path = self.get_id_short_path()
+        except (ValueError, AttributeError):
+            id_short_path = self.id_short if self.id_short is not None else ""
         item_cls_name = self.__class__.__name__
 
         if root is None:
@@ -662,23 +665,39 @@ class Referable(HasExtension, metaclass=abc.ABCMeta):
         """
         Get the id_short path of this referable, i.e. the id_short of this referable and all its parents.
 
-        :return: The id_short path as a string, e.g. "MySubmodelElementCollection.MySubProperty1"
+        :return: The id_short path as a string, e.g. "MySECollection.MySEList[2]MySubProperty1"
         """
-        path: List[str] = []
+        path_list = self.get_id_short_path_as_a_list()
+        return self.build_id_short_path(path_list)
+
+    def get_id_short_path_as_a_list(self) -> List[str]:
+        """
+        Get the id_short path of this referable as a list of id_shorts and indexes.
+
+        :return: The id_short path as a list, e.g. '["MySECollection", "MySEList", "2", "MySubProperty1"]'
+        :raises ValueError: If this referable has no id_short or if its parent is not a :class:`SubmodelElementList`
+        :raises AttributeError: If the parent chain is broken, i.e. if a parent is neither a :class:`Referable` nor an
+                                :class:`Identifiable`
+        """
+        from .submodel import SubmodelElementList
+        if self.id_short is None and not isinstance(self.parent, SubmodelElementList):
+            raise ValueError(f"Can't create id_short_path for {self.__class__.__name__} without an id_short or "
+                             f"if its parent is a SubmodelElementList!")
+
         item = self  # type: Any
-        if item.id_short is not None:
-            from .submodel import SubmodelElementList
-            while item is not None and not isinstance(item, Identifiable):
-                if isinstance(item, Referable):
-                    if isinstance(item.parent, SubmodelElementList):
-                        path.insert(0, f"[{item.parent.value.index(item)}]")
-                    else:
-                        path.insert(0, item.id_short)
-                    item = item.parent
-                else:
-                    raise AttributeError('Referable must have an identifiable as root object and only parents that are '
-                                         'referable')
-        return ".".join(path).replace(".[", "[") if path else ""
+        path: List[str] = []
+        while item is not None:
+            if not isinstance(item, Referable):
+                raise AttributeError('Referable must have an identifiable as root object and only parents that are '
+                                     'referable')
+            if isinstance(item, Identifiable):
+                break
+            elif isinstance(item.parent, SubmodelElementList):
+                path.insert(0, str(item.parent.value.index(item)))
+            else:
+                path.insert(0, item.id_short)
+            item = item.parent
+        return path
 
     def _get_id_short(self) -> Optional[NameType]:
         return self._id_short
@@ -697,6 +716,49 @@ class Referable(HasExtension, metaclass=abc.ABCMeta):
 
     def _get_category(self) -> Optional[NameType]:
         return self._category
+
+    @classmethod
+    def parse_id_short_path(cls, id_short_path: str) -> List[str]:
+        """
+        Parse an id_short_path string into a list of id_shorts and indexes.
+
+        :param id_short_path: The id_short_path string, e.g. "MySECollection.MySEList[2]MySubProperty1"
+        :return: The id_short path as a list, e.g. '["MySECollection", "MySEList", "2", "MySubProperty1"]'
+        """
+        id_shorts_and_indexes = []
+        for part in id_short_path.split("."):
+            id_short = part[0:part.find('[')]
+            id_shorts_and_indexes.append(id_short)
+
+            indexes_part = part.removeprefix(id_short)
+            if indexes_part:
+                if not re.fullmatch(r'(?:\[\d+\])+', indexes_part):
+                    raise ValueError(f"Invalid index format in id_short_path: '{id_short_path}', part: '{part}'")
+                indexes = indexes_part.strip("[]").split("][")
+                id_shorts_and_indexes.extend(indexes)
+        cls.validate_id_short_path(id_shorts_and_indexes)
+        return id_shorts_and_indexes
+
+    @classmethod
+    def build_id_short_path(cls, id_short_path: Iterable[str]) -> str:
+        """
+        Build an id_short_path string from a list of id_shorts and indexes.
+        """
+        if isinstance(id_short_path, str):
+            raise ValueError("id_short_path must be an Iterable of strings, not a single string")
+        path_list_with_dots_and_brackets = [f"[{part}]" if part.isdigit() else f".{part}" for part in id_short_path]
+        id_short_path = "".join(path_list_with_dots_and_brackets).removeprefix(".")
+        return id_short_path
+
+    @classmethod
+    def validate_id_short_path(cls, id_short_path: Union[str, NameType, Iterable[NameType]]):
+        if isinstance(id_short_path, str):
+            id_short_path = cls.parse_id_short_path(id_short_path)
+        for id_short in id_short_path:
+            if id_short.isdigit():
+                # This is an index, skip validation
+                continue
+            cls.validate_id_short(id_short)
 
     @classmethod
     def validate_id_short(cls, id_short: NameType) -> None:
