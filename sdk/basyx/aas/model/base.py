@@ -675,9 +675,10 @@ class Referable(HasExtension, metaclass=abc.ABCMeta):
         Get the id_short path of this referable as a list of id_shorts and indexes.
 
         :return: The id_short path as a list, e.g. '["MySECollection", "MySEList", "2", "MySubProperty1"]'
-        :raises ValueError: If this referable has no id_short or if its parent is not a :class:`SubmodelElementList`
-        :raises AttributeError: If the parent chain is broken, i.e. if a parent is neither a :class:`Referable` nor an
-                                :class:`Identifiable`
+        :raises ValueError: If this referable has no id_short or
+                            if its parent is not a :class:`~basyx.aas.model.submodel.SubmodelElementList`
+        :raises AttributeError: If the parent chain is broken, i.e. if a parent is neither a :class:`~.Referable` nor an
+                                :class:`~.Identifiable`
         """
         from .submodel import SubmodelElementList
         if self.id_short is None and not isinstance(self.parent, SubmodelElementList):
