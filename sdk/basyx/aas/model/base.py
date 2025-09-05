@@ -1836,12 +1836,12 @@ class UniqueIdShortNamespace(Namespace, metaclass=abc.ABCMeta):
         super().__init__()
         self.namespace_element_sets: List[NamespaceSet] = []
 
-    def get_referable(self, id_short: Union[NameType, Iterable[NameType]]) -> Referable:
+    def get_referable(self, id_short_path: Union[str, NameType, Iterable[NameType]]) -> Referable:
         """
         Find a :class:`~.Referable` in this Namespace by its id_short or by its id_short path.
         The id_short path may contain :class:`~basyx.aas.model.submodel.SubmodelElementList` indices.
 
-        :param id_short: id_short or id_short path as any :class:`Iterable`
+        :param id_short_path: id_short or id_short path as a str or any :class:`Iterable`
         :returns: :class:`~.Referable`
         :raises TypeError: If one of the intermediate objects on the path is not a
                            :class:`~.UniqueIdShortNamespace`
@@ -1850,10 +1850,10 @@ class UniqueIdShortNamespace(Namespace, metaclass=abc.ABCMeta):
         :raises KeyError: If no such :class:`~.Referable` can be found
         """
         from .submodel import SubmodelElementList
-        if isinstance(id_short, NameType):
-            id_short = [id_short]
+        if isinstance(id_short_path, (str, NameType)):
+            id_short_path = Referable.parse_id_short_path(id_short_path)
         item: Union[UniqueIdShortNamespace, Referable] = self
-        for id_ in id_short:
+        for id_ in id_short_path:
             # This is redundant on first iteration, but it's a negligible overhead.
             # Also, ModelReference.resolve() relies on this check.
             if not isinstance(item, UniqueIdShortNamespace):
