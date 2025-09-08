@@ -227,7 +227,7 @@ class AASDataCheckerTest(unittest.TestCase):
         self.assertEqual("FAIL: Attribute value of SubmodelElementCollection[Collection] must contain 2 "
                          "SubmodelElements (count=1)",
                          repr(next(checker_iterator)))
-        self.assertEqual("FAIL: Submodel Element Property[Collection / Prop1] must exist ()",
+        self.assertEqual("FAIL: Submodel Element Property[Collection.Prop1] must exist ()",
                          repr(next(checker_iterator)))
 
         collection.add_referable(property)
@@ -291,7 +291,7 @@ class AASDataCheckerTest(unittest.TestCase):
         self.assertEqual("FAIL: Attribute annotation of AnnotatedRelationshipElement[test] must contain 1 DataElements "
                          "(count=0)",
                          repr(next(checker_iterator)))
-        self.assertEqual("FAIL: Annotation Property[test / ExampleAnnotatedProperty] must exist ()",
+        self.assertEqual("FAIL: Annotation Property[test.ExampleAnnotatedProperty] must exist ()",
                          repr(next(checker_iterator)))
 
     def test_submodel_checker(self):
