@@ -267,14 +267,12 @@ class ObjectStoreWSGIApp(BaseWSGIApp):
     def _get_all_obj_of_type(self, type_: Type[model.provider._IT]) -> Iterator[model.provider._IT]:
         for obj in self.object_store:
             if isinstance(obj, type_):
-                obj.update()
                 yield obj
 
     def _get_obj_ts(self, identifier: model.Identifier, type_: Type[model.provider._IT]) -> model.provider._IT:
         identifiable = self.object_store.get(identifier)
         if not isinstance(identifiable, type_):
             raise NotFound(f"No {type_.__name__} with {identifier} found!")
-        identifiable.update()
         return identifiable
 
 
