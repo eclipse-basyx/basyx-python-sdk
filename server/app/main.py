@@ -15,7 +15,7 @@ from basyx.aas.adapter.aasx import DictSupplementaryFileContainer
 from basyx.aas.backend.local_file import LocalFileObjectStore
 from basyx.aas.model.provider import DictObjectStore
 from interfaces.repository import WSGIApp
-from typing import Tuple
+from typing import Tuple, Union
 
 
 # -------- Helper methods --------
@@ -78,7 +78,7 @@ def build_storage(
     env_storage_persistency: bool,
     env_storage_overwrite: bool,
     logger: logging.Logger
-) -> Tuple[DictObjectStore | LocalFileObjectStore, DictSupplementaryFileContainer]:
+) -> Tuple[Union[DictObjectStore, LocalFileObjectStore], DictSupplementaryFileContainer]:
     """
     Configure the server's storage according to the given start-up settings.
 

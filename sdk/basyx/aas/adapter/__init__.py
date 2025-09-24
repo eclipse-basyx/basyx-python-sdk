@@ -13,9 +13,10 @@ from basyx.aas.adapter.json import read_aas_json_file_into
 from basyx.aas.adapter.xml import read_aas_xml_file_into
 from basyx.aas.model.provider import DictObjectStore
 from pathlib import Path
+from typing import Union
 
 
-def load_directory(directory: Path | str) -> tuple[DictObjectStore, DictSupplementaryFileContainer]:
+def load_directory(directory: Union[Path, str]) -> tuple[DictObjectStore, DictSupplementaryFileContainer]:
     """
     Create a new :class:`~basyx.aas.model.provider.DictObjectStore` and use it to load Asset Administration Shell and
     Submodel files in ``AASX``, ``JSON`` and ``XML`` format from a given directory into memory. Additionally, load all
