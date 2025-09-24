@@ -21,7 +21,7 @@ htmlcov/
 docs/build/
 .hypothesis/
 
-# customized config files
+# Customized config files
 sdk/test/test_config.ini
 # Schema files needed for testing
 sdk/test/adapter/schemas
@@ -31,5 +31,6 @@ sdk/basyx/version.py
 compliance_tool/aas_compliance_tool/version.py
 server/app/version.py
 
-# ignore the content of the server storage
+# Ignore the content of the server storage
+server/input/
 server/storage/
