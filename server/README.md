@@ -135,7 +135,7 @@ This Dockerfile is inspired by the [tiangolo/uwsgi-nginx-docker][10] repository.
 [3]: https://github.com/eclipse-basyx/basyx-python-sdk
 [4]: https://app.swaggerhub.com/apis/Plattform_i40/AssetAdministrationShellRepositoryServiceSpecification/V3.0.1_SSP-001
 [5]: https://app.swaggerhub.com/apis/Plattform_i40/SubmodelRepositoryServiceSpecification/V3.0.1_SSP-001
-[6]: https://industrialdigitaltwin.io/aas-specifications/IDTA-01002/v3.1.1/index.html
+[6]: https://industrialdigitaltwin.io/aas-specifications/IDTA-01002/v3.0/index.html
 [7]: https://basyx-python-sdk.readthedocs.io/en/latest/adapter/aasx.html#adapter-aasx
 [8]: https://basyx-python-sdk.readthedocs.io/en/latest/adapter/json.html
 [9]: https://basyx-python-sdk.readthedocs.io/en/latest/adapter/xml.html
