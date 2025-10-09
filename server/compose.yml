@@ -1,3 +1,4 @@
+name: basyx-python-server
 services:
   app:
     build:
@@ -6,4 +7,7 @@ services:
     ports:
     - "8080:80"
     volumes:
+      - ./input:/input
       - ./storage:/storage
+    environment:
+      STORAGE_PERSISTENCY: True

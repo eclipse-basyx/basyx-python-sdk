@@ -23,7 +23,7 @@ RUN chmod +x /etc/supervisor/stop-supervisor.sh
 
 # Makes it possible to use a different configuration
 ENV UWSGI_INI=/etc/uwsgi/uwsgi.ini
-# object stores aren't thread-safe yet
+# Object stores aren't thread-safe yet
 # https://github.com/eclipse-basyx/basyx-python-sdk/issues/205
 ENV UWSGI_CHEAPER=0
 ENV UWSGI_PROCESSES=1
@@ -31,6 +31,14 @@ ENV NGINX_MAX_UPLOAD=1M
 ENV NGINX_WORKER_PROCESSES=1
 ENV LISTEN_PORT=80
 ENV CLIENT_BODY_BUFFER_SIZE=1M
+ENV API_BASE_PATH=/api/v3.0/
+
+# Default values for the storage envs
+ENV INPUT=/input
+ENV STORAGE=/storage
+ENV STORAGE_PERSISTENCY=False
+ENV STORAGE_OVERWRITE=False
+VOLUME ["/input", "/storage"]
 
 # Copy the entrypoint that will generate Nginx additional configs
 COPY server/entrypoint.sh /entrypoint.sh

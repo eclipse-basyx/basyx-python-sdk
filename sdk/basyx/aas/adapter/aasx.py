@@ -871,3 +871,6 @@ class DictSupplementaryFileContainer(AbstractSupplementaryFileContainer):
 
     def __iter__(self) -> Iterator[str]:
         return iter(self._name_map)
+
+    def __len__(self) -> int:
+        return len(self._name_map)
