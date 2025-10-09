@@ -461,9 +461,9 @@ class Key:
 
     @staticmethod
     def _get_key_type_for_referable(referable: "Referable") -> KeyTypes:
-        from . import KEY_TYPES_CLASSES, find_registered_referable_type_in_key_types_classes
+        from . import KEY_TYPES_CLASSES, resolve_referable_class_in_key_types
         try:
-            ref_type = find_registered_referable_type_in_key_types_classes(referable)
+            ref_type = resolve_referable_class_in_key_types(referable)
             key_type = KEY_TYPES_CLASSES[ref_type]
         except StopIteration:
             key_type = KeyTypes.PROPERTY
@@ -1215,9 +1215,9 @@ class ModelReference(Reference, Generic[_RT]):
                             object's ancestors
         """
         # Get the first class from the base classes list (via inspect.getmro), that is contained in KEY_ELEMENTS_CLASSES
-        from . import find_registered_referable_type_in_key_types_classes
+        from . import resolve_referable_class_in_key_types
         try:
-            ref_type = find_registered_referable_type_in_key_types_classes(referable)
+            ref_type = resolve_referable_class_in_key_types(referable)
         except StopIteration:
             ref_type = Referable
 
