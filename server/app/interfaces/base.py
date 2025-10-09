@@ -287,6 +287,7 @@ class HTTPApiDecoder:
         model.Submodel: XMLConstructables.SUBMODEL,
         model.SubmodelElement: XMLConstructables.SUBMODEL_ELEMENT,
         model.Reference: XMLConstructables.REFERENCE,
+        model.ConceptDescription: XMLConstructables.CONCEPT_DESCRIPTION,
     }
 
     @classmethod
