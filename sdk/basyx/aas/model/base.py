@@ -42,6 +42,7 @@ ShortNameType = str
 VersionType = str
 ValueTypeIEC61360 = str
 
+MAX_RECURSION_DEPTH = 32*2 # see https://github.com/admin-shell-io/aas-specs-metamodel/issues/333
 
 @unique
 class KeyTypes(Enum):
@@ -1227,8 +1228,11 @@ class ModelReference(Reference, Generic[_RT]):
             if isinstance(ref, Identifiable):
                 return ModelReference(tuple(keys), ref_type)
             if ref.parent is None or not isinstance(ref.parent, Referable):
-                raise ValueError("The given Referable object is not embedded within an Identifiable object")
+                raise ValueError(f"The given Referable object is not embedded within an Identifiable object: {ref}")
             ref = ref.parent
+            if len(keys) > MAX_RECURSION_DEPTH:
+                raise ValueError(f"The given Referable object is embedded in >64 layers of Referables "
+                                 f"or there is a loop in the parent chain {ref}")
 
 
 @_string_constraints.constrain_content_type("content_type")
