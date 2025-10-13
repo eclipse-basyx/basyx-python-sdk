@@ -462,11 +462,8 @@ class Key:
     @staticmethod
     def _get_key_type_for_referable(referable: "Referable") -> KeyTypes:
         from . import KEY_TYPES_CLASSES, resolve_referable_class_in_key_types
-        try:
-            ref_type = resolve_referable_class_in_key_types(referable)
-            key_type = KEY_TYPES_CLASSES[ref_type]
-        except StopIteration:
-            key_type = KeyTypes.PROPERTY
+        ref_type = resolve_referable_class_in_key_types(referable)
+        key_type = KEY_TYPES_CLASSES[ref_type]
         return key_type
 
     @staticmethod
