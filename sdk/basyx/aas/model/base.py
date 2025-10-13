@@ -454,7 +454,6 @@ class Key:
         """
         # Get the `type` by finding the first class from the base classes list (via inspect.getmro), that is contained
         # in KEY_ELEMENTS_CLASSES
-        from . import SubmodelElementList
         key_type = Key._get_key_type_for_referable(referable)
         key_value = Key._get_key_value_for_referable(referable)
         return Key(key_type, key_value)
