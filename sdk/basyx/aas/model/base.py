@@ -41,7 +41,8 @@ ShortNameType = str
 VersionType = str
 ValueTypeIEC61360 = str
 
-MAX_RECURSION_DEPTH = 32*2 # see https://github.com/admin-shell-io/aas-specs-metamodel/issues/333
+MAX_RECURSION_DEPTH = 32*2  # see https://github.com/admin-shell-io/aas-specs-metamodel/issues/333
+
 
 @unique
 class KeyTypes(Enum):

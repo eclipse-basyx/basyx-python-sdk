@@ -43,12 +43,12 @@ KEY_TYPES_CLASSES: Dict[Type[Referable], KeyTypes] = {
 
 def resolve_referable_class_in_key_types(referable: Referable) -> type:
     """
-    Returns the type of referable if the type is given in :class:`KEY_TYPES_CLASSES`,
+    Returns the type of referable if the type is given in :data:`KEY_TYPES_CLASSES`,
     otherwise return the first parent class in inheritance chain of the referable
-    which is given in :class:`KEY_TYPES_CLASSES`.
+    which is given in :data:`KEY_TYPES_CLASSES`.
 
     :raises TypeError: If the type of the referable or any of its parent classes is not given
-        in :class:`KEY_TYPES_CLASSES`.
+        in :data:`KEY_TYPES_CLASSES`.
     """
     try:
         ref_type = next(iter(t for t in inspect.getmro(type(referable)) if t in KEY_TYPES_CLASSES))
