@@ -986,13 +986,13 @@ class ModelReferenceTest(unittest.TestCase):
         submodel.submodel_element.remove(collection)
         with self.assertRaises(ValueError) as cm:
             ref3 = model.ModelReference.from_referable(prop)
-        self.assertEqual("The given Referable object is not embedded within an Identifiable object", str(cm.exception))
+        self.assertEqual("The given Referable object is not embedded within an Identifiable object",
+                         str(cm.exception).split(":")[0])
 
-        # Test creating a reference to a custom Referable class
-        class DummyThing(model.Referable):
+        # Test creating a reference to a custom SubmodelElement class
+        class DummyThing(model.SubmodelElement):
             def __init__(self, id_short: model.NameType):
-                super().__init__()
-                self.id_short = id_short
+                super().__init__(id_short)
 
         class DummyIdentifyableNamespace(model.Submodel, model.UniqueIdShortNamespace):
             def __init__(self, id_: model.Identifier):
@@ -1003,7 +1003,7 @@ class ModelReferenceTest(unittest.TestCase):
         identifable_thing = DummyIdentifyableNamespace("urn:x-test:thing")
         identifable_thing.things.add(thing)
         ref4 = model.ModelReference.from_referable(thing)
-        self.assertIs(ref4.type, model.Referable)
+        self.assertIs(ref4.type, model.SubmodelElement)
 
 
 class AdministrativeInformationTest(unittest.TestCase):
