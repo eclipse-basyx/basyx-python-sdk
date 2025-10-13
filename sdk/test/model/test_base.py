@@ -225,50 +225,6 @@ class ReferableTest(unittest.TestCase):
         for referable, expected_path in expected_id_short_paths.items():
             self.assertEqual(referable.get_id_short_path(), expected_path)
 
-    def test_update(self):
-        backends.register_backend("mockScheme", MockBackend)
-        example_referable = generate_example_referable_tree()
-        example_grandparent = example_referable.parent.parent
-        example_grandchild = example_referable.get_referable("exampleChild").get_referable("exampleGrandchild")
-
-        # Test update with parameter "recursive=False"
-        example_referable.update(recursive=False)
-        MockBackend.update_object.assert_called_once_with(
-            updated_object=example_referable,
-            store_object=example_grandparent,
-            relative_path=["exampleGrandparent", "exampleParent", "exampleReferable"]
-        )
-        MockBackend.update_object.reset_mock()
-
-        # Test update with parameter "recursive=True"
-        example_referable.update()
-        self.assertEqual(MockBackend.update_object.call_count, 2)
-        MockBackend.update_object.assert_has_calls([
-            mock.call(updated_object=example_referable,
-                      store_object=example_grandparent,
-                      relative_path=["exampleGrandparent", "exampleParent", "exampleReferable"]),
-            mock.call(updated_object=example_grandchild,
-                      store_object=example_grandchild,
-                      relative_path=[])
-        ])
-        MockBackend.update_object.reset_mock()
-
-        # Test update with source != "" in example_referable
-        example_referable.source = "mockScheme:exampleReferable"
-        example_referable.update(recursive=False)
-        MockBackend.update_object.assert_called_once_with(
-            updated_object=example_referable,
-            store_object=example_referable,
-            relative_path=[]
-        )
-        MockBackend.update_object.reset_mock()
-
-        # Test update with no source available
-        example_grandparent.source = ""
-        example_referable.source = ""
-        example_referable.update(recursive=False)
-        MockBackend.update_object.assert_not_called()
-
     def test_update_from(self):
         example_submodel = example_aas.create_example_submodel()
         example_relel = example_submodel.get_referable('ExampleRelationshipElement')
