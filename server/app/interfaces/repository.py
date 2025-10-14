@@ -15,10 +15,9 @@ However, several features and routes are currently not supported:
 
 3. Route `/shells/{aasIdentifier}/asset-information/thumbnail`: Not implemented because the specification lacks clarity.
 
-4. Serialization and Description Routes:
+4. Serialization Route:
    - `/serialization`
-   - `/description`
-   These routes are not implemented at this time.
+   This route is not implemented at this time.
 
 5. Value, Path, and PATCH Routes:
    - All `/…/value$`, `/…/path$`, and `PATCH` routes are currently not implemented.
