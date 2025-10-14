@@ -57,6 +57,7 @@ SUPPORTED_PROFILES: ServiceDescription = ServiceDescription([
     ServiceSpecificationProfileEnum.SUBMODEL_REPOSITORY_FULL,
 ])
 
+
 class WSGIApp(ObjectStoreWSGIApp):
     def __init__(self, object_store: model.AbstractObjectStore, file_store: aasx.AbstractSupplementaryFileContainer,
                  base_path: str = "/api/v3.0"):

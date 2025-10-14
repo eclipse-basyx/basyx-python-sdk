@@ -30,6 +30,7 @@ from util.converters import base64url_decode
 
 T = TypeVar("T")
 
+
 class ServiceSpecificationProfileEnum(str, enum.Enum):
     """
     Enumeration of all standardized Service Specification Profiles
@@ -50,9 +51,12 @@ class ServiceSpecificationProfileEnum(str, enum.Enum):
     AASX_FILESERVER_FULL = "https://admin-shell.io/aas/API/3/1/AasxFileServerServiceSpecification/SSP-001"
 
     # --- AAS Registry ---
-    AAS_REGISTRY_FULL = "https://admin-shell.io/aas/API/3/1/AssetAdministrationShellRegistryServiceSpecification/SSP-001"
-    AAS_REGISTRY_READ = "https://admin-shell.io/aas/API/3/1/AssetAdministrationShellRegistryServiceSpecification/SSP-002"
-    AAS_REGISTRY_BULK = "https://admin-shell.io/aas/API/3/1/AssetAdministrationShellRegistryServiceSpecification/SSP-003"
+    AAS_REGISTRY_FULL = \
+        "https://admin-shell.io/aas/API/3/1/AssetAdministrationShellRegistryServiceSpecification/SSP-001"
+    AAS_REGISTRY_READ = \
+        "https://admin-shell.io/aas/API/3/1/AssetAdministrationShellRegistryServiceSpecification/SSP-002"
+    AAS_REGISTRY_BULK = \
+        "https://admin-shell.io/aas/API/3/1/AssetAdministrationShellRegistryServiceSpecification/SSP-003"
 
     # --- Submodel Registry ---
     SUBMODEL_REGISTRY_FULL = "https://admin-shell.io/aas/API/3/1/SubmodelRegistryServiceSpecification/SSP-001"
@@ -60,9 +64,12 @@ class ServiceSpecificationProfileEnum(str, enum.Enum):
     SUBMODEL_REGISTRY_BULK = "https://admin-shell.io/aas/API/3/1/SubmodelRegistryServiceSpecification/SSP-003"
 
     # --- AAS Repository ---
-    AAS_REPOSITORY_FULL = "https://admin-shell.io/aas/API/3/1/AssetAdministrationShellRepositoryServiceSpecification/SSP-001"
-    AAS_REPOSITORY_READ = "https://admin-shell.io/aas/API/3/1/AssetAdministrationShellRepositoryServiceSpecification/SSP-002"
-    AAS_REPOSITORY_BULK = "https://admin-shell.io/aas/API/3/1/AssetAdministrationShellRepositoryServiceSpecification/SSP-003"
+    AAS_REPOSITORY_FULL = \
+        "https://admin-shell.io/aas/API/3/1/AssetAdministrationShellRepositoryServiceSpecification/SSP-001"
+    AAS_REPOSITORY_READ = \
+        "https://admin-shell.io/aas/API/3/1/AssetAdministrationShellRepositoryServiceSpecification/SSP-002"
+    AAS_REPOSITORY_BULK = \
+        "https://admin-shell.io/aas/API/3/1/AssetAdministrationShellRepositoryServiceSpecification/SSP-003"
 
     # --- Submodel Repository ---
     SUBMODEL_REPOSITORY_FULL = "https://admin-shell.io/aas/API/3/1/SubmodelRepositoryServiceSpecification/SSP-001"
@@ -70,18 +77,23 @@ class ServiceSpecificationProfileEnum(str, enum.Enum):
     SUBMODEL_REPOSITORY_BULK = "https://admin-shell.io/aas/API/3/1/SubmodelRepositoryServiceSpecification/SSP-003"
 
     # --- Concept Description Repository ---
-    CONCEPT_DESCRIPTION_REPOSITORY_FULL = "https://admin-shell.io/aas/API/3/1/ConceptDescriptionRepositoryServiceSpecification/SSP-001"
-    CONCEPT_DESCRIPTION_REPOSITORY_READ = "https://admin-shell.io/aas/API/3/1/ConceptDescriptionRepositoryServiceSpecification/SSP-002"
-    CONCEPT_DESCRIPTION_REPOSITORY_BULK = "https://admin-shell.io/aas/API/3/1/ConceptDescriptionRepositoryServiceSpecification/SSP-003"
+    CONCEPT_DESCRIPTION_REPOSITORY_FULL = \
+        "https://admin-shell.io/aas/API/3/1/ConceptDescriptionRepositoryServiceSpecification/SSP-001"
+    CONCEPT_DESCRIPTION_REPOSITORY_READ = \
+        "https://admin-shell.io/aas/API/3/1/ConceptDescriptionRepositoryServiceSpecification/SSP-002"
+    CONCEPT_DESCRIPTION_REPOSITORY_BULK = \
+        "https://admin-shell.io/aas/API/3/1/ConceptDescriptionRepositoryServiceSpecification/SSP-003"
 
     # --- Discovery ---
     DISCOVERY_FULL = "https://admin-shell.io/aas/API/3/1/DiscoveryServiceSpecification/SSP-001"
     DISCOVERY_READ = "https://admin-shell.io/aas/API/3/1/DiscoveryServiceSpecification/SSP-002"
 
-#TODO: Maybe remove this in spite of spec? Too complicated structure
+
+# TODO: Maybe remove this in spite of spec? Too complicated structure
 class ServiceDescription:
     def __init__(self, profiles: List[ServiceSpecificationProfileEnum]):
         self.profiles: List[ServiceSpecificationProfileEnum] = profiles
+
 
 @enum.unique
 class MessageType(enum.Enum):
