@@ -3,7 +3,7 @@
 # This program and the accompanying materials are made available under the terms of the MIT License, available in
 # the LICENSE file of this project.
 #
-# SPDX-License-Identifier: MIT
+# SPDX-License-Identifier: MITd
 """
 This module implements the "Specification of the Asset Administration Shell Part 2 Application Programming Interfaces".
 However, several features and routes are currently not supported:
@@ -419,7 +419,8 @@ class WSGIApp(ObjectStoreWSGIApp):
                               **_kwargs) -> Response:
         aas = self._get_shell(url_args)
         submodel_refs: Iterator[model.ModelReference[model.Submodel]]
-        submodel_refs, cursor = self._get_slice(request, aas.submodel)
+        sorted_submodel_refs = sorted(aas.submodel, key=lambda ref: ref.key[0].value)
+        submodel_refs, cursor = self._get_slice(request, sorted_submodel_refs)
         return response_t(list(submodel_refs), cursor=cursor)
 
     def post_aas_submodel_refs(self, request: Request, url_args: Dict, response_t: Type[APIResponse],
