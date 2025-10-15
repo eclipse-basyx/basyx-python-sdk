@@ -136,7 +136,7 @@ class AASToJsonEncoder(json.JSONEncoder):
             if obj.description:
                 data['description'] = obj.description
             try:
-                ref_type = next(iter(t for t in inspect.getmro(type(obj)) if t in model.KEY_TYPES_CLASSES))
+                ref_type = model.resolve_referable_class_in_key_types(obj)
             except StopIteration as e:
                 raise TypeError("Object of type {} is Referable but does not inherit from a known AAS type"
                                 .format(obj.__class__.__name__)) from e

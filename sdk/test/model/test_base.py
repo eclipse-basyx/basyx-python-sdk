@@ -41,7 +41,7 @@ class KeyTest(unittest.TestCase):
         self.assertEqual(model.Key(model.KeyTypes.MULTI_LANGUAGE_PROPERTY, "0"), model.Key.from_referable(mlp2))
         with self.assertRaises(ValueError) as cm:
             model.Key.from_referable(mlp1)
-        self.assertEqual("Can't create Key for MultiLanguageProperty without an id_short!", str(cm.exception))
+        self.assertEqual("Can't create Key value for MultiLanguageProperty without an id_short!", str(cm.exception))
         mlp1.id_short = "mlp1"
         self.assertEqual(model.Key(model.KeyTypes.MULTI_LANGUAGE_PROPERTY, "mlp1"), model.Key.from_referable(mlp1))
 
@@ -51,7 +51,7 @@ class ExampleReferable(model.Referable):
         super().__init__()
 
 
-class ExampleRefereableWithNamespace(model.Referable, model.UniqueIdShortNamespace):
+class ExampleReferableWithNamespace(model.Referable, model.UniqueIdShortNamespace):
     def __init__(self):
         super().__init__()
 
@@ -79,7 +79,7 @@ def generate_example_referable_tree() -> model.Referable:
         :param child: Child to be added to the namespace sets of the Referable
         :return: The generated Referable
         """
-        referable = ExampleRefereableWithNamespace()
+        referable = ExampleReferableWithNamespace()
         referable.id_short = id_short
         if child:
             namespace_set = model.NamespaceSet(parent=referable, attribute_names=[("id_short", True)],
@@ -134,6 +134,96 @@ class ReferableTest(unittest.TestCase):
             ref.__repr__()
         self.assertEqual('Referable must have an identifiable as root object and only parents that are referable',
                          str(cm.exception))
+
+    def test_get_identifiable_root(self):
+        ref_with_no_parent = ExampleReferableWithNamespace()
+        ref_with_no_parent.id_short = "NotNone"
+
+        identifiable = ExampleIdentifiable()
+
+        ref_child = ExampleReferable()
+        ref_child.id_short = "Child"
+        ref_child.parent = identifiable
+
+        list1 = model.SubmodelElementList("List1", model.SubmodelElementList)
+        list2 = model.SubmodelElementList(None, model.Property, value_type_list_element=model.datatypes.Int)
+        prop1 = model.Property(None, model.datatypes.Int)
+
+        list1.parent = ref_child
+        list1.add_referable(list2)
+        list2.add_referable(prop1)
+
+        self.assertIs(ref_with_no_parent.get_identifiable_root(), None)
+        self.assertIs(identifiable.get_identifiable_root(), identifiable)
+        self.assertIs(ref_child.get_identifiable_root(), identifiable)
+        self.assertIs(list1.get_identifiable_root(), identifiable)
+        self.assertIs(list2.get_identifiable_root(), identifiable)
+        self.assertIs(prop1.get_identifiable_root(), identifiable)
+
+    def test_get_id_short_path(self):
+        """
+        Tests the get_id_short_path() method of Referable objects.
+
+        Example structure:
+        - SMC: MySubmodelElementCollection
+            - Property: MySubProperty1
+            - Property: MySubProperty2
+            - SMC: MySubSubmodelElementCollection
+                - Property: MySubSubProperty1
+                - Property: MySubSubProperty2
+            - SML: MySubSubmodelElementList1
+                - Property: "MySubTestValue1"
+                - Property: "MySubTestValue2"
+            - SML: MySubSubmodelElementList2
+                - SML: MySubSubmodelElementList3
+                    - SMC: MySubmodelElementCollectionInSML3
+                        - Property: "MySubTestValue3"
+        """
+        MySubmodelElementCollection = model.SubmodelElementCollection("MySubmodelElementCollection")
+        MySubProperty1 = model.Property("MySubProperty1", model.datatypes.String)
+        MySubProperty2 = model.Property("MySubProperty2", model.datatypes.String)
+        MySubSubmodelElementCollection = model.SubmodelElementCollection("MySubSubmodelElementCollection")
+        MySubSubProperty1 = model.Property("MySubSubProperty1", model.datatypes.String)
+        MySubSubProperty2 = model.Property("MySubSubProperty2", model.datatypes.String)
+        MySubSubmodelElementList1 = model.SubmodelElementList("MySubSubmodelElementList1", model.Property,
+                                                              value_type_list_element=model.datatypes.String)
+        MySubTestValue1 = model.Property(None, model.datatypes.String)
+        MySubTestValue2 = model.Property(None, model.datatypes.String)
+        MySubSubmodelElementList2 = model.SubmodelElementList("MySubSubmodelElementList2", model.SubmodelElementList)
+        MySubSubmodelElementList3 = model.SubmodelElementList(None, model.SubmodelElementCollection)
+        MySubmodelElementCollectionInSML3 = model.SubmodelElementCollection(None)
+        MySubTestValue3 = model.Property("MySubTestValue3", model.datatypes.String)
+
+        MySubmodelElementCollection.add_referable(MySubProperty1)
+        MySubmodelElementCollection.add_referable(MySubProperty2)
+        MySubmodelElementCollection.add_referable(MySubSubmodelElementCollection)
+        MySubSubmodelElementCollection.add_referable(MySubSubProperty1)
+        MySubSubmodelElementCollection.add_referable(MySubSubProperty2)
+        MySubmodelElementCollection.add_referable(MySubSubmodelElementList1)
+        MySubSubmodelElementList1.add_referable(MySubTestValue1)
+        MySubSubmodelElementList1.add_referable(MySubTestValue2)
+        MySubmodelElementCollection.add_referable(MySubSubmodelElementList2)
+        MySubSubmodelElementList2.add_referable(MySubSubmodelElementList3)
+        MySubSubmodelElementList3.add_referable(MySubmodelElementCollectionInSML3)
+        MySubmodelElementCollectionInSML3.add_referable(MySubTestValue3)
+
+        expected_id_short_paths = {
+            MySubmodelElementCollection: "MySubmodelElementCollection",
+            MySubProperty1: "MySubmodelElementCollection.MySubProperty1",
+            MySubProperty2: "MySubmodelElementCollection.MySubProperty2",
+            MySubSubmodelElementCollection: "MySubmodelElementCollection.MySubSubmodelElementCollection",
+            MySubSubProperty1: "MySubmodelElementCollection.MySubSubmodelElementCollection.MySubSubProperty1",
+            MySubSubProperty2: "MySubmodelElementCollection.MySubSubmodelElementCollection.MySubSubProperty2",
+            MySubSubmodelElementList1: "MySubmodelElementCollection.MySubSubmodelElementList1",
+            MySubTestValue1: "MySubmodelElementCollection.MySubSubmodelElementList1[0]",
+            MySubTestValue2: "MySubmodelElementCollection.MySubSubmodelElementList1[1]",
+            MySubSubmodelElementList2: "MySubmodelElementCollection.MySubSubmodelElementList2",
+            MySubSubmodelElementList3: "MySubmodelElementCollection.MySubSubmodelElementList2[0]",
+            MySubmodelElementCollectionInSML3: "MySubmodelElementCollection.MySubSubmodelElementList2[0][0]",
+            MySubTestValue3: "MySubmodelElementCollection.MySubSubmodelElementList2[0][0].MySubTestValue3",
+        }
+        for referable, expected_path in expected_id_short_paths.items():
+            self.assertEqual(referable.get_id_short_path(), expected_path)
 
     def test_update_from(self):
         example_submodel = example_aas.create_example_submodel()
@@ -481,7 +571,7 @@ class ModelNamespaceTest(unittest.TestCase):
         with self.assertRaises(TypeError) as cm_3:
             self.namespace.get_referable(["List1", "0", "Prop1", "Test"])
         self.assertEqual("Cannot resolve id_short or index 'Test' at "
-                         f"Property[{self.namespace.id} / List1[0] / Prop1], "
+                         f"Property[{self.namespace.id} / List1[0].Prop1], "
                          "because it is not a UniqueIdShortNamespace!", str(cm_3.exception))
 
         self.namespace.get_referable(["List1", "0", "Prop1"])
@@ -568,7 +658,7 @@ class ModelNamespaceTest(unittest.TestCase):
         se_collection.add_referable(property)
         with self.assertRaises(model.AASConstraintViolation) as cm:
             property.id_short = None
-        self.assertEqual("id_short of Property[foo / property] cannot be unset, since it is already contained in "
+        self.assertEqual("id_short of Property[foo.property] cannot be unset, since it is already contained in "
                          "SubmodelElementCollection[foo] (Constraint AASd-117)", str(cm.exception))
         property.id_short = "bar"
 
@@ -819,7 +909,7 @@ class ModelReferenceTest(unittest.TestCase):
                                     model.Property)
         with self.assertRaises(TypeError) as cm_3:
             ref4.resolve(DummyObjectProvider())
-        self.assertEqual("Cannot resolve id_short or index 'prop' at Property[urn:x-test:submodel / list[0] / prop], "
+        self.assertEqual("Cannot resolve id_short or index 'prop' at Property[urn:x-test:submodel / list[0].prop], "
                          "because it is not a UniqueIdShortNamespace!", str(cm_3.exception))
 
         with self.assertRaises(AttributeError) as cm_4:
@@ -896,13 +986,13 @@ class ModelReferenceTest(unittest.TestCase):
         submodel.submodel_element.remove(collection)
         with self.assertRaises(ValueError) as cm:
             ref3 = model.ModelReference.from_referable(prop)
-        self.assertEqual("The given Referable object is not embedded within an Identifiable object", str(cm.exception))
+        self.assertEqual("The given Referable object is not embedded within an Identifiable object",
+                         str(cm.exception).split(":")[0])
 
-        # Test creating a reference to a custom Referable class
-        class DummyThing(model.Referable):
+        # Test creating a reference to a custom SubmodelElement class
+        class DummyThing(model.SubmodelElement):
             def __init__(self, id_short: model.NameType):
-                super().__init__()
-                self.id_short = id_short
+                super().__init__(id_short)
 
         class DummyIdentifyableNamespace(model.Submodel, model.UniqueIdShortNamespace):
             def __init__(self, id_: model.Identifier):
@@ -913,7 +1003,7 @@ class ModelReferenceTest(unittest.TestCase):
         identifable_thing = DummyIdentifyableNamespace("urn:x-test:thing")
         identifable_thing.things.add(thing)
         ref4 = model.ModelReference.from_referable(thing)
-        self.assertIs(ref4.type, model.Referable)
+        self.assertIs(ref4.type, model.SubmodelElement)
 
 
 class AdministrativeInformationTest(unittest.TestCase):
