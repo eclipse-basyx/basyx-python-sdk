@@ -103,9 +103,9 @@ The server can also be run directly on the host system without Docker, NGINX and
    $ pip install ./app
    ```
 
-2. Run the server by executing the main function in [`./app/interfaces/repository.py`](./app/interfaces/repository.py) from within the current folder.
+2. Run the server by executing the main function in [`./app/interfaces/repository.py`](./app/interfaces/repository.py) from within the `app` folder.
    ```bash
-   $ python -m app.interfaces.repository
+   $ python -m interfaces.repository
    ```
 
 The server can be accessed at http://localhost:8080/api/v3.0/ from your host system. 
