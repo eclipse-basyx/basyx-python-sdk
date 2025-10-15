@@ -39,3 +39,17 @@ KEY_TYPES_CLASSES: Dict[Type[Referable], KeyTypes] = {
     RelationshipElement: KeyTypes.RELATIONSHIP_ELEMENT,
     SubmodelElement: KeyTypes.SUBMODEL_ELEMENT,  # type: ignore
 }
+
+
+def resolve_referable_class_in_key_types(referable: Referable) -> type:
+    """
+    Returns the type of referable if the type is given in `KEY_TYPES_CLASSES`, otherwise return the first parent class
+    in inheritance chain of the referable which is given in `KEY_TYPES_CLASSES`.
+
+    :raises TypeError: If the type of the referable or any of its parent classes is not given in `KEY_TYPES_CLASSES`.
+    """
+    try:
+        ref_type = next(iter(t for t in inspect.getmro(type(referable)) if t in KEY_TYPES_CLASSES))
+    except StopIteration:
+        raise TypeError(f"Could not find a matching class in KEY_TYPES_CLASSES for {type(referable)}")
+    return ref_type
