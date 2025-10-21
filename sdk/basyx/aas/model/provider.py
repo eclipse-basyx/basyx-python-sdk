@@ -11,7 +11,7 @@ This module implements Registries for the AAS, in order to enable resolving glob
 """
 
 import abc
-from typing import MutableSet, Iterator, Generic, TypeVar, Dict, List, Optional, Iterable, Set, Tuple
+from typing import MutableSet, Iterator, Generic, TypeVar, Dict, List, Optional, Iterable, Set, Tuple, cast
 
 from .base import Identifier, Identifiable
 
@@ -100,7 +100,7 @@ class AbstractObjectStore(AbstractObjectProvider, MutableSet[_IT], Generic[_IT],
             if identifiable_id in self:
                 if overwrite:
                     existing = self.get_identifiable(identifiable_id)
-                    self.discard(existing)
+                    self.discard(cast(_IT, existing))
                     self.add(identifiable)
                     overwritten += 1
                 else:
