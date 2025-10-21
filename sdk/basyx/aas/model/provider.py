@@ -11,7 +11,7 @@ This module implements Registries for the AAS, in order to enable resolving glob
 """
 
 import abc
-from typing import MutableSet, Iterator, Generic, TypeVar, Dict, List, Optional, Iterable, Set
+from typing import MutableSet, Iterator, Generic, TypeVar, Dict, List, Optional, Iterable, Set, Tuple
 
 from .base import Identifier, Identifiable
 
@@ -67,7 +67,7 @@ class AbstractObjectStore(AbstractObjectProvider, MutableSet[_IT], Generic[_IT],
     :class:`~basyx.aas.model.base.Identifier` – allow to add and delete objects (i.e. behave like a Python set).
     This includes local object stores (like :class:`~.DictObjectStore`) and specific object stores
     (like :class:`~basyx.aas.backend.couchdb.CouchDBObjectStore` and
-    :class `~basyx.aas.backend.local_file.LocalFileObjectStore`).
+    :class:`~basyx.aas.backend.local_file.LocalFileObjectStore`).
 
     The AbstractObjectStore inherits from the :class:`~collections.abc.MutableSet` abstract collections class and
     therefore implements all the functions of this class.
@@ -79,6 +79,36 @@ class AbstractObjectStore(AbstractObjectProvider, MutableSet[_IT], Generic[_IT],
     def update(self, other: Iterable[_IT]) -> None:
         for x in other:
             self.add(x)
+
+    def sync(self, other: Iterable[_IT], overwrite: bool) -> Tuple[int, int, int]:
+        """
+        Merge :class:`Identifiables <basyx.aas.model.base.Identifiable>` from an
+        :class:`~collections.abc.Iterable` into this :class:`~basyx.aas.model.provider.AbstractObjectStore`.
+
+        :param other: :class:`~collections.abc.Iterable` to sync with
+        :param overwrite: Flag to overwrite existing :class:`Identifiables <basyx.aas.model.base.Identifiable>` in this
+            :class:`~basyx.aas.model.provider.AbstractObjectStore` with updated versions from ``other``,
+            :class:`Identifiables <basyx.aas.model.base.Identifiable>` unique to this
+            :class:`~basyx.aas.model.provider.AbstractObjectStore` are always preserved
+        :return: Counts of processed :class:`Identifiables <basyx.aas.model.base.Identifiable>` as
+            ``(added, overwritten, skipped)``
+        """
+
+        added, overwritten, skipped = 0, 0, 0
+        for identifiable in other:
+            identifiable_id = identifiable.id
+            if identifiable_id in self:
+                if overwrite:
+                    existing = self.get_identifiable(identifiable_id)
+                    self.discard(existing)
+                    self.add(identifiable)
+                    overwritten += 1
+                else:
+                    skipped += 1
+            else:
+                self.add(identifiable)
+                added += 1
+        return added, overwritten, skipped
 
 
 class DictObjectStore(AbstractObjectStore[_IT], Generic[_IT]):

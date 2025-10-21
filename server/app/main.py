@@ -38,40 +38,6 @@ def setup_logger() -> logging.Logger:
     return logger
 
 
-def sync_input_to_storage(
-        input_files: DictObjectStore,
-        storage_files: LocalFileObjectStore,
-        overwrite: bool
-) -> Tuple[int, int, int]:
-    """
-    Merge :class:`Identifiables <basyx.aas.model.base.Identifiable>` from an in-memory
-    :class:`~basyx.aas.model.provider.DictObjectStore` into a persistent
-    :class:`~basyx.aas.backend.local_file.LocalFileObjectStore`.
-
-    :param input_files: In-memory :class:`~basyx.aas.model.provider.DictObjectStore`
-    :param storage_files: Persistent :class:`~basyx.aas.backend.local_file.LocalFileObjectStore`
-    :param overwrite: Flag to overwrite existing :class:`Identifiables <basyx.aas.model.base.Identifiable>` in the
-        :class:`~basyx.aas.backend.local_file.LocalFileObjectStore`
-    :return: Counts of processed :class:`Identifiables <basyx.aas.model.base.Identifiable>` as
-        ``(added, overwritten, skipped)``
-    """
-
-    added, overwritten, skipped = 0, 0, 0
-    for identifiable in input_files:
-        if identifiable.id in storage_files:
-            if overwrite:
-                existing = storage_files.get_identifiable(identifiable.id)
-                storage_files.discard(existing)
-                storage_files.add(identifiable)
-                overwritten += 1
-            else:
-                skipped += 1
-        else:
-            storage_files.add(identifiable)
-            added += 1
-    return added, overwritten, skipped
-
-
 def build_storage(
     env_input: str,
     env_storage: str,
@@ -100,7 +66,7 @@ def build_storage(
         storage_files.check_directory(create=True)
         if os.path.isdir(env_input):
             input_files, input_supp_files = load_directory(env_input)
-            added, overwritten, skipped = sync_input_to_storage(input_files, storage_files, env_storage_overwrite)
+            added, overwritten, skipped = storage_files.sync(input_files, env_storage_overwrite)
             logger.info(
                 "Loaded %d identifiable(s) and %d supplementary file(s) from \"%s\"",
                 len(input_files), len(input_supp_files), env_input
