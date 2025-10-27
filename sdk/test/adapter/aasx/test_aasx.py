@@ -68,22 +68,22 @@ class TestAASXUtils(unittest.TestCase):
 class AASXWriterTest(unittest.TestCase):
     def test_writing_reading_example_aas(self) -> None:
         # Create example data and file_store
-        data = example_aas.create_full_example()
-        files = aasx.DictSupplementaryFileContainer()
+        data = example_aas.create_full_example()    # creates a complete, valid example AAS
+        files = aasx.DictSupplementaryFileContainer()   # in-memory store for attached files
         with open(os.path.join(os.path.dirname(__file__), 'TestFile.pdf'), 'rb') as f:
-            files.add_file("/TestFile.pdf", f, "application/pdf")
+            files.add_file("/TestFile.pdf", f, "application/pdf")   # add a real supplementary pdf file
             f.seek(0)
-
         # Create OPC/AASX core properties
+        # create AASX metadata (core properties)
         cp = pyecma376_2.OPCCoreProperties()
         cp.created = datetime.datetime.now()
         cp.creator = "Eclipse BaSyx Python Testing Framework"
 
         # Write AASX file
-        for write_json in (False, True):
+        for write_json in (False, True):    # Loop over both XML and JSON modes
             with self.subTest(write_json=write_json):
-                fd, filename = tempfile.mkstemp(suffix=".aasx")
-                os.close(fd)
+                fd, filename = tempfile.mkstemp(suffix=".aasx")     # create temporary file
+                os.close(fd)    # close file descriptor
 
                 # Write AASX file
                 # the zipfile library reports errors as UserWarnings via the warnings library. Let's check for
@@ -125,4 +125,87 @@ class AASXWriterTest(unittest.TestCase):
                 self.assertEqual(hashlib.sha1(file_content.getvalue()).hexdigest(),
                                  "78450a66f59d74c073bf6858db340090ea72a8b1")
 
+                os.unlink(filename)
+
+
+class AASXWriterReferencedSubmodelsTest(unittest.TestCase):
+
+    def test_only_referenced_submodels(self):
+        """
+        Test that verifies that all Submodels (referenced and unreferenced) are written to the AASX package when using
+        the convenience function write_all_aas_objects().
+        When calling the higher-level function write_aas(), however, only
+        referenced Submodels in the ObjectStore should be included.
+        """
+        # Create referenced and unreferenced Submodels
+        referenced_submodel = model.Submodel(id_="ref_submodel")
+        unreferenced_submodel = model.Submodel(id_="unref_submodel")
+
+        aas = model.AssetAdministrationShell(
+            id_="Test_AAS",
+            asset_information=model.AssetInformation(
+                asset_kind=model.AssetKind.INSTANCE,
+                global_asset_id="http://acplt.org/Test_Asset"
+            ),
+            submodel={model.ModelReference.from_referable(referenced_submodel)}
+        )
+
+        # ObjectStore containing all objects
+        object_store = model.DictObjectStore([aas, referenced_submodel, unreferenced_submodel])
+
+        # Empty SupplementaryFileContainer (no files needed)
+        file_store = aasx.DictSupplementaryFileContainer()
+
+        # --- Step 1: Check write_aas() behavior ---
+        for write_json in (False, True):
+            with self.subTest(method="write_aas", write_json=write_json):
+                fd, filename = tempfile.mkstemp(suffix=".aasx")
+                os.close(fd)
+
+                with warnings.catch_warnings(record=True) as w:
+                    with aasx.AASXWriter(filename) as writer:
+                        # write_aas only takes the AAS id and ObjectStore
+                        writer.write_aas(
+                            aas_ids=[aas.id],
+                            object_store=object_store,
+                            file_store=file_store,
+                            write_json=write_json
+                        )
+
+                # Read back
+                new_data: model.DictObjectStore[model.Identifiable] = model.DictObjectStore()
+                new_files = aasx.DictSupplementaryFileContainer()
+                with aasx.AASXReader(filename) as reader:
+                    reader.read_into(new_data, new_files)
+
+                # Assertions
+                self.assertIn(referenced_submodel.id, new_data)     # referenced Submodel is included
+                self.assertNotIn(unreferenced_submodel.id, new_data)  # unreferenced Submodel is excluded
+
+                os.unlink(filename)
+
+        # --- Step 2: Check write_all_aas_objects ---
+        for write_json in (False, True):
+            with self.subTest(method="write_all_aas_objects", write_json=write_json):
+                fd, filename = tempfile.mkstemp(suffix=".aasx")
+                os.close(fd)
+
+                with warnings.catch_warnings(record=True) as w:
+                    with aasx.AASXWriter(filename) as writer:
+                        writer.write_all_aas_objects(
+                            part_name="/aasx/my_aas_part.xml",
+                            objects=object_store,
+                            file_store=file_store,
+                            write_json=write_json
+                        )
+
+                # Read back
+                new_data: model.DictObjectStore[model.Identifiable] = model.DictObjectStore()
+                new_files = aasx.DictSupplementaryFileContainer()
+                with aasx.AASXReader(filename) as reader:
+                    reader.read_into(new_data, new_files)
+
+                # Assertions
+                self.assertIn(referenced_submodel.id, new_data)
+                self.assertIn(unreferenced_submodel.id, new_data)  # all objects are written
                 os.unlink(filename)
