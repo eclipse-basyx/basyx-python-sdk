@@ -613,10 +613,10 @@ class Referable(HasExtension, metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def __init__(self):
         super().__init__()
-        self._id_short: Optional[NameType] = None
-        self.display_name: Optional[MultiLanguageNameType] = dict()
+        self._id_short: Optional[NameType] = None 
+        self.display_name: Optional[MultiLanguageNameType] = None
         self._category: Optional[NameType] = None
-        self.description: Optional[MultiLanguageTextType] = dict()
+        self.description: Optional[MultiLanguageTextType] = None
         # We use a Python reference to the parent Namespace instead of a Reference Object, as specified. This allows
         # simpler and faster navigation/checks and it has no effect in the serialized data formats anyway.
         self.parent: Optional[UniqueIdShortNamespace] = None
@@ -826,6 +826,63 @@ class Referable(HasExtension, metaclass=abc.ABCMeta):
                 set_.add(self)
         # Redundant to the line above. However, this way, we make sure that we really update the _id_short
         self._id_short = id_short
+
+    def _check_multiLanguageNameType(self, value): 
+        """ 
+        Check that the given type is either None or of type MultiLanguageNameType 
+
+        :param value: The display name to check
+        :raises TypeError: If the type is not :datatype:`MultiLanguageNameType` or `None`
+        """ 
+
+        if value is not None and not isinstance(value, MultiLanguageNameType):
+            raise TypeError(
+                f"display_name must be of type MultiLanguageNameType, but got {type(value)}"
+            ) 
+    
+    def _get_display_name(self) -> Optional[MultiLanguageNameType]:
+        return self._display_name 
+    
+    def _set_display_name(self, display_name: Optional[MultiLanguageNameType]):
+        """
+        Check the input type and then set the display_name
+
+        :param display_name: MultiLanguageNameType for the display name of the element
+        :raises TypeError: if the type is not correct
+        """ 
+        self._check_multiLanguageNameType(display_name)
+        self._display_name = display_name
+
+    display_name = property(_get_display_name, _set_display_name) 
+
+        
+    def _check_MultiLanguageTextType(self, value):
+        """
+        Check that the given type is either None or of type MultiLanguageTextType 
+
+        :param value: The description to check
+        :raises TypeError: if the type is not :datatype:`MultiLanguageTextType` or `None`
+        """ 
+
+        if value is not None and not isinstance(value, MultiLanguageTextType): 
+            raise TypeError(
+                f"description must be of type MultiLanguageTextType, but got {type(value)}" 
+            )
+        
+    def _get_description(self) -> Optional[MultiLanguageTextType]:
+        return self._description
+    
+    def _set_description(self, description: Optional[MultiLanguageTextType]):
+        """
+        Check the input type and then set the description
+
+        :param description: MultiLanguageTextType for the description of the element
+        :raises TypeError: if the type is not correct
+        """ 
+        self._check_MultiLanguageTextType(description)
+        self._description = description 
+
+    description = property(_get_description, _set_description)
 
     def update_from(self, other: "Referable"):
         """
