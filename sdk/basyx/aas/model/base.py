@@ -621,10 +621,6 @@ class Referable(HasExtension, metaclass=abc.ABCMeta):
         # simpler and faster navigation/checks and it has no effect in the serialized data formats anyway.
         self.parent: Optional[UniqueIdShortNamespace] = None
 
-        # Initialize with empty objects to avoid ValueError
-        self.display_name = MultiLanguageNameType({})
-        self.description = MultiLanguageTextType({})
-
     def __repr__(self) -> str:
         root = self.get_identifiable_root()
         try:
@@ -846,8 +842,8 @@ class Referable(HasExtension, metaclass=abc.ABCMeta):
     @display_name.setter
     def display_name(self, value: Optional[MultiLanguageNameType]) -> None:
         self._check_multiLanguageNameType(value)
-        self._display_name = value  
-        
+        self._display_name = value
+
     def _check_MultiLanguageTextType(self, value: Optional[MultiLanguageTextType]) -> None:
         """Ensure value is None or a MultiLanguageTextType."""
         if value is not None and not isinstance(value, MultiLanguageTextType):
