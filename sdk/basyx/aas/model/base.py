@@ -1,5 +1,5 @@
 # Copyright (c) 2025 the Eclipse BaSyx Authors
-#
+# 
 # This program and the accompanying materials are made available under the terms of the MIT License, available in
 # the LICENSE file of this project.
 #
@@ -621,6 +621,10 @@ class Referable(HasExtension, metaclass=abc.ABCMeta):
         # simpler and faster navigation/checks and it has no effect in the serialized data formats anyway.
         self.parent: Optional[UniqueIdShortNamespace] = None
 
+        # Initialize with empty objects to avoid ValueError
+        self.display_name = MultiLanguageNameType({})
+        self.description = MultiLanguageTextType({})
+
     def __repr__(self) -> str:
         root = self.get_identifiable_root()
         try:
@@ -825,64 +829,43 @@ class Referable(HasExtension, metaclass=abc.ABCMeta):
             for set_ in set_add_list:
                 set_.add(self)
         # Redundant to the line above. However, this way, we make sure that we really update the _id_short
-        self._id_short = id_short
+        self._id_short = id_short 
 
-    def _check_multiLanguageNameType(self, value): 
-        """ 
-        Check that the given type is either None or of type MultiLanguageNameType 
 
-        :param value: The display name to check
-        :raises TypeError: If the type is not :datatype:`MultiLanguageNameType` or `None`
-        """ 
-
+    def _check_multiLanguageNameType(self, value: Optional[MultiLanguageNameType]) -> None:
+        """Ensure value is None or a MultiLanguageNameType."""
         if value is not None and not isinstance(value, MultiLanguageNameType):
             raise TypeError(
                 f"display_name must be of type MultiLanguageNameType, but got {type(value)}"
-            ) 
-    
-    def _get_display_name(self) -> Optional[MultiLanguageNameType]:
-        return self._display_name 
-    
-    def _set_display_name(self, display_name: Optional[MultiLanguageNameType]):
-        """
-        Check the input type and then set the display_name
-
-        :param display_name: MultiLanguageNameType for the display name of the element
-        :raises TypeError: if the type is not correct
-        """ 
-        self._check_multiLanguageNameType(display_name)
-        self._display_name = display_name
-
-    display_name = property(_get_display_name, _set_display_name) 
-
-        
-    def _check_MultiLanguageTextType(self, value):
-        """
-        Check that the given type is either None or of type MultiLanguageTextType 
-
-        :param value: The description to check
-        :raises TypeError: if the type is not :datatype:`MultiLanguageTextType` or `None`
-        """ 
-
-        if value is not None and not isinstance(value, MultiLanguageTextType): 
-            raise TypeError(
-                f"description must be of type MultiLanguageTextType, but got {type(value)}" 
             )
+
+    @property
+    def display_name(self) -> Optional[MultiLanguageNameType]:
+        """Display name of the element (MultiLanguageNameType)."""
+        return self._display_name
+
+    @display_name.setter
+    def display_name(self, value: Optional[MultiLanguageNameType]) -> None:
+        self._check_multiLanguageNameType(value)
+        self._display_name = value  
+
         
-    def _get_description(self) -> Optional[MultiLanguageTextType]:
+    def _check_MultiLanguageTextType(self, value: Optional[MultiLanguageTextType]) -> None:
+        """Ensure value is None or a MultiLanguageTextType."""
+        if value is not None and not isinstance(value, MultiLanguageTextType):
+            raise TypeError(
+                f"description must be of type MultiLanguageTextType, but got {type(value)}"
+            )
+
+    @property
+    def description(self) -> Optional[MultiLanguageTextType]:
+        """Description of the element (MultiLanguageTextType)."""
         return self._description
-    
-    def _set_description(self, description: Optional[MultiLanguageTextType]):
-        """
-        Check the input type and then set the description
 
-        :param description: MultiLanguageTextType for the description of the element
-        :raises TypeError: if the type is not correct
-        """ 
-        self._check_MultiLanguageTextType(description)
-        self._description = description 
-
-    description = property(_get_description, _set_description)
+    @description.setter
+    def description(self, value: Optional[MultiLanguageTextType]) -> None:
+        self._check_MultiLanguageTextType(value)
+        self._description = value
 
     def update_from(self, other: "Referable"):
         """
@@ -895,7 +878,7 @@ class Referable(HasExtension, metaclass=abc.ABCMeta):
         """
         for name in dir(other):
             # Skip private and protected attributes
-            if name.startswith('_'):
+            if name.startswith('_'): 
                 continue
 
             # Do not update 'parent', 'namespace_element_sets'
