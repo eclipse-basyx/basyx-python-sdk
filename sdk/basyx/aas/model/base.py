@@ -1,5 +1,5 @@
 # Copyright (c) 2025 the Eclipse BaSyx Authors
-# 
+#
 # This program and the accompanying materials are made available under the terms of the MIT License, available in
 # the LICENSE file of this project.
 #
@@ -613,7 +613,7 @@ class Referable(HasExtension, metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def __init__(self):
         super().__init__()
-        self._id_short: Optional[NameType] = None 
+        self._id_short: Optional[NameType] = None
         self._display_name: Optional[MultiLanguageNameType] = None
         self._category: Optional[NameType] = None
         self._description: Optional[MultiLanguageTextType] = None
@@ -829,8 +829,7 @@ class Referable(HasExtension, metaclass=abc.ABCMeta):
             for set_ in set_add_list:
                 set_.add(self)
         # Redundant to the line above. However, this way, we make sure that we really update the _id_short
-        self._id_short = id_short 
-
+        self._id_short = id_short
 
     def _check_multiLanguageNameType(self, value: Optional[MultiLanguageNameType]) -> None:
         """Ensure value is None or a MultiLanguageNameType."""
@@ -848,7 +847,6 @@ class Referable(HasExtension, metaclass=abc.ABCMeta):
     def display_name(self, value: Optional[MultiLanguageNameType]) -> None:
         self._check_multiLanguageNameType(value)
         self._display_name = value  
-
         
     def _check_MultiLanguageTextType(self, value: Optional[MultiLanguageTextType]) -> None:
         """Ensure value is None or a MultiLanguageTextType."""
@@ -878,7 +876,7 @@ class Referable(HasExtension, metaclass=abc.ABCMeta):
         """
         for name in dir(other):
             # Skip private and protected attributes
-            if name.startswith('_'): 
+            if name.startswith('_'):
                 continue
 
             # Do not update 'parent', 'namespace_element_sets'
