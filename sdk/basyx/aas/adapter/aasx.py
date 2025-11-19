@@ -824,15 +824,24 @@ class DictSupplementaryFileContainer(AbstractSupplementaryFileContainer):
         if hash not in self._store:
             self._store[hash] = data
             self._store_refcount[hash] = 0
-        name_map_data = (hash, content_type)
+        return self._assign_unique_name(name, hash, content_type)
+
+    def rename_file(self, old_name: str, new_name: str) -> str:
+        if old_name not in self._name_map:
+            raise KeyError(f"File with name {old_name} not found in SupplementaryFileContainer.")
+        if new_name == old_name:
+            return new_name
+        old_hash, old_ct = self._name_map[old_name]
+        return self._assign_unique_name(new_name, old_hash, old_ct)
+
+    def _assign_unique_name(self, name: str, sha: bytes, content_type: str) -> str:
         new_name = name
         i = 1
         while True:
             if new_name not in self._name_map:
-                self._name_map[new_name] = name_map_data
-                self._store_refcount[hash] += 1
+                self._name_map[new_name] = (sha, content_type)
                 return new_name
-            elif self._name_map[new_name] == name_map_data:
+            elif self._name_map[new_name] == (sha, content_type):
                 return new_name
             new_name = self._append_counter(name, i)
             i += 1
