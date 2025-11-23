@@ -291,7 +291,9 @@ class LangStringSet(MutableMapping[str, str]):
     """
     def __init__(self, dict_: Dict[str, str]):
         self._dict: Dict[str, str] = {}
-
+        
+        if not isinstance(dict_, dict):
+            raise TypeError(f"A {self.__class__.__name__} must be initialized with a dict!, got {type(dict_)}")
         if len(dict_) < 1:
             raise ValueError(f"A {self.__class__.__name__} must not be empty!")
         for ltag in dict_:
@@ -827,38 +829,26 @@ class Referable(HasExtension, metaclass=abc.ABCMeta):
         # Redundant to the line above. However, this way, we make sure that we really update the _id_short
         self._id_short = id_short
 
-    def _check_multiLanguageNameType(self, value: Optional[MultiLanguageNameType]) -> None:
-        """Ensure value is None or a MultiLanguageNameType."""
-        if value is not None and not isinstance(value, MultiLanguageNameType):
-            raise TypeError(
-                f"display_name must be of type MultiLanguageNameType, but got {type(value)}"
-            )
-
     @property
-    def display_name(self) -> Optional[MultiLanguageNameType]:
+    def display_name(self) -> MultiLanguageNameType | None:
         """Display name of the element (MultiLanguageNameType)."""
         return self._display_name
 
     @display_name.setter
-    def display_name(self, value: Optional[MultiLanguageNameType]) -> None:
-        self._check_multiLanguageNameType(value)
+    def display_name(self, value: MultiLanguageNameType | None) -> None:
+        if value is not None and not isinstance(value, MultiLanguageNameType):
+            value = MultiLanguageNameType(value)
         self._display_name = value
 
-    def _check_MultiLanguageTextType(self, value: Optional[MultiLanguageTextType]) -> None:
-        """Ensure value is None or a MultiLanguageTextType."""
-        if value is not None and not isinstance(value, MultiLanguageTextType):
-            raise TypeError(
-                f"description must be of type MultiLanguageTextType, but got {type(value)}"
-            )
-
     @property
-    def description(self) -> Optional[MultiLanguageTextType]:
+    def description(self) -> MultiLanguageTextType | None:
         """Description of the element (MultiLanguageTextType)."""
         return self._description
 
     @description.setter
-    def description(self, value: Optional[MultiLanguageTextType]) -> None:
-        self._check_MultiLanguageTextType(value)
+    def description(self, value: MultiLanguageTextType | None) -> None:
+        if value is not None and not isinstance(value, MultiLanguageTextType):
+            value = MultiLanguageTextType(value)
         self._description = value
 
     def update_from(self, other: "Referable"):
