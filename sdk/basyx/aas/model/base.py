@@ -835,7 +835,7 @@ class Referable(HasExtension, metaclass=abc.ABCMeta):
         return self._display_name
 
     @display_name.setter
-    def display_name(self, value: MultiLanguageNameType | None) -> None:
+    def display_name(self, value: MultiLanguageNameType | dict| None) -> None:
         if value is not None and not isinstance(value, MultiLanguageNameType):
             value = MultiLanguageNameType(value)
         self._display_name = value
@@ -846,7 +846,7 @@ class Referable(HasExtension, metaclass=abc.ABCMeta):
         return self._description
 
     @description.setter
-    def description(self, value: MultiLanguageTextType | None) -> None:
+    def description(self, value: MultiLanguageTextType | dict | None) -> None:
         if value is not None and not isinstance(value, MultiLanguageTextType):
             value = MultiLanguageTextType(value)
         self._description = value
