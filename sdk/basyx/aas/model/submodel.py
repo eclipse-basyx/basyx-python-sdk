@@ -342,8 +342,17 @@ class MultiLanguageProperty(DataElement):
         super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, extension,
                          supplemental_semantic_id, embedded_data_specifications)
         self.value: Optional[base.MultiLanguageTextType] = value
-        self.value_id: Optional[base.Reference] = value_id
+        self.value_id: Optional[base.Reference] = value_id 
 
+    @property
+    def value(self) -> base.MultiLanguageTextType | None:
+        return self._value
+    
+    @value.setter
+    def value(self, value: base.MultiLanguageTextType | dict | None) -> None:
+        if value is not None and not isinstance(value, base.MultiLanguageTextType):
+            value = base.MultiLanguageTextType(value)
+        self._value = value
 
 class Range(DataElement):
     """
