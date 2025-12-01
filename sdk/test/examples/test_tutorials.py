@@ -22,7 +22,7 @@ class TutorialTest(unittest.TestCase):
     def test_tutorial_create_simple_aas(self):
         from basyx.aas.examples import tutorial_create_simple_aas
         self.assertEqual(tutorial_create_simple_aas.submodel.get_referable('ExampleProperty').value, 'exampleValue')
-        store = model.DictObjectStore({tutorial_create_simple_aas.submodel})
+        store = model.DictIdentifiableStore({tutorial_create_simple_aas.submodel})
         next(iter(tutorial_create_simple_aas.aas.submodel)).resolve(store)
 
     def test_tutorial_storage(self):

@@ -339,7 +339,7 @@ def check_example_submodel(checker: AASDataChecker, submodel: model.Submodel) ->
     checker.check_submodel_equal(submodel, expected_submodel)
 
 
-def check_full_example(checker: AASDataChecker, obj_store: model.DictObjectStore) -> None:
-    expected_data: model.DictObjectStore[model.Identifiable] = model.DictObjectStore()
+def check_full_example(checker: AASDataChecker, id_store: model.DictIdentifiableStore) -> None:
+    expected_data: model.DictIdentifiableStore[model.Identifiable] = model.DictIdentifiableStore()
     expected_data.add(create_example_submodel_template())
-    checker.check_object_store(obj_store, expected_data)
+    checker.check_identifiable_store(id_store, expected_data)

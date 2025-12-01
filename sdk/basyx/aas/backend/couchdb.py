@@ -11,8 +11,9 @@ in a CouchDB.
 The :class:`~CouchDBObjectStore` handles adding, deleting and otherwise managing the AAS objects in a specific CouchDB.
 """
 import threading
+import warnings
 import weakref
-from typing import List, Dict, Any, Optional, Iterator, Iterable, Union, Tuple, MutableMapping
+from typing import Dict, Any, Optional, Iterator, Iterable, Tuple, MutableMapping
 import urllib.parse
 import urllib.request
 import urllib.error
@@ -87,7 +88,7 @@ def delete_couchdb_revision(url: str):
         del _revision_store[url]
 
 
-class CouchDBObjectStore(model.AbstractObjectStore):
+class CouchDBIdentifiableStore(model.AbstractObjectStore[model.Identifier, model.Identifiable]):
     """
     An ObjectStore implementation for :class:`~basyx.aas.model.base.Identifiable` BaSyx Python SDK objects backed
     by a CouchDB database server.
@@ -175,7 +176,7 @@ class CouchDBObjectStore(model.AbstractObjectStore):
         self._object_cache[obj.id] = obj
         return obj
 
-    def get_identifiable(self, identifier: model.Identifier) -> model.Identifiable:
+    def get_item(self, identifier: model.Identifier) -> model.Identifiable:
         """
         Retrieve an AAS object from the CouchDB by its :class:`~basyx.aas.model.base.Identifier`
 
@@ -382,7 +383,7 @@ class CouchDBObjectStore(model.AbstractObjectStore):
         """
         # Iterator class storing the list of ids and fetching Identifiable objects on the fly
         class CouchDBIdentifiableIterator(Iterator[model.Identifiable]):
-            def __init__(self, store: CouchDBObjectStore, ids: Iterable[str]):
+            def __init__(self, store: CouchDBIdentifiableStore, ids: Iterable[str]):
                 self._iter = iter(ids)
                 self._store = store
 
@@ -405,6 +406,21 @@ class CouchDBObjectStore(model.AbstractObjectStore):
         if url_quote:
             identifier = urllib.parse.quote(identifier, safe='')
         return identifier
+
+
+class CouchDBObjectStore(CouchDBIdentifiableStore):
+    """
+    `CouchDBObjectStore` has been renamed to :class:`~.CouchDBIdentifiableStore` and will be removed in a
+    future release. Please migrate to :class:`~.CouchDBIdentifiableStore`.
+    """
+    def __init__(self, url: str, database: str):
+        warnings.warn(
+            "`CouchDBObjectStore` is deprecated and will be removed in a future release. Use "
+            "`CouchDBIdentifiableStore` instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        super().__init__(url, database)
 
 
 # #################################################################################################

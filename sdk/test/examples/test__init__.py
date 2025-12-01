@@ -13,10 +13,10 @@ from basyx.aas.examples.data import create_example, create_example_aas_binding
 class TestExampleFunctions(unittest.TestCase):
 
     def test_create_example(self):
-        obj_store = create_example()
+        id_store = create_example()
 
         # Check that the object store is not empty
-        self.assertGreater(len(obj_store), 0)
+        self.assertGreater(len(id_store), 0)
 
         # Check that the object store contains expected elements
         expected_ids = [
@@ -25,7 +25,7 @@ class TestExampleFunctions(unittest.TestCase):
             'https://acplt.org/Test_ConceptDescription_Mandatory'
         ]
         for id in expected_ids:
-            self.assertIsNotNone(obj_store.get_identifiable(id))
+            self.assertIsNotNone(id_store.get_item(id))
 
     def test_create_example_aas_binding(self):
         obj_store = create_example_aas_binding()
@@ -38,9 +38,9 @@ class TestExampleFunctions(unittest.TestCase):
         sm_id = 'https://acplt.org/Test_Submodel_Template'
         cd_id = 'https://acplt.org/Test_ConceptDescription_Mandatory'
 
-        aas = obj_store.get_identifiable(aas_id)
-        sm = obj_store.get_identifiable(sm_id)
-        cd = obj_store.get_identifiable(cd_id)
+        aas = obj_store.get_item(aas_id)
+        sm = obj_store.get_item(sm_id)
+        cd = obj_store.get_item(cd_id)
 
         self.assertIsNotNone(aas)
         self.assertIsNotNone(sm)

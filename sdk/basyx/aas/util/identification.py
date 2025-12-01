@@ -17,7 +17,7 @@ To Generate [identifier]:  -> Try:
 import abc
 import re
 import uuid
-from typing import Optional, Dict, Union, Set
+from typing import Optional, Dict, Union
 
 from .. import model
 
@@ -70,7 +70,7 @@ class NamespaceIRIGenerator(AbstractIdentifierGenerator):
     :ivar provider: An :class:`~basyx.aas.model.provider.AbstractObjectProvider` to check existence of
         :class:`Identifiers <basyx.aas.model.base.Identifier>`
     """
-    def __init__(self, namespace: str, provider: model.AbstractObjectProvider):
+    def __init__(self, namespace: str, provider: model.AbstractObjectProvider[model.Identifier, model.Identifiable]):
         """
         Create a new NamespaceIRIGenerator
         :param namespace: The IRI Namespace to generate Identifiers in. It must be a valid IRI (starting with a
@@ -100,7 +100,7 @@ class NamespaceIRIGenerator(AbstractIdentifierGenerator):
                 iri = "{}{}".format(self._namespace, proposal)
             # Try to find iri in provider. If it does not exist (KeyError), we found a unique one to return
             try:
-                self.provider.get_identifiable(iri)
+                self.provider.get_item(iri)
             except KeyError:
                 self._counter_cache[proposal] = counter
                 return iri

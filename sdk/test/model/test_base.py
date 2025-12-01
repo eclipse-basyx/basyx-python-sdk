@@ -854,12 +854,12 @@ class ModelReferenceTest(unittest.TestCase):
     def test_reference_typing(self) -> None:
         dummy_submodel = model.Submodel("urn:x-test:x")
 
-        class DummyObjectProvider(model.AbstractObjectProvider):
-            def get_identifiable(self, identifier: Identifier) -> Identifiable:
+        class DummyIdentifiableProvider(model.AbstractObjectProvider[model.Identifier, model.Identifiable]):
+            def get_item(self, identifier: Identifier) -> Identifiable:
                 return dummy_submodel
 
         x = model.ModelReference((model.Key(model.KeyTypes.SUBMODEL, "urn:x-test:x"),), model.Submodel)
-        submodel: model.Submodel = x.resolve(DummyObjectProvider())
+        submodel: model.Submodel = x.resolve(DummyIdentifiableProvider())
         self.assertIs(submodel, submodel)
 
     def test_resolve(self) -> None:
@@ -868,8 +868,8 @@ class ModelReferenceTest(unittest.TestCase):
         list_ = model.SubmodelElementList("list", model.SubmodelElementCollection, {collection})
         submodel = model.Submodel("urn:x-test:submodel", {list_})
 
-        class DummyObjectProvider(model.AbstractObjectProvider):
-            def get_identifiable(self, identifier: Identifier) -> Identifiable:
+        class DummyIdentifiableProvider(model.AbstractObjectProvider[model.Identifier, model.Identifiable]):
+            def get_item(self, identifier: Identifier) -> Identifiable:
                 if identifier == submodel.id:
                     return submodel
                 else:
@@ -881,7 +881,7 @@ class ModelReferenceTest(unittest.TestCase):
                                      model.Key(model.KeyTypes.PROPERTY, "prop")),
                                     model.Property)
         with self.assertRaises(KeyError) as cm:
-            ref1.resolve(DummyObjectProvider())
+            ref1.resolve(DummyIdentifiableProvider())
         self.assertEqual("'Referable with id_short lst not found in Submodel[urn:x-test:submodel]'", str(cm.exception))
 
         ref2 = model.ModelReference((model.Key(model.KeyTypes.SUBMODEL, "urn:x-test:submodel"),
@@ -890,7 +890,7 @@ class ModelReferenceTest(unittest.TestCase):
                                      model.Key(model.KeyTypes.PROPERTY, "prop")),
                                     model.Property)
         with self.assertRaises(KeyError) as cm_2:
-            ref2.resolve(DummyObjectProvider())
+            ref2.resolve(DummyIdentifiableProvider())
         self.assertEqual("'Referable with index 99 not found in SubmodelElementList[urn:x-test:submodel / list]'",
                          str(cm_2.exception))
 
@@ -899,7 +899,7 @@ class ModelReferenceTest(unittest.TestCase):
                                      model.Key(model.KeyTypes.SUBMODEL_ELEMENT_COLLECTION, "0"),
                                      model.Key(model.KeyTypes.PROPERTY, "prop")),
                                     model.Property)
-        self.assertIs(prop, ref3.resolve(DummyObjectProvider()))
+        self.assertIs(prop, ref3.resolve(DummyIdentifiableProvider()))
 
         ref4 = model.ModelReference((model.Key(model.KeyTypes.SUBMODEL, "urn:x-test:submodel"),
                                      model.Key(model.KeyTypes.SUBMODEL_ELEMENT_LIST, "list"),
@@ -908,7 +908,7 @@ class ModelReferenceTest(unittest.TestCase):
                                      model.Key(model.KeyTypes.PROPERTY, "prop")),
                                     model.Property)
         with self.assertRaises(TypeError) as cm_3:
-            ref4.resolve(DummyObjectProvider())
+            ref4.resolve(DummyIdentifiableProvider())
         self.assertEqual("Cannot resolve id_short or index 'prop' at Property[urn:x-test:submodel / list[0].prop], "
                          "because it is not a UniqueIdShortNamespace!", str(cm_3.exception))
 
@@ -919,14 +919,14 @@ class ModelReferenceTest(unittest.TestCase):
         ref5 = model.ModelReference((model.Key(model.KeyTypes.SUBMODEL, "urn:x-test:sub"),), model.Property)
         # Oh no, yet another typo!
         with self.assertRaises(KeyError) as cm_5:
-            ref5.resolve(DummyObjectProvider())
+            ref5.resolve(DummyIdentifiableProvider())
         self.assertEqual("'Could not resolve identifier urn:x-test:sub'", str(cm_5.exception))
 
         ref6 = model.ModelReference((model.Key(model.KeyTypes.SUBMODEL, "urn:x-test:submodel"),), model.Property)
         # Okay, typo is fixed, but the type is not what we expect. However, we should get the submodel via the
         # exception's value attribute
         with self.assertRaises(model.UnexpectedTypeError) as cm_6:
-            ref6.resolve(DummyObjectProvider())
+            ref6.resolve(DummyIdentifiableProvider())
         self.assertIs(submodel, cm_6.exception.value)
 
         with self.assertRaises(ValueError) as cm_7:
@@ -939,7 +939,7 @@ class ModelReferenceTest(unittest.TestCase):
                                      model.Key(model.KeyTypes.PROPERTY, "prop_false")), model.Property)
 
         with self.assertRaises(KeyError) as cm_8:
-            ref8.resolve(DummyObjectProvider())
+            ref8.resolve(DummyIdentifiableProvider())
         self.assertEqual("'Referable with id_short prop_false not found in "
                          "SubmodelElementCollection[urn:x-test:submodel / list[0]]'", str(cm_8.exception))
 
@@ -949,7 +949,7 @@ class ModelReferenceTest(unittest.TestCase):
                                     model.SubmodelElementCollection)
 
         with self.assertRaises(ValueError) as cm_9:
-            ref9.resolve(DummyObjectProvider())
+            ref9.resolve(DummyIdentifiableProvider())
         self.assertEqual("Cannot resolve 'collection' at SubmodelElementList[urn:x-test:submodel / list], "
                          "because it is not a numeric index!", str(cm_9.exception))
 

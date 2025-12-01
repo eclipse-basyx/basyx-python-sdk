@@ -898,7 +898,7 @@ def read_aas_json_file_into(object_store: model.AbstractObjectStore, file: PathO
     return ret
 
 
-def read_aas_json_file(file: PathOrIO, failsafe: bool = True, **kwargs) -> model.DictObjectStore[model.Identifiable]:
+def read_aas_json_file(file: PathOrIO, failsafe: bool = True, **kwargs) -> model.DictIdentifiableStore:
     """
     A wrapper of :meth:`~basyx.aas.adapter.json.json_deserialization.read_aas_json_file_into`, that reads all objects
     in an empty :class:`~basyx.aas.model.provider.DictObjectStore`. This function supports the same keyword arguments as
@@ -915,6 +915,6 @@ def read_aas_json_file(file: PathOrIO, failsafe: bool = True, **kwargs) -> model
                                          (e.g. an AssetAdministrationShell in ``submodels``)
     :return: A :class:`~basyx.aas.model.provider.DictObjectStore` containing all AAS objects from the JSON file
     """
-    object_store: model.DictObjectStore[model.Identifiable] = model.DictObjectStore()
-    read_aas_json_file_into(object_store, file, failsafe=failsafe, **kwargs)
-    return object_store
+    identifiable_store: model.DictIdentifiableStore = model.DictIdentifiableStore()
+    read_aas_json_file_into(identifiable_store, file, failsafe=failsafe, **kwargs)
+    return identifiable_store

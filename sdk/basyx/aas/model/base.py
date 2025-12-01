@@ -18,6 +18,7 @@ from typing import List, Optional, Set, TypeVar, MutableSet, Generic, Iterable, 
 import re
 
 from . import datatypes, _string_constraints
+from .. import model
 
 if TYPE_CHECKING:
     from . import provider
@@ -1048,7 +1049,7 @@ class ModelReference(Reference, Generic[_RT]):
         self.type: Type[_RT]
         object.__setattr__(self, 'type', type_)
 
-    def resolve(self, provider_: "provider.AbstractObjectProvider") -> _RT:
+    def resolve(self, provider_: "provider.AbstractObjectProvider[model.Identifier, model.Identifiable]") -> _RT:
         """
         Follow the :class:`~.Reference` and retrieve the :class:`~.Referable` object it points to
 
@@ -1070,7 +1071,7 @@ class ModelReference(Reference, Generic[_RT]):
             raise AssertionError(f"Retrieving the identifier of the first {self.key[0]!r} failed.")
 
         try:
-            item: Referable = provider_.get_identifiable(identifier)
+            item: Referable = provider_.get_item(identifier)
         except KeyError as e:
             raise KeyError("Could not resolve identifier {}".format(identifier)) from e
 
@@ -1297,24 +1298,36 @@ class AdministrativeInformation(HasDataSpecification):
 
 
 @_string_constraints.constrain_identifier("id")
-class Identifiable(Referable, metaclass=abc.ABCMeta):
+class HasIdentifier(metaclass=abc.ABCMeta):
     """
-    An element that has a globally unique :class:`Identifier`.
+    Abstract base class for entities characterised by a globally unique :class:`Identifier`.
 
     <<abstract>>
 
-    :ivar administration: :class:`~.AdministrativeInformation` of an identifiable element.
     :ivar id: The globally unique id of the element.
     """
     @abc.abstractmethod
     def __init__(self) -> None:
         super().__init__()
-        self.administration: Optional[AdministrativeInformation] = None
-        # The id attribute is set by all inheriting classes __init__ functions.
         self.id: Identifier
 
     def __repr__(self) -> str:
         return "{}[{}]".format(self.__class__.__name__, self.id)
+
+
+class Identifiable(HasIdentifier, Referable, metaclass=abc.ABCMeta):
+    """
+    Identifiable element with a globally unique :class:`Identifier` and, optionally, additional
+    :class:`~.AdministrativeInformation`.
+
+    <<abstract>>
+
+    :ivar administration: :class:`~.AdministrativeInformation` of an identifiable element.
+    """
+    @abc.abstractmethod
+    def __init__(self) -> None:
+        super().__init__()
+        self.administration: Optional[AdministrativeInformation] = None
 
 
 _T = TypeVar("_T")

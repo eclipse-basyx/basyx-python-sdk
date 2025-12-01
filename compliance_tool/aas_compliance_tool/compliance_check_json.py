@@ -102,7 +102,7 @@ def _check_schema(file_to_be_checked: IO[str], state_manager: ComplianceToolStat
 
 
 def check_deserialization(file_path: str, state_manager: ComplianceToolStateManager,
-                          file_info: Optional[str] = None) -> model.DictObjectStore:
+                          file_info: Optional[str] = None) -> model.DictIdentifiableStore:
     """
     Deserializes a JSON AAS file and reports any issues using the given
     :class:`~basyx.aas.compliance_tool.state_manager.ComplianceToolStateManager`
@@ -140,7 +140,7 @@ def check_deserialization(file_path: str, state_manager: ComplianceToolStateMana
         else:
             state_manager.add_step('Read file and check if it is deserializable')
         state_manager.set_step_status(Status.NOT_EXECUTED)
-        return model.DictObjectStore()
+        return model.DictIdentifiableStore()
 
     with file_to_be_checked:
         state_manager.set_step_status(Status.SUCCESS)
@@ -184,7 +184,7 @@ def check_aas_example(file_path: str, state_manager: ComplianceToolStateManager,
     checker = AASDataChecker(raise_immediately=False, **kwargs)
 
     state_manager.add_step('Check if data is equal to example data')
-    checker.check_object_store(obj_store, create_example())
+    checker.check_identifiable_store(obj_store, create_example())
 
     state_manager.add_log_records_from_data_checker(checker)
 
@@ -220,7 +220,7 @@ def check_json_files_equivalence(file_path_1: str, file_path_2: str, state_manag
     checker = AASDataChecker(raise_immediately=False, **kwargs)
     try:
         state_manager.add_step('Check if data in files are equal')
-        checker.check_object_store(obj_store_1, obj_store_2)
+        checker.check_identifiable_store(obj_store_1, obj_store_2)
     except (KeyError, AssertionError) as error:
         state_manager.set_step_status(Status.FAILED)
         logger.error(error)

@@ -17,7 +17,7 @@ from ._helper import AASDataChecker
 logger = logging.getLogger(__name__)
 
 
-def create_full_example() -> model.DictObjectStore:
+def create_full_example() -> model.DictIdentifiableStore:
     """
     Creates an :class:`~basyx.aas.model.provider.DictObjectStore` containing an example
     :class:`~basyx.aas.model.submodel.Submodel`, an example :class:`~basyx.aas.model.concept.ConceptDescription` and an
@@ -25,11 +25,11 @@ def create_full_example() -> model.DictObjectStore:
 
     :return: :class:`basyx.aas.model.provider.DictObjectStore`
     """
-    obj_store: model.DictObjectStore[model.Identifiable] = model.DictObjectStore()
-    obj_store.add(create_example_submodel())
-    obj_store.add(create_example_concept_description())
-    obj_store.add(create_example_asset_administration_shell())
-    return obj_store
+    id_store: model.DictIdentifiableStore[model.Identifiable] = model.DictIdentifiableStore()
+    id_store.add(create_example_submodel())
+    id_store.add(create_example_concept_description())
+    id_store.add(create_example_asset_administration_shell())
+    return id_store
 
 
 def create_example_submodel() -> model.Submodel:
@@ -413,6 +413,6 @@ def check_example_submodel(checker: AASDataChecker, submodel: model.Submodel) ->
     checker.check_submodel_equal(submodel, expected_submodel)
 
 
-def check_full_example(checker: AASDataChecker, obj_store: model.DictObjectStore) -> None:
+def check_full_example(checker: AASDataChecker, id_store: model.DictIdentifiableStore) -> None:
     expected_data = create_full_example()
-    checker.check_object_store(obj_store, expected_data)
+    checker.check_identifiable_store(id_store, expected_data)

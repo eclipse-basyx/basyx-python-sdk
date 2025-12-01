@@ -234,7 +234,7 @@ class AASXReader:
             elif isinstance(obj, model.AssetAdministrationShell):
                 self._collect_supplementary_files(part_name, obj, file_store)
 
-    def _parse_aas_part(self, part_name: str, **kwargs) -> model.DictObjectStore:
+    def _parse_aas_part(self, part_name: str, **kwargs) -> model.DictIdentifiableStore:
         """
         Helper function to parse the AAS objects from a single JSON or XML part of the AASX package.
 
@@ -261,7 +261,7 @@ class AASXReader:
                 logger.error(error_message)
             else:
                 raise ValueError(error_message)
-            return model.DictObjectStore()
+            return model.DictIdentifiableStore()
 
     def _collect_supplementary_files(self, part_name: str,
                                      root_element: Union[model.AssetAdministrationShell, model.Submodel],
@@ -380,7 +380,7 @@ class AASXWriter:
 
     def write_aas(self,
                   aas_ids: Union[model.Identifier, Iterable[model.Identifier]],
-                  object_store: model.AbstractObjectStore,
+                  object_store: model.AbstractObjectStore[model.Identifier, model.Identifiable],
                   file_store: "AbstractSupplementaryFileContainer",
                   write_json: bool = False) -> None:
         """
@@ -430,10 +430,10 @@ class AASXWriter:
         if isinstance(aas_ids, model.Identifier):
             aas_ids = (aas_ids,)
 
-        objects_to_be_written: model.DictObjectStore[model.Identifiable] = model.DictObjectStore()
+        objects_to_be_written: model.DictIdentifiableStore[model.Identifiable] = model.DictIdentifiableStore()
         for aas_id in aas_ids:
             try:
-                aas = object_store.get_identifiable(aas_id)
+                aas = object_store.get_item(aas_id)
                 if not isinstance(aas, model.AssetAdministrationShell):
                     raise TypeError(f"Identifier {aas_id} does not belong to an AssetAdministrationShell object but to "
                                     f"{aas!r}")
@@ -507,8 +507,8 @@ class AASXWriter:
         A thin wrapper around :meth:`write_all_aas_objects` to ensure downwards compatibility
 
         This method takes the AAS's :class:`~basyx.aas.model.base.Identifier` (as ``aas_id``) to retrieve it
-        from the given object_store. If the list of written objects includes :class:`~basyx.aas.model.submodel.Submodel`
-        objects, Supplementary files which are referenced by :class:`~basyx.aas.model.submodel.File` objects within
+        from the given object_store. If the list of written identifiables includes :class:`~basyx.aas.model.submodel.Submodel`
+        identifiables, Supplementary files which are referenced by :class:`~basyx.aas.model.submodel.File` identifiables within
         those Submodels, are also added to the AASX package.
 
         .. attention::
@@ -519,14 +519,14 @@ class AASXWriter:
         :param part_name: Name of the Part within the AASX package to write the files to. Must be a valid ECMA376-2
             part name and unique within the package. The extension of the part should match the data format (i.e.
             '.json' if ``write_json`` else '.xml').
-        :param object_ids: A list of :class:`Identifiers <basyx.aas.model.base.Identifier>` of the objects to be written
-            to the AASX package. Only these :class:`~basyx.aas.model.base.Identifiable` objects (and included
-            :class:`~basyx.aas.model.base.Referable` objects) are written to the package.
-        :param object_store: The objects store to retrieve the :class:`~basyx.aas.model.base.Identifiable` objects from
+        :param object_ids: A list of :class:`Identifiers <basyx.aas.model.base.Identifier>` of the identifiables to be written
+            to the AASX package. Only these :class:`~basyx.aas.model.base.Identifiable` identifiables (and included
+            :class:`~basyx.aas.model.base.Referable` identifiables) are written to the package.
+        :param object_store: The identifiables store to retrieve the :class:`~basyx.aas.model.base.Identifiable` identifiables from
         :param file_store: The
             :class:`SupplementaryFileContainer <basyx.aas.adapter.aasx.AbstractSupplementaryFileContainer>`
             to retrieve supplementary files from (if there are any :class:`~basyx.aas.model.submodel.File`
-            objects within the written objects.
+            identifiables within the written identifiables.
         :param write_json: If ``True``, the part is written as a JSON file instead of an XML file. Defaults to
             ``False``.
         :param split_part: If ``True``, no aas-spec relationship is added from the aasx-origin to this part. You must
@@ -534,29 +534,29 @@ class AASXWriter:
         :param additional_relationships: Optional OPC/ECMA376 relationships which should originate at the AAS object
             part to be written, in addition to the aas-suppl relationships which are created automatically.
         """
-        logger.debug(f"Writing AASX part {part_name} with AAS objects ...")
+        logger.debug(f"Writing AASX part {part_name} with AAS identifiables ...")
 
-        objects: model.DictObjectStore[model.Identifiable] = model.DictObjectStore()
+        identifiables: model.DictIdentifiableStore[model.Identifiable] = model.DictIdentifiableStore()
 
-        # Retrieve objects and scan for referenced supplementary files
+        # Retrieve identifiables and scan for referenced supplementary files
         for identifier in object_ids:
             try:
-                the_object = object_store.get_identifiable(identifier)
+                the_identifiable = object_store.get_item(identifier)
             except KeyError:
                 if self.failsafe:
-                    logger.error(f"Could not find object {identifier} in ObjectStore")
+                    logger.error(f"Could not find identifiable {identifier} in IdentifiableStore")
                     continue
                 else:
-                    raise KeyError(f"Could not find object {identifier!r} in ObjectStore")
-            objects.add(the_object)
+                    raise KeyError(f"Could not find identifiable {identifier!r} in IdentifiableStore")
+            identifiables.add(the_identifiable)
 
-        self.write_all_aas_objects(part_name, objects, file_store, write_json, split_part, additional_relationships)
+        self.write_all_aas_objects(part_name, identifiables, file_store, write_json, split_part, additional_relationships)
 
     # TODO remove `split_part` parameter in future version.
     #   Not required anymore since changes from DotAAS version 2.0.1 to 3.0RC01
     def write_all_aas_objects(self,
                               part_name: str,
-                              objects: model.AbstractObjectStore[model.Identifiable],
+                              objects: model.AbstractObjectStore[model.Identifier, model.Identifiable],
                               file_store: "AbstractSupplementaryFileContainer",
                               write_json: bool = False,
                               split_part: bool = False,

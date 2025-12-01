@@ -124,7 +124,7 @@ class AASXWriterTest(unittest.TestCase):
                                             f"{[warning.message for warning in w]}")
 
                 # Read AASX file
-                new_data: model.DictObjectStore[model.Identifiable] = model.DictObjectStore()
+                new_data: model.DictIdentifiableStore[model.Identifiable] = model.DictIdentifiableStore()
                 new_files = aasx.DictSupplementaryFileContainer()
                 with aasx.AASXReader(filename) as reader:
                     reader.read_into(new_data, new_files)

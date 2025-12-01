@@ -39,7 +39,7 @@ class XMLSerializationTest(unittest.TestCase):
         test_aas = model.AssetAdministrationShell(model.AssetInformation(global_asset_id="Test"),
                                                   aas_identifier, submodel={submodel_reference})
 
-        test_data: model.DictObjectStore[model.Identifiable] = model.DictObjectStore()
+        test_data: model.DictIdentifiableStore[model.Identifiable] = model.DictIdentifiableStore()
         test_data.add(test_aas)
         test_data.add(submodel)
 
@@ -65,7 +65,7 @@ class XMLSerializationSchemaTest(unittest.TestCase):
         test_aas = model.AssetAdministrationShell(model.AssetInformation(global_asset_id="Test"),
                                                   aas_identifier, submodel={submodel_reference})
         # serialize object to xml
-        test_data: model.DictObjectStore[model.Identifiable] = model.DictObjectStore()
+        test_data: model.DictIdentifiableStore[model.Identifiable] = model.DictIdentifiableStore()
         test_data.add(test_aas)
         test_data.add(submodel)
 
@@ -94,7 +94,7 @@ class XMLSerializationSchemaTest(unittest.TestCase):
         root = etree.parse(file, parser=parser)
 
     def test_submodel_template_serialization(self) -> None:
-        data: model.DictObjectStore[model.Identifiable] = model.DictObjectStore()
+        data: model.DictIdentifiableStore[model.Identifiable] = model.DictIdentifiableStore()
         data.add(example_submodel_template.create_example_submodel_template())
         file = io.BytesIO()
         write_aas_xml_file(file=file, data=data)
@@ -134,7 +134,7 @@ class XMLSerializationSchemaTest(unittest.TestCase):
         root = etree.parse(file, parser=parser)
 
     def test_concept_description(self) -> None:
-        data: model.DictObjectStore[model.Identifiable] = model.DictObjectStore()
+        data: model.DictIdentifiableStore[model.Identifiable] = model.DictIdentifiableStore()
         data.add(example_aas.create_example_concept_description())
         file = io.BytesIO()
         write_aas_xml_file(file=file, data=data)

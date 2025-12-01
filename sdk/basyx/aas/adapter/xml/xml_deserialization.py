@@ -1421,7 +1421,7 @@ def read_aas_xml_element(file: PathOrIO, construct: XMLConstructables, failsafe:
     return _failsafe_construct(element, constructor, decoder_.failsafe, **constructor_kwargs)
 
 
-def read_aas_xml_file_into(object_store: model.AbstractObjectStore[model.Identifiable], file: PathOrIO,
+def read_aas_xml_file_into(object_store: model.AbstractObjectStore[model.Identifier, model.Identifiable], file: PathOrIO,
                            replace_existing: bool = False, ignore_existing: bool = False, failsafe: bool = True,
                            stripped: bool = False, decoder: Optional[Type[AASFromXmlDecoder]] = None,
                            **parser_kwargs: Any) -> Set[model.Identifier]:
@@ -1503,7 +1503,7 @@ def read_aas_xml_file_into(object_store: model.AbstractObjectStore[model.Identif
 
 
 def read_aas_xml_file(file: PathOrIO, failsafe: bool = True, **kwargs: Any)\
-        -> model.DictObjectStore[model.Identifiable]:
+        -> model.DictIdentifiableStore:
     """
     A wrapper of :meth:`~basyx.aas.adapter.xml.xml_deserialization.read_aas_xml_file_into`, that reads all objects in an
     empty :class:`~basyx.aas.model.provider.DictObjectStore`. This function supports
@@ -1521,6 +1521,6 @@ def read_aas_xml_file(file: PathOrIO, failsafe: bool = True, **kwargs: Any)\
     :raises TypeError: **Non-failsafe**: Encountered an undefined top-level list (e.g. ``<aas:submodels1>``)
     :return: A :class:`~basyx.aas.model.provider.DictObjectStore` containing all AAS objects from the XML file
     """
-    object_store: model.DictObjectStore[model.Identifiable] = model.DictObjectStore()
-    read_aas_xml_file_into(object_store, file, failsafe=failsafe, **kwargs)
-    return object_store
+    identifiable_store: model.DictIdentifiableStore[model.Identifiable] = model.DictIdentifiableStore()
+    read_aas_xml_file_into(identifiable_store, file, failsafe=failsafe, **kwargs)
+    return identifiable_store

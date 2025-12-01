@@ -113,7 +113,7 @@ Serialize the `Submodel` to XML:
 ```python
 from basyx.aas.adapter.xml import write_aas_xml_file
 
-data: model.DictObjectStore[model.Identifiable] = model.DictObjectStore()
+data: model.DictIdentifiableStore[model.Identifiable] = model.DictIdentifiableStore()
 data.add(submodel)
 write_aas_xml_file(file='Simple_Submodel.xml', data=data)
 ```

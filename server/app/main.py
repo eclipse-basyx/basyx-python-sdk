@@ -12,8 +12,8 @@ import logging
 import os
 from basyx.aas.adapter import load_directory
 from basyx.aas.adapter.aasx import DictSupplementaryFileContainer
-from basyx.aas.backend.local_file import LocalFileObjectStore
-from basyx.aas.model.provider import DictObjectStore
+from basyx.aas.backend.local_file import LocalFileIdentifiableStore
+from basyx.aas.model.provider import DictIdentifiableStore
 from interfaces.repository import WSGIApp
 from typing import Tuple, Union
 
@@ -44,7 +44,7 @@ def build_storage(
     env_storage_persistency: bool,
     env_storage_overwrite: bool,
     logger: logging.Logger
-) -> Tuple[Union[DictObjectStore, LocalFileObjectStore], DictSupplementaryFileContainer]:
+) -> Tuple[Union[DictIdentifiableStore, LocalFileIdentifiableStore], DictSupplementaryFileContainer]:
     """
     Configure the server's storage according to the given start-up settings.
 
@@ -62,7 +62,7 @@ def build_storage(
     """
 
     if env_storage_persistency:
-        storage_files = LocalFileObjectStore(env_storage)
+        storage_files = LocalFileIdentifiableStore(env_storage)
         storage_files.check_directory(create=True)
         if os.path.isdir(env_input):
             input_files, input_supp_files = load_directory(env_input)
@@ -91,7 +91,7 @@ def build_storage(
         return input_files, input_supp_files
     else:
         logger.warning("INPUT directory \"%s\" not found, starting empty", env_input)
-        return DictObjectStore(), DictSupplementaryFileContainer()
+        return DictIdentifiableStore(), DictSupplementaryFileContainer()
 
 
 # -------- WSGI entrypoint --------

@@ -69,18 +69,18 @@ aas = AssetAdministrationShell(
 # `aas.backends.couchdb` to use a CouchDB database server as persistent storage. Both ObjectStore implementations
 # provide the same interface. In addition, the CouchDBObjectStores allows synchronizing the local object with the
 # database via a Backend. See the `tutorial_backend_couchdb.py` for more information.
-obj_store: model.DictObjectStore[model.Identifiable] = model.DictObjectStore()
+id_store: model.DictIdentifiableStore[model.Identifiable] = model.DictIdentifiableStore()
 
 # step 2.2: add submodel and asset administration shell to store
-obj_store.add(submodel)
-obj_store.add(aas)
+id_store.add(submodel)
+id_store.add(aas)
 
 
 #################################################################
 # Step 3: Retrieving Objects From the Store by Their Identifier #
 #################################################################
 
-tmp_submodel = obj_store.get_identifiable(
+tmp_submodel = id_store.get_item(
     'https://acplt.org/Simple_Submodel')
 
 assert submodel is tmp_submodel
@@ -92,7 +92,7 @@ assert submodel is tmp_submodel
 
 # The `aas` object already contains a reference to the submodel.
 # Let's create a list of all submodels, to which the AAS has references, by resolving each of the submodel references:
-submodels = [reference.resolve(obj_store)
+submodels = [reference.resolve(id_store)
              for reference in aas.submodel]
 
 # The first (and only) element of this list should be our example submodel:
@@ -115,5 +115,5 @@ property_reference = model.ModelReference(
 # Now, we can resolve this new reference.
 # The `resolve()` method will fetch the Submodel object from the ObjectStore, traverse down to the included Property
 # object and return this object.
-tmp_property = property_reference.resolve(obj_store)
+tmp_property = property_reference.resolve(id_store)
 assert prop is tmp_property

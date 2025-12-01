@@ -24,7 +24,7 @@ class IdentifierGeneratorTest(unittest.TestCase):
             ids.add(identification)
 
     def test_generate_iri_identifier(self):
-        provider = model.DictObjectStore()
+        provider = model.DictIdentifiableStore()
 
         # Check expected Errors when Namespaces are not valid
         with self.assertRaises(ValueError) as cm:

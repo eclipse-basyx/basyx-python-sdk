@@ -11,12 +11,13 @@ in local files.
 The :class:`~LocalFileObjectStore` handles adding, deleting and otherwise managing
 the AAS objects in a specific Directory.
 """
-from typing import List, Iterator, Iterable, Union
+from typing import Iterator
 import logging
 import json
 import os
 import hashlib
 import threading
+import warnings
 import weakref
 
 from ..adapter.json import json_serialization, json_deserialization
@@ -26,7 +27,7 @@ from basyx.aas import model
 logger = logging.getLogger(__name__)
 
 
-class LocalFileObjectStore(model.AbstractObjectStore):
+class LocalFileIdentifiableStore(model.AbstractObjectStore[model.Identifier, model.Identifiable]):
     """
     An ObjectStore implementation for :class:`~basyx.aas.model.base.Identifiable` BaSyx Python SDK objects backed
     by a local file based local backend
@@ -84,7 +85,7 @@ class LocalFileObjectStore(model.AbstractObjectStore):
         self._object_cache[obj.id] = obj
         return obj
 
-    def get_identifiable(self, identifier: model.Identifier) -> model.Identifiable:
+    def get_item(self, identifier: model.Identifier) -> model.Identifiable:
         """
         Retrieve an AAS object from the local file by its :class:`~basyx.aas.model.base.Identifier`
 
@@ -168,3 +169,18 @@ class LocalFileObjectStore(model.AbstractObjectStore):
         Helper method to represent an ASS Identifier as a string to be used as Local file document id
         """
         return hashlib.sha256(identifier.encode("utf-8")).hexdigest()
+
+
+class LocalFileObjectStore(LocalFileIdentifiableStore):
+    """
+    `LocalFileObjectStore` has been renamed to :class:`~.LocalFileIdentifiableStore` and will be removed in a
+    future release. Please migrate to :class:`~.LocalFileIdentifiableStore`.
+    """
+    def __init__(self, directory_path: str):
+        warnings.warn(
+            "`LocalFileObjectStore` is deprecated and will be removed in a future release. Use "
+            "`LocalFileIdentifiableStore` instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        super().__init__(directory_path)

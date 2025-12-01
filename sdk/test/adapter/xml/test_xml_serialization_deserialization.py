@@ -17,7 +17,7 @@ from basyx.aas.examples.data import example_aas_missing_attributes, example_aas,
 from basyx.aas.examples.data._helper import AASDataChecker
 
 
-def _serialize_and_deserialize(data: model.DictObjectStore) -> model.DictObjectStore:
+def _serialize_and_deserialize(data: model.DictIdentifiableStore) -> model.DictIdentifiableStore:
     file = io.BytesIO()
     write_aas_xml_file(file=file, data=data)
 
@@ -43,17 +43,17 @@ class XMLSerializationDeserializationTest(unittest.TestCase):
         example_aas_missing_attributes.check_full_example(checker, object_store)
 
     def test_example_submodel_template_serialization_deserialization(self) -> None:
-        data: model.DictObjectStore[model.Identifiable] = model.DictObjectStore()
+        data: model.DictIdentifiableStore[model.Identifiable] = model.DictIdentifiableStore()
         data.add(example_submodel_template.create_example_submodel_template())
         object_store = _serialize_and_deserialize(data)
         checker = AASDataChecker(raise_immediately=True)
         example_submodel_template.check_full_example(checker, object_store)
 
     def test_example_all_examples_serialization_deserialization(self) -> None:
-        data: model.DictObjectStore[model.Identifiable] = create_example()
+        data: model.DictIdentifiableStore[model.Identifiable] = create_example()
         object_store = _serialize_and_deserialize(data)
         checker = AASDataChecker(raise_immediately=True)
-        checker.check_object_store(object_store, data)
+        checker.check_identifiable_store(object_store, data)
 
 
 class XMLSerializationDeserializationSingleObjectTest(unittest.TestCase):

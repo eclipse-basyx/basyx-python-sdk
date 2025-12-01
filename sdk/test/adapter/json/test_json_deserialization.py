@@ -165,8 +165,8 @@ class JsonDeserializationTest(unittest.TestCase):
     def test_duplicate_identifier_object_store(self) -> None:
         sm_id = "http://acplt.org/test_submodel"
 
-        def get_clean_store() -> model.DictObjectStore:
-            store: model.DictObjectStore = model.DictObjectStore()
+        def get_clean_store() -> model.DictIdentifiableStore:
+            store: model.DictIdentifiableStore[model.Identifiable] = model.DictIdentifiableStore()
             submodel_ = model.Submodel(sm_id, id_short="test123")
             store.add(submodel_)
             return store
