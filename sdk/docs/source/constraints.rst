@@ -16,14 +16,14 @@ an :class:`~basyx.aas.model.base.AASConstraintViolation` will be raised
 
 .. |aasd002| replace:: ``idShort`` of ``Referable`` s shall only feature letters, digits, underscore (``_``); starting mandatory with a letter, i.e. ``[a-zA-Z][a-zA-Z0-9_]*``.
 .. |aasd005| replace:: If ``AdministrativeInformation/version`` is not specified, ``AdministrativeInformation/revision`` shall also be unspecified. This means that a revision requires a version. If there is no version, there is no revision. Revision is optional.
-.. |aasd006| replace:: If both, the ``value`` and the ``valueId`` of a ``Qualifier`` are present, the value needs to be identical to the value of the referenced coded value in ``Qualifier/valueId``.
-.. |aasd007| replace:: If both the ``Property/value`` and the ``Property/valueId`` are present, the value of ``Property/value`` needs to be identical to the value of the referenced coded value in ``Property/valueId``.
+.. |aasd006| replace:: If both, the ``value`` and the ``valueId`` of a ``Qualifier`` are present, the value shall be identical to the value of the referenced coded value in ``Qualifier/valueId``.
+.. |aasd007| replace:: If both the ``Property/value`` and the ``Property/valueId`` are present, the value of ``Property/value`` shall be identical to the value of the referenced coded value in ``Property/valueId``.
 .. |aasd012| replace:: if both the ``MultiLanguageProperty/value`` and the ``MultiLanguageProperty/valueId`` are present, the meaning must be the same for each string in a specific language, as specified in ``MultiLanguageProperty/valueId``.
 .. |aasd014| replace:: Either the attribute ``globalAssetId`` or ``specificAssetId`` of an ``Entity`` must be set if ``Entity/entityType`` is set to ``SelfManagedEntity``. Otherwise, they do not exist.
 .. |aasd020| replace:: The value of ``Qualifier/value`` shall be consistent with the data type as defined in ``Qualifier/valueType``.
 .. |aasd021| replace:: Every qualifiable can only have one qualifier with the same ``Qualifier/type``.
 .. |aasd022| replace:: ``idShort`` of non-identifiable referables within the same name space shall be unique (case-sensitive).
-.. |aasd077| replace:: The name of an extension (``Extension/name``) within ``HasExtensions`` needs to be unique.
+.. |aasd077| replace:: The name of an extension (``Extension/name``) within ``HasExtensions`` shall be unique.
 .. |aasd080| replace:: In case ``Key/type`` == ``GlobalReference`` ``idType`` shall not be any LocalKeyType (``IdShort, FragmentId``).
 .. |aasd081| replace:: In case ``Key/type`` == ``AssetAdministrationShell`` ``Key/idType`` shall not be any LocalKeyType (``IdShort``, ``FragmentId``).
 .. |aasd090| replace:: for data elements, ``category`` (inherited by ``Referable``) shall be one of the following values: CONSTANT, PARAMETER or VARIABLE. Default: VARIABLE
