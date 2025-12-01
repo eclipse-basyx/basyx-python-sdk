@@ -21,7 +21,7 @@ an :class:`~basyx.aas.model.base.AASConstraintViolation` will be raised
 .. |aasd012| replace:: if both the ``MultiLanguageProperty/value`` and the ``MultiLanguageProperty/valueId`` are present, the meaning must be the same for each string in a specific language, as specified in ``MultiLanguageProperty/valueId``.
 .. |aasd014| replace:: Either the attribute ``globalAssetId`` or ``specificAssetId`` of an ``Entity`` must be set if ``Entity/entityType`` is set to ``SelfManagedEntity``. Otherwise, they do not exist.
 .. |aasd020| replace:: The value of ``Qualifier/value`` shall be consistent with the data type as defined in ``Qualifier/valueType``.
-.. |aasd021| replace:: Every qualifiable can only have one qualifier with the same ``Qualifier/type``.
+.. |aasd021| replace:: Every qualifiable shall only have one qualifier with the same ``Qualifier/type``.
 .. |aasd022| replace:: ``idShort`` of non-identifiable referables within the same name space shall be unique (case-sensitive).
 .. |aasd077| replace:: The name of an extension (``Extension/name``) within ``HasExtensions`` shall be unique.
 .. |aasd080| replace:: In case ``Key/type`` == ``GlobalReference`` ``idType`` shall not be any LocalKeyType (``IdShort, FragmentId``).
