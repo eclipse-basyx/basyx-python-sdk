@@ -507,9 +507,10 @@ class AASXWriter:
         A thin wrapper around :meth:`write_all_aas_objects` to ensure downwards compatibility
 
         This method takes the AAS's :class:`~basyx.aas.model.base.Identifier` (as ``aas_id``) to retrieve it
-        from the given object_store. If the list of written identifiables includes :class:`~basyx.aas.model.submodel.Submodel`
-        identifiables, Supplementary files which are referenced by :class:`~basyx.aas.model.submodel.File` identifiables within
-        those Submodels, are also added to the AASX package.
+        from the given object_store. If the list of written identifiables includes
+        :class:`~basyx.aas.model.submodel.Submodel` identifiables, Supplementary files which are referenced by
+        :class:`~basyx.aas.model.submodel.File` identifiables within those Submodels, are also added to the AASX
+        package.
 
         .. attention::
 
@@ -519,10 +520,11 @@ class AASXWriter:
         :param part_name: Name of the Part within the AASX package to write the files to. Must be a valid ECMA376-2
             part name and unique within the package. The extension of the part should match the data format (i.e.
             '.json' if ``write_json`` else '.xml').
-        :param object_ids: A list of :class:`Identifiers <basyx.aas.model.base.Identifier>` of the identifiables to be written
-            to the AASX package. Only these :class:`~basyx.aas.model.base.Identifiable` identifiables (and included
-            :class:`~basyx.aas.model.base.Referable` identifiables) are written to the package.
-        :param object_store: The identifiables store to retrieve the :class:`~basyx.aas.model.base.Identifiable` identifiables from
+        :param object_ids: A list of :class:`Identifiers <basyx.aas.model.base.Identifier>` of the identifiables to be
+            written to the AASX package. Only these :class:`~basyx.aas.model.base.Identifiable` identifiables
+            (and included :class:`~basyx.aas.model.base.Referable` identifiables) are written to the package.
+        :param object_store: The identifiables store to retrieve the :class:`~basyx.aas.model.base.Identifiable`
+            identifiables from
         :param file_store: The
             :class:`SupplementaryFileContainer <basyx.aas.adapter.aasx.AbstractSupplementaryFileContainer>`
             to retrieve supplementary files from (if there are any :class:`~basyx.aas.model.submodel.File`
@@ -550,7 +552,9 @@ class AASXWriter:
                     raise KeyError(f"Could not find identifiable {identifier!r} in IdentifiableStore")
             identifiables.add(the_identifiable)
 
-        self.write_all_aas_objects(part_name, identifiables, file_store, write_json, split_part, additional_relationships)
+        self.write_all_aas_objects(
+            part_name, identifiables, file_store, write_json, split_part, additional_relationships
+        )
 
     # TODO remove `split_part` parameter in future version.
     #   Not required anymore since changes from DotAAS version 2.0.1 to 3.0RC01

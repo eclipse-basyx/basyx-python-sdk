@@ -1049,7 +1049,7 @@ class ModelReference(Reference, Generic[_RT]):
         self.type: Type[_RT]
         object.__setattr__(self, 'type', type_)
 
-    def resolve(self, provider_: "provider.AbstractObjectProvider[model.Identifier, model.Identifiable]") -> _RT:
+    def resolve(self, provider_: "provider.AbstractObjectProvider") -> _RT:
         """
         Follow the :class:`~.Reference` and retrieve the :class:`~.Referable` object it points to
 

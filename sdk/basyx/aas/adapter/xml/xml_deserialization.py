@@ -1421,10 +1421,16 @@ def read_aas_xml_element(file: PathOrIO, construct: XMLConstructables, failsafe:
     return _failsafe_construct(element, constructor, decoder_.failsafe, **constructor_kwargs)
 
 
-def read_aas_xml_file_into(object_store: model.AbstractObjectStore[model.Identifier, model.Identifiable], file: PathOrIO,
-                           replace_existing: bool = False, ignore_existing: bool = False, failsafe: bool = True,
-                           stripped: bool = False, decoder: Optional[Type[AASFromXmlDecoder]] = None,
-                           **parser_kwargs: Any) -> Set[model.Identifier]:
+def read_aas_xml_file_into(
+        object_store: model.AbstractObjectStore[model.Identifier, model.Identifiable],
+        file: PathOrIO,
+        replace_existing: bool = False,
+        ignore_existing: bool = False,
+        failsafe: bool = True,
+        stripped: bool = False,
+        decoder: Optional[Type[AASFromXmlDecoder]] = None,
+        **parser_kwargs: Any
+) -> Set[model.Identifier]:
     """
     Read an Asset Administration Shell XML file according to 'Details of the Asset Administration Shell', chapter 5.4
     into a given :class:`ObjectStore <basyx.aas.model.provider.AbstractObjectStore>`.

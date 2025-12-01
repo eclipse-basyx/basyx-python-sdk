@@ -158,6 +158,7 @@ class DictObjectStore(DictIdentifiableStore):
     `DictObjectStore` has been renamed to :class:`~.DictIdentifiableStore` and will be removed in a future release.
     Please migrate to :class:`~.DictIdentifiableStore`.
     """
+
     def __init__(self, iterables: Iterable[_IT] = ()) -> None:
         warnings.warn(
             "`DictObjectStore` is deprecated and will be removed in a future release. Use "
@@ -232,6 +233,7 @@ class SetObjectStore(SetIdentifiableStore):
     `SetObjectStore` has been renamed to :class:`~.SetIdentifiableStore` and will be removed in a future release.
     Please migrate to :class:`~.SetIdentifiableStore`.
     """
+
     def __init__(self, objects: Iterable[_IT] = ()) -> None:
         warnings.warn(
             "`SetObjectStore` is deprecated and will be removed in a future release. Use `SetIdentifiableStore`"
@@ -254,7 +256,7 @@ class ObjectProviderMultiplexer(AbstractObjectProvider[_K, _V]):
                       object
     """
 
-    def __init__(self, registries: Optional[List[AbstractObjectProvider[ _K, _V]]] = None) -> None:
+    def __init__(self, registries: Optional[List[AbstractObjectProvider[_K, _V]]] = None) -> None:
         self.providers: List[AbstractObjectProvider[_K, _V]] = registries if registries is not None else []
 
     def get_item(self, key: _K) -> _V:

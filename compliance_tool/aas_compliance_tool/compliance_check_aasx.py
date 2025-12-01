@@ -252,8 +252,11 @@ def check_aas_example(file_path: str, state_manager: ComplianceToolStateManager,
         state_manager.set_step_status(Status.FAILED)
         return
 
-    checker2.check(sha_file == files.get_sha256(obj2.value), "File of {} must be {}.".format(identifiable.value, obj2.value),
-                   value=obj2.value)
+    checker2.check(
+        sha_file == files.get_sha256(obj2.value),
+        "File of {} must be {}.".format(identifiable.value, obj2.value),
+        value=obj2.value
+    )
     state_manager.add_log_records_from_data_checker(checker2)
     if state_manager.status in (Status.FAILED, Status.NOT_EXECUTED):
         state_manager.set_step_status(Status.FAILED)
