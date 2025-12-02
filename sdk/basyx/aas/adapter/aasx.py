@@ -604,7 +604,8 @@ class AASXWriter:
             if isinstance(the_object, model.Submodel):
                 for element in traversal.walk_submodel(the_object):
                     if isinstance(element, model.File):
-                        _collect_supplementary_file(element.value)
+                        if element.value:
+                            _collect_supplementary_file(element.value)
 
         # Add aas-spec relationship
         if not split_part:
