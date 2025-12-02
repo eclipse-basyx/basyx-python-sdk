@@ -3,7 +3,7 @@ name: ci
 on: [push, pull_request]
 
 env:
-  X_PYTHON_MIN_VERSION: "3.9"
+  X_PYTHON_MIN_VERSION: "3.10"
   X_PYTHON_MAX_VERSION: "3.12"
 
 jobs:
@@ -45,7 +45,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.9", "3.12"]
+        python-version: ["3.10", "3.12"]
     env:
       COUCHDB_ADMIN_PASSWORD: "yo0Quai3"
       # (2024-10-11, s-heppner)
@@ -208,7 +208,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.9", "3.12"]
+        python-version: ["3.10", "3.12"]
     defaults:
       run:
         working-directory: ./compliance_tool
