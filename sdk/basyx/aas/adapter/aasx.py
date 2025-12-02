@@ -290,7 +290,7 @@ class AASXReader:
                         element.value = final_name
 
     def _add_supplementary_file(self, part_name: str, file_path: str,
-                                file_store: "AbstractSupplementaryFileContainer") -> Union[str, None]:
+                                file_store: "AbstractSupplementaryFileContainer") -> Optional[str]:
         """
         Helper function to extract a single referenced supplementary file and return the absolute path within the AASX package.
 
