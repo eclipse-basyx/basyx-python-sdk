@@ -20,6 +20,8 @@ from werkzeug import Response, Request
 from werkzeug.exceptions import NotFound, BadRequest
 from werkzeug.routing import MapAdapter
 
+from . import _string_constraints
+
 from basyx.aas import model
 from basyx.aas.adapter._generic import XML_NS_MAP
 from basyx.aas.adapter.json import StrictStrippedAASFromJsonDecoder, StrictAASFromJsonDecoder, AASToJsonEncoder
@@ -27,6 +29,13 @@ from basyx.aas.adapter.xml import xml_serialization, XMLConstructables, read_aas
 from basyx.aas.model import AbstractObjectStore
 from util.converters import base64url_decode
 
+# The following string aliases are constrained by the decorator functions defined in the string_constraints module,
+# wherever they are used for an instances attributes.
+CodeType = str
+ShortIdType = str
+LocatorType = str
+TextType = str
+SchemeType = str
 
 T = TypeVar("T")
 
@@ -43,10 +52,11 @@ class MessageType(enum.Enum):
         return self.name.capitalize()
 
 
+@_string_constraints.constrain_code_type("code")
 class Message:
-    def __init__(self, code: str, text: str, message_type: MessageType = MessageType.UNDEFINED,
+    def __init__(self, code: CodeType, text: str, message_type: MessageType = MessageType.UNDEFINED,
                  timestamp: Optional[datetime.datetime] = None):
-        self.code: str = code
+        self.code: CodeType = code
         self.text: str = text
         self.message_type: MessageType = message_type
         self.timestamp: datetime.datetime = timestamp if timestamp is not None \
