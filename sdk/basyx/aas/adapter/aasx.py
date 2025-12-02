@@ -566,7 +566,7 @@ class AASXWriter:
         :class:`~basyx.aas.model.submodel.Submodel` objects, supplementary files which are referenced by
         :class:`~basyx.aas.model.submodel.File` objects within those Submodels, are fetched from the ``file_store``
         and added to the AASX package. If the ObjectStore contains a thumbnail referenced by
-        :class:`~basyx.aas.model.asset.AssetInformation.default_thumbnail`, it is also added to the AASX package.
+        :class:`~basyx.aas.model.aas.AssetInformation.default_thumbnail`, it is also added to the AASX package.
 
         .. attention::
 
