@@ -6,30 +6,6 @@
 # SPDX-License-Identifier: MIT
 """
 This module implements the "Specification of the Asset Administration Shell Part 2 Application Programming Interfaces".
-However, several features and routes are currently not supported:
-
-1. Extent Parameter (`withBlobValue/withoutBlobValue`):
-   Not implemented due to the lack of support in JSON/XML serialization.
-
-2. Route `/shells/{aasIdentifier}/asset-information/thumbnail`: Not implemented because the specification lacks clarity.
-
-3. Serialization and Description Routes:
-   - `/serialization`
-   - `/description`
-   These routes are not implemented at this time.
-
-4. Value, Path, and PATCH Routes:
-   - All `/…/value$`, `/…/path$`, and `PATCH` routes are currently not implemented.
-
-5. Operation Invocation Routes: The following routes are not implemented because operation invocation
-   is not yet supported by the `basyx-python-sdk`:
-   - `POST /submodels/{submodelIdentifier}/submodel-elements/{idShortPath}/invoke`
-   - `POST /submodels/{submodelIdentifier}/submodel-elements/{idShortPath}/invoke/$value`
-   - `POST /submodels/{submodelIdentifier}/submodel-elements/{idShortPath}/invoke-async`
-   - `POST /submodels/{submodelIdentifier}/submodel-elements/{idShortPath}/invoke-async/$value`
-   - `GET /submodels/{submodelIdentifier}/submodel-elements/{idShortPath}/operation-status/{handleId}`
-   - `GET /submodels/{submodelIdentifier}/submodel-elements/{idShortPath}/operation-results/{handleId}`
-   - `GET /submodels/{submodelIdentifier}/submodel-elements/{idShortPath}/operation-results/{handleId}/$value`
 """
 
 import io

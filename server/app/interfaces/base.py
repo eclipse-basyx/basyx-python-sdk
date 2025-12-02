@@ -27,6 +27,7 @@ from basyx.aas.adapter._generic import XML_NS_MAP
 from basyx.aas.adapter.json import StrictStrippedAASFromJsonDecoder, StrictAASFromJsonDecoder, AASToJsonEncoder
 from basyx.aas.adapter.xml import xml_serialization, XMLConstructables, read_aas_xml_element
 from basyx.aas.model import AbstractObjectStore
+from basyx.aas.model.datatypes import NonNegativeInteger
 from util.converters import base64url_decode
 
 # The following string aliases are constrained by the decorator functions defined in the string_constraints module,
@@ -213,9 +214,8 @@ class BaseWSGIApp:
         limit_str = request.args.get('limit', default="10")
         cursor_str = request.args.get('cursor', default="1")
         try:
-            limit, cursor = int(limit_str), int(cursor_str) - 1  # cursor is 1-indexed
-            if limit < 0 or cursor < 0:
-                raise ValueError
+            limit, cursor = (NonNegativeInteger(int(limit_str)),
+                             NonNegativeInteger(int(cursor_str) - 1))  # cursor is 1-indexed
         except ValueError:
             raise BadRequest("Limit can not be negative, cursor must be positive!")
         start_index = cursor
