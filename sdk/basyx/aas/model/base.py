@@ -1607,7 +1607,7 @@ class Qualifier(HasSemantics):
     """
     A qualifier is a type-value pair that makes additional statements w.r.t. the value of the element.
 
-    **Constraint AASd-006:** If both, the value and the valueId of a Qualifier are present, the value shall 
+    **Constraint AASd-006:** If both, the value and the valueId of a Qualifier are present, the value shall
     be identical to the value of the referenced coded value in Qualifier/valueId.
 
     **Constraint AASd-020:** The value of Qualifier/value shall be consistent with the
