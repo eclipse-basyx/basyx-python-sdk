@@ -291,7 +291,6 @@ class LangStringSet(MutableMapping[str, str]):
     """
     def __init__(self, dict_: Dict[str, str]):
         self._dict: Dict[str, str] = {}
-        
         if not isinstance(dict_, dict):
             raise TypeError(f"A {self.__class__.__name__} must be initialized with a dict!, got {type(dict_)}")
         if len(dict_) < 1:
@@ -830,23 +829,23 @@ class Referable(HasExtension, metaclass=abc.ABCMeta):
         self._id_short = id_short
 
     @property
-    def display_name(self) -> MultiLanguageNameType | None:
+    def display_name(self) -> Optional[MultiLanguageNameType]:
         """Display name of the element (MultiLanguageNameType)."""
         return self._display_name
 
     @display_name.setter
-    def display_name(self, value: MultiLanguageNameType | dict| None) -> None:
+    def display_name(self, value: Union[MultiLanguageNameType, dict, None]) -> None:
         if value is not None and not isinstance(value, MultiLanguageNameType):
             value = MultiLanguageNameType(value)
         self._display_name = value
 
     @property
-    def description(self) -> MultiLanguageTextType | None:
+    def description(self) -> Optional[MultiLanguageTextType]:
         """Description of the element (MultiLanguageTextType)."""
         return self._description
 
     @description.setter
-    def description(self, value: MultiLanguageTextType | dict | None) -> None:
+    def description(self, value: Union[MultiLanguageTextType, dict, None]) -> None:
         if value is not None and not isinstance(value, MultiLanguageTextType):
             value = MultiLanguageTextType(value)
         self._description = value
