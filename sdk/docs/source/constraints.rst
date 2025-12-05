@@ -32,7 +32,7 @@ an :class:`~basyx.aas.model.base.AASConstraintViolation` will be raised
 .. |aasd109| replace:: If ``SubmodelElementList/typeValueListElement`` is equal to ``Property`` or ``Range,`` ``SubmodelElementList/valueTypeListElement`` shall be set and all first level child elements in the ``SubmodelElementList`` shall have the value type as specified in ``SubmodelElementList/valueTypeListElement``.
 .. |aasd114| replace:: If two first level child elements in a ``SubmodelElementList`` have a ``semanticId``, they shall be identical.
 .. |aasd115| replace:: If a first level child element in a ``SubmodelElementList`` does not specify a ``semanticId``, the value is assumed to be identical to ``SubmodelElementList/semanticIdListElement``.
-.. |aasd116| replace:: ``globalAssetId`` (case-insensitive) is a reserved key. If used as value for ``SpecificAssetId/name,`` ``SpecificAssetId/value`` shall be identical to ``AssetInformation/globalAssetId``.
+.. |aasd116| replace:: ``globalAssetId`` (case-insensitive) is a reserved key for ``SpecificAssetId/name`` with the semantics as defined in ``:attr:`basyx.aas.model.aas.AssetInformation.global_asset_id``.
 .. |aasd117| replace:: ``idShort`` of non-identifiable ``Referables`` not being a direct child of a ``SubmodelElementList`` shall be specified.
 .. |aasd118| replace:: If a supplemental semantic ID (``HasSemantics/supplementalSemanticId``) is defined, there shall also be a main semantic ID (``HasSemantics/semanticId``).
 .. |aasd119| replace:: If any ``Qualifier/kind`` value of a ``Qualifiable/qualifier`` is equal to ``TemplateQualifier`` and the qualified element inherits from ``HasKind``, the qualified element shall be of kind ``Template`` (``HasKind/kind = Template``).
