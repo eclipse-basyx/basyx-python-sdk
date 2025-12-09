@@ -36,6 +36,28 @@ class TestAASXUtils(unittest.TestCase):
         self.assertNotEqual("/TestFile.pdf", new_name)
         self.assertIn(new_name, container)
 
+        # Rename file to a new unique name
+        renamed = container.rename_file(new_name, "/RenamedTestFile.pdf")
+        self.assertIn(renamed, container)
+        # Old name should no longer exist
+        self.assertNotIn(new_name, container)
+        self.assertEqual(renamed, "/RenamedTestFile.pdf")
+
+        # Renaming to the same name should be no-op
+        renamed_same = container.rename_file(renamed, renamed)
+        self.assertEqual(renamed, renamed_same)
+
+        # Renaming to an existing name should create a conflict
+        renamed_conflict = container.rename_file(renamed, "/TestFile.pdf")
+        self.assertNotEqual(renamed_conflict, "/TestFile.pdf")
+        self.assertIn(renamed_conflict, container)
+
+        # Renaming a non-existing file should raise KeyError
+        with self.assertRaises(KeyError):
+            container.rename_file("/NonExistingFile.pdf", "/AnotherName.pdf")
+
+        new_name = renamed_conflict
+
         # Check metadata
         self.assertEqual("application/pdf", container.get_content_type("/TestFile.pdf"))
         self.assertEqual("b18229b24a4ee92c6c2b6bc6a8018563b17472f1150d35d5a5945afeb447ed44",
