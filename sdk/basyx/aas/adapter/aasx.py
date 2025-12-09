@@ -263,7 +263,8 @@ class AASXReader:
                 raise ValueError(error_message)
             return model.DictObjectStore()
 
-    def _collect_supplementary_files(self, part_name: str, root_element: Union[model.AssetAdministrationShell, model.Submodel],
+    def _collect_supplementary_files(self, part_name: str,
+                                     root_element: Union[model.AssetAdministrationShell, model.Submodel],
                                      file_store: "AbstractSupplementaryFileContainer") -> None:
         """
         Helper function to search File objects within a single parsed AssetAdministrationShell or Submodel.
@@ -277,7 +278,9 @@ class AASXReader:
         if isinstance(root_element, model.AssetAdministrationShell):
             if (root_element.asset_information.default_thumbnail and
                     root_element.asset_information.default_thumbnail.path):
-                file_name = self._add_supplementary_file(part_name, root_element.asset_information.default_thumbnail.path, file_store)
+                file_name = self._add_supplementary_file(part_name,
+                                                         root_element.asset_information.default_thumbnail.path,
+                                                         file_store)
                 if file_name:
                     root_element.asset_information.default_thumbnail.path = file_name
         if isinstance(root_element, model.Submodel):
@@ -292,7 +295,8 @@ class AASXReader:
     def _add_supplementary_file(self, part_name: str, file_path: str,
                                 file_store: "AbstractSupplementaryFileContainer") -> Optional[str]:
         """
-        Helper function to extract a single referenced supplementary file and return the absolute path within the AASX package.
+        Helper function to extract a single referenced supplementary file
+        and return the absolute path within the AASX package.
 
         :param part_name: The OPC part name of the part the root_element has been parsed from. This is used to resolve
             relative file paths.
@@ -304,13 +308,13 @@ class AASXReader:
         # to refer to files within the AASX package. Thus, we must skip all other types of URIs (esp. absolute
         # URIs and network-path references)
         if file_path.startswith('//') or ':' in file_path.split('/')[0]:
-            logger.info(f"Skipping supplementary file {file_path}, since it seems to be an absolute URI or network-path URI reference")
+            logger.info(f"Skipping supplementary file {file_path}, since it seems to be an absolute URI or "
+                        f"network-path URI reference")
             return None
         absolute_name = pyecma376_2.package_model.part_realpath(file_path, part_name)
         logger.debug(f"Reading supplementary file {absolute_name} from AASX package ...")
         with self.reader.open_part(absolute_name) as p:
-            final_name = file_store.add_file(absolute_name, p,
-                                            self.reader.get_content_type(absolute_name))
+            final_name = file_store.add_file(absolute_name, p, self.reader.get_content_type(absolute_name))
         return final_name
 
 
@@ -566,7 +570,7 @@ class AASXWriter:
         :class:`~basyx.aas.model.submodel.Submodel` objects, supplementary files which are referenced by
         :class:`~basyx.aas.model.submodel.File` objects within those Submodels, are fetched from the ``file_store``
         and added to the AASX package. If the ObjectStore contains a thumbnail referenced by
-        :class:`~basyx.aas.model.aas.AssetInformation.default_thumbnail`, it is also added to the AASX package.
+        :attr:`~basyx.aas.model.aas.AssetInformation.default_thumbnail`, it is also added to the AASX package.
 
         .. attention::
 
