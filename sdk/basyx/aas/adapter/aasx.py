@@ -831,8 +831,9 @@ class DictSupplementaryFileContainer(AbstractSupplementaryFileContainer):
             raise KeyError(f"File with name {old_name} not found in SupplementaryFileContainer.")
         if new_name == old_name:
             return new_name
-        old_hash, old_ct = self._name_map[old_name]
-        return self._assign_unique_name(new_name, old_hash, old_ct)
+        file_hash, file_ct = self._name_map[old_name]
+        del self._name_map[old_name]
+        return self._assign_unique_name(new_name, file_hash, file_ct)
 
     def _assign_unique_name(self, name: str, sha: bytes, content_type: str) -> str:
         new_name = name
