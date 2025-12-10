@@ -26,11 +26,12 @@ class TestAASXUtils(unittest.TestCase):
             # Name should not be modified, since there is no conflict
             self.assertEqual("/TestFile.pdf", saved_file_name)
             f.seek(0)
-            container.add_file("/TestFile.pdf", f, "application/pdf")
+            # Add the same file again with the same name
+            same_file_with_same_name = container.add_file("/TestFile.pdf", f, "application/pdf")
         # Name should not be modified, since there is still no conflict
-        self.assertEqual("/TestFile.pdf", saved_file_name)
+        self.assertEqual("/TestFile.pdf", same_file_with_same_name)
 
-        # Add a file with the same name to create a conflict
+        # Add other file with the same name to create a conflict
         with open(__file__, 'rb') as f:
             saved_file_name_2 = container.add_file("/TestFile.pdf", f, "application/pdf")
         # Now, we have a conflict
@@ -38,10 +39,10 @@ class TestAASXUtils(unittest.TestCase):
         self.assertIn(saved_file_name_2, container)
 
         # Rename file to a new unique name
-        renamed = container.rename_file(saved_file_name, "/RenamedTestFile.pdf")
+        renamed = container.rename_file(saved_file_name_2, "/RenamedTestFile.pdf")
         self.assertIn(renamed, container)
         # Old name should no longer exist
-        self.assertNotIn(saved_file_name, container)
+        self.assertNotIn(saved_file_name_2, container)
         self.assertEqual(renamed, "/RenamedTestFile.pdf")
 
         # Renaming to the same name should be no-op
