@@ -231,6 +231,8 @@ class AASXReader:
             read_identifiables.add(obj.id)
             if isinstance(obj, model.Submodel):
                 self._collect_supplementary_files(part_name, obj, file_store)
+            elif isinstance(obj, model.AssetAdministrationShell):
+                self._collect_supplementary_files(part_name, obj, file_store)
 
     def _parse_aas_part(self, part_name: str, **kwargs) -> model.DictObjectStore:
         """
@@ -261,33 +263,59 @@ class AASXReader:
                 raise ValueError(error_message)
             return model.DictObjectStore()
 
-    def _collect_supplementary_files(self, part_name: str, submodel: model.Submodel,
+    def _collect_supplementary_files(self, part_name: str,
+                                     root_element: Union[model.AssetAdministrationShell, model.Submodel],
                                      file_store: "AbstractSupplementaryFileContainer") -> None:
         """
-        Helper function to search File objects within a single parsed Submodel, extract the referenced supplementary
-        files and update the File object's values with the absolute path.
+        Helper function to search File objects within a single parsed AssetAdministrationShell or Submodel.
+        Resolve their absolute paths, and update the corresponding File/Thumbnail objects with the absolute path.
 
-        :param part_name: The OPC part name of the part the Submodel has been parsed from. This is used to resolve
+        :param part_name: The OPC part name of the part the root_element has been parsed from. This is used to resolve
             relative file paths.
-        :param submodel: The Submodel to process
+        :param root_element: The AssetAdministrationShell or Submodel to process
         :param file_store: The SupplementaryFileContainer to add the extracted supplementary files to
         """
-        for element in traversal.walk_submodel(submodel):
-            if isinstance(element, model.File):
-                if element.value is None:
-                    continue
-                # Only absolute-path references and relative-path URI references (see RFC 3986, sec. 4.2) are considered
-                # to refer to files within the AASX package. Thus, we must skip all other types of URIs (esp. absolute
-                # URIs and network-path references)
-                if element.value.startswith('//') or ':' in element.value.split('/')[0]:
-                    logger.info(f"Skipping supplementary file {element.value}, since it seems to be an absolute URI or "
-                                f"network-path URI reference")
-                    continue
-                absolute_name = pyecma376_2.package_model.part_realpath(element.value, part_name)
-                logger.debug(f"Reading supplementary file {absolute_name} from AASX package ...")
-                with self.reader.open_part(absolute_name) as p:
-                    final_name = file_store.add_file(absolute_name, p, self.reader.get_content_type(absolute_name))
-                element.value = final_name
+        if isinstance(root_element, model.AssetAdministrationShell):
+            if (root_element.asset_information.default_thumbnail and
+                    root_element.asset_information.default_thumbnail.path):
+                file_name = self._add_supplementary_file(part_name,
+                                                         root_element.asset_information.default_thumbnail.path,
+                                                         file_store)
+                if file_name:
+                    root_element.asset_information.default_thumbnail.path = file_name
+        if isinstance(root_element, model.Submodel):
+            for element in traversal.walk_submodel(root_element):
+                if isinstance(element, model.File):
+                    if element.value is None:
+                        continue
+                    final_name = self._add_supplementary_file(part_name, element.value, file_store)
+                    if final_name:
+                        element.value = final_name
+
+    def _add_supplementary_file(self, part_name: str, file_path: str,
+                                file_store: "AbstractSupplementaryFileContainer") -> Optional[str]:
+        """
+        Helper function to extract a single referenced supplementary file
+        and return the absolute path within the AASX package.
+
+        :param part_name: The OPC part name of the part the root_element has been parsed from. This is used to resolve
+            relative file paths.
+        :param file_path: The file path or URI reference of the supplementary file to be extracted
+        :param file_store: The SupplementaryFileContainer to add the extracted supplementary files to
+        :return: The stored file name as returned by *file_store*, or ``None`` if the reference was skipped.
+        """
+        # Only absolute-path references and relative-path URI references (see RFC 3986, sec. 4.2) are considered
+        # to refer to files within the AASX package. Thus, we must skip all other types of URIs (esp. absolute
+        # URIs and network-path references)
+        if file_path.startswith('//') or ':' in file_path.split('/')[0]:
+            logger.info(f"Skipping supplementary file {file_path}, since it seems to be an absolute URI or "
+                        f"network-path URI reference")
+            return None
+        absolute_name = pyecma376_2.package_model.part_realpath(file_path, part_name)
+        logger.debug(f"Reading supplementary file {absolute_name} from AASX package ...")
+        with self.reader.open_part(absolute_name) as p:
+            final_name = file_store.add_file(absolute_name, p, self.reader.get_content_type(absolute_name))
+        return final_name
 
 
 class AASXWriter:
@@ -541,7 +569,8 @@ class AASXWriter:
         contained objects into an ``aas_env`` part in the AASX package. If the ObjectStore includes
         :class:`~basyx.aas.model.submodel.Submodel` objects, supplementary files which are referenced by
         :class:`~basyx.aas.model.submodel.File` objects within those Submodels, are fetched from the ``file_store``
-        and added to the AASX package.
+        and added to the AASX package. If the ObjectStore contains a thumbnail referenced by
+        ``default_thumbnail`` in :class:`~basyx.aas.model.aas.AssetInformation`, it is also added to the AASX package.
 
         .. attention::
 
@@ -563,17 +592,24 @@ class AASXWriter:
         logger.debug(f"Writing AASX part {part_name} with AAS objects ...")
         supplementary_files: List[str] = []
 
+        def _collect_supplementary_file(file_name: str) -> None:
+            # Skip File objects with empty value URI references that are considered to be no local file
+            # (absolute URIs or network-path URI references)
+            if file_name is None or file_name.startswith('//') or ':' in file_name.split('/')[0]:
+                return
+            supplementary_files.append(file_name)
+
         # Retrieve objects and scan for referenced supplementary files
         for the_object in objects:
+            if isinstance(the_object, model.AssetAdministrationShell):
+                if (the_object.asset_information.default_thumbnail and
+                        the_object.asset_information.default_thumbnail.path):
+                    _collect_supplementary_file(the_object.asset_information.default_thumbnail.path)
             if isinstance(the_object, model.Submodel):
                 for element in traversal.walk_submodel(the_object):
                     if isinstance(element, model.File):
-                        file_name = element.value
-                        # Skip File objects with empty value URI references that are considered to be no local file
-                        # (absolute URIs or network-path URI references)
-                        if file_name is None or file_name.startswith('//') or ':' in file_name.split('/')[0]:
-                            continue
-                        supplementary_files.append(file_name)
+                        if element.value:
+                            _collect_supplementary_file(element.value)
 
         # Add aas-spec relationship
         if not split_part:
@@ -824,15 +860,25 @@ class DictSupplementaryFileContainer(AbstractSupplementaryFileContainer):
         if hash not in self._store:
             self._store[hash] = data
             self._store_refcount[hash] = 0
-        name_map_data = (hash, content_type)
+        return self._assign_unique_name(name, hash, content_type)
+
+    def rename_file(self, old_name: str, new_name: str) -> str:
+        if old_name not in self._name_map:
+            raise KeyError(f"File with name {old_name} not found in SupplementaryFileContainer.")
+        if new_name == old_name:
+            return new_name
+        file_hash, file_content_type = self._name_map[old_name]
+        del self._name_map[old_name]
+        return self._assign_unique_name(new_name, file_hash, file_content_type)
+
+    def _assign_unique_name(self, name: str, sha: bytes, content_type: str) -> str:
         new_name = name
         i = 1
         while True:
             if new_name not in self._name_map:
-                self._name_map[new_name] = name_map_data
-                self._store_refcount[hash] += 1
+                self._name_map[new_name] = (sha, content_type)
                 return new_name
-            elif self._name_map[new_name] == name_map_data:
+            elif self._name_map[new_name] == (sha, content_type):
                 return new_name
             new_name = self._append_counter(name, i)
             i += 1

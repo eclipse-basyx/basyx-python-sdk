@@ -344,6 +344,16 @@ class MultiLanguageProperty(DataElement):
         self.value: Optional[base.MultiLanguageTextType] = value
         self.value_id: Optional[base.Reference] = value_id
 
+    @property
+    def value(self) -> Optional[base.MultiLanguageTextType]:
+        return self._value
+
+    @value.setter
+    def value(self, value: Union[base.MultiLanguageTextType, dict, None]) -> None:
+        if value is not None and not isinstance(value, base.MultiLanguageTextType):
+            value = base.MultiLanguageTextType(value)
+        self._value = value
+
 
 class Range(DataElement):
     """

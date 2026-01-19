@@ -291,7 +291,8 @@ class LangStringSet(MutableMapping[str, str]):
     """
     def __init__(self, dict_: Dict[str, str]):
         self._dict: Dict[str, str] = {}
-
+        if not isinstance(dict_, dict):
+            raise TypeError(f"A {self.__class__.__name__} must be initialized with a dict!, got {type(dict_)}")
         if len(dict_) < 1:
             raise ValueError(f"A {self.__class__.__name__} must not be empty!")
         for ltag in dict_:
@@ -614,9 +615,9 @@ class Referable(HasExtension, metaclass=abc.ABCMeta):
     def __init__(self):
         super().__init__()
         self._id_short: Optional[NameType] = None
-        self.display_name: Optional[MultiLanguageNameType] = dict()
+        self._display_name: Optional[MultiLanguageNameType] = None
         self._category: Optional[NameType] = None
-        self.description: Optional[MultiLanguageTextType] = dict()
+        self._description: Optional[MultiLanguageTextType] = None
         # We use a Python reference to the parent Namespace instead of a Reference Object, as specified. This allows
         # simpler and faster navigation/checks and it has no effect in the serialized data formats anyway.
         self.parent: Optional[UniqueIdShortNamespace] = None
@@ -826,6 +827,28 @@ class Referable(HasExtension, metaclass=abc.ABCMeta):
                 set_.add(self)
         # Redundant to the line above. However, this way, we make sure that we really update the _id_short
         self._id_short = id_short
+
+    @property
+    def display_name(self) -> Optional[MultiLanguageNameType]:
+        """Display name of the element (MultiLanguageNameType)."""
+        return self._display_name
+
+    @display_name.setter
+    def display_name(self, value: Union[MultiLanguageNameType, dict, None]) -> None:
+        if value is not None and not isinstance(value, MultiLanguageNameType):
+            value = MultiLanguageNameType(value)
+        self._display_name = value
+
+    @property
+    def description(self) -> Optional[MultiLanguageTextType]:
+        """Description of the element (MultiLanguageTextType)."""
+        return self._description
+
+    @description.setter
+    def description(self, value: Union[MultiLanguageTextType, dict, None]) -> None:
+        if value is not None and not isinstance(value, MultiLanguageTextType):
+            value = MultiLanguageTextType(value)
+        self._description = value
 
     def update_from(self, other: "Referable"):
         """
