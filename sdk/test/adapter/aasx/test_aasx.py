@@ -130,7 +130,6 @@ class AASXWriterTest(unittest.TestCase):
 
 class AASXReaderTest(unittest.TestCase):
     def _create_test_aasx(self) -> str:
-        """create a temporary AASX file using the AASXWriter (tested before) and return its filename"""
         data = example_aas.create_full_example()
         files = aasx.DictSupplementaryFileContainer()
 
@@ -188,7 +187,7 @@ class AASXReaderTest(unittest.TestCase):
         filename = self._create_test_aasx()
 
         try:
-            objects = model.DictObjectStore()
+            objects: model.DictObjectStore[model.Identifiable] = model.DictObjectStore()
             files = aasx.DictSupplementaryFileContainer()
 
             with warnings.catch_warnings(record=True) as w:
@@ -196,13 +195,10 @@ class AASXReaderTest(unittest.TestCase):
                     ids = reader.read_into(objects, files)
 
             assert isinstance(w, list)
-            self.assertEqual(0, len(w))     #Ensure no warnings were raised
+            self.assertEqual(0, len(w))     # Ensure no warnings were raised
 
-            # Objects populated
-            self.assertGreater(len(ids), 0)     #Ensure at least one AAS was read
-            self.assertGreater(len(objects), 0)     #Ensure objects were populated
-
-            # Files populated
+            self.assertGreater(len(ids), 0)     # Ensure at least one AAS was read
+            self.assertGreater(len(objects), 0)     # Ensure objects were populated
             self.assertGreater(len(files), 0)
             self.assertEqual(
                 files.get_content_type("/TestFile.pdf"),
@@ -215,7 +211,7 @@ class AASXReaderTest(unittest.TestCase):
         filename = self._create_test_aasx()
 
         try:
-            objects = model.DictObjectStore()
+            objects: model.DictObjectStore[model.Identifiable] = model.DictObjectStore()
             files = aasx.DictSupplementaryFileContainer()
 
             with aasx.AASXReader(filename) as reader:
