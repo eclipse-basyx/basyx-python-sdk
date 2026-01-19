@@ -250,8 +250,8 @@ class AASXReaderTest(unittest.TestCase):
             )
         finally:
             os.unlink(filename)
-            
-            
+
+
 class AASXWriterReferencedSubmodelsTest(unittest.TestCase):
 
     def test_only_referenced_submodels(self):
