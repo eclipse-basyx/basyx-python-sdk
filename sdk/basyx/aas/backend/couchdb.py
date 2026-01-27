@@ -422,6 +422,14 @@ class CouchDBObjectStore(CouchDBIdentifiableStore):
         )
         super().__init__(url, database)
 
+    def get_identifiable(self, identifier: model.Identifier) -> model.Identifiable:
+        warnings.warn(
+            "`get_identifiable()` is deprecated. Use `get_item()` from `CouchDBIdentifiableStore` instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return super().get_item(identifier)
+
 
 # #################################################################################################
 # Custom Exception classes for reporting errors during interaction with the CouchDB server

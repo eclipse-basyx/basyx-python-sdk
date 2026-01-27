@@ -504,7 +504,7 @@ class AASXWriter:
                           split_part: bool = False,
                           additional_relationships: Iterable[pyecma376_2.OPCRelationship] = ()) -> None:
         """
-        A thin wrapper around :meth:`write_all_aas_objects` to ensure downwards compatibility
+        A thin wrapper around :meth:`write_all_aas_objects` to ensure backward compatibility
 
         This method takes the AAS's :class:`~basyx.aas.model.base.Identifier` (as ``aas_id``) to retrieve it
         from the given object_store. If the list of written identifiables includes

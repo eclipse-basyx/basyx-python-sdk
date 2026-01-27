@@ -6,7 +6,8 @@
 # SPDX-License-Identifier: MIT
 import os.path
 import shutil
-import unittest.mock
+
+from unittest import TestCase
 
 from basyx.aas.backend import local_file
 from basyx.aas.examples.data.example_aas import *
@@ -16,7 +17,7 @@ store_path: str = os.path.dirname(__file__) + "/local_file_test_folder"
 source_core: str = "file://localhost/{}/".format(store_path)
 
 
-class LocalFileBackendTest(unittest.TestCase):
+class LocalFileBackendTest(TestCase):
     def setUp(self) -> None:
         self.identifiable_store = local_file.LocalFileIdentifiableStore(store_path)
         self.identifiable_store.check_directory(create=True)

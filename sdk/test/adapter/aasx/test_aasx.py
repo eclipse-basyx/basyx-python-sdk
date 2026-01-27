@@ -175,7 +175,7 @@ class AASXWriterReferencedSubmodelsTest(unittest.TestCase):
         )
 
         # ObjectStore containing all objects
-        object_store = model.DictObjectStore([aas, referenced_submodel, unreferenced_submodel])
+        object_store = model.DictIdentifiableStore([aas, referenced_submodel, unreferenced_submodel])
 
         # Empty SupplementaryFileContainer (no files needed)
         file_store = aasx.DictSupplementaryFileContainer()
@@ -197,7 +197,7 @@ class AASXWriterReferencedSubmodelsTest(unittest.TestCase):
                         )
 
                 # Read back
-                new_data: model.DictObjectStore[model.Identifiable] = model.DictObjectStore()
+                new_data: model.DictIdentifiableStore[model.Identifiable] = model.DictIdentifiableStore()
                 new_files = aasx.DictSupplementaryFileContainer()
                 with aasx.AASXReader(filename) as reader:
                     reader.read_into(new_data, new_files)
@@ -224,7 +224,7 @@ class AASXWriterReferencedSubmodelsTest(unittest.TestCase):
                         )
 
                 # Read back
-                new_data: model.DictObjectStore[model.Identifiable] = model.DictObjectStore()
+                new_data: model.DictIdentifiableStore[model.Identifiable] = model.DictIdentifiableStore()
                 new_files = aasx.DictSupplementaryFileContainer()
                 with aasx.AASXReader(filename) as reader:
                     reader.read_into(new_data, new_files)

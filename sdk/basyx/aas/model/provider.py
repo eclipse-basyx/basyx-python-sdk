@@ -1,4 +1,4 @@
-# Copyright (c) 2025 the Eclipse BaSyx Authors
+# Copyright (c) 2026 the Eclipse BaSyx Authors
 #
 # This program and the accompanying materials are made available under the terms of the MIT License, available in
 # the LICENSE file of this project.
@@ -17,21 +17,23 @@ from typing import MutableSet, Iterator, Generic, TypeVar, Dict, List, Optional,
 from .base import Identifier, Identifiable
 
 
-_K = TypeVar('_K')
-_V = TypeVar('_V')
+_KEY = TypeVar('_KEY')  # Generic key type
+_VALUE = TypeVar('_VALUE')  # Generic value type
 
 
-class AbstractObjectProvider(Generic[_K, _V], metaclass=abc.ABCMeta):
+class AbstractObjectProvider(Generic[_KEY, _VALUE], metaclass=abc.ABCMeta):
     """
-    Documentation when we agree on this solution.
+    Abstract base class for all objects that allow retrieving values by a key.
+
+    This includes local object stores, database clients and AAS API clients.
     """
 
     @abc.abstractmethod
-    def get_item(self, key: _K) -> _V:
+    def get_item(self, key: _KEY) -> _VALUE:
         """Retrieve the item or raise a KeyError."""
         pass
 
-    def get(self, key: _K, default: Optional[_V] = None) -> Optional[_V]:
+    def get(self, key: _KEY, default: Optional[_VALUE] = None) -> Optional[_VALUE]:
         """Retrieve the item or return a default value."""
         try:
             return self.get_item(key)
@@ -39,14 +41,13 @@ class AbstractObjectProvider(Generic[_K, _V], metaclass=abc.ABCMeta):
             return default
 
 
-class AbstractObjectStore(AbstractObjectProvider[_K, _V], MutableSet[_V]):
+class AbstractObjectStore(AbstractObjectProvider[_KEY, _VALUE], MutableSet[_VALUE]):
     """
-    Abstract baseclass of for container-like objects for storage of :class:`~basyx.aas.model.base.Identifiable` objects.
+    Abstract base class for container-like objects for storage of values.
 
-    ObjectStores are special ObjectProvides that – in addition to retrieving objects by
-    :class:`~basyx.aas.model.base.Identifier` – allow to add and delete objects (i.e. behave like a Python set).
-    This includes local object stores (like :class:`~.DictObjectStore`) and specific object stores
-    (like :class:`~basyx.aas.backend.couchdb.CouchDBObjectStore` and
+    ObjectStores are special ObjectProviders that, in addition to retrieving values by a key, allow adding and deleting
+    values (i.e. behave like a Python set). This includes local object stores (like :class:`~.DictObjectStore`) and
+    specific object stores (like :class:`~basyx.aas.backend.couchdb.CouchDBObjectStore` and
     :class:`~basyx.aas.backend.local_file.LocalFileObjectStore`).
 
     The AbstractObjectStore inherits from the :class:`~collections.abc.MutableSet` abstract collections class and
@@ -57,22 +58,20 @@ class AbstractObjectStore(AbstractObjectProvider[_K, _V], MutableSet[_V]):
     def __init__(self):
         pass
 
-    def update(self, other: Iterable[_V]) -> None:
+    def update(self, other: Iterable[_VALUE]) -> None:
         for x in other:
             self.add(x)
 
-    def sync(self, other: Iterable[_V], overwrite: bool) -> Tuple[int, int, int]:
+    def sync(self, other: Iterable[_VALUE], overwrite: bool) -> Tuple[int, int, int]:
         """
-        Merge :class:`Identifiables <basyx.aas.model.base.Identifiable>` from an
-        :class:`~collections.abc.Iterable` into this :class:`~basyx.aas.model.provider.AbstractObjectStore`.
+        Merge values from an :class:`~collections.abc.Iterable` into this
+        :class:`~basyx.aas.model.provider.AbstractObjectStore`.
 
         :param other: :class:`~collections.abc.Iterable` to sync with
-        :param overwrite: Flag to overwrite existing :class:`Identifiables <basyx.aas.model.base.Identifiable>` in this
+        :param overwrite: Flag to overwrite existing values in this
             :class:`~basyx.aas.model.provider.AbstractObjectStore` with updated versions from ``other``,
-            :class:`Identifiables <basyx.aas.model.base.Identifiable>` unique to this
-            :class:`~basyx.aas.model.provider.AbstractObjectStore` are always preserved
-        :return: Counts of processed :class:`Identifiables <basyx.aas.model.base.Identifiable>` as
-            ``(added, overwritten, skipped)``
+            values unique to this :class:`~basyx.aas.model.provider.AbstractObjectStore` are always preserved
+        :return: Counts of processed values as``(added, overwritten, skipped)``
         """
         added, overwritten, skipped = 0, 0, 0
         for value in other:
@@ -101,6 +100,31 @@ class AbstractObjectStore(AbstractObjectProvider[_K, _V], MutableSet[_V]):
                 self.add(value)
                 added += 1
         return added, overwritten, skipped
+
+
+class ObjectProviderMultiplexer(AbstractObjectProvider[_KEY, _VALUE]):
+    """
+    A multiplexer for :class:`AbstractObjectProviders <.AbstractObjectProvider>`.
+
+    This class combines multiple :class:`AbstractObjectProviders <.AbstractObjectProvider>` into a single one to allow
+    retrieving values from different sources. It implements the :class:`~.AbstractObjectProvider` interface to be used
+    as registry itself.
+
+    :param registries: A list of :class:`AbstractObjectProviders <.AbstractObjectProvider>` to query when looking up a
+        key
+    """
+
+    def __init__(self, registries: Optional[List[AbstractObjectProvider[_KEY, _VALUE]]] = None) -> None:
+        self.providers: List[AbstractObjectProvider[_KEY, _VALUE]] = registries if registries is not None else []
+
+    def get_item(self, key: _KEY) -> _VALUE:
+        for provider in self.providers:
+            try:
+                return provider.get_item(key)
+            except KeyError:
+                pass
+        raise KeyError("Key could not be found in any of the {} consulted registries."
+                       .format(len(self.providers)))
 
 
 _IT = TypeVar('_IT', bound=Identifiable)
@@ -153,7 +177,7 @@ class DictIdentifiableStore(AbstractObjectStore[Identifier, _IT]):
         return iter(self._backend.values())
 
 
-class DictObjectStore(DictIdentifiableStore):
+class DictObjectStore(DictIdentifiableStore[_IT]):
     """
     `DictObjectStore` has been renamed to :class:`~.DictIdentifiableStore` and will be removed in a future release.
     Please migrate to :class:`~.DictIdentifiableStore`.
@@ -167,6 +191,14 @@ class DictObjectStore(DictIdentifiableStore):
             stacklevel=2,
         )
         super().__init__(iterables)
+
+    def get_identifiable(self, identifier: Identifier) -> _IT:
+        warnings.warn(
+            "`get_identifiable()` is deprecated. Use `get_item()` from `DictIdentifiableStore` instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return super().get_item(identifier)
 
 
 class SetIdentifiableStore(AbstractObjectStore[Identifier, _IT]):
@@ -228,7 +260,7 @@ class SetIdentifiableStore(AbstractObjectStore[Identifier, _IT]):
         return iter(self._backend)
 
 
-class SetObjectStore(SetIdentifiableStore):
+class SetObjectStore(SetIdentifiableStore[_IT]):
     """
     `SetObjectStore` has been renamed to :class:`~.SetIdentifiableStore` and will be removed in a future release.
     Please migrate to :class:`~.SetIdentifiableStore`.
@@ -243,27 +275,10 @@ class SetObjectStore(SetIdentifiableStore):
         )
         super().__init__(objects)
 
-
-class ObjectProviderMultiplexer(AbstractObjectProvider[_K, _V]):
-    """
-    A multiplexer for Providers of :class:`~basyx.aas.model.base.Identifiable` objects.
-
-    This class combines multiple registries of :class:`~basyx.aas.model.base.Identifiable` objects into a single one
-    to allow retrieving :class:`~basyx.aas.model.base.Identifiable` objects from different sources.
-    It implements the :class:`~.AbstractObjectProvider` interface to be used as registry itself.
-
-    :param registries: A list of :class:`AbstractObjectProviders <.AbstractObjectProvider>` to query when looking up an
-                      object
-    """
-
-    def __init__(self, registries: Optional[List[AbstractObjectProvider[_K, _V]]] = None) -> None:
-        self.providers: List[AbstractObjectProvider[_K, _V]] = registries if registries is not None else []
-
-    def get_item(self, key: _K) -> _V:
-        for provider in self.providers:
-            try:
-                return provider.get_item(key)
-            except KeyError:
-                pass
-        raise KeyError("Key could not be found in any of the {} consulted registries."
-                       .format(len(self.providers)))
+    def get_identifiable(self, identifier: Identifier) -> _IT:
+        warnings.warn(
+            "`get_identifiable()` is deprecated. Use `get_item()` from `SetIdentifiableStore` instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return super().get_item(identifier)

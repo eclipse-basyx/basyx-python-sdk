@@ -184,3 +184,11 @@ class LocalFileObjectStore(LocalFileIdentifiableStore):
             stacklevel=2,
         )
         super().__init__(directory_path)
+
+    def get_identifiable(self, identifier: model.Identifier) -> model.Identifiable:
+        warnings.warn(
+            "`get_identifiable()` is deprecated. Use `get_item()` from `LocalFileIdentifiableStore` instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return super().get_item(identifier)
