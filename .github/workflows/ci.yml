@@ -22,7 +22,7 @@ jobs:
       - name: Install Python dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r ./check_python_versions_requirements.txt
+          python -m pip install -r ./check_python_versions_requirements.txt
       - name: Check Supported Python Versions
         run: |
           python check_python_versions_supported.py \
@@ -85,17 +85,17 @@ jobs:
     - name: Install Python dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install .[dev]
+        python -m pip install .[dev]
     - name: Setup test config and CouchDB database server
       run: |
         python test/_helper/setup_testdb.py -u "admin" -p "$COUCHDB_ADMIN_PASSWORD"
     - name: Test with coverage + unittest
       run: |
-        coverage run --source=basyx -m unittest
+        python -m coverage run --source=basyx -m unittest
     - name: Report test coverage
       if: ${{ always() }}
       run: |
-        coverage report -m
+        python -m coverage report -m
 
   sdk-static-analysis:
     # This job runs static code analysis, namely pycodestyle and mypy
@@ -112,13 +112,13 @@ jobs:
     - name: Install Python dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install .[dev]
+        python -m pip install .[dev]
     - name: Check typing with MyPy
       run: |
-        mypy basyx test
+        python -m mypy basyx test
     - name: Check code style with PyCodestyle
       run: |
-        pycodestyle --count --max-line-length 120 basyx test
+        python -m pycodestyle --count --max-line-length 120 basyx test
 
   sdk-readme-codeblocks:
     # This job runs the same static code analysis (mypy and pycodestyle) on the codeblocks in our docstrings.
@@ -135,16 +135,17 @@ jobs:
     - name: Install Python dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install .[dev]
+        python -m pip install .[dev]
     - name: Check typing with MyPy
+      shell: bash
       run: |
-        mypy <(codeblocks python README.md)
+        python -m mypy <(python -m codeblocks python README.md)
     - name: Check code style with PyCodestyle
       run: |
-        codeblocks --wrap python README.md | pycodestyle --count --max-line-length 120 -
+        python -m codeblocks --wrap python README.md | python -m pycodestyle --count --max-line-length 120 -
     - name: Run readme codeblocks with Python
       run: |
-        codeblocks python README.md | python
+        python -m codeblocks python README.md | python
 
   sdk-docs:
     # This job checks, if the automatically generated documentation using sphinx can be compiled
@@ -161,7 +162,7 @@ jobs:
     - name: Install Python dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install .[docs]
+        python -m pip install .[docs]
     - name: Check documentation for errors
       run: |
         SPHINXOPTS="-a -E -n -W --keep-going" make -C docs html
@@ -181,7 +182,7 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install build
+        python -m pip install build
     - name: Create source and wheel dist
       run: |
         python -m build
@@ -223,15 +224,15 @@ jobs:
       # install the local sdk in editable mode so it does not get overwritten
       run: |
         python -m pip install --upgrade pip
-        pip install -e ../sdk[dev]
-        pip install .[dev]
+        python -m pip install ../sdk
+        python -m pip install .[dev]
     - name: Test with coverage + unittest
       run: |
-        coverage run --source=aas_compliance_tool -m unittest
+        python -m coverage run --source=aas_compliance_tool -m unittest
     - name: Report test coverage
       if: ${{ always() }}
       run: |
-        coverage report -m
+        python -m coverage report -m
 
   compliance-tool-static-analysis:
     # This job runs static code analysis, namely pycodestyle and mypy
@@ -250,14 +251,14 @@ jobs:
       # install the local sdk in editable mode so it does not get overwritten
       run: |
         python -m pip install --upgrade pip
-        pip install -e ../sdk[dev]
-        pip install .[dev]
+        python -m pip install ../sdk
+        python -m pip install .[dev]
     - name: Check typing with MyPy
       run: |
-        mypy aas_compliance_tool test
+        python -m mypy aas_compliance_tool test
     - name: Check code style with PyCodestyle
       run: |
-        pycodestyle --count --max-line-length 120 aas_compliance_tool test
+        python -m pycodestyle --count --max-line-length 120 aas_compliance_tool test
 
   compliance-tool-package:
     # This job checks if we can build our compliance_tool package
@@ -275,7 +276,7 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install build
+        python -m pip install build
     - name: Create source and wheel dist
       run: |
         python -m build
@@ -301,14 +302,14 @@ jobs:
     - name: Install Python dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install ../../sdk
-        pip install .[dev]
+        python -m pip install ../../sdk
+        python -m pip install .[dev]
     - name: Check typing with MyPy
       run: |
-        mypy .
+        python -m mypy .
     - name: Check code style with PyCodestyle
       run: |
-        pycodestyle --count --max-line-length 120 .
+        python -m pycodestyle --count --max-line-length 120 .
 
   server-package:
     # This job checks if we can build our server package
