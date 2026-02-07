@@ -1,4 +1,4 @@
-# Copyright (c) 2025 the Eclipse BaSyx Authors
+# Copyright (c) 2026 the Eclipse BaSyx Authors
 #
 # This program and the accompanying materials are made available under the terms of the MIT License, available in
 # the LICENSE file of this project.
@@ -150,6 +150,106 @@ class AASXWriterTest(unittest.TestCase):
                                  "78450a66f59d74c073bf6858db340090ea72a8b1")
 
                 os.unlink(filename)
+
+
+class AASXReaderTest(unittest.TestCase):
+    def _create_test_aasx(self) -> str:
+        data = example_aas.create_full_example()
+        files = aasx.DictSupplementaryFileContainer()
+
+        with open(os.path.join(os.path.dirname(__file__), 'TestFile.pdf'), 'rb') as f:
+            files.add_file("/TestFile.pdf", f, "application/pdf")
+            f.seek(0)
+
+        # Core properties
+        cp = pyecma376_2.OPCCoreProperties()
+        cp.created = datetime.datetime.now()
+        cp.creator = "Eclipse BaSyx Python Testing Framework"
+
+        fd, filename = tempfile.mkstemp(suffix=".aasx")
+        os.close(fd)
+
+        with aasx.AASXWriter(filename) as writer:
+            writer.write_aas(
+                'https://acplt.org/Test_AssetAdministrationShell',
+                data, files, write_json=False
+            )
+            writer.write_core_properties(cp)
+
+        return filename
+
+    def test_init_file_handling(self) -> None:
+        # Missing file assertion test
+        with self.assertRaises(FileNotFoundError):
+            aasx.AASXReader("does_not_exist.aasx")
+
+        # Invalid file assertion test
+        fd, invalid_path = tempfile.mkstemp()
+        os.write(fd, b"not a file")
+        os.close(fd)
+
+        try:
+            with self.assertRaises(ValueError):
+                aasx.AASXReader(invalid_path)
+        finally:
+            os.unlink(invalid_path)
+
+    def test_reading_core_properties(self) -> None:
+        filename = self._create_test_aasx()
+
+        try:
+            with aasx.AASXReader(filename) as reader:
+                cp = reader.get_core_properties()
+
+            self.assertIsInstance(cp.created, datetime.datetime)
+            self.assertEqual(cp.creator, "Eclipse BaSyx Python Testing Framework")
+            self.assertIsNone(cp.lastModifiedBy)
+        finally:
+            os.unlink(filename)
+
+    def test_read_into(self) -> None:
+        filename = self._create_test_aasx()
+
+        try:
+            objects: model.DictObjectStore[model.Identifiable] = model.DictObjectStore()
+            files = aasx.DictSupplementaryFileContainer()
+
+            with warnings.catch_warnings(record=True) as w:
+                with aasx.AASXReader(filename) as reader:
+                    ids = reader.read_into(objects, files)
+
+            assert isinstance(w, list)
+            self.assertEqual(0, len(w))     # Ensure no warnings were raised
+
+            self.assertGreater(len(ids), 0)     # Ensure at least one AAS was read
+            self.assertGreater(len(objects), 0)     # Ensure objects were populated
+            self.assertGreater(len(files), 0)
+            self.assertEqual(
+                files.get_content_type("/TestFile.pdf"),
+                "application/pdf"
+            )
+        finally:
+            os.unlink(filename)
+
+    def test_supplementary_file_integrity(self) -> None:
+        filename = self._create_test_aasx()
+
+        try:
+            objects: model.DictObjectStore[model.Identifiable] = model.DictObjectStore()
+            files = aasx.DictSupplementaryFileContainer()
+
+            with aasx.AASXReader(filename) as reader:
+                reader.read_into(objects, files)
+
+            buf = io.BytesIO()
+            files.write_file("/TestFile.pdf", buf)
+
+            self.assertEqual(
+                hashlib.sha1(buf.getvalue()).hexdigest(),
+                "78450a66f59d74c073bf6858db340090ea72a8b1"
+            )
+        finally:
+            os.unlink(filename)
 
 
 class AASXWriterReferencedSubmodelsTest(unittest.TestCase):

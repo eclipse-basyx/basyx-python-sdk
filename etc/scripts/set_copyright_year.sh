@@ -13,6 +13,8 @@
 # Run this script with --check to have it raise an error if it
 # would change anything.
 
+# Initialise a variable to track if any error occurred
+EXIT_CODE=0
 
 # Set CHECK_MODE based on whether --check is passed
     CHECK_MODE=false
@@ -33,7 +35,8 @@ while read -rd $'\0' year file; do
 
     if $CHECK_MODE && [[ "$current_year" != "$year" ]]; then
         echo "Error: Copyright year mismatch in file $file. Expected $year, found $current_year."
-        exit 1
+        # Set ERROR_CODE to 1 to indicate mismatch
+	ERROR_CODE=1
     fi
 
     if ! $CHECK_MODE && [[ "$current_year" != "$year" ]]; then
@@ -42,3 +45,4 @@ while read -rd $'\0' year file; do
     fi
 done < <(git ls-files -z "$@" | xargs -0I{} git log -1 -z --format="%cd {}" --date="format:%Y" -- "{}")
 
+exit $EXIT_CODE
