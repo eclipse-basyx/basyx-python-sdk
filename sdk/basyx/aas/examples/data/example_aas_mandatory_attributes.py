@@ -7,7 +7,7 @@
 """
 Module for the creation of an :class:`IdentifiableStore <basyx.aas.model.provider.DictIdentifiableStore>` with an
 example :class:`~basyx.aas.model.aas.AssetAdministrationShell`, example
-:class:`Submodels <basyx.aas.model.submodel.Submodel>`and an example
+:class:`Submodels <basyx.aas.model.submodel.Submodel>` and an example
 :class:`~basyx.aas.model.concept.ConceptDescription`. All objects only contain mandatory attributes.
 
 To get this object store use the function

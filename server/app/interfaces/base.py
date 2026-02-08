@@ -269,7 +269,8 @@ class ObjectStoreWSGIApp(BaseWSGIApp):
             if isinstance(obj, type_):
                 yield obj
 
-    def _get_obj_ts(self, identifier: model.Identifier, type_: Type[model.provider._IDENTIFIABLE]) -> model.provider._IDENTIFIABLE:
+    def _get_obj_ts(self, identifier: model.Identifier, type_: Type[model.provider._IDENTIFIABLE]) \
+            -> model.provider._IDENTIFIABLE:
         identifiable = self.object_store.get(identifier)
         if not isinstance(identifiable, type_):
             raise NotFound(f"No {type_.__name__} with {identifier} found!")

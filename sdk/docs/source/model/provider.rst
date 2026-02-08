@@ -5,4 +5,4 @@ provider - Providers for storing and retrieving AAS-objects
 
 .. autoclass:: _KEY
 .. autoclass:: _VALUE
-.. autoclass:: _IT
+.. autoclass:: _IDENTIFIABLE
