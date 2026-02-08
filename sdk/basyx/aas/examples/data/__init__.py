@@ -33,12 +33,12 @@ def create_example() -> model.DictIdentifiableStore:
 
     :return: object store
     """
-    obj_store: model.DictIdentifiableStore[model.Identifiable] = model.DictIdentifiableStore()
-    obj_store.update(example_aas.create_full_example())
-    obj_store.update(example_aas_mandatory_attributes.create_full_example())
-    obj_store.update(example_aas_missing_attributes.create_full_example())
-    obj_store.add(example_submodel_template.create_example_submodel_template())
-    return obj_store
+    identifiable_store: model.DictIdentifiableStore[model.Identifiable] = model.DictIdentifiableStore()
+    identifiable_store.update(example_aas.create_full_example())
+    identifiable_store.update(example_aas_mandatory_attributes.create_full_example())
+    identifiable_store.update(example_aas_missing_attributes.create_full_example())
+    identifiable_store.add(example_submodel_template.create_example_submodel_template())
+    return identifiable_store
 
 
 def create_example_aas_binding() -> model.DictIdentifiableStore:
@@ -49,18 +49,18 @@ def create_example_aas_binding() -> model.DictIdentifiableStore:
 
     :return: object store
     """
-    obj_store: model.DictIdentifiableStore[model.Identifiable] = model.DictIdentifiableStore()
-    obj_store.update(example_aas.create_full_example())
-    obj_store.update(example_aas_mandatory_attributes.create_full_example())
-    obj_store.update(example_aas_missing_attributes.create_full_example())
-    obj_store.add(example_submodel_template.create_example_submodel_template())
+    identifiable_store: model.DictIdentifiableStore[model.Identifiable] = model.DictIdentifiableStore()
+    identifiable_store.update(example_aas.create_full_example())
+    identifiable_store.update(example_aas_mandatory_attributes.create_full_example())
+    identifiable_store.update(example_aas_missing_attributes.create_full_example())
+    identifiable_store.add(example_submodel_template.create_example_submodel_template())
 
-    aas = obj_store.get_item('https://acplt.org/Test_AssetAdministrationShell')
-    sm = obj_store.get_item('https://acplt.org/Test_Submodel_Template')
+    aas = identifiable_store.get_item('https://acplt.org/Test_AssetAdministrationShell')
+    sm = identifiable_store.get_item('https://acplt.org/Test_Submodel_Template')
     assert (isinstance(aas, model.aas.AssetAdministrationShell))  # make mypy happy
     assert (isinstance(sm, model.submodel.Submodel))  # make mypy happy
     aas.submodel.add(model.ModelReference.from_referable(sm))
 
-    cd = obj_store.get_item('https://acplt.org/Test_ConceptDescription_Mandatory')
+    cd = identifiable_store.get_item('https://acplt.org/Test_ConceptDescription_Mandatory')
     assert (isinstance(cd, model.concept.ConceptDescription))  # make mypy happy
-    return obj_store
+    return identifiable_store

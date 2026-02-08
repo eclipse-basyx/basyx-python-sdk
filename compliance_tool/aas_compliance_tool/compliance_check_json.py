@@ -149,11 +149,11 @@ def check_deserialization(file_path: str, state_manager: ComplianceToolStateMana
             state_manager.add_step('Read file {} and check if it is deserializable'.format(file_info))
         else:
             state_manager.add_step('Read file and check if it is deserializable')
-        obj_store = json_deserialization.read_aas_json_file(file_to_be_checked, failsafe=True)
+        identifiable_store = json_deserialization.read_aas_json_file(file_to_be_checked, failsafe=True)
 
     state_manager.set_step_status_from_log()
 
-    return obj_store
+    return identifiable_store
 
 
 def check_aas_example(file_path: str, state_manager: ComplianceToolStateManager, **kwargs) -> None:
@@ -174,7 +174,7 @@ def check_aas_example(file_path: str, state_manager: ComplianceToolStateManager,
     logger_example.propagate = False
     logger_example.setLevel(logging.INFO)
 
-    obj_store = check_deserialization(file_path, state_manager)
+    identifiable_store = check_deserialization(file_path, state_manager)
 
     if state_manager.status in (Status.FAILED, Status.NOT_EXECUTED):
         state_manager.add_step('Check if data is equal to example data')
@@ -184,7 +184,7 @@ def check_aas_example(file_path: str, state_manager: ComplianceToolStateManager,
     checker = AASDataChecker(raise_immediately=False, **kwargs)
 
     state_manager.add_step('Check if data is equal to example data')
-    checker.check_identifiable_store(obj_store, create_example())
+    checker.check_identifiable_store(identifiable_store, create_example())
 
     state_manager.add_log_records_from_data_checker(checker)
 
@@ -208,9 +208,9 @@ def check_json_files_equivalence(file_path_1: str, file_path_2: str, state_manag
     logger.propagate = False
     logger.setLevel(logging.INFO)
 
-    obj_store_1 = check_deserialization(file_path_1, state_manager, 'first')
+    identifiable_store_1 = check_deserialization(file_path_1, state_manager, 'first')
 
-    obj_store_2 = check_deserialization(file_path_2, state_manager, 'second')
+    identifiable_store_2 = check_deserialization(file_path_2, state_manager, 'second')
 
     if state_manager.status is Status.FAILED:
         state_manager.add_step('Check if data in files are equal')
@@ -220,7 +220,7 @@ def check_json_files_equivalence(file_path_1: str, file_path_2: str, state_manag
     checker = AASDataChecker(raise_immediately=False, **kwargs)
     try:
         state_manager.add_step('Check if data in files are equal')
-        checker.check_identifiable_store(obj_store_1, obj_store_2)
+        checker.check_identifiable_store(identifiable_store_1, identifiable_store_2)
     except (KeyError, AssertionError) as error:
         state_manager.set_step_status(Status.FAILED)
         logger.error(error)

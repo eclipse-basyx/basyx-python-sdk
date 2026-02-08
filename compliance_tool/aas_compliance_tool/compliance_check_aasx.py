@@ -73,9 +73,9 @@ def check_deserialization(file_path: str, state_manager: ComplianceToolStateMana
     try:
         # read given file
         state_manager.add_step('Read file')
-        id_store: model.DictIdentifiableStore[model.Identifiable] = model.DictIdentifiableStore()
+        identifiable_store: model.DictIdentifiableStore[model.Identifiable] = model.DictIdentifiableStore()
         files = aasx.DictSupplementaryFileContainer()
-        reader.read_into(id_store, files)
+        reader.read_into(identifiable_store, files)
         new_cp = reader.get_core_properties()
         state_manager.set_step_status(Status.SUCCESS)
     except (ValueError, KeyError) as error:
@@ -85,7 +85,7 @@ def check_deserialization(file_path: str, state_manager: ComplianceToolStateMana
     finally:
         reader.close()
 
-    return id_store, files, new_cp
+    return identifiable_store, files, new_cp
 
 
 def check_schema(file_path: str, state_manager: ComplianceToolStateManager) -> None:
@@ -174,7 +174,7 @@ def check_aas_example(file_path: str, state_manager: ComplianceToolStateManager,
     logger_example.propagate = False
     logger_example.setLevel(logging.INFO)
 
-    obj_store, files, cp_new = check_deserialization(file_path, state_manager)
+    identifiable_store, files, cp_new = check_deserialization(file_path, state_manager)
 
     if state_manager.status in (Status.FAILED, Status.NOT_EXECUTED):
         state_manager.add_step('Check if data is equal to example data')
@@ -187,7 +187,7 @@ def check_aas_example(file_path: str, state_manager: ComplianceToolStateManager,
 
     state_manager.add_step('Check if data is equal to example data')
     example_data = create_example_aas_binding()
-    checker.check_identifiable_store(obj_store, example_data)
+    checker.check_identifiable_store(identifiable_store, example_data)
     state_manager.add_log_records_from_data_checker(checker)
 
     if state_manager.status in (Status.FAILED, Status.NOT_EXECUTED):
@@ -241,7 +241,7 @@ def check_aas_example(file_path: str, state_manager: ComplianceToolStateManager,
     identifiable = example_data.get_item("https://acplt.org/Test_Submodel")
     for id_short in list_of_id_shorts:
         identifiable = identifiable.get_referable(id_short)
-    obj2 = obj_store.get_item("https://acplt.org/Test_Submodel")
+    obj2 = identifiable_store.get_item("https://acplt.org/Test_Submodel")
     for id_short in list_of_id_shorts:
         obj2 = obj2.get_referable(id_short)
     try:
@@ -283,9 +283,9 @@ def check_aasx_files_equivalence(file_path_1: str, file_path_2: str, state_manag
     logger.propagate = False
     logger.setLevel(logging.INFO)
 
-    obj_store_1, files_1, cp_1 = check_deserialization(file_path_1, state_manager, 'first')
+    identifiable_store_1, files_1, cp_1 = check_deserialization(file_path_1, state_manager, 'first')
 
-    obj_store_2, files_2, cp_2 = check_deserialization(file_path_2, state_manager, 'second')
+    identifiable_store_2, files_2, cp_2 = check_deserialization(file_path_2, state_manager, 'second')
 
     if state_manager.status is Status.FAILED:
         state_manager.add_step('Check if data in files are equal')
@@ -297,7 +297,7 @@ def check_aasx_files_equivalence(file_path_1: str, file_path_2: str, state_manag
     checker = AASDataChecker(raise_immediately=False, **kwargs)
     try:
         state_manager.add_step('Check if data in files are equal')
-        checker.check_identifiable_store(obj_store_1, obj_store_2)
+        checker.check_identifiable_store(identifiable_store_1, identifiable_store_2)
     except (KeyError, AssertionError) as error:
         state_manager.set_step_status(Status.FAILED)
         logger.error(error)

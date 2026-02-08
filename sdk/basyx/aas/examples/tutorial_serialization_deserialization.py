@@ -93,18 +93,18 @@ submodel_and_aas = json.loads(json_string, cls=basyx.aas.adapter.json.AASFromJso
 
 # step 4.1: creating an IdentifiableStore containing the objects to be serialized
 # For more information, take a look into `tutorial_storage.py`
-id_store: model.DictIdentifiableStore[model.Identifiable] = model.DictIdentifiableStore()
-id_store.add(submodel)
-id_store.add(aashell)
+identifiable_store: model.DictIdentifiableStore[model.Identifiable] = model.DictIdentifiableStore()
+identifiable_store.add(submodel)
+identifiable_store.add(aashell)
 
 # step 4.2: writing the contents of the IdentifiableStore to a JSON file
-basyx.aas.adapter.json.write_aas_json_file('data.json', id_store)
+basyx.aas.adapter.json.write_aas_json_file('data.json', identifiable_store)
 
 # We can pass the additional keyword argument `indent=4` to `write_aas_json_file()` to format the JSON file in a more
 # human-readable (but much more space-consuming) manner.
 
 # step 4.3: writing the contents of the IdentifiableStore to an XML file
-basyx.aas.adapter.xml.write_aas_xml_file('data.xml', id_store)
+basyx.aas.adapter.xml.write_aas_xml_file('data.xml', identifiable_store)
 
 
 ##################################################################

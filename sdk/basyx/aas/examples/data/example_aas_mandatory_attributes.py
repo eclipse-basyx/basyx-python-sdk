@@ -30,13 +30,13 @@ def create_full_example() -> model.DictIdentifiableStore:
 
     :return: :class:`~basyx.aas.model.provider.DictIdentifiableStore`
     """
-    id_store: model.DictIdentifiableStore[model.Identifiable] = model.DictIdentifiableStore()
-    id_store.add(create_example_submodel())
-    id_store.add(create_example_empty_submodel())
-    id_store.add(create_example_concept_description())
-    id_store.add(create_example_asset_administration_shell())
-    id_store.add(create_example_empty_asset_administration_shell())
-    return id_store
+    identifiable_store: model.DictIdentifiableStore[model.Identifiable] = model.DictIdentifiableStore()
+    identifiable_store.add(create_example_submodel())
+    identifiable_store.add(create_example_empty_submodel())
+    identifiable_store.add(create_example_concept_description())
+    identifiable_store.add(create_example_asset_administration_shell())
+    identifiable_store.add(create_example_empty_asset_administration_shell())
+    return identifiable_store
 
 
 def create_example_submodel() -> model.Submodel:
@@ -235,6 +235,6 @@ def check_example_empty_submodel(checker: AASDataChecker, submodel: model.Submod
     checker.check_submodel_equal(submodel, expected_submodel)
 
 
-def check_full_example(checker: AASDataChecker, id_store: model.DictIdentifiableStore) -> None:
+def check_full_example(checker: AASDataChecker, identifiable_store: model.DictIdentifiableStore) -> None:
     expected_data = create_full_example()
-    checker.check_identifiable_store(id_store, expected_data)
+    checker.check_identifiable_store(identifiable_store, expected_data)
