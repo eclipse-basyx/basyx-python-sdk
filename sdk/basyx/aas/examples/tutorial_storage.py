@@ -2,21 +2,21 @@
 # This work is licensed under a Creative Commons CCZero 1.0 Universal License.
 # See http://creativecommons.org/publicdomain/zero/1.0/ for more information.
 """
-Tutorial for storing Asset Administration Shells, Submodels and Assets in an ObjectStore and using it for fetching these
-objects by id and resolving references.
+Tutorial for storing Asset Administration Shells, Submodels and Assets in an IdentifiableStore and using it for fetching
+these identifiables by id and resolving references.
 """
 
-# For managing a larger number of Identifiable AAS objects (AssetAdministrationShells, Assets, Submodels,
-# ConceptDescriptions), the BaSyx Python SDK provides the `ObjectStore` functionality. This tutorial shows the basic
-# features of an ObjectStore and how to use them. This includes usage of the built-in `resolve()` method of Reference
-# objects, which can be used to easily get the Submodel objects, which are referenced by the
+# For managing a larger number of identifiable AAS objects (AssetAdministrationShells, Assets, Submodels,
+# ConceptDescriptions), the BaSyx Python SDK provides the `IdentifiableStore` functionality. This tutorial shows the
+# basic features of an IdentifiableStore and how to use them. This includes usage of the built-in `resolve()` method of
+# reference objects, which can be used to easily get the Submodel objects, which are referenced by the
 # `AssetAdministrationShell.submodel` set, etc.
 #
 # Step-by-Step Guide:
 # Step 1: creating AssetInformation, Submodel and Asset Administration Shell objects
-# Step 2: storing the data in an ObjectStore for easier handling
+# Step 2: storing the data in an IdentifiableStore for easier handling
 # Step 3: retrieving objects from the store by their identifier
-# Step 4: using the ObjectStore to resolve a reference
+# Step 4: using the IdentifiableStore to resolve a reference
 
 
 from basyx.aas import model
@@ -56,18 +56,18 @@ aas = AssetAdministrationShell(
 )
 
 
-##################################################################
-# Step 2: Storing the Data in an ObjectStore for Easier Handling #
-##################################################################
+########################################################################
+# Step 2: Storing the Data in an IdentifiableStore for Easier Handling #
+########################################################################
 
-# Step 2.1: create an ObjectStore for identifiable objects
+# Step 2.1: create an IdentifiableStore for identifiable objects
 #
-# In this tutorial, we use a `DictObjectStore`, which is a simple in-memory store: It just keeps track of the Python
-# objects using a dict.
+# In this tutorial, we use a `DictIdentifiableStore`, which is a simple in-memory store: It just keeps track of the
+# Python objects using a dict.
 # This may not be a suitable solution, if you need to manage large numbers of objects or objects must be kept in a
-# persistent memory (i.e. on hard disk). In this case, you may choose the `CouchDBObjectStore` from
+# persistent memory (i.e. on hard disk). In this case, you may choose the `CouchDBIdentifiableStore` from
 # `aas.backends.couchdb` to use a CouchDB database server as persistent storage. Both ObjectStore implementations
-# provide the same interface. In addition, the CouchDBObjectStores allows synchronizing the local object with the
+# provide the same interface. In addition, the CouchDBIdentifiableStore allows synchronizing the local object with the
 # database via a Backend. See the `tutorial_backend_couchdb.py` for more information.
 id_store: model.DictIdentifiableStore[model.Identifiable] = model.DictIdentifiableStore()
 
@@ -86,9 +86,9 @@ tmp_submodel = id_store.get_item(
 assert submodel is tmp_submodel
 
 
-########################################################
-# Step 4: Using the ObjectStore to Resolve a Reference #
-########################################################
+##############################################################
+# Step 4: Using the IdentifiableStore to Resolve a Reference #
+##############################################################
 
 # The `aas` object already contains a reference to the submodel.
 # Let's create a list of all submodels, to which the AAS has references, by resolving each of the submodel references:
@@ -113,7 +113,7 @@ property_reference = model.ModelReference(
 )
 
 # Now, we can resolve this new reference.
-# The `resolve()` method will fetch the Submodel object from the ObjectStore, traverse down to the included Property
-# object and return this object.
+# The `resolve()` method will fetch the Submodel object from the IdentifiableStore, traverse down to the included
+# Property object and return this object.
 tmp_property = property_reference.resolve(id_store)
 assert prop is tmp_property

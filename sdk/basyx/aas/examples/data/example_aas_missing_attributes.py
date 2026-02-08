@@ -1,12 +1,12 @@
-# Copyright (c) 2025 the Eclipse BaSyx Authors
+# Copyright (c) 2026 the Eclipse BaSyx Authors
 #
 # This program and the accompanying materials are made available under the terms of the MIT License, available in
 # the LICENSE file of this project.
 #
 # SPDX-License-Identifier: MIT
 """
-Module for the creation of an :class:`ObjectStore <basyx.aas.model.provider.DictObjectStore>` with missing object
-attribute combination for testing the serialization
+Module for the creation of an :class:`IdentifiableStore <basyx.aas.model.provider.DictIdentifiableStore>` with missing
+object attribute combinations for testing the serialization.
 """
 import datetime
 import logging
@@ -19,11 +19,11 @@ logger = logging.getLogger(__name__)
 
 def create_full_example() -> model.DictIdentifiableStore:
     """
-    Creates an :class:`~basyx.aas.model.provider.DictObjectStore` containing an example
+    Creates an :class:`~basyx.aas.model.provider.DictIdentifiableStore` containing an example
     :class:`~basyx.aas.model.submodel.Submodel`, an example :class:`~basyx.aas.model.concept.ConceptDescription` and an
     example :class:`~basyx.aas.model.aas.AssetAdministrationShell`
 
-    :return: :class:`basyx.aas.model.provider.DictObjectStore`
+    :return: :class:`basyx.aas.model.provider.DictIdentifiableStore`
     """
     id_store: model.DictIdentifiableStore[model.Identifiable] = model.DictIdentifiableStore()
     id_store.add(create_example_submodel())

@@ -1,4 +1,4 @@
-# Copyright (c) 2025 the Eclipse BaSyx Authors
+# Copyright (c) 2026 the Eclipse BaSyx Authors
 #
 # This program and the accompanying materials are made available under the terms of the MIT License, available in
 # the LICENSE file of this project.
@@ -52,7 +52,7 @@ class AASXReader:
 
     .. code-block:: python
 
-        objects = DictObjectStore()
+        identifiables = DictIdentifiableStore()
         files = DictSupplementaryFileContainer()
         with AASXReader("filename.aasx") as reader:
             meta_data = reader.get_core_properties()
@@ -241,7 +241,7 @@ class AASXReader:
         This method chooses and calls the correct parser.
 
         :param part_name: The OPC part name of the part to be parsed
-        :return: A DictObjectStore containing the parsed AAS objects
+        :return: A DictIdentifiableStore containing the parsed AAS objects
         """
         content_type = self.reader.get_content_type(part_name)
         extension = part_name.split("/")[-1].split(".")[-1]

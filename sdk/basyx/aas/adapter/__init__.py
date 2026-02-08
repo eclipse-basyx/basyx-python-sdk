@@ -18,13 +18,13 @@ from typing import Union
 
 def load_directory(directory: Union[Path, str]) -> tuple[DictIdentifiableStore, DictSupplementaryFileContainer]:
     """
-    Create a new :class:`~basyx.aas.model.provider.DictObjectStore` and use it to load Asset Administration Shell and
-    Submodel files in ``AASX``, ``JSON`` and ``XML`` format from a given directory into memory. Additionally, load all
-    embedded supplementary files into a new :class:`~basyx.aas.adapter.aasx.DictSupplementaryFileContainer`.
+    Create a new :class:`~basyx.aas.model.provider.DictIdentifiableStore` and use it to load Asset Administration Shell
+    and Submodel files in ``AASX``, ``JSON`` and ``XML`` format from a given directory into memory. Additionally, load
+    all embedded supplementary files into a new :class:`~basyx.aas.adapter.aasx.DictSupplementaryFileContainer`.
 
     :param directory: :class:`~pathlib.Path` or ``str`` pointing to the directory containing all Asset Administration
         Shell and Submodel files to load
-    :return: Tuple consisting of a :class:`~basyx.aas.model.provider.DictObjectStore` and a
+    :return: Tuple consisting of a :class:`~basyx.aas.model.provider.DictIdentifiableStore` and a
         :class:`~basyx.aas.adapter.aasx.DictSupplementaryFileContainer` containing all loaded data
     """
 

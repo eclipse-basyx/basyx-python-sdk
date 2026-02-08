@@ -46,9 +46,10 @@ class AbstractObjectStore(AbstractObjectProvider[_KEY, _VALUE], MutableSet[_VALU
     Abstract base class for container-like objects for storage of values.
 
     ObjectStores are special ObjectProviders that, in addition to retrieving values by a key, allow adding and deleting
-    values (i.e. behave like a Python set). This includes local object stores (like :class:`~.DictObjectStore`) and
-    specific object stores (like :class:`~basyx.aas.backend.couchdb.CouchDBObjectStore` and
-    :class:`~basyx.aas.backend.local_file.LocalFileObjectStore`).
+    values (i.e. behave like a Python set). This includes local IdentifiableStores (like
+    :class:`~.DictIdentifiableStore`) and specific IdentifiableStores (like
+    :class:`~basyx.aas.backend.couchdb.CouchDBIdentifiableStore` and
+    :class:`~basyx.aas.backend.local_file.LocalFileIdentifiableStore`).
 
     The AbstractObjectStore inherits from the :class:`~collections.abc.MutableSet` abstract collections class and
     therefore implements all the functions of this class.
@@ -127,39 +128,39 @@ class ObjectProviderMultiplexer(AbstractObjectProvider[_KEY, _VALUE]):
                        .format(len(self.providers)))
 
 
-_IT = TypeVar('_IT', bound=Identifiable)
+_IDENTIFIABLE = TypeVar('_IDENTIFIABLE', bound=Identifiable)
 
 
-class DictIdentifiableStore(AbstractObjectStore[Identifier, _IT]):
+class DictIdentifiableStore(AbstractObjectStore[Identifier, _IDENTIFIABLE]):
     """
     A local in-memory object store for :class:`~basyx.aas.model.base.Identifiable` objects, backed by a dict, mapping
     :class:`~basyx.aas.model.base.Identifier` → :class:`~basyx.aas.model.base.Identifiable`
 
     .. note::
-        The `DictObjectStore` provides efficient retrieval of objects by their :class:`~basyx.aas.model.base.Identifier`
-        However, since object stores are not referenced via the parent attribute, the mapping is not updated
-        if the :class:`~basyx.aas.model.base.Identifier` of an :class:`~basyx.aas.model.base.Identifiable` changes.
-        For more details, see [issue #216](https://github.com/eclipse-basyx/basyx-python-sdk/issues/216).
-        As a result, the `DictObjectStore` is unsuitable for storing objects whose
-        :class:`~basyx.aas.model.base.Identifier` may change.
-        In such cases, consider using a :class:`~.SetObjectStore` instead.
+        The `DictIdentifiableStore` provides efficient retrieval of objects by their
+        :class:`~basyx.aas.model.base.Identifier`. However, since object stores are not referenced via the parent
+        attribute, the mapping is not updated if the :class:`~basyx.aas.model.base.Identifier` of an
+        :class:`~basyx.aas.model.base.Identifiable` changes. For more details, see
+        [issue #216](https://github.com/eclipse-basyx/basyx-python-sdk/issues/216). As a result, the
+        `DictIdentifiableStore` is unsuitable for storing objects whose :class:`~basyx.aas.model.base.Identifier` may
+        change. In such cases, consider using a :class:`~.SetIdentifiableStore` instead.
     """
 
-    def __init__(self, iterables: Iterable[_IT] = ()) -> None:
-        self._backend: Dict[Identifier, _IT] = {}
-        for x in iterables:
+    def __init__(self, identifiables: Iterable[_IDENTIFIABLE] = ()) -> None:
+        self._backend: Dict[Identifier, _IDENTIFIABLE] = {}
+        for x in identifiables:
             self.add(x)
 
-    def get_item(self, identifier: Identifier) -> _IT:
+    def get_item(self, identifier: Identifier) -> _IDENTIFIABLE:
         return self._backend[identifier]
 
-    def add(self, x: _IT) -> None:
+    def add(self, x: _IDENTIFIABLE) -> None:
         if x.id in self._backend and self._backend.get(x.id) is not x:
             raise KeyError("Identifiable object with same id {} is already stored in this store"
                            .format(x.id))
         self._backend[x.id] = x
 
-    def discard(self, x: _IT) -> None:
+    def discard(self, x: _IDENTIFIABLE) -> None:
         if self._backend.get(x.id) is x:
             del self._backend[x.id]
 
@@ -173,26 +174,26 @@ class DictIdentifiableStore(AbstractObjectStore[Identifier, _IT]):
     def __len__(self) -> int:
         return len(self._backend)
 
-    def __iter__(self) -> Iterator[_IT]:
+    def __iter__(self) -> Iterator[_IDENTIFIABLE]:
         return iter(self._backend.values())
 
 
-class DictObjectStore(DictIdentifiableStore[_IT]):
+class DictObjectStore(DictIdentifiableStore[_IDENTIFIABLE]):
     """
     `DictObjectStore` has been renamed to :class:`~.DictIdentifiableStore` and will be removed in a future release.
     Please migrate to :class:`~.DictIdentifiableStore`.
     """
 
-    def __init__(self, iterables: Iterable[_IT] = ()) -> None:
+    def __init__(self, identifiables: Iterable[_IDENTIFIABLE] = ()) -> None:
         warnings.warn(
             "`DictObjectStore` is deprecated and will be removed in a future release. Use "
             "`DictIdentifiableStore` instead.",
             DeprecationWarning,
             stacklevel=2,
         )
-        super().__init__(iterables)
+        super().__init__(identifiables)
 
-    def get_identifiable(self, identifier: Identifier) -> _IT:
+    def get_identifiable(self, identifier: Identifier) -> _IDENTIFIABLE:
         warnings.warn(
             "`get_identifiable()` is deprecated. Use `get_item()` from `DictIdentifiableStore` instead.",
             DeprecationWarning,
@@ -201,31 +202,31 @@ class DictObjectStore(DictIdentifiableStore[_IT]):
         return super().get_item(identifier)
 
 
-class SetIdentifiableStore(AbstractObjectStore[Identifier, _IT]):
+class SetIdentifiableStore(AbstractObjectStore[Identifier, _IDENTIFIABLE]):
     """
     A local in-memory object store for :class:`~basyx.aas.model.base.Identifiable` objects, backed by a set
 
     .. note::
-        The `SetObjectStore` is slower than the `DictObjectStore` for retrieval of objects, because it has to iterate
-        over all objects to find the one with the correct :class:`~basyx.aas.model.base.Identifier`.
-        On the other hand, the `SetObjectStore` is more secure, because it is less affected by changes in the
+        The `SetIdentifiableStore` is slower than the `DictIdentifiableStore` for retrieval of objects, because it has
+        to iterate over all objects to find the one with the correct :class:`~basyx.aas.model.base.Identifier`.
+        On the other hand, the `SetIdentifiableStore` is more secure, because it is less affected by changes in the
         :class:`~basyx.aas.model.base.Identifier` of an :class:`~basyx.aas.model.base.Identifiable` object.
-        Therefore, the `SetObjectStore` is suitable for storing objects whose :class:`~basyx.aas.model.base.Identifier`
-        may change.
+        Therefore, the `SetIdentifiableStore` is suitable for storing objects whose
+        :class:`~basyx.aas.model.base.Identifier` may change.
     """
 
-    def __init__(self, objects: Iterable[_IT] = ()) -> None:
-        self._backend: Set[_IT] = set()
+    def __init__(self, objects: Iterable[_IDENTIFIABLE] = ()) -> None:
+        self._backend: Set[_IDENTIFIABLE] = set()
         for x in objects:
             self.add(x)
 
-    def get_item(self, identifier: Identifier) -> _IT:
+    def get_item(self, identifier: Identifier) -> _IDENTIFIABLE:
         for x in self._backend:
             if x.id == identifier:
                 return x
         raise KeyError(identifier)
 
-    def add(self, x: _IT) -> None:
+    def add(self, x: _IDENTIFIABLE) -> None:
         if x in self:
             # Object is already in store
             return
@@ -236,10 +237,10 @@ class SetIdentifiableStore(AbstractObjectStore[Identifier, _IT]):
         else:
             raise KeyError(f"Identifiable object with same id {x.id} is already stored in this store")
 
-    def discard(self, x: _IT) -> None:
+    def discard(self, x: _IDENTIFIABLE) -> None:
         self._backend.discard(x)
 
-    def remove(self, x: _IT) -> None:
+    def remove(self, x: _IDENTIFIABLE) -> None:
         self._backend.remove(x)
 
     def __contains__(self, x: object) -> bool:
@@ -256,17 +257,17 @@ class SetIdentifiableStore(AbstractObjectStore[Identifier, _IT]):
     def __len__(self) -> int:
         return len(self._backend)
 
-    def __iter__(self) -> Iterator[_IT]:
+    def __iter__(self) -> Iterator[_IDENTIFIABLE]:
         return iter(self._backend)
 
 
-class SetObjectStore(SetIdentifiableStore[_IT]):
+class SetObjectStore(SetIdentifiableStore[_IDENTIFIABLE]):
     """
     `SetObjectStore` has been renamed to :class:`~.SetIdentifiableStore` and will be removed in a future release.
     Please migrate to :class:`~.SetIdentifiableStore`.
     """
 
-    def __init__(self, objects: Iterable[_IT] = ()) -> None:
+    def __init__(self, objects: Iterable[_IDENTIFIABLE] = ()) -> None:
         warnings.warn(
             "`SetObjectStore` is deprecated and will be removed in a future release. Use `SetIdentifiableStore`"
             "instead.",
@@ -275,7 +276,7 @@ class SetObjectStore(SetIdentifiableStore[_IT]):
         )
         super().__init__(objects)
 
-    def get_identifiable(self, identifier: Identifier) -> _IT:
+    def get_identifiable(self, identifier: Identifier) -> _IDENTIFIABLE:
         warnings.warn(
             "`get_identifiable()` is deprecated. Use `get_item()` from `SetIdentifiableStore` instead.",
             DeprecationWarning,

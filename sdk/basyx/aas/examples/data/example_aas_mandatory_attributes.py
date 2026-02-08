@@ -1,13 +1,14 @@
-# Copyright (c) 2025 the Eclipse BaSyx Authors
+# Copyright (c) 2026 the Eclipse BaSyx Authors
 #
 # This program and the accompanying materials are made available under the terms of the MIT License, available in
 # the LICENSE file of this project.
 #
 # SPDX-License-Identifier: MIT
 """
-Module for the creation of an :class:`ObjectStore <basyx.aas.model.provider.DictObjectStore>` with an example
-:class:`~basyx.aas.model.aas.AssetAdministrationShell`, example :class:`Submodels <basyx.aas.model.submodel.Submodel>`
-and an example :class:`~basyx.aas.model.concept.ConceptDescription`. All objects only contain mandatory attributes.
+Module for the creation of an :class:`IdentifiableStore <basyx.aas.model.provider.DictIdentifiableStore>` with an
+example :class:`~basyx.aas.model.aas.AssetAdministrationShell`, example
+:class:`Submodels <basyx.aas.model.submodel.Submodel>`and an example
+:class:`~basyx.aas.model.concept.ConceptDescription`. All objects only contain mandatory attributes.
 
 To get this object store use the function
 :meth:`~basyx.aas.examples.data.example_aas_mandatory_attributes.create_full_example`. If you want to get single example
@@ -23,11 +24,11 @@ logger = logging.getLogger(__name__)
 
 def create_full_example() -> model.DictIdentifiableStore:
     """
-    Creates an :class:`~.basyx.aas.model.provider.DictObjectStore` which is filled with an example
+    Creates an :class:`~.basyx.aas.model.provider.DictIdentifiableStore` which is filled with an example
     :class:`~basyx.aas.model.submodel.Submodel`, :class:`~basyx.aas.model.concept.ConceptDescription`
     and :class:`~basyx.aas.model.aas.AssetAdministrationShell` using the functions of this module
 
-    :return: :class:`~basyx.aas.model.provider.DictObjectStore`
+    :return: :class:`~basyx.aas.model.provider.DictIdentifiableStore`
     """
     id_store: model.DictIdentifiableStore[model.Identifiable] = model.DictIdentifiableStore()
     id_store.add(create_example_submodel())

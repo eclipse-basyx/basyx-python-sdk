@@ -1,4 +1,4 @@
-# Copyright (c) 2025 the Eclipse BaSyx Authors
+# Copyright (c) 2026 the Eclipse BaSyx Authors
 #
 # This program and the accompanying materials are made available under the terms of the MIT License, available in
 # the LICENSE file of this project.
@@ -49,15 +49,15 @@ def build_storage(
     Configure the server's storage according to the given start-up settings.
 
     :param env_input: ``str`` pointing to the input directory of the server
-    :param env_storage: ``str`` pointing to the :class:`~basyx.aas.backend.local_file.LocalFileObjectStore` storage
-        directory of the server if persistent storage is enabled
+    :param env_storage: ``str`` pointing to the :class:`~basyx.aas.backend.local_file.LocalFileIdentifiableStore`
+        storage directory of the server if persistent storage is enabled
     :param env_storage_persistency: Flag to enable persistent storage
     :param env_storage_overwrite: Flag to overwrite existing :class:`Identifiables <basyx.aas.model.base.Identifiable>`
-        in the :class:`~basyx.aas.backend.local_file.LocalFileObjectStore` if persistent storage is enabled
+        in the :class:`~basyx.aas.backend.local_file.LocalFileIdentifiableStore` if persistent storage is enabled
     :param logger: :class:`~logging.Logger` used for start-up diagnostics
-    :return: Tuple consisting of a :class:`~basyx.aas.model.provider.DictObjectStore` if persistent storage is disabled
-        or a :class:`~basyx.aas.backend.local_file.LocalFileObjectStore` if persistent storage is enabled and a
-        :class:`~basyx.aas.adapter.aasx.DictSupplementaryFileContainer` as storage for
+    :return: Tuple consisting of a :class:`~basyx.aas.model.provider.DictIdentifiableStore` if persistent storage is
+        disabled or a :class:`~basyx.aas.backend.local_file.LocalFileIdentifiableStore` if persistent storage is
+        enabled and a :class:`~basyx.aas.adapter.aasx.DictSupplementaryFileContainer` as storage for
         :class:`~interfaces.repository.WSGIApp`
     """
 

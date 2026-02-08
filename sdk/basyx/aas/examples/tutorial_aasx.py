@@ -46,8 +46,8 @@ unrelated_submodel = model.Submodel(
     id_='https://acplt.org/Unrelated_Submodel'
 )
 
-# We add these objects to an ObjectStore for easy retrieval by id.
-# See `tutorial_storage.py` for more details. We could also use a database-backed ObjectStore here
+# We add these objects to an IdentifiableStore for easy retrieval by id.
+# See `tutorial_storage.py` for more details. We could also use a database-backed IdentifiableStore here
 # (see `tutorial_backend_couchdb.py`).
 identifiable_store = model.DictIdentifiableStore([submodel, aas, unrelated_submodel])
 
@@ -94,9 +94,9 @@ submodel.submodel_element.add(
 with aasx.AASXWriter("MyAASXPackage.aasx") as writer:
     # Write the AAS and everything belonging to it to the AASX package
     # The `write_aas()` method will automatically fetch the AAS object with the given id
-    # and all referenced Submodel objects from the ObjectStore. It will also scan every object for
-    # semanticIds referencing ConceptDescription, fetch them from the ObjectStore, and scan all submodels for `File`
-    # objects and fetch the referenced auxiliary files from the SupplementaryFileContainer.
+    # and all referenced Submodel objects from the IdentifiableStore. It will also scan every object for
+    # semanticIds referencing ConceptDescription, fetch them from the IdentifiableStore, and scan all submodels for
+    # `File` objects and fetch the referenced auxiliary files from the SupplementaryFileContainer.
     # In order to add more than one AAS to the package, we can simply add more Identifiers to the `aas_ids` list.
     #
     # ATTENTION: As of Version 3.0 RC01 of Details of the Asset Administration Shell, it is no longer valid to add more
@@ -136,7 +136,7 @@ with aasx.AASXWriter("MyAASXPackage.aasx") as writer:
 ########################################################################
 
 # Let's read the AASX package file, we have just written.
-# We'll use a fresh ObjectStore and SupplementaryFileContainer to read AAS objects and auxiliary files into.
+# We'll use a fresh IdentifiableStore and SupplementaryFileContainer to read AAS objects and auxiliary files into.
 new_identifiable_store: model.DictIdentifiableStore[model.Identifiable] = model.DictIdentifiableStore()
 new_file_store = aasx.DictSupplementaryFileContainer()
 

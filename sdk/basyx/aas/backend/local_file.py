@@ -1,4 +1,4 @@
-# Copyright (c) 2025 the Eclipse BaSyx Authors
+# Copyright (c) 2026 the Eclipse BaSyx Authors
 #
 # This program and the accompanying materials are made available under the terms of the MIT License, available in
 # the LICENSE file of this project.
@@ -8,7 +8,7 @@
 This module adds the functionality of storing and retrieving :class:`~basyx.aas.model.base.Identifiable` objects
 in local files.
 
-The :class:`~LocalFileObjectStore` handles adding, deleting and otherwise managing
+The :class:`~LocalFileIdentifiableStore` handles adding, deleting and otherwise managing
 the AAS objects in a specific Directory.
 """
 from typing import Iterator
@@ -34,7 +34,7 @@ class LocalFileIdentifiableStore(model.AbstractObjectStore[model.Identifier, mod
     """
     def __init__(self, directory_path: str):
         """
-        Initializer of class LocalFileObjectStore
+        Initializer of class LocalFileIdentifiableStore
 
         :param directory_path: Path to the local file backend (the path where you want to store your AAS JSON files)
         """

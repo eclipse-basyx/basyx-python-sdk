@@ -1,4 +1,4 @@
-# Copyright (c) 2025 the Eclipse BaSyx Authors
+# Copyright (c) 2026 the Eclipse BaSyx Authors
 #
 # This program and the accompanying materials are made available under the terms of the MIT License, available in
 # the LICENSE file of this project.
@@ -919,21 +919,21 @@ class AASDataChecker(DataChecker):
 
     def check_identifiable_store(
             self,
-            id_store_1: model.DictIdentifiableStore,
-            id_store_2: model.DictIdentifiableStore
+            identifiable_store_1: model.DictIdentifiableStore,
+            identifiable_store_2: model.DictIdentifiableStore
     ):
         """
         Checks if the given object stores are equal
 
-        :param id_store_1: Given object store to check
-        :param id_store_2: expected object store
+        :param identifiable_store_1: Given object store to check
+        :param identifiable_store_2: expected object store
         :return:
         """
         # separate different kind of objects
         submodel_list_1 = []
         concept_description_list_1 = []
         shell_list_1 = []
-        for identifiable in id_store_1:
+        for identifiable in identifiable_store_1:
             if isinstance(identifiable, model.AssetAdministrationShell):
                 shell_list_1.append(identifiable)
             elif isinstance(identifiable, model.Submodel):
@@ -947,7 +947,7 @@ class AASDataChecker(DataChecker):
         submodel_list_2 = []
         concept_description_list_2 = []
         shell_list_2 = []
-        for identifiable in id_store_2:
+        for identifiable in identifiable_store_2:
             if isinstance(identifiable, model.AssetAdministrationShell):
                 shell_list_2.append(identifiable)
             elif isinstance(identifiable, model.Submodel):
@@ -958,7 +958,7 @@ class AASDataChecker(DataChecker):
                 raise KeyError('Check for {} not implemented'.format(identifiable))
 
         for shell_2 in shell_list_2:
-            shell_1 = id_store_1.get(shell_2.id)
+            shell_1 = identifiable_store_1.get(shell_2.id)
             if self.check(shell_1 is not None, 'Asset administration shell {} must exist in given asset administration'
                                                'shell list'.format(shell_2)):
                 self.check_asset_administration_shell_equal(shell_1, shell_2)  # type: ignore
@@ -968,7 +968,7 @@ class AASDataChecker(DataChecker):
                                             'administration shells', value=found_elements)
 
         for submodel_2 in submodel_list_2:
-            submodel_1 = id_store_1.get(submodel_2.id)
+            submodel_1 = identifiable_store_1.get(submodel_2.id)
             if self.check(submodel_1 is not None, 'Submodel {} must exist in given submodel list'.format(submodel_2)):
                 self.check_submodel_equal(submodel_1, submodel_2)  # type: ignore
 
@@ -977,7 +977,7 @@ class AASDataChecker(DataChecker):
                    value=found_elements)
 
         for cd_2 in concept_description_list_2:
-            cd_1 = id_store_1.get(cd_2.id)
+            cd_1 = identifiable_store_1.get(cd_2.id)
             if self.check(cd_1 is not None, 'Concept description {} must exist in given concept description '
                                             'list'.format(cd_2)):
                 self.check_concept_description_equal(cd_1, cd_2)  # type: ignore

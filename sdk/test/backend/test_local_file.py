@@ -1,4 +1,4 @@
-# Copyright (c) 2025 the Eclipse BaSyx Authors
+# Copyright (c) 2026 the Eclipse BaSyx Authors
 #
 # This program and the accompanying materials are made available under the terms of the MIT License, available in
 # the LICENSE file of this project.
@@ -28,7 +28,7 @@ class LocalFileBackendTest(TestCase):
         finally:
             shutil.rmtree(store_path)
 
-    def test_object_store_add(self):
+    def test_identifiable_store_add(self):
         test_object = create_example_submodel()
         self.identifiable_store.add(test_object)
         # Note that this test is only checking that there are no errors during adding.
@@ -74,7 +74,7 @@ class LocalFileBackendTest(TestCase):
 
         self.assertEqual(5, len(self.identifiable_store))
 
-        # Iterate objects, add them to a DictObjectStore and check them
+        # Iterate objects, add them to a DictIdentifiableStore and check them
         retrieved_data_store: model.provider.DictIdentifiableStore[model.Identifiable] = (
             model.provider.DictIdentifiableStore()
         )

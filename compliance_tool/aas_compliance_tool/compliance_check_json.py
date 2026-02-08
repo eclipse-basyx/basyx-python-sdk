@@ -1,4 +1,4 @@
-# Copyright (c) 2025 the Eclipse BaSyx Authors
+# Copyright (c) 2026 the Eclipse BaSyx Authors
 #
 # This program and the accompanying materials are made available under the terms of the MIT License, available in
 # the LICENSE file of this project.
@@ -112,7 +112,7 @@ def check_deserialization(file_path: str, state_manager: ComplianceToolStateMana
     :param file_path: Given file which should be deserialized
     :param state_manager: :class:`~basyx.aas.compliance_tool.state_manager.ComplianceToolStateManager` to log the steps
     :param file_info: Additional information about the file for name of the steps
-    :return: The deserialized :class:`~basyx.aas.model.provider.DictObjectStore`
+    :return: The deserialized :class:`~basyx.aas.model.provider.DictIdentifiableStore`
     """
     logger = logging.getLogger('compliance_check')
     logger.addHandler(state_manager)

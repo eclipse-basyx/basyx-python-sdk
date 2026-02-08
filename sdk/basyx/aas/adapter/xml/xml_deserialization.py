@@ -1,4 +1,4 @@
-# Copyright (c) 2025 the Eclipse BaSyx Authors
+# Copyright (c) 2026 the Eclipse BaSyx Authors
 #
 # This program and the accompanying materials are made available under the terms of the MIT License, available in
 # the LICENSE file of this project.
@@ -15,7 +15,7 @@ This module provides the following functions for parsing XML documents:
 - :func:`read_aas_xml_file_into` constructs all elements of an XML document and stores them in a given
   :class:`ObjectStore <basyx.aas.model.provider.AbstractObjectStore>`
 - :func:`read_aas_xml_file` constructs all elements of an XML document and returns them in a
-  :class:`~basyx.aas.model.provider.DictObjectStore`
+  :class:`~basyx.aas.model.provider.DictIdentifiableStore`
 
 These functions take a decoder class as keyword argument, which allows parsing in failsafe (default) or non-failsafe
 mode. Parsing stripped elements - used in the HTTP adapter - is also possible. It is also possible to subclass the
@@ -1512,7 +1512,7 @@ def read_aas_xml_file(file: PathOrIO, failsafe: bool = True, **kwargs: Any)\
         -> model.DictIdentifiableStore:
     """
     A wrapper of :meth:`~basyx.aas.adapter.xml.xml_deserialization.read_aas_xml_file_into`, that reads all objects in an
-    empty :class:`~basyx.aas.model.provider.DictObjectStore`. This function supports
+    empty :class:`~basyx.aas.model.provider.DictIdentifiableStore`. This function supports
     the same keyword arguments as :meth:`~basyx.aas.adapter.xml.xml_deserialization.read_aas_xml_file_into`.
 
     :param file: A filename or file-like object to read the XML-serialized data from
@@ -1525,7 +1525,7 @@ def read_aas_xml_file(file: PathOrIO, failsafe: bool = True, **kwargs: Any)\
     :raises (~basyx.aas.model.base.AASConstraintViolation, KeyError, ValueError): **Non-failsafe**: Errors during
                                                                                   construction of the objects
     :raises TypeError: **Non-failsafe**: Encountered an undefined top-level list (e.g. ``<aas:submodels1>``)
-    :return: A :class:`~basyx.aas.model.provider.DictObjectStore` containing all AAS objects from the XML file
+    :return: A :class:`~basyx.aas.model.provider.DictIdentifiableStore` containing all AAS objects from the XML file
     """
     identifiable_store: model.DictIdentifiableStore[model.Identifiable] = model.DictIdentifiableStore()
     read_aas_xml_file_into(identifiable_store, file, failsafe=failsafe, **kwargs)
