@@ -1297,24 +1297,7 @@ class AdministrativeInformation(HasDataSpecification):
 
 
 @_string_constraints.constrain_identifier("id")
-class HasIdentifier(metaclass=abc.ABCMeta):
-    """
-    Abstract base class for entities characterised by a globally unique :class:`Identifier`.
-
-    <<abstract>>
-
-    :ivar id: The globally unique id of the element.
-    """
-    @abc.abstractmethod
-    def __init__(self) -> None:
-        super().__init__()
-        self.id: Identifier
-
-    def __repr__(self) -> str:
-        return "{}[{}]".format(self.__class__.__name__, self.id)
-
-
-class Identifiable(HasIdentifier, Referable, metaclass=abc.ABCMeta):
+class Identifiable(Referable, metaclass=abc.ABCMeta):
     """
     Identifiable element with a globally unique :class:`Identifier` and, optionally, additional
     :class:`~.AdministrativeInformation`.
@@ -1322,11 +1305,17 @@ class Identifiable(HasIdentifier, Referable, metaclass=abc.ABCMeta):
     <<abstract>>
 
     :ivar administration: :class:`~.AdministrativeInformation` of an identifiable element.
+    :ivar id: The globally unique id of the element.
     """
     @abc.abstractmethod
     def __init__(self) -> None:
         super().__init__()
         self.administration: Optional[AdministrativeInformation] = None
+        # The id attribute is set by all inheriting classes __init__ functions.
+        self.id: Identifier
+
+    def __repr__(self) -> str:
+        return "{}[{}]".format(self.__class__.__name__, self.id)
 
 
 _T = TypeVar("_T")
