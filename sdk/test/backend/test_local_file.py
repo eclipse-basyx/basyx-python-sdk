@@ -106,3 +106,13 @@ class LocalFileBackendTest(TestCase):
             self.identifiable_store.discard(retrieved_submodel)
         self.assertEqual("'No AAS object with id https://acplt.org/Test_Submodel exists in "
                          "local file database'", str(cm.exception))
+
+    def test_reload_discard(self) -> None:
+        # Load example submodel
+        example_submodel = create_example_submodel()
+        self.identifiable_store.add(example_submodel)
+
+        # Reload the DictIdentifiableStore and discard the example submodel
+        self.identifiable_store = local_file.LocalFileIdentifiableStore(store_path)
+        self.identifiable_store.discard(example_submodel)
+        self.assertNotIn(example_submodel, self.identifiable_store)

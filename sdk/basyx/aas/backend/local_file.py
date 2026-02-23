@@ -123,7 +123,7 @@ class LocalFileIdentifiableStore(model.AbstractObjectStore[model.Identifier, mod
         except FileNotFoundError as e:
             raise KeyError("No AAS object with id {} exists in local file database".format(x.id)) from e
         with self._object_cache_lock:
-            del self._object_cache[x.id]
+            self._object_cache.pop(x.id, None)
 
     def __contains__(self, x: object) -> bool:
         """

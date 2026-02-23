@@ -78,20 +78,6 @@ class AbstractObjectStore(AbstractObjectProvider[_KEY, _VALUE], MutableSet[_VALU
         for value in other:
             if value in self:
                 if overwrite:
-
-                    # TODO: This is a quick fix. Yes it works. The underlying problem with the subclass
-                    # `LocalFileIdentifiableStore` will be solved in a separate issue
-                    # (https://github.com/eclipse-basyx/basyx-python-sdk/issues/438).
-                    # Think of this as pythonic duct tape.
-                    #
-                    # The problem is that the `_object_cache` isn't initialised together with the
-                    # `LocalFileIdentifiableStore`, leading to an error when `discard()` is called on the empty cache.
-                    # The for-loop calls `__iter__` calls `get_identifiable_by_hash()` calls
-                    # `self._object_cache[obj.id] = obj`, adding all identifiables to the cache and therefore avoiding
-                    # the error.
-                    for element in self:
-                        pass
-
                     self.discard(value)
                     self.add(value)
                     overwritten += 1
