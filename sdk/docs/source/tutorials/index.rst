@@ -10,5 +10,5 @@ Tutorials for working with the Eclipse BaSyx Python SDK
    tutorial_navigate_aas
    tutorial_storage
    tutorial_serialization_deserialization
-   tutorial_backend_couchdb
    tutorial_aasx
+   tutorial_backend_couchdb
