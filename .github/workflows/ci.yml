@@ -309,9 +309,9 @@ jobs:
         python -m mypy app test
     - name: Check code style with PyCodestyle
       run: |
-        python -m pycodestyle --count --max-line-length 120 .
+        python -m pycodestyle --count --max-line-length 120 app test
 
-  server-package:
+  server-repository-docker:
     # This job checks if we can build our server package
     runs-on: ubuntu-latest
     defaults:
