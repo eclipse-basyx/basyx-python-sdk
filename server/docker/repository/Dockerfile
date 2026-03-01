@@ -15,10 +15,14 @@ RUN apk update && \
     pip install uwsgi && \
     apk del git bash
 
-
-COPY server/uwsgi.ini /etc/uwsgi/
-COPY server/supervisord.ini /etc/supervisor/conf.d/supervisord.ini
-COPY server/stop-supervisor.sh /etc/supervisor/stop-supervisor.sh
+# Copy only the files we need to run the container
+# The argumentation for this is to keep the containers as slim as possible.
+COPY ./sdk /sdk
+COPY ./server/app /server/app
+COPY ./server/pyproject.toml /server/pyproject.toml
+COPY ./server/docker/repository/uwsgi.ini /etc/uwsgi/
+COPY ./server/docker/common/supervisord.ini /etc/supervisor/conf.d/supervisord.ini
+COPY ./server/docker/common/stop-supervisor.sh /etc/supervisor/stop-supervisor.sh
 RUN chmod +x /etc/supervisor/stop-supervisor.sh
 
 # Makes it possible to use a different configuration
@@ -41,17 +45,15 @@ ENV STORAGE_OVERWRITE=False
 VOLUME ["/input", "/storage"]
 
 # Copy the entrypoint that will generate Nginx additional configs
-COPY server/entrypoint.sh /entrypoint.sh
+COPY server/docker/repository/entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
 ENTRYPOINT ["/entrypoint.sh"]
 
 ENV SETUPTOOLS_SCM_PRETEND_VERSION=1.0.0
 
-COPY ./sdk /sdk
-COPY ./server/app /app
-WORKDIR /app
-RUN pip install ../sdk
-RUN pip install .
+WORKDIR /server/app
+RUN pip install ../../sdk
+RUN pip install ..
 
 CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.ini"]

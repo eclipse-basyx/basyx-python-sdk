@@ -25,7 +25,7 @@ from basyx.aas.adapter._generic import XML_NS_MAP
 from basyx.aas.adapter.json import StrictStrippedAASFromJsonDecoder, StrictAASFromJsonDecoder, AASToJsonEncoder
 from basyx.aas.adapter.xml import xml_serialization, XMLConstructables, read_aas_xml_element
 from basyx.aas.model import AbstractObjectStore
-from util.converters import base64url_decode
+from app.util.converters import base64url_decode
 
 
 T = TypeVar("T")

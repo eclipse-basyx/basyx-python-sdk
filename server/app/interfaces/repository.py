@@ -22,7 +22,7 @@ from werkzeug.routing import Submount, Rule, MapAdapter
 
 from basyx.aas import model
 from basyx.aas.adapter import aasx
-from util.converters import IdentifierToBase64URLConverter, IdShortPathConverter, base64url_decode
+from app.util.converters import IdentifierToBase64URLConverter, IdShortPathConverter, base64url_decode
 from .base import ObjectStoreWSGIApp, APIResponse, is_stripped_request, HTTPApiDecoder, T
 
 

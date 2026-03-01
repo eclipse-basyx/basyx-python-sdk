@@ -19,7 +19,7 @@ The container image can be built via:
 $ docker build -t basyx-python-server -f Dockerfile ..
 ```
 
-Note that when cloning this repository on Windows, Git may convert the line separators to CRLF. This breaks [`entrypoint.sh`](entrypoint.sh) and [`stop-supervisor.sh`](stop-supervisor.sh). Ensure both files use LF line separators (`\n`) before building. 
+Note that when cloning this repository on Windows, Git may convert the line separators to CRLF. This breaks [`entrypoint.sh`](docker/repository/entrypoint.sh) and [`stop-supervisor.sh`](docker/common/stop-supervisor.sh). Ensure both files use LF line separators (`\n`) before building. 
 
 ## Running
 
@@ -60,51 +60,13 @@ This implies the following start-up behaviour:
   - Any AAS/Submodel *already present* is skipped, unless `STORAGE_OVERWRITE = True`, in which case it is replaced.
 - Supplementary files (e.g., `File` SubmodelElements) are never persisted by the LocalFileBackend.
 
-### Running Examples
-
-Putting it all together, the container can be started via the following command:
-```
-$ docker run -p 8080:80 -v ./input:/input -v ./storage:/storage basyx-python-server
-```
-
-Since Windows uses backslashes instead of forward slashes in paths, you'll have to adjust the path to the storage directory there:
-```
-> docker run -p 8080:80 -v .\input:/input -v .\storage:/storage basyx-python-server
-```
-
-By default, the server will use the standard settings described [above](#options). Those settings can be adapted in the following way:
-```
-$ docker run -p 8080:80 -v ./input:/input2 -v ./storage:/storage2 -e API_BASE_PATH=/api/v3.1/ -e INPUT=/input2 -e STORAGE=/storage2 -e STORAGE_PERSISTENCY=True -e STORAGE_OVERWRITE=True basyx-python-server
-```
-
 ## Building and Running the Image with Docker Compose
 
-The container image can also be built and run via:
-```
-$ docker compose up
-```
+Example configurations can be found in the `./example_configurations` directory.
 
-An exemplary [`compose.yml`](compose.yml) file for the server is given [here](compose.yml):
-```yaml
-name: basyx-python-server
-services:
-  app:
-    build:
-      context: ..
-      dockerfile: server/Dockerfile
-    ports:
-    - "8080:80"
-    volumes:
-      - ./input:/input
-      - ./storage:/storage
-    environment:
-      STORAGE_PERSISTENCY: True
-```
+Currently, we offer: 
 
-Input files are read from `./input` and stored persistently under `./storage` on your host system. The server can be accessed at http://localhost:8080/api/v3.0/ from your host system. 
-To get a different setup, the [`compose.yml`](compose.yml) file can be adapted using the options described [above](#options), similar to the third [running example](#running-examples).
-
-Note that the `Dockerfile` has to be specified explicitly via `dockerfile: server/Dockerfile`, as the build context must be set to the parent directory of `/server` to allow access to the local `/sdk`.
+- [repository_standalone](example_configurations/repository_standalone/README.md): Standalone repository server
 
 ## Running without Docker (Debugging Only)
 

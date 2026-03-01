@@ -14,7 +14,7 @@ from basyx.aas.adapter import load_directory
 from basyx.aas.adapter.aasx import DictSupplementaryFileContainer
 from basyx.aas.backend.local_file import LocalFileIdentifiableStore
 from basyx.aas.model.provider import DictIdentifiableStore
-from interfaces.repository import WSGIApp
+from app.interfaces.repository import WSGIApp
 from typing import Tuple, Union
 
 
