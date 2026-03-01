@@ -16,8 +16,8 @@ build-backend = "setuptools.build_meta"
 # from app.version import version
 # print(f"Project version: {version}")
 # ```
-root = "../.."  # Defines the path to the root of the repository
-version_file = "version.py"
+root = ".."  # Defines the path to the root of the repository
+version_file = "app/version.py"
 
 [project]
 name = "basyx-python-server"
@@ -55,7 +55,7 @@ dev = [
 "Homepage" = "https://github.com/eclipse-basyx/basyx-python-sdk"
 
 [tool.setuptools]
-packages = { find = { exclude = ["test*"] } }
+packages = { find = { include = ["app*"], exclude = ["test*"] } }
 
 [tool.setuptools.package-data]
 app = ["py.typed"]
