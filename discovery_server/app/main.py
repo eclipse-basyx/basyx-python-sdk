@@ -1,8 +1,9 @@
 import os
-import sys
-from server.app.interfaces.discovery import DiscoveryAPI, MongoDiscoveryStore,InMemoryDiscoveryStore
+import atexit
 
-storage_type = os.getenv("STORAGE_TYPE", "inmemory")
+from server.app.interfaces.discovery import DiscoveryAPI, DiscoveryStore
+
+storage_path = os.getenv("storage_path", None)
 base_path = os.getenv("API_BASE_PATH")
 
 wsgi_optparams = {}
@@ -10,16 +11,17 @@ wsgi_optparams = {}
 if base_path is not None:
     wsgi_optparams["base_path"] = base_path
 
-if storage_type == "inmemory":
-    application = DiscoveryAPI(InMemoryDiscoveryStore(), **wsgi_optparams)
 
-elif storage_type == "mongodb":
-    uri = os.getenv("MONGODB_URI", "mongodb://localhost:27017")
-    dbname = os.getenv("MONGODB_DBNAME", "basyx_registry")
-
-    application = DiscoveryAPI(MongoDiscoveryStore(uri,dbname), **wsgi_optparams)
-
+# Load DiscoveryStore from disk, if `storage_path` is set
+if storage_path:
+    discovery_store: DiscoveryStore = DiscoveryStore.from_file(storage_path)
 else:
-    print(f"STORAGE_TYPE must be either inmemory or mongodb! Current value: {storage_type}",
-          file=sys.stderr)
+    discovery_store = DiscoveryStore()
 
+def persist_store():
+    if storage_path:
+        discovery_store.to_file(storage_path)
+
+atexit.register(persist_store)
+
+application = DiscoveryAPI(discovery_store, **wsgi_optparams)

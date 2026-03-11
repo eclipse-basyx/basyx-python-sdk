@@ -3,6 +3,7 @@ This module implements the Discovery interface defined in the 'Specification of 
 """
 
 import abc
+import json
 from typing import Dict, List, Set, Any
 
 import werkzeug.exceptions
@@ -15,45 +16,10 @@ from basyx.aas import model
 from app.util.converters import IdentifierToBase64URLConverter
 from app.interfaces.base import BaseWSGIApp, HTTPApiDecoder
 from app import model as server_model
-from app.adapter.jsonization import ServerAASToJsonEncoder
-
-encoder=ServerAASToJsonEncoder()
-
-class AbstractDiscoveryStore(metaclass=abc.ABCMeta):
-    aas_id_to_asset_ids: Any
-    asset_id_to_aas_ids: Any
-
-    @abc.abstractmethod
-    def __init__(self):
-        pass
-
-    @abc.abstractmethod
-    def get_all_specific_asset_ids_by_aas_id(self, aas_id: model.Identifier) -> List[model.SpecificAssetId]:
-        pass
-    
-    @abc.abstractmethod
-    def add_specific_asset_ids_to_aas(self, aas_id: model.Identifier, asset_ids: List[model.SpecificAssetId]) -> None:
-        pass
-    
-    @abc.abstractmethod
-    def delete_specific_asset_ids_by_aas_id(self, aas_id: model.Identifier) -> None:
-        pass
-    
-    @abc.abstractmethod
-    def search_aas_ids_by_asset_link(self, asset_link: server_model.AssetLink) -> List[model.Identifier]:
-        pass
-    
-    @abc.abstractmethod
-    def _add_aas_id_to_specific_asset_id(self, asset_id: model.SpecificAssetId, aas_identifier: model.Identifier) -> None:
-        pass
-
-    @abc.abstractmethod
-    def _delete_aas_id_from_specific_asset_ids(self, asset_id: model.SpecificAssetId, aas_id: model.Identifier) -> None:
-        pass
+from app.adapter import jsonization
 
 
-
-class InMemoryDiscoveryStore(AbstractDiscoveryStore):
+class DiscoveryStore:
     def __init__(self):
         self.aas_id_to_asset_ids: Dict[model.Identifier, Set[model.SpecificAssetId]] = {}
         self.asset_id_to_aas_ids: Dict[model.SpecificAssetId, Set[model.Identifier]] = {}
@@ -93,69 +59,35 @@ class InMemoryDiscoveryStore(AbstractDiscoveryStore):
         if asset_id in self.asset_id_to_aas_ids:
             self.asset_id_to_aas_ids[asset_id].discard(aas_id)
 
+    @classmethod
+    def from_file(cls, filename: str) -> "DiscoveryStore":
+        """
+        Load the state of the `DiscoveryStore` from a local file.
+        The file should be in the format as written by the `self.to_file()` method.
+        """
+        with open(filename, "r") as file:
+            data = json.load(file, cls=jsonization.ServerAASFromJsonDecoder)
+            discovery_store = DiscoveryStore()
+            discovery_store.aas_id_to_asset_ids = data["aas_id_to_asset_ids"]
+            discovery_store.asset_id_to_aas_ids = data["asset_id_to_aas_ids"]
+            return discovery_store
 
-
-
-class MongoDiscoveryStore(AbstractDiscoveryStore):
-    def __init__(self,
-                 uri: str = "mongodb://localhost:27017",
-                 db_name: str = "basyx",
-                 coll_aas_to_assets: str = "aas_to_assets",
-                 coll_asset_to_aas: str = "asset_to_aas"):
-        self.client: MongoClient = MongoClient(uri)
-        self.db = self.client[db_name]
-        self.coll_aas_to_assets: Collection = self.db[coll_aas_to_assets]
-        self.coll_asset_to_aas: Collection = self.db[coll_asset_to_aas]
-        # Create an index for fast asset reverse lookups.
-        self.coll_asset_to_aas.create_index("_id")
-
-    def get_all_specific_asset_ids_by_aas_id(self, aas_id: model.Identifier) -> List[model.SpecificAssetId]:
-        key = aas_id
-        doc = self.coll_aas_to_assets.find_one({"_id": key})
-        return doc["asset_ids"] if doc and "asset_ids" in doc else []
-
-    def add_specific_asset_ids_to_aas(self, aas_id: model.Identifier, asset_ids: List[model.SpecificAssetId]) -> None:
-        key = aas_id
-        # Convert each SpecificAssetId using the serialization helper.
-        serializable_assets = [encoder.default(asset_id) for asset_id in asset_ids]
-        self.coll_aas_to_assets.update_one(
-            {"_id": key},
-            {"$addToSet": {"asset_ids": {"$each": serializable_assets}}},
-            upsert=True
-        )
-
-    def delete_specific_asset_ids_by_aas_id(self, aas_id: model.Identifier) -> None:
-        key = aas_id
-        self.coll_aas_to_assets.delete_one({"_id": key})
-
-    def search_aas_ids_by_asset_link(self, asset_link: server_model.AssetLink) -> List[model.Identifier]:
-        # Query MongoDB for specificAssetIds where 'name' and 'value' match
-        doc = self.coll_asset_to_aas.find_one({
-            "name": asset_link.name,
-            "value": asset_link.value
-        })
-        return doc["aas_ids"] if doc and "aas_ids" in doc else []
-
-    def _add_aas_id_to_specific_asset_id(self, asset_id: model.SpecificAssetId, aas_id: model.Identifier) -> None:
-        asset_key = str(encoder.default(asset_id))
-        self.coll_asset_to_aas.update_one(
-            {"_id": asset_key},
-            {"$addToSet": {"aas_ids": aas_id}},
-            upsert=True
-        )
-
-    def _delete_aas_id_from_specific_asset_ids(self, asset_id: model.SpecificAssetId, aas_id: model.Identifier) -> None:
-        asset_key = str(encoder.default(asset_id))
-        self.coll_asset_to_aas.update_one(
-            {"_id": asset_key},
-            {"$pull": {"aas_ids": aas_id}}
-        )
+    def to_file(self, filename: str) -> None:
+        """
+        Write the current state of the `DiscoveryStore` to a local JSON file for persistence.
+        """
+        with open(filename, "w") as file:
+            data = {
+                "aas_id_to_asset_ids": self.aas_id_to_asset_ids,
+                "asset_id_to_aas_ids": self.asset_id_to_aas_ids,
+            }
+            json.dump(data, file, cls=jsonization.ServerAASToJsonEncoder, indent=4)
 
 
 class DiscoveryAPI(BaseWSGIApp):
     def __init__(self,
-                 persistent_store: AbstractDiscoveryStore, base_path: str = "/api/v3.0"):
-        self.persistent_store: AbstractDiscoveryStore = persistent_store
+                 persistent_store: DiscoveryStore, base_path: str = "/api/v3.0"):
+        self.persistent_store: DiscoveryStore = persistent_store
         self.url_map = werkzeug.routing.Map([
             Submount(base_path, [
                 Rule("/lookup/shellsByAssetLink", methods=["POST"],
@@ -208,5 +140,5 @@ class DiscoveryAPI(BaseWSGIApp):
 if __name__ == "__main__":
     from werkzeug.serving import run_simple
 
-    run_simple("localhost", 8084, DiscoveryAPI(InMemoryDiscoveryStore()),
+    run_simple("localhost", 8084, DiscoveryAPI(DiscoveryStore()),
                use_debugger=True, use_reloader=True)
