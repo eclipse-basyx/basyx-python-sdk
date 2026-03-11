@@ -10,12 +10,14 @@ from app.model import AssetAdministrationShellDescriptor, SubmodelDescriptor
 from basyx.aas import model
 from basyx.aas.model import provider as sdk_provider
 
-from app.model.descriptor import Descriptor
+from app.model import descriptor
 from app.adapter import jsonization
 
 
 logger = logging.getLogger(__name__)
 
+_DESCRIPTOR_TYPE = Union[descriptor.AssetAdministrationShellDescriptor, descriptor.SubmodelDescriptor]
+_DESCRIPTOR_CLASSES = (descriptor.AssetAdministrationShellDescriptor, descriptor.SubmodelDescriptor)
 
 # We need to resolve the Descriptor type in order to deserialize it again from JSON
 DESCRIPTOR_TYPE_TO_STRING: Dict[Type[Union[AssetAdministrationShellDescriptor, SubmodelDescriptor]], str] = {
@@ -24,7 +26,7 @@ DESCRIPTOR_TYPE_TO_STRING: Dict[Type[Union[AssetAdministrationShellDescriptor, S
 }
 
 
-class LocalFileDescriptorStore(sdk_provider.AbstractObjectStore[model.Identifier, Descriptor]):
+class LocalFileDescriptorStore(sdk_provider.AbstractObjectStore[model.Identifier, _DESCRIPTOR_TYPE]):
     """
     An ObjectStore implementation for :class:`~app.model.descriptor.Descriptor` BaSyx Python SDK objects backed
     by a local file based local backend
@@ -42,7 +44,7 @@ class LocalFileDescriptorStore(sdk_provider.AbstractObjectStore[model.Identifier
         # local replication of each object is kept in the application and retrieving an object from the store always
         # returns the **same** (not only equal) object. Still, objects are forgotten, when they are not referenced
         # anywhere else to save memory.
-        self._object_cache: weakref.WeakValueDictionary[model.Identifier, Descriptor] \
+        self._object_cache: weakref.WeakValueDictionary[model.Identifier, _DESCRIPTOR_TYPE] \
             = weakref.WeakValueDictionary()
         self._object_cache_lock = threading.Lock()
 
@@ -59,7 +61,7 @@ class LocalFileDescriptorStore(sdk_provider.AbstractObjectStore[model.Identifier
             os.mkdir(self.directory_path)
             logger.info("Creating directory {}".format(self.directory_path))
 
-    def get_descriptor_by_hash(self, hash_: str) -> Descriptor:
+    def get_descriptor_by_hash(self, hash_: str) -> _DESCRIPTOR_TYPE:
         """
         Retrieve an AAS Descriptor object from the local file by its identifier hash
 
@@ -81,7 +83,7 @@ class LocalFileDescriptorStore(sdk_provider.AbstractObjectStore[model.Identifier
         self._object_cache[obj.id] = obj
         return obj
 
-    def get_item(self, identifier: model.Identifier) -> Descriptor:
+    def get_item(self, identifier: model.Identifier) -> _DESCRIPTOR_TYPE:
         """
         Retrieve an AAS Descriptor object from the local file by its :class:`~basyx.aas.model.base.Identifier`
 
@@ -92,7 +94,7 @@ class LocalFileDescriptorStore(sdk_provider.AbstractObjectStore[model.Identifier
         except KeyError as e:
             raise KeyError("No Identifiable with id {} found in local file database".format(identifier)) from e
 
-    def add(self, x: Descriptor) -> None:
+    def add(self, x: _DESCRIPTOR_TYPE) -> None:
         """
         Add a Descriptor object to the store
 
@@ -113,7 +115,7 @@ class LocalFileDescriptorStore(sdk_provider.AbstractObjectStore[model.Identifier
             with self._object_cache_lock:
                 self._object_cache[x.id] = x
 
-    def discard(self, x: Descriptor) -> None:
+    def discard(self, x: _DESCRIPTOR_TYPE) -> None:
         """
         Delete an :class:`~app.model.descriptor.Descriptor` AAS object from the local file store
 
@@ -139,7 +141,7 @@ class LocalFileDescriptorStore(sdk_provider.AbstractObjectStore[model.Identifier
         """
         if isinstance(x, model.Identifier):
             identifier = x
-        elif isinstance(x, Descriptor):
+        elif isinstance(x, _DESCRIPTOR_CLASSES):
             identifier = x.id
         else:
             return False
@@ -155,7 +157,7 @@ class LocalFileDescriptorStore(sdk_provider.AbstractObjectStore[model.Identifier
         logger.debug("Fetching number of documents from database ...")
         return len(os.listdir(self.directory_path))
 
-    def __iter__(self) -> Iterator[Descriptor]:
+    def __iter__(self) -> Iterator[_DESCRIPTOR_TYPE]:
         """
         Iterate all :class:`~app.model.descriptor.Descriptor` objects in the local folder.
 

@@ -1,11 +1,14 @@
-from typing import Iterable, Dict, TypeVar, Iterator
+from typing import Iterable, Dict, Iterator, Union
 
 from basyx.aas import model
 from basyx.aas.model import provider as sdk_provider
 
-from app.model.descriptor import Descriptor
+from app.model import descriptor
 
-_DESCRIPTOR_TYPE = TypeVar("_DESCRIPTOR_TYPE", bound=Descriptor)
+
+_DESCRIPTOR_TYPE = Union[descriptor.AssetAdministrationShellDescriptor, descriptor.SubmodelDescriptor]
+_DESCRIPTOR_CLASSES = (descriptor.AssetAdministrationShellDescriptor, descriptor.SubmodelDescriptor)
+
 
 class DictDescriptorStore(sdk_provider.AbstractObjectStore[model.Identifier, _DESCRIPTOR_TYPE]):
     """
@@ -34,7 +37,7 @@ class DictDescriptorStore(sdk_provider.AbstractObjectStore[model.Identifier, _DE
     def __contains__(self, x: object) -> bool:
         if isinstance(x, model.Identifier):
             return x in self._backend
-        if not isinstance(x, Descriptor):
+        if not isinstance(x, _DESCRIPTOR_CLASSES):
             return False
         return self._backend.get(x.id) is x
 
