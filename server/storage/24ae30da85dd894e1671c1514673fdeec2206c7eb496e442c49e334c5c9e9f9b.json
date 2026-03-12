@@ -1,0 +1,384 @@
+{
+    "data": {
+        "idShort": "TechnicalData",
+        "modelType": "Submodel",
+        "id": "https://www.iat.rwth-aachen.de/pls-lab/pumping_station/TU30/F40/TechnicalData",
+        "submodelElements": [
+            {
+                "idShort": "Nominal_width_DN",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "Durchmesser eines Rohres/Schlauchleitung oder die Gr\u00f6\u00dfe/Anschlussma\u00df einer Armatur (Ventil, Schieber)"
+                    },
+                    {
+                        "language": "en",
+                        "text": "diameter of a pipe/hose or the size/mounting dimension of a valve"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-AAH222#001"
+                        }
+                    ]
+                },
+                "value": "DN25",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "Max_flow_rate",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "Wassermenge, die maximal pro Zeiteiheit durch das Ger\u00e4t flie\u00dfen kann"
+                    },
+                    {
+                        "language": "en",
+                        "text": "maximum water quantity which can flow through the appliance per time unit"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-AAC971#002"
+                        }
+                    ]
+                },
+                "value": "18000",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "Nominal_pressure_PN_of_the_flange",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "Beschreibung der Flanschbennung der Druckstufe"
+                    },
+                    {
+                        "language": "en",
+                        "text": "description of the pressure stage of the label of the flange"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-AAK644#005"
+                        }
+                    ]
+                },
+                "value": "40",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "Material",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "Kurzname oder Werkstoffnummer des verwendeten Werkstoffs"
+                    },
+                    {
+                        "language": "en",
+                        "text": "Short name or material number of the applied material"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-AAM562#001"
+                        }
+                    ]
+                },
+                "value": "1.4404/316L, 1.4539/904L",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "Degree_of_protection_IP_of_the_evaluating_electronics",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "Einteilung entsprechend dem Schutz des Betriebsmittels gegen \u00e4u\u00dfere Einfl\u00fcsse jeglicher Art und Schutz vor sich bewegenden Teilen im Betriebsmittel f\u00fcr das elektronische Ger\u00e4t, das Daten aufbereitet und nutzbar macht"
+                    },
+                    {
+                        "language": "en",
+                        "text": "Classification according to the protection of the operating unit against any external influences and protection against moving parts in the operating unit for the electronic device that processes data and makes them useable"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-AAC106#007"
+                        }
+                    ]
+                },
+                "value": "IP67",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "Measurement_error",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "Abweichung eines aus Messungen gewonnenen vom wahren Wert"
+                    },
+                    {
+                        "language": "en",
+                        "text": "deviation of measured value from the true value"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-AAQ356#003"
+                        }
+                    ]
+                },
+                "value": "0.1%+[(zero point stability: measured value)*100]%",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "Type_of_output_signal",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "Signal am Ausgang des jeweils betrachteten Teiles des Informationsverarbeitungssystems oder des Informations\u00fcbertragungssystems"
+                    },
+                    {
+                        "language": "en",
+                        "text": "Signal at output of the information processing or transmission system part under consideration"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-BAA006#006"
+                        }
+                    ]
+                },
+                "value": "4 - 20 mA DC/ HART",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "Max_medium_temperature",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "gr\u00f6\u00dfter Grenzwert der Temperatur des Messmediums, von dem innere Parameter (z.B. Leitf\u00e4higkeit, pH-Wert, Redox-Wert, Sauerstoff-Konzentration) oder \u00e4u\u00dfere Parameter (z.B. F\u00fcllstand, Dichte) erfasst werden"
+                    },
+                    {
+                        "language": "en",
+                        "text": "Maximum limit value of temperature medium from which internal parameters (i.e. conductivity, pH value, redox value, oxygen concentration) or external parameters (i.e. filling level, density) are detected"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-AAB864#006"
+                        }
+                    ]
+                },
+                "value": "120",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "Min_medium_temperature",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "kleinster Grenzwert der Temperatur des Messmediums, von dem innere Parameter (z.B. Leitf\u00e4higkeit, pH-Wert, Redox-Wert, Sauerstoff-Konzentration) oder \u00e4u\u00dfere Parameter (z.B. F\u00fcllstand, Dichte) erfasst werden"
+                    },
+                    {
+                        "language": "en",
+                        "text": "Minimum limit value of temperature medium from which internal parameters (i.e. conductivity, pH value, redox value, oxygen concentration) or external parameters (i.e. filling level, density) are detected"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-AAB988#006"
+                        }
+                    ]
+                },
+                "value": "-50",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "minimum_ambient_temperature_during_operation",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "minimal zul\u00e4ssige Temperatur, der das Betriebsmittel umgebenden Atmosph\u00e4re w\u00e4hrend Betrieb"
+                    },
+                    {
+                        "language": "en",
+                        "text": "minimal permitted temperature of the atmosphere surrounding the operating resource during operation"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-AAW301#002"
+                        }
+                    ]
+                },
+                "value": "-20",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "maximum_ambient_temperature_during_operation",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "maximal zul\u00e4ssige Temperatur, der das Betriebsmittel umgebenden Atmosph\u00e4re w\u00e4hrend Betrieb"
+                    },
+                    {
+                        "language": "en",
+                        "text": "maximal permitted temperature of the atmosphere surrounding the operating resource during operation"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-AAW302#002"
+                        }
+                    ]
+                },
+                "value": "60",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "Type_of_cable_entry",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "Beschreibung der geometrischen und / oder funktionalen Ausf\u00fchrung der Einf\u00fchrung f\u00fcr Kabel"
+                    },
+                    {
+                        "language": "en",
+                        "text": "description of the geometrical and / or functional modeling of the cable entry"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-AAG180#006"
+                        }
+                    ]
+                },
+                "value": "M20*1.5(8 to 12 mm)",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "Supply_voltage_type",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "bestimmte Form der Spannung, die angibt, ob das Betriebsmittel mit Wechselspannung (AC), Gleichspannung (DC), Wechsel-/Gleichstrom (AC/DC) oder modulierter Gleichspannung (UC) versorgt werden kann"
+                    },
+                    {
+                        "language": "en",
+                        "text": "Type of voltage required for supplying the device"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-BAC078#007"
+                        }
+                    ]
+                },
+                "value": "85 to 260 V AC, 45 to 65 Hz",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "Max_storage_temperature",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "gr\u00f6\u00dftm\u00f6gliche Temperatur mit der ein W\u00e4rmespeicher beschickt werden kann"
+                    },
+                    {
+                        "language": "en",
+                        "text": "maximum temperature which can be fed with a heat storage"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-AAI791#003"
+                        }
+                    ]
+                },
+                "value": "80",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "Min_storage_temperature",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "minimaler Temperaturwert, bei dem das Ger\u00e4t ohne permanenten Schaden f\u00fcr die Betriebsf\u00e4higkeit gelagert oder transportiert werden darf"
+                    },
+                    {
+                        "language": "en",
+                        "text": "temperature above which the device may be stored or transported without any permanent impairment to its operability"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-AAQ342#005"
+                        }
+                    ]
+                },
+                "value": "-40",
+                "valueType": "xs:string"
+            }
+        ]
+    }
+}

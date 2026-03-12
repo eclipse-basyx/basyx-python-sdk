@@ -1,0 +1,134 @@
+{
+    "data": {
+        "idShort": "TechnicalData",
+        "modelType": "Submodel",
+        "id": "https://www.iat.rwth-aachen.de/pls-lab/pumping_station/TU30/Y37_Valve/TechnicalData",
+        "submodelElements": [
+            {
+                "idShort": "Type_of_input_signal",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "Form und/oder Funktion des Signals am Eingang, das sowohl wertediskontinuierlich (bin\u00e4r) als auch wertekontinuierlich (analog oder auch die digitale Abbildung eines Analogsignals) in Bezug auf den G\u00fcltigkeitsbereich des Signal sein kann"
+                    },
+                    {
+                        "language": "en",
+                        "text": "form and/or function of the signal at the input which can be discontinuous (binary) or continuous (analog or as digital mapping of an analog signal) in respect to the signal's range of validity"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-BAA004#006"
+                        }
+                    ]
+                },
+                "value": "4-20mA",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "Plug_type",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "Art des am Ger\u00e4t angeschlossenen Steckers zur Versorgung des Ger\u00e4tes mit elektrischer Energie"
+                    },
+                    {
+                        "language": "en",
+                        "text": "version of plug that the appliance is delivered with"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-AAE804#005"
+                        }
+                    ]
+                },
+                "value": "contoured, heavy top guided",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "Max_operating_temperature_range",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "oberer Grenzwert des Einsatzes in einer bestimmten Temperatur, in dem ein Betriebsmittel eingesetzt werden kann, ohne dass sich bestimmte garantierte Eigenschaften gravierend \u00e4ndern, abh\u00e4ngig von der Verweildauer"
+                    },
+                    {
+                        "language": "en",
+                        "text": "maximum boundary value of the usage in a specified temperature, in which an operating unit can be used, without serious changes of assigned features, depending on the exposure time"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-AAG321#003"
+                        }
+                    ]
+                },
+                "value": "350",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "Min_operating_temperature_range",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "unterer Grenzwert des Temperatureinsatzbereiches. Der Temperatureinsatzbereich von Betriebsmitteln beschreibt den Temperaturbereich, in dem diese eingesetzt werden k\u00f6nnen, ohne dass sich bestimmte garantierte Eigenschaften gravierend \u00e4ndern. Zeitliche Einschr\u00e4nkungen wie Kurzzeit oder Dauer m\u00fcssen angegeben werden"
+                    },
+                    {
+                        "language": "en",
+                        "text": "minimum boundary value of the usage in a specified temperature, in which an operating unit can be used, without serious changes of assigned features, depending on the exposure time. Temporal restrictions like short-time or durability have to be stated"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-AAG322#003"
+                        }
+                    ]
+                },
+                "value": "-29",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "Maximum_body_weight",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "vom Hersteller empfohlenes h\u00f6chste K\u00f6rpergewicht des Anwenders, um das Produkt bestimmungsgem\u00e4\u00df zu nutzen"
+                    },
+                    {
+                        "language": "en",
+                        "text": "greatest body weight of user recommended by the manufacturer for the intended use of product"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-AAA912#006"
+                        }
+                    ]
+                },
+                "value": "7",
+                "valueType": "xs:string"
+            }
+        ]
+    }
+}

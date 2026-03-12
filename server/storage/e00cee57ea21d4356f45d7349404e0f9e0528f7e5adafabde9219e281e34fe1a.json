@@ -1,0 +1,390 @@
+{
+    "data": {
+        "idShort": "TechnicalData",
+        "modelType": "Submodel",
+        "id": "https://www.iat.rwth-aachen.de/pls-lab/pumping_station/TU10/Y25_Magnetic_Valve/TechnicalData",
+        "submodelElements": [
+            {
+                "idShort": "Function",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "Benennung der technischen Aufgabe eines Ger\u00e4tes"
+                    },
+                    {
+                        "language": "en",
+                        "text": "description of the technical task of a device"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-AAW605#001"
+                        }
+                    ]
+                },
+                "value": "5/2 way, spring return",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "Ports_size",
+                "modelType": "SubmodelElementCollection",
+                "value": [
+                    {
+                        "idShort": "First",
+                        "description": [
+                            {
+                                "language": "de",
+                                "text": "Angabe, ob am Produkt ein Flansch vorhanden ist oder nicht"
+                            },
+                            {
+                                "language": "en",
+                                "text": "specification whether or whether not the product is equipped with a flange"
+                            }
+                        ],
+                        "modelType": "Property",
+                        "semanticId": {
+                            "type": "ModelReference",
+                            "keys": [
+                                {
+                                    "type": "ConceptDescription",
+                                    "value": "0173-1#02-AAL874#004"
+                                }
+                            ]
+                        },
+                        "value": "Flange",
+                        "valueType": "xs:string"
+                    },
+                    {
+                        "idShort": "Third_and_Fifth",
+                        "description": [
+                            {
+                                "language": "de",
+                                "text": "Identifikator f\u00fcr die Form des erzeugten Gewindes"
+                            },
+                            {
+                                "language": "en",
+                                "text": "identifier for the cross section shape of a thread profile"
+                            }
+                        ],
+                        "modelType": "Property",
+                        "semanticId": {
+                            "type": "ModelReference",
+                            "keys": [
+                                {
+                                    "type": "ConceptDescription",
+                                    "value": "0173-1#02-AAA052#008"
+                                }
+                            ]
+                        },
+                        "value": "G1/8",
+                        "valueType": "xs:string"
+                    },
+                    {
+                        "idShort": "Secon_and_Forth",
+                        "description": [
+                            {
+                                "language": "de",
+                                "text": "Identifikator f\u00fcr die Form des erzeugten Gewindes"
+                            },
+                            {
+                                "language": "en",
+                                "text": "identifier for the cross section shape of a thread profile"
+                            }
+                        ],
+                        "modelType": "Property",
+                        "semanticId": {
+                            "type": "ModelReference",
+                            "keys": [
+                                {
+                                    "type": "ConceptDescription",
+                                    "value": "0173-1#02-AAA052#008"
+                                }
+                            ]
+                        },
+                        "value": "G1/4",
+                        "valueType": "xs:string"
+                    }
+                ]
+            },
+            {
+                "idShort": "Actuation_Return",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "Federweg der Feder."
+                    },
+                    {
+                        "language": "en",
+                        "text": "Springstroke."
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "http://acplt.org/vocab/Springstroke"
+                        }
+                    ]
+                },
+                "value": "Solenoid_Spring",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "Flow",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "Angabe \u00fcber den Nennvolumenstrom des Objekts"
+                    },
+                    {
+                        "language": "en",
+                        "text": "describes the nominal volume flow rate"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-AAI855#002"
+                        }
+                    ]
+                },
+                "value": "750",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "Weight",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "Masse des W\u00e4gegutes ohne Verpackung und ohne Transportger\u00e4t"
+                    },
+                    {
+                        "language": "en",
+                        "text": "Mass of weight without packaging and transport unit"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-AAB713#006"
+                        }
+                    ]
+                },
+                "value": "0.26",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "Rated_current",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "vom Hersteller angegebener Wert des Stromes, der sich aus Messwerten ergibt, die unter festgelegten Bedingungen und Regeln ermittelt worden sind"
+                    },
+                    {
+                        "language": "en",
+                        "text": "value of the current, resulting from measurements which were determined under specified conditions and rules as defined by the manufacturer"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-AAF726#003"
+                        }
+                    ]
+                },
+                "value": "70",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "Protection_Class",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "Ausma\u00df des durch ein Geh\u00e4use gebotenen Schutzes vor Zugang zu gef\u00e4hrlichen Teilen und Eindringen von festen Fremdk\u00f6rpern und/oder Wasser, der durch normierte Pr\u00fcfverfahren best\u00e4tigt wurde, angegeben als IP-Einstufung"
+                    },
+                    {
+                        "language": "en",
+                        "text": "extent of protection provided by an enclosure against access to hazardous parts, against ingress of solid foreign objects and/or ingress of water and verified by standardized test methods, expressed as a IP rating"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-BAG975#013"
+                        }
+                    ]
+                },
+                "value": "IP65",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "Ambient_Temperature",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "Temperatur des umgebenden Raumes, in dem das Bauteil das Leitungssystem oder die Anlage arbeitet"
+                    },
+                    {
+                        "language": "en",
+                        "text": "temperature of the surrounding operating environment of a component or system"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-AAZ842#001"
+                        }
+                    ]
+                },
+                "value": "-15...+50",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "Electrical_connection",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "physikalische Gestaltung der Verbindungsstelle, \u00fcber die ein Bauelementestecker bestimmungsgem\u00e4\u00df mit einem anderen verbunden werden kann"
+                    },
+                    {
+                        "language": "en",
+                        "text": "Physical design of the connecting point to link a connector component to another in conformity with the intended use"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-AAB414#007"
+                        }
+                    ]
+                },
+                "value": "Connector DIN EN 175301-803",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "Solenoid",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "eindeutiger Identifikator des Produktes"
+                    },
+                    {
+                        "language": "en",
+                        "text": "unique identifier of the product"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-ABA671#001"
+                        }
+                    ]
+                },
+                "value": "3050",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "Operating_Pressure",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "beschreibt die Gr\u00f6\u00dfe des ger\u00e4tesseitigen Lufteingangs"
+                    },
+                    {
+                        "language": "en",
+                        "text": "describes the size of the device-sided air inlet"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-AAG867#002"
+                        }
+                    ]
+                },
+                "value": "2...8",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "Voltage",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "erforderliche elektrische Hilfsenergie, die am Versorgungseingang eines elektrischen Betriebsmittels zeitweise oder st\u00e4ndig anliegen muss, um die Funktion des Betriebsmittels aufrecht zu erhalten"
+                    },
+                    {
+                        "language": "en",
+                        "text": "Required auxiliary electrical energy which must always or at times be present at the supply input for the function of the operating resource to be maintained"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-AAD220#007"
+                        }
+                    ]
+                },
+                "value": "24",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "Power_Consumption",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "aus dem Versorgungsnetz, einschlie\u00dflich der Leistungsaufnahme f\u00fcr Zusatzeinrichtungen aufgenommene gesamte elektrische Eingangs-Wirkleistung bei festgelegten Betriebsbedingungen und beim Nennwert der Ausgangsleistung"
+                    },
+                    {
+                        "language": "en",
+                        "text": "power requirement of the device or component during defined operating conditions"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-AAC969#007"
+                        }
+                    ]
+                },
+                "value": "1.6",
+                "valueType": "xs:string"
+            }
+        ]
+    }
+}

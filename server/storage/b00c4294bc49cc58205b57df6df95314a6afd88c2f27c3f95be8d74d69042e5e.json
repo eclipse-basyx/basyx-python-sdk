@@ -1,0 +1,31 @@
+{
+    "data": {
+        "idShort": "Y16_Actuator_AAS",
+        "modelType": "AssetAdministrationShell",
+        "id": "https://www.iat.rwth-aachen.de/pls-lab/pumping_station/HC40/Y16_Actuator/AAS/ver:1.0&rev:1.0",
+        "assetInformation": {
+            "assetKind": "Instance",
+            "globalAssetId": "https://www.iat.rwth-aachen.de/pls-lab/pumping_station/HC40/Y16_Actuator"
+        },
+        "submodels": [
+            {
+                "type": "ModelReference",
+                "keys": [
+                    {
+                        "type": "Submodel",
+                        "value": "https://www.iat.rwth-aachen.de/pls-lab/pumping_station/HC40/Y16_Actuator/TechnicalData"
+                    }
+                ]
+            },
+            {
+                "type": "ModelReference",
+                "keys": [
+                    {
+                        "type": "Submodel",
+                        "value": "https://www.iat.rwth-aachen.de/pls-lab/pumping_station/HC40/Y16_Actuator/Nameplate"
+                    }
+                ]
+            }
+        ]
+    }
+}

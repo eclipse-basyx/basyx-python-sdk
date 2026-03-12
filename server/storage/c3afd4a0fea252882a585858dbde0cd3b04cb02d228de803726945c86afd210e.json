@@ -1,0 +1,509 @@
+{
+    "data": {
+        "idShort": "TechnicalData",
+        "modelType": "Submodel",
+        "id": "https://www.iat.rwth-aachen.de/pls-lab/pumping_station/TU10/L10/TechnicalData",
+        "submodelElements": [
+            {
+                "idShort": "HS_Code_of_the_WCO",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "International angewendete 4 bis 6-stellige Kodierung von Warenklassen entsprechend der Definition durch das Harmonized System (HS) der World Customs Organization (WCO)"
+                    },
+                    {
+                        "language": "en",
+                        "text": "Internationally applied 4 to 6-digit coding of classes of goods as defined by the Harmonized System (HS) of the World Customs Organization (WCO)"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-AAZ851#001"
+                        }
+                    ]
+                },
+                "value": "90261029",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "Cable_entry",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "Charakterisierung einer Kabel- oder Conduiteinf\u00fchrung bez\u00fcglich des Anschlussgewindes"
+                    },
+                    {
+                        "language": "en",
+                        "text": "classification of a cable or conduit entry according to the thread"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-BAA279#008"
+                        }
+                    ]
+                },
+                "value": "M20*1.5",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "Total_length_metric",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "gr\u00f6\u00dfte L\u00e4ngenausdehnung eines Objektes, inklusive ausragender Bauteile"
+                    },
+                    {
+                        "language": "en",
+                        "text": "largest dimension of an object, inclusive jutting parts"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-AAJ184#004"
+                        }
+                    ]
+                },
+                "value": "5",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "Connection_type_of_process_connection",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "Charakterisierung eines Prozessanschlusses bez\u00fcglich seiner Herstellungsform"
+                    },
+                    {
+                        "language": "en",
+                        "text": "classification of a process connection according to its fabricated form"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-AAO333#005"
+                        }
+                    ]
+                },
+                "value": "Verschraubung, lose G1/2A PN3",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "Measuring_range",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "Bereich derjenigen Werte der Messgr\u00f6\u00dfe, f\u00fcr den gefordert ist, dass die Messabweichungen eines Messger\u00e4tes innerhalb festgelegter Grenzen bleiben"
+                    },
+                    {
+                        "language": "en",
+                        "text": "range of the values of the measuring size for which it is required that the errors of measurement of a measuring device keep within defined boundaries"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-AAH095#003"
+                        }
+                    ]
+                },
+                "value": "0...0.1",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "Type_of_output_signal",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "Signal am Ausgang des jeweils betrachteten Teiles des Informationsverarbeitungssystems oder des Informations\u00fcbertragungssystems"
+                    },
+                    {
+                        "language": "en",
+                        "text": "Signal at output of the information processing or transmission system part under consideration"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-BAA006#006"
+                        }
+                    ]
+                },
+                "value": "4...20mA/HART",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "Upper_limiting_value_of_process_temperature",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "h\u00f6chste Temperatur, der die medienber\u00fchrten Teile des Ger\u00e4ts ohne dauerhafte Einschr\u00e4nkung des Betriebsverhaltens ausgesetzt werden d\u00fcrfen"
+                    },
+                    {
+                        "language": "en",
+                        "text": "highest temperature to which the wetted parts of the device may be subjected without permanent impairment of operating characteristics"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-AAN307#004"
+                        }
+                    ]
+                },
+                "value": "80",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "Min_process_pressure",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "kleinster Absolutwert des die Mess- oder Stelleinrichtung ber\u00fchrenden Druckes, mit dem die Mess- oder Stelleinrichtung ohne bleibende Ver\u00e4nderungen ihrer technischen Eigenschaften betrieben werden darf"
+                    },
+                    {
+                        "language": "en",
+                        "text": "for given measurement or final control equipment, the least absolute value of the pressure which affects them and under which they can be operated without permanent changes in their technical characteristics"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-AAY641#001"
+                        }
+                    ]
+                },
+                "value": "-0.2",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "Max_process_pressure",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "gr\u00f6\u00dfter Absolutwert des auf die Mess- oder Stelleinrichtung einwirkenden Drucks, mit dem die Mess- oder Stelleinrichtung ohne bleibende Ver\u00e4nderungen ihrer technischen Eigenschaften betrieben werden darf"
+                    },
+                    {
+                        "language": "en",
+                        "text": "for given measurement or final control equipment, the greatest absolute value of the pressure under which they can be operated without permanent changes in their technical characteristics"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-AAY820#001"
+                        }
+                    ]
+                },
+                "value": "15",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "Power_supply",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "Versorgung von Ger\u00e4ten oder Anlagen mit gesonderter, zus\u00e4tzlicher Stromzuf\u00fchrung"
+                    },
+                    {
+                        "language": "en",
+                        "text": "supply of devices or systems with separate, additional power supply"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-AAZ002#001"
+                        }
+                    ]
+                },
+                "value": "12...36",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "Degree_of_Protection",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "Umfang des Schutzes durch ein Geh\u00e4use gegen den Zugang zu gef\u00e4hrlichen Teilen, gegen das Eindringen von festen Fremdk\u00f6rpern und gegen das Eindringen von Wasser"
+                    },
+                    {
+                        "language": "en",
+                        "text": "extent of protection provided by an enclosure against access to hazardous parts, against ingress of solid foreign objects and against ingress of water"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-AAV695#001"
+                        }
+                    ]
+                },
+                "value": "IP66/67",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "Max_output_current",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "Maximaler Strom, der an den Ausgangsanschl\u00fcssen des Steuerstromkreises eines Schaltger\u00e4ts anliegt"
+                    },
+                    {
+                        "language": "en",
+                        "text": "Maximum current at the output connections of the control circuit of a switching device"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-BAC639#007"
+                        }
+                    ]
+                },
+                "value": "22",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "Accuracy_of_the_measuring_instrument",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "Ausma\u00df der Ann\u00e4herung zwischen einem Ermittlungsergebnis und dem anerkannten Bezugswert"
+                    },
+                    {
+                        "language": "en",
+                        "text": "degree of approximation between a result of determination and the approved reference value"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-AAH809#004"
+                        }
+                    ]
+                },
+                "value": "\u00b13",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "Vibration_resistance",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "mechanische Widerstandsf\u00e4higkeit von Ger\u00e4ten gegen\u00fcber sinusf\u00f6rmigen Schwingungen mit vorgegebenem Sch\u00e4rfegrad"
+                    },
+                    {
+                        "language": "en",
+                        "text": "mechanical resistance capacity of devices against sinusoidal oscillations with prescribed test intensity"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-AAO888#003"
+                        }
+                    ]
+                },
+                "value": "4g and 5...100Hz",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "Set_display_language",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "Sprache oder Sprachen, die auf der Anzeige eingestellt ist"
+                    },
+                    {
+                        "language": "en",
+                        "text": "language or languages set on the display"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-ABA335#001"
+                        }
+                    ]
+                },
+                "value": "DE",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "Shock_resistance",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "Schockfestigkeit"
+                    },
+                    {
+                        "language": "en",
+                        "text": "Shock resistance"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-AAV513#002"
+                        }
+                    ]
+                },
+                "value": "Beschleunigung 100g/6ms",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "Dynamic_behavior_dead_time",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "Zeitdauer zwischen dem Moment, in dem die Abweichung einer Eingangsgr\u00f6\u00dfe erstellt wird und dem Moment, in dem die daraus resultierende Abweichung der Ausgangsgr\u00f6\u00dfe beginnt"
+                    },
+                    {
+                        "language": "en",
+                        "text": "time interval between the instant when the variation of an input variable is produced and the instant when the consequent variation of the output variable starts"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-BAE258#006"
+                        }
+                    ]
+                },
+                "value": "150",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "Rise_time",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "Anstiegszeit ist die Zeit, in der ein Signal von 10 % auf 90 % seines Endwertes ansteigt"
+                    },
+                    {
+                        "language": "en",
+                        "text": "min. supply pressure is used as necessary in order to have a further differentiating term for a second pressure based on the primary operating pressure, here the min. supply pressure"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-ABD909#001"
+                        }
+                    ]
+                },
+                "value": "100",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "Step_response_time_t90",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "zeitliche Dauer, bei einer stufenartigen Ver\u00e4nderung des Eingangssignals eines Systems, die die \u00c4nderung des Ausgangssignals des Systems ben\u00f6tigt, um zum ersten Mal 90% des letzten Werts des stabilen Zustands zu erreichen"
+                    },
+                    {
+                        "language": "en",
+                        "text": "time duration from a step change in the input signal to a system for the change in output of the system to reach for the first time 90% of its final steady state value"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-AAM701#004"
+                        }
+                    ]
+                },
+                "value": "250",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "Damping",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "D\u00e4mpfung liegt dann vor, wenn das Ausgangssignal kleiner als das Eingangssignal ist"
+                    },
+                    {
+                        "language": "en",
+                        "text": "Damping is present when an output signal is lower than the corresponding input signal"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-BAE235#003"
+                        }
+                    ]
+                },
+                "value": "0...999s, einstellbar",
+                "valueType": "xs:string"
+            }
+        ]
+    }
+}

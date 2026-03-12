@@ -1,0 +1,84 @@
+{
+    "data": {
+        "idShort": "TechnicalData",
+        "modelType": "Submodel",
+        "id": "https://www.iat.rwth-aachen.de/pls-lab/pumping_station/TU10/Y24_Pneumatischer_Antrieb/TechnicalData",
+        "submodelElements": [
+            {
+                "idShort": "ISO_5211",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "Bezugnahme auf eine oder mehrere Normen und Richtlinien anstelle der Wiedergabe detaillierter Festlegungen. ANMERKUNG Eine Anwendungsnorm ist die Vorgabe eines Handlungsmusters, das bei Anwendung befolgt, oder einer Qualit\u00e4t, die bei Anwendung eingehalten werden muss. Sie dient dazu, unabh\u00e4ngig voneinander entstehende Artefakte mit einheitlichen Eigenschaften oder Qualit\u00e4ten herzustellen. Nationale und internationale Normen werden in sog. Normungsgremien verabschiedet"
+                    },
+                    {
+                        "language": "en",
+                        "text": "Reference to one or more norms and guidelines instead of repeating detailed specs. COMMENT: An application norm is a specification of a pattern of use which must be followed during use, or of a quality which must be maintained during use. It serves to cause artifacts which arise independently of one another to be manufactured with uniform properties or qualities. National and international standards are established by so-called standards committees"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-AAP798#001"
+                        }
+                    ]
+                },
+                "value": "F05",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "Operating_Pressure",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "festgelegte, vereinbarte Abstufungsreihe f\u00fcr maximal zul\u00e4ssige Betriebsdr\u00fccke"
+                    },
+                    {
+                        "language": "en",
+                        "text": "determined, agreed graduation sequence for maximum allowable operating pressures"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-BAG984#007"
+                        }
+                    ]
+                },
+                "value": "4",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "Springstroke",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "Federweg der Feder."
+                    },
+                    {
+                        "language": "en",
+                        "text": "Springstroke."
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "http://acplt.org/vocab/Springstroke"
+                        }
+                    ]
+                },
+                "value": "35 to 60",
+                "valueType": "xs:string"
+            }
+        ]
+    }
+}

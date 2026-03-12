@@ -1,0 +1,40 @@
+{
+    "data": {
+        "idShort": "N18_Motor_AAS",
+        "modelType": "AssetAdministrationShell",
+        "id": "https://www.iat.rwth-aachen.de/pls-lab/pumping_station/TU10/N18_Motor/AAS/ver:1.0&rev:1.0",
+        "assetInformation": {
+            "assetKind": "Instance",
+            "globalAssetId": "https://www.iat.rwth-aachen.de/pls-lab/pumping_station/TU10/N18_Motor"
+        },
+        "submodels": [
+            {
+                "type": "ModelReference",
+                "keys": [
+                    {
+                        "type": "Submodel",
+                        "value": "https://www.iat.rwth-aachen.de/pls-lab/pumping_station/TU10/N18_Motor/DynamicData"
+                    }
+                ]
+            },
+            {
+                "type": "ModelReference",
+                "keys": [
+                    {
+                        "type": "Submodel",
+                        "value": "https://www.iat.rwth-aachen.de/pls-lab/pumping_station/TU10/N18_Motor/TechnicalData"
+                    }
+                ]
+            },
+            {
+                "type": "ModelReference",
+                "keys": [
+                    {
+                        "type": "Submodel",
+                        "value": "https://www.iat.rwth-aachen.de/pls-lab/pumping_station/TU10/N18_Motor/Nameplate"
+                    }
+                ]
+            }
+        ]
+    }
+}

@@ -1,0 +1,240 @@
+{
+    "data": {
+        "idShort": "TechnicalData",
+        "modelType": "Submodel",
+        "id": "https://www.iat.rwth-aachen.de/pls-lab/pumping_station/TU10/N18_Motor/TechnicalData",
+        "submodelElements": [
+            {
+                "idShort": "Wiclung_60Hz",
+                "modelType": "SubmodelElementCollection",
+                "value": [
+                    {
+                        "idShort": "Power",
+                        "description": [
+                            {
+                                "language": "de",
+                                "text": "Angabe \u00fcber die Aufnahme der Nennleistung in Watt"
+                            },
+                            {
+                                "language": "en",
+                                "text": "describes the nominal power consumption"
+                            }
+                        ],
+                        "modelType": "Property",
+                        "semanticId": {
+                            "type": "ModelReference",
+                            "keys": [
+                                {
+                                    "type": "ConceptDescription",
+                                    "value": "0173-1#02-AAI843#002"
+                                }
+                            ]
+                        },
+                        "value": "0.63",
+                        "valueType": "xs:string"
+                    },
+                    {
+                        "idShort": "Amperage",
+                        "description": [
+                            {
+                                "language": "de",
+                                "text": "geeigneter (meist gerundeter) Wert eines Stromes zur Beschreibung, Bezeichnung oder Identifizierung eines Bauteiles, eines Ger\u00e4tes, eines Betriebsmittels, einer Einrichtung oder einer Ausr\u00fcstung"
+                            },
+                            {
+                                "language": "en",
+                                "text": "suitable (normally rounded) value of a current for describing, designating or identifying a component, a device, an operating medium, an installation or equipment"
+                            }
+                        ],
+                        "modelType": "Property",
+                        "semanticId": {
+                            "type": "ModelReference",
+                            "keys": [
+                                {
+                                    "type": "ConceptDescription",
+                                    "value": "0173-1#02-AAF829#003"
+                                }
+                            ]
+                        },
+                        "value": "Jan 48",
+                        "valueType": "xs:string"
+                    },
+                    {
+                        "idShort": "Voltage",
+                        "description": [
+                            {
+                                "language": "de",
+                                "text": "gemessene aktuelle Motorspannung"
+                            },
+                            {
+                                "language": "en",
+                                "text": "measured actual motor voltage"
+                            }
+                        ],
+                        "modelType": "Property",
+                        "semanticId": {
+                            "type": "ModelReference",
+                            "keys": [
+                                {
+                                    "type": "ConceptDescription",
+                                    "value": "0173-1#02-ABC234#001"
+                                }
+                            ]
+                        },
+                        "value": "460",
+                        "valueType": "xs:string"
+                    },
+                    {
+                        "idShort": "Phase",
+                        "description": [
+                            {
+                                "language": "de",
+                                "text": "Verh\u00e4ltnis vom Betrag der Wirkleistung zur Scheinleistung"
+                            },
+                            {
+                                "language": "en",
+                                "text": "Relation of the amount of the active power to the false performance"
+                            }
+                        ],
+                        "modelType": "Property",
+                        "semanticId": {
+                            "type": "ModelReference",
+                            "keys": [
+                                {
+                                    "type": "ConceptDescription",
+                                    "value": "0173-1#02-AAN420#001"
+                                }
+                            ]
+                        },
+                        "value": "cos(phi) = 0.8",
+                        "valueType": "xs:string"
+                    },
+                    {
+                        "idShort": "speed_",
+                        "description": [
+                            {
+                                "language": "de",
+                                "text": "Quotient aus Anzahl der Umdrehungen und der zugeh\u00f6rigen Zeitspanne"
+                            },
+                            {
+                                "language": "en",
+                                "text": "Quotient of the number of revolutions and the corresponding time span"
+                            }
+                        ],
+                        "modelType": "Property",
+                        "semanticId": {
+                            "type": "ModelReference",
+                            "keys": [
+                                {
+                                    "type": "ConceptDescription",
+                                    "value": "0173-1#02-AAC881#006"
+                                }
+                            ]
+                        },
+                        "value": "1695",
+                        "valueType": "xs:string"
+                    },
+                    {
+                        "idShort": "Voltage2",
+                        "description": [
+                            {
+                                "language": "de",
+                                "text": "Ein vom Hersteller angegebener Wert der Spannung, der sich aus Messwerten ergibt, die unter festgelegten Bedingungen und Regeln ermittelt worden sind"
+                            },
+                            {
+                                "language": "en",
+                                "text": "A voltage value given by the manufacturer resulting from measurement values determined under defined conditions and rules"
+                            }
+                        ],
+                        "modelType": "Property",
+                        "semanticId": {
+                            "type": "ModelReference",
+                            "keys": [
+                                {
+                                    "type": "ConceptDescription",
+                                    "value": "0173-1#02-BAH737#004"
+                                }
+                            ]
+                        },
+                        "value": "440-480",
+                        "valueType": "xs:string"
+                    },
+                    {
+                        "idShort": "Amperage2",
+                        "description": [
+                            {
+                                "language": "de",
+                                "text": "geeigneter (meist gerundeter) Wert eines Stromes zur Beschreibung, Bezeichnung oder Identifizierung eines Bauteiles, eines Ger\u00e4tes, eines Betriebsmittels, einer Einrichtung oder einer Ausr\u00fcstung"
+                            },
+                            {
+                                "language": "en",
+                                "text": "suitable (normally rounded) value of a current for describing, designating or identifying a component, a device, an operating medium, an installation or equipment"
+                            }
+                        ],
+                        "modelType": "Property",
+                        "semanticId": {
+                            "type": "ModelReference",
+                            "keys": [
+                                {
+                                    "type": "ConceptDescription",
+                                    "value": "0173-1#02-AAF829#003"
+                                }
+                            ]
+                        },
+                        "value": "1.54-1.57",
+                        "valueType": "xs:string"
+                    }
+                ]
+            },
+            {
+                "idShort": "Schutzart",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "klassifiziert den Umfang des Schutzes des elektromagnetischen Ger\u00e4tes gegen direktes Ber\u00fchren, gegen Eindringen von festen Fremdk\u00f6rpern und/oder gegen Eindringen von Wasser"
+                    },
+                    {
+                        "language": "en",
+                        "text": "classifies the scope of the protection of the electromagnetic device against direct contact, against insertion of hard foreign objects and/or infiltration through water"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-AAO885#002"
+                        }
+                    ]
+                },
+                "value": "IP 55",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "Bauform",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "Auspr\u00e4gung f\u00fcr das Produkt, um so Einzelprodukte einer Produktfamilie oder spezielle Varianten voneinander unterscheiden zu k\u00f6nnen"
+                    },
+                    {
+                        "language": "en",
+                        "text": "Characteristic to differentiate between different products of a product family or special variants"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-AAO057#002"
+                        }
+                    ]
+                },
+                "value": "IM B5",
+                "valueType": "xs:string"
+            }
+        ]
+    }
+}

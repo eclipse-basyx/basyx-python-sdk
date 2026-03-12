@@ -1,0 +1,49 @@
+{
+    "data": {
+        "idShort": "B3_AAS",
+        "modelType": "AssetAdministrationShell",
+        "id": "https://www.iat.rwth-aachen.de/pls-lab/pumping_station/TU30/B3/AAS/ver:1.0&rev:1.0",
+        "assetInformation": {
+            "assetKind": "Instance",
+            "globalAssetId": "https://www.iat.rwth-aachen.de/pls-lab/pumping_station/TU30/B3"
+        },
+        "submodels": [
+            {
+                "type": "ModelReference",
+                "keys": [
+                    {
+                        "type": "Submodel",
+                        "value": "https://www.iat.rwth-aachen.de/pls-lab/pumping_station/TU30/B3/Nameplate"
+                    }
+                ]
+            },
+            {
+                "type": "ModelReference",
+                "keys": [
+                    {
+                        "type": "Submodel",
+                        "value": "https://www.iat.rwth-aachen.de/pls-lab/pumping_station/TU30/B3/TechnicalData"
+                    }
+                ]
+            },
+            {
+                "type": "ModelReference",
+                "keys": [
+                    {
+                        "type": "Submodel",
+                        "value": "https://www.iat.rwth-aachen.de/pls-lab/pumping_station/TU30/B3/HierarchicalStructures"
+                    }
+                ]
+            },
+            {
+                "type": "ModelReference",
+                "keys": [
+                    {
+                        "type": "Submodel",
+                        "value": "https://www.iat.rwth-aachen.de/pls-lab/pumping_station/TU30/B3/DynamicData"
+                    }
+                ]
+            }
+        ]
+    }
+}

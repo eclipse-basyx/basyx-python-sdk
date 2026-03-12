@@ -1,0 +1,31 @@
+{
+    "data": {
+        "idShort": "N36_AAS",
+        "modelType": "AssetAdministrationShell",
+        "id": "https://www.iat.rwth-aachen.de/pls-lab/pumping_station/TU30/N36/AAS/ver:1.0&rev:1.0",
+        "assetInformation": {
+            "assetKind": "Instance",
+            "globalAssetId": "https://www.iat.rwth-aachen.de/pls-lab/pumping_station/TU30/N36"
+        },
+        "submodels": [
+            {
+                "type": "ModelReference",
+                "keys": [
+                    {
+                        "type": "Submodel",
+                        "value": "https://www.iat.rwth-aachen.de/pls-lab/pumping_station/TU30/N36/TechnicalData"
+                    }
+                ]
+            },
+            {
+                "type": "ModelReference",
+                "keys": [
+                    {
+                        "type": "Submodel",
+                        "value": "https://www.iat.rwth-aachen.de/pls-lab/pumping_station/TU30/N36/Nameplate"
+                    }
+                ]
+            }
+        ]
+    }
+}

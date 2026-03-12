@@ -1,0 +1,209 @@
+{
+    "data": {
+        "idShort": "TechnicalData",
+        "modelType": "Submodel",
+        "id": "https://www.iat.rwth-aachen.de/pls-lab/pumping_station/TU20/T27/TechnicalData",
+        "submodelElements": [
+            {
+                "idShort": "Type_of_insert_element_terminal_block",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "Charakterisierung des Anschlussblocks eines Messeinsatzes bez\u00fcglich Ausf\u00fchrung oder Vorhandensein"
+                    },
+                    {
+                        "language": "en",
+                        "text": "classification of the terminal block of an insert according to its design or existence"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-AAT747#004"
+                        }
+                    ]
+                },
+                "value": "minearl insulated(MI), flexibel",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "Outer_diameter",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "gr\u00f6\u00dfter Abstand zwischen zwei gegen\u00fcberliegenden Punkten auf dem \u00e4u\u00dferen Umfang"
+                    },
+                    {
+                        "language": "en",
+                        "text": "largest distance between two opposite points on the outer circumference"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-AAF192#004"
+                        }
+                    ]
+                },
+                "value": "6",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "Max_operating_temperature",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "gr\u00f6\u00dfter Grenzwert der sich durch den Nennbetrieb typischerweise ergebende Temperatur im nahem Umfeld des Betriebsmittels"
+                    },
+                    {
+                        "language": "en",
+                        "text": "maximum limit value of the typically arising temperature in the immediate surrounding area of the operating unit which arises as a result of rated operation"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-AAC821#006"
+                        }
+                    ]
+                },
+                "value": "600",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "Min_operating_temperature",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "kleinster Grenzwert der sich durch den Nennbetrieb typischerweise ergebende Temperatur im nahem Umfeld des Betriebsmittels"
+                    },
+                    {
+                        "language": "en",
+                        "text": "minimum limit value of the typically arising temperature in the immediate surrounding area of the operating unit which arises as a result of rated operation"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-AAC820#006"
+                        }
+                    ]
+                },
+                "value": "-50",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "Max_process_pressure",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "gr\u00f6\u00dfter Absolutwert des auf die Mess- oder Stelleinrichtung einwirkenden Drucks, mit dem die Mess- oder Stelleinrichtung ohne bleibende Ver\u00e4nderungen ihrer technischen Eigenschaften betrieben werden darf"
+                    },
+                    {
+                        "language": "en",
+                        "text": "for given measurement or final control equipment, the greatest absolute value of the pressure under which they can be operated without permanent changes in their technical characteristics"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-AAY820#001"
+                        }
+                    ]
+                },
+                "value": "20",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "Response_time",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "Zeit zwischen dem Erregen und dem ersten Schlie\u00dfen oder \u00d6ffnen des Kontaktkreises f\u00fcr ein Schaltger\u00e4t im Ruhezustand"
+                    },
+                    {
+                        "language": "en",
+                        "text": "time between triggering and the first closing or opening of the contact circuit for a switching device in idle state"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-BAA572#007"
+                        }
+                    ]
+                },
+                "value": "3",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "Tip_length",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "gr\u00f6\u00dfte Ausdehnung einer Spitze l\u00e4ngs einer Symmetrieachse oder die Entfernung zwischen zwei festgelegten Punkten gem\u00e4\u00df Messvorschrift"
+                    },
+                    {
+                        "language": "en",
+                        "text": "maximum dimension of tip along the axis of symmetry or distance between two defined points"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-ABF062#001"
+                        }
+                    ]
+                },
+                "value": "30",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "Insulation_resistance",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "Widerstand der Isolierung gegen das Flie\u00dfen eines elektrischen Stromes"
+                    },
+                    {
+                        "language": "en",
+                        "text": "Resistance of insulation against the flow of an electric current"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-AAQ352#003"
+                        }
+                    ]
+                },
+                "value": "100",
+                "valueType": "xs:string"
+            }
+        ]
+    }
+}

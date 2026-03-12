@@ -1,0 +1,134 @@
+{
+    "data": {
+        "idShort": "TechnicalData",
+        "modelType": "Submodel",
+        "id": "https://www.iat.rwth-aachen.de/pls-lab/pumping_station/TU20/Y30/TechnicalData",
+        "submodelElements": [
+            {
+                "idShort": "Antriebsflaeche",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "Konstruktive Ausbildung des Antriebes"
+                    },
+                    {
+                        "language": "en",
+                        "text": "Constructive design of drive"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-BAJ008#006"
+                        }
+                    ]
+                },
+                "value": "240",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "Ventiltyp",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "Eine Gruppe von Bauelementen mit gleichen Konstruktionsmerkmalen und gleichem Aufbau, die aufgrund \u00e4hnlicher Herstellungstechniken f\u00fcr die Bauartzulassungspr\u00fcfung und die G\u00fctekonformit\u00e4tskontrollen zusammengefasst werden k\u00f6nnen. Sie werden im allgemeinen von einer Bauartspezifikation erfasst. Anmerkung: In bestimmten F\u00e4llen k\u00f6nnen Bauelemente aus verschiedenen Bauartspezifikationen als zum gleichen Typ geh\u00f6rig betrachtet und daher f\u00fcr die Bauartzulassung und die G\u00fctekonformit\u00e4tskontrollen zusammengefasst werden"
+                    },
+                    {
+                        "language": "en",
+                        "text": "a group of construction elements with the same construction features and the same construction, which can be collated for the construction type approval and quality conformity controls as a result of similar manufacturing methods. they are generally allocated to a construction type specification. Note: in certain cases, construction element from different construction type specifications can be viewed as belonging to the same type and hence collated for the construction type approval and quality conformity controls"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-AAD071#006"
+                        }
+                    ]
+                },
+                "value": "Kugelhahn",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "Hub",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "Kraftbetriebener Weg, den der Lastaufnahmepunkt zur\u00fccklegen kann"
+                    },
+                    {
+                        "language": "en",
+                        "text": "Power driven path which can be covered by the load reception point"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-BAA361#005"
+                        }
+                    ]
+                },
+                "value": "15",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "Federbereich",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "Weg der Feder vom unbelasteten Zustand bis zur maximalen Belastung. Bei einer Druckfeder ist es der Weg von der unbelasteten Federl\u00e4nge bis zur Blockl\u00e4nge"
+                    },
+                    {
+                        "language": "en",
+                        "text": "Path of the spring from unburdened state up to the maximum burden. With a pressure sprint it is the path from unburdened spring length up to the block length"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-BAB081#004"
+                        }
+                    ]
+                },
+                "value": "0.2\u00851",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "max_Luftdruck",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "Angabe eines Drucks, der f\u00fcr ein Ventil beschreibt, dass es zu einer bestimmten Einstufung geh\u00f6rt, bei der das Ventil schlie\u00dft"
+                    },
+                    {
+                        "language": "en",
+                        "text": "specification of a pressure describing, for a valve, that it belongs to a particular classification at which the valve closes"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-ABC533#001"
+                        }
+                    ]
+                },
+                "value": "6",
+                "valueType": "xs:string"
+            }
+        ]
+    }
+}

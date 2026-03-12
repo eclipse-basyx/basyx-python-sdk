@@ -1,0 +1,209 @@
+{
+    "data": {
+        "idShort": "TechnicalData",
+        "modelType": "Submodel",
+        "id": "https://www.iat.rwth-aachen.de/pls-lab/pumping_station/TU10/Y24_Ball_Valve/TechnicalData",
+        "submodelElements": [
+            {
+                "idShort": "Nominal_Pressure",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "alphanummerische Kenngr\u00f6\u00dfe f\u00fcr Referenzzwecke, bezogen auf eine Kombination von mechanischen und ma\u00dflichen Eigenschaften eines Bauteils einer Rohrleitung"
+                    },
+                    {
+                        "language": "en",
+                        "text": "alphanumeric variable for reference purposes, relating to a combination of mechanical and dimensional properties of a component of a pipe"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-AAQ333#004"
+                        }
+                    ]
+                },
+                "value": "40",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "Nominal_Size",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "Untergruppe einer Bauart, deren Unterscheidungsmerkmale im Allgemeinen die Abmessungen sind"
+                    },
+                    {
+                        "language": "en",
+                        "text": "subgroup of a construction type, whose differentiating features are generally the dimensions"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-AAP898#005"
+                        }
+                    ]
+                },
+                "value": "25",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "Material",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "auf Normen basierender Nummerncode von Werkstoffen des Geh\u00e4uses"
+                    },
+                    {
+                        "language": "en",
+                        "text": "standard-based coding of materials of housing"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-AAD738#006"
+                        }
+                    ]
+                },
+                "value": "SS/SS-SS-RFE",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "Test_Pressure",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "Testdruck zum pr\u00fcfen des Ventils."
+                    },
+                    {
+                        "language": "en",
+                        "text": "Test pressure to check the valve."
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "http://acplt.org/vocab/TestPressure"
+                        }
+                    ]
+                },
+                "value": "54.6",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "Permissible_Temprature",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "Zul\u00e4ssiger Temperaturbereich f\u00fcr den Betrieb."
+                    },
+                    {
+                        "language": "en",
+                        "text": "Permissible temperature range for operation."
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "http://acplt.org/vocab/PermissibleTemperature"
+                        }
+                    ]
+                },
+                "value": "-50 to 220",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "Maximum_Permissible_Operating_Pressure_at_Room_Temperature",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "Maximal zul\u00e4ssiger Betriebsdruck bei Raumtemperatur."
+                    },
+                    {
+                        "language": "en",
+                        "text": "Maximum Permissible Operating Pressure at Room Temperature."
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "http://acplt.org/vocab/MaxOperatingPressure"
+                        }
+                    ]
+                },
+                "value": "36.4",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "Max_perm_temperature",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "Die Hitzbest\u00e4ndigkeit eines Produktes in Grad Celsius"
+                    },
+                    {
+                        "language": "en",
+                        "text": "The heat resistance of a product in degrees centigrade."
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-BAF417#005"
+                        }
+                    ]
+                },
+                "value": "220",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "Connection",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "Prozessanschluss."
+                    },
+                    {
+                        "language": "en",
+                        "text": "Process connection."
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "http://acplt.org/vocab/Connection"
+                        }
+                    ]
+                },
+                "value": "Flange Connection",
+                "valueType": "xs:string"
+            }
+        ]
+    }
+}

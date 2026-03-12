@@ -1,0 +1,415 @@
+{
+    "data": {
+        "idShort": "TechnicalData",
+        "modelType": "Submodel",
+        "id": "https://www.iat.rwth-aachen.de/pls-lab/pumping_station/TU30/N38/TechnicalData",
+        "submodelElements": [
+            {
+                "idShort": "Max_medium_temperature",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "gr\u00f6\u00dfter Grenzwert der Temperatur des Messmediums, von dem innere Parameter (z.B. Leitf\u00e4higkeit, pH-Wert, Redox-Wert, Sauerstoff-Konzentration) oder \u00e4u\u00dfere Parameter (z.B. F\u00fcllstand, Dichte) erfasst werden"
+                    },
+                    {
+                        "language": "en",
+                        "text": "Maximum limit value of temperature medium from which internal parameters (i.e. conductivity, pH value, redox value, oxygen concentration) or external parameters (i.e. filling level, density) are detected"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-AAB864#006"
+                        }
+                    ]
+                },
+                "value": "110",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "Min_medium_temperature",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "kleinster Grenzwert der Temperatur des Messmediums, von dem innere Parameter (z.B. Leitf\u00e4higkeit, pH-Wert, Redox-Wert, Sauerstoff-Konzentration) oder \u00e4u\u00dfere Parameter (z.B. F\u00fcllstand, Dichte) erfasst werden"
+                    },
+                    {
+                        "language": "en",
+                        "text": "Minimum limit value of temperature medium from which internal parameters (i.e. conductivity, pH value, redox value, oxygen concentration) or external parameters (i.e. filling level, density) are detected"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-AAB988#006"
+                        }
+                    ]
+                },
+                "value": "2",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "Temperature_class",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "Charakterisierungssystem eines elektrischen Ger\u00e4ts, basierend auf dessen maximaler Oberfl\u00e4chentemperatur, bez\u00fcglich der spezifischen explosionsf\u00e4higen Atmosph\u00e4re, f\u00fcr deren Nutzung das Ger\u00e4t vorgesehen ist"
+                    },
+                    {
+                        "language": "en",
+                        "text": "classification system of electrical apparatus, based on its maximum surface temperature, related to the specific explosive atmosphere for which it is intended to be used"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-AAO371#005"
+                        }
+                    ]
+                },
+                "value": "110",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "Material_body",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "Werkstoff, aus dem das Ger\u00e4tegeh\u00e4use gefertigt ist"
+                    },
+                    {
+                        "language": "en",
+                        "text": "substance of which the appliance exterior is made of"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-AAO747#008"
+                        }
+                    ]
+                },
+                "value": "Bronze",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "Construction_form_of_impeller",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "Gruppe von Bauelementen mit gleichen Konstruktionsmerkmalen und gleichem Aufbau, die aufgrund \u00e4hnlicher Herstellungstechniken f\u00fcr die Bauartzulassungspr\u00fcfung und die G\u00fctekonformit\u00e4tskontrollen zusammengefasst werden k\u00f6nnen. Sie werden im allgemeinen von einer Bauartspezifikation erfasst. Anmerkung: In bestimmten F\u00e4llen k\u00f6nnen Bauelemente aus verschiedenen Bauartspezifikationen als zum gleichen Typ geh\u00f6rig betrachtet und daher f\u00fcr die Bauartzulassung und die G\u00fctekonformit\u00e4tskontrollen zusammengefasst werden"
+                    },
+                    {
+                        "language": "en",
+                        "text": "Group of components with the same construction features and the same structure, which - due to similar manufacturing techniques - can be collated for construction approval testing and class conformity controls. They are generally allocated to a construction type. Note: in certain cases, components can be viewed from various construction type specifications as belonging to the same type and, therefore, can be collated for construction approval and class conformity controls"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-ABF501#001"
+                        }
+                    ]
+                },
+                "value": "Komposit PES/PP",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "Max_ambient_temperature_during_operation",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "gr\u00f6\u00dfter Grenzwert der w\u00e4hrend des Aktiv-seins bestimmten Temperatur der das Betriebsmittel umgebenden Atmosph\u00e4re"
+                    },
+                    {
+                        "language": "en",
+                        "text": "Maximum limit value of specific temperature during operation surrounding the operating unit"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-AAB906#006"
+                        }
+                    ]
+                },
+                "value": "80",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "Max_operation_pressure",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "gr\u00f6\u00dfter Druck, der in einem System beim Betrieb auftritt bzw. auftreten darf, angegeben in der abgeleiteten SI-EInheit des Druckes"
+                    },
+                    {
+                        "language": "en",
+                        "text": "greatest pressure that occurs in a system in operation or shall occur, indicated in the derived SI unit of pressure"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-AAJ845#005"
+                        }
+                    ]
+                },
+                "value": "10",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "Nominal_size",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "numerische Bezeichnung der Gr\u00f6\u00dfe bezogen auf den Str\u00f6mungsquerschnitt eines fluidtechnischen Ger\u00e4tes"
+                    },
+                    {
+                        "language": "en",
+                        "text": "numeric identifier for the measured variable referred to the flow cross section of a fluidic device"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-ABC418#001"
+                        }
+                    ]
+                },
+                "value": "G1 1/2",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "Nominal_pressure_of_the_operating_medium",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "PN (Nenndruck) ist eine alphanumerische Kenngr\u00f6\u00dfe f\u00fcr Referenzzwecke, bezogen auf eine Kombination von mechanischen und ma\u00dflichen Eigenschaften eines Bauteils einer Rohrleitung. Sie umfasst die Buchstaben PN gefolgt von einer dimensionslosen Zahl"
+                    },
+                    {
+                        "language": "en",
+                        "text": "PN (nominal pressure) is an alphanumeric variable for reference purposes, relating to a combination of mechanical and measurement properties of a pipe component. It comprises the letters PN followed by a dimensionless number (according to EN 1333/96.08)"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-AAO778#001"
+                        }
+                    ]
+                },
+                "value": "PN10",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "Insertion_length",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "Gesamtl\u00e4nge des Teils eines Ger\u00e4ts oder einer Komponente, der sich innerhalb eines Beh\u00e4lters befindet"
+                    },
+                    {
+                        "language": "en",
+                        "text": "overall length of that part of a device or component to be found within a containment"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-AAO023#004"
+                        }
+                    ]
+                },
+                "value": "180",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "Power_frequency",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "Anzahl der Schwingungen des Stromes im Netz pro Zeiteinheit, in Hertz (Hz) gemessen"
+                    },
+                    {
+                        "language": "en",
+                        "text": "Number of oscillations of the current in the network per time unit, measured in Hertz (Hz)"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-BAC859#003"
+                        }
+                    ]
+                },
+                "value": "50",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "Nominal_voltage",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "Nennspannung ist der vom Hersteller oder Lieferanten spezifizierte Wert der elektrischen Spannung im Normalbetrieb"
+                    },
+                    {
+                        "language": "en",
+                        "text": "nominal voltage is the specified value which shows the voltage in normal operation given by the manufacturer or supplier"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-BAC856#007"
+                        }
+                    ]
+                },
+                "value": "1*230V",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "Power_consumption",
+                "modelType": "SubmodelElementCollection",
+                "value": [
+                    {
+                        "idShort": "Drehzahlstufe1",
+                        "description": [
+                            {
+                                "language": "de",
+                                "text": "f\u00fcr die betrachtete Zeit aus dem Versorgungsnetz (einschlie\u00dflich der Leistungsaufnahme f\u00fcr Zusatzeinrichtungen) aufgenommene gesamte elektrische Eingangs-Wirkleistung bei festgelegten Betriebsbedingungen und beim Nennwert der Ausgangsleistung"
+                            },
+                            {
+                                "language": "en",
+                                "text": "total electric initial effective power that is absorbed off the supply grid during the concerning time (including the power absorption for additional devices), under set operating conditions and at the nominal value of the initial power"
+                            }
+                        ],
+                        "modelType": "Property",
+                        "semanticId": {
+                            "type": "ModelReference",
+                            "keys": [
+                                {
+                                    "type": "ConceptDescription",
+                                    "value": "0173-1#02-AAH939#001"
+                                }
+                            ]
+                        },
+                        "value": "50",
+                        "valueType": "xs:string"
+                    },
+                    {
+                        "idShort": "Drehzahlstufe2",
+                        "description": [
+                            {
+                                "language": "de",
+                                "text": "f\u00fcr die betrachtete Zeit aus dem Versorgungsnetz (einschlie\u00dflich der Leistungsaufnahme f\u00fcr Zusatzeinrichtungen) aufgenommene gesamte elektrische Eingangs-Wirkleistung bei festgelegten Betriebsbedingungen und beim Nennwert der Ausgangsleistung"
+                            },
+                            {
+                                "language": "en",
+                                "text": "total electric initial effective power that is absorbed off the supply grid during the concerning time (including the power absorption for additional devices), under set operating conditions and at the nominal value of the initial power"
+                            }
+                        ],
+                        "modelType": "Property",
+                        "semanticId": {
+                            "type": "ModelReference",
+                            "keys": [
+                                {
+                                    "type": "ConceptDescription",
+                                    "value": "0173-1#02-AAH939#001"
+                                }
+                            ]
+                        },
+                        "value": "60",
+                        "valueType": "xs:string"
+                    },
+                    {
+                        "idShort": "Drehzahlstufe3",
+                        "description": [
+                            {
+                                "language": "de",
+                                "text": "f\u00fcr die betrachtete Zeit aus dem Versorgungsnetz (einschlie\u00dflich der Leistungsaufnahme f\u00fcr Zusatzeinrichtungen) aufgenommene gesamte elektrische Eingangs-Wirkleistung bei festgelegten Betriebsbedingungen und beim Nennwert der Ausgangsleistung"
+                            },
+                            {
+                                "language": "en",
+                                "text": "total electric initial effective power that is absorbed off the supply grid during the concerning time (including the power absorption for additional devices), under set operating conditions and at the nominal value of the initial power"
+                            }
+                        ],
+                        "modelType": "Property",
+                        "semanticId": {
+                            "type": "ModelReference",
+                            "keys": [
+                                {
+                                    "type": "ConceptDescription",
+                                    "value": "0173-1#02-AAH939#001"
+                                }
+                            ]
+                        },
+                        "value": "70",
+                        "valueType": "xs:string"
+                    }
+                ]
+            },
+            {
+                "idShort": "Net_weight",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "Masse des W\u00e4gegutes ohne Verpackung und ohne Transportger\u00e4t. Da unter \u201eGewicht\u201c in diesem Fall die Masse verstanden wird, ist auch die Ma\u00dfeinheit (Kilo-) Gramm als SI-Einheit zu verwenden"
+                    },
+                    {
+                        "language": "en",
+                        "text": "Dimensions of the weigh item without packaging and without transport device. As, in this case, 'weight' means dimensions, the measure unit (kilo) gram is to be used as the SI unit"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-BAD875#007"
+                        }
+                    ]
+                },
+                "value": "02. Sep",
+                "valueType": "xs:string"
+            }
+        ]
+    }
+}

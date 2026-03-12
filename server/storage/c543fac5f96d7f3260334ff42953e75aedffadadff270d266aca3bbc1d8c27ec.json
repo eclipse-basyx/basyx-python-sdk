@@ -1,0 +1,17 @@
+{
+    "data": {
+        "idShort": "aas_registry",
+        "modelType": "AssetAdministrationShell",
+        "id": "https://mnestix.com/aas/registry",
+        "assetInformation": {
+            "assetKind": "Instance",
+            "globalAssetId": "https://mnestix.com/registry",
+            "specificAssetIds": [
+                {
+                    "name": "assetIdShort",
+                    "value": "registry"
+                }
+            ]
+        }
+    }
+}

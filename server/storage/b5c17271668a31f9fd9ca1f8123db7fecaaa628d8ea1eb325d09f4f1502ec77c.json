@@ -1,0 +1,471 @@
+{
+    "data": {
+        "idShort": "TechnicalData",
+        "modelType": "Submodel",
+        "id": "https://www.iat.rwth-aachen.de/pls-lab/pumping_station/TU20/N29/TechnicalData",
+        "submodelElements": [
+            {
+                "idShort": "Temperature_range",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "Bereich von der kleinsten bis zur gr\u00f6\u00dften Temperatur im \u00e4u\u00dferen Umfeld des Betriebsmittels"
+                    },
+                    {
+                        "language": "en",
+                        "text": "Range from the smallest through to the largest temperature in the outer surroundings of the operating medium"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-AAO931#001"
+                        }
+                    ]
+                },
+                "value": "-25...110",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "Density",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "Quotient aus der Masse m und dem Volumen V einer Stoffportion"
+                    },
+                    {
+                        "language": "en",
+                        "text": "quotient of the mass m divided by the spatial volume V"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-BAA356#004"
+                        }
+                    ]
+                },
+                "value": "983.2",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "Max_ambient_temperature_during_operation",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "gr\u00f6\u00dfter Grenzwert der w\u00e4hrend des Aktiv-seins bestimmten Temperatur der das Betriebsmittel umgebenden Atmosph\u00e4re"
+                    },
+                    {
+                        "language": "en",
+                        "text": "Maximum limit value of specific temperature during operation surrounding the operating unit"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-AAB906#006"
+                        }
+                    ]
+                },
+                "value": "80",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "Max_operating_temperature",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "gr\u00f6\u00dfter Grenzwert der sich durch den Nennbetrieb typischerweise ergebende Temperatur im nahem Umfeld des Betriebsmittels"
+                    },
+                    {
+                        "language": "en",
+                        "text": "maximum limit value of the typically arising temperature in the immediate surrounding area of the operating unit which arises as a result of rated operation"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-AAC821#006"
+                        }
+                    ]
+                },
+                "value": "10",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "Type_of_pipe_connection",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "Angabe, welche Rohrarten angeflanscht werden k\u00f6nnen"
+                    },
+                    {
+                        "language": "en",
+                        "text": "Specifying which types of pipe can be flanged"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-AAX110#001"
+                        }
+                    ]
+                },
+                "value": "G2",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "Pressure_rating_SDR",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "Standard Dimensionsrate (SDR) ist eine zur Klassifizierung von Kunststoffrohren gebr\u00e4uchliche Kennzahl, die das Verh\u00e4ltnis zwischen Au\u00dfendurchmesser und Wanddicke eines Rohres wiedergibt"
+                    },
+                    {
+                        "language": "en",
+                        "text": "Standard dimension ratio (SDR) is a common classification of plastic pipes figure which represents the ratio between the outside diameter and wall thickness of a pipe"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-AAX111#001"
+                        }
+                    ]
+                },
+                "value": "PN10",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "Power_input_of_motor",
+                "modelType": "SubmodelElementCollection",
+                "value": [
+                    {
+                        "idShort": "Speed1",
+                        "description": [
+                            {
+                                "language": "de",
+                                "text": "f\u00fcr die betrachtete Zeit f\u00fcr den Betrieb des Motors notwendige elektrische Eingangs-Wirkleistung bei festgelegten Betriebsbedingungen und beim Nennwert der Ausgangsleistung"
+                            },
+                            {
+                                "language": "en",
+                                "text": "under given operating conditions and nominal value of power output, the entire effective electrical power input from the mains network that is required for operation of the motor for the period of time in question"
+                            }
+                        ],
+                        "modelType": "Property",
+                        "semanticId": {
+                            "type": "ModelReference",
+                            "keys": [
+                                {
+                                    "type": "ConceptDescription",
+                                    "value": "0173-1#02-BAA448#004"
+                                }
+                            ]
+                        },
+                        "value": "135",
+                        "valueType": "xs:string"
+                    },
+                    {
+                        "idShort": "Speed2",
+                        "description": [
+                            {
+                                "language": "de",
+                                "text": "f\u00fcr die betrachtete Zeit f\u00fcr den Betrieb des Motors notwendige elektrische Eingangs-Wirkleistung bei festgelegten Betriebsbedingungen und beim Nennwert der Ausgangsleistung"
+                            },
+                            {
+                                "language": "en",
+                                "text": "under given operating conditions and nominal value of power output, the entire effective electrical power input from the mains network that is required for operation of the motor for the period of time in question"
+                            }
+                        ],
+                        "modelType": "Property",
+                        "semanticId": {
+                            "type": "ModelReference",
+                            "keys": [
+                                {
+                                    "type": "ConceptDescription",
+                                    "value": "0173-1#02-BAA448#004"
+                                }
+                            ]
+                        },
+                        "value": "205",
+                        "valueType": "xs:string"
+                    }
+                ]
+            },
+            {
+                "idShort": "Max_power",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "Maximalwert der Leistung, die sich nach der Gleichung P = dE/dt bzw. P = dW/dt als zeitliche Ableitung von Energie, die gerade \u00fcbertragen oder umgewandelt wird, oder von Arbeit, die gerade verrichtet wird, ergibt"
+                    },
+                    {
+                        "language": "en",
+                        "text": "maximum value of power, that results from the equation P = dE/dt or P = dW/dt, which say that power is the derivative of the energy being transmitted or converted now with respect to time, or else the derivative of the work which is being done now with respect to time"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-BAC671#009"
+                        }
+                    ]
+                },
+                "value": "240",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "Operating_frequency",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "Frequenz der elektrischen Spannung und/oder der elektromagnetischen Schwingung, f\u00fcr die das Ger\u00e4t ausgelegt ist"
+                    },
+                    {
+                        "language": "en",
+                        "text": "The voltage frequency and/or electromagnetic pulse for which the device is designed"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-AAB505#006"
+                        }
+                    ]
+                },
+                "value": "50",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "Max_rated_voltage_at_AC_50_Hz",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "max. Wert einer Wechselspannung mit einer Frequenz von 50Hz, der vom Hersteller f\u00fcr ein Bauteil, Ger\u00e4t oder eine Einrichtung angegeben wird und auf den sich Funktions- und Leistungsmerkmale beziehen"
+                    },
+                    {
+                        "language": "en",
+                        "text": "maximum value of a rated voltage at AC 50 Hz stipulated by the manufacturer for a component, device or equipment which relates to the function and power properties"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-AAF975#004"
+                        }
+                    ]
+                },
+                "value": "230",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "Operating_current",
+                "modelType": "SubmodelElementCollection",
+                "value": [
+                    {
+                        "idShort": "Speed1",
+                        "description": [
+                            {
+                                "language": "de",
+                                "text": "Vom Hersteller angegebener Wert des Stromes, der beim Betrieb der Anlage oder von Anlageteilen vorhanden ist oder vorhanden sein muss"
+                            },
+                            {
+                                "language": "en",
+                                "text": "Manufacturer's value of the current, which is or must be present during operation of the system or of system parts"
+                            }
+                        ],
+                        "modelType": "Property",
+                        "semanticId": {
+                            "type": "ModelReference",
+                            "keys": [
+                                {
+                                    "type": "ConceptDescription",
+                                    "value": "0173-1#02-BAC051#004"
+                                }
+                            ]
+                        },
+                        "value": "0.62",
+                        "valueType": "xs:string"
+                    },
+                    {
+                        "idShort": "Speed2",
+                        "description": [
+                            {
+                                "language": "de",
+                                "text": "Vom Hersteller angegebener Wert des Stromes, der beim Betrieb der Anlage oder von Anlageteilen vorhanden ist oder vorhanden sein muss"
+                            },
+                            {
+                                "language": "en",
+                                "text": "Manufacturer's value of the current, which is or must be present during operation of the system or of system parts"
+                            }
+                        ],
+                        "modelType": "Property",
+                        "semanticId": {
+                            "type": "ModelReference",
+                            "keys": [
+                                {
+                                    "type": "ConceptDescription",
+                                    "value": "0173-1#02-BAC051#004"
+                                }
+                            ]
+                        },
+                        "value": "0.91",
+                        "valueType": "xs:string"
+                    },
+                    {
+                        "idShort": "Speed3",
+                        "description": [
+                            {
+                                "language": "de",
+                                "text": "Vom Hersteller angegebener Wert des Stromes, der beim Betrieb der Anlage oder von Anlageteilen vorhanden ist oder vorhanden sein muss"
+                            },
+                            {
+                                "language": "en",
+                                "text": "Manufacturer's value of the current, which is or must be present during operation of the system or of system parts"
+                            }
+                        ],
+                        "modelType": "Property",
+                        "semanticId": {
+                            "type": "ModelReference",
+                            "keys": [
+                                {
+                                    "type": "ConceptDescription",
+                                    "value": "0173-1#02-BAC051#004"
+                                }
+                            ]
+                        },
+                        "value": "1.5",
+                        "valueType": "xs:string"
+                    }
+                ]
+            },
+            {
+                "idShort": "Protection_class",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "Angabe \u00fcber die Schutzklasse der Objekts"
+                    },
+                    {
+                        "language": "en",
+                        "text": "indication of the safety class of the object"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-AAK401#005"
+                        }
+                    ]
+                },
+                "value": "IP42",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "Thermal_insulation_present",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "Angabe, ob das Produkt mit einer thermischen Isolierung ausgestattet ist"
+                    },
+                    {
+                        "language": "en",
+                        "text": "whether the device is equipped with a thermal insulation or not"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-AAL232#004"
+                        }
+                    ]
+                },
+                "value": "F",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "kind_of_motor_protection_device",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "gibt an, welche Art der Vorrichtung zum Schutz des Motors vorhanden ist"
+                    },
+                    {
+                        "language": "en",
+                        "text": "indicates the available kind of device to protect the motor"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-AAR645#006"
+                        }
+                    ]
+                },
+                "value": "CONTACT",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "Net_weight",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "Masse des W\u00e4geguts ohne Verpackung und ohne Transportger\u00e4t"
+                    },
+                    {
+                        "language": "en",
+                        "text": "mass of the weighed object without packing and transport equipment"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-AAF040#007"
+                        }
+                    ]
+                },
+                "value": "5.2",
+                "valueType": "xs:string"
+            }
+        ]
+    }
+}

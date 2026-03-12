@@ -1,0 +1,159 @@
+{
+    "data": {
+        "idShort": "TechnicalData",
+        "modelType": "Submodel",
+        "id": "https://www.iat.rwth-aachen.de/pls-lab/pumping_station/TU10/Y25_Pneumatischer_Antrieb/TechnicalData",
+        "submodelElements": [
+            {
+                "idShort": "Springstroke",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "Federweg der Feder."
+                    },
+                    {
+                        "language": "en",
+                        "text": "Springstroke."
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "http://acplt.org/vocab/Springstroke"
+                        }
+                    ]
+                },
+                "value": "31 to 47",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "Air_consumption",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "Verbrauch des Werkzeuge an Druckluft, z.B. f\u00fcr Druckluft-Schlagschrauber"
+                    },
+                    {
+                        "language": "en",
+                        "text": "Tool's consumption of compressed air, e.g. for compressed air hammer screw driver"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-BAA453#003"
+                        }
+                    ]
+                },
+                "value": "0.74",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "maximum_operating_pressure",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "oberer Grenzwert des Druckbereiches, bei dem ein fluidtechnisches Ger\u00e4t seine Funktion erf\u00fcllt"
+                    },
+                    {
+                        "language": "en",
+                        "text": "upper limit of the pressure range at which a fluidic device fulfils its function"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-AAZ943#001"
+                        }
+                    ]
+                },
+                "value": "8.3",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "Min_operating_temperature",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "kleinster Grenzwert der sich durch den Nennbetrieb typischerweise ergebende Temperatur im nahem Umfeld des Betriebsmittels"
+                    },
+                    {
+                        "language": "en",
+                        "text": "minimum limit value of the typically arising temperature in the immediate surrounding area of the operating unit which arises as a result of rated operation"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-AAC820#006"
+                        }
+                    ]
+                },
+                "value": "-20",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "Max_operating_temperature",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "gr\u00f6\u00dfter Grenzwert der sich durch den Nennbetrieb typischerweise ergebende Temperatur im nahem Umfeld des Betriebsmittels"
+                    },
+                    {
+                        "language": "en",
+                        "text": "maximum limit value of the typically arising temperature in the immediate surrounding area of the operating unit which arises as a result of rated operation"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-AAC821#006"
+                        }
+                    ]
+                },
+                "value": "100",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "Weight",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "Masse des W\u00e4gegutes ohne Verpackung und ohne Transportger\u00e4t"
+                    },
+                    {
+                        "language": "en",
+                        "text": "Mass of weight without packaging and transport unit"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-AAB713#006"
+                        }
+                    ]
+                },
+                "value": "5.5",
+                "valueType": "xs:string"
+            }
+        ]
+    }
+}

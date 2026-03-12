@@ -1,0 +1,34 @@
+{
+    "data": {
+        "idShort": "Dynamic_Data",
+        "modelType": "Submodel",
+        "id": "https://www.iat.rwth-aachen.de/pls-lab/pumping_station/TU10/Y24_Ball_Valve/DynamicData",
+        "submodelElements": [
+            {
+                "idShort": "Valve_Opening",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "\u00d6ffnunggrad des Venitls."
+                    },
+                    {
+                        "language": "en",
+                        "text": "Degree of opening of the valve."
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "http://acplt.org/vocab/ValveOpening"
+                        }
+                    ]
+                },
+                "value": "0",
+                "valueType": "xs:string"
+            }
+        ]
+    }
+}

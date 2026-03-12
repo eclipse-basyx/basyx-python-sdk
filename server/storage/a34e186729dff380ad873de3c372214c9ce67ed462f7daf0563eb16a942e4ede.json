@@ -1,0 +1,40 @@
+{
+    "data": {
+        "idShort": "Y24_Ball_Valve_AAS",
+        "modelType": "AssetAdministrationShell",
+        "id": "https://www.iat.rwth-aachen.de/pls-lab/pumping_station/TU10/Y24_Ball_Valve/AAS/ver:1.0&rev:1.0",
+        "assetInformation": {
+            "assetKind": "Instance",
+            "globalAssetId": "https://www.iat.rwth-aachen.de/pls-lab/pumping_station/TU10/Y24_Ball_Valve"
+        },
+        "submodels": [
+            {
+                "type": "ModelReference",
+                "keys": [
+                    {
+                        "type": "Submodel",
+                        "value": "https://www.iat.rwth-aachen.de/pls-lab/pumping_station/TU10/Y24_Ball_Valve/Nameplate"
+                    }
+                ]
+            },
+            {
+                "type": "ModelReference",
+                "keys": [
+                    {
+                        "type": "Submodel",
+                        "value": "https://www.iat.rwth-aachen.de/pls-lab/pumping_station/TU10/Y24_Ball_Valve/TechnicalData"
+                    }
+                ]
+            },
+            {
+                "type": "ModelReference",
+                "keys": [
+                    {
+                        "type": "Submodel",
+                        "value": "https://www.iat.rwth-aachen.de/pls-lab/pumping_station/TU10/Y24_Ball_Valve/DynamicData"
+                    }
+                ]
+            }
+        ]
+    }
+}

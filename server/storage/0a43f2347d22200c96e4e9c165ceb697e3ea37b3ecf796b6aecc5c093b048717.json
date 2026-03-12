@@ -1,0 +1,509 @@
+{
+    "data": {
+        "idShort": "TechnicalData",
+        "modelType": "Submodel",
+        "id": "https://www.iat.rwth-aachen.de/pls-lab/pumping_station/TU10/N13_Pumpe/TechnicalData",
+        "submodelElements": [
+            {
+                "idShort": "Rotation_speed",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "Quotient aus Anzahl der Umdrehungen und der zugeh\u00f6rigen Zeitspanne"
+                    },
+                    {
+                        "language": "en",
+                        "text": "Quotient of number of rotations divided by the associated time span"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-AAD222#006"
+                        }
+                    ]
+                },
+                "value": "2751",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "Normal_feed_flow",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "F\u00f6rderstrom, der bei \u00fcblichem Betrieb zu erwarten ist"
+                    },
+                    {
+                        "language": "en",
+                        "text": "delivery which is to be expected for usual operation"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-BAJ126#007"
+                        }
+                    ]
+                },
+                "value": "3",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "Max_ambient_temperature_during_operating_phase",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "unter festgelegten Bedingungen bestimmte Temperatur der das Betriebsmittel umgebenden Atmosph\u00e4re / Zeitdauer, in deren Verlauf etwas stattfindet: Zeitraum des Aktiv-seins / gr\u00f6\u00dfter Grenzwert einer physikalischen Gr\u00f6\u00dfe, deren Wert nicht \u00fcberschritten werden kann oder darf"
+                    },
+                    {
+                        "language": "en",
+                        "text": "temperature of the atmosphere surrounding the operating resource under specified conditions / period, in whose course something happens: period of time in which something is active / upper limit value of a physical quantity whose value cannot or must not be exceeded"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-AAF525#003"
+                        }
+                    ]
+                },
+                "value": "40",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "Max_pressure",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "Gr\u00f6\u00dftm\u00f6glicher atmosph\u00e4rischer Druck, den ein Betriebsmittel aufbauen bzw. erreichen kann"
+                    },
+                    {
+                        "language": "en",
+                        "text": "Greatest possible atmospheric pressure which an operating source can build up or reach"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-BAA447#006"
+                        }
+                    ]
+                },
+                "value": "25",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "Nominal_width_of_the_suction_supports",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "gibt die Nennweite des Saugstutzens an, eine numerische Festlegung der Gr\u00f6\u00dfe f\u00fcr die \u2018lichte Weite\u2019 (Innenma\u00df), die f\u00fcr alle Komponenten eines Rohrleitungssystems gleich ist, im Unterschied zu Komponenten, die durch einen Au\u00dfendurchmesser festgelegt sind oder durch eine Gewindegr\u00f6\u00dfe. Sie ist einen runde Zahl (ungef\u00e4hr der innere Durchmesser des Rohrleitungsanschlusses gemessen in Millimeter. Sie bezieht sich gew\u00f6hnlich nur ungef\u00e4hr auf die Fertigungsma\u00dfe"
+                    },
+                    {
+                        "language": "en",
+                        "text": "provides the nominal width of the suction supports. A numeric determination of the size for the 'open width' (internal measurement), which is the same for all components of a pipe system, in contrast to components determined by an outer diameter or by a thread size. It is a round number (approx. that of the internal diameter of the pipe connection measured in millimeters. Normally, this relates only approximately to the production measurements"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-AAO804#001"
+                        }
+                    ]
+                },
+                "value": "DN25/ DN32",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "Nominal_pressure_plastic",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "Nenndruck gibt f\u00fcr ein Rohrleitungssystem eine Referenzgr\u00f6\u00dfe an. Die Angabe erfolgt durch die Bezeichnung PN (Pressure Nominal) gefolgt von einer dimensionslosen ganzen Zahl, die den Auslegungsdruck in bar bei Raumtemperatur (20 \u00b0C) angibt. Der bei einer bestimmten Temperatur zul\u00e4ssige Betriebsdruck wird \u00fcblicherweise in Prozent des Nenndruckes angegeben. Bei h\u00f6heren und tieferen Temperaturen ist, bedingt durch die Abnahme der zul\u00e4ssigen Werkstoffkennwerte (Streckgrenze), der zul\u00e4ssige Druck entsprechend geringer. PN 10 zum Beispiel bezeichnet eine Rohrleitung mit dem h\u00f6chstzul\u00e4ssigen Druck von 10 bar bei einer Fluidtemperatur von 20 \u00b0C"
+                    },
+                    {
+                        "language": "en",
+                        "text": "The nominal pressure is a pipe system to a reference value. This is specified by the term PN (Pressure Nominal) followed by a dimensionless whole number that specifies the design pressure in bar at room temperature (20 \u00b0 C). The allowable operating pressure at a certain temperature is usually expressed as a percentage of the nominal pressure. At higher and lower temperatures is due to the decrease in the allowable material properties (yield strength), the allowable pressure correspondingly lower. PN 10, for example, refers to a pipe with the maximum pressure of 10 bar at a fluid temperature of 20 \u00b0 C"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-AAX147#001"
+                        }
+                    ]
+                },
+                "value": "PN25",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "Max_temperature_of_medium_to_be_transported",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "Maximale Temperatur des Mediums das gef\u00f6rdert werden soll"
+                    },
+                    {
+                        "language": "en",
+                        "text": "Maximum temperature if the medium to be transported"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-BAC658#005"
+                        }
+                    ]
+                },
+                "value": "-20",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "Min_temp_of_medium_to_be_transported",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "Minimale Temperatur des Mediums das gef\u00f6rdert werden soll"
+                    },
+                    {
+                        "language": "en",
+                        "text": "Minimum temperature if the medium to be transported"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-BAC729#004"
+                        }
+                    ]
+                },
+                "value": "90",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "Material_property_of_the_pumping_medium",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "Beschreibt die mechanischen, physikalischen und chemischen Eigenschaften des Werkstoffes"
+                    },
+                    {
+                        "language": "en",
+                        "text": "Describes the mechanical, physical and chemical properties of the material"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-AAD195#006"
+                        }
+                    ]
+                },
+                "value": "Die Dichte betraegt 998,2kg/m^3",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "Measurement_performance_of_the_electric_motor",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "Die vom Hersteller f\u00fcr das Betriebsmittel bemessene Leistung bei angegebenen Betriebsbedingungen"
+                    },
+                    {
+                        "language": "en",
+                        "text": "The output measured by the manufacturer for the operating medium at defined operating conditions"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-BAH734#003"
+                        }
+                    ]
+                },
+                "value": "0.37",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "Power_frequency",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "Anzahl der Schwingungen des Stromes im Netz pro Zeiteinheit, in Hertz (Hz) gemessen"
+                    },
+                    {
+                        "language": "en",
+                        "text": "Number of oscillations of the current in the network per time unit, measured in Hertz (Hz)"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-BAC859#003"
+                        }
+                    ]
+                },
+                "value": "50",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "Rated_voltage",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "vom Hersteller angegebener Wert, der sich aus Messwerten ergibt, die unter festgelegten Bedingungen und Regeln ermittelt worden sind, f\u00fcr die Spannung, die an ein elektrisches Betriebsmittel unter Ber\u00fccksichtigung der Gebrauchsbedingungen angelegt werden"
+                    },
+                    {
+                        "language": "en",
+                        "text": "manufacturer's value for the voltage, which is derived from measured values that have been obtained under established conditions and rules"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-BAH005#006"
+                        }
+                    ]
+                },
+                "value": "200-240",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "Rated_current",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "vom Hersteller angegebener Wert des Stromes, der sich aus Messwerten ergibt, die unter festgelegten Bedingungen und Regeln ermittelt worden sind"
+                    },
+                    {
+                        "language": "en",
+                        "text": "value of the current, resulting from measurements which were determined under specified conditions and rules as defined by the manufacturer"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-AAF726#003"
+                        }
+                    ]
+                },
+                "value": "03.02.2005 00:00",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "Power_factor_cos_phi",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "Verh\u00e4ltnis vom Betrag der Wirkleistung zur Scheinleistung"
+                    },
+                    {
+                        "language": "en",
+                        "text": "Relation of the amount of the active power to the false performance"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-AAN420#001"
+                        }
+                    ]
+                },
+                "value": "0.96",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "Nominal_speed",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "Drehzahl die den Nenndaten des verwendeten Motors entspricht"
+                    },
+                    {
+                        "language": "en",
+                        "text": "Speed corresponding to the motor used according to the name plate ratings"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-BAA580#006"
+                        }
+                    ]
+                },
+                "value": "360-2840",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "Motor_efficiency",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "Verh\u00e4ltnis der vom Motor abgegebenen Leistung zu der vom Motor aufgenommenen Leistung"
+                    },
+                    {
+                        "language": "en",
+                        "text": "determined proportion of the motor power input p_mot delivered as pump power input p_mot,u"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-ABC232#001"
+                        }
+                    ]
+                },
+                "value": "68",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "Degree_of_Protection",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "Umfang des Schutzes durch ein Geh\u00e4use gegen den Zugang zu gef\u00e4hrlichen Teilen, gegen das Eindringen von festen Fremdk\u00f6rpern und gegen das Eindringen von Wasser"
+                    },
+                    {
+                        "language": "en",
+                        "text": "extent of protection provided by an enclosure against access to hazardous parts, against ingress of solid foreign objects and against ingress of water"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-AAV695#001"
+                        }
+                    ]
+                },
+                "value": "IP55",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "Net_weight",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "Masse des W\u00e4gegutes ohne Verpackung und ohne Transportger\u00e4t. Da unter \u201eGewicht\u201c in diesem Fall die Masse verstanden wird, ist auch die Ma\u00dfeinheit (Kilo-) Gramm als SI-Einheit zu verwenden"
+                    },
+                    {
+                        "language": "en",
+                        "text": "Dimensions of the weigh item without packaging and without transport device. As, in this case, 'weight' means dimensions, the measure unit (kilo) gram is to be used as the SI unit"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-BAD875#007"
+                        }
+                    ]
+                },
+                "value": "2.4",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "Gross_weight",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "quantitative Angabe zur Masse eines Gegenstandes mit Verpackung"
+                    },
+                    {
+                        "language": "en",
+                        "text": "Quantitative statement of the mass of an object, including packaging"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-BAF368#004"
+                        }
+                    ]
+                },
+                "value": "2.6",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "Kind_of_motor_protection_device",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "gibt an, welche Art der Vorrichtung zum Schutz des Motors vorhanden ist"
+                    },
+                    {
+                        "language": "en",
+                        "text": "indicates the available kind of device to protect the motor"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-AAR645#006"
+                        }
+                    ]
+                },
+                "value": "PTC",
+                "valueType": "xs:string"
+            }
+        ]
+    }
+}

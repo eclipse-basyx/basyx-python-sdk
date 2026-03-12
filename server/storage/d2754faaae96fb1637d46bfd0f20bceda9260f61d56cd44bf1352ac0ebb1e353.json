@@ -1,0 +1,409 @@
+{
+    "data": {
+        "idShort": "TechnicalData",
+        "modelType": "Submodel",
+        "id": "https://www.iat.rwth-aachen.de/pls-lab/pumping_station/TU20/F31/TechnicalData",
+        "submodelElements": [
+            {
+                "idShort": "Messumformer",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "bestimmte Ausf\u00fchrung im Rahmen eines Typs, die im Allgemeinen durch die Konstruktion oder die Ma\u00dfe gekennzeichnet ist"
+                    },
+                    {
+                        "language": "en",
+                        "text": "sub level of type which is generally distinguished by the construction or the dimensions"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-AAP886#004"
+                        }
+                    ]
+                },
+                "value": "IFC 300",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "Nennweite",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "Durchmesser eines Rohres/Schlauchleitung oder die Gr\u00f6\u00dfe/Anschlussma\u00df einer Armatur (Ventil, Schieber)"
+                    },
+                    {
+                        "language": "en",
+                        "text": "diameter of a pipe/hose or the size/mounting dimension of a valve"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-AAH222#001"
+                        }
+                    ]
+                },
+                "value": "DN25",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "Messwertabweichung",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "Abweichung eines aus Messungen gewonnenen vom wahren Wert"
+                    },
+                    {
+                        "language": "en",
+                        "text": "deviation of measured value from the true value"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-AAQ356#003"
+                        }
+                    ]
+                },
+                "value": " \u00b1 0,5",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "min_Mediumstemperatur",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "kleinster Grenzwert der Temperatur des Messmediums, von dem innere Parameter (z.B. Leitf\u00e4higkeit, pH-Wert, Redox-Wert, Sauerstoff-Konzentration) oder \u00e4u\u00dfere Parameter (z.B. F\u00fcllstand, Dichte) erfasst werden"
+                    },
+                    {
+                        "language": "en",
+                        "text": "Minimum limit value of temperature medium from which internal parameters (i.e. conductivity, pH value, redox value, oxygen concentration) or external parameters (i.e. filling level, density) are detected"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-AAC020#007"
+                        }
+                    ]
+                },
+                "value": "-40",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "max_Mediumstemperatur",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "gr\u00f6\u00dfter Grenzwert der Temperatur des Messmediums, von dem innere Parameter (z.B. Leitf\u00e4higkeit, pH-Wert, Redox-Wert, Sauerstoff-Konzentration) oder \u00e4u\u00dfere Parameter (z.B. F\u00fcllstand, Dichte) erfasst werden"
+                    },
+                    {
+                        "language": "en",
+                        "text": "Maximum limit value of temperature medium from which internal parameters (i.e. conductivity, pH value, redox value, oxygen concentration) or external parameters (i.e. filling level, density) are detected"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-AAB904#006"
+                        }
+                    ]
+                },
+                "value": "140",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "min_Umgebungstemperatur",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "Die maximal zul\u00e4ssige Temperatur im \u00e4u\u00dferen Umfeld des Betriebsmittels"
+                    },
+                    {
+                        "language": "en",
+                        "text": "The maximum permissible temperature in the external environment of the operating resource"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-BAE585#006"
+                        }
+                    ]
+                },
+                "value": "-40",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "max_Umgebungstemperatur",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "kleinster Grenzwert der w\u00e4hrend des Aktiv-seins bestimmten Temperatur der das Betriebsmittel umgebenden Atmosph\u00e4re"
+                    },
+                    {
+                        "language": "en",
+                        "text": "Minimum limit value of specific temperature during operation surrounding the operating unit"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-AAC022#006"
+                        }
+                    ]
+                },
+                "value": "65",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "min_zulaessige_Lagertemperatur",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "minimal zul\u00e4ssige Lagertemperatur des Betriebsmittels"
+                    },
+                    {
+                        "language": "en",
+                        "text": "minimum permissible temperature of the operating resource during storage"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-ABA653#001"
+                        }
+                    ]
+                },
+                "value": "-40",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "max_zulaessige_Lagertemperatur",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "maximal zul\u00e4ssige Lagertemperatur des Betriebsmittels"
+                    },
+                    {
+                        "language": "en",
+                        "text": "maximum permissible temperature of the operating resource during storage"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-ABA654#001"
+                        }
+                    ]
+                },
+                "value": "70",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "Betriebsmedium",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "Medium, mit welchem das Ger\u00e4t betrieben werden darf (Medium am Eingang)"
+                    },
+                    {
+                        "language": "en",
+                        "text": "temperature at which the specified accuracy data are valid. For deviations from the nominal temperature, the specified temperature coefficients must be must be added to the specified accuracies"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-ABD905#001"
+                        }
+                    ]
+                },
+                "value": "Wasser",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "Schutzart",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "Einteilung entsprechend dem Schutz des Betriebsmittels gegen \u00e4u\u00dfere Einfl\u00fcsse jeglicher Art und Schutz vor sich bewegenden Teilen im Betriebsmittel f\u00fcr das elektronische Ger\u00e4t, das Daten aufbereitet und nutzbar macht"
+                    },
+                    {
+                        "language": "en",
+                        "text": "Classification according to the protection of the operating unit against any external influences and protection against moving parts in the operating unit for the electronic device that processes data and makes them useable"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-AAC106#007"
+                        }
+                    ]
+                },
+                "value": "IP67",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "Dichtwerkstoff",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "Substanz, aus welcher die Dichtung hergestellt ist"
+                    },
+                    {
+                        "language": "en",
+                        "text": "substance from which a leave is manufactured"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-AAK468#006"
+                        }
+                    ]
+                },
+                "value": "PFA",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "Gehaeusewerkstoff",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "Bezeichnung des Werkstoffes f\u00fcr die Herstellung des Geh\u00e4uses bzw. des Griffes"
+                    },
+                    {
+                        "language": "en",
+                        "text": "designation of the material for the production of the housing or handle"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-ABF427#001"
+                        }
+                    ]
+                },
+                "value": "Stahlblech",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "Material_der_Elektrode",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "Material der Elektroden, die auf einem zur elektrophysiologischen Untersuchung genutzten Katheters aufgebracht sind"
+                    },
+                    {
+                        "language": "en",
+                        "text": "Material of the electrodes, which are deposited on a used for the electrophysiological study catheter"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-AAS788#001"
+                        }
+                    ]
+                },
+                "value": "Hastelloy C",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "Spannungsversorgung",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "beschreibt die Quelle der elektrischen Energie, die das Objekt versorgt"
+                    },
+                    {
+                        "language": "en",
+                        "text": "describes the source of electrical energy that supplies the object"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-AAK788#003"
+                        }
+                    ]
+                },
+                "value": "12 - 24 V",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "Ausgaenge",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "Regeln und Vereinbarungen damit Kommunikationspartner miteinander kommunizieren k\u00f6nnen"
+                    },
+                    {
+                        "language": "en",
+                        "text": "rules and agreements by that communication partner can interact with each other"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-AAW333#001"
+                        }
+                    ]
+                },
+                "value": "HART",
+                "valueType": "xs:string"
+            }
+        ]
+    }
+}

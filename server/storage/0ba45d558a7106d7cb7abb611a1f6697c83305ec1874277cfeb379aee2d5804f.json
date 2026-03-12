@@ -1,0 +1,221 @@
+{
+    "data": {
+        "idShort": "Nameplate",
+        "modelType": "Submodel",
+        "id": "https://www.iat.rwth-aachen.de/pls-lab/pumping_station/TU10/Pipe11/Nameplate",
+        "semanticId": {
+            "type": "ExternalReference",
+            "keys": [
+                {
+                    "type": "GlobalReference",
+                    "value": "https://admin-shell.io/zvei/nameplate/1/0/Nameplate"
+                }
+            ]
+        },
+        "submodelElements": [
+            {
+                "idShort": "ManufacturerName",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "Bezeichnung f\u00fcr eine nat\u00fcrliche oder juristische Person, die f\u00fcr die Auslegung, Herstellung und Verpackung sowie die Etikettierung eines Produkts im Hinblick auf das 'Inverkehrbringen' im eigenen Namen verantwortlich ist"
+                    },
+                    {
+                        "language": "en",
+                        "text": "legally valid designation of the natural or judicial person which is directly responsible for the design, production, packaging and labeling of a product in respect to its being brought into circulation"
+                    }
+                ],
+                "modelType": "MultiLanguageProperty",
+                "semanticId": {
+                    "type": "ExternalReference",
+                    "keys": [
+                        {
+                            "type": "GlobalReference",
+                            "value": "0173-1#02-AAO677#002"
+                        }
+                    ]
+                },
+                "value": [
+                    {
+                        "language": "de",
+                        "text": "unkown"
+                    }
+                ]
+            },
+            {
+                "idShort": "ManufacturerProductDesignation",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "Kurze Beschreibung des Produktes (Kurztext)"
+                    },
+                    {
+                        "language": "en",
+                        "text": "Short description of the product (short text)"
+                    }
+                ],
+                "modelType": "MultiLanguageProperty",
+                "semanticId": {
+                    "type": "ExternalReference",
+                    "keys": [
+                        {
+                            "type": "GlobalReference",
+                            "value": "0173-1#02-AAW338#001"
+                        }
+                    ]
+                },
+                "value": [
+                    {
+                        "language": "de",
+                        "text": "Pipe"
+                    }
+                ]
+            },
+            {
+                "idShort": "Address",
+                "modelType": "SubmodelElementCollection",
+                "semanticId": {
+                    "type": "ExternalReference",
+                    "keys": [
+                        {
+                            "type": "GlobalReference",
+                            "value": "0173-1#02-AAQ832#005"
+                        }
+                    ]
+                },
+                "value": [
+                    {
+                        "idShort": "Street",
+                        "modelType": "MultiLanguageProperty",
+                        "semanticId": {
+                            "type": "ExternalReference",
+                            "keys": [
+                                {
+                                    "type": "GlobalReference",
+                                    "value": "0173-1#02-AAO128#002"
+                                }
+                            ]
+                        },
+                        "value": [
+                            {
+                                "language": "de",
+                                "text": "Turmstra\u00dfe 46"
+                            }
+                        ]
+                    },
+                    {
+                        "idShort": "Zipcode",
+                        "modelType": "MultiLanguageProperty",
+                        "semanticId": {
+                            "type": "ExternalReference",
+                            "keys": [
+                                {
+                                    "type": "GlobalReference",
+                                    "value": "0173-1#02-AAO129#002"
+                                }
+                            ]
+                        },
+                        "value": [
+                            {
+                                "language": "de",
+                                "text": "52064"
+                            }
+                        ]
+                    },
+                    {
+                        "idShort": "CityTown",
+                        "modelType": "MultiLanguageProperty",
+                        "semanticId": {
+                            "type": "ExternalReference",
+                            "keys": [
+                                {
+                                    "type": "GlobalReference",
+                                    "value": "0173-1#02-AAO132#002"
+                                }
+                            ]
+                        },
+                        "value": [
+                            {
+                                "language": "de",
+                                "text": "Aachen"
+                            }
+                        ]
+                    },
+                    {
+                        "idShort": "NationalCode",
+                        "modelType": "MultiLanguageProperty",
+                        "semanticId": {
+                            "type": "ExternalReference",
+                            "keys": [
+                                {
+                                    "type": "GlobalReference",
+                                    "value": "0173-1#02-AAO132#002"
+                                }
+                            ]
+                        },
+                        "value": [
+                            {
+                                "language": "de",
+                                "text": "DE"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "idShort": "ManufacturerProductFamily",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "2. Ebene einer 3 stufigen herstellerspezifischen Produkthierarchie"
+                    },
+                    {
+                        "language": "en",
+                        "text": "2nd level of a 3 level manufacturer specific product hierarchy"
+                    }
+                ],
+                "modelType": "MultiLanguageProperty",
+                "semanticId": {
+                    "type": "ExternalReference",
+                    "keys": [
+                        {
+                            "type": "GlobalReference",
+                            "value": "0173-1#02-AAU731#001"
+                        }
+                    ]
+                },
+                "value": [
+                    {
+                        "language": "de",
+                        "text": "Pipe"
+                    }
+                ]
+            },
+            {
+                "idShort": "YearOfConstruction",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "Jahreszahl als Datumsangabe f\u00fcr die Fertigstellung des Objektes"
+                    },
+                    {
+                        "language": "en",
+                        "text": "Year as completion date of object"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ExternalReference",
+                    "keys": [
+                        {
+                            "type": "GlobalReference",
+                            "value": "0173-1#02-AAP906#001"
+                        }
+                    ]
+                },
+                "value": "unkown",
+                "valueType": "xs:string"
+            }
+        ]
+    }
+}

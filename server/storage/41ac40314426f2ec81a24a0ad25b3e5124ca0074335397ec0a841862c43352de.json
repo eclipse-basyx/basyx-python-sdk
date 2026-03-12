@@ -1,0 +1,10 @@
+{
+    "data": {
+        "modelType": "AssetAdministrationShell",
+        "id": "http://acplt.org/Test_Asset",
+        "assetInformation": {
+            "assetKind": "Instance",
+            "globalAssetId": "http://acplt.org/Test_Asset"
+        }
+    }
+}

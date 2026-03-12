@@ -1,0 +1,309 @@
+{
+    "data": {
+        "idShort": "TechnicalData",
+        "modelType": "Submodel",
+        "id": "https://www.iat.rwth-aachen.de/pls-lab/pumping_station/TU10/N13_Motor/TechnicalData",
+        "submodelElements": [
+            {
+                "idShort": "Output_Power",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "vom Hersteller f\u00fcr das Betriebsmittel bemessene Leistung bei angegebenen Betriebsbedingungen"
+                    },
+                    {
+                        "language": "en",
+                        "text": "power of the output terminal of an electric circuit"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-AAF725#002"
+                        }
+                    ]
+                },
+                "value": "0.37",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "Power_factor_cos_phi",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "Verh\u00e4ltnis vom Betrag der Wirkleistung zur Scheinleistung"
+                    },
+                    {
+                        "language": "en",
+                        "text": "Relation of the amount of the active power to the false performance"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-AAN420#001"
+                        }
+                    ]
+                },
+                "value": "0.96",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "Degree_of_Protection",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "Umfang des Schutzes durch ein Geh\u00e4use gegen den Zugang zu gef\u00e4hrlichen Teilen, gegen das Eindringen von festen Fremdk\u00f6rpern und gegen das Eindringen von Wasser"
+                    },
+                    {
+                        "language": "en",
+                        "text": "extent of protection provided by an enclosure against access to hazardous parts, against ingress of solid foreign objects and against ingress of water"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-AAV695#001"
+                        }
+                    ]
+                },
+                "value": "IP55",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "max_resistance_to_a_continuous_temperature",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "maximaler Wert der Temperatur, der ein Bauteil dauerhaft ausgesetzt werden kann, ohne seine charakteristischen Eigenschaften zu verlieren"
+                    },
+                    {
+                        "language": "en",
+                        "text": "maximum value of the temperature which a component may be suspended permanently without losing its characteristic properties"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-AAI476#003"
+                        }
+                    ]
+                },
+                "value": "155",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "Power_frequency",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "Anzahl der Schwingungen des Stromes im Netz pro Zeiteinheit, in Hertz (Hz) gemessen"
+                    },
+                    {
+                        "language": "en",
+                        "text": "Number of oscillations of the current in the network per time unit, measured in Hertz (Hz)"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-BAC859#003"
+                        }
+                    ]
+                },
+                "value": "50/60",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "max_input_current_with_AC_50_Hz",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "gr\u00f6\u00dftm\u00f6glicher Wert f\u00fcr den Wechselstrom mit 50 Hz, der bei angesteuertem Eingang eingespeist/aufgenommen wird"
+                    },
+                    {
+                        "language": "en",
+                        "text": "Maximum value of alternating current (50 Hz) that is fed in/taken up with a controlled input"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-AAB849#007"
+                        }
+                    ]
+                },
+                "value": "02. Jul",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "max_input_current_with_AC_60_Hz",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "gr\u00f6\u00dftm\u00f6glicher Wert f\u00fcr den Wechselstrom mit 60 Hz, der bei angesteuertem Eingang eingespeist/aufgenommen wird"
+                    },
+                    {
+                        "language": "en",
+                        "text": "Maximum value of alternating current (60 Hz) that is fed in/taken up with a controlled input"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-AAB850#007"
+                        }
+                    ]
+                },
+                "value": "02. Mai",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "max_rated_supply_voltage_with_AC",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "vom Hersteller angegebener gr\u00f6\u00dftm\u00f6glicher Wert der erforderlichen Wechselspannung als elektromotorische Kraft, die am Versorgungseingang eines elektrischen Betriebsmittel zeitweise oder st\u00e4ndig anliegen muss, um die Funktion des Betriebsmittels aufrecht zu erhalten"
+                    },
+                    {
+                        "language": "en",
+                        "text": "Maximum value stipulated by the manufacturer of the required electric motor driven alternating voltage which must be temporarily or permanently applied to the supply input of an operating unit to maintain its function"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-AAB831#008"
+                        }
+                    ]
+                },
+                "value": "240",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "min_rated_supply_voltage_with_AC",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "vom Hersteller angegebener kleinstm\u00f6glicher Wert der erforderlichen Wechselspannung mit als elektromotorische Kraft, die am Versorgungseingang eines elektrischen Betriebsmittel zeitweise oder st\u00e4ndig anliegen muss, um die Funktion des Betriebsmittels aufrecht zu erhalten"
+                    },
+                    {
+                        "language": "en",
+                        "text": "Minimum value stipulated by the manufacturer of the required electric motor driven alternating voltage which must be temporarily or permanently applied to the supply input of an operating unit to maintain its function"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-AAB965#008"
+                        }
+                    ]
+                },
+                "value": "220",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "max_rotation_speed",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "gibt die maximale Motordrehzahl an"
+                    },
+                    {
+                        "language": "en",
+                        "text": "indicates the maxmium motor rotation"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-AAR636#004"
+                        }
+                    ]
+                },
+                "value": "2840",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "min_rotation_speed",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "Angabe zur minimalen Drehzahl"
+                    },
+                    {
+                        "language": "en",
+                        "text": "description of minimum speed"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-AAR637#003"
+                        }
+                    ]
+                },
+                "value": "360",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "Pitch_circle_diameter_of_stator_coupling",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "Angabe des Durchmesser f\u00fcr die Befestigung der Drehmomentst\u00fctze"
+                    },
+                    {
+                        "language": "en",
+                        "text": "specifies the diameter for mounting the stator coupling"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-AAZ253#001"
+                        }
+                    ]
+                },
+                "value": "85",
+                "valueType": "xs:string"
+            }
+        ]
+    }
+}

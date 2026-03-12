@@ -1,0 +1,334 @@
+{
+    "data": {
+        "idShort": "TechnicalData",
+        "modelType": "Submodel",
+        "id": "https://www.iat.rwth-aachen.de/pls-lab/pumping_station/TU30/L35/TechnicalData",
+        "submodelElements": [
+            {
+                "idShort": "Type_of_output_signal",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "Signal am Ausgang des jeweils betrachteten Teiles des Informationsverarbeitungssystems oder des Informations\u00fcbertragungssystems"
+                    },
+                    {
+                        "language": "en",
+                        "text": "Signal at output of the information processing or transmission system part under consideration"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-BAA006#006"
+                        }
+                    ]
+                },
+                "value": "4...20mA/HART",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "min_process_temperature",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "kleinster Grenzwert der Temperatur des Messmediums, von dem innere Parameter (z.B. Leitf\u00e4higkeit, pH-Wert, Redox-Wert, Sauerstoff-Konzentration) oder \u00e4u\u00dfere Parameter (z.B. F\u00fcllstand, Dichte) erfasst werden"
+                    },
+                    {
+                        "language": "en",
+                        "text": "Minimum limit value of temperature medium from which internal parameters (i.e. conductivity, pH value, redox value, oxygen concentration) or external parameters (i.e. filling level, density) are detected"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-AAC020#007"
+                        }
+                    ]
+                },
+                "value": "-40",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "max_process_temperature",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "gr\u00f6\u00dfter Grenzwert der Temperatur des Messmediums, von dem innere Parameter (z.B. Leitf\u00e4higkeit, pH-Wert, Redox-Wert, Sauerstoff-Konzentration) oder \u00e4u\u00dfere Parameter (z.B. F\u00fcllstand, Dichte) erfasst werden"
+                    },
+                    {
+                        "language": "en",
+                        "text": "Maximum limit value of temperature medium from which internal parameters (i.e. conductivity, pH value, redox value, oxygen concentration) or external parameters (i.e. filling level, density) are detected"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-AAB904#006"
+                        }
+                    ]
+                },
+                "value": "150",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "min_ambient_temperature",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "Die maximal zul\u00e4ssige Temperatur im \u00e4u\u00dferen Umfeld des Betriebsmittels"
+                    },
+                    {
+                        "language": "en",
+                        "text": "The maximum permissible temperature in the external environment of the operating resource"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-BAE585#006"
+                        }
+                    ]
+                },
+                "value": "-40",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "max_ambient_temperature",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "kleinster Grenzwert der w\u00e4hrend des Aktiv-seins bestimmten Temperatur der das Betriebsmittel umgebenden Atmosph\u00e4re"
+                    },
+                    {
+                        "language": "en",
+                        "text": "Minimum limit value of specific temperature during operation surrounding the operating unit"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-AAC022#006"
+                        }
+                    ]
+                },
+                "value": "80",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "min_storage_temperature",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "minimal zul\u00e4ssige Lagertemperatur des Betriebsmittels"
+                    },
+                    {
+                        "language": "en",
+                        "text": "minimum permissible temperature of the operating resource during storage"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-ABA653#001"
+                        }
+                    ]
+                },
+                "value": "-40",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "max_storage_temperature",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "maximal zul\u00e4ssige Lagertemperatur des Betriebsmittels"
+                    },
+                    {
+                        "language": "en",
+                        "text": "maximum permissible temperature of the operating resource during storage"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-ABA654#001"
+                        }
+                    ]
+                },
+                "value": "80",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "Power_supply",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "Versorgung von Ger\u00e4ten oder Anlagen mit gesonderter, zus\u00e4tzlicher Stromzuf\u00fchrung"
+                    },
+                    {
+                        "language": "en",
+                        "text": "supply of devices or systems with separate, additional power supply"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-AAZ002#001"
+                        }
+                    ]
+                },
+                "value": "12...36",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "Min_process_pressure",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "kleinster Absolutwert des die Mess- oder Stelleinrichtung ber\u00fchrenden Druckes, mit dem die Mess- oder Stelleinrichtung ohne bleibende Ver\u00e4nderungen ihrer technischen Eigenschaften betrieben werden darf"
+                    },
+                    {
+                        "language": "en",
+                        "text": "for given measurement or final control equipment, the least absolute value of the pressure which affects them and under which they can be operated without permanent changes in their technical characteristics"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-AAY641#001"
+                        }
+                    ]
+                },
+                "value": "-1",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "Max_process_pressure",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "gr\u00f6\u00dfter Absolutwert des auf die Mess- oder Stelleinrichtung einwirkenden Drucks, mit dem die Mess- oder Stelleinrichtung ohne bleibende Ver\u00e4nderungen ihrer technischen Eigenschaften betrieben werden darf"
+                    },
+                    {
+                        "language": "en",
+                        "text": "for given measurement or final control equipment, the greatest absolute value of the pressure under which they can be operated without permanent changes in their technical characteristics"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-AAY820#001"
+                        }
+                    ]
+                },
+                "value": "40",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "Degree_of_Protection",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "Umfang des Schutzes durch ein Geh\u00e4use gegen den Zugang zu gef\u00e4hrlichen Teilen, gegen das Eindringen von festen Fremdk\u00f6rpern und gegen das Eindringen von Wasser"
+                    },
+                    {
+                        "language": "en",
+                        "text": "extent of protection provided by an enclosure against access to hazardous parts, against ingress of solid foreign objects and against ingress of water"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-AAV695#001"
+                        }
+                    ]
+                },
+                "value": "IP66/67",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "Accuracy_of_the_measuring_instrument",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "Ausma\u00df der Ann\u00e4herung zwischen einem Ermittlungsergebnis und dem anerkannten Bezugswert"
+                    },
+                    {
+                        "language": "en",
+                        "text": "degree of approximation between a result of determination and the approved reference value"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-AAH809#004"
+                        }
+                    ]
+                },
+                "value": "\u00b18",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "length",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "Angabe zur physikalische Ausdehnung eines Produktes"
+                    },
+                    {
+                        "language": "en",
+                        "text": "information on the physical dimension of a product"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-AAG779#003"
+                        }
+                    ]
+                },
+                "value": "300",
+                "valueType": "xs:string"
+            }
+        ]
+    }
+}

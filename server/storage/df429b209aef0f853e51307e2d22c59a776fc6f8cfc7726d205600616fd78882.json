@@ -1,0 +1,70 @@
+{
+    "data": {
+        "idShort": "ThemeSettings",
+        "modelType": "Submodel",
+        "id": "https://repodomainurl.com/sm/VGhlbWVTZXR0aW5ncw/1/0",
+        "administration": {
+            "version": "1",
+            "revision": "0"
+        },
+        "semanticId": {
+            "type": "ExternalReference",
+            "keys": [
+                {
+                    "type": "GlobalReference",
+                    "value": "https://mnestix.com/sm/ThemeSettings/1/0"
+                }
+            ]
+        },
+        "submodelElements": [
+            {
+                "idShort": "Base64Logo",
+                "category": "PARAMETER",
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ExternalReference",
+                    "keys": [
+                        {
+                            "type": "GlobalReference",
+                            "value": "https://mnestix.com/sm/ThemeSettings/Base64Logo/1/0"
+                        }
+                    ]
+                },
+                "value": "data:image/svg+xml;base64,PHN2ZyBpZD0iRWJlbmVfMSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxuczp4bGluaz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94bGluayIgeD0iMHB4IiB5PSIwcHgiIHZpZXdCb3g9IjAgMCA0MTkuMTEgMTA1LjIxIiB4bWw6c3BhY2U9InByZXNlcnZlIiBjb2xvcj0iI2ZmZiIgY2xhc3M9InNjLWZVbk1DaCBpS2tGWk0iPjxzdHlsZSB0eXBlPSJ0ZXh0L2NzcyI+DQoJLnN0MHtmaWxsOiNGRkZGRkY7fQ0KPC9zdHlsZT48Zz48cGF0aCBjbGFzcz0ic3QwIiBkPSJNMjMuMzYsNTkuMzFMMTEuODQsNzYuNzhIMGwxNy44LTI1LjQ1TDEuODMsMjguMjloMTIuMDRsMTAuNCwxNC45Mmw5LjgxLTE0LjkyaDExLjg0TDI5Ljc3LDUxLjEzTDQ3LjcsNzYuNzggSDM1LjUzTDIzLjM2LDU5LjMxeiIvPjxwYXRoIGNsYXNzPSJzdDAiIGQ9Ik01Ny42OCwyOC4yOWgxMC42N3Y0OC40OEg1Ny42OFYyOC4yOXoiLz48cGF0aCBjbGFzcz0ic3QwIiBkPSJNOTQuNjMsMzcuOThINzcuODF2LTkuNjhoNDQuMzZ2OS42OGgtMTYuNzV2MzguOGgtMTAuOFYzNy45OHoiLz48cGF0aCBjbGFzcz0ic3QwIiBkPSJNMTc3LjEsNzEuMTVsNS4zNi03LjcyYzUuMTcsMy40NywxMS4xOSw1LjE3LDE3LjQsNS4xN2M5LjQ5LDAsMTEuMjYtMS44MywxMS4yNi01Ljg5IGMwLTMuOTktNC4wNi00Ljc4LTExLjUyLTUuODJjLTEyLjk2LTEuODMtMTkuNy00LjE5LTE5LjctMTQuNzJjMC0xMC44LDYuNTQtMTQuNjUsMjAuMjItMTQuNjVjOS44OCwwLDE1LjksMi4yOSwxOS42Myw0Ljc4IGwtNS43Niw4LjMxYy0zLjA3LTIuMDMtOC43Ny0zLjczLTE0LTMuNzNjLTcuNTksMC05LjQyLDEuNS05LjQyLDUuMDNjMCwzLjkzLDMuOTksNC42NSwxMS43MSw1Ljc2IGMxMS42NSwxLjcsMTkuNDMsMy42LDE5LjQzLDE0LjUyYzAsOS44MS01LjM3LDE1LjMxLTIxLjUzLDE1LjMxQzE5MC41OCw3Ny41LDE4Mi42LDc1LjIxLDE3Ny4xLDcxLjE1eiIvPjxwYXRoIGNsYXNzPSJzdDAiIGQ9Ik0yMzAuMTYsNTIuNWMwLTE4LjE5LDEwLjIxLTI0Ljk5LDI1LjY1LTI0Ljk5YzE1LjQ0LDAsMjUuNzEsNi44LDI1LjcxLDI0Ljk5YzAsMTguMjUtMTAuMjcsMjUuMDYtMjUuNzEsMjUuMDYgQzI0MC4zOCw3Ny41NiwyMzAuMTYsNzAuNzYsMjMwLjE2LDUyLjV6IE0yNzAuNjcsNTIuN2MwLTkuNDktMy43My0xNS4zOC0xNC44NS0xNS4zOGMtMTEuMTIsMC0xNC44NSw1Ljg5LTE0Ljg1LDE1LjM4IGMwLDkuNDksMy43MywxNS40NCwxNC44NSwxNS40NEMyNjYuOTQsNjguMTQsMjcwLjY3LDYyLjE4LDI3MC42Nyw1Mi43eiIvPjxwb2x5Z29uIGNsYXNzPSJzdDAiIHBvaW50cz0iMTUxLjg0LDI3Ljk3IDE0MC45NywyNy45NyAxMjEuNTQsNzYuNzggMTMyLjAxLDc2Ljc4IDE0Ni4xNCw0MC42NiAxNTMuNzMsNTkuOTYgMTQ0LjgzLDU5Ljk2ICAxNDEuMzcsNjguNzkgMTU3LjEzLDY4Ljc5IDE2MC4yOCw3Ni43OCAxNzEuNCw3Ni43OCAgIi8+PC9nPjxyZWN0IHg9IjM5MS45NiIgeT0iNTIuODEiIHRyYW5zZm9ybT0ibWF0cml4KDAuNzA2OCAtMC43MDc0IDAuNzA3NCAwLjcwNjggNjQuMjIzMiAzMDAuNjM5NSkiIGNsYXNzPSJzdDAiIHdpZHRoPSI1LjcyIiBoZWlnaHQ9IjQwLjA0Ii8+PHJlY3QgeD0iMzgzLjg3IiB5PSI2MC45MSIgdHJhbnNmb3JtPSJtYXRyaXgoMC43MDcyIC0wLjcwNyAwLjcwNyAwLjcwNzIgNTYuMDEyNiAyOTcuMTE4NSkiIGNsYXNzPSJzdDAiIHdpZHRoPSI1LjcyIiBoZWlnaHQ9IjQwLjA0Ii8+PHJlY3QgeD0iMzY2LjcxIiB5PSIyMS40MiIgdHJhbnNmb3JtPSJtYXRyaXgoMC43MDcxIC0wLjcwNzIgMC43MDcyIDAuNzA3MSA5Ni4xMTgzIDI4MC41ODc4KSIgY2xhc3M9InN0MCIgd2lkdGg9IjQwLjA0IiBoZWlnaHQ9IjUuNzMiLz48cG9seWdvbiBjbGFzcz0ic3QwIiBwb2ludHM9IjM5MC43NiwwIDM2Ni41LDI0LjI3IDM0Mi4yMywwIDMzOC4xOCw0LjA1IDM2Ni41LDMyLjM2IDM5NC44MSw0LjA1ICIvPjxyZWN0IHg9IjM3NC44MSIgeT0iMjkuNTEiIHRyYW5zZm9ybT0ibWF0cml4KDAuNzA3NCAtMC43MDY4IDAuNzA2OCAwLjcwNzQgOTIuNjM3OCAyODguNTM3NCkiIGNsYXNzPSJzdDAiIHdpZHRoPSI0MC4wNCIgaGVpZ2h0PSI1LjcyIi8+PHBvbHlnb24gY2xhc3M9InN0MCIgcG9pbnRzPSIzOTQuODQsNTIuNjEgNDE5LjExLDI4LjM0IDQxNS4wNiwyNC4yOSAzODYuNzQsNTIuNjEgNDE1LjA2LDgwLjkyIDQxOS4xMSw3Ni44NyAiLz48cG9seWdvbiBjbGFzcz0ic3QwIiBwb2ludHM9IjMxNy45NCwyNC4yOSAzMTMuODksMjguMzQgMzM4LjE2LDUyLjYxIDMxMy44OSw3Ni44NyAzMTcuOTQsODAuOTIgMzQ2LjI1LDUyLjYxICIvPjxwb2x5Z29uIGNsYXNzPSJzdDAiIHBvaW50cz0iMzMwLjA5LDEyLjE1IDMyNi4wNCwxNi4xOSAzNjIuNDUsNTIuNjEgMzI2LjA0LDg5LjAyIDMzMC4wOSw5My4wNyAzNzAuNTUsNTIuNjEgIi8+PHBvbHlnb24gY2xhc3M9InN0MCIgcG9pbnRzPSIzOTQuODEsMTAxLjE3IDM2Ni41LDcyLjg1IDMzOC4xOCwxMDEuMTcgMzQyLjIzLDEwNS4yMSAzNjYuNSw4MC45NSAzOTAuNzYsMTA1LjIxICIvPjwvc3ZnPg==",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "PrimaryColor",
+                "category": "PARAMETER",
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ExternalReference",
+                    "keys": [
+                        {
+                            "type": "GlobalReference",
+                            "value": "https://mnestix.com/sm/ThemeSettings/PrimaryColor/1/0"
+                        }
+                    ]
+                },
+                "value": "#0d4453",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "SecondaryColor",
+                "category": "PARAMETER",
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ExternalReference",
+                    "keys": [
+                        {
+                            "type": "GlobalReference",
+                            "value": "https://mnestix.com/sm/ThemeSettings/SecondaryColor/1/0"
+                        }
+                    ]
+                },
+                "value": "#147f8a",
+                "valueType": "xs:string"
+            }
+        ]
+    }
+}

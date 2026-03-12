@@ -1,0 +1,495 @@
+{
+    "data": {
+        "idShort": "IdGenerationSettings",
+        "modelType": "Submodel",
+        "id": "https://repodomainurl.com/sm/B461C6ED32214933B8B6CE569C8F0A03/1/0",
+        "administration": {
+            "version": "1",
+            "revision": "0"
+        },
+        "semanticId": {
+            "type": "ExternalReference",
+            "keys": [
+                {
+                    "type": "GlobalReference",
+                    "value": "https://mnestix.com/sm/IdGenerationSettings/1/0"
+                }
+            ]
+        },
+        "submodelElements": [
+            {
+                "idShort": "AssetIDShort",
+                "modelType": "SubmodelElementCollection",
+                "semanticId": {
+                    "type": "ExternalReference",
+                    "keys": [
+                        {
+                            "type": "GlobalReference",
+                            "value": "https://mnestix.com/sm/IdGenerationSettings/AssetIDShort/1/0"
+                        }
+                    ]
+                },
+                "qualifiers": [
+                    {
+                        "semanticId": {
+                            "type": "ExternalReference",
+                            "keys": [
+                                {
+                                    "type": "GlobalReference",
+                                    "value": "https://admin-shell.io/SubmodelTemplates/IdType/1/0"
+                                }
+                            ]
+                        },
+                        "value": "string",
+                        "kind": "TemplateQualifier",
+                        "valueType": "xs:string",
+                        "type": "SMT/IdType"
+                    }
+                ],
+                "value": [
+                    {
+                        "idShort": "Prefix",
+                        "category": "PARAMETER",
+                        "modelType": "Property",
+                        "semanticId": {
+                            "type": "ExternalReference",
+                            "keys": [
+                                {
+                                    "type": "GlobalReference",
+                                    "value": "https://mnestix.com/sm/IdGenerationSettings/AssetIdShortPrefix/1/0"
+                                }
+                            ]
+                        },
+                        "value": "example",
+                        "valueType": "xs:string"
+                    },
+                    {
+                        "idShort": "DynamicPart",
+                        "category": "VARIABLE",
+                        "modelType": "Property",
+                        "semanticId": {
+                            "type": "ExternalReference",
+                            "keys": [
+                                {
+                                    "type": "GlobalReference",
+                                    "value": "https://mnestix.com/sm/IdGenerationSettings/AssetIdShortDynamicPart/1/0"
+                                }
+                            ]
+                        },
+                        "qualifiers": [
+                            {
+                                "semanticId": {
+                                    "type": "ExternalReference",
+                                    "keys": [
+                                        {
+                                            "type": "GlobalReference",
+                                            "value": "https://admin-shell.io/SubmodelTemplates/AllowedValue/1/0"
+                                        }
+                                    ]
+                                },
+                                "value": "(AssetIdShort)",
+                                "kind": "TemplateQualifier",
+                                "valueType": "xs:string",
+                                "type": "SMT/AllowedValue"
+                            }
+                        ],
+                        "value": "AssetIdShort",
+                        "valueType": "xs:string"
+                    }
+                ]
+            },
+            {
+                "idShort": "AASIDShort",
+                "modelType": "SubmodelElementCollection",
+                "semanticId": {
+                    "type": "ExternalReference",
+                    "keys": [
+                        {
+                            "type": "GlobalReference",
+                            "value": "https://mnestix.com/sm/IdGenerationSettings/AasIdShort/1/0"
+                        }
+                    ]
+                },
+                "qualifiers": [
+                    {
+                        "semanticId": {
+                            "type": "ExternalReference",
+                            "keys": [
+                                {
+                                    "type": "GlobalReference",
+                                    "value": "https://admin-shell.io/SubmodelTemplates/IdType/1/0"
+                                }
+                            ]
+                        },
+                        "value": "string",
+                        "kind": "TemplateQualifier",
+                        "valueType": "xs:string",
+                        "type": "SMT/IdType"
+                    }
+                ],
+                "value": [
+                    {
+                        "idShort": "Prefix",
+                        "category": "PARAMETER",
+                        "modelType": "Property",
+                        "semanticId": {
+                            "type": "ExternalReference",
+                            "keys": [
+                                {
+                                    "type": "GlobalReference",
+                                    "value": "https://mnestix.com/sm/IdGenerationSettings/AasIdShortPrefix/1/0"
+                                }
+                            ]
+                        },
+                        "qualifiers": [
+                            {
+                                "semanticId": {
+                                    "type": "ExternalReference",
+                                    "keys": [
+                                        {
+                                            "type": "GlobalReference",
+                                            "value": "https://admin-shell.io/SubmodelTemplates/ExampleValue/1/0"
+                                        }
+                                    ]
+                                },
+                                "value": "aas_",
+                                "kind": "TemplateQualifier",
+                                "valueType": "xs:string",
+                                "type": "SMT/ExampleValue"
+                            }
+                        ],
+                        "value": "aas_",
+                        "valueType": "xs:string"
+                    },
+                    {
+                        "idShort": "DynamicPart",
+                        "category": "VARIABLE",
+                        "modelType": "Property",
+                        "semanticId": {
+                            "type": "ExternalReference",
+                            "keys": [
+                                {
+                                    "type": "GlobalReference",
+                                    "value": "https://mnestix.com/sm/IdGenerationSettings/AasIdShortDynamicPart/1/0"
+                                }
+                            ]
+                        },
+                        "qualifiers": [
+                            {
+                                "semanticId": {
+                                    "type": "ExternalReference",
+                                    "keys": [
+                                        {
+                                            "type": "GlobalReference",
+                                            "value": "https://admin-shell.io/SubmodelTemplates/AllowedValue/1/0"
+                                        }
+                                    ]
+                                },
+                                "value": "(GUID|AssetIdShort)",
+                                "kind": "TemplateQualifier",
+                                "valueType": "xs:string",
+                                "type": "SMT/AllowedValue"
+                            }
+                        ],
+                        "value": "AssetIdShort",
+                        "valueType": "xs:string"
+                    }
+                ]
+            },
+            {
+                "idShort": "AASID",
+                "modelType": "SubmodelElementCollection",
+                "semanticId": {
+                    "type": "ExternalReference",
+                    "keys": [
+                        {
+                            "type": "GlobalReference",
+                            "value": "https://mnestix.com/sm/IdGenerationSettings/AasId/1/0"
+                        }
+                    ]
+                },
+                "qualifiers": [
+                    {
+                        "semanticId": {
+                            "type": "ExternalReference",
+                            "keys": [
+                                {
+                                    "type": "GlobalReference",
+                                    "value": "https://admin-shell.io/SubmodelTemplates/IdType/1/0"
+                                }
+                            ]
+                        },
+                        "value": "IRI",
+                        "kind": "TemplateQualifier",
+                        "valueType": "xs:string",
+                        "type": "SMT/IdType"
+                    }
+                ],
+                "value": [
+                    {
+                        "idShort": "Prefix",
+                        "category": "PARAMETER",
+                        "modelType": "Property",
+                        "semanticId": {
+                            "type": "ExternalReference",
+                            "keys": [
+                                {
+                                    "type": "GlobalReference",
+                                    "value": "https://mnestix.com/sm/IdGenerationSettings/AasIdPrefix/1/0"
+                                }
+                            ]
+                        },
+                        "qualifiers": [
+                            {
+                                "semanticId": {
+                                    "type": "ExternalReference",
+                                    "keys": [
+                                        {
+                                            "type": "GlobalReference",
+                                            "value": "https://admin-shell.io/SubmodelTemplates/ExampleValue/1/0"
+                                        }
+                                    ]
+                                },
+                                "value": "https://example.com/aas/",
+                                "kind": "TemplateQualifier",
+                                "valueType": "xs:string",
+                                "type": "SMT/ExampleValue"
+                            }
+                        ],
+                        "value": "https://i40.xitaso.com/aas/",
+                        "valueType": "xs:string"
+                    },
+                    {
+                        "idShort": "DynamicPart",
+                        "category": "VARIABLE",
+                        "modelType": "Property",
+                        "semanticId": {
+                            "type": "ExternalReference",
+                            "keys": [
+                                {
+                                    "type": "GlobalReference",
+                                    "value": "https://mnestix.com/sm/IdGenerationSettings/AasIdDynamicPart/1/0"
+                                }
+                            ]
+                        },
+                        "qualifiers": [
+                            {
+                                "semanticId": {
+                                    "type": "ExternalReference",
+                                    "keys": [
+                                        {
+                                            "type": "GlobalReference",
+                                            "value": "https://admin-shell.io/SubmodelTemplates/AllowedValue/1/0"
+                                        }
+                                    ]
+                                },
+                                "value": "(GUID|AssetIdShort|AASIdShort)",
+                                "kind": "TemplateQualifier",
+                                "valueType": "xs:string",
+                                "type": "SMT/AllowedValue"
+                            }
+                        ],
+                        "value": "AssetIdShort",
+                        "valueType": "xs:string"
+                    }
+                ]
+            },
+            {
+                "idShort": "AssetID",
+                "modelType": "SubmodelElementCollection",
+                "semanticId": {
+                    "type": "ExternalReference",
+                    "keys": [
+                        {
+                            "type": "GlobalReference",
+                            "value": "https://mnestix.com/sm/IdGenerationSettings/AssetId/1/0"
+                        }
+                    ]
+                },
+                "qualifiers": [
+                    {
+                        "semanticId": {
+                            "type": "ExternalReference",
+                            "keys": [
+                                {
+                                    "type": "GlobalReference",
+                                    "value": "https://admin-shell.io/SubmodelTemplates/IdType/1/0"
+                                }
+                            ]
+                        },
+                        "value": "IRI",
+                        "kind": "TemplateQualifier",
+                        "valueType": "xs:string",
+                        "type": "SMT/IdType"
+                    }
+                ],
+                "value": [
+                    {
+                        "idShort": "Prefix",
+                        "category": "PARAMETER",
+                        "modelType": "Property",
+                        "semanticId": {
+                            "type": "ExternalReference",
+                            "keys": [
+                                {
+                                    "type": "GlobalReference",
+                                    "value": "https://mnestix.com/sm/IdGenerationSettings/AssetIdPrefix/1/0"
+                                }
+                            ]
+                        },
+                        "qualifiers": [
+                            {
+                                "semanticId": {
+                                    "type": "ExternalReference",
+                                    "keys": [
+                                        {
+                                            "type": "GlobalReference",
+                                            "value": "https://admin-shell.io/SubmodelTemplates/ExampleValue/1/0"
+                                        }
+                                    ]
+                                },
+                                "value": "https://example.com/",
+                                "kind": "TemplateQualifier",
+                                "valueType": "xs:string",
+                                "type": "SMT/ExampleValue"
+                            }
+                        ],
+                        "value": "https://i40.xitaso.com/",
+                        "valueType": "xs:string"
+                    },
+                    {
+                        "idShort": "DynamicPart",
+                        "category": "VARIABLE",
+                        "modelType": "Property",
+                        "semanticId": {
+                            "type": "ExternalReference",
+                            "keys": [
+                                {
+                                    "type": "GlobalReference",
+                                    "value": "https://mnestix.com/sm/IdGenerationSettings/AssetIdDynamicPart/1/0"
+                                }
+                            ]
+                        },
+                        "qualifiers": [
+                            {
+                                "semanticId": {
+                                    "type": "ExternalReference",
+                                    "keys": [
+                                        {
+                                            "type": "GlobalReference",
+                                            "value": "https://admin-shell.io/SubmodelTemplates/AllowedValue/1/0"
+                                        }
+                                    ]
+                                },
+                                "value": "(GUID|AssetIdShort)",
+                                "kind": "TemplateQualifier",
+                                "valueType": "xs:string",
+                                "type": "SMT/AllowedValue"
+                            }
+                        ],
+                        "value": "AssetIdShort",
+                        "valueType": "xs:string"
+                    }
+                ]
+            },
+            {
+                "idShort": "SubmodelID",
+                "modelType": "SubmodelElementCollection",
+                "semanticId": {
+                    "type": "ExternalReference",
+                    "keys": [
+                        {
+                            "type": "GlobalReference",
+                            "value": "https://mnestix.com/sm/IdGenerationSettings/SubmodelId/1/0"
+                        }
+                    ]
+                },
+                "qualifiers": [
+                    {
+                        "semanticId": {
+                            "type": "ExternalReference",
+                            "keys": [
+                                {
+                                    "type": "GlobalReference",
+                                    "value": "https://admin-shell.io/SubmodelTemplates/IdType/1/0"
+                                }
+                            ]
+                        },
+                        "value": "IRI",
+                        "kind": "TemplateQualifier",
+                        "valueType": "xs:string",
+                        "type": "SMT/IdType"
+                    }
+                ],
+                "value": [
+                    {
+                        "idShort": "Prefix",
+                        "category": "PARAMETER",
+                        "modelType": "Property",
+                        "semanticId": {
+                            "type": "ExternalReference",
+                            "keys": [
+                                {
+                                    "type": "GlobalReference",
+                                    "value": "https://mnestix.com/sm/IdGenerationSettings/SubmodelIdPrefix/1/0"
+                                }
+                            ]
+                        },
+                        "qualifiers": [
+                            {
+                                "semanticId": {
+                                    "type": "ExternalReference",
+                                    "keys": [
+                                        {
+                                            "type": "GlobalReference",
+                                            "value": "https://admin-shell.io/SubmodelTemplates/ExampleValue/1/0"
+                                        }
+                                    ]
+                                },
+                                "value": "https://example1234.com/sm/",
+                                "kind": "TemplateQualifier",
+                                "valueType": "xs:string",
+                                "type": "SMT/ExampleValue"
+                            }
+                        ],
+                        "value": "https://i40.xitaso.com/sm/",
+                        "valueType": "xs:string"
+                    },
+                    {
+                        "idShort": "DynamicPart",
+                        "category": "VARIABLE",
+                        "modelType": "Property",
+                        "semanticId": {
+                            "type": "ExternalReference",
+                            "keys": [
+                                {
+                                    "type": "GlobalReference",
+                                    "value": "https://mnestix.com/sm/IdGenerationSettings/SubmodelIdDynamicPart/1/0"
+                                }
+                            ]
+                        },
+                        "qualifiers": [
+                            {
+                                "semanticId": {
+                                    "type": "ExternalReference",
+                                    "keys": [
+                                        {
+                                            "type": "GlobalReference",
+                                            "value": "https://admin-shell.io/SubmodelTemplates/AllowedValue/1/0"
+                                        }
+                                    ]
+                                },
+                                "value": "(GUID)",
+                                "kind": "TemplateQualifier",
+                                "valueType": "xs:string",
+                                "type": "SMT/AllowedValue"
+                            }
+                        ],
+                        "value": "GUID",
+                        "valueType": "xs:string"
+                    }
+                ]
+            }
+        ]
+    }
+}

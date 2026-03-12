@@ -1,0 +1,134 @@
+{
+    "data": {
+        "idShort": "TechnicalData",
+        "modelType": "Submodel",
+        "id": "https://www.iat.rwth-aachen.de/pls-lab/pumping_station/TU30/Y39_Pneumatischer_Antrieb/TechnicalData",
+        "submodelElements": [
+            {
+                "idShort": "Mandrel_diameter",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "Distanz zwischen zwei Schnittpunkten einer Geraden durch den Mittelpunkt der Spindel mit deren Umfang"
+                    },
+                    {
+                        "language": "en",
+                        "text": "distance between two intersections of a straight line through the centre of the mandrel with its diameter"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-AAH895#003"
+                        }
+                    ]
+                },
+                "value": "50",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "Min_permissible_pressure",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "der bei der Festlegung der Anforderungen an die Berstscheibe bei einer zugeh\u00f6rigen Temperatur berechnete minimale Berstdruck"
+                    },
+                    {
+                        "language": "en",
+                        "text": "The minimum bursting pressure calculated when defining the requirements for the burst disc at a corresponding temperature:"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-BAI489#007"
+                        }
+                    ]
+                },
+                "value": "4",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "Max_operating_pressure",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "gr\u00f6\u00dfter Druck, der in einem System beim Betrieb (unter normalen Betriebsbedingungen) auftritt bzw. auftreten darf"
+                    },
+                    {
+                        "language": "en",
+                        "text": "Max. pressure which occurs or may occur in an operating system (under normal operating conditions)"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-AAB836#007"
+                        }
+                    ]
+                },
+                "value": "8",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "Min_ambient_temperature_during_operation",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "kleinster Grenzwert der w\u00e4hrend des Aktiv-seins bestimmten Temperatur der das Betriebsmittel umgebenden Atmosph\u00e4re"
+                    },
+                    {
+                        "language": "en",
+                        "text": "Minimum limit value of specific temperature during operation surrounding the operating unit"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-AAC022#006"
+                        }
+                    ]
+                },
+                "value": "-40",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "max_ambient_temperature_during_operation",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "gr\u00f6\u00dfter Grenzwert der w\u00e4hrend des Aktiv-seins bestimmten Temperatur der das Betriebsmittel umgebenden Atmosph\u00e4re"
+                    },
+                    {
+                        "language": "en",
+                        "text": "Maximum limit value of specific temperature during operation surrounding the operating unit"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-AAB906#006"
+                        }
+                    ]
+                },
+                "value": "90",
+                "valueType": "xs:string"
+            }
+        ]
+    }
+}

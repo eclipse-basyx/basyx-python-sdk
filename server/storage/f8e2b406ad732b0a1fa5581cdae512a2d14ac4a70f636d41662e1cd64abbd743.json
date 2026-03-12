@@ -1,0 +1,30 @@
+{
+    "data": {
+        "idShort": "aas_xNBLy1C",
+        "modelType": "AssetAdministrationShell",
+        "id": "https://wgrp.biz/aas/xNBLy1C",
+        "derivedFrom": {
+            "type": "ModelReference",
+            "keys": [
+                {
+                    "type": "AssetAdministrationShell",
+                    "value": "https://mnestix.com/aas/F11BF9F696A3454EBA0AA4503783F141"
+                }
+            ]
+        },
+        "assetInformation": {
+            "assetKind": "Instance",
+            "globalAssetId": "https://wgrp.biz/xNBLy1C",
+            "specificAssetIds": [
+                {
+                    "name": "assetIdShort",
+                    "value": "xNBLy1"
+                }
+            ],
+            "defaultThumbnail": {
+                "path": "https://wgrpproductdata.blob.core.windows.net/product-images/00H14DAP.png",
+                "contentType": "image/png"
+            }
+        }
+    }
+}

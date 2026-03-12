@@ -1,0 +1,209 @@
+{
+    "data": {
+        "idShort": "TechnicalData",
+        "modelType": "Submodel",
+        "id": "https://www.iat.rwth-aachen.de/pls-lab/pumping_station/TU10/T23/TechnicalData",
+        "submodelElements": [
+            {
+                "idShort": "Kommunikationsprotokoll",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "Regeln und Vereinbarungen damit Kommunikationspartner miteinander kommunizieren k\u00f6nnen"
+                    },
+                    {
+                        "language": "en",
+                        "text": "rules and agreements by that communication partner can interact with each other"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-AAW333#001"
+                        }
+                    ]
+                },
+                "value": "4 - 20 mA DC/ HART",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "min_Mediumstemperatur",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "kleinster Grenzwert der Temperatur des Messmediums, von dem innere Parameter (z.B. Leitf\u00e4higkeit, pH-Wert, Redox-Wert, Sauerstoff-Konzentration) oder \u00e4u\u00dfere Parameter (z.B. F\u00fcllstand, Dichte) erfasst werden"
+                    },
+                    {
+                        "language": "en",
+                        "text": "Minimum limit value of temperature medium from which internal parameters (i.e. conductivity, pH value, redox value, oxygen concentration) or external parameters (i.e. filling level, density) are detected"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-AAC020#007"
+                        }
+                    ]
+                },
+                "value": "-55\u00b0C",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "max_Mediumstemperatur",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "gr\u00f6\u00dfter Grenzwert der Temperatur des Messmediums, von dem innere Parameter (z.B. Leitf\u00e4higkeit, pH-Wert, Redox-Wert, Sauerstoff-Konzentration) oder \u00e4u\u00dfere Parameter (z.B. F\u00fcllstand, Dichte) erfasst werden"
+                    },
+                    {
+                        "language": "en",
+                        "text": "Maximum limit value of temperature medium from which internal parameters (i.e. conductivity, pH value, redox value, oxygen concentration) or external parameters (i.e. filling level, density) are detected"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-AAB904#006"
+                        }
+                    ]
+                },
+                "value": "600\u00b0C",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "min_Umgebungstemperatur",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "Die maximal zul\u00e4ssige Temperatur im \u00e4u\u00dferen Umfeld des Betriebsmittels"
+                    },
+                    {
+                        "language": "en",
+                        "text": "The maximum permissible temperature in the external environment of the operating resource"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-BAE585#006"
+                        }
+                    ]
+                },
+                "value": "-40\u00b0C",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "max_Umgebungstemperatur",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "kleinster Grenzwert der w\u00e4hrend des Aktiv-seins bestimmten Temperatur der das Betriebsmittel umgebenden Atmosph\u00e4re"
+                    },
+                    {
+                        "language": "en",
+                        "text": "Minimum limit value of specific temperature during operation surrounding the operating unit"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-AAC022#006"
+                        }
+                    ]
+                },
+                "value": "85\u00b0C",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "Spannungsversorgung",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "beschreibt die Quelle der elektrischen Energie, die das Objekt versorgt"
+                    },
+                    {
+                        "language": "en",
+                        "text": "describes the source of electrical energy that supplies the object"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-AAK788#003"
+                        }
+                    ]
+                },
+                "value": "11...42",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "Werkstoff",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "Kurzname oder Werkstoffnummer des verwendeten Werkstoffs"
+                    },
+                    {
+                        "language": "en",
+                        "text": "Short name or material number of the applied material"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-AAM562#001"
+                        }
+                    ]
+                },
+                "value": "14571",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "Schutzart",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "Einteilung entsprechend dem Schutz des Betriebsmittels gegen \u00e4u\u00dfere Einfl\u00fcsse jeglicher Art und Schutz vor sich bewegenden Teilen im Betriebsmittel f\u00fcr das elektronische Ger\u00e4t, das Daten aufbereitet und nutzbar macht"
+                    },
+                    {
+                        "language": "en",
+                        "text": "Classification according to the protection of the operating unit against any external influences and protection against moving parts in the operating unit for the electronic device that processes data and makes them useable"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-AAC106#007"
+                        }
+                    ]
+                },
+                "value": "IP66",
+                "valueType": "xs:string"
+            }
+        ]
+    }
+}

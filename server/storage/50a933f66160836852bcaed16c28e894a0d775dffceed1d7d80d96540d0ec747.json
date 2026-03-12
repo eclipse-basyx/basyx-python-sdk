@@ -1,0 +1,589 @@
+{
+    "data": {
+        "idShort": "TechnicalData",
+        "modelType": "Submodel",
+        "id": "https://www.iat.rwth-aachen.de/pls-lab/pumping_station/TU30/L34/TechnicalData",
+        "submodelElements": [
+            {
+                "idShort": "Input",
+                "modelType": "SubmodelElementCollection",
+                "value": [
+                    {
+                        "idShort": "Function",
+                        "description": [
+                            {
+                                "language": "de",
+                                "text": "Funktionsweise des Ger\u00e4ts."
+                            },
+                            {
+                                "language": "en",
+                                "text": "Functioning of the device."
+                            }
+                        ],
+                        "modelType": "Property",
+                        "semanticId": {
+                            "type": "ModelReference",
+                            "keys": [
+                                {
+                                    "type": "ConceptDescription",
+                                    "value": "http://acplt.org/vocab/Function"
+                                }
+                            ]
+                        },
+                        "value": "K-band FMCW radar",
+                        "valueType": "xs:string"
+                    },
+                    {
+                        "idShort": "Min_tank_height",
+                        "description": [
+                            {
+                                "language": "de",
+                                "text": "Minimale H\u00f6he in des Beh\u00e4lters, in dem der F\u00fcllstand gemmessen werden soll."
+                            },
+                            {
+                                "language": "en",
+                                "text": "Minimum height of the tank in which the level is to be measured."
+                            }
+                        ],
+                        "modelType": "Property",
+                        "semanticId": {
+                            "type": "ModelReference",
+                            "keys": [
+                                {
+                                    "type": "ConceptDescription",
+                                    "value": "http://acplt.org/vocab/MinTankHeight"
+                                }
+                            ]
+                        },
+                        "value": "0.5",
+                        "valueType": "xs:string"
+                    },
+                    {
+                        "idShort": "Max__measuring_range",
+                        "description": [
+                            {
+                                "language": "de",
+                                "text": "Maximale H\u00f6he des Beh\u00e4lters, in dem der F\u00fcllstand gemmessen werden soll.."
+                            },
+                            {
+                                "language": "en",
+                                "text": "Maximum height of the tank in which the level is to be measured."
+                            }
+                        ],
+                        "modelType": "Property",
+                        "semanticId": {
+                            "type": "ModelReference",
+                            "keys": [
+                                {
+                                    "type": "ConceptDescription",
+                                    "value": "http://acplt.org/vocab/MaxMeasuringRange"
+                                }
+                            ]
+                        },
+                        "value": "40",
+                        "valueType": "xs:string"
+                    },
+                    {
+                        "idShort": "Blocking_Distance_dead_zone",
+                        "description": [
+                            {
+                                "language": "de",
+                                "text": "Totzone im vermessenen Beh\u00e4lter, welche nicht vom Sensor erkannt werden kann."
+                            },
+                            {
+                                "language": "en",
+                                "text": "Dead zone in the measured container, which cannot be detected by the sensor."
+                            }
+                        ],
+                        "modelType": "Property",
+                        "semanticId": {
+                            "type": "ModelReference",
+                            "keys": [
+                                {
+                                    "type": "ConceptDescription",
+                                    "value": "http://acplt.org/vocab/BlockingDistance"
+                                }
+                            ]
+                        },
+                        "value": "\"Antenna ex tension length + antenna length + 0.1 m / 4\"\"\"",
+                        "valueType": "xs:string"
+                    }
+                ]
+            },
+            {
+                "idShort": "Output",
+                "modelType": "SubmodelElementCollection",
+                "value": [
+                    {
+                        "idShort": "Output_signal",
+                        "description": [
+                            {
+                                "language": "de",
+                                "text": "Signal am Ausgang des jeweils betrachteten Teiles des Informationsverarbeitungssystems oder des Informations\u00fcbertragungssystems"
+                            },
+                            {
+                                "language": "en",
+                                "text": "signal at output of the information processing or transmission system part under consideration"
+                            }
+                        ],
+                        "modelType": "Property",
+                        "semanticId": {
+                            "type": "ModelReference",
+                            "keys": [
+                                {
+                                    "type": "ConceptDescription",
+                                    "value": "0173-1#02-BAG973#004"
+                                }
+                            ]
+                        },
+                        "value": "4...20 mA HART\u00ae or 3.8...20.5 mA acc. to NAMUR NE 43",
+                        "valueType": "xs:string"
+                    },
+                    {
+                        "idShort": "Accuracy",
+                        "description": [
+                            {
+                                "language": "de",
+                                "text": "Relative Messgenauigkeit in % bei einer Temperatur von 20\u00b0C und einer Signalst\u00e4rke von 20mA."
+                            },
+                            {
+                                "language": "en",
+                                "text": "Relative measurement accuracy in % at a temperature of 20\u00b0C and a signal strength of 20mA."
+                            }
+                        ],
+                        "modelType": "Property",
+                        "semanticId": {
+                            "type": "ModelReference",
+                            "keys": [
+                                {
+                                    "type": "ConceptDescription",
+                                    "value": "http://acplt.org/vocab/Accuracy"
+                                }
+                            ]
+                        },
+                        "value": "0.05% (rel. 20 mA, 20\u00b0C / 68\u00b0F)",
+                        "valueType": "xs:string"
+                    },
+                    {
+                        "idShort": "Resolution",
+                        "description": [
+                            {
+                                "language": "de",
+                                "text": "Aufl\u00f6sung des Ausgangssignals."
+                            },
+                            {
+                                "language": "en",
+                                "text": "Resolution of the output signal."
+                            }
+                        ],
+                        "modelType": "Property",
+                        "semanticId": {
+                            "type": "ModelReference",
+                            "keys": [
+                                {
+                                    "type": "ConceptDescription",
+                                    "value": "http://acplt.org/vocab/Resolution"
+                                }
+                            ]
+                        },
+                        "value": "\u00b12",
+                        "valueType": "xs:string"
+                    },
+                    {
+                        "idShort": "Temperature_drift",
+                        "description": [
+                            {
+                                "language": "de",
+                                "text": "temperaturbezogene \u00c4nderung der Messgr\u00f6\u00dfe eines Messger\u00e4tes bezogen auf die Messspanne dieser Messgr\u00f6\u00dfe"
+                            },
+                            {
+                                "language": "en",
+                                "text": "Temperature-related change of the measured quantity of a measuring instrument related to the measuring range of this measured magnitude"
+                            }
+                        ],
+                        "modelType": "Property",
+                        "semanticId": {
+                            "type": "ModelReference",
+                            "keys": [
+                                {
+                                    "type": "ConceptDescription",
+                                    "value": "0173-1#02-AAC140#007"
+                                }
+                            ]
+                        },
+                        "value": "0.005",
+                        "valueType": "xs:string"
+                    },
+                    {
+                        "idShort": "Error_signal",
+                        "description": [
+                            {
+                                "language": "de",
+                                "text": "Ausfallsignal hoch und niedrig."
+                            },
+                            {
+                                "language": "en",
+                                "text": "Error Signal high and low."
+                            }
+                        ],
+                        "modelType": "Property",
+                        "semanticId": {
+                            "type": "ModelReference",
+                            "keys": [
+                                {
+                                    "type": "ConceptDescription",
+                                    "value": "http://acplt.org/vocab/ErrorSignal"
+                                }
+                            ]
+                        },
+                        "value": "High: 22 mA, Low : 3.6 mA acc. to NAMUR NE 43",
+                        "valueType": "xs:string"
+                    },
+                    {
+                        "idShort": "Max__Load",
+                        "description": [
+                            {
+                                "language": "de",
+                                "text": "Maximaler ohmscher Widerstand."
+                            },
+                            {
+                                "language": "en",
+                                "text": "Maximum ohmic resistance."
+                            }
+                        ],
+                        "modelType": "Property",
+                        "semanticId": {
+                            "type": "ModelReference",
+                            "keys": [
+                                {
+                                    "type": "ConceptDescription",
+                                    "value": "http://acplt.org/vocab/MaxLoad"
+                                }
+                            ]
+                        },
+                        "value": "350",
+                        "valueType": "xs:string"
+                    }
+                ]
+            },
+            {
+                "idShort": "Measuring_accuracy",
+                "modelType": "SubmodelElementCollection",
+                "value": [
+                    {
+                        "idShort": "Resolution",
+                        "description": [
+                            {
+                                "language": "de",
+                                "text": "Aufl\u00f6sung des Messwerts."
+                            },
+                            {
+                                "language": "en",
+                                "text": "Resolution of the measured value."
+                            }
+                        ],
+                        "modelType": "Property",
+                        "semanticId": {
+                            "type": "ModelReference",
+                            "keys": [
+                                {
+                                    "type": "ConceptDescription",
+                                    "value": "http://acplt.org/vocab/MeasurementResolution"
+                                }
+                            ]
+                        },
+                        "value": "1",
+                        "valueType": "xs:string"
+                    },
+                    {
+                        "idShort": "Accuracy",
+                        "description": [
+                            {
+                                "language": "de",
+                                "text": "Messgenaugikeit in mm."
+                            },
+                            {
+                                "language": "en",
+                                "text": "Measurement accuracy in mm."
+                            }
+                        ],
+                        "modelType": "Property",
+                        "semanticId": {
+                            "type": "ModelReference",
+                            "keys": [
+                                {
+                                    "type": "ConceptDescription",
+                                    "value": "http://acplt.org/vocab/MeasurementAccuracy"
+                                }
+                            ]
+                        },
+                        "value": "+/-3",
+                        "valueType": "xs:string"
+                    }
+                ]
+            },
+            {
+                "idShort": "Application_conditions",
+                "modelType": "SubmodelElementCollection",
+                "value": [
+                    {
+                        "idShort": "Ambient_temperature",
+                        "description": [
+                            {
+                                "language": "de",
+                                "text": "Zul\u00e4ssiger Temperaturbereich f\u00fcr die Prozessanschlusstemperatur."
+                            },
+                            {
+                                "language": "en",
+                                "text": "Permissible temperature range of the process connection temperature."
+                            }
+                        ],
+                        "modelType": "Property",
+                        "semanticId": {
+                            "type": "ModelReference",
+                            "keys": [
+                                {
+                                    "type": "ConceptDescription",
+                                    "value": "http://acplt.org/vocab/FlangeTemperature"
+                                }
+                            ]
+                        },
+                        "value": "-40...+80\u00b0C",
+                        "valueType": "xs:string"
+                    },
+                    {
+                        "idShort": "min_Storage_temperature",
+                        "description": [
+                            {
+                                "language": "de",
+                                "text": "minimaler Temperaturwert, bei dem das Ger\u00e4t ohne permanenten Schaden f\u00fcr die Betriebsf\u00e4higkeit gelagert oder transportiert werden darf"
+                            },
+                            {
+                                "language": "en",
+                                "text": "temperature above which the device may be stored or transported without any permanent impairment to its operability"
+                            }
+                        ],
+                        "modelType": "Property",
+                        "semanticId": {
+                            "type": "ModelReference",
+                            "keys": [
+                                {
+                                    "type": "ConceptDescription",
+                                    "value": "0173-1#02-AAN276#004"
+                                }
+                            ]
+                        },
+                        "value": "-40",
+                        "valueType": "xs:string"
+                    },
+                    {
+                        "idShort": "max_Storage_temperature",
+                        "description": [
+                            {
+                                "language": "de",
+                                "text": "maximaler Temperaturwert, bei dem das Ger\u00e4t ohne permanenten Schaden f\u00fcr die Betriebsf\u00e4higkeit gelagert oder transportiert werden darf"
+                            },
+                            {
+                                "language": "en",
+                                "text": "temperature up to which the device may be stored or transported without any permanent impairment to its operability"
+                            }
+                        ],
+                        "modelType": "Property",
+                        "semanticId": {
+                            "type": "ModelReference",
+                            "keys": [
+                                {
+                                    "type": "ConceptDescription",
+                                    "value": "0173-1#02-AAN272#004"
+                                }
+                            ]
+                        },
+                        "value": "85",
+                        "valueType": "xs:string"
+                    },
+                    {
+                        "idShort": "Flange_temperature",
+                        "description": [
+                            {
+                                "language": "de",
+                                "text": "Zul\u00e4ssiger Temperaturbereich f\u00fcr die Prozessanschlusstemperatur."
+                            },
+                            {
+                                "language": "en",
+                                "text": "Permissible temperature range of the process connection temperature."
+                            }
+                        ],
+                        "modelType": "Property",
+                        "semanticId": {
+                            "type": "ModelReference",
+                            "keys": [
+                                {
+                                    "type": "ConceptDescription",
+                                    "value": "http://acplt.org/vocab/FlangeTemperature"
+                                }
+                            ]
+                        },
+                        "value": "-40...+150\u00b0C",
+                        "valueType": "xs:string"
+                    }
+                ]
+            },
+            {
+                "idShort": "Mechanical_data",
+                "modelType": "SubmodelElementCollection",
+                "value": [
+                    {
+                        "idShort": "Housing",
+                        "description": [
+                            {
+                                "language": "de",
+                                "text": "Materialzusammensetzung, aus der ein einzelnes Bauteil hergestellt ist, als Ergebnis eines Herstellungsprozesses, in dem der/die Rohstoff(e) durch Extrusion, Verformung, Schwei\u00dfen usw. in die endg\u00fcltige Form gebracht werden"
+                            },
+                            {
+                                "language": "en",
+                                "text": "material composition that a single component comprises as the result of a manufacturing process whereby the raw material(s) are given their final shape by means of extrusion, molding, welding or other processes"
+                            }
+                        ],
+                        "modelType": "Property",
+                        "semanticId": {
+                            "type": "ModelReference",
+                            "keys": [
+                                {
+                                    "type": "ConceptDescription",
+                                    "value": "0173-1#02-BAB664#016"
+                                }
+                            ]
+                        },
+                        "value": "Aluminium",
+                        "valueType": "xs:string"
+                    },
+                    {
+                        "idShort": "Wetted_parts",
+                        "description": [
+                            {
+                                "language": "de",
+                                "text": "Werkstoff der medienber\u00fchrenden Teile, einschlie\u00dflich der Antenne."
+                            },
+                            {
+                                "language": "en",
+                                "text": "Material of the parts in contact with the medium, including the antenna."
+                            }
+                        ],
+                        "modelType": "Property",
+                        "semanticId": {
+                            "type": "ModelReference",
+                            "keys": [
+                                {
+                                    "type": "ConceptDescription",
+                                    "value": "http://acplt.org/vocab/WettedParts"
+                                }
+                            ]
+                        },
+                        "value": "Stainless steel (1.4404 / 316L), Hastelloy C-22 (2.4602)",
+                        "valueType": "xs:string"
+                    },
+                    {
+                        "idShort": "Process_fitting",
+                        "description": [
+                            {
+                                "language": "de",
+                                "text": "Werkstoff des Prozessanschlusse."
+                            },
+                            {
+                                "language": "en",
+                                "text": "Material of the process fitting."
+                            }
+                        ],
+                        "modelType": "Property",
+                        "semanticId": {
+                            "type": "ModelReference",
+                            "keys": [
+                                {
+                                    "type": "ConceptDescription",
+                                    "value": "http://acplt.org/vocab/ProcessFitting"
+                                }
+                            ]
+                        },
+                        "value": "Stainless steel (1.4404 / 316L), Hastelloy C-22 (2.4602)",
+                        "valueType": "xs:string"
+                    },
+                    {
+                        "idShort": "Gaskets",
+                        "description": [
+                            {
+                                "language": "de",
+                                "text": "Flanschausf\u00fchrung nach EN 1092-1."
+                            },
+                            {
+                                "language": "en",
+                                "text": "Flange design according to EN 1092-1."
+                            }
+                        ],
+                        "modelType": "Property",
+                        "semanticId": {
+                            "type": "ModelReference",
+                            "keys": [
+                                {
+                                    "type": "ConceptDescription",
+                                    "value": "http://acplt.org/vocab/Gaskets"
+                                }
+                            ]
+                        },
+                        "value": "Viton (-40...+150\u00b0C / -40...+300\u00b0F), Kalrez 6375 (-20...+150\u00b0C / -5...+300\u00b0F)",
+                        "valueType": "xs:string"
+                    },
+                    {
+                        "idShort": "Thread",
+                        "description": [
+                            {
+                                "language": "de",
+                                "text": "Gewinde f\u00fcr den Prozessanschluss."
+                            },
+                            {
+                                "language": "en",
+                                "text": "Thread for process connetcion."
+                            }
+                        ],
+                        "modelType": "Property",
+                        "semanticId": {
+                            "type": "ModelReference",
+                            "keys": [
+                                {
+                                    "type": "ConceptDescription",
+                                    "value": "http://acplt.org/vocab/Thread"
+                                }
+                            ]
+                        },
+                        "value": "\"G 1 1/2\"\", NPT 1 1/2\"\"\"",
+                        "valueType": "xs:string"
+                    },
+                    {
+                        "idShort": "Flange",
+                        "description": [
+                            {
+                                "language": "de",
+                                "text": "Flanschausf\u00fchrung nach EN 1092-1."
+                            },
+                            {
+                                "language": "en",
+                                "text": "Flange design according to EN 1092-1."
+                            }
+                        ],
+                        "modelType": "Property",
+                        "semanticId": {
+                            "type": "ModelReference",
+                            "keys": [
+                                {
+                                    "type": "ConceptDescription",
+                                    "value": "http://acplt.org/vocab/Flange"
+                                }
+                            ]
+                        },
+                        "value": "\"DN 40...DN 150 (PN 40 / PN 16), 1 1/2\"\"...8\"\" (150 lb / 300 lb), 10 K (40...100A)\"",
+                        "valueType": "xs:string"
+                    }
+                ]
+            }
+        ]
+    }
+}

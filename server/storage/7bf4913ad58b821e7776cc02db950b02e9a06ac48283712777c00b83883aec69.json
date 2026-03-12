@@ -1,0 +1,352 @@
+{
+    "data": {
+        "idShort": "HierarchicalStructures",
+        "modelType": "Submodel",
+        "id": "https://www.iat.rwth-aachen.de/pls-lab/pumping_station/TU30/B3/HierarchicalStructures",
+        "semanticId": {
+            "type": "ExternalReference",
+            "keys": [
+                {
+                    "type": "GlobalReference",
+                    "value": "https://admin-shell.io/idta/HierarchicalStructures/1/0/Submodel"
+                }
+            ]
+        },
+        "submodelElements": [
+            {
+                "idShort": "B3",
+                "category": "CONSTANT",
+                "description": [
+                    {
+                        "language": "en",
+                        "text": "Base entry point for the Entity tree in this Submodel, this must be a Self-managed Entity reflecting the Assets administrated in the AAS this Submodel is part of."
+                    }
+                ],
+                "modelType": "Entity",
+                "semanticId": {
+                    "type": "ExternalReference",
+                    "keys": [
+                        {
+                            "type": "GlobalReference",
+                            "value": "https://admin-shell.io/idta/HierarchicalStructures/EntryNode/1/0"
+                        }
+                    ]
+                },
+                "statements": [
+                    {
+                        "idShort": "T33",
+                        "category": "CONSTANT",
+                        "description": [
+                            {
+                                "language": "en",
+                                "text": "The Entity Node can be a co-managed or self-managed entity representing an asset in the hierarchical structure."
+                            }
+                        ],
+                        "modelType": "Entity",
+                        "semanticId": {
+                            "type": "ExternalReference",
+                            "keys": [
+                                {
+                                    "type": "GlobalReference",
+                                    "value": "https://admin-shell.io/idta/HierarchicalStructures/Node/1/0"
+                                }
+                            ]
+                        },
+                        "entityType": "SelfManagedEntity",
+                        "globalAssetId": "https://www.iat.rwth-aachen.de/pls-lab/pumping_station/TU30/T33"
+                    },
+                    {
+                        "idShort": "HasControlModule_T33",
+                        "category": "CONSTANT",
+                        "description": [
+                            {
+                                "language": "en",
+                                "text": "Modeling of logical connections between components and sub-components. Either this or \"IsPartOf\" must be used, not both."
+                            }
+                        ],
+                        "modelType": "RelationshipElement",
+                        "semanticId": {
+                            "type": "ExternalReference",
+                            "keys": [
+                                {
+                                    "type": "GlobalReference",
+                                    "value": "https://admin-shell.io/idta/HierarchicalStructures/HasPart/1/0"
+                                }
+                            ]
+                        },
+                        "first": {
+                            "type": "ModelReference",
+                            "keys": [
+                                {
+                                    "type": "Submodel",
+                                    "value": "https://www.iat.rwth-aachen.de/pls-lab/pumping_station/TU30/B3/HierarchicalStructures"
+                                },
+                                {
+                                    "type": "Entity",
+                                    "value": "B3"
+                                }
+                            ]
+                        },
+                        "second": {
+                            "type": "ModelReference",
+                            "keys": [
+                                {
+                                    "type": "Submodel",
+                                    "value": "https://www.iat.rwth-aachen.de/pls-lab/pumping_station/TU30/B3/HierarchicalStructures"
+                                },
+                                {
+                                    "type": "Entity",
+                                    "value": "B3"
+                                },
+                                {
+                                    "type": "Entity",
+                                    "value": "T33"
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "idShort": "L32",
+                        "category": "CONSTANT",
+                        "description": [
+                            {
+                                "language": "en",
+                                "text": "The Entity Node can be a co-managed or self-managed entity representing an asset in the hierarchical structure."
+                            }
+                        ],
+                        "modelType": "Entity",
+                        "semanticId": {
+                            "type": "ExternalReference",
+                            "keys": [
+                                {
+                                    "type": "GlobalReference",
+                                    "value": "https://admin-shell.io/idta/HierarchicalStructures/Node/1/0"
+                                }
+                            ]
+                        },
+                        "entityType": "SelfManagedEntity",
+                        "globalAssetId": "https://www.iat.rwth-aachen.de/pls-lab/pumping_station/TU30/L32"
+                    },
+                    {
+                        "idShort": "HasControlModule_L32",
+                        "category": "CONSTANT",
+                        "description": [
+                            {
+                                "language": "en",
+                                "text": "Modeling of logical connections between components and sub-components. Either this or \"IsPartOf\" must be used, not both."
+                            }
+                        ],
+                        "modelType": "RelationshipElement",
+                        "semanticId": {
+                            "type": "ExternalReference",
+                            "keys": [
+                                {
+                                    "type": "GlobalReference",
+                                    "value": "https://admin-shell.io/idta/HierarchicalStructures/HasPart/1/0"
+                                }
+                            ]
+                        },
+                        "first": {
+                            "type": "ModelReference",
+                            "keys": [
+                                {
+                                    "type": "Submodel",
+                                    "value": "https://www.iat.rwth-aachen.de/pls-lab/pumping_station/TU30/B3/HierarchicalStructures"
+                                },
+                                {
+                                    "type": "Entity",
+                                    "value": "B3"
+                                }
+                            ]
+                        },
+                        "second": {
+                            "type": "ModelReference",
+                            "keys": [
+                                {
+                                    "type": "Submodel",
+                                    "value": "https://www.iat.rwth-aachen.de/pls-lab/pumping_station/TU30/B3/HierarchicalStructures"
+                                },
+                                {
+                                    "type": "Entity",
+                                    "value": "B3"
+                                },
+                                {
+                                    "type": "Entity",
+                                    "value": "L32"
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "idShort": "L34",
+                        "category": "CONSTANT",
+                        "description": [
+                            {
+                                "language": "en",
+                                "text": "The Entity Node can be a co-managed or self-managed entity representing an asset in the hierarchical structure."
+                            }
+                        ],
+                        "modelType": "Entity",
+                        "semanticId": {
+                            "type": "ExternalReference",
+                            "keys": [
+                                {
+                                    "type": "GlobalReference",
+                                    "value": "https://admin-shell.io/idta/HierarchicalStructures/Node/1/0"
+                                }
+                            ]
+                        },
+                        "entityType": "SelfManagedEntity",
+                        "globalAssetId": "https://www.iat.rwth-aachen.de/pls-lab/pumping_station/TU30/L34"
+                    },
+                    {
+                        "idShort": "HasControlModule_L34",
+                        "category": "CONSTANT",
+                        "description": [
+                            {
+                                "language": "en",
+                                "text": "Modeling of logical connections between components and sub-components. Either this or \"IsPartOf\" must be used, not both."
+                            }
+                        ],
+                        "modelType": "RelationshipElement",
+                        "semanticId": {
+                            "type": "ExternalReference",
+                            "keys": [
+                                {
+                                    "type": "GlobalReference",
+                                    "value": "https://admin-shell.io/idta/HierarchicalStructures/HasPart/1/0"
+                                }
+                            ]
+                        },
+                        "first": {
+                            "type": "ModelReference",
+                            "keys": [
+                                {
+                                    "type": "Submodel",
+                                    "value": "https://www.iat.rwth-aachen.de/pls-lab/pumping_station/TU30/B3/HierarchicalStructures"
+                                },
+                                {
+                                    "type": "Entity",
+                                    "value": "B3"
+                                }
+                            ]
+                        },
+                        "second": {
+                            "type": "ModelReference",
+                            "keys": [
+                                {
+                                    "type": "Submodel",
+                                    "value": "https://www.iat.rwth-aachen.de/pls-lab/pumping_station/TU30/B3/HierarchicalStructures"
+                                },
+                                {
+                                    "type": "Entity",
+                                    "value": "B3"
+                                },
+                                {
+                                    "type": "Entity",
+                                    "value": "L34"
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "idShort": "L35",
+                        "category": "CONSTANT",
+                        "description": [
+                            {
+                                "language": "en",
+                                "text": "The Entity Node can be a co-managed or self-managed entity representing an asset in the hierarchical structure."
+                            }
+                        ],
+                        "modelType": "Entity",
+                        "semanticId": {
+                            "type": "ExternalReference",
+                            "keys": [
+                                {
+                                    "type": "GlobalReference",
+                                    "value": "https://admin-shell.io/idta/HierarchicalStructures/Node/1/0"
+                                }
+                            ]
+                        },
+                        "entityType": "SelfManagedEntity",
+                        "globalAssetId": "https://www.iat.rwth-aachen.de/pls-lab/pumping_station/TU30/L35"
+                    },
+                    {
+                        "idShort": "HasControlModule_L35",
+                        "category": "CONSTANT",
+                        "description": [
+                            {
+                                "language": "en",
+                                "text": "Modeling of logical connections between components and sub-components. Either this or \"IsPartOf\" must be used, not both."
+                            }
+                        ],
+                        "modelType": "RelationshipElement",
+                        "semanticId": {
+                            "type": "ExternalReference",
+                            "keys": [
+                                {
+                                    "type": "GlobalReference",
+                                    "value": "https://admin-shell.io/idta/HierarchicalStructures/HasPart/1/0"
+                                }
+                            ]
+                        },
+                        "first": {
+                            "type": "ModelReference",
+                            "keys": [
+                                {
+                                    "type": "Submodel",
+                                    "value": "https://www.iat.rwth-aachen.de/pls-lab/pumping_station/TU30/B3/HierarchicalStructures"
+                                },
+                                {
+                                    "type": "Entity",
+                                    "value": "B3"
+                                }
+                            ]
+                        },
+                        "second": {
+                            "type": "ModelReference",
+                            "keys": [
+                                {
+                                    "type": "Submodel",
+                                    "value": "https://www.iat.rwth-aachen.de/pls-lab/pumping_station/TU30/B3/HierarchicalStructures"
+                                },
+                                {
+                                    "type": "Entity",
+                                    "value": "B3"
+                                },
+                                {
+                                    "type": "Entity",
+                                    "value": "L35"
+                                }
+                            ]
+                        }
+                    }
+                ],
+                "entityType": "SelfManagedEntity",
+                "globalAssetId": "https://www.iat.rwth-aachen.de/pls-lab/pumping_station/TU30/B3"
+            },
+            {
+                "idShort": "ArcheType",
+                "category": "CONSTANT",
+                "description": [
+                    {
+                        "language": "en",
+                        "text": "ArcheType of the Submodel, there are three allowed enumeration entries: 1. \u201cFull\u201d, 2. \u201cOneDown\u201d and 3. \u201cOneUp\u201d."
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ExternalReference",
+                    "keys": [
+                        {
+                            "type": "GlobalReference",
+                            "value": "https://admin-shell.io/idta/HierarchicalStructures/ArcheType/1/0"
+                        }
+                    ]
+                },
+                "value": "OneDown",
+                "valueType": "xs:string"
+            }
+        ]
+    }
+}

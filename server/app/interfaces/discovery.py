@@ -1,14 +1,10 @@
 """
 This module implements the Discovery interface defined in the 'Specification of the Asset Administration Shell Part 2 – Application Programming Interface'.
 """
-
-import abc
 import json
-from typing import Dict, List, Set, Any
+from typing import Dict, List, Set
 
 import werkzeug.exceptions
-from pymongo import MongoClient
-from pymongo.collection import Collection
 from werkzeug.routing import Rule, Submount
 from werkzeug.wrappers import Request, Response
 
@@ -63,13 +59,14 @@ class DiscoveryStore:
     def from_file(cls, filename: str) -> "DiscoveryStore":
         """
         Load the state of the `DiscoveryStore` from a local file.
-        The file should be in the format as written by the `self.to_file()` method.
+        Safely handles files that are missing expected keys.
+
         """
         with open(filename, "r") as file:
             data = json.load(file, cls=jsonization.ServerAASFromJsonDecoder)
             discovery_store = DiscoveryStore()
-            discovery_store.aas_id_to_asset_ids = data["aas_id_to_asset_ids"]
-            discovery_store.asset_id_to_aas_ids = data["asset_id_to_aas_ids"]
+            discovery_store.aas_id_to_asset_ids = data.get("aas_id_to_asset_ids", {})
+            discovery_store.asset_id_to_aas_ids = data.get("asset_id_to_aas_ids", {})
             return discovery_store
 
     def to_file(self, filename: str) -> None:
@@ -86,7 +83,7 @@ class DiscoveryStore:
 
 class DiscoveryAPI(BaseWSGIApp):
     def __init__(self,
-                 persistent_store: DiscoveryStore, base_path: str = "/api/v3.0"):
+                 persistent_store: DiscoveryStore, base_path: str = "/api/v3.1.1"):
         self.persistent_store: DiscoveryStore = persistent_store
         self.url_map = werkzeug.routing.Map([
             Submount(base_path, [

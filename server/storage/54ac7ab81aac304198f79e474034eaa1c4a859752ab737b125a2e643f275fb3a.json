@@ -1,0 +1,259 @@
+{
+    "data": {
+        "idShort": "TechnicalData",
+        "modelType": "Submodel",
+        "id": "https://www.iat.rwth-aachen.de/pls-lab/pumping_station/TU30/Y37_Positioner/TechnicalData",
+        "submodelElements": [
+            {
+                "idShort": "Power_supply",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "Versorgung von Ger\u00e4ten oder Anlagen mit gesonderter, zus\u00e4tzlicher Stromzuf\u00fchrung"
+                    },
+                    {
+                        "language": "en",
+                        "text": "supply of devices or systems with separate, additional power supply"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-AAZ002#001"
+                        }
+                    ]
+                },
+                "value": "taken from 4-20mA",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "Supply_voltage_type",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "bestimmte Form der Spannung, die angibt, ob das Betriebsmittel mit Wechselspannung (AC), Gleichspannung (DC), Wechsel-/Gleichstrom (AC/DC) oder modulierter Gleichspannung (UC) versorgt werden kann"
+                    },
+                    {
+                        "language": "en",
+                        "text": "Type of voltage required for supplying the device"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-BAC078#007"
+                        }
+                    ]
+                },
+                "value": "9Vdc at 20mA",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "Type_of_output_signal",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "Signal am Ausgang des jeweils betrachteten Teiles des Informationsverarbeitungssystems oder des Informations\u00fcbertragungssystems"
+                    },
+                    {
+                        "language": "en",
+                        "text": "Signal at output of the information processing or transmission system part under consideration"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-BAA006#006"
+                        }
+                    ]
+                },
+                "value": "4-20mA",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "Type_of_input_signal",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "Form und/oder Funktion des Signals am Eingang, das sowohl wertediskontinuierlich (bin\u00e4r) als auch wertekontinuierlich (analog oder auch die digitale Abbildung eines Analogsignals) in Bezug auf den G\u00fcltigkeitsbereich des Signal sein kann"
+                    },
+                    {
+                        "language": "en",
+                        "text": "form and/or function of the signal at the input which can be discontinuous (binary) or continuous (analog or as digital mapping of an analog signal) in respect to the signal's range of validity"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-BAA004#006"
+                        }
+                    ]
+                },
+                "value": "4-20mA, 450 Ohms inout resistance",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "Minimum_ambient_temperature_during_operation",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "minimal zul\u00e4ssige Temperatur, der das Betriebsmittel umgebenden Atmosph\u00e4re w\u00e4hrend Betrieb"
+                    },
+                    {
+                        "language": "en",
+                        "text": "minimal permitted temperature of the atmosphere surrounding the operating resource during operation"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-AAW301#002"
+                        }
+                    ]
+                },
+                "value": "-50",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "Maximum_ambient_temperature_during_operation",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "maximal zul\u00e4ssige Temperatur, der das Betriebsmittel umgebenden Atmosph\u00e4re w\u00e4hrend Betrieb"
+                    },
+                    {
+                        "language": "en",
+                        "text": "maximal permitted temperature of the atmosphere surrounding the operating resource during operation"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-AAW302#002"
+                        }
+                    ]
+                },
+                "value": "85",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "max_humidity_during_operation_UL_1449",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "Maximale relative Luftfeuchte, der das \u00dcberspannungsschutzger\u00e4t im Betrieb ausgesetzt werden darf"
+                    },
+                    {
+                        "language": "en",
+                        "text": "maximum relative humidity the SPD is allowed to be subjected to during operation"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-ABD514#001"
+                        }
+                    ]
+                },
+                "value": "10",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "min_humidity_during_operation_UL_1449",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "Minimale relative Luftfeuchte, der das \u00dcberspannungsschutzger\u00e4t im Betrieb ausgesetzt werden darf"
+                    },
+                    {
+                        "language": "en",
+                        "text": "minimum relative humidity the SPD is allowed to be subjected to during operation"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-ABD516#001"
+                        }
+                    ]
+                },
+                "value": "90",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "Supply_pressure",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "Druck der pneumatischen Versorgung, der am Versorgungseingang eines Betriebsmittels zeitweise oder st\u00e4ndig anliegen muss, um die Funktion des Betriebsmittels aufrecht zu erhalten"
+                    },
+                    {
+                        "language": "en",
+                        "text": "Pressure of the pneumatic supply that must be applied to the supply input of an electrical operating medium for a certain period of time or all the time to maintain the function of the operating medium"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-BAI992#007"
+                        }
+                    ]
+                },
+                "value": "20 to 100 psi max",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "protection_class_acc_IP",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "gibt die Schutzklass nach IP eines Lasernivellierger\u00e4tes an"
+                    },
+                    {
+                        "language": "en",
+                        "text": "indicates the protection class acc. IP of a laser level gage"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-AAJ501#002"
+                        }
+                    ]
+                },
+                "value": "IP65",
+                "valueType": "xs:string"
+            }
+        ]
+    }
+}

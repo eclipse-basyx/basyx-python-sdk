@@ -1,0 +1,309 @@
+{
+    "data": {
+        "idShort": "TechnicalData",
+        "modelType": "Submodel",
+        "id": "https://www.iat.rwth-aachen.de/pls-lab/pumping_station/TU30/L32/TechnicalData",
+        "submodelElements": [
+            {
+                "idShort": "Max_operating_pressure",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "gr\u00f6\u00dfter Druck, der in einem System beim Betrieb (unter normalen Betriebsbedingungen) auftritt bzw. auftreten darf"
+                    },
+                    {
+                        "language": "en",
+                        "text": "Max. pressure which occurs or may occur in an operating system (under normal operating conditions)"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-AAB836#007"
+                        }
+                    ]
+                },
+                "value": "40",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "Max_testing_pressure",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "h\u00f6chster Druck, der w\u00e4hrend der erstmaligen oder wiederkehrenden Druckpr\u00fcfung zur Anwendung kommt und zu keiner dauerhaften Form\u00e4nderung, Besch\u00e4digung oder Funktionsst\u00f6rung f\u00fchrt"
+                    },
+                    {
+                        "language": "en",
+                        "text": "Maximum pressure applied during initial and repeated testing pressure and which does not result in permanent dimensional change, damage or malfunction"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-AAB881#006"
+                        }
+                    ]
+                },
+                "value": "60",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "Min_operating_temperature",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "kleinster Grenzwert der sich durch den Nennbetrieb typischerweise ergebende Temperatur im nahem Umfeld des Betriebsmittels"
+                    },
+                    {
+                        "language": "en",
+                        "text": "minimum limit value of the typically arising temperature in the immediate surrounding area of the operating unit which arises as a result of rated operation"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-AAC820#006"
+                        }
+                    ]
+                },
+                "value": "-40",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "Max_operating_temperature",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "gr\u00f6\u00dfter Grenzwert der sich durch den Nennbetrieb typischerweise ergebende Temperatur im nahem Umfeld des Betriebsmittels"
+                    },
+                    {
+                        "language": "en",
+                        "text": "maximum limit value of the typically arising temperature in the immediate surrounding area of the operating unit which arises as a result of rated operation"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-AAC821#006"
+                        }
+                    ]
+                },
+                "value": "150",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "Max_ambient_temperature_during_operating_phase",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "unter festgelegten Bedingungen bestimmte Temperatur der das Betriebsmittel umgebenden Atmosph\u00e4re / Zeitdauer, in deren Verlauf etwas stattfindet: Zeitraum des Aktiv-seins / gr\u00f6\u00dfter Grenzwert einer physikalischen Gr\u00f6\u00dfe, deren Wert nicht \u00fcberschritten werden kann oder darf"
+                    },
+                    {
+                        "language": "en",
+                        "text": "temperature of the atmosphere surrounding the operating resource under specified conditions / period, in whose course something happens: period of time in which something is active / upper limit value of a physical quantity whose value cannot or must not be exceeded"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-AAF525#003"
+                        }
+                    ]
+                },
+                "value": "-20",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "Min_ambient_temperature_during_operating_phase",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "unter festgelegten Bedingungen bestimmte Temperatur der das Betriebsmittel umgebenden Atmosph\u00e4re / Zeitdauer, in deren Verlauf etwas stattfindet: Zeitraum des Aktiv-seins / kleinster Grenzwert einer physikalischen Gr\u00f6\u00dfe, deren Wert nicht mehr unterschritten werden kann oder darf"
+                    },
+                    {
+                        "language": "en",
+                        "text": "temperature of the atmosphere surrounding the operating resource under specified conditions / period, in whose course something happens: period of time in which something is active / lower limit value of a physical quantity whose value cannot or must not be undershot"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-AAF526#003"
+                        }
+                    ]
+                },
+                "value": "70",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "Max_dynamic_viscosity",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "h\u00f6chste dynamische Viskosit\u00e4t, f\u00fcr die ein Ger\u00e4t ausgelegt ist oder auszulegen ist, damit es innerhalb seiner Spezifikationen betrieben wird"
+                    },
+                    {
+                        "language": "en",
+                        "text": "highest dynamic viscosity for which a device is or must be designed to operate within its specified limits"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-AAQ454#003"
+                        }
+                    ]
+                },
+                "value": "10000",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "Min_density",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "Kleinste zul\u00e4ssige Dichte des Messstoffes, Betriebsstoffes oder Mediums f\u00fcr einen bestimmungsgem\u00e4\u00dfen Gebrauch des Betriebsmittels"
+                    },
+                    {
+                        "language": "en",
+                        "text": "Least permissible density of measuring substance, operating substance or medium for use of the operating resource in accordance with its intended purpose"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-BAA044#006"
+                        }
+                    ]
+                },
+                "value": "0.5",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "Startup_delay",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "Mindestzeit, um vom AUS-Zustand in den EIN-Zustand zu wechseln, wenn die Spannung UON oder gr\u00f6\u00dfer anliegt"
+                    },
+                    {
+                        "language": "en",
+                        "text": "Least time required to change from the OUT state to the IN state when the voltage is UON or greater"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-BAB260#005"
+                        }
+                    ]
+                },
+                "value": "0.4",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "Connection_type_of_process_connection",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "Charakterisierung eines Prozessanschlusses bez\u00fcglich seiner Herstellungsform"
+                    },
+                    {
+                        "language": "en",
+                        "text": "classification of a process connection according to its fabricated form"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-AAO333#005"
+                        }
+                    ]
+                },
+                "value": "Einschraubst\u00fcck G1A, 1.4571",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "Style_of_housing",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "Charakterisierung eines Geh\u00e4uses bez\u00fcglich seiner mechanischen Ausf\u00fchrung"
+                    },
+                    {
+                        "language": "en",
+                        "text": "classification of a housing according to its mechanical design"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-AAO650#004"
+                        }
+                    ]
+                },
+                "value": "Aluminiumgeh\u00e4use F6",
+                "valueType": "xs:string"
+            },
+            {
+                "idShort": "IP_protection_class_with_connector",
+                "description": [
+                    {
+                        "language": "de",
+                        "text": "erreichbarer Schutzumfang eines fluidtechnischen Ger\u00e4ts in Verbindung mit dem vom Hersteller empfohlenen Konnektor hinsichtlich des Eindringens von Fremdk\u00f6rpern und Wasser"
+                    },
+                    {
+                        "language": "en",
+                        "text": "scope of protection that can be achieved with a fluidic device in combination with the connector recommended by the manufacturer with respect to the ingress of foreign bodies and water"
+                    }
+                ],
+                "modelType": "Property",
+                "semanticId": {
+                    "type": "ModelReference",
+                    "keys": [
+                        {
+                            "type": "ConceptDescription",
+                            "value": "0173-1#02-AAZ971#001"
+                        }
+                    ]
+                },
+                "value": "IP66",
+                "valueType": "xs:string"
+            }
+        ]
+    }
+}
