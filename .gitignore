@@ -32,7 +32,7 @@ compliance_tool/aas_compliance_tool/version.py
 server/app/version.py
 
 # Ignore the content of the server storage
-server/input/
-server/storage/
+server/example_configurations/repository_standalone/input/
+server/example_configurations/repository_standalone/storage/
 test.py
 /storage/
