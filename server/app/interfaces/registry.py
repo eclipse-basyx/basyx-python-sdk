@@ -16,10 +16,11 @@ from basyx.aas import model
 import app.model as server_model
 from app.util.converters import IdentifierToBase64URLConverter, base64url_decode
 from app.interfaces.base import ObjectStoreWSGIApp, APIResponse, is_stripped_request, HTTPApiDecoder
+from app.model import DictDescriptorStore
 
 
 class RegistryAPI(ObjectStoreWSGIApp):
-    def __init__(self, object_store: model.AbstractObjectStore, base_path: str = "/api/v3.0"):
+    def __init__(self, object_store: model.AbstractObjectStore, base_path: str = "/api/v3.1.1"):
         self.object_store: model.AbstractObjectStore = object_store
         self.url_map = werkzeug.routing.Map([
             Submount(base_path, [
@@ -284,7 +285,6 @@ class RegistryAPI(ObjectStoreWSGIApp):
 
 if __name__ == "__main__":
     from werkzeug.serving import run_simple
-    from basyx.aas.examples.data.example_aas import create_full_example
 
-    run_simple("localhost", 8083, RegistryAPI(create_full_example()),
+    run_simple("localhost", 8083, RegistryAPI(DictDescriptorStore()),
                use_debugger=True, use_reloader=True)

@@ -11,19 +11,19 @@ The Registry Service provides the endpoint for a given AAS-ID or Submodel-ID. Su
 
 ## Features
 # AAS Registry:
-| Function                                         | Description                                                    | Example URL                                                                                                         |
-|--------------------------------------------------|----------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------|
-| **GetAllAssetAdministrationShellDescriptors**    | Return all AAS descriptor                                      | `GET http://localhost:8083/api/v3.0/shell-descriptors`                                                              |
-| **GetAssetAdministrationShellDescriptorById**    | Return a specific AAS descriptor                               | `GET http://localhost:8083/api/v3.0/shell-descriptors/{aasIdentifier}`                                              |
-| **PostAssetAdministrationShellDescriptor**       | Register/create a new AAS descriptor                           | `POST http://localhost:8083/api/v3.0/shell-descriptors`                                                             |
-| **PutAssetAdministrationShellDescriptorById**    | Update an existing AAS descriptor                              | `PUT http://localhost:8083/api/v3.0/shell-descriptors/{aasIdentifier}`                                              |
-| **DeleteAssetAdministrationShellDescriptorById** | Delete an AAS descriptor by ID                                 | `DELETE http://localhost:8083/api/v3.0/shell-descriptors/{aasIdentifier}`                                           |
-| **GetSubmodelDescriptorsThroughSuperPath**       | Return all submodel descriptors under AAS descriptor           | `GET http://localhost:8083/api/v3.0/shell-descriptors/{aasIdentifier}/submodel-descriptors`                         |
-| **PostSubmodelDescriptorThroughSuperPath**       | Register/create a new submodel descriptor under AAS descriptor | `POST http://localhost:8083/api/v3.0/shell-descriptors/{aasIdentifier}/submodel-descriptors`                        |
-| **GetSubmodelDescriptorThroughSuperPath**        | Return a specific submodel descriptor under AAS descriptor     | `GET http://localhost:8083/api/v3.0/shell-descriptors/{aasIdentifier}/submodel-descriptors/{submodelIdentifier}`    |
-| **PutSubmodelDescriptorThroughSuperPath**        | Update a specific submodel descriptor under AAS descriptor     | `PUT http://localhost:8083/api/v3.0/shell-descriptors/{aasIdentifier}/submodel-descriptors/{submodelIdentifier}`    |
-| **DeleteSubmodelDescriptorThroughSuperPath**     | Delete a specific submodel descriptor under AAS descriptor     | `DELETE http://localhost:8083/api/v3.0/shell-descriptors/{aasIdentifier}/submodel-descriptors/{submodelIdentifier}` |
-| **GetDescription**                               | Return the self‑description of the AAS registry service        | `GET http://localhost:8083/api/v3.0/description`                                                                    |
+| Function                                         | Description                                                    | Example URL                                                                                                           |
+|--------------------------------------------------|----------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------|
+| **GetAllAssetAdministrationShellDescriptors**    | Return all AAS descriptor                                      | `GET http://localhost:8083/api/v3.1.1/shell-descriptors`                                                              |
+| **GetAssetAdministrationShellDescriptorById**    | Return a specific AAS descriptor                               | `GET http://localhost:8083/api/v3.1.1/shell-descriptors/{aasIdentifier}`                                              |
+| **PostAssetAdministrationShellDescriptor**       | Register/create a new AAS descriptor                           | `POST http://localhost:8083/api/v3.1.1/shell-descriptors`                                                             |
+| **PutAssetAdministrationShellDescriptorById**    | Update an existing AAS descriptor                              | `PUT http://localhost:8083/api/v3.1.1/shell-descriptors/{aasIdentifier}`                                              |
+| **DeleteAssetAdministrationShellDescriptorById** | Delete an AAS descriptor by ID                                 | `DELETE http://localhost:8083/api/v3.1.1/shell-descriptors/{aasIdentifier}`                                           |
+| **GetSubmodelDescriptorsThroughSuperPath**       | Return all submodel descriptors under AAS descriptor           | `GET http://localhost:8083/api/v3.1.1/shell-descriptors/{aasIdentifier}/submodel-descriptors`                         |
+| **PostSubmodelDescriptorThroughSuperPath**       | Register/create a new submodel descriptor under AAS descriptor | `POST http://localhost:8083/api/v3.1.1/shell-descriptors/{aasIdentifier}/submodel-descriptors`                        |
+| **GetSubmodelDescriptorThroughSuperPath**        | Return a specific submodel descriptor under AAS descriptor     | `GET http://localhost:8083/api/v3.1.1/shell-descriptors/{aasIdentifier}/submodel-descriptors/{submodelIdentifier}`    |
+| **PutSubmodelDescriptorThroughSuperPath**        | Update a specific submodel descriptor under AAS descriptor     | `PUT http://localhost:8083/api/v3.1.1/shell-descriptors/{aasIdentifier}/submodel-descriptors/{submodelIdentifier}`    |
+| **DeleteSubmodelDescriptorThroughSuperPath**     | Delete a specific submodel descriptor under AAS descriptor     | `DELETE http://localhost:8083/api/v3.1.1/shell-descriptors/{aasIdentifier}/submodel-descriptors/{submodelIdentifier}` |
+| **GetDescription**                               | Return the self‑description of the AAS registry service        | `GET http://localhost:8083/api/v3.1.1/description`                                                                    |
 
 # Submodel Registry:
 | Function                         | Description                                                  | Example URL                                                                       |

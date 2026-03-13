@@ -264,18 +264,17 @@ class BaseWSGIApp:
 class ObjectStoreWSGIApp(BaseWSGIApp):
     object_store: AbstractObjectStore
 
-    def _get_all_obj_of_type(self, type_: Type[model.provider._IDENTIFIABLE]) -> Iterator[model.provider._IDENTIFIABLE]:
+    def _get_all_obj_of_type(self, type_: Type[T]) -> Iterator[T]:
         for obj in self.object_store:
             if isinstance(obj, type_):
                 yield obj
 
-    def _get_obj_ts(self, identifier: model.Identifier, type_: Type[model.provider._IDENTIFIABLE]) \
-            -> model.provider._IDENTIFIABLE:
+    def _get_obj_ts(self, identifier: model.Identifier, type_: Type[T]) \
+            -> T:
         identifiable = self.object_store.get(identifier)
         if not isinstance(identifiable, type_):
             raise NotFound(f"No {type_.__name__} with {identifier} found!")
         return identifiable
-
 
 class HTTPApiDecoder:
     # these are the types we can construct (well, only the ones we need)

@@ -1,5 +1,10 @@
 FROM python:3.11-alpine
 
+LABEL org.label-schema.name="Eclipse BaSyx" \
+      org.label-schema.version="1.0" \
+      org.label-schema.description="Docker image for the basyx-python-sdk registry server application" \
+      org.label-schema.maintainer="Eclipse BaSyx"
+
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 
@@ -11,9 +16,12 @@ RUN apk update && \
     apk del git bash
 
 
-COPY registry_server/uwsgi.ini /etc/uwsgi/
-COPY registry_server/supervisord.ini /etc/supervisor/conf.d/supervisord.ini
-COPY registry_server/stop-supervisor.sh /etc/supervisor/stop-supervisor.sh
+COPY ./sdk /sdk
+COPY ./server/app /server/app
+COPY ./server/pyproject.toml /server/pyproject.toml
+COPY ./server/docker/registry/uwsgi.ini /etc/uwsgi/
+COPY ./server/docker/common/supervisord.ini /etc/supervisor/conf.d/supervisord.ini
+COPY ./server/docker/common/stop-supervisor.sh /etc/supervisor/stop-supervisor.sh
 RUN chmod +x /etc/supervisor/stop-supervisor.sh
 
 # Makes it possible to use a different configuration
@@ -26,24 +34,25 @@ ENV NGINX_MAX_UPLOAD=1M
 ENV NGINX_WORKER_PROCESSES=1
 ENV LISTEN_PORT=80
 ENV CLIENT_BODY_BUFFER_SIZE=1M
+ENV API_BASE_PATH=/api/v3.1.1/
+
+# Default values for the storage envs
+ENV INPUT=/input
+ENV STORAGE=/storage
+ENV STORAGE_PERSISTENCY=False
+ENV STORAGE_OVERWRITE=False
+VOLUME ["/input", "/storage"]
 
 # Copy the entrypoint that will generate Nginx additional configs
-COPY registry_server/entrypoint.sh /entrypoint.sh
+COPY server/docker/common/entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
 ENTRYPOINT ["/entrypoint.sh"]
 
 ENV SETUPTOOLS_SCM_PRETEND_VERSION=1.0.0
 
-
-COPY ./registry_server/requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
-
-COPY ./sdk /sdk
-COPY ./server /server
-COPY ./registry_server/app /app
-
-WORKDIR /app
-RUN pip install ../sdk
+WORKDIR /server/app
+RUN pip install ../../sdk
+RUN pip install ..
 
 CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.ini"]
