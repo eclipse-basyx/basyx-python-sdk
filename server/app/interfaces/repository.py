@@ -167,14 +167,14 @@ class WSGIApp(ObjectStoreWSGIApp):
         response: Response = self.handle_request(Request(environ))
         return response(environ, start_response)
 
-    def _get_obj_ts(self, identifier: model.Identifier, type_: Type[model.provider._IT]) \
-            -> model.provider._IT:
+    def _get_obj_ts(self, identifier: model.Identifier, type_: Type[model.provider._IDENTIFIABLE]) \
+            -> model.provider._IDENTIFIABLE:
         identifiable = self.object_store.get(identifier)
         if not isinstance(identifiable, type_):
             raise NotFound(f"No {type_.__name__} with {identifier} found!")
         return identifiable
 
-    def _get_all_obj_of_type(self, type_: Type[model.provider._IT]) -> Iterator[model.provider._IT]:
+    def _get_all_obj_of_type(self, type_: Type[model.provider._IDENTIFIABLE]) -> Iterator[model.provider._IDENTIFIABLE]:
         for obj in self.object_store:
             if isinstance(obj, type_):
                 yield obj
