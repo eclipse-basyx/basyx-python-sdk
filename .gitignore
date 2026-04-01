@@ -34,5 +34,7 @@ server/app/version.py
 # Ignore the content of the server storage
 server/example_configurations/repository_standalone/input/
 server/example_configurations/repository_standalone/storage/
+server/example_configurations/registry_standalone/input/
+server/example_configurations/registry_standalone/storage/
 /storage/
 server/storage/
