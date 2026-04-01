@@ -33,7 +33,7 @@ from app.model.provider import _DESCRIPTOR_TYPE
 
 
 T = TypeVar("T")
-_STORABLE = TypeVar("_STORABLE", model.provider._IDENTIFIABLE, _DESCRIPTOR_TYPE)
+
 
 @enum.unique
 class MessageType(enum.Enum):
@@ -268,13 +268,13 @@ class BaseWSGIApp:
 class ObjectStoreWSGIApp(BaseWSGIApp):
     object_store: AbstractObjectStore
 
-    def _get_all_obj_of_type(self, type_: Type[_STORABLE]) -> Iterator[_STORABLE]:
+    def _get_all_obj_of_type(self, type_: Type[T]) -> Iterator[T]:
         for obj in self.object_store:
             if isinstance(obj, type_):
                 yield obj
 
-    def _get_obj_ts(self, identifier: model.Identifier, type_: Type[_STORABLE]) \
-            -> _STORABLE:
+    def _get_obj_ts(self, identifier: model.Identifier, type_: Type[T]) \
+            -> T:
         identifiable = self.object_store.get(identifier)
         if not isinstance(identifiable, type_):
             raise NotFound(f"No {type_.__name__} with {identifier} found!")
