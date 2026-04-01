@@ -20,16 +20,20 @@ from werkzeug import Response, Request
 from werkzeug.exceptions import NotFound, BadRequest
 from werkzeug.routing import MapAdapter
 
+import app.model
 from basyx.aas import model
 from basyx.aas.adapter._generic import XML_NS_MAP
-from basyx.aas.adapter.json import StrictStrippedAASFromJsonDecoder, StrictAASFromJsonDecoder, AASToJsonEncoder
+from app.adapter import ServerStrictStrippedAASFromJsonDecoder, ServerStrictAASFromJsonDecoder, ServerAASToJsonEncoder
 from basyx.aas.adapter.xml import xml_serialization, XMLConstructables, read_aas_xml_element
 from basyx.aas.model import AbstractObjectStore
 from app.util.converters import base64url_decode
+from app.model import AssetLink, AssetAdministrationShellDescriptor, SubmodelDescriptor
+from app.model.provider import _DESCRIPTOR_TYPE
+
 
 
 T = TypeVar("T")
-
+_STORABLE = TypeVar("_STORABLE", model.provider._IDENTIFIABLE, _DESCRIPTOR_TYPE)
 
 @enum.unique
 class MessageType(enum.Enum):
@@ -159,7 +163,7 @@ class XmlResponseAlt(XmlResponse):
         super().__init__(*args, **kwargs, content_type=content_type)
 
 
-class ResultToJsonEncoder(AASToJsonEncoder):
+class ResultToJsonEncoder(ServerAASToJsonEncoder):
     @classmethod
     def _result_to_json(cls, result: Result) -> Dict[str, object]:
         return {
@@ -264,13 +268,13 @@ class BaseWSGIApp:
 class ObjectStoreWSGIApp(BaseWSGIApp):
     object_store: AbstractObjectStore
 
-    def _get_all_obj_of_type(self, type_: Type[T]) -> Iterator[T]:
+    def _get_all_obj_of_type(self, type_: Type[_STORABLE]) -> Iterator[_STORABLE]:
         for obj in self.object_store:
             if isinstance(obj, type_):
                 yield obj
 
-    def _get_obj_ts(self, identifier: model.Identifier, type_: Type[T]) \
-            -> T:
+    def _get_obj_ts(self, identifier: model.Identifier, type_: Type[_STORABLE]) \
+            -> _STORABLE:
         identifiable = self.object_store.get(identifier)
         if not isinstance(identifiable, type_):
             raise NotFound(f"No {type_.__name__} with {identifier} found!")
@@ -292,7 +296,12 @@ class HTTPApiDecoder:
 
     @classmethod
     def check_type_support(cls, type_: type):
-        if type_ not in cls.type_constructables_map:
+        tolerated_types = (
+            AssetAdministrationShellDescriptor,
+            SubmodelDescriptor,
+            AssetLink,
+        )
+        if type_ not in cls.type_constructables_map and type_ not in tolerated_types:
             raise TypeError(f"Parsing {type_} is not supported!")
 
     @classmethod
@@ -304,8 +313,8 @@ class HTTPApiDecoder:
     @classmethod
     def json_list(cls, data: Union[str, bytes], expect_type: Type[T], stripped: bool, expect_single: bool) -> List[T]:
         cls.check_type_support(expect_type)
-        decoder: Type[StrictAASFromJsonDecoder] = StrictStrippedAASFromJsonDecoder if stripped \
-            else StrictAASFromJsonDecoder
+        decoder: Type[ServerStrictAASFromJsonDecoder] = ServerStrictStrippedAASFromJsonDecoder if stripped \
+            else ServerStrictAASFromJsonDecoder
         try:
             parsed = json.loads(data, cls=decoder)
             if isinstance(parsed, list) and expect_single:
@@ -324,6 +333,9 @@ class HTTPApiDecoder:
                 model.SpecificAssetId: decoder._construct_specific_asset_id,
                 model.Reference: decoder._construct_reference,
                 model.Qualifier: decoder._construct_qualifier,
+                app.model.AssetAdministrationShellDescriptor: decoder._construct_asset_administration_shell_descriptor,
+                app.model.SubmodelDescriptor: decoder._construct_submodel_descriptor,
+                app.model.AssetLink: decoder._construct_asset_link,
             }
 
             constructor: Optional[Callable[..., T]] = mapping.get(expect_type)  # type: ignore[assignment]

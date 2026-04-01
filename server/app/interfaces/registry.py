@@ -139,12 +139,21 @@ class RegistryAPI(ObjectStoreWSGIApp):
         return response_t(descriptor)
 
     def put_aas_descriptor_by_id(self, request: Request, url_args: Dict, response_t: Type[APIResponse],
-                                 **_kwargs) -> Response:
-        descriptor = self._get_aas_descriptor(url_args)
-        descriptor.update_from(HTTPApiDecoder.request_body(request, server_model.AssetAdministrationShellDescriptor,
-                                                           is_stripped_request(request)))
-        descriptor.commit()
-        return response_t()
+                                 map_adapter: MapAdapter, **_kwargs) -> Response:
+        try:
+            descriptor = self._get_aas_descriptor(url_args)
+            descriptor.update_from(HTTPApiDecoder.request_body(request, server_model.AssetAdministrationShellDescriptor,
+                                                               is_stripped_request(request)))
+            descriptor.commit()
+            return response_t()
+        except NotFound:
+            descriptor = HTTPApiDecoder.request_body(request, server_model.AssetAdministrationShellDescriptor, False)
+            self.object_store.add(descriptor)
+            descriptor.commit()
+            created_resource_url = map_adapter.build(self.get_aas_descriptor_by_id, {
+                "aas_id": descriptor.id
+            }, force_external=True)
+            return response_t(descriptor, status=201, headers={"Location": created_resource_url})
 
     def delete_aas_descriptor_by_id(self, request: Request, url_args: Dict, response_t: Type[APIResponse],
                                     **_kwargs) -> Response:
@@ -211,21 +220,36 @@ class RegistryAPI(ObjectStoreWSGIApp):
                                                         response_t:
                                                         Type[
                                                             APIResponse],
-                                                        **_kwargs) -> Response:
+                                                        map_adapter: MapAdapter, **_kwargs) -> Response:
         aas_descriptor = self._get_aas_descriptor(url_args)
-        submodel_id = url_args["submodel_id"]
-        submodel_descriptor = next(
-            (sd for sd in aas_descriptor.submodel_descriptors if
-             sd.id == submodel_id), None)
-        if submodel_descriptor is None:
-            raise NotFound(
-                f"Submodel Descriptor with Identifier {submodel_id} not found in AssetAdministrationShell!")
-        submodel_descriptor.update_from(
-            HTTPApiDecoder.request_body(request,
-                                        server_model.SubmodelDescriptor,
-                                        is_stripped_request(request)))
-        aas_descriptor.commit()
-        return response_t()
+        try:
+            submodel_id = url_args["submodel_id"]
+            submodel_descriptor = next(
+                (sd for sd in aas_descriptor.submodel_descriptors if
+                 sd.id == submodel_id), None)
+            if submodel_descriptor is None:
+                raise NotFound(
+                    f"Submodel Descriptor with Identifier {submodel_id} not found in AssetAdministrationShell!")
+            submodel_descriptor.update_from(
+                HTTPApiDecoder.request_body(request,
+                                            server_model.SubmodelDescriptor,
+                                            is_stripped_request(request)))
+            aas_descriptor.commit()
+            return response_t()
+        except NotFound:
+            submodel_descriptor = HTTPApiDecoder.request_body(request,
+                                                              server_model.SubmodelDescriptor,
+                                                              is_stripped_request(
+                                                                  request))
+            aas_descriptor.submodel_descriptors.append(submodel_descriptor)
+            aas_descriptor.commit()
+            created_resource_url = map_adapter.build(
+                self.get_submodel_descriptor_by_id_through_superpath, {
+                    "aas_id": aas_descriptor.id,
+                    "submodel_id": submodel_descriptor.id
+                }, force_external=True)
+            return response_t(submodel_descriptor, status=201,
+                              headers={"Location": created_resource_url})
 
     def delete_submodel_descriptor_by_id_through_superpath(self,
                                                            request: Request,
@@ -270,12 +294,22 @@ class RegistryAPI(ObjectStoreWSGIApp):
         return response_t(submodel_descriptor, status=201, headers={"Location": created_resource_url})
 
     def put_submodel_descriptor_by_id(self, request: Request, url_args: Dict, response_t: Type[APIResponse],
-                                      **_kwargs) -> Response:
-        submodel_descriptor = self._get_submodel_descriptor(url_args)
-        submodel_descriptor.update_from(
-            HTTPApiDecoder.request_body(request, server_model.SubmodelDescriptor, is_stripped_request(request)))
-        submodel_descriptor.commit()
-        return response_t()
+                                      map_adapter: MapAdapter, **_kwargs) -> Response:
+        try:
+            submodel_descriptor = self._get_submodel_descriptor(url_args)
+            submodel_descriptor.update_from(
+                HTTPApiDecoder.request_body(request, server_model.SubmodelDescriptor, is_stripped_request(request)))
+            submodel_descriptor.commit()
+            return response_t()
+        except NotFound:
+            submodel_descriptor = HTTPApiDecoder.request_body(request, server_model.SubmodelDescriptor,
+                                                              is_stripped_request(request))
+            self.object_store.add(submodel_descriptor)
+            submodel_descriptor.commit()
+            created_resource_url = map_adapter.build(self.get_submodel_descriptor_by_id, {
+                "submodel_id": submodel_descriptor.id
+            }, force_external=True)
+            return response_t(submodel_descriptor, status=201, headers={"Location": created_resource_url})
 
     def delete_submodel_descriptor_by_id(self, request: Request, url_args: Dict, response_t: Type[APIResponse],
                                          **_kwargs) -> Response:
