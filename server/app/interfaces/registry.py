@@ -66,12 +66,12 @@ class RegistryAPI(ObjectStoreWSGIApp):
             server_model.AssetAdministrationShellDescriptor
         )
 
-        asset_kind = request.args.get("assetKind")
-        if asset_kind is not None:
+        asset_kind_str = request.args.get("assetKind")
+        if asset_kind_str is not None:
             try:
-                asset_kind = model.AssetKind[asset_kind]
+                asset_kind = model.AssetKind[asset_kind_str]
             except KeyError:
-                raise BadRequest(f"Invalid assetKind '{asset_kind}', must be one of {list(model.AssetKind.__members__)}")
+                raise BadRequest(f"Invalid assetKind '{asset_kind_str}', must be one of {list(model.AssetKind.__members__)}")
             descriptors = filter(
                 lambda desc: desc.asset_kind == asset_kind,
                 descriptors

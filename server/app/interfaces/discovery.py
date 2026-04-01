@@ -16,7 +16,7 @@ from app.adapter import jsonization
 
 
 class DiscoveryStore:
-    def __init__(self):
+    def __init__(self) -> None:
         self.aas_id_to_asset_ids: Dict[model.Identifier, Set[model.SpecificAssetId]] = {}
         self.asset_id_to_aas_ids: Dict[model.SpecificAssetId, Set[model.Identifier]] = {}
 
