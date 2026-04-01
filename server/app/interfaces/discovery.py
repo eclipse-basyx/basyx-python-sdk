@@ -1,18 +1,19 @@
 """
 This module implements the Discovery interface defined in the 'Specification of the Asset Administration Shell Part 2 – Application Programming Interface'.
 """
+
 import json
 from typing import Dict, List, Set
 
 import werkzeug.exceptions
+from basyx.aas import model
 from werkzeug.routing import Rule, Submount
 from werkzeug.wrappers import Request, Response
 
-from basyx.aas import model
-from app.util.converters import IdentifierToBase64URLConverter
-from app.interfaces.base import BaseWSGIApp, HTTPApiDecoder
 from app import model as server_model
 from app.adapter import jsonization
+from app.interfaces.base import BaseWSGIApp, HTTPApiDecoder
+from app.util.converters import IdentifierToBase64URLConverter
 
 
 class DiscoveryStore:
@@ -23,8 +24,7 @@ class DiscoveryStore:
     def get_all_specific_asset_ids_by_aas_id(self, aas_id: model.Identifier) -> List[model.SpecificAssetId]:
         return list(self.aas_id_to_asset_ids.get(aas_id, set()))
 
-    def add_specific_asset_ids_to_aas(self, aas_id: model.Identifier,
-                                      asset_ids: List[model.SpecificAssetId]) -> None:
+    def add_specific_asset_ids_to_aas(self, aas_id: model.Identifier, asset_ids: List[model.SpecificAssetId]) -> None:
 
         if aas_id not in self.aas_id_to_asset_ids:
             self.aas_id_to_asset_ids[aas_id] = set()
@@ -82,28 +82,44 @@ class DiscoveryStore:
 
 
 class DiscoveryAPI(BaseWSGIApp):
-    def __init__(self,
-                 persistent_store: DiscoveryStore, base_path: str = "/api/v3.1.1"):
+    def __init__(self, persistent_store: DiscoveryStore, base_path: str = "/api/v3.1.1"):
         self.persistent_store: DiscoveryStore = persistent_store
-        self.url_map = werkzeug.routing.Map([
-            Submount(base_path, [
-                Rule("/lookup/shellsByAssetLink", methods=["POST"],
-                     endpoint=self.search_all_aas_ids_by_asset_link),
-                Submount("/lookup/shells", [
-                    Rule("/<base64url:aas_id>", methods=["GET"],
-                         endpoint=self.get_all_specific_asset_ids_by_aas_id),
-                    Rule("/<base64url:aas_id>", methods=["POST"],
-                         endpoint=self.post_all_asset_links_by_id),
-                    Rule("/<base64url:aas_id>", methods=["DELETE"],
-                         endpoint=self.delete_all_asset_links_by_id),
-                ]),
-            ])
-        ], converters={
-            "base64url": IdentifierToBase64URLConverter
-        }, strict_slashes=False)
+        self.url_map = werkzeug.routing.Map(
+            [
+                Submount(
+                    base_path,
+                    [
+                        Rule(
+                            "/lookup/shellsByAssetLink",
+                            methods=["POST"],
+                            endpoint=self.search_all_aas_ids_by_asset_link,
+                        ),
+                        Submount(
+                            "/lookup/shells",
+                            [
+                                Rule(
+                                    "/<base64url:aas_id>",
+                                    methods=["GET"],
+                                    endpoint=self.get_all_specific_asset_ids_by_aas_id,
+                                ),
+                                Rule("/<base64url:aas_id>", methods=["POST"], endpoint=self.post_all_asset_links_by_id),
+                                Rule(
+                                    "/<base64url:aas_id>",
+                                    methods=["DELETE"],
+                                    endpoint=self.delete_all_asset_links_by_id,
+                                ),
+                            ],
+                        ),
+                    ],
+                )
+            ],
+            converters={"base64url": IdentifierToBase64URLConverter},
+            strict_slashes=False,
+        )
 
-    def search_all_aas_ids_by_asset_link(self, request: Request, url_args: dict, response_t: type,
-                                         **_kwargs) -> Response:
+    def search_all_aas_ids_by_asset_link(
+        self, request: Request, url_args: dict, response_t: type, **_kwargs
+    ) -> Response:
         asset_links = HTTPApiDecoder.request_body_list(request, server_model.AssetLink, False)
         matching_aas_keys = set()
         for asset_link in asset_links:
@@ -112,7 +128,9 @@ class DiscoveryAPI(BaseWSGIApp):
         paginated_slice, cursor = self._get_slice(request, list(matching_aas_keys))
         return response_t(list(paginated_slice), cursor=cursor)
 
-    def get_all_specific_asset_ids_by_aas_id(self, request: Request, url_args: dict, response_t: type, **_kwargs) -> Response:
+    def get_all_specific_asset_ids_by_aas_id(
+        self, request: Request, url_args: dict, response_t: type, **_kwargs
+    ) -> Response:
         aas_identifier = str(url_args["aas_id"])
         asset_ids = self.persistent_store.get_all_specific_asset_ids_by_aas_id(aas_identifier)
         return response_t(asset_ids)
@@ -137,5 +155,4 @@ class DiscoveryAPI(BaseWSGIApp):
 if __name__ == "__main__":
     from werkzeug.serving import run_simple
 
-    run_simple("localhost", 8084, DiscoveryAPI(DiscoveryStore()),
-               use_debugger=True, use_reloader=True)
+    run_simple("localhost", 8084, DiscoveryAPI(DiscoveryStore()), use_debugger=True, use_reloader=True)

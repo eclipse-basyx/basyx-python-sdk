@@ -1,5 +1,5 @@
-import os
 import atexit
+import os
 
 from app.interfaces.discovery import DiscoveryAPI, DiscoveryStore
 
@@ -18,9 +18,11 @@ if storage_path:
 else:
     discovery_store = DiscoveryStore()
 
+
 def persist_store():
     if storage_path:
         discovery_store.to_file(storage_path)
+
 
 atexit.register(persist_store)
 

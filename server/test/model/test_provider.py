@@ -3,20 +3,24 @@ import unittest
 from app import model
 from app.model.provider import DictDescriptorStore
 
+
 class DictDescriptorStoreTest(unittest.TestCase):
     def setUp(self) -> None:
         self.mock_endpoint = model.Endpoint(
-            interface="AAS-3.0",
-            protocol_information=model.ProtocolInformation(href="https://example.org/")
+            interface="AAS-3.0", protocol_information=model.ProtocolInformation(href="https://example.org/")
         )
-        self.aasd1 = model.AssetAdministrationShellDescriptor(id_="https://example.org/AASDescriptor/1",
-                                                              endpoints=[self.mock_endpoint])
-        self.aasd2 = model.AssetAdministrationShellDescriptor(id_="https://example.org/AASDescriptor/2",
-                                                             endpoints=[self.mock_endpoint])
-        self.sd1 = model.SubmodelDescriptor(id_="https://example.org/SubmodelDescriptor/1",
-                                            endpoints=[self.mock_endpoint])
-        self.sd2 = model.SubmodelDescriptor(id_="https://example.org/SubmodelDescriptor/2",
-                                            endpoints=[self.mock_endpoint])
+        self.aasd1 = model.AssetAdministrationShellDescriptor(
+            id_="https://example.org/AASDescriptor/1", endpoints=[self.mock_endpoint]
+        )
+        self.aasd2 = model.AssetAdministrationShellDescriptor(
+            id_="https://example.org/AASDescriptor/2", endpoints=[self.mock_endpoint]
+        )
+        self.sd1 = model.SubmodelDescriptor(
+            id_="https://example.org/SubmodelDescriptor/1", endpoints=[self.mock_endpoint]
+        )
+        self.sd2 = model.SubmodelDescriptor(
+            id_="https://example.org/SubmodelDescriptor/2", endpoints=[self.mock_endpoint]
+        )
 
     def test_store_retrieve(self) -> None:
         descriptor_store: DictDescriptorStore = DictDescriptorStore()
@@ -25,12 +29,15 @@ class DictDescriptorStoreTest(unittest.TestCase):
         self.assertIn(self.aasd1, descriptor_store)
         self.assertFalse(self.sd1 in descriptor_store)
 
-        aasd3 = model.AssetAdministrationShellDescriptor(id_="https://example.org/AASDescriptor/1",
-                                                         endpoints=[self.mock_endpoint])
+        aasd3 = model.AssetAdministrationShellDescriptor(
+            id_="https://example.org/AASDescriptor/1", endpoints=[self.mock_endpoint]
+        )
         with self.assertRaises(KeyError) as cm:
             descriptor_store.add(aasd3)
-        self.assertEqual("'Descriptor object with same id https://example.org/AASDescriptor/1 is already "
-                         "stored in this store'", str(cm.exception))
+        self.assertEqual(
+            "'Descriptor object with same id https://example.org/AASDescriptor/1 is already " "stored in this store'",
+            str(cm.exception),
+        )
         self.assertEqual(2, len(descriptor_store))
         self.assertIs(self.aasd1, descriptor_store.get("https://example.org/AASDescriptor/1"))
 

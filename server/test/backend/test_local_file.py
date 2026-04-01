@@ -6,11 +6,10 @@
 # SPDX-License-Identifier: MIT
 import os.path
 import shutil
-
 from unittest import TestCase
 
-from app.backend import local_file
 from app import model
+from app.backend import local_file
 from app.model import provider
 
 store_path: str = os.path.dirname(__file__) + "/local_file_test_folder"
@@ -22,24 +21,26 @@ class LocalFileBackendTest(TestCase):
         self.descriptor_store = local_file.LocalFileDescriptorStore(store_path)
         self.descriptor_store.check_directory(create=True)
         self.mock_endpoint = model.Endpoint(
-            interface="AAS-3.0",
-            protocol_information=model.ProtocolInformation(href="https://example.org/")
+            interface="AAS-3.0", protocol_information=model.ProtocolInformation(href="https://example.org/")
         )
-        self.aasd1 = model.AssetAdministrationShellDescriptor(id_="https://example.org/AASDescriptor/1",
-                                                              endpoints=[self.mock_endpoint])
-        self.aasd2 = model.AssetAdministrationShellDescriptor(id_="https://example.org/AASDescriptor/2",
-                                                              endpoints=[self.mock_endpoint])
-        self.sd1 = model.SubmodelDescriptor(id_="https://example.org/SubmodelDescriptor/1",
-                                            endpoints=[self.mock_endpoint])
-        self.sd2 = model.SubmodelDescriptor(id_="https://example.org/SubmodelDescriptor/2",
-                                            endpoints=[self.mock_endpoint])
+        self.aasd1 = model.AssetAdministrationShellDescriptor(
+            id_="https://example.org/AASDescriptor/1", endpoints=[self.mock_endpoint]
+        )
+        self.aasd2 = model.AssetAdministrationShellDescriptor(
+            id_="https://example.org/AASDescriptor/2", endpoints=[self.mock_endpoint]
+        )
+        self.sd1 = model.SubmodelDescriptor(
+            id_="https://example.org/SubmodelDescriptor/1", endpoints=[self.mock_endpoint]
+        )
+        self.sd2 = model.SubmodelDescriptor(
+            id_="https://example.org/SubmodelDescriptor/2", endpoints=[self.mock_endpoint]
+        )
 
     def tearDown(self) -> None:
         try:
             self.descriptor_store.clear()
         finally:
             shutil.rmtree(store_path)
-
 
     def test_add(self) -> None:
         self.descriptor_store.add(self.aasd1)
@@ -74,15 +75,19 @@ class LocalFileBackendTest(TestCase):
         self.descriptor_store.add(self.aasd1)
         with self.assertRaises(KeyError) as cm:
             self.descriptor_store.add(self.aasd1)
-        self.assertEqual("'Descriptor with id https://example.org/AASDescriptor/1 already exists in "
-                            "local file database'", str(cm.exception))
+        self.assertEqual(
+            "'Descriptor with id https://example.org/AASDescriptor/1 already exists in " "local file database'",
+            str(cm.exception),
+        )
 
         self.descriptor_store.discard(self.aasd1)
         with self.assertRaises(KeyError) as cm:
             self.descriptor_store.get_item("https://example.org/AASDescriptor/1")
         self.assertIsNone(self.descriptor_store.get("https://example.org/AASDescriptor/1"))
-        self.assertEqual("'No Identifiable with id https://example.org/AASDescriptor/1 found in local "
-                            "file database'", str(cm.exception))
+        self.assertEqual(
+            "'No Identifiable with id https://example.org/AASDescriptor/1 found in local " "file database'",
+            str(cm.exception),
+        )
 
     def test_reload_discard(self) -> None:
         self.descriptor_store.add(self.sd1)

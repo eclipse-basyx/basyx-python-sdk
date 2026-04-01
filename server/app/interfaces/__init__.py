@@ -1,4 +1,4 @@
 from .base import *
-from .registry import *
 from .discovery import *
+from .registry import *
 from .repository import *

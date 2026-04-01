@@ -1,32 +1,3 @@
-""""
-import sys
-import os
-sys.path.insert(0, "/")
-from server.app.interfaces.registry import RegistryAPI
-from app.model import DictDescriptorStore
-from app.backend import LocalFileDescriptorStore
-
-storage_path = os.getenv("STORAGE_PATH", "/storage")
-storage_type = os.getenv("STORAGE_TYPE", "LOCAL_FILE_READ_ONLY")
-base_path = os.getenv("API_BASE_PATH")
-
-wsgi_optparams = {}
-
-if base_path is not None:
-    wsgi_optparams["base_path"] = base_path
-
-if storage_type == "LOCAL_FILE_BACKEND":
-    application = RegistryAPI(LocalFileDescriptorStore(storage_path), **wsgi_optparams)
-
-elif storage_type in "LOCAL_FILE_READ_ONLY":
-    object_store: DictDescriptorStore = DictDescriptorStore()
-
-    application = RegistryAPI(object_store, **wsgi_optparams)
-
-else:
-    print(f"STORAGE_TYPE must be either LOCAL_FILE or LOCAL_FILE_READ_ONLY! Current value: {storage_type}",
-          file=sys.stderr)
-"""
 # Copyright (c) 2026 the Eclipse BaSyx Authors
 #
 # This program and the accompanying materials are made available under the terms of the MIT License, available in
@@ -34,19 +5,19 @@ else:
 #
 # SPDX-License-Identifier: MIT
 """
-This module provides the WSGI entry point for the Asset Administration Shell Repository Server.
+This module provides the WSGI entry point for the Asset Administration Shell Registry Server.
 """
 
 import logging
 import os
-from app.model import load_directory
-from app.backend import LocalFileDescriptorStore
-from app.model import  DictDescriptorStore
-from app.interfaces.registry import RegistryAPI
 from typing import Union
 
+from app.backend import LocalFileDescriptorStore
+from app.interfaces.registry import RegistryAPI
+from app.model import DictDescriptorStore, load_directory
 
 # -------- Helper methods --------
+
 
 def setup_logger() -> logging.Logger:
     """
@@ -67,11 +38,7 @@ def setup_logger() -> logging.Logger:
 
 
 def build_storage(
-    env_input: str,
-    env_storage: str,
-    env_storage_persistency: bool,
-    env_storage_overwrite: bool,
-    logger: logging.Logger
+    env_input: str, env_storage: str, env_storage_persistency: bool, env_storage_overwrite: bool, logger: logging.Logger
 ) -> Union[DictDescriptorStore, LocalFileDescriptorStore]:
     """
     Configure the server's storage according to the given start-up settings.
@@ -95,30 +62,24 @@ def build_storage(
         if os.path.isdir(env_input):
             input_files = load_directory(env_input)
             added, overwritten, skipped = storage_files.sync(input_files, env_storage_overwrite)
-            logger.info(
-                "Loaded %d descriptors(s) from \"%s\"",
-                len(input_files), env_input
-            )
+            logger.info('Loaded %d descriptors(s) from "%s"', len(input_files), env_input)
             logger.info(
                 "Synced INPUT to STORAGE with %d added and %d %s",
                 added,
                 overwritten if env_storage_overwrite else skipped,
-                "overwritten" if env_storage_overwrite else "skipped"
+                "overwritten" if env_storage_overwrite else "skipped",
             )
             return storage_files
         else:
-            logger.warning("INPUT directory \"%s\" not found, starting empty", env_input)
+            logger.warning('INPUT directory "%s" not found, starting empty', env_input)
             return storage_files
 
     if os.path.isdir(env_input):
         input_files = load_directory(env_input)
-        logger.info(
-            "Loaded %d descriptors(s) from \"%s\"",
-            len(input_files), env_input
-        )
+        logger.info('Loaded %d descriptors(s) from "%s"', len(input_files), env_input)
         return input_files
     else:
-        logger.warning("INPUT directory \"%s\" not found, starting empty", env_input)
+        logger.warning('INPUT directory "%s" not found, starting empty', env_input)
         return DictDescriptorStore()
 
 
@@ -135,17 +96,15 @@ env_api_base_path = os.getenv("API_BASE_PATH")
 wsgi_optparams = {"base_path": env_api_base_path} if env_api_base_path else {}
 
 logger.info(
-    "Loaded settings API_BASE_PATH=\"%s\", INPUT=\"%s\", STORAGE=\"%s\", PERSISTENCY=%s, OVERWRITE=%s",
-    env_api_base_path or "", env_input, env_storage, env_storage_persistency, env_storage_overwrite
-)
-
-storage_files = build_storage(
+    'Loaded settings API_BASE_PATH="%s", INPUT="%s", STORAGE="%s", PERSISTENCY=%s, OVERWRITE=%s',
+    env_api_base_path or "",
     env_input,
     env_storage,
     env_storage_persistency,
     env_storage_overwrite,
-    logger
 )
+
+storage_files = build_storage(env_input, env_storage, env_storage_persistency, env_storage_overwrite, logger)
 
 application = RegistryAPI(storage_files, **wsgi_optparams)
 

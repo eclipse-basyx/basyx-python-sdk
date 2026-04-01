@@ -1,12 +1,11 @@
-from typing import Iterable, Dict, Iterator, Union
+from pathlib import Path
+from typing import IO, Dict, Iterable, Iterator, Union
 
 from basyx.aas import model
 from basyx.aas.model import provider as sdk_provider
-from pathlib import Path
-from typing import Dict, IO,  Iterable
 
-from app.model import descriptor
 from app.adapter import read_server_aas_json_file_into
+from app.model import descriptor
 
 PathOrIO = Union[Path, IO]
 
@@ -31,8 +30,7 @@ class DictDescriptorStore(sdk_provider.AbstractObjectStore[model.Identifier, _DE
 
     def add(self, x: _DESCRIPTOR_TYPE) -> None:
         if x.id in self._backend and self._backend.get(x.id) is not x:
-            raise KeyError("Descriptor object with same id {} is already stored in this store"
-                           .format(x.id))
+            raise KeyError("Descriptor object with same id {} is already stored in this store".format(x.id))
         self._backend[x.id] = x
 
     def discard(self, x: _DESCRIPTOR_TYPE) -> None:
@@ -51,6 +49,7 @@ class DictDescriptorStore(sdk_provider.AbstractObjectStore[model.Identifier, _DE
 
     def __iter__(self) -> Iterator[_DESCRIPTOR_TYPE]:
         return iter(self._backend.values())
+
 
 def load_directory(directory: Union[Path, str]) -> DictDescriptorStore:
     """

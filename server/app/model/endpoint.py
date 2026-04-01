@@ -2,7 +2,7 @@ from __future__ import absolute_import
 
 import re
 from enum import Enum
-from typing import Optional, List
+from typing import List, Optional
 
 from basyx.aas.model import base
 
@@ -40,14 +40,14 @@ class SecurityAttributeObject:
 class ProtocolInformation:
 
     def __init__(
-            self,
-            href: str,
-            endpoint_protocol: Optional[str] = None,
-            endpoint_protocol_version: Optional[List[str]] = None,
-            subprotocol: Optional[str] = None,
-            subprotocol_body: Optional[str] = None,
-            subprotocol_body_encoding: Optional[str] = None,
-            security_attributes: Optional[List[SecurityAttributeObject]] = None
+        self,
+        href: str,
+        endpoint_protocol: Optional[str] = None,
+        endpoint_protocol_version: Optional[List[str]] = None,
+        subprotocol: Optional[str] = None,
+        subprotocol_body: Optional[str] = None,
+        subprotocol_body_encoding: Optional[str] = None,
+        security_attributes: Optional[List[SecurityAttributeObject]] = None,
     ):
         if not href or not isinstance(href, str):
             raise ValueError("href must be a non-empty string representing a valid URL.")
@@ -63,9 +63,16 @@ class ProtocolInformation:
 
 class Endpoint:
     INTERFACE_SHORTNAMES = {
-        "AAS", "SUBMODEL", "SERIALIZE", "AASX-FILE", "AAS-REGISTRY",
-        "SUBMODEL-REGISTRY", "AAS-REPOSITORY", "SUBMODEL-REPOSITORY",
-        "CD-REPOSITORY", "AAS-DISCOVERY"
+        "AAS",
+        "SUBMODEL",
+        "SERIALIZE",
+        "AASX-FILE",
+        "AAS-REGISTRY",
+        "SUBMODEL-REGISTRY",
+        "AAS-REPOSITORY",
+        "SUBMODEL-REPOSITORY",
+        "CD-REPOSITORY",
+        "AAS-DISCOVERY",
     }
     VERSION_PATTERN = re.compile(r"^\d+(\.\d+)*$")
 

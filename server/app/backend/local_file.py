@@ -1,18 +1,16 @@
-from typing import Iterator, Dict, Type, Union
-import logging
-import json
-import os
 import hashlib
+import json
+import logging
+import os
 import threading
 import weakref
+from typing import Dict, Iterator, Type, Union
 
-from app.model import AssetAdministrationShellDescriptor, SubmodelDescriptor
 from basyx.aas import model
 from basyx.aas.model import provider as sdk_provider
 
-from app.model import descriptor
 from app.adapter import jsonization
-
+from app.model import AssetAdministrationShellDescriptor, SubmodelDescriptor, descriptor
 
 logger = logging.getLogger(__name__)
 
@@ -31,6 +29,7 @@ class LocalFileDescriptorStore(sdk_provider.AbstractObjectStore[model.Identifier
     An ObjectStore implementation for :class:`~app.model.descriptor.Descriptor` BaSyx Python SDK objects backed
     by a local file based local backend
     """
+
     def __init__(self, directory_path: str):
         """
         Initializer of class LocalFileDescriptorStore
@@ -44,8 +43,9 @@ class LocalFileDescriptorStore(sdk_provider.AbstractObjectStore[model.Identifier
         # local replication of each object is kept in the application and retrieving an object from the store always
         # returns the **same** (not only equal) object. Still, objects are forgotten, when they are not referenced
         # anywhere else to save memory.
-        self._object_cache: weakref.WeakValueDictionary[model.Identifier, _DESCRIPTOR_TYPE] \
-            = weakref.WeakValueDictionary()
+        self._object_cache: weakref.WeakValueDictionary[model.Identifier, _DESCRIPTOR_TYPE] = (
+            weakref.WeakValueDictionary()
+        )
         self._object_cache_lock = threading.Lock()
 
     def check_directory(self, create=False):
@@ -107,9 +107,7 @@ class LocalFileDescriptorStore(sdk_provider.AbstractObjectStore[model.Identifier
             # Usually, we don't need to serialize the modelType, since during HTTP requests, we know exactly if this
             # is an AASDescriptor or SubmodelDescriptor. However, here we cannot distinguish them, so to deserialize
             # them successfully, we hack the `modelType` into the JSON.
-            serialized = json.loads(
-                json.dumps(x, cls=jsonization.ServerAASToJsonEncoder)
-            )
+            serialized = json.loads(json.dumps(x, cls=jsonization.ServerAASToJsonEncoder))
             serialized["modelType"] = DESCRIPTOR_TYPE_TO_STRING[type(x)]
             json.dump(serialized, file, indent=4)
             with self._object_cache_lock:
