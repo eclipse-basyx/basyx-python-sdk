@@ -478,8 +478,8 @@ class WSGIApp(ObjectStoreWSGIApp):
         semantic_id = request.args.get("semanticId")
         if semantic_id is not None:
             spec_semantic_id = HTTPApiDecoder.base64url_json(
-                semantic_id, model.Reference, False
-            )  # type: ignore[type-abstract]
+                semantic_id, model.Reference, False # type: ignore[type-abstract]
+            )
             submodels = filter(lambda sm: sm.semantic_id == spec_semantic_id, submodels)
         paginated_submodels, end_index = self._get_slice(request, submodels)
         return paginated_submodels, end_index
