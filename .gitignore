@@ -38,3 +38,4 @@ server/example_configurations/registry_standalone/input/
 server/example_configurations/registry_standalone/storage/
 /storage/
 server/storage/
+/server/example_configurations/compose.yml
