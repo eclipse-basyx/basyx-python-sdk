@@ -4,7 +4,7 @@ from typing import IO, Dict, Iterable, Iterator, Union
 from basyx.aas import model
 from basyx.aas.model import provider as sdk_provider
 
-from app.adapter import read_server_aas_json_file_into
+import app.adapter as adapter
 from app.model import descriptor
 
 PathOrIO = Union[Path, IO]
@@ -74,6 +74,6 @@ def load_directory(directory: Union[Path, str]) -> DictDescriptorStore:
         suffix = file.suffix.lower()
         if suffix == ".json":
             with open(file) as f:
-                read_server_aas_json_file_into(dict_descriptor_store, f)
+                adapter.read_server_aas_json_file_into(dict_descriptor_store, f)
 
     return dict_descriptor_store
