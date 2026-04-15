@@ -1230,20 +1230,28 @@ class ConstrainedListTest(unittest.TestCase):
 
 class LangStringSetTest(unittest.TestCase):
     def test_language_tag_constraints(self) -> None:
+        with self.assertRaises(ValueError):
+            model.LangStringSet({"": "bar"})
+
         with self.assertRaises(ValueError) as cm:
-            model.LangStringSet({"foo": "bar"})
-        self.assertEqual("The language code of the language tag must consist of exactly two lower-case letters! "
-                         "Given language tag and language code: 'foo', 'foo'", str(cm.exception))
+            model.LangStringSet({"x": "bar"})
+        self.assertEqual(f"The language tag must follow the format defined in BCP 47. "
+                         f"Given language tag: x", cm.exception.args[0])
+
+        with self.assertRaises(ValueError) as cm:
+            model.LangStringSet({"foo-oo1": "bar"})
+        self.assertEqual(f"The language tag must follow the format defined in BCP 47. "
+                         f"Given language tag: foo-oo1", cm.exception.args[0])
 
         lss = model.LangStringSet({"fo-OO": "bar"})
-        with self.assertRaises(ValueError) as cm:
-            lss["foo"] = "bar"
-        self.assertEqual("The language code of the language tag must consist of exactly two lower-case letters! "
-                         "Given language tag and language code: 'foo', 'foo'", str(cm.exception))
-        self.assertNotIn("foo", lss)
-        self.assertNotIn("fo", lss)
-        lss["fo"] = "bar"
-        self.assertIn("fo", lss)
+        self.assertIn("fo-OO", lss)
+        with self.assertRaises(ValueError):
+            lss["foo-oo1"] = "bar"
+        self.assertNotIn("foo-oo1", lss)
+
+        self.assertNotIn("foo-ASDF-OO", lss)
+        lss["foo-ASDF-OO"] = "bar"
+        self.assertIn("foo-ASDF-OO", lss)
 
     def test_empty(self) -> None:
         lss = model.LangStringSet({"fo": "bar", "fo-OO": "baz"})
