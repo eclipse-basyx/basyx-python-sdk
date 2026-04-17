@@ -319,7 +319,7 @@ class LangStringSet(MutableMapping[str, str]):
         script = "[a-zA-Z]{4}"
         region = "([a-zA-Z]{2}|[0-9]{3})"
         variant = f"(({alphanum}){{5,8}}|[0-9]({alphanum}){{3}})"
-        privateuse = f"[x](-({alphanum}){{1,8}})+"
+        privateuse = f"[xX](-({alphanum}){{1,8}})+"
         langtag = (
             f"{language}(-{script})?(-{region})?(-{variant})*(-{extension})*(-"
             f"{privateuse})?"
