@@ -11,7 +11,7 @@ This module provides the WSGI entry point for the Asset Administration Shell Reg
 import logging
 import os
 from typing import Union
-from wsgicors import CORS
+from wsgicors import CORS # type: ignore
 
 from app.backend import LocalFileDescriptorStore
 from app.interfaces.registry import RegistryAPI

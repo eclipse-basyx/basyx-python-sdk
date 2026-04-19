@@ -11,7 +11,7 @@ This module provides the WSGI entry point for the Asset Administration Shell Rep
 import logging
 import os
 from typing import Tuple, Union
-from wsgicors import CORS
+from wsgicors import CORS # type: ignore
 
 from basyx.aas.adapter import load_directory
 from basyx.aas.adapter.aasx import DictSupplementaryFileContainer

@@ -2,7 +2,7 @@ import atexit
 import os
 
 from app.interfaces.discovery import DiscoveryAPI, DiscoveryStore
-from wsgicors import CORS
+from wsgicors import CORS # type: ignore
 
 storage_path = os.getenv("storage_path", None)
 base_path = os.getenv("API_BASE_PATH")
