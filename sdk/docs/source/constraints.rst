@@ -57,8 +57,8 @@ an :class:`~basyx.aas.model.base.AASConstraintViolation` will be raised
 .. |aasc006| replace:: For a ``ConceptDescription`` with ``category`` DOCUMENT using data specification template IEC61360 - ``DataSpecificationIEC61360/dataType`` shall be one of the following values: STRING or URL.
 .. |aasc007| replace:: For a ``ConceptDescription`` with ``category`` QUALIFIER_TYPE using data specification template IEC61360 - ``DataSpecificationIEC61360/dataType`` is mandatory and shall be defined.
 .. |aasc008| replace:: For a ConceptDescriptions except for a ``ConceptDescription`` of ``category`` VALUE using data specification template IEC61360 - ``DataSpecificationIEC61360/definition`` is mandatory and shall be defined at least in English.
-.. |aasc009| replace:: If ``DataSpecificationIEC61360/dataType`` one of: INTEGER_MEASURE, REAL_MEASURE, RATIONAL_MEASURE, INTEGER_CURRENCY, REAL_CURRENCY, then ``DataSpecificationIEC61360/unit`` or ``DataSpecificationIEC61360/unitId`` shall be defined.
-.. |aasc010| replace:: If ``DataSpecificationIEC61360/value`` is not empty then ``DataSpecificationIEC61360/valueList`` shall be empty and vice versa.
+.. |aasc3a009| replace:: If ``DataSpecificationIEC61360/dataType`` is one of: INTEGER_MEASURE, REAL_MEASURE, RATIONAL_MEASURE, INTEGER_CURRENCY, REAL_CURRENCY, then ``DataSpecificationIEC61360/unit`` or ``DataSpecificationIEC61360/unitId`` shall be defined.
+.. |aasc3a010| replace:: If ``DataSpecificationIEC61360/value`` is not empty then ``DataSpecificationIEC61360/valueList`` shall be empty and vice versa.
 
 
 ..  csv-table::
@@ -106,5 +106,5 @@ an :class:`~basyx.aas.model.base.AASConstraintViolation` will be raised
     AASc-006, |aasc006|, tbd
     AASc-007, |aasc007|, tbd
     AASc-008, |aasc008|, tbd
-    AASc-009, |aasc009|, tbd
-    AASc-010, |aasc010|, tbd
+    AASc-3a-009, |aasc3a009|, tbd
+    AASc-3a-010, |aasc3a010|, tbd
