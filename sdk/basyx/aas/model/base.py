@@ -1172,7 +1172,7 @@ class DataSpecificationContent:
     **Constraint AASc-3a-050:** If the ``Data_specification_IEC_61360`` is used
     for an element, the value of ``HasDataSpecification.embedded_data_specifications``
     shall contain the external reference to the IRI of the corresponding data specification
-    template ``https://admin-shell.io/DataSpecificationTemplates/DataSpecificationIEC61360/3/0``
+    template ``https://admin-shell.io/DataSpecificationTemplates/DataSpecificationIEC61360/3``
     """
     @abc.abstractmethod
     def __init__(self):

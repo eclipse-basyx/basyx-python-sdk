@@ -35,7 +35,7 @@
             <aas:keys>
               <aas:key>
                 <aas:type>GlobalReference</aas:type>
-                <aas:value>https://admin-shell.io/DataSpecificationTemplates/DataSpecificationIEC61360/3/0</aas:value>
+                <aas:value>https://admin-shell.io/DataSpecificationTemplates/DataSpecificationIEC61360/3</aas:value>
               </aas:key>
             </aas:keys>
           </aas:dataSpecification>
@@ -1229,7 +1229,7 @@
                         <aas:keys>
                           <aas:key>
                             <aas:type>GlobalReference</aas:type>
-                            <aas:value>https://admin-shell.io/DataSpecificationTemplates/DataSpecificationIEC61360/3/0</aas:value>
+                            <aas:value>https://admin-shell.io/DataSpecificationTemplates/DataSpecificationIEC61360/3</aas:value>
                           </aas:key>
                         </aas:keys>
                       </aas:dataSpecification>
@@ -2851,7 +2851,7 @@
               <aas:keys>
                 <aas:key>
                   <aas:type>GlobalReference</aas:type>
-                  <aas:value>https://admin-shell.io/DataSpecificationTemplates/DataSpecificationIEC61360/3/0</aas:value>
+                  <aas:value>https://admin-shell.io/DataSpecificationTemplates/DataSpecificationIEC61360/3</aas:value>
                 </aas:key>
               </aas:keys>
             </aas:dataSpecification>
