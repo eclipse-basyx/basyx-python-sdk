@@ -1,4 +1,4 @@
-# Copyright (c) 2025 the Eclipse BaSyx Authors
+# Copyright (c) 2026 the Eclipse BaSyx Authors
 #
 # This program and the accompanying materials are made available under the terms of the MIT License, available in
 # the LICENSE file of this project.
@@ -12,9 +12,9 @@ import logging
 import os
 from basyx.aas.adapter import load_directory
 from basyx.aas.adapter.aasx import DictSupplementaryFileContainer
-from basyx.aas.backend.local_file import LocalFileObjectStore
-from basyx.aas.model.provider import DictObjectStore
-from interfaces.repository import WSGIApp
+from basyx.aas.backend.local_file import LocalFileIdentifiableStore
+from basyx.aas.model.provider import DictIdentifiableStore
+from app.interfaces.repository import WSGIApp
 from typing import Tuple, Union
 
 
@@ -44,25 +44,25 @@ def build_storage(
     env_storage_persistency: bool,
     env_storage_overwrite: bool,
     logger: logging.Logger
-) -> Tuple[Union[DictObjectStore, LocalFileObjectStore], DictSupplementaryFileContainer]:
+) -> Tuple[Union[DictIdentifiableStore, LocalFileIdentifiableStore], DictSupplementaryFileContainer]:
     """
     Configure the server's storage according to the given start-up settings.
 
     :param env_input: ``str`` pointing to the input directory of the server
-    :param env_storage: ``str`` pointing to the :class:`~basyx.aas.backend.local_file.LocalFileObjectStore` storage
-        directory of the server if persistent storage is enabled
+    :param env_storage: ``str`` pointing to the :class:`~basyx.aas.backend.local_file.LocalFileIdentifiableStore`
+        storage directory of the server if persistent storage is enabled
     :param env_storage_persistency: Flag to enable persistent storage
     :param env_storage_overwrite: Flag to overwrite existing :class:`Identifiables <basyx.aas.model.base.Identifiable>`
-        in the :class:`~basyx.aas.backend.local_file.LocalFileObjectStore` if persistent storage is enabled
+        in the :class:`~basyx.aas.backend.local_file.LocalFileIdentifiableStore` if persistent storage is enabled
     :param logger: :class:`~logging.Logger` used for start-up diagnostics
-    :return: Tuple consisting of a :class:`~basyx.aas.model.provider.DictObjectStore` if persistent storage is disabled
-        or a :class:`~basyx.aas.backend.local_file.LocalFileObjectStore` if persistent storage is enabled and a
-        :class:`~basyx.aas.adapter.aasx.DictSupplementaryFileContainer` as storage for
+    :return: Tuple consisting of a :class:`~basyx.aas.model.provider.DictIdentifiableStore` if persistent storage is
+        disabled or a :class:`~basyx.aas.backend.local_file.LocalFileIdentifiableStore` if persistent storage is
+        enabled and a :class:`~basyx.aas.adapter.aasx.DictSupplementaryFileContainer` as storage for
         :class:`~interfaces.repository.WSGIApp`
     """
 
     if env_storage_persistency:
-        storage_files = LocalFileObjectStore(env_storage)
+        storage_files = LocalFileIdentifiableStore(env_storage)
         storage_files.check_directory(create=True)
         if os.path.isdir(env_input):
             input_files, input_supp_files = load_directory(env_input)
@@ -91,7 +91,7 @@ def build_storage(
         return input_files, input_supp_files
     else:
         logger.warning("INPUT directory \"%s\" not found, starting empty", env_input)
-        return DictObjectStore(), DictSupplementaryFileContainer()
+        return DictIdentifiableStore(), DictSupplementaryFileContainer()
 
 
 # -------- WSGI entrypoint --------

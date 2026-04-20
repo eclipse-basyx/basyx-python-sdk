@@ -91,38 +91,38 @@ submodel_and_aas = json.loads(json_string, cls=basyx.aas.adapter.json.AASFromJso
 # Step 4: Writing Multiple Identifiable Objects to a (Standard-compliant) JSON/XML File #
 #########################################################################################
 
-# step 4.1: creating an ObjectStore containing the objects to be serialized
+# step 4.1: creating an IdentifiableStore containing the objects to be serialized
 # For more information, take a look into `tutorial_storage.py`
-obj_store: model.DictObjectStore[model.Identifiable] = model.DictObjectStore()
-obj_store.add(submodel)
-obj_store.add(aashell)
+identifiable_store: model.DictIdentifiableStore[model.Identifiable] = model.DictIdentifiableStore()
+identifiable_store.add(submodel)
+identifiable_store.add(aashell)
 
-# step 4.2: writing the contents of the ObjectStore to a JSON file
-basyx.aas.adapter.json.write_aas_json_file('data.json', obj_store)
+# step 4.2: writing the contents of the IdentifiableStore to a JSON file
+basyx.aas.adapter.json.write_aas_json_file('data.json', identifiable_store)
 
 # We can pass the additional keyword argument `indent=4` to `write_aas_json_file()` to format the JSON file in a more
 # human-readable (but much more space-consuming) manner.
 
-# step 4.3: writing the contents of the ObjectStore to an XML file
-basyx.aas.adapter.xml.write_aas_xml_file('data.xml', obj_store)
+# step 4.3: writing the contents of the IdentifiableStore to an XML file
+basyx.aas.adapter.xml.write_aas_xml_file('data.xml', identifiable_store)
 
 
 ##################################################################
 # Step 5: Reading the Serialized AAS Objects From JSON/XML Files #
 ##################################################################
 
-# step 5.1: reading contents of the JSON file as an ObjectStore
+# step 5.1: reading contents of the JSON file as an IdentifiableStore
 json_file_data = basyx.aas.adapter.json.read_aas_json_file('data.json')
 
 # By passing the `failsafe=False` argument to `read_aas_json_file()`, we can switch to the `StrictAASFromJsonDecoder`
 # (see step 3) for a stricter error reporting.
 
-# step 5.2: reading contents of the XML file as an ObjectStore
+# step 5.2: reading contents of the XML file as an IdentifiableStore
 xml_file_data = basyx.aas.adapter.xml.read_aas_xml_file('data.xml')
 
 # Again, we can use `failsafe=False` for switching on stricter error reporting in the parser.
 
-# step 5.3: Retrieving the objects from the ObjectStore
+# step 5.3: Retrieving the objects from the IdentifiableStore
 # For more information on the available techniques, see `tutorial_storage.py`.
-submodel_from_xml = xml_file_data.get_identifiable('https://acplt.org/Simple_Submodel')
+submodel_from_xml = xml_file_data.get_item('https://acplt.org/Simple_Submodel')
 assert isinstance(submodel_from_xml, model.Submodel)

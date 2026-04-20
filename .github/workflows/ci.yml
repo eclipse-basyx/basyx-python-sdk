@@ -292,7 +292,7 @@ jobs:
 
     defaults:
       run:
-        working-directory: ./server/app
+        working-directory: ./server
     steps:
     - uses: actions/checkout@v4
     - name: Set up Python ${{ env.X_PYTHON_MIN_VERSION }}
@@ -302,26 +302,26 @@ jobs:
     - name: Install Python dependencies
       run: |
         python -m pip install --upgrade pip
-        python -m pip install ../../sdk
+        python -m pip install ../sdk
         python -m pip install .[dev]
     - name: Check typing with MyPy
       run: |
-        python -m mypy .
+        python -m mypy app test
     - name: Check code style with PyCodestyle
       run: |
-        python -m pycodestyle --count --max-line-length 120 .
+        python -m pycodestyle --count --max-line-length 120 app test
 
-  server-package:
+  server-repository-docker:
     # This job checks if we can build our server package
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: ./server
+        working-directory: ./server/docker/repository
     steps:
       - uses: actions/checkout@v4
       - name: Build the Docker image
         run: |
-          docker build -t basyx-python-server -f Dockerfile ..
+          docker build -t basyx-python-server -f Dockerfile ../../..
       - name: Run container
         run: |
            docker run -d --name basyx-python-server basyx-python-server

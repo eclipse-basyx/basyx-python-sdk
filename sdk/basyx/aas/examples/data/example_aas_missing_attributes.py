@@ -1,12 +1,12 @@
-# Copyright (c) 2025 the Eclipse BaSyx Authors
+# Copyright (c) 2026 the Eclipse BaSyx Authors
 #
 # This program and the accompanying materials are made available under the terms of the MIT License, available in
 # the LICENSE file of this project.
 #
 # SPDX-License-Identifier: MIT
 """
-Module for the creation of an :class:`ObjectStore <basyx.aas.model.provider.DictObjectStore>` with missing object
-attribute combination for testing the serialization
+Module for the creation of an :class:`IdentifiableStore <basyx.aas.model.provider.DictIdentifiableStore>` with missing
+object attribute combinations for testing the serialization.
 """
 import datetime
 import logging
@@ -17,19 +17,19 @@ from ._helper import AASDataChecker
 logger = logging.getLogger(__name__)
 
 
-def create_full_example() -> model.DictObjectStore:
+def create_full_example() -> model.DictIdentifiableStore:
     """
-    Creates an :class:`~basyx.aas.model.provider.DictObjectStore` containing an example
+    Creates an :class:`~basyx.aas.model.provider.DictIdentifiableStore` containing an example
     :class:`~basyx.aas.model.submodel.Submodel`, an example :class:`~basyx.aas.model.concept.ConceptDescription` and an
     example :class:`~basyx.aas.model.aas.AssetAdministrationShell`
 
-    :return: :class:`basyx.aas.model.provider.DictObjectStore`
+    :return: :class:`basyx.aas.model.provider.DictIdentifiableStore`
     """
-    obj_store: model.DictObjectStore[model.Identifiable] = model.DictObjectStore()
-    obj_store.add(create_example_submodel())
-    obj_store.add(create_example_concept_description())
-    obj_store.add(create_example_asset_administration_shell())
-    return obj_store
+    identifiable_store: model.DictIdentifiableStore[model.Identifiable] = model.DictIdentifiableStore()
+    identifiable_store.add(create_example_submodel())
+    identifiable_store.add(create_example_concept_description())
+    identifiable_store.add(create_example_asset_administration_shell())
+    return identifiable_store
 
 
 def create_example_submodel() -> model.Submodel:
@@ -413,6 +413,6 @@ def check_example_submodel(checker: AASDataChecker, submodel: model.Submodel) ->
     checker.check_submodel_equal(submodel, expected_submodel)
 
 
-def check_full_example(checker: AASDataChecker, obj_store: model.DictObjectStore) -> None:
+def check_full_example(checker: AASDataChecker, identifiable_store: model.DictIdentifiableStore) -> None:
     expected_data = create_full_example()
-    checker.check_object_store(obj_store, expected_data)
+    checker.check_identifiable_store(identifiable_store, expected_data)

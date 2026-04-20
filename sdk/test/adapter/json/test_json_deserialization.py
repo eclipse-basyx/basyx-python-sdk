@@ -1,4 +1,4 @@
-# Copyright (c) 2025 the Eclipse BaSyx Authors
+# Copyright (c) 2026 the Eclipse BaSyx Authors
 #
 # This program and the accompanying materials are made available under the terms of the MIT License, available in
 # the LICENSE file of this project.
@@ -162,11 +162,11 @@ class JsonDeserializationTest(unittest.TestCase):
         with self.assertRaisesRegex(KeyError, r"duplicate identifier"):
             read_aas_json_file(string_io, failsafe=False)
 
-    def test_duplicate_identifier_object_store(self) -> None:
+    def test_duplicate_identifier_identifiable_store(self) -> None:
         sm_id = "http://acplt.org/test_submodel"
 
-        def get_clean_store() -> model.DictObjectStore:
-            store: model.DictObjectStore = model.DictObjectStore()
+        def get_clean_store() -> model.DictIdentifiableStore:
+            store: model.DictIdentifiableStore[model.Identifiable] = model.DictIdentifiableStore()
             submodel_ = model.Submodel(sm_id, id_short="test123")
             store.add(submodel_)
             return store
@@ -184,32 +184,36 @@ class JsonDeserializationTest(unittest.TestCase):
 
         string_io = io.StringIO(data)
 
-        object_store = get_clean_store()
-        identifiers = read_aas_json_file_into(object_store, string_io, replace_existing=True, ignore_existing=False)
+        identifiable_store = get_clean_store()
+        identifiers = read_aas_json_file_into(
+            identifiable_store, string_io, replace_existing=True, ignore_existing=False
+        )
         self.assertEqual(identifiers.pop(), sm_id)
-        submodel = object_store.pop()
+        submodel = identifiable_store.pop()
         self.assertIsInstance(submodel, model.Submodel)
         self.assertEqual(submodel.id_short, "test456")
 
         string_io.seek(0)
 
-        object_store = get_clean_store()
+        identifiable_store = get_clean_store()
         with self.assertLogs(logging.getLogger(), level=logging.INFO) as log_ctx:
-            identifiers = read_aas_json_file_into(object_store, string_io, replace_existing=False, ignore_existing=True)
+            identifiers = read_aas_json_file_into(
+                identifiable_store, string_io, replace_existing=False, ignore_existing=True
+            )
         self.assertEqual(len(identifiers), 0)
         self.assertIn("already exists in store", log_ctx.output[0])  # type: ignore
-        submodel = object_store.pop()
+        submodel = identifiable_store.pop()
         self.assertIsInstance(submodel, model.Submodel)
         self.assertEqual(submodel.id_short, "test123")
 
         string_io.seek(0)
 
-        object_store = get_clean_store()
+        identifiable_store = get_clean_store()
         with self.assertRaisesRegex(KeyError, r"already exists in store"):
-            identifiers = read_aas_json_file_into(object_store, string_io, replace_existing=False,
+            identifiers = read_aas_json_file_into(identifiable_store, string_io, replace_existing=False,
                                                   ignore_existing=False)
         self.assertEqual(len(identifiers), 0)
-        submodel = object_store.pop()
+        submodel = identifiable_store.pop()
         self.assertIsInstance(submodel, model.Submodel)
         self.assertEqual(submodel.id_short, "test123")
 

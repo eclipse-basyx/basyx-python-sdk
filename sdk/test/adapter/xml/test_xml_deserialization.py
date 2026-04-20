@@ -1,4 +1,4 @@
-# Copyright (c) 2025 the Eclipse BaSyx Authors
+# Copyright (c) 2026 the Eclipse BaSyx Authors
 #
 # This program and the accompanying materials are made available under the terms of the MIT License, available in
 # the LICENSE file of this project.
@@ -140,9 +140,9 @@ class XmlDeserializationTest(unittest.TestCase):
         </aas:submodels>
         """)
         # should get parsed successfully
-        object_store = read_aas_xml_file(io.StringIO(xml), failsafe=False)
+        identifiable_store = read_aas_xml_file(io.StringIO(xml), failsafe=False)
         # modelling kind should default to INSTANCE
-        submodel = object_store.pop()
+        submodel = identifiable_store.pop()
         self.assertIsInstance(submodel, model.Submodel)
         assert isinstance(submodel, model.Submodel)  # to make mypy happy
         self.assertEqual(submodel.kind, model.ModellingKind.INSTANCE)
@@ -271,11 +271,11 @@ class XmlDeserializationTest(unittest.TestCase):
         """)
         self._assertInExceptionAndLog(xml, "duplicate identifier", KeyError, logging.ERROR)
 
-    def test_duplicate_identifier_object_store(self) -> None:
+    def test_duplicate_identifier_identifiable_store(self) -> None:
         sm_id = "http://acplt.org/test_submodel"
 
-        def get_clean_store() -> model.DictObjectStore:
-            store: model.DictObjectStore = model.DictObjectStore()
+        def get_clean_store() -> model.DictIdentifiableStore:
+            store: model.DictIdentifiableStore[model.Identifiable] = model.DictIdentifiableStore()
             submodel_ = model.Submodel(sm_id, id_short="test123")
             store.add(submodel_)
             return store
@@ -290,29 +290,35 @@ class XmlDeserializationTest(unittest.TestCase):
         """)
         string_io = io.StringIO(xml)
 
-        object_store = get_clean_store()
-        identifiers = read_aas_xml_file_into(object_store, string_io, replace_existing=True, ignore_existing=False)
+        identifiable_store = get_clean_store()
+        identifiers = read_aas_xml_file_into(
+            identifiable_store, string_io, replace_existing=True, ignore_existing=False
+        )
         self.assertEqual(identifiers.pop(), sm_id)
-        submodel = object_store.pop()
+        submodel = identifiable_store.pop()
         self.assertIsInstance(submodel, model.Submodel)
         self.assertEqual(submodel.id_short, "test456")
 
-        object_store = get_clean_store()
+        identifiable_store = get_clean_store()
         with self.assertLogs(logging.getLogger(), level=logging.INFO) as log_ctx:
-            identifiers = read_aas_xml_file_into(object_store, string_io, replace_existing=False, ignore_existing=True)
+            identifiers = read_aas_xml_file_into(
+                identifiable_store, string_io, replace_existing=False, ignore_existing=True
+            )
         self.assertEqual(len(identifiers), 0)
         self.assertIn("already exists in the object store", log_ctx.output[0])
-        submodel = object_store.pop()
+        submodel = identifiable_store.pop()
         self.assertIsInstance(submodel, model.Submodel)
         self.assertEqual(submodel.id_short, "test123")
 
-        object_store = get_clean_store()
+        identifiable_store = get_clean_store()
         with self.assertRaises(KeyError) as err_ctx:
-            identifiers = read_aas_xml_file_into(object_store, string_io, replace_existing=False, ignore_existing=False)
+            identifiers = read_aas_xml_file_into(
+                identifiable_store, string_io, replace_existing=False, ignore_existing=False
+            )
         self.assertEqual(len(identifiers), 0)
         cause = _root_cause(err_ctx.exception)
         self.assertIn("already exists in the object store", str(cause))
-        submodel = object_store.pop()
+        submodel = identifiable_store.pop()
         self.assertIsInstance(submodel, model.Submodel)
         self.assertEqual(submodel.id_short, "test123")
 

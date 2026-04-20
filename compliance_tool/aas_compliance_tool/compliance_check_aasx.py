@@ -1,4 +1,4 @@
-# Copyright (c) 2025 the Eclipse BaSyx Authors
+# Copyright (c) 2026 the Eclipse BaSyx Authors
 #
 # This program and the accompanying materials are made available under the terms of the MIT License, available in
 # the LICENSE file of this project.
@@ -31,7 +31,7 @@ from aas_compliance_tool.state_manager import ComplianceToolStateManager, Status
 
 def check_deserialization(file_path: str, state_manager: ComplianceToolStateManager,
                           file_info: Optional[str] = None) \
-        -> Tuple[model.DictObjectStore, aasx.DictSupplementaryFileContainer, pyecma376_2.OPCCoreProperties]:
+        -> Tuple[model.DictIdentifiableStore, aasx.DictSupplementaryFileContainer, pyecma376_2.OPCCoreProperties]:
     """
     Read a AASX file and reports any issues using the given
     :class:`~basyx.aas.compliance_tool.state_manager.ComplianceToolStateManager`
@@ -68,24 +68,24 @@ def check_deserialization(file_path: str, state_manager: ComplianceToolStateMana
         state_manager.set_step_status_from_log()
         state_manager.add_step('Read file')
         state_manager.set_step_status(Status.NOT_EXECUTED)
-        return model.DictObjectStore(), aasx.DictSupplementaryFileContainer(), pyecma376_2.OPCCoreProperties()
+        return model.DictIdentifiableStore(), aasx.DictSupplementaryFileContainer(), pyecma376_2.OPCCoreProperties()
 
     try:
         # read given file
         state_manager.add_step('Read file')
-        obj_store: model.DictObjectStore[model.Identifiable] = model.DictObjectStore()
+        identifiable_store: model.DictIdentifiableStore[model.Identifiable] = model.DictIdentifiableStore()
         files = aasx.DictSupplementaryFileContainer()
-        reader.read_into(obj_store, files)
+        reader.read_into(identifiable_store, files)
         new_cp = reader.get_core_properties()
         state_manager.set_step_status(Status.SUCCESS)
     except (ValueError, KeyError) as error:
         logger.error(error)
         state_manager.set_step_status(Status.FAILED)
-        return model.DictObjectStore(), aasx.DictSupplementaryFileContainer(), pyecma376_2.OPCCoreProperties()
+        return model.DictIdentifiableStore(), aasx.DictSupplementaryFileContainer(), pyecma376_2.OPCCoreProperties()
     finally:
         reader.close()
 
-    return obj_store, files, new_cp
+    return identifiable_store, files, new_cp
 
 
 def check_schema(file_path: str, state_manager: ComplianceToolStateManager) -> None:
@@ -174,7 +174,7 @@ def check_aas_example(file_path: str, state_manager: ComplianceToolStateManager,
     logger_example.propagate = False
     logger_example.setLevel(logging.INFO)
 
-    obj_store, files, cp_new = check_deserialization(file_path, state_manager)
+    identifiable_store, files, cp_new = check_deserialization(file_path, state_manager)
 
     if state_manager.status in (Status.FAILED, Status.NOT_EXECUTED):
         state_manager.add_step('Check if data is equal to example data')
@@ -187,7 +187,7 @@ def check_aas_example(file_path: str, state_manager: ComplianceToolStateManager,
 
     state_manager.add_step('Check if data is equal to example data')
     example_data = create_example_aas_binding()
-    checker.check_object_store(obj_store, example_data)
+    checker.check_identifiable_store(identifiable_store, example_data)
     state_manager.add_log_records_from_data_checker(checker)
 
     if state_manager.status in (Status.FAILED, Status.NOT_EXECUTED):
@@ -238,22 +238,25 @@ def check_aas_example(file_path: str, state_manager: ComplianceToolStateManager,
 
     # Check if file in file object is the same
     list_of_id_shorts = ["ExampleSubmodelCollection", "ExampleFile"]
-    obj = example_data.get_identifiable("https://acplt.org/Test_Submodel")
+    identifiable = example_data.get_item("https://acplt.org/Test_Submodel")
     for id_short in list_of_id_shorts:
-        obj = obj.get_referable(id_short)
-    obj2 = obj_store.get_identifiable("https://acplt.org/Test_Submodel")
+        identifiable = identifiable.get_referable(id_short)
+    obj2 = identifiable_store.get_item("https://acplt.org/Test_Submodel")
     for id_short in list_of_id_shorts:
         obj2 = obj2.get_referable(id_short)
     try:
-        sha_file = files.get_sha256(obj.value)
+        sha_file = files.get_sha256(identifiable.value)
     except KeyError as error:
         state_manager.add_log_records_from_data_checker(checker2)
         logger.error(error)
         state_manager.set_step_status(Status.FAILED)
         return
 
-    checker2.check(sha_file == files.get_sha256(obj2.value), "File of {} must be {}.".format(obj.value, obj2.value),
-                   value=obj2.value)
+    checker2.check(
+        sha_file == files.get_sha256(obj2.value),
+        "File of {} must be {}.".format(identifiable.value, obj2.value),
+        value=obj2.value
+    )
     state_manager.add_log_records_from_data_checker(checker2)
     if state_manager.status in (Status.FAILED, Status.NOT_EXECUTED):
         state_manager.set_step_status(Status.FAILED)
@@ -280,9 +283,9 @@ def check_aasx_files_equivalence(file_path_1: str, file_path_2: str, state_manag
     logger.propagate = False
     logger.setLevel(logging.INFO)
 
-    obj_store_1, files_1, cp_1 = check_deserialization(file_path_1, state_manager, 'first')
+    identifiable_store_1, files_1, cp_1 = check_deserialization(file_path_1, state_manager, 'first')
 
-    obj_store_2, files_2, cp_2 = check_deserialization(file_path_2, state_manager, 'second')
+    identifiable_store_2, files_2, cp_2 = check_deserialization(file_path_2, state_manager, 'second')
 
     if state_manager.status is Status.FAILED:
         state_manager.add_step('Check if data in files are equal')
@@ -294,7 +297,7 @@ def check_aasx_files_equivalence(file_path_1: str, file_path_2: str, state_manag
     checker = AASDataChecker(raise_immediately=False, **kwargs)
     try:
         state_manager.add_step('Check if data in files are equal')
-        checker.check_object_store(obj_store_1, obj_store_2)
+        checker.check_identifiable_store(identifiable_store_1, identifiable_store_2)
     except (KeyError, AssertionError) as error:
         state_manager.set_step_status(Status.FAILED)
         logger.error(error)

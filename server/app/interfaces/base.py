@@ -1,4 +1,4 @@
-# Copyright (c) 2025 the Eclipse BaSyx Authors
+# Copyright (c) 2026 the Eclipse BaSyx Authors
 #
 # This program and the accompanying materials are made available under the terms of the MIT License, available in
 # the LICENSE file of this project.
@@ -25,7 +25,7 @@ from basyx.aas.adapter._generic import XML_NS_MAP
 from basyx.aas.adapter.json import StrictStrippedAASFromJsonDecoder, StrictAASFromJsonDecoder, AASToJsonEncoder
 from basyx.aas.adapter.xml import xml_serialization, XMLConstructables, read_aas_xml_element
 from basyx.aas.model import AbstractObjectStore
-from util.converters import base64url_decode
+from app.util.converters import base64url_decode
 
 
 T = TypeVar("T")
@@ -264,12 +264,13 @@ class BaseWSGIApp:
 class ObjectStoreWSGIApp(BaseWSGIApp):
     object_store: AbstractObjectStore
 
-    def _get_all_obj_of_type(self, type_: Type[model.provider._IT]) -> Iterator[model.provider._IT]:
+    def _get_all_obj_of_type(self, type_: Type[model.provider._IDENTIFIABLE]) -> Iterator[model.provider._IDENTIFIABLE]:
         for obj in self.object_store:
             if isinstance(obj, type_):
                 yield obj
 
-    def _get_obj_ts(self, identifier: model.Identifier, type_: Type[model.provider._IT]) -> model.provider._IT:
+    def _get_obj_ts(self, identifier: model.Identifier, type_: Type[model.provider._IDENTIFIABLE]) \
+            -> model.provider._IDENTIFIABLE:
         identifiable = self.object_store.get(identifier)
         if not isinstance(identifiable, type_):
             raise NotFound(f"No {type_.__name__} with {identifier} found!")

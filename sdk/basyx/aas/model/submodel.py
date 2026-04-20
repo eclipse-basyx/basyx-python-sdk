@@ -1,4 +1,4 @@
-# Copyright (c) 2025 the Eclipse BaSyx Authors
+# Copyright (c) 2026 the Eclipse BaSyx Authors
 #
 # This program and the accompanying materials are made available under the terms of the MIT License, available in
 # the LICENSE file of this project.
@@ -343,6 +343,16 @@ class MultiLanguageProperty(DataElement):
                          supplemental_semantic_id, embedded_data_specifications)
         self.value: Optional[base.MultiLanguageTextType] = value
         self.value_id: Optional[base.Reference] = value_id
+
+    @property
+    def value(self) -> Optional[base.MultiLanguageTextType]:
+        return self._value
+
+    @value.setter
+    def value(self, value: Union[base.MultiLanguageTextType, dict, None]) -> None:
+        if value is not None and not isinstance(value, base.MultiLanguageTextType):
+            value = base.MultiLanguageTextType(value)
+        self._value = value
 
 
 class Range(DataElement):

@@ -1,4 +1,4 @@
-# Copyright (c) 2025 the Eclipse BaSyx Authors
+# Copyright (c) 2026 the Eclipse BaSyx Authors
 #
 # This program and the accompanying materials are made available under the terms of the MIT License, available in
 # the LICENSE file of this project.
@@ -24,7 +24,7 @@ class IdentifierGeneratorTest(unittest.TestCase):
             ids.add(identification)
 
     def test_generate_iri_identifier(self):
-        provider = model.DictObjectStore()
+        provider = model.DictIdentifiableStore()
 
         # Check expected Errors when Namespaces are not valid
         with self.assertRaises(ValueError) as cm:

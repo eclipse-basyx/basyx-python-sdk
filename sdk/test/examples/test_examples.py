@@ -1,4 +1,4 @@
-# Copyright (c) 2025 the Eclipse BaSyx Authors
+# Copyright (c) 2026 the Eclipse BaSyx Authors
 #
 # This program and the accompanying materials are made available under the terms of the MIT License, available in
 # the LICENSE file of this project.
@@ -40,50 +40,50 @@ class ExampleAASTest(unittest.TestCase):
 
     def test_full_example(self):
         checker = AASDataChecker(raise_immediately=True)
-        obj_store = model.DictObjectStore()
+        identifiable_store = model.DictIdentifiableStore()
         with self.assertRaises(AssertionError) as cm:
-            example_aas.check_full_example(checker, obj_store)
+            example_aas.check_full_example(checker, identifiable_store)
         self.assertIn("AssetAdministrationShell[https://acplt.org/Test_AssetAdministrationShell]",
                       str(cm.exception))
 
-        obj_store = example_aas.create_full_example()
-        example_aas.check_full_example(checker, obj_store)
+        identifiable_store = example_aas.create_full_example()
+        example_aas.check_full_example(checker, identifiable_store)
 
         failed_shell = model.AssetAdministrationShell(
             asset_information=model.AssetInformation(global_asset_id='test'),
             id_='test'
         )
-        obj_store.add(failed_shell)
+        identifiable_store.add(failed_shell)
         with self.assertRaises(AssertionError) as cm:
-            example_aas.check_full_example(checker, obj_store)
+            example_aas.check_full_example(checker, identifiable_store)
         self.assertIn("AssetAdministrationShell[test]", str(cm.exception))
-        obj_store.discard(failed_shell)
+        identifiable_store.discard(failed_shell)
 
         failed_submodel = model.Submodel(id_='test')
-        obj_store.add(failed_submodel)
+        identifiable_store.add(failed_submodel)
         with self.assertRaises(AssertionError) as cm:
-            example_aas.check_full_example(checker, obj_store)
+            example_aas.check_full_example(checker, identifiable_store)
         self.assertIn("Submodel[test]", str(cm.exception))
-        obj_store.discard(failed_submodel)
+        identifiable_store.discard(failed_submodel)
 
         failed_cd = model.ConceptDescription(id_='test')
-        obj_store.add(failed_cd)
+        identifiable_store.add(failed_cd)
         with self.assertRaises(AssertionError) as cm:
-            example_aas.check_full_example(checker, obj_store)
+            example_aas.check_full_example(checker, identifiable_store)
         self.assertIn("ConceptDescription[test]", str(cm.exception))
-        obj_store.discard(failed_cd)
+        identifiable_store.discard(failed_cd)
 
         class DummyIdentifiable(model.Identifiable):
             def __init__(self, id_: model.Identifier):
                 super().__init__()
                 self.id = id_
         failed_identifiable = DummyIdentifiable(id_='test')
-        obj_store.add(failed_identifiable)
+        identifiable_store.add(failed_identifiable)
         with self.assertRaises(KeyError) as cm:
-            example_aas.check_full_example(checker, obj_store)
+            example_aas.check_full_example(checker, identifiable_store)
         self.assertIn("Check for DummyIdentifiable[test] not implemented", str(cm.exception))
-        obj_store.discard(failed_identifiable)
-        example_aas.check_full_example(checker, obj_store)
+        identifiable_store.discard(failed_identifiable)
+        example_aas.check_full_example(checker, identifiable_store)
 
 
 class ExampleAASMandatoryTest(unittest.TestCase):
@@ -109,17 +109,17 @@ class ExampleAASMandatoryTest(unittest.TestCase):
 
     def test_full_example(self):
         checker = AASDataChecker(raise_immediately=True)
-        obj_store = example_aas_mandatory_attributes.create_full_example()
-        example_aas_mandatory_attributes.check_full_example(checker, obj_store)
+        identifiable_store = example_aas_mandatory_attributes.create_full_example()
+        example_aas_mandatory_attributes.check_full_example(checker, identifiable_store)
 
         failed_submodel = model.Submodel(id_='test')
-        obj_store.add(failed_submodel)
+        identifiable_store.add(failed_submodel)
         with self.assertRaises(AssertionError) as cm:
-            example_aas_mandatory_attributes.check_full_example(checker, obj_store)
+            example_aas_mandatory_attributes.check_full_example(checker, identifiable_store)
         self.assertIn("Given submodel list must not have extra submodels", str(cm.exception))
         self.assertIn("Submodel[test]", str(cm.exception))
-        obj_store.discard(failed_submodel)
-        example_aas_mandatory_attributes.check_full_example(checker, obj_store)
+        identifiable_store.discard(failed_submodel)
+        example_aas_mandatory_attributes.check_full_example(checker, identifiable_store)
 
 
 class ExampleAASMissingTest(unittest.TestCase):
@@ -140,17 +140,17 @@ class ExampleAASMissingTest(unittest.TestCase):
 
     def test_full_example(self):
         checker = AASDataChecker(raise_immediately=True)
-        obj_store = example_aas_missing_attributes.create_full_example()
-        example_aas_missing_attributes.check_full_example(checker, obj_store)
+        identifiable_store = example_aas_missing_attributes.create_full_example()
+        example_aas_missing_attributes.check_full_example(checker, identifiable_store)
 
         failed_submodel = model.Submodel(id_='test')
-        obj_store.add(failed_submodel)
+        identifiable_store.add(failed_submodel)
         with self.assertRaises(AssertionError) as cm:
-            example_aas_missing_attributes.check_full_example(checker, obj_store)
+            example_aas_missing_attributes.check_full_example(checker, identifiable_store)
         self.assertIn("Given submodel list must not have extra submodels", str(cm.exception))
         self.assertIn("Submodel[test]", str(cm.exception))
-        obj_store.discard(failed_submodel)
-        example_aas_missing_attributes.check_full_example(checker, obj_store)
+        identifiable_store.discard(failed_submodel)
+        example_aas_missing_attributes.check_full_example(checker, identifiable_store)
 
 
 class ExampleSubmodelTemplate(unittest.TestCase):
@@ -161,16 +161,16 @@ class ExampleSubmodelTemplate(unittest.TestCase):
 
     def test_full_example(self):
         checker = AASDataChecker(raise_immediately=True)
-        obj_store: model.DictObjectStore[model.Identifiable] = model.DictObjectStore()
-        obj_store.add(example_submodel_template.create_example_submodel_template())
-        example_submodel_template.check_full_example(checker, obj_store)
+        identifiable_store: model.DictIdentifiableStore[model.Identifiable] = model.DictIdentifiableStore()
+        identifiable_store.add(example_submodel_template.create_example_submodel_template())
+        example_submodel_template.check_full_example(checker, identifiable_store)
 
         failed_submodel = model.Submodel(id_='test')
-        obj_store.add(failed_submodel)
+        identifiable_store.add(failed_submodel)
         with self.assertRaises(AssertionError) as cm:
-            example_submodel_template.check_full_example(checker, obj_store)
+            example_submodel_template.check_full_example(checker, identifiable_store)
         self.assertIn("Given submodel list must not have extra submodels", str(cm.exception))
         self.assertIn("Submodel[test]", str(cm.exception))
-        obj_store.discard(failed_submodel)
+        identifiable_store.discard(failed_submodel)
 
-        example_submodel_template.check_full_example(checker, obj_store)
+        example_submodel_template.check_full_example(checker, identifiable_store)

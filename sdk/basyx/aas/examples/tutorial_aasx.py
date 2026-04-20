@@ -46,10 +46,10 @@ unrelated_submodel = model.Submodel(
     id_='https://acplt.org/Unrelated_Submodel'
 )
 
-# We add these objects to an ObjectStore for easy retrieval by id.
-# See `tutorial_storage.py` for more details. We could also use a database-backed ObjectStore here
+# We add these objects to an IdentifiableStore for easy retrieval by id.
+# See `tutorial_storage.py` for more details. We could also use a database-backed IdentifiableStore here
 # (see `tutorial_backend_couchdb.py`).
-object_store = model.DictObjectStore([submodel, aas, unrelated_submodel])
+identifiable_store = model.DictIdentifiableStore([submodel, aas, unrelated_submodel])
 
 
 # For holding auxiliary files, which will eventually be added to an AASX package, we need a SupplementaryFileContainer.
@@ -94,16 +94,16 @@ submodel.submodel_element.add(
 with aasx.AASXWriter("MyAASXPackage.aasx") as writer:
     # Write the AAS and everything belonging to it to the AASX package
     # The `write_aas()` method will automatically fetch the AAS object with the given id
-    # and all referenced Submodel objects from the ObjectStore. It will also scan every object for
-    # semanticIds referencing ConceptDescription, fetch them from the ObjectStore, and scan all submodels for `File`
-    # objects and fetch the referenced auxiliary files from the SupplementaryFileContainer.
+    # and all referenced Submodel objects from the IdentifiableStore. It will also scan every object for
+    # semanticIds referencing ConceptDescription, fetch them from the IdentifiableStore, and scan all submodels for
+    # `File` objects and fetch the referenced auxiliary files from the SupplementaryFileContainer.
     # In order to add more than one AAS to the package, we can simply add more Identifiers to the `aas_ids` list.
     #
     # ATTENTION: As of Version 3.0 RC01 of Details of the Asset Administration Shell, it is no longer valid to add more
     # than one "aas-spec" part (JSON/XML part with AAS objects) to an AASX package. Thus, `write_aas` MUST
     # only be called once per AASX package!
     writer.write_aas(aas_ids=['https://acplt.org/Simple_AAS'],
-                     object_store=object_store,
+                     object_store=identifiable_store,
                      file_store=file_store)
 
     # Alternatively, we can use a more low-level interface to add a JSON/XML part with any Identifiable objects (not
@@ -113,9 +113,11 @@ with aasx.AASXWriter("MyAASXPackage.aasx") as writer:
     # ATTENTION: As of Version 3.0 RC01 of Details of the Asset Administration Shell, it is no longer valid to add more
     # than one "aas-spec" part (JSON/XML part with AAS objects) to an AASX package. Thus, `write_all_aas_objects` SHALL
     # only be used as an alternative to `write_aas` and SHALL only be called once!
-    objects_to_be_written: model.DictObjectStore[model.Identifiable] = model.DictObjectStore([unrelated_submodel])
+    identifiables_to_be_written: model.DictIdentifiableStore[model.Identifiable] = model.DictIdentifiableStore(
+        [unrelated_submodel]
+    )
     writer.write_all_aas_objects(part_name="/aasx/my_aas_part.xml",
-                                 objects=objects_to_be_written,
+                                 objects=identifiables_to_be_written,
                                  file_store=file_store)
 
     # We can also add a thumbnail image to the package (using `writer.write_thumbnail()`) or add metadata:
@@ -134,15 +136,15 @@ with aasx.AASXWriter("MyAASXPackage.aasx") as writer:
 ########################################################################
 
 # Let's read the AASX package file, we have just written.
-# We'll use a fresh ObjectStore and SupplementaryFileContainer to read AAS objects and auxiliary files into.
-new_object_store: model.DictObjectStore[model.Identifiable] = model.DictObjectStore()
+# We'll use a fresh IdentifiableStore and SupplementaryFileContainer to read AAS objects and auxiliary files into.
+new_identifiable_store: model.DictIdentifiableStore[model.Identifiable] = model.DictIdentifiableStore()
 new_file_store = aasx.DictSupplementaryFileContainer()
 
 # Again, we need to use the AASXReader as a context manager (or call `.close()` in the end) to make sure the AASX
 # package file is properly closed when we are finished.
 with aasx.AASXReader("MyAASXPackage.aasx") as reader:
     # Read all contained AAS objects and all referenced auxiliary files
-    reader.read_into(object_store=new_object_store,
+    reader.read_into(object_store=new_identifiable_store,
                      file_store=new_file_store)
 
     # We can also read the metadata
@@ -152,6 +154,6 @@ with aasx.AASXReader("MyAASXPackage.aasx") as reader:
 
 
 # Some quick checks to make sure, reading worked as expected
-assert 'https://acplt.org/Simple_Submodel' in new_object_store
+assert 'https://acplt.org/Simple_Submodel' in new_identifiable_store
 assert actual_file_name in new_file_store
 assert new_meta_data.creator == "Chair of Process Control Engineering"

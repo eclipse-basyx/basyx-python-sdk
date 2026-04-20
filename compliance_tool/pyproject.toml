@@ -38,7 +38,7 @@ requires-python = ">=3.10"
 dependencies = [
     "pyecma376-2>=0.2.4",
     "jsonschema>=4.21.1",
-    "basyx-python-sdk>=1.0.0",
+    "basyx-python-sdk @ file:../sdk",
 ]
 
 [project.optional-dependencies]

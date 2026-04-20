@@ -1,4 +1,4 @@
-# Copyright (c) 2025 the Eclipse BaSyx Authors
+# Copyright (c) 2026 the Eclipse BaSyx Authors
 #
 # This program and the accompanying materials are made available under the terms of the MIT License, available in
 # the LICENSE file of this project.
@@ -52,7 +52,7 @@ class AASXReader:
 
     .. code-block:: python
 
-        objects = DictObjectStore()
+        identifiables = DictIdentifiableStore()
         files = DictSupplementaryFileContainer()
         with AASXReader("filename.aasx") as reader:
             meta_data = reader.get_core_properties()
@@ -231,15 +231,17 @@ class AASXReader:
             read_identifiables.add(obj.id)
             if isinstance(obj, model.Submodel):
                 self._collect_supplementary_files(part_name, obj, file_store)
+            elif isinstance(obj, model.AssetAdministrationShell):
+                self._collect_supplementary_files(part_name, obj, file_store)
 
-    def _parse_aas_part(self, part_name: str, **kwargs) -> model.DictObjectStore:
+    def _parse_aas_part(self, part_name: str, **kwargs) -> model.DictIdentifiableStore:
         """
         Helper function to parse the AAS objects from a single JSON or XML part of the AASX package.
 
         This method chooses and calls the correct parser.
 
         :param part_name: The OPC part name of the part to be parsed
-        :return: A DictObjectStore containing the parsed AAS objects
+        :return: A DictIdentifiableStore containing the parsed AAS objects
         """
         content_type = self.reader.get_content_type(part_name)
         extension = part_name.split("/")[-1].split(".")[-1]
@@ -259,35 +261,61 @@ class AASXReader:
                 logger.error(error_message)
             else:
                 raise ValueError(error_message)
-            return model.DictObjectStore()
+            return model.DictIdentifiableStore()
 
-    def _collect_supplementary_files(self, part_name: str, submodel: model.Submodel,
+    def _collect_supplementary_files(self, part_name: str,
+                                     root_element: Union[model.AssetAdministrationShell, model.Submodel],
                                      file_store: "AbstractSupplementaryFileContainer") -> None:
         """
-        Helper function to search File objects within a single parsed Submodel, extract the referenced supplementary
-        files and update the File object's values with the absolute path.
+        Helper function to search File objects within a single parsed AssetAdministrationShell or Submodel.
+        Resolve their absolute paths, and update the corresponding File/Thumbnail objects with the absolute path.
 
-        :param part_name: The OPC part name of the part the Submodel has been parsed from. This is used to resolve
+        :param part_name: The OPC part name of the part the root_element has been parsed from. This is used to resolve
             relative file paths.
-        :param submodel: The Submodel to process
+        :param root_element: The AssetAdministrationShell or Submodel to process
         :param file_store: The SupplementaryFileContainer to add the extracted supplementary files to
         """
-        for element in traversal.walk_submodel(submodel):
-            if isinstance(element, model.File):
-                if element.value is None:
-                    continue
-                # Only absolute-path references and relative-path URI references (see RFC 3986, sec. 4.2) are considered
-                # to refer to files within the AASX package. Thus, we must skip all other types of URIs (esp. absolute
-                # URIs and network-path references)
-                if element.value.startswith('//') or ':' in element.value.split('/')[0]:
-                    logger.info(f"Skipping supplementary file {element.value}, since it seems to be an absolute URI or "
-                                f"network-path URI reference")
-                    continue
-                absolute_name = pyecma376_2.package_model.part_realpath(element.value, part_name)
-                logger.debug(f"Reading supplementary file {absolute_name} from AASX package ...")
-                with self.reader.open_part(absolute_name) as p:
-                    final_name = file_store.add_file(absolute_name, p, self.reader.get_content_type(absolute_name))
-                element.value = final_name
+        if isinstance(root_element, model.AssetAdministrationShell):
+            if (root_element.asset_information.default_thumbnail and
+                    root_element.asset_information.default_thumbnail.path):
+                file_name = self._add_supplementary_file(part_name,
+                                                         root_element.asset_information.default_thumbnail.path,
+                                                         file_store)
+                if file_name:
+                    root_element.asset_information.default_thumbnail.path = file_name
+        if isinstance(root_element, model.Submodel):
+            for element in traversal.walk_submodel(root_element):
+                if isinstance(element, model.File):
+                    if element.value is None:
+                        continue
+                    final_name = self._add_supplementary_file(part_name, element.value, file_store)
+                    if final_name:
+                        element.value = final_name
+
+    def _add_supplementary_file(self, part_name: str, file_path: str,
+                                file_store: "AbstractSupplementaryFileContainer") -> Optional[str]:
+        """
+        Helper function to extract a single referenced supplementary file
+        and return the absolute path within the AASX package.
+
+        :param part_name: The OPC part name of the part the root_element has been parsed from. This is used to resolve
+            relative file paths.
+        :param file_path: The file path or URI reference of the supplementary file to be extracted
+        :param file_store: The SupplementaryFileContainer to add the extracted supplementary files to
+        :return: The stored file name as returned by *file_store*, or ``None`` if the reference was skipped.
+        """
+        # Only absolute-path references and relative-path URI references (see RFC 3986, sec. 4.2) are considered
+        # to refer to files within the AASX package. Thus, we must skip all other types of URIs (esp. absolute
+        # URIs and network-path references)
+        if file_path.startswith('//') or ':' in file_path.split('/')[0]:
+            logger.info(f"Skipping supplementary file {file_path}, since it seems to be an absolute URI or "
+                        f"network-path URI reference")
+            return None
+        absolute_name = pyecma376_2.package_model.part_realpath(file_path, part_name)
+        logger.debug(f"Reading supplementary file {absolute_name} from AASX package ...")
+        with self.reader.open_part(absolute_name) as p:
+            final_name = file_store.add_file(absolute_name, p, self.reader.get_content_type(absolute_name))
+        return final_name
 
 
 class AASXWriter:
@@ -352,7 +380,7 @@ class AASXWriter:
 
     def write_aas(self,
                   aas_ids: Union[model.Identifier, Iterable[model.Identifier]],
-                  object_store: model.AbstractObjectStore,
+                  object_store: model.AbstractObjectStore[model.Identifier, model.Identifiable],
                   file_store: "AbstractSupplementaryFileContainer",
                   write_json: bool = False) -> None:
         """
@@ -402,10 +430,10 @@ class AASXWriter:
         if isinstance(aas_ids, model.Identifier):
             aas_ids = (aas_ids,)
 
-        objects_to_be_written: model.DictObjectStore[model.Identifiable] = model.DictObjectStore()
+        objects_to_be_written: model.DictIdentifiableStore[model.Identifiable] = model.DictIdentifiableStore()
         for aas_id in aas_ids:
             try:
-                aas = object_store.get_identifiable(aas_id)
+                aas = object_store.get_item(aas_id)
                 if not isinstance(aas, model.AssetAdministrationShell):
                     raise TypeError(f"Identifier {aas_id} does not belong to an AssetAdministrationShell object but to "
                                     f"{aas!r}")
@@ -476,12 +504,13 @@ class AASXWriter:
                           split_part: bool = False,
                           additional_relationships: Iterable[pyecma376_2.OPCRelationship] = ()) -> None:
         """
-        A thin wrapper around :meth:`write_all_aas_objects` to ensure downwards compatibility
+        A thin wrapper around :meth:`write_all_aas_objects` to ensure backward compatibility
 
         This method takes the AAS's :class:`~basyx.aas.model.base.Identifier` (as ``aas_id``) to retrieve it
-        from the given object_store. If the list of written objects includes :class:`~basyx.aas.model.submodel.Submodel`
-        objects, Supplementary files which are referenced by :class:`~basyx.aas.model.submodel.File` objects within
-        those Submodels, are also added to the AASX package.
+        from the given object_store. If the list of written identifiables includes
+        :class:`~basyx.aas.model.submodel.Submodel` identifiables, Supplementary files which are referenced by
+        :class:`~basyx.aas.model.submodel.File` identifiables within those Submodels, are also added to the AASX
+        package.
 
         .. attention::
 
@@ -491,14 +520,15 @@ class AASXWriter:
         :param part_name: Name of the Part within the AASX package to write the files to. Must be a valid ECMA376-2
             part name and unique within the package. The extension of the part should match the data format (i.e.
             '.json' if ``write_json`` else '.xml').
-        :param object_ids: A list of :class:`Identifiers <basyx.aas.model.base.Identifier>` of the objects to be written
-            to the AASX package. Only these :class:`~basyx.aas.model.base.Identifiable` objects (and included
-            :class:`~basyx.aas.model.base.Referable` objects) are written to the package.
-        :param object_store: The objects store to retrieve the :class:`~basyx.aas.model.base.Identifiable` objects from
+        :param object_ids: A list of :class:`Identifiers <basyx.aas.model.base.Identifier>` of the identifiables to be
+            written to the AASX package. Only these :class:`~basyx.aas.model.base.Identifiable` identifiables
+            (and included :class:`~basyx.aas.model.base.Referable` identifiables) are written to the package.
+        :param object_store: The identifiables store to retrieve the :class:`~basyx.aas.model.base.Identifiable`
+            identifiables from
         :param file_store: The
             :class:`SupplementaryFileContainer <basyx.aas.adapter.aasx.AbstractSupplementaryFileContainer>`
             to retrieve supplementary files from (if there are any :class:`~basyx.aas.model.submodel.File`
-            objects within the written objects.
+            identifiables within the written identifiables.
         :param write_json: If ``True``, the part is written as a JSON file instead of an XML file. Defaults to
             ``False``.
         :param split_part: If ``True``, no aas-spec relationship is added from the aasx-origin to this part. You must
@@ -506,29 +536,31 @@ class AASXWriter:
         :param additional_relationships: Optional OPC/ECMA376 relationships which should originate at the AAS object
             part to be written, in addition to the aas-suppl relationships which are created automatically.
         """
-        logger.debug(f"Writing AASX part {part_name} with AAS objects ...")
+        logger.debug(f"Writing AASX part {part_name} with AAS identifiables ...")
 
-        objects: model.DictObjectStore[model.Identifiable] = model.DictObjectStore()
+        identifiables: model.DictIdentifiableStore[model.Identifiable] = model.DictIdentifiableStore()
 
-        # Retrieve objects and scan for referenced supplementary files
+        # Retrieve identifiables and scan for referenced supplementary files
         for identifier in object_ids:
             try:
-                the_object = object_store.get_identifiable(identifier)
+                the_identifiable = object_store.get_item(identifier)
             except KeyError:
                 if self.failsafe:
-                    logger.error(f"Could not find object {identifier} in ObjectStore")
+                    logger.error(f"Could not find identifiable {identifier} in IdentifiableStore")
                     continue
                 else:
-                    raise KeyError(f"Could not find object {identifier!r} in ObjectStore")
-            objects.add(the_object)
+                    raise KeyError(f"Could not find identifiable {identifier!r} in IdentifiableStore")
+            identifiables.add(the_identifiable)
 
-        self.write_all_aas_objects(part_name, objects, file_store, write_json, split_part, additional_relationships)
+        self.write_all_aas_objects(
+            part_name, identifiables, file_store, write_json, split_part, additional_relationships
+        )
 
     # TODO remove `split_part` parameter in future version.
     #   Not required anymore since changes from DotAAS version 2.0.1 to 3.0RC01
     def write_all_aas_objects(self,
                               part_name: str,
-                              objects: model.AbstractObjectStore[model.Identifiable],
+                              objects: model.AbstractObjectStore[model.Identifier, model.Identifiable],
                               file_store: "AbstractSupplementaryFileContainer",
                               write_json: bool = False,
                               split_part: bool = False,
@@ -541,7 +573,8 @@ class AASXWriter:
         contained objects into an ``aas_env`` part in the AASX package. If the ObjectStore includes
         :class:`~basyx.aas.model.submodel.Submodel` objects, supplementary files which are referenced by
         :class:`~basyx.aas.model.submodel.File` objects within those Submodels, are fetched from the ``file_store``
-        and added to the AASX package.
+        and added to the AASX package. If the ObjectStore contains a thumbnail referenced by
+        ``default_thumbnail`` in :class:`~basyx.aas.model.aas.AssetInformation`, it is also added to the AASX package.
 
         .. attention::
 
@@ -563,17 +596,24 @@ class AASXWriter:
         logger.debug(f"Writing AASX part {part_name} with AAS objects ...")
         supplementary_files: List[str] = []
 
+        def _collect_supplementary_file(file_name: str) -> None:
+            # Skip File objects with empty value URI references that are considered to be no local file
+            # (absolute URIs or network-path URI references)
+            if file_name is None or file_name.startswith('//') or ':' in file_name.split('/')[0]:
+                return
+            supplementary_files.append(file_name)
+
         # Retrieve objects and scan for referenced supplementary files
         for the_object in objects:
+            if isinstance(the_object, model.AssetAdministrationShell):
+                if (the_object.asset_information.default_thumbnail and
+                        the_object.asset_information.default_thumbnail.path):
+                    _collect_supplementary_file(the_object.asset_information.default_thumbnail.path)
             if isinstance(the_object, model.Submodel):
                 for element in traversal.walk_submodel(the_object):
                     if isinstance(element, model.File):
-                        file_name = element.value
-                        # Skip File objects with empty value URI references that are considered to be no local file
-                        # (absolute URIs or network-path URI references)
-                        if file_name is None or file_name.startswith('//') or ':' in file_name.split('/')[0]:
-                            continue
-                        supplementary_files.append(file_name)
+                        if element.value:
+                            _collect_supplementary_file(element.value)
 
         # Add aas-spec relationship
         if not split_part:
@@ -824,15 +864,25 @@ class DictSupplementaryFileContainer(AbstractSupplementaryFileContainer):
         if hash not in self._store:
             self._store[hash] = data
             self._store_refcount[hash] = 0
-        name_map_data = (hash, content_type)
+        return self._assign_unique_name(name, hash, content_type)
+
+    def rename_file(self, old_name: str, new_name: str) -> str:
+        if old_name not in self._name_map:
+            raise KeyError(f"File with name {old_name} not found in SupplementaryFileContainer.")
+        if new_name == old_name:
+            return new_name
+        file_hash, file_content_type = self._name_map[old_name]
+        del self._name_map[old_name]
+        return self._assign_unique_name(new_name, file_hash, file_content_type)
+
+    def _assign_unique_name(self, name: str, sha: bytes, content_type: str) -> str:
         new_name = name
         i = 1
         while True:
             if new_name not in self._name_map:
-                self._name_map[new_name] = name_map_data
-                self._store_refcount[hash] += 1
+                self._name_map[new_name] = (sha, content_type)
                 return new_name
-            elif self._name_map[new_name] == name_map_data:
+            elif self._name_map[new_name] == (sha, content_type):
                 return new_name
             new_name = self._append_counter(name, i)
             i += 1

@@ -1,4 +1,4 @@
-# Copyright (c) 2025 the Eclipse BaSyx Authors
+# Copyright (c) 2026 the Eclipse BaSyx Authors
 #
 # This program and the accompanying materials are made available under the terms of the MIT License, available in
 # the LICENSE file of this project.
@@ -96,7 +96,7 @@ class JsonSerializationSchemaTest(unittest.TestCase):
         validate(instance=json_data, schema=aas_json_schema)
 
     def test_submodel_template_serialization(self) -> None:
-        data: model.DictObjectStore[model.Identifiable] = model.DictObjectStore()
+        data: model.DictIdentifiableStore[model.Identifiable] = model.DictIdentifiableStore()
         data.add(example_submodel_template.create_example_submodel_template())
         file = io.StringIO()
         write_aas_json_file(file=file, data=data)
@@ -139,7 +139,7 @@ class JsonSerializationSchemaTest(unittest.TestCase):
         validate(instance=json_data, schema=aas_json_schema)
 
     def test_concept_description_serialization(self) -> None:
-        data: model.DictObjectStore[model.Identifiable] = model.DictObjectStore()
+        data: model.DictIdentifiableStore[model.Identifiable] = model.DictIdentifiableStore()
         data.add(example_aas.create_example_concept_description())
         file = io.StringIO()
         write_aas_json_file(file=file, data=data)

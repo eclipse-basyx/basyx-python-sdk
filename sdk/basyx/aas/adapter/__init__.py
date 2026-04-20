@@ -11,24 +11,24 @@ This package contains different kinds of adapters.
 from basyx.aas.adapter.aasx import AASXReader, DictSupplementaryFileContainer
 from basyx.aas.adapter.json import read_aas_json_file_into
 from basyx.aas.adapter.xml import read_aas_xml_file_into
-from basyx.aas.model.provider import DictObjectStore
+from basyx.aas.model.provider import DictIdentifiableStore
 from pathlib import Path
 from typing import Union
 
 
-def load_directory(directory: Union[Path, str]) -> tuple[DictObjectStore, DictSupplementaryFileContainer]:
+def load_directory(directory: Union[Path, str]) -> tuple[DictIdentifiableStore, DictSupplementaryFileContainer]:
     """
-    Create a new :class:`~basyx.aas.model.provider.DictObjectStore` and use it to load Asset Administration Shell and
-    Submodel files in ``AASX``, ``JSON`` and ``XML`` format from a given directory into memory. Additionally, load all
-    embedded supplementary files into a new :class:`~basyx.aas.adapter.aasx.DictSupplementaryFileContainer`.
+    Create a new :class:`~basyx.aas.model.provider.DictIdentifiableStore` and use it to load Asset Administration Shell
+    and Submodel files in ``AASX``, ``JSON`` and ``XML`` format from a given directory into memory. Additionally, load
+    all embedded supplementary files into a new :class:`~basyx.aas.adapter.aasx.DictSupplementaryFileContainer`.
 
     :param directory: :class:`~pathlib.Path` or ``str`` pointing to the directory containing all Asset Administration
         Shell and Submodel files to load
-    :return: Tuple consisting of a :class:`~basyx.aas.model.provider.DictObjectStore` and a
+    :return: Tuple consisting of a :class:`~basyx.aas.model.provider.DictIdentifiableStore` and a
         :class:`~basyx.aas.adapter.aasx.DictSupplementaryFileContainer` containing all loaded data
     """
 
-    dict_object_store: DictObjectStore = DictObjectStore()
+    dict_identifiable_store: DictIdentifiableStore = DictIdentifiableStore()
     file_container: DictSupplementaryFileContainer = DictSupplementaryFileContainer()
 
     directory = Path(directory)
@@ -40,12 +40,12 @@ def load_directory(directory: Union[Path, str]) -> tuple[DictObjectStore, DictSu
         suffix = file.suffix.lower()
         if suffix == ".json":
             with open(file) as f:
-                read_aas_json_file_into(dict_object_store, f)
+                read_aas_json_file_into(dict_identifiable_store, f)
         elif suffix == ".xml":
             with open(file) as f:
-                read_aas_xml_file_into(dict_object_store, f)
+                read_aas_xml_file_into(dict_identifiable_store, f)
         elif suffix == ".aasx":
             with AASXReader(file) as reader:
-                reader.read_into(object_store=dict_object_store, file_store=file_container)
+                reader.read_into(object_store=dict_identifiable_store, file_store=file_container)
 
-    return dict_object_store, file_container
+    return dict_identifiable_store, file_container
