@@ -27,7 +27,7 @@ JSON_AAS_TOP_LEVEL_KEYS_TO_TYPES = (
 )
 
 # XML Namespace definition
-XML_NS_MAP = {"aas": "https://admin-shell.io/aas/3/0"}
+XML_NS_MAP = {"aas": "https://admin-shell.io/aas/3/1"}
 XML_NS_AAS = "{" + XML_NS_MAP["aas"] + "}"
 
 MODELLING_KIND: Dict[model.ModellingKind, str] = {

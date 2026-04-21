@@ -100,7 +100,7 @@ def check_short_name_type(value: str, type_name: str = "ShortNameType") -> None:
 
 
 def check_value_type_iec61360(value: str, type_name: str = "ValueTypeIEC61360") -> None:
-    return check(value, type_name, 1, 2000)
+    return check(value, type_name, 1, 2048)
 
 
 def check_version_type(value: str, type_name: str = "VersionType") -> None:
