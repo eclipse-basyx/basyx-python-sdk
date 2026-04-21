@@ -42,8 +42,7 @@ class DiscoveryStore:
     def search_aas_ids_by_asset_link(self, asset_link: server_model.AssetLink) -> List[model.Identifier]:
         result = []
         for asset_key, aas_ids in self.asset_id_to_aas_ids.items():
-            expected_key = f"{asset_link.name}:{asset_link.value}"
-            if asset_key == expected_key:
+            if asset_key.name == asset_link.name and asset_key.value == asset_link.value:
                 result.extend(list(aas_ids))
         return result
 
