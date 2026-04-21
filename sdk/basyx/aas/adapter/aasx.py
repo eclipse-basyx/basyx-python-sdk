@@ -140,23 +140,31 @@ class AASXReader:
         :return: A set of the :class:`Identifiers <basyx.aas.model.base.Identifier>` of all
                  :class:`~basyx.aas.model.base.Identifiable` objects parsed from the AASX file
         """
+        # Format of supported and deprecated AASX relationship URL
+        AASX_REL_BASE = "http://admin-shell.io/aasx/relationships"
+        AASX_REL_BASE_DEPRECATED = "http://www.admin-shell.io/aasx/relationships"
+        RELATIONSHIP_TYPE_AASX_ORIGIN = f"{AASX_REL_BASE}/aasx-origin"
+        RELATIONSHIP_TYPE_AASX_ORIGIN_DEPRECATED = f"{AASX_REL_BASE_DEPRECATED}/aasx-origin"
+
         # Find AASX-Origin part
         core_rels = self.reader.get_related_parts_by_type()
         try:
             aasx_origin_part = core_rels[RELATIONSHIP_TYPE_AASX_ORIGIN][0]
         except IndexError as e:
-            if core_rels.get("http://www.admin-shell.io/aasx/relationships/aasx-origin"):
+            if core_rels.get(RELATIONSHIP_TYPE_AASX_ORIGIN_DEPRECATED):
                 # Since there are many AASX files with this (wrong) relationship URls in the wild, we make an exception
                 # and try to read it anyway. However, we notify the user that this may lead to data loss, since it is
                 # highly likely that the other relationship URLs are also wrong in that file.
                 # See also [#383](https://github.com/eclipse-basyx/basyx-python-sdk/issues/383) for the discussion.
-                logger.warning("SPECIFICATION VIOLATED: The Relationship-URL in your AASX file "
-                               "('http://www.admin-shell.io/aasx/relationships/aasx-origin') "
-                               "is not valid, it should be 'http://admin-shell.io/aasx/relationships/aasx-origin'. "
-                               "We try to read the AASX file anyway, but this cannot guaranteed in the future,"
-                               "and the file may not be fully readable, so data losses may occur."
-                               "Please fix this and/or notify the source of the AASX.")
-                aasx_origin_part = core_rels["http://www.admin-shell.io/aasx/relationships/aasx-origin"][0]
+                logger.warning(
+                    "Deprecated AASX relationship URL format used: '%s'. "
+                    "The supported AASX relationship URL format is: '%s'. "
+                    "Support for the deprecated form is kept for compatibility, but data losses may occur. "
+                    "Please fix the format and notify the author of the given AASX.",
+                    RELATIONSHIP_TYPE_AASX_ORIGIN_DEPRECATED,
+                    RELATIONSHIP_TYPE_AASX_ORIGIN,
+                )
+                aasx_origin_part = core_rels[RELATIONSHIP_TYPE_AASX_ORIGIN_DEPRECATED][0]
             else:
                 raise ValueError("Not a valid AASX file: aasx-origin Relationship is missing.") from e
 
