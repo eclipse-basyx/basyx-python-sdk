@@ -2,7 +2,6 @@ import atexit
 import os
 
 from app.interfaces.discovery import DiscoveryAPI, DiscoveryStore
-from wsgicors import CORS # type: ignore
 
 storage_path = os.getenv("storage_path", None)
 base_path = os.getenv("API_BASE_PATH")
@@ -28,4 +27,3 @@ def persist_store():
 atexit.register(persist_store)
 
 application = DiscoveryAPI(discovery_store, **wsgi_optparams)
-application = CORS(application, headers="*", methods="*", origin="*")

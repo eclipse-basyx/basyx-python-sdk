@@ -11,7 +11,6 @@ This module provides the WSGI entry point for the Asset Administration Shell Reg
 import logging
 import os
 from typing import Union
-from wsgicors import CORS # type: ignore
 
 from app.backend import LocalFileDescriptorStore
 from app.interfaces.registry import RegistryAPI
@@ -108,7 +107,6 @@ logger.info(
 storage_files = build_storage(env_input, env_storage, env_storage_persistency, env_storage_overwrite, logger)
 
 application = RegistryAPI(storage_files, **wsgi_optparams)
-application = CORS(application, headers="*", methods="*", origin="*")
 
 if __name__ == "__main__":
     logger.info("WSGI entrypoint created. Serve this module with uWSGI/Gunicorn/etc.")

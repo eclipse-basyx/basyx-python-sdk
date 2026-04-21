@@ -11,7 +11,6 @@ This module provides the WSGI entry point for the Asset Administration Shell Rep
 import logging
 import os
 from typing import Tuple, Union
-from wsgicors import CORS # type: ignore
 
 from basyx.aas.adapter import load_directory
 from basyx.aas.adapter.aasx import DictSupplementaryFileContainer
@@ -123,7 +122,6 @@ storage_files, supp_files = build_storage(
 )
 
 application = WSGIApp(storage_files, supp_files, **wsgi_optparams)
-application = CORS(application, headers="*", methods="*", origin="*")
 
 if __name__ == "__main__":
     logger.info("WSGI entrypoint created. Serve this module with uWSGI/Gunicorn/etc.")
