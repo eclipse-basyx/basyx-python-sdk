@@ -1,5 +1,7 @@
 """
-This module implements the Registry interface defined in the 'Specification of the Asset Administration Shell Part 2 – Application Programming Interface'.
+This module implements the Registry interface defined in the
+'Specification of the Asset Administration Shell Part 2
+– Application Programming Interface'.
 """
 
 from typing import Dict, Iterator, Tuple, Type

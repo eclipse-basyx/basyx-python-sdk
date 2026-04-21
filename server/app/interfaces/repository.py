@@ -181,7 +181,7 @@ class WSGIApp(ObjectStoreWSGIApp):
                                                         Rule(
                                                             "/$metadata",
                                                             methods=["GET"],
-                                                            endpoint=self.get_submodel_submodel_elements_id_short_path_metadata,
+                                                            endpoint=self.get_submodel_submodel_elements_id_short_path_metadata,  # noqa: E501
                                                         ),
                                                         Rule(
                                                             "/$metadata",
@@ -191,7 +191,7 @@ class WSGIApp(ObjectStoreWSGIApp):
                                                         Rule(
                                                             "/$reference",
                                                             methods=["GET"],
-                                                            endpoint=self.get_submodel_submodel_elements_id_short_path_reference,
+                                                            endpoint=self.get_submodel_submodel_elements_id_short_path_reference,  # noqa: E501
                                                         ),
                                                         Rule("/$value", methods=["GET"], endpoint=self.not_implemented),
                                                         Rule(
@@ -267,17 +267,17 @@ class WSGIApp(ObjectStoreWSGIApp):
                                                                 Rule(
                                                                     "/<base64url:qualifier_type>",
                                                                     methods=["GET"],
-                                                                    endpoint=self.get_submodel_submodel_element_qualifiers,
+                                                                    endpoint=self.get_submodel_submodel_element_qualifiers,  # noqa: E501
                                                                 ),
                                                                 Rule(
                                                                     "/<base64url:qualifier_type>",
                                                                     methods=["PUT"],
-                                                                    endpoint=self.put_submodel_submodel_element_qualifiers,
+                                                                    endpoint=self.put_submodel_submodel_element_qualifiers,  # noqa: E501
                                                                 ),
                                                                 Rule(
                                                                     "/<base64url:qualifier_type>",
                                                                     methods=["DELETE"],
-                                                                    endpoint=self.delete_submodel_submodel_element_qualifiers,
+                                                                    endpoint=self.delete_submodel_submodel_element_qualifiers,  # noqa: E501
                                                                 ),
                                                             ],
                                                         ),
@@ -478,7 +478,7 @@ class WSGIApp(ObjectStoreWSGIApp):
         semantic_id = request.args.get("semanticId")
         if semantic_id is not None:
             spec_semantic_id = HTTPApiDecoder.base64url_json(
-                semantic_id, model.Reference, False # type: ignore[type-abstract]
+                semantic_id, model.Reference, False  # type: ignore[type-abstract]
             )
             submodels = filter(lambda sm: sm.semantic_id == spec_semantic_id, submodels)
         paginated_submodels, end_index = self._get_slice(request, submodels)

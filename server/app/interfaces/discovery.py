@@ -1,5 +1,7 @@
 """
-This module implements the Discovery interface defined in the 'Specification of the Asset Administration Shell Part 2 – Application Programming Interface'.
+This module implements the Discovery interface defined in the
+'Specification of the Asset Administration Shell Part 2
+– Application Programming Interface'.
 """
 
 import json
