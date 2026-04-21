@@ -16,10 +16,11 @@ from .. import model
 def walk_submodel_element(element: model.SubmodelElement) -> Iterator[model.SubmodelElement]:
     """
     Traverse all :class:`SubmodelElements <basyx.aas.model.submodel.SubmodelElement>` contained within the given
-    element recursively, i.e. the children of a
-    :class:`~basyx.aas.model.submodel.SubmodelElementCollection`, :class:`~basyx.aas.model.submodel.SubmodelElementList`,
-    :class:`~basyx.aas.model.submodel.Entity` (via ``statement``) or :class:`~basyx.aas.model.submodel.Operation`
-    (via ``input_variable``, ``output_variable``, ``in_output_variable``).
+    element recursively, i.e. the children of:
+    :class:`~basyx.aas.model.submodel.SubmodelElementCollection`,
+    :class:`~basyx.aas.model.submodel.SubmodelElementList`,
+    :class:`~basyx.aas.model.submodel.Entity` (via ``statement``) or
+    :class:`~basyx.aas.model.submodel.Operation` (via ``input_variable``, ``output_variable``, ``in_output_variable``).
 
     The given element itself is not yielded. This is a generator function, yielding all the
     :class:`SubmodelElements <basyx.aas.model.submodel.SubmodelElement>`.
