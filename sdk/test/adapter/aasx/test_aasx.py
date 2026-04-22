@@ -11,6 +11,7 @@ import os
 import tempfile
 import unittest
 import warnings
+from pathlib import Path
 
 import pyecma376_2
 from basyx.aas import model
@@ -204,6 +205,50 @@ class AASXReaderTest(unittest.TestCase):
             self.assertIsInstance(cp.created, datetime.datetime)
             self.assertEqual(cp.creator, "Eclipse BaSyx Python Testing Framework")
             self.assertIsNone(cp.lastModifiedBy)
+        finally:
+            os.unlink(filename)
+
+    def test_get_thumbnail(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            # ---- Arange ----
+            tmpdir_path = Path(tmpdir)
+
+            data = model.DictIdentifiableStore([
+                model.AssetAdministrationShell(
+                    id_="http://example.org/Test_AAS",
+                    asset_information=model.AssetInformation(
+                        global_asset_id="http://example.org/Test_Asset"
+                    )
+                )
+            ])
+
+            with aasx.AASXWriter(tmpdir_path / "test_thumbnail.aasx") as writer:
+                writer.write_aas(
+                    'http://example.org/Test_AAS',
+                    data, aasx.DictSupplementaryFileContainer(), write_json=False
+                )
+                with open(Path(__file__).parent / "test.png", "rb") as png:
+                    thumbnail = png.read()
+                    writer.write_thumbnail("/aasx/thumbnail.png", bytearray(thumbnail), "image/png")
+
+            # ---- Act ----
+            with aasx.AASXReader(tmpdir_path / "test_thumbnail.aasx") as reader:
+                new_thumbnail = reader.get_thumbnail()
+
+            # ---- Assert ----
+            self.assertEqual(new_thumbnail, thumbnail)
+
+    def test_missing_thumbnail(self) -> None:
+        # ---- Arange ----
+        filename = self._create_test_aasx()
+
+        try:
+            # ---- Act ----
+            with aasx.AASXReader(filename) as reader:
+                thumbnail = reader.get_thumbnail()
+
+            # ---- Assert ----
+            self.assertIsNone(thumbnail)
         finally:
             os.unlink(filename)
 
