@@ -1,4 +1,4 @@
-# Copyright (c) 2025 the Eclipse BaSyx Authors
+# Copyright (c) 2026 the Eclipse BaSyx Authors
 #
 # This program and the accompanying materials are made available under the terms of the MIT License, available in
 # the LICENSE file of this project.
@@ -227,7 +227,7 @@ class AASDataCheckerTest(unittest.TestCase):
         self.assertEqual("FAIL: Attribute value of SubmodelElementCollection[Collection] must contain 2 "
                          "SubmodelElements (count=1)",
                          repr(next(checker_iterator)))
-        self.assertEqual("FAIL: Submodel Element Property[Collection / Prop1] must exist ()",
+        self.assertEqual("FAIL: Submodel Element Property[Collection.Prop1] must exist ()",
                          repr(next(checker_iterator)))
 
         collection.add_referable(property)
@@ -253,14 +253,14 @@ class AASDataCheckerTest(unittest.TestCase):
         rel1 = model.AnnotatedRelationshipElement(id_short='test',
                                                   first=model.ModelReference((
                                                       model.Key(type_=model.KeyTypes.SUBMODEL,
-                                                                value='http://acplt.org/Test_Submodel'),
+                                                                value='http://example.org/Test_Submodel'),
                                                       model.Key(
                                                           type_=model.KeyTypes.PROPERTY,
                                                           value='ExampleProperty'),),
                                                                            model.Property),
                                                   second=model.ModelReference((
                                                       model.Key(type_=model.KeyTypes.SUBMODEL,
-                                                                value='http://acplt.org/Test_Submodel'),
+                                                                value='http://example.org/Test_Submodel'),
                                                       model.Key(type_=model.KeyTypes.PROPERTY,
                                                                 value='ExampleProperty'),),
                                                       model.Property),
@@ -268,13 +268,13 @@ class AASDataCheckerTest(unittest.TestCase):
         rel2 = model.AnnotatedRelationshipElement(id_short='test',
                                                   first=model.ModelReference((
                                                       model.Key(type_=model.KeyTypes.SUBMODEL,
-                                                                value='http://acplt.org/Test_Submodel'),
+                                                                value='http://example.org/Test_Submodel'),
                                                       model.Key(type_=model.KeyTypes.PROPERTY,
                                                                 value='ExampleProperty'),),
                                                       model.Property),
                                                   second=model.ModelReference((
                                                       model.Key(type_=model.KeyTypes.SUBMODEL,
-                                                                value='http://acplt.org/Test_Submodel'),
+                                                                value='http://example.org/Test_Submodel'),
                                                       model.Key(type_=model.KeyTypes.PROPERTY,
                                                                 value='ExampleProperty'),),
                                                       model.Property),
@@ -291,7 +291,7 @@ class AASDataCheckerTest(unittest.TestCase):
         self.assertEqual("FAIL: Attribute annotation of AnnotatedRelationshipElement[test] must contain 1 DataElements "
                          "(count=0)",
                          repr(next(checker_iterator)))
-        self.assertEqual("FAIL: Annotation Property[test / ExampleAnnotatedProperty] must exist ()",
+        self.assertEqual("FAIL: Annotation Property[test.ExampleAnnotatedProperty] must exist ()",
                          repr(next(checker_iterator)))
 
     def test_submodel_checker(self):

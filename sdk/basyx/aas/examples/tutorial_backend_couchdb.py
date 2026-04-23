@@ -3,7 +3,7 @@
 # See http://creativecommons.org/publicdomain/zero/1.0/ for more information.
 """
 Tutorial for storing Asset Administration Shells, Submodels and Assets in a CouchDB database server, using the
-CouchDBObjectStore and CouchDB Backend.
+CouchDBIdentifiableStore and CouchDB Backend.
 """
 
 from configparser import ConfigParser
@@ -29,7 +29,7 @@ import basyx.aas.backend.couchdb
 
 # Step-by-Step Guide:
 # step 1: connecting to a CouchDB server
-# step 2: storing objects in CouchDBObjectStore
+# step 2: storing objects in a CouchDBIdentifiableStore
 
 
 ##########################################
@@ -54,25 +54,25 @@ couchdb_password = config['couchdb']['password']
 
 
 # Provide the login credentials to the CouchDB backend.
-# These credentials are used whenever communication with this CouchDB server is required via the CouchDBObjectStore.
+# These credentials are used when communication with this CouchDB server is required via the CouchDBIdentifiableStore.
 basyx.aas.backend.couchdb.register_credentials(couchdb_url, couchdb_user, couchdb_password)
 
-# Now, we create a CouchDBObjectStore as an interface for managing the objects in the CouchDB server.
-object_store = basyx.aas.backend.couchdb.CouchDBObjectStore(couchdb_url, couchdb_database)
+# Now, we create a CouchDBIdentifiableStore as an interface for managing the objects in the CouchDB server.
+identifiable_store = basyx.aas.backend.couchdb.CouchDBIdentifiableStore(couchdb_url, couchdb_database)
 
 
-#####################################################
-# Step 2: Storing objects in the CouchDBObjectStore #
-#####################################################
+###########################################################
+# Step 2: Storing objects in the CouchDBIdentifiableStore #
+###########################################################
 
 # Create some example objects
 example_submodel1 = basyx.aas.examples.data.example_aas.create_example_asset_identification_submodel()
 example_submodel2 = basyx.aas.examples.data.example_aas.create_example_bill_of_material_submodel()
 
-# The CouchDBObjectStore behaves just like other ObjectStore implementations (see `tutorial_storage.py`). The objects
-# are transferred to the CouchDB immediately.
-object_store.add(example_submodel1)
-object_store.add(example_submodel2)
+# The CouchDBIdentifiableStore behaves just like other ObjectStore implementations (see `tutorial_storage.py`). The
+# objects are transferred to the CouchDB immediately.
+identifiable_store.add(example_submodel1)
+identifiable_store.add(example_submodel2)
 
 # For more information on how to use `ObjectStore`s in general, please refer to `tutorial_storage.py`.
 
@@ -81,5 +81,5 @@ object_store.add(example_submodel2)
 ############
 
 # Let's delete the Submodels from the CouchDB to leave it in a clean state
-object_store.discard(example_submodel1)
-object_store.discard(example_submodel2)
+identifiable_store.discard(example_submodel1)
+identifiable_store.discard(example_submodel2)

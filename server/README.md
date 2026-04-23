@@ -6,10 +6,10 @@ The server currently implements the following interfaces:
 - [Asset Administration Shell Repository Service][4]
 - [Submodel Repository Service][5]
 
-It uses the [HTTP API][1] and the [AASX][7], [JSON][8], and [XML][9] Adapters of the [BaSyx Python SDK][3], to serve regarding files from a given directory.
+It uses the [HTTP API][1] and the [*AASX*][7], [*JSON*][8], and [*XML*][9] Adapters of the [BaSyx Python SDK][3], to serve regarding files from a given directory.
 The files are only read, changes won't persist.
 
-Alternatively, the container can also be told to use the [Local-File Backend][2] instead, which stores AAS and Submodels as individual JSON files and allows for persistent changes (except supplementary files, i.e. files referenced by `File` submodel elements).
+Alternatively, the container can also be told to use the [Local-File Backend][2] instead, which stores Asset Administration Shells (AAS) and Submodels as individual *JSON* files and allows for persistent changes (except supplementary files, i.e. files referenced by `File` SubmodelElements).
 See [below](#options) on how to configure this.
 
 ## Building
@@ -19,17 +19,20 @@ The container image can be built via:
 $ docker build -t basyx-python-server -f Dockerfile ..
 ```
 
-Note that when cloning this repository on Windows, Git may convert the line separators to CRLF. This breaks `entrypoint.sh` and `stop-supervisor.sh`. Ensure both files use LF line separators before building. 
+Note that when cloning this repository on Windows, Git may convert the line separators to CRLF. This breaks [`entrypoint.sh`](docker/repository/entrypoint.sh) and [`stop-supervisor.sh`](docker/common/stop-supervisor.sh). Ensure both files use LF line separators (`\n`) before building. 
 
 ## Running
 
 ### Storage
 
-The container needs to be provided with the directory `/storage` to store AAS and Submodel files: AASX, JSON, XML or JSON files of Local-File Backend.
+The server makes use of two directories:
 
-This directory can be mapped via the `-v` option from another image or a local directory.
-To map the directory `storage` inside the container, `-v ./storage:/storage` can be used.
-The directory `storage` will be created in the current working directory, if it doesn't already exist.
+- **`/input`** - *start-up data*: Directory from which the server loads AAS and Submodel files in *AASX*, *JSON* or *XML* format during start-up. The server will not modify these files.
+- **`/storage`** - *persistent store*: Directory where all AAS and Submodels are stored as individual *JSON* files if the server is [configured](#options) for persistence. The server will modify these files.
+
+The directories can be mapped via the `-v` option from another image or a local directory.
+To mount the host directories into the container, `-v ./input:/input -v ./storage:/storage` can be used.
+Both local directories `./input` and `./storage` will be created in the current working directory, if they don't already exist.
 
 ### Port
 
@@ -38,57 +41,32 @@ To expose it on the host on port 8080, use the option `-p 8080:80` when running 
 
 ### Options
 
-The container can be configured via environment variables:
-- `API_BASE_PATH` determines the base path under which all other API paths are made available.
-  Default: `/api/v3.1`
-- `STORAGE_TYPE` can be one of `LOCAL_FILE_READ_ONLY` or `LOCAL_FILE_BACKEND`:
-  - When set to `LOCAL_FILE_READ_ONLY` (the default), the server will read and serve AASX, JSON, XML files from the storage directory.
-    The files are not modified, all changes done via the API are only stored in memory.
-  - When instead set to `LOCAL_FILE`, the server makes use of the [LocalFileBackend][2], where AAS and Submodels are persistently stored as JSON files.
-    Supplementary files, i.e. files referenced by `File` submodel elements, are not stored in this case.
-- `STORAGE_PATH` sets the directory to read the files from *within the container*. If you bind your files to a directory different from the default `/storage`, you can use this variable to adjust the server accordingly.
+The container can be configured via environment variables. The most important ones are summarised below:
 
-### Running Examples
+| Variable              | Description                                                                                                                                                                                                                                                                                                  | Default      |
+|-----------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------|
+| `API_BASE_PATH`       | Base path under which the API is served.                                                                                                                                                                                                                                                                     | `/api/v3.0/` |
+| `INPUT`               | Path inside the container pointing to the directory from which the server takes its start-up data (*AASX*, *JSON*, *XML*).                                                                                                                                                                                   | `/input`     |
+| `STORAGE`             | Path inside the container pointing to the directory used by the server to persistently store data (*JSON*).                                                                                                                                                                                                  | `/storage`   |
+| `STORAGE_PERSISTENCY` | Flag to enable data persistence via the [LocalFileBackend][2]. AAS/Submodels are stored as *JSON* files in the directory specified by `STORAGE`. Supplementary files, i.e. files referenced by `File` SubmodelElements, are not stored. If disabled, any changes made via the API are only stored in memory. | `False`      |
+| `STORAGE_OVERWRITE`   | Flag to enable storage overwrite if `STORAGE_PERSISTENCY` is enabled. Any AAS/Submodel from the `INPUT` directory already present in the LocalFileBackend replaces its existing version. If disabled, the existing version is kept.                                                                          | `False`      |
 
-Putting it all together, the container can be started via the following command:
-```
-$ docker run -p 8080:80 -v ./storage:/storage basyx-python-server
-```
 
-Since Windows uses backslashes instead of forward slashes in paths, you'll have to adjust the path to the storage directory there:
-```
-> docker run -p 8080:80 -v .\storage:/storage basyx-python-server
-```
+This implies the following start-up behaviour:
 
-Per default, the server will use the `LOCAL_FILE_READ_ONLY` storage type and serve the API under `/api/v3.1` and read files from `/storage`. If you want to change this, you can do so like this:
-```
-$ docker run -p 8080:80 -v ./storage2:/storage2 -e API_BASE_PATH=/api/v3.1 -e STORAGE_TYPE=LOCAL_FILE_BACKEND -e STORAGE_PATH=/storage2 basyx-python-server
-```
+- Any AAS/Submodel found in `INPUT` is loaded during start-up.
+- If `STORAGE_PERSISTENCY = True`:
+  - Any AAS/Submodel *not* present in the LocalFileBackend is added to it.
+  - Any AAS/Submodel *already present* is skipped, unless `STORAGE_OVERWRITE = True`, in which case it is replaced.
+- Supplementary files (e.g., `File` SubmodelElements) are never persisted by the LocalFileBackend.
 
 ## Building and Running the Image with Docker Compose
 
-The container image can also be built and run via:
-```
-$ docker compose up
-```
+Example configurations can be found in the `./example_configurations` directory.
 
-This is the exemplary `compose.yml` file for the server:
-```yaml
-services:
-  app:
-    build:
-      context: ..
-      dockerfile: server/Dockerfile
-    ports:
-    - "8080:80"
-    volumes:
-      - ./storage:/storage
-```
+Currently, we offer: 
 
-Here files are read from `/storage` and the server can be accessed at http://localhost:8080/api/v3.1/ from your host system. 
-To get a different setup this compose.yaml file can be adapted and expanded.
-
-Note that the `Dockerfile` has to be specified explicitly, as the build context must be set to the parent directory of `/server` to allow access to the local `/sdk`.
+- [repository_standalone](example_configurations/repository_standalone/README.md): Standalone repository server
 
 ## Running without Docker (Debugging Only)
 
@@ -103,12 +81,40 @@ The server can also be run directly on the host system without Docker, NGINX and
    $ pip install ./app
    ```
 
-2. Run the server by executing the main function in [`./app/interfaces/repository.py`](./app/interfaces/repository.py) from within the `app` folder.
+2. Run the server by executing the main function in [`./app/interfaces/repository.py`](./app/interfaces/repository.py).
    ```bash
-   $ python -m interfaces.repository
+   $ python -m app.interfaces.repository
    ```
 
 The server can be accessed at http://localhost:8080/api/v3.1/ from your host system. 
+
+## Currently Unimplemented
+Several features and routes are currently not supported:
+
+1. Correlation ID: Not implemented because it was deemed unnecessary for this server.
+
+2. Extent Parameter (`withBlobValue/withoutBlobValue`):
+   Not implemented due to the lack of support in JSON/XML serialization.
+
+3. Route `/shells/{aasIdentifier}/asset-information/thumbnail`: Not implemented because the specification lacks clarity.
+
+4. Serialization and Description Routes:
+   - `/serialization`
+   - `/description`
+   These routes are not implemented at this time.
+
+5. Value, Path, and PATCH Routes:
+   - All `/…/value$`, `/…/path$`, and `PATCH` routes are currently not implemented.
+
+6. Operation Invocation Routes: The following routes are not implemented because operation invocation
+   is not yet supported by the `basyx-python-sdk`:
+   - `POST /submodels/{submodelIdentifier}/submodel-elements/{idShortPath}/invoke`
+   - `POST /submodels/{submodelIdentifier}/submodel-elements/{idShortPath}/invoke/$value`
+   - `POST /submodels/{submodelIdentifier}/submodel-elements/{idShortPath}/invoke-async`
+   - `POST /submodels/{submodelIdentifier}/submodel-elements/{idShortPath}/invoke-async/$value`
+   - `GET /submodels/{submodelIdentifier}/submodel-elements/{idShortPath}/operation-status/{handleId}`
+   - `GET /submodels/{submodelIdentifier}/submodel-elements/{idShortPath}/operation-results/{handleId}`
+   - `GET /submodels/{submodelIdentifier}/submodel-elements/{idShortPath}/operation-results/{handleId}/$value`
 
 ## Acknowledgments
 

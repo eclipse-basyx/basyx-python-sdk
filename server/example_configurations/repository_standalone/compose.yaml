@@ -1,0 +1,13 @@
+name: basyx-python-server
+services:
+  app:
+    build:
+      context: ../../..
+      dockerfile: server/docker/repository/Dockerfile
+    ports:
+    - "8080:80"
+    volumes:
+      - ./input:/input
+      - ./storage:/storage
+    environment:
+      STORAGE_PERSISTENCY: True

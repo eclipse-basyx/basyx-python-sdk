@@ -1,4 +1,4 @@
-# Copyright (c) 2025 the Eclipse BaSyx Authors
+# Copyright (c) 2026 the Eclipse BaSyx Authors
 #
 # This program and the accompanying materials are made available under the terms of the MIT License, available in
 # the LICENSE file of this project.
@@ -917,44 +917,48 @@ class AASDataChecker(DataChecker):
         self.check(found_elements == set(), 'ValueList must not have extra ValueReferencePairs',
                    value=found_elements)
 
-    def check_object_store(self, obj_store_1: model.DictObjectStore, obj_store_2: model.DictObjectStore):
+    def check_identifiable_store(
+            self,
+            identifiable_store_1: model.DictIdentifiableStore,
+            identifiable_store_2: model.DictIdentifiableStore
+    ):
         """
         Checks if the given object stores are equal
 
-        :param obj_store_1: Given object store to check
-        :param obj_store_2: expected object store
+        :param identifiable_store_1: Given object store to check
+        :param identifiable_store_2: expected object store
         :return:
         """
         # separate different kind of objects
         submodel_list_1 = []
         concept_description_list_1 = []
         shell_list_1 = []
-        for obj in obj_store_1:
-            if isinstance(obj, model.AssetAdministrationShell):
-                shell_list_1.append(obj)
-            elif isinstance(obj, model.Submodel):
-                submodel_list_1.append(obj)
-            elif isinstance(obj, model.ConceptDescription):
-                concept_description_list_1.append(obj)
+        for identifiable in identifiable_store_1:
+            if isinstance(identifiable, model.AssetAdministrationShell):
+                shell_list_1.append(identifiable)
+            elif isinstance(identifiable, model.Submodel):
+                submodel_list_1.append(identifiable)
+            elif isinstance(identifiable, model.ConceptDescription):
+                concept_description_list_1.append(identifiable)
             else:
-                raise KeyError('Check for {} not implemented'.format(obj))
+                raise KeyError('Check for {} not implemented'.format(identifiable))
 
         # separate different kind of objects
         submodel_list_2 = []
         concept_description_list_2 = []
         shell_list_2 = []
-        for obj in obj_store_2:
-            if isinstance(obj, model.AssetAdministrationShell):
-                shell_list_2.append(obj)
-            elif isinstance(obj, model.Submodel):
-                submodel_list_2.append(obj)
-            elif isinstance(obj, model.ConceptDescription):
-                concept_description_list_2.append(obj)
+        for identifiable in identifiable_store_2:
+            if isinstance(identifiable, model.AssetAdministrationShell):
+                shell_list_2.append(identifiable)
+            elif isinstance(identifiable, model.Submodel):
+                submodel_list_2.append(identifiable)
+            elif isinstance(identifiable, model.ConceptDescription):
+                concept_description_list_2.append(identifiable)
             else:
-                raise KeyError('Check for {} not implemented'.format(obj))
+                raise KeyError('Check for {} not implemented'.format(identifiable))
 
         for shell_2 in shell_list_2:
-            shell_1 = obj_store_1.get(shell_2.id)
+            shell_1 = identifiable_store_1.get(shell_2.id)
             if self.check(shell_1 is not None, 'Asset administration shell {} must exist in given asset administration'
                                                'shell list'.format(shell_2)):
                 self.check_asset_administration_shell_equal(shell_1, shell_2)  # type: ignore
@@ -964,7 +968,7 @@ class AASDataChecker(DataChecker):
                                             'administration shells', value=found_elements)
 
         for submodel_2 in submodel_list_2:
-            submodel_1 = obj_store_1.get(submodel_2.id)
+            submodel_1 = identifiable_store_1.get(submodel_2.id)
             if self.check(submodel_1 is not None, 'Submodel {} must exist in given submodel list'.format(submodel_2)):
                 self.check_submodel_equal(submodel_1, submodel_2)  # type: ignore
 
@@ -973,7 +977,7 @@ class AASDataChecker(DataChecker):
                    value=found_elements)
 
         for cd_2 in concept_description_list_2:
-            cd_1 = obj_store_1.get(cd_2.id)
+            cd_1 = identifiable_store_1.get(cd_2.id)
             if self.check(cd_1 is not None, 'Concept description {} must exist in given concept description '
                                             'list'.format(cd_2)):
                 self.check_concept_description_equal(cd_1, cd_2)  # type: ignore

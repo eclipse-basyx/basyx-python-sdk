@@ -1,13 +1,14 @@
-# Copyright (c) 2025 the Eclipse BaSyx Authors
+# Copyright (c) 2026 the Eclipse BaSyx Authors
 #
 # This program and the accompanying materials are made available under the terms of the MIT License, available in
 # the LICENSE file of this project.
 #
 # SPDX-License-Identifier: MIT
 """
-Module for the creation of an :class:`ObjectStore <basyx.aas.model.provider.DictObjectStore>` with an example
-:class:`~basyx.aas.model.aas.AssetAdministrationShell`, example :class:`Submodels <basyx.aas.model.submodel.Submodel>`
-and an example :class:`~basyx.aas.model.concept.ConceptDescription`. All objects only contain mandatory attributes.
+Module for the creation of an :class:`IdentifiableStore <basyx.aas.model.provider.DictIdentifiableStore>` with an
+example :class:`~basyx.aas.model.aas.AssetAdministrationShell`, example
+:class:`Submodels <basyx.aas.model.submodel.Submodel>` and an example
+:class:`~basyx.aas.model.concept.ConceptDescription`. All objects only contain mandatory attributes.
 
 To get this object store use the function
 :meth:`~basyx.aas.examples.data.example_aas_mandatory_attributes.create_full_example`. If you want to get single example
@@ -21,21 +22,21 @@ from ._helper import AASDataChecker
 logger = logging.getLogger(__name__)
 
 
-def create_full_example() -> model.DictObjectStore:
+def create_full_example() -> model.DictIdentifiableStore:
     """
-    Creates an :class:`~.basyx.aas.model.provider.DictObjectStore` which is filled with an example
+    Creates an :class:`~.basyx.aas.model.provider.DictIdentifiableStore` which is filled with an example
     :class:`~basyx.aas.model.submodel.Submodel`, :class:`~basyx.aas.model.concept.ConceptDescription`
     and :class:`~basyx.aas.model.aas.AssetAdministrationShell` using the functions of this module
 
-    :return: :class:`~basyx.aas.model.provider.DictObjectStore`
+    :return: :class:`~basyx.aas.model.provider.DictIdentifiableStore`
     """
-    obj_store: model.DictObjectStore[model.Identifiable] = model.DictObjectStore()
-    obj_store.add(create_example_submodel())
-    obj_store.add(create_example_empty_submodel())
-    obj_store.add(create_example_concept_description())
-    obj_store.add(create_example_asset_administration_shell())
-    obj_store.add(create_example_empty_asset_administration_shell())
-    return obj_store
+    identifiable_store: model.DictIdentifiableStore[model.Identifiable] = model.DictIdentifiableStore()
+    identifiable_store.add(create_example_submodel())
+    identifiable_store.add(create_example_empty_submodel())
+    identifiable_store.add(create_example_concept_description())
+    identifiable_store.add(create_example_asset_administration_shell())
+    identifiable_store.add(create_example_empty_asset_administration_shell())
+    return identifiable_store
 
 
 def create_example_submodel() -> model.Submodel:
@@ -74,12 +75,12 @@ def create_example_submodel() -> model.Submodel:
     submodel_element_relationship_element = model.RelationshipElement(
         id_short='ExampleRelationshipElement',
         first=model.ModelReference((model.Key(type_=model.KeyTypes.SUBMODEL,
-                                              value='http://acplt.org/Test_Submodel'),
+                                              value='http://example.org/Test_Submodel'),
                                     model.Key(type_=model.KeyTypes.PROPERTY,
                                               value='ExampleProperty'),),
                                    model.Property),
         second=model.ModelReference((model.Key(type_=model.KeyTypes.SUBMODEL,
-                                               value='http://acplt.org/Test_Submodel'),
+                                               value='http://example.org/Test_Submodel'),
                                      model.Key(type_=model.KeyTypes.PROPERTY,
                                                value='ExampleProperty'),),
                                     model.Property))
@@ -87,12 +88,12 @@ def create_example_submodel() -> model.Submodel:
     submodel_element_annotated_relationship_element = model.AnnotatedRelationshipElement(
         id_short='ExampleAnnotatedRelationshipElement',
         first=model.ModelReference((model.Key(type_=model.KeyTypes.SUBMODEL,
-                                              value='http://acplt.org/Test_Submodel'),
+                                              value='http://example.org/Test_Submodel'),
                                     model.Key(type_=model.KeyTypes.PROPERTY,
                                               value='ExampleProperty'),),
                                    model.Property),
         second=model.ModelReference((model.Key(type_=model.KeyTypes.SUBMODEL,
-                                               value='http://acplt.org/Test_Submodel'),
+                                               value='http://example.org/Test_Submodel'),
                                      model.Key(type_=model.KeyTypes.PROPERTY,
                                                value='ExampleProperty'),),
                                     model.Property))
@@ -105,7 +106,8 @@ def create_example_submodel() -> model.Submodel:
 
     submodel_element_basic_event_element = model.BasicEventElement(
         id_short='ExampleBasicEventElement',
-        observed=model.ModelReference((model.Key(type_=model.KeyTypes.SUBMODEL, value='http://acplt.org/Test_Submodel'),
+        observed=model.ModelReference((model.Key(type_=model.KeyTypes.SUBMODEL,
+                                                 value='http://example.org/Test_Submodel'),
                                        model.Key(type_=model.KeyTypes.PROPERTY, value='ExampleProperty'),),
                                       model.Property),
         direction=model.Direction.INPUT,
@@ -135,7 +137,7 @@ def create_example_submodel() -> model.Submodel:
         value=())
 
     submodel = model.Submodel(
-        id_='https://acplt.org/Test_Submodel_Mandatory',
+        id_='https://example.org/Test_Submodel_Mandatory',
         submodel_element=(submodel_element_relationship_element,
                           submodel_element_annotated_relationship_element,
                           submodel_element_operation,
@@ -153,7 +155,7 @@ def create_example_empty_submodel() -> model.Submodel:
     :return: example submodel
     """
     return model.Submodel(
-        id_='https://acplt.org/Test_Submodel2_Mandatory')
+        id_='https://example.org/Test_Submodel2_Mandatory')
 
 
 def create_example_concept_description() -> model.ConceptDescription:
@@ -163,7 +165,7 @@ def create_example_concept_description() -> model.ConceptDescription:
     :return: example concept description
     """
     concept_description = model.ConceptDescription(
-        id_='https://acplt.org/Test_ConceptDescription_Mandatory')
+        id_='https://example.org/Test_ConceptDescription_Mandatory')
     return concept_description
 
 
@@ -177,16 +179,16 @@ def create_example_asset_administration_shell() -> \
     """
     asset_information = model.AssetInformation(
         asset_kind=model.AssetKind.INSTANCE,
-        global_asset_id='http://acplt.org/Test_Asset_Mandatory/')
+        global_asset_id='http://example.org/Test_Asset_Mandatory/')
 
     asset_administration_shell = model.AssetAdministrationShell(
         asset_information=asset_information,
-        id_='https://acplt.org/Test_AssetAdministrationShell_Mandatory',
+        id_='https://example.org/Test_AssetAdministrationShell_Mandatory',
         submodel={model.ModelReference((model.Key(type_=model.KeyTypes.SUBMODEL,
-                                                  value='https://acplt.org/Test_Submodel_Mandatory'),),
+                                                  value='https://example.org/Test_Submodel_Mandatory'),),
                                        model.Submodel),
                   model.ModelReference((model.Key(type_=model.KeyTypes.SUBMODEL,
-                                                  value='https://acplt.org/Test_Submodel2_Mandatory'),),
+                                                  value='https://example.org/Test_Submodel2_Mandatory'),),
                                        model.Submodel)},)
     return asset_administration_shell
 
@@ -200,8 +202,8 @@ def create_example_empty_asset_administration_shell() -> model.AssetAdministrati
     """
     asset_administration_shell = model.AssetAdministrationShell(
         asset_information=model.AssetInformation(
-            global_asset_id='http://acplt.org/TestAsset2_Mandatory/'),
-        id_='https://acplt.org/Test_AssetAdministrationShell2_Mandatory')
+            global_asset_id='http://example.org/TestAsset2_Mandatory/'),
+        id_='https://example.org/Test_AssetAdministrationShell2_Mandatory')
     return asset_administration_shell
 
 
@@ -234,6 +236,6 @@ def check_example_empty_submodel(checker: AASDataChecker, submodel: model.Submod
     checker.check_submodel_equal(submodel, expected_submodel)
 
 
-def check_full_example(checker: AASDataChecker, obj_store: model.DictObjectStore) -> None:
+def check_full_example(checker: AASDataChecker, identifiable_store: model.DictIdentifiableStore) -> None:
     expected_data = create_full_example()
-    checker.check_object_store(obj_store, expected_data)
+    checker.check_identifiable_store(identifiable_store, expected_data)

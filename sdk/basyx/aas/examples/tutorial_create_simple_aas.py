@@ -26,11 +26,11 @@ from basyx.aas import model
 # Step 1.1: create the AssetInformation object
 asset_information = model.AssetInformation(
     asset_kind=model.AssetKind.INSTANCE,
-    global_asset_id='http://acplt.org/Simple_Asset'
+    global_asset_id='http://example.org/Simple_Asset'
 )
 
 # step 1.2: create the Asset Administration Shell
-identifier = 'https://acplt.org/Simple_AAS'
+identifier = 'https://example.org/Simple_AAS'
 aas = model.AssetAdministrationShell(
     id_=identifier,  # set identifier
     asset_information=asset_information
@@ -42,7 +42,7 @@ aas = model.AssetAdministrationShell(
 #############################################################
 
 # Step 2.1: create the Submodel object
-identifier = 'https://acplt.org/Simple_Submodel'
+identifier = 'https://example.org/Simple_Submodel'
 submodel = model.Submodel(
     id_=identifier
 )
@@ -55,10 +55,10 @@ aas.submodel.add(model.ModelReference.from_referable(submodel))
 # ALTERNATIVE: step 1 and 2 can alternatively be done in one step
 # In this version, the Submodel reference is passed to the Asset Administration Shell's constructor.
 submodel = model.Submodel(
-    id_='https://acplt.org/Simple_Submodel'
+    id_='https://example.org/Simple_Submodel'
 )
 aas = model.AssetAdministrationShell(
-    id_='https://acplt.org/Simple_AAS',
+    id_='https://example.org/Simple_AAS',
     asset_information=asset_information,
     submodel={model.ModelReference.from_referable(submodel)}
 )
@@ -73,7 +73,7 @@ aas = model.AssetAdministrationShell(
 semantic_reference = model.ExternalReference(
     (model.Key(
         type_=model.KeyTypes.GLOBAL_REFERENCE,
-        value='http://acplt.org/Properties/SimpleProperty'
+        value='http://example.org/Properties/SimpleProperty'
     ),)
 )
 
@@ -93,7 +93,7 @@ submodel.submodel_element.add(property_)
 # ALTERNATIVE: step 2 and 3 can also be combined in a single statement:
 # Again, we pass the Property to the Submodel's constructor instead of adding it afterward.
 submodel = model.Submodel(
-    id_='https://acplt.org/Simple_Submodel',
+    id_='https://example.org/Simple_Submodel',
     submodel_element={
         model.Property(
             id_short='ExampleProperty',
@@ -102,7 +102,7 @@ submodel = model.Submodel(
             semantic_id=model.ExternalReference(
                 (model.Key(
                     type_=model.KeyTypes.GLOBAL_REFERENCE,
-                    value='http://acplt.org/Properties/SimpleProperty'
+                    value='http://example.org/Properties/SimpleProperty'
                 ),)
             )
         )

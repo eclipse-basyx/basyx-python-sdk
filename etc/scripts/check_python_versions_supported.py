@@ -14,7 +14,9 @@ def main(min_version: str, max_version: str) -> None:
         response = requests.get("https://endoflife.date/api/python.json")
         response.raise_for_status()
         eol_data = response.json()
-        eol_versions = {entry["cycle"]: {"eol": entry["eol"], "releaseDate": entry["releaseDate"]} for entry in eol_data}
+        eol_versions = {
+            entry["cycle"]: {"eol": entry["eol"], "releaseDate": entry["releaseDate"]} for entry in eol_data
+        }
 
         # Get current date to compare with EoL and release dates
         current_date = datetime.now().date()

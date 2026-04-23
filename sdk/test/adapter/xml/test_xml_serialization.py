@@ -1,4 +1,4 @@
-# Copyright (c) 2025 the Eclipse BaSyx Authors
+# Copyright (c) 2026 the Eclipse BaSyx Authors
 #
 # This program and the accompanying materials are made available under the terms of the MIT License, available in
 # the LICENSE file of this project.
@@ -39,7 +39,7 @@ class XMLSerializationTest(unittest.TestCase):
         test_aas = model.AssetAdministrationShell(model.AssetInformation(global_asset_id="Test"),
                                                   aas_identifier, submodel={submodel_reference})
 
-        test_data: model.DictObjectStore[model.Identifiable] = model.DictObjectStore()
+        test_data: model.DictIdentifiableStore[model.Identifiable] = model.DictIdentifiableStore()
         test_data.add(test_aas)
         test_data.add(submodel)
 
@@ -61,11 +61,12 @@ class XMLSerializationSchemaTest(unittest.TestCase):
         submodel_reference = model.ModelReference(submodel_key, model.Submodel)
         submodel = model.Submodel(submodel_identifier,
                                   semantic_id=model.ExternalReference((model.Key(model.KeyTypes.GLOBAL_REFERENCE,
-                                                                                 "http://acplt.org/TestSemanticId"),)))
+                                                                                 "http://example.org/"
+                                                                                 "TestSemanticId"),)))
         test_aas = model.AssetAdministrationShell(model.AssetInformation(global_asset_id="Test"),
                                                   aas_identifier, submodel={submodel_reference})
         # serialize object to xml
-        test_data: model.DictObjectStore[model.Identifiable] = model.DictObjectStore()
+        test_data: model.DictIdentifiableStore[model.Identifiable] = model.DictIdentifiableStore()
         test_data.add(test_aas)
         test_data.add(submodel)
 
@@ -94,7 +95,7 @@ class XMLSerializationSchemaTest(unittest.TestCase):
         root = etree.parse(file, parser=parser)
 
     def test_submodel_template_serialization(self) -> None:
-        data: model.DictObjectStore[model.Identifiable] = model.DictObjectStore()
+        data: model.DictIdentifiableStore[model.Identifiable] = model.DictIdentifiableStore()
         data.add(example_submodel_template.create_example_submodel_template())
         file = io.BytesIO()
         write_aas_xml_file(file=file, data=data)
@@ -134,7 +135,7 @@ class XMLSerializationSchemaTest(unittest.TestCase):
         root = etree.parse(file, parser=parser)
 
     def test_concept_description(self) -> None:
-        data: model.DictObjectStore[model.Identifiable] = model.DictObjectStore()
+        data: model.DictIdentifiableStore[model.Identifiable] = model.DictIdentifiableStore()
         data.add(example_aas.create_example_concept_description())
         file = io.BytesIO()
         write_aas_xml_file(file=file, data=data)

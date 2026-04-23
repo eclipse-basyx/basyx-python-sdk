@@ -1,4 +1,4 @@
-# Copyright (c) 2025 the Eclipse BaSyx Authors
+# Copyright (c) 2026 the Eclipse BaSyx Authors
 #
 # This program and the accompanying materials are made available under the terms of the MIT License, available in
 # the LICENSE file of this project.
@@ -34,7 +34,7 @@ import hypothesis.strategies
 
 from basyx.aas import model
 from basyx.aas.adapter.aasx import DictSupplementaryFileContainer
-from server.app.interfaces.repository import WSGIApp
+from app.interfaces.repository import WSGIApp
 from basyx.aas.examples.data.example_aas import create_full_example
 
 from typing import Set
@@ -91,7 +91,7 @@ SUBMODEL_SCHEMA = schemathesis.from_path(pathlib.Path(__file__).parent / "http-a
 
 class APIWorkflowAAS(AAS_SCHEMA.as_state_machine()):  # type: ignore
     def setup(self):
-        self.schema.app.object_store = create_full_example()
+        self.schema.app.identifiable_store = create_full_example()
         # select random identifier for each test scenario
         self.schema.base_url = BASE_URL + "/aas/" + random.choice(tuple(IDENTIFIER_AAS))
 
@@ -108,7 +108,7 @@ class APIWorkflowAAS(AAS_SCHEMA.as_state_machine()):  # type: ignore
 
 class APIWorkflowSubmodel(SUBMODEL_SCHEMA.as_state_machine()):  # type: ignore
     def setup(self):
-        self.schema.app.object_store = create_full_example()
+        self.schema.app.identifiable_store = create_full_example()
         self.schema.base_url = BASE_URL + "/submodels/" + random.choice(tuple(IDENTIFIER_SUBMODEL))
 
     def transform(self, result, direction, case):

@@ -1,4 +1,4 @@
-# Copyright (c) 2025 the Eclipse BaSyx Authors
+# Copyright (c) 2026 the Eclipse BaSyx Authors
 #
 # This program and the accompanying materials are made available under the terms of the MIT License, available in
 # the LICENSE file of this project.
@@ -17,43 +17,43 @@ from basyx.aas.examples.data import example_aas_missing_attributes, example_aas,
 from basyx.aas.examples.data._helper import AASDataChecker
 
 
-def _serialize_and_deserialize(data: model.DictObjectStore) -> model.DictObjectStore:
+def _serialize_and_deserialize(data: model.DictIdentifiableStore) -> model.DictIdentifiableStore:
     file = io.BytesIO()
     write_aas_xml_file(file=file, data=data)
 
-    # try deserializing the xml document into a DictObjectStore of AAS objects with help of the xml module
+    # try deserializing the xml document into a DictIdentifiableStore of AAS objects with help of the xml module
     file.seek(0)
     return read_aas_xml_file(file, failsafe=False)
 
 
 class XMLSerializationDeserializationTest(unittest.TestCase):
     def test_example_serialization_deserialization(self) -> None:
-        object_store = _serialize_and_deserialize(example_aas.create_full_example())
+        identifiable_store = _serialize_and_deserialize(example_aas.create_full_example())
         checker = AASDataChecker(raise_immediately=True)
-        example_aas.check_full_example(checker, object_store)
+        example_aas.check_full_example(checker, identifiable_store)
 
     def test_example_mandatory_attributes_serialization_deserialization(self) -> None:
-        object_store = _serialize_and_deserialize(example_aas_mandatory_attributes.create_full_example())
+        identifiable_store = _serialize_and_deserialize(example_aas_mandatory_attributes.create_full_example())
         checker = AASDataChecker(raise_immediately=True)
-        example_aas_mandatory_attributes.check_full_example(checker, object_store)
+        example_aas_mandatory_attributes.check_full_example(checker, identifiable_store)
 
     def test_example_missing_attributes_serialization_deserialization(self) -> None:
-        object_store = _serialize_and_deserialize(example_aas_missing_attributes.create_full_example())
+        identifiable_store = _serialize_and_deserialize(example_aas_missing_attributes.create_full_example())
         checker = AASDataChecker(raise_immediately=True)
-        example_aas_missing_attributes.check_full_example(checker, object_store)
+        example_aas_missing_attributes.check_full_example(checker, identifiable_store)
 
     def test_example_submodel_template_serialization_deserialization(self) -> None:
-        data: model.DictObjectStore[model.Identifiable] = model.DictObjectStore()
+        data: model.DictIdentifiableStore[model.Identifiable] = model.DictIdentifiableStore()
         data.add(example_submodel_template.create_example_submodel_template())
-        object_store = _serialize_and_deserialize(data)
+        identifiable_store = _serialize_and_deserialize(data)
         checker = AASDataChecker(raise_immediately=True)
-        example_submodel_template.check_full_example(checker, object_store)
+        example_submodel_template.check_full_example(checker, identifiable_store)
 
     def test_example_all_examples_serialization_deserialization(self) -> None:
-        data: model.DictObjectStore[model.Identifiable] = create_example()
-        object_store = _serialize_and_deserialize(data)
+        data: model.DictIdentifiableStore[model.Identifiable] = create_example()
+        identifiable_store = _serialize_and_deserialize(data)
         checker = AASDataChecker(raise_immediately=True)
-        checker.check_object_store(object_store, data)
+        checker.check_identifiable_store(identifiable_store, data)
 
 
 class XMLSerializationDeserializationSingleObjectTest(unittest.TestCase):
