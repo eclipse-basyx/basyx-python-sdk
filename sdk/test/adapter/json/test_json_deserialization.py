@@ -1,4 +1,4 @@
-# Copyright (c) 2025 the Eclipse BaSyx Authors
+# Copyright (c) 2026 the Eclipse BaSyx Authors
 #
 # This program and the accompanying materials are made available under the terms of the MIT License, available in
 # the LICENSE file of this project.
@@ -29,10 +29,10 @@ class JsonDeserializationTest(unittest.TestCase):
                 "submodels": [
                     {
                         "modelType": "AssetAdministrationShell",
-                        "id": "https://acplt.org/Test_Asset",
+                        "id": "https://example.org/Test_Asset",
                         "assetInformation": {
                             "assetKind": "Instance",
-                            "globalAssetId": "https://acplt.org/Test_AssetId"
+                            "globalAssetId": "https://example.org/Test_AssetId"
                         }
                     }
                 ]
@@ -70,11 +70,11 @@ class JsonDeserializationTest(unittest.TestCase):
                 },
                 {
                     "modelType": "Submodel",
-                    "id": ["https://acplt.org/Test_Submodel_broken_id", "IRI"]
+                    "id": ["https://example.org/Test_Submodel_broken_id", "IRI"]
                 },
                 {
                     "modelType": "Submodel",
-                    "id": "https://acplt.org/Test_Submodel"
+                    "id": "https://example.org/Test_Submodel"
                 }
             ]"""
         # In strict mode, we should catch an exception
@@ -91,18 +91,18 @@ class JsonDeserializationTest(unittest.TestCase):
         self.assertIsInstance(parsed_data[0], dict)
         self.assertIsInstance(parsed_data[1], dict)
         self.assertIsInstance(parsed_data[2], model.Submodel)
-        self.assertEqual("https://acplt.org/Test_Submodel", parsed_data[2].id)
+        self.assertEqual("https://example.org/Test_Submodel", parsed_data[2].id)
 
     def test_wrong_submodel_element_type(self) -> None:
         data = """
             [
                 {
                     "modelType": "Submodel",
-                    "id": "http://acplt.org/Submodels/Assets/TestAsset/Identification",
+                    "id": "http://example.org/Submodels/Assets/TestAsset/Identification",
                     "submodelElements": [
                         {
                             "modelType": "Submodel",
-                            "id": "https://acplt.org/Test_Submodel"
+                            "id": "https://example.org/Test_Submodel"
                         },
                         {
                             "modelType": {
@@ -142,15 +142,15 @@ class JsonDeserializationTest(unittest.TestCase):
             {
                 "assetAdministrationShells": [{
                     "modelType": "AssetAdministrationShell",
-                    "id": "http://acplt.org/test_aas",
+                    "id": "http://example.org/test_aas",
                     "assetInformation": {
                         "assetKind": "Instance",
-                        "globalAssetId": "https://acplt.org/Test_AssetId"
+                        "globalAssetId": "https://example.org/Test_AssetId"
                     }
                 }],
                 "submodels": [{
                     "modelType": "Submodel",
-                    "id": "http://acplt.org/test_aas"
+                    "id": "http://example.org/test_aas"
                 }],
                 "conceptDescriptions": []
             }"""
@@ -162,11 +162,11 @@ class JsonDeserializationTest(unittest.TestCase):
         with self.assertRaisesRegex(KeyError, r"duplicate identifier"):
             read_aas_json_file(string_io, failsafe=False)
 
-    def test_duplicate_identifier_object_store(self) -> None:
-        sm_id = "http://acplt.org/test_submodel"
+    def test_duplicate_identifier_identifiable_store(self) -> None:
+        sm_id = "http://example.org/test_submodel"
 
-        def get_clean_store() -> model.DictObjectStore:
-            store: model.DictObjectStore = model.DictObjectStore()
+        def get_clean_store() -> model.DictIdentifiableStore:
+            store: model.DictIdentifiableStore[model.Identifiable] = model.DictIdentifiableStore()
             submodel_ = model.Submodel(sm_id, id_short="test123")
             store.add(submodel_)
             return store
@@ -175,7 +175,7 @@ class JsonDeserializationTest(unittest.TestCase):
             {
                 "submodels": [{
                     "modelType": "Submodel",
-                    "id": "http://acplt.org/test_submodel",
+                    "id": "http://example.org/test_submodel",
                     "idShort": "test456"
                 }],
                 "assetAdministrationShells": [],
@@ -184,32 +184,36 @@ class JsonDeserializationTest(unittest.TestCase):
 
         string_io = io.StringIO(data)
 
-        object_store = get_clean_store()
-        identifiers = read_aas_json_file_into(object_store, string_io, replace_existing=True, ignore_existing=False)
+        identifiable_store = get_clean_store()
+        identifiers = read_aas_json_file_into(
+            identifiable_store, string_io, replace_existing=True, ignore_existing=False
+        )
         self.assertEqual(identifiers.pop(), sm_id)
-        submodel = object_store.pop()
+        submodel = identifiable_store.pop()
         self.assertIsInstance(submodel, model.Submodel)
         self.assertEqual(submodel.id_short, "test456")
 
         string_io.seek(0)
 
-        object_store = get_clean_store()
+        identifiable_store = get_clean_store()
         with self.assertLogs(logging.getLogger(), level=logging.INFO) as log_ctx:
-            identifiers = read_aas_json_file_into(object_store, string_io, replace_existing=False, ignore_existing=True)
+            identifiers = read_aas_json_file_into(
+                identifiable_store, string_io, replace_existing=False, ignore_existing=True
+            )
         self.assertEqual(len(identifiers), 0)
         self.assertIn("already exists in store", log_ctx.output[0])  # type: ignore
-        submodel = object_store.pop()
+        submodel = identifiable_store.pop()
         self.assertIsInstance(submodel, model.Submodel)
         self.assertEqual(submodel.id_short, "test123")
 
         string_io.seek(0)
 
-        object_store = get_clean_store()
+        identifiable_store = get_clean_store()
         with self.assertRaisesRegex(KeyError, r"already exists in store"):
-            identifiers = read_aas_json_file_into(object_store, string_io, replace_existing=False,
+            identifiers = read_aas_json_file_into(identifiable_store, string_io, replace_existing=False,
                                                   ignore_existing=False)
         self.assertEqual(len(identifiers), 0)
-        submodel = object_store.pop()
+        submodel = identifiable_store.pop()
         self.assertIsInstance(submodel, model.Submodel)
         self.assertEqual(submodel.id_short, "test123")
 
@@ -230,7 +234,7 @@ class JsonDeserializationDerivingTest(unittest.TestCase):
             [
                 {
                     "modelType": "Submodel",
-                    "id": "https://acplt.org/Test_Submodel"
+                    "id": "https://example.org/Test_Submodel"
                 }
             ]"""
         parsed_data = json.loads(data, cls=EnhancedAASDecoder)
@@ -244,7 +248,7 @@ class JsonDeserializationStrippedObjectsTest(unittest.TestCase):
         data = """
             {
                 "modelType": "Submodel",
-                "id": "http://acplt.org/test_stripped_submodel",
+                "id": "http://example.org/test_stripped_submodel",
                 "submodelElements": [{
                     "modelType": "Operation",
                     "idShort": "test_operation",
@@ -285,7 +289,7 @@ class JsonDeserializationStrippedObjectsTest(unittest.TestCase):
                     "keys": [
                         {
                             "type": "Submodel",
-                            "value": "http://acplt.org/Test_Submodel"
+                            "value": "http://example.org/Test_Submodel"
                         },
                         {
                             "type": "AnnotatedRelationshipElement",
@@ -298,7 +302,7 @@ class JsonDeserializationStrippedObjectsTest(unittest.TestCase):
                     "keys": [
                         {
                             "type": "Submodel",
-                            "value": "http://acplt.org/Test_Submodel"
+                            "value": "http://example.org/Test_Submodel"
                         },
                         {
                             "type": "AnnotatedRelationshipElement",
@@ -377,7 +381,7 @@ class JsonDeserializationStrippedObjectsTest(unittest.TestCase):
         data = """
             {
                 "modelType": "AssetAdministrationShell",
-                "id": "http://acplt.org/test_aas",
+                "id": "http://example.org/test_aas",
                 "assetInformation": {
                     "assetKind": "Instance",
                     "globalAssetId": "test_asset"
@@ -386,7 +390,7 @@ class JsonDeserializationStrippedObjectsTest(unittest.TestCase):
                     "type": "ModelReference",
                     "keys": [{
                         "type": "Submodel",
-                        "value": "http://acplt.org/test_submodel"
+                        "value": "http://example.org/test_submodel"
                     }]
                 }]
             }"""

@@ -1,4 +1,4 @@
-# Copyright (c) 2025 the Eclipse BaSyx Authors
+# Copyright (c) 2026 the Eclipse BaSyx Authors
 #
 # This program and the accompanying materials are made available under the terms of the MIT License, available in
 # the LICENSE file of this project.
@@ -8,15 +8,16 @@
 This module adds the functionality of storing and retrieving :class:`~basyx.aas.model.base.Identifiable` objects
 in local files.
 
-The :class:`~LocalFileObjectStore` handles adding, deleting and otherwise managing
+The :class:`~LocalFileIdentifiableStore` handles adding, deleting and otherwise managing
 the AAS objects in a specific Directory.
 """
-from typing import List, Iterator, Iterable, Union
+from typing import Iterator
 import logging
 import json
 import os
 import hashlib
 import threading
+import warnings
 import weakref
 
 from ..adapter.json import json_serialization, json_deserialization
@@ -26,14 +27,14 @@ from basyx.aas import model
 logger = logging.getLogger(__name__)
 
 
-class LocalFileObjectStore(model.AbstractObjectStore):
+class LocalFileIdentifiableStore(model.AbstractObjectStore[model.Identifier, model.Identifiable]):
     """
     An ObjectStore implementation for :class:`~basyx.aas.model.base.Identifiable` BaSyx Python SDK objects backed
     by a local file based local backend
     """
     def __init__(self, directory_path: str):
         """
-        Initializer of class LocalFileObjectStore
+        Initializer of class LocalFileIdentifiableStore
 
         :param directory_path: Path to the local file backend (the path where you want to store your AAS JSON files)
         """
@@ -84,7 +85,7 @@ class LocalFileObjectStore(model.AbstractObjectStore):
         self._object_cache[obj.id] = obj
         return obj
 
-    def get_identifiable(self, identifier: model.Identifier) -> model.Identifiable:
+    def get_item(self, identifier: model.Identifier) -> model.Identifiable:
         """
         Retrieve an AAS object from the local file by its :class:`~basyx.aas.model.base.Identifier`
 
@@ -122,7 +123,7 @@ class LocalFileObjectStore(model.AbstractObjectStore):
         except FileNotFoundError as e:
             raise KeyError("No AAS object with id {} exists in local file database".format(x.id)) from e
         with self._object_cache_lock:
-            del self._object_cache[x.id]
+            self._object_cache.pop(x.id, None)
 
     def __contains__(self, x: object) -> bool:
         """
@@ -168,3 +169,26 @@ class LocalFileObjectStore(model.AbstractObjectStore):
         Helper method to represent an ASS Identifier as a string to be used as Local file document id
         """
         return hashlib.sha256(identifier.encode("utf-8")).hexdigest()
+
+
+class LocalFileObjectStore(LocalFileIdentifiableStore):
+    """
+    `LocalFileObjectStore` has been renamed to :class:`~.LocalFileIdentifiableStore` and will be removed in a
+    future release. Please migrate to :class:`~.LocalFileIdentifiableStore`.
+    """
+    def __init__(self, directory_path: str):
+        warnings.warn(
+            "`LocalFileObjectStore` is deprecated and will be removed in a future release. Use "
+            "`LocalFileIdentifiableStore` instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        super().__init__(directory_path)
+
+    def get_identifiable(self, identifier: model.Identifier) -> model.Identifiable:
+        warnings.warn(
+            "`get_identifiable()` is deprecated. Use `get_item()` from `LocalFileIdentifiableStore` instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return super().get_item(identifier)

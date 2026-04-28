@@ -13,7 +13,7 @@
                 }
             ],
             "modelType": "AssetAdministrationShell",
-            "id": "https://acplt.org/Test_AssetAdministrationShell",
+            "id": "https://example.org/Test_AssetAdministrationShell",
             "administration": {
                 "version": "9",
                 "revision": "0",
@@ -22,24 +22,24 @@
                     "keys": [
                         {
                             "type": "GlobalReference",
-                            "value": "http://acplt.org/AdministrativeInformation/Test_AssetAdministrationShell"
+                            "value": "http://example.org/AdministrativeInformation/Test_AssetAdministrationShell"
                         }
                     ]
                 },
-                "templateId": "http://acplt.org/AdministrativeInformationTemplates/Test_AssetAdministrationShell"
+                "templateId": "http://example.org/AdministrativeInformationTemplates/Test_AssetAdministrationShell"
             },
             "derivedFrom": {
                 "type": "ModelReference",
                 "keys": [
                     {
                         "type": "AssetAdministrationShell",
-                        "value": "https://acplt.org/TestAssetAdministrationShell2"
+                        "value": "https://example.org/TestAssetAdministrationShell2"
                     }
                 ]
             },
             "assetInformation": {
                 "assetKind": "Instance",
-                "globalAssetId": "http://acplt.org/TestAsset/",
+                "globalAssetId": "http://example.org/TestAsset/",
                 "specificAssetIds": [
                     {
                         "name": "TestKey",
@@ -49,7 +49,7 @@
                             "keys": [
                                 {
                                     "type": "GlobalReference",
-                                    "value": "http://acplt.org/SpecificAssetId/"
+                                    "value": "http://example.org/SpecificAssetId/"
                                 }
                             ]
                         },
@@ -58,7 +58,7 @@
                             "keys": [
                                 {
                                     "type": "GlobalReference",
-                                    "value": "http://acplt.org/SpecificAssetId/"
+                                    "value": "http://example.org/SpecificAssetId/"
                                 }
                             ]
                         }
@@ -75,7 +75,7 @@
                     "keys": [
                         {
                             "type": "Submodel",
-                            "value": "https://acplt.org/Test_Submodel"
+                            "value": "https://example.org/Test_Submodel"
                         }
                     ],
                     "referredSemanticId": {
@@ -83,7 +83,7 @@
                         "keys": [
                             {
                                 "type": "GlobalReference",
-                                "value": "http://acplt.org/SubmodelTemplates/ExampleSubmodel"
+                                "value": "http://example.org/SubmodelTemplates/ExampleSubmodel"
                             }
                         ]
                     }
@@ -93,7 +93,7 @@
                     "keys": [
                         {
                             "type": "Submodel",
-                            "value": "http://acplt.org/Submodels/Assets/TestAsset/BillOfMaterial"
+                            "value": "http://example.org/Submodels/Assets/TestAsset/BillOfMaterial"
                         }
                     ]
                 },
@@ -102,7 +102,7 @@
                     "keys": [
                         {
                             "type": "Submodel",
-                            "value": "http://acplt.org/Submodels/Assets/TestAsset/Identification"
+                            "value": "http://example.org/Submodels/Assets/TestAsset/Identification"
                         }
                     ],
                     "referredSemanticId": {
@@ -110,7 +110,7 @@
                         "keys": [
                             {
                                 "type": "Submodel",
-                                "value": "http://acplt.org/SubmodelTemplates/AssetIdentification"
+                                "value": "http://example.org/SubmodelTemplates/AssetIdentification"
                             }
                         ]
                     }
@@ -120,7 +120,7 @@
                     "keys": [
                         {
                             "type": "Submodel",
-                            "value": "https://acplt.org/Test_Submodel_Template"
+                            "value": "https://example.org/Test_Submodel_Template"
                         }
                     ]
                 }
@@ -175,11 +175,11 @@
                             "keys": [
                                 {
                                     "type": "GlobalReference",
-                                    "value": "http://acplt.org/Units/SpaceUnit"
+                                    "value": "http://example.org/Units/SpaceUnit"
                                 }
                             ]
                         },
-                        "sourceOfDefinition": "http://acplt.org/DataSpec/ExampleDef",
+                        "sourceOfDefinition": "http://example.org/DataSpec/ExampleDef",
                         "symbol": "SU",
                         "valueFormat": "M",
                         "valueList": {
@@ -191,7 +191,7 @@
                                         "keys": [
                                             {
                                                 "type": "GlobalReference",
-                                                "value": "http://acplt.org/ValueId/ExampleValueId"
+                                                "value": "http://example.org/ValueId/ExampleValueId"
                                             }
                                         ]
                                     }
@@ -203,7 +203,7 @@
                                         "keys": [
                                             {
                                                 "type": "GlobalReference",
-                                                "value": "http://acplt.org/ValueId/ExampleValueId2"
+                                                "value": "http://example.org/ValueId/ExampleValueId2"
                                             }
                                         ]
                                     }
@@ -216,7 +216,7 @@
                             "keys": [
                                 {
                                     "type": "GlobalReference",
-                                    "value": "http://acplt.org/Values/TestValueId"
+                                    "value": "http://example.org/Values/TestValueId"
                                 }
                             ]
                         },
@@ -232,10 +232,10 @@
         },
         {
             "modelType": "AssetAdministrationShell",
-            "id": "https://acplt.org/Test_AssetAdministrationShell_Mandatory",
+            "id": "https://example.org/Test_AssetAdministrationShell_Mandatory",
             "assetInformation": {
                 "assetKind": "Instance",
-                "globalAssetId": "http://acplt.org/Test_Asset_Mandatory/"
+                "globalAssetId": "http://example.org/Test_Asset_Mandatory/"
             },
             "submodels": [
                 {
@@ -243,7 +243,7 @@
                     "keys": [
                         {
                             "type": "Submodel",
-                            "value": "https://acplt.org/Test_Submodel2_Mandatory"
+                            "value": "https://example.org/Test_Submodel2_Mandatory"
                         }
                     ]
                 },
@@ -252,7 +252,7 @@
                     "keys": [
                         {
                             "type": "Submodel",
-                            "value": "https://acplt.org/Test_Submodel_Mandatory"
+                            "value": "https://example.org/Test_Submodel_Mandatory"
                         }
                     ]
                 }
@@ -260,10 +260,10 @@
         },
         {
             "modelType": "AssetAdministrationShell",
-            "id": "https://acplt.org/Test_AssetAdministrationShell2_Mandatory",
+            "id": "https://example.org/Test_AssetAdministrationShell2_Mandatory",
             "assetInformation": {
                 "assetKind": "Instance",
-                "globalAssetId": "http://acplt.org/TestAsset2_Mandatory/"
+                "globalAssetId": "http://example.org/TestAsset2_Mandatory/"
             }
         },
         {
@@ -279,14 +279,14 @@
                 }
             ],
             "modelType": "AssetAdministrationShell",
-            "id": "https://acplt.org/Test_AssetAdministrationShell_Missing",
+            "id": "https://example.org/Test_AssetAdministrationShell_Missing",
             "administration": {
                 "version": "9",
                 "revision": "0"
             },
             "assetInformation": {
                 "assetKind": "Instance",
-                "globalAssetId": "http://acplt.org/Test_Asset_Missing/",
+                "globalAssetId": "http://example.org/Test_Asset_Missing/",
                 "specificAssetIds": [
                     {
                         "name": "TestKey",
@@ -296,7 +296,7 @@
                             "keys": [
                                 {
                                     "type": "GlobalReference",
-                                    "value": "http://acplt.org/SpecificAssetId/"
+                                    "value": "http://example.org/SpecificAssetId/"
                                 }
                             ]
                         }
@@ -313,7 +313,7 @@
                     "keys": [
                         {
                             "type": "Submodel",
-                            "value": "https://acplt.org/Test_Submodel_Missing"
+                            "value": "https://example.org/Test_Submodel_Missing"
                         }
                     ]
                 }
@@ -334,7 +334,7 @@
                 }
             ],
             "modelType": "Submodel",
-            "id": "http://acplt.org/Submodels/Assets/TestAsset/Identification",
+            "id": "http://example.org/Submodels/Assets/TestAsset/Identification",
             "administration": {
                 "version": "9",
                 "revision": "0",
@@ -343,18 +343,18 @@
                     "keys": [
                         {
                             "type": "GlobalReference",
-                            "value": "http://acplt.org/AdministrativeInformation/TestAsset/Identification"
+                            "value": "http://example.org/AdministrativeInformation/TestAsset/Identification"
                         }
                     ]
                 },
-                "templateId": "http://acplt.org/AdministrativeInformationTemplates/TestAsset/Identification"
+                "templateId": "http://example.org/AdministrativeInformationTemplates/TestAsset/Identification"
             },
             "semanticId": {
                 "type": "ModelReference",
                 "keys": [
                     {
                         "type": "Submodel",
-                        "value": "http://acplt.org/SubmodelTemplates/AssetIdentification"
+                        "value": "http://example.org/SubmodelTemplates/AssetIdentification"
                     }
                 ]
             },
@@ -369,7 +369,7 @@
                                     "keys": [
                                         {
                                             "type": "AssetAdministrationShell",
-                                            "value": "http://acplt.org/RefersTo/ExampleRefersTo"
+                                            "value": "http://example.org/RefersTo/ExampleRefersTo"
                                         }
                                     ]
                                 }
@@ -408,12 +408,12 @@
                                 "keys": [
                                     {
                                         "type": "GlobalReference",
-                                        "value": "http://acplt.org/ValueId/ExampleValueId"
+                                        "value": "http://example.org/ValueId/ExampleValueId"
                                     }
                                 ]
                             },
                             "valueType": "xs:int",
-                            "type": "http://acplt.org/Qualifier/ExampleQualifier2",
+                            "type": "http://example.org/Qualifier/ExampleQualifier2",
                             "kind": "TemplateQualifier"
                         },
                         {
@@ -423,12 +423,12 @@
                                 "keys": [
                                     {
                                         "type": "GlobalReference",
-                                        "value": "http://acplt.org/ValueId/ExampleValueId"
+                                        "value": "http://example.org/ValueId/ExampleValueId"
                                     }
                                 ]
                             },
                             "valueType": "xs:int",
-                            "type": "http://acplt.org/Qualifier/ExampleQualifier",
+                            "type": "http://example.org/Qualifier/ExampleQualifier",
                             "kind": "ConceptQualifier"
                         }
                     ],
@@ -438,7 +438,7 @@
                         "keys": [
                             {
                                 "type": "GlobalReference",
-                                "value": "http://acplt.org/ValueId/ExampleValueId"
+                                "value": "http://example.org/ValueId/ExampleValueId"
                             }
                         ]
                     },
@@ -475,12 +475,12 @@
                                 "keys": [
                                     {
                                         "type": "GlobalReference",
-                                        "value": "http://acplt.org/ValueId/ExampleValueId"
+                                        "value": "http://example.org/ValueId/ExampleValueId"
                                     }
                                 ]
                             },
                             "valueType": "xs:dateTime",
-                            "type": "http://acplt.org/Qualifier/ExampleQualifier3",
+                            "type": "http://example.org/Qualifier/ExampleQualifier3",
                             "kind": "ValueQualifier"
                         }
                     ],
@@ -490,7 +490,7 @@
                         "keys": [
                             {
                                 "type": "GlobalReference",
-                                "value": "http://acplt.org/ValueId/ExampleValueId"
+                                "value": "http://example.org/ValueId/ExampleValueId"
                             }
                         ]
                     },
@@ -511,17 +511,17 @@
                 }
             ],
             "modelType": "Submodel",
-            "id": "http://acplt.org/Submodels/Assets/TestAsset/BillOfMaterial",
+            "id": "http://example.org/Submodels/Assets/TestAsset/BillOfMaterial",
             "administration": {
                 "version": "9",
-                "templateId": "http://acplt.org/AdministrativeInformationTemplates/TestAsset/BillOfMaterial"
+                "templateId": "http://example.org/AdministrativeInformationTemplates/TestAsset/BillOfMaterial"
             },
             "semanticId": {
                 "type": "ModelReference",
                 "keys": [
                     {
                         "type": "Submodel",
-                        "value": "http://acplt.org/SubmodelTemplates/BillOfMaterial"
+                        "value": "http://example.org/SubmodelTemplates/BillOfMaterial"
                     }
                 ]
             },
@@ -569,7 +569,7 @@
                                 "keys": [
                                     {
                                         "type": "GlobalReference",
-                                        "value": "http://acplt.org/Properties/ExampleProperty"
+                                        "value": "http://example.org/Properties/ExampleProperty"
                                     }
                                 ]
                             },
@@ -579,7 +579,7 @@
                                 "keys": [
                                     {
                                         "type": "GlobalReference",
-                                        "value": "http://acplt.org/ValueId/ExampleValueId"
+                                        "value": "http://example.org/ValueId/ExampleValueId"
                                     }
                                 ]
                             },
@@ -604,7 +604,7 @@
                                 "keys": [
                                     {
                                         "type": "GlobalReference",
-                                        "value": "http://acplt.org/Properties/ExampleProperty"
+                                        "value": "http://example.org/Properties/ExampleProperty"
                                     }
                                 ]
                             },
@@ -614,7 +614,7 @@
                                 "keys": [
                                     {
                                         "type": "GlobalReference",
-                                        "value": "http://acplt.org/ValueId/ExampleValueId"
+                                        "value": "http://example.org/ValueId/ExampleValueId"
                                     }
                                 ]
                             },
@@ -669,11 +669,11 @@
                                             "keys": [
                                                 {
                                                     "type": "GlobalReference",
-                                                    "value": "http://acplt.org/Units/SpaceUnit"
+                                                    "value": "http://example.org/Units/SpaceUnit"
                                                 }
                                             ]
                                         },
-                                        "sourceOfDefinition": "http://acplt.org/DataSpec/ExampleDef",
+                                        "sourceOfDefinition": "http://example.org/DataSpec/ExampleDef",
                                         "symbol": "SU",
                                         "valueFormat": "M",
                                         "valueList": {
@@ -685,7 +685,7 @@
                                                         "keys": [
                                                             {
                                                                 "type": "GlobalReference",
-                                                                "value": "http://acplt.org/ValueId/ExampleValueId"
+                                                                "value": "http://example.org/ValueId/ExampleValueId"
                                                             }
                                                         ]
                                                     },
@@ -698,7 +698,7 @@
                                                         "keys": [
                                                             {
                                                                 "type": "GlobalReference",
-                                                                "value": "http://acplt.org/ValueId/ExampleValueId2"
+                                                                "value": "http://example.org/ValueId/ExampleValueId2"
                                                             }
                                                         ]
                                                     },
@@ -712,7 +712,7 @@
                                             "keys": [
                                                 {
                                                     "type": "GlobalReference",
-                                                    "value": "http://acplt.org/Values/TestValueId"
+                                                    "value": "http://example.org/Values/TestValueId"
                                                 }
                                             ]
                                         },
@@ -728,7 +728,7 @@
                         }
                     ],
                     "entityType": "SelfManagedEntity",
-                    "globalAssetId": "http://acplt.org/TestAsset/",
+                    "globalAssetId": "http://example.org/TestAsset/",
                     "specificAssetIds": [
                         {
                             "name": "TestKey",
@@ -738,7 +738,7 @@
                                 "keys": [
                                     {
                                         "type": "GlobalReference",
-                                        "value": "http://acplt.org/SpecificAssetId/"
+                                        "value": "http://example.org/SpecificAssetId/"
                                     }
                                 ]
                             }
@@ -785,7 +785,7 @@
                 }
             ],
             "modelType": "Submodel",
-            "id": "https://acplt.org/Test_Submodel",
+            "id": "https://example.org/Test_Submodel",
             "administration": {
                 "version": "9",
                 "revision": "0",
@@ -794,7 +794,7 @@
                     "keys": [
                         {
                             "type": "GlobalReference",
-                            "value": "http://acplt.org/AdministrativeInformation/Test_Submodel"
+                            "value": "http://example.org/AdministrativeInformation/Test_Submodel"
                         }
                     ]
                 }
@@ -804,7 +804,7 @@
                 "keys": [
                     {
                         "type": "GlobalReference",
-                        "value": "http://acplt.org/SubmodelTemplates/ExampleSubmodel"
+                        "value": "http://example.org/SubmodelTemplates/ExampleSubmodel"
                     }
                 ]
             },
@@ -828,7 +828,7 @@
                         "keys": [
                             {
                                 "type": "ConceptDescription",
-                                "value": "https://acplt.org/Test_ConceptDescription"
+                                "value": "https://example.org/Test_ConceptDescription"
                             }
                         ]
                     },
@@ -837,7 +837,7 @@
                         "keys": [
                             {
                                 "type": "Submodel",
-                                "value": "http://acplt.org/Test_Submodel"
+                                "value": "http://example.org/Test_Submodel"
                             },
                             {
                                 "type": "Property",
@@ -850,7 +850,7 @@
                         "keys": [
                             {
                                 "type": "Submodel",
-                                "value": "http://acplt.org/Test_Submodel"
+                                "value": "http://example.org/Test_Submodel"
                             },
                             {
                                 "type": "Property",
@@ -878,7 +878,7 @@
                         "keys": [
                             {
                                 "type": "GlobalReference",
-                                "value": "http://acplt.org/RelationshipElements/ExampleAnnotatedRelationshipElement"
+                                "value": "http://example.org/RelationshipElements/ExampleAnnotatedRelationshipElement"
                             }
                         ]
                     },
@@ -887,7 +887,7 @@
                         "keys": [
                             {
                                 "type": "Submodel",
-                                "value": "http://acplt.org/Test_Submodel"
+                                "value": "http://example.org/Test_Submodel"
                             },
                             {
                                 "type": "Property",
@@ -900,7 +900,7 @@
                         "keys": [
                             {
                                 "type": "Submodel",
-                                "value": "http://acplt.org/Test_Submodel"
+                                "value": "http://example.org/Test_Submodel"
                             },
                             {
                                 "type": "Property",
@@ -945,7 +945,7 @@
                         "keys": [
                             {
                                 "type": "GlobalReference",
-                                "value": "http://acplt.org/Operations/ExampleOperation"
+                                "value": "http://example.org/Operations/ExampleOperation"
                             }
                         ]
                     },
@@ -980,7 +980,7 @@
                                     "keys": [
                                         {
                                             "type": "GlobalReference",
-                                            "value": "http://acplt.org/Properties/ExamplePropertyInput"
+                                            "value": "http://example.org/Properties/ExamplePropertyInput"
                                         }
                                     ]
                                 },
@@ -991,7 +991,7 @@
                                     "keys": [
                                         {
                                             "type": "GlobalReference",
-                                            "value": "http://acplt.org/ValueId/ExampleValueId"
+                                            "value": "http://example.org/ValueId/ExampleValueId"
                                         }
                                     ]
                                 },
@@ -1030,7 +1030,7 @@
                                     "keys": [
                                         {
                                             "type": "GlobalReference",
-                                            "value": "http://acplt.org/Properties/ExamplePropertyOutput"
+                                            "value": "http://example.org/Properties/ExamplePropertyOutput"
                                         }
                                     ]
                                 },
@@ -1041,7 +1041,7 @@
                                     "keys": [
                                         {
                                             "type": "GlobalReference",
-                                            "value": "http://acplt.org/ValueId/ExampleValueId"
+                                            "value": "http://example.org/ValueId/ExampleValueId"
                                         }
                                     ]
                                 },
@@ -1080,7 +1080,7 @@
                                     "keys": [
                                         {
                                             "type": "GlobalReference",
-                                            "value": "http://acplt.org/Properties/ExamplePropertyInOutput"
+                                            "value": "http://example.org/Properties/ExamplePropertyInOutput"
                                         }
                                     ]
                                 },
@@ -1091,7 +1091,7 @@
                                     "keys": [
                                         {
                                             "type": "GlobalReference",
-                                            "value": "http://acplt.org/ValueId/ExampleValueId"
+                                            "value": "http://example.org/ValueId/ExampleValueId"
                                         }
                                     ]
                                 },
@@ -1119,7 +1119,7 @@
                         "keys": [
                             {
                                 "type": "GlobalReference",
-                                "value": "http://acplt.org/Capabilities/ExampleCapability"
+                                "value": "http://example.org/Capabilities/ExampleCapability"
                             }
                         ]
                     }
@@ -1143,7 +1143,7 @@
                         "keys": [
                             {
                                 "type": "GlobalReference",
-                                "value": "http://acplt.org/Events/ExampleBasicEventElement"
+                                "value": "http://example.org/Events/ExampleBasicEventElement"
                             }
                         ]
                     },
@@ -1152,7 +1152,7 @@
                         "keys": [
                             {
                                 "type": "Submodel",
-                                "value": "http://acplt.org/Test_Submodel"
+                                "value": "http://example.org/Test_Submodel"
                             },
                             {
                                 "type": "Property",
@@ -1168,7 +1168,7 @@
                         "keys": [
                             {
                                 "type": "Submodel",
-                                "value": "http://acplt.org/ExampleMessageBroker"
+                                "value": "http://example.org/ExampleMessageBroker"
                             }
                         ]
                     },
@@ -1195,7 +1195,7 @@
                         "keys": [
                             {
                                 "type": "GlobalReference",
-                                "value": "http://acplt.org/SubmodelElementCollections/ExampleSubmodelElementCollection"
+                                "value": "http://example.org/SubmodelElementCollections/ExampleSubmodelElementCollection"
                             }
                         ]
                     },
@@ -1219,7 +1219,7 @@
                                 "keys": [
                                     {
                                         "type": "GlobalReference",
-                                        "value": "http://acplt.org/Blobs/ExampleBlob"
+                                        "value": "http://example.org/Blobs/ExampleBlob"
                                     }
                                 ]
                             },
@@ -1245,7 +1245,7 @@
                                 "keys": [
                                     {
                                         "type": "GlobalReference",
-                                        "value": "http://acplt.org/Files/ExampleFile"
+                                        "value": "http://example.org/Files/ExampleFile"
                                     }
                                 ]
                             },
@@ -1271,7 +1271,7 @@
                                 "keys": [
                                     {
                                         "type": "GlobalReference",
-                                        "value": "http://acplt.org/Files/ExampleFile"
+                                        "value": "http://example.org/Files/ExampleFile"
                                     }
                                 ]
                             },
@@ -1297,7 +1297,7 @@
                                 "keys": [
                                     {
                                         "type": "GlobalReference",
-                                        "value": "http://acplt.org/MultiLanguageProperties/ExampleMultiLanguageProperty"
+                                        "value": "http://example.org/MultiLanguageProperties/ExampleMultiLanguageProperty"
                                     }
                                 ],
                                 "referredSemanticId": {
@@ -1305,7 +1305,7 @@
                                     "keys": [
                                         {
                                             "type": "GlobalReference",
-                                            "value": "http://acplt.org/Properties/ExampleProperty/Referred"
+                                            "value": "http://example.org/Properties/ExampleProperty/Referred"
                                         }
                                     ]
                                 }
@@ -1325,7 +1325,7 @@
                                 "keys": [
                                     {
                                         "type": "GlobalReference",
-                                        "value": "http://acplt.org/ValueId/ExampleMultiLanguageValueId"
+                                        "value": "http://example.org/ValueId/ExampleMultiLanguageValueId"
                                     }
                                 ]
                             }
@@ -1349,7 +1349,7 @@
                                 "keys": [
                                     {
                                         "type": "GlobalReference",
-                                        "value": "http://acplt.org/Ranges/ExampleRange"
+                                        "value": "http://example.org/Ranges/ExampleRange"
                                     }
                                 ]
                             },
@@ -1376,7 +1376,7 @@
                                 "keys": [
                                     {
                                         "type": "GlobalReference",
-                                        "value": "http://acplt.org/ReferenceElements/ExampleReferenceElement"
+                                        "value": "http://example.org/ReferenceElements/ExampleReferenceElement"
                                     }
                                 ]
                             },
@@ -1385,7 +1385,7 @@
                                 "keys": [
                                     {
                                         "type": "Submodel",
-                                        "value": "http://acplt.org/Test_Submodel"
+                                        "value": "http://example.org/Test_Submodel"
                                     },
                                     {
                                         "type": "Property",
@@ -1403,7 +1403,7 @@
                                 "keys": [
                                     {
                                         "type": "GlobalReference",
-                                        "value": "http://acplt.org/Properties/ExampleProperty"
+                                        "value": "http://example.org/Properties/ExampleProperty"
                                     }
                                 ]
                             },
@@ -1425,7 +1425,7 @@
                                 "keys": [
                                     {
                                         "type": "GlobalReference",
-                                        "value": "http://acplt.org/SubmodelElementLists/ExampleSubmodelElementList"
+                                        "value": "http://example.org/SubmodelElementLists/ExampleSubmodelElementList"
                                     }
                                 ]
                             },
@@ -1458,7 +1458,7 @@
                                         "keys": [
                                             {
                                                 "type": "GlobalReference",
-                                                "value": "http://acplt.org/Properties/ExampleProperty"
+                                                "value": "http://example.org/Properties/ExampleProperty"
                                             }
                                         ]
                                     },
@@ -1468,7 +1468,7 @@
                                             "keys": [
                                                 {
                                                     "type": "GlobalReference",
-                                                    "value": "http://acplt.org/Properties/ExampleProperty/SupplementalId1"
+                                                    "value": "http://example.org/Properties/ExampleProperty/SupplementalId1"
                                                 }
                                             ]
                                         },
@@ -1477,7 +1477,7 @@
                                             "keys": [
                                                 {
                                                     "type": "GlobalReference",
-                                                    "value": "http://acplt.org/Properties/ExampleProperty/SupplementalId2"
+                                                    "value": "http://example.org/Properties/ExampleProperty/SupplementalId2"
                                                 }
                                             ]
                                         }
@@ -1488,7 +1488,7 @@
                                         "keys": [
                                             {
                                                 "type": "GlobalReference",
-                                                "value": "http://acplt.org/ValueId/ExampleValueId"
+                                                "value": "http://example.org/ValueId/ExampleValueId"
                                             }
                                         ]
                                     },
@@ -1543,11 +1543,11 @@
                                                     "keys": [
                                                         {
                                                             "type": "GlobalReference",
-                                                            "value": "http://acplt.org/Units/SpaceUnit"
+                                                            "value": "http://example.org/Units/SpaceUnit"
                                                         }
                                                     ]
                                                 },
-                                                "sourceOfDefinition": "http://acplt.org/DataSpec/ExampleDef",
+                                                "sourceOfDefinition": "http://example.org/DataSpec/ExampleDef",
                                                 "symbol": "SU",
                                                 "valueFormat": "M",
                                                 "valueList": {
@@ -1559,7 +1559,7 @@
                                                                 "keys": [
                                                                     {
                                                                         "type": "GlobalReference",
-                                                                        "value": "http://acplt.org/ValueId/ExampleValueId"
+                                                                        "value": "http://example.org/ValueId/ExampleValueId"
                                                                     }
                                                                 ]
                                                             }
@@ -1571,7 +1571,7 @@
                                                                 "keys": [
                                                                     {
                                                                         "type": "GlobalReference",
-                                                                        "value": "http://acplt.org/ValueId/ExampleValueId2"
+                                                                        "value": "http://example.org/ValueId/ExampleValueId2"
                                                                     }
                                                                 ]
                                                             }
@@ -1584,7 +1584,7 @@
                                                     "keys": [
                                                         {
                                                             "type": "GlobalReference",
-                                                            "value": "http://acplt.org/Values/TestValueId"
+                                                            "value": "http://example.org/Values/TestValueId"
                                                         }
                                                     ]
                                                 },
@@ -1626,7 +1626,7 @@
                                         "keys": [
                                             {
                                                 "type": "GlobalReference",
-                                                "value": "http://acplt.org/Properties/ExampleProperty"
+                                                "value": "http://example.org/Properties/ExampleProperty"
                                             }
                                         ]
                                     },
@@ -1636,7 +1636,7 @@
                                             "keys": [
                                                 {
                                                     "type": "GlobalReference",
-                                                    "value": "http://acplt.org/Properties/ExampleProperty2/SupplementalId"
+                                                    "value": "http://example.org/Properties/ExampleProperty2/SupplementalId"
                                                 }
                                             ]
                                         }
@@ -1647,7 +1647,7 @@
                                         "keys": [
                                             {
                                                 "type": "GlobalReference",
-                                                "value": "http://acplt.org/ValueId/ExampleValueId"
+                                                "value": "http://example.org/ValueId/ExampleValueId"
                                             }
                                         ]
                                     },
@@ -1661,7 +1661,7 @@
         },
         {
             "modelType": "Submodel",
-            "id": "https://acplt.org/Test_Submodel_Mandatory",
+            "id": "https://example.org/Test_Submodel_Mandatory",
             "submodelElements": [
                 {
                     "idShort": "ExampleRelationshipElement",
@@ -1671,7 +1671,7 @@
                         "keys": [
                             {
                                 "type": "Submodel",
-                                "value": "http://acplt.org/Test_Submodel"
+                                "value": "http://example.org/Test_Submodel"
                             },
                             {
                                 "type": "Property",
@@ -1684,7 +1684,7 @@
                         "keys": [
                             {
                                 "type": "Submodel",
-                                "value": "http://acplt.org/Test_Submodel"
+                                "value": "http://example.org/Test_Submodel"
                             },
                             {
                                 "type": "Property",
@@ -1701,7 +1701,7 @@
                         "keys": [
                             {
                                 "type": "Submodel",
-                                "value": "http://acplt.org/Test_Submodel"
+                                "value": "http://example.org/Test_Submodel"
                             },
                             {
                                 "type": "Property",
@@ -1714,7 +1714,7 @@
                         "keys": [
                             {
                                 "type": "Submodel",
-                                "value": "http://acplt.org/Test_Submodel"
+                                "value": "http://example.org/Test_Submodel"
                             },
                             {
                                 "type": "Property",
@@ -1739,7 +1739,7 @@
                         "keys": [
                             {
                                 "type": "Submodel",
-                                "value": "http://acplt.org/Test_Submodel"
+                                "value": "http://example.org/Test_Submodel"
                             },
                             {
                                 "type": "Property",
@@ -1806,7 +1806,7 @@
         },
         {
             "modelType": "Submodel",
-            "id": "https://acplt.org/Test_Submodel2_Mandatory"
+            "id": "https://example.org/Test_Submodel2_Mandatory"
         },
         {
             "idShort": "TestSubmodel",
@@ -1821,7 +1821,7 @@
                 }
             ],
             "modelType": "Submodel",
-            "id": "https://acplt.org/Test_Submodel_Missing",
+            "id": "https://example.org/Test_Submodel_Missing",
             "administration": {
                 "version": "9",
                 "revision": "0"
@@ -1831,7 +1831,7 @@
                 "keys": [
                     {
                         "type": "GlobalReference",
-                        "value": "http://acplt.org/SubmodelTemplates/ExampleSubmodel"
+                        "value": "http://example.org/SubmodelTemplates/ExampleSubmodel"
                     }
                 ]
             },
@@ -1855,7 +1855,7 @@
                         "keys": [
                             {
                                 "type": "GlobalReference",
-                                "value": "http://acplt.org/RelationshipElements/ExampleRelationshipElement"
+                                "value": "http://example.org/RelationshipElements/ExampleRelationshipElement"
                             }
                         ]
                     },
@@ -1864,7 +1864,7 @@
                         "keys": [
                             {
                                 "type": "Submodel",
-                                "value": "http://acplt.org/Test_Submodel"
+                                "value": "http://example.org/Test_Submodel"
                             },
                             {
                                 "type": "Property",
@@ -1877,7 +1877,7 @@
                         "keys": [
                             {
                                 "type": "Submodel",
-                                "value": "http://acplt.org/Test_Submodel"
+                                "value": "http://example.org/Test_Submodel"
                             },
                             {
                                 "type": "Property",
@@ -1905,7 +1905,7 @@
                         "keys": [
                             {
                                 "type": "GlobalReference",
-                                "value": "http://acplt.org/RelationshipElements/ExampleAnnotatedRelationshipElement"
+                                "value": "http://example.org/RelationshipElements/ExampleAnnotatedRelationshipElement"
                             }
                         ]
                     },
@@ -1914,7 +1914,7 @@
                         "keys": [
                             {
                                 "type": "Submodel",
-                                "value": "http://acplt.org/Test_Submodel"
+                                "value": "http://example.org/Test_Submodel"
                             },
                             {
                                 "type": "Property",
@@ -1927,7 +1927,7 @@
                         "keys": [
                             {
                                 "type": "Submodel",
-                                "value": "http://acplt.org/Test_Submodel"
+                                "value": "http://example.org/Test_Submodel"
                             },
                             {
                                 "type": "Property",
@@ -1972,7 +1972,7 @@
                         "keys": [
                             {
                                 "type": "GlobalReference",
-                                "value": "http://acplt.org/Operations/ExampleOperation"
+                                "value": "http://example.org/Operations/ExampleOperation"
                             }
                         ]
                     },
@@ -2007,7 +2007,7 @@
                                     "keys": [
                                         {
                                             "type": "GlobalReference",
-                                            "value": "http://acplt.org/Properties/ExamplePropertyInput"
+                                            "value": "http://example.org/Properties/ExamplePropertyInput"
                                         }
                                     ]
                                 },
@@ -2018,7 +2018,7 @@
                                     "keys": [
                                         {
                                             "type": "GlobalReference",
-                                            "value": "http://acplt.org/ValueId/ExampleValueId"
+                                            "value": "http://example.org/ValueId/ExampleValueId"
                                         }
                                     ]
                                 },
@@ -2057,7 +2057,7 @@
                                     "keys": [
                                         {
                                             "type": "GlobalReference",
-                                            "value": "http://acplt.org/Properties/ExamplePropertyOutput"
+                                            "value": "http://example.org/Properties/ExamplePropertyOutput"
                                         }
                                     ]
                                 },
@@ -2068,7 +2068,7 @@
                                     "keys": [
                                         {
                                             "type": "GlobalReference",
-                                            "value": "http://acplt.org/ValueId/ExampleValueId"
+                                            "value": "http://example.org/ValueId/ExampleValueId"
                                         }
                                     ]
                                 },
@@ -2107,7 +2107,7 @@
                                     "keys": [
                                         {
                                             "type": "GlobalReference",
-                                            "value": "http://acplt.org/Properties/ExamplePropertyInOutput"
+                                            "value": "http://example.org/Properties/ExamplePropertyInOutput"
                                         }
                                     ]
                                 },
@@ -2118,7 +2118,7 @@
                                     "keys": [
                                         {
                                             "type": "GlobalReference",
-                                            "value": "http://acplt.org/ValueId/ExampleValueId"
+                                            "value": "http://example.org/ValueId/ExampleValueId"
                                         }
                                     ]
                                 },
@@ -2146,7 +2146,7 @@
                         "keys": [
                             {
                                 "type": "GlobalReference",
-                                "value": "http://acplt.org/Capabilities/ExampleCapability"
+                                "value": "http://example.org/Capabilities/ExampleCapability"
                             }
                         ]
                     }
@@ -2170,7 +2170,7 @@
                         "keys": [
                             {
                                 "type": "GlobalReference",
-                                "value": "http://acplt.org/Events/ExampleBasicEventElement"
+                                "value": "http://example.org/Events/ExampleBasicEventElement"
                             }
                         ]
                     },
@@ -2179,7 +2179,7 @@
                         "keys": [
                             {
                                 "type": "Submodel",
-                                "value": "http://acplt.org/Test_Submodel"
+                                "value": "http://example.org/Test_Submodel"
                             },
                             {
                                 "type": "Property",
@@ -2195,7 +2195,7 @@
                         "keys": [
                             {
                                 "type": "Submodel",
-                                "value": "http://acplt.org/ExampleMessageBroker"
+                                "value": "http://example.org/ExampleMessageBroker"
                             }
                         ]
                     },
@@ -2222,7 +2222,7 @@
                         "keys": [
                             {
                                 "type": "GlobalReference",
-                                "value": "http://acplt.org/SubmodelElementCollections/ExampleSubmodelElementCollection"
+                                "value": "http://example.org/SubmodelElementCollections/ExampleSubmodelElementCollection"
                             }
                         ]
                     },
@@ -2246,7 +2246,7 @@
                                 "keys": [
                                     {
                                         "type": "GlobalReference",
-                                        "value": "http://acplt.org/Blobs/ExampleBlob"
+                                        "value": "http://example.org/Blobs/ExampleBlob"
                                     }
                                 ]
                             },
@@ -2272,7 +2272,7 @@
                                 "keys": [
                                     {
                                         "type": "GlobalReference",
-                                        "value": "http://acplt.org/Files/ExampleFile"
+                                        "value": "http://example.org/Files/ExampleFile"
                                     }
                                 ]
                             },
@@ -2298,7 +2298,7 @@
                                 "keys": [
                                     {
                                         "type": "GlobalReference",
-                                        "value": "http://acplt.org/MultiLanguageProperties/ExampleMultiLanguageProperty"
+                                        "value": "http://example.org/MultiLanguageProperties/ExampleMultiLanguageProperty"
                                     }
                                 ]
                             },
@@ -2332,14 +2332,14 @@
                                 "keys": [
                                     {
                                         "type": "GlobalReference",
-                                        "value": "http://acplt.org/Properties/ExampleProperty"
+                                        "value": "http://example.org/Properties/ExampleProperty"
                                     }
                                 ]
                             },
                             "qualifiers": [
                                 {
                                     "valueType": "xs:string",
-                                    "type": "http://acplt.org/Qualifier/ExampleQualifier"
+                                    "type": "http://example.org/Qualifier/ExampleQualifier"
                                 }
                             ],
                             "value": "exampleValue",
@@ -2364,7 +2364,7 @@
                                 "keys": [
                                     {
                                         "type": "GlobalReference",
-                                        "value": "http://acplt.org/Ranges/ExampleRange"
+                                        "value": "http://example.org/Ranges/ExampleRange"
                                     }
                                 ]
                             },
@@ -2391,7 +2391,7 @@
                                 "keys": [
                                     {
                                         "type": "GlobalReference",
-                                        "value": "http://acplt.org/ReferenceElements/ExampleReferenceElement"
+                                        "value": "http://example.org/ReferenceElements/ExampleReferenceElement"
                                     }
                                 ]
                             },
@@ -2400,7 +2400,7 @@
                                 "keys": [
                                     {
                                         "type": "Submodel",
-                                        "value": "http://acplt.org/Test_Submodel"
+                                        "value": "http://example.org/Test_Submodel"
                                     },
                                     {
                                         "type": "Property",
@@ -2426,7 +2426,7 @@
                 }
             ],
             "modelType": "Submodel",
-            "id": "https://acplt.org/Test_Submodel_Template",
+            "id": "https://example.org/Test_Submodel_Template",
             "administration": {
                 "version": "9",
                 "revision": "0"
@@ -2436,7 +2436,7 @@
                 "keys": [
                     {
                         "type": "GlobalReference",
-                        "value": "http://acplt.org/SubmodelTemplates/ExampleSubmodel"
+                        "value": "http://example.org/SubmodelTemplates/ExampleSubmodel"
                     }
                 ]
             },
@@ -2461,7 +2461,7 @@
                         "keys": [
                             {
                                 "type": "GlobalReference",
-                                "value": "http://acplt.org/RelationshipElements/ExampleRelationshipElement"
+                                "value": "http://example.org/RelationshipElements/ExampleRelationshipElement"
                             }
                         ]
                     },
@@ -2471,7 +2471,7 @@
                         "keys": [
                             {
                                 "type": "Submodel",
-                                "value": "http://acplt.org/Test_Submodel"
+                                "value": "http://example.org/Test_Submodel"
                             },
                             {
                                 "type": "Property",
@@ -2484,7 +2484,7 @@
                         "keys": [
                             {
                                 "type": "Submodel",
-                                "value": "http://acplt.org/Test_Submodel"
+                                "value": "http://example.org/Test_Submodel"
                             },
                             {
                                 "type": "Property",
@@ -2512,7 +2512,7 @@
                         "keys": [
                             {
                                 "type": "GlobalReference",
-                                "value": "http://acplt.org/RelationshipElements/ExampleAnnotatedRelationshipElement"
+                                "value": "http://example.org/RelationshipElements/ExampleAnnotatedRelationshipElement"
                             }
                         ]
                     },
@@ -2522,7 +2522,7 @@
                         "keys": [
                             {
                                 "type": "Submodel",
-                                "value": "http://acplt.org/Test_Submodel"
+                                "value": "http://example.org/Test_Submodel"
                             },
                             {
                                 "type": "Property",
@@ -2535,7 +2535,7 @@
                         "keys": [
                             {
                                 "type": "Submodel",
-                                "value": "http://acplt.org/Test_Submodel"
+                                "value": "http://example.org/Test_Submodel"
                             },
                             {
                                 "type": "Property",
@@ -2563,7 +2563,7 @@
                         "keys": [
                             {
                                 "type": "GlobalReference",
-                                "value": "http://acplt.org/Operations/ExampleOperation"
+                                "value": "http://example.org/Operations/ExampleOperation"
                             }
                         ]
                     },
@@ -2589,7 +2589,7 @@
                                     "keys": [
                                         {
                                             "type": "GlobalReference",
-                                            "value": "http://acplt.org/Properties/ExamplePropertyInput"
+                                            "value": "http://example.org/Properties/ExamplePropertyInput"
                                         }
                                     ]
                                 },
@@ -2619,7 +2619,7 @@
                                     "keys": [
                                         {
                                             "type": "GlobalReference",
-                                            "value": "http://acplt.org/Properties/ExamplePropertyOutput"
+                                            "value": "http://example.org/Properties/ExamplePropertyOutput"
                                         }
                                     ]
                                 },
@@ -2649,7 +2649,7 @@
                                     "keys": [
                                         {
                                             "type": "GlobalReference",
-                                            "value": "http://acplt.org/Properties/ExamplePropertyInOutput"
+                                            "value": "http://example.org/Properties/ExamplePropertyInOutput"
                                         }
                                     ]
                                 },
@@ -2678,7 +2678,7 @@
                         "keys": [
                             {
                                 "type": "GlobalReference",
-                                "value": "http://acplt.org/Capabilities/ExampleCapability"
+                                "value": "http://example.org/Capabilities/ExampleCapability"
                             }
                         ]
                     },
@@ -2703,7 +2703,7 @@
                         "keys": [
                             {
                                 "type": "GlobalReference",
-                                "value": "http://acplt.org/Events/ExampleBasicEventElement"
+                                "value": "http://example.org/Events/ExampleBasicEventElement"
                             }
                         ]
                     },
@@ -2713,7 +2713,7 @@
                         "keys": [
                             {
                                 "type": "Submodel",
-                                "value": "http://acplt.org/Test_Submodel"
+                                "value": "http://example.org/Test_Submodel"
                             },
                             {
                                 "type": "Property",
@@ -2729,7 +2729,7 @@
                         "keys": [
                             {
                                 "type": "Submodel",
-                                "value": "http://acplt.org/ExampleMessageBroker"
+                                "value": "http://example.org/ExampleMessageBroker"
                             }
                         ]
                     },
@@ -2745,7 +2745,7 @@
                         "keys": [
                             {
                                 "type": "GlobalReference",
-                                "value": "http://acplt.org/SubmodelElementCollections/ExampleSubmodelElementCollection"
+                                "value": "http://example.org/SubmodelElementCollections/ExampleSubmodelElementCollection"
                             }
                         ]
                     },
@@ -2767,7 +2767,7 @@
                         "keys": [
                             {
                                 "type": "GlobalReference",
-                                "value": "http://acplt.org/SubmodelElementLists/ExampleSubmodelElementList"
+                                "value": "http://example.org/SubmodelElementLists/ExampleSubmodelElementList"
                             }
                         ]
                     },
@@ -2791,7 +2791,7 @@
                         "keys": [
                             {
                                 "type": "GlobalReference",
-                                "value": "http://acplt.org/SubmodelElementCollections/ExampleSubmodelElementCollection"
+                                "value": "http://example.org/SubmodelElementCollections/ExampleSubmodelElementCollection"
                             }
                         ]
                     },
@@ -2816,7 +2816,7 @@
                                 "keys": [
                                     {
                                         "type": "GlobalReference",
-                                        "value": "http://acplt.org/Properties/ExampleProperty"
+                                        "value": "http://example.org/Properties/ExampleProperty"
                                     }
                                 ]
                             },
@@ -2842,7 +2842,7 @@
                                 "keys": [
                                     {
                                         "type": "GlobalReference",
-                                        "value": "http://acplt.org/MultiLanguageProperties/ExampleMultiLanguageProperty"
+                                        "value": "http://example.org/MultiLanguageProperties/ExampleMultiLanguageProperty"
                                     }
                                 ]
                             },
@@ -2867,7 +2867,7 @@
                                 "keys": [
                                     {
                                         "type": "GlobalReference",
-                                        "value": "http://acplt.org/Ranges/ExampleRange"
+                                        "value": "http://example.org/Ranges/ExampleRange"
                                     }
                                 ]
                             },
@@ -2894,7 +2894,7 @@
                                 "keys": [
                                     {
                                         "type": "GlobalReference",
-                                        "value": "http://acplt.org/Ranges/ExampleRange"
+                                        "value": "http://example.org/Ranges/ExampleRange"
                                     }
                                 ]
                             },
@@ -2921,7 +2921,7 @@
                                 "keys": [
                                     {
                                         "type": "GlobalReference",
-                                        "value": "http://acplt.org/Blobs/ExampleBlob"
+                                        "value": "http://example.org/Blobs/ExampleBlob"
                                     }
                                 ]
                             },
@@ -2947,7 +2947,7 @@
                                 "keys": [
                                     {
                                         "type": "GlobalReference",
-                                        "value": "http://acplt.org/Files/ExampleFile"
+                                        "value": "http://example.org/Files/ExampleFile"
                                     }
                                 ]
                             },
@@ -2973,7 +2973,7 @@
                                 "keys": [
                                     {
                                         "type": "GlobalReference",
-                                        "value": "http://acplt.org/ReferenceElements/ExampleReferenceElement"
+                                        "value": "http://example.org/ReferenceElements/ExampleReferenceElement"
                                     }
                                 ]
                             },
@@ -2999,7 +2999,7 @@
                         "keys": [
                             {
                                 "type": "GlobalReference",
-                                "value": "http://acplt.org/SubmodelElementCollections/ExampleSubmodelElementCollection"
+                                "value": "http://example.org/SubmodelElementCollections/ExampleSubmodelElementCollection"
                             }
                         ]
                     },
@@ -3015,7 +3015,7 @@
                         "keys": [
                             {
                                 "type": "GlobalReference",
-                                "value": "http://acplt.org/SubmodelElementCollections/ExampleSubmodelElementCollection"
+                                "value": "http://example.org/SubmodelElementCollections/ExampleSubmodelElementCollection"
                             }
                         ]
                     },
@@ -3037,7 +3037,7 @@
                         "keys": [
                             {
                                 "type": "GlobalReference",
-                                "value": "http://acplt.org/SubmodelElementLists/ExampleSubmodelElementList"
+                                "value": "http://example.org/SubmodelElementLists/ExampleSubmodelElementList"
                             }
                         ]
                     },
@@ -3060,7 +3060,7 @@
                 }
             ],
             "modelType": "ConceptDescription",
-            "id": "https://acplt.org/Test_ConceptDescription",
+            "id": "https://example.org/Test_ConceptDescription",
             "administration": {
                 "version": "9",
                 "revision": "0",
@@ -3069,11 +3069,11 @@
                     "keys": [
                         {
                             "type": "GlobalReference",
-                            "value": "http://acplt.org/AdministrativeInformation/Test_ConceptDescription"
+                            "value": "http://example.org/AdministrativeInformation/Test_ConceptDescription"
                         }
                     ]
                 },
-                "templateId": "http://acplt.org/AdministrativeInformationTemplates/Test_ConceptDescription",
+                "templateId": "http://example.org/AdministrativeInformationTemplates/Test_ConceptDescription",
                 "embeddedDataSpecifications": [
                     {
                         "dataSpecification": {
@@ -3124,11 +3124,11 @@
                                 "keys": [
                                     {
                                         "type": "GlobalReference",
-                                        "value": "http://acplt.org/Units/SpaceUnit"
+                                        "value": "http://example.org/Units/SpaceUnit"
                                     }
                                 ]
                             },
-                            "sourceOfDefinition": "http://acplt.org/DataSpec/ExampleDef",
+                            "sourceOfDefinition": "http://example.org/DataSpec/ExampleDef",
                             "symbol": "SU",
                             "valueFormat": "M",
                             "valueList": {
@@ -3140,7 +3140,7 @@
                                             "keys": [
                                                 {
                                                     "type": "GlobalReference",
-                                                    "value": "http://acplt.org/ValueId/ExampleValueId"
+                                                    "value": "http://example.org/ValueId/ExampleValueId"
                                                 }
                                             ]
                                         }
@@ -3152,7 +3152,7 @@
                                             "keys": [
                                                 {
                                                     "type": "GlobalReference",
-                                                    "value": "http://acplt.org/ValueId/ExampleValueId2"
+                                                    "value": "http://example.org/ValueId/ExampleValueId2"
                                                 }
                                             ]
                                         }
@@ -3165,7 +3165,7 @@
                                 "keys": [
                                     {
                                         "type": "GlobalReference",
-                                        "value": "http://acplt.org/Values/TestValueId"
+                                        "value": "http://example.org/Values/TestValueId"
                                     }
                                 ]
                             },
@@ -3185,7 +3185,7 @@
                     "keys": [
                         {
                             "type": "GlobalReference",
-                            "value": "http://acplt.org/DataSpecifications/ConceptDescriptions/TestConceptDescription"
+                            "value": "http://example.org/DataSpecifications/ConceptDescriptions/TestConceptDescription"
                         }
                     ]
                 }
@@ -3193,7 +3193,7 @@
         },
         {
             "modelType": "ConceptDescription",
-            "id": "https://acplt.org/Test_ConceptDescription_Mandatory"
+            "id": "https://example.org/Test_ConceptDescription_Mandatory"
         },
         {
             "idShort": "TestConceptDescription",
@@ -3208,7 +3208,7 @@
                 }
             ],
             "modelType": "ConceptDescription",
-            "id": "https://acplt.org/Test_ConceptDescription_Missing",
+            "id": "https://example.org/Test_ConceptDescription_Missing",
             "administration": {
                 "version": "9",
                 "revision": "0"

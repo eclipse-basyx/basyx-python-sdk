@@ -1,4 +1,4 @@
-# Copyright (c) 2025 the Eclipse BaSyx Authors
+# Copyright (c) 2026 the Eclipse BaSyx Authors
 #
 # This program and the accompanying materials are made available under the terms of the MIT License, available in
 # the LICENSE file of this project.
@@ -25,19 +25,18 @@ and offer an automatically generated python unittest TestCase.
 # TODO: add id_short format to schemata
 
 import os
-import random
 import pathlib
+import random
 import urllib.parse
+from typing import Set
 
-import schemathesis
 import hypothesis.strategies
-
+import schemathesis
 from basyx.aas import model
 from basyx.aas.adapter.aasx import DictSupplementaryFileContainer
-from server.app.interfaces.repository import WSGIApp
 from basyx.aas.examples.data.example_aas import create_full_example
 
-from typing import Set
+from app.interfaces.repository import WSGIApp
 
 
 def _encode_and_quote(identifier: model.Identifier) -> str:
@@ -63,7 +62,7 @@ HYPOTHESIS_SETTINGS = hypothesis.settings(
     # disable the filter_too_much health check, which triggers if a strategy filters too much data, raising an error
     suppress_health_check=[hypothesis.HealthCheck.filter_too_much],
     # disable data generation deadlines, which would result in an error if data generation takes too much time
-    deadline=None
+    deadline=None,
 )
 
 BASE_URL = "/api/v1"
@@ -82,16 +81,20 @@ for obj in create_full_example():
         IDENTIFIER_SUBMODEL.add(_encode_and_quote(obj.id))
 
 # load aas and submodel api specs
-AAS_SCHEMA = schemathesis.from_path(pathlib.Path(__file__).parent / "http-api-oas-aas.yaml",
-                                    app=WSGIApp(create_full_example(), DictSupplementaryFileContainer()))
+AAS_SCHEMA = schemathesis.from_path(
+    pathlib.Path(__file__).parent / "http-api-oas-aas.yaml",
+    app=WSGIApp(create_full_example(), DictSupplementaryFileContainer()),
+)
 
-SUBMODEL_SCHEMA = schemathesis.from_path(pathlib.Path(__file__).parent / "http-api-oas-submodel.yaml",
-                                         app=WSGIApp(create_full_example(), DictSupplementaryFileContainer()))
+SUBMODEL_SCHEMA = schemathesis.from_path(
+    pathlib.Path(__file__).parent / "http-api-oas-submodel.yaml",
+    app=WSGIApp(create_full_example(), DictSupplementaryFileContainer()),
+)
 
 
 class APIWorkflowAAS(AAS_SCHEMA.as_state_machine()):  # type: ignore
     def setup(self):
-        self.schema.app.object_store = create_full_example()
+        self.schema.app.identifiable_store = create_full_example()
         # select random identifier for each test scenario
         self.schema.base_url = BASE_URL + "/aas/" + random.choice(tuple(IDENTIFIER_AAS))
 
@@ -108,7 +111,7 @@ class APIWorkflowAAS(AAS_SCHEMA.as_state_machine()):  # type: ignore
 
 class APIWorkflowSubmodel(SUBMODEL_SCHEMA.as_state_machine()):  # type: ignore
     def setup(self):
-        self.schema.app.object_store = create_full_example()
+        self.schema.app.identifiable_store = create_full_example()
         self.schema.base_url = BASE_URL + "/submodels/" + random.choice(tuple(IDENTIFIER_SUBMODEL))
 
     def transform(self, result, direction, case):

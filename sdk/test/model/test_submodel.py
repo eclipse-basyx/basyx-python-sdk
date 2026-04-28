@@ -1,4 +1,4 @@
-# Copyright (c) 2025 the Eclipse BaSyx Authors
+# Copyright (c) 2026 the Eclipse BaSyx Authors
 #
 # This program and the accompanying materials are made available under the terms of the MIT License, available in
 # the LICENSE file of this project.
@@ -17,17 +17,19 @@ class EntityTest(unittest.TestCase):
             model.Entity("TestEntity", model.EntityType.SELF_MANAGED_ENTITY)
         self.assertEqual("A self-managed entity has to have a globalAssetId or a specificAssetId (Constraint AASd-014)",
                          str(cm.exception))
-        model.Entity("TestEntity", model.EntityType.SELF_MANAGED_ENTITY, global_asset_id="https://acplt.org/TestAsset")
+        model.Entity("TestEntity", model.EntityType.SELF_MANAGED_ENTITY,
+                     global_asset_id="https://example.org/TestAsset")
         model.Entity("TestEntity", model.EntityType.SELF_MANAGED_ENTITY,
                      specific_asset_id=(model.SpecificAssetId("test", "test"),))
-        model.Entity("TestEntity", model.EntityType.SELF_MANAGED_ENTITY, global_asset_id="https://acplt.org/TestAsset",
+        model.Entity("TestEntity", model.EntityType.SELF_MANAGED_ENTITY,
+                     global_asset_id="https://example.org/TestAsset",
                      specific_asset_id=(model.SpecificAssetId("test", "test"),))
 
     def test_aasd_014_init_co_managed(self) -> None:
         model.Entity("TestEntity", model.EntityType.CO_MANAGED_ENTITY)
         with self.assertRaises(model.AASConstraintViolation) as cm:
             model.Entity("TestEntity", model.EntityType.CO_MANAGED_ENTITY,
-                         global_asset_id="https://acplt.org/TestAsset")
+                         global_asset_id="https://example.org/TestAsset")
         self.assertEqual("A co-managed entity has to have neither a globalAssetId nor a specificAssetId "
                          "(Constraint AASd-014)", str(cm.exception))
         with self.assertRaises(model.AASConstraintViolation) as cm:
@@ -37,14 +39,14 @@ class EntityTest(unittest.TestCase):
                          "(Constraint AASd-014)", str(cm.exception))
         with self.assertRaises(model.AASConstraintViolation) as cm:
             model.Entity("TestEntity", model.EntityType.CO_MANAGED_ENTITY,
-                         global_asset_id="https://acplt.org/TestAsset",
+                         global_asset_id="https://example.org/TestAsset",
                          specific_asset_id=(model.SpecificAssetId("test", "test"),))
         self.assertEqual("A co-managed entity has to have neither a globalAssetId nor a specificAssetId "
                          "(Constraint AASd-014)", str(cm.exception))
 
     def test_aasd_014_set_self_managed(self) -> None:
         entity = model.Entity("TestEntity", model.EntityType.SELF_MANAGED_ENTITY,
-                              global_asset_id="https://acplt.org/TestAsset",
+                              global_asset_id="https://example.org/TestAsset",
                               specific_asset_id=(model.SpecificAssetId("test", "test"),))
         entity.global_asset_id = None
         with self.assertRaises(model.AASConstraintViolation) as cm:
@@ -53,7 +55,7 @@ class EntityTest(unittest.TestCase):
                          str(cm.exception))
 
         entity = model.Entity("TestEntity", model.EntityType.SELF_MANAGED_ENTITY,
-                              global_asset_id="https://acplt.org/TestAsset",
+                              global_asset_id="https://example.org/TestAsset",
                               specific_asset_id=(model.SpecificAssetId("test", "test"),))
         entity.specific_asset_id = model.ConstrainedList(())
         with self.assertRaises(model.AASConstraintViolation) as cm:
@@ -64,7 +66,7 @@ class EntityTest(unittest.TestCase):
     def test_aasd_014_set_co_managed(self) -> None:
         entity = model.Entity("TestEntity", model.EntityType.CO_MANAGED_ENTITY)
         with self.assertRaises(model.AASConstraintViolation) as cm:
-            entity.global_asset_id = "https://acplt.org/TestAsset"
+            entity.global_asset_id = "https://example.org/TestAsset"
         self.assertEqual("A co-managed entity has to have neither a globalAssetId nor a specificAssetId "
                          "(Constraint AASd-014)", str(cm.exception))
         with self.assertRaises(model.AASConstraintViolation) as cm:
@@ -74,7 +76,7 @@ class EntityTest(unittest.TestCase):
 
     def test_aasd_014_specific_asset_id_add_self_managed(self) -> None:
         entity = model.Entity("TestEntity", model.EntityType.SELF_MANAGED_ENTITY,
-                              global_asset_id="https://acplt.org/TestAsset")
+                              global_asset_id="https://example.org/TestAsset")
         specific_asset_id1 = model.SpecificAssetId("test", "test")
         specific_asset_id2 = model.SpecificAssetId("test", "test")
         entity.specific_asset_id.append(specific_asset_id1)

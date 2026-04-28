@@ -3,4 +3,6 @@ provider - Providers for storing and retrieving AAS-objects
 
 .. automodule:: basyx.aas.model.provider
 
-.. autoclass:: _IT
+.. autoclass:: _KEY
+.. autoclass:: _VALUE
+.. autoclass:: _IDENTIFIABLE

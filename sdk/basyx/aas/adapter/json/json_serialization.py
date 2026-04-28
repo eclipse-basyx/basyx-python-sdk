@@ -1,4 +1,4 @@
-# Copyright (c) 2025 the Eclipse BaSyx Authors
+# Copyright (c) 2026 the Eclipse BaSyx Authors
 #
 # This program and the accompanying materials are made available under the terms of the MIT License, available in
 # the LICENSE file of this project.
@@ -17,7 +17,7 @@ Each class contains a custom :meth:`~.AASToJsonEncoder.default` function which c
 simple python types for an automatic JSON serialization.
 To simplify the usage of this module, the :meth:`write_aas_json_file` and :meth:`object_store_to_json` are provided.
 The former is used to serialize a given :class:`~basyx.aas.model.provider.AbstractObjectStore` to a file, while the
-latter serializes the object store to a string and returns it.
+latter serializes the ObjectStore to a string and returns it.
 
 The serialization is performed in an iterative approach: The :meth:`~.AASToJsonEncoder.default` function gets called for
 every object and checks if an object is an BaSyx Python SDK object. In this case, it calls a special function for the

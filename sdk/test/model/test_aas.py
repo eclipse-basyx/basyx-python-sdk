@@ -1,4 +1,4 @@
-# Copyright (c) 2025 the Eclipse BaSyx Authors
+# Copyright (c) 2026 the Eclipse BaSyx Authors
 #
 # This program and the accompanying materials are made available under the terms of the MIT License, available in
 # the LICENSE file of this project.
@@ -16,14 +16,14 @@ class AssetInformationTest(unittest.TestCase):
             model.AssetInformation(model.AssetKind.INSTANCE)
         self.assertEqual("An AssetInformation has to have a globalAssetId or a specificAssetId (Constraint AASd-131)",
                          str(cm.exception))
-        model.AssetInformation(model.AssetKind.INSTANCE, global_asset_id="https://acplt.org/TestAsset")
+        model.AssetInformation(model.AssetKind.INSTANCE, global_asset_id="https://example.org/TestAsset")
         model.AssetInformation(model.AssetKind.INSTANCE, specific_asset_id=(model.SpecificAssetId("test", "test"),))
-        model.AssetInformation(model.AssetKind.INSTANCE, global_asset_id="https://acplt.org/TestAsset",
+        model.AssetInformation(model.AssetKind.INSTANCE, global_asset_id="https://example.org/TestAsset",
                                specific_asset_id=(model.SpecificAssetId("test", "test"),))
 
     def test_aasd_131_set(self) -> None:
         asset_information = model.AssetInformation(model.AssetKind.INSTANCE,
-                                                   global_asset_id="https://acplt.org/TestAsset",
+                                                   global_asset_id="https://example.org/TestAsset",
                                                    specific_asset_id=(model.SpecificAssetId("test", "test"),))
         asset_information.global_asset_id = None
         with self.assertRaises(model.AASConstraintViolation) as cm:
@@ -32,7 +32,7 @@ class AssetInformationTest(unittest.TestCase):
                          str(cm.exception))
 
         asset_information = model.AssetInformation(model.AssetKind.INSTANCE,
-                                                   global_asset_id="https://acplt.org/TestAsset",
+                                                   global_asset_id="https://example.org/TestAsset",
                                                    specific_asset_id=(model.SpecificAssetId("test", "test"),))
         asset_information.specific_asset_id = model.ConstrainedList(())
         with self.assertRaises(model.AASConstraintViolation) as cm:
@@ -42,7 +42,7 @@ class AssetInformationTest(unittest.TestCase):
 
     def test_aasd_131_specific_asset_id_add(self) -> None:
         asset_information = model.AssetInformation(model.AssetKind.INSTANCE,
-                                                   global_asset_id="https://acplt.org/TestAsset")
+                                                   global_asset_id="https://example.org/TestAsset")
         specific_asset_id1 = model.SpecificAssetId("test", "test")
         specific_asset_id2 = model.SpecificAssetId("test", "test")
         asset_information.specific_asset_id.append(specific_asset_id1)

@@ -1,4 +1,4 @@
-# Copyright (c) 2025 the Eclipse BaSyx Authors
+# Copyright (c) 2026 the Eclipse BaSyx Authors
 #
 # This program and the accompanying materials are made available under the terms of the MIT License, available in
 # the LICENSE file of this project.
@@ -21,7 +21,7 @@ Additionally, there's the :meth:`~basyx.aas.adapter.json.json_deserialization.re
 takes a complete AAS JSON file, reads its contents and stores the objects in the provided
 :class:`~basyx.aas.model.provider.AbstractObjectStore`. :meth:`read_aas_json_file` is a wrapper for this function.
 Instead of storing the objects in a given :class:`~basyx.aas.model.provider.AbstractObjectStore`,
-it returns a :class:`~basyx.aas.model.provider.DictObjectStore` containing parsed objects.
+it returns a :class:`~basyx.aas.model.provider.DictIdentifiableStore` containing parsed objects.
 
 The deserialization is performed in a bottom-up approach: The ``object_hook()`` method gets called for every parsed JSON
 object (as dict) and checks for existence of the ``modelType`` attribute. If it is present, the ``AAS_CLASS_PARSERS``
@@ -816,12 +816,12 @@ def read_aas_json_file_into(object_store: model.AbstractObjectStore, file: PathO
         -> Set[model.Identifier]:
     """
     Read an Asset Administration Shell JSON file according to 'Details of the Asset Administration Shell', chapter 5.5
-    into a given object store.
+    into a given ObjectStore.
 
     :param object_store: The :class:`ObjectStore <basyx.aas.model.provider.AbstractObjectStore>` in which the
                          identifiable objects should be stored
     :param file: A filename or file-like object to read the JSON-serialized data from
-    :param replace_existing: Whether to replace existing objects with the same identifier in the object store or not
+    :param replace_existing: Whether to replace existing objects with the same identifier in the ObjectStore or not
     :param ignore_existing: Whether to ignore existing objects (e.g. log a message) or raise an error.
                             This parameter is ignored if replace_existing is ``True``.
     :param failsafe: If ``True``, the document is parsed in a failsafe way: Missing attributes and elements are logged
@@ -898,11 +898,11 @@ def read_aas_json_file_into(object_store: model.AbstractObjectStore, file: PathO
     return ret
 
 
-def read_aas_json_file(file: PathOrIO, failsafe: bool = True, **kwargs) -> model.DictObjectStore[model.Identifiable]:
+def read_aas_json_file(file: PathOrIO, failsafe: bool = True, **kwargs) -> model.DictIdentifiableStore:
     """
     A wrapper of :meth:`~basyx.aas.adapter.json.json_deserialization.read_aas_json_file_into`, that reads all objects
-    in an empty :class:`~basyx.aas.model.provider.DictObjectStore`. This function supports the same keyword arguments as
-    :meth:`~basyx.aas.adapter.json.json_deserialization.read_aas_json_file_into`.
+    in an empty :class:`~basyx.aas.model.provider.DictIdentifiableStore`. This function supports the same keyword
+    arguments as :meth:`~basyx.aas.adapter.json.json_deserialization.read_aas_json_file_into`.
 
     :param file: A filename or file-like object to read the JSON-serialized data from
     :param failsafe: If ``True``, the document is parsed in a failsafe way: Missing attributes and elements are logged
@@ -913,8 +913,8 @@ def read_aas_json_file(file: PathOrIO, failsafe: bool = True, **kwargs) -> model
         Errors during construction of the objects
     :raises TypeError: **Non-failsafe**: Encountered an element in the wrong list
                                          (e.g. an AssetAdministrationShell in ``submodels``)
-    :return: A :class:`~basyx.aas.model.provider.DictObjectStore` containing all AAS objects from the JSON file
+    :return: A :class:`~basyx.aas.model.provider.DictIdentifiableStore` containing all AAS objects from the JSON file
     """
-    object_store: model.DictObjectStore[model.Identifiable] = model.DictObjectStore()
-    read_aas_json_file_into(object_store, file, failsafe=failsafe, **kwargs)
-    return object_store
+    identifiable_store: model.DictIdentifiableStore = model.DictIdentifiableStore()
+    read_aas_json_file_into(identifiable_store, file, failsafe=failsafe, **kwargs)
+    return identifiable_store

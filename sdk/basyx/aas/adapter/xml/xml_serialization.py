@@ -1,4 +1,4 @@
-# Copyright (c) 2025 the Eclipse BaSyx Authors
+# Copyright (c) 2026 the Eclipse BaSyx Authors
 #
 # This program and the accompanying materials are made available under the terms of the MIT License, available in
 # the LICENSE file of this project.
@@ -899,10 +899,6 @@ def object_to_xml_element(obj: object) -> etree._Element:
         return value_reference_pair_to_xml(obj)
     elif isinstance(obj, model.ConceptDescription):
         return concept_description_to_xml(obj)
-    elif isinstance(obj, model.LangStringSet):
-        # FIXME: `lang_string_set_to_xml` expects `tag` parameter, `tag` doesn't have default value
-        # Issue: https://github.com/eclipse-basyx/basyx-python-sdk/issues/397
-        return lang_string_set_to_xml(obj)  # type: ignore[call-arg]
     elif isinstance(obj, model.EmbeddedDataSpecification):
         return embedded_data_specification_to_xml(obj)
     elif isinstance(obj, model.DataSpecificationIEC61360):

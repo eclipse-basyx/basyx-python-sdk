@@ -1,4 +1,4 @@
-# Copyright (c) 2025 the Eclipse BaSyx Authors
+# Copyright (c) 2026 the Eclipse BaSyx Authors
 #
 # This program and the accompanying materials are made available under the terms of the MIT License, available in
 # the LICENSE file of this project.
@@ -291,7 +291,8 @@ class LangStringSet(MutableMapping[str, str]):
     """
     def __init__(self, dict_: Dict[str, str]):
         self._dict: Dict[str, str] = {}
-
+        if not isinstance(dict_, dict):
+            raise TypeError(f"A {self.__class__.__name__} must be initialized with a dict!, got {type(dict_)}")
         if len(dict_) < 1:
             raise ValueError(f"A {self.__class__.__name__} must not be empty!")
         for ltag in dict_:
@@ -300,11 +301,36 @@ class LangStringSet(MutableMapping[str, str]):
 
     @classmethod
     def _check_language_tag_constraints(cls, ltag: str):
-        split = ltag.split("-", 1)
-        lang_code = split[0]
-        if len(lang_code) != 2 or not lang_code.isalpha() or not lang_code.islower():
-            raise ValueError(f"The language code of the language tag must consist of exactly two lower-case letters! "
-                             f"Given language tag and language code: '{ltag}', '{lang_code}'")
+        alphanum = "[a-zA-Z0-9]"
+        singleton = "[0-9A-WY-Za-wy-z]"
+        extension = f"{singleton}(-({alphanum}){{2,8}})+"
+        extlang = "[a-zA-Z]{3}(-[a-zA-Z]{3}){0,2}"
+        irregular = (
+            "(en-GB-oed|i-ami|i-bnn|i-default|i-enochian|i-hak|"
+            "i-klingon|i-lux|i-mingo|i-navajo|i-pwn|i-tao|i-tay|"
+            "i-tsu|sgn-BE-FR|sgn-BE-NL|sgn-CH-DE)"
+        )
+        regular = (
+            "(art-lojban|cel-gaulish|no-bok|no-nyn|zh-guoyu|zh-hakka|"
+            "zh-min|zh-min-nan|zh-xiang)"
+        )
+        grandfathered = f"({irregular}|{regular})"
+        language = f"([a-zA-Z]{{2,3}}(-{extlang})?|[a-zA-Z]{{4}}|[a-zA-Z]{{5,8}})"
+        script = "[a-zA-Z]{4}"
+        region = "([a-zA-Z]{2}|[0-9]{3})"
+        variant = f"(({alphanum}){{5,8}}|[0-9]({alphanum}){{3}})"
+        privateuse = f"[xX](-({alphanum}){{1,8}})+"
+        langtag = (
+            f"{language}(-{script})?(-{region})?(-{variant})*(-{extension})*(-"
+            f"{privateuse})?"
+        )
+        language_tag = f"({langtag}|{privateuse}|{grandfathered})"
+
+        pattern = f"^{language_tag}$"
+
+        if re.match(pattern, ltag) is None:
+            raise ValueError(f"The language tag must follow the format defined in BCP 47. "
+                             f"Given language tag: {ltag}")
 
     def __getitem__(self, item: str) -> str:
         return self._dict[item]
@@ -614,9 +640,9 @@ class Referable(HasExtension, metaclass=abc.ABCMeta):
     def __init__(self):
         super().__init__()
         self._id_short: Optional[NameType] = None
-        self.display_name: Optional[MultiLanguageNameType] = dict()
+        self._display_name: Optional[MultiLanguageNameType] = None
         self._category: Optional[NameType] = None
-        self.description: Optional[MultiLanguageTextType] = dict()
+        self._description: Optional[MultiLanguageTextType] = None
         # We use a Python reference to the parent Namespace instead of a Reference Object, as specified. This allows
         # simpler and faster navigation/checks and it has no effect in the serialized data formats anyway.
         self.parent: Optional[UniqueIdShortNamespace] = None
@@ -826,6 +852,28 @@ class Referable(HasExtension, metaclass=abc.ABCMeta):
                 set_.add(self)
         # Redundant to the line above. However, this way, we make sure that we really update the _id_short
         self._id_short = id_short
+
+    @property
+    def display_name(self) -> Optional[MultiLanguageNameType]:
+        """Display name of the element (MultiLanguageNameType)."""
+        return self._display_name
+
+    @display_name.setter
+    def display_name(self, value: Union[MultiLanguageNameType, dict, None]) -> None:
+        if value is not None and not isinstance(value, MultiLanguageNameType):
+            value = MultiLanguageNameType(value)
+        self._display_name = value
+
+    @property
+    def description(self) -> Optional[MultiLanguageTextType]:
+        """Description of the element (MultiLanguageTextType)."""
+        return self._description
+
+    @description.setter
+    def description(self, value: Union[MultiLanguageTextType, dict, None]) -> None:
+        if value is not None and not isinstance(value, MultiLanguageTextType):
+            value = MultiLanguageTextType(value)
+        self._description = value
 
     def update_from(self, other: "Referable"):
         """
@@ -1047,7 +1095,7 @@ class ModelReference(Reference, Generic[_RT]):
             raise AssertionError(f"Retrieving the identifier of the first {self.key[0]!r} failed.")
 
         try:
-            item: Referable = provider_.get_identifiable(identifier)
+            item: Referable = provider_.get_item(identifier)
         except KeyError as e:
             raise KeyError("Could not resolve identifier {}".format(identifier)) from e
 
@@ -1276,7 +1324,8 @@ class AdministrativeInformation(HasDataSpecification):
 @_string_constraints.constrain_identifier("id")
 class Identifiable(Referable, metaclass=abc.ABCMeta):
     """
-    An element that has a globally unique :class:`Identifier`.
+    Identifiable element with a globally unique :class:`Identifier` and, optionally, additional
+    :class:`~.AdministrativeInformation`.
 
     <<abstract>>
 

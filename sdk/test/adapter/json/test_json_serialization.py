@@ -1,4 +1,4 @@
-# Copyright (c) 2025 the Eclipse BaSyx Authors
+# Copyright (c) 2026 the Eclipse BaSyx Authors
 #
 # This program and the accompanying materials are made available under the terms of the MIT License, available in
 # the LICENSE file of this project.
@@ -63,7 +63,7 @@ class JsonSerializationSchemaTest(unittest.TestCase):
         # must be a Reference. (This seems to be a bug in the JSONSchema.)
         submodel = model.Submodel(submodel_identifier,
                                   semantic_id=model.ExternalReference((model.Key(model.KeyTypes.GLOBAL_REFERENCE,
-                                                                       "http://acplt.org/TestSemanticId"),)))
+                                                                       "http://example.org/TestSemanticId"),)))
         test_aas = model.AssetAdministrationShell(model.AssetInformation(global_asset_id="test"),
                                                   aas_identifier, submodel={submodel_reference})
 
@@ -96,7 +96,7 @@ class JsonSerializationSchemaTest(unittest.TestCase):
         validate(instance=json_data, schema=aas_json_schema)
 
     def test_submodel_template_serialization(self) -> None:
-        data: model.DictObjectStore[model.Identifiable] = model.DictObjectStore()
+        data: model.DictIdentifiableStore[model.Identifiable] = model.DictIdentifiableStore()
         data.add(example_submodel_template.create_example_submodel_template())
         file = io.StringIO()
         write_aas_json_file(file=file, data=data)
@@ -139,7 +139,7 @@ class JsonSerializationSchemaTest(unittest.TestCase):
         validate(instance=json_data, schema=aas_json_schema)
 
     def test_concept_description_serialization(self) -> None:
-        data: model.DictObjectStore[model.Identifiable] = model.DictObjectStore()
+        data: model.DictIdentifiableStore[model.Identifiable] = model.DictIdentifiableStore()
         data.add(example_aas.create_example_concept_description())
         file = io.StringIO()
         write_aas_json_file(file=file, data=data)
@@ -185,7 +185,7 @@ class JsonSerializationStrippedObjectsTest(unittest.TestCase):
         qualifier2 = model.Qualifier("test_qualifier2", str)
         operation = model.Operation("test_operation", qualifier={qualifier})
         submodel = model.Submodel(
-            "http://acplt.org/test_submodel",
+            "http://example.org/test_submodel",
             submodel_element=[operation],
             qualifier={qualifier2}
         )
@@ -196,7 +196,7 @@ class JsonSerializationStrippedObjectsTest(unittest.TestCase):
     def test_stripped_annotated_relationship_element(self) -> None:
         mlp = model.MultiLanguageProperty("test_multi_language_property", category="PARAMETER")
         ref = model.ModelReference(
-            (model.Key(model.KeyTypes.SUBMODEL, "http://acplt.org/test_ref"),),
+            (model.Key(model.KeyTypes.SUBMODEL, "http://example.org/test_ref"),),
             model.Submodel
         )
         are = model.AnnotatedRelationshipElement(
@@ -222,12 +222,12 @@ class JsonSerializationStrippedObjectsTest(unittest.TestCase):
 
     def test_stripped_asset_administration_shell(self) -> None:
         submodel_ref = model.ModelReference(
-            (model.Key(model.KeyTypes.SUBMODEL, "http://acplt.org/test_ref"),),
+            (model.Key(model.KeyTypes.SUBMODEL, "http://example.org/test_ref"),),
             model.Submodel
         )
         aas = model.AssetAdministrationShell(
-            model.AssetInformation(global_asset_id="http://acplt.org/test_ref"),
-            "http://acplt.org/test_aas",
+            model.AssetInformation(global_asset_id="http://example.org/test_ref"),
+            "http://example.org/test_aas",
             submodel={submodel_ref}
         )
 

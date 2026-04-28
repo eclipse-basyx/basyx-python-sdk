@@ -1,12 +1,12 @@
 {
     "assetAdministrationShells": [
         {
-            "id": "https://acplt.org/Test_AssetAdministrationShell",
+            "id": "https://example.org/Test_AssetAdministrationShell",
             "idShort": "TestAssetAdministrationShell",
             "modelType": "Test",
             "assetInformation": {
                 "assetKind": "Instance",
-                "globalAssetId": "http://acplt.org/Test_Asset/"
+                "globalAssetId": "http://example.org/Test_Asset/"
             }
         }
     ],

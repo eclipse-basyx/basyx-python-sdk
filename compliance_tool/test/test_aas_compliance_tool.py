@@ -1,4 +1,4 @@
-# Copyright (c) 2025 the Eclipse BaSyx Authors
+# Copyright (c) 2026 the Eclipse BaSyx Authors
 #
 # This program and the accompanying materials are made available under the terms of the MIT License, available in
 # the LICENSE file of this project.
@@ -138,10 +138,10 @@ class ComplianceToolTest(unittest.TestCase):
         self.assertIn('SUCCESS:      Write data to file', str(output.stdout))
 
         with open(filename, "r", encoding='utf-8-sig') as f:
-            json_object_store = read_aas_json_file(f, failsafe=False)
+            json_identifiable_store = read_aas_json_file(f, failsafe=False)
             data = create_example()
             checker = AASDataChecker(raise_immediately=True)
-            checker.check_object_store(json_object_store, data)
+            checker.check_identifiable_store(json_identifiable_store, data)
         os.unlink(filename)
 
     def test_json_deserialization(self) -> None:
@@ -184,10 +184,10 @@ class ComplianceToolTest(unittest.TestCase):
         self.assertIn('SUCCESS:      Write data to file', str(output.stdout))
 
         with open(filename, "rb") as f:
-            xml_object_store = read_aas_xml_file(f, failsafe=False)
+            xml_identifiable_store = read_aas_xml_file(f, failsafe=False)
             data = create_example()
             checker = AASDataChecker(raise_immediately=True)
-            checker.check_object_store(xml_object_store, data)
+            checker.check_identifiable_store(xml_identifiable_store, data)
         os.unlink(filename)
 
     def test_xml_deseralization(self) -> None:
@@ -229,7 +229,7 @@ class ComplianceToolTest(unittest.TestCase):
         self.assertIn('SUCCESS:      Write data to file', str(output.stdout))
 
         # Read AASX file
-        new_data: model.DictObjectStore[model.Identifiable] = model.DictObjectStore()
+        new_data: model.DictIdentifiableStore[model.Identifiable] = model.DictIdentifiableStore()
         new_files = aasx.DictSupplementaryFileContainer()
         with aasx.AASXReader(filename) as reader:
             reader.read_into(new_data, new_files)
