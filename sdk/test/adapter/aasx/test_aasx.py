@@ -106,11 +106,12 @@ class AASXWriterTest(unittest.TestCase):
                         "/aasx/selection.xml",
                         ["https://acplt.org/Test_AssetAdministrationShell",
                          "http://false-identifier.org/",
-                        "http://acplt.org/Submodels/Assets/TestAsset/Identification"],
+                         "http://acplt.org/Submodels/Assets/TestAsset/Identification"],
                         data, aasx.DictSupplementaryFileContainer()
                     )
 
-            self.assertIn("Could not find identifiable http://false-identifier.org/ in IdentifiableStore", log.output[0])
+            self.assertIn("Could not find identifiable http://false-identifier.org/ in IdentifiableStore",
+                          log.output[0])
 
             # assert only the two existing objects have been written to aasx file
             object_store = model.DictIdentifiableStore()
@@ -142,7 +143,7 @@ class AASXWriterTest(unittest.TestCase):
             self.assertIn("Could not find file", cm.exception.args[0])
 
     def test_writing_file_twice(self) -> None:
-        with tempfile.TemporaryDirectory() as tmpdir:
+        with (tempfile.TemporaryDirectory() as tmpdir):
             tmpdir_path = Path(tmpdir)
 
             # ---- Arange ----
@@ -167,7 +168,8 @@ class AASXWriterTest(unittest.TestCase):
                     value=resulting_file_name
                 )]
             )
-            data = model.DictIdentifiableStore([first_submodel, second_submodel])
+            data: model.DictIdentifiableStore[model.Identifiable] \
+                = model.DictIdentifiableStore([first_submodel, second_submodel])
 
             # ---- Act & Assert ----
             with self.assertNoLogs(level="WARNING"):
@@ -184,7 +186,6 @@ class AASXWriterTest(unittest.TestCase):
             with open(Path(__file__).parent / "TestFile.pdf", "rb") as pdf:
                 file_store.add_file("/TestFile.pdf", pdf, "application/pdf")
 
-
             # ---- Act & Assert ----
             # assert warning is present in failsafe mode
             with self.assertLogs(level="WARNING") as log:
@@ -199,7 +200,7 @@ class AASXWriterTest(unittest.TestCase):
                     # try to write a non AAS object
                     writer.write_aas("https://acplt.org/Test_Submodel", data, file_store)
             self.assertIn("Identifier https://acplt.org/Test_Submodel does not belong "
-                          "to an AssetAdministrationShell",cm.exception.args[0])
+                          "to an AssetAdministrationShell", cm.exception.args[0])
 
     def test_write_aas_missing_submodel(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -315,7 +316,6 @@ class AASXWriterTest(unittest.TestCase):
 
             self.assertIn("Core Properties have already been written", cm.exception.args[0])
 
-
     def test_write_thumbnail_twice(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
             tmpdir_path = Path(tmpdir)
@@ -333,7 +333,6 @@ class AASXWriterTest(unittest.TestCase):
                     writer.write_thumbnail("/aasx/thumbnail.png", bytearray(thumbnail), "image/png")
 
             self.assertIn("package thumbnail has already been written", cm.exception.args[0])
-
 
     def test_writing_reading_example_aas(self) -> None:
         # Create example data and file_store
@@ -457,7 +456,7 @@ class AASXReaderTest(unittest.TestCase):
             # ---- Arange ----
             tmpdir_path = Path(tmpdir)
 
-            data = model.DictIdentifiableStore([
+            data: model.DictIdentifiableStore[model.Identifiable] = model.DictIdentifiableStore([
                 model.AssetAdministrationShell(
                     id_="http://example.org/Test_AAS",
                     asset_information=model.AssetInformation(

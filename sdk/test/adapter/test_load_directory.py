@@ -67,7 +67,6 @@ class LoadDirectoryTest(unittest.TestCase):
                     file_store=file_container
                 )
 
-
             # ---- Act ----
             new_object_store, new_file_store = adapter.load_directory(temp_dir_path)
 
@@ -79,7 +78,6 @@ class LoadDirectoryTest(unittest.TestCase):
 
             # check pdf is loaded
             self.assertIn(resulting_file_name, new_file_store)
-
 
     def test_skipping_other_files(self):
         with tempfile.TemporaryDirectory() as tmp_dir:
