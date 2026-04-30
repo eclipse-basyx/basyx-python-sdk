@@ -104,9 +104,9 @@ class AASXWriterTest(unittest.TestCase):
                     # try to write non-existing object
                     writer.write_aas_objects(
                         "/aasx/selection.xml",
-                        ["https://acplt.org/Test_AssetAdministrationShell",
+                        ["https://example.org/Test_AssetAdministrationShell",
                          "http://false-identifier.org/",
-                         "http://acplt.org/Submodels/Assets/TestAsset/Identification"],
+                         "http://example.org/Submodels/Assets/TestAsset/Identification"],
                         data, aasx.DictSupplementaryFileContainer()
                     )
 
@@ -191,15 +191,15 @@ class AASXWriterTest(unittest.TestCase):
             with self.assertLogs(level="WARNING") as log:
                 with aasx.AASXWriter(tmpdir_path / "tmp.aasx", failsafe=True) as writer:
                     # try to write a non AAS object
-                    writer.write_aas("https://acplt.org/Test_Submodel", data, file_store)
-            self.assertIn("Skipping AAS https://acplt.org/Test_Submodel", log.output[0])
+                    writer.write_aas("https://example.org/Test_Submodel", data, file_store)
+            self.assertIn("Skipping AAS https://example.org/Test_Submodel", log.output[0])
 
             # assert exception is rose in non-failsafe mode
             with self.assertRaises(TypeError) as cm:
                 with aasx.AASXWriter(tmpdir_path / "tmp.aasx", failsafe=False) as writer:
                     # try to write a non AAS object
-                    writer.write_aas("https://acplt.org/Test_Submodel", data, file_store)
-            self.assertIn("Identifier https://acplt.org/Test_Submodel does not belong "
+                    writer.write_aas("https://example.org/Test_Submodel", data, file_store)
+            self.assertIn("Identifier https://example.org/Test_Submodel does not belong "
                           "to an AssetAdministrationShell", cm.exception.args[0])
 
     def test_write_aas_missing_submodel(self) -> None:
@@ -219,13 +219,13 @@ class AASXWriterTest(unittest.TestCase):
             # assert warning is present in failsafe mode
             with self.assertLogs(level="WARNING") as log:
                 with aasx.AASXWriter(tmpdir_path / "tmp.aasx", failsafe=True) as writer:
-                    writer.write_aas("https://acplt.org/Test_AssetAdministrationShell", data, empty_file_store)
+                    writer.write_aas("https://example.org/Test_AssetAdministrationShell", data, empty_file_store)
             self.assertIn("Could not find Submodel", log.output[0])
 
             # assert exception is rose in non-failsafe mode
             with self.assertRaises(KeyError) as cm:
                 with aasx.AASXWriter(tmpdir_path / "tmp.aasx", failsafe=False) as writer:
-                    writer.write_aas("https://acplt.org/Test_AssetAdministrationShell", data, empty_file_store)
+                    writer.write_aas("https://example.org/Test_AssetAdministrationShell", data, empty_file_store)
             self.assertIn("Could not find Submodel", cm.exception.args[0])
 
     def test_write_aas_missing_concept_description(self) -> None:
@@ -248,15 +248,15 @@ class AASXWriterTest(unittest.TestCase):
             # assert warning is present in failsafe mode
             with self.assertLogs(level="WARNING") as log:
                 with aasx.AASXWriter(tmpdir_path / "tmp.aasx", failsafe=True) as writer:
-                    writer.write_aas("https://acplt.org/Test_AssetAdministrationShell", data, file_store)
-            self.assertIn("https://acplt.org/Test_ConceptDescription", log.output[0])
+                    writer.write_aas("https://example.org/Test_AssetAdministrationShell", data, file_store)
+            self.assertIn("https://example.org/Test_ConceptDescription", log.output[0])
             self.assertRegex(log.output[0], "ConceptDescription .* not found")
 
             # assert exception is rose in non-failsafe mode
             with self.assertRaises(KeyError) as cm:
                 with aasx.AASXWriter(tmpdir_path / "tmp.aasx", failsafe=False) as writer:
-                    writer.write_aas("https://acplt.org/Test_AssetAdministrationShell", data, file_store)
-            self.assertIn("https://acplt.org/Test_ConceptDescription", cm.exception.args[0])
+                    writer.write_aas("https://example.org/Test_AssetAdministrationShell", data, file_store)
+            self.assertIn("https://example.org/Test_ConceptDescription", cm.exception.args[0])
             self.assertRegex(cm.exception.args[0], "ConceptDescription .* not found")
 
     def test_write_aas_false_semantic_id(self) -> None:
@@ -267,12 +267,12 @@ class AASXWriterTest(unittest.TestCase):
             # semanticId of submodel holds reference to an object
             # that is no ContentDescription
             second_submodel = model.Submodel(
-                id_="https://acplt.org/Second_Submodel"
+                id_="https://example.org/Second_Submodel"
             )
             submodel = model.Submodel(
-                id_="https://acplt.org/Test_Submodel",
+                id_="https://example.org/Test_Submodel",
                 semantic_id=model.ModelReference(
-                    key=(model.Key(type_=model.KeyTypes.SUBMODEL, value="https://acplt.org/Second_Submodel"),),
+                    key=(model.Key(type_=model.KeyTypes.SUBMODEL, value="https://example.org/Second_Submodel"),),
                     type_=model.ConceptDescription
                 )
             )
@@ -288,13 +288,13 @@ class AASXWriterTest(unittest.TestCase):
             # assert warning is present in failsafe mode
             with self.assertLogs(level="WARNING") as log:
                 with aasx.AASXWriter(tmpdir_path / "tmp.aasx", failsafe=True) as writer:
-                    writer.write_aas("https://acplt.org/Test_AssetAdministrationShell", data, empty_file_store)
+                    writer.write_aas("https://example.org/Test_AssetAdministrationShell", data, empty_file_store)
             self.assertIn("which is not a ConceptDescription", log.output[0])
 
             # assert exception is rose in non-failsafe mode
             with self.assertRaises(TypeError) as cm:
                 with aasx.AASXWriter(tmpdir_path / "tmp.aasx", failsafe=False) as writer:
-                    writer.write_aas("https://acplt.org/Test_AssetAdministrationShell", data, empty_file_store)
+                    writer.write_aas("https://example.org/Test_AssetAdministrationShell", data, empty_file_store)
             self.assertIn("which is not a ConceptDescription", cm.exception.args[0])
 
     def test_write_core_properties_twice(self) -> None:
