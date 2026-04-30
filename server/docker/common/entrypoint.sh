@@ -55,6 +55,20 @@ else
     content_server='server {\n'
     content_server=$content_server"    listen ${USE_LISTEN_PORT};\n"
     content_server=$content_server'    location / {\n'
+    content_server=$content_server'        if ($request_method = OPTIONS) {\n'
+    content_server=$content_server'            add_header Access-Control-Allow-Origin *;\n'
+    content_server=$content_server'            add_header Access-Control-Allow-Methods "GET, POST, PUT, PATCH, DELETE, OPTIONS, HEAD";\n'
+    content_server=$content_server'            add_header Access-Control-Allow-Headers "Content-Type, Authorization, Accept, Origin";\n'
+    content_server=$content_server'            add_header Access-Control-Max-Age 86400;\n'
+    content_server=$content_server'            add_header Content-Length 0;\n'
+    content_server=$content_server'            add_header Content-Type text/plain;\n'
+    content_server=$content_server'            return 204;\n'
+    content_server=$content_server'        }\n'
+    content_server=$content_server'\n'
+    content_server=$content_server'        add_header Access-Control-Allow-Origin * always;\n'
+    content_server=$content_server'        add_header Access-Control-Allow-Methods "GET, POST, PUT, PATCH, DELETE, OPTIONS, HEAD" always;\n'
+    content_server=$content_server'        add_header Access-Control-Allow-Headers "Content-Type, Authorization, Accept, Origin" always;\n'
+    content_server=$content_server'\n'
     content_server=$content_server'        include uwsgi_params;\n'
     content_server=$content_server'        uwsgi_pass unix:///tmp/uwsgi.sock;\n'
     content_server=$content_server'    }\n'
@@ -62,10 +76,9 @@ else
     # Save generated server /etc/nginx/conf.d/nginx.conf
     printf "$content_server" > /etc/nginx/conf.d/nginx.conf
 
-    # # Generate additional configuration
+    # Generate additional configuration
     printf "client_max_body_size $USE_NGINX_MAX_UPLOAD;\n" > /etc/nginx/conf.d/upload.conf
     printf "client_body_buffer_size $USE_CLIENT_BODY_BUFFER_SIZE;\n" > /etc/nginx/conf.d/body-buffer-size.conf
-    printf "add_header Access-Control-Allow-Origin *;\n" > /etc/nginx/conf.d/cors-header.conf
 fi
 
 exec "$@"

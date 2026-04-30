@@ -247,7 +247,7 @@ class ReferableTest(unittest.TestCase):
         self.assertIs(example_relel.parent, example_submodel)
 
     def test_update_commit_qualifier_extension_semantic_id(self):
-        submodel = model.Submodel("https://acplt.org/Test_Submodel")
+        submodel = model.Submodel("https://example.org/Test_Submodel")
         qualifier = model.Qualifier("test", model.datatypes.String)
         extension = model.Extension("test")
         collection = model.SubmodelElementCollection("test")
@@ -308,11 +308,11 @@ class ModelNamespaceTest(unittest.TestCase):
 
     def setUp(self):
         self.propSemanticID = model.ExternalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
-                                                                 value='http://acplt.org/Test1'),))
+                                                                 value='http://example.org/Test1'),))
         self.propSemanticID2 = model.ExternalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
-                                                                  value='http://acplt.org/Test2'),))
+                                                                  value='http://example.org/Test2'),))
         self.propSemanticID3 = model.ExternalReference((model.Key(type_=model.KeyTypes.GLOBAL_REFERENCE,
-                                                                  value='http://acplt.org/Test3'),))
+                                                                  value='http://example.org/Test3'),))
         self.prop1 = model.Property("Prop1", model.datatypes.Int, semantic_id=self.propSemanticID)
         self.prop2 = model.Property("Prop2", model.datatypes.Int, semantic_id=self.propSemanticID)
         self.prop3 = model.Property("Prop2", model.datatypes.Int, semantic_id=self.propSemanticID2)
@@ -340,7 +340,7 @@ class ModelNamespaceTest(unittest.TestCase):
             self.namespace.set1.add(self.prop2)
         self.assertEqual(
             "Object with attribute (name='semantic_id', value='ExternalReference(key=(Key("
-            "type=GLOBAL_REFERENCE, value=http://acplt.org/Test1),))') is already present in this set of objects "
+            "type=GLOBAL_REFERENCE, value=http://example.org/Test1),))') is already present in this set of objects "
             "(Constraint AASd-000)",
             str(cm.exception))
         self.namespace.set2.add(self.prop5)
@@ -355,7 +355,7 @@ class ModelNamespaceTest(unittest.TestCase):
             self.namespace.set2.add(self.prop4)
         self.assertEqual(
             "Object with attribute (name='semantic_id', value='"
-            "ExternalReference(key=(Key(type=GLOBAL_REFERENCE, value=http://acplt.org/Test1),))')"
+            "ExternalReference(key=(Key(type=GLOBAL_REFERENCE, value=http://example.org/Test1),))')"
             " is already present in another set in the same namespace (Constraint AASd-000)",
             str(cm.exception))
 
@@ -1230,20 +1230,28 @@ class ConstrainedListTest(unittest.TestCase):
 
 class LangStringSetTest(unittest.TestCase):
     def test_language_tag_constraints(self) -> None:
+        with self.assertRaises(ValueError):
+            model.LangStringSet({"": "bar"})
+
         with self.assertRaises(ValueError) as cm:
-            model.LangStringSet({"foo": "bar"})
-        self.assertEqual("The language code of the language tag must consist of exactly two lower-case letters! "
-                         "Given language tag and language code: 'foo', 'foo'", str(cm.exception))
+            model.LangStringSet({"x": "bar"})
+        self.assertEqual(f"The language tag must follow the format defined in BCP 47. "
+                         f"Given language tag: x", cm.exception.args[0])
+
+        with self.assertRaises(ValueError) as cm:
+            model.LangStringSet({"foo-oo1": "bar"})
+        self.assertEqual(f"The language tag must follow the format defined in BCP 47. "
+                         f"Given language tag: foo-oo1", cm.exception.args[0])
 
         lss = model.LangStringSet({"fo-OO": "bar"})
-        with self.assertRaises(ValueError) as cm:
-            lss["foo"] = "bar"
-        self.assertEqual("The language code of the language tag must consist of exactly two lower-case letters! "
-                         "Given language tag and language code: 'foo', 'foo'", str(cm.exception))
-        self.assertNotIn("foo", lss)
-        self.assertNotIn("fo", lss)
-        lss["fo"] = "bar"
-        self.assertIn("fo", lss)
+        self.assertIn("fo-OO", lss)
+        with self.assertRaises(ValueError):
+            lss["foo-oo1"] = "bar"
+        self.assertNotIn("foo-oo1", lss)
+
+        self.assertNotIn("foo-ASDF-OO", lss)
+        lss["foo-ASDF-OO"] = "bar"
+        self.assertIn("foo-ASDF-OO", lss)
 
     def test_empty(self) -> None:
         lss = model.LangStringSet({"fo": "bar", "fo-OO": "baz"})

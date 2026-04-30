@@ -43,7 +43,7 @@ class ExampleAASTest(unittest.TestCase):
         identifiable_store = model.DictIdentifiableStore()
         with self.assertRaises(AssertionError) as cm:
             example_aas.check_full_example(checker, identifiable_store)
-        self.assertIn("AssetAdministrationShell[https://acplt.org/Test_AssetAdministrationShell]",
+        self.assertIn("AssetAdministrationShell[https://example.org/Test_AssetAdministrationShell]",
                       str(cm.exception))
 
         identifiable_store = example_aas.create_full_example()

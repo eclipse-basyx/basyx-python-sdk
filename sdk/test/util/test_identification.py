@@ -34,24 +34,24 @@ class IdentifierGeneratorTest(unittest.TestCase):
             generator = NamespaceIRIGenerator("http", provider)
         self.assertEqual('Namespace must be a valid IRI, ending with #, / or =', str(cm.exception))
 
-        generator = NamespaceIRIGenerator("http://acplt.org/AAS/", provider)
-        self.assertEqual("http://acplt.org/AAS/", generator.namespace)
+        generator = NamespaceIRIGenerator("http://example.org/AAS/", provider)
+        self.assertEqual("http://example.org/AAS/", generator.namespace)
 
         identification = generator.generate_id()
-        self.assertEqual(identification, "http://acplt.org/AAS/0000")
+        self.assertEqual(identification, "http://example.org/AAS/0000")
         provider.add(model.Submodel(identification))
 
         for i in range(10):
             identification = generator.generate_id()
             self.assertNotIn(identification, provider)
             provider.add(model.Submodel(identification))
-        self.assertEqual(identification, "http://acplt.org/AAS/0010")
+        self.assertEqual(identification, "http://example.org/AAS/0010")
 
         identification = generator.generate_id("Spülmaschine")
-        self.assertEqual(identification, "http://acplt.org/AAS/Spülmaschine")
+        self.assertEqual(identification, "http://example.org/AAS/Spülmaschine")
         provider.add(model.Submodel(identification))
 
         for i in range(10):
             identification = generator.generate_id("Spülmaschine")
             self.assertNotIn(identification, provider)
-            self.assertNotEqual(identification, "http://acplt.org/AAS/Spülmaschine")
+            self.assertNotEqual(identification, "http://example.org/AAS/Spülmaschine")

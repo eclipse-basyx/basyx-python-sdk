@@ -30,20 +30,20 @@ from basyx.aas.adapter import aasx
 # See `tutorial_create_simple_aas.py` for more details.
 
 submodel = model.Submodel(
-    id_='https://acplt.org/Simple_Submodel'
+    id_='https://example.org/Simple_Submodel'
 )
 aas = model.AssetAdministrationShell(
-    id_='https://acplt.org/Simple_AAS',
+    id_='https://example.org/Simple_AAS',
     asset_information=model.AssetInformation(
         asset_kind=model.AssetKind.INSTANCE,
-        global_asset_id='http://acplt.org/Simple_Asset'
+        global_asset_id='http://example.org/Simple_Asset'
     ),
     submodel={model.ModelReference.from_referable(submodel)}
 )
 
 # Another submodel, which is not related to the AAS:
 unrelated_submodel = model.Submodel(
-    id_='https://acplt.org/Unrelated_Submodel'
+    id_='https://example.org/Unrelated_Submodel'
 )
 
 # We add these objects to an IdentifiableStore for easy retrieval by id.
@@ -102,7 +102,7 @@ with aasx.AASXWriter("MyAASXPackage.aasx") as writer:
     # ATTENTION: As of Version 3.0 RC01 of Details of the Asset Administration Shell, it is no longer valid to add more
     # than one "aas-spec" part (JSON/XML part with AAS objects) to an AASX package. Thus, `write_aas` MUST
     # only be called once per AASX package!
-    writer.write_aas(aas_ids=['https://acplt.org/Simple_AAS'],
+    writer.write_aas(aas_ids=['https://example.org/Simple_AAS'],
                      object_store=identifiable_store,
                      file_store=file_store)
 
@@ -154,6 +154,6 @@ with aasx.AASXReader("MyAASXPackage.aasx") as reader:
 
 
 # Some quick checks to make sure, reading worked as expected
-assert 'https://acplt.org/Simple_Submodel' in new_identifiable_store
+assert 'https://example.org/Simple_Submodel' in new_identifiable_store
 assert actual_file_name in new_file_store
 assert new_meta_data.creator == "Chair of Process Control Engineering"

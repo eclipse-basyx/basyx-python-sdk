@@ -1,0 +1,12 @@
+name: basyx-python-server
+services:
+  app:
+    build:
+      context: ../../..
+      dockerfile: server/docker/discovery/Dockerfile
+    ports:
+    - "8084:80"
+    #environment:
+      #- storage_path=/discovery_store.json
+    #volumes:
+     # - ./discovery_store.json:/discovery_store.json

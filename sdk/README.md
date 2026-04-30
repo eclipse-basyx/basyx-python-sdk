@@ -87,7 +87,7 @@ Create a `Submodel`:
 ```python
 from basyx.aas import model  # Import all BaSyx Python SDK classes from the model package
 
-identifier = 'https://acplt.org/Simple_Submodel'
+identifier = 'https://example.org/Simple_Submodel'
 submodel = model.Submodel(identifier)
 ```
 
@@ -97,7 +97,7 @@ Create a `Property` and add it to the `Submodel`:
 semantic_reference = model.ExternalReference(
     (model.Key(
         type_=model.KeyTypes.GLOBAL_REFERENCE,
-        value='http://acplt.org/Properties/SimpleProperty'
+        value='http://example.org/Properties/SimpleProperty'
     ),)
 )
 property = model.Property(

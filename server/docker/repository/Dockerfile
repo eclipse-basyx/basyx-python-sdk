@@ -45,7 +45,7 @@ ENV STORAGE_OVERWRITE=False
 VOLUME ["/input", "/storage"]
 
 # Copy the entrypoint that will generate Nginx additional configs
-COPY server/docker/repository/entrypoint.sh /entrypoint.sh
+COPY server/docker/common/entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
 ENTRYPOINT ["/entrypoint.sh"]

@@ -31,7 +31,7 @@ from basyx.aas.model import AssetInformation, AssetAdministrationShell, Submodel
 
 asset_information = AssetInformation(
     asset_kind=model.AssetKind.INSTANCE,
-    global_asset_id='http://acplt.org/Simple_Asset'
+    global_asset_id='http://example.org/Simple_Asset'
 )
 
 prop = model.Property(
@@ -41,16 +41,16 @@ prop = model.Property(
     semantic_id=model.ExternalReference(
         (model.Key(
             type_=model.KeyTypes.GLOBAL_REFERENCE,
-            value='http://acplt.org/Properties/SimpleProperty'
+            value='http://example.org/Properties/SimpleProperty'
         ),)
     )
 )
 submodel = Submodel(
-    id_='https://acplt.org/Simple_Submodel',
+    id_='https://example.org/Simple_Submodel',
     submodel_element={prop}
 )
 aas = AssetAdministrationShell(
-    id_='https://acplt.org/Simple_AAS',
+    id_='https://example.org/Simple_AAS',
     asset_information=asset_information,
     submodel={model.ModelReference.from_referable(submodel)}
 )
@@ -81,7 +81,7 @@ identifiable_store.add(aas)
 #################################################################
 
 tmp_submodel = identifiable_store.get_item(
-    'https://acplt.org/Simple_Submodel')
+    'https://example.org/Simple_Submodel')
 
 assert submodel is tmp_submodel
 
@@ -104,7 +104,7 @@ assert submodel is submodels[0]
 property_reference = model.ModelReference(
     (model.Key(
         type_=model.KeyTypes.SUBMODEL,
-        value='https://acplt.org/Simple_Submodel'),
+        value='https://example.org/Simple_Submodel'),
      model.Key(
          type_=model.KeyTypes.PROPERTY,
          value='ExampleProperty'),

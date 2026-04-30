@@ -13,9 +13,9 @@ from basyx.aas import model
 class ProvidersTest(unittest.TestCase):
     def setUp(self) -> None:
         self.aas1 = model.AssetAdministrationShell(
-            model.AssetInformation(global_asset_id="http://acplt.org/TestAsset1/"), "urn:x-test:aas1")
+            model.AssetInformation(global_asset_id="http://example.org/TestAsset1/"), "urn:x-test:aas1")
         self.aas2 = model.AssetAdministrationShell(
-            model.AssetInformation(global_asset_id="http://acplt.org/TestAsset2/"), "urn:x-test:aas2")
+            model.AssetInformation(global_asset_id="http://example.org/TestAsset2/"), "urn:x-test:aas2")
         self.submodel1 = model.Submodel("urn:x-test:submodel1")
         self.submodel2 = model.Submodel("urn:x-test:submodel2")
 
@@ -26,7 +26,7 @@ class ProvidersTest(unittest.TestCase):
         self.assertIn(self.aas1, identifiable_store)
         property = model.Property('test', model.datatypes.String)
         self.assertFalse(property in identifiable_store)
-        aas3 = model.AssetAdministrationShell(model.AssetInformation(global_asset_id="http://acplt.org/TestAsset/"),
+        aas3 = model.AssetAdministrationShell(model.AssetInformation(global_asset_id="http://example.org/TestAsset/"),
                                               "urn:x-test:aas1")
         with self.assertRaises(KeyError) as cm:
             identifiable_store.add(aas3)

@@ -61,7 +61,8 @@ class XMLSerializationSchemaTest(unittest.TestCase):
         submodel_reference = model.ModelReference(submodel_key, model.Submodel)
         submodel = model.Submodel(submodel_identifier,
                                   semantic_id=model.ExternalReference((model.Key(model.KeyTypes.GLOBAL_REFERENCE,
-                                                                                 "http://acplt.org/TestSemanticId"),)))
+                                                                                 "http://example.org/"
+                                                                                 "TestSemanticId"),)))
         test_aas = model.AssetAdministrationShell(model.AssetInformation(global_asset_id="Test"),
                                                   aas_identifier, submodel={submodel_reference})
         # serialize object to xml

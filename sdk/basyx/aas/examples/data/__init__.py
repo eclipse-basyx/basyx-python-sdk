@@ -55,12 +55,12 @@ def create_example_aas_binding() -> model.DictIdentifiableStore:
     identifiable_store.update(example_aas_missing_attributes.create_full_example())
     identifiable_store.add(example_submodel_template.create_example_submodel_template())
 
-    aas = identifiable_store.get_item('https://acplt.org/Test_AssetAdministrationShell')
-    sm = identifiable_store.get_item('https://acplt.org/Test_Submodel_Template')
+    aas = identifiable_store.get_item('https://example.org/Test_AssetAdministrationShell')
+    sm = identifiable_store.get_item('https://example.org/Test_Submodel_Template')
     assert (isinstance(aas, model.aas.AssetAdministrationShell))  # make mypy happy
     assert (isinstance(sm, model.submodel.Submodel))  # make mypy happy
     aas.submodel.add(model.ModelReference.from_referable(sm))
 
-    cd = identifiable_store.get_item('https://acplt.org/Test_ConceptDescription_Mandatory')
+    cd = identifiable_store.get_item('https://example.org/Test_ConceptDescription_Mandatory')
     assert (isinstance(cd, model.concept.ConceptDescription))  # make mypy happy
     return identifiable_store

@@ -332,10 +332,10 @@ class AASXWriter:
         cp.created = datetime.datetime.now()
 
         with AASXWriter("filename.aasx") as writer:
-            writer.write_aas("https://acplt.org/AssetAdministrationShell",
+            writer.write_aas("https://example.org/AssetAdministrationShell",
                              object_store,
                              file_store)
-            writer.write_aas("https://acplt.org/AssetAdministrationShell2",
+            writer.write_aas("https://example.org/AssetAdministrationShell2",
                              object_store,
                              file_store)
             writer.write_core_properties(cp)
