@@ -161,7 +161,8 @@ class LocalFileIdentifiableStore(model.AbstractObjectStore[model.Identifier, mod
         """
         logger.debug("Iterating over objects in database ...")
         for name in os.listdir(self.directory_path):
-            yield self.get_identifiable_by_hash(name.rstrip(".json"))
+            if name.endswith(".json"):
+                yield self.get_identifiable_by_hash(name.removesuffix(".json"))
 
     @staticmethod
     def _transform_id(identifier: model.Identifier) -> str:
