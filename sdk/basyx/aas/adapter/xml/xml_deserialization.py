@@ -1154,7 +1154,7 @@ class AASFromXmlDecoder:
         if value_list is not None:
             ds_iec.value_list = value_list
         value = _get_text_or_none(element.find(NS_AAS + "value"))
-        if value is not None and value_format is not None:
+        if value is not None:
             ds_iec.value = value
         level_type = element.find(NS_AAS + "levelType")
         if level_type is not None:

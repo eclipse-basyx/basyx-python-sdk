@@ -428,6 +428,50 @@ class XmlDeserializationStrippedObjectsTest(unittest.TestCase):
         self.assertEqual(len(aas.submodel), 0)
 
 
+class XmlDeserializationDataSpecTest(unittest.TestCase):
+    def test_data_spec_iec61360_value_without_value_format(self) -> None:
+        xml = _xml_wrap(f"""
+        <aas:conceptDescriptions>
+            <aas:conceptDescription>
+                <aas:id>http://example.org/test_cd</aas:id>
+                <aas:embeddedDataSpecifications>
+                    <aas:embeddedDataSpecification>
+                        <aas:dataSpecification>
+                            <aas:type>ExternalReference</aas:type>
+                            <aas:keys>
+                                <aas:key>
+                                    <aas:type>GlobalReference</aas:type>
+                                    <aas:value>https://admin-shell.io/DataSpecificationTemplates/DataSpecificationIec61360/3/0</aas:value>
+                                </aas:key>
+                            </aas:keys>
+                        </aas:dataSpecification>
+                        <aas:dataSpecificationContent>
+                            <aas:dataSpecificationIec61360>
+                                <aas:preferredName>
+                                    <aas:langStringPreferredNameTypeIec61360>
+                                        <aas:language>en</aas:language>
+                                        <aas:text>Test</aas:text>
+                                    </aas:langStringPreferredNameTypeIec61360>
+                                </aas:preferredName>
+                                <aas:value>test_value</aas:value>
+                            </aas:dataSpecificationIec61360>
+                        </aas:dataSpecificationContent>
+                    </aas:embeddedDataSpecification>
+                </aas:embeddedDataSpecifications>
+            </aas:conceptDescription>
+        </aas:conceptDescriptions>
+        """)
+        object_store = read_aas_xml_file(io.StringIO(xml), failsafe=False)
+        cd = object_store.get_item("http://example.org/test_cd")
+        self.assertIsInstance(cd, model.ConceptDescription)
+        assert isinstance(cd, model.ConceptDescription)
+        ds_content = list(cd.embedded_data_specifications)[0].data_specification_content
+        self.assertIsInstance(ds_content, model.DataSpecificationIEC61360)
+        assert isinstance(ds_content, model.DataSpecificationIEC61360)
+        self.assertEqual("test_value", ds_content.value)
+        self.assertIsNone(ds_content.value_format)
+
+
 class XmlDeserializationDerivingTest(unittest.TestCase):
     def test_submodel_constructor_overriding(self) -> None:
         class EnhancedSubmodel(model.Submodel):
