@@ -333,6 +333,21 @@ class ModelNamespaceTest(unittest.TestCase):
         self.namespace = self._namespace_class()
         self.namespace3 = self._namespace_class_qualifier()
 
+    def test_namespaceset_clear_hook_called_once_per_item(self) -> None:
+        # set1 has two backends (id_short + semantic_id); clear() must call del-hook exactly once per item
+        del_hook_calls: list = []
+
+        def counting_del_hook(item: model.Property) -> None:
+            del_hook_calls.append(item)
+
+        ns = self._namespace_class()
+        ns.set1.add(self.prop1)
+        ns.set1.add(self.prop7)  # different id_short and semantic_id from prop1
+        ns.set1._item_id_del_hook = counting_del_hook
+        ns.set1.clear()
+        self.assertEqual(0, len(ns.set1))
+        self.assertEqual(2, len(del_hook_calls), f"del-hook called {len(del_hook_calls)} times, expected 2")
+
     def test_NamespaceSet(self) -> None:
         self.namespace.set1.add(self.prop1)
         self.assertEqual(1, len(self.namespace.set1))

@@ -2075,9 +2075,9 @@ class NamespaceSet(MutableSet[_NSO], Generic[_NSO]):
         return value
 
     def clear(self) -> None:
-        for attr_name, (backend, case_sensitive) in self._backend.items():
-            for value in backend.values():
-                self._execute_item_del_hook(value)
+        first_backend = next(iter(self._backend.values()))[0]
+        for value in first_backend.values():
+            self._execute_item_del_hook(value)
         for attr_name, (backend, case_sensitive) in self._backend.items():
             backend.clear()
 
