@@ -262,7 +262,7 @@ class BaseWSGIApp:
         return response(environ, start_response)
 
     @classmethod
-    def _get_slice(cls, request: Request, iterator: Iterable[T]) -> Tuple[Iterator[T], int]:
+    def _get_slice(cls, request: Request, iterator: Iterable[T]) -> Tuple[Iterator[T], Optional[int]]:
         limit_str = request.args.get('limit', default="10")
         cursor_str = request.args.get('cursor', default="1")
         try:

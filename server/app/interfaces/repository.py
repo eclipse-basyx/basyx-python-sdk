@@ -247,7 +247,7 @@ class WSGIApp(ObjectStoreWSGIApp):
                 return ref
         raise NotFound(f"The AAS {aas!r} doesn't have a submodel reference to {submodel_id!r}!")
 
-    def _get_shells(self, request: Request) -> Tuple[Iterator[model.AssetAdministrationShell], int]:
+    def _get_shells(self, request: Request) -> Tuple[Iterator[model.AssetAdministrationShell], Optional[int]]:
         aas: Iterator[model.AssetAdministrationShell] = self._get_all_obj_of_type(model.AssetAdministrationShell)
 
         id_short = request.args.get("idShort")
@@ -287,7 +287,7 @@ class WSGIApp(ObjectStoreWSGIApp):
     def _get_shell(self, url_args: Dict) -> model.AssetAdministrationShell:
         return self._get_obj_ts(url_args["aas_id"], model.AssetAdministrationShell)
 
-    def _get_submodels(self, request: Request) -> Tuple[Iterator[model.Submodel], int]:
+    def _get_submodels(self, request: Request) -> Tuple[Iterator[model.Submodel], Optional[int]]:
         submodels: Iterator[model.Submodel] = self._get_all_obj_of_type(model.Submodel)
         id_short = request.args.get("idShort")
         if id_short is not None:
@@ -304,7 +304,7 @@ class WSGIApp(ObjectStoreWSGIApp):
         return self._get_obj_ts(url_args["submodel_id"], model.Submodel)
 
     def _get_submodel_submodel_elements(self, request: Request, url_args: Dict) -> \
-            Tuple[Iterator[model.SubmodelElement], int]:
+            Tuple[Iterator[model.SubmodelElement], Optional[int]]:
         submodel = self._get_submodel(url_args)
         paginated_submodel_elements: Iterator[model.SubmodelElement]
         paginated_submodel_elements, end_index = self._get_slice(request, submodel.submodel_element)
