@@ -12,9 +12,22 @@ The files are only read, changes won't persist.
 Alternatively, the container can also be told to use the [Local-File Backend][2] instead, which stores Asset Administration Shells (AAS) and Submodels as individual *JSON* files and allows for persistent changes (except supplementary files, i.e. files referenced by `File` SubmodelElements).
 See [below](#options) on how to configure this.
 
+## Docker Hub
+
+Pre-built images are published to [Docker Hub][11] on every release.
+Pull the latest version via:
+```
+$ docker pull eclipsebasyx/basyx-python-server:latest
+```
+
+Or pin to a specific release:
+```
+$ docker pull eclipsebasyx/basyx-python-server:2.0.1
+```
+
 ## Building
 
-The container image can be built via:
+If you need to build the image locally (e.g. for development), run:
 ```
 $ docker build -t basyx-python-server -f Dockerfile ..
 ```
@@ -130,3 +143,4 @@ This Dockerfile is inspired by the [tiangolo/uwsgi-nginx-docker][10] repository.
 [8]: https://basyx-python-sdk.readthedocs.io/en/latest/adapter/json.html
 [9]: https://basyx-python-sdk.readthedocs.io/en/latest/adapter/xml.html
 [10]: https://github.com/tiangolo/uwsgi-nginx-docker
+[11]: https://hub.docker.com/r/eclipsebasyx/basyx-python-server

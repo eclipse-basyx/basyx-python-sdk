@@ -5,19 +5,16 @@
 #
 # SPDX-License-Identifier: MIT
 """
-This module provides the WSGI entry point for the Asset Administration Shell Repository Server.
+This module provides the WSGI entry point for the Asset Administration Shell Registry Server.
 """
 
 import logging
 import os
-from typing import Tuple, Union
+from typing import Union
 
-from basyx.aas.adapter import load_directory
-from basyx.aas.adapter.aasx import DictSupplementaryFileContainer
-from basyx.aas.backend.local_file import LocalFileIdentifiableStore
-from basyx.aas.model.provider import DictIdentifiableStore
-
-from app.interfaces.repository import WSGIApp
+from app.backend import LocalFileDescriptorStore
+from app.interfaces.registry import RegistryAPI
+from app.model import DictDescriptorStore, load_directory
 
 # -------- Helper methods --------
 
@@ -42,7 +39,7 @@ def setup_logger() -> logging.Logger:
 
 def build_storage(
     env_input: str, env_storage: str, env_storage_persistency: bool, env_storage_overwrite: bool, logger: logging.Logger
-) -> Tuple[Union[DictIdentifiableStore, LocalFileIdentifiableStore], DictSupplementaryFileContainer]:
+) -> Union[DictDescriptorStore, LocalFileDescriptorStore]:
     """
     Configure the server's storage according to the given start-up settings.
 
@@ -60,40 +57,30 @@ def build_storage(
     """
 
     if env_storage_persistency:
-        storage_files = LocalFileIdentifiableStore(env_storage)
+        storage_files = LocalFileDescriptorStore(env_storage)
         storage_files.check_directory(create=True)
         if os.path.isdir(env_input):
-            input_files, input_supp_files = load_directory(env_input)
+            input_files = load_directory(env_input)
             added, overwritten, skipped = storage_files.sync(input_files, env_storage_overwrite)
-            logger.info(
-                'Loaded %d identifiable(s) and %d supplementary file(s) from "%s"',
-                len(input_files),
-                len(input_supp_files),
-                env_input,
-            )
+            logger.info('Loaded %d descriptors(s) from "%s"', len(input_files), env_input)
             logger.info(
                 "Synced INPUT to STORAGE with %d added and %d %s",
                 added,
                 overwritten if env_storage_overwrite else skipped,
                 "overwritten" if env_storage_overwrite else "skipped",
             )
-            return storage_files, input_supp_files
+            return storage_files
         else:
             logger.warning('INPUT directory "%s" not found, starting empty', env_input)
-            return storage_files, DictSupplementaryFileContainer()
+            return storage_files
 
     if os.path.isdir(env_input):
-        input_files, input_supp_files = load_directory(env_input)
-        logger.info(
-            'Loaded %d identifiable(s) and %d supplementary file(s) from "%s"',
-            len(input_files),
-            len(input_supp_files),
-            env_input,
-        )
-        return input_files, input_supp_files
+        input_files = load_directory(env_input)
+        logger.info('Loaded %d descriptors(s) from "%s"', len(input_files), env_input)
+        return input_files
     else:
         logger.warning('INPUT directory "%s" not found, starting empty', env_input)
-        return DictIdentifiableStore(), DictSupplementaryFileContainer()
+        return DictDescriptorStore()
 
 
 # -------- WSGI entrypoint --------
@@ -117,11 +104,9 @@ logger.info(
     env_storage_overwrite,
 )
 
-storage_files, supp_files = build_storage(
-    env_input, env_storage, env_storage_persistency, env_storage_overwrite, logger
-)
+storage_files = build_storage(env_input, env_storage, env_storage_persistency, env_storage_overwrite, logger)
 
-application = WSGIApp(storage_files, supp_files, **wsgi_optparams)
+application = RegistryAPI(storage_files, **wsgi_optparams)
 
 if __name__ == "__main__":
     logger.info("WSGI entrypoint created. Serve this module with uWSGI/Gunicorn/etc.")

@@ -28,7 +28,7 @@ ValueList = Set["ValueReferencePair"]
 BlobType = bytes
 
 # The following string aliases are constrained by the decorator functions defined in the string_constraints module,
-# wherever they are used for an instance attributes.
+# wherever they are used for an instance's attributes.
 ContentType = str  # any mimetype as in RFC2046
 Identifier = str
 LabelType = str

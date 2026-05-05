@@ -2,7 +2,7 @@ FROM python:3.11-alpine
 
 LABEL org.label-schema.name="Eclipse BaSyx" \
       org.label-schema.version="1.0" \
-      org.label-schema.description="Docker image for the basyx-python-sdk server application" \
+      org.label-schema.description="Docker image for the basyx-python-sdk registry server application" \
       org.label-schema.maintainer="Eclipse BaSyx"
 
 ENV PYTHONDONTWRITEBYTECODE=1
@@ -15,19 +15,18 @@ RUN apk update && \
     pip install uwsgi && \
     apk del git bash
 
-# Copy only the files we need to run the container
-# The argumentation for this is to keep the containers as slim as possible.
+
 COPY ./sdk /sdk
 COPY ./server/app /server/app
 COPY ./server/pyproject.toml /server/pyproject.toml
-COPY ./server/docker/repository/uwsgi.ini /etc/uwsgi/
+COPY ./server/docker/registry/uwsgi.ini /etc/uwsgi/
 COPY ./server/docker/common/supervisord.ini /etc/supervisor/conf.d/supervisord.ini
 COPY ./server/docker/common/stop-supervisor.sh /etc/supervisor/stop-supervisor.sh
 RUN chmod +x /etc/supervisor/stop-supervisor.sh
 
 # Makes it possible to use a different configuration
 ENV UWSGI_INI=/etc/uwsgi/uwsgi.ini
-# Object stores aren't thread-safe yet
+# object stores aren't thread-safe yet
 # https://github.com/eclipse-basyx/basyx-python-sdk/issues/205
 ENV UWSGI_CHEAPER=0
 ENV UWSGI_PROCESSES=1
@@ -35,7 +34,7 @@ ENV NGINX_MAX_UPLOAD=1M
 ENV NGINX_WORKER_PROCESSES=1
 ENV LISTEN_PORT=80
 ENV CLIENT_BODY_BUFFER_SIZE=1M
-ENV API_BASE_PATH=/api/v3.0/
+ENV API_BASE_PATH=/api/v3.1.1/
 
 # Default values for the storage envs
 ENV INPUT=/input
