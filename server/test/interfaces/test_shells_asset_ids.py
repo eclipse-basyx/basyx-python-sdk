@@ -33,6 +33,7 @@ class ShellsAssetIdsTest(unittest.TestCase):
     def test_multiple_global_asset_ids_returns_matching_results(self) -> None:
         aas_list = [obj for obj in self.example_data if isinstance(obj, model.AssetAdministrationShell)]
         known_id = aas_list[0].asset_information.global_asset_id
+        assert known_id is not None
         unknown_id = "http://example.org/nonexistent_asset"
         id1 = _encode_asset_id("globalAssetId", known_id)
         id2 = _encode_asset_id("globalAssetId", unknown_id)
