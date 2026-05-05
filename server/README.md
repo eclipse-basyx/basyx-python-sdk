@@ -12,9 +12,22 @@ The files are only read, changes won't persist.
 Alternatively, the container can also be told to use the [Local-File Backend][2] instead, which stores Asset Administration Shells (AAS) and Submodels as individual *JSON* files and allows for persistent changes (except supplementary files, i.e. files referenced by `File` SubmodelElements).
 See [below](#options) on how to configure this.
 
+## Docker Hub
+
+Pre-built images are published to [Docker Hub][11] on every release.
+Pull the latest version via:
+```
+$ docker pull eclipsebasyx/basyx-python-server:latest
+```
+
+Or pin to a specific release:
+```
+$ docker pull eclipsebasyx/basyx-python-server:2.0.1
+```
+
 ## Building
 
-The container image can be built via:
+If you need to build the image locally (e.g. for development), run:
 ```
 $ docker build -t basyx-python-server -f Dockerfile ..
 ```
@@ -86,7 +99,7 @@ The server can also be run directly on the host system without Docker, NGINX and
    $ python -m app.interfaces.repository
    ```
 
-The server can be accessed at http://localhost:8080/api/v3.0/ from your host system. 
+The server can be accessed at http://localhost:8080/api/v3.1/ from your host system. 
 
 ## Currently Unimplemented
 Several features and routes are currently not supported:
@@ -123,10 +136,11 @@ This Dockerfile is inspired by the [tiangolo/uwsgi-nginx-docker][10] repository.
 [1]: https://github.com/eclipse-basyx/basyx-python-sdk/pull/238
 [2]: https://basyx-python-sdk.readthedocs.io/en/latest/backend/local_file.html
 [3]: https://github.com/eclipse-basyx/basyx-python-sdk
-[4]: https://app.swaggerhub.com/apis/Plattform_i40/AssetAdministrationShellRepositoryServiceSpecification/V3.0.1_SSP-001
-[5]: https://app.swaggerhub.com/apis/Plattform_i40/SubmodelRepositoryServiceSpecification/V3.0.1_SSP-001
-[6]: https://industrialdigitaltwin.io/aas-specifications/IDTA-01002/v3.0/index.html
+[4]: https://app.swaggerhub.com/apis/Plattform_i40/AssetAdministrationShellRepositoryServiceSpecification/V3.1.1_SSP-001
+[5]: https://app.swaggerhub.com/apis/Plattform_i40/SubmodelRepositoryServiceSpecification/V3.1.1_SSP-001
+[6]: https://industrialdigitaltwin.io/aas-specifications/IDTA-01002/v3.1.2/index.html
 [7]: https://basyx-python-sdk.readthedocs.io/en/latest/adapter/aasx.html#adapter-aasx
 [8]: https://basyx-python-sdk.readthedocs.io/en/latest/adapter/json.html
 [9]: https://basyx-python-sdk.readthedocs.io/en/latest/adapter/xml.html
 [10]: https://github.com/tiangolo/uwsgi-nginx-docker
+[11]: https://hub.docker.com/r/eclipsebasyx/basyx-python-server

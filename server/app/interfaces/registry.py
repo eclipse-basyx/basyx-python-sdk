@@ -4,7 +4,7 @@ This module implements the Registry interface defined in the
 – Application Programming Interface'.
 """
 
-from typing import Dict, Iterator, Tuple, Type
+from typing import Dict, Iterator, Tuple, Type, Optional
 
 import werkzeug.exceptions
 import werkzeug.routing
@@ -108,7 +108,7 @@ class RegistryAPI(ObjectStoreWSGIApp):
 
     def _get_all_aas_descriptors(
         self, request: "Request"
-    ) -> Tuple[Iterator[server_model.AssetAdministrationShellDescriptor], int]:
+    ) -> Tuple[Iterator[server_model.AssetAdministrationShellDescriptor], Optional[int]]:
 
         descriptors: Iterator[server_model.AssetAdministrationShellDescriptor] = self._get_all_obj_of_type(
             server_model.AssetAdministrationShellDescriptor
@@ -140,7 +140,9 @@ class RegistryAPI(ObjectStoreWSGIApp):
     def _get_aas_descriptor(self, url_args: Dict) -> server_model.AssetAdministrationShellDescriptor:
         return self._get_obj_ts(url_args["aas_id"], server_model.AssetAdministrationShellDescriptor)
 
-    def _get_all_submodel_descriptors(self, request: Request) -> Tuple[Iterator[server_model.SubmodelDescriptor], int]:
+    def _get_all_submodel_descriptors(self, request: Request) -> Tuple[
+        Iterator[server_model.SubmodelDescriptor], Optional[int]
+    ]:
         submodel_descriptors: Iterator[server_model.SubmodelDescriptor] = self._get_all_obj_of_type(
             server_model.SubmodelDescriptor
         )

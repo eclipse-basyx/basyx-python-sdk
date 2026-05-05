@@ -24,6 +24,13 @@ from werkzeug.routing import MapAdapter, Rule, Submount
 
 from app.interfaces.base import APIResponse, HTTPApiDecoder, ObjectStoreWSGIApp, T, is_stripped_request
 from app.util.converters import IdentifierToBase64URLConverter, IdShortPathConverter, base64url_decode
+from .base import (ObjectStoreWSGIApp, APIResponse, is_stripped_request, HTTPApiDecoder, T,
+                   ServiceSpecificationProfileEnum, ServiceDescription)
+
+SUPPORTED_PROFILES: ServiceDescription = ServiceDescription([
+    ServiceSpecificationProfileEnum.AAS_REPOSITORY_FULL,
+    ServiceSpecificationProfileEnum.SUBMODEL_REPOSITORY_FULL,
+])
 
 
 class WSGIApp(ObjectStoreWSGIApp):
@@ -31,7 +38,7 @@ class WSGIApp(ObjectStoreWSGIApp):
         self,
         object_store: model.AbstractObjectStore,
         file_store: aasx.AbstractSupplementaryFileContainer,
-        base_path: str = "/api/v3.0",
+        base_path: str = "/api/v3.1",
     ):
         self.object_store: model.AbstractObjectStore = object_store
         self.file_store: aasx.AbstractSupplementaryFileContainer = file_store
@@ -41,7 +48,7 @@ class WSGIApp(ObjectStoreWSGIApp):
                     base_path,
                     [
                         Rule("/serialization", methods=["GET"], endpoint=self.not_implemented),
-                        Rule("/description", methods=["GET"], endpoint=self.not_implemented),
+                        Rule("/description", methods=["GET"], endpoint=self.get_description),
                         Rule("/shells", methods=["GET"], endpoint=self.get_aas_all),
                         Rule("/shells", methods=["POST"], endpoint=self.post_aas),
                         Submount(
@@ -421,7 +428,7 @@ class WSGIApp(ObjectStoreWSGIApp):
                 return ref
         raise NotFound(f"The AAS {aas!r} doesn't have a submodel reference to {submodel_id!r}!")
 
-    def _get_shells(self, request: Request) -> Tuple[Iterator[model.AssetAdministrationShell], int]:
+    def _get_shells(self, request: Request) -> Tuple[Iterator[model.AssetAdministrationShell], Optional[int]]:
         aas: Iterator[model.AssetAdministrationShell] = self._get_all_obj_of_type(model.AssetAdministrationShell)
 
         id_short = request.args.get("idShort")
@@ -470,7 +477,7 @@ class WSGIApp(ObjectStoreWSGIApp):
     def _get_shell(self, url_args: Dict) -> model.AssetAdministrationShell:
         return self._get_obj_ts(url_args["aas_id"], model.AssetAdministrationShell)
 
-    def _get_submodels(self, request: Request) -> Tuple[Iterator[model.Submodel], int]:
+    def _get_submodels(self, request: Request) -> Tuple[Iterator[model.Submodel], Optional[int]]:
         submodels: Iterator[model.Submodel] = self._get_all_obj_of_type(model.Submodel)
         id_short = request.args.get("idShort")
         if id_short is not None:
@@ -489,7 +496,7 @@ class WSGIApp(ObjectStoreWSGIApp):
 
     def _get_submodel_submodel_elements(
         self, request: Request, url_args: Dict
-    ) -> Tuple[Iterator[model.SubmodelElement], int]:
+    ) -> Tuple[Iterator[model.SubmodelElement], Optional[int]]:
         submodel = self._get_submodel(url_args)
         paginated_submodel_elements: Iterator[model.SubmodelElement]
         paginated_submodel_elements, end_index = self._get_slice(request, submodel.submodel_element)
@@ -506,6 +513,13 @@ class WSGIApp(ObjectStoreWSGIApp):
     # ------ all not implemented ROUTES -------
     def not_implemented(self, request: Request, url_args: Dict, **_kwargs) -> Response:
         raise werkzeug.exceptions.NotImplemented("This route is not implemented!")
+
+    def get_description(self, request: Request, url_args: Dict, response_t: Type[APIResponse], **_kwargs) -> Response:
+        profiles = []
+        for profile in SUPPORTED_PROFILES.profiles:
+            profiles.append(profile.value)
+        description = {"profiles": profiles}
+        return response_t(description)
 
     # ------ AAS REPO ROUTES -------
     def get_aas_all(self, request: Request, url_args: Dict, response_t: Type[APIResponse], **_kwargs) -> Response:
@@ -570,18 +584,22 @@ class WSGIApp(ObjectStoreWSGIApp):
     ) -> Response:
         aas = self._get_shell(url_args)
         submodel_refs: Iterator[model.ModelReference[model.Submodel]]
-        submodel_refs, cursor = self._get_slice(request, aas.submodel)
+        sorted_submodel_refs = sorted(aas.submodel, key=lambda ref: ref.key[0].value)
+        submodel_refs, cursor = self._get_slice(request, sorted_submodel_refs)
         return response_t(list(submodel_refs), cursor=cursor)
 
-    def post_aas_submodel_refs(
-        self, request: Request, url_args: Dict, response_t: Type[APIResponse], **_kwargs
-    ) -> Response:
+    def post_aas_submodel_refs(self, request: Request, url_args: Dict, response_t: Type[APIResponse],
+                               map_adapter: MapAdapter, **_kwargs) -> Response:
         aas = self._get_shell(url_args)
         sm_ref = HTTPApiDecoder.request_body(request, model.ModelReference, False)
         if sm_ref in aas.submodel:
             raise Conflict(f"{sm_ref!r} already exists!")
         aas.submodel.add(sm_ref)
-        return response_t(sm_ref, status=201)
+        created_resource_url = map_adapter.build(self.delete_aas_submodel_refs_specific, {
+            "aas_id": aas.id,
+            "submodel_id": sm_ref.key[0].value
+        }, force_external=True)
+        return response_t(sm_ref, status=201, headers={"Location": created_resource_url})
 
     def delete_aas_submodel_refs_specific(
         self, request: Request, url_args: Dict, response_t: Type[APIResponse], **_kwargs
@@ -647,9 +665,10 @@ class WSGIApp(ObjectStoreWSGIApp):
         created_resource_url = map_adapter.build(self.get_submodel, {"submodel_id": submodel.id}, force_external=True)
         return response_t(submodel, status=201, headers={"Location": created_resource_url})
 
-    def get_submodel_all_metadata(
-        self, request: Request, url_args: Dict, response_t: Type[APIResponse], **_kwargs
-    ) -> Response:
+    def get_submodel_all_metadata(self, request: Request, url_args: Dict, response_t: Type[APIResponse],
+                                  **_kwargs) -> Response:
+        if "level" in request.args:
+            raise BadRequest(f"level cannot be used when retrieving metadata!")
         submodels, cursor = self._get_submodels(request)
         return response_t(list(submodels), cursor=cursor, stripped=True)
 
@@ -672,9 +691,10 @@ class WSGIApp(ObjectStoreWSGIApp):
         submodel = self._get_submodel(url_args)
         return response_t(submodel, stripped=is_stripped_request(request))
 
-    def get_submodels_metadata(
-        self, request: Request, url_args: Dict, response_t: Type[APIResponse], **_kwargs
-    ) -> Response:
+    def get_submodels_metadata(self, request: Request, url_args: Dict, response_t: Type[APIResponse],
+                               **_kwargs) -> Response:
+        if "level" in request.args:
+            raise BadRequest(f"level cannot be used when retrieving metadata!")
         submodel = self._get_submodel(url_args)
         return response_t(submodel, stripped=True)
 
@@ -696,9 +716,10 @@ class WSGIApp(ObjectStoreWSGIApp):
         submodel_elements, cursor = self._get_submodel_submodel_elements(request, url_args)
         return response_t(list(submodel_elements), cursor=cursor, stripped=is_stripped_request(request))
 
-    def get_submodel_submodel_elements_metadata(
-        self, request: Request, url_args: Dict, response_t: Type[APIResponse], **_kwargs
-    ) -> Response:
+    def get_submodel_submodel_elements_metadata(self, request: Request, url_args: Dict, response_t: Type[APIResponse],
+                                                **_kwargs) -> Response:
+        if "level" in request.args:
+            raise BadRequest(f"level cannot be used when retrieving metadata!")
         submodel_elements, cursor = self._get_submodel_submodel_elements(request, url_args)
         return response_t(list(submodel_elements), cursor=cursor, stripped=True)
 
@@ -717,9 +738,10 @@ class WSGIApp(ObjectStoreWSGIApp):
         submodel_element = self._get_submodel_submodel_elements_id_short_path(url_args)
         return response_t(submodel_element, stripped=is_stripped_request(request))
 
-    def get_submodel_submodel_elements_id_short_path_metadata(
-        self, request: Request, url_args: Dict, response_t: Type[APIResponse], **_kwargs
-    ) -> Response:
+    def get_submodel_submodel_elements_id_short_path_metadata(self, request: Request, url_args: Dict,
+                                                              response_t: Type[APIResponse], **_kwargs) -> Response:
+        if "level" in request.args:
+            raise BadRequest(f"level cannot be used when retrieving metadata!")
         submodel_element = self._get_submodel_submodel_elements_id_short_path(url_args)
         if isinstance(submodel_element, model.Capability) or isinstance(submodel_element, model.Operation):
             raise BadRequest(f"{submodel_element.id_short} does not allow the content modifier metadata!")
