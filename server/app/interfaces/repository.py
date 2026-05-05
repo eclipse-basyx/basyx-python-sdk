@@ -463,10 +463,7 @@ class WSGIApp(ObjectStoreWSGIApp):
                             for specific_asset_id in specific_asset_ids
                         )
                     )
-                    and (
-                        len(global_asset_ids) <= 1
-                        and (not global_asset_ids or shell.asset_information.global_asset_id in global_asset_ids)
-                    )
+                    and (not global_asset_ids or shell.asset_information.global_asset_id in global_asset_ids)
                 ),
                 aas,
             )
