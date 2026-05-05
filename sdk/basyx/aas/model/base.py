@@ -2232,9 +2232,15 @@ class OrderedNamespaceSet(NamespaceSet[_NSO], MutableSequence[_NSO], Generic[_NS
 
     def __setitem__(self, s, o) -> None:
         if isinstance(s, int):
-            deleted_items = [self._order[s]]
-            super().add(o)
+            old_item = self._order[s]
+            super().remove(old_item)
+            try:
+                super().add(o)
+            except Exception:
+                super().add(old_item)
+                raise
             self._order[s] = o
+            return
         else:
             deleted_items = self._order[s]
             new_items = itertools.islice(o, len(deleted_items))

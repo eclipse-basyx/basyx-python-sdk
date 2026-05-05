@@ -722,6 +722,21 @@ class ModelOrderedNamespaceTest(ModelNamespaceTest):
                          f"{self._namespace_class.__name__}[{self.namespace.id}]'",  # type: ignore[has-type]
                          str(cm2.exception))
 
+    def test_ordered_namespaceset_int_setitem_same_id_short(self) -> None:
+        # Replacing item at index with new item sharing same id_short must succeed;
+        # the add-before-remove order causes a false AASConstraintViolation otherwise
+        ns = ExampleOrderedNamespace()
+        sid1 = model.ExternalReference((model.Key(model.KeyTypes.GLOBAL_REFERENCE, "http://example.org/s1"),))
+        sid2 = model.ExternalReference((model.Key(model.KeyTypes.GLOBAL_REFERENCE, "http://example.org/s2"),))
+        old = model.Property("SameName", model.datatypes.Int, semantic_id=sid1)
+        new = model.Property("SameName", model.datatypes.Int, semantic_id=sid2)
+        ns.set1.add(old)
+        # Replace old with new — both have id_short "SameName"; must not raise AASConstraintViolation
+        ns.set1[0] = new
+        self.assertEqual([new], list(ns.set1))
+        self.assertIsNone(old.parent)
+        self.assertIs(ns, new.parent)
+
 
 class ExternalReferenceTest(unittest.TestCase):
     def test_constraints(self):
