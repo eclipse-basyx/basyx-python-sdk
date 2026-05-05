@@ -333,6 +333,18 @@ class ModelNamespaceTest(unittest.TestCase):
         self.namespace = self._namespace_class()
         self.namespace3 = self._namespace_class_qualifier()
 
+    def test_namespaceset_pop_removes_from_all_backends(self) -> None:
+        # set1 has two backends: id_short and semantic_id
+        self.namespace.set1.add(self.prop1)
+        popped = self.namespace.set1.pop()
+        self.assertIs(self.prop1, popped)
+        self.assertEqual(0, len(self.namespace.set1))
+        # After pop, adding a new item with the same semantic_id must NOT raise AASConstraintViolation —
+        # it would if the popped item's semantic_id entry were still in the backend
+        new_prop = model.Property("NewProp", model.datatypes.Int, semantic_id=self.propSemanticID)
+        self.namespace.set1.add(new_prop)
+        self.assertEqual(1, len(self.namespace.set1))
+
     def test_NamespaceSet(self) -> None:
         self.namespace.set1.add(self.prop1)
         self.assertEqual(1, len(self.namespace.set1))

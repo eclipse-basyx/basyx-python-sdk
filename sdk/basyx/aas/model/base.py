@@ -2070,8 +2070,10 @@ class NamespaceSet(MutableSet[_NSO], Generic[_NSO]):
 
     def pop(self) -> _NSO:
         _, value = next(iter(self._backend.values()))[0].popitem()
+        for key_attr_name, (backend_dict, case_sensitive) in self._backend.items():
+            key_attr_value = self._get_attribute(value, key_attr_name, case_sensitive)
+            backend_dict.pop(key_attr_value, None)
         self._execute_item_del_hook(value)
-        value.parent = None
         return value
 
     def clear(self) -> None:
