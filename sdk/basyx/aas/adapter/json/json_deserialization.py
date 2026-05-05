@@ -511,8 +511,6 @@ class AASFromJsonDecoder(json.JSONDecoder):
             ret.value_list = cls._construct_value_list(_get_ts(dct, 'valueList', dict))
         if 'value' in dct:
             ret.value = _get_ts(dct, 'value', str)
-        if 'valueId' in dct:
-            ret.value_id = cls._construct_reference(_get_ts(dct, 'valueId', dict))
         if 'levelType' in dct:
             for k, v in _get_ts(dct, 'levelType', dict).items():
                 if v:
