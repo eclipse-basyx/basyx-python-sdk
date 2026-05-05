@@ -444,8 +444,11 @@ class WSGIApp(ObjectStoreWSGIApp):
             for asset_id in asset_ids:
                 asset_id_json = base64url_decode(asset_id)
                 asset_dict = json.loads(asset_id_json)
-                name = asset_dict["name"]
-                value = asset_dict["value"]
+                try:
+                    name = asset_dict["name"]
+                    value = asset_dict["value"]
+                except KeyError as e:
+                    raise BadRequest(f"Invalid assetId format: missing field {e}") from e
 
                 if name == "specificAssetId":
                     decoded_specific_id = HTTPApiDecoder.json_list(value, model.SpecificAssetId, False, True)[0]
