@@ -53,7 +53,7 @@ jobs:
       # that you want to use to test the serialization adapter against.
       # Currently, we need to update this manually, however I'm afraid this is not possible to automatically infer,
       # since it's heavily dependant of the version of the AAS specification we support.
-      AAS_SPECS_RELEASE_TAG: "IDTA-01001-3-0-1_schemasV3.0.8"
+      AAS_SPECS_RELEASE_TAG: "IDTA-01001-3-1-2"
     services:
       couchdb:
         image: couchdb:3
