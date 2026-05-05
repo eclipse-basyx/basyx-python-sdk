@@ -150,7 +150,7 @@ class LocalFileIdentifiableStore(model.AbstractObjectStore[model.Identifier, mod
         :return: The number of objects (determined from the number of documents)
         """
         logger.debug("Fetching number of documents from database ...")
-        return len(os.listdir(self.directory_path))
+        return sum(1 for f in os.listdir(self.directory_path) if f.endswith(".json"))
 
     def __iter__(self) -> Iterator[model.Identifiable]:
         """
