@@ -880,6 +880,7 @@ class DictSupplementaryFileContainer(AbstractSupplementaryFileContainer):
         if new_name == old_name:
             return new_name
         file_hash, file_content_type = self._name_map[old_name]
+        self._store_refcount[file_hash] -= 1
         del self._name_map[old_name]
         return self._assign_unique_name(new_name, file_hash, file_content_type)
 
@@ -889,6 +890,7 @@ class DictSupplementaryFileContainer(AbstractSupplementaryFileContainer):
         while True:
             if new_name not in self._name_map:
                 self._name_map[new_name] = (sha, content_type)
+                self._store_refcount[sha] += 1
                 return new_name
             elif self._name_map[new_name] == (sha, content_type):
                 return new_name

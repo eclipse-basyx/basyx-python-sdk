@@ -88,6 +88,24 @@ class TestAASXUtils(unittest.TestCase):
         with self.assertRaises(KeyError):
             container.write_file(duplicate_file, file_content)
 
+    def test_supplementary_file_container_refcount(self) -> None:
+        container = aasx.DictSupplementaryFileContainer()
+        data = b"test content"
+        name1 = container.add_file("/file1.bin", io.BytesIO(data), "application/octet-stream")
+        name2 = container.add_file("/file2.bin", io.BytesIO(data), "application/octet-stream")
+        content_hash = container.get_sha256(name1)
+
+        # Both names point to same content — backing store must be present
+        self.assertIn(content_hash, container._store)
+
+        # Deleting one reference must NOT free the backing store
+        container.delete_file(name1)
+        self.assertIn(content_hash, container._store)
+
+        # Deleting the last reference must free the backing store
+        container.delete_file(name2)
+        self.assertNotIn(content_hash, container._store)
+
 
 class AASXWriterTest(unittest.TestCase):
     def test_writing_reading_example_aas(self) -> None:
