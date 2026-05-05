@@ -2248,7 +2248,7 @@ class OrderedNamespaceSet(NamespaceSet[_NSO], MutableSequence[_NSO], Generic[_NS
                 for i in successful_new_items:
                     super().remove(i)
                 raise
-            self._order[s] = new_items
+            self._order[s] = successful_new_items
         for i in deleted_items:
             super().remove(i)
 
