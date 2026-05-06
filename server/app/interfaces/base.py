@@ -275,7 +275,7 @@ class BaseWSGIApp:
 
     @classmethod
     def _get_slice(cls, request: Request, iterator: Iterable[T]) -> Tuple[Iterator[T], Optional[int]]:
-        limit_str = request.args.get("limit", default="10")
+        limit_str = request.args.get("limit", default="100")
         cursor_str = request.args.get("cursor", default="1")
         try:
             limit, cursor = (NonNegativeInteger(int(limit_str)),
