@@ -287,7 +287,7 @@ class BaseWSGIApp:
         items = list(itertools.islice(iterator, start_index, end_index + 1))
         has_more = len(items) > limit
         paginated_slice = iter(items[:limit])
-        next_cursor = cursor + limit if has_more else None
+        next_cursor = cursor + limit + 1 if has_more else None
         return paginated_slice, next_cursor
 
     def handle_request(self, request: Request):
