@@ -1752,14 +1752,14 @@ class ValueReferencePair:
 
     def __init__(self,
                  value: ValueTypeIEC61360,
-                 value_id: Reference):
+                 value_id: Optional[Reference] = None):
         """
 
 
         TODO: Add instruction what to do after construction
         """
-        self.value_id: Reference = value_id
         self.value: ValueTypeIEC61360 = value
+        self.value_id: Optional[Reference] = value_id
 
     def __repr__(self) -> str:
         return "ValueReferencePair(value={}, value_id={})".format(self.value, self.value_id)

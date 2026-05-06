@@ -322,7 +322,8 @@ def value_reference_pair_to_xml(obj: model.ValueReferencePair,
     et_vrp = _generate_element(tag)
     # TODO: value_type isn't used at all by _value_to_xml(), thus we can ignore the type here for now
     et_vrp.append(_generate_element(NS_AAS+"value", text=obj.value))  # type: ignore
-    et_vrp.append(reference_to_xml(obj.value_id, NS_AAS+"valueId"))
+    if obj.value_id is not None:
+        et_vrp.append(reference_to_xml(obj.value_id, NS_AAS+"valueId"))
     return et_vrp
 
 

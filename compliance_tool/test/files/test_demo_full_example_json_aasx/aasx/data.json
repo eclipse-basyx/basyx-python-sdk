@@ -132,7 +132,7 @@
                         "keys": [
                             {
                                 "type": "GlobalReference",
-                                "value": "https://admin-shell.io/DataSpecificationTemplates/DataSpecificationIEC61360/3/0"
+                                "value": "https://admin-shell.io/DataSpecificationTemplates/DataSpecificationIEC61360/3"
                             }
                         ]
                     },
@@ -626,7 +626,7 @@
                                         "keys": [
                                             {
                                                 "type": "GlobalReference",
-                                                "value": "https://admin-shell.io/DataSpecificationTemplates/DataSpecificationIEC61360/3/0"
+                                                "value": "https://admin-shell.io/DataSpecificationTemplates/DataSpecificationIEC61360/3"
                                             }
                                         ]
                                     },
@@ -1500,7 +1500,7 @@
                                                 "keys": [
                                                     {
                                                         "type": "GlobalReference",
-                                                        "value": "https://admin-shell.io/DataSpecificationTemplates/DataSpecificationIEC61360/3/0"
+                                                        "value": "https://admin-shell.io/DataSpecificationTemplates/DataSpecificationIEC61360/3"
                                                     }
                                                 ]
                                             },
@@ -3081,7 +3081,7 @@
                             "keys": [
                                 {
                                     "type": "GlobalReference",
-                                    "value": "https://admin-shell.io/DataSpecificationTemplates/DataSpecificationIEC61360/3/0"
+                                    "value": "https://admin-shell.io/DataSpecificationTemplates/DataSpecificationIEC61360/3"
                                 }
                             ]
                         },
