@@ -749,6 +749,35 @@ class ModelOrderedNamespaceTest(ModelNamespaceTest):
         self.assertIs(ns, new.parent)
         self.assertIsNone(old.parent)
 
+    def test_ordered_namespaceset_slice_setitem_preserves_order(self) -> None:
+        # Replace a slice of items; the new items must appear in the correct positions after replacement
+        ns = ExampleOrderedNamespace()
+        sid1 = model.ExternalReference((model.Key(model.KeyTypes.GLOBAL_REFERENCE, "http://example.org/sid1"),))
+        sid2 = model.ExternalReference((model.Key(model.KeyTypes.GLOBAL_REFERENCE, "http://example.org/sid2"),))
+        sid3 = model.ExternalReference((model.Key(model.KeyTypes.GLOBAL_REFERENCE, "http://example.org/sid3"),))
+        sid4 = model.ExternalReference((model.Key(model.KeyTypes.GLOBAL_REFERENCE, "http://example.org/sid4"),))
+        sid5 = model.ExternalReference((model.Key(model.KeyTypes.GLOBAL_REFERENCE, "http://example.org/sid5"),))
+        p1 = model.Property("PA", model.datatypes.Int, semantic_id=sid1)
+        p2 = model.Property("PB", model.datatypes.Int, semantic_id=sid2)
+        p3 = model.Property("PC", model.datatypes.Int, semantic_id=sid3)
+        ns.set1.add(p1)
+        ns.set1.add(p2)
+        ns.set1.add(p3)
+        self.assertEqual([p1, p2, p3], list(ns.set1))
+
+        # Replace slice [0:2] (p1, p2) with two new items
+        new1 = model.Property("PX", model.datatypes.Int, semantic_id=sid4)
+        new2 = model.Property("PY", model.datatypes.Int, semantic_id=sid5)
+        ns.set1[0:2] = [new1, new2]
+
+        # After replacement: [new1, new2, p3]
+        result = list(ns.set1)
+        self.assertEqual([new1, new2, p3], result)
+        self.assertIsNone(p1.parent)
+        self.assertIsNone(p2.parent)
+        self.assertIs(ns, new1.parent)
+        self.assertIs(ns, new2.parent)
+
 
 class ExternalReferenceTest(unittest.TestCase):
     def test_constraints(self):
