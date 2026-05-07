@@ -107,17 +107,18 @@ class LocalFileBackendTest(TestCase):
         self.assertEqual("'No AAS object with id https://example.org/Test_Submodel exists in "
                          "local file database'", str(cm.exception))
 
-    def test_len_ignores_non_json_files(self) -> None:
-        example_data = create_full_example()
-        for item in example_data:
+    def test_add_and_len_consistent(self) -> None:
+        # Each add() must increment len() by exactly 1
+        example_data = list(create_full_example())
+        for i, item in enumerate(example_data):
             self.identifiable_store.add(item)
-        self.assertEqual(5, len(self.identifiable_store))
+            self.assertEqual(i + 1, len(self.identifiable_store))
 
-        # Stray files must not be counted
+        # Stray non-json file must not be counted
         stray = os.path.join(store_path, ".DS_Store")
         with open(stray, "w") as f:
             f.write("stray")
-        self.assertEqual(5, len(self.identifiable_store))
+        self.assertEqual(len(example_data), len(self.identifiable_store))
         os.remove(stray)
 
     def test_reload_discard(self) -> None:
