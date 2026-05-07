@@ -98,7 +98,9 @@ class DiscoveryAPI(BaseWSGIApp):
                         Submount(
                             "/lookup/shells",
                             [
-                                # This route is deprecated
+                                # Todo: This route is deprecated in the specification, but needed for interoperability
+                                #  with the BaSyx UI https://github.com/eclipse-basyx/basyx-aas-web-ui.
+                                #  Once this route is no longer needed, we should consider removing it.
                                 Rule("/", methods=["GET"], endpoint=self.get_all_aas_ids_by_asset_link),
                                 Rule(
                                     "/<base64url:aas_id>",
