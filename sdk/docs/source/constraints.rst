@@ -14,29 +14,27 @@ The status information means the following:
 In most cases, if a constraint violation is detected,
 an :class:`~basyx.aas.model.base.AASConstraintViolation` will be raised
 
-.. |aasd002| replace:: ``idShort`` of ``Referable`` s shall only feature letters, digits, underscore (``_``); starting mandatory with a letter, i.e. ``[a-zA-Z][a-zA-Z0-9_]*``.
+.. |aasd002| replace:: ``idShort`` of ``Referable`` s shall only feature letters, digits, underscore (``_``), hyphen (``-``); starting mandatory with a letter and not ending with a hyphen. I.e. ``^[a-zA-Z]|[a-zA-Z][a-zA-Z0-9_-]*[a-zA-Z0-9_]$``.
 .. |aasd005| replace:: If ``AdministrativeInformation/version`` is not specified, ``AdministrativeInformation/revision`` shall also be unspecified. This means that a revision requires a version. If there is no version, there is no revision. Revision is optional.
-.. |aasd006| replace:: If both, the ``value`` and the ``valueId`` of a ``Qualifier`` are present, the value needs to be identical to the value of the referenced coded value in ``Qualifier/valueId``.
-.. |aasd007| replace:: If both the ``Property/value`` and the ``Property/valueId`` are present, the value of ``Property/value`` needs to be identical to the value of the referenced coded value in ``Property/valueId``.
+.. |aasd006| replace:: If both, the ``value`` and the ``valueId`` of a ``Qualifier`` are present, the value shall be identical to the value of the referenced coded value in ``Qualifier/valueId``.
+.. |aasd007| replace:: If both the ``Property/value`` and the ``Property/valueId`` are present, the value of ``Property/value`` shall be identical to the value of the referenced coded value in ``Property/valueId``.
 .. |aasd012| replace:: if both the ``MultiLanguageProperty/value`` and the ``MultiLanguageProperty/valueId`` are present, the meaning must be the same for each string in a specific language, as specified in ``MultiLanguageProperty/valueId``.
-.. |aasd014| replace:: Either the attribute ``globalAssetId`` or ``specificAssetId`` of an ``Entity`` must be set if ``Entity/entityType`` is set to ``SelfManagedEntity``. Otherwise, they do not exist.
+.. |aasd014| replace:: Either the attribute ``globalAssetId`` or ``specificAssetId`` of an ``Entity`` must be set if ``Entity/entityType`` is set to ``SelfManagedEntity``.
 .. |aasd020| replace:: The value of ``Qualifier/value`` shall be consistent with the data type as defined in ``Qualifier/valueType``.
-.. |aasd021| replace:: Every qualifiable can only have one qualifier with the same ``Qualifier/type``.
+.. |aasd021| replace:: Every qualifiable shall only have one qualifier with the same ``Qualifier/type``.
 .. |aasd022| replace:: ``idShort`` of non-identifiable referables within the same name space shall be unique (case-sensitive).
-.. |aasd077| replace:: The name of an extension (``Extension/name``) within ``HasExtensions`` needs to be unique.
+.. |aasd077| replace:: The name of an extension (``Extension/name``) within ``HasExtensions`` shall be unique.
 .. |aasd080| replace:: In case ``Key/type`` == ``GlobalReference`` ``idType`` shall not be any LocalKeyType (``IdShort, FragmentId``).
 .. |aasd081| replace:: In case ``Key/type`` == ``AssetAdministrationShell`` ``Key/idType`` shall not be any LocalKeyType (``IdShort``, ``FragmentId``).
-.. |aasd090| replace:: for data elements, ``category`` (inherited by ``Referable``) shall be one of the following values: CONSTANT, PARAMETER or VARIABLE. Default: VARIABLE
 .. |aasd107| replace:: If a first level child element in a ``SubmodelElementList`` has a semanticId, it shall be identical to ``SubmodelElementList/semanticIdListElement``.
 .. |aasd108| replace:: All first level child elements in a ``SubmodelElementList`` shall have the same submodel element type as specified in ``SubmodelElementList/typeValueListElement``.
 .. |aasd109| replace:: If ``SubmodelElementList/typeValueListElement`` is equal to ``Property`` or ``Range,`` ``SubmodelElementList/valueTypeListElement`` shall be set and all first level child elements in the ``SubmodelElementList`` shall have the value type as specified in ``SubmodelElementList/valueTypeListElement``.
 .. |aasd114| replace:: If two first level child elements in a ``SubmodelElementList`` have a ``semanticId``, they shall be identical.
 .. |aasd115| replace:: If a first level child element in a ``SubmodelElementList`` does not specify a ``semanticId``, the value is assumed to be identical to ``SubmodelElementList/semanticIdListElement``.
-.. |aasd116| replace:: ``globalAssetId`` (case-insensitive) is a reserved key. If used as value for ``SpecificAssetId/name,`` ``SpecificAssetId/value`` shall be identical to ``AssetInformation/globalAssetId``.
+.. |aasd116| replace:: ``globalAssetId`` (case-insensitive) is a reserved key for ``SpecificAssetId/name`` with the semantics as defined in ``:attr:`basyx.aas.model.aas.AssetInformation.global_asset_id``.
 .. |aasd117| replace:: ``idShort`` of non-identifiable ``Referables`` not being a direct child of a ``SubmodelElementList`` shall be specified.
 .. |aasd118| replace:: If a supplemental semantic ID (``HasSemantics/supplementalSemanticId``) is defined, there shall also be a main semantic ID (``HasSemantics/semanticId``).
 .. |aasd119| replace:: If any ``Qualifier/kind`` value of a ``Qualifiable/qualifier`` is equal to ``TemplateQualifier`` and the qualified element inherits from ``HasKind``, the qualified element shall be of kind ``Template`` (``HasKind/kind = Template``).
-.. |aasd120| replace:: ``idShort`` of submodel elements being a direct child of a ``SubmodelElementList`` shall not be specified.
 .. |aasd121| replace:: For ``References``, the value of ``Key/type`` of the first ``key`` of ``Reference/keys`` shall be one of ``GloballyIdentifiables``.
 .. |aasd122| replace:: For external references, i.e. ``References`` with ``Reference/type = ExternalReference``, the value of ``Key/type`` of the first key of ``Reference/keys`` shall be one of ``GenericGloballyIdentifiables``.
 .. |aasd123| replace:: For model references, i.e. ``References`` with ``Reference/type = ModellReference``, the value of ``Key/type`` of the first ``key`` of ``Reference/keys`` shall be one of ``AasIdentifiables``.
@@ -76,7 +74,6 @@ an :class:`~basyx.aas.model.base.AASConstraintViolation` will be raised
     AASd-077, |aasd077|, ✅,
     AASd-080, |aasd080|, ✅,
     AASd-081, |aasd081|, ✅,
-    AASd-090, |aasd090|, ✅,
     AASd-107, |aasd107|, ✅,
     AASd-108, |aasd108|, ✅,
     AASd-109, |aasd109|, ✅,
@@ -86,7 +83,6 @@ an :class:`~basyx.aas.model.base.AASConstraintViolation` will be raised
     AASd-117, |aasd117|, ✅,
     AASd-118, |aasd118|, ✅,
     AASd-119, |aasd119|, ❌, See `#119 <https://github.com/eclipse-basyx/basyx-python-sdk/issues/119>`__
-    AASd-120, |aasd120|, ✅,
     AASd-121, |aasd121|, ✅,
     AASd-122, |aasd122|, ✅,
     AASd-123, |aasd123|, ✅,

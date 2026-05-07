@@ -100,10 +100,15 @@ class ReferableTest(unittest.TestCase):
         test_object = ExampleReferable()
         test_object.id_short = "Test"
         self.assertEqual("Test", test_object.id_short)
-        test_object.id_short = "asdASd123_"
-        self.assertEqual("asdASd123_", test_object.id_short)
+        test_object.id_short = "asdASd-123_"
+        self.assertEqual("asdASd-123_", test_object.id_short)
         test_object.id_short = "AAs12_"
         self.assertEqual("AAs12_", test_object.id_short)
+        test_object.id_short = "A"
+        self.assertEqual("A", test_object.id_short)
+        with self.assertRaises(model.AASConstraintViolation) as cm:
+            test_object.id_short = "Test-"
+        self.assertEqual("The id_short must not end with a hyphen (Constraint AASd-002)", str(cm.exception))
         with self.assertRaises(model.AASConstraintViolation) as cm:
             test_object.id_short = "98sdsfdAS"
         self.assertEqual("The id_short must start with a letter (Constraint AASd-002)", str(cm.exception))
@@ -113,12 +118,12 @@ class ReferableTest(unittest.TestCase):
         with self.assertRaises(model.AASConstraintViolation) as cm:
             test_object.id_short = "asdlujSAD8348@S"
         self.assertEqual(
-            "The id_short must contain only letters, digits and underscore (Constraint AASd-002)",
+            "The id_short must contain only letters, digits underscore and hyphen (Constraint AASd-002)",
             str(cm.exception))
         with self.assertRaises(model.AASConstraintViolation) as cm:
             test_object.id_short = "abc\n"
         self.assertEqual(
-            "The id_short must contain only letters, digits and underscore (Constraint AASd-002)",
+            "The id_short must contain only letters, digits underscore and hyphen (Constraint AASd-002)",
             str(cm.exception))
 
     def test_representation(self):

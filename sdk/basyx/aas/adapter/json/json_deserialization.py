@@ -511,8 +511,6 @@ class AASFromJsonDecoder(json.JSONDecoder):
             ret.value_list = cls._construct_value_list(_get_ts(dct, 'valueList', dict))
         if 'value' in dct:
             ret.value = _get_ts(dct, 'value', str)
-        if 'valueId' in dct:
-            ret.value_id = cls._construct_reference(_get_ts(dct, 'valueId', dict))
         if 'levelType' in dct:
             for k, v in _get_ts(dct, 'levelType', dict).items():
                 if v:
@@ -528,9 +526,12 @@ class AASFromJsonDecoder(json.JSONDecoder):
         if 'specificAssetIds' in dct:
             for desc_data in _get_ts(dct, "specificAssetIds", list):
                 specific_asset_id.add(cls._construct_specific_asset_id(desc_data, model.SpecificAssetId))
-
+        if 'entityType' in dct:
+            entity_type = ENTITY_TYPES_INVERSE[_get_ts(dct, 'entityType', str)]
+        else:
+            entity_type = None
         ret = object_class(id_short=None,
-                           entity_type=ENTITY_TYPES_INVERSE[_get_ts(dct, "entityType", str)],
+                           entity_type=entity_type,
                            global_asset_id=global_asset_id,
                            specific_asset_id=specific_asset_id)
         cls._amend_abstract_attributes(ret, dct)

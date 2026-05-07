@@ -476,7 +476,8 @@ class AASToJsonEncoder(json.JSONEncoder):
         :return: dict with the serialized attributes of this object
         """
         data = cls._abstract_classes_to_json(obj)
-        data['contentType'] = obj.content_type
+        if obj.content_type is not None:
+            data['contentType'] = obj.content_type
         if obj.value is not None:
             data['value'] = base64.b64encode(obj.value).decode()
         return data
@@ -490,7 +491,8 @@ class AASToJsonEncoder(json.JSONEncoder):
         :return: dict with the serialized attributes of this object
         """
         data = cls._abstract_classes_to_json(obj)
-        data['contentType'] = obj.content_type
+        if obj.content_type is not None:
+            data['contentType'] = obj.content_type
         if obj.value is not None:
             data['value'] = obj.value
         return data
@@ -576,8 +578,7 @@ class AASToJsonEncoder(json.JSONEncoder):
         :param obj: object of class AnnotatedRelationshipElement
         :return: dict with the serialized attributes of this object
         """
-        data = cls._abstract_classes_to_json(obj)
-        data.update({'first': obj.first, 'second': obj.second})
+        data = cls._relationship_element_to_json(obj)
         if not cls.stripped and obj.annotation:
             data['annotations'] = list(obj.annotation)
         return data
@@ -635,10 +636,11 @@ class AASToJsonEncoder(json.JSONEncoder):
         data = cls._abstract_classes_to_json(obj)
         if not cls.stripped and obj.statement:
             data['statements'] = list(obj.statement)
-        data['entityType'] = _generic.ENTITY_TYPES[obj.entity_type]
-        if obj.global_asset_id:
+        if obj.entity_type is not None:
+            data['entityType'] = _generic.ENTITY_TYPES[obj.entity_type]
+        if obj.global_asset_id is not None:
             data['globalAssetId'] = obj.global_asset_id
-        if obj.specific_asset_id:
+        if obj.specific_asset_id is not None:
             data['specificAssetIds'] = list(obj.specific_asset_id)
         return data
 
