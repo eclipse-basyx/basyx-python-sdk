@@ -17,8 +17,15 @@ from werkzeug.wrappers import Request, Response
 
 import app.model as server_model
 from app.interfaces.base import APIResponse, HTTPApiDecoder, ObjectStoreWSGIApp, is_stripped_request
-from app.model import DictDescriptorStore
+from app.model import DictDescriptorStore, ServiceSpecificationProfileEnum, ServiceDescription
 from app.util.converters import IdentifierToBase64URLConverter, base64url_decode
+
+SUPPORTED_PROFILES: ServiceDescription = ServiceDescription([
+    ServiceSpecificationProfileEnum.AAS_REGISTRY_FULL,
+    ServiceSpecificationProfileEnum.SUBMODEL_REGISTRY_FULL,
+    ServiceSpecificationProfileEnum.AAS_REGISTRY_READ,
+    ServiceSpecificationProfileEnum.SUBMODEL_REGISTRY_READ,
+])
 
 
 class RegistryAPI(ObjectStoreWSGIApp):
@@ -156,15 +163,7 @@ class RegistryAPI(ObjectStoreWSGIApp):
     def get_self_description(
         self, request: Request, url_args: Dict, response_t: Type[APIResponse], **_kwargs
     ) -> Response:
-        service_description = server_model.ServiceDescription(
-            profiles=[
-                server_model.ServiceSpecificationProfileEnum.AAS_REGISTRY_FULL,
-                server_model.ServiceSpecificationProfileEnum.AAS_REGISTRY_READ,
-                server_model.ServiceSpecificationProfileEnum.SUBMODEL_REGISTRY_FULL,
-                server_model.ServiceSpecificationProfileEnum.SUBMODEL_REGISTRY_READ,
-            ]
-        )
-        return response_t(service_description.to_dict())
+        return response_t(SUPPORTED_PROFILES.to_dict())
 
     # ------ AAS REGISTRY ROUTES -------
     def get_all_aas_descriptors(

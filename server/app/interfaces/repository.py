@@ -22,14 +22,15 @@ from werkzeug.datastructures import FileStorage
 from werkzeug.exceptions import BadRequest, Conflict, NotFound
 from werkzeug.routing import MapAdapter, Rule, Submount
 
-from app.interfaces.base import APIResponse, HTTPApiDecoder, ObjectStoreWSGIApp, T, is_stripped_request
 from app.util.converters import IdentifierToBase64URLConverter, IdShortPathConverter, base64url_decode
-from .base import (ObjectStoreWSGIApp, APIResponse, is_stripped_request, HTTPApiDecoder, T,
-                   ServiceSpecificationProfileEnum, ServiceDescription)
+from .base import ObjectStoreWSGIApp, APIResponse, is_stripped_request, HTTPApiDecoder, T
+from app.model import ServiceSpecificationProfileEnum, ServiceDescription
 
 SUPPORTED_PROFILES: ServiceDescription = ServiceDescription([
     ServiceSpecificationProfileEnum.AAS_REPOSITORY_FULL,
     ServiceSpecificationProfileEnum.SUBMODEL_REPOSITORY_FULL,
+    ServiceSpecificationProfileEnum.AAS_REPOSITORY_READ,
+    ServiceSpecificationProfileEnum.SUBMODEL_REPOSITORY_READ,
 ])
 
 
@@ -515,11 +516,7 @@ class WSGIApp(ObjectStoreWSGIApp):
         raise werkzeug.exceptions.NotImplemented("This route is not implemented!")
 
     def get_description(self, request: Request, url_args: Dict, response_t: Type[APIResponse], **_kwargs) -> Response:
-        profiles = []
-        for profile in SUPPORTED_PROFILES.profiles:
-            profiles.append(profile.value)
-        description = {"profiles": profiles}
-        return response_t(description)
+        return response_t(SUPPORTED_PROFILES.to_dict())
 
     # ------ AAS REPO ROUTES -------
     def get_aas_all(self, request: Request, url_args: Dict, response_t: Type[APIResponse], **_kwargs) -> Response:
