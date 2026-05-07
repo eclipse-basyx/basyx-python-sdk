@@ -722,20 +722,32 @@ class ModelOrderedNamespaceTest(ModelNamespaceTest):
                          f"{self._namespace_class.__name__}[{self.namespace.id}]'",  # type: ignore[has-type]
                          str(cm2.exception))
 
-    def test_ordered_namespaceset_int_setitem_same_id_short(self) -> None:
-        # Replacing item at index with new item sharing same id_short must succeed;
-        # the add-before-remove order causes a false AASConstraintViolation otherwise
+    def test_ordered_namespaceset_int_setitem_preserves_index(self) -> None:
+        # __setitem__ int must place the new item at the exact index of the replaced item.
+        # Items before and after the replaced index must not shift.
         ns = ExampleOrderedNamespace()
         sid1 = model.ExternalReference((model.Key(model.KeyTypes.GLOBAL_REFERENCE, "http://example.org/s1"),))
         sid2 = model.ExternalReference((model.Key(model.KeyTypes.GLOBAL_REFERENCE, "http://example.org/s2"),))
-        old = model.Property("SameName", model.datatypes.Int, semantic_id=sid1)
-        new = model.Property("SameName", model.datatypes.Int, semantic_id=sid2)
+        sid3 = model.ExternalReference((model.Key(model.KeyTypes.GLOBAL_REFERENCE, "http://example.org/s3"),))
+        sid4 = model.ExternalReference((model.Key(model.KeyTypes.GLOBAL_REFERENCE, "http://example.org/s4"),))
+        p0 = model.Property("PA", model.datatypes.Int, semantic_id=sid1)
+        old = model.Property("PB", model.datatypes.Int, semantic_id=sid2)
+        p2 = model.Property("PC", model.datatypes.Int, semantic_id=sid3)
+        new = model.Property("PB", model.datatypes.Int, semantic_id=sid4)  # same id_short as old
+        ns.set1.add(p0)
         ns.set1.add(old)
-        # Replace old with new — both have id_short "SameName"; must not raise AASConstraintViolation
-        ns.set1[0] = new
-        self.assertEqual([new], list(ns.set1))
-        self.assertIsNone(old.parent)
+        ns.set1.add(p2)
+        # set1 is [p0, old, p2] at indices [0, 1, 2]
+
+        # Replace middle item (index 1) — same id_short must not raise AASConstraintViolation
+        ns.set1[1] = new
+
+        # p0 stays at 0, new is at 1, p2 stays at 2 — no index shift
+        self.assertIs(p0, ns.set1[0])
+        self.assertIs(new, ns.set1[1])
+        self.assertIs(p2, ns.set1[2])
         self.assertIs(ns, new.parent)
+        self.assertIsNone(old.parent)
 
 
 class ExternalReferenceTest(unittest.TestCase):
