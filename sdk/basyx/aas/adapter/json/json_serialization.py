@@ -637,11 +637,6 @@ class AASToJsonEncoder(json.JSONEncoder):
         data = cls._abstract_classes_to_json(obj)
         if not cls.stripped and obj.statement:
             data['statements'] = list(obj.statement)
-        if obj.entity_type:
-            data['entityType'] = _generic.ENTITY_TYPES[obj.entity_type]
-        if obj.global_asset_id:
-            data['globalAssetId'] = obj.global_asset_id
-        if obj.specific_asset_id:
         if obj.entity_type is not None:
             data['entityType'] = _generic.ENTITY_TYPES[obj.entity_type]
         if obj.global_asset_id is not None:

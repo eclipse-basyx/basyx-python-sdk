@@ -736,7 +736,7 @@ class SubmodelElementList(SubmodelElement, base.UniqueIdShortNamespace, Generic[
             self._uuid_seq += 1
 
     def _unset_id_short(self, old: _SE) -> None:
-        if old.id_short.startswith("generated_submodel_list_hack_"):
+        if old.id_short is not None and old.id_short.startswith("generated_submodel_list_hack_"):
             old.id_short = None
 
     def _check_constraints(self, new: _SE, existing: Iterable[_SE]) -> None:
