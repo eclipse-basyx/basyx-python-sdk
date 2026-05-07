@@ -642,6 +642,11 @@ class AASToJsonEncoder(json.JSONEncoder):
         if obj.global_asset_id:
             data['globalAssetId'] = obj.global_asset_id
         if obj.specific_asset_id:
+        if obj.entity_type is not None:
+            data['entityType'] = _generic.ENTITY_TYPES[obj.entity_type]
+        if obj.global_asset_id is not None:
+            data['globalAssetId'] = obj.global_asset_id
+        if obj.specific_asset_id is not None:
             data['specificAssetIds'] = list(obj.specific_asset_id)
         return data
 
