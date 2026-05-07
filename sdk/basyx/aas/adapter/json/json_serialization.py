@@ -578,8 +578,7 @@ class AASToJsonEncoder(json.JSONEncoder):
         :param obj: object of class AnnotatedRelationshipElement
         :return: dict with the serialized attributes of this object
         """
-        data = cls._abstract_classes_to_json(obj)
-        data.update({'first': obj.first, 'second': obj.second})
+        data = cls._relationship_element_to_json(obj)
         if not cls.stripped and obj.annotation:
             data['annotations'] = list(obj.annotation)
         return data
