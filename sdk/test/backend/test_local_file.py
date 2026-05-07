@@ -121,6 +121,19 @@ class LocalFileBackendTest(TestCase):
         self.assertEqual(len(example_data), len(self.identifiable_store))
         os.remove(stray)
 
+    def test_iter_ignores_non_json_files(self) -> None:
+        example_data = create_full_example()
+        for item in example_data:
+            self.identifiable_store.add(item)
+
+        # Stray files must not crash the iterator or be yielded
+        stray = os.path.join(store_path, ".DS_Store")
+        with open(stray, "w") as f:
+            f.write("stray")
+        items = list(self.identifiable_store)
+        self.assertEqual(5, len(items))
+        os.remove(stray)
+
     def test_reload_discard(self) -> None:
         # Load example submodel
         example_submodel = create_example_submodel()
