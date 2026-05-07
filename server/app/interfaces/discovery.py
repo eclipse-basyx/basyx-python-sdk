@@ -98,7 +98,8 @@ class DiscoveryAPI(BaseWSGIApp):
                         Submount(
                             "/lookup/shells",
                             [
-                                Rule("/", methods=["GET"], endpoint=self.get_all_aas_ids_by_asset_link), # this route is deprecated 
+                                # This route is deprecated
+                                Rule("/", methods=["GET"], endpoint=self.get_all_aas_ids_by_asset_link),
                                 Rule(
                                     "/<base64url:aas_id>",
                                     methods=["GET"],
