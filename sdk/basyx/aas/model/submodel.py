@@ -731,11 +731,13 @@ class SubmodelElementList(SubmodelElement, base.UniqueIdShortNamespace, Generic[
         # Generate a unique id_short when a SubmodelElement is added, because children of a SubmodelElementList may not
         # have an id_short. The alternative would be making SubmodelElementList a special kind of base.Namespace without
         # a unique attribute for child-elements (which contradicts the definition of a Namespace).
-        new.id_short = "generated_submodel_list_hack_" + uuid.uuid1(clock_seq=self._uuid_seq).hex
-        self._uuid_seq += 1
+        if new.id_short is None:
+            new.id_short = "generated_submodel_list_hack_" + uuid.uuid1(clock_seq=self._uuid_seq).hex
+            self._uuid_seq += 1
 
     def _unset_id_short(self, old: _SE) -> None:
-        old.id_short = None
+        if old.id_short.startswith("generated_submodel_list_hack_"):
+            old.id_short = None
 
     def _check_constraints(self, new: _SE, existing: Iterable[_SE]) -> None:
         # Since the id_short contains randomness, unset it temporarily for pretty and predictable error messages.
