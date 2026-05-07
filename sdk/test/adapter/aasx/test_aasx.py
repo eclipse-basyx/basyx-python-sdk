@@ -63,14 +63,14 @@ class TestAASXUtils(unittest.TestCase):
 
         # Check metadata
         self.assertEqual("application/pdf", container.get_content_type("/TestFile.pdf"))
-        self.assertEqual("b18229b24a4ee92c6c2b6bc6a8018563b17472f1150d35d5a5945afeb447ed44",
+        self.assertEqual("142a0061de1ef5c22137ab05bb6001335596c0fc8693d33fa9b011ceac652342",
                          container.get_sha256("/TestFile.pdf").hex())
         self.assertIn("/TestFile.pdf", container)
 
         # Check contents
         file_content = io.BytesIO()
         container.write_file("/TestFile.pdf", file_content)
-        self.assertEqual(hashlib.sha1(file_content.getvalue()).hexdigest(), "78450a66f59d74c073bf6858db340090ea72a8b1")
+        self.assertEqual(hashlib.sha1(file_content.getvalue()).hexdigest(), "241e62aef8b4cdad0975f6c68a4ed8b3923d8db1")
 
         # Add same file again with different content_type to test reference counting
         with open(__file__, 'rb') as f:
@@ -391,7 +391,7 @@ class AASXWriterTest(unittest.TestCase):
                 file_content = io.BytesIO()
                 new_files.write_file("/TestFile.pdf", file_content)
                 self.assertEqual(hashlib.sha1(file_content.getvalue()).hexdigest(),
-                                 "78450a66f59d74c073bf6858db340090ea72a8b1")
+                                 "241e62aef8b4cdad0975f6c68a4ed8b3923d8db1")
 
                 os.unlink(filename)
 
@@ -534,7 +534,7 @@ class AASXReaderTest(unittest.TestCase):
 
             self.assertEqual(
                 hashlib.sha1(buf.getvalue()).hexdigest(),
-                "78450a66f59d74c073bf6858db340090ea72a8b1"
+                "241e62aef8b4cdad0975f6c68a4ed8b3923d8db1"
             )
         finally:
             os.unlink(filename)

@@ -31,9 +31,9 @@ class LoadDirectoryTest(unittest.TestCase):
             )
         )
 
-        # load test.pdf to save into aasx
+        # load TestFile.pdf to save into aasx
         file_container = adapter.aasx.DictSupplementaryFileContainer()
-        with open(Path(__file__).parent / "test.pdf", "rb") as pdf:
+        with open(Path(__file__).parent / "aasx" / "TestFile.pdf", "rb") as pdf:
             resulting_file_name = file_container.add_file(
                 "/aasx/suppl/file.pdf", pdf, "application/json")
 
