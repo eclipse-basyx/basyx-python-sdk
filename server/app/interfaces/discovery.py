@@ -15,7 +15,7 @@ from werkzeug.wrappers import Request, Response
 from app import model as server_model
 from app.adapter import jsonization
 from app.interfaces.base import BaseWSGIApp, HTTPApiDecoder
-from app.util.converters import IdentifierToBase64URLConverter
+from app.util.converters import IdentifierToBase64URLConverter, base64url_decode
 
 
 class DiscoveryStore:
@@ -98,6 +98,7 @@ class DiscoveryAPI(BaseWSGIApp):
                         Submount(
                             "/lookup/shells",
                             [
+                                Rule("/", methods=["GET"], endpoint=self.get_all_aas_ids_by_asset_link), # this route is deprecated 
                                 Rule(
                                     "/<base64url:aas_id>",
                                     methods=["GET"],
@@ -117,6 +118,37 @@ class DiscoveryAPI(BaseWSGIApp):
             converters={"base64url": IdentifierToBase64URLConverter},
             strict_slashes=False,
         )
+
+    def get_all_aas_ids_by_asset_link(
+            self, request: Request, url_args: dict, response_t: type, **_kwargs
+    ) -> Response:
+        asset_ids_param = request.args.get("assetIds", "")
+        if not asset_ids_param:
+            raise werkzeug.exceptions.BadRequest("Missing query parameter 'assetIds'")
+
+        try:
+            decoded_str = base64url_decode(asset_ids_param)
+            payload = json.loads(decoded_str)
+        except (ValueError, json.JSONDecodeError) as exc:
+            raise werkzeug.exceptions.BadRequest(f"Invalid query parameter 'assetIds': {exc}") from exc
+
+        if isinstance(payload, dict):
+            payload = [payload]
+
+        if not isinstance(payload, list):
+            raise werkzeug.exceptions.BadRequest("Decoded assetIds payload must be a JSON object or list")
+
+        matching_aas_keys = set()
+        for item in payload:
+            if not isinstance(item, dict):
+                raise werkzeug.exceptions.BadRequest("Each asset link must be a JSON object")
+
+            asset_link = server_model.AssetLink(item["name"], item["value"])
+            aas_keys = self.persistent_store.search_aas_ids_by_asset_link(asset_link)
+            matching_aas_keys.update(aas_keys)
+
+        paginated_slice, cursor = self._get_slice(request, list(matching_aas_keys))
+        return response_t(list(paginated_slice), cursor=cursor)
 
     def search_all_aas_ids_by_asset_link(
         self, request: Request, url_args: dict, response_t: type, **_kwargs
