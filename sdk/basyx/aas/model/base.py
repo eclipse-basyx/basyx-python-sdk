@@ -223,7 +223,7 @@ class ModellingKind(Enum):
 @unique
 class AssetKind(Enum):
     """
-    Enumeration for denoting whether an asset is a type asset or an instance asset or whether this kind of
+    Enumeration for denoting whether an asset is a type asset or an instance asset or role asset or whether this kind of
     classification is not applicable.
 
     .. note::
@@ -235,12 +235,14 @@ class AssetKind(Enum):
 
     :cvar TYPE: Type asset
     :cvar INSTANCE: Instance asset
-    :cvar NOT_APPLICABLE: Neither a type asset nor an instance asset
+    :cvar ROLE: Role asset
+    :cvar NOT_APPLICABLE: Neither a type asset nor an instance asset nor a role asset
     """
 
     TYPE = 0
     INSTANCE = 1
     NOT_APPLICABLE = 2
+    ROLE = 3
 
 
 class QualifierKind(Enum):
@@ -574,7 +576,7 @@ class HasExtension(Namespace, metaclass=abc.ABCMeta):
 
     <<abstract>>
 
-    **Constraint AASd-077:** The name of an Extension within HasExtensions needs to be unique.
+    **Constraint AASd-077:** The name of an Extension within HasExtensions shall be unique.
 
     :ivar namespace_element_sets: List of :class:`NamespaceSets <basyx.aas.model.base.NamespaceSet>`
     :ivar extension: A :class:`~.NamespaceSet` of :class:`Extensions <.Extension>` of the element.
@@ -622,8 +624,9 @@ class Referable(HasExtension, metaclass=abc.ABCMeta):
     **Constraint AASd-001:** In case of a referable element not being an identifiable element the
     idShort is mandatory and used for referring to the element in its name space.
 
-    **Constraint AASd-002:** idShort shall only feature letters, digits, underscore (``_``); starting
-    mandatory with a letter.
+    **Constraint AASd-002:** idShort shall only feature letters, digits, underscore (``_``), hyphen (``-``);
+    starting mandatory with a letter and not ending with a hyphen.
+    I.e. ``^[a-zA-Z]|[a-zA-Z][a-zA-Z0-9_-]*[a-zA-Z0-9_]$``
 
     **Constraint AASd-004:** Add parent in case of non-identifiable elements.
 
@@ -784,8 +787,9 @@ class Referable(HasExtension, metaclass=abc.ABCMeta):
         """
         Validates an id_short against Constraint AASd-002 and :class:`NameType` restrictions.
 
-        **Constraint AASd-002:** idShort of Referables shall only feature letters, digits, underscore (``_``); starting
-        mandatory with a letter. I.e. ``[a-zA-Z][a-zA-Z0-9_]+``
+        **Constraint AASd-002:** idShort shall only feature letters, digits, underscore (``_``), hyphen (``-``);
+        starting mandatory with a letter and not ending with a hyphen.
+        I.e. ``^[a-zA-Z]|[a-zA-Z][a-zA-Z0-9_-]*[a-zA-Z0-9_]$``
 
         :param id_short: The id_short to validate
         :raises ValueError: If the id_short doesn't comply to the constraints imposed by :class:`NameType`
@@ -794,15 +798,20 @@ class Referable(HasExtension, metaclass=abc.ABCMeta):
         """
         _string_constraints.check_name_type(id_short)
         test_id_short: NameType = str(id_short)
-        if not re.fullmatch("[a-zA-Z0-9_]*", test_id_short):
+        if not re.fullmatch("[A-Za-z0-9_-]*", test_id_short):
             raise AASConstraintViolation(
                 2,
-                "The id_short must contain only letters, digits and underscore"
+                "The id_short must contain only letters, digits underscore and hyphen"
             )
         if not test_id_short[0].isalpha():
             raise AASConstraintViolation(
                 2,
                 "The id_short must start with a letter"
+            )
+        if test_id_short.endswith("-"):
+            raise AASConstraintViolation(
+                2,
+                "The id_short must not end with a hyphen"
             )
 
     category = property(_get_category, _set_category)
@@ -811,8 +820,9 @@ class Referable(HasExtension, metaclass=abc.ABCMeta):
         """
         Check the input string
 
-        **Constraint AASd-002:** idShort of Referables shall only feature letters, digits, underscore (``_``); starting
-        mandatory with a letter. I.e. ``[a-zA-Z][a-zA-Z0-9_]+``
+        **Constraint AASd-002:** idShort shall only feature letters, digits, underscore (``_``), hyphen (``-``);
+        starting mandatory with a letter and not ending with a hyphen.
+        I.e. ``^[a-zA-Z]|[a-zA-Z][a-zA-Z0-9_-]*[a-zA-Z0-9_]$``
 
         **Constraint AASd-022:** idShort of non-identifiable referables shall be unique in its namespace
         (case-sensitive)
@@ -834,9 +844,6 @@ class Referable(HasExtension, metaclass=abc.ABCMeta):
                 raise AASConstraintViolation(117, f"id_short of {self!r} cannot be unset, since it is already "
                                                   f"contained in {self.parent!r}")
             from .submodel import SubmodelElementList
-            if isinstance(self.parent, SubmodelElementList):
-                raise AASConstraintViolation(120, f"id_short of {self!r} cannot be set, because it is "
-                                                  f"contained in a {self.parent!r}")
             for set_ in self.parent.namespace_element_sets:
                 if set_.contains_id("id_short", id_short):
                     raise AASConstraintViolation(22, "Object with id_short '{}' is already present in the parent "
@@ -1197,7 +1204,7 @@ class DataSpecificationContent:
     **Constraint AASc-3a-050:** If the ``Data_specification_IEC_61360`` is used
     for an element, the value of ``HasDataSpecification.embedded_data_specifications``
     shall contain the external reference to the IRI of the corresponding data specification
-    template ``https://admin-shell.io/DataSpecificationTemplates/DataSpecificationIEC61360/3``
+    template ``https://admin-shell.io/DataSpecificationTemplates/DataSpecificationIEC61360/3/1``
     """
     @abc.abstractmethod
     def __init__(self):
@@ -1656,8 +1663,8 @@ class Qualifier(HasSemantics):
     """
     A qualifier is a type-value pair that makes additional statements w.r.t. the value of the element.
 
-    **Constraint AASd-006:** If both, the value and the valueId of a Qualifier are present, the value needs
-    to be identical to the value of the referenced coded value in Qualifier/valueId.
+    **Constraint AASd-006:** If both, the value and the valueId of a Qualifier are present, the value shall
+    be identical to the value of the referenced coded value in Qualifier/valueId.
 
     **Constraint AASd-020:** The value of Qualifier/value shall be consistent with the
     data type as defined in Qualifier/valueType.

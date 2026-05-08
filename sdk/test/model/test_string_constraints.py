@@ -1,4 +1,4 @@
-# Copyright (c) 2025 the Eclipse BaSyx Authors
+# Copyright (c) 2026 the Eclipse BaSyx Authors
 #
 # This program and the accompanying materials are made available under the terms of the MIT License, available in
 # the LICENSE file of this project.
@@ -17,11 +17,11 @@ class StringConstraintsTest(unittest.TestCase):
         with self.assertRaises(ValueError) as cm:
             _string_constraints.check_identifier(identifier)
         self.assertEqual("Identifier has a minimum length of 1! (length: 0)", cm.exception.args[0])
-        identifier = "a" * 2001
+        identifier = "a" * 2049
         with self.assertRaises(ValueError) as cm:
             _string_constraints.check_identifier(identifier)
-        self.assertEqual("Identifier has a maximum length of 2000! (length: 2001)", cm.exception.args[0])
-        identifier = "a" * 2000
+        self.assertEqual("Identifier has a maximum length of 2048! (length: 2049)", cm.exception.args[0])
+        identifier = "a" * 2048
         _string_constraints.check_identifier(identifier)
 
     def test_version_type(self) -> None:
@@ -73,8 +73,8 @@ class StringConstraintsDecoratorTest(unittest.TestCase):
         self.assertEqual("PathType has a minimum length of 1! (length: 0)", cm.exception.args[0])
         dc = self.DummyClass("a")
         with self.assertRaises(ValueError) as cm:
-            dc.some_attr = "a" * 2001
-        self.assertEqual("PathType has a maximum length of 2000! (length: 2001)", cm.exception.args[0])
+            dc.some_attr = "a" * 2049
+        self.assertEqual("PathType has a maximum length of 2048! (length: 2049)", cm.exception.args[0])
         self.assertEqual(dc.some_attr, "a")
 
     def test_ignore_none_values(self) -> None:

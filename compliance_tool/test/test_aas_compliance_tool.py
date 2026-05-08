@@ -115,8 +115,14 @@ class ComplianceToolTest(unittest.TestCase):
         self.assertNotIn('ERROR', str(output.stderr))
         self.assertIn('INFO', str(output.stdout))
 
-        # test quite
+        # test quiet (short form)
         output = _run_compliance_tool("e", os.path.join(test_file_path, "test_demo_full_example.json"), "--json", "-q")
+        self.assertEqual(0, output.returncode)
+        self.assertEqual("b''", str(output.stdout))
+
+        # test quiet (long form -- previously misspelled as --quite)
+        output = _run_compliance_tool("e", os.path.join(test_file_path, "test_demo_full_example.json"), "--json",
+                                      "--quiet")
         self.assertEqual(0, output.returncode)
         self.assertEqual("b''", str(output.stdout))
 

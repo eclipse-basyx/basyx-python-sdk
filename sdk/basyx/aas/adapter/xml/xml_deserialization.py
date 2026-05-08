@@ -827,10 +827,14 @@ class AASFromXmlDecoder:
             for id in _child_construct_multiple(specific_asset_ids, NS_AAS + "specificAssetId",
                                                 cls.construct_specific_asset_id, cls.failsafe):
                 specific_asset_id.add(id)
-
+        entity_type_text = _get_text_or_none(element.find(NS_AAS + "entityType"))
+        if entity_type_text is not None:
+            entity_type = ENTITY_TYPES_INVERSE[entity_type_text]
+        else:
+            entity_type = None
         entity = object_class(
             id_short=None,
-            entity_type=_child_text_mandatory_mapped(element, NS_AAS + "entityType", ENTITY_TYPES_INVERSE),
+            entity_type=entity_type,
             global_asset_id=_get_text_or_none(element.find(NS_AAS + "globalAssetId")),
             specific_asset_id=specific_asset_id)
 
