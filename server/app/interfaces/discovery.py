@@ -89,7 +89,7 @@ class DiscoveryStore:
 
 
 class DiscoveryAPI(BaseWSGIApp):
-    def __init__(self, persistent_store: DiscoveryStore, base_path: str = "/api/v3.1.1"):
+    def __init__(self, persistent_store: DiscoveryStore, base_path: str = "/api/v3.1"):
         self.persistent_store: DiscoveryStore = persistent_store
         self.url_map = werkzeug.routing.Map(
             [

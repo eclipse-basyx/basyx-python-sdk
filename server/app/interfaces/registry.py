@@ -29,7 +29,7 @@ SUPPORTED_PROFILES: ServiceDescription = ServiceDescription([
 
 
 class RegistryAPI(ObjectStoreWSGIApp):
-    def __init__(self, object_store: model.AbstractObjectStore, base_path: str = "/api/v3.1.1"):
+    def __init__(self, object_store: model.AbstractObjectStore, base_path: str = "/api/v3.1"):
         self.object_store: model.AbstractObjectStore = object_store
         self.url_map = werkzeug.routing.Map(
             [
