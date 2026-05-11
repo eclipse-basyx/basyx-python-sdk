@@ -240,11 +240,7 @@ class BaseWSGIApp:
         paginated_slice = iter(items[:limit])
         next_cursor = str(cursor + limit + 1) if has_more else None
 
-        if next_cursor is not None or cursor > 0:
-            # add metadata if cursor was present in request
-            paging_metadata = PagingMetadata(cursor=next_cursor)
-        else:
-            paging_metadata = None
+        paging_metadata = PagingMetadata(cursor=next_cursor)
         return paginated_slice, paging_metadata
 
     def handle_request(self, request: Request):
