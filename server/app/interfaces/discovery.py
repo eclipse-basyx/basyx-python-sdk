@@ -161,7 +161,7 @@ class DiscoveryAPI(BaseWSGIApp):
             matching_aas_keys.update(aas_keys)
 
         paginated_slice, cursor = self._get_slice(request, list(matching_aas_keys))
-        return response_t(list(paginated_slice), cursor=cursor)
+        return response_t(list(paginated_slice), paging_metadata=cursor)
 
     def search_all_aas_ids_by_asset_link(
         self, request: Request, url_args: dict, response_t: Type[APIResponse], **_kwargs
@@ -172,7 +172,7 @@ class DiscoveryAPI(BaseWSGIApp):
             aas_keys = self.persistent_store.search_aas_ids_by_asset_link(asset_link)
             matching_aas_keys.update(aas_keys)
         paginated_slice, cursor = self._get_slice(request, list(matching_aas_keys))
-        return response_t(list(paginated_slice), cursor=cursor)
+        return response_t(list(paginated_slice), paging_metadata=cursor)
 
     def get_all_specific_asset_ids_by_aas_id(
         self, request: Request, url_args: dict, response_t: Type[APIResponse], **_kwargs

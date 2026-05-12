@@ -225,7 +225,7 @@ class RegistryAPI(ObjectStoreWSGIApp):
     ) -> Response:
         aas_descriptor = self._get_aas_descriptor(url_args)
         submodel_descriptors, cursor = self._get_slice(request, aas_descriptor.submodel_descriptors)
-        return response_t(list(submodel_descriptors), cursor=cursor)
+        return response_t(list(submodel_descriptors), paging_metadata=cursor)
 
     def get_submodel_descriptor_by_id_through_superpath(
         self, request: Request, url_args: Dict, response_t: Type[APIResponse], **_kwargs
