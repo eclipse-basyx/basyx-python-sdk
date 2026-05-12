@@ -255,9 +255,17 @@ class WSGIApp(ObjectStoreWSGIApp):
 
             for asset_id in asset_ids:
                 asset_id_json = base64url_decode(asset_id)
-                asset_dict = json.loads(asset_id_json)
-                name = asset_dict["name"]
-                value = asset_dict["value"]
+                try:
+                    asset_dict = json.loads(asset_id_json)
+                except json.JSONDecodeError as e:
+                    raise BadRequest(f"Invalid assetIds query parameter: {e}") from e
+                if not isinstance(asset_dict, dict):
+                    raise BadRequest("Invalid assetIds query parameter: expected a JSON object.")
+                try:
+                    name = asset_dict["name"]
+                    value = asset_dict["value"]
+                except KeyError as e:
+                    raise BadRequest(f"Invalid assetIds query parameter: missing field {e}") from e
 
                 if name == "specificAssetId":
                     decoded_specific_id = HTTPApiDecoder.json_list(value, model.SpecificAssetId,
