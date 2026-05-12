@@ -5,6 +5,7 @@ This module implements the Discovery interface defined in the
 """
 
 import json
+import os
 from typing import Dict, List, Set, Type
 
 import werkzeug.exceptions
@@ -65,27 +66,57 @@ class DiscoveryStore:
     @classmethod
     def from_file(cls, filename: str) -> "DiscoveryStore":
         """
-        Load the state of the `DiscoveryStore` from a local file.
-        Safely handles files that are missing expected keys.
+        Load a persisted discovery store from JSON.
 
+        The file stores only the AAS-to-asset-id mapping as the source of truth.
+        While loading, the reverse asset-id-to-AAS index is rebuilt in memory so
+        lookup by asset ID works without persisting duplicate state.
         """
         with open(filename, "r") as file:
             data = json.load(file, cls=jsonization.ServerAASFromJsonDecoder)
-            discovery_store = DiscoveryStore()
-            discovery_store.aas_id_to_asset_ids = data.get("aas_id_to_asset_ids", {})
-            discovery_store.asset_id_to_aas_ids = data.get("asset_id_to_aas_ids", {})
-            return discovery_store
+
+        discovery_store = DiscoveryStore()
+
+        for aas_id, asset_ids in data.get("aas_id_to_asset_ids", {}).items():
+            parsed_asset_ids = set()
+
+            for asset_id in asset_ids:
+                if isinstance(asset_id, model.SpecificAssetId):
+                    parsed_asset_id = asset_id
+                else:
+                    parsed_asset_id = model.SpecificAssetId(
+                        name=asset_id["name"],
+                        value=asset_id["value"],
+                    )
+
+                parsed_asset_ids.add(parsed_asset_id)
+                discovery_store._add_aas_id_to_specific_asset_id(parsed_asset_id, aas_id)
+
+            discovery_store.aas_id_to_asset_ids[aas_id] = parsed_asset_ids
+
+        return discovery_store
 
     def to_file(self, filename: str) -> None:
         """
-        Write the current state of the `DiscoveryStore` to a local JSON file for persistence.
+        Persist the discovery store as JSON.
+
+        Only the AAS-to-asset-id mapping is written because the reverse lookup
+        index can be rebuilt when the store is loaded. The data is written to a
+        temporary file first and then atomically moved into place to avoid
+        corrupting the existing store if serialization fails.
         """
-        with open(filename, "w") as file:
-            data = {
-                "aas_id_to_asset_ids": self.aas_id_to_asset_ids,
-                "asset_id_to_aas_ids": self.asset_id_to_aas_ids,
+        data = {
+            "aas_id_to_asset_ids": {
+                aas_id: list(asset_ids)
+                for aas_id, asset_ids in self.aas_id_to_asset_ids.items()
             }
+        }
+
+        temp_filename = f"{filename}.tmp"
+        with open(temp_filename, "w") as file:
             json.dump(data, file, cls=jsonization.ServerAASToJsonEncoder, indent=4)
+
+        os.replace(temp_filename, filename)
 
 
 class DiscoveryAPI(BaseWSGIApp):
@@ -160,8 +191,8 @@ class DiscoveryAPI(BaseWSGIApp):
             aas_keys = self.persistent_store.search_aas_ids_by_asset_link(asset_link)
             matching_aas_keys.update(aas_keys)
 
-        paginated_slice, cursor = self._get_slice(request, list(matching_aas_keys))
-        return response_t(list(paginated_slice), cursor=cursor)
+        paginated_slice, paging_metadata = self._get_slice(request, list(matching_aas_keys))
+        return response_t(list(paginated_slice), paging_metadata=paging_metadata)
 
     def search_all_aas_ids_by_asset_link(
         self, request: Request, url_args: dict, response_t: Type[APIResponse], **_kwargs
@@ -171,8 +202,8 @@ class DiscoveryAPI(BaseWSGIApp):
         for asset_link in asset_links:
             aas_keys = self.persistent_store.search_aas_ids_by_asset_link(asset_link)
             matching_aas_keys.update(aas_keys)
-        paginated_slice, cursor = self._get_slice(request, list(matching_aas_keys))
-        return response_t(list(paginated_slice), cursor=cursor)
+        paginated_slice, paging_metadata = self._get_slice(request, list(matching_aas_keys))
+        return response_t(list(paginated_slice), paging_metadata=paging_metadata)
 
     def get_all_specific_asset_ids_by_aas_id(
         self, request: Request, url_args: dict, response_t: Type[APIResponse], **_kwargs
