@@ -1,7 +1,7 @@
 # Eclipse BaSyx Python SDK - Discovery Service
 
 This is a Python-based implementation of the **BaSyx Asset Administration Shell (AAS) Discovery Service**.
-It provides basic discovery functionality for AAS IDs and their corresponding assets, as specified in the official [Discovery Service Specification v3.1.0_SSP-001](https://app.swaggerhub.com/apis/Plattform_i40/DiscoveryServiceSpecification/V3.1.0_SSP-001).
+It provides basic discovery functionality for AAS IDs and their corresponding assets, as specified in the official [Discovery Service Specification v3.1.1_SSP-001](https://app.swaggerhub.com/apis/Plattform_i40/DiscoveryServiceSpecification/V3.1.1_SSP-001).
 
 ## Overview
 
@@ -11,38 +11,36 @@ The Discovery Service stores and retrieves relations between AAS identifiers and
 
 | Function                                 | Description                                              | Example URL                                                           |
 |------------------------------------------|----------------------------------------------------------|-----------------------------------------------------------------------|
-| **search_all_aas_ids_by_asset_link**     | Find AAS identifiers by providing asset link values      | `POST http://localhost:8084/api/v3.0/lookup/shellsByAssetLink`        |
-| **get_all_specific_asset_ids_by_aas_id** | Return specific asset ids associated with an AAS ID      | `GET http://localhost:8084/api/v3.0/lookup/shells/{aasIdentifier}`    |
-| **post_all_asset_links_by_id**           | Register specific asset ids linked to an AAS             | `POST http://localhost:8084/api/v3.0/lookup/shells/{aasIdentifier}`   |
-| **delete_all_asset_links_by_id**         | Delete all asset links associated with a specific AAS ID | `DELETE http://localhost:8084/api/v3.0/lookup/shells/{aasIdentifier}` |
-| 
+| **get_description**                      | Return the supported Discovery Service profiles          | `GET http://localhost:8084/api/v3.1/description`                      |
+| **get_all_aas_ids_by_asset_link**        | Find AAS identifiers by asset link query parameter       | `GET http://localhost:8084/api/v3.1/lookup/shells?assetIds={assetIds}` |
+| **search_all_aas_ids_by_asset_link**     | Find AAS identifiers by providing asset link values      | `POST http://localhost:8084/api/v3.1/lookup/shellsByAssetLink`        |
+| **get_all_specific_asset_ids_by_aas_id** | Return specific asset ids associated with an AAS ID      | `GET http://localhost:8084/api/v3.1/lookup/shells/{aasIdentifier}`    |
+| **post_all_asset_links_by_id**           | Register specific asset ids linked to an AAS             | `POST http://localhost:8084/api/v3.1/lookup/shells/{aasIdentifier}`   |
+| **delete_all_asset_links_by_id**         | Delete all asset links associated with a specific AAS ID | `DELETE http://localhost:8084/api/v3.1/lookup/shells/{aasIdentifier}` |
+
 
 ## Configuration
-Add discovery_store as directory
-The service can be configured to use either:
+This example Docker compose configuration starts a discovery server. 
 
-- **In-memory storage** (default): Temporary data storage that resets on service restart.
-- **MongoDB storage**: Persistent backend storage using MongoDB.
-
-### Configuration via Environment Variables
-
-| Variable         | Description                                | Default                     |
-|------------------|--------------------------------------------|-----------------------------|
-| `STORAGE_TYPE`   | `inmemory` or `mongodb`                    | `inmemory`                  |
-| `MONGODB_URI`    | MongoDB connection URI                     | `mongodb://localhost:27017` |
-| `MONGODB_DBNAME` | Name of the MongoDB database               | `basyx_registry`            |
-
-## Deployment via Docker
-
-A `Dockerfile` and `docker-compose.yml` are provided for simple deployment.
-The container image can be built and run via:
-```bash
-docker compose up --build
+The container image can also be built and run via:
 ```
-## Test
+$ docker compose up
+```
 
-Examples of asset links and specific asset IDs for testing purposes are provided as JSON files in the [storage](./storage) folder.
+## Persistence
 
-## Acknowledgments
+The discovery service can run in persistent or non-persistent mode.
 
-This Dockerfile is inspired by the [tiangolo/uwsgi-nginx-docker](https://github.com/tiangolo/uwsgi-nginx-docker) repository.
+### Persistent Mode
+
+Persistent mode configuration is provided in the `compose.yaml`.
+
+Only the AAS-to-asset-ID mapping is persisted. The reverse lookup index is rebuilt in memory when the service starts.
+
+### Non-Persistent Mode
+
+If `storage_path` is not set, the discovery service runs in memory only.
+
+## Notes
+- Stop the service before manually editing `discovery_store.json`.
+
