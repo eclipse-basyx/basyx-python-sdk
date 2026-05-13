@@ -68,7 +68,7 @@ class DiscoveryStore:
         """
         Load a persisted discovery store from JSON.
 
-        The file stores only the AAS-to-asset-id mapping as the source of truth.
+        The file stores the AAS-to-asset-id mapping as the source of truth.
         While loading, the reverse asset-id-to-AAS index is rebuilt in memory so
         lookup by asset ID works without persisting duplicate state.
         """
