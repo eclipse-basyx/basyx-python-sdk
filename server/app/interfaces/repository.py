@@ -948,7 +948,8 @@ class WSGIApp(ObjectStoreWSGIApp):
     ) -> Response:
         concept_descriptions: Iterator[model.ConceptDescription] = self._get_all_obj_of_type(model.ConceptDescription)
         concept_descriptions, paging_metadata = self._get_slice(request, concept_descriptions)
-        return response_t(list(concept_descriptions), paging_metadata=paging_metadata, stripped=is_stripped_request(request))
+        return response_t(list(concept_descriptions), paging_metadata=paging_metadata,
+                          stripped=is_stripped_request(request))
 
     def post_concept_description(
         self, request: Request, url_args: Dict, response_t: Type[APIResponse], map_adapter: MapAdapter
