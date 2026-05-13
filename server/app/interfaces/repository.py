@@ -588,8 +588,8 @@ class WSGIApp(ObjectStoreWSGIApp):
         aas = self._get_shell(url_args)
         submodel_refs: Iterator[model.ModelReference[model.Submodel]]
         sorted_submodel_refs = sorted(aas.submodel, key=lambda ref: ref.key[0].value)
-        submodel_refs, cursor = self._get_slice(request, sorted_submodel_refs)
-        return response_t(list(submodel_refs), paging_metadata=cursor)
+        submodel_refs, paging_metadata = self._get_slice(request, sorted_submodel_refs)
+        return response_t(list(submodel_refs), paging_metadata=paging_metadata)
 
     def post_aas_submodel_refs(self, request: Request, url_args: Dict, response_t: Type[APIResponse],
                                map_adapter: MapAdapter, **_kwargs) -> Response:
@@ -947,8 +947,8 @@ class WSGIApp(ObjectStoreWSGIApp):
         self, request: Request, url_args: Dict, response_t: Type[APIResponse], **_kwargs
     ) -> Response:
         concept_descriptions: Iterator[model.ConceptDescription] = self._get_all_obj_of_type(model.ConceptDescription)
-        concept_descriptions, cursor = self._get_slice(request, concept_descriptions)
-        return response_t(list(concept_descriptions), paging_metadata=cursor, stripped=is_stripped_request(request))
+        concept_descriptions, paging_metadata = self._get_slice(request, concept_descriptions)
+        return response_t(list(concept_descriptions), paging_metadata=paging_metadata, stripped=is_stripped_request(request))
 
     def post_concept_description(
         self, request: Request, url_args: Dict, response_t: Type[APIResponse], map_adapter: MapAdapter
