@@ -42,70 +42,6 @@ SchemeType = str
 T = TypeVar("T")
 
 
-class ServiceSpecificationProfileEnum(str, enum.Enum):
-    """
-    Enumeration of all standardized Service Specification Profiles
-    from the AAS Part 2 API Specification (IDTA-01002-3-1).
-    Each profile is uniquely identified by its semantic URI.
-    """
-
-    # --- Asset Administration Shell (AAS) ---
-    AAS_FULL = "https://admin-shell.io/aas/API/3/1/AssetAdministrationShellServiceSpecification/SSP-001"
-    AAS_READ = "https://admin-shell.io/aas/API/3/1/AssetAdministrationShellServiceSpecification/SSP-002"
-
-    # --- Submodel ---
-    SUBMODEL_FULL = "https://admin-shell.io/aas/API/3/1/SubmodelServiceSpecification/SSP-001"
-    SUBMODEL_VALUE = "https://admin-shell.io/aas/API/3/1/SubmodelServiceSpecification/SSP-002"
-    SUBMODEL_READ = "https://admin-shell.io/aas/API/3/1/SubmodelServiceSpecification/SSP-003"
-
-    # --- AASX File Server ---
-    AASX_FILESERVER_FULL = "https://admin-shell.io/aas/API/3/1/AasxFileServerServiceSpecification/SSP-001"
-
-    # --- AAS Registry ---
-    AAS_REGISTRY_FULL = \
-        "https://admin-shell.io/aas/API/3/1/AssetAdministrationShellRegistryServiceSpecification/SSP-001"
-    AAS_REGISTRY_READ = \
-        "https://admin-shell.io/aas/API/3/1/AssetAdministrationShellRegistryServiceSpecification/SSP-002"
-    AAS_REGISTRY_BULK = \
-        "https://admin-shell.io/aas/API/3/1/AssetAdministrationShellRegistryServiceSpecification/SSP-003"
-
-    # --- Submodel Registry ---
-    SUBMODEL_REGISTRY_FULL = "https://admin-shell.io/aas/API/3/1/SubmodelRegistryServiceSpecification/SSP-001"
-    SUBMODEL_REGISTRY_READ = "https://admin-shell.io/aas/API/3/1/SubmodelRegistryServiceSpecification/SSP-002"
-    SUBMODEL_REGISTRY_BULK = "https://admin-shell.io/aas/API/3/1/SubmodelRegistryServiceSpecification/SSP-003"
-
-    # --- AAS Repository ---
-    AAS_REPOSITORY_FULL = \
-        "https://admin-shell.io/aas/API/3/1/AssetAdministrationShellRepositoryServiceSpecification/SSP-001"
-    AAS_REPOSITORY_READ = \
-        "https://admin-shell.io/aas/API/3/1/AssetAdministrationShellRepositoryServiceSpecification/SSP-002"
-    AAS_REPOSITORY_BULK = \
-        "https://admin-shell.io/aas/API/3/1/AssetAdministrationShellRepositoryServiceSpecification/SSP-003"
-
-    # --- Submodel Repository ---
-    SUBMODEL_REPOSITORY_FULL = "https://admin-shell.io/aas/API/3/1/SubmodelRepositoryServiceSpecification/SSP-001"
-    SUBMODEL_REPOSITORY_READ = "https://admin-shell.io/aas/API/3/1/SubmodelRepositoryServiceSpecification/SSP-002"
-    SUBMODEL_REPOSITORY_BULK = "https://admin-shell.io/aas/API/3/1/SubmodelRepositoryServiceSpecification/SSP-003"
-
-    # --- Concept Description Repository ---
-    CONCEPT_DESCRIPTION_REPOSITORY_FULL = \
-        "https://admin-shell.io/aas/API/3/1/ConceptDescriptionRepositoryServiceSpecification/SSP-001"
-    CONCEPT_DESCRIPTION_REPOSITORY_READ = \
-        "https://admin-shell.io/aas/API/3/1/ConceptDescriptionRepositoryServiceSpecification/SSP-002"
-    CONCEPT_DESCRIPTION_REPOSITORY_BULK = \
-        "https://admin-shell.io/aas/API/3/1/ConceptDescriptionRepositoryServiceSpecification/SSP-003"
-
-    # --- Discovery ---
-    DISCOVERY_FULL = "https://admin-shell.io/aas/API/3/1/DiscoveryServiceSpecification/SSP-001"
-    DISCOVERY_READ = "https://admin-shell.io/aas/API/3/1/DiscoveryServiceSpecification/SSP-002"
-
-
-# TODO: Maybe remove this in spite of spec? Too complicated structure
-class ServiceDescription:
-    def __init__(self, profiles: List[ServiceSpecificationProfileEnum]):
-        self.profiles: List[ServiceSpecificationProfileEnum] = profiles
-
-
 @enum.unique
 class MessageType(enum.Enum):
     UNDEFINED = enum.auto()
@@ -146,19 +82,25 @@ class Result:
 ResponseData = Union[Result, object, List[object]]
 
 
+class PagingMetadata:
+    def __init__(self, cursor: Optional[str] = None):
+        self.cursor = cursor
+
+
 class APIResponse(abc.ABC, Response):
     @abc.abstractmethod
     def __init__(
-        self, obj: Optional[ResponseData] = None, cursor: Optional[int] = None, stripped: bool = False, *args, **kwargs
+            self, obj: Optional[ResponseData] = None, paging_metadata: Optional[PagingMetadata] = None,
+            stripped: bool = False, *args, **kwargs
     ):
         super().__init__(*args, **kwargs)
         if obj is None:
             self.status_code = 204
         else:
-            self.data = self.serialize(obj, cursor, stripped)
+            self.data = self.serialize(obj, paging_metadata, stripped)
 
     @abc.abstractmethod
-    def serialize(self, obj: ResponseData, cursor: Optional[int], stripped: bool) -> str:
+    def serialize(self, obj: ResponseData, paging_metadata: Optional[PagingMetadata], stripped: bool) -> str:
         pass
 
 
@@ -166,11 +108,11 @@ class JsonResponse(APIResponse):
     def __init__(self, *args, content_type="application/json", **kwargs):
         super().__init__(*args, **kwargs, content_type=content_type)
 
-    def serialize(self, obj: ResponseData, cursor: Optional[int], stripped: bool) -> str:
-        if cursor is None:
+    def serialize(self, obj: ResponseData, paging_metadata: Optional[PagingMetadata], stripped: bool) -> str:
+        if paging_metadata is None:
             data = obj
         else:
-            data = {"paging_metadata": {"cursor": str(cursor)}, "result": obj}
+            data = {"paging_metadata": paging_metadata, "result": obj}
         return json.dumps(
             data, cls=StrippedResultToJsonEncoder if stripped else ResultToJsonEncoder, separators=(",", ":")
         )
@@ -180,10 +122,10 @@ class XmlResponse(APIResponse):
     def __init__(self, *args, content_type="application/xml", **kwargs):
         super().__init__(*args, **kwargs, content_type=content_type)
 
-    def serialize(self, obj: ResponseData, cursor: Optional[int], stripped: bool) -> str:
+    def serialize(self, obj: ResponseData, paging_metadata: Optional[PagingMetadata], stripped: bool) -> str:
         root_elem = etree.Element("response", nsmap=XML_NS_MAP)
-        if cursor is not None or not (isinstance(obj, list) and not obj):
-            root_elem.set("cursor", str(cursor))
+        if paging_metadata is not None:
+            root_elem.set("cursor", str(paging_metadata.cursor))
         if isinstance(obj, Result):
             result_elem = self.result_to_xml(obj, **XML_NS_MAP)
             for child in result_elem:
@@ -251,6 +193,13 @@ class ResultToJsonEncoder(ServerAASToJsonEncoder):
             "timestamp": message.timestamp.isoformat(),
         }
 
+    @classmethod
+    def _paging_metadata_to_json(cls, metadata: PagingMetadata) -> Dict[str, object]:
+        json_result: Dict[str, object] = dict()
+        if metadata.cursor is not None:
+            json_result["cursor"] = str(metadata.cursor)
+        return json_result
+
     def default(self, obj: object) -> object:
         if isinstance(obj, Result):
             return self._result_to_json(obj)
@@ -258,6 +207,8 @@ class ResultToJsonEncoder(ServerAASToJsonEncoder):
             return self._message_to_json(obj)
         if isinstance(obj, MessageType):
             return str(obj)
+        if isinstance(obj, PagingMetadata):
+            return self._paging_metadata_to_json(obj)
         return super().default(obj)
 
 
@@ -274,8 +225,8 @@ class BaseWSGIApp:
         return response(environ, start_response)
 
     @classmethod
-    def _get_slice(cls, request: Request, iterator: Iterable[T]) -> Tuple[Iterator[T], Optional[int]]:
-        limit_str = request.args.get("limit", default="10")
+    def _get_slice(cls, request: Request, iterator: Iterable[T]) -> Tuple[Iterator[T], Optional[PagingMetadata]]:
+        limit_str = request.args.get("limit", default="100")
         cursor_str = request.args.get("cursor", default="1")
         try:
             limit, cursor = (NonNegativeInteger(int(limit_str)),
@@ -287,8 +238,10 @@ class BaseWSGIApp:
         items = list(itertools.islice(iterator, start_index, end_index + 1))
         has_more = len(items) > limit
         paginated_slice = iter(items[:limit])
-        next_cursor = cursor + limit if has_more else None
-        return paginated_slice, next_cursor
+        next_cursor = str(cursor + limit + 1) if has_more else None
+
+        paging_metadata = PagingMetadata(cursor=next_cursor)
+        return paginated_slice, paging_metadata
 
     def handle_request(self, request: Request):
         map_adapter: MapAdapter = self.url_map.bind_to_environ(request.environ)

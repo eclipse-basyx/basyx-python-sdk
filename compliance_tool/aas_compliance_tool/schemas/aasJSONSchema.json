@@ -7,7 +7,7 @@
       "$ref": "#/definitions/Environment"
     }
   ],
-  "$id": "https://admin-shell.io/aas/3/0",
+  "$id": "https://admin-shell.io/aas/3/1",
   "definitions": {
     "AasSubmodelElements": {
       "type": "string",

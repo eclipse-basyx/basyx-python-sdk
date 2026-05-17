@@ -5,7 +5,8 @@ This module implements the Discovery interface defined in the
 """
 
 import json
-from typing import Dict, List, Set
+import os
+from typing import Dict, List, Set, Type
 
 import werkzeug.exceptions
 from basyx.aas import model
@@ -14,8 +15,14 @@ from werkzeug.wrappers import Request, Response
 
 from app import model as server_model
 from app.adapter import jsonization
-from app.interfaces.base import BaseWSGIApp, HTTPApiDecoder
-from app.util.converters import IdentifierToBase64URLConverter
+from app.interfaces.base import BaseWSGIApp, HTTPApiDecoder, APIResponse
+from app.util.converters import IdentifierToBase64URLConverter, base64url_decode
+from app.model import ServiceSpecificationProfileEnum, ServiceDescription
+
+SUPPORTED_PROFILES: ServiceDescription = ServiceDescription([
+    ServiceSpecificationProfileEnum.DISCOVERY_FULL,
+    ServiceSpecificationProfileEnum.DISCOVERY_READ,
+])
 
 
 class DiscoveryStore:
@@ -59,37 +66,68 @@ class DiscoveryStore:
     @classmethod
     def from_file(cls, filename: str) -> "DiscoveryStore":
         """
-        Load the state of the `DiscoveryStore` from a local file.
-        Safely handles files that are missing expected keys.
+        Load a persisted discovery store from JSON.
 
+        The file stores the AAS-to-asset-id mapping as the source of truth.
+        While loading, the reverse asset-id-to-AAS index is rebuilt in memory so
+        lookup by asset ID works without persisting duplicate state.
         """
         with open(filename, "r") as file:
             data = json.load(file, cls=jsonization.ServerAASFromJsonDecoder)
-            discovery_store = DiscoveryStore()
-            discovery_store.aas_id_to_asset_ids = data.get("aas_id_to_asset_ids", {})
-            discovery_store.asset_id_to_aas_ids = data.get("asset_id_to_aas_ids", {})
-            return discovery_store
+
+        discovery_store = DiscoveryStore()
+
+        for aas_id, asset_ids in data.get("aas_id_to_asset_ids", {}).items():
+            parsed_asset_ids = set()
+
+            for asset_id in asset_ids:
+                if isinstance(asset_id, model.SpecificAssetId):
+                    parsed_asset_id = asset_id
+                else:
+                    parsed_asset_id = model.SpecificAssetId(
+                        name=asset_id["name"],
+                        value=asset_id["value"],
+                    )
+
+                parsed_asset_ids.add(parsed_asset_id)
+                discovery_store._add_aas_id_to_specific_asset_id(parsed_asset_id, aas_id)
+
+            discovery_store.aas_id_to_asset_ids[aas_id] = parsed_asset_ids
+
+        return discovery_store
 
     def to_file(self, filename: str) -> None:
         """
-        Write the current state of the `DiscoveryStore` to a local JSON file for persistence.
+        Persist the discovery store as JSON.
+
+        Only the AAS-to-asset-id mapping is written because the reverse lookup
+        index can be rebuilt when the store is loaded. The data is written to a
+        temporary file first and then atomically moved into place to avoid
+        corrupting the existing store if serialization fails.
         """
-        with open(filename, "w") as file:
-            data = {
-                "aas_id_to_asset_ids": self.aas_id_to_asset_ids,
-                "asset_id_to_aas_ids": self.asset_id_to_aas_ids,
+        data = {
+            "aas_id_to_asset_ids": {
+                aas_id: list(asset_ids)
+                for aas_id, asset_ids in self.aas_id_to_asset_ids.items()
             }
+        }
+
+        temp_filename = f"{filename}.tmp"
+        with open(temp_filename, "w") as file:
             json.dump(data, file, cls=jsonization.ServerAASToJsonEncoder, indent=4)
+
+        os.replace(temp_filename, filename)
 
 
 class DiscoveryAPI(BaseWSGIApp):
-    def __init__(self, persistent_store: DiscoveryStore, base_path: str = "/api/v3.1.1"):
+    def __init__(self, persistent_store: DiscoveryStore, base_path: str = "/api/v3.1"):
         self.persistent_store: DiscoveryStore = persistent_store
         self.url_map = werkzeug.routing.Map(
             [
                 Submount(
                     base_path,
                     [
+                        Rule("/description", methods=["GET"], endpoint=self.get_description),
                         Rule(
                             "/lookup/shellsByAssetLink",
                             methods=["POST"],
@@ -98,6 +136,10 @@ class DiscoveryAPI(BaseWSGIApp):
                         Submount(
                             "/lookup/shells",
                             [
+                                # Todo: This route is deprecated in the specification, but needed for interoperability
+                                #  with the BaSyx UI https://github.com/eclipse-basyx/basyx-aas-web-ui.
+                                #  Once this route is no longer needed, we should consider removing it.
+                                Rule("/", methods=["GET"], endpoint=self.get_all_aas_ids_by_asset_link),
                                 Rule(
                                     "/<base64url:aas_id>",
                                     methods=["GET"],
@@ -118,25 +160,61 @@ class DiscoveryAPI(BaseWSGIApp):
             strict_slashes=False,
         )
 
+    def get_description(self, request: Request, url_args: Dict, response_t: Type[APIResponse], **_kwargs) -> Response:
+        return response_t(SUPPORTED_PROFILES.to_dict())
+
+    def get_all_aas_ids_by_asset_link(
+            self, request: Request, url_args: dict, response_t: Type[APIResponse], **_kwargs
+    ) -> Response:
+        asset_ids_param = request.args.get("assetIds", "")
+        if not asset_ids_param:
+            raise werkzeug.exceptions.BadRequest("Missing query parameter 'assetIds'")
+
+        try:
+            decoded_str = base64url_decode(asset_ids_param)
+            payload = json.loads(decoded_str)
+        except (ValueError, json.JSONDecodeError) as exc:
+            raise werkzeug.exceptions.BadRequest(f"Invalid query parameter 'assetIds': {exc}") from exc
+
+        if isinstance(payload, dict):
+            payload = [payload]
+
+        if not isinstance(payload, list):
+            raise werkzeug.exceptions.BadRequest("Decoded assetIds payload must be a JSON object or list")
+
+        matching_aas_keys = set()
+        for item in payload:
+            if not isinstance(item, dict):
+                raise werkzeug.exceptions.BadRequest("Each asset link must be a JSON object")
+
+            asset_link = server_model.AssetLink(item["name"], item["value"])
+            aas_keys = self.persistent_store.search_aas_ids_by_asset_link(asset_link)
+            matching_aas_keys.update(aas_keys)
+
+        paginated_slice, paging_metadata = self._get_slice(request, list(matching_aas_keys))
+        return response_t(list(paginated_slice), paging_metadata=paging_metadata)
+
     def search_all_aas_ids_by_asset_link(
-        self, request: Request, url_args: dict, response_t: type, **_kwargs
+        self, request: Request, url_args: dict, response_t: Type[APIResponse], **_kwargs
     ) -> Response:
         asset_links = HTTPApiDecoder.request_body_list(request, server_model.AssetLink, False)
         matching_aas_keys = set()
         for asset_link in asset_links:
             aas_keys = self.persistent_store.search_aas_ids_by_asset_link(asset_link)
             matching_aas_keys.update(aas_keys)
-        paginated_slice, cursor = self._get_slice(request, list(matching_aas_keys))
-        return response_t(list(paginated_slice), cursor=cursor)
+        paginated_slice, paging_metadata = self._get_slice(request, list(matching_aas_keys))
+        return response_t(list(paginated_slice), paging_metadata=paging_metadata)
 
     def get_all_specific_asset_ids_by_aas_id(
-        self, request: Request, url_args: dict, response_t: type, **_kwargs
+        self, request: Request, url_args: dict, response_t: Type[APIResponse], **_kwargs
     ) -> Response:
         aas_identifier = str(url_args["aas_id"])
         asset_ids = self.persistent_store.get_all_specific_asset_ids_by_aas_id(aas_identifier)
         return response_t(asset_ids)
 
-    def post_all_asset_links_by_id(self, request: Request, url_args: dict, response_t: type, **_kwargs) -> Response:
+    def post_all_asset_links_by_id(
+        self, request: Request, url_args: dict, response_t: Type[APIResponse], **_kwargs
+    ) -> Response:
         aas_identifier = str(url_args["aas_id"])
         specific_asset_ids = HTTPApiDecoder.request_body_list(request, model.SpecificAssetId, False)
         self.persistent_store.add_specific_asset_ids_to_aas(aas_identifier, specific_asset_ids)
@@ -145,7 +223,9 @@ class DiscoveryAPI(BaseWSGIApp):
         updated = {aas_identifier: self.persistent_store.get_all_specific_asset_ids_by_aas_id(aas_identifier)}
         return response_t(updated)
 
-    def delete_all_asset_links_by_id(self, request: Request, url_args: dict, response_t: type, **_kwargs) -> Response:
+    def delete_all_asset_links_by_id(
+        self, request: Request, url_args: dict, response_t: Type[APIResponse], **_kwargs
+    ) -> Response:
         aas_identifier = str(url_args["aas_id"])
         self.persistent_store.delete_specific_asset_ids_by_aas_id(aas_identifier)
         for key in list(self.persistent_store.asset_id_to_aas_ids.keys()):

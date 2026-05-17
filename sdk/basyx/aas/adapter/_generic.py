@@ -1,4 +1,4 @@
-# Copyright (c) 2025 the Eclipse BaSyx Authors
+# Copyright (c) 2026 the Eclipse BaSyx Authors
 #
 # This program and the accompanying materials are made available under the terms of the MIT License, available in
 # the LICENSE file of this project.
@@ -27,7 +27,7 @@ JSON_AAS_TOP_LEVEL_KEYS_TO_TYPES = (
 )
 
 # XML Namespace definition
-XML_NS_MAP = {"aas": "https://admin-shell.io/aas/3/0"}
+XML_NS_MAP = {"aas": "https://admin-shell.io/aas/3/1"}
 XML_NS_AAS = "{" + XML_NS_MAP["aas"] + "}"
 
 MODELLING_KIND: Dict[model.ModellingKind, str] = {
@@ -37,7 +37,8 @@ MODELLING_KIND: Dict[model.ModellingKind, str] = {
 ASSET_KIND: Dict[model.AssetKind, str] = {
     model.AssetKind.TYPE: 'Type',
     model.AssetKind.INSTANCE: 'Instance',
-    model.AssetKind.NOT_APPLICABLE: 'NotApplicable'}
+    model.AssetKind.NOT_APPLICABLE: 'NotApplicable',
+    model.AssetKind.ROLE: 'Role'}
 
 QUALIFIER_KIND: Dict[model.QualifierKind, str] = {
     model.QualifierKind.CONCEPT_QUALIFIER: 'ConceptQualifier',

@@ -100,10 +100,15 @@ class ReferableTest(unittest.TestCase):
         test_object = ExampleReferable()
         test_object.id_short = "Test"
         self.assertEqual("Test", test_object.id_short)
-        test_object.id_short = "asdASd123_"
-        self.assertEqual("asdASd123_", test_object.id_short)
+        test_object.id_short = "asdASd-123_"
+        self.assertEqual("asdASd-123_", test_object.id_short)
         test_object.id_short = "AAs12_"
         self.assertEqual("AAs12_", test_object.id_short)
+        test_object.id_short = "A"
+        self.assertEqual("A", test_object.id_short)
+        with self.assertRaises(model.AASConstraintViolation) as cm:
+            test_object.id_short = "Test-"
+        self.assertEqual("The id_short must not end with a hyphen (Constraint AASd-002)", str(cm.exception))
         with self.assertRaises(model.AASConstraintViolation) as cm:
             test_object.id_short = "98sdsfdAS"
         self.assertEqual("The id_short must start with a letter (Constraint AASd-002)", str(cm.exception))
@@ -113,12 +118,12 @@ class ReferableTest(unittest.TestCase):
         with self.assertRaises(model.AASConstraintViolation) as cm:
             test_object.id_short = "asdlujSAD8348@S"
         self.assertEqual(
-            "The id_short must contain only letters, digits and underscore (Constraint AASd-002)",
+            "The id_short must contain only letters, digits underscore and hyphen (Constraint AASd-002)",
             str(cm.exception))
         with self.assertRaises(model.AASConstraintViolation) as cm:
             test_object.id_short = "abc\n"
         self.assertEqual(
-            "The id_short must contain only letters, digits and underscore (Constraint AASd-002)",
+            "The id_short must contain only letters, digits underscore and hyphen (Constraint AASd-002)",
             str(cm.exception))
 
     def test_representation(self):
@@ -332,6 +337,18 @@ class ModelNamespaceTest(unittest.TestCase):
         self.extension2 = model.Extension("Ext2", model.datatypes.Int, 1, semantic_id=self.propSemanticID2)
         self.namespace = self._namespace_class()
         self.namespace3 = self._namespace_class_qualifier()
+
+    def test_namespaceset_pop_removes_from_all_backends(self) -> None:
+        # set1 has two backends: id_short and semantic_id
+        self.namespace.set1.add(self.prop1)
+        popped = self.namespace.set1.pop()
+        self.assertIs(self.prop1, popped)
+        self.assertEqual(0, len(self.namespace.set1))
+        # After pop, adding a new item with the same semantic_id must NOT raise AASConstraintViolation —
+        # it would if the popped item's semantic_id entry were still in the backend
+        new_prop = model.Property("NewProp", model.datatypes.Int, semantic_id=self.propSemanticID)
+        self.namespace.set1.add(new_prop)
+        self.assertEqual(1, len(self.namespace.set1))
 
     def test_NamespaceSet(self) -> None:
         self.namespace.set1.add(self.prop1)

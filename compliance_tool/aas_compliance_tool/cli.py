@@ -1,4 +1,4 @@
-# Copyright (c) 2025 the Eclipse BaSyx Authors
+# Copyright (c) 2026 the Eclipse BaSyx Authors
 #
 # This program and the accompanying materials are made available under the terms of the MIT License, available in
 # the LICENSE file of this project.
@@ -76,7 +76,7 @@ def parse_cli_arguments() -> argparse.ArgumentParser:
     parser.add_argument('-v', '--verbose', help="Print detailed information for each check. Multiple -v options "
                                                 "increase the verbosity. 1: Detailed error information, 2: Additional "
                                                 "detailed success information", action='count', default=0)
-    parser.add_argument('-q', '--quite', help="no information output if successful", action='store_true')
+    parser.add_argument('-q', '--quiet', help="no information output if successful", action='store_true')
     group = parser.add_mutually_exclusive_group(required=True)
     group.add_argument('--json', help="Use AAS json format when checking or creating files", action='store_true')
     group.add_argument('--xml', help="Use AAS xml format when checking or creating files", action='store_true')
@@ -177,9 +177,8 @@ def main():
                                                                 **data_checker_kwargs)
         else:
             parser.error("f or files requires two file path.")
-            exit()
 
-    if manager.status is Status.SUCCESS and args.quite:
+    if manager.status is Status.SUCCESS and args.quiet:
         exit()
 
     print(manager.format_state_manager(args.verbose))

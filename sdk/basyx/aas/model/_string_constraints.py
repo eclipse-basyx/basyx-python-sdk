@@ -1,4 +1,4 @@
-# Copyright (c) 2025 the Eclipse BaSyx Authors
+# Copyright (c) 2026 the Eclipse BaSyx Authors
 #
 # This program and the accompanying materials are made available under the terms of the MIT License, available in
 # the LICENSE file of this project.
@@ -64,11 +64,11 @@ def check(value: str, type_name: str, min_length: int = 0, max_length: Optional[
 
 
 def check_content_type(value: str, type_name: str = "ContentType") -> None:
-    return check(value, type_name, 1, 100)
+    return check(value, type_name, 1, 128)
 
 
 def check_identifier(value: str, type_name: str = "Identifier") -> None:
-    return check(value, type_name, 1, 2000)
+    return check(value, type_name, 1, 2048)
 
 
 def check_label_type(value: str, type_name: str = "LabelType") -> None:
@@ -84,7 +84,7 @@ def check_name_type(value: str, type_name: str = "NameType") -> None:
 
 
 def check_path_type(value: str, type_name: str = "PathType") -> None:
-    return check(value, type_name, 1, 2000)
+    return check(value, type_name, 1, 2048)
 
 
 def check_qualifier_type(value: str, type_name: str = "QualifierType") -> None:
@@ -100,7 +100,7 @@ def check_short_name_type(value: str, type_name: str = "ShortNameType") -> None:
 
 
 def check_value_type_iec61360(value: str, type_name: str = "ValueTypeIEC61360") -> None:
-    return check(value, type_name, 1, 2000)
+    return check(value, type_name, 1, 2048)
 
 
 def check_version_type(value: str, type_name: str = "VersionType") -> None:

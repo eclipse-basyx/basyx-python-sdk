@@ -150,13 +150,6 @@ class Submodel(base.Identifiable, base.HasSemantics, base.HasKind, base.Qualifia
         self.embedded_data_specifications: List[base.EmbeddedDataSpecification] = list(embedded_data_specifications)
 
 
-ALLOWED_DATA_ELEMENT_CATEGORIES: Set[str] = {
-    "CONSTANT",
-    "PARAMETER",
-    "VARIABLE"
-}
-
-
 class DataElement(SubmodelElement, metaclass=abc.ABCMeta):
     """
     A data element is a :class:`~.SubmodelElement` that is not further composed out of other
@@ -203,28 +196,13 @@ class DataElement(SubmodelElement, metaclass=abc.ABCMeta):
         super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, extension,
                          supplemental_semantic_id, embedded_data_specifications)
 
-    def _set_category(self, category: Optional[str]):
-        if category == "":
-            raise base.AASConstraintViolation(100,
-                                              "category is not allowed to be an empty string")
-        if category is None:
-            self._category = None
-        else:
-            if category not in ALLOWED_DATA_ELEMENT_CATEGORIES:
-                if not (isinstance(self, File) or isinstance(self, Blob)):
-                    raise base.AASConstraintViolation(
-                        90,
-                        "DataElement.category must be one of the following: " +
-                        ", ".join(ALLOWED_DATA_ELEMENT_CATEGORIES))
-            self._category = category
-
 
 class Property(DataElement):
     """
     A property is a :class:`DataElement` that has a single value.
 
     **Constraint AASd-007:** If both, the value and the valueId of a Qualifier are present,
-    the value needs to be identical to the value of the referenced coded value in Qualifier/valueId.
+    the value shall be identical to the value of the referenced coded value in Qualifier/valueId.
 
     :ivar id_short: Identifying string of the element within its name space. (inherited from
                     :class:`~basyx.aas.model.base.Referable`)
@@ -474,7 +452,7 @@ class Blob(DataElement):
 
     def __init__(self,
                  id_short: Optional[base.NameType],
-                 content_type: base.ContentType,
+                 content_type: Optional[base.ContentType] = None,
                  value: Optional[base.BlobType] = None,
                  display_name: Optional[base.MultiLanguageNameType] = None,
                  category: Optional[base.NameType] = None,
@@ -492,7 +470,7 @@ class Blob(DataElement):
         super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, extension,
                          supplemental_semantic_id, embedded_data_specifications)
         self.value: Optional[base.BlobType] = value
-        self.content_type: base.ContentType = content_type
+        self.content_type: Optional[base.ContentType] = content_type
 
 
 @_string_constraints.constrain_content_type("content_type")
@@ -528,7 +506,7 @@ class File(DataElement):
 
     def __init__(self,
                  id_short: Optional[base.NameType],
-                 content_type: base.ContentType,
+                 content_type: Optional[base.ContentType] = None,
                  value: Optional[base.PathType] = None,
                  display_name: Optional[base.MultiLanguageNameType] = None,
                  category: Optional[base.NameType] = None,
@@ -546,7 +524,7 @@ class File(DataElement):
         super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, extension,
                          supplemental_semantic_id, embedded_data_specifications)
         self.value: Optional[base.PathType] = value
-        self.content_type: base.ContentType = content_type
+        self.content_type: Optional[base.ContentType] = content_type
 
 
 class ReferenceElement(DataElement):
@@ -750,17 +728,16 @@ class SubmodelElementList(SubmodelElement, base.UniqueIdShortNamespace, Generic[
             raise
 
     def _generate_id_short(self, new: _SE) -> None:
-        if new.id_short is not None:
-            raise base.AASConstraintViolation(120, "Objects with an id_short may not be added to a "
-                                                   f"SubmodelElementList, got {new!r} with id_short={new.id_short}")
         # Generate a unique id_short when a SubmodelElement is added, because children of a SubmodelElementList may not
         # have an id_short. The alternative would be making SubmodelElementList a special kind of base.Namespace without
         # a unique attribute for child-elements (which contradicts the definition of a Namespace).
-        new.id_short = "generated_submodel_list_hack_" + uuid.uuid1(clock_seq=self._uuid_seq).hex
-        self._uuid_seq += 1
+        if new.id_short is None:
+            new.id_short = "generated_submodel_list_hack_" + uuid.uuid1(clock_seq=self._uuid_seq).hex
+            self._uuid_seq += 1
 
     def _unset_id_short(self, old: _SE) -> None:
-        old.id_short = None
+        if old.id_short is not None and old.id_short.startswith("generated_submodel_list_hack_"):
+            old.id_short = None
 
     def _check_constraints(self, new: _SE, existing: Iterable[_SE]) -> None:
         # Since the id_short contains randomness, unset it temporarily for pretty and predictable error messages.
@@ -870,8 +847,8 @@ class RelationshipElement(SubmodelElement):
 
     def __init__(self,
                  id_short: Optional[base.NameType],
-                 first: base.Reference,
-                 second: base.Reference,
+                 first: Optional[base.Reference] = None,
+                 second: Optional[base.Reference] = None,
                  display_name: Optional[base.MultiLanguageNameType] = None,
                  category: Optional[base.NameType] = None,
                  description: Optional[base.MultiLanguageTextType] = None,
@@ -887,8 +864,8 @@ class RelationshipElement(SubmodelElement):
 
         super().__init__(id_short, display_name, category, description, parent, semantic_id, qualifier, extension,
                          supplemental_semantic_id, embedded_data_specifications)
-        self.first: base.Reference = first
-        self.second: base.Reference = second
+        self.first: Optional[base.Reference] = first
+        self.second: Optional[base.Reference] = second
 
 
 class AnnotatedRelationshipElement(RelationshipElement, base.UniqueIdShortNamespace):
@@ -1063,8 +1040,8 @@ class Entity(SubmodelElement, base.UniqueIdShortNamespace):
     """
     An entity is a :class:`~.SubmodelElement` that is used to model entities
 
-    **Constraint AASd-014:** global_asset_id or specific_asset_id must be set if ``entity_type`` is set to
-    :attr:`~basyx.aas.model.base.EntityType.SELF_MANAGED_ENTITY`. They must be empty otherwise.
+    **Constraint AASd-014:** Either the attribute ``globalAssetId`` or ``specificAssetId`` of an ``Entity``
+    must be set if ``Entity/entityType`` is set to ``SelfManagedEntity``.
 
     :ivar id_short: Identifying string of the element within its name space. (inherited from
                     :class:`~basyx.aas.model.base.Referable`)
@@ -1098,7 +1075,7 @@ class Entity(SubmodelElement, base.UniqueIdShortNamespace):
 
     def __init__(self,
                  id_short: Optional[base.NameType],
-                 entity_type: base.EntityType,
+                 entity_type: Optional[base.EntityType],
                  statement: Iterable[SubmodelElement] = (),
                  global_asset_id: Optional[base.Identifier] = None,
                  specific_asset_id: Iterable[base.SpecificAssetId] = (),
@@ -1118,7 +1095,7 @@ class Entity(SubmodelElement, base.UniqueIdShortNamespace):
                          supplemental_semantic_id, embedded_data_specifications)
         self.statement = base.NamespaceSet(self, [("id_short", True)], statement)
         # assign private attributes, bypassing setters, as constraints will be checked below
-        self._entity_type: base.EntityType = entity_type
+        self._entity_type: Optional[base.EntityType] = entity_type
         self._global_asset_id: Optional[base.Identifier] = global_asset_id
         self._specific_asset_id: base.ConstrainedList[base.SpecificAssetId] = base.ConstrainedList(
             specific_asset_id,
@@ -1130,11 +1107,11 @@ class Entity(SubmodelElement, base.UniqueIdShortNamespace):
         self._validate_aasd_014(entity_type, global_asset_id, bool(specific_asset_id))
 
     @property
-    def entity_type(self) -> base.EntityType:
+    def entity_type(self) -> Optional[base.EntityType]:
         return self._entity_type
 
     @entity_type.setter
-    def entity_type(self, entity_type: base.EntityType) -> None:
+    def entity_type(self, entity_type: Optional[base.EntityType]) -> None:
         self._validate_aasd_014(entity_type, self.global_asset_id, bool(self.specific_asset_id))
         self._entity_type = entity_type
 
@@ -1177,9 +1154,11 @@ class Entity(SubmodelElement, base.UniqueIdShortNamespace):
             _string_constraints.check_identifier(global_asset_id)
 
     @staticmethod
-    def _validate_aasd_014(entity_type: base.EntityType,
+    def _validate_aasd_014(entity_type: Optional[base.EntityType],
                            global_asset_id: Optional[base.Identifier],
                            specific_asset_id_nonempty: bool) -> None:
+        if entity_type is None:
+            return
         if entity_type == base.EntityType.SELF_MANAGED_ENTITY and global_asset_id is None \
                 and not specific_asset_id_nonempty:
             raise base.AASConstraintViolation(

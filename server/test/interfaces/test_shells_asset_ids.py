@@ -42,3 +42,8 @@ class ShellsAssetIdsTest(unittest.TestCase):
         result = json.loads(response.data)
         returned_ids = [r["id"] for r in result]
         self.assertIn(aas_list[0].id, returned_ids)
+
+    def test_malformed_asset_id_missing_field_returns_400(self) -> None:
+        bad_payload = base64.urlsafe_b64encode(b'{"name": "globalAssetId"}').decode()
+        response = self.client.get(f"{BASE_PATH}/shells?assetIds={bad_payload}")
+        self.assertEqual(400, response.status_code)

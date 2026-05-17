@@ -1,10 +1,10 @@
 import logging
-from typing import Callable, Dict, Optional, Set, Type
+from typing import Callable, Dict, Type
 
 from basyx.aas import model
-from basyx.aas.adapter._generic import ASSET_KIND, ASSET_KIND_INVERSE, JSON_AAS_TOP_LEVEL_KEYS_TO_TYPES, PathOrIO
+from basyx.aas.adapter._generic import ASSET_KIND, ASSET_KIND_INVERSE, JSON_AAS_TOP_LEVEL_KEYS_TO_TYPES
 from basyx.aas.adapter.json import AASToJsonEncoder
-from basyx.aas.adapter.json.json_deserialization import AASFromJsonDecoder, _get_ts, read_aas_json_file_into
+from basyx.aas.adapter.json.json_deserialization import AASFromJsonDecoder, _get_ts
 
 import app.model as server_model
 
@@ -205,27 +205,6 @@ class ServerStrictStrippedAASFromJsonDecoder(ServerStrictAASFromJsonDecoder, Ser
     """
 
     pass
-
-
-def read_server_aas_json_file_into(
-    object_store: model.AbstractObjectStore,
-    file: PathOrIO,
-    replace_existing: bool = False,
-    ignore_existing: bool = False,
-    failsafe: bool = True,
-    stripped: bool = False,
-    decoder: Optional[Type[AASFromJsonDecoder]] = None,
-) -> Set[model.Identifier]:
-    return read_aas_json_file_into(
-        object_store=object_store,
-        file=file,
-        replace_existing=replace_existing,
-        ignore_existing=ignore_existing,
-        failsafe=failsafe,
-        stripped=stripped,
-        decoder=decoder,
-        keys_to_types=JSON_SERVER_AAS_TOP_LEVEL_KEYS_TO_TYPES,
-    )
 
 
 class ServerAASToJsonEncoder(AASToJsonEncoder):

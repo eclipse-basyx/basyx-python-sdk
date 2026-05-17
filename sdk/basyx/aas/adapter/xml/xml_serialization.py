@@ -322,7 +322,8 @@ def value_reference_pair_to_xml(obj: model.ValueReferencePair,
     et_vrp = _generate_element(tag)
     # TODO: value_type isn't used at all by _value_to_xml(), thus we can ignore the type here for now
     et_vrp.append(_generate_element(NS_AAS+"value", text=obj.value))  # type: ignore
-    et_vrp.append(reference_to_xml(obj.value_id, NS_AAS+"valueId"))
+    if obj.value_id is not None:
+        et_vrp.append(reference_to_xml(obj.value_id, NS_AAS+"valueId"))
     return et_vrp
 
 
@@ -627,7 +628,8 @@ def blob_to_xml(obj: model.Blob,
     if obj.value is not None:
         et_value.text = base64.b64encode(obj.value).decode()
     et_blob.append(et_value)
-    et_blob.append(_generate_element(NS_AAS + "contentType", text=obj.content_type))
+    if obj.content_type is not None:
+        et_blob.append(_generate_element(NS_AAS + "contentType", text=obj.content_type))
     return et_blob
 
 
@@ -643,7 +645,8 @@ def file_to_xml(obj: model.File,
     et_file = abstract_classes_to_xml(tag, obj)
     if obj.value:
         et_file.append(_generate_element(NS_AAS + "value", text=obj.value))
-    et_file.append(_generate_element(NS_AAS + "contentType", text=obj.content_type))
+    if obj.content_type is not None:
+        et_file.append(_generate_element(NS_AAS + "contentType", text=obj.content_type))
     return et_file
 
 
@@ -733,8 +736,10 @@ def relationship_element_to_xml(obj: model.RelationshipElement,
     :return: Serialized :class:`~lxml.etree._Element` object
     """
     et_relationship_element = abstract_classes_to_xml(tag, obj)
-    et_relationship_element.append(reference_to_xml(obj.first, NS_AAS+"first"))
-    et_relationship_element.append(reference_to_xml(obj.second, NS_AAS+"second"))
+    if obj.first is not None:
+        et_relationship_element.append(reference_to_xml(obj.first, NS_AAS+"first"))
+    if obj.second is not None:
+        et_relationship_element.append(reference_to_xml(obj.second, NS_AAS+"second"))
     return et_relationship_element
 
 
@@ -822,7 +827,8 @@ def entity_to_xml(obj: model.Entity,
         for statement in obj.statement:
             et_statements.append(submodel_element_to_xml(statement))
         et_entity.append(et_statements)
-    et_entity.append(_generate_element(NS_AAS + "entityType", text=_generic.ENTITY_TYPES[obj.entity_type]))
+    if obj.entity_type:
+        et_entity.append(_generate_element(NS_AAS + "entityType", text=_generic.ENTITY_TYPES[obj.entity_type]))
     if obj.global_asset_id:
         et_entity.append(_generate_element(NS_AAS + "globalAssetId", text=obj.global_asset_id))
     if obj.specific_asset_id:

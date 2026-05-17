@@ -1,10 +1,11 @@
+import json
 from pathlib import Path
 from typing import IO, Dict, Iterable, Iterator, Union
 
 from basyx.aas import model
 from basyx.aas.model import provider as sdk_provider
 
-import app.adapter as adapter
+from app.adapter import ServerAASFromJsonDecoder
 from app.model import descriptor
 
 PathOrIO = Union[Path, IO]
@@ -53,27 +54,30 @@ class DictDescriptorStore(sdk_provider.AbstractObjectStore[model.Identifier, _DE
 
 def load_directory(directory: Union[Path, str]) -> DictDescriptorStore:
     """
-    Create a new :class:`~basyx.aas.model.provider.DictIdentifiableStore` and use it to load Asset Administration Shell
-    and Submodel files in ``AASX``, ``JSON`` and ``XML`` format from a given directory into memory. Additionally, load
-    all embedded supplementary files into a new :class:`~basyx.aas.adapter.aasx.DictSupplementaryFileContainer`.
+    Load AAS/Submodel descriptor JSON files from a directory into a :class:`DictDescriptorStore`.
 
-    :param directory: :class:`~pathlib.Path` or ``str`` pointing to the directory containing all Asset Administration
-        Shell and Submodel files to load
-    :return: Tuple consisting of a :class:`~basyx.aas.model.provider.DictIdentifiableStore` and a
-        :class:`~basyx.aas.adapter.aasx.DictSupplementaryFileContainer` containing all loaded data
+    :param directory: Path to the directory containing JSON descriptor files
+    :return: Populated :class:`DictDescriptorStore`
     """
-
-    dict_descriptor_store: DictDescriptorStore = DictDescriptorStore()
-
+    store = DictDescriptorStore()
     directory = Path(directory)
 
     for file in directory.iterdir():
-        if not file.is_file():
+        if not file.is_file() or file.suffix.lower() != ".json":
             continue
+        with open(file) as f:
+            data = json.load(f, cls=ServerAASFromJsonDecoder)
+        for item in data.get("assetAdministrationShellDescriptors", []):
+            if isinstance(item, descriptor.AssetAdministrationShellDescriptor):
+                try:
+                    store.add(item)
+                except KeyError:
+                    pass
+        for item in data.get("submodelDescriptors", []):
+            if isinstance(item, descriptor.SubmodelDescriptor):
+                try:
+                    store.add(item)
+                except KeyError:
+                    pass
 
-        suffix = file.suffix.lower()
-        if suffix == ".json":
-            with open(file) as f:
-                adapter.read_server_aas_json_file_into(dict_descriptor_store, f)
-
-    return dict_descriptor_store
+    return store
