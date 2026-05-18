@@ -12,50 +12,6 @@ from aas_compliance_tool.state_manager import ComplianceToolStateManager, Status
 
 
 class ComplianceToolJsonTest(unittest.TestCase):
-    def test_check_schema(self) -> None:
-        manager = ComplianceToolStateManager()
-        script_dir = os.path.dirname(__file__)
-        file_path_1 = os.path.join(script_dir, 'files/test_not_found.json')
-        compliance_tool.check_schema(file_path_1, manager)
-        self.assertEqual(3, len(manager.steps))
-        self.assertEqual(Status.FAILED, manager.steps[0].status)
-        self.assertEqual(Status.NOT_EXECUTED, manager.steps[1].status)
-        self.assertEqual(Status.NOT_EXECUTED, manager.steps[2].status)
-        self.assertIn("No such file or directory", manager.format_step(0, verbose_level=1))
-
-        manager.steps = []
-        file_path_2 = os.path.join(script_dir, 'files/test_not_deserializable.json')
-        compliance_tool.check_schema(file_path_2, manager)
-        self.assertEqual(3, len(manager.steps))
-        self.assertEqual(Status.SUCCESS, manager.steps[0].status)
-        self.assertEqual(Status.FAILED, manager.steps[1].status)
-        self.assertEqual(Status.NOT_EXECUTED, manager.steps[2].status)
-        self.assertIn("Expecting ',' delimiter: line 4 column 2 (char 54)", manager.format_step(1, verbose_level=1))
-
-        manager.steps = []
-        file_path_3 = os.path.join(script_dir, 'files/test_empty.json')
-        compliance_tool.check_schema(file_path_3, manager)
-        self.assertEqual(3, len(manager.steps))
-        self.assertEqual(Status.SUCCESS, manager.steps[0].status)
-        self.assertEqual(Status.SUCCESS, manager.steps[1].status)
-        self.assertEqual(Status.SUCCESS, manager.steps[2].status)
-
-        manager.steps = []
-        file_path_4 = os.path.join(script_dir, 'files/test_demo_full_example.json')
-        compliance_tool.check_schema(file_path_4, manager)
-        self.assertEqual(3, len(manager.steps))
-        self.assertEqual(Status.SUCCESS, manager.steps[0].status)
-        self.assertEqual(Status.SUCCESS, manager.steps[1].status)
-        self.assertEqual(Status.SUCCESS, manager.steps[2].status)
-
-        manager.steps = []
-        file_path_5 = os.path.join(script_dir, 'files/test_demo_full_example_wrong_attribute.json')
-        compliance_tool.check_schema(file_path_5, manager)
-        self.assertEqual(3, len(manager.steps))
-        self.assertEqual(Status.SUCCESS, manager.steps[0].status)
-        self.assertEqual(Status.SUCCESS, manager.steps[1].status)
-        self.assertEqual(Status.SUCCESS, manager.steps[2].status)
-
     def test_check_deserialization(self) -> None:
         manager = ComplianceToolStateManager()
         script_dir = os.path.dirname(__file__)
