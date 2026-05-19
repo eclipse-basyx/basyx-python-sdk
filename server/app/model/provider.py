@@ -5,7 +5,7 @@ from typing import IO, Dict, Iterable, Iterator, Union
 from basyx.aas import model
 from basyx.aas.model import provider as sdk_provider
 
-from app.adapter import ServerAASFromJsonDecoder
+from app import adapter
 from app.model import descriptor
 
 PathOrIO = Union[Path, IO]
@@ -66,7 +66,7 @@ def load_directory(directory: Union[Path, str]) -> DictDescriptorStore:
         if not file.is_file() or file.suffix.lower() != ".json":
             continue
         with open(file) as f:
-            data = json.load(f, cls=ServerAASFromJsonDecoder)
+            data = json.load(f, cls=adapter.ServerAASFromJsonDecoder)
         for item in data.get("assetAdministrationShellDescriptors", []):
             if isinstance(item, descriptor.AssetAdministrationShellDescriptor):
                 try:
