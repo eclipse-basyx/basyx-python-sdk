@@ -67,20 +67,15 @@ class LocalFileDescriptorStore(sdk_provider.AbstractObjectStore[model.Identifier
 
         :raises KeyError: If the respective file could not be found
         """
-        # Try to get the correct file
         try:
             with open("{}/{}.json".format(self.directory_path, hash_), "r") as file:
                 obj = json.load(file, cls=jsonization.ServerAASFromJsonDecoder)
         except FileNotFoundError as e:
             raise KeyError("No Descriptor with hash {} found in local file database".format(hash_)) from e
-        # If we still have a local replication of that object (since it is referenced from anywhere else), update that
-        # replication and return it.
         with self._object_cache_lock:
             if obj.id in self._object_cache:
-                old_obj = self._object_cache[obj.id]
-                old_obj.update_from(obj)
-                return old_obj
-        self._object_cache[obj.id] = obj
+                return self._object_cache[obj.id]
+            self._object_cache[obj.id] = obj
         return obj
 
     def get_item(self, identifier: model.Identifier) -> _DESCRIPTOR_TYPE:
@@ -89,6 +84,9 @@ class LocalFileDescriptorStore(sdk_provider.AbstractObjectStore[model.Identifier
 
         :raises KeyError: If the respective file could not be found
         """
+        with self._object_cache_lock:
+            if identifier in self._object_cache:
+                return self._object_cache[identifier]
         try:
             return self.get_descriptor_by_hash(self._transform_id(identifier))
         except KeyError as e:
@@ -112,6 +110,20 @@ class LocalFileDescriptorStore(sdk_provider.AbstractObjectStore[model.Identifier
             json.dump(serialized, file, indent=4)
             with self._object_cache_lock:
                 self._object_cache[x.id] = x
+
+    def commit(self, x: _DESCRIPTOR_TYPE) -> None:
+        """
+        Write the current in-memory state of a stored descriptor back to its file.
+
+        :param x: The descriptor to persist
+        :raises KeyError: If the descriptor is not present in the store
+        """
+        if not os.path.exists("{}/{}.json".format(self.directory_path, self._transform_id(x.id))):
+            raise KeyError("No AAS Descriptor object with id {} exists in local file database".format(x.id))
+        with open("{}/{}.json".format(self.directory_path, self._transform_id(x.id)), "w") as file:
+            serialized = json.loads(json.dumps(x, cls=jsonization.ServerAASToJsonEncoder))
+            serialized["modelType"] = DESCRIPTOR_TYPE_TO_STRING[type(x)]
+            json.dump(serialized, file, indent=4)
 
     def discard(self, x: _DESCRIPTOR_TYPE) -> None:
         """

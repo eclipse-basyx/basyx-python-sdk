@@ -180,7 +180,7 @@ class RegistryAPI(ObjectStoreWSGIApp):
             self.object_store.add(descriptor)
         except KeyError as e:
             raise Conflict(f"AssetAdministrationShellDescriptor with Identifier {descriptor.id} already exists!") from e
-        descriptor.commit()
+        self.object_store.commit(descriptor)
         created_resource_url = map_adapter.build(
             self.get_aas_descriptor_by_id, {"aas_id": descriptor.id}, force_external=True
         )
@@ -202,12 +202,12 @@ class RegistryAPI(ObjectStoreWSGIApp):
                     request, server_model.AssetAdministrationShellDescriptor, is_stripped_request(request)
                 )
             )
-            descriptor.commit()
+            self.object_store.commit(descriptor)
             return response_t()
         except NotFound:
             descriptor = HTTPApiDecoder.request_body(request, server_model.AssetAdministrationShellDescriptor, False)
             self.object_store.add(descriptor)
-            descriptor.commit()
+            self.object_store.commit(descriptor)
             created_resource_url = map_adapter.build(
                 self.get_aas_descriptor_by_id, {"aas_id": descriptor.id}, force_external=True
             )
@@ -247,7 +247,7 @@ class RegistryAPI(ObjectStoreWSGIApp):
         if any(sd.id == submodel_descriptor.id for sd in aas_descriptor.submodel_descriptors):
             raise Conflict(f"Submodel Descriptor with Identifier {submodel_descriptor.id} already exists!")
         aas_descriptor.submodel_descriptors.append(submodel_descriptor)
-        aas_descriptor.commit()
+        self.object_store.commit(aas_descriptor)
         created_resource_url = map_adapter.build(
             self.get_submodel_descriptor_by_id_through_superpath,
             {"aas_id": aas_descriptor.id, "submodel_id": submodel_descriptor.id},
@@ -269,14 +269,14 @@ class RegistryAPI(ObjectStoreWSGIApp):
             submodel_descriptor.update_from(
                 HTTPApiDecoder.request_body(request, server_model.SubmodelDescriptor, is_stripped_request(request))
             )
-            aas_descriptor.commit()
+            self.object_store.commit(aas_descriptor)
             return response_t()
         except NotFound:
             submodel_descriptor = HTTPApiDecoder.request_body(
                 request, server_model.SubmodelDescriptor, is_stripped_request(request)
             )
             aas_descriptor.submodel_descriptors.append(submodel_descriptor)
-            aas_descriptor.commit()
+            self.object_store.commit(aas_descriptor)
             created_resource_url = map_adapter.build(
                 self.get_submodel_descriptor_by_id_through_superpath,
                 {"aas_id": aas_descriptor.id, "submodel_id": submodel_descriptor.id},
@@ -293,7 +293,7 @@ class RegistryAPI(ObjectStoreWSGIApp):
         if submodel_descriptor is None:
             raise NotFound(f"Submodel Descriptor with Identifier {submodel_id} not found in AssetAdministrationShell!")
         aas_descriptor.submodel_descriptors.remove(submodel_descriptor)
-        aas_descriptor.commit()
+        self.object_store.commit(aas_descriptor)
         return response_t()
 
     # ------ Submodel REGISTRY ROUTES -------
@@ -321,7 +321,7 @@ class RegistryAPI(ObjectStoreWSGIApp):
             self.object_store.add(submodel_descriptor)
         except KeyError as e:
             raise Conflict(f"Submodel Descriptor with Identifier {submodel_descriptor.id} already exists!") from e
-        submodel_descriptor.commit()
+        self.object_store.commit(submodel_descriptor)
         created_resource_url = map_adapter.build(
             self.get_submodel_descriptor_by_id, {"submodel_id": submodel_descriptor.id}, force_external=True
         )
@@ -335,14 +335,14 @@ class RegistryAPI(ObjectStoreWSGIApp):
             submodel_descriptor.update_from(
                 HTTPApiDecoder.request_body(request, server_model.SubmodelDescriptor, is_stripped_request(request))
             )
-            submodel_descriptor.commit()
+            self.object_store.commit(submodel_descriptor)
             return response_t()
         except NotFound:
             submodel_descriptor = HTTPApiDecoder.request_body(
                 request, server_model.SubmodelDescriptor, is_stripped_request(request)
             )
             self.object_store.add(submodel_descriptor)
-            submodel_descriptor.commit()
+            self.object_store.commit(submodel_descriptor)
             created_resource_url = map_adapter.build(
                 self.get_submodel_descriptor_by_id, {"submodel_id": submodel_descriptor.id}, force_external=True
             )

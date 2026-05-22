@@ -75,6 +75,8 @@ class LocalFileIdentifiableStore(model.AbstractObjectStore[model.Identifier, mod
         except FileNotFoundError as e:
             raise KeyError("No Identifiable with hash {} found in local file database".format(hash_)) from e
         with self._object_cache_lock:
+            if obj.id in self._object_cache:
+                return self._object_cache[obj.id]
             self._object_cache[obj.id] = obj
         return obj
 
