@@ -160,7 +160,6 @@ class CouchDBIdentifiableStore(model.AbstractObjectStore[model.Identifier, model
                 raise KeyError("No Identifiable with couchdb-id {} found in CouchDB database".format(couchdb_id)) from e
             raise
 
-        # Add CouchDB metadata (for later commits) to object
         obj = data['data']
         if not isinstance(obj, model.Identifiable):
             raise CouchDBResponseError("The CouchDB document with id {} does not contain an identifiable AAS object."
@@ -168,14 +167,10 @@ class CouchDBIdentifiableStore(model.AbstractObjectStore[model.Identifier, model
         set_couchdb_revision("{}/{}/{}".format(self.url, self.database_name, urllib.parse.quote(couchdb_id, safe='')),
                              data["_rev"])
 
-        # If we still have a local replication of that object (since it is referenced from anywhere else), update that
-        # replication and return it.
         with self._object_cache_lock:
             if obj.id in self._object_cache:
-                old_obj = self._object_cache[obj.id]
-                old_obj.update_from(obj)
-                return old_obj
-        self._object_cache[obj.id] = obj
+                return self._object_cache[obj.id]
+            self._object_cache[obj.id] = obj
         return obj
 
     def get_item(self, identifier: model.Identifier) -> model.Identifiable:
@@ -186,6 +181,9 @@ class CouchDBIdentifiableStore(model.AbstractObjectStore[model.Identifier, model
         :raises CouchDBError: If error occur during the request to the CouchDB server
                               (see ``_do_request()`` for details)
         """
+        with self._object_cache_lock:
+            if identifier in self._object_cache:
+                return self._object_cache[identifier]
         try:
             return self.get_identifiable_by_couchdb_id(self._transform_id(identifier, False))
         except KeyError as e:
@@ -219,6 +217,37 @@ class CouchDBIdentifiableStore(model.AbstractObjectStore[model.Identifier, model
             raise
         with self._object_cache_lock:
             self._object_cache[x.id] = x
+
+    def commit(self, x: model.Identifiable) -> None:
+        """
+        Write the current in-memory state of a stored object back to the CouchDB.
+
+        :param x: The object to persist
+        :raises KeyError: If the object is not present in the store or no revision is known
+        :raises CouchDBConflictError: If the object was modified in the database since it was last fetched
+        :raises CouchDBError: If error occur during the request to the CouchDB server
+                              (see ``_do_request()`` for details)
+        """
+        doc_url = "{}/{}/{}".format(self.url, self.database_name, self._transform_id(x.id))
+        rev = get_couchdb_revision(doc_url)
+        if rev is None:
+            raise KeyError("No revision found for object with id {} — not fetched from this store".format(x.id))
+        data = json.dumps({'data': x}, cls=json_serialization.AASToJsonEncoder)
+        try:
+            response = self._do_request(
+                "{}?rev={}".format(doc_url, rev),
+                'PUT',
+                {'Content-type': 'application/json'},
+                data.encode('utf-8'))
+            set_couchdb_revision(doc_url, response["rev"])
+        except CouchDBServerError as e:
+            if e.code == 404:
+                raise KeyError("No AAS object with id {} exists in CouchDB database".format(x.id)) from e
+            elif e.code == 409:
+                raise CouchDBConflictError(
+                    "Object with id {} has been modified in the database since it was last fetched."
+                    .format(x.id)) from e
+            raise
 
     def discard(self, x: model.Identifiable, safe_delete=False) -> None:
         """
