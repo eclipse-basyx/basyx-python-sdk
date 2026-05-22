@@ -68,21 +68,14 @@ class LocalFileIdentifiableStore(model.AbstractObjectStore[model.Identifier, mod
 
         :raises KeyError: If the respective file could not be found
         """
-        # Try to get the correct file
         try:
             with open("{}/{}.json".format(self.directory_path, hash_), "r") as file:
                 data = json.load(file, cls=json_deserialization.AASFromJsonDecoder)
                 obj = data["data"]
         except FileNotFoundError as e:
             raise KeyError("No Identifiable with hash {} found in local file database".format(hash_)) from e
-        # If we still have a local replication of that object (since it is referenced from anywhere else), update that
-        # replication and return it.
         with self._object_cache_lock:
-            if obj.id in self._object_cache:
-                old_obj = self._object_cache[obj.id]
-                old_obj.update_from(obj)
-                return old_obj
-        self._object_cache[obj.id] = obj
+            self._object_cache[obj.id] = obj
         return obj
 
     def get_item(self, identifier: model.Identifier) -> model.Identifiable:
@@ -91,6 +84,9 @@ class LocalFileIdentifiableStore(model.AbstractObjectStore[model.Identifier, mod
 
         :raises KeyError: If the respective file could not be found
         """
+        with self._object_cache_lock:
+            if identifier in self._object_cache:
+                return self._object_cache[identifier]
         try:
             return self.get_identifiable_by_hash(self._transform_id(identifier))
         except KeyError as e:
@@ -109,6 +105,18 @@ class LocalFileIdentifiableStore(model.AbstractObjectStore[model.Identifier, mod
             json.dump({"data": x}, file, cls=json_serialization.AASToJsonEncoder, indent=4)
             with self._object_cache_lock:
                 self._object_cache[x.id] = x
+
+    def commit(self, x: model.Identifiable) -> None:
+        """
+        Write the current in-memory state of a stored object back to its file.
+
+        :param x: The object to persist
+        :raises KeyError: If the object is not present in the store
+        """
+        if not os.path.exists("{}/{}.json".format(self.directory_path, self._transform_id(x.id))):
+            raise KeyError("No AAS object with id {} exists in local file database".format(x.id))
+        with open("{}/{}.json".format(self.directory_path, self._transform_id(x.id)), "w") as file:
+            json.dump({"data": x}, file, cls=json_serialization.AASToJsonEncoder, indent=4)
 
     def discard(self, x: model.Identifiable) -> None:
         """

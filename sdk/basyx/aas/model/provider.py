@@ -59,6 +59,18 @@ class AbstractObjectStore(AbstractObjectProvider[_KEY, _VALUE], MutableSet[_VALU
     def __init__(self):
         pass
 
+    def commit(self, x: _VALUE) -> None:
+        """
+        Persist an in-memory mutation of a stored object back to the underlying storage.
+
+        The default implementation is a no-op, suitable for in-memory stores where the object
+        is the storage. Persistent backends (e.g. file-based or database-backed stores) must
+        override this to write the updated object back to storage.
+
+        :param x: The object whose current in-memory state should be persisted
+        """
+        pass
+
     def update(self, other: Iterable[_VALUE]) -> None:
         for x in other:
             self.add(x)

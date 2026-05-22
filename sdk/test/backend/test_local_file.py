@@ -4,6 +4,7 @@
 # the LICENSE file of this project.
 #
 # SPDX-License-Identifier: MIT
+import gc
 import os.path
 import shutil
 
@@ -133,6 +134,32 @@ class LocalFileBackendTest(TestCase):
         items = list(self.identifiable_store)
         self.assertEqual(5, len(items))
         os.remove(stray)
+
+    def test_mutation_persistence(self) -> None:
+        submodel = model.Submodel(
+            id_='https://example.org/MutationTest',
+            submodel_element={
+                model.Property(id_short='Prop', value_type=model.datatypes.String, value='before')
+            }
+        )
+        self.identifiable_store.add(submodel)
+
+        retrieved = self.identifiable_store.get_item('https://example.org/MutationTest')
+        assert isinstance(retrieved, model.Submodel)
+        prop = retrieved.get_referable(['Prop'])
+        assert isinstance(prop, model.Property)
+        prop.update_from(model.Property(id_short='Prop', value_type=model.datatypes.String, value='after'))
+        self.identifiable_store.commit(retrieved)
+
+        # Drop all strong references to evict the WeakValueDictionary cache
+        del submodel, retrieved, prop
+        gc.collect()
+
+        fresh = self.identifiable_store.get_item('https://example.org/MutationTest')
+        assert isinstance(fresh, model.Submodel)
+        fresh_prop = fresh.get_referable(['Prop'])
+        assert isinstance(fresh_prop, model.Property)
+        self.assertEqual('after', fresh_prop.value)
 
     def test_reload_discard(self) -> None:
         # Load example submodel
