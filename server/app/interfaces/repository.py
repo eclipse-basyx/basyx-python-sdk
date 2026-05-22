@@ -559,6 +559,7 @@ class WSGIApp(ObjectStoreWSGIApp):
         aas.update_from(
             HTTPApiDecoder.request_body(request, model.AssetAdministrationShell, is_stripped_request(request))
         )
+        self.object_store.commit(aas)
         return response_t()
 
     def delete_aas(self, request: Request, url_args: Dict, response_t: Type[APIResponse], **_kwargs) -> Response:
@@ -577,6 +578,7 @@ class WSGIApp(ObjectStoreWSGIApp):
     ) -> Response:
         aas = self._get_shell(url_args)
         aas.asset_information = HTTPApiDecoder.request_body(request, model.AssetInformation, False)
+        self.object_store.commit(aas)
         return response_t()
 
     def get_aas_submodel_refs(
@@ -595,6 +597,7 @@ class WSGIApp(ObjectStoreWSGIApp):
         if sm_ref in aas.submodel:
             raise Conflict(f"{sm_ref!r} already exists!")
         aas.submodel.add(sm_ref)
+        self.object_store.commit(aas)
         created_resource_url = map_adapter.build(self.delete_aas_submodel_refs_specific, {
             "aas_id": aas.id,
             "submodel_id": sm_ref.key[0].value
@@ -606,6 +609,7 @@ class WSGIApp(ObjectStoreWSGIApp):
     ) -> Response:
         aas = self._get_shell(url_args)
         aas.submodel.remove(self._get_submodel_reference(aas, url_args["submodel_id"]))
+        self.object_store.commit(aas)
         return response_t()
 
     def put_aas_submodel_refs_submodel(
@@ -619,9 +623,11 @@ class WSGIApp(ObjectStoreWSGIApp):
         id_changed: bool = submodel.id != new_submodel.id
         # TODO: https://github.com/eclipse-basyx/basyx-python-sdk/issues/216
         submodel.update_from(new_submodel)
+        self.object_store.commit(submodel)
         if id_changed:
             aas.submodel.remove(sm_ref)
             aas.submodel.add(model.ModelReference.from_referable(submodel))
+            self.object_store.commit(aas)
         return response_t()
 
     def delete_aas_submodel_refs_submodel(
@@ -632,6 +638,7 @@ class WSGIApp(ObjectStoreWSGIApp):
         submodel = self._resolve_reference(sm_ref)
         self.object_store.remove(submodel)
         aas.submodel.remove(sm_ref)
+        self.object_store.commit(aas)
         return response_t()
 
     def aas_submodel_refs_redirect(
@@ -708,6 +715,7 @@ class WSGIApp(ObjectStoreWSGIApp):
     def put_submodel(self, request: Request, url_args: Dict, response_t: Type[APIResponse], **_kwargs) -> Response:
         submodel = self._get_submodel(url_args)
         submodel.update_from(HTTPApiDecoder.request_body(request, model.Submodel, is_stripped_request(request)))
+        self.object_store.commit(submodel)
         return response_t()
 
     def get_submodel_submodel_elements(
@@ -776,6 +784,7 @@ class WSGIApp(ObjectStoreWSGIApp):
                 f"SubmodelElement with idShort {new_submodel_element.id_short} already exists " f"within {parent}!"
             )
         submodel = self._get_submodel(url_args)
+        self.object_store.commit(submodel)
         id_short_path = url_args.get("id_shorts", [])
         created_resource_url = map_adapter.build(
             self.get_submodel_submodel_elements_id_short_path,
@@ -794,6 +803,7 @@ class WSGIApp(ObjectStoreWSGIApp):
             request, model.SubmodelElement, is_stripped_request(request)  # type: ignore[type-abstract]
         )
         submodel_element.update_from(new_submodel_element)
+        self.object_store.commit(self._get_submodel(url_args))
         return response_t()
 
     def delete_submodel_submodel_elements_id_short_path(
@@ -802,6 +812,7 @@ class WSGIApp(ObjectStoreWSGIApp):
         sm_or_se = self._get_submodel_or_nested_submodel_element(url_args)
         parent: model.UniqueIdShortNamespace = self._expect_namespace(sm_or_se.parent, sm_or_se.id_short)
         self._namespace_submodel_element_op(parent, parent.remove_referable, sm_or_se.id_short)
+        self.object_store.commit(self._get_submodel(url_args))
         return response_t()
 
     def get_submodel_submodel_element_attachment(self, request: Request, url_args: Dict, **_kwargs) -> Response:
@@ -854,6 +865,7 @@ class WSGIApp(ObjectStoreWSGIApp):
             )
 
         submodel_element.value = self.file_store.add_file(filename, file_storage.stream, submodel_element.content_type)
+        self.object_store.commit(self._get_submodel(url_args))
         return response_t()
 
     def delete_submodel_submodel_element_attachment(
@@ -876,6 +888,7 @@ class WSGIApp(ObjectStoreWSGIApp):
                 pass
             submodel_element.value = None
 
+        self.object_store.commit(self._get_submodel(url_args))
         return response_t()
 
     def get_submodel_submodel_element_qualifiers(
@@ -895,6 +908,7 @@ class WSGIApp(ObjectStoreWSGIApp):
         if sm_or_se.qualifier.contains_id("type", qualifier.type):
             raise Conflict(f"Qualifier with type {qualifier.type} already exists!")
         sm_or_se.qualifier.add(qualifier)
+        self.object_store.commit(self._get_submodel(url_args))
         created_resource_url = map_adapter.build(
             self.get_submodel_submodel_element_qualifiers,
             {
@@ -918,6 +932,7 @@ class WSGIApp(ObjectStoreWSGIApp):
             raise Conflict(f"A qualifier of type {new_qualifier.type!r} already exists for {sm_or_se!r}")
         sm_or_se.remove_qualifier_by_type(qualifier.type)
         sm_or_se.qualifier.add(new_qualifier)
+        self.object_store.commit(self._get_submodel(url_args))
         if qualifier_type_changed:
             created_resource_url = map_adapter.build(
                 self.get_submodel_submodel_element_qualifiers,
@@ -937,6 +952,7 @@ class WSGIApp(ObjectStoreWSGIApp):
         sm_or_se = self._get_submodel_or_nested_submodel_element(url_args)
         qualifier_type = url_args["qualifier_type"]
         self._qualifiable_qualifier_op(sm_or_se, sm_or_se.remove_qualifier_by_type, qualifier_type)
+        self.object_store.commit(self._get_submodel(url_args))
         return response_t()
 
     # --------- CONCEPT DESCRIPTION ROUTES ---------
@@ -976,6 +992,7 @@ class WSGIApp(ObjectStoreWSGIApp):
         concept_description.update_from(
             HTTPApiDecoder.request_body(request, model.ConceptDescription, is_stripped_request(request))
         )
+        self.object_store.commit(concept_description)
         return response_t()
 
     def delete_concept_description(
