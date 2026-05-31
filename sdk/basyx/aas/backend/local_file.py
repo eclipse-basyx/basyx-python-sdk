@@ -16,6 +16,7 @@ import logging
 import json
 import os
 import hashlib
+import tempfile
 import threading
 import warnings
 import weakref
@@ -94,6 +95,25 @@ class LocalFileIdentifiableStore(model.AbstractObjectStore[model.Identifier, mod
         except KeyError as e:
             raise KeyError("No Identifiable with id {} found in local file database".format(identifier)) from e
 
+    def _write_atomic(self, x: model.Identifiable) -> None:
+        """
+        Serialize x to a temp file in the store directory, then atomically replace the final file.
+
+        Using os.replace() (rename(2) on POSIX) ensures readers always see a complete file — never
+        a partially-written one from a crash or concurrent access mid-write.
+        """
+        final_path = "{}/{}.json".format(self.directory_path, self._transform_id(x.id))
+        tmp_fd, tmp_path = tempfile.mkstemp(dir=self.directory_path, suffix=".tmp")
+        try:
+            with os.fdopen(tmp_fd, "w") as tmp_file:
+                json.dump({"data": x}, tmp_file, cls=json_serialization.AASToJsonEncoder, indent=4)
+            os.replace(tmp_path, final_path)
+        # Catch all `Exception`s, as well as `KeyboardInterrupt` and `SystemExit` too, so the temp
+        # file is never left behind even if the process is being torn down:
+        except BaseException:
+            os.unlink(tmp_path)
+            raise
+
     def add(self, x: model.Identifiable) -> None:
         """
         Add an object to the store
@@ -103,10 +123,9 @@ class LocalFileIdentifiableStore(model.AbstractObjectStore[model.Identifier, mod
         logger.debug("Adding object %s to Local File Store ...", repr(x))
         if os.path.exists("{}/{}.json".format(self.directory_path, self._transform_id(x.id))):
             raise KeyError("Identifiable with id {} already exists in local file database".format(x.id))
-        with open("{}/{}.json".format(self.directory_path, self._transform_id(x.id)), "w") as file:
-            json.dump({"data": x}, file, cls=json_serialization.AASToJsonEncoder, indent=4)
-            with self._object_cache_lock:
-                self._object_cache[x.id] = x
+        self._write_atomic(x)
+        with self._object_cache_lock:
+            self._object_cache[x.id] = x
 
     def commit(self, x: model.Identifiable) -> None:
         """
@@ -117,8 +136,7 @@ class LocalFileIdentifiableStore(model.AbstractObjectStore[model.Identifier, mod
         """
         if not os.path.exists("{}/{}.json".format(self.directory_path, self._transform_id(x.id))):
             raise KeyError("No AAS object with id {} exists in local file database".format(x.id))
-        with open("{}/{}.json".format(self.directory_path, self._transform_id(x.id)), "w") as file:
-            json.dump({"data": x}, file, cls=json_serialization.AASToJsonEncoder, indent=4)
+        self._write_atomic(x)
 
     def discard(self, x: model.Identifiable) -> None:
         """
