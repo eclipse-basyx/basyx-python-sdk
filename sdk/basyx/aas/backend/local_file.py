@@ -32,6 +32,13 @@ class LocalFileIdentifiableStore(model.AbstractObjectStore[model.Identifier, mod
     """
     An ObjectStore implementation for :class:`~basyx.aas.model.base.Identifiable` BaSyx Python SDK objects backed
     by a local file based local backend
+
+    .. warning::
+        This backend is intended for development and testing only. It provides no
+        concurrency control across processes: concurrent writes to the same object
+        (e.g. under a multi-worker WSGI server) will silently overwrite each other,
+        with the last writer winning and no error raised. Use a dedicated database
+        backend for any production deployment.
     """
     def __init__(self, directory_path: str):
         """
