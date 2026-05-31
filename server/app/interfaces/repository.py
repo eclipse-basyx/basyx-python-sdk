@@ -783,8 +783,8 @@ class WSGIApp(ObjectStoreWSGIApp):
             raise Conflict(
                 f"SubmodelElement with idShort {new_submodel_element.id_short} already exists " f"within {parent}!"
             )
+        self.object_store.commit(self._get_submodel(url_args))
         submodel = self._get_submodel(url_args)
-        self.object_store.commit(submodel)
         id_short_path = url_args.get("id_shorts", [])
         created_resource_url = map_adapter.build(
             self.get_submodel_submodel_elements_id_short_path,
