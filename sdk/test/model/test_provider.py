@@ -55,6 +55,24 @@ class ProvidersTest(unittest.TestCase):
         self.assertIsInstance(identifiable_store1, model.DictIdentifiableStore)
         self.assertIn(self.aas2, identifiable_store1)
 
+    def test_store_sync(self) -> None:
+        aas_identifiable_store: model.DictIdentifiableStore[model.Identifiable] = model.DictIdentifiableStore()
+
+        self.assertEqual(aas_identifiable_store.sync([self.aas1, self.aas2], overwrite=False), (2, 0, 0))
+        self.assertIn(self.aas1, aas_identifiable_store)
+        self.assertIn(self.aas2, aas_identifiable_store)
+
+        self.assertEqual(aas_identifiable_store.sync([self.aas1], overwrite=False), (0, 0, 1))
+
+        self.assertEqual(aas_identifiable_store.sync([self.aas1], overwrite=True), (0, 1, 0))
+        self.assertIn(self.aas1, aas_identifiable_store)
+
+        self.assertEqual(aas_identifiable_store.sync([self.aas1, self.submodel1], overwrite=True), (1, 1, 0))
+
+        self.assertEqual(aas_identifiable_store.sync([self.aas1, self.submodel2], overwrite=False), (1, 0, 1))
+
+        self.assertEqual(aas_identifiable_store.sync([], overwrite=False), (0, 0, 0))
+
     def test_provider_multiplexer(self) -> None:
         aas_identifiable_store: model.DictIdentifiableStore[model.Identifiable] = (
             model.DictIdentifiableStore()
