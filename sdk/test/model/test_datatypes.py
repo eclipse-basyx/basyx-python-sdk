@@ -79,6 +79,21 @@ class TestIntTypes(unittest.TestCase):
             model.datatypes.trivial_cast("17", model.datatypes.Int)
         self.assertEqual("'17' cannot be trivially casted into Int", str(cm_2.exception))
 
+    def test_xsd_type_name_mapping(self) -> None:
+        # UnsignedInt was mapped to "xs:unsignedByte" and UnsignedByte was
+        # missing entirely, so deserializing valueType "xs:unsignedInt" raised
+        # KeyError and "xs:unsignedByte" resolved to the wrong class (#560).
+        self.assertEqual("xs:unsignedInt", model.datatypes.XSD_TYPE_NAMES[model.datatypes.UnsignedInt])
+        self.assertEqual("xs:unsignedByte", model.datatypes.XSD_TYPE_NAMES[model.datatypes.UnsignedByte])
+        self.assertIs(model.datatypes.UnsignedInt, model.datatypes.XSD_TYPE_CLASSES["xs:unsignedInt"])
+        self.assertIs(model.datatypes.UnsignedByte, model.datatypes.XSD_TYPE_CLASSES["xs:unsignedByte"])
+
+        # XSD_TYPE_CLASSES is the inverse of XSD_TYPE_NAMES; every type must
+        # round-trip, which also guarantees the names are unique.
+        for type_, name in model.datatypes.XSD_TYPE_NAMES.items():
+            self.assertIs(type_, model.datatypes.XSD_TYPE_CLASSES[name])
+        self.assertEqual(len(model.datatypes.XSD_TYPE_NAMES), len(model.datatypes.XSD_TYPE_CLASSES))
+
 
 class TestStringTypes(unittest.TestCase):
     def test_normalized_string(self) -> None:
