@@ -24,7 +24,7 @@ class ProvidersTest(unittest.TestCase):
     def test_store_retrieve(self) -> None:
         for store_class in self._STORE_CLASSES:
             with self.subTest(store=store_class.__name__):
-                store = store_class([self.aas1])
+                store: model.AbstractObjectStore[model.Identifier, model.Identifiable] = store_class([self.aas1])
                 store.add(self.aas2)
 
                 store.add(self.aas1)
@@ -56,9 +56,9 @@ class ProvidersTest(unittest.TestCase):
     def test_store_update(self) -> None:
         for store_class in self._STORE_CLASSES:
             with self.subTest(store=store_class.__name__):
-                store1 = store_class()
+                store1: model.AbstractObjectStore[model.Identifier, model.Identifiable] = store_class()
                 store1.add(self.aas1)
-                store2 = store_class()
+                store2: model.AbstractObjectStore[model.Identifier, model.Identifiable] = store_class()
                 store2.add(self.aas2)
                 store1.update(store2)
                 self.assertIsInstance(store1, store_class)
@@ -67,7 +67,7 @@ class ProvidersTest(unittest.TestCase):
     def test_store_sync(self) -> None:
         for store_class in self._STORE_CLASSES:
             with self.subTest(store=store_class.__name__):
-                store = store_class()
+                store: model.AbstractObjectStore[model.Identifier, model.Identifiable] = store_class()
                 self.assertEqual(store.sync([self.aas1, self.aas2], overwrite=False), (2, 0, 0))
                 self.assertIn(self.aas1, store)
                 self.assertIn(self.aas2, store)
@@ -86,7 +86,7 @@ class ProvidersTest(unittest.TestCase):
     def test_store_remove(self) -> None:
         for store_class in self._STORE_CLASSES:
             with self.subTest(store=store_class.__name__):
-                store = store_class()
+                store: model.AbstractObjectStore[model.Identifier, model.Identifiable] = store_class()
                 store.add(self.aas1)
                 store.remove(self.aas1)
                 self.assertEqual(0, len(store))
