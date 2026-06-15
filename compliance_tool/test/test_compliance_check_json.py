@@ -6,8 +6,8 @@
 # SPDX-License-Identifier: MIT
 import unittest
 from unittest import mock
-import logging
 
+from _test_helper import create_mock_effect
 from aas_compliance_tool import compliance_check_json as compliance_tool
 from aas_compliance_tool.state_manager import ComplianceToolStateManager, Status
 
@@ -31,10 +31,7 @@ class ComplianceToolJsonTest(unittest.TestCase):
     def test_check_deserialization_fail_on_error(self, mock_read_json_file, mock_open) -> None:
         manager = ComplianceToolStateManager()
 
-        def mock_error(*args, **kwargs):
-            logging.getLogger('basyx.aas.adapter.json.json_deserialization').error("Test error!")
-
-        mock_read_json_file.side_effect = mock_error
+        mock_read_json_file.side_effect = create_mock_effect('basyx.aas.adapter.json.json_deserialization', 'error')
         compliance_tool.check_deserialization("", manager)
 
         self.assertEqual(2, len(manager.steps))
@@ -47,10 +44,7 @@ class ComplianceToolJsonTest(unittest.TestCase):
     def test_check_deserialization_fail_on_warning(self, mock_read_json_file, mock_open) -> None:
         manager = ComplianceToolStateManager()
 
-        def mock_warning(*args, **kwargs):
-            logging.getLogger('basyx.aas.adapter.json.json_deserialization').warning("Test warning!")
-
-        mock_read_json_file.side_effect = mock_warning
+        mock_read_json_file.side_effect = create_mock_effect('basyx.aas.adapter.json.json_deserialization', 'warning')
         compliance_tool.check_deserialization("", manager)
 
         self.assertEqual(2, len(manager.steps))
@@ -63,10 +57,7 @@ class ComplianceToolJsonTest(unittest.TestCase):
     def test_check_deserialization_success(self, mock_read_json_file, mock_open) -> None:
         manager = ComplianceToolStateManager()
 
-        def mock_debugging(*args, **kwargs):
-            logging.getLogger('basyx.aas.adapter.json.json_deserialization').debug("Test info!")
-
-        mock_read_json_file.side_effect = mock_debugging
+        mock_read_json_file.side_effect = create_mock_effect('basyx.aas.adapter.json.json_deserialization', 'debug')
         compliance_tool.check_deserialization("", manager)
 
         self.assertEqual(2, len(manager.steps))
@@ -95,10 +86,7 @@ class ComplianceToolJsonTest(unittest.TestCase):
                                    mock_open: mock.MagicMock) -> None:
         manager = ComplianceToolStateManager()
 
-        def mock_error(*args, **kwargs):
-            logging.getLogger('basyx.aas.adapter.json.json_deserialization').error("Error on reading aas json file!")
-
-        mock_read_json_file.side_effect = mock_error
+        mock_read_json_file.side_effect = create_mock_effect('basyx.aas.adapter.json.json_deserialization', 'error', error_msg="Error on reading aas json file!")
         compliance_tool.check_aas_example("", manager)
 
         self.assertEqual(3, len(manager.steps))
@@ -134,7 +122,7 @@ class ComplianceToolJsonTest(unittest.TestCase):
         def mock_first_fails(*args, **kwargs):
             call_count[0] += 1
             if call_count[0] == 1:
-                logging.getLogger('basyx.aas.adapter.json.json_deserialization').error("Test error!")
+                create_mock_effect('basyx.aas.adapter.json.json_deserialization', 'error')(*args, **kwargs)
 
         mock_read_json_file.side_effect = mock_first_fails
         compliance_tool.check_json_files_equivalence("", "", manager)
@@ -157,7 +145,7 @@ class ComplianceToolJsonTest(unittest.TestCase):
         def mock_second_fails(*args, **kwargs):
             call_count[0] += 1
             if call_count[0] == 2:
-                logging.getLogger('basyx.aas.adapter.json.json_deserialization').error("Test error!")
+                create_mock_effect('basyx.aas.adapter.json.json_deserialization', 'error')(*args, **kwargs)
 
         mock_read_json_file.side_effect = mock_second_fails
         compliance_tool.check_json_files_equivalence("", "", manager)
