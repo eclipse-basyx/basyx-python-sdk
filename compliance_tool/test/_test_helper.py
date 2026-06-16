@@ -26,7 +26,7 @@ def create_example_aas_core_properties() -> pyecma376_2.OPCCoreProperties:
 def create_read_into_mock(file: Literal['TestFile', 'TestFileWrong', None]):
     """"Creates side effect function for the AASXReader.read_into mock"""
 
-    def fill_stores (store, file_store, **kwargs) -> None:
+    def fill_stores(store, file_store, **kwargs) -> None:
         for item in create_example_aas_binding():
             store.add(item)
 
@@ -36,6 +36,7 @@ def create_read_into_mock(file: Literal['TestFile', 'TestFileWrong', None]):
         elif file == 'TestFileWrong':
             file_store.add_file("/TestFile.pdf", io.BytesIO(b"dummy"), "application/pdf")
     return fill_stores
+
 
 def create_mock_effect(
         module: str,
@@ -54,4 +55,3 @@ def create_mock_effect(
             raise error_cls(error_msg)
 
     return mock_error
-

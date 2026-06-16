@@ -7,7 +7,7 @@
 import unittest
 from unittest import mock
 
-from _test_helper import create_mock_effect
+from ._test_helper import create_mock_effect
 from aas_compliance_tool import compliance_check_xml as compliance_tool
 from aas_compliance_tool.state_manager import ComplianceToolStateManager, Status
 
@@ -66,7 +66,8 @@ class ComplianceToolXmlTest(unittest.TestCase):
     @mock.patch("builtins.open")
     @mock.patch("basyx.aas.adapter.xml.xml_deserialization.read_aas_xml_file", autospec=True)
     @mock.patch("aas_compliance_tool.compliance_check_xml.AASDataChecker", autospec=True)
-    def test_check_example_success(self, mock_data_checker: mock.MagicMock, mock_read_xml_file: mock.MagicMock, mock_open: mock.MagicMock) -> None:
+    def test_check_example_success(self, mock_data_checker: mock.MagicMock, mock_read_xml_file: mock.MagicMock,
+                                   mock_open: mock.MagicMock) -> None:
         manager = ComplianceToolStateManager()
 
         mock_data_checker.return_value.checks = []
@@ -85,7 +86,8 @@ class ComplianceToolXmlTest(unittest.TestCase):
                                         mock_open: mock.MagicMock) -> None:
         manager = ComplianceToolStateManager()
 
-        mock_read_xml_file.side_effect = create_mock_effect('basyx.aas.adapter.xml.xml_deserialization', 'error', error_msg="Error on reading aas xml file!")
+        mock_read_xml_file.side_effect = create_mock_effect('basyx.aas.adapter.xml.xml_deserialization', 'error',
+                                                            error_msg="Error on reading aas xml file!")
         compliance_tool.check_aas_example("", manager)
 
         self.assertEqual(3, len(manager.steps))
@@ -114,10 +116,12 @@ class ComplianceToolXmlTest(unittest.TestCase):
     @mock.patch("builtins.open")
     @mock.patch("basyx.aas.adapter.xml.xml_deserialization.read_aas_xml_file", autospec=True)
     @mock.patch("aas_compliance_tool.compliance_check_xml.AASDataChecker", autospec=True)
-    def test_check_xml_files_equivalence_file1_fail_on_deserialization(self, mock_data_checker, mock_read_xml_file, mock_open) -> None:
+    def test_check_xml_files_equivalence_file1_fail_on_deserialization(self, mock_data_checker, mock_read_xml_file,
+                                                                       mock_open) -> None:
         manager = ComplianceToolStateManager()
 
         call_count = [0]
+
         def mock_first_fails(*args, **kwargs):
             call_count[0] += 1
             if call_count[0] == 1:
@@ -137,10 +141,12 @@ class ComplianceToolXmlTest(unittest.TestCase):
     @mock.patch("builtins.open")
     @mock.patch("basyx.aas.adapter.xml.xml_deserialization.read_aas_xml_file", autospec=True)
     @mock.patch("aas_compliance_tool.compliance_check_xml.AASDataChecker", autospec=True)
-    def test_check_xml_files_equivalence_file2_fail_on_deserialization(self, mock_data_checker, mock_read_xml_file, mock_open) -> None:
+    def test_check_xml_files_equivalence_file2_fail_on_deserialization(self, mock_data_checker, mock_read_xml_file,
+                                                                       mock_open) -> None:
         manager = ComplianceToolStateManager()
 
         call_count = [0]
+
         def mock_second_fails(*args, **kwargs):
             call_count[0] += 1
             if call_count[0] == 2:
@@ -177,7 +183,8 @@ class ComplianceToolXmlTest(unittest.TestCase):
     @mock.patch("builtins.open")
     @mock.patch("basyx.aas.adapter.xml.xml_deserialization.read_aas_xml_file", autospec=True)
     @mock.patch("aas_compliance_tool.compliance_check_xml.AASDataChecker", autospec=True)
-    def test_check_xml_files_equivalence_fail_on_check(self, mock_data_checker: mock.MagicMock, mock_read_xml_file, mock_open) -> None:
+    def test_check_xml_files_equivalence_fail_on_check(self, mock_data_checker: mock.MagicMock, mock_read_xml_file,
+                                                       mock_open) -> None:
         manager = ComplianceToolStateManager()
 
         mock_data_checker.return_value.checks = [CheckResult("Test failure", False, dict())]
