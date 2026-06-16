@@ -9,6 +9,8 @@ from basyx.aas.examples.data import create_example_aas_binding, TEST_PDF_FILE
 
 
 def create_example_aas_core_properties() -> pyecma376_2.OPCCoreProperties:
+    """Create core properties similar to the example AASX file."""
+
     cp = pyecma376_2.OPCCoreProperties()
     cp.created = datetime.datetime(2020, 1, 1, 0, 0, 0)
     cp.creator = "Eclipse BaSyx Python Testing Framework"
@@ -22,6 +24,8 @@ def create_example_aas_core_properties() -> pyecma376_2.OPCCoreProperties:
 
 
 def create_read_into_mock(file: Literal['TestFile', 'TestFileWrong', None]):
+    """"Creates side effect function for the AASXReader.read_into mock"""
+
     def fill_stores (store, file_store, **kwargs) -> None:
         for item in create_example_aas_binding():
             store.add(item)
@@ -39,6 +43,8 @@ def create_mock_effect(
         error_cls: Type[Exception] = ValueError,
         error_msg: Optional[str] = None
 ):
+    """Create mock function, that raises or logs error (based on `failsafe` argument)"""
+
     error_msg = error_msg or f"Test {level}!"
 
     def mock_error(*args, **kwargs):
