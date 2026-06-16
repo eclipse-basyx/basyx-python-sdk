@@ -55,8 +55,42 @@ class AASToJsonEncoder(json.JSONEncoder):
     :cvar stripped: If True, the JSON objects will be serialized in a stripped manner, excluding some attributes.
                     Defaults to ``False``.
                     See https://git.rwth-aachen.de/acplt/pyi40aas/-/issues/91
+    :cvar sort_arrays: If True, JSON arrays that originate from unordered Python sets are sorted by a stable key, so
+                       that the serialized output is deterministic across runs (Python sets have non-deterministic
+                       iteration order due to hash randomization). Defaults to ``False`` to preserve backward
+                       compatibility. Enabled via the ``sort_arrays`` parameter of :func:`write_aas_json_file` or
+                       :func:`object_store_to_json`.
     """
     stripped = False
+    sort_arrays = False
+
+    @classmethod
+    def _maybe_sort(cls, items: Iterable, key: Callable) -> list:
+        """
+        Return ``items`` as a list, sorted by ``key`` only if :attr:`sort_arrays` is enabled.
+
+        This is used for JSON arrays that originate from unordered Python sets. Sorting makes the serialized
+        output deterministic across runs; it is opt-in so that the default behavior remains unchanged.
+
+        :param items: The iterable (typically a set) to convert to a list.
+        :param key: Sort key callable, applied to each item when sorting is enabled.
+        :return: A list of the items, sorted iff :attr:`sort_arrays` is True.
+        """
+        if cls.sort_arrays:
+            return sorted(items, key=key)
+        return list(items)
+
+    @staticmethod
+    def _reference_sort_key(ref: model.Reference) -> list:
+        """
+        Stable sort key for a :class:`~basyx.aas.model.base.Reference`, derived from its structural ``key`` chain
+        rather than from ``str()``/``repr()``. This keeps the serialized order of set-valued reference attributes
+        (e.g. ``submodels``, ``isCaseOf``) independent of any future changes to the ``__repr__``/``__str__`` methods.
+
+        :param ref: The reference to derive a sort key for.
+        :return: A list of ``(key type name, key value)`` tuples, comparable across references.
+        """
+        return [(k.type.name, k.value) for k in ref.key]
 
     @classmethod
     def _get_aas_class_serializers(cls) -> Dict[Type, Callable]:
@@ -335,7 +369,7 @@ class AASToJsonEncoder(json.JSONEncoder):
         """
         data = cls._abstract_classes_to_json(obj)
         if obj.is_case_of:
-            data['isCaseOf'] = list(obj.is_case_of)
+            data['isCaseOf'] = cls._maybe_sort(obj.is_case_of, key=cls._reference_sort_key)
         return data
 
     @classmethod
@@ -390,7 +424,7 @@ class AASToJsonEncoder(json.JSONEncoder):
         if obj.asset_information:
             data["assetInformation"] = obj.asset_information
         if not cls.stripped and obj.submodel:
-            data["submodels"] = list(obj.submodel)
+            data["submodels"] = cls._maybe_sort(obj.submodel, key=cls._reference_sort_key)
         return data
 
     # #################################################################
@@ -687,22 +721,29 @@ class StrippedAASToJsonEncoder(AASToJsonEncoder):
     stripped = True
 
 
-def _select_encoder(stripped: bool, encoder: Optional[Type[AASToJsonEncoder]] = None) -> Type[AASToJsonEncoder]:
+def _select_encoder(stripped: bool, encoder: Optional[Type[AASToJsonEncoder]] = None,
+                    sort_arrays: bool = False) -> Type[AASToJsonEncoder]:
     """
     Returns the correct encoder based on the stripped parameter. If an encoder class is given, stripped is ignored.
 
     :param stripped: If true, an encoder for parsing stripped JSON objects is selected. Ignored if an encoder class is
                      specified.
     :param encoder: Is returned, if specified.
+    :param sort_arrays: If true, a subclass of the selected encoder with :attr:`~.AASToJsonEncoder.sort_arrays`
+                        enabled is returned, so that arrays originating from unordered sets are serialized in a
+                        deterministic order. This wrapping is applied even when a custom ``encoder`` is given.
     :return: A AASToJsonEncoder (sub)class.
     """
-    if encoder is not None:
-        return encoder
-    return AASToJsonEncoder if not stripped else StrippedAASToJsonEncoder
+    encoder_ = encoder if encoder is not None \
+        else (StrippedAASToJsonEncoder if stripped else AASToJsonEncoder)
+    if sort_arrays and not encoder_.sort_arrays:
+        return type("Sorting" + encoder_.__name__, (encoder_,), {"sort_arrays": True})
+    return encoder_
 
 
 def _create_dict(data: model.AbstractObjectStore,
-                 keys_to_types: Iterable[Tuple[str, Type]] = JSON_AAS_TOP_LEVEL_KEYS_TO_TYPES) \
+                 keys_to_types: Iterable[Tuple[str, Type]] = JSON_AAS_TOP_LEVEL_KEYS_TO_TYPES,
+                 sort: bool = False) \
         -> Dict[str, List[model.Identifiable]]:
     """
     Categorizes objects from an AbstractObjectStore into a dictionary based on their types.
@@ -715,6 +756,10 @@ def _create_dict(data: model.AbstractObjectStore,
     :param keys_to_types: An iterable of tuples where each tuple contains:
                           - A string key representing the category name.
                           - A type to match objects against.
+    :param sort: If True, each output list is sorted by ``str(obj.id)``, so that the top-level arrays
+                 ("assetAdministrationShells", "submodels", "conceptDescriptions") have deterministic order
+                 across runs (an AbstractObjectStore is backed by an unordered Python set). Defaults to False
+                 to preserve backward compatibility.
     :return: A dictionary where keys are category names and values are lists of objects of the corresponding types.
     """
     objects: Dict[str, List[model.Identifiable]] = {}
@@ -728,11 +773,14 @@ def _create_dict(data: model.AbstractObjectStore,
                 objects.setdefault(name, [])
                 objects[name].append(obj)
                 break  # Exit the inner loop once a match is found
+    if sort:
+        for object_list in objects.values():
+            object_list.sort(key=lambda o: str(o.id))
     return objects
 
 
 def object_store_to_json(data: model.AbstractObjectStore, stripped: bool = False,
-                         encoder: Optional[Type[AASToJsonEncoder]] = None, **kwargs) -> str:
+                         encoder: Optional[Type[AASToJsonEncoder]] = None, sort_arrays: bool = False, **kwargs) -> str:
     """
     Create a json serialization of a set of AAS objects according to 'Details of the Asset Administration Shell',
     chapter 5.5
@@ -743,11 +791,15 @@ def object_store_to_json(data: model.AbstractObjectStore, stripped: bool = False
                      See https://git.rwth-aachen.de/acplt/pyi40aas/-/issues/91
                      This parameter is ignored if an encoder class is specified.
     :param encoder: The encoder class used to encode the JSON objects
+    :param sort_arrays: If True, JSON arrays that originate from unordered Python sets (the top-level object lists as
+                        well as set-valued attributes like ``submodel`` and ``isCaseOf``) are sorted by a stable key,
+                        so that the serialized output is deterministic across runs. Defaults to False to preserve
+                        backward compatibility. Independent of the ``sort_keys`` argument passed to :func:`json.dumps`.
     :param kwargs: Additional keyword arguments to be passed to :func:`json.dumps`
     """
-    encoder_ = _select_encoder(stripped, encoder)
+    encoder_ = _select_encoder(stripped, encoder, sort_arrays=sort_arrays)
     # serialize object to json
-    return json.dumps(_create_dict(data), cls=encoder_, **kwargs)
+    return json.dumps(_create_dict(data, sort=sort_arrays), cls=encoder_, **kwargs)
 
 
 class _DetachingTextIOWrapper(io.TextIOWrapper):
@@ -759,7 +811,7 @@ class _DetachingTextIOWrapper(io.TextIOWrapper):
 
 
 def write_aas_json_file(file: _generic.PathOrIO, data: model.AbstractObjectStore, stripped: bool = False,
-                        encoder: Optional[Type[AASToJsonEncoder]] = None, **kwargs) -> None:
+                        encoder: Optional[Type[AASToJsonEncoder]] = None, sort_arrays: bool = False, **kwargs) -> None:
     """
     Write a set of AAS objects to an Asset Administration Shell JSON file according to 'Details of the Asset
     Administration Shell', chapter 5.5
@@ -771,9 +823,13 @@ def write_aas_json_file(file: _generic.PathOrIO, data: model.AbstractObjectStore
                      See https://git.rwth-aachen.de/acplt/pyi40aas/-/issues/91
                      This parameter is ignored if an encoder class is specified.
     :param encoder: The encoder class used to encode the JSON objects
+    :param sort_arrays: If True, JSON arrays that originate from unordered Python sets (the top-level object lists as
+                        well as set-valued attributes like ``submodel`` and ``isCaseOf``) are sorted by a stable key,
+                        so that the serialized output is deterministic across runs. Defaults to False to preserve
+                        backward compatibility. Independent of the ``sort_keys`` argument passed to :func:`json.dump`.
     :param kwargs: Additional keyword arguments to be passed to `json.dump()`
     """
-    encoder_ = _select_encoder(stripped, encoder)
+    encoder_ = _select_encoder(stripped, encoder, sort_arrays=sort_arrays)
 
     # json.dump() only accepts TextIO
     cm: ContextManager[TextIO]
@@ -791,4 +847,4 @@ def write_aas_json_file(file: _generic.PathOrIO, data: model.AbstractObjectStore
 
     # serialize object to json
     with cm as fp:
-        json.dump(_create_dict(data), fp, cls=encoder_, **kwargs)
+        json.dump(_create_dict(data, sort=sort_arrays), fp, cls=encoder_, **kwargs)
