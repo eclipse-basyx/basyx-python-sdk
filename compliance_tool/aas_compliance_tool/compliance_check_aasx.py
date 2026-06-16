@@ -229,6 +229,8 @@ def check_aasx_files_equivalence(file_path_1: str, file_path_2: str, state_manag
         state_manager.set_step_status(Status.NOT_EXECUTED)
         state_manager.add_step('Check if core properties are equal')
         state_manager.set_step_status(Status.NOT_EXECUTED)
+        state_manager.add_step('Check if supplementary files are equal')
+        state_manager.set_step_status(Status.NOT_EXECUTED)
         return
 
     checker = AASDataChecker(raise_immediately=False, **kwargs)
@@ -240,12 +242,16 @@ def check_aasx_files_equivalence(file_path_1: str, file_path_2: str, state_manag
         logger.error(error)
         state_manager.add_step('Check if core properties are equal')
         state_manager.set_step_status(Status.NOT_EXECUTED)
+        state_manager.add_step('Check if supplementary files are equal')
+        state_manager.set_step_status(Status.NOT_EXECUTED)
         return
 
     state_manager.add_log_records_from_data_checker(checker)
 
     if state_manager.status >= Status.FAILED:
         state_manager.add_step('Check if core properties are equal')
+        state_manager.set_step_status(Status.NOT_EXECUTED)
+        state_manager.add_step('Check if supplementary files are equal')
         state_manager.set_step_status(Status.NOT_EXECUTED)
         return
 
@@ -271,3 +277,27 @@ def check_aasx_files_equivalence(file_path_1: str, file_path_2: str, state_manag
     checker2.check(cp_1.version == cp_2.version, "version must be {}".format(cp_2.version), version=cp_1.version)
     checker2.check(cp_1.title == cp_2.title, "title must be {}".format(cp_2.title), title=cp_1.title)
     state_manager.add_log_records_from_data_checker(checker2)
+
+    state_manager.add_step('Check if supplementary files are equal')
+
+    file_checker = DataChecker(raise_immediately=False)
+    for file_name in files_1:
+        both_contain = file_checker.check(file_name in files_2,
+                                           "second file must contain supplementary file {}".format(file_name))
+        if both_contain:
+            expected_type = files_1.get_content_type(file_name)
+            file_checker.check(expected_type == files_2.get_content_type(file_name),
+                                "second file must contain supplementary file {} with content-type {}".format(file_name,
+                                                                                                             expected_type),
+                                content_type=files_2.get_content_type(file_name))
+            expected_checksum = files_1.get_sha256(file_name)
+            file_checker.check(expected_checksum == files_2.get_sha256(file_name),
+                                "second file must contain supplementary file {} with sha256 {}".format(file_name,
+                                                                                                       expected_checksum),
+                                checksum=files_2.get_sha256(file_name))
+
+    for file_name in files_2:
+        file_checker.check(file_name in files_1,
+                       "first file must contain supplementary file {}".format(file_name))
+
+    state_manager.add_log_records_from_data_checker(file_checker)
