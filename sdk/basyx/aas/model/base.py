@@ -383,11 +383,11 @@ class ConstrainedLangStringSet(LangStringSet, metaclass=abc.ABCMeta):
 
 class MultiLanguageNameType(ConstrainedLangStringSet):
     """
-    A :class:`~.ConstrainedLangStringSet` where each value is a :class:`ShortNameType`.
-    See also: :func:`basyx.aas.model._string_constraints.check_short_name_type`
+    A :class:`~.ConstrainedLangStringSet` where each value is a :class:`NameType`.
+    See also: :func:`basyx.aas.model._string_constraints.check_name_type`
     """
     def __init__(self, dict_: Dict[str, str]):
-        super().__init__(dict_, _string_constraints.check_short_name_type)
+        super().__init__(dict_, _string_constraints.check_name_type)
 
 
 class MultiLanguageTextType(ConstrainedLangStringSet):

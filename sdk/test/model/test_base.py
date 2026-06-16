@@ -1286,15 +1286,15 @@ class LangStringSetTest(unittest.TestCase):
 
     def test_text_constraints(self) -> None:
         with self.assertRaises(ValueError) as cm:
-            model.MultiLanguageNameType({"fo": "o" * 65})
+            model.MultiLanguageNameType({"fo": "o" * 129})
         self.assertEqual("The text for the language tag 'fo' is invalid: MultiLanguageNameType has a maximum length of "
-                         "64! (length: 65)", str(cm.exception))
-        mlnt = model.MultiLanguageNameType({"fo": "o" * 64})
+                         "128! (length: 129)", str(cm.exception))
+        mlnt = model.MultiLanguageNameType({"fo": "o" * 128})
         with self.assertRaises(ValueError) as cm:
             mlnt["fo"] = ""
         self.assertEqual("The text for the language tag 'fo' is invalid: MultiLanguageNameType has a minimum length of "
                          "1! (length: 0)", str(cm.exception))
-        self.assertEqual(mlnt["fo"], "o" * 64)
+        self.assertEqual(mlnt["fo"], "o" * 128)
         mlnt["fo"] = "o"
         self.assertEqual(mlnt["fo"], "o")
 

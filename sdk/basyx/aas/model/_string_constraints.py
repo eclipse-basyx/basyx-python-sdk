@@ -21,7 +21,6 @@ The following types aliased in the :mod:`~basyx.aas.model.base` module are const
 - :class:`~basyx.aas.model.base.NameType`
 - :class:`~basyx.aas.model.base.PathType`
 - :class:`~basyx.aas.model.base.RevisionType`
-- :class:`~basyx.aas.model.base.ShortNameType`
 - :class:`~basyx.aas.model.base.QualifierType`
 - :class:`~basyx.aas.model.base.VersionType`
 - :class:`~basyx.aas.model.base.ValueTypeIEC61360`
@@ -95,10 +94,6 @@ def check_revision_type(value: str, type_name: str = "RevisionType") -> None:
     return check(value, type_name, 1, 4, re.compile(r"([0-9]|[1-9][0-9]*)"))
 
 
-def check_short_name_type(value: str, type_name: str = "ShortNameType") -> None:
-    return check(value, type_name, 1, 64)
-
-
 def check_value_type_iec61360(value: str, type_name: str = "ValueTypeIEC61360") -> None:
     return check(value, type_name, 1, 2048)
 
@@ -116,7 +111,7 @@ def create_check_function(min_length: int = 0, max_length: Optional[int] = None,
     This is the type-independent alternative to :func:`~.check_content_type`, :func:`~.check_identifier`, etc. It is
     used for the definition of the :class:`ConstrainedLangStringSets <basyx.aas.model.base.ConstrainedLangStringSet>`,
     as a "Basic" constrained string type only exists for :class:`~basyx.aas.model.base.MultiLanguageNameType`, where all
-    values are :class:`ShortNames <basyx.aas.model.base.ShortNameType>`. All other
+    values are :class:`NameTypes <basyx.aas.model.base.NameType>`. All other
     :class:`:class:`ConstrainedLangStringSets <basyx.aas.model.base.ConstrainedLangStringSet>` use custom constraints.
     """
     def check_fn(value: str, type_name: str) -> None:
@@ -175,10 +170,6 @@ def constrain_qualifier_type(pub_attr_name: str) -> Callable[[Type[_T]], Type[_T
 
 def constrain_revision_type(pub_attr_name: str) -> Callable[[Type[_T]], Type[_T]]:
     return constrain_attr(pub_attr_name, check_revision_type)
-
-
-def constrain_short_name_type(pub_attr_name: str) -> Callable[[Type[_T]], Type[_T]]:
-    return constrain_attr(pub_attr_name, check_short_name_type)
 
 
 def constrain_version_type(pub_attr_name: str) -> Callable[[Type[_T]], Type[_T]]:
